@@ -154,7 +154,13 @@ export function refreshAccessToken(): Promise<string | null> {
           refreshInFlight = null;
         });
       }
-      _onRefreshed(data.access_token, data.expires_in);
+      try {
+        _onRefreshed(data.access_token, data.expires_in);
+      } catch {
+        // A throwing auth-layer handler must not invalidate a cookie rotation
+        // that already succeeded on the backend: it would reject the shared
+        // promise and force-logout every awaiting caller.
+      }
       return data.access_token;
     })();
   }

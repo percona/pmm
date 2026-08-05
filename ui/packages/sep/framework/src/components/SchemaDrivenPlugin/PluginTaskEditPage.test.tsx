@@ -399,4 +399,45 @@ describe('normalizeChoiceDefaults', () => {
     const result = normalizeChoiceDefaults({ upload: ['RSYNC'] }, sections);
     expect(result.upload).toEqual(['RSYNC']);
   });
+
+  it('normalizes a one-of branch field stored at its dotted path', () => {
+    const oneOfSections = [
+      {
+        title: 'Source',
+        fields: [
+          {
+            type: 'one_of' as const,
+            name: 'source',
+            label: 'Source',
+            discriminator: 'source.mode',
+            branches: [
+              {
+                value: 'rsync',
+                label: 'Rsync',
+                fields: [
+                  {
+                    type: 'choice' as const,
+                    name: 'source.transport',
+                    label: 'Transport',
+                    required: false,
+                    choices: [
+                      { value: 'SSH', label: 'SSH' },
+                      { value: 'DAEMON', label: 'Daemon' },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const form = { source: { mode: 'rsync', transport: 'ssh' } };
+
+    const result = normalizeChoiceDefaults(form, oneOfSections);
+
+    expect(result.source).toEqual({ mode: 'rsync', transport: 'SSH' });
+    // The input is not mutated: `setAtPath` clones the intermediates it walks.
+    expect(form.source.transport).toBe('ssh');
+  });
 });

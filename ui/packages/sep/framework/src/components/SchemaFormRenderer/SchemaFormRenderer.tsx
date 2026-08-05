@@ -359,9 +359,6 @@ function SchemaFormBody({
   const hasInlineErrors = Object.keys(formState.errors).length > 0;
 
   const handleFormSubmit: SubmitHandler<Record<string, unknown>> = (values) => {
-    if (hasSectionViolations) {
-      return;
-    }
     onSubmit(coerceFormValues(values, allFields));
   };
 
@@ -371,9 +368,17 @@ function SchemaFormBody({
   // gets a setError entry that no input can ever clear; handleSubmit refuses to
   // call onValid while any error remains, which would wedge resubmission.
   // Those errors stay visible in the persistent banner regardless. Defined
-  // inline (not memoized) so it always wraps the latest handleFormSubmit, which
-  // closes over the current cardinality / fail_when violation state.
+  // inline (not memoized) so it always sees the current cardinality /
+  // fail_when violation state and the latest handleFormSubmit.
   const handleSubmitEvent = (event: FormEvent<HTMLFormElement>) => {
+    if (hasSectionViolations) {
+      // Section-level rules render their own inline Alerts. Stop before
+      // react-hook-form runs, so it never flags the submit as successful —
+      // that would disarm `useUnsavedChangesGuard` (isDirty && !isSubmitSuccessful)
+      // for good on this path, since no submitError ever arrives to re-arm it.
+      event.preventDefault();
+      return;
+    }
     if (appliedServerErrorPaths.current.length > 0) {
       clearErrors(appliedServerErrorPaths.current);
       appliedServerErrorPaths.current = [];

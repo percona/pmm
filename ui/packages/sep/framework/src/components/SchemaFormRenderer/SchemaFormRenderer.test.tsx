@@ -248,7 +248,12 @@ describe('SchemaFormRenderer — field rendering', () => {
     expect(screen.getByLabelText(/Notes/)).toBeInTheDocument();
     expect(screen.getByLabelText(/When/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Config/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Upload/)).toBeInTheDocument();
+    // Exact match: the file picker button carries its own accessible name
+    // ("Select file for Upload"), which a /Upload/ pattern would also match.
+    expect(screen.getByLabelText('Upload')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Select file for Upload' })
+    ).toBeInTheDocument();
     // ServiceSelector / SchemaSelector / TableSelector / HostSelector use
     // percona-ui's AutoCompleteInput which renders a TextField — assert by label.
     expect(screen.getByLabelText('Table')).toBeInTheDocument();
@@ -1394,6 +1399,44 @@ describe('SchemaFormRenderer — cardinality_rules', () => {
     // Both empty → violation active → submit blocked
     await user.click(screen.getByRole('button', { name: /Run/ }));
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('keeps the unsaved-changes guard armed when a violation blocks submission', async () => {
+    const user = userEvent.setup();
+    const removeEventListener = vi.spyOn(window, 'removeEventListener');
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Source',
+            cardinality_rules: [
+              { fields: ['a', 'b'], min: 1, max: 1, message: 'Exactly one.' },
+            ],
+            fields: [
+              { type: 'string', name: 'a', label: 'A' },
+              { type: 'string', name: 'b', label: 'B' },
+            ],
+          },
+        ]}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    // Dirty the form, then trip the max=1 violation so the submit is blocked.
+    await user.type(screen.getByLabelText('A'), 'one');
+    await user.type(screen.getByLabelText('B'), 'two');
+    removeEventListener.mockClear();
+
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+
+    // A blocked submit must not read as a successful one: react-hook-form would
+    // set isSubmitSuccessful, `useUnsavedChangesGuard` would go false, and its
+    // cleanup would drop the beforeunload listener while the form is still dirty.
+    expect(removeEventListener).not.toHaveBeenCalledWith(
+      'beforeunload',
+      expect.any(Function)
+    );
+    removeEventListener.mockRestore();
   });
 
   it('allows submission when cardinality is satisfied', async () => {

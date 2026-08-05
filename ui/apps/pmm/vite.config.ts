@@ -28,11 +28,12 @@ const target =
   (hasNginxCerts ? 'https://localhost:8443' : 'https://localhost');
 
 // SEP backend. The dev server proxies SEP's API paths to it so the migrated SEP
-// plugins get real data. Interim auth (Option D): if SEP_INTERNAL_TOKEN is set,
-// inject it server-side as a Bearer token so no secret reaches the browser.
+// plugins get real data. Interim auth (Option D): if PMM_DEV_SEP_INTERNAL_TOKEN
+// is set, inject it server-side as a Bearer token so no secret reaches the
+// browser. Both variables are dev-server-only, hence the PMM_DEV_ prefix.
 // Replaced by the token-exchange provider (Option B) later — see src/sep/bootstrap.ts.
-const sepBackendUrl = env.SEP_BACKEND_URL || 'http://localhost:8000';
-const sepInternalToken = env.SEP_INTERNAL_TOKEN;
+const sepBackendUrl = env.PMM_DEV_SEP_BACKEND_URL || 'http://localhost:8000';
+const sepInternalToken = env.PMM_DEV_SEP_INTERNAL_TOKEN;
 const sepProxy = () => ({
   target: sepBackendUrl,
   secure: false,

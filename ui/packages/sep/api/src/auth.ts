@@ -85,7 +85,8 @@ export async function postSession(): Promise<SPAOAuthTokenResponse> {
  * `expires_in` elapses. A 401 means "no valid ambient session".
  *
  * This is the endpoint the PMM-embedded token provider will call to replace
- * the interim `SEP_INTERNAL_TOKEN` wiring in `apps/pmm/src/sep/bootstrap.ts`,
+ * the interim `PMM_DEV_SEP_INTERNAL_TOKEN` wiring in
+ * `apps/pmm/src/sep/bootstrap.ts`,
  * whose service principal hardcodes `is_admin = False`.
  */
 export async function postSessionExchange(): Promise<SessionExchangeTokenResponse> {

@@ -16,7 +16,7 @@
  */
 
 import { useEffect, useRef } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { get, useFormContext } from 'react-hook-form';
 import { AutoCompleteInput } from '@percona/percona-ui';
 import { useSnackbar } from 'notistack';
 import { useHosts, type HostOption } from '../../hooks/useHosts';
@@ -157,7 +157,9 @@ export function HostSelector({
 
   const empty = !isLoading && !isError && hosts.length === 0;
 
-  const fieldError = errors[name]?.message as string | undefined;
+  // Path-aware: a one-of branch field carries a dotted name (`source.host`),
+  // which `errors[name]` would never resolve.
+  const fieldError = get(errors, name)?.message as string | undefined;
 
   // Surface a hosts-query failure (e.g. an upstream Tasks-API 502) via the
   // shell's snackbar. React Query keeps the `error` object identity stable

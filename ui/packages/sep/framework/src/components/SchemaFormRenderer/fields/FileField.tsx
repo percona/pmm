@@ -60,7 +60,12 @@ export function FileField({ field }: FileFieldProps) {
               readOnly: true,
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton component="label" htmlFor={inputId} edge="end">
+                  <IconButton
+                    aria-label={`Select file for ${field.label}`}
+                    component="label"
+                    htmlFor={inputId}
+                    edge="end"
+                  >
                     <AttachFileIcon fontSize="small" />
                     <input
                       id={inputId}

@@ -108,7 +108,7 @@ describe('StandaloneHostSelector', () => {
     expect(handleChange).toHaveBeenCalledWith('');
   });
 
-  it('disables the input and shows error text when the endpoint rejects', async () => {
+  it('shows error text but stays enabled when the endpoint rejects, so opening retries', async () => {
     mocked.get.mockRejectedValueOnce(
       new ApiError({ kind: 'http', status: 502, message: 'network error' })
     );
@@ -120,7 +120,22 @@ describe('StandaloneHostSelector', () => {
     );
 
     await screen.findByText('network error');
-    expect(screen.getByLabelText('Execution Host')).toBeDisabled();
+    const input = screen.getByLabelText('Execution Host');
+    // `onOpen` holds the only retry trigger, so a disabled input would wedge the
+    // control until the page remounts.
+    expect(input).not.toBeDisabled();
+
+    mocked.get.mockResolvedValueOnce(
+      makeResponse([
+        { id: 'nomad-1', name: 'db-mysql-prod-01', address: '10.0.0.1' },
+      ])
+    );
+    const user = userEvent.setup();
+    await user.click(input);
+
+    expect(
+      await screen.findByRole('option', { name: 'db-mysql-prod-01' })
+    ).toBeInTheDocument();
   });
 
   it('surfaces upstream Tasks-API failure via snackbar', async () => {

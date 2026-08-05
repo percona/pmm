@@ -125,6 +125,24 @@ describe('SchemaListView — renderListColumn override', () => {
     // delete control still rendered by the bespoke actions branch
     expect(screen.getAllByLabelText('Delete').length).toBe(rows.length);
   });
+
+  it('renders the em dash for a row missing a declared column key', () => {
+    const datedListView: ListView = {
+      columns: [
+        { key: 'name', label: 'Name' },
+        { key: 'created_at', label: 'Created', format: 'date' },
+        { key: 'seen_at', label: 'Seen', format: 'relative' },
+        { key: 'kind', label: 'Kind', format: 'chip' },
+      ],
+    };
+    // A server-supplied schema can declare a column the row omits, which used
+    // to render as the literal 'undefined' / 'Invalid Date' / 'NaNd ago'.
+    render(<SchemaListView listView={datedListView} data={[{ id: 1 }]} />);
+
+    expect(screen.queryByText('undefined')).toBeNull();
+    expect(screen.queryByText('Invalid Date')).toBeNull();
+    expect(screen.getAllByText('—').length).toBe(4);
+  });
 });
 
 const NOW = new Date('2026-06-18T12:00:00Z');

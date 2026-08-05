@@ -76,7 +76,10 @@ export function StandaloneHostSelector({
       loading={isLoading}
       loadingText="Loading hosts…"
       noOptionsText="No hosts available"
-      disabled={disabled || isError}
+      // Stays enabled on a failed hosts query: `onOpen` holds the only retry
+      // trigger, and a disabled Autocomplete never opens — one failure would
+      // otherwise wedge the control until the page remounts.
+      disabled={disabled}
       renderInput={(params) => (
         <TextField
           {...params}

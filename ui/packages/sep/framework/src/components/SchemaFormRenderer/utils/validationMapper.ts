@@ -58,6 +58,22 @@ export function buildValidationRules(field: PluginField): RegisterOptions {
     }
     case 'integer':
     case 'float': {
+      // Reject non-numeric and (for integers) fractional input before
+      // coercion: `coerceFormValues` used to truncate '2.5' to 2 and '3.14abc'
+      // to 3.14, sending a value the user never typed.
+      rules.validate = (value: unknown) => {
+        if (value === '' || value === null || value === undefined) {
+          return true;
+        }
+        const numericValue = Number(value);
+        if (!Number.isFinite(numericValue)) {
+          return 'Enter a valid number';
+        }
+        if (field.type === 'integer' && !Number.isInteger(numericValue)) {
+          return 'Enter a whole number';
+        }
+        return true;
+      };
       if (field.ge !== undefined) {
         rules.min = {
           value: field.ge,
@@ -122,11 +138,14 @@ export function coerceFormValues(
         setAtPath(out, field.name, undefined);
         continue;
       }
-      const num =
-        field.type === 'integer'
-          ? parseInt(String(raw), 10)
-          : parseFloat(String(raw));
-      setAtPath(out, field.name, Number.isNaN(num) ? raw : num);
+      // `Number` (not parseInt/parseFloat) so partly-numeric input stays raw
+      // instead of being silently truncated; the field's validate rule rejects
+      // it before submit.
+      const num = Number(raw);
+      const valid =
+        Number.isFinite(num) &&
+        (field.type !== 'integer' || Number.isInteger(num));
+      setAtPath(out, field.name, valid ? num : raw);
       continue;
     }
     if (

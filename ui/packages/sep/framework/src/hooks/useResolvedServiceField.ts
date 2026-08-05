@@ -47,6 +47,14 @@ export interface ResolvedServiceField {
    * parent as missing.
    */
   isResolving: boolean;
+  /**
+   * True when the bounded ``useServices`` fetch failed. ``service`` stays
+   * undefined and ``isResolving`` is false, so callers need this to tell a
+   * failed lookup apart from an id that matched no service.
+   */
+  isError: boolean;
+  /** Error from the bounded ``useServices`` fetch, when it failed. */
+  error: Error | null;
 }
 
 /**
@@ -77,7 +85,12 @@ export function useResolvedServiceField(
     : extractId(parent);
   // Require length > 0: ``[]`` normalises in useServices to an unbound fetch.
   const enabled = unresolvedServiceId !== null && Boolean(types?.length);
-  const { data: services = EMPTY_SERVICES, isFetched } = useServices({
+  const {
+    data: services = EMPTY_SERVICES,
+    isFetched,
+    isError,
+    error,
+  } = useServices({
     serviceTypes: types,
     enabled,
   });
@@ -93,5 +106,7 @@ export function useResolvedServiceField(
     service,
     resetKey: cascadeParentResetKey(parent),
     isResolving: enabled && !isFetched,
+    isError: enabled && isError,
+    error: enabled ? (error ?? null) : null,
   };
 }

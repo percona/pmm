@@ -247,7 +247,10 @@ function PluginEditPage({
         onSubmit: handleSubmit,
         loading: updateEntity.isPending,
         defaultValues,
+        capabilities: schema.capabilities,
         renderField,
+        submitError,
+        fieldErrors,
       }) ?? (
         <SchemaFormRenderer
           sections={sections}

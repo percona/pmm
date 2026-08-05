@@ -5,7 +5,11 @@ import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
 import { Advisor } from 'types/advisors.types';
 import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import {
+  PMM_NEW_NAV_GRAFANA_PATH,
+  SEP_ATW_PATH,
+  SEP_MYSQL_BACKUPS_PATH,
+} from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
   NAV_ACCOUNT,
@@ -302,14 +306,14 @@ export const addSepApps = (): NavItem[] => [
     id: 'sep-atw',
     text: 'Collect Diagnostic Data',
     icon: MonitorHeartIcon,
-    url: '/sep/atw',
-    matches: ['/sep/atw'],
+    url: SEP_ATW_PATH,
+    matches: [SEP_ATW_PATH],
   },
   {
     id: 'sep-mysql-backups',
     text: 'MySQL Backups',
     icon: MySqlIcon,
-    url: '/sep/mysql-backups',
-    matches: ['/sep/mysql-backups'],
+    url: SEP_MYSQL_BACKUPS_PATH,
+    matches: [SEP_MYSQL_BACKUPS_PATH],
   },
 ];

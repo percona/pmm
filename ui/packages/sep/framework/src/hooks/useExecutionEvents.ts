@@ -45,6 +45,9 @@ export interface ExecutionEventsState {
 
 const STEPLESS_KEY = '';
 
+/** Consecutive transient stream failures tolerated before giving up. */
+const MAX_TRANSIENT_STREAM_FAILURES = 5;
+
 // See useTaskLogs.ts for the rationale behind these local sentinel classes.
 class StreamRetriableAfterRefresh extends Error {}
 class StreamFatalError extends Error {}
@@ -139,6 +142,9 @@ export function useExecutionEvents(
     // Tracks intentional terminal events (finish / sep-error) so onclose can
     // distinguish a clean shutdown from an unexpected connection drop.
     let terminatedCleanly = false;
+    // Consecutive transient failures, reset on every successful open. Bounds the
+    // otherwise-infinite fetchEventSource retry loop.
+    let transientFailures = 0;
 
     fetchEventSource(`/stream-logs/${idStr}/execution-events`, {
       signal: ctrl.signal,
@@ -156,6 +162,7 @@ export function useExecutionEvents(
         const contentType = response.headers.get('content-type') ?? '';
         if (response.ok && contentType.includes(EventStreamContentType)) {
           refreshAttempted = false;
+          transientFailures = 0;
           return;
         }
         let isAuthFailure = false;
@@ -239,10 +246,27 @@ export function useExecutionEvents(
           // State already set in onopen; re-throw to stop the retry loop.
           throw err;
         }
-        // Transient network error — let library retry with backoff silently.
-        // Do not set sseError: the previous events remain visible and loading
-        // stays false; the next successful open will resume streaming.
-        return undefined;
+        // Transient network error — let the library retry with backoff silently
+        // while the failure count stays under the cap. Do not set sseError: the
+        // previous events remain visible and the next successful open resumes
+        // streaming.
+        transientFailures += 1;
+        if (transientFailures < MAX_TRANSIENT_STREAM_FAILURES) {
+          return undefined;
+        }
+        // Cap reached: a persistently failing endpoint (500, DNS failure) would
+        // otherwise reconnect forever while the panel sits in its loading state,
+        // because nothing here clears it. Surface the failure and re-throw to
+        // stop the retry loop.
+        if (!disposed) {
+          setSseError({
+            message: `Execution events stream failed after ${MAX_TRANSIENT_STREAM_FAILURES} attempts.`,
+          });
+          setSseLoading(false);
+        }
+        terminatedCleanly = true;
+        ctrl.abort();
+        throw err;
       },
 
       onclose: () => {

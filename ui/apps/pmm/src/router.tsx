@@ -8,7 +8,11 @@ import { NotFoundPage } from 'pages/not-found';
 import { HelpCenter } from 'pages/help-center';
 import { RealtimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
-import { PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  PMM_NEW_NAV_PATH,
+  SEP_ATW_PATH,
+  SEP_MYSQL_BACKUPS_PATH,
+} from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
 import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
@@ -17,6 +21,11 @@ import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@sep/plugins-atw';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import { SepPage } from './sep/SepPage';
+
+// Route paths below are relative to the `PMM_NEW_NAV_PATH` parent, while the
+// shared SEP constants are absolute (the nav and each plugin's `routeBase` need
+// them that way), so drop the parent prefix and its separator.
+const relativeToNav = (path: string) => path.slice(PMM_NEW_NAV_PATH.length + 1);
 
 const router = createBrowserRouter(
   [
@@ -85,7 +94,7 @@ const router = createBrowserRouter(
               // composes its own <Routes> (incident list at index, workspace at
               // :incidentId), so this must be a splat. Backend API calls hit
               // /apps/atw and the incident / batch-execution endpoints.
-              path: 'sep/atw/*',
+              path: `${relativeToNav(SEP_ATW_PATH)}/*`,
               element: (
                 <SepPage>
                   <AtwApp />
@@ -93,7 +102,7 @@ const router = createBrowserRouter(
               ),
             },
             {
-              path: 'sep/mysql-backups/*',
+              path: `${relativeToNav(SEP_MYSQL_BACKUPS_PATH)}/*`,
               // routeBase must match the mount path (basename-stripped) so the
               // plugin's absolute nav — detail back/edit/schedule links and the
               // related-app (Restore) tab bar — resolves under /sep, not the
@@ -103,7 +112,7 @@ const router = createBrowserRouter(
                 <SepPage>
                   <SchemaDrivenPlugin
                     pluginName="mysql_backups"
-                    routeBase="/sep/mysql-backups"
+                    routeBase={SEP_MYSQL_BACKUPS_PATH}
                   />
                 </SepPage>
               ),

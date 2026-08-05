@@ -87,15 +87,17 @@ export function ScheduledTasksPanel({
     nextEnabled: boolean
   ) => {
     // PeriodicTaskUpdate requires `kwargs` and `description`, but
-    // PeriodicTaskResponse exposes only `description`. Tasks created elsewhere
-    // with non-default kwargs will have them reset to '{}' on toggle. Tracked
-    // upstream as a backend schema gap.
+    // PeriodicTaskResponse declares only `description`. Preserve `kwargs` when
+    // the response happens to carry it so a plain enable/disable toggle does
+    // not silently wipe a task's arguments; '{}' stays the last-resort
+    // fallback. Tracked upstream as a backend schema gap.
+    const rawKwargs = (task as { kwargs?: unknown }).kwargs;
     const body: PeriodicTaskUpdate = {
       name: task.name,
       task: task.task,
       enabled: nextEnabled,
       description: task.description,
-      kwargs: '{}',
+      kwargs: typeof rawKwargs === 'string' && rawKwargs ? rawKwargs : '{}',
       start_time: task.start_time,
       interval: task.interval ?? null,
       crontab: task.crontab ?? null,
