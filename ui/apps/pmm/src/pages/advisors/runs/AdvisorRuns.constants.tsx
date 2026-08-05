@@ -32,7 +32,7 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
     id: 'startedAt',
     header: Messages.columns.startedAt,
     accessorKey: 'startedAt',
-    size: 170,
+    size: 165,
     grow: false,
     Cell: ({ row }) => (
       <Box component="span" sx={{ fontSize: '0.85rem' }}>
@@ -43,8 +43,7 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
   {
     id: 'duration',
     header: Messages.columns.duration,
-    enableSorting: false,
-    size: 110,
+    size: 100,
     grow: false,
     Cell: ({ row }) =>
       isRunning(row.original) ? (
@@ -60,14 +59,21 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
     id: 'triggeredBy',
     header: Messages.columns.triggeredBy,
     accessorFn: (row) => TRIGGERED_BY_LABEL[row.triggeredBy] || EM_DASH,
-    size: 120,
+    size: 125,
+    grow: false,
+  },
+  {
+    id: 'checksCount',
+    header: Messages.columns.checks,
+    accessorKey: 'checksCount',
+    size: 90,
     grow: false,
   },
   {
     id: 'findingsCount',
     header: Messages.columns.findings,
     accessorKey: 'findingsCount',
-    size: 100,
+    size: 95,
     grow: false,
     Header: () => (
       <Tooltip title={Messages.tooltips.findings} arrow>
@@ -78,8 +84,7 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
   {
     id: 'severityCounts',
     header: Messages.columns.severity,
-    enableSorting: false,
-    size: 200,
+    size: 150,
     grow: true,
     Cell: ({ row }) => {
       const counts = row.original.severityCounts ?? [];
@@ -104,7 +109,7 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
     id: 'errorsCount',
     header: Messages.columns.errors,
     accessorKey: 'errorsCount',
-    size: 120,
+    size: 85,
     grow: false,
     Header: () => (
       <Tooltip title={Messages.tooltips.errors} arrow>
@@ -113,17 +118,10 @@ export const getRunsColumns = (): MRT_ColumnDef<AdvisorRun>[] => [
     ),
   },
   {
-    id: 'checksCount',
-    header: Messages.columns.checks,
-    accessorKey: 'checksCount',
-    size: 90,
-    grow: false,
-  },
-  {
     id: 'servicesCount',
     header: Messages.columns.services,
     accessorKey: 'servicesCount',
-    size: 100,
+    size: 95,
     grow: false,
   },
 ];

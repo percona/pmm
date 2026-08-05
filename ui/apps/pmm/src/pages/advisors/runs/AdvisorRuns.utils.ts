@@ -1,8 +1,6 @@
 import { AdvisorRun } from 'types/advisors.types';
 
-// Formats a run's wall-clock length. Runs are recorded when they start and
-// stamped when they finish, so this is real elapsed time, not the span between
-// the first and last insight.
+// real elapsed time: runs are stamped on start and on finish
 export const formatDuration = (run: AdvisorRun): string | null => {
   if (!run.finishedAt) {
     return null;

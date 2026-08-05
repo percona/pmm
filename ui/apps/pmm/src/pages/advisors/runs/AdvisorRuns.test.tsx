@@ -84,7 +84,7 @@ describe('AdvisorRuns', () => {
     await waitForRows();
 
     expect(advisorsApi.listRuns).toHaveBeenCalledWith(
-      expect.objectContaining({ pageIndex: 0, pageSize: 25 })
+      expect.objectContaining({ pageIndex: 0, pageSize: 50 })
     );
   });
 
@@ -147,6 +147,34 @@ describe('AdvisorRuns', () => {
         triggeredBy: AdvisorCheckTriggeredBy.user,
       })
     );
+  });
+
+  it('keeps Clear filters on screen, disabled until a filter is applied', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    expect(screen.getByTestId('clear-run-filters')).toBeDisabled();
+  });
+
+  it('enables Clear filters once a filter is applied, and clears it', async () => {
+    renderComponent(
+      '/advisors/runs?triggeredBy=ADVISOR_CHECK_TRIGGERED_BY_USER'
+    );
+
+    await waitForRows();
+
+    const clear = screen.getByTestId('clear-run-filters');
+    expect(clear).toBeEnabled();
+
+    fireEvent.click(clear);
+
+    await waitFor(() =>
+      expect(advisorsApi.listRuns).toHaveBeenCalledWith(
+        expect.objectContaining({ triggeredBy: undefined })
+      )
+    );
+    expect(screen.getByTestId('clear-run-filters')).toBeDisabled();
   });
 
   it("deep-links from the row menu to the run's insights", async () => {

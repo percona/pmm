@@ -11,7 +11,7 @@ export const Messages = {
     triggeredBy: 'Triggered by',
     findings: 'Findings',
     severity: 'Severity',
-    errors: 'Failed to run',
+    errors: 'Failed',
     checks: 'Checks',
     services: 'Services',
     actions: 'Actions',
@@ -23,7 +23,7 @@ export const Messages = {
   },
   actions: {
     more: 'More actions',
-    viewInsights: 'View insights from this run',
+    viewInsights: 'View insights',
     copyRunId: 'Copy run ID',
   },
   filters: {

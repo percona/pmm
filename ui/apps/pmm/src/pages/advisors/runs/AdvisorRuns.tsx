@@ -29,7 +29,7 @@ import { getRunsColumns } from './AdvisorRuns.constants';
 import { TRIGGERED_BY_FILTER_OPTIONS } from './AdvisorRuns.filters';
 import { Messages } from './AdvisorRuns.messages';
 
-const DEFAULT_PAGE_SIZE = 25;
+const DEFAULT_PAGE_SIZE = 50;
 
 interface ActionMenuState {
   anchorEl: HTMLElement;
@@ -41,8 +41,7 @@ const AdvisorRuns: FC = () => {
   const navigate = useNavigate();
   const [actionMenu, setActionMenu] = useState<ActionMenuState | null>(null);
 
-  // the query string is the single source of truth, so a shared link
-  // reproduces the same view
+  // the query string is the single source of truth, so links reproduce the view
   const triggeredBy = searchParams.get('triggeredBy') || '';
   const pagination: MRT_PaginationState = {
     pageIndex: Math.max(0, (Number(searchParams.get('page')) || 1) - 1),
@@ -114,8 +113,7 @@ const AdvisorRuns: FC = () => {
         sx={{
           flex: 1,
           minHeight: 0,
-          // let the table fill the remaining height and scroll internally, so
-          // the page itself does not scroll
+          // the table fills the height and scrolls internally, not the page
           [`& > .${paperClasses.root}`]: {
             flex: 1,
             display: 'flex',
@@ -162,15 +160,14 @@ const AdvisorRuns: FC = () => {
             </IconButton>
           </Tooltip>
 
-          {!!triggeredBy && (
-            <IconButton
-              onClick={handleClearFilters}
-              aria-label={Messages.filters.clear}
-              data-testid="clear-run-filters"
-            >
-              <FilterAltOffOutlinedIcon />
-            </IconButton>
-          )}
+          <IconButton
+            onClick={handleClearFilters}
+            disabled={!triggeredBy}
+            aria-label={Messages.filters.clear}
+            data-testid="clear-run-filters"
+          >
+            <FilterAltOffOutlinedIcon />
+          </IconButton>
         </Stack>
 
         <Table
@@ -199,10 +196,12 @@ const AdvisorRuns: FC = () => {
           displayColumnDefOptions={{
             'mrt-row-actions': {
               header: Messages.columns.actions,
-              size: 90,
+              size: 70,
               grow: false,
             },
           }}
+          // The API takes no sort param, so sorting would only reorder one page
+          enableSorting={false}
           muiTableBodyRowProps={({ row }) => ({
             onDoubleClick: () => openInsights(row.original),
             sx: { cursor: 'pointer' },
