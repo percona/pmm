@@ -124,7 +124,7 @@ PMM has three test layers ([`CONTRIBUTING.md`](CONTRIBUTING.md)): unit, API inte
 | `managed/models` or DB schema/migrations | Unit tests in `managed/`; use `testdb.Open` only when fixtures or migrations matter ([`managed/AGENTS.md`](managed/AGENTS.md)) |
 | `.proto` or gRPC/REST definitions | `make gen`, then `make check`; update handlers in `managed/` and UI hooks if user-facing |
 | REST behavior end-to-end | `make env-up`, then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) |
-| UI (`ui/apps/pmm`) | `cd ui && make lint && make test` |
+| UI (anything under `ui/`) | `cd ui && make lint && make test` |
 | Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` (or run cleanup without `--check-only`); CI enforces this in `dashboards.yml` ([`dashboards/dashboards/AGENTS.md`](dashboards/dashboards/AGENTS.md)) |
 | User-visible feature / bugfix | Create or update a Feature Build; link it in the PR ([`CONTRIBUTING.md`](CONTRIBUTING.md#feature-build)) |
 
@@ -138,7 +138,7 @@ CI runs separate linters per area. `make prepare-pr` covers **Go only** — it d
 |-----------------|-----|
 | Go backend (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `make prepare-pr` from repo root (or `make check` after `make gen` for a quicker pass) |
 | `.proto` only | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
-| UI (`ui/apps/pmm`, `ui/packages/shared`) | `cd ui && make lint && make format-check` (oxlint + oxfmt; same as CI `ui.yml`) |
+| UI (anything under `ui/`) | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
 | Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate JS linter) |
 | Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
 | Before any PR | Run the row(s) that match **every** area you touched; fix errors, not just warnings, unless CI allows them |
