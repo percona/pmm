@@ -28,12 +28,20 @@ const target =
   (hasNginxCerts ? 'https://localhost:8443' : 'https://localhost');
 
 // SEP backend. The dev server proxies SEP's API paths to it so the migrated SEP
-// plugins get real data. Interim auth (Option D): if PMM_DEV_SEP_INTERNAL_TOKEN
-// is set, inject it server-side as a Bearer token so no secret reaches the
-// browser. Both variables are dev-server-only, hence the PMM_DEV_ prefix.
-// Replaced by the token-exchange provider (Option B) later — see src/sep/bootstrap.ts.
+// plugins get real data. Residual interim auth: if PMM_DEV_SEP_INTERNAL_TOKEN is
+// set, inject it server-side as a Bearer token so no secret reaches the browser.
+// Both variables are dev-server-only, hence the PMM_DEV_ prefix.
+//
+// The browser now mints its own bearer by exchanging the PMM session (see
+// src/sep/bootstrap.ts), so the injection is only a fallback for a SEP instance
+// whose Grafana provider is not wired up yet. It must never cover the OAuth
+// routes: overwriting Authorization there would authenticate the exchange as
+// SEP's internal service principal and mask whether the cookie path works at
+// all. Retiring the injection entirely is a follow-up.
 const sepBackendUrl = env.PMM_DEV_SEP_BACKEND_URL || 'http://localhost:8000';
 const sepInternalToken = env.PMM_DEV_SEP_INTERNAL_TOKEN;
+const isSepAuthPath = (url: string | undefined) =>
+  !!url && url.startsWith('/api/oauth/');
 const sepProxy = () => ({
   target: sepBackendUrl,
   secure: false,
@@ -44,7 +52,10 @@ const sepProxy = () => ({
     if (!sepInternalToken) {
       return;
     }
-    proxy.on('proxyReq', (proxyReq: unknown) => {
+    proxy.on('proxyReq', (proxyReq: unknown, req: unknown) => {
+      if (isSepAuthPath((req as { url?: string }).url)) {
+        return;
+      }
       (proxyReq as { setHeader: (k: string, v: string) => void }).setHeader(
         'Authorization',
         `Bearer ${sepInternalToken}`
