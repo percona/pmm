@@ -311,7 +311,10 @@ type ParamDefinition struct {
 	//	*ParamDefinition_Bool
 	//	*ParamDefinition_Float
 	//	*ParamDefinition_String_
-	Value         isParamDefinition_Value `protobuf_oneof:"value"`
+	Value isParamDefinition_Value `protobuf_oneof:"value"`
+	// Overridable marks a float threshold parameter as eligible for per-node
+	// override via the dynamic-thresholds feature.
+	Overridable   bool `protobuf:"varint,8,opt,name=overridable,proto3" json:"overridable,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -406,6 +409,13 @@ func (x *ParamDefinition) GetString_() *StringParamDefinition {
 		}
 	}
 	return nil
+}
+
+func (x *ParamDefinition) GetOverridable() bool {
+	if x != nil {
+		return x.Overridable
+	}
+	return false
 }
 
 type isParamDefinition_Value interface {
@@ -1402,7 +1412,10 @@ func (x *CreateRuleRequest) GetInterval() *durationpb.Duration {
 }
 
 type CreateRuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// PMM-generated rule ID (also stamped on the Grafana rule as the
+	// `pmm_rule_id` label). Empty when the rule has no overridable thresholds.
+	RuleId        string `protobuf:"bytes,1,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1437,6 +1450,439 @@ func (*CreateRuleResponse) Descriptor() ([]byte, []int) {
 	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{18}
 }
 
+func (x *CreateRuleResponse) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
+}
+
+// NodeThreshold represents an overridable threshold as it applies to a specific
+// node: the rule/param it belongs to, the template default, and the effective
+// value for that node (the override when present, otherwise the default).
+type NodeThreshold struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// PMM rule ID that owns this threshold.
+	RuleId string `protobuf:"bytes,1,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
+	// Human-readable title of the rule.
+	RuleTitle string `protobuf:"bytes,2,opt,name=rule_title,json=ruleTitle,proto3" json:"rule_title,omitempty"`
+	// Template the rule was created from.
+	TemplateName string `protobuf:"bytes,3,opt,name=template_name,json=templateName,proto3" json:"template_name,omitempty"`
+	// Overridable parameter name.
+	ParamName string `protobuf:"bytes,4,opt,name=param_name,json=paramName,proto3" json:"param_name,omitempty"`
+	// Short human-readable parameter summary.
+	Summary string `protobuf:"bytes,5,opt,name=summary,proto3" json:"summary,omitempty"`
+	// Parameter unit.
+	Unit ParamUnit `protobuf:"varint,6,opt,name=unit,proto3,enum=alerting.v1.ParamUnit" json:"unit,omitempty"`
+	// Default value chosen at rule creation.
+	DefaultValue float64 `protobuf:"fixed64,7,opt,name=default_value,json=defaultValue,proto3" json:"default_value,omitempty"`
+	// Effective value for the node (override if set, otherwise default).
+	EffectiveValue float64 `protobuf:"fixed64,8,opt,name=effective_value,json=effectiveValue,proto3" json:"effective_value,omitempty"`
+	// Whether this node has an explicit override.
+	IsOverridden  bool `protobuf:"varint,9,opt,name=is_overridden,json=isOverridden,proto3" json:"is_overridden,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NodeThreshold) Reset() {
+	*x = NodeThreshold{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NodeThreshold) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NodeThreshold) ProtoMessage() {}
+
+func (x *NodeThreshold) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NodeThreshold.ProtoReflect.Descriptor instead.
+func (*NodeThreshold) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *NodeThreshold) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
+}
+
+func (x *NodeThreshold) GetRuleTitle() string {
+	if x != nil {
+		return x.RuleTitle
+	}
+	return ""
+}
+
+func (x *NodeThreshold) GetTemplateName() string {
+	if x != nil {
+		return x.TemplateName
+	}
+	return ""
+}
+
+func (x *NodeThreshold) GetParamName() string {
+	if x != nil {
+		return x.ParamName
+	}
+	return ""
+}
+
+func (x *NodeThreshold) GetSummary() string {
+	if x != nil {
+		return x.Summary
+	}
+	return ""
+}
+
+func (x *NodeThreshold) GetUnit() ParamUnit {
+	if x != nil {
+		return x.Unit
+	}
+	return ParamUnit_PARAM_UNIT_UNSPECIFIED
+}
+
+func (x *NodeThreshold) GetDefaultValue() float64 {
+	if x != nil {
+		return x.DefaultValue
+	}
+	return 0
+}
+
+func (x *NodeThreshold) GetEffectiveValue() float64 {
+	if x != nil {
+		return x.EffectiveValue
+	}
+	return 0
+}
+
+func (x *NodeThreshold) GetIsOverridden() bool {
+	if x != nil {
+		return x.IsOverridden
+	}
+	return false
+}
+
+type ListNodeThresholdsRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Node ID to list thresholds for.
+	NodeId        string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListNodeThresholdsRequest) Reset() {
+	*x = ListNodeThresholdsRequest{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListNodeThresholdsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListNodeThresholdsRequest) ProtoMessage() {}
+
+func (x *ListNodeThresholdsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListNodeThresholdsRequest.ProtoReflect.Descriptor instead.
+func (*ListNodeThresholdsRequest) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *ListNodeThresholdsRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+type ListNodeThresholdsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// All overridable thresholds applicable to the node, with defaults and overrides.
+	Thresholds    []*NodeThreshold `protobuf:"bytes,1,rep,name=thresholds,proto3" json:"thresholds,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListNodeThresholdsResponse) Reset() {
+	*x = ListNodeThresholdsResponse{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListNodeThresholdsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListNodeThresholdsResponse) ProtoMessage() {}
+
+func (x *ListNodeThresholdsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListNodeThresholdsResponse.ProtoReflect.Descriptor instead.
+func (*ListNodeThresholdsResponse) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ListNodeThresholdsResponse) GetThresholds() []*NodeThreshold {
+	if x != nil {
+		return x.Thresholds
+	}
+	return nil
+}
+
+type SetNodeThresholdRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Node ID to set the override for.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// PMM rule ID that owns the threshold.
+	RuleId string `protobuf:"bytes,2,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
+	// Overridable parameter name.
+	ParamName string `protobuf:"bytes,3,opt,name=param_name,json=paramName,proto3" json:"param_name,omitempty"`
+	// Override value.
+	Value         float64 `protobuf:"fixed64,4,opt,name=value,proto3" json:"value,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetNodeThresholdRequest) Reset() {
+	*x = SetNodeThresholdRequest{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetNodeThresholdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetNodeThresholdRequest) ProtoMessage() {}
+
+func (x *SetNodeThresholdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetNodeThresholdRequest.ProtoReflect.Descriptor instead.
+func (*SetNodeThresholdRequest) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *SetNodeThresholdRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *SetNodeThresholdRequest) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
+}
+
+func (x *SetNodeThresholdRequest) GetParamName() string {
+	if x != nil {
+		return x.ParamName
+	}
+	return ""
+}
+
+func (x *SetNodeThresholdRequest) GetValue() float64 {
+	if x != nil {
+		return x.Value
+	}
+	return 0
+}
+
+type SetNodeThresholdResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The resulting threshold after applying the override.
+	Threshold     *NodeThreshold `protobuf:"bytes,1,opt,name=threshold,proto3" json:"threshold,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetNodeThresholdResponse) Reset() {
+	*x = SetNodeThresholdResponse{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetNodeThresholdResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetNodeThresholdResponse) ProtoMessage() {}
+
+func (x *SetNodeThresholdResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetNodeThresholdResponse.ProtoReflect.Descriptor instead.
+func (*SetNodeThresholdResponse) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *SetNodeThresholdResponse) GetThreshold() *NodeThreshold {
+	if x != nil {
+		return x.Threshold
+	}
+	return nil
+}
+
+type DeleteNodeThresholdRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Node ID to clear the override for.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// PMM rule ID that owns the threshold.
+	RuleId string `protobuf:"bytes,2,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
+	// Overridable parameter name.
+	ParamName     string `protobuf:"bytes,3,opt,name=param_name,json=paramName,proto3" json:"param_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteNodeThresholdRequest) Reset() {
+	*x = DeleteNodeThresholdRequest{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteNodeThresholdRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteNodeThresholdRequest) ProtoMessage() {}
+
+func (x *DeleteNodeThresholdRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteNodeThresholdRequest.ProtoReflect.Descriptor instead.
+func (*DeleteNodeThresholdRequest) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *DeleteNodeThresholdRequest) GetNodeId() string {
+	if x != nil {
+		return x.NodeId
+	}
+	return ""
+}
+
+func (x *DeleteNodeThresholdRequest) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
+}
+
+func (x *DeleteNodeThresholdRequest) GetParamName() string {
+	if x != nil {
+		return x.ParamName
+	}
+	return ""
+}
+
+type DeleteNodeThresholdResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteNodeThresholdResponse) Reset() {
+	*x = DeleteNodeThresholdResponse{}
+	mi := &file_alerting_v1_alerting_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteNodeThresholdResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteNodeThresholdResponse) ProtoMessage() {}
+
+func (x *DeleteNodeThresholdResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_alerting_v1_alerting_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteNodeThresholdResponse.ProtoReflect.Descriptor instead.
+func (*DeleteNodeThresholdResponse) Descriptor() ([]byte, []int) {
+	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{25}
+}
+
 var File_alerting_v1_alerting_proto protoreflect.FileDescriptor
 
 const file_alerting_v1_alerting_proto_rawDesc = "" +
@@ -1457,7 +1903,7 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x15StringParamDefinition\x12\x1d\n" +
 	"\adefault\x18\x01 \x01(\tH\x00R\adefault\x88\x01\x01B\n" +
 	"\n" +
-	"\b_default\"\xe3\x02\n" +
+	"\b_default\"\x85\x03\n" +
 	"\x0fParamDefinition\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\x12!\n" +
 	"\asummary\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\asummary\x12*\n" +
@@ -1465,7 +1911,8 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x04type\x18\x04 \x01(\x0e2\x16.alerting.v1.ParamTypeR\x04type\x126\n" +
 	"\x04bool\x18\x05 \x01(\v2 .alerting.v1.BoolParamDefinitionH\x00R\x04bool\x129\n" +
 	"\x05float\x18\x06 \x01(\v2!.alerting.v1.FloatParamDefinitionH\x00R\x05float\x12<\n" +
-	"\x06string\x18\a \x01(\v2\".alerting.v1.StringParamDefinitionH\x00R\x06stringB\a\n" +
+	"\x06string\x18\a \x01(\v2\".alerting.v1.StringParamDefinitionH\x00R\x06string\x12 \n" +
+	"\voverridable\x18\b \x01(\bR\voverridableB\a\n" +
 	"\x05value\":\n" +
 	"\rTemplateQuery\x12\x15\n" +
 	"\x06ref_id\x18\x01 \x01(\tR\x05refId\x12\x12\n" +
@@ -1550,8 +1997,41 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	" \x01(\v2\x19.google.protobuf.DurationR\binterval\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x14\n" +
-	"\x12CreateRuleResponse*\xa6\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"-\n" +
+	"\x12CreateRuleResponse\x12\x17\n" +
+	"\arule_id\x18\x01 \x01(\tR\x06ruleId\"\xc4\x02\n" +
+	"\rNodeThreshold\x12\x17\n" +
+	"\arule_id\x18\x01 \x01(\tR\x06ruleId\x12\x1d\n" +
+	"\n" +
+	"rule_title\x18\x02 \x01(\tR\truleTitle\x12#\n" +
+	"\rtemplate_name\x18\x03 \x01(\tR\ftemplateName\x12\x1d\n" +
+	"\n" +
+	"param_name\x18\x04 \x01(\tR\tparamName\x12\x18\n" +
+	"\asummary\x18\x05 \x01(\tR\asummary\x12*\n" +
+	"\x04unit\x18\x06 \x01(\x0e2\x16.alerting.v1.ParamUnitR\x04unit\x12#\n" +
+	"\rdefault_value\x18\a \x01(\x01R\fdefaultValue\x12'\n" +
+	"\x0feffective_value\x18\b \x01(\x01R\x0eeffectiveValue\x12#\n" +
+	"\ris_overridden\x18\t \x01(\bR\fisOverridden\"=\n" +
+	"\x19ListNodeThresholdsRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\"X\n" +
+	"\x1aListNodeThresholdsResponse\x12:\n" +
+	"\n" +
+	"thresholds\x18\x01 \x03(\v2\x1a.alerting.v1.NodeThresholdR\n" +
+	"thresholds\"\x9b\x01\n" +
+	"\x17SetNodeThresholdRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12 \n" +
+	"\arule_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06ruleId\x12&\n" +
+	"\n" +
+	"param_name\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tparamName\x12\x14\n" +
+	"\x05value\x18\x04 \x01(\x01R\x05value\"T\n" +
+	"\x18SetNodeThresholdResponse\x128\n" +
+	"\tthreshold\x18\x01 \x01(\v2\x1a.alerting.v1.NodeThresholdR\tthreshold\"\x88\x01\n" +
+	"\x1aDeleteNodeThresholdRequest\x12 \n" +
+	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\x12 \n" +
+	"\arule_id\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06ruleId\x12&\n" +
+	"\n" +
+	"param_name\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\tparamName\"\x1d\n" +
+	"\x1bDeleteNodeThresholdResponse*\xa6\x01\n" +
 	"\x0eTemplateSource\x12\x1f\n" +
 	"\x1bTEMPLATE_SOURCE_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18TEMPLATE_SOURCE_BUILT_IN\x10\x01\x12\x18\n" +
@@ -1562,14 +2042,17 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"FilterType\x12\x1b\n" +
 	"\x17FILTER_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11FILTER_TYPE_MATCH\x10\x01\x12\x18\n" +
-	"\x14FILTER_TYPE_MISMATCH\x10\x022\xfe\x04\n" +
+	"\x14FILTER_TYPE_MISMATCH\x10\x022\xe0\b\n" +
 	"\x0fAlertingService\x12v\n" +
 	"\rListTemplates\x12!.alerting.v1.ListTemplatesRequest\x1a\".alerting.v1.ListTemplatesResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/alerting/templates\x12|\n" +
 	"\x0eCreateTemplate\x12\".alerting.v1.CreateTemplateRequest\x1a#.alerting.v1.CreateTemplateResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/alerting/templates\x12\x83\x01\n" +
 	"\x0eUpdateTemplate\x12\".alerting.v1.UpdateTemplateRequest\x1a#.alerting.v1.UpdateTemplateResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\x1a\x1d/v1/alerting/templates/{name}\x12\x80\x01\n" +
 	"\x0eDeleteTemplate\x12\".alerting.v1.DeleteTemplateRequest\x1a#.alerting.v1.DeleteTemplateResponse\"%\x82\xd3\xe4\x93\x02\x1f*\x1d/v1/alerting/templates/{name}\x12l\n" +
 	"\n" +
-	"CreateRule\x12\x1e.alerting.v1.CreateRuleRequest\x1a\x1f.alerting.v1.CreateRuleResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/alerting/rulesB\xa0\x01\n" +
+	"CreateRule\x12\x1e.alerting.v1.CreateRuleRequest\x1a\x1f.alerting.v1.CreateRuleResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/alerting/rules\x12\x96\x01\n" +
+	"\x12ListNodeThresholds\x12&.alerting.v1.ListNodeThresholdsRequest\x1a'.alerting.v1.ListNodeThresholdsResponse\"/\x82\xd3\xe4\x93\x02)\x12'/v1/alerting/nodes/{node_id}/thresholds\x12\x93\x01\n" +
+	"\x10SetNodeThreshold\x12$.alerting.v1.SetNodeThresholdRequest\x1a%.alerting.v1.SetNodeThresholdResponse\"2\x82\xd3\xe4\x93\x02,:\x01*\"'/v1/alerting/nodes/{node_id}/thresholds\x12\xb0\x01\n" +
+	"\x13DeleteNodeThreshold\x12'.alerting.v1.DeleteNodeThresholdRequest\x1a(.alerting.v1.DeleteNodeThresholdResponse\"F\x82\xd3\xe4\x93\x02@*>/v1/alerting/nodes/{node_id}/thresholds/{rule_id}/{param_name}B\xa0\x01\n" +
 	"\x0fcom.alerting.v1B\rAlertingProtoP\x01Z1github.com/percona/pmm/api/alerting/v1;alertingv1\xa2\x02\x03AXX\xaa\x02\vAlerting.V1\xca\x02\vAlerting\\V1\xe2\x02\x17Alerting\\V1\\GPBMetadata\xea\x02\fAlerting::V1b\x06proto3"
 
 var (
@@ -1586,79 +2069,95 @@ func file_alerting_v1_alerting_proto_rawDescGZIP() []byte {
 
 var (
 	file_alerting_v1_alerting_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_alerting_v1_alerting_proto_msgTypes  = make([]protoimpl.MessageInfo, 22)
+	file_alerting_v1_alerting_proto_msgTypes  = make([]protoimpl.MessageInfo, 29)
 	file_alerting_v1_alerting_proto_goTypes   = []any{
-		TemplateSource(0),              // 0: alerting.v1.TemplateSource
-		FilterType(0),                  // 1: alerting.v1.FilterType
-		(*BoolParamDefinition)(nil),    // 2: alerting.v1.BoolParamDefinition
-		(*FloatParamDefinition)(nil),   // 3: alerting.v1.FloatParamDefinition
-		(*StringParamDefinition)(nil),  // 4: alerting.v1.StringParamDefinition
-		(*ParamDefinition)(nil),        // 5: alerting.v1.ParamDefinition
-		(*TemplateQuery)(nil),          // 6: alerting.v1.TemplateQuery
-		(*TemplateExpression)(nil),     // 7: alerting.v1.TemplateExpression
-		(*Template)(nil),               // 8: alerting.v1.Template
-		(*ListTemplatesRequest)(nil),   // 9: alerting.v1.ListTemplatesRequest
-		(*ListTemplatesResponse)(nil),  // 10: alerting.v1.ListTemplatesResponse
-		(*CreateTemplateRequest)(nil),  // 11: alerting.v1.CreateTemplateRequest
-		(*CreateTemplateResponse)(nil), // 12: alerting.v1.CreateTemplateResponse
-		(*UpdateTemplateRequest)(nil),  // 13: alerting.v1.UpdateTemplateRequest
-		(*UpdateTemplateResponse)(nil), // 14: alerting.v1.UpdateTemplateResponse
-		(*DeleteTemplateRequest)(nil),  // 15: alerting.v1.DeleteTemplateRequest
-		(*DeleteTemplateResponse)(nil), // 16: alerting.v1.DeleteTemplateResponse
-		(*Filter)(nil),                 // 17: alerting.v1.Filter
-		(*ParamValue)(nil),             // 18: alerting.v1.ParamValue
-		(*CreateRuleRequest)(nil),      // 19: alerting.v1.CreateRuleRequest
-		(*CreateRuleResponse)(nil),     // 20: alerting.v1.CreateRuleResponse
-		nil,                            // 21: alerting.v1.Template.LabelsEntry
-		nil,                            // 22: alerting.v1.Template.AnnotationsEntry
-		nil,                            // 23: alerting.v1.CreateRuleRequest.CustomLabelsEntry
-		ParamUnit(0),                   // 24: alerting.v1.ParamUnit
-		ParamType(0),                   // 25: alerting.v1.ParamType
-		(*durationpb.Duration)(nil),    // 26: google.protobuf.Duration
-		v1.Severity(0),                 // 27: management.v1.Severity
-		(*timestamppb.Timestamp)(nil),  // 28: google.protobuf.Timestamp
+		TemplateSource(0),                   // 0: alerting.v1.TemplateSource
+		FilterType(0),                       // 1: alerting.v1.FilterType
+		(*BoolParamDefinition)(nil),         // 2: alerting.v1.BoolParamDefinition
+		(*FloatParamDefinition)(nil),        // 3: alerting.v1.FloatParamDefinition
+		(*StringParamDefinition)(nil),       // 4: alerting.v1.StringParamDefinition
+		(*ParamDefinition)(nil),             // 5: alerting.v1.ParamDefinition
+		(*TemplateQuery)(nil),               // 6: alerting.v1.TemplateQuery
+		(*TemplateExpression)(nil),          // 7: alerting.v1.TemplateExpression
+		(*Template)(nil),                    // 8: alerting.v1.Template
+		(*ListTemplatesRequest)(nil),        // 9: alerting.v1.ListTemplatesRequest
+		(*ListTemplatesResponse)(nil),       // 10: alerting.v1.ListTemplatesResponse
+		(*CreateTemplateRequest)(nil),       // 11: alerting.v1.CreateTemplateRequest
+		(*CreateTemplateResponse)(nil),      // 12: alerting.v1.CreateTemplateResponse
+		(*UpdateTemplateRequest)(nil),       // 13: alerting.v1.UpdateTemplateRequest
+		(*UpdateTemplateResponse)(nil),      // 14: alerting.v1.UpdateTemplateResponse
+		(*DeleteTemplateRequest)(nil),       // 15: alerting.v1.DeleteTemplateRequest
+		(*DeleteTemplateResponse)(nil),      // 16: alerting.v1.DeleteTemplateResponse
+		(*Filter)(nil),                      // 17: alerting.v1.Filter
+		(*ParamValue)(nil),                  // 18: alerting.v1.ParamValue
+		(*CreateRuleRequest)(nil),           // 19: alerting.v1.CreateRuleRequest
+		(*CreateRuleResponse)(nil),          // 20: alerting.v1.CreateRuleResponse
+		(*NodeThreshold)(nil),               // 21: alerting.v1.NodeThreshold
+		(*ListNodeThresholdsRequest)(nil),   // 22: alerting.v1.ListNodeThresholdsRequest
+		(*ListNodeThresholdsResponse)(nil),  // 23: alerting.v1.ListNodeThresholdsResponse
+		(*SetNodeThresholdRequest)(nil),     // 24: alerting.v1.SetNodeThresholdRequest
+		(*SetNodeThresholdResponse)(nil),    // 25: alerting.v1.SetNodeThresholdResponse
+		(*DeleteNodeThresholdRequest)(nil),  // 26: alerting.v1.DeleteNodeThresholdRequest
+		(*DeleteNodeThresholdResponse)(nil), // 27: alerting.v1.DeleteNodeThresholdResponse
+		nil,                                 // 28: alerting.v1.Template.LabelsEntry
+		nil,                                 // 29: alerting.v1.Template.AnnotationsEntry
+		nil,                                 // 30: alerting.v1.CreateRuleRequest.CustomLabelsEntry
+		ParamUnit(0),                        // 31: alerting.v1.ParamUnit
+		ParamType(0),                        // 32: alerting.v1.ParamType
+		(*durationpb.Duration)(nil),         // 33: google.protobuf.Duration
+		v1.Severity(0),                      // 34: management.v1.Severity
+		(*timestamppb.Timestamp)(nil),       // 35: google.protobuf.Timestamp
 	}
 )
 
 var file_alerting_v1_alerting_proto_depIdxs = []int32{
-	24, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
-	25, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
+	31, // 0: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit
+	32, // 1: alerting.v1.ParamDefinition.type:type_name -> alerting.v1.ParamType
 	2,  // 2: alerting.v1.ParamDefinition.bool:type_name -> alerting.v1.BoolParamDefinition
 	3,  // 3: alerting.v1.ParamDefinition.float:type_name -> alerting.v1.FloatParamDefinition
 	4,  // 4: alerting.v1.ParamDefinition.string:type_name -> alerting.v1.StringParamDefinition
 	5,  // 5: alerting.v1.Template.params:type_name -> alerting.v1.ParamDefinition
-	26, // 6: alerting.v1.Template.for:type_name -> google.protobuf.Duration
-	27, // 7: alerting.v1.Template.severity:type_name -> management.v1.Severity
-	21, // 8: alerting.v1.Template.labels:type_name -> alerting.v1.Template.LabelsEntry
-	22, // 9: alerting.v1.Template.annotations:type_name -> alerting.v1.Template.AnnotationsEntry
+	33, // 6: alerting.v1.Template.for:type_name -> google.protobuf.Duration
+	34, // 7: alerting.v1.Template.severity:type_name -> management.v1.Severity
+	28, // 8: alerting.v1.Template.labels:type_name -> alerting.v1.Template.LabelsEntry
+	29, // 9: alerting.v1.Template.annotations:type_name -> alerting.v1.Template.AnnotationsEntry
 	0,  // 10: alerting.v1.Template.source:type_name -> alerting.v1.TemplateSource
-	28, // 11: alerting.v1.Template.created_at:type_name -> google.protobuf.Timestamp
+	35, // 11: alerting.v1.Template.created_at:type_name -> google.protobuf.Timestamp
 	6,  // 12: alerting.v1.Template.queries:type_name -> alerting.v1.TemplateQuery
 	7,  // 13: alerting.v1.Template.expressions:type_name -> alerting.v1.TemplateExpression
 	8,  // 14: alerting.v1.ListTemplatesResponse.templates:type_name -> alerting.v1.Template
 	1,  // 15: alerting.v1.Filter.type:type_name -> alerting.v1.FilterType
-	25, // 16: alerting.v1.ParamValue.type:type_name -> alerting.v1.ParamType
+	32, // 16: alerting.v1.ParamValue.type:type_name -> alerting.v1.ParamType
 	18, // 17: alerting.v1.CreateRuleRequest.params:type_name -> alerting.v1.ParamValue
-	26, // 18: alerting.v1.CreateRuleRequest.for:type_name -> google.protobuf.Duration
-	27, // 19: alerting.v1.CreateRuleRequest.severity:type_name -> management.v1.Severity
-	23, // 20: alerting.v1.CreateRuleRequest.custom_labels:type_name -> alerting.v1.CreateRuleRequest.CustomLabelsEntry
+	33, // 18: alerting.v1.CreateRuleRequest.for:type_name -> google.protobuf.Duration
+	34, // 19: alerting.v1.CreateRuleRequest.severity:type_name -> management.v1.Severity
+	30, // 20: alerting.v1.CreateRuleRequest.custom_labels:type_name -> alerting.v1.CreateRuleRequest.CustomLabelsEntry
 	17, // 21: alerting.v1.CreateRuleRequest.filters:type_name -> alerting.v1.Filter
-	26, // 22: alerting.v1.CreateRuleRequest.interval:type_name -> google.protobuf.Duration
-	9,  // 23: alerting.v1.AlertingService.ListTemplates:input_type -> alerting.v1.ListTemplatesRequest
-	11, // 24: alerting.v1.AlertingService.CreateTemplate:input_type -> alerting.v1.CreateTemplateRequest
-	13, // 25: alerting.v1.AlertingService.UpdateTemplate:input_type -> alerting.v1.UpdateTemplateRequest
-	15, // 26: alerting.v1.AlertingService.DeleteTemplate:input_type -> alerting.v1.DeleteTemplateRequest
-	19, // 27: alerting.v1.AlertingService.CreateRule:input_type -> alerting.v1.CreateRuleRequest
-	10, // 28: alerting.v1.AlertingService.ListTemplates:output_type -> alerting.v1.ListTemplatesResponse
-	12, // 29: alerting.v1.AlertingService.CreateTemplate:output_type -> alerting.v1.CreateTemplateResponse
-	14, // 30: alerting.v1.AlertingService.UpdateTemplate:output_type -> alerting.v1.UpdateTemplateResponse
-	16, // 31: alerting.v1.AlertingService.DeleteTemplate:output_type -> alerting.v1.DeleteTemplateResponse
-	20, // 32: alerting.v1.AlertingService.CreateRule:output_type -> alerting.v1.CreateRuleResponse
-	28, // [28:33] is the sub-list for method output_type
-	23, // [23:28] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	33, // 22: alerting.v1.CreateRuleRequest.interval:type_name -> google.protobuf.Duration
+	31, // 23: alerting.v1.NodeThreshold.unit:type_name -> alerting.v1.ParamUnit
+	21, // 24: alerting.v1.ListNodeThresholdsResponse.thresholds:type_name -> alerting.v1.NodeThreshold
+	21, // 25: alerting.v1.SetNodeThresholdResponse.threshold:type_name -> alerting.v1.NodeThreshold
+	9,  // 26: alerting.v1.AlertingService.ListTemplates:input_type -> alerting.v1.ListTemplatesRequest
+	11, // 27: alerting.v1.AlertingService.CreateTemplate:input_type -> alerting.v1.CreateTemplateRequest
+	13, // 28: alerting.v1.AlertingService.UpdateTemplate:input_type -> alerting.v1.UpdateTemplateRequest
+	15, // 29: alerting.v1.AlertingService.DeleteTemplate:input_type -> alerting.v1.DeleteTemplateRequest
+	19, // 30: alerting.v1.AlertingService.CreateRule:input_type -> alerting.v1.CreateRuleRequest
+	22, // 31: alerting.v1.AlertingService.ListNodeThresholds:input_type -> alerting.v1.ListNodeThresholdsRequest
+	24, // 32: alerting.v1.AlertingService.SetNodeThreshold:input_type -> alerting.v1.SetNodeThresholdRequest
+	26, // 33: alerting.v1.AlertingService.DeleteNodeThreshold:input_type -> alerting.v1.DeleteNodeThresholdRequest
+	10, // 34: alerting.v1.AlertingService.ListTemplates:output_type -> alerting.v1.ListTemplatesResponse
+	12, // 35: alerting.v1.AlertingService.CreateTemplate:output_type -> alerting.v1.CreateTemplateResponse
+	14, // 36: alerting.v1.AlertingService.UpdateTemplate:output_type -> alerting.v1.UpdateTemplateResponse
+	16, // 37: alerting.v1.AlertingService.DeleteTemplate:output_type -> alerting.v1.DeleteTemplateResponse
+	20, // 38: alerting.v1.AlertingService.CreateRule:output_type -> alerting.v1.CreateRuleResponse
+	23, // 39: alerting.v1.AlertingService.ListNodeThresholds:output_type -> alerting.v1.ListNodeThresholdsResponse
+	25, // 40: alerting.v1.AlertingService.SetNodeThreshold:output_type -> alerting.v1.SetNodeThresholdResponse
+	27, // 41: alerting.v1.AlertingService.DeleteNodeThreshold:output_type -> alerting.v1.DeleteNodeThresholdResponse
+	34, // [34:42] is the sub-list for method output_type
+	26, // [26:34] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_alerting_v1_alerting_proto_init() }
@@ -1687,7 +2186,7 @@ func file_alerting_v1_alerting_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_alerting_v1_alerting_proto_rawDesc), len(file_alerting_v1_alerting_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   22,
+			NumMessages:   29,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
