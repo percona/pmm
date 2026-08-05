@@ -62,10 +62,18 @@ export function buildValidationRules(field: PluginField): RegisterOptions {
       // coercion: `coerceFormValues` used to truncate '2.5' to 2 and '3.14abc'
       // to 3.14, sending a value the user never typed.
       rules.validate = (value: unknown) => {
-        if (value === '' || value === null || value === undefined) {
-          return true;
+        // Trim first: `Number('   ')` is 0, so a whitespace-only entry would
+        // otherwise pass here and submit as 0. RHF's own `required` rule does
+        // not fire on it either (the string is non-empty), so enforce it here.
+        const normalized = typeof value === 'string' ? value.trim() : value;
+        if (
+          normalized === '' ||
+          normalized === null ||
+          normalized === undefined
+        ) {
+          return field.required ? `${field.label} is required` : true;
         }
-        const numericValue = Number(value);
+        const numericValue = Number(normalized);
         if (!Number.isFinite(numericValue)) {
           return 'Enter a valid number';
         }
@@ -134,14 +142,18 @@ export function coerceFormValues(
   for (const field of fields) {
     const raw = getAtPath(out, field.name);
     if (field.type === 'integer' || field.type === 'float') {
-      if (raw === '' || raw === undefined || raw === null) {
+      // Trimmed-empty counts as empty: `Number('   ')` is 0, which would submit
+      // a value the user never typed. The validate rule rejects it for required
+      // fields; optional ones serialise as absent.
+      const trimmed = typeof raw === 'string' ? raw.trim() : raw;
+      if (trimmed === '' || trimmed === undefined || trimmed === null) {
         setAtPath(out, field.name, undefined);
         continue;
       }
       // `Number` (not parseInt/parseFloat) so partly-numeric input stays raw
       // instead of being silently truncated; the field's validate rule rejects
       // it before submit.
-      const num = Number(raw);
+      const num = Number(trimmed);
       const valid =
         Number.isFinite(num) &&
         (field.type !== 'integer' || Number.isInteger(num));

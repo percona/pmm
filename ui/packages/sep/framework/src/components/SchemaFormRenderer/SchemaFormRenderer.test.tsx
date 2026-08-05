@@ -77,6 +77,25 @@ describe('buildValidationRules', () => {
     expect(rules.max).toMatchObject({ value: 5 });
   });
 
+  it('treats whitespace-only numeric input as empty', () => {
+    const optional = buildValidationRules({
+      type: 'integer',
+      name: 'n',
+      label: 'N',
+    }).validate as (value: unknown) => true | string;
+    expect(optional('   ')).toBe(true);
+
+    const required = buildValidationRules({
+      type: 'integer',
+      name: 'n',
+      label: 'N',
+      required: true,
+    }).validate as (value: unknown) => true | string;
+    expect(required('   ')).toBe('N is required');
+    expect(required(' 42 ')).toBe(true);
+    expect(required(' 4.2 ')).toBe('Enter a whole number');
+  });
+
   it('emits a validate fn enforcing minItems/maxItems on multi_choice', () => {
     const rules = buildValidationRules({
       type: 'multi_choice',
@@ -103,6 +122,22 @@ describe('coerceFormValues', () => {
     expect(out.age).toBe(42);
     expect(out.weight).toBeCloseTo(3.14);
     expect(out.empty).toBeUndefined();
+  });
+
+  it('coerces whitespace-only numeric input to undefined instead of 0', () => {
+    const out = coerceFormValues({ age: '   ', weight: '\t\n' }, [
+      { type: 'integer', name: 'age', label: 'Age' },
+      { type: 'float', name: 'weight', label: 'Weight' },
+    ]);
+    expect(out.age).toBeUndefined();
+    expect(out.weight).toBeUndefined();
+  });
+
+  it('coerces padded numeric input to its numeric value', () => {
+    const out = coerceFormValues({ age: ' 42 ' }, [
+      { type: 'integer', name: 'age', label: 'Age' },
+    ]);
+    expect(out.age).toBe(42);
   });
 
   it('leaves non-numeric fields alone', () => {
