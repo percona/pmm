@@ -629,10 +629,22 @@ func (s *Service) convertAgentToSession(agent *models.Agent, service *models.Ser
 	return &rtav1.Session{
 		ServiceId:       service.ServiceID,
 		ServiceName:     service.ServiceName,
+		ServiceType:     getProtoServiceType(service.ServiceType),
 		ClusterName:     service.Cluster,
 		StartTime:       timestamppb.New(agent.CreatedAt),
 		CollectInterval: durationpb.New(*agent.RTAOptions.CollectInterval),
 		Status:          sessionStatus,
+	}
+}
+
+func getProtoServiceType(serviceType models.ServiceType) inventoryv1.ServiceType {
+	switch serviceType {
+	case models.MongoDBServiceType:
+		return inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE
+	case models.MySQLServiceType:
+		return inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE
+	default:
+		return inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED
 	}
 }
 

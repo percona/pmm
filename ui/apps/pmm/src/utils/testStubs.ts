@@ -9,6 +9,7 @@ import {
   ManagedService,
   ManagedServicesResponse,
   MySqlService,
+  ServiceType,
   VersionedService,
 } from 'types/services.types';
 import { OrgRole, User } from 'types/user.types';
@@ -131,9 +132,19 @@ export const TEST_SERVICES_WITH_ONE_MYSQL: ListServicesResponse = {
   mysql: [TEST_SERVICE as MySqlService],
 };
 
+export const TEST_VERSIONED_MYSQL_SERVICE: VersionedService = {
+  ...TEST_VERSIONED_MONGO_SERVICE,
+  serviceId: 'service-2',
+  serviceName: 'Service 2',
+  cluster: 'cluster-2',
+  port: 3306,
+  version: '8.0.42',
+};
+
 export const TEST_REAL_TIME_SESSION: RealtimeSession = {
   serviceId: 'service-1',
   serviceName: 'Service 1',
+  serviceType: ServiceType.mongodb,
   clusterName: 'cluster-1',
   startTime: '2021-01-01T00:00:00Z',
   status: RealtimeSessionStatus.unspecified,
@@ -142,7 +153,17 @@ export const TEST_REAL_TIME_SESSION: RealtimeSession = {
 export const TEST_REAL_TIME_SESSION_2: RealtimeSession = {
   serviceId: 'service-2',
   serviceName: 'Service 2',
+  serviceType: ServiceType.mongodb,
   clusterName: 'cluster-2',
+  startTime: '2021-01-01T00:00:00Z',
+  status: RealtimeSessionStatus.unspecified,
+};
+
+export const TEST_REAL_TIME_SESSION_MYSQL: RealtimeSession = {
+  serviceId: 'service-3',
+  serviceName: 'Service 3',
+  serviceType: ServiceType.mysql,
+  clusterName: 'cluster-3',
   startTime: '2021-01-01T00:00:00Z',
   status: RealtimeSessionStatus.unspecified,
 };

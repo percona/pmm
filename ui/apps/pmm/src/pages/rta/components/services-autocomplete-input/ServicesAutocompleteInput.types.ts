@@ -1,6 +1,6 @@
 import { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
-import { RealtimeSession } from 'types/rta.types';
-import { VersionedService } from 'types/services.types';
+import { AvailableService, RealtimeSession } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 
 export type TagPresentation = 'label' | 'tags';
 
@@ -18,7 +18,7 @@ type PropsWithSessions = BaseProps & {
 };
 
 type PropsWithServices = BaseProps & {
-  services: VersionedService[];
+  services: AvailableService[];
 };
 
 export type ServicesAutocompleteInputProps =
@@ -31,6 +31,9 @@ export interface ServiceOption {
   label: string;
   serviceId?: string;
   cluster?: string;
+  // For a cluster option this is the technology shared by its services, and is
+  // left unset if they somehow disagree.
+  serviceType?: ServiceType;
 }
 
 export type ClusterSelectionState = 'all' | 'partial' | 'none';

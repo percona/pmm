@@ -30,16 +30,21 @@ export const queryUsername = (query: RawQueryData): string =>
   query.mySqlPayload?.username ||
   UNAVAILABLE_VALUE;
 
-// formatElapsedTime renders a duration in seconds with the SI unit instead of
-// the "seconds" word. Below 10s it keeps millisecond precision, because most
-// statements caught by a live view finish in a few milliseconds and would
-// otherwise all read as "0s"; above 10s the milliseconds carry no information
-// and only widen the column.
-export const formatElapsedTime = (seconds: number): string => {
+// elapsedTimeValue rounds a duration in seconds for display. Below 10s it keeps
+// millisecond precision, because most statements caught by a live view finish in
+// a few milliseconds and would otherwise all read as "0"; above 10s the
+// milliseconds carry no information and only widen the column. Shared with the
+// details pane so both render the same number for the same query.
+export const elapsedTimeValue = (seconds: number): string => {
   const rounded = Math.round(seconds * 1000) / 1000;
 
-  return rounded < 10 ? `${rounded.toFixed(3)}s` : `${Math.round(rounded)}s`;
+  return rounded < 10 ? rounded.toFixed(3) : String(Math.round(rounded));
 };
+
+// formatElapsedTime renders the value with the SI unit instead of the "seconds"
+// word, for the width-constrained overview column.
+export const formatElapsedTime = (seconds: number): string =>
+  `${elapsedTimeValue(seconds)}s`;
 
 // Transaction-control statements that add little value to Real-Time Analytics
 // and can dominate the list under transactional workloads (e.g. sysbench).

@@ -246,6 +246,7 @@ func TestListSessions(t *testing.T) {
 
 		assert.Equal(t, service.ServiceID, resp.Sessions[0].ServiceId)
 		assert.Equal(t, service.ServiceName, resp.Sessions[0].ServiceName)
+		assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE, resp.Sessions[0].ServiceType)
 		assert.Equal(t, "test-cluster", resp.Sessions[0].ClusterName)
 		assert.Equal(t, rtav1.SessionStatus_SESSION_STATUS_RUNNING, resp.Sessions[0].Status)
 		assert.NotNil(t, resp.Sessions[0].StartTime)
@@ -959,4 +960,15 @@ func TestService_Collect(t *testing.T) {
 		assert.Equal(t, "service-1", storeqQs[i].ServiceId)
 		assert.Equal(t, "mongodb-1", storeqQs[i].ServiceName)
 	}
+}
+
+func TestGetProtoServiceType(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE, getProtoServiceType(models.MySQLServiceType))
+	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE, getProtoServiceType(models.MongoDBServiceType))
+
+	// Service types that cannot run RTA carry no technology rather than a wrong one.
+	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED, getProtoServiceType(models.PostgreSQLServiceType))
+	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED, getProtoServiceType(models.ExternalServiceType))
 }

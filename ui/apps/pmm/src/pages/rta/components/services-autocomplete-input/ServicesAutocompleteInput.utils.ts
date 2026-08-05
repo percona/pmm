@@ -1,9 +1,9 @@
-import { VersionedService } from 'types/services.types';
 import {
   ClusterSelectionState,
   ServiceOption,
 } from './ServicesAutocompleteInput.types';
-import { RealtimeSession } from 'types/rta.types';
+import { AvailableService, RealtimeSession } from 'types/rta.types';
+import { sharedTechnology } from 'pages/rta/components/technology';
 
 /**
  * Get the selection state of a cluster
@@ -40,15 +40,15 @@ export const getClusterSelectionState = (
  * Build service options from available services
  */
 export const getServiceOptions = (
-  services: VersionedService[] | RealtimeSession[]
+  services: AvailableService[] | RealtimeSession[]
 ): ServiceOption[] => {
   if (services.length === 0) {
     return [];
   }
 
   // Group services by cluster
-  const clusterMap = new Map<string, (VersionedService | RealtimeSession)[]>();
-  const standaloneServices: (VersionedService | RealtimeSession)[] = [];
+  const clusterMap = new Map<string, (AvailableService | RealtimeSession)[]>();
+  const standaloneServices: (AvailableService | RealtimeSession)[] = [];
 
   services.forEach((service) => {
     let clusterName = '';
@@ -82,6 +82,7 @@ export const getServiceOptions = (
       id: service.serviceId,
       label: service.serviceName,
       serviceId: service.serviceId,
+      serviceType: service.serviceType,
     });
   });
 
@@ -95,6 +96,9 @@ export const getServiceOptions = (
         id: `cluster-${clusterName}`,
         label: clusterName,
         cluster: clusterName,
+        serviceType: sharedTechnology(
+          clusterServices.map((service) => service.serviceType)
+        ),
       });
 
       // Add cluster services sorted by name
@@ -107,6 +111,7 @@ export const getServiceOptions = (
             label: service.serviceName,
             serviceId: service.serviceId,
             cluster: clusterName,
+            serviceType: service.serviceType,
           });
         });
     });

@@ -16,6 +16,7 @@ import {
 } from 'utils/testUtils';
 import {
   TEST_VERSIONED_MONGO_SERVICE,
+  TEST_VERSIONED_MYSQL_SERVICE,
   TEST_REAL_TIME_SESSION,
   TEST_USER_ADMIN,
   TEST_USER_EDITOR,
@@ -186,6 +187,47 @@ describe('RealtimeSelection', () => {
 
         expect(autocomplete).toHaveAttribute('aria-expanded', 'false');
       });
+    });
+
+    it('does not mark the technology when every service is MongoDB', async () => {
+      vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
+        mongodb: [TEST_VERSIONED_MONGO_SERVICE],
+      });
+
+      renderComponent();
+
+      fireEvent.click(await screen.findByTitle('Open'));
+
+      const listbox = await screen.findByRole('listbox');
+
+      expect(
+        within(listbox).getByText(TEST_VERSIONED_MONGO_SERVICE.serviceName)
+      ).toBeInTheDocument();
+      expect(
+        within(listbox).queryByTestId('technology')
+      ).not.toBeInTheDocument();
+    });
+
+    it('marks the technology of each service once both are available', async () => {
+      vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
+        mongodb: [TEST_VERSIONED_MONGO_SERVICE],
+        mysql: [TEST_VERSIONED_MYSQL_SERVICE],
+      });
+
+      renderComponent();
+
+      fireEvent.click(await screen.findByTitle('Open'));
+
+      const listbox = await screen.findByRole('listbox');
+
+      // Each service sits in its own cluster, so both the cluster row and the
+      // service row under it carry the icon.
+      expect(
+        within(listbox).getAllByTestId('technology-icon-MongoDB')
+      ).toHaveLength(2);
+      expect(
+        within(listbox).getAllByTestId('technology-icon-MySQL')
+      ).toHaveLength(2);
     });
   });
 

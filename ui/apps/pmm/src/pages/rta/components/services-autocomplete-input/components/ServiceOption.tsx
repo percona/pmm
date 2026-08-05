@@ -5,12 +5,14 @@ import {
   ClusterSelectionState,
   ServiceOption as ServiceOptionType,
 } from '../ServicesAutocompleteInput.types';
+import { Technology } from 'pages/rta/components/technology';
 
 interface Props extends HTMLAttributes<HTMLLIElement> {
   option: ServiceOptionType;
   selected: boolean;
   clusterSelectionState?: ClusterSelectionState;
   onClusterToggle?: (clusterName: string) => void;
+  showTechnology?: boolean;
 }
 
 const ServiceOption: FC<Props> = ({
@@ -18,6 +20,7 @@ const ServiceOption: FC<Props> = ({
   selected,
   clusterSelectionState,
   onClusterToggle,
+  showTechnology = false,
   ...props
 }) => {
   const { key, ...otherProps } = props as HTMLAttributes<HTMLLIElement> & {
@@ -73,8 +76,25 @@ const ServiceOption: FC<Props> = ({
           flex: 1,
           py: '9px',
           px: 1,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
         }}
       >
+        {/* Fixed-width slot: an option we cannot label (a cluster whose services
+            disagree) would otherwise sit flush left of its neighbours. */}
+        {showTechnology && (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: 20,
+            }}
+          >
+            <Technology serviceType={option.serviceType} iconOnly />
+          </Box>
+        )}
         {option.label}
       </Box>
       {isServiceInCluster && (

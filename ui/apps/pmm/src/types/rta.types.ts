@@ -1,4 +1,4 @@
-import { VersionedService } from './services.types';
+import { ServiceType, VersionedService } from './services.types';
 
 export enum RealtimeSessionStatus {
   unspecified = 'SESSION_STATUS_UNSPECIFIED',
@@ -10,10 +10,19 @@ export enum RealtimeSessionStatus {
 export interface RealtimeSession {
   serviceId: string;
   serviceName: string;
+  // Database technology of the monitored service, so MySQL and MongoDB
+  // sessions can be told apart without a second inventory lookup.
+  serviceType: ServiceType;
   clusterName: string;
   startTime: string;
   status: RealtimeSessionStatus;
 }
+
+// A service that can have an RTA session started for it, carrying the
+// technology it was listed under.
+export type AvailableService = VersionedService & {
+  serviceType: ServiceType;
+};
 
 export interface ListRunningSessionsResponse {
   sessions: RealtimeSession[];

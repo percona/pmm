@@ -15,6 +15,7 @@ import {
   ServicesAutocompleteInputProps,
 } from './ServicesAutocompleteInput.types';
 import ServiceTags from './components/ServiceTags';
+import { hasMixedTechnologies } from 'pages/rta/components/technology';
 
 const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   disabled = false,
@@ -28,6 +29,12 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const services = 'sessions' in props ? props.sessions : props.services;
   const serviceOptions = useMemo(() => getServiceOptions(services), [services]);
+  // Each screen decides from its own list: the technology is only called out
+  // when the services in this picker span more than one of them.
+  const showTechnology = useMemo(
+    () => hasMixedTechnologies(services.map((service) => service.serviceType)),
+    [services]
+  );
   const selectedServices = useMemo(
     () => serviceOptions.filter((option) => serviceIds?.includes(option.id)),
     [serviceOptions, serviceIds]
@@ -85,6 +92,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
           key={option.id}
           option={option}
           selected={selected}
+          showTechnology={showTechnology}
           clusterSelectionState={
             option.type === 'cluster'
               ? getClusterSelectionState(

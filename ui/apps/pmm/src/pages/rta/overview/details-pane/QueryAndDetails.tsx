@@ -1,6 +1,6 @@
 import Grid from '@mui/material/Grid';
 import { FC } from 'react';
-import { format, formatDuration } from 'date-fns';
+import { format } from 'date-fns';
 import { tz } from '@date-fns/tz';
 import { CodeBlock } from '@percona/percona-ui';
 import { QueryData } from 'types/rta.types';
@@ -9,7 +9,11 @@ import BigNumberMetric from './BigNumberMetric';
 import { Messages } from './QueryAndDetails.messages';
 import { TIME_FORMAT } from 'lib/constants';
 import { useUser } from 'contexts/user';
-import { codeBlockLanguage, queryLanguage } from '../table/OverviewTable.utils';
+import {
+  codeBlockLanguage,
+  elapsedTimeValue,
+  queryLanguage,
+} from '../table/OverviewTable.utils';
 
 type Props = {
   queryData: QueryData;
@@ -45,16 +49,13 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
   const { user } = useUser();
   const timezone = user?.preferences?.timezone || 'UTC';
 
-  const formattedQueryExecutionDuration = queryExecutionDurationMs
-    ? formatDuration(
-        {
-          seconds: queryExecutionDurationMs,
-        },
-        {
-          format: ['seconds'],
-        }
-      )
-    : '';
+  // A duration of 0 is a duration like any other - a statement that has just
+  // started - so only a missing value renders blank. The number matches the
+  // overview column for the same query.
+  const formattedQueryExecutionDuration =
+    queryExecutionDurationMs == null
+      ? ''
+      : `${elapsedTimeValue(queryExecutionDurationMs)} seconds`;
 
   const formattedQueryExecutionDurationParts = formattedQueryExecutionDuration
     ? formattedQueryExecutionDuration.split(' ')
@@ -67,7 +68,11 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
           <GridItem>
             <DetailsMetric
               title={Messages.titles.operationId}
-              tooltip={Messages.tooltips.operationId}
+              tooltip={
+                mySqlPayload
+                  ? Messages.tooltips.operationIdMySql
+                  : Messages.tooltips.operationId
+              }
             >
               <BigNumberMetric
                 mainText={queryId}

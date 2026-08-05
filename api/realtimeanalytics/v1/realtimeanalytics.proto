@@ -49,6 +49,9 @@ message Session {
   google.protobuf.Duration collect_interval = 5;
   // Current status of the Real-Time Analytics session.
   SessionStatus status = 6;
+  // Type of the service the session is running for. Lets clients tell MySQL and
+  // MongoDB sessions apart without a second lookup in the inventory.
+  inventory.v1.ServiceType service_type = 7;
 }
 
 // ListSessionsRequest contains optional filters for listing active Real-Time Analytics Sessions for a particular cluster.

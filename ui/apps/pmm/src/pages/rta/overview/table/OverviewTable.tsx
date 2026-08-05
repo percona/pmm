@@ -1,4 +1,5 @@
 import {
+  type MRT_ColumnDef,
   type MRT_Row,
   type MRT_VisibilityState,
   type MaterialReactTableProps,
@@ -21,6 +22,15 @@ import { filterCommaSeparated, filterElapsedTime } from './OverviewTable.utils';
 const DEFAULT_COLUMN_VISIBILITY: MRT_VisibilityState = {
   databaseName: false,
   username: false,
+};
+
+// Pinning stays enabled for the sticky rendering of Elapsed time - MRT only
+// draws a pinned column's background while the feature is on - but no column may
+// be pinned by hand, which takes the pin buttons out of the column and
+// Show/Hide menus. Hoisted so the reference is stable: MRT memoizes the merged
+// default column on it, and this table re-renders on every poll.
+const DEFAULT_COLUMN: Partial<MRT_ColumnDef<QueryData>> = {
+  enablePinning: false,
 };
 
 interface Props {
@@ -77,6 +87,7 @@ const OverviewTable: FC<Props> = ({
         onColumnVisibilityChange={setColumnVisibility}
         enableStickyHeader
         enableColumnPinning
+        defaultColumn={DEFAULT_COLUMN}
         enableGlobalFilter={false}
         enableHiding
         enableRowHoverAction

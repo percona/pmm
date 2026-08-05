@@ -5,6 +5,7 @@ import {
   TEST_MONGO_DB_QUERY_DATA,
   TEST_REAL_TIME_SESSION,
   TEST_REAL_TIME_SESSION_2,
+  TEST_REAL_TIME_SESSION_MYSQL,
 } from 'utils/testStubs';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Messages } from './RealtimeOverview.messages';
@@ -160,6 +161,55 @@ describe('RealtimeOverview', () => {
     expect(
       screen.getByTestId('query-query-missing-elapsed-time-cell')
     ).toHaveTextContent('Unavailable');
+  });
+
+  it('should hide the transaction control toggle when no MySQL session is running', async () => {
+    renderComponent();
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    expect(
+      screen.queryByTestId('overview-table-hide-commit-toggle')
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show the transaction control toggle when a MySQL session is running', async () => {
+    getRunningSessions.mockResolvedValue([
+      TEST_REAL_TIME_SESSION,
+      TEST_REAL_TIME_SESSION_MYSQL,
+    ]);
+
+    renderComponent();
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('overview-table-hide-commit-toggle')
+      ).toHaveTextContent('Hide transaction control')
+    );
+  });
+
+  it('should keep elapsed time pinned without offering pin controls', async () => {
+    renderComponent();
+
+    await waitFor(() =>
+      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
+    );
+
+    expect(
+      screen.getByTestId(
+        `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-elapsed-time-cell`
+      )
+    ).toHaveAttribute('data-pinned', 'true');
+
+    fireEvent.click(screen.getByLabelText('Show/Hide columns'));
+
+    await waitFor(() => expect(screen.getByRole('menu')).toBeInTheDocument());
+    // The icon assertion does not depend on MRT's tooltip labelling, so it still
+    // holds if those labels change.
+    expect(screen.queryByTestId('PushPinIcon')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Pin to left')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Pin to right')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Unpin')).not.toBeInTheDocument();
   });
 
   it("shouldn't call api if no serviceIds are provided", async () => {

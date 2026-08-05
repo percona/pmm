@@ -25,6 +25,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
 import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
+import { ServiceType } from 'types/services.types';
 
 const EMPTY_QUERIES: QueryData[] = [];
 
@@ -41,18 +42,29 @@ const RealtimeOverviewPage: FC = () => {
     }
   );
   const [hideCommit, setHideCommit] = useState(false);
-  const tableQueries = useMemo(() => {
-    const allQueries = queries ?? EMPTY_QUERIES;
-    return hideCommit
-      ? allQueries.filter((query) => !isTransactionControl(query))
-      : allQueries;
-  }, [queries, hideCommit]);
   // Synced from the table after filters; details-pane arrows use this list, not the full API result.
   const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
   // We need to store the previous fetching state to restore it when the details pane is closed
   const previousFetchingState = useRef<boolean>(fetching);
   const { data: sessions = [], isLoading } = useRealtimeSessions();
+  // Transaction-control statements are a MySQL concern, so the toggle is not
+  // shown to users whose sessions are all MongoDB. It follows the sessions
+  // rather than the current selection, so it does not appear and disappear
+  // while services are being picked.
+  const hasMySqlSession = sessions.some(
+    (session) => session.serviceType === ServiceType.mysql
+  );
+  // Gated on the toggle being on screen: if the last MySQL session goes away the
+  // control unmounts, and a filter nobody can see must not keep hiding rows (nor
+  // silently shrink the CSV export, which exports the filtered rows).
+  const hideTransactionControl = hideCommit && hasMySqlSession;
+  const tableQueries = useMemo(() => {
+    const allQueries = queries ?? EMPTY_QUERIES;
+    return hideTransactionControl
+      ? allQueries.filter((query) => !isTransactionControl(query))
+      : allQueries;
+  }, [queries, hideTransactionControl]);
 
   const handleQuerySelected = (query: QueryData) => {
     setSelectedQuery(query);
@@ -211,28 +223,34 @@ const RealtimeOverviewPage: FC = () => {
                   {Messages.export}
                 </Button>
               )}
-              {/* Hide COMMIT filters the rows, it does not drive live updates:
-                  keep it out of the auto-refresh / playback group so that group
-                  reads as one control. */}
-              <Divider
-                orientation="vertical"
-                flexItem
-                sx={{ my: 1, mx: 0.5 }}
-              />
-              <Tooltip title={Messages.hideCommitTooltip} arrow>
-                <FormControlLabel
-                  data-testid="overview-table-hide-commit-toggle"
-                  control={
-                    <Switch
-                      size="small"
-                      checked={hideCommit}
-                      onChange={(event) => setHideCommit(event.target.checked)}
+              {/* This filters the rows, it does not drive live updates: keep it
+                  out of the auto-refresh / playback group so that group reads as
+                  one control. */}
+              {hasMySqlSession && (
+                <>
+                  <Divider
+                    orientation="vertical"
+                    flexItem
+                    sx={{ my: 1, mx: 0.5 }}
+                  />
+                  <Tooltip title={Messages.hideCommitTooltip} arrow>
+                    <FormControlLabel
+                      data-testid="overview-table-hide-commit-toggle"
+                      control={
+                        <Switch
+                          size="small"
+                          checked={hideCommit}
+                          onChange={(event) =>
+                            setHideCommit(event.target.checked)
+                          }
+                        />
+                      }
+                      label={Messages.hideCommit}
+                      sx={{ whiteSpace: 'nowrap', mr: 0 }}
                     />
-                  }
-                  label={Messages.hideCommit}
-                  sx={{ whiteSpace: 'nowrap', mr: 0 }}
-                />
-              </Tooltip>
+                  </Tooltip>
+                </>
+              )}
             </Stack>
             <Box sx={{ flex: '0 0 auto', ml: { md: 'auto' }, my: 1 }}>
               <Button

@@ -6,7 +6,7 @@ import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { Table } from '@percona/percona-ui';
 import { boxClasses, Skeleton, Typography } from '@mui/material';
-import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
+import { columnId, getSessionsTableColumns } from './SessionsTable.constants';
 import { useRealtimeSessions, useStopSessions } from 'hooks/api/useRealtime';
 import {
   getAllSessions,
@@ -19,6 +19,7 @@ import StopMultipleSessionsModal from './modal-stop-multiple-sessions/StopMultip
 import { ModalType, SessionRow } from './SessionsTable.types';
 import { enqueueSnackbar } from 'notistack';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
+import { hasMixedTechnologies } from 'pages/rta/components/technology';
 import { useUser } from 'contexts/user';
 import { Navigate } from 'react-router-dom';
 
@@ -28,6 +29,17 @@ const SessionsTable: FC = () => {
     refetchInterval: 5000,
   });
   const rows = getSessionRows(sessions);
+  // The technology only earns a column once the running sessions span more than
+  // one of them; a single-engine install sees the table it has always seen.
+  // Memoized on the boolean, not on the polled session list, so an unchanged
+  // column set keeps the same array and MRT does not re-derive its columns.
+  const showTechnology = hasMixedTechnologies(
+    sessions.map((session) => session.serviceType)
+  );
+  const columns = useMemo(
+    () => getSessionsTableColumns(showTechnology),
+    [showTechnology]
+  );
   const [modal, setModal] = useState<ModalType>(null);
   const [sessionToBeStopped, setSessionToBeStopped] =
     useState<SessionRow | null>(null);
@@ -122,10 +134,14 @@ const SessionsTable: FC = () => {
           columnVisibility: {
             sessionId: true,
           },
+          // Ordered from every column this table can show, not just the ones it
+          // shows right now: sessions are polled, so Technology can appear after
+          // mount, and an id missing from this list would be appended last.
+          // Unknown ids are ignored, so listing it up front is harmless.
           columnOrder: [
             'mrt-row-expand',
             'mrt-row-select',
-            ...SESSIONS_TABLE_COLUMNS.map((column) => column.accessorKey || ''),
+            ...getSessionsTableColumns(true).map(columnId),
             ...(user?.isPMMAdmin ? ['mrt-row-actions'] : []),
           ],
         }}
@@ -136,7 +152,7 @@ const SessionsTable: FC = () => {
         getRowId={(row) => row.sessionId}
         noDataMessage={Messages.empty}
         tableName="rta-sessions"
-        columns={SESSIONS_TABLE_COLUMNS}
+        columns={columns}
         data={rows}
         enableHiding={false}
         enableGlobalFilter={false}
