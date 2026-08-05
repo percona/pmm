@@ -39,6 +39,8 @@ import {
 
 const EMPTY_OPTIONS: ChoiceOption[] = [];
 const PARENT_MISSING_TEXT = 'Select a value first';
+const PARENT_MISSING_CUSTOM_TEXT =
+  'Select a value first to list options, or type one';
 
 export interface RemoteChoiceSelectorProps {
   /** react-hook-form field name. Stores the committed `string | null` (option value, free-typed value, or unset). */
@@ -48,7 +50,7 @@ export interface RemoteChoiceSelectorProps {
   disabled?: boolean;
   /** Fully-resolved fetch path (relative to the `/api` base) the options load from. */
   endpointUrl: string;
-  /** Optional parent field name; when set, the field cascades and stays disabled until the parent has a value. */
+  /** Optional parent field name; when set, the field cascades and — unless `allowCustom` is set — stays disabled until the parent has a value. */
   dependsOn?: string;
   /** Offer free-text (free-solo) entry alongside the fetched options. */
   allowCustom?: boolean;
@@ -92,6 +94,7 @@ function RemoteChoiceAutocomplete({
   isError,
   helperText,
   noOptionsText,
+  onCommitKind,
 }: {
   field: ControllerRenderProps<FieldValues, string>;
   fieldError?: FieldError;
@@ -104,6 +107,8 @@ function RemoteChoiceAutocomplete({
   isError: boolean;
   helperText?: string;
   noOptionsText: string;
+  /** Tell the cascade parent whether the latest commit was typed vs picked. */
+  onCommitKind?: (kind: 'custom' | 'option' | null) => void;
 }) {
   const filter = useMemo(
     () => createFilterOptions<ChoiceOption | string>(),
@@ -116,8 +121,27 @@ function RemoteChoiceAutocomplete({
   // match" warning, so collapse it to null unless free-text entry is enabled.
   const value = allowCustom || typeof resolved !== 'string' ? resolved : null;
   const isCustomValue = typeof value === 'string';
-  const commit = (next: ChoiceFreeSoloDisplayValue) =>
-    onChange(normalizeChange(next, options));
+  const commit = (next: ChoiceFreeSoloDisplayValue) => {
+    const normalized = normalizeChange(next, options);
+    if (onCommitKind) {
+      if (normalized === null) {
+        onCommitKind(null);
+      } else if (typeof next === 'object' && next !== null) {
+        onCommitKind('option');
+      } else {
+        // Typed text or the free-solo "create" suggestion. Exact label matches
+        // normalize to an option value — still treat those as option picks so a
+        // parent change clears a catalog selection entered by typing its label.
+        const matched = options.some(
+          (o) =>
+            o.value === normalized ||
+            (o.label === String(next).trim() && !o.disabled)
+        );
+        onCommitKind(matched ? 'option' : 'custom');
+      }
+    }
+    onChange(normalized);
+  };
 
   return (
     <Autocomplete<ChoiceOption | string, false, false, boolean>
@@ -217,8 +241,9 @@ function RemoteChoiceAutocomplete({
  * `disabled` / `disabled_reason` exactly like a static `ChoiceField`, and — when
  * `allowCustom` is set — accepts a free-typed value. When `dependsOn` names a
  * parent field the fetch is parameterised by that field's value (as a query
- * parameter named after `dependsOn`) and the control stays disabled until the
- * parent has a value; the child value resets whenever the parent value changes.
+ * parameter named after `dependsOn`) and, without `allowCustom`, the control
+ * stays disabled until the parent has a value; the child value resets whenever
+ * the parent value changes.
  *
  * The committed react-hook-form value is always a string (an option `value` or a
  * free-typed value) or `null` — never an inventory id — so it flows to the task
@@ -234,6 +259,10 @@ export function RemoteChoiceSelector({
   allowCustom,
 }: RemoteChoiceSelectorProps) {
   const { control, setValue } = useFormContext();
+  const allowCustomEnabled = Boolean(allowCustom);
+  // Track whether the latest commit was free-typed so a cascade parent change
+  // does not wipe a path the user already entered before picking the parent.
+  const commitKindRef = useRef<'custom' | 'option' | null>(null);
 
   const parentRaw = useWatch({
     control,
@@ -258,23 +287,32 @@ export function RemoteChoiceSelector({
   const parentKey = String(parentScalar);
   const prevParentKey = useRef(parentKey);
   useEffect(() => {
-    if (cascades && prevParentKey.current !== parentKey) {
-      prevParentKey.current = parentKey;
-      setValue(name, null, { shouldDirty: true, shouldValidate: false });
+    if (!cascades || prevParentKey.current === parentKey) {
+      return;
     }
-  }, [cascades, parentKey, name, setValue]);
+    prevParentKey.current = parentKey;
+    if (allowCustomEnabled && commitKindRef.current === 'custom') {
+      // Keep the free-typed value; options from the new parent still load.
+      return;
+    }
+    commitKindRef.current = null;
+    setValue(name, null, { shouldDirty: true, shouldValidate: false });
+  }, [cascades, parentKey, name, setValue, allowCustomEnabled]);
 
   const empty =
     !parentMissing && !isLoading && !isError && options.length === 0;
+  const parentMissingText = allowCustomEnabled
+    ? PARENT_MISSING_CUSTOM_TEXT
+    : PARENT_MISSING_TEXT;
   const helperText = parentMissing
-    ? PARENT_MISSING_TEXT
+    ? parentMissingText
     : isError
       ? (error?.message ?? 'Failed to load options')
       : empty
         ? 'No options available'
         : undefined;
   const noOptionsText = parentMissing
-    ? PARENT_MISSING_TEXT
+    ? parentMissingText
     : isLoading
       ? 'Loading…'
       : 'No options available';
@@ -283,20 +321,37 @@ export function RemoteChoiceSelector({
     <Controller
       name={name}
       control={control}
-      rules={required ? { required: `${label} is required` } : undefined}
+      rules={
+        required
+          ? {
+              validate: (value) =>
+                typeof value === 'string' && value.trim() !== ''
+                  ? true
+                  : `${label} is required`,
+            }
+          : undefined
+      }
       render={({ field, fieldState: { error: fieldError } }) => (
         <RemoteChoiceAutocomplete
           field={field}
           fieldError={fieldError}
           label={label}
           required={required}
-          disabled={disabled || parentMissing || isError}
-          allowCustom={Boolean(allowCustom)}
+          // Only an options-only field goes dead without options: free-text entry
+          // never needs the parent or a successful fetch, and disabling it would
+          // leave a required field unfillable.
+          disabled={
+            disabled || (!allowCustomEnabled && (parentMissing || isError))
+          }
+          allowCustom={allowCustomEnabled}
           options={options}
           loading={isLoading}
           isError={isError}
           helperText={helperText}
           noOptionsText={noOptionsText}
+          onCommitKind={(kind) => {
+            commitKindRef.current = kind;
+          }}
         />
       )}
     />

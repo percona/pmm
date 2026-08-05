@@ -165,6 +165,63 @@ export function ResultsPane({ incidentId }: ResultsPaneProps) {
     });
   };
 
+  /**
+   * The finished executions on the page currently rendered.
+   *
+   * Reusing `isSelectable` is what keeps the header toggle and the row
+   * checkboxes from ever disagreeing about which rows are eligible.
+   */
+  const selectablePageIds = useMemo(
+    () => (rows ?? []).filter(isSelectable).map((execution) => execution.id),
+    [rows]
+  );
+
+  const selectedPageCount = selectablePageIds.filter((id) =>
+    selectedIds.has(id)
+  ).length;
+  const allPageSelected =
+    selectablePageIds.length > 0 &&
+    selectedPageCount === selectablePageIds.length;
+  const somePageSelected = selectedPageCount > 0 && !allPageSelected;
+
+  /**
+   * Select or deselect the page's finished executions in one action.
+   *
+   * Deselection removes only this page's ids: the selection deliberately
+   * outlives a page flip, so clearing the whole set would drop rows chosen on
+   * another page.
+   */
+  const toggleSelectAllOnPage = () => {
+    const deselecting = allPageSelected;
+    setSelectedIds((previous) => {
+      const next = new Set(previous);
+      for (const id of selectablePageIds) {
+        if (deselecting) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+      }
+      return next;
+    });
+    if (deselecting) {
+      return;
+    }
+    // Mirror the labels the send dialog needs, so a row the user later pages
+    // away from still names itself. `knownExecutions` already holds them in the
+    // shape `toggleSelected` writes.
+    setSelectionLabels((previous) => {
+      const next = new Map(previous);
+      for (const id of selectablePageIds) {
+        const execution = knownExecutions.get(id);
+        if (execution) {
+          next.set(id, execution);
+        }
+      }
+      return next;
+    });
+  };
+
   const selectedExecutions = [...selectedIds]
     .map((id) => knownExecutions.get(id) ?? selectionLabels.get(id))
     .filter(
@@ -226,6 +283,26 @@ export function ResultsPane({ incidentId }: ResultsPaneProps) {
           alignItems="center"
           sx={{ mb: 2, flexWrap: 'wrap', rowGap: 1 }}
         >
+          <Tooltip
+            title={
+              selectablePageIds.length === 0
+                ? 'This page has no finished executions to select.'
+                : ''
+            }
+          >
+            <span>
+              <Checkbox
+                size="small"
+                checked={allPageSelected}
+                indeterminate={somePageSelected}
+                disabled={selectablePageIds.length === 0}
+                onChange={toggleSelectAllOnPage}
+                inputProps={{
+                  'aria-label': 'Select all finished executions on this page',
+                }}
+              />
+            </span>
+          </Tooltip>
           <Typography
             variant="body2"
             color="text.secondary"

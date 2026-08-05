@@ -83,6 +83,11 @@ function fieldDefault(field: PluginField): unknown {
     case 'table':
     case 'host':
       return field.default ?? '';
+    case 'remote_choice':
+      // Mirror the selector's empty commit (`null`), not `''` — an empty string
+      // passes some client checks yet fails the backend NonEmptyStr with
+      // "String should have at least 1 character".
+      return field.default ?? null;
     default:
       return field.default ?? '';
   }

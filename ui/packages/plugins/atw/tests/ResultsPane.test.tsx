@@ -297,37 +297,52 @@ function failedJob(detail: unknown) {
  * Route each GET by URL, so the executions list, config probe and send-job
  * history can answer with their own shapes rather than one shared envelope.
  */
+interface ExecutionsPage {
+  items: unknown[];
+  total: number;
+  offset: number;
+  limit: number;
+}
+
 function routeGet(routes: {
-  executions?: unknown;
+  executions?: ExecutionsPage | ((offset: number) => ExecutionsPage);
   config?: unknown;
   sendJobs?: unknown;
   incident?: unknown;
 }) {
-  mockedApi.get.mockImplementation((url: string) => {
-    if (url.includes('/send-jobs/')) {
+  mockedApi.get.mockImplementation(
+    (url: string, config?: { params?: { offset?: number } }) => {
+      if (url.includes('/send-jobs/')) {
+        return Promise.resolve({
+          data: routes.sendJobs ?? {
+            items: [],
+            total: 0,
+            offset: 0,
+            limit: 50,
+          },
+        });
+      }
+      if (url.includes('/executions/')) {
+        // A function route answers per requested offset, so a case can span pages;
+        // the offset arrives in the axios params, not the URL.
+        const executions =
+          typeof routes.executions === 'function'
+            ? routes.executions(config?.params?.offset ?? 0)
+            : routes.executions;
+        return Promise.resolve({
+          data: executions ?? { items: [], total: 0, offset: 0, limit: 20 },
+        });
+      }
+      if (url.includes('/config/')) {
+        return Promise.resolve({
+          data: routes.config ?? { send_disabled_reasons: [] },
+        });
+      }
       return Promise.resolve({
-        data: routes.sendJobs ?? { items: [], total: 0, offset: 0, limit: 50 },
+        data: routes.incident ?? { id: 'inc-1', case_ref: 'CS0001' },
       });
     }
-    if (url.includes('/executions/')) {
-      return Promise.resolve({
-        data: routes.executions ?? {
-          items: [],
-          total: 0,
-          offset: 0,
-          limit: 20,
-        },
-      });
-    }
-    if (url.includes('/config/')) {
-      return Promise.resolve({
-        data: routes.config ?? { send_disabled_reasons: [] },
-      });
-    }
-    return Promise.resolve({
-      data: routes.incident ?? { id: 'inc-1', case_ref: 'CS0001' },
-    });
-  });
+  );
 }
 
 describe('ResultsPane diagnostics send', () => {
@@ -655,6 +670,253 @@ describe('ResultsPane diagnostics send', () => {
       expect(
         screen.getByText(/Showing the 1 most recent of 73 attempts/i)
       ).toBeTruthy();
+    });
+  });
+});
+
+// ── Page-scoped select all ───────────────────────────────────────────────
+
+/** A second page's finished execution, so a selection can span two pages. */
+const SECOND_PAGE_EXECUTION = {
+  id: 'exec-4',
+  snippet_filename: 'diag/iostat.sh',
+  task_history_id: 11,
+  created_at: '2026-07-22T10:03:00Z',
+  task_status: 'success',
+  started_at: null,
+  finished_at: null,
+  has_logs: true,
+};
+
+const SELECT_ALL_LABEL = 'Select all finished executions on this page';
+
+const selectAllToggle = () =>
+  screen.getByLabelText(SELECT_ALL_LABEL) as HTMLInputElement;
+
+const rowToggle = (filename: string) =>
+  screen.getByLabelText(`Select ${filename}`) as HTMLInputElement;
+
+/**
+ * How the toggle presents itself to a screen reader.
+ *
+ * MUI leaves the native `checked` property false in the mixed state, so the
+ * indeterminate case has to be read off an attribute. `aria-checked="mixed"`
+ * is the contract a screen reader consumes, but MUI only started emitting it
+ * after 7.3.7 — the version this repo's lockfile resolves — so fall back to
+ * the `data-indeterminate` attribute MUI documents for that release.
+ */
+const toggleState = () => {
+  const toggle = selectAllToggle();
+  const indeterminate =
+    toggle.getAttribute('aria-checked') === 'mixed' ||
+    toggle.getAttribute('data-indeterminate') === 'true';
+  if (indeterminate) {
+    return 'mixed';
+  }
+  return toggle.checked ? 'checked' : 'unchecked';
+};
+
+/** Serve `pages` keyed by offset, so a case can select across a page flip. */
+function pagesByOffset(pages: Record<number, unknown[]>, total: number) {
+  return (offset: number) => ({
+    items: pages[offset] ?? [],
+    total,
+    offset,
+    limit: 20,
+  });
+}
+
+describe('ResultsPane select all on the page', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('selects every finished execution on the page and skips the unfinished ones', async () => {
+    routeGet({
+      executions: {
+        items: [FINISHED_EXECUTION, RUNNING_EXECUTION, STALE_EXECUTION],
+        total: 3,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(selectAllToggle()).toBeTruthy();
+    });
+    fireEvent.click(selectAllToggle());
+
+    await waitFor(() => {
+      expect(screen.getByText('2 selected')).toBeTruthy();
+    });
+    expect(rowToggle('diag/slow-query.sh').checked).toBe(true);
+    expect(rowToggle('diag/vmstat.sh').checked).toBe(true);
+    expect(rowToggle('diag/dmesg.sh').checked).toBe(false);
+    expect(toggleState()).toBe('checked');
+    expect(
+      (
+        screen.getByRole('button', {
+          name: /Send to support case/i,
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(false);
+  });
+
+  it('deselects exactly the page it selected', async () => {
+    routeGet({
+      executions: {
+        items: [FINISHED_EXECUTION, RUNNING_EXECUTION],
+        total: 2,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(selectAllToggle()).toBeTruthy();
+    });
+    fireEvent.click(selectAllToggle());
+    await waitFor(() => {
+      expect(screen.getByText('1 selected')).toBeTruthy();
+    });
+
+    fireEvent.click(selectAllToggle());
+
+    await waitFor(() => {
+      expect(screen.getByText('0 selected')).toBeTruthy();
+    });
+    expect(rowToggle('diag/slow-query.sh').checked).toBe(false);
+  });
+
+  it('renders the toggle indeterminate while only some finished rows are selected', async () => {
+    routeGet({
+      executions: {
+        items: [FINISHED_EXECUTION, STALE_EXECUTION],
+        total: 2,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(selectAllToggle()).toBeTruthy();
+    });
+    expect(toggleState()).toBe('unchecked');
+
+    fireEvent.click(rowToggle('diag/slow-query.sh'));
+
+    await waitFor(() => {
+      expect(toggleState()).toBe('mixed');
+    });
+
+    fireEvent.click(rowToggle('diag/vmstat.sh'));
+
+    await waitFor(() => {
+      expect(toggleState()).toBe('checked');
+    });
+  });
+
+  it('disables the toggle when the page holds no finished execution', async () => {
+    routeGet({
+      executions: {
+        items: [RUNNING_EXECUTION],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(selectAllToggle()).toBeTruthy();
+    });
+    expect(selectAllToggle().disabled).toBe(true);
+    expect(toggleState()).toBe('unchecked');
+  });
+
+  it('leaves another page selected when deselecting the current one', async () => {
+    routeGet({
+      executions: pagesByOffset(
+        {
+          0: [FINISHED_EXECUTION, RUNNING_EXECUTION],
+          20: [SECOND_PAGE_EXECUTION],
+        },
+        40
+      ),
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(selectAllToggle()).toBeTruthy();
+    });
+    fireEvent.click(selectAllToggle());
+    await waitFor(() => {
+      expect(screen.getByText('1 selected')).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Go to next page/i }));
+    await waitFor(() => {
+      expect(screen.getByText('diag/iostat.sh')).toBeTruthy();
+    });
+    fireEvent.click(selectAllToggle());
+    await waitFor(() => {
+      expect(screen.getByText('2 selected')).toBeTruthy();
+    });
+
+    // Unchecking page 2 must not touch the execution chosen on page 1.
+    fireEvent.click(selectAllToggle());
+
+    await waitFor(() => {
+      expect(screen.getByText('1 selected')).toBeTruthy();
+    });
+    expect(rowToggle('diag/iostat.sh').checked).toBe(false);
+    expect(
+      (
+        screen.getByRole('button', {
+          name: /Send to support case/i,
+        }) as HTMLButtonElement
+      ).disabled
+    ).toBe(false);
+  });
+
+  it('labels an execution the toggle selected after the user pages away from it', async () => {
+    routeGet({
+      executions: pagesByOffset(
+        { 0: [FINISHED_EXECUTION], 20: [SECOND_PAGE_EXECUTION] },
+        40
+      ),
+    });
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
+      expect(selectAllToggle()).toBeTruthy();
+    });
+    fireEvent.click(selectAllToggle());
+    await waitFor(() => {
+      expect(screen.getByText('1 selected')).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Go to next page/i }));
+    await waitFor(() => {
+      expect(screen.getByText('diag/iostat.sh')).toBeTruthy();
+    });
+    expect(screen.queryByText('diag/slow-query.sh')).toBeNull();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Send to support case/i })
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('diag/slow-query.sh')).toBeTruthy();
     });
   });
 });
