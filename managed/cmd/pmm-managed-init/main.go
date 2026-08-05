@@ -98,11 +98,11 @@ func checkHAEncryptionKey() error {
 	case err == nil:
 		return nil
 	case os.IsNotExist(err):
-		return fmt.Errorf("encryption key %q not found. In HA mode all PMM Server nodes must share "+
+		return fmt.Errorf("encryption key %s not found. In HA mode all PMM Server nodes must share "+
 			"one encryption key, so it is never generated automatically. Generate it once with "+
-			"`pmm-encryption-rotation --generate-key`, place the output at %q on every node, then start them",
+			"`pmm-encryption-rotation --generate-key`, place the output at %s on every node, then start them",
 			path, path)
 	default:
-		return fmt.Errorf("cannot read encryption key %q: %w", path, err)
+		return fmt.Errorf("cannot read encryption key %s: %w", path, err)
 	}
 }
