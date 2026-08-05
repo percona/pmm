@@ -101,6 +101,63 @@ func TestCollect(t *testing.T) {
 	})
 }
 
+// TestShippedBuiltinTemplates validates the templates in managed/data/alerting-templates.
+// TestCollect's "builtin are valid" subtest cannot: builtinTemplatesDir is the absolute
+// path /usr/local/percona/alerting-templates, which does not exist in a dev checkout, so
+// filepath.Glob there returns no files and no error and the subtest passes vacuously.
+func TestShippedBuiltinTemplates(t *testing.T) {
+	t.Parallel()
+
+	files, err := filepath.Glob(filepath.Join("..", "..", "data", "alerting-templates", "*.yml"))
+	require.NoError(t, err)
+	require.NotEmpty(t, files, "no shipped built-in templates found")
+
+	for _, file := range files {
+		t.Run(filepath.Base(file), func(t *testing.T) {
+			t.Parallel()
+
+			b, err := os.ReadFile(file)
+			require.NoError(t, err)
+
+			templates, err := alert.Parse(strings.NewReader(string(b)), &alert.ParseParams{
+				DisallowUnknownFields:    true,
+				DisallowInvalidTemplates: true,
+			})
+			require.NoError(t, err)
+			require.Len(t, templates, 1)
+
+			require.NoError(t, validateBuiltinTemplate(file, &templates[0]))
+
+			tm, err := models.ConvertTemplate(&templates[0], models.BuiltInSource)
+			require.NoError(t, err)
+			// validateBuiltinTemplate rejects an absent category, so every shipped
+			// template must map to a real proto category rather than UNSPECIFIED.
+			assert.NotEqual(t, alerting.TemplateCategory_TEMPLATE_CATEGORY_UNSPECIFIED, convertCategory(tm.Category))
+		})
+	}
+}
+
+func TestValidateBuiltinTemplateRequiresCategory(t *testing.T) {
+	t.Parallel()
+
+	template := alert.Template{
+		Name:    "pmm_no_category",
+		Version: 1,
+		Summary: "No category",
+		Annotations: map[string]string{
+			"summary":     "s",
+			"description": "d",
+		},
+	}
+
+	err := validateBuiltinTemplate("no_category.yml", &template)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "should declare a category")
+
+	template.Category = alert.CategoryPMM
+	require.NoError(t, validateBuiltinTemplate("no_category.yml", &template))
+}
+
 func TestTemplateValidation(t *testing.T) {
 	t.Parallel()
 	ctx := t.Context()
@@ -410,6 +467,56 @@ func TestConvertTemplate(t *testing.T) {
 		assert.Empty(t, dto.Queries)
 		assert.Empty(t, dto.Expressions)
 		assert.Empty(t, dto.Condition)
+	})
+
+	t.Run("exposes the declared category", func(t *testing.T) {
+		t.Parallel()
+
+		const withCategory = `templates:
+  - name: pmm_category_test
+    version: 1
+    summary: Category test
+    category: mysql
+    expr: mysql_up == 0
+    for: 1m
+    severity: warning
+    annotations:
+      summary: s
+      description: d
+`
+
+		tm := parse(t, withCategory)
+		assert.Equal(t, models.MySQLCategory, tm.Category)
+
+		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm, nil)
+		require.NoError(t, err)
+		assert.Equal(t, alerting.TemplateCategory_TEMPLATE_CATEGORY_MYSQL, dto.Category)
+	})
+
+	t.Run("defaults an absent category to unspecified", func(t *testing.T) {
+		t.Parallel()
+
+		const noCategory = `templates:
+  - name: pmm_no_category_test
+    version: 1
+    summary: No category
+    expr: mysql_up == 0
+    for: 1m
+    severity: warning
+    annotations:
+      summary: s
+      description: d
+`
+
+		tm := parse(t, noCategory)
+		// The models layer resolves the absent category, but the stored YAML must not
+		// gain a category line the author never wrote.
+		assert.Equal(t, models.UnknownCategory, tm.Category)
+		assert.NotContains(t, tm.Yaml, "category")
+
+		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm, nil)
+		require.NoError(t, err)
+		assert.Equal(t, alerting.TemplateCategory_TEMPLATE_CATEGORY_UNSPECIFIED, dto.Category)
 	})
 
 	t.Run("rejects unparseable YAML at parse time", func(t *testing.T) {

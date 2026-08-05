@@ -6,6 +6,9 @@ import { TextInput } from '@percona/percona-ui';
 import { useFormContext } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { readFileAsText } from '../../modal-create-template/CreateTemplateModal.utils';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import { Messages } from '../../modal-create-template/CreateTemplateModal.messages';
 
 interface Props {
   label: string;
@@ -39,7 +42,18 @@ export const TemplateYamlField: FC<Props> = ({
 
   return (
     <Stack gap={1}>
-      <Stack direction="row" justifyContent="flex-end">
+      <Stack direction="row" justifyContent="space-between">
+        <Typography>
+          {Messages.description.checkOut}
+          <Link
+            href="https://per.co.na/alert_templates"
+            target="_blank"
+            rel="noopener"
+          >
+            {Messages.description.documentation}
+          </Link>
+          {Messages.description.forAdding}
+        </Typography>
         <Button
           type="button"
           size="small"

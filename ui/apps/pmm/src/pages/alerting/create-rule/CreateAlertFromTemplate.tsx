@@ -95,7 +95,10 @@ export const CreateAlertFromTemplate: FC = () => {
     <Page title={Messages.title}>
       <FormProvider {...methods}>
         <Stack component="form" onSubmit={handleSubmit(onSubmit)} gap={4}>
-          <TemplateSelectSection templates={templates} />
+          <TemplateSelectSection
+            templates={templates}
+            selectedTemplate={selectedTemplate}
+          />
           <ParamsSection template={selectedTemplate} />
           <DetailsSection />
           <FolderGroupSection

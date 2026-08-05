@@ -9,6 +9,7 @@ export const Messages = {
   columns: {
     name: 'Name',
     source: 'Source',
+    category: 'Category',
     createdAt: 'Created at',
     actions: 'Actions',
   },
@@ -29,5 +30,16 @@ export const Messages = {
     userFile: 'User-created (file)',
     userApi: 'User-created (UI)',
     unknown: 'Unknown',
+  },
+  category: {
+    unspecified: 'Unspecified',
+    pmm: 'PMM',
+    mongodb: 'MongoDB',
+    mysql: 'MySQL',
+    node: 'Node',
+    posgresql: 'PostgreSQL',
+    proxysql: 'ProxySQL',
+    valkey: 'Valkey',
+    haproxy: 'HAProxy',
   },
 };

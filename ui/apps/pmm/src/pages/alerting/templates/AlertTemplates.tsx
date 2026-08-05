@@ -94,7 +94,13 @@ export const AlertTemplates: FC = () => {
           },
         }}
         renderTopToolbarCustomActions={() => (
-          <Stack direction="row" gap={2} alignItems="center">
+          <Stack
+            gap={2}
+            flex={1}
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
             <TextField
               select
               size="small"

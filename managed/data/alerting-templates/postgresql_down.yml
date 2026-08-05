@@ -3,6 +3,7 @@ templates:
   - name: pmm_postgresql_down
     version: 1
     summary: PostgreSQL down
+    category: postgresql
     expr: |
       (
         # enabled exporters we should be watching (from inventory — always present)

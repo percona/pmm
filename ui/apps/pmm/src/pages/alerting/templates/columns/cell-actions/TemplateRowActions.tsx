@@ -17,6 +17,7 @@ import { isTemplateEditable } from 'utils/alert-templates.utils';
 import { copyToClipboard } from 'utils/clipboard.utils';
 import { PMM_ALERTING_NEW_FROM_TEMPLATE_PATH } from 'lib/constants';
 import { Messages } from '../../AlertTemplates.messages';
+import Stack from '@mui/material/Stack';
 
 interface Props {
   template: Template;
@@ -53,7 +54,7 @@ export const TemplateRowActions: FC<Props> = ({
   };
 
   return (
-    <>
+    <Stack flex={1} direction="row" justifyContent="flex-end">
       <IconButton
         size="small"
         aria-label={Messages.columns.actions}
@@ -118,7 +119,7 @@ export const TemplateRowActions: FC<Props> = ({
           </MenuItem>
         )}
       </Menu>
-    </>
+    </Stack>
   );
 };
 

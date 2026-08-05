@@ -37,6 +37,18 @@ export enum Severity {
   DEBUG = 'SEVERITY_DEBUG',
 }
 
+export enum TemplateCategory {
+  UNSPECIFIED = 'TEMPLATE_CATEGORY_UNSPECIFIED',
+  PMM = 'TEMPLATE_CATEGORY_PMM',
+  MONGODB = 'TEMPLATE_CATEGORY_MONGODB',
+  MYSQL = 'TEMPLATE_CATEGORY_MYSQL',
+  NODE = 'TEMPLATE_CATEGORY_NODE',
+  POSTGRESQL = 'TEMPLATE_CATEGORY_POSTGRESQL',
+  PROXYSQL = 'TEMPLATE_CATEGORY_PROXYSQL',
+  VALKEY = 'TEMPLATE_CATEGORY_VALKEY',
+  HAPROXY = 'TEMPLATE_CATEGORY_HAPROXY',
+}
+
 export interface BoolParamDefinition {
   default?: boolean;
 }
@@ -76,6 +88,7 @@ export interface Template {
   createdAt?: string;
   // YAML file content; empty for built-in and SaaS templates.
   yaml: string;
+  category: TemplateCategory;
 }
 
 export interface ListTemplatesParams {

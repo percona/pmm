@@ -4,6 +4,7 @@ import { formatCreatedAt } from 'utils/alert-templates.utils';
 import { Messages } from '../AlertTemplates.messages';
 import { SourceCell } from './cell-source';
 import { TemplateRowActions } from './cell-actions';
+import { TEMPLATE_CATEGORY_MAP } from '../AlertTemplates.constants';
 
 interface ColumnsOptions {
   canManage: boolean;
@@ -24,9 +25,16 @@ export const getAlertTemplatesColumns = ({
     Cell: ({ row }) => row.original.summary || row.original.name,
   },
   {
+    size: 150,
     accessorKey: 'source',
     header: Messages.columns.source,
     Cell: ({ row }) => <SourceCell source={row.original.source} />,
+  },
+  {
+    accessorKey: 'category',
+    header: Messages.columns.category,
+    Cell: ({ row }) =>
+      TEMPLATE_CATEGORY_MAP[row.original.category] || row.original.category,
   },
   {
     accessorKey: 'createdAt',
@@ -35,6 +43,7 @@ export const getAlertTemplatesColumns = ({
   },
   {
     id: 'actions',
+    size: 100,
     header: Messages.columns.actions,
     enableSorting: false,
     enableColumnFilter: false,
