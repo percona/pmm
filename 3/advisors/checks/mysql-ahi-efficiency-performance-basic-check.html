@@ -7,37 +7,37 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Create a backup of your PMM Server data to protect against data loss, prepare for upgrades, or migrate to another system.">
+        <meta name="description" content="Documentation">
       
       
         <meta name="author" content="Percona LLC">
       
       
-        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.html">
+        <link rel="canonical" href="https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-ahi-efficiency-performance-basic-check.html">
       
       
-        <link rel="prev" href="index.html">
+        <link rel="prev" href="multiple-mongod-running-in-a-node.html">
       
       
-        <link rel="next" href="restore_container_podman.html">
+        <link rel="next" href="performance-pg-low-cache-hit-ratio.html">
       
       
         
       
       
-      <link rel="icon" href="../../../../assets/pmm-fav.svg">
+      <link rel="icon" href="../../assets/pmm-fav.svg">
       <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
-        <title>Back up PMM Server Podman container - Percona Monitoring and Management</title>
+        <title>InnoDB Adaptive Hash Index (AHI) efficiency check - Percona Monitoring and Management</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -60,21 +60,21 @@
     
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css">
     
-      <link rel="stylesheet" href="../../../../css/nocopy.css">
+      <link rel="stylesheet" href="../../css/nocopy.css">
     
-      <link rel="stylesheet" href="../../../../css/design.css">
+      <link rel="stylesheet" href="../../css/design.css">
     
-      <link rel="stylesheet" href="../../../../css/osano.css">
+      <link rel="stylesheet" href="../../css/osano.css">
     
-      <link rel="stylesheet" href="../../../../css/pmm.css">
+      <link rel="stylesheet" href="../../css/pmm.css">
     
-      <link rel="stylesheet" href="../../../../css/extra.css">
+      <link rel="stylesheet" href="../../css/extra.css">
     
-      <link rel="stylesheet" href="../../../../css/rating.css">
+      <link rel="stylesheet" href="../../css/rating.css">
     
-      <link rel="stylesheet" href="../../../../css/kapa.css">
+      <link rel="stylesheet" href="../../css/kapa.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
   
@@ -96,7 +96,7 @@
                  
                  
                  <meta property="og:type" content="website" />
-                 <meta property="og:title" content="Percona Monitoring and Management - Back up PMM Server Podman container" />
+                 <meta property="og:title" content="Percona Monitoring and Management - InnoDB Adaptive Hash Index (AHI) efficiency check" />
                  <meta property="og:image" content="https://docs.percona.com/percona-monitoring-and-management/images/PMM.png">
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               
@@ -119,7 +119,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#back-up-pmm-server-podman-container" class="md-skip">
+        <a href="#innodb-adaptive-hash-index-ahi-efficiency-check" class="md-skip">
           Skip to content
         </a>
       
@@ -198,14 +198,14 @@
 
     <!-- Link to home -->
     <a
-      href="../../../../index.html"
+      href="../../index.html"
       title="Percona Monitoring and Management"
       class="md-header__button md-logo"
       aria-label="Percona Monitoring and Management"
       data-md-component="logo"
     >
       
-  <img src="../../../../assets/pmm-mark.svg" alt="logo">
+  <img src="../../assets/pmm-mark.svg" alt="logo">
 
     </a>
 
@@ -218,7 +218,7 @@
     <!-- Header title -->
     <div class="md-header__title">
       <div class="md-header__ellipsis">
-        <a href="../../../../index.html" class="md-header__topic">
+        <a href="../../index.html" class="md-header__topic">
           <span class="md-ellipsis">
             Percona Monitoring and Management
           </span>
@@ -226,7 +226,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Back up PMM Server Podman container
+              InnoDB Adaptive Hash Index (AHI) efficiency check
             
           </span>
         </div>
@@ -365,9 +365,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../../index.html" title="Percona Monitoring and Management" class="md-nav__button md-logo" aria-label="Percona Monitoring and Management" data-md-component="logo">
+    <a href="../../index.html" title="Percona Monitoring and Management" class="md-nav__button md-logo" aria-label="Percona Monitoring and Management" data-md-component="logo">
       
-  <img src="../../../../assets/pmm-mark.svg" alt="logo">
+  <img src="../../assets/pmm-mark.svg" alt="logo">
 
     </a>
     Percona Monitoring and Management
@@ -394,7 +394,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../index.html" class="md-nav__link">
+      <a href="../../index.html" class="md-nav__link">
         
   
   
@@ -421,7 +421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../get-help.html" class="md-nav__link">
+      <a href="../../get-help.html" class="md-nav__link">
         
   
   
@@ -495,7 +495,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../discover-pmm/why-pmm.html" class="md-nav__link">
+      <a href="../../discover-pmm/why-pmm.html" class="md-nav__link">
         
   
   
@@ -523,7 +523,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../discover-pmm/features.html" class="md-nav__link">
+      <a href="../../discover-pmm/features.html" class="md-nav__link">
         
   
   
@@ -558,7 +558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quickstart/quickstart.html" class="md-nav__link">
+      <a href="../../quickstart/quickstart.html" class="md-nav__link">
         
   
   
@@ -582,20 +582,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -616,7 +614,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -634,7 +632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../index.html" class="md-nav__link">
+      <a href="../../install-pmm/index.html" class="md-nav__link">
         
   
   
@@ -709,7 +707,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plan-pmm-installation/choose-deployment.html" class="md-nav__link">
+      <a href="../../install-pmm/plan-pmm-installation/choose-deployment.html" class="md-nav__link">
         
   
   
@@ -737,7 +735,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plan-pmm-installation/hardware_and_system.html" class="md-nav__link">
+      <a href="../../install-pmm/plan-pmm-installation/hardware_and_system.html" class="md-nav__link">
         
   
   
@@ -765,7 +763,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../plan-pmm-installation/network_and_firewall.html" class="md-nav__link">
+      <a href="../../install-pmm/plan-pmm-installation/network_and_firewall.html" class="md-nav__link">
         
   
   
@@ -798,20 +796,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
         
           
           <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
@@ -832,7 +828,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -850,7 +846,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/index.html" class="md-nav__link">
         
   
   
@@ -878,7 +874,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../prerequisites.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/prerequisites.html" class="md-nav__link">
         
   
   
@@ -903,20 +899,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3" >
         
           
           <label class="md-nav__link" for="__nav_5_3_3" id="__nav_5_3_3_label" tabindex="0">
@@ -937,7 +931,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_3_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_3_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1002,7 +996,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/index.html" class="md-nav__link">
         
   
   
@@ -1030,7 +1024,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/easy-install.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/easy-install.html" class="md-nav__link">
         
   
   
@@ -1105,7 +1099,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/run_with_vol.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/run_with_vol.html" class="md-nav__link">
         
   
   
@@ -1133,7 +1127,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/run_with_host_dir.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/run_with_host_dir.html" class="md-nav__link">
         
   
   
@@ -1216,7 +1210,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/env_var.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/env_var.html" class="md-nav__link">
         
   
   
@@ -1244,7 +1238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/preview_env_var.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/preview_env_var.html" class="md-nav__link">
         
   
   
@@ -1272,7 +1266,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/isolated_hosts.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/isolated_hosts.html" class="md-nav__link">
         
   
   
@@ -1355,7 +1349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/backup_container.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/backup_container.html" class="md-nav__link">
         
   
   
@@ -1383,7 +1377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/restore_container.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/restore_container.html" class="md-nav__link">
         
   
   
@@ -1411,7 +1405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/remove_container.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/remove_container.html" class="md-nav__link">
         
   
   
@@ -1439,7 +1433,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker/upgrade_container.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/docker/upgrade_container.html" class="md-nav__link">
         
   
   
@@ -1480,20 +1474,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2" >
         
           
           <label class="md-nav__link" for="__nav_5_3_3_2" id="__nav_5_3_3_2_label" tabindex="0">
@@ -1514,7 +1506,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_3_3_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_3_3_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1532,7 +1524,7 @@
   
   
     <li class="md-nav__item">
-      <a href="index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/index.html" class="md-nav__link">
         
   
   
@@ -1557,20 +1549,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3_3_2_2" >
         
           
           <label class="md-nav__link" for="__nav_5_3_3_2_2" id="__nav_5_3_3_2_2_label" tabindex="0">
@@ -1591,7 +1581,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_2_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_5_3_3_2_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_3_3_2_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1606,37 +1596,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Back up PMM Server Podman container
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="backup_container_podman.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.html" class="md-nav__link">
         
   
   
@@ -1652,70 +1615,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#backing-up-grafana-plugins" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Backing up Grafana plugins
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#back-up-procedure" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Back up procedure
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#backup-storage-recommendations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Backup storage recommendations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-topics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Related topics
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1728,7 +1627,7 @@
   
   
     <li class="md-nav__item">
-      <a href="restore_container_podman.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/restore_container_podman.html" class="md-nav__link">
         
   
   
@@ -1756,7 +1655,7 @@
   
   
     <li class="md-nav__item">
-      <a href="remove_container_podman.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/podman/remove_container_podman.html" class="md-nav__link">
         
   
   
@@ -1894,7 +1793,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/index.html" class="md-nav__link">
         
   
   
@@ -1922,7 +1821,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/download_ova.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/download_ova.html" class="md-nav__link">
         
   
   
@@ -1950,7 +1849,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/virtualbox.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/virtualbox.html" class="md-nav__link">
         
   
   
@@ -2033,7 +1932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../aws/plan_aws.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/aws/plan_aws.html" class="md-nav__link">
         
   
   
@@ -2061,7 +1960,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../aws/deploy_aws.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/aws/deploy_aws.html" class="md-nav__link">
         
   
   
@@ -2089,7 +1988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../aws/configure_aws.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/aws/configure_aws.html" class="md-nav__link">
         
   
   
@@ -2172,7 +2071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/env_var.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/env_var.html" class="md-nav__link">
         
   
   
@@ -2200,7 +2099,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/login_UI.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/login_UI.html" class="md-nav__link">
         
   
   
@@ -2228,7 +2127,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/remove_virtual_machine.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/remove_virtual_machine.html" class="md-nav__link">
         
   
   
@@ -2256,7 +2155,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/ssh.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/ssh.html" class="md-nav__link">
         
   
   
@@ -2347,7 +2246,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../helm/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/helm/index.html" class="md-nav__link">
         
   
   
@@ -2422,7 +2321,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../helm/backup_container_helm.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/helm/backup_container_helm.html" class="md-nav__link">
         
   
   
@@ -2450,7 +2349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../helm/restore_container_helm.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/helm/restore_container_helm.html" class="md-nav__link">
         
   
   
@@ -2557,7 +2456,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/index.html" class="md-nav__link">
         
   
   
@@ -2585,7 +2484,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/prerequisites.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/prerequisites.html" class="md-nav__link">
         
   
   
@@ -2660,7 +2559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/package_manager.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/package_manager.html" class="md-nav__link">
         
   
   
@@ -2688,7 +2587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/binary_package.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/binary_package.html" class="md-nav__link">
         
   
   
@@ -2716,7 +2615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/docker.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/docker.html" class="md-nav__link">
         
   
   
@@ -2744,7 +2643,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/kubernetes.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/kubernetes.html" class="md-nav__link">
         
   
   
@@ -2874,7 +2773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/index.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/index.html" class="md-nav__link">
         
   
   
@@ -2949,7 +2848,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/mysql/mysql.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/mysql/mysql.html" class="md-nav__link">
         
   
   
@@ -2977,7 +2876,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/mysql/custom_queries.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/mysql/custom_queries.html" class="md-nav__link">
         
   
   
@@ -3013,7 +2912,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/mongodb.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/mongodb.html" class="md-nav__link">
         
   
   
@@ -3041,7 +2940,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/postgresql.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/postgresql.html" class="md-nav__link">
         
   
   
@@ -3069,7 +2968,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/valkey-redis.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/valkey-redis.html" class="md-nav__link">
         
   
   
@@ -3152,7 +3051,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/aws.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/aws.html" class="md-nav__link">
         
   
   
@@ -3180,7 +3079,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/azure.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/azure.html" class="md-nav__link">
         
   
   
@@ -3208,7 +3107,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/google.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/google.html" class="md-nav__link">
         
   
   
@@ -3291,7 +3190,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/linux.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/linux.html" class="md-nav__link">
         
   
   
@@ -3319,7 +3218,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/remote.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/remote.html" class="md-nav__link">
         
   
   
@@ -3402,7 +3301,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/haproxy.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/haproxy.html" class="md-nav__link">
         
   
   
@@ -3430,7 +3329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/proxysql.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/proxysql.html" class="md-nav__link">
         
   
   
@@ -3513,7 +3412,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-pmm-client/connect-database/external.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-client/connect-database/external.html" class="md-nav__link">
         
   
   
@@ -3612,7 +3511,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../HA.html" class="md-nav__link">
+      <a href="../../install-pmm/HA.html" class="md-nav__link">
         
   
   
@@ -3640,7 +3539,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../HA-docker.html" class="md-nav__link">
+      <a href="../../install-pmm/HA-docker.html" class="md-nav__link">
         
   
   
@@ -3668,7 +3567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../HA-kubernetes-single-instance.html" class="md-nav__link">
+      <a href="../../install-pmm/HA-kubernetes-single-instance.html" class="md-nav__link">
         
   
   
@@ -3743,7 +3642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../HA-clustered.html" class="md-nav__link">
+      <a href="../../install-pmm/HA-clustered.html" class="md-nav__link">
         
   
   
@@ -3771,7 +3670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../install-HA-clustered.html" class="md-nav__link">
+      <a href="../../install-pmm/install-HA-clustered.html" class="md-nav__link">
         
   
   
@@ -3819,18 +3718,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -3851,7 +3752,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -3869,7 +3770,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/using-pmm.html" class="md-nav__link">
+      <a href="../../use/using-pmm.html" class="md-nav__link">
         
   
   
@@ -3944,7 +3845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/ui/ui_components.html" class="md-nav__link">
+      <a href="../../reference/ui/ui_components.html" class="md-nav__link">
         
   
   
@@ -3972,7 +3873,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/ui/log_in.html" class="md-nav__link">
+      <a href="../../reference/ui/log_in.html" class="md-nav__link">
         
   
   
@@ -4000,7 +3901,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/ui/timezone.html" class="md-nav__link">
+      <a href="../../reference/ui/timezone.html" class="md-nav__link">
         
   
   
@@ -4036,7 +3937,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboard-inventory.html" class="md-nav__link">
+      <a href="../../use/dashboard-inventory.html" class="md-nav__link">
         
   
   
@@ -4064,7 +3965,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/remove-services.html" class="md-nav__link">
+      <a href="../../use/remove-services.html" class="md-nav__link">
         
   
   
@@ -4139,7 +4040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/monitor.html" class="md-nav__link">
+      <a href="../../use/monitor.html" class="md-nav__link">
         
   
   
@@ -4214,7 +4115,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/metrics/index.html" class="md-nav__link">
+      <a href="../../use/metrics/index.html" class="md-nav__link">
         
   
   
@@ -4242,7 +4143,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/metrics/extend_metrics.html" class="md-nav__link">
+      <a href="../../use/metrics/extend_metrics.html" class="md-nav__link">
         
   
   
@@ -4325,7 +4226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/index.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/index.html" class="md-nav__link">
         
   
   
@@ -4400,7 +4301,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/manage-dashboards/create-folders.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/manage-dashboards/create-folders.html" class="md-nav__link">
         
   
   
@@ -4428,7 +4329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/manage-dashboards/manage-folders.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/manage-dashboards/manage-folders.html" class="md-nav__link">
         
   
   
@@ -4456,7 +4357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/manage-dashboards/set-custom-dashboard.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/manage-dashboards/set-custom-dashboard.html" class="md-nav__link">
         
   
   
@@ -4492,7 +4393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/share-dashboards/share_dashboard.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/share-dashboards/share_dashboard.html" class="md-nav__link">
         
   
   
@@ -4520,7 +4421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/dashboards-panels/annotate/annotate.html" class="md-nav__link">
+      <a href="../../use/dashboards-panels/annotate/annotate.html" class="md-nav__link">
         
   
   
@@ -4611,7 +4512,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/index.html" class="md-nav__link">
+      <a href="../../use/qan/index.html" class="md-nav__link">
         
   
   
@@ -4686,7 +4587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/QAN-stored-metrics.html" class="md-nav__link">
+      <a href="../../use/qan/QAN-stored-metrics.html" class="md-nav__link">
         
   
   
@@ -4761,7 +4662,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/panels/overview.html" class="md-nav__link">
+      <a href="../../use/qan/panels/overview.html" class="md-nav__link">
         
   
   
@@ -4789,7 +4690,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/panels/filters.html" class="md-nav__link">
+      <a href="../../use/qan/panels/filters.html" class="md-nav__link">
         
   
   
@@ -4817,7 +4718,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/panels/details.html" class="md-nav__link">
+      <a href="../../use/qan/panels/details.html" class="md-nav__link">
         
   
   
@@ -4853,7 +4754,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/mysql.html" class="md-nav__link">
+      <a href="../../use/qan/mysql.html" class="md-nav__link">
         
   
   
@@ -4881,7 +4782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/qan_mongo.html" class="md-nav__link">
+      <a href="../../use/qan/qan_mongo.html" class="md-nav__link">
         
   
   
@@ -4917,7 +4818,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/qan/QAN-realtime-analytics.html" class="md-nav__link">
+      <a href="../../use/qan/QAN-realtime-analytics.html" class="md-nav__link">
         
   
   
@@ -4950,18 +4851,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7" checked>
         
           
           <label class="md-nav__link" for="__nav_6_7" id="__nav_6_7_label" tabindex="0">
@@ -4982,7 +4885,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -5000,7 +4903,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/advisors.html" class="md-nav__link">
+      <a href="../advisors.html" class="md-nav__link">
         
   
   
@@ -5028,7 +4931,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/develop-advisor-checks.html" class="md-nav__link">
+      <a href="../develop-advisor-checks.html" class="md-nav__link">
         
   
   
@@ -5053,18 +4956,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3" checked>
         
           
           <label class="md-nav__link" for="__nav_6_7_3" id="__nav_6_7_3_label" tabindex="0">
@@ -5085,7 +4990,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_7_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_7_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6_7_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -5103,7 +5008,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/advisor-details.html" class="md-nav__link">
+      <a href="../advisor-details.html" class="md-nav__link">
         
   
   
@@ -5225,7 +5130,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-version-check.html" class="md-nav__link">
+      <a href="mongodb-version-check.html" class="md-nav__link">
         
   
   
@@ -5253,7 +5158,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-version.html" class="md-nav__link">
+      <a href="mongodb-version.html" class="md-nav__link">
         
   
   
@@ -5281,7 +5186,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql_unsupported_version_check.html" class="md-nav__link">
+      <a href="mysql_unsupported_version_check.html" class="md-nav__link">
         
   
   
@@ -5309,7 +5214,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql_version_eol_57.html" class="md-nav__link">
+      <a href="mysql_version_eol_57.html" class="md-nav__link">
         
   
   
@@ -5337,7 +5242,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-eol-check.html" class="md-nav__link">
+      <a href="postgresql-eol-check.html" class="md-nav__link">
         
   
   
@@ -5365,7 +5270,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-extension-check.html" class="md-nav__link">
+      <a href="postgresql-extension-check.html" class="md-nav__link">
         
   
   
@@ -5393,7 +5298,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-unsupported-check.html" class="md-nav__link">
+      <a href="postgresql-unsupported-check.html" class="md-nav__link">
         
   
   
@@ -5421,7 +5326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-version-check.html" class="md-nav__link">
+      <a href="postgresql-version-check.html" class="md-nav__link">
         
   
   
@@ -5504,7 +5409,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-active-vs-available-connections.html" class="md-nav__link">
+      <a href="mongodb-active-vs-available-connections.html" class="md-nav__link">
         
   
   
@@ -5532,7 +5437,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-high-wiredTiger-cache.html" class="md-nav__link">
+      <a href="mongodb-high-wiredTiger-cache.html" class="md-nav__link">
         
   
   
@@ -5560,7 +5465,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-journal.html" class="md-nav__link">
+      <a href="mongodb-journal.html" class="md-nav__link">
         
   
   
@@ -5588,7 +5493,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-log-messages.html" class="md-nav__link">
+      <a href="mongodb-log-messages.html" class="md-nav__link">
         
   
   
@@ -5616,7 +5521,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-read-tickets.html" class="md-nav__link">
+      <a href="mongodb-read-tickets.html" class="md-nav__link">
         
   
   
@@ -5644,7 +5549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-write-tickets.html" class="md-nav__link">
+      <a href="mongodb-write-tickets.html" class="md-nav__link">
         
   
   
@@ -5672,7 +5577,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-non-default-runtime-write-tickets.html" class="md-nav__link">
+      <a href="mongodb-non-default-runtime-write-tickets.html" class="md-nav__link">
         
   
   
@@ -5700,7 +5605,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql_automatic_sp_privileges_enabled.html" class="md-nav__link">
+      <a href="mysql_automatic_sp_privileges_enabled.html" class="md-nav__link">
         
   
   
@@ -5728,7 +5633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/binlog-retention-period.html" class="md-nav__link">
+      <a href="binlog-retention-period.html" class="md-nav__link">
         
   
   
@@ -5756,7 +5661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/binlog-row-image.html" class="md-nav__link">
+      <a href="binlog-row-image.html" class="md-nav__link">
         
   
   
@@ -5784,7 +5689,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/binlog-checksum-value.html" class="md-nav__link">
+      <a href="binlog-checksum-value.html" class="md-nav__link">
         
   
   
@@ -5812,7 +5717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-check-general-log.html" class="md-nav__link">
+      <a href="configuration-check-general-log.html" class="md-nav__link">
         
   
   
@@ -5840,7 +5745,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-check-log-bin.html" class="md-nav__link">
+      <a href="configuration-check-log-bin.html" class="md-nav__link">
         
   
   
@@ -5868,7 +5773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-check-sql-mode.html" class="md-nav__link">
+      <a href="configuration-check-sql-mode.html" class="md-nav__link">
         
   
   
@@ -5896,7 +5801,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-check-tmp-table-size-limit.html" class="md-nav__link">
+      <a href="configuration-check-tmp-table-size-limit.html" class="md-nav__link">
         
   
   
@@ -5924,7 +5829,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql-warnings-not-being-logged.html" class="md-nav__link">
+      <a href="mysql-warnings-not-being-logged.html" class="md-nav__link">
         
   
   
@@ -5952,7 +5857,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/time-zone-data-not-loaded.html" class="md-nav__link">
+      <a href="time-zone-data-not-loaded.html" class="md-nav__link">
         
   
   
@@ -5980,7 +5885,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-pg-check-fsync-enabled.html" class="md-nav__link">
+      <a href="configuration-pg-check-fsync-enabled.html" class="md-nav__link">
         
   
   
@@ -6008,7 +5913,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-pg-log-checkpoints-disabled.html" class="md-nav__link">
+      <a href="configuration-pg-log-checkpoints-disabled.html" class="md-nav__link">
         
   
   
@@ -6036,7 +5941,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-logging-recommendations.html" class="md-nav__link">
+      <a href="postgresql-logging-recommendations.html" class="md-nav__link">
         
   
   
@@ -6064,7 +5969,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-wal-retention-check.html" class="md-nav__link">
+      <a href="postgresql-wal-retention-check.html" class="md-nav__link">
         
   
   
@@ -6092,7 +5997,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/performance-pg-archiver-failing.html" class="md-nav__link">
+      <a href="performance-pg-archiver-failing.html" class="md-nav__link">
         
   
   
@@ -6175,7 +6080,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-collections-fragmented.html" class="md-nav__link">
+      <a href="mongodb-collections-fragmented.html" class="md-nav__link">
         
   
   
@@ -6203,7 +6108,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-cpu-cores-check.html" class="md-nav__link">
+      <a href="mongodb-cpu-cores-check.html" class="md-nav__link">
         
   
   
@@ -6231,7 +6136,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-dbpath-mount.html" class="md-nav__link">
+      <a href="mongodb-dbpath-mount.html" class="md-nav__link">
         
   
   
@@ -6259,7 +6164,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-fcv-mismatch.html" class="md-nav__link">
+      <a href="mongodb-fcv-mismatch.html" class="md-nav__link">
         
   
   
@@ -6287,7 +6192,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-maxSessions.html" class="md-nav__link">
+      <a href="mongodb-maxSessions.html" class="md-nav__link">
         
   
   
@@ -6315,7 +6220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-swap-allocation.html" class="md-nav__link">
+      <a href="mongodb-swap-allocation.html" class="md-nav__link">
         
   
   
@@ -6343,7 +6248,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-task-executorPoolSize-high.html" class="md-nav__link">
+      <a href="mongodb-task-executorPoolSize-high.html" class="md-nav__link">
         
   
   
@@ -6371,7 +6276,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-xfs.html" class="md-nav__link">
+      <a href="mongodb-xfs.html" class="md-nav__link">
         
   
   
@@ -6399,7 +6304,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/platform-mysql-binaries-32-bit.html" class="md-nav__link">
+      <a href="platform-mysql-binaries-32-bit.html" class="md-nav__link">
         
   
   
@@ -6482,7 +6387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-connection-spike.html" class="md-nav__link">
+      <a href="mongodb-connection-spike.html" class="md-nav__link">
         
   
   
@@ -6510,7 +6415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongo-high-connections.html" class="md-nav__link">
+      <a href="mongo-high-connections.html" class="md-nav__link">
         
   
   
@@ -6538,7 +6443,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql_configuration_max_connections_usage.html" class="md-nav__link">
+      <a href="mysql_configuration_max_connections_usage.html" class="md-nav__link">
         
   
   
@@ -6566,7 +6471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-pg-high-max-connections.html" class="md-nav__link">
+      <a href="configuration-pg-high-max-connections.html" class="md-nav__link">
         
   
   
@@ -6649,7 +6554,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-psa-architecture.html" class="md-nav__link">
+      <a href="mongodb-psa-architecture.html" class="md-nav__link">
         
   
   
@@ -6677,7 +6582,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-replicaset-topology.html" class="md-nav__link">
+      <a href="mongodb-replicaset-topology.html" class="md-nav__link">
         
   
   
@@ -6705,7 +6610,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/check-the-replica-set-topology.html" class="md-nav__link">
+      <a href="check-the-replica-set-topology.html" class="md-nav__link">
         
   
   
@@ -6733,7 +6638,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongo-check-the-replica-set-topology.html" class="md-nav__link">
+      <a href="mongo-check-the-replica-set-topology.html" class="md-nav__link">
         
   
   
@@ -6761,7 +6666,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-check-relay-log-purge.html" class="md-nav__link">
+      <a href="configuration-check-relay-log-purge.html" class="md-nav__link">
         
   
   
@@ -6789,7 +6694,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-check-replica-not-read-only.html" class="md-nav__link">
+      <a href="configuration-check-replica-not-read-only.html" class="md-nav__link">
         
   
   
@@ -6817,7 +6722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-check-replica-verifying-checksum.html" class="md-nav__link">
+      <a href="configuration-check-replica-verifying-checksum.html" class="md-nav__link">
         
   
   
@@ -6845,7 +6750,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/check-replica-verifying-checksum.html" class="md-nav__link">
+      <a href="check-replica-verifying-checksum.html" class="md-nav__link">
         
   
   
@@ -6873,7 +6778,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/sql-processing-not-multi-threaded.html" class="md-nav__link">
+      <a href="sql-processing-not-multi-threaded.html" class="md-nav__link">
         
   
   
@@ -6901,7 +6806,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-check-sync-binlog.html" class="md-nav__link">
+      <a href="configuration-check-sync-binlog.html" class="md-nav__link">
         
   
   
@@ -6929,7 +6834,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql-log-replica-updates.html" class="md-nav__link">
+      <a href="mysql-log-replica-updates.html" class="md-nav__link">
         
   
   
@@ -6957,7 +6862,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/replica_running_skipping_errors_or_idempotent_mode.html" class="md-nav__link">
+      <a href="replica_running_skipping_errors_or_idempotent_mode.html" class="md-nav__link">
         
   
   
@@ -7040,7 +6945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/innodb_redo_logs_not_sized_correctly.html" class="md-nav__link">
+      <a href="innodb_redo_logs_not_sized_correctly.html" class="md-nav__link">
         
   
   
@@ -7068,7 +6973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql-innodb-redolog-disabled.html" class="md-nav__link">
+      <a href="mysql-innodb-redolog-disabled.html" class="md-nav__link">
         
   
   
@@ -7096,7 +7001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-innodb-file-format.html" class="md-nav__link">
+      <a href="configuration-innodb-file-format.html" class="md-nav__link">
         
   
   
@@ -7124,7 +7029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-check-innodb-data-file-path.html" class="md-nav__link">
+      <a href="configuration-check-innodb-data-file-path.html" class="md-nav__link">
         
   
   
@@ -7152,7 +7057,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql_configuration_innodb_file_per_table_not_enabled.html" class="md-nav__link">
+      <a href="mysql_configuration_innodb_file_per_table_not_enabled.html" class="md-nav__link">
         
   
   
@@ -7180,7 +7085,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-innodb-flush-method.html" class="md-nav__link">
+      <a href="configuration-innodb-flush-method.html" class="md-nav__link">
         
   
   
@@ -7208,7 +7113,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/innodb-strict-mode.html" class="md-nav__link">
+      <a href="innodb-strict-mode.html" class="md-nav__link">
         
   
   
@@ -7291,7 +7196,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-pg-log-autovacuum-disabled.html" class="md-nav__link">
+      <a href="configuration-pg-log-autovacuum-disabled.html" class="md-nav__link">
         
   
   
@@ -7319,7 +7224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-tables-per-table-vacuum-settings.html" class="md-nav__link">
+      <a href="postgresql-tables-per-table-vacuum-settings.html" class="md-nav__link">
         
   
   
@@ -7347,7 +7252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-transaction-id-wraparound-is-approaching.html" class="md-nav__link">
+      <a href="postgresql-transaction-id-wraparound-is-approaching.html" class="md-nav__link">
         
   
   
@@ -7375,7 +7280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-vacuum-sanity-check.html" class="md-nav__link">
+      <a href="postgresql-vacuum-sanity-check.html" class="md-nav__link">
         
   
   
@@ -7416,18 +7321,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_3" checked>
         
           
           <label class="md-nav__link" for="__nav_6_7_3_3" id="__nav_6_7_3_3_label" tabindex="0">
@@ -7448,7 +7355,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_7_3_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_7_3_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6_7_3_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -7463,18 +7370,20 @@
                 
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_3_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7_3_3_1" checked>
         
           
           <label class="md-nav__link" for="__nav_6_7_3_3_1" id="__nav_6_7_3_3_1_label" tabindex="0">
@@ -7495,7 +7404,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_3_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_6_7_3_3_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6_7_3_3_1">
             <span class="md-nav__icon md-icon"></span>
             
@@ -7513,7 +7422,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/multiple-mongod-running-in-a-node.html" class="md-nav__link">
+      <a href="multiple-mongod-running-in-a-node.html" class="md-nav__link">
         
   
   
@@ -7538,10 +7447,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql-ahi-efficiency-performance-basic-check.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    InnoDB Adaptive Hash Index (AHI) efficiency check
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="mysql-ahi-efficiency-performance-basic-check.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -7557,6 +7493,87 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#description" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Description
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#if-youre-seeing-warning-or-error-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        If you're seeing Warning or Error alerts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#if-the-ahi-is-disabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        If the AHI is disabled
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#need-more-support-from-percona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Need more support from Percona?
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -7569,7 +7586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/performance-pg-low-cache-hit-ratio.html" class="md-nav__link">
+      <a href="performance-pg-low-cache-hit-ratio.html" class="md-nav__link">
         
   
   
@@ -7597,7 +7614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/configuration-pg-settings-changed.html" class="md-nav__link">
+      <a href="configuration-pg-settings-changed.html" class="md-nav__link">
         
   
   
@@ -7625,7 +7642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-tmpfiles-check.html" class="md-nav__link">
+      <a href="postgresql-tmpfiles-check.html" class="md-nav__link">
         
   
   
@@ -7708,7 +7725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-table-bloat-in-bytes.html" class="md-nav__link">
+      <a href="postgresql-table-bloat-in-bytes.html" class="md-nav__link">
         
   
   
@@ -7736,7 +7753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-table-bloat-in-percentage-of-table-size.html" class="md-nav__link">
+      <a href="postgresql-table-bloat-in-percentage-of-table-size.html" class="md-nav__link">
         
   
   
@@ -7819,7 +7836,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-chunk-imbalance.html" class="md-nav__link">
+      <a href="mongodb-chunk-imbalance.html" class="md-nav__link">
         
   
   
@@ -7847,7 +7864,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-oplog-sizing.html" class="md-nav__link">
+      <a href="mongodb-oplog-sizing.html" class="md-nav__link">
         
   
   
@@ -7875,7 +7892,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongo-replication-lag.html" class="md-nav__link">
+      <a href="mongo-replication-lag.html" class="md-nav__link">
         
   
   
@@ -7903,7 +7920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/performance-pg-stale-replication-slot.html" class="md-nav__link">
+      <a href="performance-pg-stale-replication-slot.html" class="md-nav__link">
         
   
   
@@ -8041,7 +8058,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-cve-check.html" class="md-nav__link">
+      <a href="postgresql-cve-check.html" class="md-nav__link">
         
   
   
@@ -8124,7 +8141,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-scram-sha-256.html" class="md-nav__link">
+      <a href="mongodb-scram-sha-256.html" class="md-nav__link">
         
   
   
@@ -8152,7 +8169,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/local-option-of-load-data-enabled.html" class="md-nav__link">
+      <a href="local-option-of-load-data-enabled.html" class="md-nav__link">
         
   
   
@@ -8180,7 +8197,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql_configuration_secure_file_priv_empty.html" class="md-nav__link">
+      <a href="mysql_configuration_secure_file_priv_empty.html" class="md-nav__link">
         
   
   
@@ -8208,7 +8225,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql_password_expiry.html" class="md-nav__link">
+      <a href="mysql_password_expiry.html" class="md-nav__link">
         
   
   
@@ -8236,7 +8253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql-secure-transport-only.html" class="md-nav__link">
+      <a href="mysql-secure-transport-only.html" class="md-nav__link">
         
   
   
@@ -8264,7 +8281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/default-password-lifetime.html" class="md-nav__link">
+      <a href="default-password-lifetime.html" class="md-nav__link">
         
   
   
@@ -8292,7 +8309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/validate-password-policy.html" class="md-nav__link">
+      <a href="validate-password-policy.html" class="md-nav__link">
         
   
   
@@ -8320,7 +8337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-expiring-passwd.html" class="md-nav__link">
+      <a href="postgresql-expiring-passwd.html" class="md-nav__link">
         
   
   
@@ -8403,7 +8420,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-localhost-bypass.html" class="md-nav__link">
+      <a href="mongodb-localhost-bypass.html" class="md-nav__link">
         
   
   
@@ -8431,7 +8448,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/security-anonymous-user.html" class="md-nav__link">
+      <a href="security-anonymous-user.html" class="md-nav__link">
         
   
   
@@ -8459,7 +8476,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/security-user-with-open-to-the-word-scope.html" class="md-nav__link">
+      <a href="security-user-with-open-to-the-word-scope.html" class="md-nav__link">
         
   
   
@@ -8487,7 +8504,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/root-account-can-login-remotely.html" class="md-nav__link">
+      <a href="root-account-can-login-remotely.html" class="md-nav__link">
         
   
   
@@ -8515,7 +8532,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/security-user-not-using-ssl-protocol.html" class="md-nav__link">
+      <a href="security-user-not-using-ssl-protocol.html" class="md-nav__link">
         
   
   
@@ -8543,7 +8560,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/security-non-root-accounts-super-privileges.html" class="md-nav__link">
+      <a href="security-non-root-accounts-super-privileges.html" class="md-nav__link">
         
   
   
@@ -8571,7 +8588,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/security-user-without-password.html" class="md-nav__link">
+      <a href="security-user-without-password.html" class="md-nav__link">
         
   
   
@@ -8654,7 +8671,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/replica-without-replication-slave-account.html" class="md-nav__link">
+      <a href="replica-without-replication-slave-account.html" class="md-nav__link">
         
   
   
@@ -8682,7 +8699,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql-replication-privileges.html" class="md-nav__link">
+      <a href="mysql-replication-privileges.html" class="md-nav__link">
         
   
   
@@ -8765,7 +8782,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-bindip.html" class="md-nav__link">
+      <a href="mongodb-bindip.html" class="md-nav__link">
         
   
   
@@ -8903,7 +8920,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-inconsistent-indexes-across-shards.html" class="md-nav__link">
+      <a href="mongodb-inconsistent-indexes-across-shards.html" class="md-nav__link">
         
   
   
@@ -8931,7 +8948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mongodb-unused-indexes.html" class="md-nav__link">
+      <a href="mongodb-unused-indexes.html" class="md-nav__link">
         
   
   
@@ -8959,7 +8976,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/mysql_performance_temp_ondisk_table_high.html" class="md-nav__link">
+      <a href="mysql_performance_temp_ondisk_table_high.html" class="md-nav__link">
         
   
   
@@ -8987,7 +9004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/tables-found-without-primary-keys.html" class="md-nav__link">
+      <a href="tables-found-without-primary-keys.html" class="md-nav__link">
         
   
   
@@ -9015,7 +9032,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-high-number-of-indexes-check.html" class="md-nav__link">
+      <a href="postgresql-high-number-of-indexes-check.html" class="md-nav__link">
         
   
   
@@ -9043,7 +9060,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-sequential-scan-check.html" class="md-nav__link">
+      <a href="postgresql-sequential-scan-check.html" class="md-nav__link">
         
   
   
@@ -9071,7 +9088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/postgresql-unused-index-check.html" class="md-nav__link">
+      <a href="postgresql-unused-index-check.html" class="md-nav__link">
         
   
   
@@ -9154,7 +9171,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../advisors/checks/datadesign-mysql-indexes-larger-than-data.html" class="md-nav__link">
+      <a href="datadesign-mysql-indexes-larger-than-data.html" class="md-nav__link">
         
   
   
@@ -9261,7 +9278,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/index.html" class="md-nav__link">
+      <a href="../../alert/index.html" class="md-nav__link">
         
   
   
@@ -9289,7 +9306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/alert_rules.html" class="md-nav__link">
+      <a href="../../alert/alert_rules.html" class="md-nav__link">
         
   
   
@@ -9317,7 +9334,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/contact_points.html" class="md-nav__link">
+      <a href="../../alert/contact_points.html" class="md-nav__link">
         
   
   
@@ -9345,7 +9362,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/templates_list.html" class="md-nav__link">
+      <a href="../../alert/templates_list.html" class="md-nav__link">
         
   
   
@@ -9373,7 +9390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/silence_alerts.html" class="md-nav__link">
+      <a href="../../alert/silence_alerts.html" class="md-nav__link">
         
   
   
@@ -9401,7 +9418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../alert/disable_alerts.html" class="md-nav__link">
+      <a href="../../alert/disable_alerts.html" class="md-nav__link">
         
   
   
@@ -9484,7 +9501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/index.html" class="md-nav__link">
+      <a href="../../backup/index.html" class="md-nav__link">
         
   
   
@@ -9512,7 +9529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/prepare_storage_location.html" class="md-nav__link">
+      <a href="../../backup/prepare_storage_location.html" class="md-nav__link">
         
   
   
@@ -9587,7 +9604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/backup_mongo.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/backup_mongo.html" class="md-nav__link">
         
   
   
@@ -9615,7 +9632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/mongo_prerequisites.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/mongo_prerequisites.html" class="md-nav__link">
         
   
   
@@ -9643,7 +9660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/create_mongo_on_demand.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/create_mongo_on_demand.html" class="md-nav__link">
         
   
   
@@ -9671,7 +9688,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/create_PITR_mongo.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/create_PITR_mongo.html" class="md-nav__link">
         
   
   
@@ -9699,7 +9716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/restore_MongoDB_backups.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/restore_MongoDB_backups.html" class="md-nav__link">
         
   
   
@@ -9727,7 +9744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mongodb-backup/mongodb_limitations.html" class="md-nav__link">
+      <a href="../../backup/mongodb-backup/mongodb_limitations.html" class="md-nav__link">
         
   
   
@@ -9810,7 +9827,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/mysql_prerequisites.html" class="md-nav__link">
+      <a href="../../backup/mysql-backup/mysql_prerequisites.html" class="md-nav__link">
         
   
   
@@ -9838,7 +9855,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/backup_mysql.html" class="md-nav__link">
+      <a href="../../backup/mysql-backup/backup_mysql.html" class="md-nav__link">
         
   
   
@@ -9866,7 +9883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/create_mysql_backup.html" class="md-nav__link">
+      <a href="../../backup/mysql-backup/create_mysql_backup.html" class="md-nav__link">
         
   
   
@@ -9894,7 +9911,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/mysql-backup/restore_mysql_backup.html" class="md-nav__link">
+      <a href="../../backup/mysql-backup/restore_mysql_backup.html" class="md-nav__link">
         
   
   
@@ -9930,7 +9947,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/edit_scheduled.html" class="md-nav__link">
+      <a href="../../backup/edit_scheduled.html" class="md-nav__link">
         
   
   
@@ -9958,7 +9975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../backup/delete_a_backup.html" class="md-nav__link">
+      <a href="../../backup/delete_a_backup.html" class="md-nav__link">
         
   
   
@@ -10048,7 +10065,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/configure.html" class="md-nav__link">
+      <a href="../../configure-pmm/configure.html" class="md-nav__link">
         
   
   
@@ -10076,7 +10093,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/metrics_res.html" class="md-nav__link">
+      <a href="../../configure-pmm/metrics_res.html" class="md-nav__link">
         
   
   
@@ -10104,7 +10121,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configure-pmm/advanced_settings.html" class="md-nav__link">
+      <a href="../../configure-pmm/advanced_settings.html" class="md-nav__link">
         
   
   
@@ -10132,7 +10149,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../virtual/ssh.html" class="md-nav__link">
+      <a href="../../install-pmm/install-pmm-server/deployment-options/virtual/ssh.html" class="md-nav__link">
         
   
   
@@ -10207,7 +10224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/index.html" class="md-nav__link">
+      <a href="../../admin/security/index.html" class="md-nav__link">
         
   
   
@@ -10235,7 +10252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/ssl_encryption.html" class="md-nav__link">
+      <a href="../../admin/security/ssl_encryption.html" class="md-nav__link">
         
   
   
@@ -10263,7 +10280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/grafana_cookies.html" class="md-nav__link">
+      <a href="../../admin/security/grafana_cookies.html" class="md-nav__link">
         
   
   
@@ -10291,7 +10308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/data_encryption.html" class="md-nav__link">
+      <a href="../../admin/security/data_encryption.html" class="md-nav__link">
         
   
   
@@ -10319,7 +10336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/security/client_config_encryption.html" class="md-nav__link">
+      <a href="../../admin/security/client_config_encryption.html" class="md-nav__link">
         
   
   
@@ -10409,7 +10426,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/index.html" class="md-nav__link">
+      <a href="../../admin/index.html" class="md-nav__link">
         
   
   
@@ -10484,7 +10501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/index.html" class="md-nav__link">
+      <a href="../../admin/manage-users/index.html" class="md-nav__link">
         
   
   
@@ -10512,7 +10529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/add_users.html" class="md-nav__link">
+      <a href="../../admin/manage-users/add_users.html" class="md-nav__link">
         
   
   
@@ -10540,7 +10557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/edit_users.html" class="md-nav__link">
+      <a href="../../admin/manage-users/edit_users.html" class="md-nav__link">
         
   
   
@@ -10568,7 +10585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/manage-users/delete_users.html" class="md-nav__link">
+      <a href="../../admin/manage-users/delete_users.html" class="md-nav__link">
         
   
   
@@ -10651,7 +10668,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/index.html" class="md-nav__link">
+      <a href="../../admin/roles/index.html" class="md-nav__link">
         
   
   
@@ -10726,7 +10743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/intro.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/intro.html" class="md-nav__link">
         
   
   
@@ -10754,7 +10771,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/labels.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/labels.html" class="md-nav__link">
         
   
   
@@ -10782,7 +10799,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/enable_access_control.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/enable_access_control.html" class="md-nav__link">
         
   
   
@@ -10810,7 +10827,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/create_roles.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/create_roles.html" class="md-nav__link">
         
   
   
@@ -10838,7 +10855,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/manage_roles.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/manage_roles.html" class="md-nav__link">
         
   
   
@@ -10866,7 +10883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/assign_roles.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/assign_roles.html" class="md-nav__link">
         
   
   
@@ -10894,7 +10911,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../admin/roles/access-control/use_cases.html" class="md-nav__link">
+      <a href="../../admin/roles/access-control/use_cases.html" class="md-nav__link">
         
   
   
@@ -11039,7 +11056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/index.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/index.html" class="md-nav__link">
         
   
   
@@ -11067,7 +11084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/external_postgres_pmm_upgrade.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/external_postgres_pmm_upgrade.html" class="md-nav__link">
         
   
   
@@ -11142,7 +11159,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_docker.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/upgrade_docker.html" class="md-nav__link">
         
   
   
@@ -11170,7 +11187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_podman.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/upgrade_podman.html" class="md-nav__link">
         
   
   
@@ -11253,7 +11270,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_helm.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/upgrade_helm.html" class="md-nav__link">
         
   
   
@@ -11289,7 +11306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/migrating_from_pmm_2.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/migrating_from_pmm_2.html" class="md-nav__link">
         
   
   
@@ -11317,7 +11334,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/upgrade_aws.html" class="md-nav__link">
         
   
   
@@ -11353,7 +11370,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../pmm-upgrade/upgrade_client.html" class="md-nav__link">
+      <a href="../../pmm-upgrade/upgrade_client.html" class="md-nav__link">
         
   
   
@@ -11435,7 +11452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/index.html" class="md-nav__link">
+      <a href="../../uninstall-pmm/index.html" class="md-nav__link">
         
   
   
@@ -11463,7 +11480,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/unregister_client.html" class="md-nav__link">
+      <a href="../../uninstall-pmm/unregister_client.html" class="md-nav__link">
         
   
   
@@ -11538,7 +11555,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/uninstall_docker.html" class="md-nav__link">
+      <a href="../../uninstall-pmm/uninstall_docker.html" class="md-nav__link">
         
   
   
@@ -11566,7 +11583,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/uninstall_helm.html" class="md-nav__link">
+      <a href="../../uninstall-pmm/uninstall_helm.html" class="md-nav__link">
         
   
   
@@ -11594,7 +11611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../uninstall-pmm/uninstall_package_manager.html" class="md-nav__link">
+      <a href="../../uninstall-pmm/uninstall_package_manager.html" class="md-nav__link">
         
   
   
@@ -11684,7 +11701,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/index.html" class="md-nav__link">
+      <a href="../../troubleshoot/index.html" class="md-nav__link">
         
   
   
@@ -11712,7 +11729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/checklist.html" class="md-nav__link">
+      <a href="../../troubleshoot/checklist.html" class="md-nav__link">
         
   
   
@@ -11740,7 +11757,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/upgrade_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/upgrade_issues.html" class="md-nav__link">
         
   
   
@@ -11768,7 +11785,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/config_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/config_issues.html" class="md-nav__link">
         
   
   
@@ -11796,7 +11813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/exporter_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/exporter_issues.html" class="md-nav__link">
         
   
   
@@ -11824,7 +11841,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/alerting_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/alerting_issues.html" class="md-nav__link">
         
   
   
@@ -11852,7 +11869,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/qan_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/qan_issues.html" class="md-nav__link">
         
   
   
@@ -11880,7 +11897,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/plugin_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/plugin_issues.html" class="md-nav__link">
         
   
   
@@ -11908,7 +11925,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/pmm_dump.html" class="md-nav__link">
+      <a href="../../troubleshoot/pmm_dump.html" class="md-nav__link">
         
   
   
@@ -11936,7 +11953,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/data_issues.html" class="md-nav__link">
+      <a href="../../troubleshoot/data_issues.html" class="md-nav__link">
         
   
   
@@ -12018,7 +12035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/index.html" class="md-nav__link">
+      <a href="../../release-notes/index.html" class="md-nav__link">
         
   
   
@@ -12046,7 +12063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.9.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.9.0.html" class="md-nav__link">
         
   
   
@@ -12074,7 +12091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.8.1.html" class="md-nav__link">
+      <a href="../../release-notes/3.8.1.html" class="md-nav__link">
         
   
   
@@ -12102,7 +12119,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.8.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.8.0.html" class="md-nav__link">
         
   
   
@@ -12130,7 +12147,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.7.1.html" class="md-nav__link">
+      <a href="../../release-notes/3.7.1.html" class="md-nav__link">
         
   
   
@@ -12158,7 +12175,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.7.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.7.0.html" class="md-nav__link">
         
   
   
@@ -12186,7 +12203,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.6.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.6.0.html" class="md-nav__link">
         
   
   
@@ -12214,7 +12231,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.5.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.5.0.html" class="md-nav__link">
         
   
   
@@ -12242,7 +12259,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.4.1.html" class="md-nav__link">
+      <a href="../../release-notes/3.4.1.html" class="md-nav__link">
         
   
   
@@ -12270,7 +12287,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.4.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.4.0.html" class="md-nav__link">
         
   
   
@@ -12298,7 +12315,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.3.1.html" class="md-nav__link">
+      <a href="../../release-notes/3.3.1.html" class="md-nav__link">
         
   
   
@@ -12326,7 +12343,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.3.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.3.0.html" class="md-nav__link">
         
   
   
@@ -12354,7 +12371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.2.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.2.0.html" class="md-nav__link">
         
   
   
@@ -12382,7 +12399,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.1.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.1.0.html" class="md-nav__link">
         
   
   
@@ -12410,7 +12427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.0.0_1.html" class="md-nav__link">
+      <a href="../../release-notes/3.0.0_1.html" class="md-nav__link">
         
   
   
@@ -12438,7 +12455,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../release-notes/3.0.0.html" class="md-nav__link">
+      <a href="../../release-notes/3.0.0.html" class="md-nav__link">
         
   
   
@@ -12567,7 +12584,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/index.html" class="md-nav__link">
+      <a href="../../reference/index.html" class="md-nav__link">
         
   
   
@@ -12642,7 +12659,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/third-party/victoria.html" class="md-nav__link">
+      <a href="../../reference/third-party/victoria.html" class="md-nav__link">
         
   
   
@@ -12670,7 +12687,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/third-party/clickhouse.html" class="md-nav__link">
+      <a href="../../reference/third-party/clickhouse.html" class="md-nav__link">
         
   
   
@@ -12698,7 +12715,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/third-party/postgresql.html" class="md-nav__link">
+      <a href="../../reference/third-party/postgresql.html" class="md-nav__link">
         
   
   
@@ -12734,7 +12751,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/pmm_components_and_versions.html" class="md-nav__link">
+      <a href="../../reference/pmm_components_and_versions.html" class="md-nav__link">
         
   
   
@@ -12762,7 +12779,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/personal_data_handling.html" class="md-nav__link">
+      <a href="../../reference/personal_data_handling.html" class="md-nav__link">
         
   
   
@@ -12837,7 +12854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/index.html" class="md-nav__link">
+      <a href="../../api/index.html" class="md-nav__link">
         
   
   
@@ -12865,7 +12882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../api/authentication.html" class="md-nav__link">
+      <a href="../../api/authentication.html" class="md-nav__link">
         
   
   
@@ -12948,7 +12965,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/index.html" class="md-nav__link">
+      <a href="../../use/commands/index.html" class="md-nav__link">
         
   
   
@@ -13023,7 +13040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-admin/pmm-admin.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/pmm-admin.html" class="md-nav__link">
         
   
   
@@ -13051,7 +13068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-admin/add.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/add.html" class="md-nav__link">
         
   
   
@@ -13079,7 +13096,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-admin/inventory.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/inventory.html" class="md-nav__link">
         
   
   
@@ -13107,7 +13124,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-admin/config.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/config.html" class="md-nav__link">
         
   
   
@@ -13135,7 +13152,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-admin/status.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-admin/status.html" class="md-nav__link">
         
   
   
@@ -13171,7 +13188,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../use/commands/pmm-agent.html" class="md-nav__link">
+      <a href="../../use/commands/pmm-agent.html" class="md-nav__link">
         
   
   
@@ -13309,7 +13326,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-home.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-home.html" class="md-nav__link">
         
   
   
@@ -13337,7 +13354,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-advanced-data-exploration.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-advanced-data-exploration.html" class="md-nav__link">
         
   
   
@@ -13365,7 +13382,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-victoriametrics.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-victoriametrics.html" class="md-nav__link">
         
   
   
@@ -13393,7 +13410,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-victoriametrics-agents-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-victoriametrics-agents-overview.html" class="md-nav__link">
         
   
   
@@ -13476,7 +13493,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-env-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-env-overview.html" class="md-nav__link">
         
   
   
@@ -13559,7 +13576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/kubernetes_cluster_summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/kubernetes_cluster_summary.html" class="md-nav__link">
         
   
   
@@ -13587,7 +13604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/kubernetes_monitor_operators.html" class="md-nav__link">
+      <a href="../../reference/dashboards/kubernetes_monitor_operators.html" class="md-nav__link">
         
   
   
@@ -13615,7 +13632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/kubernetes_monitor_db_clusters_managed.html" class="md-nav__link">
+      <a href="../../reference/dashboards/kubernetes_monitor_db_clusters_managed.html" class="md-nav__link">
         
   
   
@@ -13698,7 +13715,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-cpu-utilization-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-cpu-utilization-details.html" class="md-nav__link">
         
   
   
@@ -13726,7 +13743,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-disk-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-disk-details.html" class="md-nav__link">
         
   
   
@@ -13754,7 +13771,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-network-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-network-details.html" class="md-nav__link">
         
   
   
@@ -13782,7 +13799,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-memory-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-memory-details.html" class="md-nav__link">
         
   
   
@@ -13810,7 +13827,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-node-temperature-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-node-temperature-details.html" class="md-nav__link">
         
   
   
@@ -13838,7 +13855,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-nodes-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-nodes-compare.html" class="md-nav__link">
         
   
   
@@ -13866,7 +13883,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-nodes-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-nodes-overview.html" class="md-nav__link">
         
   
   
@@ -13894,7 +13911,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-node-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-node-summary.html" class="md-nav__link">
         
   
   
@@ -13922,7 +13939,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-numa-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-numa-details.html" class="md-nav__link">
         
   
   
@@ -13950,7 +13967,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-processes-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-processes-details.html" class="md-nav__link">
         
   
   
@@ -14033,7 +14050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-prometheus-exporter-status.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-prometheus-exporter-status.html" class="md-nav__link">
         
   
   
@@ -14061,7 +14078,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-prometheus-exporters-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-prometheus-exporters-overview.html" class="md-nav__link">
         
   
   
@@ -14144,7 +14161,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-amazon-aurora-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-amazon-aurora-details.html" class="md-nav__link">
         
   
   
@@ -14172,7 +14189,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-command-handler-counters-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-command-handler-counters-compare.html" class="md-nav__link">
         
   
   
@@ -14200,7 +14217,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-innodb-compression-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-innodb-compression-details.html" class="md-nav__link">
         
   
   
@@ -14228,7 +14245,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-innodb-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-innodb-details.html" class="md-nav__link">
         
   
   
@@ -14256,7 +14273,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-myisam-aria-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-myisam-aria-details.html" class="md-nav__link">
         
   
   
@@ -14284,7 +14301,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-myrocks-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-myrocks-details.html" class="md-nav__link">
         
   
   
@@ -14312,7 +14329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-instance-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -14340,7 +14357,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-instances-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-instances-compare.html" class="md-nav__link">
         
   
   
@@ -14368,7 +14385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-instances-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-instances-overview.html" class="md-nav__link">
         
   
   
@@ -14396,7 +14413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-wait-event-analyses-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-wait-event-analyses-details.html" class="md-nav__link">
         
   
   
@@ -14424,7 +14441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-performance-schema-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-performance-schema-details.html" class="md-nav__link">
         
   
   
@@ -14452,7 +14469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-query-response-time-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-query-response-time-details.html" class="md-nav__link">
         
   
   
@@ -14480,7 +14497,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-replication-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-replication-summary.html" class="md-nav__link">
         
   
   
@@ -14508,7 +14525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-group-replication-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-group-replication-summary.html" class="md-nav__link">
         
   
   
@@ -14536,7 +14553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-table-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-table-details.html" class="md-nav__link">
         
   
   
@@ -14564,7 +14581,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mysql-user-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mysql-user-details.html" class="md-nav__link">
         
   
   
@@ -14647,7 +14664,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-collection_overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-collection_overview.html" class="md-nav__link">
         
   
   
@@ -14675,7 +14692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-unused-indexes.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-unused-indexes.html" class="md-nav__link">
         
   
   
@@ -14703,7 +14720,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-oplog-details.html" class="md-nav__link">
         
   
   
@@ -14731,7 +14748,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-cluster-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-cluster-summary.html" class="md-nav__link">
         
   
   
@@ -14759,7 +14776,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-instance-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-instance-summary.html" class="md-nav__link">
         
   
   
@@ -14787,7 +14804,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-instances-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-instances-overview.html" class="md-nav__link">
         
   
   
@@ -14815,7 +14832,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-instances-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-instances-compare.html" class="md-nav__link">
         
   
   
@@ -14843,7 +14860,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-replset-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-replset-summary.html" class="md-nav__link">
         
   
   
@@ -14871,7 +14888,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-router-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-router-summary.html" class="md-nav__link">
         
   
   
@@ -14899,7 +14916,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-inmemory-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-inmemory-details.html" class="md-nav__link">
         
   
   
@@ -14927,7 +14944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-mmapv1-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-mmapv1-details.html" class="md-nav__link">
         
   
   
@@ -14955,7 +14972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-wiredtiger-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-wiredtiger-details.html" class="md-nav__link">
         
   
   
@@ -14983,7 +15000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-mongodb-backup-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-mongodb-backup-details.html" class="md-nav__link">
         
   
   
@@ -15066,7 +15083,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instance-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -15094,7 +15111,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instances-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-instances-compare.html" class="md-nav__link">
         
   
   
@@ -15122,7 +15139,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview.html" class="md-nav__link">
         
   
   
@@ -15150,7 +15167,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-instances-overview-extended.html" class="md-nav__link">
         
   
   
@@ -15178,7 +15195,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-replication.html" class="md-nav__link">
         
   
   
@@ -15206,7 +15223,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-postgresql-topqueries.html" class="md-nav__link">
         
   
   
@@ -15289,7 +15306,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-proxysql-instance-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-proxysql-instance-summary.html" class="md-nav__link">
         
   
   
@@ -15372,7 +15389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-valkey-redis-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-valkey-redis-overview.html" class="md-nav__link">
         
   
   
@@ -15400,7 +15417,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-valkey-redis-clients.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-valkey-redis-clients.html" class="md-nav__link">
         
   
   
@@ -15428,7 +15445,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-valkey-redis-cluster-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-valkey-redis-cluster-details.html" class="md-nav__link">
         
   
   
@@ -15456,7 +15473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-valkey-redis-command-detail.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-valkey-redis-command-detail.html" class="md-nav__link">
         
   
   
@@ -15484,7 +15501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-valkey-redis-load.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-valkey-redis-load.html" class="md-nav__link">
         
   
   
@@ -15512,7 +15529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-valkey-redis-memory.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-valkey-redis-memory.html" class="md-nav__link">
         
   
   
@@ -15540,7 +15557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-valkey-redis-network.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-valkey-redis-network.html" class="md-nav__link">
         
   
   
@@ -15568,7 +15585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-valkey-redis-persistence-details.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-valkey-redis-persistence-details.html" class="md-nav__link">
         
   
   
@@ -15596,7 +15613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-valkey-redis-replication.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-valkey-redis-replication.html" class="md-nav__link">
         
   
   
@@ -15624,7 +15641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-valkey-redis-slowlog.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-valkey-redis-slowlog.html" class="md-nav__link">
         
   
   
@@ -15707,7 +15724,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-ha-health-overview.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-ha-health-overview.html" class="md-nav__link">
         
   
   
@@ -15735,7 +15752,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-pxc-galera-node-summary.html" class="md-nav__link">
         
   
   
@@ -15763,7 +15780,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-nodes-compare.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-pxc-galera-nodes-compare.html" class="md-nav__link">
         
   
   
@@ -15791,7 +15808,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-pxc-galera-cluster-summary.html" class="md-nav__link">
         
   
   
@@ -15819,7 +15836,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
+      <a href="../../reference/dashboards/dashboard-haproxy-instance-summary.html" class="md-nav__link">
         
   
   
@@ -15863,7 +15880,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/labels-reference.html" class="md-nav__link">
+      <a href="../../reference/labels-reference.html" class="md-nav__link">
         
   
   
@@ -15891,7 +15908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/nomad.html" class="md-nav__link">
+      <a href="../../reference/nomad.html" class="md-nav__link">
         
   
   
@@ -15919,7 +15936,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/glossary.html" class="md-nav__link">
+      <a href="../../reference/glossary.html" class="md-nav__link">
         
   
   
@@ -15947,7 +15964,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/faq.html" class="md-nav__link">
+      <a href="../../reference/faq.html" class="md-nav__link">
         
   
   
@@ -15975,7 +15992,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/trademark-policy.html" class="md-nav__link">
+      <a href="../../reference/trademark-policy.html" class="md-nav__link">
         
   
   
@@ -16003,7 +16020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../reference/copyright.html" class="md-nav__link">
+      <a href="../../reference/copyright.html" class="md-nav__link">
         
   
   
@@ -16272,7 +16289,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
                       <div data-banner="data-banner" class="edit-contrib-banner">
   <div class="banner-content">
     <!-- Edit link centered -->
-    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md" title="Edit this page on GitHub" class="edit-page-link">
+    <a href="https://github.com/percona/pmm/edit/main/documentation/docs/advisors/checks/mysql-ahi-efficiency-performance-basic-check.md" title="Edit this page on GitHub" class="edit-page-link">
       <span class="edit-page-icon">
         
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
@@ -16323,10 +16340,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#backing-up-grafana-plugins" class="md-nav__link">
+  <a href="#description" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Backing up Grafana plugins
+        Description
       
     </span>
   </a>
@@ -16334,32 +16351,49 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
       
         <li class="md-nav__item">
-  <a href="#back-up-procedure" class="md-nav__link">
+  <a href="#resolution" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Back up procedure
+        Resolution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resolution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#if-youre-seeing-warning-or-error-alerts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        If you're seeing Warning or Error alerts
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#backup-storage-recommendations" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#if-the-ahi-is-disabled" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Backup storage recommendations
+        If the AHI is disabled
       
     </span>
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#related-topics" class="md-nav__link">
+  <a href="#need-more-support-from-percona" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Related topics
+        Need more support from Percona?
       
     </span>
   </a>
@@ -16387,69 +16421,44 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     
       
     
-    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/percona/pmm/raw/main/documentation/docs/advisors/checks/mysql-ahi-efficiency-performance-basic-check.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
     </a>
   
 
 
-<h1 id="back-up-pmm-server-podman-container">Back up PMM Server Podman container<a class="headerlink" href="#back-up-pmm-server-podman-container" title="Permanent link">&para;</a></h1>
-<p>Create a backup of your PMM Server data to protect against data loss, prepare for upgrades, or migrate to another system.</p>
-<details class="info">
-<summary>Summary</summary>
+<h1 id="innodb-adaptive-hash-index-ahi-efficiency-check">InnoDB Adaptive Hash Index (AHI) efficiency check<a class="headerlink" href="#innodb-adaptive-hash-index-ahi-efficiency-check" title="Permanent link">&para;</a></h1>
+<h2 id="description">Description<a class="headerlink" href="#description" title="Permanent link">&para;</a></h2>
+<p>MySQL&rsquo;s InnoDB engine can automatically build a hash index in memory on frequently accessed data, this is called the Adaptive Hash Index (AHI). When it works well, the AHI lets MySQL answer queries with a fast hash lookup instead of traversing the full B-tree index, which means lower CPU usage and faster queries.</p>
+<p>This check looks at two things:</p>
 <ul>
-<li>Stop the PMM Server service</li>
-<li>Export the data volume to a backup file</li>
+<li><strong>how often the AHI is actually helping</strong> (hit ratio): if most lookups still fall back to the B-tree, the AHI isn&rsquo;t doing much.</li>
+<li><strong>whether the AHI is causing contention</strong> (latch wait load): under heavy concurrent workloads, multiple threads competing for the AHI&rsquo;s internal lock can slow things down more than the AHI speeds them up.</li>
 </ul>
-</details>
-<h2 id="backing-up-grafana-plugins">Backing up Grafana plugins<a class="headerlink" href="#backing-up-grafana-plugins" title="Permanent link">&para;</a></h2>
-<p>Grafana plugins have been moved to the <code>/srv</code> directory since PMM 2.23.0. So if you are upgrading PMM from a version before 2.23.0 and have installed additional plugins, you&rsquo;ll need to reinstall them after the upgrade.</p>
-<p>To check used Grafana plugins:
-<div class="highlight"><pre><span></span><code>podman<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-t<span class="w"> </span>pmm-server<span class="w"> </span>ls<span class="w"> </span>-l<span class="w"> </span>/var/lib/grafana/plugins
-</code></pre></div></p>
-<h2 id="back-up-procedure">Back up procedure<a class="headerlink" href="#back-up-procedure" title="Permanent link">&para;</a></h2>
-<p class="power-number">To back up your PMM Server container:</p>
-<ol>
-<li>
-<p>Stop the PMM Server service:</p>
-<div class="highlight"><pre><span></span><code>systemctl<span class="w"> </span>--user<span class="w"> </span>stop<span class="w"> </span>pmm-server
-</code></pre></div>
-</li>
-<li>
-<p>Wait for the container to fully stop:</p>
-<div class="highlight"><pre><span></span><code>podman<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>--condition<span class="o">=</span>stopped<span class="w"> </span>pmm-server<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
-sleep<span class="w"> </span><span class="m">30</span>
-</code></pre></div>
-</li>
-<li>
-<p>Export the data volume to a backup file. If you changed the default name in the <code>PMM_VOLUME_NAME</code> environment variable, use that name after export instead of <code>pmm-server</code> (which is the default volume name):</p>
-<div class="highlight"><pre><span></span><code>podman<span class="w"> </span>volume<span class="w"> </span><span class="nb">export</span><span class="w"> </span>pmm-server<span class="w"> </span>--output<span class="w"> </span>pmm-server-backup.tar
-</code></pre></div>
-</li>
-<li>
-<p>Verify the backup file was created successfully:
-    <div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-lh<span class="w"> </span>pmm-server-backup.tar
-</code></pre></div></p>
-</li>
-<li>
-<p>Store the backup in a secure location, preferably outside the current server.</p>
-</li>
-</ol>
-<h2 id="backup-storage-recommendations">Backup storage recommendations<a class="headerlink" href="#backup-storage-recommendations" title="Permanent link">&para;</a></h2>
+<p>You&rsquo;ll see different alert levels depending on what&rsquo;s found:</p>
 <ul>
-<li>Store backups in a location separate from the PMM Server host</li>
-<li>Implement automated rotation of backups to manage disk space</li>
-<li>Consider encrypting backups containing sensitive monitoring data</li>
-<li>Test restores periodically to verify backup integrity</li>
+<li><strong>Notice</strong>: AHI is working normally, or it&rsquo;s disabled.</li>
+<li><strong>Warning</strong>: contention is building up and starting to affect performance.</li>
+<li><strong>Error</strong>: contention is high enough that the AHI is likely hurting more than helping. Increase AHI partitions or disable AHI altogether.</li>
 </ul>
-<h2 id="related-topics">Related topics<a class="headerlink" href="#related-topics" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="restore_container_podman.html">Restore PMM Server Podman container</a> </li>
-<li><a href="remove_container_podman.html">Remove PMM Server Podman container</a> </li>
-<li><a href="index.html">Install PMM Server with Podman</a> </li>
-<li><a href="../../../../pmm-upgrade/upgrade_podman.html">Upgrade PMM Server using Podman</a></li>
-</ul>
+<h2 id="resolution">Resolution<a class="headerlink" href="#resolution" title="Permanent link">&para;</a></h2>
+<h3 id="if-youre-seeing-warning-or-error-alerts">If you&rsquo;re seeing Warning or Error alerts<a class="headerlink" href="#if-youre-seeing-warning-or-error-alerts" title="Permanent link">&para;</a></h3>
+<p>Increase the number of AHI partitions. This splits the internal lock across more structures, reducing contention:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SET</span><span class="w"> </span><span class="k">GLOBAL</span><span class="w"> </span><span class="n">innodb_adaptive_hash_index_parts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16</span><span class="p">;</span>
+</code></pre></div>
+<p>To make it permanent, add it to your MySQL configuration file and restart:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[mysqld]</span>
+<span class="na">innodb_adaptive_hash_index_parts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">16</span>
+</code></pre></div>
+<p>If contention is still high after increasing partitions, disabling the AHI entirely is worth testing:</p>
+<div class="highlight"><pre><span></span><code><span class="k">SET</span><span class="w"> </span><span class="k">GLOBAL</span><span class="w"> </span><span class="n">innodb_adaptive_hash_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">OFF</span><span class="p">;</span>
+</code></pre></div>
+<p>Benchmark your workload with it off to see if performance improves.</p>
+<h3 id="if-the-ahi-is-disabled">If the AHI is disabled<a class="headerlink" href="#if-the-ahi-is-disabled" title="Permanent link">&para;</a></h3>
+<p>Consider turning it on and watching the <strong>InnoDB Adaptive Hash Index</strong> panel on the <a href="../../reference/dashboards/dashboard-mysql-innodb-details.html">MySQL InnoDB Details</a> dashboard. The AHI is most useful for read-heavy workloads that repeatedly access the same index data.</p>
+<h2 id="need-more-support-from-percona">Need more support from Percona?<a class="headerlink" href="#need-more-support-from-percona" title="Permanent link">&para;</a></h2>
+<p>Percona experts bring years of experience in tackling tough database performance issues and design challenges.</p>
 
 
 
@@ -16472,7 +16481,7 @@ sleep<span class="w"> </span><span class="m">30</span>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 29, 2025 12:30:08 UTC">May 29, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 5, 2026 07:43:09 UTC">August 5, 2026</span>
   </span>
 
     
@@ -16482,7 +16491,7 @@ sleep<span class="w"> </span><span class="m">30</span>
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 5, 2026 07:43:09 UTC">August 5, 2026</span>
   </span>
 
     
@@ -16545,21 +16554,21 @@ sleep<span class="w"> </span><span class="m">30</span>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["search.highlight", "navigation.top", "content.tabs.link", "content.code.copy", "content.images.zoom", "navigation.tracking", "content.action.view"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["search.highlight", "navigation.top", "content.tabs.link", "content.code.copy", "content.images.zoom", "navigation.tracking", "content.action.view"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
 
-      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
-        <script src="../../../../js/extra.js"></script>
+        <script src="../../js/extra.js"></script>
       
-        <script src="../../../../js/consent.js"></script>
+        <script src="../../js/consent.js"></script>
       
-        <script src="../../../../js/version-select.js"></script>
+        <script src="../../js/version-select.js"></script>
       
-        <script src="../../../../js/rating.js"></script>
+        <script src="../../js/rating.js"></script>
       
-        <script src="../../../../js/kapa.js"></script>
+        <script src="../../js/kapa.js"></script>
       
     
 <script>
