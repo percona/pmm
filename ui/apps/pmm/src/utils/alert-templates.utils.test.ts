@@ -4,6 +4,7 @@ import {
   durationToSeconds,
   formatCreatedAt,
   getTemplateCategory,
+  getTemplateExportFilename,
   isTemplateEditable,
   paramValueKey,
   secondsToDuration,
@@ -100,6 +101,16 @@ describe('alert-templates.utils', () => {
 
     it('falls back to PMM when no technology matches', () => {
       expect(getTemplateCategory(withName('pmm_agent_down'))).toBe('PMM');
+    });
+  });
+
+  describe('getTemplateExportFilename', () => {
+    it('appends .yaml to the template name', () => {
+      const template = {
+        ...makeTemplate(TemplateSource.USER_API),
+        name: 'my_template',
+      };
+      expect(getTemplateExportFilename(template)).toBe('my_template.yaml');
     });
   });
 

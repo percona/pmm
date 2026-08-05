@@ -11,6 +11,7 @@ interface ColumnsOptions {
   onView: (template: Template) => void;
   onEdit: (template: Template) => void;
   onDelete: (template: Template) => void;
+  onDuplicate: (template: Template) => void;
 }
 
 export const getAlertTemplatesColumns = ({
@@ -18,6 +19,7 @@ export const getAlertTemplatesColumns = ({
   onView,
   onEdit,
   onDelete,
+  onDuplicate,
 }: ColumnsOptions): MRT_ColumnDef<Template>[] => [
   {
     accessorKey: 'summary',
@@ -54,6 +56,7 @@ export const getAlertTemplatesColumns = ({
         onView={onView}
         onEdit={onEdit}
         onDelete={onDelete}
+        onDuplicate={onDuplicate}
       />
     ),
   },

@@ -5,6 +5,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import { boxClasses } from '@mui/material/Box';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import { Table } from '@percona/percona-ui';
 import { useUser } from 'contexts/user';
 import { useAlertTemplates } from 'hooks/api/useAlertTemplates';
@@ -12,7 +13,9 @@ import { Template } from 'types/alert-templates.types';
 import {
   getTemplateCategories,
   getTemplateCategory,
+  getTemplateExportFilename,
 } from 'utils/alert-templates.utils';
+import { downloadTextFile } from 'utils/file.utils';
 import { Page } from 'components/page';
 import { Messages } from './AlertTemplates.messages';
 import { ALERT_TEMPLATES_TABLE_NAME } from './AlertTemplates.constants';
@@ -33,6 +36,7 @@ export const AlertTemplates: FC = () => {
   const [modal, setModal] = useState<ModalType>(null);
   const [selected, setSelected] = useState<Template | null>(null);
   const [category, setCategory] = useState<string>(ALL_CATEGORIES);
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
   const templates = useMemo(() => data?.templates ?? [], [data]);
   const categories = useMemo(
@@ -46,10 +50,20 @@ export const AlertTemplates: FC = () => {
         : templates.filter((t) => getTemplateCategory(t) === category),
     [templates, category]
   );
+  const selectedTemplates = useMemo(
+    () => rows.filter((t) => rowSelection[t.name]),
+    [rows, rowSelection]
+  );
 
   const closeModal = () => {
     setModal(null);
     setSelected(null);
+  };
+
+  const handleExportSelected = () => {
+    selectedTemplates.forEach((template) =>
+      downloadTextFile(getTemplateExportFilename(template), template.yaml)
+    );
   };
 
   const columns = useMemo(
@@ -68,6 +82,10 @@ export const AlertTemplates: FC = () => {
           setSelected(template);
           setModal('delete');
         },
+        onDuplicate: (template) => {
+          setSelected(template);
+          setModal('create');
+        },
       }),
     [canManage]
   );
@@ -78,11 +96,13 @@ export const AlertTemplates: FC = () => {
         tableName={ALERT_TEMPLATES_TABLE_NAME}
         columns={columns}
         data={rows}
-        state={{ isLoading }}
+        state={{ isLoading, rowSelection }}
         getRowId={(row) => row.name}
         noDataMessage={Messages.empty}
         enableGlobalFilter
         enableHiding={false}
+        enableRowSelection
+        onRowSelectionChange={setRowSelection}
         positionToolbarAlertBanner="none"
         initialState={{ pagination: { pageSize: 25, pageIndex: 0 } }}
         muiTopToolbarProps={{
@@ -119,20 +139,36 @@ export const AlertTemplates: FC = () => {
                 </MenuItem>
               ))}
             </TextField>
-            {canManage && (
-              <Button
-                variant="contained"
-                startIcon={<AddOutlinedIcon />}
-                data-testid="add-alert-template"
-                onClick={() => setModal('create')}
-              >
-                {Messages.addButton}
-              </Button>
-            )}
+            <Stack direction="row" gap={2} alignItems="center">
+              {selectedTemplates.length > 0 && (
+                <Button
+                  variant="outlined"
+                  startIcon={<FileDownloadOutlinedIcon />}
+                  data-testid="export-selected-templates"
+                  onClick={handleExportSelected}
+                >
+                  {Messages.actions.export}
+                </Button>
+              )}
+              {canManage && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddOutlinedIcon />}
+                  data-testid="add-alert-template"
+                  onClick={() => setModal('create')}
+                >
+                  {Messages.addButton}
+                </Button>
+              )}
+            </Stack>
           </Stack>
         )}
       />
-      <CreateTemplateModal open={modal === 'create'} onClose={closeModal} />
+      <CreateTemplateModal
+        open={modal === 'create'}
+        initialYaml={selected?.yaml}
+        onClose={closeModal}
+      />
       <ViewTemplateModal
         open={modal === 'view'}
         template={selected}

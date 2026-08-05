@@ -17,6 +17,8 @@ export const Messages = {
     createRule: 'Create alert rule',
     view: 'View',
     copy: 'Copy to clipboard',
+    export: 'Export',
+    duplicate: 'Duplicate',
     edit: 'Edit',
     delete: 'Delete',
   },

@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -18,12 +18,19 @@ import {
 export const CreateTemplateModal: FC<CreateTemplateModalProps> = ({
   open,
   onClose,
+  initialYaml,
 }) => {
   const { mutateAsync: createTemplate, isPending } = useCreateTemplate();
   const methods = useForm<CreateTemplateFormValues>({
     resolver: zodResolver(createTemplateSchema),
-    defaultValues: { yaml: '' },
+    defaultValues: { yaml: initialYaml ?? '' },
   });
+
+  useEffect(() => {
+    if (open) {
+      methods.reset({ yaml: initialYaml ?? '' });
+    }
+  }, [open, initialYaml, methods]);
 
   const handleClose = () => {
     methods.reset({ yaml: '' });

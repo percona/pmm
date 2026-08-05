@@ -26,6 +26,9 @@ export const formatCreatedAt = (createdAt?: string): string => {
 export const isTemplateEditable = (template: Template): boolean =>
   template.source === TemplateSource.USER_API;
 
+export const getTemplateExportFilename = (template: Template): string =>
+  `${template.name}.yaml`;
+
 // Category inferred from the template name/summary (heuristic for now).
 export const TEMPLATE_CATEGORY_PMM = 'PMM';
 

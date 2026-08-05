@@ -10,11 +10,17 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
+import LibraryAddOutlinedIcon from '@mui/icons-material/LibraryAddOutlined';
 import { useNavigate } from 'react-router-dom';
 import { enqueueSnackbar } from 'notistack';
 import { Template } from 'types/alert-templates.types';
-import { isTemplateEditable } from 'utils/alert-templates.utils';
+import {
+  getTemplateExportFilename,
+  isTemplateEditable,
+} from 'utils/alert-templates.utils';
 import { copyToClipboard } from 'utils/clipboard.utils';
+import { downloadTextFile } from 'utils/file.utils';
 import { PMM_ALERTING_NEW_FROM_TEMPLATE_PATH } from 'lib/constants';
 import { Messages } from '../../AlertTemplates.messages';
 import Stack from '@mui/material/Stack';
@@ -25,6 +31,7 @@ interface Props {
   onView: (template: Template) => void;
   onEdit: (template: Template) => void;
   onDelete: (template: Template) => void;
+  onDuplicate: (template: Template) => void;
 }
 
 export const TemplateRowActions: FC<Props> = ({
@@ -33,6 +40,7 @@ export const TemplateRowActions: FC<Props> = ({
   onView,
   onEdit,
   onDelete,
+  onDuplicate,
 }) => {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -51,6 +59,10 @@ export const TemplateRowActions: FC<Props> = ({
     enqueueSnackbar(copied ? Messages.copy.success : Messages.copy.error, {
       variant: copied ? 'success' : 'error',
     });
+  };
+
+  const handleExport = () => {
+    downloadTextFile(getTemplateExportFilename(template), template.yaml);
   };
 
   return (
@@ -96,6 +108,26 @@ export const TemplateRowActions: FC<Props> = ({
           </ListItemIcon>
           <ListItemText>{Messages.actions.copy}</ListItemText>
         </MenuItem>
+        <MenuItem
+          data-testid="export-alert-template"
+          onClick={run(handleExport)}
+        >
+          <ListItemIcon>
+            <FileDownloadOutlinedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{Messages.actions.export}</ListItemText>
+        </MenuItem>
+        {canManage && (
+          <MenuItem
+            data-testid="duplicate-alert-template"
+            onClick={run(() => onDuplicate(template))}
+          >
+            <ListItemIcon>
+              <LibraryAddOutlinedIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>{Messages.actions.duplicate}</ListItemText>
+          </MenuItem>
+        )}
         {editable && (
           <MenuItem
             data-testid="edit-alert-template"

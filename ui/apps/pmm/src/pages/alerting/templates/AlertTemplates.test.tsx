@@ -5,6 +5,7 @@ import {
   wrapWithSnackbarProvider,
 } from 'utils/testUtils';
 import * as templatesApi from 'api/alert-templates';
+import * as fileUtils from 'utils/file.utils';
 import {
   Severity,
   Template,
@@ -14,8 +15,27 @@ import {
 import { AlertTemplates } from './AlertTemplates';
 
 vi.mock('api/alert-templates');
+vi.mock('utils/file.utils');
+// The real modal renders percona-ui's Dialog + multiline TextInput, which
+// isn't renderable under jsdom; stub it to verify the props it receives.
+vi.mock('./modal-create-template', () => ({
+  CreateTemplateModal: ({
+    open,
+    initialYaml,
+  }: {
+    open: boolean;
+    initialYaml?: string;
+  }) =>
+    open ? (
+      <div
+        data-testid="create-template-modal-stub"
+        data-initial-yaml={initialYaml ?? ''}
+      />
+    ) : null,
+}));
 
 const listTemplatesMock = vi.mocked(templatesApi.listTemplates);
+const downloadTextFileMock = vi.mocked(fileUtils.downloadTextFile);
 
 const makeTemplate = (
   name: string,
@@ -44,6 +64,7 @@ const renderPage = () =>
 
 describe('AlertTemplates', () => {
   beforeEach(() => {
+    downloadTextFileMock.mockClear();
     listTemplatesMock.mockResolvedValue({
       totalItems: 2,
       totalPages: 1,
@@ -123,5 +144,72 @@ describe('AlertTemplates', () => {
         '# builtin_one\nexpr: up == 0\n'
       )
     );
+  });
+
+  it('exports the template YAML as a file from the row menu', async () => {
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getAllByTestId('template-actions-menu').length).toBe(2)
+    );
+    fireEvent.click(screen.getAllByTestId('template-actions-menu')[0]);
+    fireEvent.click(await screen.findByTestId('export-alert-template'));
+
+    expect(downloadTextFileMock).toHaveBeenCalledWith(
+      'builtin_one.yaml',
+      '# builtin_one\nexpr: up == 0\n'
+    );
+  });
+
+  it('offers duplicate in the row menu only for admins', async () => {
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getAllByTestId('template-actions-menu').length).toBe(2)
+    );
+    fireEvent.click(screen.getAllByTestId('template-actions-menu')[0]);
+    expect(
+      await screen.findByTestId('duplicate-alert-template')
+    ).toBeInTheDocument();
+  });
+
+  it('opens the create modal pre-filled when duplicating a template', async () => {
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getAllByTestId('template-actions-menu').length).toBe(2)
+    );
+    fireEvent.click(screen.getAllByTestId('template-actions-menu')[0]);
+    fireEvent.click(await screen.findByTestId('duplicate-alert-template'));
+
+    const modal = await screen.findByTestId('create-template-modal-stub');
+    expect(modal).toHaveAttribute(
+      'data-initial-yaml',
+      '# builtin_one\nexpr: up == 0\n'
+    );
+  });
+
+  it('shows a bulk export button once rows are selected and exports each one', async () => {
+    renderPage();
+    await waitFor(() =>
+      expect(screen.getAllByTestId('template-actions-menu').length).toBe(2)
+    );
+    expect(screen.queryByTestId('export-selected-templates')).toBeNull();
+
+    const checkboxes = screen.getAllByRole('checkbox', {
+      name: /toggle select row/i,
+    });
+    fireEvent.click(checkboxes[0]);
+    fireEvent.click(checkboxes[1]);
+
+    const exportButton = await screen.findByTestId('export-selected-templates');
+    fireEvent.click(exportButton);
+
+    expect(downloadTextFileMock).toHaveBeenCalledWith(
+      'builtin_one.yaml',
+      '# builtin_one\nexpr: up == 0\n'
+    );
+    expect(downloadTextFileMock).toHaveBeenCalledWith(
+      'user_one.yaml',
+      '# user_one\nexpr: up == 0\n'
+    );
+    expect(downloadTextFileMock).toHaveBeenCalledTimes(2);
   });
 });
