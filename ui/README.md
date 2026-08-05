@@ -32,7 +32,7 @@ This repo uses the following stack across its packages:
 
 ## Run in the devcontainer (recommended)
 
-The PMM devcontainer (see the root `CONTRIBUTING.md`) now ships Node 22 + Yarn and a Vite dev server that runs end-to-end with the rest of PMM Server. From the repo root **on the host**:
+The PMM devcontainer (see the root `CONTRIBUTING.md`) now ships Node 22 + pnpm (via Corepack) and a Vite dev server that runs end-to-end with the rest of PMM Server. From the repo root **on the host**:
 
 ```bash
 make env-up      # first run only; reuses the container afterwards

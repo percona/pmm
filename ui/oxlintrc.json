@@ -1,5 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "import", "typescript", "unicorn", "oxc"],
   "rules": {
     "no-console": "warn",
     "no-debugger": "error",
@@ -35,11 +36,5 @@
     "unicorn/prefer-array-flat-map": "warn",
     "unicorn/prefer-includes": "warn"
   },
-  "ignorePatterns": [
-    "dist",
-    "node_modules",
-    "storybook-static",
-    "*.config.ts",
-    "*.config.js"
-  ]
+  "ignorePatterns": ["dist", "node_modules", "storybook-static", ".config"]
 }

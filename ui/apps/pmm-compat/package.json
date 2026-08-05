@@ -10,7 +10,7 @@
     "test": "jest --passWithNoTests --maxWorkers 4",
     "typecheck": "tsc --noEmit",
     "check-types": "tsc --noEmit",
-    "lint": "oxlint --config ../../oxlintrc.json src",
+    "lint": "oxlint --config ../../oxlintrc.json .",
     "lint:fix": "oxlint --config ../../oxlintrc.json --fix src && oxfmt --write src",
     "format": "oxfmt --write src",
     "e2e": "playwright test",
