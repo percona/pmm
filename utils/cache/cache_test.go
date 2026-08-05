@@ -24,7 +24,7 @@ import (
 func TestNew_ReturnsErrorForInvalidInputs(t *testing.T) {
 	t.Parallel()
 
-	_, err := New[string, int](nil, time.Second, time.Second)
+	_, err := New[string, int](nil, time.Second, time.Second) //nolint:staticcheck
 	require.Error(t, err)
 
 	_, err = New[string, int](t.Context(), time.Second, 0)
