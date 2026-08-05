@@ -832,8 +832,10 @@ type MongoDBExporter struct {
 	EnvironmentVariableNames []string `protobuf:"bytes,29,rep,name=environment_variable_names,json=environmentVariableNames,proto3" json:"environment_variable_names,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,30,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `protobuf:"varint,31,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3" json:"enable_diagnostic_data_histograms,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *MongoDBExporter) Reset() {
@@ -1011,6 +1013,13 @@ func (x *MongoDBExporter) GetConnectionTimeout() *durationpb.Duration {
 		return x.ConnectionTimeout
 	}
 	return nil
+}
+
+func (x *MongoDBExporter) GetEnableDiagnosticDataHistograms() bool {
+	if x != nil {
+		return x.EnableDiagnosticDataHistograms
+	}
+	return false
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -6116,8 +6125,10 @@ type AddMongoDBExporterParams struct {
 	EnableAllCollectors bool `protobuf:"varint,22,opt,name=enable_all_collectors,json=enableAllCollectors,proto3" json:"enable_all_collectors,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,23,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms bool `protobuf:"varint,24,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3" json:"enable_diagnostic_data_histograms,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *AddMongoDBExporterParams) Reset() {
@@ -6311,6 +6322,13 @@ func (x *AddMongoDBExporterParams) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *AddMongoDBExporterParams) GetEnableDiagnosticDataHistograms() bool {
+	if x != nil {
+		return x.EnableDiagnosticDataHistograms
+	}
+	return false
+}
+
 type ChangeMongoDBExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -6357,8 +6375,10 @@ type ChangeMongoDBExporterParams struct {
 	ExposeExporter *bool `protobuf:"varint,21,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,22,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Enable collecting histogram bucket metrics from getDiagnosticData.
+	EnableDiagnosticDataHistograms *bool `protobuf:"varint,23,opt,name=enable_diagnostic_data_histograms,json=enableDiagnosticDataHistograms,proto3,oneof" json:"enable_diagnostic_data_histograms,omitempty"`
+	unknownFields                  protoimpl.UnknownFields
+	sizeCache                      protoimpl.SizeCache
 }
 
 func (x *ChangeMongoDBExporterParams) Reset() {
@@ -6543,6 +6563,13 @@ func (x *ChangeMongoDBExporterParams) GetConnectionTimeout() *durationpb.Duratio
 		return x.ConnectionTimeout
 	}
 	return nil
+}
+
+func (x *ChangeMongoDBExporterParams) GetEnableDiagnosticDataHistograms() bool {
+	if x != nil && x.EnableDiagnosticDataHistograms != nil {
+		return *x.EnableDiagnosticDataHistograms
+	}
+	return false
 }
 
 type AddPostgresExporterParams struct {
@@ -7149,8 +7176,10 @@ type ChangeProxySQLExporterParams struct {
 	ExposeExporter *bool `protobuf:"varint,12,opt,name=expose_exporter,json=exposeExporter,proto3,oneof" json:"expose_exporter,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,13,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Skip connection check.
+	SkipConnectionCheck *bool `protobuf:"varint,14,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChangeProxySQLExporterParams) Reset() {
@@ -7272,6 +7301,13 @@ func (x *ChangeProxySQLExporterParams) GetConnectionTimeout() *durationpb.Durati
 		return x.ConnectionTimeout
 	}
 	return nil
+}
+
+func (x *ChangeProxySQLExporterParams) GetSkipConnectionCheck() bool {
+	if x != nil && x.SkipConnectionCheck != nil {
+		return *x.SkipConnectionCheck
+	}
+	return false
 }
 
 type AddQANMySQLPerfSchemaAgentParams struct {
@@ -8217,9 +8253,11 @@ type ChangeQANMongoDBProfilerAgentParams struct {
 	// Authentication database.
 	AuthenticationDatabase *string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3,oneof" json:"authentication_database,omitempty"`
 	// Log level for exporter.
-	LogLevel      *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChangeQANMongoDBProfilerAgentParams) Reset() {
@@ -8355,6 +8393,13 @@ func (x *ChangeQANMongoDBProfilerAgentParams) GetLogLevel() LogLevel {
 		return *x.LogLevel
 	}
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
+func (x *ChangeQANMongoDBProfilerAgentParams) GetSkipConnectionCheck() bool {
+	if x != nil && x.SkipConnectionCheck != nil {
+		return *x.SkipConnectionCheck
+	}
+	return false
 }
 
 type AddQANMongoDBMongologAgentParams struct {
@@ -8561,9 +8606,11 @@ type ChangeQANMongoDBMongologAgentParams struct {
 	// Authentication database.
 	AuthenticationDatabase *string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3,oneof" json:"authentication_database,omitempty"`
 	// Log level for exporter.
-	LogLevel      *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChangeQANMongoDBMongologAgentParams) Reset() {
@@ -8699,6 +8746,13 @@ func (x *ChangeQANMongoDBMongologAgentParams) GetLogLevel() LogLevel {
 		return *x.LogLevel
 	}
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
+func (x *ChangeQANMongoDBMongologAgentParams) GetSkipConnectionCheck() bool {
+	if x != nil && x.SkipConnectionCheck != nil {
+		return *x.SkipConnectionCheck
+	}
+	return false
 }
 
 type AddQANPostgreSQLPgStatementsAgentParams struct {
@@ -8892,9 +8946,11 @@ type ChangeQANPostgreSQLPgStatementsAgentParams struct {
 	// TLS Certificate Key.
 	TlsKey *string `protobuf:"bytes,13,opt,name=tls_key,json=tlsKey,proto3,oneof" json:"tls_key,omitempty"`
 	// Log level for exporter.
-	LogLevel      *LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	LogLevel *LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck *bool `protobuf:"varint,15,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChangeQANPostgreSQLPgStatementsAgentParams) Reset() {
@@ -9023,6 +9079,13 @@ func (x *ChangeQANPostgreSQLPgStatementsAgentParams) GetLogLevel() LogLevel {
 		return *x.LogLevel
 	}
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
+func (x *ChangeQANPostgreSQLPgStatementsAgentParams) GetSkipConnectionCheck() bool {
+	if x != nil && x.SkipConnectionCheck != nil {
+		return *x.SkipConnectionCheck
+	}
+	return false
 }
 
 type AddQANPostgreSQLPgStatMonitorAgentParams struct {
@@ -9227,9 +9290,11 @@ type ChangeQANPostgreSQLPgStatMonitorAgentParams struct {
 	// TLS Certificate Key.
 	TlsKey *string `protobuf:"bytes,14,opt,name=tls_key,json=tlsKey,proto3,oneof" json:"tls_key,omitempty"`
 	// Log level for exporter.
-	LogLevel      *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) Reset() {
@@ -9365,6 +9430,13 @@ func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) GetLogLevel() LogLevel {
 		return *x.LogLevel
 	}
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
+func (x *ChangeQANPostgreSQLPgStatMonitorAgentParams) GetSkipConnectionCheck() bool {
+	if x != nil && x.SkipConnectionCheck != nil {
+		return *x.SkipConnectionCheck
+	}
+	return false
 }
 
 type AddRDSExporterParams struct {
@@ -9753,9 +9825,11 @@ type ChangeExternalExporterParams struct {
 	// Path under which metrics are exposed, used to generate URI.
 	MetricsPath *string `protobuf:"bytes,7,opt,name=metrics_path,json=metricsPath,proto3,oneof" json:"metrics_path,omitempty"`
 	// Listen port for scraping metrics.
-	ListenPort    *uint32 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3,oneof" json:"listen_port,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	ListenPort *uint32 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3,oneof" json:"listen_port,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck *bool `protobuf:"varint,9,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChangeExternalExporterParams) Reset() {
@@ -9842,6 +9916,13 @@ func (x *ChangeExternalExporterParams) GetListenPort() uint32 {
 		return *x.ListenPort
 	}
 	return 0
+}
+
+func (x *ChangeExternalExporterParams) GetSkipConnectionCheck() bool {
+	if x != nil && x.SkipConnectionCheck != nil {
+		return *x.SkipConnectionCheck
+	}
+	return false
 }
 
 type AddAzureDatabaseExporterParams struct {
@@ -10382,8 +10463,10 @@ type ChangeValkeyExporterParams struct {
 	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,16,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// Skip connection check.
+	SkipConnectionCheck *bool `protobuf:"varint,17,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChangeValkeyExporterParams) Reset() {
@@ -10526,6 +10609,13 @@ func (x *ChangeValkeyExporterParams) GetConnectionTimeout() *durationpb.Duration
 		return x.ConnectionTimeout
 	}
 	return nil
+}
+
+func (x *ChangeValkeyExporterParams) GetSkipConnectionCheck() bool {
+	if x != nil && x.SkipConnectionCheck != nil {
+		return *x.SkipConnectionCheck
+	}
+	return false
 }
 
 type AddRTAMongoDBAgentParams struct {
@@ -10718,9 +10808,11 @@ type ChangeRTAMongoDBAgentParams struct {
 	// Authentication mechanism.
 	AuthenticationMechanism *string `protobuf:"bytes,11,opt,name=authentication_mechanism,json=authenticationMechanism,proto3,oneof" json:"authentication_mechanism,omitempty"`
 	// Real-Time Analytics options.
-	RtaOptions    *RTAOptions `protobuf:"bytes,12,opt,name=rta_options,json=rtaOptions,proto3,oneof" json:"rta_options,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	RtaOptions *RTAOptions `protobuf:"bytes,12,opt,name=rta_options,json=rtaOptions,proto3,oneof" json:"rta_options,omitempty"`
+	// Skip connection check.
+	SkipConnectionCheck *bool `protobuf:"varint,13,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
 }
 
 func (x *ChangeRTAMongoDBAgentParams) Reset() {
@@ -10835,6 +10927,13 @@ func (x *ChangeRTAMongoDBAgentParams) GetRtaOptions() *RTAOptions {
 		return x.RtaOptions
 	}
 	return nil
+}
+
+func (x *ChangeRTAMongoDBAgentParams) GetSkipConnectionCheck() bool {
+	if x != nil && x.SkipConnectionCheck != nil {
+		return *x.SkipConnectionCheck
+	}
+	return false
 }
 
 type RemoveAgentRequest struct {
@@ -11015,7 +11114,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1aA\n" +
 	"\x13ExtraDsnParamsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa0\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xeb\b\n" +
 	"\x0fMongoDBExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11041,7 +11140,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\x1b \x01(\bR\x0eexposeExporter\x12K\n" +
 	"\x13metrics_resolutions\x18\x1c \x01(\v2\x1a.common.MetricsResolutionsR\x12metricsResolutions\x12<\n" +
 	"\x1aenvironment_variable_names\x18\x1d \x03(\tR\x18environmentVariableNames\x12H\n" +
-	"\x12connection_timeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x1e \x01(\v2\x19.google.protobuf.DurationR\x11connectionTimeout\x12I\n" +
+	"!enable_diagnostic_data_histograms\x18\x1f \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc2\a\n" +
@@ -11592,7 +11692,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xcd\t\n" +
+	"\x10_expose_exporter\"\x98\n" +
+	"\n" +
 	"\x18AddMongoDBExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11619,10 +11720,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0fexpose_exporter\x18\x14 \x01(\bR\x0eexposeExporter\x12<\n" +
 	"\x1aenvironment_variable_names\x18\x15 \x03(\tR\x18environmentVariableNames\x122\n" +
 	"\x15enable_all_collectors\x18\x16 \x01(\bR\x13enableAllCollectors\x12R\n" +
-	"\x12connection_timeout\x18\x17 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x17 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12I\n" +
+	"!enable_diagnostic_data_histograms\x18\x18 \x01(\bR\x1eenableDiagnosticDataHistograms\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8f\f\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x85\r\n" +
 	"\x1bChangeMongoDBExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11647,7 +11749,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15enable_all_collectors\x18\x13 \x01(\bH\x0fR\x13enableAllCollectors\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x14 \x01(\x0e2\x16.inventory.v1.LogLevelH\x10R\blogLevel\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x15 \x01(\bH\x11R\x0eexposeExporter\x88\x01\x01\x12R\n" +
-	"\x12connection_timeout\x18\x16 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeoutB\t\n" +
+	"\x12connection_timeout\x18\x16 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12N\n" +
+	"!enable_diagnostic_data_histograms\x18\x17 \x01(\bH\x12R\x1eenableDiagnosticDataHistograms\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11666,7 +11769,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_enable_all_collectorsB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xbc\a\n" +
+	"\x10_expose_exporterB$\n" +
+	"\"_enable_diagnostic_data_histograms\"\xbc\a\n" +
 	"\x19AddPostgresExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11753,7 +11857,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x0e \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc9\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9c\a\n" +
 	"\x1cChangeProxySQLExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11768,7 +11872,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	" \x01(\tB\x04\x88\xb5\x18\x01H\aR\ragentPassword\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\v \x01(\x0e2\x16.inventory.v1.LogLevelH\bR\blogLevel\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\f \x01(\bH\tR\x0eexposeExporter\x88\x01\x01\x12R\n" +
-	"\x12connection_timeout\x18\r \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeoutB\t\n" +
+	"\x12connection_timeout\x18\r \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x127\n" +
+	"\x15skip_connection_check\x18\x0e \x01(\bH\n" +
+	"R\x13skipConnectionCheck\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11779,7 +11885,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\f\n" +
 	"\n" +
 	"_log_levelB\x12\n" +
-	"\x10_expose_exporter\"\xad\a\n" +
+	"\x10_expose_exporterB\x18\n" +
+	"\x16_skip_connection_check\"\xad\a\n" +
 	" AddQANMySQLPerfSchemaAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11928,7 +12035,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb6\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x89\t\n" +
 	"#ChangeQANMongoDBProfilerAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -11946,7 +12053,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"R\x0emaxQueryLength\x88\x01\x01\x12>\n" +
 	"\x18authentication_mechanism\x18\r \x01(\tH\vR\x17authenticationMechanism\x88\x01\x01\x12<\n" +
 	"\x17authentication_database\x18\x0e \x01(\tH\fR\x16authenticationDatabase\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01B\t\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x127\n" +
+	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -11961,7 +12069,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x19_authentication_mechanismB\x1a\n" +
 	"\x18_authentication_databaseB\f\n" +
 	"\n" +
-	"_log_level\"\xbf\x06\n" +
+	"_log_levelB\x18\n" +
+	"\x16_skip_connection_check\"\xbf\x06\n" +
 	" AddQANMongoDBMongologAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -11983,7 +12092,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb6\b\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x89\t\n" +
 	"#ChangeQANMongoDBMongologAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12001,7 +12110,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"R\x0emaxQueryLength\x88\x01\x01\x12>\n" +
 	"\x18authentication_mechanism\x18\r \x01(\tH\vR\x17authenticationMechanism\x88\x01\x01\x12<\n" +
 	"\x17authentication_database\x18\x0e \x01(\tH\fR\x16authenticationDatabase\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01B\t\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x127\n" +
+	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12016,7 +12126,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x19_authentication_mechanismB\x1a\n" +
 	"\x18_authentication_databaseB\f\n" +
 	"\n" +
-	"_log_level\"\xd4\x05\n" +
+	"_log_levelB\x18\n" +
+	"\x16_skip_connection_check\"\xd4\x05\n" +
 	"'AddQANPostgreSQLPgStatementsAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12037,7 +12148,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x0e \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf7\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xca\a\n" +
 	"*ChangeQANPostgreSQLPgStatementsAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12054,7 +12165,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\btls_cert\x18\f \x01(\tB\x04\x88\xb5\x18\x01H\n" +
 	"R\atlsCert\x88\x01\x01\x12\"\n" +
 	"\atls_key\x18\r \x01(\tB\x04\x88\xb5\x18\x01H\vR\x06tlsKey\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\x0e \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01B\t\n" +
+	"\tlog_level\x18\x0e \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x127\n" +
+	"\x15skip_connection_check\x18\x0f \x01(\bH\rR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12069,7 +12181,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\n" +
 	"\b_tls_keyB\f\n" +
 	"\n" +
-	"_log_level\"\x8c\x06\n" +
+	"_log_levelB\x18\n" +
+	"\x16_skip_connection_check\"\x8c\x06\n" +
 	"(AddQANPostgreSQLPgStatMonitorAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12091,7 +12204,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xce\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa1\b\n" +
 	"+ChangeQANPostgreSQLPgStatMonitorAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12109,7 +12222,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"R\x05tlsCa\x88\x01\x01\x12$\n" +
 	"\btls_cert\x18\r \x01(\tB\x04\x88\xb5\x18\x01H\vR\atlsCert\x88\x01\x01\x12\"\n" +
 	"\atls_key\x18\x0e \x01(\tB\x04\x88\xb5\x18\x01H\fR\x06tlsKey\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01B\t\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x127\n" +
+	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12125,7 +12239,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\n" +
 	"\b_tls_keyB\f\n" +
 	"\n" +
-	"_log_level\"\xd1\x04\n" +
+	"_log_levelB\x18\n" +
+	"\x16_skip_connection_check\"\xd1\x04\n" +
 	"\x14AddRDSExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12 \n" +
@@ -12177,7 +12292,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0ftls_skip_verify\x18\f \x01(\bR\rtlsSkipVerify\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xfa\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcd\x04\n" +
 	"\x1cChangeExternalExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12187,14 +12302,16 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x06scheme\x18\x06 \x01(\tH\x04R\x06scheme\x88\x01\x01\x12&\n" +
 	"\fmetrics_path\x18\a \x01(\tH\x05R\vmetricsPath\x88\x01\x01\x12$\n" +
 	"\vlisten_port\x18\b \x01(\rH\x06R\n" +
-	"listenPort\x88\x01\x01B\t\n" +
+	"listenPort\x88\x01\x01\x127\n" +
+	"\x15skip_connection_check\x18\t \x01(\bH\aR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
 	"\t_usernameB\t\n" +
 	"\a_schemeB\x0f\n" +
 	"\r_metrics_pathB\x0e\n" +
-	"\f_listen_port\"\xdb\x05\n" +
+	"\f_listen_portB\x18\n" +
+	"\x16_skip_connection_check\"\xdb\x05\n" +
 	"\x1eAddAzureDatabaseExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12 \n" +
@@ -12260,7 +12377,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x12connection_timeout\x18\x11 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd8\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xab\b\n" +
 	"\x1aChangeValkeyExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12279,7 +12396,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"R\ragentPassword\x88\x01\x01\x12,\n" +
 	"\x0fexpose_exporter\x18\x0e \x01(\bH\vR\x0eexposeExporter\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\fR\blogLevel\x88\x01\x01\x12R\n" +
-	"\x12connection_timeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeoutB\t\n" +
+	"\x12connection_timeout\x18\x10 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x127\n" +
+	"\x15skip_connection_check\x18\x11 \x01(\bH\rR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12294,7 +12412,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0f_agent_passwordB\x12\n" +
 	"\x10_expose_exporterB\f\n" +
 	"\n" +
-	"_log_level\"\x87\x06\n" +
+	"_log_levelB\x18\n" +
+	"\x16_skip_connection_check\"\x87\x06\n" +
 	"\x18AddRTAMongoDBAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12316,7 +12435,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"rtaOptions\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc6\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x99\a\n" +
 	"\x1bChangeRTAMongoDBAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x128\n" +
@@ -12332,7 +12451,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18authentication_mechanism\x18\v \x01(\tH\n" +
 	"R\x17authenticationMechanism\x88\x01\x01\x12>\n" +
 	"\vrta_options\x18\f \x01(\v2\x18.inventory.v1.RTAOptionsH\vR\n" +
-	"rtaOptions\x88\x01\x01B\t\n" +
+	"rtaOptions\x88\x01\x01\x127\n" +
+	"\x15skip_connection_check\x18\r \x01(\bH\fR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\f\n" +
 	"\n" +
@@ -12345,7 +12465,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\"_tls_certificate_key_file_passwordB\t\n" +
 	"\a_tls_caB\x1b\n" +
 	"\x19_authentication_mechanismB\x0e\n" +
-	"\f_rta_options\"N\n" +
+	"\f_rta_optionsB\x18\n" +
+	"\x16_skip_connection_check\"N\n" +
 	"\x12RemoveAgentRequest\x12\"\n" +
 	"\bagent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aagentId\x12\x14\n" +
 	"\x05force\x18\x02 \x01(\bR\x05force\"\x15\n" +

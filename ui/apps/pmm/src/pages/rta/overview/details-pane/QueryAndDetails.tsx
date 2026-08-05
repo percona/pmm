@@ -2,9 +2,9 @@ import Grid from '@mui/material/Grid';
 import { FC } from 'react';
 import { format, formatDuration } from 'date-fns';
 import { tz } from '@date-fns/tz';
-import { SyntaxHighlighter } from 'components/syntax-highlighter';
+import { CodeBlock } from '@percona/percona-ui';
 import { QueryData } from 'types/rta.types';
-import DetailsMetric from './DetailsMetric';
+import DetailsMetric from 'components/details-pane/DataPoint';
 import BigNumberMetric from './BigNumberMetric';
 import { Messages } from './QueryAndDetails.messages';
 import { TIME_FORMAT } from 'lib/constants';
@@ -238,18 +238,15 @@ const QueryAndDetails: FC<Props> = ({
           </GridItem>
         </Grid>
       </Grid>
-      <Grid
-        size={{ xs: 12, md: 6 }}
-        sx={{
-          maxHeight: '70vh',
-          overflow: 'auto',
-        }}
-      >
-        <SyntaxHighlighter
-          language="mongodb"
-          showLineNumbers={true}
-          showCopyButton
+      <Grid size={{ xs: 12, md: 6 }}>
+        {/* MongoDB queries have no Prism grammar; JavaScript is the closest fit */}
+        <CodeBlock
+          language="javascript"
+          copyable
+          wrap
           content={queryText}
+          sx={{ maxHeight: '70vh', overflow: 'auto' }}
+          data-testid="query-text"
         />
       </Grid>
     </Grid>
