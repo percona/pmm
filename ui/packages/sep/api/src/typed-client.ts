@@ -36,7 +36,12 @@
  * shape regardless of which client they use.
  */
 import createClient, { type Client, type Middleware } from 'openapi-fetch';
-import { emitUnauthorized, getToken } from './client';
+import {
+  emitUnauthorized,
+  getToken,
+  isTokenMintRequest,
+  refreshAccessToken,
+} from './client';
 import { ApiError } from './errors';
 import type { paths as MainPaths } from './generated/main';
 import type { paths as SepPaths } from './generated/sep';
@@ -44,6 +49,7 @@ import type { paths as SepPaths } from './generated/sep';
 const IS_DEV = import.meta.env.DEV;
 
 const isRefreshRequest = (url: string) => url.includes('/oauth/refresh');
+const isLoginRequest = (url: string) => url.includes('/oauth/login');
 
 /**
  * A 200 HTML response (e.g. a follow of a login redirect) means the session
@@ -55,12 +61,46 @@ function isHtmlLoginResponse(response: Response): boolean {
   return response.ok && ct.includes('text/html');
 }
 
+// `fetch` consumes a Request's body stream, so the instance handed to
+// `onResponse` can no longer be re-sent. Stash an untouched clone taken before
+// dispatch, keyed weakly so requests that never come back are not retained.
+const pristineRequests = new WeakMap<Request, Request>();
+
+/**
+ * One silent recovery attempt for a 401: mint a fresh token — single-flighted
+ * with every other caller, including the axios transport — and replay the
+ * request with it.
+ *
+ * The replay goes through raw `fetch` rather than the typed client so it cannot
+ * re-enter this middleware; that bounds recovery to a single extra round-trip
+ * without needing a retry marker. Returns null when there is nothing to replay
+ * or no token could be minted.
+ */
+async function replayWithFreshToken(
+  request: Request
+): Promise<Response | null> {
+  const pristine = pristineRequests.get(request);
+  if (!pristine) {
+    return null;
+  }
+  pristineRequests.delete(request);
+
+  const token = await refreshAccessToken();
+  if (!token) {
+    return null;
+  }
+
+  pristine.headers.set('Authorization', `Bearer ${token}`);
+  return lazyFetch(pristine);
+}
+
 const authMiddleware: Middleware = {
   onRequest({ request }) {
     const token = getToken();
     if (token) {
       request.headers.set('Authorization', `Bearer ${token}`);
     }
+    pristineRequests.set(request, request.clone());
     if (IS_DEV) {
       // eslint-disable-next-line no-console
       console.debug(
@@ -86,9 +126,26 @@ const authMiddleware: Middleware = {
     }
 
     if (
+      response.status === 401 &&
+      !isTokenMintRequest(request.url) &&
+      !isLoginRequest(request.url)
+    ) {
+      const replayed = await replayWithFreshToken(request);
+      if (replayed && replayed.status !== 401) {
+        return replayed;
+      }
+      // Minting failed, or the replay was rejected too — the session is gone.
+      emitUnauthorized();
+      return replayed ?? response;
+    }
+
+    if (
       (response.status === 401 || response.status === 303) &&
       !isRefreshRequest(request.url)
     ) {
+      // A 401 left here is a minting endpoint rejecting the ambient session —
+      // "not signed in", which the auth layer must hear about. A 303 is the
+      // login redirect on any endpoint.
       emitUnauthorized();
     }
 
