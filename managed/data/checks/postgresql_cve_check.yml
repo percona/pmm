@@ -8,10 +8,10 @@ checks:
     # This dictionary is based on the CVE list on the postgresql.org security website https://www.postgresql.org/support/security/
     # The key is the CVE reference.
     # The values are a space separated list of postgresql versions where the CVE has been addressed
-    advisor: security_cve
+    category: Security
+    subcategory: Vulnerabilities
     interval: standard
-    family: POSTGRESQL
-    category: configuration
+    technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
         query: "setting, (setting::int / 10000) major  FROM pg_settings WHERE name = 'server_version_num' "
@@ -83,7 +83,7 @@ checks:
       # Lets see if we have CVE's for the version of Postgres we are checking
 
       def check_cve(cveRef, current_version, checkedMajor, checkedVersionFull):
-          msgStr = ""
+          cveFound = []
           cveFixedInVersion = []
 
           for numberOfCves in range(len(cveRef)):
@@ -126,7 +126,7 @@ checks:
                  if checkedVersionFull  < fixedVersionFull:
                     cveFull = convertShortToFull(fixedVersions[numberOfFixedVersions])
                     cveFixedInVersion.append(cveFull)
-                    msgStr = msgStr + " ({}),  ".format(cveRef[numberOfCves])
+                    cveFound.append(cveRef[numberOfCves])
 
 
           if len(cveFixedInVersion) == 0 :
@@ -134,9 +134,8 @@ checks:
 
           maxVer = max(cveFixedInVersion)
           fixedInVersion = convertFullToShort(maxVer)
-          msgStr = msgStr + " fixed with Postgres {} ".format(fixedInVersion)
 
-          return msgStr
+          return "{}. Fixed in Postgres {}.".format(", ".join(cveFound), fixedInVersion)
 
       # -----------------------------------------------------------------------------------------------------------
       # All these conversion will work with versions 10 and higher. Version 9 has different major minor construct
@@ -227,7 +226,7 @@ checks:
 
            results.append({
                "summary": "Checking for Postgres CVE's",
-               "description": "Postgres {} has the following CVE's: {}".format( current_version, vul ),
+               "description": "Postgres {} has the following CVEs: {}".format(current_version, vul),
                "read_more_url":read_url.format("postgresql-cve-check"),
                "severity": "error",
                "labels": {},

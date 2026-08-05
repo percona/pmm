@@ -53,15 +53,31 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	ChangeAdvisorChecks(params *ChangeAdvisorChecksParams, opts ...ClientOption) (*ChangeAdvisorChecksOK, error)
 
-	GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOption) (*GetFailedChecksOK, error)
+	CreateAdvisorCheck(params *CreateAdvisorCheckParams, opts ...ClientOption) (*CreateAdvisorCheckOK, error)
+
+	DeleteAdvisorCheck(params *DeleteAdvisorCheckParams, opts ...ClientOption) (*DeleteAdvisorCheckOK, error)
+
+	GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOption) (*GetAdvisorCheckOK, error)
+
+	ListAdvisorCheckTestTargets(params *ListAdvisorCheckTestTargetsParams, opts ...ClientOption) (*ListAdvisorCheckTestTargetsOK, error)
 
 	ListAdvisorChecks(params *ListAdvisorChecksParams, opts ...ClientOption) (*ListAdvisorChecksOK, error)
 
 	ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) (*ListAdvisorsOK, error)
 
-	ListFailedServices(params *ListFailedServicesParams, opts ...ClientOption) (*ListFailedServicesOK, error)
+	ListInsights(params *ListInsightsParams, opts ...ClientOption) (*ListInsightsOK, error)
+
+	ListInsightsFilterValues(params *ListInsightsFilterValuesParams, opts ...ClientOption) (*ListInsightsFilterValuesOK, error)
+
+	ListRuns(params *ListRunsParams, opts ...ClientOption) (*ListRunsOK, error)
+
+	MarkInsightsRead(params *MarkInsightsReadParams, opts ...ClientOption) (*MarkInsightsReadOK, error)
 
 	StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...ClientOption) (*StartAdvisorChecksOK, error)
+
+	TestAdvisorCheck(params *TestAdvisorCheckParams, opts ...ClientOption) (*TestAdvisorCheckOK, error)
+
+	UpdateAdvisorCheck(params *UpdateAdvisorCheckParams, opts ...ClientOption) (*UpdateAdvisorCheckOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
@@ -111,24 +127,24 @@ func (a *Client) ChangeAdvisorChecks(params *ChangeAdvisorChecksParams, opts ...
 }
 
 /*
-GetFailedChecks gets failed advisor checks
+CreateAdvisorCheck creates advisor check
 
-Returns the latest check results for a given service.
+Creates a new user-authored advisor check.
 */
-func (a *Client) GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOption) (*GetFailedChecksOK, error) {
+func (a *Client) CreateAdvisorCheck(params *CreateAdvisorCheckParams, opts ...ClientOption) (*CreateAdvisorCheckOK, error) {
 	// NOTE: parameters are not validated before sending
 	if params == nil {
-		params = NewGetFailedChecksParams()
+		params = NewCreateAdvisorCheckParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "GetFailedChecks",
-		Method:             "GET",
-		PathPattern:        "/v1/advisors/checks/failed",
+		ID:                 "CreateAdvisorCheck",
+		Method:             "POST",
+		PathPattern:        "/v1/advisors/checks",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetFailedChecksReader{formats: a.formats},
+		Reader:             &CreateAdvisorCheckReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -141,7 +157,7 @@ func (a *Client) GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOp
 	}
 
 	// only one success response has to be checked
-	success, ok := result.(*GetFailedChecksOK)
+	success, ok := result.(*CreateAdvisorCheckOK)
 	if ok {
 		return success, nil
 	}
@@ -149,7 +165,139 @@ func (a *Client) GetFailedChecks(params *GetFailedChecksParams, opts ...ClientOp
 	// unexpected success response.
 	//
 	// a default response is provided: fill this and return an error
-	unexpectedSuccess := result.(*GetFailedChecksDefault)
+	unexpectedSuccess := result.(*CreateAdvisorCheckDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+DeleteAdvisorCheck deletes advisor check
+
+Deletes a user-authored advisor check. Percona-shipped checks cannot be deleted.
+*/
+func (a *Client) DeleteAdvisorCheck(params *DeleteAdvisorCheckParams, opts ...ClientOption) (*DeleteAdvisorCheckOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewDeleteAdvisorCheckParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DeleteAdvisorCheck",
+		Method:             "DELETE",
+		PathPattern:        "/v1/advisors/checks/{name}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteAdvisorCheckReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*DeleteAdvisorCheckOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*DeleteAdvisorCheckDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetAdvisorCheck gets advisor check
+
+Returns a single advisor check by name, including its queries and script.
+*/
+func (a *Client) GetAdvisorCheck(params *GetAdvisorCheckParams, opts ...ClientOption) (*GetAdvisorCheckOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewGetAdvisorCheckParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetAdvisorCheck",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/checks/{name}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetAdvisorCheckReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*GetAdvisorCheckOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*GetAdvisorCheckDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListAdvisorCheckTestTargets lists advisor check test targets
+
+Lists the services an advisor check of the given technology can be tested against.
+*/
+func (a *Client) ListAdvisorCheckTestTargets(params *ListAdvisorCheckTestTargetsParams, opts ...ClientOption) (*ListAdvisorCheckTestTargetsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListAdvisorCheckTestTargetsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListAdvisorCheckTestTargets",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/checks:testTargets",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListAdvisorCheckTestTargetsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListAdvisorCheckTestTargetsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListAdvisorCheckTestTargetsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -243,24 +391,24 @@ func (a *Client) ListAdvisors(params *ListAdvisorsParams, opts ...ClientOption) 
 }
 
 /*
-ListFailedServices lists failed services
+ListInsights lists advisor insights
 
-Returns a list of services with failed checks and a summary of check results.
+Returns the history of Advisor check results (insights), including their outcomes.
 */
-func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...ClientOption) (*ListFailedServicesOK, error) {
+func (a *Client) ListInsights(params *ListInsightsParams, opts ...ClientOption) (*ListInsightsOK, error) {
 	// NOTE: parameters are not validated before sending
 	if params == nil {
-		params = NewListFailedServicesParams()
+		params = NewListInsightsParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "ListFailedServices",
+		ID:                 "ListInsights",
 		Method:             "GET",
-		PathPattern:        "/v1/advisors/failedServices",
+		PathPattern:        "/v1/advisors/insights",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListFailedServicesReader{formats: a.formats},
+		Reader:             &ListInsightsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -273,7 +421,7 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...Cl
 	}
 
 	// only one success response has to be checked
-	success, ok := result.(*ListFailedServicesOK)
+	success, ok := result.(*ListInsightsOK)
 	if ok {
 		return success, nil
 	}
@@ -281,7 +429,139 @@ func (a *Client) ListFailedServices(params *ListFailedServicesParams, opts ...Cl
 	// unexpected success response.
 	//
 	// a default response is provided: fill this and return an error
-	unexpectedSuccess := result.(*ListFailedServicesDefault)
+	unexpectedSuccess := result.(*ListInsightsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListInsightsFilterValues lists advisor insights filter values
+
+Returns the distinct service and node names present in the Advisor insights, for populating filter dropdowns.
+*/
+func (a *Client) ListInsightsFilterValues(params *ListInsightsFilterValuesParams, opts ...ClientOption) (*ListInsightsFilterValuesOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListInsightsFilterValuesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListInsightsFilterValues",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/insights:filterValues",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListInsightsFilterValuesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListInsightsFilterValuesOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListInsightsFilterValuesDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListRuns lists advisor runs
+
+Returns the chronological history of Advisor check executions with their totals.
+*/
+func (a *Client) ListRuns(params *ListRunsParams, opts ...ClientOption) (*ListRunsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListRunsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListRuns",
+		Method:             "GET",
+		PathPattern:        "/v1/advisors/runs",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListRunsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListRunsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListRunsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+MarkInsightsRead marks advisor insights read
+
+Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread.
+*/
+func (a *Client) MarkInsightsRead(params *MarkInsightsReadParams, opts ...ClientOption) (*MarkInsightsReadOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewMarkInsightsReadParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "MarkInsightsRead",
+		Method:             "POST",
+		PathPattern:        "/v1/advisors/insights:markRead",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &MarkInsightsReadReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*MarkInsightsReadOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*MarkInsightsReadDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -326,6 +606,94 @@ func (a *Client) StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...Cl
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*StartAdvisorChecksDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+TestAdvisorCheck tests advisor check
+
+Executes an advisor check definition against a single service without saving the check; results are returned and not persisted.
+*/
+func (a *Client) TestAdvisorCheck(params *TestAdvisorCheckParams, opts ...ClientOption) (*TestAdvisorCheckOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewTestAdvisorCheckParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "TestAdvisorCheck",
+		Method:             "POST",
+		PathPattern:        "/v1/advisors/checks:test",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &TestAdvisorCheckReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*TestAdvisorCheckOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*TestAdvisorCheckDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UpdateAdvisorCheck updates advisor check
+
+Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified. A check cannot be renamed: the name in the request body must either be empty or match the name in the path.
+*/
+func (a *Client) UpdateAdvisorCheck(params *UpdateAdvisorCheckParams, opts ...ClientOption) (*UpdateAdvisorCheckOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewUpdateAdvisorCheckParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UpdateAdvisorCheck",
+		Method:             "PUT",
+		PathPattern:        "/v1/advisors/checks/{name}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateAdvisorCheckReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*UpdateAdvisorCheckOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*UpdateAdvisorCheckDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

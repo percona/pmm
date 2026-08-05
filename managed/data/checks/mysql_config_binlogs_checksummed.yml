@@ -5,9 +5,10 @@ checks:
     summary: Server is not configured to enforce data integrity
     description: Please consider setting binlog_checksum=CRC32 to improve consistency and reliability.
     interval: standard
-    advisor: configuration_generic
-    #author: The Grinch
-    family: MYSQL
+    category: Configuration
+    subcategory: Generic
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, @@global.binlog_checksum AS binlog_checksum;"

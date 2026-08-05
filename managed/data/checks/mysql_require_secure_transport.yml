@@ -5,9 +5,10 @@ checks:
     summary: MySQL configuration check
     description: Checks mysql_secure_transport_only.
     interval: standard
-    family: MYSQL
-    advisor: security_configuration
-    #author:tibi/the grinch
+    technology: MYSQL
+    category: Security
+    subcategory: Configuration
+    # author: tibi/the grinch
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES

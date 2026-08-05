@@ -2,12 +2,13 @@
 checks:
   - version: 2
     name: mysql_config_replication_bp1
-    summary: Checks for basic best practices when setting a replica node.
+    summary: Checks for basic best practices when setting a replica node
     description: Identify if a replica node is in read-only mode and if checksum.
     interval: standard
-    advisor: configuration_replication
-    #author: The Grinch
-    family: MYSQL
+    category: Configuration
+    subcategory: Replication
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, count(1) as repl_conf_count, @@global.read_only as read_only, @@slave_sql_verify_checksum as slave_sql_verify_checksum from performance_schema.replication_connection_configuration;"

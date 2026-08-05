@@ -5,12 +5,13 @@ checks:
     name: mongodb_replicaset_topology
     summary: MongoDB Replica Set Topology
     description: This check returns warnings if the Replica Set has less than 3 data bearing nodes
-    family: MONGODB
-    #author: Corrado Pandiani
-    advisor: configuration_replication
+    technology: MONGODB
+    # author: Corrado Pandiani
+    category: Configuration
+    subcategory: Replication
     interval: standard
     queries:
-      - type: MONGODB_REPLSETGETSTATUS
+      - type: MONGODB_GETDIAGNOSTICDATA
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
 
@@ -21,12 +22,18 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           results = []
 
-          set_name = rows[0]["set"]
-          members_number = len(rows[0]["members"])
+          # getDiagnosticData includes replSetGetStatus only for replica-set members;
+          # on a standalone it is absent, so there is nothing to check.
+          repl_status = rows[0]["data"].get("replSetGetStatus")
+          if not repl_status:
+              return results
+
+          set_name = repl_status["set"]
+          members_number = len(repl_status["members"])
 
           if members_number < 3:
               results.append({

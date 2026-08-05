@@ -5,9 +5,10 @@ checks:
     summary: MongoDB - Unused Indexes
     description: This check returns a warning if there are unused indexes on any database collection in your instance (Need to enable "indexStats" collector).
     interval: standard
-    family: MONGODB
-    advisor: query_index
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Query
+    subcategory: Index
+    # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT
         query: avg by(node_name) (mongodb_instance_uptime_seconds{node_name=~"{{.NodeName}}"} / 86400)

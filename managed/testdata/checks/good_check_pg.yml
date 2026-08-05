@@ -4,8 +4,9 @@ checks:
     name: good_check_pg
     summary: Good Check PG
     description: Good check for PostgreSQL.
-    advisor: dev
-    family: POSTGRESQL
+    category: Development
+    subcategory: Dev
+    technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
         query: rolpassword FROM pg_authid WHERE rolcanlogin

@@ -541,13 +541,27 @@ export const NAV_ADVISORS: NavItem = {
   id: 'advisors',
   icon: 'intelligence',
   text: 'Advisors',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
+  url: `${PMM_NEW_NAV_PATH}/advisors`,
+};
+
+// the sidebar links a parent item to its first child's url, so the Advisors
+// children are listed explicitly (Insights is first, see addAdvisors)
+export const NAV_ADVISORS_CHECKS: NavItem = {
+  id: 'advisors-checks',
+  text: 'Advisor checks',
+  url: `${PMM_NEW_NAV_PATH}/advisors`,
 };
 
 export const NAV_ADVISORS_INSIGHTS = {
   id: 'advisors-insights',
   text: 'Advisor insights',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors/insights`,
+  url: `${PMM_NEW_NAV_PATH}/advisors/insights`,
+};
+
+export const NAV_ADVISORS_RUNS = {
+  id: 'advisors-runs',
+  text: 'Advisor runs',
+  url: `${PMM_NEW_NAV_PATH}/advisors/runs`,
 };
 
 //

@@ -5,10 +5,10 @@ checks:
     summary: General Log is enabled
     description: Check if the general log is enabled.
     interval: standard
-    advisor: configuration_generic
-    #subcategory: generic
-    #author: The Grinch
-    family: MYSQL
+    category: Configuration
+    subcategory: Generic
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@global.general_log as general_log, @@version as version, @@hostname as service;"

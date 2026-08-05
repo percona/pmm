@@ -351,6 +351,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
 - Use modern slice helpers (`slices.Contains`), range loops
+- Use `new(expr)` instead of `pointer.To(expr)` when a pointer to a value is needed
 - Don't use named return values
 - Don't inline comments (`code // comment`); put comments on separate lines
 - Don't add obvious/redundant comments; only comment non-obvious intent

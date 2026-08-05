@@ -4,9 +4,10 @@ checks:
     name: postgresql_cache_hit_ratio
     summary: PostgreSQL cache hit ratio
     description: This check the hitratio of one or more databases and complains when they are too low.
-    family: POSTGRESQL
-    #author: David Gonzales
-    advisor: performance_generic
+    technology: POSTGRESQL
+    # author: David Gonzales
+    category: Performance
+    subcategory: Generic
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

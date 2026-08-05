@@ -5,9 +5,10 @@ checks:
     summary: Binlogs raw image is not set to FULL
     description: Please consider setting binlog_row_image=FULL.
     interval: standard
-    advisor: configuration_generic
-    #author: The Grinch
-    family: MYSQL
+    category: Configuration
+    subcategory: Generic
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, IF(@@global.binlog_row_image='MINIMAL', 1, 0) AS binlog_row_image, @@global.binlog_row_image as RI_NAME;"

@@ -5,8 +5,9 @@ checks:
     summary: InnoDB Adaptive Hash Index (AHI) efficiency checker
     description: Check the efficiency and effectiveness of InnoDB's Adaptive Hash Index (AHI).
     interval: standard
-    advisor: configuration_innodb
-    family: MYSQL
+    category: Configuration
+    subcategory: InnoDB
+    technology: MYSQL
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES
@@ -67,7 +68,7 @@ checks:
                    "summary": "InnoDB's Adaptive Hash Index (AHI) is enabled.",
                    "description": desc,
                    "read_more_url": read_more,
-                   "severity": "notice",
+                   "severity": "warning",
                    "labels": {},
                })
 
@@ -78,7 +79,7 @@ checks:
                    sample = float(row[1])
                    dataPoints.append(sample)
                    samplesSum = samplesSum + sample
-               hitRatioAvg = int((samplesSum/len(dataPoints))*100)
+               hitRatioAvg = int((samplesSum/len(dataPoints))*100) if dataPoints else 0
 
                # AHI btr_search_latch load
                dataPoints = []
@@ -89,12 +90,12 @@ checks:
                    if sample!=0.0:
                        dataPoints.append(sample)
                    samplesSum = samplesSum + sample
-               loadAvg = int(samplesSum/len(dataPoints))
+               loadAvg = int(samplesSum/len(dataPoints)) if dataPoints else 0
 
                # Proposed evaluation:
-               # Low AHI hit ratio --> NOTICE
+               # Low AHI hit ratio --> INFO
                # Low AHI contention --> WARNING
-               # Medium AHI contention --> MAJOR
+               # Medium AHI contention --> ERROR
                # High AHI contention --> CRITICAL
                #
                # But how to calculate contention?
@@ -109,23 +110,34 @@ checks:
                thresholdB = nCPUs*2
                # - The "warning" threshold is 3/4 of the critical one
                thresholdA = (thresholdB/4)*3
+               # - The "error" threshold sits midway between warning and critical
+               thresholdMid = (thresholdA+thresholdB)/2
 
                btrWaitLoadHitRatioMsg = "AHI average btr_search_latch wait load is {}, AHI average hit ratio is {}%.".format(loadAvg,hitRatioAvg)
 
                if hitRatioAvg > 50 and loadAvg > thresholdA:
-                   if loadAvg < thresholdB:
+                   if loadAvg < thresholdMid:
                        summary = "AHI is experiencing some contention"
                        description = btrWaitLoadHitRatioMsg
                        severity = "warning"
+                   elif loadAvg < thresholdB:
+                       summary = "AHI is experiencing contention"
+                       description = "{}. Consider increasing the number of AHI partitions (currently operating with {}).".format(btrWaitLoadHitRatioMsg,ahi_parts)
+                       severity = "error"
                    else:  # loadAvg > thresholdB
                        summary = "AHI is likely experiencing contention"
                        description = "{}. You should consider increasing the number of AHI partitions (currently operating with {}) or disable it altogether.".format(btrWaitLoadHitRatioMsg,ahi_parts)
-                       severity = "error"
+                       severity = "critical"
+
+               elif hitRatioAvg <= 50:
+                   summary = "AHI hit ratio is low"
+                   description = "{}. AHI is enabled but only a small share of searches are served by it; it may not be benefiting this workload.".format(btrWaitLoadHitRatioMsg)
+                   severity = "info"
 
                else:
                    summary = "AHI is operating with no contention detected"
                    description = btrWaitLoadHitRatioMsg
-                   severity = "notice"
+                   severity = "warning"
 
                results.append({
                    "summary": summary,
@@ -141,7 +153,7 @@ checks:
                    "summary": "InnoDB's Adaptive Hash Index (AHI) is disabled.",
                    "description": "The AHI can speed up queries in certain MySQL read workloads, sometimes at the expense of concurrency. It might be worth experimenting operating with it enabled if you haven't already. Then, keep checking this dashboard for any signs of contention on AHI; test with caution.",
                    "read_more_url": read_more,
-                   "severity": "notice",
+                   "severity": "warning",
                    "labels": {},
                })
 

@@ -41,6 +41,9 @@ const (
 	cpuLimit         = 4 * time.Second
 	memoryLimitBytes = 1024 * 1024 * 1024
 
+	// File descriptor pmm-managed wires for the captured print() output.
+	printOutputFD = 3
+
 	// Only used for testing.
 	starlarkRecursionFlag = "PMM_DEV_ADVISOR_STARLARK_ALLOW_RECURSION"
 
@@ -90,20 +93,21 @@ func main() {
 	var data checks.StarlarkScriptData
 	err = decoder.Decode(&data)
 	if err != nil {
-		l.Errorf("Error decoding json data: %s", err)
+		// write to stderr as plain text so pmm-managed can surface the cause instead of a bare exit code
+		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 
 	results, err := runChecks(l, &data)
 	if err != nil {
-		l.Errorf("Error running starlark script: %+v", err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
 
 	encoder := json.NewEncoder(os.Stdout)
 	err = encoder.Encode(results)
 	if err != nil {
-		l.Errorf("Error encoding JSON results: %s", err)
+		fmt.Fprintf(os.Stderr, "%s\n", err)
 		os.Exit(1)
 	}
 }
@@ -111,7 +115,7 @@ func main() {
 func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result, error) {
 	funcs, err := checks.GetFuncsForVersion(data.Version)
 	if err != nil {
-		return nil, fmt.Errorf("error getting funcs: %w", err)
+		return nil, err
 	}
 
 	env, err := starlark.NewEnv(data.Name, data.Script, funcs)
@@ -145,16 +149,22 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 		}
 	}
 
+	// print() output is normally debug-logged; for check test runs it is emitted
+	// as plain lines on the dedicated pipe (fd 3, wired by pmm-managed) so it
+	// reaches the check author without mixing into stderr's error channel
+	var printFn starlark.PrintFunc = l.Debugln
+	if data.CapturePrintOutput {
+		printOut := os.NewFile(printOutputFD, "print-output")
+		printFn = func(args ...any) {
+			_, _ = fmt.Fprintln(printOut, args...)
+		}
+	}
+
 	var results []check.Result
 	contextFuncs := checks.GetAdditionalContext()
-	switch data.Version {
-	case 1:
-		results, err = env.Run(data.Name, res[0], contextFuncs, l.Debugln)
-	case 2: //nolint:mnd
-		results, err = env.Run(data.Name, res, contextFuncs, l.Debugln)
-	}
+	results, err = env.Run(data.Name, res, contextFuncs, printFn)
 	if err != nil {
-		return nil, fmt.Errorf("error running starlark env: %w", err)
+		return nil, err
 	}
 
 	return results, nil
@@ -163,12 +173,12 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 func unmarshalQueryResult(qr string) ([]map[string]any, error) {
 	b, err := base64.StdEncoding.DecodeString(qr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode base64 encoded query result: %w", err)
+		return nil, err
 	}
 
 	res, err := agentv1.UnmarshalActionQueryResult(b)
 	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal query result: %w", err)
+		return nil, err
 	}
 
 	return res, nil

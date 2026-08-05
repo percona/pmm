@@ -7,6 +7,7 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	models "github.com/percona/pmm/managed/models"
 	check "github.com/percona/pmm/managed/pi/check"
 	services "github.com/percona/pmm/managed/services"
 )
@@ -16,17 +17,17 @@ type mockChecksService struct {
 	mock.Mock
 }
 
-// ChangeInterval provides a mock function with given fields: params
-func (_m *mockChecksService) ChangeInterval(params map[string]check.Interval) error {
-	ret := _m.Called(params)
+// ChangeInterval provides a mock function with given fields: ctx, params
+func (_m *mockChecksService) ChangeInterval(ctx context.Context, params map[string]check.Interval) error {
+	ret := _m.Called(ctx, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ChangeInterval")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(map[string]check.Interval) error); ok {
-		r0 = rf(params)
+	if rf, ok := ret.Get(0).(func(context.Context, map[string]check.Interval) error); ok {
+		r0 = rf(ctx, params)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -34,17 +35,53 @@ func (_m *mockChecksService) ChangeInterval(params map[string]check.Interval) er
 	return r0
 }
 
-// DisableChecks provides a mock function with given fields: checkNames
-func (_m *mockChecksService) DisableChecks(checkNames []string) error {
-	ret := _m.Called(checkNames)
+// CreateAdvisorCheck provides a mock function with given fields: ctx, c
+func (_m *mockChecksService) CreateAdvisorCheck(ctx context.Context, c check.Check) error {
+	ret := _m.Called(ctx, c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateAdvisorCheck")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, check.Check) error); ok {
+		r0 = rf(ctx, c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DeleteAdvisorCheck provides a mock function with given fields: ctx, name
+func (_m *mockChecksService) DeleteAdvisorCheck(ctx context.Context, name string) error {
+	ret := _m.Called(ctx, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteAdvisorCheck")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, name)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// DisableChecks provides a mock function with given fields: ctx, checkNames
+func (_m *mockChecksService) DisableChecks(ctx context.Context, checkNames []string) error {
+	ret := _m.Called(ctx, checkNames)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DisableChecks")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
-		r0 = rf(checkNames)
+	if rf, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = rf(ctx, checkNames)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -52,17 +89,53 @@ func (_m *mockChecksService) DisableChecks(checkNames []string) error {
 	return r0
 }
 
-// EnableChecks provides a mock function with given fields: checkNames
-func (_m *mockChecksService) EnableChecks(checkNames []string) error {
-	ret := _m.Called(checkNames)
+// DisableChecksForServices provides a mock function with given fields: ctx, checkName, serviceIDs
+func (_m *mockChecksService) DisableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error {
+	ret := _m.Called(ctx, checkName, serviceIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DisableChecksForServices")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, []string) error); ok {
+		r0 = rf(ctx, checkName, serviceIDs)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// EnableChecks provides a mock function with given fields: ctx, checkNames
+func (_m *mockChecksService) EnableChecks(ctx context.Context, checkNames []string) error {
+	ret := _m.Called(ctx, checkNames)
 
 	if len(ret) == 0 {
 		panic("no return value specified for EnableChecks")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
-		r0 = rf(checkNames)
+	if rf, ok := ret.Get(0).(func(context.Context, []string) error); ok {
+		r0 = rf(ctx, checkNames)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// EnableChecksForServices provides a mock function with given fields: ctx, checkName, serviceIDs
+func (_m *mockChecksService) EnableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error {
+	ret := _m.Called(ctx, checkName, serviceIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EnableChecksForServices")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, []string) error); ok {
+		r0 = rf(ctx, checkName, serviceIDs)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -130,39 +203,9 @@ func (_m *mockChecksService) GetChecks() (map[string]check.Check, error) {
 	return r0, r1
 }
 
-// GetChecksResults provides a mock function with given fields: ctx, serviceID
-func (_m *mockChecksService) GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error) {
-	ret := _m.Called(ctx, serviceID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetChecksResults")
-	}
-
-	var r0 []services.CheckResult
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) ([]services.CheckResult, error)); ok {
-		return rf(ctx, serviceID)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) []services.CheckResult); ok {
-		r0 = rf(ctx, serviceID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]services.CheckResult)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, serviceID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetDisabledChecks provides a mock function with no fields
-func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
-	ret := _m.Called()
+// GetDisabledChecks provides a mock function with given fields: ctx
+func (_m *mockChecksService) GetDisabledChecks(ctx context.Context) ([]string, error) {
+	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetDisabledChecks")
@@ -170,19 +213,19 @@ func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 
 	var r0 []string
 	var r1 error
-	if rf, ok := ret.Get(0).(func() ([]string, error)); ok {
-		return rf()
+	if rf, ok := ret.Get(0).(func(context.Context) ([]string, error)); ok {
+		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func() []string); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(context.Context) []string); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]string)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -190,17 +233,291 @@ func (_m *mockChecksService) GetDisabledChecks() ([]string, error) {
 	return r0, r1
 }
 
-// StartChecks provides a mock function with given fields: checkNames
-func (_m *mockChecksService) StartChecks(checkNames []string) error {
-	ret := _m.Called(checkNames)
+// GetDisabledServicesForChecks provides a mock function with given fields: ctx
+func (_m *mockChecksService) GetDisabledServicesForChecks(ctx context.Context) (map[string][]string, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetDisabledServicesForChecks")
+	}
+
+	var r0 map[string][]string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (map[string][]string, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) map[string][]string); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string][]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetInsights provides a mock function with given fields: ctx, filters, pageIndex, pageSize
+func (_m *mockChecksService) GetInsights(ctx context.Context, filters models.InsightFilters, pageIndex int, pageSize int) ([]*models.Insight, int, error) {
+	ret := _m.Called(ctx, filters, pageIndex, pageSize)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetInsights")
+	}
+
+	var r0 []*models.Insight
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.InsightFilters, int, int) ([]*models.Insight, int, error)); ok {
+		return rf(ctx, filters, pageIndex, pageSize)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, models.InsightFilters, int, int) []*models.Insight); ok {
+		r0 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.Insight)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, models.InsightFilters, int, int) int); ok {
+		r1 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, models.InsightFilters, int, int) error); ok {
+		r2 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// GetInsightsFilterValues provides a mock function with given fields: ctx
+func (_m *mockChecksService) GetInsightsFilterValues(ctx context.Context) ([]string, []string, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetInsightsFilterValues")
+	}
+
+	var r0 []string
+	var r1 []string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context) ([]string, []string, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) []string); ok {
+		r0 = rf(ctx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) []string); ok {
+		r1 = rf(ctx)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).([]string)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context) error); ok {
+		r2 = rf(ctx)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// GetRuns provides a mock function with given fields: ctx, filters, pageIndex, pageSize
+func (_m *mockChecksService) GetRuns(ctx context.Context, filters models.AdvisorRunFilters, pageIndex int, pageSize int) ([]*models.AdvisorRun, int, error) {
+	ret := _m.Called(ctx, filters, pageIndex, pageSize)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetRuns")
+	}
+
+	var r0 []*models.AdvisorRun
+	var r1 int
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.AdvisorRunFilters, int, int) ([]*models.AdvisorRun, int, error)); ok {
+		return rf(ctx, filters, pageIndex, pageSize)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, models.AdvisorRunFilters, int, int) []*models.AdvisorRun); ok {
+		r0 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.AdvisorRun)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, models.AdvisorRunFilters, int, int) int); ok {
+		r1 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		r1 = ret.Get(1).(int)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, models.AdvisorRunFilters, int, int) error); ok {
+		r2 = rf(ctx, filters, pageIndex, pageSize)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// ListTestTargets provides a mock function with given fields: ctx, technology
+func (_m *mockChecksService) ListTestTargets(ctx context.Context, technology check.Technology) ([]services.Target, error) {
+	ret := _m.Called(ctx, technology)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListTestTargets")
+	}
+
+	var r0 []services.Target
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, check.Technology) ([]services.Target, error)); ok {
+		return rf(ctx, technology)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, check.Technology) []services.Target); ok {
+		r0 = rf(ctx, technology)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]services.Target)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, check.Technology) error); ok {
+		r1 = rf(ctx, technology)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MarkInsightsRead provides a mock function with given fields: ctx, ids, isRead
+func (_m *mockChecksService) MarkInsightsRead(ctx context.Context, ids []string, isRead bool) error {
+	ret := _m.Called(ctx, ids, isRead)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkInsightsRead")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []string, bool) error); ok {
+		r0 = rf(ctx, ids, isRead)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MarkInsightsReadByFilters provides a mock function with given fields: ctx, filters, isRead
+func (_m *mockChecksService) MarkInsightsReadByFilters(ctx context.Context, filters models.InsightFilters, isRead bool) error {
+	ret := _m.Called(ctx, filters, isRead)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MarkInsightsReadByFilters")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, models.InsightFilters, bool) error); ok {
+		r0 = rf(ctx, filters, isRead)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// StartChecks provides a mock function with given fields: checkNames, serviceIDs
+func (_m *mockChecksService) StartChecks(checkNames []string, serviceIDs []string) (string, error) {
+	ret := _m.Called(checkNames, serviceIDs)
 
 	if len(ret) == 0 {
 		panic("no return value specified for StartChecks")
 	}
 
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func([]string, []string) (string, error)); ok {
+		return rf(checkNames, serviceIDs)
+	}
+	if rf, ok := ret.Get(0).(func([]string, []string) string); ok {
+		r0 = rf(checkNames, serviceIDs)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func([]string, []string) error); ok {
+		r1 = rf(checkNames, serviceIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// TestAdvisorCheck provides a mock function with given fields: ctx, c, serviceID
+func (_m *mockChecksService) TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, string, error) {
+	ret := _m.Called(ctx, c, serviceID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TestAdvisorCheck")
+	}
+
+	var r0 []services.CheckResult
+	var r1 string
+	var r2 error
+	if rf, ok := ret.Get(0).(func(context.Context, check.Check, string) ([]services.CheckResult, string, error)); ok {
+		return rf(ctx, c, serviceID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, check.Check, string) []services.CheckResult); ok {
+		r0 = rf(ctx, c, serviceID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]services.CheckResult)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, check.Check, string) string); ok {
+		r1 = rf(ctx, c, serviceID)
+	} else {
+		r1 = ret.Get(1).(string)
+	}
+
+	if rf, ok := ret.Get(2).(func(context.Context, check.Check, string) error); ok {
+		r2 = rf(ctx, c, serviceID)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
+// UpdateAdvisorCheck provides a mock function with given fields: ctx, c
+func (_m *mockChecksService) UpdateAdvisorCheck(ctx context.Context, c check.Check) error {
+	ret := _m.Called(ctx, c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateAdvisorCheck")
+	}
+
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]string) error); ok {
-		r0 = rf(checkNames)
+	if rf, ok := ret.Get(0).(func(context.Context, check.Check) error); ok {
+		r0 = rf(ctx, c)
 	} else {
 		r0 = ret.Error(0)
 	}

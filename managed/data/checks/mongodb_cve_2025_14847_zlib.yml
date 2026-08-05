@@ -2,14 +2,15 @@
 checks:
   - version: 2
     name: mongodb_cve_2025_14847_zlib
-    summary: MongoDB CVE-2025-14847 - Zlib Compression Heap Memory Vulnerability
+    summary: MongoDB Zlib Compression Heap Memory Vulnerability (CVE-2025-14847)
     description: |
       Checks if MongoDB Server is vulnerable to CVE-2025-14847 with active Zlib compression.
       Fixed versions: 4.4.30+, 5.0.32+, 6.0.27+, 7.0.28+, 8.0.17+, 8.2.3+
       EOL (no fix): 3.6.x, 4.0.x, 4.2.x
     interval: frequent
-    family: MONGODB
-    advisor: security_cve
+    technology: MONGODB
+    category: Security
+    subcategory: Vulnerabilities
     queries:
       - type: MONGODB_BUILDINFO
       - type: METRICS_INSTANT
@@ -36,7 +37,7 @@ checks:
           
           build_info = docs[0]
           if len(build_info) != 1:
-              return "Unexpected number of documents from buildInfo"
+              return "unexpected number of documents from buildInfo: {}".format(len(build_info))
           
           info = build_info[0]
           version = parse_version(info["version"])

@@ -19,12 +19,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/mail"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/pi/common"
 	"github.com/percona/pmm/managed/utils/validators"
 )
 
@@ -60,6 +62,15 @@ type ChangeSettingsParams struct {
 
 	DataRetention time.Duration
 
+	AdvisorHistoryRetention time.Duration
+
+	// Enable Advisor email notifications.
+	EnableAdvisorNotifications *bool
+	// Least-severe level that triggers an Advisor notification. Unknown means "do not change".
+	AdvisorNotificationSeverityThreshold common.Severity
+	// Recipients of Advisor notifications. Nil means "do not change"; an empty non-nil slice clears them.
+	AdvisorNotificationEmailAddresses []string
+
 	// List of AWS partitions to use. If empty - default partitions will be used. If nil - no changes will be made.
 	AWSPartitions []string
 
@@ -70,10 +81,6 @@ type ChangeSettingsParams struct {
 
 	EnableNomad *bool
 
-	// List of Advisor checks to disable
-	DisableAdvisorChecks []string
-	// List of Advisor checks to enable
-	EnableAdvisorChecks []string
 	// Advisors run intervals
 	AdvisorsRunInterval AdvisorsRunIntervals
 
@@ -166,6 +173,22 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.DataRetention = params.DataRetention
 	}
 
+	if params.AdvisorHistoryRetention != 0 {
+		settings.AdvisorHistoryRetention = params.AdvisorHistoryRetention
+	}
+
+	if params.EnableAdvisorNotifications != nil {
+		settings.AdvisorNotifications.Enabled = params.EnableAdvisorNotifications
+	}
+
+	if params.AdvisorNotificationSeverityThreshold != common.Unknown {
+		settings.AdvisorNotifications.SeverityThreshold = params.AdvisorNotificationSeverityThreshold
+	}
+
+	if params.AdvisorNotificationEmailAddresses != nil {
+		settings.AdvisorNotifications.EmailAddresses = deduplicateStrings(params.AdvisorNotificationEmailAddresses)
+	}
+
 	if params.AWSPartitions != nil {
 		settings.AWSPartitions = deduplicateStrings(params.AWSPartitions)
 	}
@@ -190,25 +213,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.AdvisorsRunInterval.FrequentInterval != 0 {
 		settings.SaaS.AdvisorRunIntervals.FrequentInterval = params.AdvisorsRunInterval.FrequentInterval
-	}
-
-	if len(params.DisableAdvisorChecks) != 0 {
-		settings.SaaS.DisabledAdvisors = deduplicateStrings(append(settings.SaaS.DisabledAdvisors, params.DisableAdvisorChecks...))
-	}
-
-	if len(params.EnableAdvisorChecks) != 0 {
-		m := make(map[string]struct{}, len(params.EnableAdvisorChecks))
-		for _, p := range params.EnableAdvisorChecks {
-			m[p] = struct{}{}
-		}
-
-		var res []string
-		for _, c := range settings.SaaS.DisabledAdvisors {
-			if _, ok := m[c]; !ok {
-				res = append(res, c)
-			}
-		}
-		settings.SaaS.DisabledAdvisors = res
 	}
 
 	if params.EnableVMCache != nil {
@@ -274,7 +278,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
+				return fmt.Errorf("%s: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -300,7 +304,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return fmt.Errorf("%s: minimal resolution is 1s", v.fieldName)
 			default:
-				return fmt.Errorf("%s: unknown error: %w", v.fieldName, err)
+				return fmt.Errorf("%s: %w", v.fieldName, err)
 			}
 		}
 	}
@@ -314,14 +318,78 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 			case validators.MinDurationError:
 				return errors.New("data_retention: minimal resolution is 24h")
 			default:
-				return fmt.Errorf("data_retention: unknown error: %w", err)
+				return fmt.Errorf("data_retention: %w", err)
 			}
 		}
 	}
 
-	err := validators.ValidateAWSPartitions(params.AWSPartitions)
+	if params.AdvisorHistoryRetention != 0 {
+		_, err := validators.ValidateDataRetention(params.AdvisorHistoryRetention)
+		if err != nil {
+			switch err.(type) { //nolint:errorlint
+			case validators.DurationNotAllowedError:
+				return errors.New("advisor_history_retention: should be a natural number of days")
+			case validators.MinDurationError:
+				return errors.New("advisor_history_retention: minimal resolution is 24h")
+			default:
+				return fmt.Errorf("advisor_history_retention: %w", err)
+			}
+		}
+	}
+
+	if params.AdvisorNotificationSeverityThreshold != common.Unknown {
+		err := validateAdvisorSeverityThreshold(params.AdvisorNotificationSeverityThreshold)
+		if err != nil {
+			return err
+		}
+	}
+
+	err := validateAdvisorNotificationEmailAddresses(params.AdvisorNotificationEmailAddresses)
 	if err != nil {
 		return err
+	}
+
+	err = validators.ValidateAWSPartitions(params.AWSPartitions)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateAdvisorSeverityThreshold accepts only the severities advisors use;
+// the remaining common.Severity levels are retired for advisors.
+func validateAdvisorSeverityThreshold(s common.Severity) error {
+	switch s {
+	case common.Critical, common.Error, common.Warning, common.Info:
+		return nil
+	default:
+		return fmt.Errorf("advisor_notification_severity_threshold: unsupported severity level: %s", s)
+	}
+}
+
+// maxAdvisorNotificationEmailAddresses caps the recipient list so a single settings change cannot
+// turn every run completion into a mass mailing.
+const maxAdvisorNotificationEmailAddresses = 20
+
+// validateAdvisorNotificationEmailAddresses accepts a nil or empty list ("do not change" and
+// "clear" respectively) and otherwise requires every entry to be a bare, parseable address.
+func validateAdvisorNotificationEmailAddresses(addresses []string) error {
+	if len(addresses) > maxAdvisorNotificationEmailAddresses {
+		return fmt.Errorf("advisor_notification_email_addresses: at most %d addresses are allowed, got %d",
+			maxAdvisorNotificationEmailAddresses, len(addresses))
+	}
+
+	for _, a := range addresses {
+		parsed, err := mail.ParseAddress(a)
+		if err != nil {
+			return fmt.Errorf("advisor_notification_email_addresses: invalid address '%s'", a)
+		}
+		// ParseAddress also accepts `Name <addr>`; the sender only needs the address itself, and
+		// accepting display names here would make the stored list ambiguous.
+		if parsed.Address != a {
+			return fmt.Errorf("advisor_notification_email_addresses: expected a bare email address, got '%s'", a)
+		}
 	}
 
 	return nil

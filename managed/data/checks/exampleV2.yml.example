@@ -5,8 +5,9 @@ checks:
     summary: Check format V2
     description: Checks something important
     interval: standard
-    advisor: example
-    family: MYSQL
+    category: Security
+    subcategory: Example
+    technology: MYSQL
     queries:
       - type: MYSQL_SHOW
         query: VARIABLES

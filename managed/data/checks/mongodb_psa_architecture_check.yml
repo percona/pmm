@@ -5,9 +5,10 @@ checks:
     summary: MongoDB PSA Architecture
     description: This check returns an error if the replicaSet is using a PSA architecture.
     interval: standard
-    family: MONGODB
-    advisor: configuration_replication
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Configuration
+    subcategory: Replication
+    # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT
         query: avg by(cluster,node_name,set) (mongodb_mongod_replset_number_of_members{node_name=~"{{.NodeName}}"})
@@ -20,15 +21,19 @@ checks:
           info = docs[0]
           results = []
 
+          members = 0
           for row in info:
               members = int(row["value"][1])
 
+          state = 0
+          cluster = ""
+          replsetname = ""
           for type in docs[1]:
-              cluster = type["metric"]["cluster"]
+              cluster = type["metric"].get("cluster", "")
               state = int(type["value"][1])
-              replsetname = type["metric"]["set"]
+              replsetname = type["metric"].get("set", "")
 
-          if members <= 3 and state == 7:
+          if members > 0 and members <= 3 and state == 7:
               results.append({
                   "summary": "MongoDB PSA Architecture detected",
                   "description": "MongoDB PSA(Primary-Secondary-Arbiter) architecture has been detected in your {}-node ReplicaSet ({}) for {} Cluster. It is not recommended to use this architecture for Production systems. For more details, refer to Read More documentation.".format(members, replsetname, cluster),

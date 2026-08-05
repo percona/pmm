@@ -5,10 +5,10 @@ checks:
     summary: MongoDB - FCV mismatch
     description: This check returns a warning if there is a mismatch between the MongoDB version and the internal FCV parameter setting.
     interval: standard
-    family: MONGODB
-    advisor: configuration_resources
-    #category: configuration
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Configuration
+    subcategory: Resources
+    # author: Parag Bhayani
     queries:
       - type: MONGODB_BUILDINFO
       - type: MONGODB_GETPARAMETER

@@ -2,12 +2,13 @@
 checks:
   - version: 2
     name: mysql_version_eol_57
-    summary: End Of Life server version (5.7).
+    summary: End Of Life server version (5.7)
     description: Check if server version is EOL
     interval: standard
-    advisor: configuration_version
-    #author: The Grinch
-    family: MYSQL
+    category: Configuration
+    subcategory: Version
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service,@@version_comment as comment, @@basedir as basedir,@@datadir as datadir, datediff('2023-10-23',date(now())) as days;"

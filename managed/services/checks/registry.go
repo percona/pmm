@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-// registry stores alerts and delay information by IDs.
+// registry keeps a snapshot of the current check results and exposes it as the insights metric.
 type registry struct {
 	rw sync.RWMutex
 	// Results stored grouped by interval and by check name. It allows us to remove results for specific group.
@@ -40,8 +40,8 @@ func newRegistry() *registry {
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "check_insights",
-			Help:      "Number of advisor insights per service type, advisor and check name",
-		}, []string{"service_type", "advisor", "check_name"}),
+			Help:      "Number of advisor insights per service type, service name, advisor, check name and severity",
+		}, []string{"service_type", "service_name", "advisor", "check_name", "severity"}),
 	}
 }
 
@@ -75,6 +75,41 @@ func (r *registry) deleteByName(checkNames []string) {
 	}
 }
 
+// deleteByNameAndService removes results for the specified checks, but only those
+// produced for the specified services, leaving other services' results in place.
+func (r *registry) deleteByNameAndService(checkNames, serviceIDs []string) {
+	r.rw.Lock()
+	defer r.rw.Unlock()
+
+	wanted := make(map[string]struct{}, len(serviceIDs))
+	for _, id := range serviceIDs {
+		wanted[id] = struct{}{}
+	}
+
+	for _, intervalGroup := range r.checkResults {
+		for _, name := range checkNames {
+			results, ok := intervalGroup[name]
+			if !ok {
+				continue
+			}
+
+			kept := make([]services.CheckResult, 0, len(results))
+			for _, result := range results {
+				_, drop := wanted[result.Target.ServiceID]
+				if !drop {
+					kept = append(kept, result)
+				}
+			}
+
+			if len(kept) == 0 {
+				delete(intervalGroup, name)
+				continue
+			}
+			intervalGroup[name] = kept
+		}
+	}
+}
+
 // deleteByInterval removes results for specified interval.
 func (r *registry) deleteByInterval(interval check.Interval) {
 	r.rw.Lock()
@@ -83,7 +118,7 @@ func (r *registry) deleteByInterval(interval check.Interval) {
 	delete(r.checkResults, interval)
 }
 
-// cleanup removes all advisors results form registry.
+// cleanup removes all check results from the registry.
 func (r *registry) cleanup() {
 	r.rw.Lock()
 	defer r.rw.Unlock()
@@ -91,19 +126,15 @@ func (r *registry) cleanup() {
 	r.checkResults = make(map[check.Interval]map[string][]services.CheckResult)
 }
 
-// getCheckResults returns checks results for the given service. If serviceID is empty it returns results for all services.
-func (r *registry) getCheckResults(serviceID string) []services.CheckResult {
+// getCheckResults returns checks results for all services.
+func (r *registry) getCheckResults() []services.CheckResult {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
 	var results []services.CheckResult
 	for _, intervalGroup := range r.checkResults {
 		for _, checkNameGroup := range intervalGroup {
-			for _, checkResult := range checkNameGroup {
-				if serviceID == "" || checkResult.Target.ServiceID == serviceID {
-					results = append(results, checkResult)
-				}
-			}
+			results = append(results, checkNameGroup...)
 		}
 	}
 
@@ -118,9 +149,9 @@ func (r *registry) Describe(ch chan<- *prom.Desc) {
 // Collect implements prom.Collector.
 func (r *registry) Collect(ch chan<- prom.Metric) {
 	r.mInsights.Reset()
-	res := r.getCheckResults("")
+	res := r.getCheckResults()
 	for _, re := range res {
-		r.mInsights.WithLabelValues(string(re.Target.ServiceType), re.AdvisorName, re.CheckName).Inc()
+		r.mInsights.WithLabelValues(string(re.Target.ServiceType), re.Target.ServiceName, re.Subcategory, re.CheckName, re.Result.Severity.String()).Inc()
 	}
 	r.mInsights.Collect(ch)
 }

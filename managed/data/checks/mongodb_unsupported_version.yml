@@ -5,11 +5,10 @@ checks:
     summary: MongoDB Unspported version check
     description: This check returns errors if your current PSMDB or MongoDB version is not supported.
     interval: standard
-    family: MONGODB
-    advisor: configuration_version
-    #category: configuration
-    #subcategory: version configuration
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Configuration
+    subcategory: Version
+    # author: Parag Bhayani
     queries:
       - type: MONGODB_BUILDINFO
     script: |

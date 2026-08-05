@@ -536,6 +536,11 @@ type ChangeAdvisorChecksParamsBodyParamsItems0 struct {
 	// AdvisorCheckInterval represents possible execution interval values for checks.
 	// Enum: ["ADVISOR_CHECK_INTERVAL_UNSPECIFIED","ADVISOR_CHECK_INTERVAL_STANDARD","ADVISOR_CHECK_INTERVAL_FREQUENT","ADVISOR_CHECK_INTERVAL_RARE"]
 	Interval *string `json:"interval,omitempty"`
+
+	// IDs of services to apply the enable/disable to. When set, enable/disable
+	// affects only the given services instead of the whole check; interval
+	// changes are not allowed in the same params entry.
+	ServiceIds []string `json:"service_ids"`
 }
 
 // Validate validates this change advisor checks params body params items0

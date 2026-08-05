@@ -3,9 +3,10 @@ checks:
   - version: 2
     name: mysql_test_database
     summary: MySQL test Database
-    description: This check returns a notice if there are databases with name 'test' or 'test_%'.
-    family: MYSQL
-    advisor: configuration_generic
+    description: Identifies databases with name 'test' or 'test_%'
+    technology: MYSQL
+    category: Configuration
+    subcategory: Generic
     interval: standard
     queries:
       - type: MYSQL_SHOW
@@ -13,7 +14,7 @@ checks:
     script: |
       def check_context(docs, context):
           """
-          This check returns a notice if database with name 'test' or 'test_%' are discovered.
+          This check identifies databases with name 'test' or 'test_%'.
           """
 
           dbs = []
@@ -24,13 +25,10 @@ checks:
               dbs.append(db)
 
           if dbs:
-              description = "s are"
-              if len(dbs) == 1:
-                  description = " is"
               return [{
-                  "summary": "Test database{} detected: {}".format(description,dbs),
+                  "summary": "Test database(s) detected: {}".format(", ".join(dbs)),
                   "description": "Improve MySQL Installation Security by running mysql_secure_installation",
-                  "severity": "notice"
+                  "severity": "info"
           }]
 
           return []

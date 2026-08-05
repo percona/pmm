@@ -179,35 +179,25 @@ func (t Type) Validate() error {
 	}
 }
 
-func isTypeSupportedByV1(t Type) bool {
-	switch t {
-	case MySQLShow, MySQLSelect, PostgreSQLShow, PostgreSQLSelect, MongoDBGetParameter,
-		MongoDBBuildInfo, MongoDBGetCmdLineOpts, MongoDBReplSetGetStatus, MongoDBGetDiagnosticData:
-		return true
-	default:
-		return false
-	}
-}
-
-// Supported DB families.
+// Supported DB technologies.
 const (
-	MySQL      = Family("MYSQL")
-	PostgreSQL = Family("POSTGRESQL")
-	MongoDB    = Family("MONGODB")
+	MySQL      = Technology("MYSQL")
+	PostgreSQL = Technology("POSTGRESQL")
+	MongoDB    = Technology("MONGODB")
 )
 
-// Family represents monitored service family.
-type Family string
+// Technology represents monitored service technology.
+type Technology string
 
-// Validate validates check family.
-func (f Family) Validate() error {
+// Validate validates check technology.
+func (f Technology) Validate() error {
 	switch f {
 	case MySQL, PostgreSQL, MongoDB:
 		return nil
 	case "":
-		return errors.New("check family is empty")
+		return errors.New("check technology is empty")
 	default:
-		return fmt.Errorf("unknown check family: %s", f)
+		return fmt.Errorf("unknown check technology: %s", f)
 	}
 }
 
@@ -244,9 +234,9 @@ const (
 
 // Query represents DB query of specified type.
 type Query struct {
-	Query      string
-	Type       Type
-	Parameters map[Parameter]string
+	Query      string               `json:"query"`
+	Type       Type                 `json:"type"`
+	Parameters map[Parameter]string `json:"parameters,omitempty"`
 }
 
 // Validate validates query.
@@ -264,56 +254,57 @@ func (q Query) Validate() error {
 	return validateQueryParameters(q.Type, q.Parameters)
 }
 
-// Check represents advisor check structure. Fields marked with v1 should not be used for version 2, and vice versa.
+// Supported advisor check format versions. Version 1 is deprecated and rejected.
+const (
+	// MinSupportedVersion is the minimum supported advisor check format version.
+	MinSupportedVersion uint32 = 2
+	// MaxSupportedVersion is the maximum supported advisor check format version.
+	MaxSupportedVersion uint32 = 2
+)
+
+// UserCheckNamePrefix is the name prefix reserved for user-authored checks.
+// Check names are primary identifiers, so the prefix keeps the user namespace
+// from ever colliding with Percona-shipped checks: user checks must carry it,
+// Percona checks must not (enforced by pi-validator).
+const UserCheckNamePrefix = "custom_"
+
+// Check represents a self-contained advisor check. Category and Subcategory are
+// authored as exact display strings; the advisor "group" is the set of distinct
+// (Category, Subcategory) pairs across all loaded checks.
 type Check struct {
-	Version     uint32   `yaml:"version"`
-	Name        string   `yaml:"name"`
-	Summary     string   `yaml:"summary"`
-	Description string   `yaml:"description"`
-	Advisor     string   `yaml:"advisor"`
-	Category    string   `yaml:"category,omitempty"` // deprecated
-	Type        Type     `yaml:"type,omitempty"`     // for v1
-	Family      Family   `yaml:"family,omitempty"`   // for v2, emulated via GetFamily for v1
-	Interval    Interval `yaml:"interval,omitempty"`
-	Query       string   `yaml:"query,omitempty"`   // for v1
-	Queries     []Query  `yaml:"queries,omitempty"` // for v2
-	Script      string   `yaml:"script"`
-}
-
-// GetFamily returns check family for both V1 and V2 check formats.
-func (c *Check) GetFamily() Family {
-	switch c.Version {
-	case 1:
-		switch c.Type {
-		case MySQLSelect, MySQLShow:
-			return MySQL
-
-		case PostgreSQLSelect, PostgreSQLShow:
-			return PostgreSQL
-
-		case MongoDBGetParameter, MongoDBBuildInfo, MongoDBGetCmdLineOpts,
-			MongoDBReplSetGetStatus, MongoDBGetDiagnosticData:
-			return MongoDB
-
-		case MetricsInstant, MetricsRange, ClickHouseSelect:
-			return "" // Unsupported query types for V1, check is invalid
-		}
-	case 2: //nolint:mnd
-		return c.Family
-	}
-
-	return ""
+	Version     uint32     `yaml:"version"`
+	Name        string     `yaml:"name"`
+	Summary     string     `yaml:"summary"`
+	Description string     `yaml:"description"`
+	Category    string     `yaml:"category"`
+	Subcategory string     `yaml:"subcategory"`
+	Technology  Technology `yaml:"technology"`
+	Interval    Interval   `yaml:"interval,omitempty"`
+	Queries     []Query    `yaml:"queries"`
+	Script      string     `yaml:"script"`
+	// UserDefined is true for checks authored by a user and stored in the DB,
+	// false for Percona-shipped checks loaded from disk. It is not part of the
+	// check's YAML/JSON representation.
+	UserDefined bool `yaml:"-" json:"-"`
 }
 
 // Validate validates check for minimal correctness.
 func (c *Check) Validate() error {
-	var err error
-
 	if !nameRE.MatchString(c.Name) {
 		return errors.New("invalid check name")
 	}
 
-	err = c.Interval.Validate()
+	if c.Version < MinSupportedVersion {
+		return fmt.Errorf("check %s: format version %d is no longer supported, minimum supported version is %d",
+			c.Name, c.Version, MinSupportedVersion)
+	}
+
+	if c.Version > MaxSupportedVersion {
+		return fmt.Errorf("check %s: format version %d is not supported, maximum supported version is %d",
+			c.Name, c.Version, MaxSupportedVersion)
+	}
+
+	err := c.Interval.Validate()
 	if err != nil {
 		return err
 	}
@@ -335,70 +326,20 @@ func (c *Check) Validate() error {
 		return errors.New("description is empty")
 	}
 
-	if c.Advisor == "" {
-		return errors.New("advisor name is missing")
+	if c.Category == "" {
+		return errors.New("category is empty")
 	}
 
-	switch c.Version {
-	case 1:
-		return c.validateV1()
-	case 2: //nolint:mnd
-		return c.validateV2()
-	default:
-		return fmt.Errorf("unexpected version %d", c.Version)
+	if c.Subcategory == "" {
+		return errors.New("subcategory is empty")
 	}
-}
 
-func (c *Check) validateV1() error {
-	var err error
-
-	err = c.Type.Validate()
+	err = c.Technology.Validate()
 	if err != nil {
 		return err
 	}
 
-	if !isTypeSupportedByV1(c.Type) {
-		return fmt.Errorf("check type '%s' is not supprted in V1", c.Type)
-	}
-
-	err = validateQuery(c.Type, c.Query)
-	if err != nil {
-		return err
-	}
-
-	if c.Family != "" {
-		return errors.New("field 'family' is part of check format version 2 and can't be used in version 1")
-	}
-
-	if len(c.Queries) != 0 {
-		return errors.New("field 'queries' is part of check format version 2 and can't be used in version 1")
-	}
-
-	return nil
-}
-
-func (c *Check) validateV2() error {
-	var err error
-
-	err = c.Family.Validate()
-	if err != nil {
-		return err
-	}
-
-	err = c.validateQueries()
-	if err != nil {
-		return err
-	}
-
-	if c.Type != "" {
-		return errors.New("field 'type' is part of check format version 1 and can't be used in version 2")
-	}
-
-	if c.Query != "" {
-		return errors.New("field 'query' is part of check format version 1 and can't be used in version 2")
-	}
-
-	return nil
+	return c.validateQueries()
 }
 
 func (c *Check) validateScript() error {
@@ -513,19 +454,19 @@ func (c *Check) validateQueries() error {
 		}
 	}
 
-	switch c.Family {
+	switch c.Technology {
 	case MySQL:
-		return checkQueryForCompatibilityWithMySQLFamily(c.Queries)
+		return checkQueryForCompatibilityWithMySQLTechnology(c.Queries)
 	case PostgreSQL:
-		return checkQueryForCompatibilityWithPostgreSQLFamily(c.Queries)
+		return checkQueryForCompatibilityWithPostgreSQLTechnology(c.Queries)
 	case MongoDB:
-		return checkQueryCompatibilityWithMongoDBFamily(c.Queries)
+		return checkQueryCompatibilityWithMongoDBTechnology(c.Queries)
 	default:
-		return fmt.Errorf("unknown check family: %s", c.Family)
+		return fmt.Errorf("unknown check technology: %s", c.Technology)
 	}
 }
 
-func checkQueryForCompatibilityWithMySQLFamily(queries []Query) error {
+func checkQueryForCompatibilityWithMySQLTechnology(queries []Query) error {
 	for _, q := range queries {
 		switch q.Type {
 		case MySQLShow:
@@ -534,14 +475,14 @@ func checkQueryForCompatibilityWithMySQLFamily(queries []Query) error {
 		case MetricsRange:
 		case ClickHouseSelect:
 		default:
-			return fmt.Errorf("unsupported query type '%s' for mySQL family", q.Type)
+			return fmt.Errorf("unsupported query type '%s' for mySQL technology", q.Type)
 		}
 	}
 
 	return nil
 }
 
-func checkQueryForCompatibilityWithPostgreSQLFamily(queries []Query) error {
+func checkQueryForCompatibilityWithPostgreSQLTechnology(queries []Query) error {
 	for _, q := range queries {
 		switch q.Type {
 		case PostgreSQLShow:
@@ -550,14 +491,14 @@ func checkQueryForCompatibilityWithPostgreSQLFamily(queries []Query) error {
 		case MetricsRange:
 		case ClickHouseSelect:
 		default:
-			return fmt.Errorf("unsupported query type '%s' for postgreSQL family", q.Type)
+			return fmt.Errorf("unsupported query type '%s' for postgreSQL technology", q.Type)
 		}
 	}
 
 	return nil
 }
 
-func checkQueryCompatibilityWithMongoDBFamily(queries []Query) error {
+func checkQueryCompatibilityWithMongoDBTechnology(queries []Query) error {
 	for _, q := range queries {
 		switch q.Type {
 		case MongoDBGetParameter:
@@ -569,7 +510,7 @@ func checkQueryCompatibilityWithMongoDBFamily(queries []Query) error {
 		case MetricsRange:
 		case ClickHouseSelect:
 		default:
-			return fmt.Errorf("unsupported query type '%s' for mongoDB family", q.Type)
+			return fmt.Errorf("unsupported query type '%s' for mongoDB technology", q.Type)
 		}
 	}
 

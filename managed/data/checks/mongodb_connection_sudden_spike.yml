@@ -5,9 +5,10 @@ checks:
     summary: MongoDB - sudden increase in connection count
     description: This check returns a warning if there is an increase in the number of connections that is higher than 50% of the most recent or normal number of connections.
     interval: standard
-    family: MONGODB
-    advisor: configuration_connection
-    #author: Parag Bhayani
+    technology: MONGODB
+    category: Configuration
+    subcategory: Connection
+    # author: Parag Bhayani
     queries:
       - type: METRICS_RANGE
         query: avg by (node_name) (mongodb_connections{state="current", node_name=~"{{.NodeName}}"})
@@ -46,7 +47,7 @@ checks:
           if cnt > 0:
               results.append({
                   "summary": "MongoDB sudden spike(> 50%) in connections than the usual count in last 24hrs",
-                  "description": "In the last 24 hours, we observed that there were {} times that a sudden spike (> 50%) in the number of connections occurred that was higher than the most recent or normal number of connections. This increase could indicate or cause performance issues unless your overall system is designed to handle spikes of this type. Please check for any changes that may have occurred during that time span to cause this. Here are the stats respectively - Spiked Connections - {}, Previous Connections - {}, Percentage of Spike - {} ".format(cnt, current_conn, previous_conn, actual_perc),
+                  "description": "In the last 24 hours, we observed that there were {} times that a sudden spike (> 50%) in the number of connections occurred that was higher than the most recent or normal number of connections. This increase could indicate or cause performance issues unless your overall system is designed to handle spikes of this type. Please check for any changes that may have occurred during that time span to cause this. Here are the stats respectively - Spiked Connections - {}, Previous Connections - {}, Percentage of Spike - {}.".format(cnt, current_conn, previous_conn, actual_perc),
                   "read_more_url": read_url.format("mongodb-connection-spike"),
                   "severity": "warning",
                   "labels": {},

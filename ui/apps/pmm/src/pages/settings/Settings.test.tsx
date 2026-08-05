@@ -13,6 +13,9 @@ vi.mock('./components/metrics-resolution/MetricsResolutionForm', () => ({
 vi.mock('./components/advanced/AdvancedSettingsForm', () => ({
   AdvancedSettingsForm: () => null,
 }));
+vi.mock('./components/advisors/AdvisorsForm', () => ({
+  AdvisorsForm: () => null,
+}));
 vi.mock('./components/ssh-key/SshKeyForm', () => ({
   SshKeyForm: () => null,
 }));
@@ -61,6 +64,16 @@ describe('Settings', () => {
       renderWithRoute('/settings/advanced-settings');
       await waitFor(() =>
         expect(screen.getByTestId('settings-tab-advanced')).toHaveAttribute(
+          'aria-selected',
+          'true'
+        )
+      );
+    });
+
+    it('activates advisors tab for /settings/advisors', async () => {
+      renderWithRoute('/settings/advisors');
+      await waitFor(() =>
+        expect(screen.getByTestId('settings-tab-advisors')).toHaveAttribute(
           'aria-selected',
           'true'
         )

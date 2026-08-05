@@ -5,9 +5,10 @@ checks:
     summary: Server is not configured to enforce data integrity
     description: In order for maximum data integrity to be set, the server should have specific values configured in sql_mode.
     interval: standard
-    advisor: configuration_generic
-    #author: The Grinch
-    family: MYSQL
+    category: Configuration
+    subcategory: Generic
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@global.sql_mode as sql_mode, @@version version,@@hostname service;"

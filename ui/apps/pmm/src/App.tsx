@@ -1,18 +1,20 @@
+import type { PaletteMode } from '@mui/material';
+import type { ThemeOptions } from '@mui/material/styles';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RouterProvider } from 'react-router-dom';
-import router from './router';
-import { SnackbarProvider, CustomContentProps } from 'notistack';
 import {
+  NotistackMuiSnackbar,
   ThemeContextProvider,
   pmmThemeOptions,
-  NotistackMuiSnackbar,
 } from '@percona/percona-ui';
-import { ThemeClass } from 'components/theme-class';
-import { useEffect } from 'react';
-import type { ComponentType } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { addApiErrorInterceptor, removeApiErrorInterceptor } from 'api/api';
+import { ThemeClass } from 'components/theme-class';
+import { CustomContentProps, SnackbarProvider } from 'notistack';
+import type { ComponentType } from 'react';
+import { useEffect } from 'react';
+import { RouterProvider } from 'react-router-dom';
+import router from './router';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,6 +25,30 @@ const queryClient = new QueryClient({
   },
 });
 
+const DARK_BACKGROUND_COLOR = 'rgb(10, 10, 18)';
+
+// pmmThemeOptions with the dark background overridden; `paper` is included
+// because most page surfaces (RTA, Grafana frame, settings) paint with it
+const themeOptions = (mode: PaletteMode): ThemeOptions => {
+  const options = pmmThemeOptions(mode);
+
+  if (mode !== 'dark') {
+    return options;
+  }
+
+  return {
+    ...options,
+    palette: {
+      ...options.palette,
+      background: {
+        ...options.palette?.background,
+        default: DARK_BACKGROUND_COLOR,
+        paper: DARK_BACKGROUND_COLOR,
+      },
+    },
+  };
+};
+
 const App = () => {
   useEffect(() => {
     addApiErrorInterceptor();
@@ -32,7 +58,7 @@ const App = () => {
   }, []);
 
   return (
-    <ThemeContextProvider themeOptions={pmmThemeOptions}>
+    <ThemeContextProvider themeOptions={themeOptions}>
       <ThemeClass />
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <SnackbarProvider

@@ -5,9 +5,10 @@ checks:
     summary: Replication is single threaded
     description: Identify if a replication is single threaded.
     interval: standard
-    advisor: configuration_replication
-    #author: The Grinch
-    family: MYSQL
+    category: Configuration
+    subcategory: Replication
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, @@global.slave_parallel_workers as slave_parallel_workers, count(1) as repl_conf_count  from performance_schema.replication_connection_configuration;"
@@ -21,7 +22,7 @@ checks:
 
             if slave_parallel_workers < 2 and repl_conf_count > 0:
                return {
-                 "summary": "Load data in file active",
+                 "summary": "Replication is not multi-threaded",
                  "description": "Replication is single threaded. Current settings = {} ;".format(slave_parallel_workers),
                  "severity": "warning",
                  "read_more_url": read_url.format("sql-processing-not-multi-threaded"),

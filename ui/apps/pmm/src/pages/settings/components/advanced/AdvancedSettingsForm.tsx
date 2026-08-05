@@ -23,11 +23,8 @@ import {
   FEATURE_MANAGEMENT_SETTINGS,
   MAX_DAYS,
   MIN_DAYS,
-  MIN_STT_CHECK_INTERVAL,
-  STT_CHECK_INTERVALS,
   TECHNICAL_PREVIEW_DOC_URL,
 } from './Advanced.constants';
-import { MAX_LABEL_WIDTH } from '../../Settings.constants';
 import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
   AdvancedSettingsFormValues,
@@ -38,7 +35,6 @@ import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
 import { formControlLabelClasses } from '@mui/material/FormControlLabel';
-import { helperTextTestId } from 'utils/mui.utils';
 
 export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   settings,
@@ -51,9 +47,8 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
     mode: 'onChange',
   });
 
-  const { handleSubmit, reset, watch, setValue } = methods;
+  const { handleSubmit, reset, setValue } = methods;
 
-  const sttEnabled = watch('stt');
   const [telemetryDialogOpen, setTelemetryDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -146,9 +141,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 sx: { minWidth: 120, maxWidth: 240 },
                 size: 'small',
               }}
-              formHelperTextProps={helperTextTestId(
-                'retention-field-error-message'
-              )}
             />
             <Typography variant="body1" color="text.secondary">
               {m.retentionUnits}
@@ -268,53 +260,6 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               )
             )}
           </Stack>
-        </Stack>
-
-        <Stack gap={1} data-testid="advanced-advisors">
-          <SettingsFieldLabel
-            label={m.advisorsLabel}
-            description={m.advisorsTooltip}
-            readMoreLink={m.advisorsLink}
-            data-testid="advanced-advisors-label"
-          />
-          <Stack gap={1}>
-            <SwitchInput name="stt" label={m.advisorsLabel} />
-          </Stack>
-          {sttEnabled && (
-            <Stack gap={2}>
-              <Typography
-                variant="body1"
-                sx={{ maxWidth: MAX_LABEL_WIDTH }}
-                data-testid="check-intervals-label"
-              >
-                {m.sttCheckIntervalTooltip}
-              </Typography>
-              <Stack direction="row" columnGap={2} rowGap={3} flexWrap="wrap">
-                {STT_CHECK_INTERVALS.map(({ name, label }) => (
-                  <TextInput
-                    key={name}
-                    name={name}
-                    label={label}
-                    textFieldProps={{
-                      type: 'number',
-                      slotProps: {
-                        htmlInput: {
-                          min: MIN_STT_CHECK_INTERVAL,
-                          step: 0.1,
-                          'data-testid': `${name}-number-input`,
-                        },
-                      },
-                      size: 'small',
-                      sx: { minWidth: 80, maxWidth: 120 },
-                    }}
-                    formHelperTextProps={helperTextTestId(
-                      `${name}-field-error-message`
-                    )}
-                  />
-                ))}
-              </Stack>
-            </Stack>
-          )}
         </Stack>
 
         <Stack gap={2}>

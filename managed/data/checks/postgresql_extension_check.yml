@@ -5,8 +5,9 @@ checks:
     summary: Check for outdated extensions
     description: This check will list outdated extensions with newer versions available
     interval: standard
-    family: POSTGRESQL
-    advisor: configuration_version
+    technology: POSTGRESQL
+    category: Configuration
+    subcategory: Version
     queries:
       - type: POSTGRESQL_SELECT
         query: "current_database() AS db, name, installed_version, default_version FROM pg_available_extensions WHERE installed_version IS NOT NULL AND default_version IS NOT NULL  AND installed_version != default_version"
@@ -14,19 +15,30 @@ checks:
           all_dbs: true
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
-      def check_context(tuple, context):
+
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
+      def check_context(docs, context):
           results = []
-          for checkedDB, rows in tuple[0].items():
+          for checkedDB, rows in docs[0].items():
+              dbname = ""
+              outdated = []
               for row in rows:
                 dbname = row["db"]
-                name = row["name"]
-                installed_version = row["installed_version"]
-                default_version = row["default_version"]
-                results.append({
-                    "summary": "Outdated extensions found",
-                    "description": "database {} has extension {} installed with an outdated version {}. A newer version {} is available.".format(dbname, name, installed_version, default_version),
-                    "read_more_url":read_url.format("postgresql-extension-check"),
-                    "severity": "warning",
-                })
+                outdated.append("{} ({} -> {})".format(row["name"], row["installed_version"], row["default_version"]))
+
+              if not outdated:
+                  continue
+
+              results.append({
+                  "summary": "{} outdated extension(s) in database {}".format(len(outdated), dbname),
+                  "description": "The database {} has extensions installed with an outdated version: {}.".format(dbname, format_list(outdated)),
+                  "read_more_url":read_url.format("postgresql-extension-check"),
+                  "severity": "warning",
+                  "labels": {"database": dbname, "count": str(len(outdated))},
+              })
 
           return results

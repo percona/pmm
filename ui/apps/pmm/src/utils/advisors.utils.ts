@@ -1,29 +1,31 @@
-import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
-import { Advisor, CategorizedAdvisor } from 'types/advisors.types';
+import {
+  Advisor,
+  AdvisorCheckRow,
+  AdvisorTechnology,
+} from 'types/advisors.types';
+import { ServiceType } from 'types/services.types';
 
-export const groupAdvisorsIntoCategories = (
-  advisors: Advisor[]
-): CategorizedAdvisor => {
-  const result: CategorizedAdvisor = {};
+export const flattenAdvisorChecks = (advisors: Advisor[]): AdvisorCheckRow[] =>
+  advisors.flatMap((advisor) =>
+    advisor.checks.map((check) => ({
+      checkName: check.name,
+      summary: check.summary,
+      description: check.description,
+      subcategory: advisor.subcategory,
+      category: advisor.category,
+      technology: check.technology,
+      interval: check.interval,
+      enabled: check.enabled,
+      userDefined: check.userDefined,
+      disabledServiceIds: check.disabledServiceIds ?? [],
+    }))
+  );
 
-  advisors.forEach((advisor) => {
-    const { category, summary, checks } = advisor;
-
-    const modifiedChecks = checks.map((check) => ({
-      ...check,
-      familyName: check.family ? ADVISOR_FAMILY[check.family] : undefined,
-      intervalName: check.interval
-        ? ADVISOR_INTERVAL[check.interval]
-        : undefined,
-    }));
-
-    if (!result[category]) {
-      result[category] = {};
-    }
-
-    if (!result[category][summary]) {
-      result[category][summary] = { ...advisor, checks: [...modifiedChecks] };
-    }
-  });
-  return result;
+// maps a check's target DB technology to the inventory service type it runs against
+export const ADVISOR_TECHNOLOGY_SERVICE_TYPE: Partial<
+  Record<AdvisorTechnology, ServiceType>
+> = {
+  [AdvisorTechnology.mysql]: ServiceType.mysql,
+  [AdvisorTechnology.postgresql]: ServiceType.posgresql,
+  [AdvisorTechnology.mongodb]: ServiceType.mongodb,
 };

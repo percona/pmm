@@ -2,11 +2,12 @@
 checks:
   - version: 2
     name: postgresql_log_checkpoints
-    summary: PostgreSQL Checkpoints Logging is Disabled.
-    description: This check returns a notice if the log_checkpoints configuration option is not enabled. It is recommended to enable the logging of checkpoint information, as that provides a lot of useful information with almost no drawbacks.
-    family: POSTGRESQL
-    #author: Sergey Kuzmichev
-    advisor: configuration_generic
+    summary: PostgreSQL Checkpoints Logging Disabled
+    description: This check returns a warning if the log_checkpoints configuration option is not enabled. It is recommended to enable the logging of checkpoint information, as that provides a lot of useful information with almost no drawbacks.
+    technology: POSTGRESQL
+    # author: Sergey Kuzmichev
+    category: Configuration
+    subcategory: Generic
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT
@@ -27,7 +28,7 @@ checks:
                   "summary": "The current value of log_checkpoints is off",
                   "description": "Logging of checkpoint information is currently disabled. It is recommended to enable the logging of checkpoint information, as that provides a lot of useful information with almost no drawbacks.",
                   "read_more_url": read_url.format("configuration-pg-log-checkpoints-disabled"),
-                  "severity": "notice"
+                  "severity": "warning"
               })
 
           return results
