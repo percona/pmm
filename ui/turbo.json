@@ -17,7 +17,12 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "passThroughEnv": [
+        "PMM_SERVER_URL",
+        "SEP_BACKEND_URL",
+        "SEP_INTERNAL_TOKEN"
+      ]
     },
     "format": {
       "dependsOn": ["^format"]

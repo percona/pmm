@@ -1,24 +1,38 @@
 import fs from 'fs';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import react from '@vitejs/plugin-react-swc';
+import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 import svgr from 'vite-plugin-svgr';
 import basicSsl from '@vitejs/plugin-basic-ssl';
+
+// Vite exposes `.env` files to client code as `import.meta.env`, but never to
+// this config file's `process.env` — so the dev-server settings below would
+// otherwise have to be exported in whichever shell launches the dev server, and
+// silently fall back to their defaults when they are not. Load the files here so
+// a gitignored `apps/pmm/.env.local` works. A real environment variable still
+// wins, which is what CI and the devcontainer rely on.
+// Mode is pinned to 'development': every value read here configures the dev
+// server only, and `.env.local` is loaded for every mode regardless.
+const env = {
+  ...loadEnv('development', import.meta.dirname, ''),
+  ...process.env,
+};
 
 const CERT_KEY = '/srv/nginx/certificate.key';
 const CERT_CRT = '/srv/nginx/certificate.crt';
 const hasNginxCerts = fs.existsSync(CERT_KEY) && fs.existsSync(CERT_CRT);
 const port = hasNginxCerts ? 5173 : 5174;
 const target =
-  process.env.PMM_SERVER_URL ||
+  env.PMM_SERVER_URL ||
   (hasNginxCerts ? 'https://localhost:8443' : 'https://localhost');
 
 // SEP backend. The dev server proxies SEP's API paths to it so the migrated SEP
 // plugins get real data. Interim auth (Option D): if SEP_INTERNAL_TOKEN is set,
 // inject it server-side as a Bearer token so no secret reaches the browser.
 // Replaced by the token-exchange provider (Option B) later — see src/sep/bootstrap.ts.
-const sepBackendUrl = process.env.SEP_BACKEND_URL || 'http://localhost:8000';
-const sepInternalToken = process.env.SEP_INTERNAL_TOKEN;
+const sepBackendUrl = env.SEP_BACKEND_URL || 'http://localhost:8000';
+const sepInternalToken = env.SEP_INTERNAL_TOKEN;
 const sepProxy = () => ({
   target: sepBackendUrl,
   secure: false,
