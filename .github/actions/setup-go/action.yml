@@ -4,6 +4,7 @@
 # caching for Go build artifacts and modules to optimize subsequent workflow runs.
 # Finally, it downloads all necessary Go modules.
 name: Setup Go
+description: Set up Go, restore Go caches, and download modules.
 runs:
   using: "composite"
   steps:
