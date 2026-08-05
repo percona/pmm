@@ -12,6 +12,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resourcegraph/armresourcegraph v0.10.0
 	github.com/ClickHouse/clickhouse-go/v2 v2.47.0
 	github.com/DATA-DOG/go-sqlmock v1.5.2
+	github.com/KimMachineGun/automemlimit v0.7.5
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/alecthomas/kong v1.16.0
 	github.com/alecthomas/units v0.0.0-20240927000941-0f3dac36c52b
@@ -108,7 +109,6 @@ require (
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.7.2 // indirect
 	github.com/BurntSushi/go-sumtype v0.0.0-20250321152530-ada76606277d // indirect
 	github.com/ClickHouse/ch-go v0.73.0 // indirect
-	github.com/KimMachineGun/automemlimit v0.7.5 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
