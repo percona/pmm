@@ -156,10 +156,18 @@ export function refreshAccessToken(): Promise<string | null> {
       }
       try {
         _onRefreshed(data.access_token, data.expires_in);
-      } catch {
+      } catch (handlerError) {
         // A throwing auth-layer handler must not invalidate a cookie rotation
         // that already succeeded on the backend: it would reject the shared
-        // promise and force-logout every awaiting caller.
+        // promise and force-logout every awaiting caller. It does leave the
+        // auth layer without the new token or its expiry while this function
+        // still returns the token, so record that inconsistency — never the
+        // token or expiry themselves.
+        // eslint-disable-next-line no-console
+        console.error(
+          '[api] onRefreshed handler threw; the rotated token was not recorded',
+          handlerError
+        );
       }
       return data.access_token;
     })();

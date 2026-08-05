@@ -111,10 +111,14 @@ function formatCellValue(
   format: ListColumn['format']
 ): ReactNode {
   // Columns come from a server-supplied schema, so a row can omit a declared
-  // key entirely: `undefined` must fall to the em dash too, or it renders as
-  // the literal 'undefined' (and as 'Invalid Date' / 'NaNd ago' below).
+  // key entirely: `undefined` must be handled here too, or it renders as the
+  // literal 'undefined' (and as 'Invalid Date' / 'NaNd ago' below).
   if (value === null || value === undefined) {
-    return '—';
+    // Time-based columns render an absent value as an empty cell — a
+    // never-executed task has no Last Executed time, and an em-dash there would
+    // read as a misleading placeholder. Other formats keep the em-dash to
+    // signal "no value".
+    return format === 'relative' || format === 'date' ? null : '—';
   }
   const str = String(value);
 

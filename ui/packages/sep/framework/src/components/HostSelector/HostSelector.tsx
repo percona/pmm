@@ -188,6 +188,12 @@ export function HostSelector({
   const freeSolo = !!allowCustom;
   const noOptionsText = isLoading ? 'Loading hosts…' : 'No hosts available';
 
+  // A failed hosts query does not disable either control below: `onOpen` holds
+  // the only `refetch()` trigger and a disabled Autocomplete never opens, so
+  // one failure would wedge the field until the page remounts. The error stays
+  // visible through `text` / the snackbar. Same reasoning as
+  // StandaloneHostSelector.
+
   const cascade = dependsOn ? (
     <HostServiceCascade
       name={name}
@@ -208,7 +214,7 @@ export function HostSelector({
           options={hosts}
           getOptionLabel={getHostOptionLabel}
           required={required}
-          disabled={disabled || isError}
+          disabled={disabled}
           loading={isLoading}
           helperText={text}
           error={isError || !!fieldError}
@@ -230,7 +236,7 @@ export function HostSelector({
         control={control}
         isRequired={required}
         loading={isLoading}
-        disabled={disabled || isError}
+        disabled={disabled}
         options={hosts}
         controllerProps={{
           rules: required ? { required: `${label} is required` } : undefined,

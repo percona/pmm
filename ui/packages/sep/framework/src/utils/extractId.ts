@@ -17,7 +17,7 @@
 
 /**
  * Extract a numeric id from a value that may be:
- *   - a finite number (returned as-is),
+ *   - a safe-integer number (returned as-is),
  *   - a decimal-integer string (parsed; fractional, hex, whitespace-only and
  *     otherwise non-integer strings return `null`),
  *   - an option object with an `id` field (recursively extracted),
@@ -28,8 +28,10 @@
  * (scalar form, possibly stringified).
  */
 export function extractId(value: unknown): number | null {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return value;
+  if (typeof value === 'number') {
+    // Same bar as the string branch below: a fractional or unsafe-integer id
+    // would otherwise pass here and enable a lookup no service can satisfy.
+    return Number.isSafeInteger(value) ? value : null;
   }
   if (typeof value === 'string' && value !== '') {
     // Only decimal integers: `Number` would coerce a whitespace-only string to

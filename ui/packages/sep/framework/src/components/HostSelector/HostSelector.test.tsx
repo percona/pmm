@@ -108,7 +108,7 @@ describe('HostSelector', () => {
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('renders error state and disables the input when the endpoint rejects', async () => {
+  it('renders error state but stays enabled when the endpoint rejects, so opening retries', async () => {
     mocked.get.mockRejectedValueOnce(
       new ApiError({ kind: 'http', status: 502, message: 'boom' })
     );
@@ -120,7 +120,19 @@ describe('HostSelector', () => {
     );
     await screen.findByText('boom');
     const input = screen.getByLabelText('Host');
-    expect(input).toBeDisabled();
+    // `onOpen` holds the only retry trigger, and a disabled Autocomplete never
+    // opens, so disabling here would wedge the field until the page remounts.
+    expect(input).not.toBeDisabled();
+
+    mocked.get.mockResolvedValueOnce(
+      makeResponse([
+        { id: 'nomad-1', name: 'db-mysql-prod-01', address: '10.0.0.1' },
+      ])
+    );
+    const user = userEvent.setup();
+    await user.click(input);
+
+    expect(await screen.findByText('db-mysql-prod-01')).toBeInTheDocument();
   });
 
   it('shows a loading message before the endpoint resolves', async () => {

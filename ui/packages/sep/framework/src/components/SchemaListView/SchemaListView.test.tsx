@@ -141,7 +141,9 @@ describe('SchemaListView — renderListColumn override', () => {
 
     expect(screen.queryByText('undefined')).toBeNull();
     expect(screen.queryByText('Invalid Date')).toBeNull();
-    expect(screen.getAllByText('—').length).toBe(4);
+    // Em dash for the plain and chip columns; the two time-based columns stay
+    // empty rather than showing a placeholder for a time that never happened.
+    expect(screen.getAllByText('—').length).toBe(2);
   });
 });
 

@@ -45,6 +45,12 @@ describe('extractId', () => {
     expect(extractId('12abc')).toBeNull();
   });
 
+  it('rejects a fractional or unsafe-integer number, like the string branch', () => {
+    expect(extractId(1.5)).toBeNull();
+    expect(extractId(Number.MAX_SAFE_INTEGER + 1)).toBeNull();
+    expect(extractId({ id: 1.5 })).toBeNull();
+  });
+
   it('rejects non-finite numbers and unrelated values', () => {
     expect(extractId(Number.NaN)).toBeNull();
     expect(extractId(Number.POSITIVE_INFINITY)).toBeNull();

@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -1404,6 +1404,9 @@ describe('SchemaFormRenderer — cardinality_rules', () => {
   it('keeps the unsaved-changes guard armed when a violation blocks submission', async () => {
     const user = userEvent.setup();
     const removeEventListener = vi.spyOn(window, 'removeEventListener');
+    // Restored in teardown, not inline: a failing assertion below would
+    // otherwise leave the spy installed for the rest of the file.
+    onTestFinished(() => removeEventListener.mockRestore());
     renderWithProviders(
       <SchemaFormRenderer
         sections={[
@@ -1436,7 +1439,6 @@ describe('SchemaFormRenderer — cardinality_rules', () => {
       'beforeunload',
       expect.any(Function)
     );
-    removeEventListener.mockRestore();
   });
 
   it('allows submission when cardinality is satisfied', async () => {
