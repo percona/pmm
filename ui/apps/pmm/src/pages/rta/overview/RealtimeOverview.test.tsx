@@ -126,6 +126,42 @@ describe('RealtimeOverview', () => {
     ).toHaveTextContent('username');
   });
 
+  it('should render elapsed time with millisecond precision, and 0 as a duration', async () => {
+    searchQueries.mockResolvedValue({
+      queries: [
+        {
+          ...TEST_MONGO_DB_QUERY_DATA,
+          queryExecutionDuration: '3ms',
+          queryId: 'query-ms',
+        },
+        {
+          ...TEST_MONGO_DB_QUERY_DATA,
+          queryExecutionDuration: '0s',
+          queryId: 'query-zero',
+        },
+        {
+          ...TEST_MONGO_DB_QUERY_DATA,
+          queryExecutionDuration: null,
+          queryId: 'query-missing',
+        },
+      ],
+    });
+
+    renderComponent();
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('query-query-ms-elapsed-time-cell')
+      ).toHaveTextContent('0.003s')
+    );
+    expect(
+      screen.getByTestId('query-query-zero-elapsed-time-cell')
+    ).toHaveTextContent('0.000s');
+    expect(
+      screen.getByTestId('query-query-missing-elapsed-time-cell')
+    ).toHaveTextContent('Unavailable');
+  });
+
   it("shouldn't call api if no serviceIds are provided", async () => {
     renderComponent({ initialEntry: '/rta/overview' });
 

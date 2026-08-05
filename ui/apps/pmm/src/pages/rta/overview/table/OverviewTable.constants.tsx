@@ -90,11 +90,13 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     muiTableHeadCellFilterTextFieldProps: {
       inputProps: { step: 0.25, type: 'number' },
     },
+    // A statement that has just started reports 0, which is a duration like any
+    // other; only a missing value is unavailable.
     Cell: ({ cell }) =>
-      cell.getValue() ? (
-        formatElapsedTime(cell.getValue<number>())
-      ) : (
+      cell.getValue<number | null>() == null ? (
         <UnavailableText />
+      ) : (
+        formatElapsedTime(cell.getValue<number>())
       ),
     // @ts-expect-error - muiTableBodyCellProps is not typed correctly
     muiTableBodyCellProps: ({ row }) => ({
