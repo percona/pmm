@@ -351,19 +351,21 @@ func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) er
 		return nil
 	}
 
+	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": haNodeID})
+
 	expected := make(map[string]struct{}, len(haPeers))
 	for _, peer := range haPeers {
 		name, ok := haPeerNodeName(peer)
 		if !ok {
 			// Trusting the rest would treat a partial list as the whole cluster and remove live replicas.
-			logrus.Warnf("Can't read a node name from PMM_HA_PEERS entry %q, skipping the removal of stale HA nodes.", peer)
+			l.WithField("peer", peer).Warn("Can't read a node name from a PMM_HA_PEERS entry, skipping the removal of stale HA nodes.")
 			return nil
 		}
 		expected[name] = struct{}{}
 	}
 
 	if _, ok := expected[haNodeID]; !ok {
-		logrus.Warnf("PMM_HA_PEERS %v doesn't list this node (PMM_HA_NODE_ID %q), skipping the removal of stale HA nodes.", haPeers, haNodeID)
+		l.WithField("ha_peers", haPeers).Warn("PMM_HA_PEERS doesn't list this node, skipping the removal of stale HA nodes.")
 		return nil
 	}
 
@@ -381,22 +383,24 @@ func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) er
 			continue
 		}
 
+		nodeL := l.WithFields(logrus.Fields{"node_id": node.NodeID, "node_name": node.NodeName})
+
 		monitored, err := haNodeMonitoredServices(q, node.NodeID)
 		if err != nil {
 			return err
 		}
 		if len(monitored) != 0 {
-			logrus.Warnf("Keeping stale HA node %q (%s): it still monitors services %v, which would be removed with it. "+
-				"Re-add them from a running replica and remove the node from Inventory.", node.NodeName, node.NodeID, monitored)
+			nodeL.WithField("service_ids", monitored).Warn("Keeping stale HA node: it still monitors services, which would be removed with it. " +
+				"Re-add them from a running replica and remove the node from Inventory.")
 			continue
 		}
 
 		err = removeNode(q, node.NodeID, RemoveCascade, true)
 		switch {
 		case err == nil:
-			logrus.Infof("Removed stale HA node %q (%s), it is not a part of the cluster anymore.", node.NodeName, node.NodeID)
+			nodeL.Info("Removed stale HA node, it is not a part of the cluster anymore.")
 		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
-			logrus.Infof("Stale HA node %q (%s) was already removed by another replica.", node.NodeName, node.NodeID)
+			nodeL.Info("Stale HA node was already removed by another replica.")
 		default:
 			return fmt.Errorf("failed to remove stale HA node %q: %w", node.NodeName, err)
 		}
