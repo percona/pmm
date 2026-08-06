@@ -127,9 +127,9 @@
         remote_src: yes
         mode: "u+x,g+x,o+x"
 
-    - name: Install latest YQ (YAML processor) 
+    - name: Install latest YQ (YAML processor)
       get_url:
-        url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        url: "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_{{ ansible_architecture_alt }}"
         dest: /usr/bin/yq
         mode: "555"
 
