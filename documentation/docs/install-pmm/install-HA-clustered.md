@@ -783,7 +783,7 @@ The dashboard helps you quickly identify component failures, resource constraint
 
 For detailed information about each panel and what to check, see the [PMM HA Overview dashboard reference](../reference/dashboards/dashboard-ha-health-overview.md).
 
-#### Identify the leader node
+#### Identify the health status
 
 PMM displays a visual badge on the side menu and displays the name of the active PMM instance that's currently handling all monitoring operations. For example, `pmm-ha-0`, `pmm-ha-1`, or `pmm-ha-2`.
 

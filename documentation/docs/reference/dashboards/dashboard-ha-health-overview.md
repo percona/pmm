@@ -282,7 +282,7 @@ Check pod status in the tables above to identify why backends remain unavailable
 Use Grafana's refresh control to update the dashboard while investigating failovers or degraded components.
 
 ### Filters
-Use the namespace and Helm release variables at the top to focus on your specific PMM HA deployment if you have multiple installations.
+Use the namespace variable at the top to focus on your specific PMM HA deployment if you have multiple installations.
 
 ### How to find what's wrong
 
