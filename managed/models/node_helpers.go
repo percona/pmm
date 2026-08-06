@@ -254,13 +254,19 @@ func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) 
 }
 
 // RemoveNode removes single Node.
-func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:gocognit
+func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
+	return removeNode(q, id, mode, false)
+}
+
+// removeNode removes a single Node. The allowPMMServerNode flag lifts the ban on Nodes flagged as PMM
+// Server Nodes; only the HA cleanup sets it, to reap replicas that are no longer part of the cluster.
+func removeNode(q *reform.Querier, id string, mode RemoveMode, allowPMMServerNode bool) error { //nolint:gocognit
 	n, err := FindNodeByID(q, id)
 	if err != nil {
 		return err
 	}
 
-	if n.IsPMMServerNode || id == PMMServerNodeID {
+	if id == PMMServerNodeID || (!allowPMMServerNode && n.IsPMMServerNode) {
 		return status.Error(codes.PermissionDenied, "PMM Server node can't be removed.")
 	}
 
@@ -385,7 +391,7 @@ func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) er
 			continue
 		}
 
-		err = RemoveNode(q, node.NodeID, RemoveCascade)
+		err = removeNode(q, node.NodeID, RemoveCascade, true)
 		switch {
 		case err == nil:
 			logrus.Infof("Removed stale HA node %q (%s), it is not a part of the cluster anymore.", node.NodeName, node.NodeID)
