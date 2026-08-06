@@ -8,11 +8,43 @@ import {
 } from '@mui/material';
 import { Messages } from './SepAuthGate.messages';
 import {
+  type SepAuthNotice,
   ensureSepToken,
-  getSepAuthStatus,
+  getSepAuthState,
   retrySepAuth,
   subscribeSepAuth,
 } from './sepTokenStore';
+
+const RetryButton: FC = () => (
+  <Button
+    color="inherit"
+    size="small"
+    onClick={() => {
+      void retrySepAuth();
+    }}
+  >
+    {Messages.retry}
+  </Button>
+);
+
+/**
+ * Inline report of a failure that arrived after the page was already open.
+ *
+ * Deliberately not a replacement for the page: a background renewal failing
+ * must not discard a half-filled form. It tells the user that submitting will
+ * fail and offers a retry, and leaves everything else alone.
+ */
+const SepAuthNoticeBar: FC<{ kind: SepAuthNotice }> = ({ kind }) => (
+  <Alert
+    severity="warning"
+    data-testid="sep-auth-notice"
+    action={<RetryButton />}
+  >
+    {kind === 'signedOut'
+      ? Messages.notice.signedOut
+      : Messages.notice.unreachable}
+  </Alert>
+);
 
 /**
  * Holds a SEP route until a SEP bearer has been minted from the PMM session.
@@ -26,9 +58,15 @@ import {
  * synchronous, so a plugin's first queries would otherwise fire before the
  * exchange resolves and 401 on arrival. Children do not render until a bearer
  * is in hand.
+ *
+ * Once they have rendered they stay rendered. A later failure is reported by
+ * `notice`, beside the page rather than instead of it.
  */
 export const SepAuthGate: FC<PropsWithChildren> = ({ children }) => {
-  const status = useSyncExternalStore(subscribeSepAuth, getSepAuthStatus);
+  const { phase, notice } = useSyncExternalStore(
+    subscribeSepAuth,
+    getSepAuthState
+  );
 
   useEffect(() => {
     // No-ops when a bearer is already held or the session was rejected; a
@@ -36,32 +74,29 @@ export const SepAuthGate: FC<PropsWithChildren> = ({ children }) => {
     void ensureSepToken();
   }, []);
 
-  if (status === 'ready') {
-    return <>{children}</>;
+  if (phase === 'ready') {
+    return (
+      <>
+        {notice !== null && <SepAuthNoticeBar kind={notice} />}
+        {children}
+      </>
+    );
   }
 
-  if (status === 'signedOut' || status === 'error') {
-    const signedOut = status === 'signedOut';
+  if (phase === 'signedOut' || phase === 'unreachable') {
+    const signedOut = phase === 'signedOut';
     return (
       <Alert
         severity={signedOut ? 'warning' : 'error'}
         data-testid="sep-auth-error"
-        action={
-          <Button
-            color="inherit"
-            size="small"
-            onClick={() => {
-              void retrySepAuth();
-            }}
-          >
-            {Messages.retry}
-          </Button>
-        }
+        action={<RetryButton />}
       >
         <AlertTitle>
-          {signedOut ? Messages.signedOutTitle : Messages.errorTitle}
+          {signedOut
+            ? Messages.blocked.signedOutTitle
+            : Messages.blocked.unreachableTitle}
         </AlertTitle>
-        {signedOut ? Messages.signedOut : Messages.error}
+        {signedOut ? Messages.blocked.signedOut : Messages.blocked.unreachable}
       </Alert>
     );
   }

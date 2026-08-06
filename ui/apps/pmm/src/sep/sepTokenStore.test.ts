@@ -7,7 +7,7 @@ import {
 import { initSepAuth } from './bootstrap';
 import {
   ensureSepToken,
-  getSepAuthStatus,
+  getSepAuthState,
   getSepToken,
   resetSepAuthStore,
   retrySepAuth,
@@ -24,6 +24,11 @@ vi.mock('@sep/api', async (importOriginal) => ({
 const exchange = vi.mocked(postSessionExchange);
 
 const TTL_SECONDS = 300;
+/** The renewal fires 30s before the 300s TTL. */
+const UNTIL_RENEWAL_MS = 270_000;
+/** Backoff is 2s, 4s, 8s, 16s; this clears all four plus slack. */
+const PAST_ALL_RETRIES_MS = 60_000;
+
 const mintedToken = (accessToken: string) => ({
   access_token: accessToken,
   expires_in: TTL_SECONDS,
@@ -31,6 +36,16 @@ const mintedToken = (accessToken: string) => ({
 
 const unauthorized = () =>
   new ApiError({ kind: 'http', status: 401, message: 'no session' });
+
+const phase = () => getSepAuthState().phase;
+const notice = () => getSepAuthState().notice;
+
+/** Reach `ready` with a live bearer, as a mounted SEP page would be. */
+const becomeReady = async (accessToken = 'bearer-1') => {
+  exchange.mockResolvedValue(mintedToken(accessToken));
+  await ensureSepToken();
+  exchange.mockReset();
+};
 
 beforeEach(() => {
   // Leave `queueMicrotask` real: `refreshAccessToken` clears its single-flight
@@ -50,7 +65,7 @@ afterEach(() => {
 describe('sepTokenStore — acquiring a bearer', () => {
   it('holds no token until an exchange runs', () => {
     expect(getSepToken()).toBeNull();
-    expect(getSepAuthStatus()).toBe('idle');
+    expect(phase()).toBe('idle');
     expect(exchange).not.toHaveBeenCalled();
   });
 
@@ -61,13 +76,11 @@ describe('sepTokenStore — acquiring a bearer', () => {
 
     expect(exchange).toHaveBeenCalledOnce();
     expect(getSepToken()).toBe('bearer-1');
-    expect(getSepAuthStatus()).toBe('ready');
+    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
   });
 
   it('serves the bearer through the token provider registered on @sep/api', async () => {
-    exchange.mockResolvedValue(mintedToken('bearer-1'));
-
-    await ensureSepToken();
+    await becomeReady();
 
     expect(getToken()).toBe('bearer-1');
   });
@@ -103,97 +116,51 @@ describe('sepTokenStore — acquiring a bearer', () => {
   });
 
   it('never writes the bearer to web storage', async () => {
-    exchange.mockResolvedValue(mintedToken('bearer-1'));
-
-    await ensureSepToken();
+    await becomeReady();
 
     expect(Object.keys(localStorage)).toHaveLength(0);
     expect(Object.keys(sessionStorage)).toHaveLength(0);
   });
+
+  it('hands out a stable snapshot so subscribers do not re-render on no-ops', async () => {
+    await becomeReady();
+    const first = getSepAuthState();
+
+    await ensureSepToken();
+
+    expect(getSepAuthState()).toBe(first);
+  });
 });
 
-describe('sepTokenStore — lifetime', () => {
-  it('stops serving the bearer once it has expired', async () => {
-    exchange.mockResolvedValue(mintedToken('bearer-1'));
-    await ensureSepToken();
+describe('sepTokenStore — failing closed', () => {
+  it('serves no token once the bearer has expired', async () => {
+    await becomeReady();
 
     vi.setSystemTime(Date.now() + TTL_SECONDS * 1000 + 1);
 
     expect(getSepToken()).toBeNull();
+    expect(getToken()).toBeNull();
   });
 
-  it('re-exchanges shortly before expiry', async () => {
-    exchange.mockResolvedValue(mintedToken('bearer-1'));
-    await ensureSepToken();
-    exchange.mockResolvedValue(mintedToken('bearer-2'));
-
-    // 30s of skew ahead of the 300s TTL.
-    await vi.advanceTimersByTimeAsync(270_000);
-
-    expect(exchange).toHaveBeenCalledTimes(2);
-    expect(getSepToken()).toBe('bearer-2');
-    expect(getSepAuthStatus()).toBe('ready');
-  });
-
-  it('keeps renewing across successive lifetimes', async () => {
-    exchange.mockResolvedValue(mintedToken('bearer-1'));
-    await ensureSepToken();
-    exchange.mockResolvedValue(mintedToken('bearer-2'));
-    await vi.advanceTimersByTimeAsync(270_000);
-    exchange.mockResolvedValue(mintedToken('bearer-3'));
-    await vi.advanceTimersByTimeAsync(270_000);
-
-    expect(exchange).toHaveBeenCalledTimes(3);
-    expect(getSepToken()).toBe('bearer-3');
-  });
-
-  it('drops the bearer on a failed renewal without tearing down the page', async () => {
-    exchange.mockResolvedValue(mintedToken('bearer-1'));
-    await ensureSepToken();
-    exchange.mockRejectedValue(new Error('offline'));
-
-    await vi.advanceTimersByTimeAsync(270_000);
-
-    expect(getSepToken()).toBeNull();
-    // Still `ready`, so a mounted SEP page keeps its state; the next request
-    // 401s and mints through the transports' retry.
-    expect(getSepAuthStatus()).toBe('ready');
-  });
-
-  it('re-acquires on the next visit after a failed renewal', async () => {
-    exchange.mockResolvedValue(mintedToken('bearer-1'));
-    await ensureSepToken();
-    exchange.mockRejectedValue(new Error('offline'));
-    await vi.advanceTimersByTimeAsync(270_000);
-
-    exchange.mockResolvedValue(mintedToken('bearer-2'));
-    await expect(ensureSepToken()).resolves.toBe(true);
-
-    expect(getSepToken()).toBe('bearer-2');
-  });
-
-  it('stops renewing once the store is cleared', async () => {
-    exchange.mockResolvedValue(mintedToken('bearer-1'));
-    await ensureSepToken();
-
-    resetSepAuthStore();
-    await vi.advanceTimersByTimeAsync(270_000);
-
-    expect(exchange).toHaveBeenCalledOnce();
-  });
-});
-
-describe('sepTokenStore — rejected session', () => {
-  it('treats a 401 from the exchange as signed out', async () => {
+  it('drops the bearer when a renewal is rejected', async () => {
+    await becomeReady();
     exchange.mockRejectedValue(unauthorized());
 
-    await expect(ensureSepToken()).resolves.toBe(false);
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
 
-    expect(getSepAuthStatus()).toBe('signedOut');
     expect(getSepToken()).toBeNull();
   });
 
-  it('refuses to exchange again while signed out', async () => {
+  it('drops the bearer when a renewal cannot complete', async () => {
+    await becomeReady();
+    exchange.mockRejectedValue(new Error('offline'));
+
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
+
+    expect(getSepToken()).toBeNull();
+  });
+
+  it('refuses to exchange again once the session is rejected', async () => {
     exchange.mockRejectedValue(unauthorized());
     await ensureSepToken();
 
@@ -203,18 +170,7 @@ describe('sepTokenStore — rejected session', () => {
     expect(exchange).toHaveBeenCalledOnce();
   });
 
-  it('exchanges again only when the user explicitly retries', async () => {
-    exchange.mockRejectedValue(unauthorized());
-    await ensureSepToken();
-    exchange.mockResolvedValue(mintedToken('bearer-1'));
-
-    await expect(retrySepAuth()).resolves.toBe(true);
-
-    expect(exchange).toHaveBeenCalledTimes(2);
-    expect(getSepToken()).toBe('bearer-1');
-  });
-
-  it('does not schedule a renewal after a rejected session', async () => {
+  it('stops renewing after the session is rejected', async () => {
     exchange.mockRejectedValue(unauthorized());
     await ensureSepToken();
 
@@ -224,23 +180,185 @@ describe('sepTokenStore — rejected session', () => {
   });
 });
 
-describe('sepTokenStore — transient failure', () => {
-  it('reports an error without going sticky', async () => {
+describe('sepTokenStore — bootstrap failure', () => {
+  it('shows a signed-out page when the session is rejected at load', async () => {
+    exchange.mockRejectedValue(unauthorized());
+
+    await expect(ensureSepToken()).resolves.toBe(false);
+
+    expect(getSepAuthState()).toEqual({ phase: 'signedOut', notice: null });
+  });
+
+  it('shows an unreachable page when the exchange cannot complete at load', async () => {
     exchange.mockRejectedValue(new Error('network down'));
 
     await expect(ensureSepToken()).resolves.toBe(false);
 
-    expect(getSepAuthStatus()).toBe('error');
+    expect(getSepAuthState()).toEqual({ phase: 'unreachable', notice: null });
   });
 
-  it('retries on the next attempt', async () => {
+  it('recovers on an explicit retry', async () => {
+    exchange.mockRejectedValue(unauthorized());
+    await ensureSepToken();
+    exchange.mockResolvedValue(mintedToken('bearer-1'));
+
+    await expect(retrySepAuth()).resolves.toBe(true);
+
+    expect(exchange).toHaveBeenCalledTimes(2);
+    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
+  });
+
+  it('retries a transient bootstrap failure on the next visit', async () => {
     exchange.mockRejectedValue(new Error('network down'));
     await ensureSepToken();
     exchange.mockResolvedValue(mintedToken('bearer-1'));
 
     await expect(ensureSepToken()).resolves.toBe(true);
 
-    expect(exchange).toHaveBeenCalledTimes(2);
     expect(getSepToken()).toBe('bearer-1');
+  });
+});
+
+describe('sepTokenStore — renewal on a mounted page', () => {
+  it('renews shortly before expiry', async () => {
+    await becomeReady();
+    exchange.mockResolvedValue(mintedToken('bearer-2'));
+
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
+
+    expect(exchange).toHaveBeenCalledOnce();
+    expect(getSepToken()).toBe('bearer-2');
+    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
+  });
+
+  it('keeps renewing across successive lifetimes', async () => {
+    await becomeReady();
+    exchange.mockResolvedValue(mintedToken('bearer-2'));
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
+    exchange.mockResolvedValue(mintedToken('bearer-3'));
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
+
+    expect(exchange).toHaveBeenCalledTimes(2);
+    expect(getSepToken()).toBe('bearer-3');
+  });
+
+  it('retries a transient renewal failure quietly, without a notice', async () => {
+    await becomeReady();
+    exchange.mockRejectedValue(new Error('offline'));
+
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
+
+    expect(exchange).toHaveBeenCalledOnce();
+    // Still `ready` with nothing on screen: a blip must not interrupt the user.
+    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
+  });
+
+  it('backs off across several quiet attempts before giving up', async () => {
+    await becomeReady();
+    exchange.mockRejectedValue(new Error('offline'));
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
+
+    await vi.advanceTimersByTimeAsync(2_000);
+    expect(exchange).toHaveBeenCalledTimes(2);
+    expect(notice()).toBeNull();
+
+    await vi.advanceTimersByTimeAsync(4_000);
+    expect(exchange).toHaveBeenCalledTimes(3);
+    expect(notice()).toBeNull();
+
+    await vi.advanceTimersByTimeAsync(8_000);
+    expect(exchange).toHaveBeenCalledTimes(4);
+    expect(notice()).toBeNull();
+  });
+
+  it('surfaces a transient failure only once it persists', async () => {
+    await becomeReady();
+    exchange.mockRejectedValue(new Error('offline'));
+
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS + PAST_ALL_RETRIES_MS);
+
+    expect(exchange).toHaveBeenCalledTimes(1 + 4);
+    // Reported beside the page, never instead of it.
+    expect(getSepAuthState()).toEqual({
+      phase: 'ready',
+      notice: 'unreachable',
+    });
+  });
+
+  it('recovers silently when a backoff attempt succeeds', async () => {
+    await becomeReady();
+    exchange.mockRejectedValueOnce(new Error('offline'));
+    exchange.mockResolvedValue(mintedToken('bearer-2'));
+
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS + 2_000);
+
+    expect(getSepToken()).toBe('bearer-2');
+    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
+  });
+
+  it('stops retrying once a backoff attempt succeeds', async () => {
+    await becomeReady();
+    exchange.mockRejectedValueOnce(new Error('offline'));
+    exchange.mockResolvedValue(mintedToken('bearer-2'));
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS + 2_000);
+
+    // Only the next scheduled renewal should fire, not a leftover backoff.
+    await vi.advanceTimersByTimeAsync(1_000);
+
+    expect(exchange).toHaveBeenCalledTimes(2);
+  });
+
+  it('reports a rejected session at once, without backing off', async () => {
+    await becomeReady();
+    exchange.mockRejectedValue(unauthorized());
+
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
+
+    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: 'signedOut' });
+    // Terminal: retrying would only repeat the rejection.
+    await vi.advanceTimersByTimeAsync(PAST_ALL_RETRIES_MS);
+    expect(exchange).toHaveBeenCalledOnce();
+  });
+
+  it('never leaves the ready phase, whatever the failure', async () => {
+    await becomeReady();
+    exchange.mockRejectedValue(unauthorized());
+
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS + PAST_ALL_RETRIES_MS);
+
+    expect(phase()).toBe('ready');
+  });
+
+  it('clears the notice when the user retries successfully', async () => {
+    await becomeReady();
+    exchange.mockRejectedValue(unauthorized());
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
+    expect(notice()).toBe('signedOut');
+
+    exchange.mockResolvedValue(mintedToken('bearer-2'));
+    await expect(retrySepAuth()).resolves.toBe(true);
+
+    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: null });
+    expect(getSepToken()).toBe('bearer-2');
+  });
+
+  it('keeps the notice when the retry fails again', async () => {
+    await becomeReady();
+    exchange.mockRejectedValue(unauthorized());
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
+
+    await expect(retrySepAuth()).resolves.toBe(false);
+
+    expect(getSepAuthState()).toEqual({ phase: 'ready', notice: 'signedOut' });
+  });
+
+  it('stops renewing once the store is cleared', async () => {
+    await becomeReady();
+    exchange.mockResolvedValue(mintedToken('bearer-2'));
+
+    resetSepAuthStore();
+    await vi.advanceTimersByTimeAsync(UNTIL_RENEWAL_MS);
+
+    expect(exchange).not.toHaveBeenCalled();
   });
 });
