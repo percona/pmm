@@ -1,7 +1,9 @@
 import { downloadTextFile } from './file.utils';
 
 describe('downloadTextFile', () => {
-  const createObjectURLMock = vi.fn(() => 'blob:mock-url');
+  const createObjectURLMock = vi.fn<(blob: Blob) => string>(
+    () => 'blob:mock-url'
+  );
   const revokeObjectURLMock = vi.fn();
 
   beforeEach(() => {

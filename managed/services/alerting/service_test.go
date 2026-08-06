@@ -512,7 +512,7 @@ func TestConvertTemplate(t *testing.T) {
 		// The models layer resolves the absent category, but the stored YAML must not
 		// gain a category line the author never wrote.
 		assert.Equal(t, models.UnknownCategory, tm.Category)
-		assert.NotContains(t, tm.Yaml, "category")
+		assert.NotContains(t, tm.Yaml, "category:")
 
 		dto, err := convertTemplate(logrus.WithField("test", t.Name()), tm, nil)
 		require.NoError(t, err)
