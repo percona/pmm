@@ -1,8 +1,8 @@
-# PMM HA Overview
+# PMM HA Health Overview
 
-![PMM HA Overview Dashboard](../../images/PMM_HA_Health_Overview.png)
+![PMM HA Health Overview Dashboard](../../images/PMM_HA_Health_Overview.png)
 
-The PMM HA Overview dashboard provides at-a-glance monitoring of cluster-level and instance-level health for your PMM High Availability deployment.
+The PMM HA Health Overview dashboard provides at-a-glance monitoring of cluster-level and instance-level health for your PMM High Availability deployment.
 
 Use the **Alive**, **Expected**, and **Health** values to identify component failures. Green means all expected instances are alive, yellow means the service is degraded, and red means no instances are alive or no expected instances were discovered.
 
@@ -14,7 +14,7 @@ The dashboard monitors PMM server replicas, PostgreSQL, ClickHouse, VictoriaMetr
 
 Shows PMM instances alive versus expected and the resulting health percentage.
 
-In HA Cluster mode, multiple PMM server replicas (three by default) provide full redundancy. If one replica fails, the remaining replicas continue serving requests with no user-visible impact, but you should investigate quickly to restore full redundancy. 
+In HA Cluster mode, multiple PMM server replicas (three by default) provide full redundancy through Raft consensus, which requires a quorum — a majority of replicas, `floor(N/2)+1` — to elect a leader and serve requests. If one replica fails, failover stays transparent to users as long as quorum holds, but you should investigate quickly to restore full redundancy. 
 
 The **Active PMM Instance** panel identifies the current Raft leader. Check the **PMM Pods** table to see every instance's status and Active or Follower role.
 
@@ -215,7 +215,7 @@ After a failover, verify that the new Primary is handling writes correctly.
 
 Shows each PMM server instance with its current status and Raft role. Green UP means the pod is running normally; **Active** identifies the Raft leader and **Follower** identifies the remaining instances.
 
-If one pod shows DOWN, identify which replica is affected and investigate the cause. If more than half of your configured PMM replicas show DOWN, your deployment is at serious risk—investigate immediately. 
+If one pod shows DOWN, identify which replica is affected and investigate the cause. If enough pods show DOWN that fewer than a quorum (`floor(N/2)+1` of your configured replicas) remain alive, your deployment is at serious risk—investigate immediately. 
 
 If all configured replicas show DOWN, your entire PMM system is unavailable.
 

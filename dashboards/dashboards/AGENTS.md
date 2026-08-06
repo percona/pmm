@@ -30,7 +30,7 @@ dashboards/dashboards/*.json
 | `Valkey/` | Valkey/Redis clients, cluster, memory, replication, slowlog |
 | `Insight/` | Home Dashboard, Advanced Data Exploration, VictoriaMetrics, Exporters |
 | `Experimental/` | Databases Overview, DB Cluster Summary |
-| `PMM Health/` | Environments Overview, PMM Health Overview, PMM HA Overview |
+| `PMM Health/` | Environments Overview, PMM Health Overview, PMM HA Health Overview |
 | `Query Analytics/` | QAN panel wrapper (`pmm-qan.json`) |
 | `Kubernetes (experimental)/` | Kubernetes operator monitoring |
 
