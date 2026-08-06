@@ -1255,7 +1255,6 @@ var (
 		(*timestamppb.Timestamp)(nil),  // 21: google.protobuf.Timestamp
 	}
 )
-
 var file_management_v1_node_proto_depIdxs = []int32{
 	16, // 0: management.v1.AddNodeParams.node_type:type_name -> inventory.v1.NodeType
 	11, // 1: management.v1.AddNodeParams.custom_labels:type_name -> management.v1.AddNodeParams.CustomLabelsEntry

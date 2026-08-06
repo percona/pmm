@@ -662,6 +662,8 @@ message RDSExporter {
   string aws_access_key = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
+  // AWS IAM role ARN assumed using the agent's ambient credentials.
+  string aws_role_arn = 7;
 
   //
   // Status fields below.
@@ -1822,6 +1824,12 @@ message AddRDSExporterParams {
   bool push_metrics = 9;
   // Log level for exporter.
   LogLevel log_level = 10;
+  // AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+  // Mutually exclusive with aws_access_key and aws_secret_key.
+  string aws_role_arn = 11 [(validate.rules).string = {
+    pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
+    ignore_empty: true
+  }];
 }
 
 message ChangeRDSExporterParams {
@@ -1843,6 +1851,12 @@ message ChangeRDSExporterParams {
   optional bool disable_enhanced_metrics = 8;
   // Log level for exporter.
   optional LogLevel log_level = 9;
+  // AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+  // Mutually exclusive with aws_access_key and aws_secret_key.
+  optional string aws_role_arn = 10 [(validate.rules).string = {
+    pattern: "^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$"
+    ignore_empty: true
+  }];
 }
 
 // Add/Change ExternalExporter

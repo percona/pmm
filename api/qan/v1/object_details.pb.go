@@ -1645,7 +1645,6 @@ var (
 		ExampleType(0),                              // 29: qan.v1.ExampleType
 	}
 )
-
 var file_qan_v1_object_details_proto_depIdxs = []int32{
 	26, // 0: qan.v1.GetMetricsRequest.period_start_from:type_name -> google.protobuf.Timestamp
 	26, // 1: qan.v1.GetMetricsRequest.period_start_to:type_name -> google.protobuf.Timestamp

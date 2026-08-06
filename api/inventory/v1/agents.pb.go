@@ -2812,6 +2812,8 @@ type RDSExporter struct {
 	AwsAccessKey string `protobuf:"bytes,5,opt,name=aws_access_key,json=awsAccessKey,proto3" json:"aws_access_key,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// AWS IAM role ARN assumed using the agent's ambient credentials.
+	AwsRoleArn string `protobuf:"bytes,7,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
 	// Actual Agent status (the same for several configurations).
 	Status AgentStatus `protobuf:"varint,10,opt,name=status,proto3,enum=inventory.v1.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics (the same for several configurations).
@@ -2904,6 +2906,13 @@ func (x *RDSExporter) GetCustomLabels() map[string]string {
 		return x.CustomLabels
 	}
 	return nil
+}
+
+func (x *RDSExporter) GetAwsRoleArn() string {
+	if x != nil {
+		return x.AwsRoleArn
+	}
+	return ""
 }
 
 func (x *RDSExporter) GetStatus() AgentStatus {
@@ -9460,7 +9469,10 @@ type AddRDSExporterParams struct {
 	// Enables push metrics mode for exporter.
 	PushMetrics bool `protobuf:"varint,9,opt,name=push_metrics,json=pushMetrics,proto3" json:"push_metrics,omitempty"`
 	// Log level for exporter.
-	LogLevel      LogLevel `protobuf:"varint,10,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	LogLevel LogLevel `protobuf:"varint,10,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AwsRoleArn    string `protobuf:"bytes,11,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9565,6 +9577,13 @@ func (x *AddRDSExporterParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *AddRDSExporterParams) GetAwsRoleArn() string {
+	if x != nil {
+		return x.AwsRoleArn
+	}
+	return ""
+}
+
 type ChangeRDSExporterParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -9584,7 +9603,10 @@ type ChangeRDSExporterParams struct {
 	// Disable enhanced metrics.
 	DisableEnhancedMetrics *bool `protobuf:"varint,8,opt,name=disable_enhanced_metrics,json=disableEnhancedMetrics,proto3,oneof" json:"disable_enhanced_metrics,omitempty"`
 	// Log level for exporter.
-	LogLevel      *LogLevel `protobuf:"varint,9,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	LogLevel *LogLevel `protobuf:"varint,9,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
+	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AwsRoleArn    *string `protobuf:"bytes,10,opt,name=aws_role_arn,json=awsRoleArn,proto3,oneof" json:"aws_role_arn,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -9680,6 +9702,13 @@ func (x *ChangeRDSExporterParams) GetLogLevel() LogLevel {
 		return *x.LogLevel
 	}
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
+}
+
+func (x *ChangeRDSExporterParams) GetAwsRoleArn() string {
+	if x != nil && x.AwsRoleArn != nil {
+		return *x.AwsRoleArn
+	}
+	return ""
 }
 
 type AddExternalExporterParams struct {
@@ -11379,7 +11408,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\tlog_level\x18\x16 \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x96\x06\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xb8\x06\n" +
 	"\vRDSExporter\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12 \n" +
 	"\fpmm_agent_id\x18\x02 \x01(\tR\n" +
@@ -11387,7 +11416,9 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\bdisabled\x18\x03 \x01(\bR\bdisabled\x12\x17\n" +
 	"\anode_id\x18\x04 \x01(\tR\x06nodeId\x12*\n" +
 	"\x0eaws_access_key\x18\x05 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12P\n" +
-	"\rcustom_labels\x18\x06 \x03(\v2+.inventory.v1.RDSExporter.CustomLabelsEntryR\fcustomLabels\x121\n" +
+	"\rcustom_labels\x18\x06 \x03(\v2+.inventory.v1.RDSExporter.CustomLabelsEntryR\fcustomLabels\x12 \n" +
+	"\faws_role_arn\x18\a \x01(\tR\n" +
+	"awsRoleArn\x121\n" +
 	"\x06status\x18\n" +
 	" \x01(\x0e2\x19.inventory.v1.AgentStatusR\x06status\x12\x1f\n" +
 	"\vlisten_port\x18\v \x01(\rR\n" +
@@ -12240,7 +12271,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\b_tls_keyB\f\n" +
 	"\n" +
 	"_log_levelB\x18\n" +
-	"\x16_skip_connection_check\"\xd1\x04\n" +
+	"\x16_skip_connection_check\"\xac\x05\n" +
 	"\x14AddRDSExporterParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12 \n" +
@@ -12253,10 +12284,12 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18disable_enhanced_metrics\x18\b \x01(\bR\x16disableEnhancedMetrics\x12!\n" +
 	"\fpush_metrics\x18\t \x01(\bR\vpushMetrics\x123\n" +
 	"\tlog_level\x18\n" +
-	" \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	" \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x12Y\n" +
+	"\faws_role_arn\x18\v \x01(\tB7\xfaB4r22-^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\xd0\x01\x01R\n" +
+	"awsRoleArn\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xa9\x05\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9a\x06\n" +
 	"\x17ChangeRDSExporterParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12266,7 +12299,10 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x0eaws_secret_key\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01H\x04R\fawsSecretKey\x88\x01\x01\x127\n" +
 	"\x15disable_basic_metrics\x18\a \x01(\bH\x05R\x13disableBasicMetrics\x88\x01\x01\x12=\n" +
 	"\x18disable_enhanced_metrics\x18\b \x01(\bH\x06R\x16disableEnhancedMetrics\x88\x01\x01\x128\n" +
-	"\tlog_level\x18\t \x01(\x0e2\x16.inventory.v1.LogLevelH\aR\blogLevel\x88\x01\x01B\t\n" +
+	"\tlog_level\x18\t \x01(\x0e2\x16.inventory.v1.LogLevelH\aR\blogLevel\x88\x01\x01\x12^\n" +
+	"\faws_role_arn\x18\n" +
+	" \x01(\tB7\xfaB4r22-^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\xd0\x01\x01H\bR\n" +
+	"awsRoleArn\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\x11\n" +
@@ -12275,7 +12311,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_disable_basic_metricsB\x1b\n" +
 	"\x19_disable_enhanced_metricsB\f\n" +
 	"\n" +
-	"_log_level\"\x83\x04\n" +
+	"_log_levelB\x0f\n" +
+	"\r_aws_role_arn\"\x83\x04\n" +
 	"\x19AddExternalExporterParams\x12.\n" +
 	"\x0fruns_on_node_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\frunsOnNodeId\x12\x1d\n" +
 	"\n" +
@@ -12634,7 +12671,6 @@ var (
 		(*common.StringMap)(nil),                            // 112: common.StringMap
 	}
 )
-
 var file_inventory_v1_agents_proto_depIdxs = []int32{
 	68,  // 0: inventory.v1.PMMAgent.custom_labels:type_name -> inventory.v1.PMMAgent.CustomLabelsEntry
 	108, // 1: inventory.v1.VMAgent.status:type_name -> inventory.v1.AgentStatus

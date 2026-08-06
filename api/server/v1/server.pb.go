@@ -1693,7 +1693,6 @@ var (
 		(*common.StringArray)(nil),          // 25: common.StringArray
 	}
 )
-
 var file_server_v1_server_proto_depIdxs = []int32{
 	23, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
 	1,  // 1: server.v1.VersionResponse.server:type_name -> server.v1.VersionInfo

@@ -8541,6 +8541,9 @@ type AddServiceOKBodyRDSRDSExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// AWS IAM role ARN assumed using the agent's ambient credentials.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -11908,6 +11911,10 @@ type AddServiceParamsBodyRDS struct {
 	// List of collector names to disable in the PostgreSQL database exporter.
 	// Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
 	PostgresqlDisableCollectors []string `json:"postgresql_disable_collectors"`
+
+	// AWS IAM role ARN to assume using the server's ambient credentials.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 }
 
 // Validate validates this add service params body RDS
