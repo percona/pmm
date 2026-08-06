@@ -85,7 +85,7 @@ func TestParserContextCancel(t *testing.T) {
 	docsChan := make(chan pm.SystemProfile)
 	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	parser := New(docsChan, a, logrus.WithField("component", "test-parser"))
 
 	err := parser.Start(ctx)

@@ -151,6 +151,15 @@ func start(ctx context.Context, wg *sync.WaitGroup, client *mongo.Client, dbName
 		)
 		lastCollectTime = time.Now()
 
+		// After first failure in connection we signal that we are ready anyway
+		// this way service starts, and will automatically connect when db is available.
+		// It has to be done before the shutdown check below, otherwise Start() would
+		// block on ready.Wait() forever if we exit on the very first iteration.
+		if firstTry {
+			signalReady(ready)
+			firstTry = false
+		}
+
 		select {
 		// check if we should shutdown
 		case <-ctx.Done():
@@ -159,13 +168,6 @@ func start(ctx context.Context, wg *sync.WaitGroup, client *mongo.Client, dbName
 			return
 		// wait some time before reconnecting
 		case <-time.After(1 * time.Second):
-		}
-
-		// After first failure in connection we signal that we are ready anyway
-		// this way service starts, and will automatically connect when db is available.
-		if firstTry {
-			signalReady(ready)
-			firstTry = false
 		}
 	}
 }
@@ -182,7 +184,7 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 		return
 	}
 	// Ensure cursor is closed even if parent context is canceled to prevent resource leaks.
-	defer cursor.Close(context.Background()) //nolint:errcheck
+	defer cursor.Close(context.Background()) //nolint:errcheck,contextcheck
 
 	// we got iterator, we are ready
 	signalReady(ready)

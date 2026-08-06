@@ -28,6 +28,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"github.com/percona/pmm/agent/utils/mongofix"
@@ -215,6 +216,33 @@ func TestCollectorContextCancel(t *testing.T) {
 	// Verify that the data channel was closed.
 	_, ok := <-docsChan
 	assert.False(t, ok, "docsChan should be closed after collector stops")
+}
+
+// TestCollectorStartCanceledContext checks that Start() does not block on ready.Wait()
+// when the context is already canceled and the very first iterator creation fails.
+func TestCollectorStartCanceledContext(t *testing.T) {
+	client, err := mongo.Connect(t.Context(), options.Client().ApplyURI("mongodb://127.0.0.1:1").SetDirect(true))
+	require.NoError(t, err)
+
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+
+	ctr := New(client, "test_start_canceled_context", logrus.WithField("component", "collector-test"))
+
+	startDone := make(chan struct{})
+	go func() {
+		_, err := ctr.Start(ctx)
+		assert.NoError(t, err)
+		ctr.Stop()
+		close(startDone)
+	}()
+
+	select {
+	case <-startDone:
+		// Success: Start() returned instead of waiting for a "ready" signal that never comes.
+	case <-time.After(5 * time.Second):
+		t.Fatal("Collector.Start did not return with a canceled context")
+	}
 }
 
 func genData(ctx context.Context, client *mongo.Client, maxLoops, maxDocs int) {

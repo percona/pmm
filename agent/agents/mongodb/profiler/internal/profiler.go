@@ -68,7 +68,7 @@ type Profiler struct {
 }
 
 // Start starts analyzer but doesn't wait until it exits.
-func (p *Profiler) Start() error {
+func (p *Profiler) Start(ctx context.Context) error {
 	p.m.Lock()
 	defer p.m.Unlock()
 	if p.running {
@@ -76,7 +76,7 @@ func (p *Profiler) Start() error {
 	}
 
 	// create new session
-	client, err := createSession(p.mongoDSN, p.agentID)
+	client, err := createSession(p.mongoDSN, p.agentID) //nolint:contextcheck // has its own dial timeout
 	if err != nil {
 		return err
 	}
@@ -84,11 +84,11 @@ func (p *Profiler) Start() error {
 
 	// create aggregator which collects documents and aggregates them into qan report
 	p.aggregator = aggregator.New(time.Now(), p.agentID, p.logger, p.maxQueryLength)
-	reportChan := p.aggregator.Start()
+	reportChan := p.aggregator.Start() //nolint:contextcheck // stopped explicitly in Stop()
 
 	// create sender which sends qan reports and start it
 	p.sender = sender.New(reportChan, p.w, p.logger)
-	p.sender.Start()
+	p.sender.Start() //nolint:contextcheck // stopped explicitly in Stop()
 
 	f := func(client *mongo.Client, logger *logrus.Entry, dbName string) *Monitor {
 		return NewMonitor(client, dbName, p.aggregator, logger)
@@ -111,7 +111,6 @@ func (p *Profiler) Start() error {
 	ready.L.Lock()
 	defer ready.L.Unlock()
 
-	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.profiler")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
 		start(ctx, p.monitors, p.wg, p.doneChan, ready, p.logger)
@@ -177,6 +176,8 @@ func start(ctx context.Context, monitors *Monitors, wg *sync.WaitGroup, doneChan
 		select {
 		// PMM-13947
 		case <-doneChan:
+			return
+		case <-ctx.Done():
 			return
 		case <-time.After(1 * time.Minute):
 			// just continue after delay if not

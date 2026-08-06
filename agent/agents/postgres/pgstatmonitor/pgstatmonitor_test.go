@@ -480,7 +480,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
-		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
+		r := rand.New(rand.NewSource(time.Now().Unix()))
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
 		CREATE TABLE %s (
@@ -599,12 +599,13 @@ func TestParseHistogramFromRespCalls(t *testing.T) {
 	t.Parallel()
 
 	vPGSM := pgStatMonitorVersion20PG12 // This version expects 22 histogram buckets
+	l := logrus.WithField("component", "pgstatmonitor-test")
 
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 		current := pq.StringArray{"10", "20", "30"}
 		prev := pq.StringArray{"5", "10", "15"}
-		res, err := parseHistogramFromRespCalls(current, prev, vPGSM)
+		res, err := parseHistogramFromRespCalls(current, prev, vPGSM, l)
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		assert.Equal(t, uint32(5), res[0].Frequency)
@@ -619,7 +620,7 @@ func TestParseHistogramFromRespCalls(t *testing.T) {
 		for i := range largeResp {
 			largeResp[i] = "1"
 		}
-		res, err := parseHistogramFromRespCalls(largeResp, nil, vPGSM)
+		res, err := parseHistogramFromRespCalls(largeResp, nil, vPGSM, l)
 		require.NoError(t, err)
 		// Should not panic and should cap at the length of our static ranges
 		expectedLen := len(getHistogramRangesArray(vPGSM))
@@ -631,7 +632,7 @@ func TestParseHistogramFromRespCalls(t *testing.T) {
 		// Previous values higher than current (e.g. pg_stat_monitor_reset called)
 		current := pq.StringArray{"10"}
 		prev := pq.StringArray{"20"}
-		res, err := parseHistogramFromRespCalls(current, prev, vPGSM)
+		res, err := parseHistogramFromRespCalls(current, prev, vPGSM, l)
 		require.NoError(t, err)
 		// Should be 0, not a huge wrapped-around uint32
 		assert.Equal(t, uint32(0), res[0].Frequency)
@@ -640,7 +641,7 @@ func TestParseHistogramFromRespCalls(t *testing.T) {
 	t.Run("InvalidData", func(t *testing.T) {
 		t.Parallel()
 		current := pq.StringArray{"not-a-number"}
-		res, err := parseHistogramFromRespCalls(current, nil, vPGSM)
+		res, err := parseHistogramFromRespCalls(current, nil, vPGSM, l)
 		require.Error(t, err)
 		assert.Nil(t, res)
 	})
@@ -649,7 +650,7 @@ func TestParseHistogramFromRespCalls(t *testing.T) {
 		t.Parallel()
 		// ParseUint should fail on negative numbers
 		current := pq.StringArray{"-1"}
-		res, err := parseHistogramFromRespCalls(current, nil, vPGSM)
+		res, err := parseHistogramFromRespCalls(current, nil, vPGSM, l)
 		require.Error(t, err)
 		assert.Nil(t, res)
 	})
