@@ -998,7 +998,8 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// do nothing
 	}
 
-	if err := row.AWSOptions.Validate(); err != nil {
+	err = row.AWSOptions.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -1438,7 +1439,8 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	// RTA options
 	row.RTAOptions.Merge(params.RTAOptions)
 
-	if err := row.AWSOptions.Validate(); err != nil {
+	err = row.AWSOptions.Validate()
+	if err != nil {
 		return nil, err
 	}
 
