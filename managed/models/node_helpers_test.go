@@ -413,6 +413,8 @@ func TestRemoveStaleHANodes(t *testing.T) {
 			{"10.244.1.7:9761", "10.244.2.8:9761"},        // no node names to read
 			{"pmm-ha-1.pmm-ha:9761", "10.244.2.8:9761"},   // mixed: one entry hides a live replica
 			{"pmm-ha-1.pmm-ha:9761", "pmm-ha-2/10.0.0.2"}, // memberlist "name/address" form
+			{"pmm-ha-1.pmm-ha:9761", "2001:db8::7"},       // an unbracketed IPv6 entry hides a live replica
+			{"pmm-ha-1.pmm-ha:9761", "[2001:db8::7]:9761"},
 			nil,
 		} {
 			require.NoError(t, models.RemoveStaleHANodes(q, "pmm-ha-1", peers))

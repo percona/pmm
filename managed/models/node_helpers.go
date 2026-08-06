@@ -411,13 +411,22 @@ func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) er
 }
 
 // haPeerNodeName maps a PMM_HA_PEERS entry ("pmm-ha-0.pmm-ha.pmm.svc.cluster.local:9761") to a Node
-// name: the first label is the pod's PMM_HA_NODE_ID. Reports false for entries with no name, like bare IPs.
+// name: the first label is the pod's PMM_HA_NODE_ID. Reports false for entries with no name, like
+// bare IPv4 or IPv6 addresses.
 func haPeerNodeName(peer string) (string, bool) {
-	host, _, _ := strings.Cut(strings.TrimSpace(peer), ":")
+	peer = strings.TrimSpace(peer)
+	// Test the whole entry before cutting at ":": an unbracketed IPv6 literal would otherwise be cut
+	// into its first group, and the "2001" of "2001:db8::7" reads like a node name. Only IPv6 entries
+	// hold more than one colon, bracketed or not, and none of them starts with a name.
+	if strings.Count(peer, ":") > 1 || net.ParseIP(peer) != nil {
+		return "", false
+	}
+	host, _, _ := strings.Cut(peer, ":")
 	if net.ParseIP(host) != nil {
 		return "", false
 	}
-	// "/" is memberlist's "name/address" form, "[" an IPv6 literal; neither starts with a node name.
+	// "/" is memberlist's "name/address" form, "[" a bracketed address; such a label mixes a name
+	// with an address instead of being one.
 	label, _, _ := strings.Cut(host, ".")
 	if label == "" || strings.ContainsAny(label, "/[") {
 		return "", false
