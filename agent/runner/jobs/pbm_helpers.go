@@ -203,10 +203,6 @@ func execPBMCommand(ctx context.Context, dsn string, to any, args ...string) err
 	defer cancel()
 
 	args = append(args, "--out=json", "--mongodb-uri="+dsn)
-	// In this case the arguments are constructed internally within the agent's job runner.
-	// Since the execution is controlled and the binary name is a known internal variable,
-	// this is considered a false positive. Other instances of command execution
-	// in this file already use the //nolint:gosec directive for the same reason.
 	cmd := exec.CommandContext(nCtx, pbmBin, args...) //nolint:gosec
 
 	b, err := cmd.Output()
