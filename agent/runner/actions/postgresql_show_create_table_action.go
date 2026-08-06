@@ -127,12 +127,12 @@ func (a *postgresqlShowCreateTableAction) Run(ctx context.Context) ([]byte, erro
 		return nil, err
 	}
 	db := sql.OpenDB(connector)
-	defer func(db *sql.DB) {
+	defer func() {
 		closeErr := db.Close()
 		if closeErr != nil {
-			a.l.Errorf("Failed to close db: %v", closeErr)
+			a.l.Errorf("Failed to close database connection: %v", closeErr)
 		}
-	}(db)
+	}()
 	var buf bytes.Buffer
 
 	// Extract table id
@@ -200,8 +200,9 @@ func (a *postgresqlShowCreateTableAction) printTableInit(ctx context.Context, w 
 	}
 	_, err = fmt.Fprintf(w, "Table \"%s.%s\"\n", schema, relname)
 	if err != nil {
-		a.l.Errorf("Failed to write table info into io.Writer: %v", err)
+		return "", err
 	}
+
 	return tableID, nil
 }
 
@@ -234,19 +235,16 @@ ORDER BY a.attnum;`, tableID)
 	if err != nil {
 		return err
 	}
-	defer func(rows *sql.Rows) {
+	defer func() {
 		closeErr := rows.Close()
 		if closeErr != nil {
 			a.l.Errorf("Failed to close rows: %v", closeErr)
 		}
-	}(rows)
+	}()
 
 	tw := tabwriter.NewWriter(w, 0, 0, 1, ' ', tabwriter.Debug)
 
-	_, err = fmt.Fprintln(tw, "Column\tType\tCollation\tNullable\tDefault\tStorage\tStats target\tDescription")
-	if err != nil {
-		a.l.Errorf("Failed to write header into tabwriter: %v", err)
-	}
+	writef(tw, "Column\tType\tCollation\tNullable\tDefault\tStorage\tStats target\tDescription\n")
 
 	for rows.Next() {
 		var ci columnInfo
@@ -265,7 +263,7 @@ ORDER BY a.attnum;`, tableID)
 			return err
 		}
 
-		_, err = fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+		writef(tw, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			ci.Attname,
 			ci.FormatType,
 			pointer.GetString(ci.Attcollation),
@@ -274,9 +272,6 @@ ORDER BY a.attnum;`, tableID)
 			formatStorage(ci.Attstorage),
 			pointer.GetString(ci.Attstattarget),
 			pointer.GetString(ci.ColDescription))
-		if err != nil {
-			a.l.Errorf("Failed to write column info into tabwriter: %v", err)
-		}
 	}
 	err = rows.Err()
 	if err != nil {
@@ -311,21 +306,18 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 	if err != nil {
 		return err
 	}
-	defer func(rows *sql.Rows) {
+	defer func() {
 		closeErr := rows.Close()
 		if closeErr != nil {
 			a.l.Errorf("Failed to close rows: %v", closeErr)
 		}
-	}(rows)
+	}()
 
 	var buf bytes.Buffer
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	_, err = fmt.Fprintln(bw, "Indexes:")
-	if err != nil {
-		a.l.Errorf("Failed to write header into buffer: %v", err)
-	}
+	writef(bw, "Indexes:\n")
 
 	for rows.Next() {
 		info := indexInfo{}
@@ -347,35 +339,20 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 		if err != nil {
 			return err
 		}
-		_, err = fmt.Fprintf(bw, "\t%q", info.Relname)
-		if err != nil {
-			a.l.Errorf("Failed to write index name into buffer: %v", err)
-		}
+		writef(bw, "\t%q", info.Relname)
 
 		//nolint:nestif
 		if pointer.GetString(info.Contype) == "x" {
-			_, err = fmt.Fprintf(bw, " %s", pointer.GetString(info.PgGetConstraintDef))
-			if err != nil {
-				a.l.Errorf("Failed to write 'EXCLUDE' info into buffer: %v", err)
-			}
+			writef(bw, " %s", pointer.GetString(info.PgGetConstraintDef))
 		} else {
 			// Label as primary key or unique (but not both).
 			if info.IsPrimary {
-				_, err = fmt.Fprintf(bw, " PRIMARY KEY,")
-				if err != nil {
-					a.l.Errorf("Failed to write 'PRIMARY KEY' info into buffer: %v", err)
-				}
+				writef(bw, " PRIMARY KEY,")
 			} else if info.IsUnique {
 				if pointer.GetString(info.Contype) == "u" {
-					_, err = fmt.Fprintf(bw, " UNIQUE CONSTRAINT,")
-					if err != nil {
-						a.l.Errorf("Failed to write 'UNIQUE CONSTRAINT' info into buffer: %v", err)
-					}
+					writef(bw, " UNIQUE CONSTRAINT,")
 				} else {
-					_, err = fmt.Fprintf(bw, " UNIQUE,")
-					if err != nil {
-						a.l.Errorf("Failed to write 'UNIQUE' info into buffer: %v", err)
-					}
+					writef(bw, " UNIQUE,")
 				}
 			}
 
@@ -385,30 +362,18 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 			if usingPos != -1 {
 				indexDef = indexDef[usingPos+7:]
 			}
-			_, err = fmt.Fprintf(bw, " %s", indexDef)
-			if err != nil {
-				a.l.Errorf("Failed to write indexDef info into buffer: %v", err)
-			}
+			writef(bw, " %s", indexDef)
 			// Need these for deferrable PK/UNIQUE indexes.
 			if pointer.GetBool(info.Condeferrable) {
-				_, err = fmt.Fprintf(bw, " DEFERRABLE")
-				if err != nil {
-					a.l.Errorf("Failed to write 'DEFERRABLE' info into buffer: %v", err)
-				}
+				writef(bw, " DEFERRABLE")
 			}
 
 			if pointer.GetBool(info.Condeferred) {
-				_, err = fmt.Fprintf(bw, " INITIALLY DEFERRED")
-				if err != nil {
-					a.l.Errorf("Failed to write 'INITIALLY DEFERRED' info into buffer: %v", err)
-				}
+				writef(bw, " INITIALLY DEFERRED")
 			}
 		}
 
-		_, err = fmt.Fprintf(bw, "\n")
-		if err != nil {
-			a.l.Errorf("Failed to write '\n' info into buffer: %v", err)
-		}
+		writef(bw, "\n")
 		err = bw.Flush()
 		if err != nil {
 			return err
@@ -419,10 +384,8 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 		return err
 	}
 	_, err = w.Write(buf.Bytes())
-	if err != nil {
-		a.l.Errorf("Failed to write buffer into io.Writer: %v", err)
-	}
-	return nil
+
+	return err
 }
 
 func (a *postgresqlShowCreateTableAction) printForeignKeyConstraints(ctx context.Context, w io.Writer, db *sql.DB, tableID string) error {
@@ -435,21 +398,18 @@ ORDER BY conname`, tableID)
 	if err != nil {
 		return err
 	}
-	defer func(rows *sql.Rows) {
+	defer func() {
 		closeErr := rows.Close()
 		if closeErr != nil {
 			a.l.Errorf("Failed to close rows: %v", closeErr)
 		}
-	}(rows)
+	}()
 
 	var buf bytes.Buffer
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	_, err = fmt.Fprintln(bw, "Foreign-key constraints:")
-	if err != nil {
-		a.l.Errorf("Failed to write header into buffer: %v", err)
-	}
+	writef(bw, "Foreign-key constraints:\n")
 
 	for rows.Next() {
 		var conname, condef string
@@ -460,10 +420,7 @@ ORDER BY conname`, tableID)
 		if err != nil {
 			return err
 		}
-		_, err = fmt.Fprintf(bw, "\t%q %s\n", conname, condef)
-		if err != nil {
-			a.l.Errorf("Failed to write conname into buffer: %v", err)
-		}
+		writef(bw, "\t%q %s\n", conname, condef)
 
 		err = bw.Flush()
 		if err != nil {
@@ -475,10 +432,8 @@ ORDER BY conname`, tableID)
 		return err
 	}
 	_, err = w.Write(buf.Bytes())
-	if err != nil {
-		a.l.Errorf("Failed to write buffer into io.Writer: %v", err)
-	}
-	return nil
+
+	return err
 }
 
 func (a *postgresqlShowCreateTableAction) printReferencedBy(ctx context.Context, w io.Writer, db *sql.DB, tableID string) error {
@@ -492,21 +447,18 @@ ORDER BY conname`, tableID)
 	if err != nil {
 		return err
 	}
-	defer func(rows *sql.Rows) {
+	defer func() {
 		closeErr := rows.Close()
 		if closeErr != nil {
 			a.l.Errorf("Failed to close rows: %v", closeErr)
 		}
-	}(rows)
+	}()
 
 	var buf bytes.Buffer
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	_, err = fmt.Fprintln(bw, "Referenced by:")
-	if err != nil {
-		a.l.Errorf("Failed to write header into buffer: %v", err)
-	}
+	writef(bw, "Referenced by:\n")
 
 	for rows.Next() {
 		var conname, conrelid, condef string
@@ -518,10 +470,7 @@ ORDER BY conname`, tableID)
 		if err != nil {
 			return err
 		}
-		_, err = fmt.Fprintf(bw, "\tTABLE %q CONSTRAINT %q %s\n", conrelid, conname, condef)
-		if err != nil {
-			a.l.Errorf("Failed to write table constraint into buffer: %v", err)
-		}
+		writef(bw, "\tTABLE %q CONSTRAINT %q %s\n", conrelid, conname, condef)
 
 		err = bw.Flush()
 		if err != nil {
@@ -533,10 +482,8 @@ ORDER BY conname`, tableID)
 		return err
 	}
 	_, err = w.Write(buf.Bytes())
-	if err != nil {
-		a.l.Errorf("Failed to write buffer into io.Writer: %v", err)
-	}
-	return nil
+
+	return err
 }
 
 func (a *postgresqlShowCreateTableAction) printCheckConstraints(ctx context.Context, w io.Writer, db *sql.DB, tableID string) error {
@@ -549,21 +496,18 @@ ORDER BY conname`, tableID)
 	if err != nil {
 		return err
 	}
-	defer func(rows *sql.Rows) {
+	defer func() {
 		closeErr := rows.Close()
 		if closeErr != nil {
 			a.l.Errorf("Failed to close rows: %v", closeErr)
 		}
-	}(rows)
+	}()
 
 	var buf bytes.Buffer
 	// We need it to be able to call Flush method to not write header if there are no rows.
 	bw := bufio.NewWriter(&buf)
 
-	_, err = fmt.Fprintln(bw, "Check constraints:")
-	if err != nil {
-		a.l.Errorf("Failed to write header into buffer: %v", err)
-	}
+	writef(bw, "Check constraints:\n")
 
 	for rows.Next() {
 		var conname, condef string
@@ -574,10 +518,7 @@ ORDER BY conname`, tableID)
 		if err != nil {
 			return err
 		}
-		_, err = fmt.Fprintf(bw, "\t%q %s\n", conname, condef)
-		if err != nil {
-			a.l.Errorf("Failed to write conname into buffer: %v", err)
-		}
+		writef(bw, "\t%q %s\n", conname, condef)
 
 		err = bw.Flush()
 		if err != nil {
@@ -589,10 +530,14 @@ ORDER BY conname`, tableID)
 		return err
 	}
 	_, err = w.Write(buf.Bytes())
-	if err != nil {
-		a.l.Errorf("Failed to write buffer into io.Writer: %v", err)
-	}
-	return nil
+
+	return err
+}
+
+// writef writes into a bufio.Writer or a tabwriter.Writer; both record the first
+// write error and return it from Flush, which the callers check.
+func writef(w io.Writer, format string, args ...any) {
+	fmt.Fprintf(w, format, args...) //nolint:errcheck
 }
 
 func formatNullable(attrnotNull bool) string {

@@ -705,36 +705,40 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to create pbm configuration file: %w", err)
 	}
-	removeConfFunc := func() {
+	removeConfFile := func() {
 		remErr := os.Remove(tmp.Name())
 		if remErr != nil {
 			logrus.Errorf("Failed to remove pbm config file %s: %v", tmp.Name(), remErr)
 		}
 	}
 
+	// The caller gets no path when we fail, so the temp file has to be discarded here.
+	closeAndRemove := func() error {
+		closeErr := tmp.Close()
+		removeConfFile()
+		if closeErr != nil {
+			return fmt.Errorf("failed to close pbm configuration file: %w", closeErr)
+		}
+		return nil
+	}
+
 	bytes, err := yaml.Marshal(&conf)
 	if err != nil {
-		defer removeConfFunc()
-		err = fmt.Errorf("failed to marshal pbm configuration: %w", err)
-		closeErr := tmp.Close()
-		if closeErr != nil {
-			return "", errors.Join(err, fmt.Errorf("failed to close pbm configuration file: %w", closeErr))
-		}
-		return "", err
+		return "", errors.Join(fmt.Errorf("failed to marshal pbm configuration: %w", err), closeAndRemove())
 	}
 
 	_, err = tmp.Write(bytes)
 	if err != nil {
-		defer removeConfFunc()
-		err = fmt.Errorf("failed to write pbm configuration file: %w", err)
-		closeErr := tmp.Close()
-		if closeErr != nil {
-			return "", errors.Join(err, fmt.Errorf("failed to close pbm configuration file: %w", closeErr))
-		}
-		return "", err
+		return "", errors.Join(fmt.Errorf("failed to write pbm configuration file: %w", err), closeAndRemove())
 	}
 
-	return tmp.Name(), tmp.Close()
+	err = tmp.Close()
+	if err != nil {
+		removeConfFile()
+		return "", fmt.Errorf("failed to close pbm configuration file: %w", err)
+	}
+
+	return tmp.Name(), nil
 }
 
 // Serialization helpers.

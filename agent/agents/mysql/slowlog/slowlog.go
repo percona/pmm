@@ -454,7 +454,7 @@ func makeBuckets(
 				ClientHost:           v.Host,
 				AgentId:              agentID,
 				AgentType:            inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
-				PeriodStartUnixSecs:  uint32(periodStart.Unix()), //nolint:gosec // Unix timestamp fits in uint32 until 2106
+				PeriodStartUnixSecs:  uint32(periodStart.Unix()), //nolint:gosec
 				PeriodLengthSecs:     periodLengthSecs,
 				NumQueries:           float32(v.TotalQueries),
 				Errors:               errListsToMap(v.ErrorsCode, v.ErrorsCount),

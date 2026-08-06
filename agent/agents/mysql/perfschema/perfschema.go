@@ -348,7 +348,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 	}
 
 	buckets := makeBuckets(current, prev, m.l, m.maxQueryLength)
-	startS := uint32(periodStart.Unix()) //nolint:gosec // Unix timestamp fits in uint32 until 2106
+	startS := uint32(periodStart.Unix()) //nolint:gosec
 	m.l.Debugf("Made %d buckets out of %d summaries in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 

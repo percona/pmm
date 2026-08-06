@@ -315,7 +315,7 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 	}
 
 	buckets := m.makeBuckets(current, prev)
-	startS := uint32(periodStart.Unix()) //nolint:gosec // Unix timestamp fits in uint32 until 2106
+	startS := uint32(periodStart.Unix()) //nolint:gosec
 	m.l.Debugf("Made %d buckets out of %d stat statements in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 

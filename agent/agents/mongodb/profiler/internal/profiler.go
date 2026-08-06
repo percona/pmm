@@ -143,8 +143,12 @@ func (p *Profiler) Stop() error {
 	// stop sender; do it after goroutine is closed
 	p.sender.Stop()
 
-	// close the session; do it after goroutine is closed
-	err := p.client.Disconnect(context.Background())
+	// close the session; do it after goroutine is closed.
+	// Stop() is called when the agent context is already canceled, hence a new bounded one.
+	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutSessionSync)
+	defer cancel()
+
+	err := p.client.Disconnect(ctx)
 	if err != nil {
 		p.logger.Errorf("Failed to disconnect client from MongoDB, reason: %v", err)
 	}

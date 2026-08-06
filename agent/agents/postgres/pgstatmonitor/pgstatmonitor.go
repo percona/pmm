@@ -616,7 +616,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 					NumQueries:          count,
 					ClientHost:          currentPSM.ClientIP,
 					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
-					PeriodStartUnixSecs: uint32(currentPSM.BucketStartTime.Unix()), //nolint:gosec // Unix timestamp fits in uint32 until 2106
+					PeriodStartUnixSecs: uint32(currentPSM.BucketStartTime.Unix()), //nolint:gosec
 				},
 				Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 			}
