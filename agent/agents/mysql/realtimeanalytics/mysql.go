@@ -24,6 +24,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -42,6 +43,10 @@ const (
 	changesBufferSize = 10
 	// Number of picoseconds per nanosecond, used to convert MySQL picosecond latencies into Go durations.
 	picosecondsPerNanosecond = 1000
+	// Interval used when the server sends none. A non-positive duration makes
+	// time.NewTicker panic, and a panic here takes down the whole pmm-agent, so a
+	// missing interval degrades to the server's own default instead.
+	defaultCollectInterval = 2 * time.Second
 )
 
 // currentQueriesSQL fetches currently running queries from the sys schema.
@@ -105,6 +110,12 @@ func New(params *Params, l *logrus.Entry) *MySQLRTA {
 		files = params.TextFiles.Files
 	}
 
+	collectInterval := params.CollectInterval
+	if collectInterval <= 0 {
+		l.Warnf("No collect interval set for Real-Time Analytics, falling back to %s", defaultCollectInterval)
+		collectInterval = defaultCollectInterval
+	}
+
 	return &MySQLRTA{
 		agentID:         params.AgentID,
 		serviceID:       params.ServiceID,
@@ -112,7 +123,7 @@ func New(params *Params, l *logrus.Entry) *MySQLRTA {
 		dsn:             params.DSN,
 		files:           files,
 		tlsSkipVerify:   params.TLSSkipVerify,
-		collectInterval: params.CollectInterval,
+		collectInterval: collectInterval,
 		l:               l,
 		changes:         make(chan agents.Change, changesBufferSize),
 	}
@@ -128,6 +139,12 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 	// collectors tracks in-flight collection goroutines so we can wait for them
 	// before closing m.changes, avoiding a "send on closed channel" race on shutdown.
 	var collectors sync.WaitGroup
+
+	// collecting keeps one collection in flight at a time. Each collection runs on
+	// its own pooled connection and the query only excludes its own conn_id, so two
+	// overlapping collections would report each other's processlist query as a
+	// running query.
+	var collecting atomic.Bool
 
 	// terminalStatus is reported just before the changes channel is closed. It stays
 	// DONE for a normal stop and becomes INITIALIZATION_ERROR when the agent cannot
@@ -187,12 +204,20 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 			// m.changes channel will be closed in defer, so we don't need to close it here, just exit the function.
 			return
 		case <-ticker.C:
+			// Skip the tick when the previous collection has not finished; the next
+			// one is only a collect interval away and this is a live view.
+			if !collecting.CompareAndSwap(false, true) {
+				m.l.Debug("Previous processlist collection still running, skipping this tick")
+				continue
+			}
+
 			// Run collection in a separate goroutine to avoid blocking the main loop
 			// and allow timely execution of next ticks in case collection takes longer
 			// than the collect interval.
 			collectors.Add(1)
 			go func(curCtx context.Context) {
 				defer collectors.Done()
+				defer collecting.Store(false)
 
 				rtaQueryBucket, err := m.collectProcessList(curCtx)
 				if err != nil {
@@ -200,13 +225,16 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 					return
 				}
 
+				if len(rtaQueryBucket) == 0 {
+					return
+				}
+
+				// Send and cancellation are selected together: the buffer can be full
+				// while nothing drains it during shutdown, and a blocked send would
+				// keep Run from ever returning.
 				select {
 				case <-curCtx.Done():
-					return
-				default:
-					if len(rtaQueryBucket) != 0 {
-						m.changes <- agents.Change{RTAQueriesBucket: rtaQueryBucket}
-					}
+				case m.changes <- agents.Change{RTAQueriesBucket: rtaQueryBucket}:
 				}
 			}(ctx)
 		}

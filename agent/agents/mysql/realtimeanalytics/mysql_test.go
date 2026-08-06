@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -139,4 +140,17 @@ func TestBuildQueryDataFullScanAndMissing(t *testing.T) {
 	require.NotNil(t, qd)
 	assert.False(t, qd.GetMySqlPayload().FullScan)
 	assert.Equal(t, time.Duration(0), qd.QueryExecutionDuration.AsDuration())
+}
+
+func TestNewCollectInterval(t *testing.T) {
+	t.Parallel()
+
+	l := logrus.NewEntry(logrus.New())
+
+	assert.Equal(t, 5*time.Second, New(&Params{CollectInterval: 5 * time.Second}, l).collectInterval)
+
+	// A missing or non-positive interval must not reach time.NewTicker, which
+	// panics on it and would take the whole pmm-agent down.
+	assert.Equal(t, defaultCollectInterval, New(&Params{}, l).collectInterval)
+	assert.Equal(t, defaultCollectInterval, New(&Params{CollectInterval: -1}, l).collectInterval)
 }
