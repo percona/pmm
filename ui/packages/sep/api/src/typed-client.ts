@@ -52,6 +52,14 @@ const isRefreshRequest = (url: string) => url.includes('/oauth/refresh');
 const isLoginRequest = (url: string) => url.includes('/oauth/login');
 
 /**
+ * Whether a 401 on this URL is worth one silent mint-and-replay. Minting
+ * endpoints are the recovery mechanism itself and login carries its own
+ * credentials, so a 401 from either is the answer, not a stale token.
+ */
+const isReplayEligible = (url: string) =>
+  !isTokenMintRequest(url) && !isLoginRequest(url);
+
+/**
  * A 200 HTML response (e.g. a follow of a login redirect) means the session
  * is gone. The browser can't observe the 303, so content-type is the only
  * signal. Synthesise a 401 so the normal error path runs.
@@ -64,6 +72,9 @@ function isHtmlLoginResponse(response: Response): boolean {
 // `fetch` consumes a Request's body stream, so the instance handed to
 // `onResponse` can no longer be re-sent. Stash an untouched clone taken before
 // dispatch, keyed weakly so requests that never come back are not retained.
+//
+// Only replay-eligible requests are cloned: cloning buffers the body, and the
+// endpoints excluded from the retry would never use theirs.
 const pristineRequests = new WeakMap<Request, Request>();
 
 /**
@@ -100,7 +111,9 @@ const authMiddleware: Middleware = {
     if (token) {
       request.headers.set('Authorization', `Bearer ${token}`);
     }
-    pristineRequests.set(request, request.clone());
+    if (isReplayEligible(request.url)) {
+      pristineRequests.set(request, request.clone());
+    }
     if (IS_DEV) {
       // eslint-disable-next-line no-console
       console.debug(
@@ -125,11 +138,7 @@ const authMiddleware: Middleware = {
       });
     }
 
-    if (
-      response.status === 401 &&
-      !isTokenMintRequest(request.url) &&
-      !isLoginRequest(request.url)
-    ) {
+    if (response.status === 401 && isReplayEligible(request.url)) {
       const replayed = await replayWithFreshToken(request);
       if (replayed && replayed.status !== 401) {
         return replayed;
