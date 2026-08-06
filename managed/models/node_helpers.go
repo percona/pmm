@@ -375,7 +375,8 @@ func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) er
 	}
 
 	for _, node := range nodes {
-		// Only HA replicas set this flag; every other Node is one the user monitors.
+		// Set by HA replicas, and by the PMM Server Node of a non-HA deployment; every other
+		// Node is one the user monitors.
 		if !node.IsPMMServerNode {
 			continue
 		}
