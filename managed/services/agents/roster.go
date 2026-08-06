@@ -74,31 +74,25 @@ func (r *roster) get(groupID string) (string, []string, error) {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	parts := strings.Split(groupID, ":")
-	ok := len(parts) == 2 //nolint:mnd
+	pmmAgentID, group, ok := strings.Cut(groupID, ":")
 
-	PMMAgentID := parts[0]
-	agentIDs := r.m[groupID]
+	if agentIDs := r.m[groupID]; agentIDs != nil {
+		r.l.Debugf("get: %s = %v", groupID, agentIDs)
+		return pmmAgentID, agentIDs, nil
+	}
 
-	if agentIDs == nil {
-		if !ok {
-			agentIDs = []string{PMMAgentID}
-		} else {
-			awsAccessKey := strings.TrimPrefix(parts[1], rdsPrefix)
-			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: new(models.RDSExporterType), AWSAccessKey: awsAccessKey}
-			agents, err := models.FindAgents(r.db.Querier, filters)
-			if err != nil {
-				return "", nil, err
-			}
-			agentIDs = make([]string, 0, len(agents))
-			for _, agent := range agents {
-				agentIDs = append(agentIDs, agent.AgentID)
-			}
-		}
+	if !ok {
+		r.l.Debugf("get: %s = %v", groupID, []string{pmmAgentID})
+		return pmmAgentID, []string{pmmAgentID}, nil
+	}
+
+	agentIDs, err := r.findRDSExportersByCredentials(pmmAgentID, strings.TrimPrefix(group, rdsPrefix))
+	if err != nil {
+		return "", nil, err
 	}
 
 	r.l.Debugf("get: %s = %v", groupID, agentIDs)
-	return PMMAgentID, agentIDs, nil
+	return pmmAgentID, agentIDs, nil
 }
 
 // clear removes the group of exporter IDs for a given PMM Agent ID.
@@ -118,4 +112,27 @@ func (r *roster) clear(pmmAgentID string) {
 	}
 
 	r.l.Debugf("clear: %q", pmmAgentID)
+}
+
+// findRDSExportersByCredentials returns the enabled RDS exporter IDs on a pmm-agent whose AWS
+// options resolve to the given credential identity.
+func (r *roster) findRDSExportersByCredentials(pmmAgentID, credentialsKey string) ([]string, error) {
+	agents, err := models.FindAgents(r.db.Querier, models.AgentFilters{
+		PMMAgentID: pmmAgentID,
+		AgentType:  new(models.RDSExporterType),
+		Disabled:   new(false),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	agentIDs := make([]string, 0, len(agents))
+	for _, agent := range agents {
+		if agent.AWSOptions.CredentialsKey() != credentialsKey {
+			continue
+		}
+		agentIDs = append(agentIDs, agent.AgentID)
+	}
+
+	return agentIDs, nil
 }
