@@ -296,7 +296,10 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 	agents := make([]*Agent, len(structs))
 	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		decryptedAgent, err := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		if err != nil {
+			return nil, err
+		}
 		agents[i] = &decryptedAgent
 	}
 
@@ -317,7 +320,13 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 		}
 		return nil, err
 	}
-	return new(DecryptAgent(*agent)), nil
+
+	decryptedAgent, err := DecryptAgent(*agent)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(decryptedAgent), nil
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -339,7 +348,10 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		decryptedAgent, err := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		if err != nil {
+			return nil, err
+		}
 		res[i] = &decryptedAgent
 	}
 	return res, nil
@@ -392,7 +404,10 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 
 	res := make([]*Agent, len(structs))
 	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		decryptedAgent, err := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		if err != nil {
+			return nil, err
+		}
 		res[i] = &decryptedAgent
 	}
 
@@ -420,7 +435,10 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 
 	res := make([]*Agent, 0, len(structs))
 	for _, str := range structs {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
+		decryptedAgent, err := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
+		if err != nil {
+			return nil, err
+		}
 		res = append(res, &decryptedAgent)
 	}
 
@@ -465,7 +483,10 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	}
 	res := make([]*Agent, 0, len(pmmAgentRecords))
 	for _, str := range pmmAgentRecords {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
+		decryptedAgent, err := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
+		if err != nil {
+			return nil, err
+		}
 		res = append(res, &decryptedAgent)
 	}
 
@@ -547,7 +568,10 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 
 	res := make([]*Agent, len(allAgents))
 	for i, s := range allAgents {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		decryptedAgent, err := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		if err != nil {
+			return nil, err
+		}
 		res[i] = &decryptedAgent
 	}
 	return res, nil
@@ -592,7 +616,12 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 
 // UpdateAgent updates the Agent in the database.
 func UpdateAgent(q *reform.Querier, agent *Agent) error {
-	err := q.Update(new(EncryptAgent(*agent)))
+	encryptedAgent, err := EncryptAgent(*agent)
+	if err != nil {
+		return err
+	}
+
+	err = q.Update(new(encryptedAgent))
 	if err != nil {
 		return fmt.Errorf("failed to update Agent: %w", err)
 	}
@@ -706,12 +735,22 @@ func CreateNodeExporter(q *reform.Querier,
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
+	encryptedAgent, err := EncryptAgent(*row)
+	if err != nil {
+		return nil, err
+	}
+
 	err = q.Insert(&encryptedAgent)
 	if err != nil {
 		return nil, err
 	}
-	return new(DecryptAgent(encryptedAgent)), nil
+
+	decryptedAgent, err := DecryptAgent(encryptedAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(decryptedAgent), nil
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -796,12 +835,22 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
+	encryptedAgent, err := EncryptAgent(*row)
+	if err != nil {
+		return nil, err
+	}
+
 	err = q.Insert(&encryptedAgent)
 	if err != nil {
 		return nil, err
 	}
-	return new(DecryptAgent(encryptedAgent)), nil
+
+	decryptedAgent, err := DecryptAgent(encryptedAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(decryptedAgent), nil
 }
 
 // CreateAgentParams params for add common exporter.
@@ -998,12 +1047,22 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// do nothing
 	}
 
-	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
+	encryptedAgent, err := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
+	if err != nil {
+		return nil, err
+	}
+
 	err = q.Insert(&encryptedAgent)
 	if err != nil {
 		return nil, err
 	}
-	return new(DecryptAgent(encryptedAgent)), nil
+
+	decryptedAgent, err := DecryptAgent(encryptedAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(decryptedAgent), nil
 }
 
 func trimUnicodeNilsInCertFiles(agent Agent) Agent {
@@ -1431,13 +1490,23 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	row.RTAOptions.Merge(params.RTAOptions)
 
 	// need to encrypt Agent's sensitive data before update
-	row = new(EncryptAgent(*row))
+	encryptedAgent, err := EncryptAgent(*row)
+	if err != nil {
+		return nil, err
+	}
+
+	row = new(encryptedAgent)
 	err = q.Update(row)
 	if err != nil {
 		return nil, err
 	}
 
-	return new(DecryptAgent(*row)), nil
+	decryptedAgent, err := DecryptAgent(*row)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(decryptedAgent), nil
 }
 
 // RemoveAgent removes Agent by ID.

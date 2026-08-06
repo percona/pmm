@@ -18,7 +18,9 @@ package encryption
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"os"
@@ -152,7 +154,7 @@ func RotateEncryptionKey() error {
 
 // RestoreOldEncryptionKey is a wrapper around DefaultEncryption.RestoreOldEncryptionKey.
 func RestoreOldEncryptionKey() error {
-	err := os.Rename(strings.TrimSuffix(encryptionKeyPath(), ".key")+"_old.key", encryptionKeyPath())
+	err := os.Rename(strings.TrimSuffix(KeyPath(), ".key")+"_old.key", KeyPath())
 	if err != nil {
 		return fmt.Errorf("could not restore old encryption key: %w", err)
 	}
@@ -161,7 +163,7 @@ func RestoreOldEncryptionKey() error {
 }
 
 func backupOldEncryptionKey() error {
-	err := os.Rename(encryptionKeyPath(), strings.TrimSuffix(encryptionKeyPath(), ".key")+"_old.key")
+	err := os.Rename(KeyPath(), strings.TrimSuffix(KeyPath(), ".key")+"_old.key")
 	if err != nil {
 		return fmt.Errorf("failed to backup old encryption key: %w", err)
 	}
@@ -185,6 +187,32 @@ func (e *Encryption) GenerateKey() (string, error) {
 	return base64.StdEncoding.EncodeToString(buff.Bytes()), nil
 }
 
+// Fingerprint is a wrapper around DefaultEncryption.Fingerprint.
+func Fingerprint() (string, error) {
+	return getDefaultEncryption().Fingerprint()
+}
+
+// Fingerprint returns a stable identifier of the encryption key.
+//
+// It is recorded next to the encrypted data so a node can tell whether it holds the key the
+// data was encrypted with without decrypting anything, which also works when there is no
+// encrypted row to test against yet. It is a digest of the key, so it cannot be used to
+// reconstruct it.
+func (e *Encryption) Fingerprint() (string, error) {
+	if e == nil || e.Key == "" {
+		return "", ErrEncryptionNotInitialized
+	}
+
+	serializedKeyset, err := base64.StdEncoding.DecodeString(e.Key)
+	if err != nil {
+		return "", fmt.Errorf("failed to decode keyset: %w", err)
+	}
+
+	sum := sha256.Sum256(serializedKeyset)
+
+	return hex.EncodeToString(sum[:]), nil
+}
+
 func (e *Encryption) generateAndPersistKey() error {
 	key, err := e.GenerateKey()
 	if err != nil {
@@ -204,16 +232,18 @@ func Encrypt(secret string) (string, error) {
 }
 
 // Encrypt returns input string encrypted.
+// On failure it returns an empty string rather than the plaintext, so that a caller which
+// ignores the error cannot persist an unencrypted secret.
 func (e *Encryption) Encrypt(secret string) (string, error) {
 	if e == nil || e.Primitive == nil {
-		return secret, ErrEncryptionNotInitialized
+		return "", ErrEncryptionNotInitialized
 	}
 	if secret == "" {
 		return secret, nil
 	}
 	cipherText, err := e.Primitive.Encrypt([]byte(secret), []byte(""))
 	if err != nil {
-		return secret, fmt.Errorf("encryption: %w", err)
+		return "", fmt.Errorf("encryption: %w", err)
 	}
 
 	return base64.StdEncoding.EncodeToString(cipherText), nil
@@ -269,20 +299,24 @@ func Decrypt(cipherText string) (string, error) {
 }
 
 // Decrypt returns input string decrypted.
+// On failure it returns an empty string rather than the input ciphertext. Returning the
+// ciphertext let callers that only logged the error pass it on as if it were the decrypted
+// value, which is how encrypted credentials reached pmm-agent as usernames and passwords
+// when a node's encryption key did not match the data in a shared database.
 func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	if e == nil || e.Primitive == nil {
-		return cipherText, ErrEncryptionNotInitialized
+		return "", ErrEncryptionNotInitialized
 	}
 	if cipherText == "" {
 		return cipherText, nil
 	}
 	decoded, err := base64.StdEncoding.DecodeString(cipherText)
 	if err != nil {
-		return cipherText, fmt.Errorf("decryption: %w, %s", err, cipherText)
+		return "", fmt.Errorf("decryption: %w", err)
 	}
 	secret, err := e.Primitive.Decrypt(decoded, []byte(""))
 	if err != nil {
-		return cipherText, fmt.Errorf("decryption: %w", err)
+		return "", fmt.Errorf("decryption: %w", err)
 	}
 
 	return string(secret), nil

@@ -269,7 +269,12 @@ func (s *Service) StartSession(ctx context.Context, req *rtav1.StartSessionReque
 		// Need to update CreatedAt to reflect the new session start time.
 		rtaAgent.CreatedAt = time.Now()
 		// Encrypt agent's sensitive data before updating it in the database.
-		rtaAgent = new(models.EncryptAgent(*rtaAgent))
+		encryptedAgent, err := models.EncryptAgent(*rtaAgent)
+		if err != nil {
+			return err
+		}
+
+		rtaAgent = new(encryptedAgent)
 
 		err = tx.Update(rtaAgent)
 		if err != nil {
@@ -434,7 +439,12 @@ func (s *Service) StopSession(ctx context.Context, req *rtav1.StopSessionRequest
 		rtaAgent := existingRTAAgents[0]
 		rtaAgent.Disabled = true
 		// Encrypt agent's sensitive data before updating it in the database.
-		rtaAgent = new(models.EncryptAgent(*rtaAgent))
+		encryptedAgent, err := models.EncryptAgent(*rtaAgent)
+		if err != nil {
+			return err
+		}
+
+		rtaAgent = new(encryptedAgent)
 
 		err = tx.Update(rtaAgent)
 		if err != nil {

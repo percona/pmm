@@ -12,16 +12,32 @@ For enhanced security control, PMM supports custom encryption keys.
 
 **Key format requirements:**
 
-- The key must be a 32-byte (256-bit) random value, suitable for AES-256-GCM encryption.
-- The file must contain exactly 32 raw bytes (not a hex-encoded or base64-encoded string).
+The key file must contain a base64-encoded Tink keyset created from the `AES256GCMKeyTemplate`. This is not a raw 32-byte value, so a key produced with a general-purpose tool such as `openssl rand` cannot be used: PMM fails to start if it cannot parse the keyset.
 
+Generate a key in the correct format with the Encryption Rotation Tool, which prints a new key to stdout without touching the database:
 
-PMM uses this key with the TINK `AES256GCMKeyTemplate` output prefix type.
+```bash
+pmm-encryption-rotation --generate-key
+```
 
-To set up a custom key, configure the `PMM_ENCRYPTION_KEY_PATH` environment variable to point to your custom key file.
+To set up a custom key, write that value to a file and point the `PMM_ENCRYPTION_KEY_PATH` environment variable at it.
 
 !!! hint alert alert-success "Important"
     Configure this **before** any data encryption occurs: either before upgrading to PMM 3 or before initially starting a new PMM 3.x instance.
+
+### High availability deployments
+
+All PMM Server nodes in a [highly available deployment](../../install-pmm/install-HA-clustered.md) share one PostgreSQL database, but each node reads its encryption key from its own local file. Every node must therefore use the **same** encryption key.
+
+A node holding a different key cannot decrypt credentials written by the other nodes. PMM detects this and refuses to start the affected node, because otherwise it would hand unusable credentials to PMM Clients and monitoring would stop for the affected services.
+
+Generate the key once, place it on every node before starting them, and back it up with the rest of your cluster configuration:
+
+```bash
+pmm-encryption-rotation --generate-key > pmm-encryption.key
+```
+
+To rotate the key in an HA cluster, run the [rotation procedure](#rotating-the-encryption-key) on a single node, then copy the resulting key file to all the other nodes and restart them.
 
 ### Key management requirements
 
