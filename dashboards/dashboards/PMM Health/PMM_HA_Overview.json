@@ -170,7 +170,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}))), 1)) * 100",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}) == 1) or vector(0)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"})) or vector(0)), 1)) * 100",
                     "instant": true,
                     "legendFormat": "Health",
                     "range": false,
@@ -315,7 +315,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}))), 1)) * 100",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}) == 1) or vector(0)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"})) or vector(0)), 1)) * 100",
                     "instant": true,
                     "legendFormat": "Health",
                     "range": false,
@@ -460,7 +460,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}))), 1)) * 100",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}) == 1) or vector(0)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"})) or vector(0)), 1)) * 100",
                     "instant": true,
                     "legendFormat": "Health",
                     "range": false,
@@ -605,7 +605,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}))), 1)) * 100",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}) == 1) or vector(0)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"})) or vector(0)), 1)) * 100",
                     "instant": true,
                     "legendFormat": "Health",
                     "range": false,
@@ -750,7 +750,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}))), 1)) * 100",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1) or vector(0)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"})) or vector(0)), 1)) * 100",
                     "instant": true,
                     "legendFormat": "Health",
                     "range": false,
@@ -1146,8 +1146,7 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "fixedColor": "green",
-                        "mode": "fixed"
+                        "mode": "thresholds"
                     },
                     "mappings": [],
                     "noValue": "No active instance",
@@ -2735,7 +2734,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by(exported_pod, component) (label_replace(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}, \"component\", \"$1\", \"exported_pod\", \".*(${vm_suffix_regex}).*\") )",
+                    "expr": "max by(exported_pod, component) (label_replace(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}, \"component\", \"$1\", \"exported_pod\", \".*(vmauth|vminsert|vmselect|vmstorage|vmagent).*\") )",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -3273,6 +3272,5 @@
     "timepicker": {},
     "timezone": "",
     "title": "PMM HA Overview",
-    "uid": "pmm-ha-health-overview",
-    "version": 4
+    "uid": "pmm-ha-health-overview"
 }

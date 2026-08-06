@@ -14,7 +14,7 @@ The dashboard monitors PMM server replicas, PostgreSQL, ClickHouse, VictoriaMetr
 
 Shows PMM instances alive versus expected and the resulting health percentage.
 
-In HA Cluster mode, you have three PMM server replicas providing full redundancy. If one replica fails, the remaining two continue serving requests with no user-visible impact, but you should investigate quickly to restore full redundancy. 
+In HA Cluster mode, multiple PMM server replicas (three by default) provide full redundancy. If one replica fails, the remaining replicas continue serving requests with no user-visible impact, but you should investigate quickly to restore full redundancy. 
 
 The **Active PMM Instance** panel identifies the current Raft leader. Check the **PMM Pods** table to see every instance's status and Active or Follower role.
 
@@ -215,9 +215,9 @@ After a failover, verify that the new Primary is handling writes correctly.
 
 Shows each PMM server instance with its current status and Raft role. Green UP means the pod is running normally; **Active** identifies the Raft leader and **Follower** identifies the remaining instances.
 
-If one pod shows DOWN, identify which replica is affected and investigate the cause. Two or more DOWN pods means your deployment is at serious risk—investigate immediately. 
+If one pod shows DOWN, identify which replica is affected and investigate the cause. If more than half of your configured PMM replicas show DOWN, your deployment is at serious risk—investigate immediately. 
 
-If all three show DOWN, your entire PMM system is unavailable.
+If all configured replicas show DOWN, your entire PMM system is unavailable.
 
 Use this table to identify which PMM server instances need attention when the [**PMM**](#pmm) health percentage is below 100%.
 
@@ -305,4 +305,4 @@ When you notice problems, follow this approach to quickly figure out what's wron
 - **Storage full**: Red storage gauges + pods crashing = expand storage immediately
 - **Resource exhaustion**: High CPU/memory + pod restarts = increase resource limits
 - **Network issues**: Multiple components partially down + high restart counts = investigate cluster networking
-- **Single pod failure**: One component shows "Not Healthy" but no restarts = stuck pod requiring manual intervention
+- **Single pod failure**: One component's health percentage is below 100% but no restarts = stuck pod requiring manual intervention
