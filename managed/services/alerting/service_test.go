@@ -116,7 +116,7 @@ func TestShippedBuiltinTemplates(t *testing.T) {
 		t.Run(filepath.Base(file), func(t *testing.T) {
 			t.Parallel()
 
-			b, err := os.ReadFile(file)
+			b, err := os.ReadFile(file) //nolint:gosec
 			require.NoError(t, err)
 
 			templates, err := alert.Parse(strings.NewReader(string(b)), &alert.ParseParams{

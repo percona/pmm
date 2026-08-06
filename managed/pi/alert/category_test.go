@@ -39,7 +39,7 @@ func TestCategoryValidate(t *testing.T) {
 		CategoryHAProxy,
 	}
 	for _, c := range valid {
-		assert.NoError(t, c.Validate(), "category %q should be valid", c)
+		require.NoError(t, c.Validate(), "category %q should be valid", c)
 	}
 
 	invalid := []Category{"MySQL", "Mysql", "mongo", "redis", "external", "garbage"}
