@@ -66,12 +66,12 @@ func getExpectedJSON(t *testing.T, got proto.Message, filename string) []byte {
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		err = os.WriteFile(filename, json, 0o644) //nolint:gosec
+		err = os.WriteFile(filename, json, 0o644)
 		if err != nil {
 			t.Errorf("cannot write:%v", err)
 		}
 	}
-	data, err := os.ReadFile(filename) //nolint:gosec
+	data, err := os.ReadFile(filename)
 	if err != nil {
 		t.Errorf("cannot read data from file:%v", err)
 	}
