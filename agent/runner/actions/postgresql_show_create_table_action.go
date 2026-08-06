@@ -177,7 +177,7 @@ func (a *postgresqlShowCreateTableAction) printTableInit(ctx context.Context, w 
 	var args []any
 	table := strings.Split(a.params.Table, ".")
 	switch len(table) {
-	case 2:
+	case 2: //nolint:mnd
 		args = append(args, table[1], table[0])
 		namespaceQuery = "AND n.nspname = $2"
 	case 1:

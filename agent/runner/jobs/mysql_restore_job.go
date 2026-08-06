@@ -415,7 +415,7 @@ func getPermissions(path string) (os.FileMode, error) {
 func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) error {
 	// TODO We should implement recognizing correct default permissions based on DB configuration.
 	// Setting default value in case the base MySQL folder have been lost.
-	mysqlDirPermissions := os.FileMode(0o750)
+	mysqlDirPermissions := os.FileMode(0o750) //nolint:mnd
 
 	output, err := exec.CommandContext( //nolint:gosec
 		ctx,

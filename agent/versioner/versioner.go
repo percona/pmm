@@ -117,7 +117,7 @@ func (v *Versioner) binaryVersion(
 	}
 
 	matches := versionRegexp.FindStringSubmatch(string(versionBytes))
-	if len(matches) != 2 {
+	if len(matches) != 2 { //nolint:mnd
 		return "", fmt.Errorf("cannot match version from output %q", string(versionBytes))
 	}
 
@@ -141,7 +141,7 @@ func (v *Versioner) XbcloudVersion() (string, error) {
 
 // QpressVersion retrieves qpress binary version.
 func (v *Versioner) QpressVersion() (string, error) {
-	return v.binaryVersion(qpressBin, 255, qpressVersionRegexp)
+	return v.binaryVersion(qpressBin, 255, qpressVersionRegexp) //nolint:mnd
 }
 
 // MongoDBVersion retrieves mongodb binary version.

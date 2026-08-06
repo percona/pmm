@@ -65,7 +65,7 @@ func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 		logFilePrefix:  params.LogFilePrefix,
 		maxQueryLength: params.MaxQueryLength,
 		l:              l,
-		changes:        make(chan agents.Change, 10),
+		changes:        make(chan agents.Change, 10), //nolint:mnd
 	}
 }
 

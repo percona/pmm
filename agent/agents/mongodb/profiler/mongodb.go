@@ -63,7 +63,7 @@ func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 		maxQueryLength: params.MaxQueryLength,
 
 		l:       l,
-		changes: make(chan agents.Change, 10),
+		changes: make(chan agents.Change, 10), //nolint:mnd
 	}
 }
 

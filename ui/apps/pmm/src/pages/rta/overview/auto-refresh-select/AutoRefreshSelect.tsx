@@ -18,7 +18,8 @@ const AutoRefreshSelect: FC<Props> = ({
 }) => {
   const fadeInOut = keyframes`
   0% { opacity: 0; }
-  50% { opacity: 1; transform: scale(1.1); }
+  40% { opacity: 1; }
+  60% { opacity: 1; }
   100% { opacity: 0; }
 `;
 
@@ -31,15 +32,20 @@ const AutoRefreshSelect: FC<Props> = ({
       disabled={!isFetching}
       disabledValue={Messages.off}
       data-testid-button="auto-refresh-button"
+      buttonProps={{
+        size: 'small',
+        color: 'primary',
+        disableElevation: true,
+      }}
       startIcon={
         isFetching ? (
           <Icon
             name="electric-bolt"
-            color="primary"
-            sx={{ animation: `${fadeInOut} 1.5s infinite` }}
+            color="inherit"
+            sx={{ animation: `${fadeInOut} 1.2s infinite` }}
           />
         ) : (
-          <Icon name="electric-bolt-off" />
+          <Icon name="electric-bolt-off" color="inherit" fontSize="inherit" />
         )
       }
     />
