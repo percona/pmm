@@ -1,9 +1,9 @@
 %global debug_package   %{nil}
-%global commit          24b0b104382a6d04955d1232f937645050450b7e
+%global commit          ec2024f6718a4f490fc2ab54877d9c8720b5c5b9
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         116
-%define grafana_version 12.4.4
+%define release         117
+%define grafana_version 12.4.5
 %define full_pmm_version 3.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -36,7 +36,6 @@ Graphite, InfluxDB & OpenTSDB.
 %prep
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
-sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
 sudo npm install -g grunt-cli
 
 %build
@@ -83,6 +82,9 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 exit 0
 
 %changelog
+* Tue Jul 07 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 12.4.5-1
+- PMM-15190 Upgrade Grafana to v12.4.5
+
 * Tue Jun 02 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 12.4.4-1
 - PMM-14213 Upgrade Grafana to v12.4.4
 

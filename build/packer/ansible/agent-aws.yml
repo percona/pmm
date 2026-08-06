@@ -16,6 +16,14 @@
         # Alternative architecture name just because we never can have only one name in computers
         ansible_architecture_alt: "{% if ansible_architecture == 'x86_64' %}amd64{% elif ansible_architecture == 'aarch64' %}arm64{% else %}none{% endif %}"
 
+    # PMM-15032: a background `dnf makecache` triggered by this timer on boot
+    # races with the pipelines' `dnf install` and wipes the package cache mid-transaction
+    - name: Disable dnf-makecache timer to prevent lock contention
+      systemd:
+        name: dnf-makecache.timer
+        enabled: no
+        state: stopped
+
     - name: Upgrade OS packages
       dnf:
         name: "*"

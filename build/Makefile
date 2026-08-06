@@ -1,6 +1,5 @@
 export PACKER_VERSION := 1.9.4
 export PMM_SERVER_IMAGE ?= docker.io/perconalab/pmm-server:3-dev-latest
-export WATCHTOWER_IMAGE ?= docker.io/perconalab/watchtower:dev-latest
 # --- Go-related variables ----------------------------------------------------------------
 GO_VERSION := $(shell grep '^go ' $(CURDIR)/../go.mod | awk '{print $$2}')
 
@@ -8,7 +7,6 @@ GO_VERSION := $(shell grep '^go ' $(CURDIR)/../go.mod | awk '{print $$2}')
 pmm-ami:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build \hashicorp/packer:${PACKER_VERSION} \
 		build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' \
-		-var 'watchtower_image_name=${WATCHTOWER_IMAGE}' \
 		-only amazon-ebs -color=false packer/pmm.json | tee build.log
 
 pmm-ami-arm64:

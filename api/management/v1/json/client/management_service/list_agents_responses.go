@@ -1143,6 +1143,9 @@ type ListAgentsOKBodyAgentsItems0MongoDBOptions struct {
 
 	// True if all collectors are enabled.
 	EnableAllCollectors bool `json:"enable_all_collectors,omitempty"`
+
+	// True if diagnostic data histograms are enabled.
+	EnableDiagnosticDataHistograms bool `json:"enable_diagnostic_data_histograms,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0 mongo DB options
