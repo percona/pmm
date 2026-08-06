@@ -295,25 +295,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		}
 	}
 
-	// we do start rds exporter per AWS account.
+	// we do start rds exporter per AWS credential identity.
 	if len(rdsExporters) != 0 {
-		// Create a new map to hold the groups of RDS exporters
-		groupedRdsExporters := make(map[string]map[*models.Node]*models.Agent)
-
-		// Iterate over the rdsExporters map
-		for node, exporter := range rdsExporters {
-			awsAccessKey := exporter.AWSOptions.AWSAccessKey
-
-			if _, ok := groupedRdsExporters[awsAccessKey]; !ok {
-				groupedRdsExporters[awsAccessKey] = make(map[*models.Node]*models.Agent)
-			}
-
-			groupedRdsExporters[awsAccessKey][node] = exporter
-		}
-
-		for awsAccessKey, exporters := range groupedRdsExporters {
+		for credentialsKey, exporters := range groupRDSExporters(rdsExporters) {
 			// TODO: split by 50 exporters per group
-			groupID := u.r.roster.add(agent.id, rdsPrefix+awsAccessKey, exporters)
+			groupID := u.r.roster.add(agent.id, rdsPrefix+credentialsKey, exporters)
 			c, err := rdsExporterConfig(exporters, redactMode, pmmAgentVersion)
 			if err != nil {
 				return err
@@ -339,4 +325,19 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}
 	l.Infof("SetState response: %+v.", resp)
 	return nil
+}
+
+// groupRDSExporters groups RDS exporters by the AWS credential identity they resolve to, so
+// each identity gets its own rds_exporter process and single-identity config file.
+func groupRDSExporters(rdsExporters map[*models.Node]*models.Agent) map[string]map[*models.Node]*models.Agent {
+	grouped := make(map[string]map[*models.Node]*models.Agent, len(rdsExporters))
+	for node, exporter := range rdsExporters {
+		key := exporter.AWSOptions.CredentialsKey()
+		if _, ok := grouped[key]; !ok {
+			grouped[key] = make(map[*models.Node]*models.Agent)
+		}
+		grouped[key][node] = exporter
+	}
+
+	return grouped
 }
