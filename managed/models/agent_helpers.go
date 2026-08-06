@@ -998,6 +998,10 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// do nothing
 	}
 
+	if err := row.AWSOptions.Validate(); err != nil {
+		return nil, err
+	}
+
 	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
 	err = q.Insert(&encryptedAgent)
 	if err != nil {
@@ -1054,6 +1058,7 @@ type ChangeQANOptions struct {
 type ChangeAWSOptions struct {
 	AWSAccessKey               *string
 	AWSSecretKey               *string
+	AWSRoleARN                 *string
 	RDSBasicMetricsDisabled    *bool
 	RDSEnhancedMetricsDisabled *bool
 }
@@ -1307,6 +1312,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.AWSOptions.AWSSecretKey != nil {
 			row.AWSOptions.AWSSecretKey = *params.AWSOptions.AWSSecretKey
 		}
+		if params.AWSOptions.AWSRoleARN != nil {
+			row.AWSOptions.AWSRoleARN = *params.AWSOptions.AWSRoleARN
+		}
 		if params.AWSOptions.RDSBasicMetricsDisabled != nil {
 			row.AWSOptions.RDSBasicMetricsDisabled = *params.AWSOptions.RDSBasicMetricsDisabled
 		}
@@ -1430,6 +1438,10 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	// RTA options
 	row.RTAOptions.Merge(params.RTAOptions)
 
+	if err := row.AWSOptions.Validate(); err != nil {
+		return nil, err
+	}
+
 	// need to encrypt Agent's sensitive data before update
 	row = new(EncryptAgent(*row))
 	err = q.Update(row)
@@ -1509,5 +1521,14 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 		row.RunsOnNodeID = pmmAgent.RunsOnNodeID
 		row.PMMAgentID = nil
 	}
+	return nil
+}
+
+// Validate returns an error if the AWS options are mutually inconsistent.
+func (c AWSOptions) Validate() error {
+	if c.AWSRoleARN != "" && (c.AWSAccessKey != "" || c.AWSSecretKey != "") {
+		return status.Error(codes.InvalidArgument, "Both AWS role ARN and AWS access key/secret key are set; they are mutually exclusive.")
+	}
+
 	return nil
 }

@@ -17,7 +17,9 @@ package models
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"database/sql/driver"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"maps"
@@ -157,6 +159,7 @@ func (c QANOptions) IsEmpty() bool {
 type AWSOptions struct {
 	AWSAccessKey               string `json:"aws_access_key"`
 	AWSSecretKey               string `json:"aws_secret_key"`
+	AWSRoleARN                 string `json:"aws_role_arn"`
 	RDSBasicMetricsDisabled    bool   `json:"rds_basic_metrics_disabled"`
 	RDSEnhancedMetricsDisabled bool   `json:"rds_enhanced_metrics_disabled"`
 }
@@ -171,8 +174,23 @@ func (c *AWSOptions) Scan(src any) error { return jsonScan(c, src) }
 func (c AWSOptions) IsEmpty() bool {
 	return c.AWSAccessKey == "" &&
 		c.AWSSecretKey == "" &&
+		c.AWSRoleARN == "" &&
 		!c.RDSBasicMetricsDisabled &&
 		!c.RDSEnhancedMetricsDisabled
+}
+
+// CredentialsKey returns a stable identifier for the AWS identity these options resolve to.
+// For static keys it returns the access key unchanged, preserving existing group IDs. A role
+// ARN is hashed because this value becomes a path component on the pmm-agent side.
+func (c AWSOptions) CredentialsKey() string {
+	if c.AWSAccessKey != "" {
+		return c.AWSAccessKey
+	}
+	if c.AWSRoleARN != "" {
+		sum := sha256.Sum256([]byte(c.AWSRoleARN))
+		return "role-" + hex.EncodeToString(sum[:])[:16]
+	}
+	return ""
 }
 
 // AzureOptions represents structure for special Azure options.
