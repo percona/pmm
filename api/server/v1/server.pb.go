@@ -1319,7 +1319,7 @@ type ChangeSettingsRequest struct {
 	EnableUpdates      *bool                  `protobuf:"varint,1,opt,name=enable_updates,json=enableUpdates,proto3,oneof" json:"enable_updates,omitempty"`
 	EnableTelemetry    *bool                  `protobuf:"varint,2,opt,name=enable_telemetry,json=enableTelemetry,proto3,oneof" json:"enable_telemetry,omitempty"`
 	MetricsResolutions *MetricsResolutions    `protobuf:"bytes,3,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
-	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+	// A number of full days for Prometheus and QAN data retention. Must be specified in seconds in JSON, for example: 2592000s.
 	DataRetention *durationpb.Duration `protobuf:"bytes,4,opt,name=data_retention,json=dataRetention,proto3" json:"data_retention,omitempty"`
 	SshKey        *string              `protobuf:"bytes,5,opt,name=ssh_key,json=sshKey,proto3,oneof" json:"ssh_key,omitempty"`
 	AwsPartitions *common.StringArray  `protobuf:"bytes,6,opt,name=aws_partitions,json=awsPartitions,proto3,oneof" json:"aws_partitions,omitempty"`

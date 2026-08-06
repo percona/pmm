@@ -46,8 +46,16 @@ fuzzing/
 # QAN
 /qan-api2/logs/
 
-# Ignore AI-related files to support fast local experimentation
-.claude/
+# PMM Demo backups (it would increase repository size significantly)
+dev/clickhouse-backups/
+
+# Local AI-tool files are gitignored for personal experimentation;
+# committed team config lives in .claude/settings.json.
+.claude/*
+!.claude/settings.json
+# Personal Claude Code memory override (the shared CLAUDE.md itself is committed)
+CLAUDE.local.md
 .cursor/
 .cursorrules/
-CLAUDE.md
+# Machine-specific agent settings — paths only, never secrets; see AGENTS.md
+AGENTS.local.md
