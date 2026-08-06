@@ -18,10 +18,12 @@ package models
 import (
 	"errors"
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -333,4 +335,106 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 		return fmt.Errorf("failed to delete Node: %w", err)
 	}
 	return nil
+}
+
+// RemoveStaleHANodes removes the PMM Server Nodes of HA replicas that are no longer configured peers,
+// e.g. after a scale-down. Peers are the source of truth because they are regenerated from the replica
+// count and restart every replica, while a missing memberlist member may just be restarting.
+func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) error {
+	if len(haPeers) == 0 {
+		return nil
+	}
+
+	expected := make(map[string]struct{}, len(haPeers))
+	for _, peer := range haPeers {
+		name, ok := haPeerNodeName(peer)
+		if !ok {
+			// Trusting the rest would treat a partial list as the whole cluster and remove live replicas.
+			logrus.Warnf("Can't read a node name from PMM_HA_PEERS entry %q, skipping the removal of stale HA nodes.", peer)
+			return nil
+		}
+		expected[name] = struct{}{}
+	}
+
+	if _, ok := expected[haNodeID]; !ok {
+		logrus.Warnf("PMM_HA_PEERS %v doesn't list this node (PMM_HA_NODE_ID %q), skipping the removal of stale HA nodes.", haPeers, haNodeID)
+		return nil
+	}
+
+	nodes, err := FindNodes(q, NodeFilters{})
+	if err != nil {
+		return fmt.Errorf("failed to list Nodes for stale HA node cleanup: %w", err)
+	}
+
+	for _, node := range nodes {
+		// Only HA replicas set this flag; every other Node is one the user monitors.
+		if !node.IsPMMServerNode {
+			continue
+		}
+		if _, ok := expected[node.NodeName]; ok {
+			continue
+		}
+
+		monitored, err := haNodeMonitoredServices(q, node.NodeID)
+		if err != nil {
+			return err
+		}
+		if len(monitored) != 0 {
+			logrus.Warnf("Keeping stale HA node %q (%s): it still monitors services %v, which would be removed with it. "+
+				"Re-add them from a running replica and remove the node from Inventory.", node.NodeName, node.NodeID, monitored)
+			continue
+		}
+
+		err = RemoveNode(q, node.NodeID, RemoveCascade)
+		switch {
+		case err == nil:
+			logrus.Infof("Removed stale HA node %q (%s), it is not a part of the cluster anymore.", node.NodeName, node.NodeID)
+		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
+			logrus.Infof("Stale HA node %q (%s) was already removed by another replica.", node.NodeName, node.NodeID)
+		default:
+			return fmt.Errorf("failed to remove stale HA node %q: %w", node.NodeName, err)
+		}
+	}
+
+	return nil
+}
+
+// haPeerNodeName maps a PMM_HA_PEERS entry ("pmm-ha-0.pmm-ha.pmm.svc.cluster.local:9761") to a Node
+// name: the first label is the pod's PMM_HA_NODE_ID. Reports false for entries with no name, like bare IPs.
+func haPeerNodeName(peer string) (string, bool) {
+	host, _, _ := strings.Cut(strings.TrimSpace(peer), ":")
+	if net.ParseIP(host) != nil {
+		return "", false
+	}
+	// "/" is memberlist's "name/address" form, "[" an IPv6 literal; neither starts with a node name.
+	label, _, _ := strings.Cut(host, ".")
+	if label == "" || strings.ContainsAny(label, "/[") {
+		return "", false
+	}
+	return label, true
+}
+
+// haNodeMonitoredServices returns the IDs of Services whose exporters run under a replica's pmm-agent.
+// Remote instances bind theirs to the replica that added them (see management.RDSService), so removing
+// that replica's Node takes them with it.
+func haNodeMonitoredServices(q *reform.Querier, nodeID string) ([]string, error) {
+	pmmAgents, err := FindPMMAgentsRunningOnNode(q, nodeID)
+	if err != nil {
+		return nil, err
+	}
+
+	var serviceIDs []string
+	for _, pmmAgent := range pmmAgents {
+		agents, err := FindAgents(q, AgentFilters{PMMAgentID: pmmAgent.AgentID})
+		if err != nil {
+			return nil, err
+		}
+		for _, agent := range agents {
+			if agent.ServiceID != nil {
+				serviceIDs = append(serviceIDs, *agent.ServiceID)
+			}
+		}
+	}
+
+	return serviceIDs, nil
 }

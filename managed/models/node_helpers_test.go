@@ -256,3 +256,158 @@ func TestNodeHelpers(t *testing.T) {
 		require.Len(t, nodes, 1) // PMM Server
 	})
 }
+
+func TestRemoveStaleHANodes(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	// Two HA replica Nodes, one with a node_exporter, plus an unrelated monitored Node.
+	setup := func(t *testing.T) (*reform.Querier, func(t *testing.T)) {
+		t.Helper()
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		q := tx.Querier
+
+		for _, str := range []reform.Struct{
+			&models.Node{
+				NodeID:          "ha-node-1",
+				NodeType:        models.GenericNodeType,
+				NodeName:        "pmm-ha-1",
+				Address:         models.LocalhostAddr,
+				IsPMMServerNode: true,
+			},
+			&models.Agent{
+				AgentID:      "ha-agent-1",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: new("ha-node-1"),
+			},
+			&models.Node{
+				NodeID:          "ha-node-2",
+				NodeType:        models.GenericNodeType,
+				NodeName:        "pmm-ha-2",
+				Address:         models.LocalhostAddr,
+				IsPMMServerNode: true,
+			},
+			&models.Agent{
+				AgentID:      "ha-agent-2",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: new("ha-node-2"),
+			},
+			&models.Agent{
+				AgentID:    "ha-node-exporter-2",
+				AgentType:  models.NodeExporterType,
+				PMMAgentID: new("ha-agent-2"),
+				NodeID:     new("ha-node-2"),
+			},
+			&models.Node{
+				NodeID:   "monitored-node",
+				NodeType: models.GenericNodeType,
+				NodeName: "Monitored Node",
+			},
+		} {
+			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
+		}
+
+		teardown := func(t *testing.T) {
+			t.Helper()
+			require.NoError(t, tx.Rollback())
+		}
+		return q, teardown
+	}
+
+	assertNodeExists := func(t *testing.T, q *reform.Querier, nodeID string) {
+		t.Helper()
+		_, err := models.FindNodeByID(q, nodeID)
+		assert.NoError(t, err)
+	}
+
+	t.Run("RemovesScaledDownReplicaWithItsAgents", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		peers := []string{"pmm-ha-0.pmm-ha.pmm.svc.cluster.local:9761", " pmm-ha-1.pmm-ha.pmm.svc.cluster.local "}
+		require.NoError(t, models.RemoveStaleHANodes(q, "pmm-ha-1", peers))
+
+		assertNodeExists(t, q, "ha-node-1")
+		_, err := models.FindAgentByID(q, "ha-agent-1")
+		require.NoError(t, err)
+
+		_, err = models.FindNodeByID(q, "ha-node-2")
+		tests.AssertGRPCErrorCode(t, codes.NotFound, err)
+
+		// the removal cascades to the agents of the stale node
+		for _, agentID := range []string{"ha-agent-2", "ha-node-exporter-2"} {
+			_, err := models.FindAgentByID(q, agentID)
+			tests.AssertGRPCErrorCode(t, codes.NotFound, err)
+		}
+
+		// neither monitored nodes nor the pre-HA pmm-server Node are touched
+		assertNodeExists(t, q, "monitored-node")
+		assertNodeExists(t, q, models.PMMServerNodeID)
+	})
+
+	t.Run("KeepsAllReplicasWhenNothingWasScaledDown", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// a dotless host with a port is what a hand-written PMM_HA_PEERS looks like
+		peers := []string{"pmm-ha-1.pmm-ha:9761", "pmm-ha-2:9761"}
+		require.NoError(t, models.RemoveStaleHANodes(q, "pmm-ha-1", peers))
+
+		assertNodeExists(t, q, "ha-node-1")
+		assertNodeExists(t, q, "ha-node-2")
+	})
+
+	t.Run("KeepsScaledDownReplicaThatStillMonitorsServices", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// an exporter for a remote instance, bound to the scaled-down replica's pmm-agent
+		for _, str := range []reform.Struct{
+			&models.Service{
+				ServiceID:   "rds-service",
+				ServiceType: models.MySQLServiceType,
+				ServiceName: "RDS instance",
+				NodeID:      "monitored-node",
+				Address:     new("rds.example.com"),
+				Port:        new(uint16(3306)),
+			},
+			&models.Agent{
+				AgentID:    "rds-exporter",
+				AgentType:  models.MySQLdExporterType,
+				PMMAgentID: new("ha-agent-2"),
+				ServiceID:  new("rds-service"),
+			},
+		} {
+			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
+		}
+
+		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761"}
+		require.NoError(t, models.RemoveStaleHANodes(q, "pmm-ha-1", peers))
+
+		assertNodeExists(t, q, "ha-node-2")
+		_, err := models.FindAgentByID(q, "rds-exporter")
+		require.NoError(t, err)
+	})
+
+	t.Run("DoesNothingWhenPeersCantBeTrusted", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		for _, peers := range [][]string{
+			{"pmm-ha-2.pmm-ha:9761"},                      // lists only the other replica
+			{"10.244.1.7:9761", "10.244.2.8:9761"},        // no node names to read
+			{"pmm-ha-1.pmm-ha:9761", "10.244.2.8:9761"},   // mixed: one entry hides a live replica
+			{"pmm-ha-1.pmm-ha:9761", "pmm-ha-2/10.0.0.2"}, // memberlist "name/address" form
+			nil,
+		} {
+			require.NoError(t, models.RemoveStaleHANodes(q, "pmm-ha-1", peers))
+
+			assertNodeExists(t, q, "ha-node-1")
+			assertNodeExists(t, q, "ha-node-2")
+		}
+	})
+}
