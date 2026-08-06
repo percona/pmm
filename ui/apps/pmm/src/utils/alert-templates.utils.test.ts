@@ -3,7 +3,6 @@ import {
   beautifyUnit,
   durationToSeconds,
   formatCreatedAt,
-  getTemplateCategory,
   getTemplateExportFilename,
   isTemplateEditable,
   paramValueKey,
@@ -80,27 +79,6 @@ describe('alert-templates.utils', () => {
       const result = formatCreatedAt('2026-06-30T14:25:00Z');
       expect(result).not.toBe('—');
       expect(result).toMatch(/2026/);
-    });
-  });
-
-  describe('getTemplateCategory', () => {
-    const withName = (name: string): Template => ({
-      ...makeTemplate(TemplateSource.BUILT_IN),
-      name,
-    });
-
-    it('infers a category from the template name', () => {
-      expect(getTemplateCategory(withName('pmm_mysql_down'))).toBe('MySQL');
-      expect(getTemplateCategory(withName('pmm_mongodb_oplog'))).toBe(
-        'MongoDB'
-      );
-      expect(getTemplateCategory(withName('pmm_postgresql_down'))).toBe(
-        'PostgreSQL'
-      );
-    });
-
-    it('falls back to PMM when no technology matches', () => {
-      expect(getTemplateCategory(withName('pmm_agent_down'))).toBe('PMM');
     });
   });
 

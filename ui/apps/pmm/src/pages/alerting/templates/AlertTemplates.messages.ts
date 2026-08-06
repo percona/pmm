@@ -34,6 +34,7 @@ export const Messages = {
     unknown: 'Unknown',
   },
   category: {
+    all: 'All categories',
     unspecified: 'Unspecified',
     pmm: 'PMM',
     mongodb: 'MongoDB',

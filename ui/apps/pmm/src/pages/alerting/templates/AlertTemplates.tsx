@@ -10,24 +10,22 @@ import { Table } from '@percona/percona-ui';
 import { useUser } from 'contexts/user';
 import { useAlertTemplates } from 'hooks/api/useAlertTemplates';
 import { Template } from 'types/alert-templates.types';
-import {
-  getTemplateCategories,
-  getTemplateCategory,
-  getTemplateExportFilename,
-} from 'utils/alert-templates.utils';
 import { downloadTextFile } from 'utils/file.utils';
 import { Page } from 'components/page';
 import { Messages } from './AlertTemplates.messages';
-import { ALERT_TEMPLATES_TABLE_NAME } from './AlertTemplates.constants';
+import {
+  ALERT_TEMPLATES_TABLE_NAME,
+  ALL_TEMPLATE_CATEGORIES,
+  TEMPLATE_CATEGORY_OPTIONS,
+} from './AlertTemplates.constants';
 import { getAlertTemplatesColumns } from './columns/AlertTemplates.columns';
 import { CreateTemplateModal } from './modal-create-template';
 import { EditTemplateModal } from './modal-edit-template';
 import { DeleteTemplateModal } from './modal-delete-template';
 import { ViewTemplateModal } from './modal-view-template';
+import { getTemplateExportFilename } from 'utils/alert-templates.utils';
 
 type ModalType = 'create' | 'view' | 'edit' | 'delete' | null;
-
-const ALL_CATEGORIES = '__all__';
 
 export const AlertTemplates: FC = () => {
   const { user } = useUser();
@@ -35,19 +33,15 @@ export const AlertTemplates: FC = () => {
   const { data, isLoading } = useAlertTemplates({ reload: true });
   const [modal, setModal] = useState<ModalType>(null);
   const [selected, setSelected] = useState<Template | null>(null);
-  const [category, setCategory] = useState<string>(ALL_CATEGORIES);
+  const [category, setCategory] = useState<string>(ALL_TEMPLATE_CATEGORIES);
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
   const templates = useMemo(() => data?.templates ?? [], [data]);
-  const categories = useMemo(
-    () => getTemplateCategories(templates),
-    [templates]
-  );
   const rows = useMemo(
     () =>
-      category === ALL_CATEGORIES
+      category === ALL_TEMPLATE_CATEGORIES
         ? templates
-        : templates.filter((t) => getTemplateCategory(t) === category),
+        : templates.filter((t) => t.category === category),
     [templates, category]
   );
   const selectedTemplates = useMemo(
@@ -130,12 +124,9 @@ export const AlertTemplates: FC = () => {
               sx={{ minWidth: 200 }}
               slotProps={{ htmlInput: { 'data-testid': 'category-filter' } }}
             >
-              <MenuItem value={ALL_CATEGORIES}>
-                {Messages.filters.allCategories}
-              </MenuItem>
-              {categories.map((c) => (
-                <MenuItem key={c} value={c}>
-                  {c}
+              {TEMPLATE_CATEGORY_OPTIONS.map((opt) => (
+                <MenuItem key={opt.value} value={opt.value}>
+                  {opt.label}
                 </MenuItem>
               ))}
             </TextField>
