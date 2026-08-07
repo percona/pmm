@@ -89,7 +89,7 @@ func TestServiceService(t *testing.T) {
 				vmClient.AssertExpectations(t)
 			}
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil)
 
 			return ctx, s, teardown
 		}
@@ -325,7 +325,7 @@ func TestServiceService(t *testing.T) {
 				vmClient.AssertExpectations(t)
 			}
 
-			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+			s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil)
 
 			return ctx, s, teardown, vmdb
 		}

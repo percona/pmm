@@ -123,6 +123,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
 			continue
+		case "PMM_INTERNAL_NODE_NAME_PREFIXES":
+			// skip the env variable that is already handled by kingpin
+			continue
 		case "PMM_ENABLE_UPDATES":
 			b, err := strconv.ParseBool(v)
 			if err != nil {

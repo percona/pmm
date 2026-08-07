@@ -206,3 +206,17 @@ func formatPkgName(t *testing.T, name string) string {
 
 	return name
 }
+
+func TestParseNodeNamePrefixes(t *testing.T) {
+	for _, tc := range []struct {
+		value    string
+		expected []string
+	}{
+		{value: "", expected: nil},
+		{value: ",,", expected: nil},
+		{value: "pmm-pmm-ha-pg-db-", expected: []string{"pmm-pmm-ha-pg-db-"}},
+		{value: " pmm-pmm-ha-pg-db- , pmm-pmm-ha-ch- ", expected: []string{"pmm-pmm-ha-pg-db-", "pmm-pmm-ha-ch-"}},
+	} {
+		assert.Equal(t, tc.expected, parseNodeNamePrefixes(tc.value), tc.value)
+	}
+}
