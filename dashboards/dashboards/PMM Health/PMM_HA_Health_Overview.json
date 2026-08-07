@@ -15,7 +15,7 @@
             }
         ]
     },
-    "description": "High-level health overview of PMM-HA components: PostgreSQL/Patroni, ClickHouse, VictoriaMetrics, HAProxy",
+    "description": "GA overview of cluster-level and instance-level health for PMM HA, PostgreSQL/Patroni, ClickHouse, VictoriaMetrics, and HAProxy.",
     "editable": false,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 1,
@@ -32,59 +32,98 @@
             },
             "id": 200,
             "panels": [],
-            "title": "📊 Overview",
+            "title": "\ud83d\udcca Overview",
             "type": "row"
         },
         {
             "datasource": "Metrics",
-            "description": "Click row below to see PMM pod details",
+            "description": "PMM instances alive versus expected. Green means more than 2/3 of expected instances are alive, yellow means between 1/3 and 2/3 are alive (degraded), red means 1/3 or fewer are alive or none is discovered \u2014 matching the health shown on the PMM HA sidebar badge.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "fixedColor": "text",
+                        "mode": "fixed"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "Not Healthy"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Healthy"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red"
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
+                                "color": "green"
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Expected"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alive"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 33.34
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 66.67
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
-                "w": 4,
-                "x": 0,
+                "w": 8,
+                "x": 8,
                 "y": 1
             },
             "id": 5,
@@ -92,7 +131,7 @@
                 "colorMode": "background",
                 "graphMode": "none",
                 "justifyMode": "center",
-                "orientation": "auto",
+                "orientation": "vertical",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
@@ -102,73 +141,134 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value",
-                "wideLayout": true
+                "textMode": "value_and_name",
+                "wideLayout": false,
+                "text": {
+                    "valueSize": 24
+                }
             },
             "pluginVersion": "11.6.4",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}) == 1)\n  ==\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}))\n  and\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"})) > 0\n) * 0 + 1 or vector(0)",
-                    "legendFormat": "PMM",
-                    "range": true,
+                    "expr": "count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}) == 1)",
+                    "instant": true,
+                    "legendFormat": "Alive",
+                    "range": false,
                     "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}))",
+                    "instant": true,
+                    "legendFormat": "Expected",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}) == 1) or vector(0)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"})) or vector(0)), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "Health",
+                    "range": false,
+                    "refId": "C"
                 }
             ],
-            "title": "🧭 PMM",
+            "title": "\ud83e\udded PMM",
             "type": "stat"
         },
         {
             "datasource": "Metrics",
-            "description": "Click row below to see PostgreSQL pod details",
+            "description": "PostgreSQL instances alive versus expected. Green means more than 2/3 of expected instances are alive, yellow means between 1/3 and 2/3 are alive (degraded), and red means 1/3 or fewer are alive or none is discovered.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "fixedColor": "text",
+                        "mode": "fixed"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "Not Healthy"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Healthy"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red"
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
+                                "color": "green"
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Expected"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alive"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 33.34
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 66.67
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
-                "w": 4,
-                "x": 4,
+                "w": 8,
+                "x": 16,
                 "y": 1
             },
             "id": 1,
@@ -176,7 +276,7 @@
                 "colorMode": "background",
                 "graphMode": "none",
                 "justifyMode": "center",
-                "orientation": "auto",
+                "orientation": "vertical",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
@@ -186,81 +286,142 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value",
-                "wideLayout": true
+                "textMode": "value_and_name",
+                "wideLayout": false,
+                "text": {
+                    "valueSize": 24
+                }
             },
             "pluginVersion": "11.6.4",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}) == 1)\n  ==\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}))\n  and\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"})) > 0\n) * 0 + 1 or vector(0)",
-                    "legendFormat": "PostgreSQL",
-                    "range": true,
+                    "expr": "count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}) == 1)",
+                    "instant": true,
+                    "legendFormat": "Alive",
+                    "range": false,
                     "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}))",
+                    "instant": true,
+                    "legendFormat": "Expected",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"}) == 1) or vector(0)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\"})) or vector(0)), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "Health",
+                    "range": false,
+                    "refId": "C"
                 }
             ],
-            "title": "🐘 PostgreSQL",
+            "title": "\ud83d\udc18 PostgreSQL",
             "type": "stat"
         },
         {
             "datasource": "Metrics",
-            "description": "Click row below to see ClickHouse pod details",
+            "description": "ClickHouse instances alive versus expected. Green means more than 2/3 of expected instances are alive, yellow means between 1/3 and 2/3 are alive (degraded), and red means 1/3 or fewer are alive or none is discovered.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "fixedColor": "text",
+                        "mode": "fixed"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "Not Healthy"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Healthy"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red"
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
+                                "color": "green"
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Expected"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alive"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 33.34
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 66.67
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
-                "w": 4,
-                "x": 8,
-                "y": 1
+                "w": 8,
+                "x": 0,
+                "y": 5
             },
             "id": 2,
             "options": {
                 "colorMode": "background",
                 "graphMode": "none",
                 "justifyMode": "center",
-                "orientation": "auto",
+                "orientation": "vertical",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
@@ -270,81 +431,142 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value",
-                "wideLayout": true
+                "textMode": "value_and_name",
+                "wideLayout": false,
+                "text": {
+                    "valueSize": 24
+                }
             },
             "pluginVersion": "11.6.4",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}) == 1)\n  ==\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}))\n  and\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"})) > 0\n) * 0 + 1 or vector(0)",
-                    "legendFormat": "ClickHouse",
-                    "range": true,
+                    "expr": "count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}) == 1)",
+                    "instant": true,
+                    "legendFormat": "Alive",
+                    "range": false,
                     "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}))",
+                    "instant": true,
+                    "legendFormat": "Expected",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}) == 1) or vector(0)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"})) or vector(0)), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "Health",
+                    "range": false,
+                    "refId": "C"
                 }
             ],
-            "title": "🖱️ ClickHouse",
+            "title": "\ud83d\uddb1\ufe0f ClickHouse",
             "type": "stat"
         },
         {
             "datasource": "Metrics",
-            "description": "Click row below to see VictoriaMetrics pod details",
+            "description": "VictoriaMetrics instances alive versus expected. Green means more than 2/3 of expected instances are alive, yellow means between 1/3 and 2/3 are alive (degraded), and red means 1/3 or fewer are alive or none is discovered.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "fixedColor": "text",
+                        "mode": "fixed"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "Not Healthy"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Healthy"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red"
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
+                                "color": "green"
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Expected"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alive"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 33.34
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 66.67
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
-                "w": 4,
-                "x": 12,
-                "y": 1
+                "w": 8,
+                "x": 8,
+                "y": 5
             },
             "id": 3,
             "options": {
                 "colorMode": "background",
                 "graphMode": "none",
                 "justifyMode": "center",
-                "orientation": "auto",
+                "orientation": "vertical",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
@@ -354,81 +576,142 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value",
-                "wideLayout": true
+                "textMode": "value_and_name",
+                "wideLayout": false,
+                "text": {
+                    "valueSize": 24
+                }
             },
             "pluginVersion": "11.6.4",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}) == 1)\n  ==\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}))\n  and\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"})) > 0\n) * 0 + 1 or vector(0)",
-                    "legendFormat": "VictoriaMetrics",
-                    "range": true,
+                    "expr": "count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}) == 1)",
+                    "instant": true,
+                    "legendFormat": "Alive",
+                    "range": false,
                     "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}))",
+                    "instant": true,
+                    "legendFormat": "Expected",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}) == 1) or vector(0)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"})) or vector(0)), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "Health",
+                    "range": false,
+                    "refId": "C"
                 }
             ],
-            "title": "📊 VictoriaMetrics",
+            "title": "\ud83d\udcca VictoriaMetrics",
             "type": "stat"
         },
         {
             "datasource": "Metrics",
-            "description": "Click row below to see HAProxy pod details",
+            "description": "HAProxy instances alive versus expected. Green means more than 2/3 of expected instances are alive, yellow means between 1/3 and 2/3 are alive (degraded), and red means 1/3 or fewer are alive or none is discovered.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "fixedColor": "text",
+                        "mode": "fixed"
                     },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "Not Healthy"
-                                }
-                            },
-                            "type": "value"
-                        },
-                        {
-                            "options": {
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "Healthy"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
+                    "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "red"
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
+                                "color": "green"
                             }
                         ]
                     },
                     "unit": "none"
                 },
-                "overrides": []
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Expected"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Alive"
+                        },
+                        "properties": [
+                            {
+                                "id": "decimals",
+                                "value": 0
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Health"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "thresholds"
+                                }
+                            },
+                            {
+                                "id": "thresholds",
+                                "value": {
+                                    "mode": "absolute",
+                                    "steps": [
+                                        {
+                                            "color": "red",
+                                            "value": null
+                                        },
+                                        {
+                                            "color": "yellow",
+                                            "value": 33.34
+                                        },
+                                        {
+                                            "color": "green",
+                                            "value": 66.67
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "id": "unit",
+                                "value": "percent"
+                            }
+                        ]
+                    }
+                ]
             },
             "gridPos": {
                 "h": 4,
-                "w": 4,
+                "w": 8,
                 "x": 16,
-                "y": 1
+                "y": 5
             },
             "id": 4,
             "options": {
                 "colorMode": "background",
                 "graphMode": "none",
                 "justifyMode": "center",
-                "orientation": "auto",
+                "orientation": "vertical",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
@@ -438,21 +721,43 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value",
-                "wideLayout": true
+                "textMode": "value_and_name",
+                "wideLayout": false,
+                "text": {
+                    "valueSize": 24
+                }
             },
             "pluginVersion": "11.6.4",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1)\n  ==\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}))\n  and\n  count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"})) > 0\n) * 0 + 1 or vector(0)",
-                    "legendFormat": "HAProxy",
-                    "range": true,
+                    "expr": "count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1)",
+                    "instant": true,
+                    "legendFormat": "Alive",
+                    "range": false,
                     "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}))",
+                    "instant": true,
+                    "legendFormat": "Expected",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1) or vector(0)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"})) or vector(0)), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "Health",
+                    "range": false,
+                    "refId": "C"
                 }
             ],
-            "title": "⚖️ HAProxy",
+            "title": "\u2696\ufe0f HAProxy",
             "type": "stat"
         },
         {
@@ -487,10 +792,10 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
-                "w": 6,
+                "h": 8,
+                "w": 12,
                 "x": 0,
-                "y": 5
+                "y": 24
             },
             "id": 201,
             "options": {
@@ -519,7 +824,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "🎯 Overall System Health",
+            "title": "\ud83c\udfaf Overall System Health",
             "type": "gauge"
         },
         {
@@ -544,17 +849,17 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
-                "w": 6,
-                "x": 6,
-                "y": 5
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 24
             },
             "id": 202,
             "options": {
                 "colorMode": "value",
                 "graphMode": "area",
                 "justifyMode": "auto",
-                "orientation": "auto",
+                "orientation": "vertical",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
@@ -564,8 +869,12 @@
                     "values": false
                 },
                 "showPercentChange": false,
-                "textMode": "value_and_name",
-                "wideLayout": true
+                "textMode": "auto",
+                "wideLayout": true,
+                "text": {
+                    "titleSize": 11,
+                    "valueSize": 30
+                }
             },
             "pluginVersion": "11.6.4",
             "targets": [
@@ -586,7 +895,7 @@
                     "refId": "B"
                 }
             ],
-            "title": "🔢 Pod Count",
+            "title": "\ud83d\udd22 Pod Count",
             "type": "stat"
         },
         {
@@ -619,17 +928,17 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 6,
+                "h": 5,
                 "w": 6,
-                "x": 12,
-                "y": 5
+                "x": 0,
+                "y": 9
             },
             "id": 203,
             "options": {
                 "colorMode": "background",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "vertical",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
                     "calcs": [
@@ -640,20 +949,23 @@
                 },
                 "showPercentChange": false,
                 "textMode": "value_and_name",
-                "wideLayout": true
+                "wideLayout": false,
+                "text": {
+                    "valueSize": 24
+                }
             },
             "pluginVersion": "11.6.4",
             "targets": [
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(increase(kube_pod_container_status_restarts_total{namespace=\"$namespace\", pod!~\".*($health_exclude_regex).*\"}[24h]))",
-                    "legendFormat": "Restarts (24h)",
+                    "expr": "sum(increase(kube_pod_container_status_restarts_total{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"}[24h]))",
+                    "legendFormat": "Restarts",
                     "range": true,
                     "refId": "A"
                 }
             ],
-            "title": "🔄 Pod Restarts",
+            "title": "\ud83d\udd04 Pod Restarts",
             "type": "stat"
         },
         {
@@ -711,10 +1023,10 @@
                 ]
             },
             "gridPos": {
-                "h": 6,
-                "w": 6,
-                "x": 18,
-                "y": 5
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 14
             },
             "id": 204,
             "options": {
@@ -735,7 +1047,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by(pod) (increase(kube_pod_container_status_restarts_total{namespace=\"$namespace\", pod!~\".*($health_exclude_regex).*\"}[24h])) > 0",
+                    "expr": "sum by(exported_pod) (increase(kube_pod_container_status_restarts_total{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"}[24h])) > 0",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -743,7 +1055,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "⚠️ Pods with Restarts",
+            "title": "\u26a0\ufe0f Pods with Restarts",
             "transformations": [
                 {
                     "id": "organize",
@@ -753,11 +1065,7 @@
                         },
                         "indexByName": {
                             "Value": 1,
-                            "pod": 0
-                        },
-                        "renameByName": {
-                            "Value": "Restarts (24h)",
-                            "pod": "Pod"
+                            "exported_pod": 0
                         }
                     }
                 }
@@ -765,16 +1073,261 @@
             "type": "table"
         },
         {
+            "datasource": "Metrics",
+            "description": "Current PMM Raft leader. Shows the active instance name, or No active instance when no leader is visible.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 8,
+                "x": 0,
+                "y": 1
+            },
+            "id": 213,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "name",
+                "wideLayout": true,
+                "text": {
+                    "valueSize": 24
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "(\n  max by(node_id) (\n    (pmm_ha_leader_status == 1)\n    and on(node_id)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-${pmm_suffix_regex}\"\n      },\n      \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  )\n)\nor (\n  label_replace(vector(0), \"node_id\", \"No active instance\", \"\", \"\")\n  unless on() (\n    max(\n      (pmm_ha_leader_status == 1)\n      and on(node_id)\n      label_replace(\n        kube_pod_info{\n          exported_namespace=\"$namespace\",\n          exported_pod=~\"${release}-${pmm_suffix_regex}\"\n        },\n        \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n      )\n    ) == 1\n  )\n)",
+                    "instant": true,
+                    "legendFormat": "{{node_id}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "Active PMM Instance",
+            "type": "stat"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Current Patroni primary instance.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "noValue": "No active instance",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 6,
+                "x": 6,
+                "y": 9
+            },
+            "id": 214,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "name",
+                "wideLayout": true,
+                "text": {
+                    "valueSize": 24
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "(\n  max by(name) (\n    (patroni_primary == 1)\n    and on(name)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-pg-db-.*\",\n        exported_pod!~\".*(${pg_exclude_regex}).*\"\n      },\n      \"name\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  )\n)\nor (\n  label_replace(vector(0), \"name\", \"No active instance\", \"\", \"\")\n  unless on() (\n    max(\n      (patroni_primary == 1)\n      and on(name)\n      label_replace(\n        kube_pod_info{\n          exported_namespace=\"$namespace\",\n          exported_pod=~\"${release}-pg-db-.*\",\n          exported_pod!~\".*(${pg_exclude_regex}).*\"\n        },\n        \"name\", \"$1\", \"exported_pod\", \"(.*)\"\n      )\n    ) == 1\n  )\n)",
+                    "instant": true,
+                    "legendFormat": "{{name}}",
+                    "range": false,
+                    "refId": "A"
+                }
+            ],
+            "title": "PostgreSQL Primary",
+            "type": "stat"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Health percentage for vmauth, vminsert, vmselect, vmstorage, and vmagent.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "green",
+                                "value": 100
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 9
+            },
+            "id": 215,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "percentChangeColorMode": "standard",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showPercentChange": false,
+                "textMode": "value_and_name",
+                "wideLayout": true,
+                "text": {
+                    "valueSize": 24
+                }
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"vmauth.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"vmauth.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "vmauth",
+                    "range": false,
+                    "refId": "A"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"vminsert.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"vminsert.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "vminsert",
+                    "range": false,
+                    "refId": "B"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"vmselect.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"vmselect.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "vmselect",
+                    "range": false,
+                    "refId": "C"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"vmstorage.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"vmstorage.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "vmstorage",
+                    "range": false,
+                    "refId": "D"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"vmagent.*${release}.*\"}) == 1)) / clamp_min((count(max by(exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"vmagent.*${release}.*\"}))), 1)) * 100",
+                    "instant": true,
+                    "legendFormat": "vmagent",
+                    "range": false,
+                    "refId": "E"
+                }
+            ],
+            "title": "VictoriaMetrics Components",
+            "type": "stat"
+        },
+        {
             "collapsed": false,
             "gridPos": {
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 11
+                "y": 32
             },
             "id": 205,
             "panels": [],
-            "title": "💻 Resource Usage",
+            "title": "\ud83d\udcbb Resource Usage",
             "type": "row"
         },
         {
@@ -839,7 +1392,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 12
+                "y": 33
             },
             "id": 6,
             "options": {
@@ -870,7 +1423,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "🧮 CPU Usage",
+            "title": "\ud83e\uddee CPU Usage",
             "type": "timeseries"
         },
         {
@@ -935,7 +1488,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 12
+                "y": 33
             },
             "id": 206,
             "options": {
@@ -966,7 +1519,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "💾 Memory Usage",
+            "title": "\ud83d\udcbe Memory Usage",
             "type": "timeseries"
         },
         {
@@ -975,11 +1528,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 20
+                "y": 41
             },
             "id": 207,
             "panels": [],
-            "title": "💿 Storage Usage",
+            "title": "\ud83d\udcbf Storage Usage",
             "type": "row"
         },
         {
@@ -1017,7 +1570,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 0,
-                "y": 21
+                "y": 42
             },
             "id": 208,
             "options": {
@@ -1046,7 +1599,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "🐘 PostgreSQL Storage",
+            "title": "\ud83d\udc18 PostgreSQL Storage",
             "type": "gauge"
         },
         {
@@ -1084,7 +1637,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 8,
-                "y": 21
+                "y": 42
             },
             "id": 209,
             "options": {
@@ -1113,7 +1666,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "🖱️ ClickHouse Storage",
+            "title": "\ud83d\uddb1\ufe0f ClickHouse Storage",
             "type": "gauge"
         },
         {
@@ -1151,7 +1704,7 @@
                 "h": 6,
                 "w": 8,
                 "x": 16,
-                "y": 21
+                "y": 42
             },
             "id": 210,
             "options": {
@@ -1180,7 +1733,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "📊 VictoriaMetrics Storage",
+            "title": "\ud83d\udcca VictoriaMetrics Storage",
             "type": "gauge"
         },
         {
@@ -1189,11 +1742,11 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 27
+                "y": 48
             },
             "id": 211,
             "panels": [],
-            "title": "📈 Service Availability",
+            "title": "\ud83d\udcc8 Service Availability",
             "type": "row"
         },
         {
@@ -1202,19 +1755,40 @@
             "fieldConfig": {
                 "defaults": {
                     "color": {
-                        "mode": "thresholds"
+                        "mode": "palette-classic"
                     },
                     "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
                         "axisPlacement": "auto",
-                        "fillOpacity": 70,
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 25,
+                        "gradientMode": "none",
                         "hideFrom": {
                             "legend": false,
                             "tooltip": false,
                             "viz": false
                         },
                         "insertNulls": false,
-                        "lineWidth": 0,
-                        "spanNulls": false
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
                     },
                     "mappings": [],
                     "max": 100,
@@ -1240,7 +1814,8 @@
                             }
                         ]
                     },
-                    "unit": "percent"
+                    "unit": "percent",
+                    "noValue": "No data"
                 },
                 "overrides": []
             },
@@ -1248,22 +1823,22 @@
                 "h": 8,
                 "w": 24,
                 "x": 0,
-                "y": 28
+                "y": 49
             },
             "id": 212,
             "options": {
-                "alignValue": "left",
                 "legend": {
-                    "displayMode": "list",
+                    "calcs": [
+                        "mean",
+                        "lastNotNull"
+                    ],
+                    "displayMode": "table",
                     "placement": "bottom",
                     "showLegend": true
                 },
-                "mergeValues": true,
-                "rowHeight": 0.9,
-                "showValue": "auto",
                 "tooltip": {
                     "hideZeros": false,
-                    "mode": "single",
+                    "mode": "multi",
                     "sort": "none"
                 }
             },
@@ -1273,185 +1848,50 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
-                    "legendFormat": "🧭 PMM",
+                    "legendFormat": "\ud83e\udded PMM",
                     "range": true,
-                    "refId": "PMM"
+                    "refId": "PMM",
+                    "instant": false
                 },
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}|$health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}|$health_exclude_regex).*\"})\n) * 100",
-                    "legendFormat": "🐘 PostgreSQL",
+                    "legendFormat": "\ud83d\udc18 PostgreSQL",
                     "range": true,
-                    "refId": "PostgreSQL"
+                    "refId": "PostgreSQL",
+                    "instant": false
                 },
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
-                    "legendFormat": "🖱️ ClickHouse",
+                    "legendFormat": "\ud83d\uddb1\ufe0f ClickHouse",
                     "range": true,
-                    "refId": "ClickHouse"
+                    "refId": "ClickHouse",
+                    "instant": false
                 },
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
-                    "legendFormat": "📊 VictoriaMetrics",
+                    "legendFormat": "\ud83d\udcca VictoriaMetrics",
                     "range": true,
-                    "refId": "VictoriaMetrics"
+                    "refId": "VictoriaMetrics",
+                    "instant": false
                 },
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "expr": "(\n  count(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\", exported_pod!~\".*($health_exclude_regex).*\"} == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
-                    "legendFormat": "⚖️ HAProxy",
+                    "legendFormat": "\u2696\ufe0f HAProxy",
                     "range": true,
-                    "refId": "HAProxy"
+                    "refId": "HAProxy",
+                    "instant": false
                 }
             ],
-            "title": "⏱️ Service Availability by Component",
-            "type": "state-timeline"
-        },
-        {
-            "collapsed": true,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 43
-            },
-            "id": 105,
-            "panels": [
-                {
-                    "datasource": "Metrics",
-                    "description": "Status of each PMM server pod (Running = UP).",
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "custom": {
-                                "align": "center",
-                                "cellOptions": {
-                                    "type": "color-background"
-                                },
-                                "inspect": false
-                            },
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "0": {
-                                            "color": "red",
-                                            "index": 1,
-                                            "text": "DOWN"
-                                        }
-                                    },
-                                    "type": "value"
-                                },
-                                {
-                                    "options": {
-                                        "1": {
-                                            "color": "green",
-                                            "index": 0,
-                                            "text": "UP"
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "red"
-                                    },
-                                    {
-                                        "color": "green",
-                                        "value": 1
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": [
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Pod"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 400
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "type": "auto"
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    "gridPos": {
-                        "h": 5,
-                        "w": 24,
-                        "x": 0,
-                        "y": 37
-                    },
-                    "id": 50,
-                    "options": {
-                        "cellHeight": "sm",
-                        "footer": {
-                            "countRows": false,
-                            "fields": "",
-                            "reducer": [
-                                "sum"
-                            ],
-                            "show": false
-                        },
-                        "showHeader": true
-                    },
-                    "pluginVersion": "11.6.4",
-                    "targets": [
-                        {
-                            "datasource": "Metrics",
-                            "editorMode": "code",
-                            "exemplar": false,
-                            "expr": "max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_pod=~\"${release}-${pmm_suffix_regex}\", exported_namespace=\"$namespace\"})",
-                            "format": "table",
-                            "instant": true,
-                            "legendFormat": "__auto",
-                            "range": false,
-                            "refId": "Status"
-                        }
-                    ],
-                    "title": "PMM Pods",
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "Time": true,
-                                    "service_name": true
-                                },
-                                "indexByName": {
-                                    "Value": 1,
-                                    "exported_pod": 0
-                                },
-                                "renameByName": {
-                                    "Value": "Status",
-                                    "exported_pod": "Pod"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "table"
-                }
-            ],
-            "title": "🧭 PMM Pod's Status",
-            "type": "row"
+            "title": "\u23f1\ufe0f Service Availability by Component",
+            "type": "timeseries"
         },
         {
             "collapsed": false,
@@ -1459,16 +1899,718 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 37
+                "y": 57
             },
-            "id": 101,
+            "id": 105,
             "panels": [],
-            "title": "🐘 PostgreSQL Pod's Status",
+            "title": "\ud83e\udded PMM Pod's Status",
             "type": "row"
         },
         {
             "datasource": "Metrics",
-            "description": "Status of each PostgreSQL pod based on Kubernetes phase (Running = UP).",
+            "description": "Status and Raft role of every PMM server instance.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "color-background"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "red",
+                                    "index": 1,
+                                    "text": "DOWN"
+                                }
+                            },
+                            "type": "value"
+                        },
+                        {
+                            "options": {
+                                "1": {
+                                    "color": "green",
+                                    "index": 0,
+                                    "text": "UP"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red"
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Role"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "yellow",
+                                                "index": 1,
+                                                "text": "Follower"
+                                            },
+                                            "1": {
+                                                "color": "green",
+                                                "index": 0,
+                                                "text": "Active"
+                                            }
+                                        },
+                                        "type": "value"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 58
+            },
+            "id": 50,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_pod=~\"${release}-${pmm_suffix_regex}\", exported_namespace=\"$namespace\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "Status"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "label_replace(\n  max by(node_id) (\n    pmm_ha_leader_status\n    and on(node_id)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-${pmm_suffix_regex}\"\n      },\n      \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  ),\n  \"exported_pod\", \"$1\", \"node_id\", \"(.*)\"\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "Leader"
+                }
+            ],
+            "title": "PMM Pods",
+            "transformations": [
+                {
+                    "id": "seriesToColumns",
+                    "options": {
+                        "byField": "exported_pod"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "node_id": true,
+                            "service_name": true
+                        },
+                        "indexByName": {
+                            "Value #Leader": 2,
+                            "Value #Status": 1,
+                            "exported_pod": 0
+                        },
+                        "renameByName": {
+                            "Value #Leader": "Role",
+                            "Value #Status": "Status",
+                            "exported_pod": "Instance"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 68
+            },
+            "id": 101,
+            "panels": [],
+            "title": "\ud83d\udc18 PostgreSQL Pod's Status",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Status, primary/replica role, and replication streaming health for every PostgreSQL instance.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "color-background"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "red",
+                                    "index": 1,
+                                    "text": "DOWN"
+                                }
+                            },
+                            "type": "value"
+                        },
+                        {
+                            "options": {
+                                "1": {
+                                    "color": "green",
+                                    "index": 0,
+                                    "text": "UP"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red"
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Pod"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 400
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Role"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background",
+                                    "mode": "basic"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "0": {
+                                                "color": "yellow",
+                                                "index": 1,
+                                                "text": "Replica"
+                                            },
+                                            "1": {
+                                                "color": "green",
+                                                "index": 0,
+                                                "text": "Primary"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "-1": {
+                                                "text": "No data",
+                                                "color": "text",
+                                                "index": 99
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Replication"
+                        },
+                        "properties": [
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "options": {
+                                            "0": {
+                                                "color": "yellow",
+                                                "index": 1,
+                                                "text": "Not streaming"
+                                            },
+                                            "1": {
+                                                "color": "green",
+                                                "index": 0,
+                                                "text": "Healthy"
+                                            }
+                                        },
+                                        "type": "value"
+                                    },
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "-1": {
+                                                "text": "No data",
+                                                "color": "text",
+                                                "index": 99
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 69
+            },
+            "id": 10,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\", exported_namespace=\"$namespace\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "Status"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by(exported_pod) (\n  (\n    (\n      label_replace(max by(name) (patroni_primary), \"exported_pod\", \"$1\", \"name\", \"(.*)\")\n      or\n      label_replace(\n        max by(node_name) (1 - clamp_max(pg_replication_is_replica, 1)),\n        \"exported_pod\", \"$1\", \"node_name\", \".*(${release}-pg-db-[a-zA-Z0-9-]+)\"\n      )\n    )\n    and on(exported_pod)\n    max by(exported_pod) (\n      kube_pod_info{\n      exported_namespace=\"$namespace\",\n      exported_pod=~\"${release}-pg-db-.*\",\n      exported_pod!~\".*(${pg_exclude_regex}).*\"\n    }\n    )\n  )\n  or\n  (max by(exported_pod) (\n    kube_pod_info{\n      exported_namespace=\"$namespace\",\n      exported_pod=~\"${release}-pg-db-.*\",\n      exported_pod!~\".*(${pg_exclude_regex}).*\"\n    }\n  ) * 0 - 1)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "Primary"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by(exported_pod) (\n  (\n    (\n      label_replace(\n        max by(name) (patroni_postgres_streaming) + on(name) max by(name) (patroni_primary),\n        \"exported_pod\", \"$1\", \"name\", \"(.*)\"\n      )\n      or\n      label_replace(\n        max by(node_name) (\n          (1 - clamp_max(pg_replication_is_replica, 1))\n          +\n          (clamp_max(pg_replication_is_replica, 1) * (pg_replication_lag_seconds < bool 60))\n        ),\n        \"exported_pod\", \"$1\", \"node_name\", \".*(${release}-pg-db-[a-zA-Z0-9-]+)\"\n      )\n    )\n    and on(exported_pod)\n    max by(exported_pod) (\n      kube_pod_info{\n      exported_namespace=\"$namespace\",\n      exported_pod=~\"${release}-pg-db-.*\",\n      exported_pod!~\".*(${pg_exclude_regex}).*\"\n    }\n    )\n  )\n  or\n  (max by(exported_pod) (\n    kube_pod_info{\n      exported_namespace=\"$namespace\",\n      exported_pod=~\"${release}-pg-db-.*\",\n      exported_pod!~\".*(${pg_exclude_regex}).*\"\n    }\n  ) * 0 - 1)\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "Replication"
+                }
+            ],
+            "title": "PostgreSQL Pods",
+            "transformations": [
+                {
+                    "id": "seriesToColumns",
+                    "options": {
+                        "byField": "exported_pod"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "name": true,
+                            "service_name": true
+                        },
+                        "includeByName": {},
+                        "indexByName": {
+                            "Value #Primary": 2,
+                            "Value #Replication": 3,
+                            "Value #Status": 1,
+                            "exported_pod": 0
+                        },
+                        "renameByName": {
+                            "Value #Primary": "Role",
+                            "Value #Replication": "Replication",
+                            "Value #Status": "Status",
+                            "exported_pod": "Pod"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 79
+            },
+            "id": 102,
+            "panels": [],
+            "title": "\ud83d\uddb1\ufe0f ClickHouse Pod's Status",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Health of all ClickHouse database and Keeper nodes. Keeper nodes additionally show leader/follower role.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "color-background"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "red",
+                                    "index": 1,
+                                    "text": "DOWN"
+                                }
+                            },
+                            "type": "value"
+                        },
+                        {
+                            "options": {
+                                "1": {
+                                    "color": "green",
+                                    "index": 0,
+                                    "text": "UP"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red"
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Pod"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Role"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 150
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "color-background",
+                                    "mode": "basic"
+                                }
+                            },
+                            {
+                                "id": "mappings",
+                                "value": [
+                                    {
+                                        "type": "value",
+                                        "options": {
+                                            "0": {
+                                                "color": "yellow",
+                                                "index": 1,
+                                                "text": "Follower"
+                                            },
+                                            "1": {
+                                                "color": "green",
+                                                "index": 0,
+                                                "text": "Leader"
+                                            },
+                                            "2": {
+                                                "color": "yellow",
+                                                "index": 2,
+                                                "text": "Replica"
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Component"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 160
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 80
+            },
+            "id": 20,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true
+            },
+            "pluginVersion": "11.0.0",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by(exported_pod, component) (label_replace(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"}, \"component\", \"$1\", \"exported_pod\", \".*(pmmdb|keeper).*\"))",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "Status"
+                },
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by(exported_pod) (\n  (\n    label_replace(max by(instance) (ClickHouseAsyncMetrics_KeeperIsLeader), \"pod_ip\", \"$1\", \"instance\", \"([0-9.]+):.*\")\n    * on(pod_ip) group_left(exported_pod)\n    max by(pod_ip, exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"})\n  )\n  or\n  (\n    max by(exported_pod) (\n      (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-pmmdb.*\"} == 1) * 2\n    )\n  )\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "Leader"
+                }
+            ],
+            "title": "ClickHouse Pods",
+            "transformations": [
+                {
+                    "id": "seriesToColumns",
+                    "options": {
+                        "byField": "exported_pod"
+                    }
+                },
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true,
+                            "instance": true,
+                            "pod_ip": true
+                        },
+                        "indexByName": {
+                            "Value #Leader": 3,
+                            "Value #Status": 2,
+                            "component": 1,
+                            "exported_pod": 0
+                        },
+                        "renameByName": {
+                            "Value #Leader": "Role",
+                            "Value #Status": "Status",
+                            "component": "Component",
+                            "exported_pod": "Pod"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 90
+            },
+            "id": 103,
+            "panels": [],
+            "title": "\ud83d\udcca VictoriaMetrics Pod's Status",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Status of each VictoriaMetrics pod (Kubernetes phase Running).",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1524,10 +2666,6 @@
                         },
                         "properties": [
                             {
-                                "id": "custom.width",
-                                "value": 400
-                            },
-                            {
                                 "id": "custom.cellOptions",
                                 "value": {
                                     "type": "auto"
@@ -1538,12 +2676,12 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "Role"
+                            "options": "Component"
                         },
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 120
+                                "value": 500
                             },
                             {
                                 "id": "custom.cellOptions",
@@ -1553,38 +2691,31 @@
                             },
                             {
                                 "id": "mappings",
-                                "value": [
-                                    {
-                                        "options": {
-                                            "0": {
-                                                "index": 1,
-                                                "text": "Replica"
-                                            }
-                                        },
-                                        "type": "value"
-                                    },
-                                    {
-                                        "options": {
-                                            "1": {
-                                                "index": 0,
-                                                "text": "Primary"
-                                            }
-                                        },
-                                        "type": "value"
-                                    }
-                                ]
+                                "value": []
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
                             }
                         ]
                     }
                 ]
             },
             "gridPos": {
-                "h": 6,
+                "h": 10,
                 "w": 24,
                 "x": 0,
-                "y": 38
+                "y": 91
             },
-            "id": 10,
+            "id": 30,
             "options": {
                 "cellHeight": "sm",
                 "footer": {
@@ -1603,50 +2734,187 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_pod=~\"${release}-pg-db-.*\", exported_pod!~\".*(${pg_exclude_regex}).*\", exported_namespace=\"$namespace\"})",
+                    "expr": "max by(exported_pod, component) (label_replace(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}, \"component\", \"$1\", \"exported_pod\", \".*(vmauth|vminsert|vmselect|vmstorage|vmagent).*\") )",
                     "format": "table",
-                    "instant": false,
+                    "instant": true,
                     "legendFormat": "__auto",
-                    "range": true,
+                    "range": false,
                     "refId": "Status"
-                },
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "label_replace(max by(name) (patroni_primary), \"exported_pod\", \"$1\", \"name\", \"(.*)\")",
-                    "format": "table",
-                    "instant": false,
-                    "legendFormat": "__auto",
-                    "range": true,
-                    "refId": "Primary"
                 }
             ],
-            "title": "PostgreSQL Pods",
+            "title": "VictoriaMetrics Pods",
             "transformations": [
-                {
-                    "id": "seriesToColumns",
-                    "options": {
-                        "byField": "exported_pod"
-                    }
-                },
                 {
                     "id": "organize",
                     "options": {
                         "excludeByName": {
-                            "Time": true,
-                            "name": true,
-                            "service_name": true
+                            "Time": true
                         },
-                        "includeByName": {},
                         "indexByName": {
-                            "Value #Primary": 2,
-                            "Value #Status": 1,
+                            "Value": 2,
+                            "component": 1,
                             "exported_pod": 0
                         },
                         "renameByName": {
-                            "Value #Primary": "Role",
-                            "Value #Status": "Status",
+                            "Value": "Status",
+                            "component": "Component",
+                            "exported_pod": "Pod"
+                        }
+                    }
+                },
+                {
+                    "id": "sortBy",
+                    "options": {
+                        "fields": {},
+                        "sort": [
+                            {
+                                "field": "Component"
+                            }
+                        ]
+                    }
+                }
+            ],
+            "type": "table"
+        },
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 101
+            },
+            "id": 104,
+            "panels": [],
+            "title": "\u2696\ufe0f HAProxy Pod's Status",
+            "type": "row"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "Status of each HAProxy pod (Running = UP).",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "color-background"
+                        },
+                        "inspect": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "red",
+                                    "index": 1,
+                                    "text": "DOWN"
+                                }
+                            },
+                            "type": "value"
+                        },
+                        {
+                            "options": {
+                                "1": {
+                                    "color": "green",
+                                    "index": 0,
+                                    "text": "UP"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "red"
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Pod"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 102
+            },
+            "id": 40,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
+                    ],
+                    "show": false
+                },
+                "showHeader": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_pod=~\"$haproxy_pod_regex\", exported_namespace=\"$namespace\"})",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "Status"
+                }
+            ],
+            "title": "HAProxy Instances",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {
+                            "Value": 1,
+                            "exported_pod": 0
+                        },
+                        "renameByName": {
+                            "Value": "Status",
                             "exported_pod": "Pod"
                         }
                     }
@@ -1655,663 +2923,177 @@
             "type": "table"
         },
         {
-            "collapsed": true,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 44
-            },
-            "id": 102,
-            "panels": [
-                {
-                    "datasource": "Metrics",
-                    "description": "Status of each ClickHouse pod with leader/follower role.",
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "custom": {
-                                "align": "center",
-                                "cellOptions": {
-                                    "type": "color-background"
-                                },
-                                "inspect": false
-                            },
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "0": {
-                                            "color": "red",
-                                            "index": 1,
-                                            "text": "DOWN"
-                                        }
-                                    },
-                                    "type": "value"
-                                },
-                                {
-                                    "options": {
-                                        "1": {
-                                            "color": "green",
-                                            "index": 0,
-                                            "text": "UP"
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "red"
-                                    },
-                                    {
-                                        "color": "green",
-                                        "value": 1
-                                    }
-                                ]
-                            }
+            "datasource": "Metrics",
+            "description": "UP/DOWN status of every HAProxy backend server.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "thresholds"
+                    },
+                    "custom": {
+                        "align": "center",
+                        "cellOptions": {
+                            "type": "color-background"
                         },
-                        "overrides": [
+                        "inspect": false
+                    },
+                    "mappings": [
+                        {
+                            "options": {
+                                "0": {
+                                    "color": "red",
+                                    "index": 1,
+                                    "text": "DOWN"
+                                }
+                            },
+                            "type": "value"
+                        },
+                        {
+                            "options": {
+                                "1": {
+                                    "color": "green",
+                                    "index": 0,
+                                    "text": "UP"
+                                }
+                            },
+                            "type": "value"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
                             {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Pod"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 400
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "type": "auto"
-                                        }
-                                    }
-                                ]
+                                "color": "red"
                             },
                             {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Role"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 120
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "type": "auto"
-                                        }
-                                    },
-                                    {
-                                        "id": "mappings",
-                                        "value": [
-                                            {
-                                                "options": {
-                                                    "0": {
-                                                        "index": 1,
-                                                        "text": "Follower"
-                                                    }
-                                                },
-                                                "type": "value"
-                                            },
-                                            {
-                                                "options": {
-                                                    "1": {
-                                                        "index": 0,
-                                                        "text": "Leader"
-                                                    }
-                                                },
-                                                "type": "value"
-                                            }
-                                        ]
-                                    }
-                                ]
+                                "color": "green",
+                                "value": 1
                             }
                         ]
-                    },
-                    "gridPos": {
-                        "h": 6,
-                        "w": 24,
-                        "x": 0,
-                        "y": 84
-                    },
-                    "id": 20,
-                    "options": {
-                        "cellHeight": "sm",
-                        "footer": {
-                            "countRows": false,
-                            "fields": "",
-                            "reducer": [
-                                "sum"
-                            ],
-                            "show": false
-                        },
-                        "showHeader": true
-                    },
-                    "pluginVersion": "11.0.0",
-                    "targets": [
-                        {
-                            "datasource": "Metrics",
-                            "editorMode": "code",
-                            "exemplar": false,
-                            "expr": "max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"})",
-                            "format": "table",
-                            "instant": true,
-                            "legendFormat": "__auto",
-                            "range": false,
-                            "refId": "Status"
-                        },
-                        {
-                            "datasource": "Metrics",
-                            "editorMode": "code",
-                            "exemplar": false,
-                            "expr": "label_replace(max by(instance) (ClickHouseAsyncMetrics_KeeperIsLeader), \"pod_ip\", \"$1\", \"instance\", \"([0-9.]+):.*\") * on(pod_ip) group_left(exported_pod) max by(pod_ip, exported_pod) (kube_pod_info{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${clickhouse_suffix_regex}\"})",
-                            "format": "table",
-                            "instant": true,
-                            "legendFormat": "__auto",
-                            "range": false,
-                            "refId": "Leader"
-                        }
-                    ],
-                    "title": "ClickHouse Pods",
-                    "transformations": [
-                        {
-                            "id": "seriesToColumns",
-                            "options": {
-                                "byField": "exported_pod"
-                            }
-                        },
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "Time": true,
-                                    "instance": true,
-                                    "pod_ip": true
-                                },
-                                "indexByName": {
-                                    "Value #Leader": 2,
-                                    "Value #Status": 1,
-                                    "exported_pod": 0
-                                },
-                                "renameByName": {
-                                    "Value #Leader": "Role",
-                                    "Value #Status": "Status",
-                                    "exported_pod": "Pod"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "table"
-                }
-            ],
-            "title": "🖱️ ClickHouse Pod's Status",
-            "type": "row"
-        },
-        {
-            "collapsed": true,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 45
-            },
-            "id": 103,
-            "panels": [
-                {
-                    "datasource": "Metrics",
-                    "description": "Status of each VictoriaMetrics pod (Kubernetes phase Running).",
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "custom": {
-                                "align": "center",
-                                "cellOptions": {
-                                    "type": "color-background"
-                                },
-                                "inspect": false
-                            },
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "0": {
-                                            "color": "red",
-                                            "index": 1,
-                                            "text": "DOWN"
-                                        }
-                                    },
-                                    "type": "value"
-                                },
-                                {
-                                    "options": {
-                                        "1": {
-                                            "color": "green",
-                                            "index": 0,
-                                            "text": "UP"
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "red"
-                                    },
-                                    {
-                                        "color": "green",
-                                        "value": 1
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": [
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Pod"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 400
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "type": "auto"
-                                        }
-                                    }
-                                ]
-                            },
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Component"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 100
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "type": "auto"
-                                        }
-                                    },
-                                    {
-                                        "id": "mappings",
-                                        "value": []
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    "gridPos": {
-                        "h": 8,
-                        "w": 24,
-                        "x": 0,
-                        "y": 50
-                    },
-                    "id": 30,
-                    "options": {
-                        "cellHeight": "sm",
-                        "footer": {
-                            "countRows": false,
-                            "fields": "",
-                            "reducer": [
-                                "sum"
-                            ],
-                            "show": false
-                        },
-                        "showHeader": true
-                    },
-                    "pluginVersion": "11.6.4",
-                    "targets": [
-                        {
-                            "datasource": "Metrics",
-                            "editorMode": "code",
-                            "exemplar": false,
-                            "expr": "max by(exported_pod, component) (label_replace(kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${vm_suffix_regex}.*${release}.*\"}, \"component\", \"$1\", \"exported_pod\", \".*(${vm_suffix_regex}).*\") )",
-                            "format": "table",
-                            "instant": true,
-                            "legendFormat": "__auto",
-                            "range": false,
-                            "refId": "Status"
-                        }
-                    ],
-                    "title": "VictoriaMetrics Pods",
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "Time": true
-                                },
-                                "indexByName": {
-                                    "Value": 2,
-                                    "component": 1,
-                                    "exported_pod": 0
-                                },
-                                "renameByName": {
-                                    "Value": "Status",
-                                    "component": "Component",
-                                    "exported_pod": "Pod"
-                                }
-                            }
-                        },
-                        {
-                            "id": "sortBy",
-                            "options": {
-                                "fields": {},
-                                "sort": [
-                                    {
-                                        "field": "Component"
-                                    }
-                                ]
-                            }
-                        }
-                    ],
-                    "type": "table"
-                }
-            ],
-            "title": "📊 VictoriaMetrics Pod's Status",
-            "type": "row"
-        },
-        {
-            "collapsed": true,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 46
-            },
-            "id": 104,
-            "panels": [
-                {
-                    "datasource": "Metrics",
-                    "description": "Status of each HAProxy pod (Running = UP).",
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "custom": {
-                                "align": "center",
-                                "cellOptions": {
-                                    "type": "color-background"
-                                },
-                                "inspect": false
-                            },
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "0": {
-                                            "color": "red",
-                                            "index": 1,
-                                            "text": "DOWN"
-                                        }
-                                    },
-                                    "type": "value"
-                                },
-                                {
-                                    "options": {
-                                        "1": {
-                                            "color": "green",
-                                            "index": 0,
-                                            "text": "UP"
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "red"
-                                    },
-                                    {
-                                        "color": "green",
-                                        "value": 1
-                                    }
-                                ]
-                            }
-                        },
-                        "overrides": [
-                            {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Pod"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 400
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "type": "auto"
-                                        }
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                    "gridPos": {
-                        "h": 5,
-                        "w": 24,
-                        "x": 0,
-                        "y": 28
-                    },
-                    "id": 40,
-                    "options": {
-                        "cellHeight": "sm",
-                        "footer": {
-                            "countRows": false,
-                            "fields": "",
-                            "reducer": [
-                                "sum"
-                            ],
-                            "show": false
-                        },
-                        "showHeader": true
-                    },
-                    "pluginVersion": "11.6.4",
-                    "targets": [
-                        {
-                            "datasource": "Metrics",
-                            "editorMode": "code",
-                            "exemplar": false,
-                            "expr": "max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_pod=~\"$haproxy_pod_regex\", exported_namespace=\"$namespace\"})",
-                            "format": "table",
-                            "instant": true,
-                            "legendFormat": "__auto",
-                            "range": false,
-                            "refId": "Status"
-                        }
-                    ],
-                    "title": "HAProxy Instances",
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "Time": true
-                                },
-                                "indexByName": {
-                                    "Value": 1,
-                                    "exported_pod": 0
-                                },
-                                "renameByName": {
-                                    "Value": "Status",
-                                    "exported_pod": "Pod"
-                                }
-                            }
-                        }
-                    ],
-                    "type": "table"
+                    }
                 },
-                {
-                    "datasource": "Metrics",
-                    "description": "Status of HAProxy backends",
-                    "fieldConfig": {
-                        "defaults": {
-                            "color": {
-                                "mode": "thresholds"
-                            },
-                            "custom": {
-                                "align": "center",
-                                "cellOptions": {
-                                    "type": "color-background"
-                                },
-                                "inspect": false
-                            },
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "0": {
-                                            "color": "red",
-                                            "index": 1,
-                                            "text": "DOWN"
-                                        }
-                                    },
-                                    "type": "value"
-                                },
-                                {
-                                    "options": {
-                                        "1": {
-                                            "color": "green",
-                                            "index": 0,
-                                            "text": "UP"
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
-                            "thresholds": {
-                                "mode": "absolute",
-                                "steps": [
-                                    {
-                                        "color": "red"
-                                    },
-                                    {
-                                        "color": "green",
-                                        "value": 1
-                                    }
-                                ]
-                            }
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Service"
                         },
-                        "overrides": [
+                        "properties": [
                             {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Service"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 300
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "type": "auto"
-                                        }
-                                    }
-                                ]
+                                "id": "custom.width",
+                                "value": 180
                             },
                             {
-                                "matcher": {
-                                    "id": "byName",
-                                    "options": "Backend"
-                                },
-                                "properties": [
-                                    {
-                                        "id": "custom.width",
-                                        "value": 150
-                                    },
-                                    {
-                                        "id": "custom.cellOptions",
-                                        "value": {
-                                            "type": "auto"
-                                        }
-                                    }
-                                ]
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
                             }
                         ]
                     },
-                    "gridPos": {
-                        "h": 5,
-                        "w": 24,
-                        "x": 0,
-                        "y": 33
-                    },
-                    "id": 41,
-                    "options": {
-                        "cellHeight": "sm",
-                        "footer": {
-                            "countRows": false,
-                            "fields": "",
-                            "reducer": [
-                                "sum"
-                            ],
-                            "show": false
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Backend"
                         },
-                        "showHeader": true
-                    },
-                    "pluginVersion": "11.6.4",
-                    "targets": [
-                        {
-                            "datasource": "Metrics",
-                            "editorMode": "code",
-                            "exemplar": false,
-                            "expr": "max by(service_name, proxy) (haproxy_backend_status)",
-                            "format": "table",
-                            "instant": true,
-                            "legendFormat": "__auto",
-                            "range": false,
-                            "refId": "Backend"
-                        }
-                    ],
-                    "title": "HAProxy Backends",
-                    "transformations": [
-                        {
-                            "id": "organize",
-                            "options": {
-                                "excludeByName": {
-                                    "Time": true
-                                },
-                                "indexByName": {
-                                    "Value": 2,
-                                    "proxy": 1,
-                                    "service_name": 0
-                                },
-                                "renameByName": {
-                                    "Value": "Status",
-                                    "proxy": "Backend",
-                                    "service_name": "Service"
+                        "properties": [
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
                                 }
                             }
-                        }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Server"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 200
+                            },
+                            {
+                                "id": "custom.cellOptions",
+                                "value": {
+                                    "type": "auto"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Status"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 90
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 112
+            },
+            "id": 41,
+            "options": {
+                "cellHeight": "sm",
+                "footer": {
+                    "countRows": false,
+                    "fields": "",
+                    "reducer": [
+                        "sum"
                     ],
-                    "type": "table"
+                    "show": false
+                },
+                "showHeader": true
+            },
+            "pluginVersion": "11.6.4",
+            "targets": [
+                {
+                    "datasource": "Metrics",
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "max by(service, proxy, server) (\n  haproxy_server_status{\n    namespace=\"$namespace\",\n    service=~\"${release}-.*\"\n  }\n)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "__auto",
+                    "range": false,
+                    "refId": "Backend"
                 }
             ],
-            "title": "⚖️ HAProxy Pod's Status",
-            "type": "row"
+            "title": "HAProxy Backend Servers",
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": {
+                            "Time": true
+                        },
+                        "indexByName": {
+                            "Value": 3,
+                            "proxy": 1,
+                            "server": 2,
+                            "service": 0
+                        },
+                        "renameByName": {
+                            "Value": "Status",
+                            "proxy": "Backend",
+                            "server": "Server",
+                            "service": "Service"
+                        }
+                    }
+                }
+            ],
+            "type": "table"
         }
     ],
     "preload": false,
@@ -2352,7 +3134,8 @@
                 "query": "label_values(grafana_live_node_num_nodes, instance)",
                 "refresh": 1,
                 "regex": "/^(.*)-\\d+$/",
-                "type": "query"
+                "type": "query",
+                "hide": 2
             },
             {
                 "current": {
@@ -2489,6 +3272,5 @@
     "timepicker": {},
     "timezone": "",
     "title": "PMM HA Health Overview",
-    "uid": "pmm-ha-health-overview",
-    "version": 3
+    "uid": "pmm-ha-health-overview"
 }

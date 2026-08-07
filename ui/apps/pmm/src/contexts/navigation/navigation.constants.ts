@@ -790,13 +790,14 @@ export const NAV_HIGH_AVAILABILITY: NavItem = {
   id: 'high-availability',
   icon: 'cluster',
   text: 'PMM HA',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability`,
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
 };
 
-export const NAV_HIGH_AVAILABILITY_LEADER: NavItem = {
-  id: 'high-availability-leader',
-  text: 'Leader:',
-  type: 'menu-text',
+export const NAV_HIGH_AVAILABILITY_OVERVIEW: NavItem = {
+  id: 'high-availability-overview',
+  icon: 'overview',
+  text: 'Overview',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
 };
 
 export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {

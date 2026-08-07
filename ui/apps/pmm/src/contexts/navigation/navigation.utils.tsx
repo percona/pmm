@@ -43,8 +43,8 @@ import {
   NAV_HIGH_AVAILABILITY,
   NAV_USERS_AND_ACCESS,
   NAV_ACCESS_CONTROL,
-  NAV_HIGH_AVAILABILITY_LEADER,
   NAV_HIGH_AVAILABILITY_NODES,
+  NAV_HIGH_AVAILABILITY_OVERVIEW,
   NAV_HOME_PAGE,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
@@ -249,20 +249,14 @@ export const addConfiguration = (
   return NAV_CONFIGURATION;
 };
 
-export const addHighAvailability = ({ health, leader }: HAInfo): NavItem => {
+export const addHighAvailability = ({ health }: HAInfo): NavItem => {
   const item = { ...NAV_HIGH_AVAILABILITY };
 
   item.badge = <HighAvailabilityBadge health={health} />;
   item.icon = <HighAvailabilityIcon health={health} />;
   item.badgeAlwaysVisible = true;
 
-  item.children = [
-    {
-      ...NAV_HIGH_AVAILABILITY_LEADER,
-      secondaryText: leader?.nodeName || 'Unknown',
-    },
-    NAV_HIGH_AVAILABILITY_NODES,
-  ];
+  item.children = [NAV_HIGH_AVAILABILITY_OVERVIEW, NAV_HIGH_AVAILABILITY_NODES];
 
   return item;
 };
