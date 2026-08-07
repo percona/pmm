@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { FC } from 'react';
 import {
   Navigate,
@@ -9,6 +9,7 @@ import { useDetailsPaneNavigation } from '@percona/percona-ui';
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
+import { isTransactionControl } from './table/OverviewTable.utils';
 import { DetailsPane } from './details-pane';
 import type { QueryData } from 'types/rta.types';
 import { Icon } from 'components/icon';
@@ -17,15 +18,32 @@ import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
+import Tooltip from '@mui/material/Tooltip';
 import { ServicesAutocompleteInput } from '../components/services-autocomplete-input';
 import { AutoRefreshSelect } from './auto-refresh-select';
 import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
+import { ServiceType } from 'types/services.types';
+import { resolveSelection } from './RealtimeOverview.utils';
 
 const EMPTY_QUERIES: QueryData[] = [];
 
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const serviceIds = searchParams.getAll('serviceIds');
+  const requestedServiceIds = useMemo(
+    () => searchParams.getAll('serviceIds'),
+    [searchParams]
+  );
+  const { data: sessions = [], isLoading } = useRealtimeSessions();
+  // One view of live queries shows one technology. The picker enforces that, but
+  // a URL can still name services of both (starting sessions is not restricted),
+  // so the first service's technology wins and the rest are ignored.
+  const { serviceIds, serviceType } = useMemo(
+    () => resolveSelection(requestedServiceIds, sessions),
+    [requestedServiceIds, sessions]
+  );
   const [fetching, setFetching] = useState(serviceIds.length > 0);
   const [refreshInterval, setRefreshInterval] = useState(2000);
   const { data: queries, refetch } = useRealtimeQueries(
@@ -35,13 +53,25 @@ const RealtimeOverviewPage: FC = () => {
       refetchInterval: refreshInterval,
     }
   );
-  const tableQueries = queries ?? EMPTY_QUERIES;
+  const [hideCommit, setHideCommit] = useState(false);
+  // Transaction-control statements are a MySQL concern, so the toggle is only
+  // offered while MySQL services are being watched.
+  const isMySqlSelection = serviceType === ServiceType.mysql;
   // Synced from the table after filters; details-pane arrows use this list, not the full API result.
   const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
   // We need to store the previous fetching state to restore it when the details pane is closed
   const previousFetchingState = useRef<boolean>(fetching);
-  const { data: sessions = [], isLoading } = useRealtimeSessions();
+  // Gated on the toggle being on screen: when the selection stops being MySQL
+  // the control unmounts, and a filter nobody can see must not keep hiding rows
+  // (nor silently shrink the CSV export, which exports the filtered rows).
+  const hideTransactionControl = hideCommit && isMySqlSelection;
+  const tableQueries = useMemo(() => {
+    const allQueries = queries ?? EMPTY_QUERIES;
+    return hideTransactionControl
+      ? allQueries.filter((query) => !isTransactionControl(query))
+      : allQueries;
+  }, [queries, hideTransactionControl]);
 
   const handleQuerySelected = (query: QueryData) => {
     setSelectedQuery(query);
@@ -92,6 +122,7 @@ const RealtimeOverviewPage: FC = () => {
     <RealtimePage>
       <OverviewTable
         queries={tableQueries}
+        serviceType={serviceType}
         onQuerySelected={handleQuerySelected}
         onNavigableQueriesChange={setNavigableQueries}
         actions={({ table }) => (
@@ -120,6 +151,7 @@ const RealtimeOverviewPage: FC = () => {
                 data-testid="overview-table-services-autocomplete-input"
                 sessions={sessions}
                 serviceIds={serviceIds}
+                singleTechnology
                 onServiceIdsChange={handleServiceIdsChange}
                 inputProps={{
                   size: 'small',
@@ -199,6 +231,34 @@ const RealtimeOverviewPage: FC = () => {
                 >
                   {Messages.export}
                 </Button>
+              )}
+              {/* This filters the rows, it does not drive live updates: keep it
+                  out of the auto-refresh / playback group so that group reads as
+                  one control. */}
+              {isMySqlSelection && (
+                <>
+                  <Divider
+                    orientation="vertical"
+                    flexItem
+                    sx={{ my: 1, mx: 0.5 }}
+                  />
+                  <Tooltip title={Messages.hideCommitTooltip} arrow>
+                    <FormControlLabel
+                      data-testid="overview-table-hide-commit-toggle"
+                      control={
+                        <Switch
+                          size="small"
+                          checked={hideCommit}
+                          onChange={(event) =>
+                            setHideCommit(event.target.checked)
+                          }
+                        />
+                      }
+                      label={Messages.hideCommit}
+                      sx={{ whiteSpace: 'nowrap', mr: 0 }}
+                    />
+                  </Tooltip>
+                </>
               )}
             </Stack>
             <Box sx={{ flex: '0 0 auto', ml: { md: 'auto' }, my: 1 }}>

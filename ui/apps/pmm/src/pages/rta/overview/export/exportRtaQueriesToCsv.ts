@@ -26,7 +26,9 @@ export const formatElapsedExecTimeSec = (
 };
 
 export const mapQueryToCsvRow = (query: QueryData) => {
-  const { mongoDbPayload } = query;
+  const { mongoDbPayload, mySqlPayload } = query;
+  // Fields common to all database types come from whichever payload is present.
+  const payload = mongoDbPayload ?? mySqlPayload;
 
   return {
     operation_id: sanitizeCsvCell(query.queryId),
@@ -34,16 +36,26 @@ export const mapQueryToCsvRow = (query: QueryData) => {
       // QueryData stores seconds here despite the Ms suffix in the field name.
       query.queryExecutionDurationMs
     ),
-    db_instance_address: sanitizeCsvCell(mongoDbPayload.dbInstanceAddress),
+    db_instance_address: sanitizeCsvCell(payload?.dbInstanceAddress ?? ''),
     client_address: sanitizeCsvCell(query.clientAddress),
-    database_name: sanitizeCsvCell(mongoDbPayload.databaseName),
+    database_name: sanitizeCsvCell(payload?.databaseName ?? ''),
     service: sanitizeCsvCell(query.serviceName),
-    user_name: sanitizeCsvCell(mongoDbPayload.username),
-    collection: sanitizeCsvCell(mongoDbPayload.collection ?? ''),
-    operation: sanitizeCsvCell(mongoDbPayload.operation),
-    plan_summary: sanitizeCsvCell(mongoDbPayload.planSummary),
-    client_app_name: sanitizeCsvCell(mongoDbPayload.clientAppName),
-    operation_start_time: sanitizeCsvCell(mongoDbPayload.operationStartTime),
+    user_name: sanitizeCsvCell(payload?.username ?? ''),
+    // MongoDB-specific columns; empty for other database types.
+    collection: sanitizeCsvCell(mongoDbPayload?.collection ?? ''),
+    operation: sanitizeCsvCell(mongoDbPayload?.operation ?? ''),
+    plan_summary: sanitizeCsvCell(mongoDbPayload?.planSummary ?? ''),
+    client_app_name: sanitizeCsvCell(mongoDbPayload?.clientAppName ?? ''),
+    operation_start_time: sanitizeCsvCell(
+      mongoDbPayload?.operationStartTime ?? ''
+    ),
+    // MySQL-specific columns; empty for other database types.
+    command: sanitizeCsvCell(mySqlPayload?.command ?? ''),
+    state: sanitizeCsvCell(mySqlPayload?.state ?? ''),
+    program_name: sanitizeCsvCell(mySqlPayload?.programName ?? ''),
+    rows_examined: sanitizeCsvCell(String(mySqlPayload?.rowsExamined ?? '')),
+    rows_sent: sanitizeCsvCell(String(mySqlPayload?.rowsSent ?? '')),
+    full_scan: mySqlPayload ? (mySqlPayload.fullScan ? 'yes' : 'no') : '',
     data_capture_time: sanitizeCsvCell(query.queryCollectTime),
     raw_query: sanitizeCsvCell(query.queryRawJson),
   };
@@ -52,7 +64,7 @@ export const mapQueryToCsvRow = (query: QueryData) => {
 export const buildRtaExportFilename = (date = new Date()): string => {
   const timestamp = format(date, 'yyyyMMdd_HHmmss');
 
-  return `mongodb_rta_export_${timestamp}`;
+  return `rta_export_${timestamp}`;
 };
 
 export const exportRtaQueriesToCsv = (queries: QueryData[]): void => {

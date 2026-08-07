@@ -6,7 +6,7 @@ import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { Table } from '@percona/percona-ui';
 import { boxClasses, Skeleton, Typography } from '@mui/material';
-import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
+import { columnId, SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
 import { useRealtimeSessions, useStopSessions } from 'hooks/api/useRealtime';
 import {
   getAllSessions,
@@ -125,7 +125,7 @@ const SessionsTable: FC = () => {
           columnOrder: [
             'mrt-row-expand',
             'mrt-row-select',
-            ...SESSIONS_TABLE_COLUMNS.map((column) => column.accessorKey || ''),
+            ...SESSIONS_TABLE_COLUMNS.map(columnId),
             ...(user?.isPMMAdmin ? ['mrt-row-actions'] : []),
           ],
         }}

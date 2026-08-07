@@ -13,6 +13,8 @@ import {
   stopSession,
 } from 'api/rta';
 import {
+  AvailableService,
+  AvailableServicesResponse,
   RealtimeSession,
   StartSessionResponse,
   StartSessionPayload,
@@ -21,11 +23,21 @@ import {
   QueryData,
   RawQueryData,
 } from 'types/rta.types';
-import { ServiceType, VersionedService } from 'types/services.types';
+import { ServiceType } from 'types/services.types';
 import { useMemo } from 'react';
 import { EmptyResponse } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
 import { useUser } from 'contexts/user';
+
+// Maps the technology-keyed groups of the ListServices response to the service
+// type each group holds. Add a key here when RTA gains another engine.
+const AVAILABLE_SERVICE_TYPES: Record<
+  keyof AvailableServicesResponse,
+  ServiceType
+> = {
+  mongodb: ServiceType.mongodb,
+  mysql: ServiceType.mysql,
+};
 
 const KEYS = {
   LIST_SESSIONS: 'rta:list-sessions',
@@ -117,27 +129,40 @@ export const useStopSessions = (
 };
 
 /**
- * Hook to get MongoDB services that don't have running RTA agents
+ * Hook to get services (MongoDB, MySQL, ...) that don't have running RTA agents
  */
 export const useAvailableServices = (serviceTypes?: ServiceType[]) => {
   const { user } = useUser();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
-  const { data: services = { mongodb: [] }, isLoading: isLoadingServices } =
-    useQuery({
-      queryKey: [KEYS.AVAILABLE_SERVICES],
-      queryFn: () => getAvailableServices(serviceTypes),
-      enabled: !!user,
-    });
+  const {
+    data: services = { mongodb: [], mysql: [] },
+    isLoading: isLoadingServices,
+  } = useQuery({
+    queryKey: [KEYS.AVAILABLE_SERVICES],
+    queryFn: () => getAvailableServices(serviceTypes),
+    enabled: !!user,
+  });
 
-  const availableServices = useMemo<VersionedService[]>(() => {
+  const availableServices = useMemo<AvailableService[]>(() => {
     const runningServiceIds = (sessions || []).map(
       (session) => session.serviceId
     );
 
-    // Filter out services that already have running RTA agents
-    return Object.values(services)
-      .flat()
+    // Filter out services that already have running RTA agents. The response
+    // groups services by technology, so the key is what tells us the type -
+    // it is carried over onto each service rather than flattened away.
+    return (
+      Object.keys(
+        AVAILABLE_SERVICE_TYPES
+      ) as (keyof AvailableServicesResponse)[]
+    )
+      .flatMap((serviceKey) =>
+        (services[serviceKey] ?? []).map((service) => ({
+          ...service,
+          serviceType: AVAILABLE_SERVICE_TYPES[serviceKey],
+        }))
+      )
       .filter((service) => !runningServiceIds.includes(service.serviceId));
   }, [services, sessions]);
 

@@ -5,6 +5,7 @@ import {
   TEST_MONGO_DB_QUERY_DATA,
   TEST_REAL_TIME_SESSION,
   TEST_REAL_TIME_SESSION_2,
+  TEST_REAL_TIME_SESSION_MYSQL,
 } from 'utils/testStubs';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Messages } from './RealtimeOverview.messages';
@@ -28,6 +29,17 @@ vi.mock('api/rta', () => ({
   searchQueries,
   getRunningSessions,
 }));
+
+// The overview derives the technology of the selection by matching the URL's
+// serviceIds against the running sessions, so a test that cares about the
+// technology has to line those up.
+const renderMySqlSelection = () => {
+  getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+
+  return renderComponent({
+    initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+  });
+};
 
 const renderComponent = ({
   initialEntry = '/rta/overview?serviceIds=123',
@@ -82,6 +94,167 @@ describe('RealtimeOverview', () => {
         screen.getAllByText(TEST_MONGO_DB_QUERY_DATA.serviceName)[0]
       ).toBeInTheDocument()
     );
+  });
+
+  it('should hide the database and user columns by default', async () => {
+    renderMySqlSelection();
+
+    await waitFor(() =>
+      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
+    );
+
+    expect(
+      screen.queryByTestId(
+        `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-database-cell`
+      )
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(
+        `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-user-cell`
+      )
+    ).not.toBeInTheDocument();
+  });
+
+  it('should render database and user columns from the payload once revealed', async () => {
+    renderMySqlSelection();
+
+    await waitFor(() =>
+      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
+    );
+
+    fireEvent.click(screen.getByLabelText('Show/Hide columns'));
+    fireEvent.click(await screen.findByLabelText('Database'));
+    fireEvent.click(screen.getByLabelText('User'));
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId(
+          `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-database-cell`
+        )
+      ).toHaveTextContent('database-name')
+    );
+    expect(
+      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-user-cell`)
+    ).toHaveTextContent('username');
+  });
+
+  it('should render elapsed time with millisecond precision, and 0 as a duration', async () => {
+    searchQueries.mockResolvedValue({
+      queries: [
+        {
+          ...TEST_MONGO_DB_QUERY_DATA,
+          queryExecutionDuration: '3ms',
+          queryId: 'query-ms',
+        },
+        {
+          ...TEST_MONGO_DB_QUERY_DATA,
+          queryExecutionDuration: '0s',
+          queryId: 'query-zero',
+        },
+        {
+          ...TEST_MONGO_DB_QUERY_DATA,
+          queryExecutionDuration: null,
+          queryId: 'query-missing',
+        },
+      ],
+    });
+
+    renderComponent();
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('query-query-ms-elapsed-time-cell')
+      ).toHaveTextContent('0.003s')
+    );
+    expect(
+      screen.getByTestId('query-query-zero-elapsed-time-cell')
+    ).toHaveTextContent('0.000s');
+    expect(
+      screen.getByTestId('query-query-missing-elapsed-time-cell')
+    ).toHaveTextContent('Unavailable');
+  });
+
+  it('should hide the transaction control toggle for a MongoDB selection', async () => {
+    renderComponent();
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    expect(
+      screen.queryByTestId('overview-table-hide-commit-toggle')
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show the transaction control toggle for a MySQL selection', async () => {
+    renderMySqlSelection();
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('overview-table-hide-commit-toggle')
+      ).toHaveTextContent('Hide transaction control')
+    );
+  });
+
+  it('should not offer services of another technology while one is selected', async () => {
+    getRunningSessions.mockResolvedValue([
+      TEST_REAL_TIME_SESSION,
+      TEST_REAL_TIME_SESSION_MYSQL,
+    ]);
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    fireEvent.click(await screen.findByTitle('Open'));
+
+    expect(
+      await screen.findByTestId(
+        `service-option-${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`
+      )
+    ).not.toHaveAttribute('aria-disabled', 'true');
+    expect(
+      screen.getByTestId(`service-option-${TEST_REAL_TIME_SESSION.serviceId}`)
+    ).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('should watch only the first technology when the URL names both', async () => {
+    getRunningSessions.mockResolvedValue([
+      TEST_REAL_TIME_SESSION,
+      TEST_REAL_TIME_SESSION_MYSQL,
+    ]);
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}&serviceIds=${TEST_REAL_TIME_SESSION.serviceId}`,
+    });
+
+    await waitFor(() =>
+      expect(searchQueries).toHaveBeenLastCalledWith({
+        serviceIds: [TEST_REAL_TIME_SESSION_MYSQL.serviceId],
+      })
+    );
+  });
+
+  it('should keep elapsed time pinned without offering pin controls', async () => {
+    renderComponent();
+
+    await waitFor(() =>
+      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
+    );
+
+    expect(
+      screen.getByTestId(
+        `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-elapsed-time-cell`
+      )
+    ).toHaveAttribute('data-pinned', 'true');
+
+    fireEvent.click(screen.getByLabelText('Show/Hide columns'));
+
+    await waitFor(() => expect(screen.getByRole('menu')).toBeInTheDocument());
+    // The icon assertion does not depend on MRT's tooltip labelling, so it still
+    // holds if those labels change.
+    expect(screen.queryByTestId('PushPinIcon')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Pin to left')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Pin to right')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Unpin')).not.toBeInTheDocument();
   });
 
   it("shouldn't call api if no serviceIds are provided", async () => {
