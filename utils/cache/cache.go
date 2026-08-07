@@ -17,6 +17,7 @@ package cache
 
 import (
 	"hash/maphash"
+	"iter"
 )
 
 // Cache is a high-performance, sharded, generic cache.
@@ -62,6 +63,27 @@ func (c *Cache[V]) Get(key string) (V, bool) {
 	}
 
 	return itm.value, true
+}
+
+// All returns an iterator over all items in the cache.
+// Deadlock Risk: Because the yield function executes while the shard's read lock is held,
+// you must not write to the cache inside the loop.
+// Calling a method that acquires a Lock() on the same shard will cause a deadlock.
+func (c *Cache[V]) All() iter.Seq2[uint64, V] {
+	return func(yield func(uint64, V) bool) {
+		for i := range shardCount {
+			s := c.shards[i]
+
+			s.mu.RLock()
+			for k, item := range s.items {
+				if !yield(k, item.value) {
+					s.mu.RUnlock()
+					return
+				}
+			}
+			s.mu.RUnlock()
+		}
+	}
 }
 
 // Set inserts or updates an item with a specific TTL.

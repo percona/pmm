@@ -27,8 +27,8 @@ func TestNewCacheTTL_ReturnsErrorForInvalidInputs(t *testing.T) {
 	_, err := NewCacheTTL[int](nil, time.Second, time.Second) //nolint:staticcheck
 	require.ErrorIs(t, err, errInvalidContext)
 
-	_, err = NewCacheTTL[int](t.Context(), 0, time.Second) //nolint:staticcheck
-	require.ErrorIs(t, err, errInvalidTtlInterval)
+	_, err = NewCacheTTL[int](t.Context(), 0, time.Second)
+	require.ErrorIs(t, err, errInvalidTTLInterval)
 
 	_, err = NewCacheTTL[int](t.Context(), time.Second, 0)
 	require.ErrorIs(t, err, errInvalidCleanupInterval)

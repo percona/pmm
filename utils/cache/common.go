@@ -32,7 +32,7 @@ const (
 
 var (
 	errInvalidContext         = errors.New("context must not be nil")
-	errInvalidTtlInterval     = errors.New("ttl must be greater than 0")
+	errInvalidTTLInterval     = errors.New("ttl must be greater than 0")
 	errInvalidCleanupInterval = errors.New("cleanupInterval must be greater than 0")
 )
 
@@ -47,6 +47,6 @@ type shard[K comparable, V any] struct {
 	mu    sync.RWMutex
 	items map[K]item[V]
 	size  int64
-	// Pad to GOARCH dependnt bytes to prevent false sharing in L1 CPU cache.
+	// Pad to CPU Arch dependnt bytes to prevent false sharing in L1 CPU cache.
 	_ cpu.CacheLinePad
 }

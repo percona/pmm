@@ -223,7 +223,7 @@ type AuthServer struct {
 	// cache stores authentication responses to reduce Grafana API calls.
 	// Stores positive responses only.
 	// TODO: cache negative response as well.
-	cache *cache.CacheTTL[cachedAuthUser]
+	cache *cache.TTLCache[cachedAuthUser]
 	// authUserGroup deduplicates concurrent Grafana auth lookups for the same auth header set.
 	authUserGroup singleflight.Group
 
@@ -564,8 +564,6 @@ func authorizeUser(minRole role, user authUser, l *logrus.Entry) error {
 	l.Warnf("Minimal required role is %s, denying access.", minRole)
 	return errStaticAuthErrorPermissionDenied
 }
-
-const hashMixer = 0x9e3779b97f4a7c15 // Fractional part of the golden ratio
 
 // getAuthUser retrieves user information from cache (if exists) based on the request's authentication headers,
 // otherwise from Grafana.

@@ -18,7 +18,6 @@ package grafana
 import (
 	"errors"
 	"fmt"
-	"hash/maphash"
 	"net/http"
 	"net/netip"
 	"net/url"
@@ -267,8 +266,6 @@ func extractAuthHeaders(req *http.Request) http.Header {
 	}
 	return h
 }
-
-var seed = maphash.MakeSeed()
 
 // getAuthCacheKey returns cache key directly from request auth headers.
 func getAuthCacheKey(req *http.Request) string {

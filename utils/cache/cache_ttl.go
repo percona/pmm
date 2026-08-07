@@ -23,28 +23,28 @@ import (
 	"time"
 )
 
-// CacheTTL is a high-performance, sharded, generic TTL cache.
-type CacheTTL[V any] struct {
+// TTLCache is a high-performance, sharded, generic TTL cache.
+type TTLCache[V any] struct {
 	shards [shardCount]*shard[uint64, V]
 	seed   maphash.Seed
 	ttl    time.Duration
 }
 
 // NewCacheTTL initializes the cache with TTL support and starts the background eviction worker.
-func NewCacheTTL[V any](ctx context.Context, ttl time.Duration, cleanupInterval time.Duration) (*CacheTTL[V], error) {
+func NewCacheTTL[V any](ctx context.Context, ttl time.Duration, cleanupInterval time.Duration) (*TTLCache[V], error) {
 	if ctx == nil {
 		return nil, errInvalidContext
 	}
 
 	if ttl <= 0 {
-		return nil, errInvalidTtlInterval
+		return nil, errInvalidTTLInterval
 	}
 
 	if cleanupInterval <= 0 {
 		return nil, errInvalidCleanupInterval
 	}
 
-	c := &CacheTTL[V]{
+	c := &TTLCache[V]{
 		seed: maphash.MakeSeed(),
 		ttl:  ttl,
 	}
@@ -60,12 +60,12 @@ func NewCacheTTL[V any](ctx context.Context, ttl time.Duration, cleanupInterval 
 }
 
 // calculateKeyHash builds a deterministic cache key directly from passed key.
-func (c *CacheTTL[V]) calculateKeyHash(key string) uint64 {
+func (c *TTLCache[V]) calculateKeyHash(key string) uint64 {
 	return maphash.String(c.seed, key)
 }
 
 // Get retrieves an item. Zero-allocation on the hot path.
-func (c *CacheTTL[V]) Get(key string) (V, bool) {
+func (c *TTLCache[V]) Get(key string) (V, bool) {
 	keyHash := c.calculateKeyHash(key)
 	// Zero-allocation hash via maphash
 	shardKey := maphash.Comparable(c.seed, keyHash)
@@ -102,7 +102,7 @@ func (c *CacheTTL[V]) Get(key string) (V, bool) {
 }
 
 // Set inserts or updates an item with a specific TTL.
-func (c *CacheTTL[V]) Set(key string, value V) {
+func (c *TTLCache[V]) Set(key string, value V) {
 	keyHash := c.calculateKeyHash(key)
 	shardKey := maphash.Comparable(c.seed, keyHash)
 	shard := c.shards[shardKey&shardMask]
@@ -121,7 +121,7 @@ func (c *CacheTTL[V]) Set(key string, value V) {
 }
 
 // Delete removes an item explicitly.
-func (c *CacheTTL[V]) Delete(key string) {
+func (c *TTLCache[V]) Delete(key string) {
 	keyHash := c.calculateKeyHash(key)
 	shardKey := maphash.Comparable(c.seed, keyHash)
 	shard := c.shards[shardKey&shardMask]
@@ -135,7 +135,7 @@ func (c *CacheTTL[V]) Delete(key string) {
 }
 
 // Size returns the total number of items across all cache shards.
-func (c *CacheTTL[V]) Size() int64 {
+func (c *TTLCache[V]) Size() int64 {
 	var total int64
 	for i := range shardCount {
 		shard := c.shards[i]
@@ -148,7 +148,7 @@ func (c *CacheTTL[V]) Size() int64 {
 }
 
 // evictionWorker periodically sweeps shards to remove expired items.
-func (c *CacheTTL[V]) evictionWorker(ctx context.Context, interval time.Duration) {
+func (c *TTLCache[V]) evictionWorker(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
