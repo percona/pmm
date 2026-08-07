@@ -981,7 +981,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	qanClient := getQANClient(sqlAPIDB, *postgresDBNameF, *qanAPIAddrF)
 
-	agentsRegistry := agents.NewRegistry(internalDB, vmParams, haService)
+	agentsRegistry := agents.NewRegistry(apiDB, vmParams, haService)
 
 	// TODO remove once PMM cluster is Active-Active
 	// TODO kick non-pmm-server agents only
