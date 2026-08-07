@@ -48,19 +48,31 @@ const (
 	ClickHouseConfig = "PMM_CLICKHOUSE_CONFIG"
 )
 
+// LookupBool returns the boolean value of the environment variable, or nil if the variable
+// is not set or cannot be parsed as boolean. Use it to tell "not configured" apart from
+// "configured as false".
+// It does not return errors since it assumes that validation has already been done during startup.
+func LookupBool(key string) *bool {
+	v, ok := os.LookupEnv(key)
+	if !ok {
+		return nil
+	}
+	b, err := strconv.ParseBool(v)
+	if err != nil {
+		return nil
+	}
+	return &b
+}
+
 // GetBool returns the boolean value of the environment variable.
 // Returns false if the variable is not set or cannot be parsed as boolean.
 // It does not return errors since it assumes that validation has already been done during startup.
 func GetBool(key string) bool {
-	v, ok := os.LookupEnv(key)
-	if !ok {
+	b := LookupBool(key)
+	if b == nil {
 		return false
 	}
-	b, err := strconv.ParseBool(v)
-	if err != nil {
-		return false
-	}
-	return b
+	return *b
 }
 
 // GetStringSlice returns the string slice value of the environment variable.

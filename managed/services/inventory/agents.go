@@ -18,7 +18,6 @@ package inventory
 
 import (
 	"context"
-	"os"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -1214,21 +1213,6 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 	if err != nil {
 		return nil, err
 	}
-	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
-	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
-	if exists && envVar != "" {
-		a, err := models.FindAgentByID(as.db.Querier, agentID)
-		if err != nil {
-			return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
-		}
-		if pointer.GetString(a.PMMAgentID) == models.PMMServerAgentID {
-			return nil, status.Errorf(
-				codes.FailedPrecondition,
-				"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",
-				envVar,
-			)
-		}
-	}
 
 	pgStatementsAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent)
 	if !ok {
@@ -1768,6 +1752,36 @@ func unexpectedAgentTypeError(agent inventoryv1.Agent) error {
 	return status.Errorf(codes.Internal, "unexpected agent type %T", agent)
 }
 
+// checkInternalPgQANEnvOverride rejects a request that would flip the enabled state of the QAN agent
+// of PMM's internal PostgreSQL server while that state is pinned by the PMM_ENABLE_INTERNAL_PG_QAN
+// environment variable. Parameters unrelated to the enabled state stay changeable.
+//
+// It keys off the stored agent row rather than the calling method, because the inventory API picks
+// the method from the request payload and not from the type of the agent being changed. Any
+// Change*Agent method can therefore be pointed at the internal QAN agent.
+func checkInternalPgQANEnvOverride(agent *models.Agent, enable *bool) error {
+	if enable == nil {
+		return nil
+	}
+
+	if agent.AgentType != models.QANPostgreSQLPgStatementsAgentType || pointer.GetString(agent.PMMAgentID) != models.PMMServerAgentID {
+		return nil
+	}
+
+	// An invalid value is reported by the environment variable parser during startup, so
+	// env.LookupBool treats it as if the variable was not set at all.
+	enabledByEnv := env.LookupBool(env.EnableInternalPgQAN)
+	if enabledByEnv == nil || *enable == *enabledByEnv {
+		return nil
+	}
+
+	return status.Errorf(
+		codes.FailedPrecondition,
+		"QAN for PMM's internal PostgreSQL server is set to %t via an environment variable.",
+		*enabledByEnv,
+	)
+}
+
 // Helper function to convert custom labels from protobuf to model format.
 func convertCustomLabels(customLabels *common.StringMap) *map[string]string {
 	if customLabels != nil {
@@ -1819,6 +1833,12 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		updatedAgent, err := models.ChangeAgent(tx.Querier, agentID, params)
+		if err != nil {
+			return err
+		}
+
+		// Returning an error rolls the transaction back, so a rejected request leaves the agent untouched.
+		err = checkInternalPgQANEnvOverride(updatedAgent, params.Enabled)
 		if err != nil {
 			return err
 		}
