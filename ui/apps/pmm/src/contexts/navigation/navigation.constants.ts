@@ -478,8 +478,8 @@ export const NAV_EXPLORE: NavItem = {
 export const NAV_ALERTS_TEMPLATES: NavItem = {
   id: 'alerts-templates',
   text: 'Templates',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/alerting/alert-rule-templates`,
-  matches: [`${PMM_NEW_NAV_GRAFANA_PATH}/alerting/new-from-template/*`],
+  url: `${PMM_NEW_NAV_PATH}/alerting/alert-rule-templates`,
+  matches: [`${PMM_NEW_NAV_PATH}/alerting/new-from-template`],
 };
 
 export const NAV_ALERTS_RULES: NavItem = {

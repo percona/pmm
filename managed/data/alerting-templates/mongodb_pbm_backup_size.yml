@@ -3,6 +3,7 @@ templates:
   - name: pmm_mongodb_pbm_backup_size
     version: 1
     summary: PBM backup size
+    category: mongodb
     expr: |-
       (max by (name,node_name,service_name) (mongodb_pbm_backup_size_bytes{status="done"})/1073741824)
       > bool [[ .threshold ]]

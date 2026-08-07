@@ -3,6 +3,7 @@ templates:
   - name: pmm_postgresql_too_many_connections
     version: 1
     summary: PostgreSQL connections in use
+    category: postgresql
     queries:
       - ref_id: A
         expr: |-
