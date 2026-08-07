@@ -24,9 +24,11 @@ export {
   getToken,
   refreshAccessToken,
   setTokenProvider,
+  setTokenMinter,
   setOnUnauthorized,
   setOnRefreshed,
 } from './client';
+export type { MintedToken } from './client';
 
 // Query client
 export { createQueryClient, defaultQueryClientConfig } from './queryClient';
