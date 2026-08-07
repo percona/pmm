@@ -1071,7 +1071,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	jobsService := agents.NewJobsService(internalDB, agentsRegistry, backupRetentionService)
-	agentsStateUpdater := agents.NewStateUpdater(internalDB, agentsRegistry, vmdb, vmParams, nomad)
+	agentsStateUpdater := agents.NewStateUpdater(apiDB, agentsRegistry, vmdb, vmParams, nomad)
 	// Agents service handles pmm-agent <-> pmm-server communication logic.
 	// Shall use apiDB connection pool.
 	agentsHandler := agents.NewHandler(apiDB, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService, pmmAgentsConnectionsLimiter)
