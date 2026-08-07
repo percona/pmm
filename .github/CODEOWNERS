@@ -2,6 +2,7 @@
 /dev/docs/                              @percona/pmm-review-be
 /documentation/                         @percona/pmm-docs
 /ui/                                    @percona/pmm-review-fe
+/ui/apps/pmm-app/                       @nailya @percona/pmm-review-fe
 /dashboards/                            @nailya @percona/pmm-review-fe
 /api/                                   @percona/pmm-review-be
 **/go.mod                               @percona/pmm-review-be

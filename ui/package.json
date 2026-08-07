@@ -44,7 +44,12 @@
     "immutable": "^5.1.5",
     "dompurify": "^3.2.7",
     "serialize-javascript": "^7.0.3",
-    "picomatch": "^4.0.4"
+    "picomatch": "^4.0.4",
+    "@types/jest": "^29.5.0",
+    "@types/react": "^18.3.2",
+    "@types/react-dom": "^18.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "prettier": "@percona/prettier-config"
 }
