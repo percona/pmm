@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
-	"strconv"
 	"strings"
 	"time"
 
@@ -224,7 +223,7 @@ type AuthServer struct {
 	// cache stores authentication responses to reduce Grafana API calls.
 	// Stores positive responses only.
 	// TODO: cache negative response as well.
-	cache *cache.CacheTTL[uint64, cachedAuthUser]
+	cache *cache.CacheTTL[cachedAuthUser]
 	// authUserGroup deduplicates concurrent Grafana auth lookups for the same auth header set.
 	authUserGroup singleflight.Group
 
@@ -238,7 +237,7 @@ type AuthServer struct {
 
 // NewAuthServer creates new AuthServer.
 func NewAuthServer(ctx context.Context, c grafanaAuthUserGetter, db *reform.DB) *AuthServer {
-	cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](ctx, cacheItemTTL, cacheInvalidationInterval)
+	cache, err := cache.NewCacheTTL[cachedAuthUser](ctx, cacheItemTTL, cacheInvalidationInterval)
 	if err != nil {
 		panic(err)
 	}
@@ -566,13 +565,24 @@ func authorizeUser(minRole role, user authUser, l *logrus.Entry) error {
 	return errStaticAuthErrorPermissionDenied
 }
 
-func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (authUser, error) {
-	authorization := req.Header.Get("Authorization")
-	cookie := req.Header.Get("Cookie")
+const hashMixer = 0x9e3779b97f4a7c15 // Fractional part of the golden ratio
 
-	hash := authCacheKey(s.cache, req)
+// getAuthUser retrieves user information from cache (if exists) based on the request's authentication headers,
+// otherwise from Grafana.
+func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (authUser, error) {
+	// Marginally faster than req.Header.Get("...")
+	var authorization, cookie string
+	if vals := req.Header["Authorization"]; len(vals) > 0 {
+		authorization = vals[0]
+	}
+	if vals := req.Header["Cookie"]; len(vals) > 0 {
+		cookie = vals[0]
+	}
+
+	authCacheKey := getAuthCacheKey(req)
+
 	// Hot-path: lookup user in cache first.
-	if cached, ok := s.cache.Get(hash); ok {
+	if cached, ok := s.cache.Get(authCacheKey); ok {
 		// Verify auth headers for this hash to prevent serving wrong user on rare hash collisions.
 		if cached.authorization == authorization && cached.cookie == cookie {
 			s.incCacheHit()
@@ -585,11 +595,10 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	// Use single-flight to avoid calling Grafana for the same user's authHeaders.
 	// It appears when after restart the same vm-agent starts to send buffered metrics
 	// to server in parallel and all such requests have to be authenticated.
-	hashStr := strconv.FormatUint(hash, 10)
-	res, err, _ := s.authUserGroup.Do(hashStr, func() (any, error) {
+	res, err, _ := s.authUserGroup.Do(authCacheKey, func() (any, error) {
 		// Recheck inside singleflight to avoid duplicate upstream calls when
 		// another goroutine already populated cache while we were waiting.
-		if cached, ok := s.cache.Get(hash); ok {
+		if cached, ok := s.cache.Get(authCacheKey); ok {
 			if cached.authorization == authorization && cached.cookie == cookie {
 				return cached.user, nil
 			}
@@ -614,12 +623,12 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 			// IMPORTANT: On error, we call Forget(hash) IMMEDIATELY.
 			// This prevents the error from getting stuck in the internal singleflight map
 			// and allows the next request to retry immediately (e.g. if the Grafana is being restored).
-			s.authUserGroup.Forget(hashStr)
+			s.authUserGroup.Forget(authCacheKey)
 			return nil, authErr
 		}
 
 		// Store the retrieved user info in cache for future requests.
-		s.cache.Set(hash, cachedAuthUser{
+		s.cache.Set(authCacheKey, cachedAuthUser{
 			user:          userAuthInfo,
 			authorization: authorization,
 			cookie:        cookie,

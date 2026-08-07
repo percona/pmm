@@ -16,90 +16,93 @@
 package cache
 
 import (
-    "hash/maphash"
+	"hash/maphash"
 )
 
 // Cache is a high-performance, sharded, generic cache.
-type Cache[K comparable, V any] struct {
-    shards [shardCount]*shard[K, V]
-    seed   maphash.Seed
+type Cache[V any] struct {
+	shards [shardCount]*shard[uint64, V]
+	seed   maphash.Seed
 }
 
 // NewCache initializes the cache.
-func NewCache[K comparable, V any]() *Cache[K, V] {
-    c := &Cache[K, V]{
-        seed: maphash.MakeSeed(),
-    }
+func NewCache[V any]() *Cache[V] {
+	c := &Cache[V]{
+		seed: maphash.MakeSeed(),
+	}
 
-    for i := range shardCount {
-        c.shards[i] = &shard[K, V]{
-            items: make(map[K]item[V]),
-        }
-    }
+	for i := range shardCount {
+		c.shards[i] = &shard[uint64, V]{
+			items: make(map[uint64]item[V]),
+		}
+	}
 
-    return c
+	return c
 }
 
 // CalculateCacheKey builds a deterministic cache key directly from passed key.
-func (c *Cache[K, V]) CalculateCacheKey(key string) uint64 {
-    return maphash.String(c.seed, key)
+func (c *Cache[V]) CalculateCacheKey(key string) uint64 {
+	return maphash.String(c.seed, key)
 }
 
 // Get retrieves an item. Zero-allocation on the hot path.
-func (c *Cache[K, V]) Get(key K) (V, bool) {
-    // Zero-allocation hash via maphash
-    hash := maphash.Comparable(c.seed, key)
-    shard := c.shards[hash&shardMask]
+func (c *Cache[V]) Get(key string) (V, bool) {
+	keyHash := c.CalculateCacheKey(key)
+	// Zero-allocation hash via maphash
+	shardKey := maphash.Comparable(c.seed, keyHash)
+	shard := c.shards[shardKey&shardMask]
 
-    shard.mu.RLock()
-    itm, found := shard.items[key]
-    shard.mu.RUnlock()
+	shard.mu.RLock()
+	itm, found := shard.items[keyHash]
+	shard.mu.RUnlock()
 
-    if !found {
-        var zero V
-        return zero, false
-    }
+	if !found {
+		var zero V
+		return zero, false
+	}
 
-    return itm.value, true
+	return itm.value, true
 }
 
 // Set inserts or updates an item with a specific TTL.
-func (c *Cache[K, V]) Set(key K, value V) {
-    hash := maphash.Comparable(c.seed, key)
-    shard := c.shards[hash&shardMask]
+func (c *Cache[V]) Set(key string, value V) {
+	keyHash := c.CalculateCacheKey(key)
+	shardKey := maphash.Comparable(c.seed, keyHash)
+	shard := c.shards[shardKey&shardMask]
 
-    shard.mu.Lock()
-    if _, exists := shard.items[key]; !exists {
-        shard.size++
-    }
-    shard.items[key] = item[V]{
-        value: value,
-    }
-    shard.mu.Unlock()
+	shard.mu.Lock()
+	if _, exists := shard.items[keyHash]; !exists {
+		shard.size++
+	}
+	shard.items[keyHash] = item[V]{
+		value: value,
+	}
+	shard.mu.Unlock()
 }
 
 // Delete removes an item explicitly.
-func (c *Cache[K, V]) Delete(key K) {
-    hash := maphash.Comparable(c.seed, key)
-    shard := c.shards[hash&shardMask]
+func (c *Cache[V]) Delete(key string) {
+	keyHash := c.CalculateCacheKey(key)
+	shardKey := maphash.Comparable(c.seed, keyHash)
+	shard := c.shards[shardKey&shardMask]
 
-    shard.mu.Lock()
-    if _, exists := shard.items[key]; exists {
-        delete(shard.items, key)
-        shard.size--
-    }
-    shard.mu.Unlock()
+	shard.mu.Lock()
+	if _, exists := shard.items[keyHash]; exists {
+		delete(shard.items, keyHash)
+		shard.size--
+	}
+	shard.mu.Unlock()
 }
 
 // Size returns the total number of items across all cache shards.
-func (c *Cache[K, V]) Size() int64 {
-    var total int64
-    for i := range shardCount {
-        shard := c.shards[i]
-        shard.mu.RLock()
-        total += shard.size
-        shard.mu.RUnlock()
-    }
+func (c *Cache[V]) Size() int64 {
+	var total int64
+	for i := range shardCount {
+		shard := c.shards[i]
+		shard.mu.RLock()
+		total += shard.size
+		shard.mu.RUnlock()
+	}
 
-    return total
+	return total
 }

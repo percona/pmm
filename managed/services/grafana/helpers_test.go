@@ -25,7 +25,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/utils/tests"
-	"github.com/percona/pmm/utils/cache"
 )
 
 func TestExtractOriginalRequest(t *testing.T) {
@@ -387,72 +386,57 @@ func TestExtractAuthHeaders(t *testing.T) {
 	}
 }
 
-func TestAuthCacheKey(t *testing.T) {
+func TestGetAuthCacheKey(t *testing.T) {
 	t.Parallel()
 
-	t.Run("returns zero for missing auth headers", func(t *testing.T) {
+	t.Run("returns separator only for missing auth headers", func(t *testing.T) {
 		t.Parallel()
-
-		cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](t.Context(), cacheItemTTL, cacheInvalidationInterval)
-		require.NoError(t, err)
 
 		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
-		key := authCacheKey(cache, req)
-		assert.Zero(t, key)
+		key := getAuthCacheKey(req)
+		assert.Equal(t, ":", key)
 	})
 
-	t.Run("returns non zero key for authorization header", func(t *testing.T) {
+	t.Run("returns key for authorization header", func(t *testing.T) {
 		t.Parallel()
-
-		cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](t.Context(), cacheItemTTL, cacheInvalidationInterval)
-		require.NoError(t, err)
 
 		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req.Header.Set("Authorization", "Bearer token")
-		key := authCacheKey(cache, req)
-		assert.NotZero(t, key)
+		key := getAuthCacheKey(req)
+		assert.Equal(t, "Bearer token:", key)
 	})
 
-	t.Run("returns non zero key for cookie header", func(t *testing.T) {
+	t.Run("returns key for cookie header", func(t *testing.T) {
 		t.Parallel()
-
-		cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](t.Context(), cacheItemTTL, cacheInvalidationInterval)
-		require.NoError(t, err)
 
 		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req.Header.Set("Cookie", "grafana_session=abc")
-		key := authCacheKey(cache, req)
-		assert.NotZero(t, key)
+		key := getAuthCacheKey(req)
+		assert.Equal(t, ":grafana_session=abc", key)
 	})
 
-	t.Run("returns non zero key for combined authorization and cookie headers", func(t *testing.T) {
+	t.Run("returns key for combined authorization and cookie headers", func(t *testing.T) {
 		t.Parallel()
-
-		cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](t.Context(), cacheItemTTL, cacheInvalidationInterval)
-		require.NoError(t, err)
 
 		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req.Header.Set("Authorization", "Bearer token")
 		req.Header.Set("Cookie", "grafana_session=abc")
-		key := authCacheKey(cache, req)
-		assert.NotZero(t, key)
+		key := getAuthCacheKey(req)
+		assert.Equal(t, "Bearer token:grafana_session=abc", key)
 	})
 
 	t.Run("produces deterministic key for the same auth headers", func(t *testing.T) {
 		t.Parallel()
 
-		cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](t.Context(), cacheItemTTL, cacheInvalidationInterval)
-		require.NoError(t, err)
-
 		req1 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req1.Header.Set("Authorization", "Bearer token")
 		req1.Header.Set("Cookie", "grafana_session=abc")
-		key1 := authCacheKey(cache, req1)
+		key1 := getAuthCacheKey(req1)
 
 		req2 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req2.Header.Set("Authorization", "Bearer token")
 		req2.Header.Set("Cookie", "grafana_session=abc")
-		key2 := authCacheKey(cache, req2)
+		key2 := getAuthCacheKey(req2)
 
 		assert.Equal(t, key1, key2)
 	})
@@ -460,19 +444,16 @@ func TestAuthCacheKey(t *testing.T) {
 	t.Run("ignores unrelated headers", func(t *testing.T) {
 		t.Parallel()
 
-		cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](t.Context(), cacheItemTTL, cacheInvalidationInterval)
-		require.NoError(t, err)
-
 		req1 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req1.Header.Set("Authorization", "Bearer token")
 		req1.Header.Set("Cookie", "grafana_session=abc")
-		key1 := authCacheKey(cache, req1)
+		key1 := getAuthCacheKey(req1)
 
 		req2 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req2.Header.Set("Authorization", "Bearer token")
 		req2.Header.Set("Cookie", "grafana_session=abc")
 		req2.Header.Set("X-Extra", "ignored")
-		key2 := authCacheKey(cache, req2)
+		key2 := getAuthCacheKey(req2)
 
 		assert.Equal(t, key1, key2)
 	})
@@ -480,23 +461,17 @@ func TestAuthCacheKey(t *testing.T) {
 	t.Run("changes key when auth header value changes", func(t *testing.T) {
 		t.Parallel()
 
-		cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](t.Context(), cacheItemTTL, cacheInvalidationInterval)
-		require.NoError(t, err)
-
 		req1 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req1.Header.Set("Authorization", "Bearer token-a")
 
 		req2 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req2.Header.Set("Authorization", "Bearer token-b")
 
-		assert.NotEqual(t, authCacheKey(cache, req1), authCacheKey(cache, req2))
+		assert.NotEqual(t, getAuthCacheKey(req1), getAuthCacheKey(req2))
 	})
 
 	t.Run("uses both headers when both are present", func(t *testing.T) {
 		t.Parallel()
-
-		cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](t.Context(), cacheItemTTL, cacheInvalidationInterval)
-		require.NoError(t, err)
 
 		reqAuthOnly := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		reqAuthOnly.Header.Set("Authorization", "Bearer token")
@@ -508,9 +483,9 @@ func TestAuthCacheKey(t *testing.T) {
 		reqBoth.Header.Set("Authorization", "Bearer token")
 		reqBoth.Header.Set("Cookie", "grafana_session=abc")
 
-		keyAuthOnly := authCacheKey(cache, reqAuthOnly)
-		keyCookieOnly := authCacheKey(cache, reqCookieOnly)
-		keyBoth := authCacheKey(cache, reqBoth)
+		keyAuthOnly := getAuthCacheKey(reqAuthOnly)
+		keyCookieOnly := getAuthCacheKey(reqCookieOnly)
+		keyBoth := getAuthCacheKey(reqBoth)
 
 		assert.NotEqual(t, keyAuthOnly, keyBoth)
 		assert.NotEqual(t, keyCookieOnly, keyBoth)

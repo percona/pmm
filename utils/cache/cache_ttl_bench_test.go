@@ -27,7 +27,7 @@ func BenchmarkCacheTTL_Get(b *testing.B) {
 	ctx, cancel := context.WithCancel(b.Context())
 	defer cancel()
 
-	c, err := NewCacheTTL[string, int](ctx, time.Minute, time.Minute)
+	c, err := NewCacheTTL[int](ctx, time.Minute, time.Minute)
 	require.NoError(b, err)
 
 	c.Set("hit", 42)
@@ -56,7 +56,7 @@ func BenchmarkCacheTTL_Set(b *testing.B) {
 	ctx, cancel := context.WithCancel(b.Context())
 	defer cancel()
 
-	c, err := NewCacheTTL[string, int](ctx, time.Minute, time.Minute)
+	c, err := NewCacheTTL[int](ctx, time.Minute, time.Minute)
 	require.NoError(b, err)
 
 	b.Run("updates same key", func(b *testing.B) {
@@ -80,7 +80,7 @@ func BenchmarkCacheTTL_Delete(b *testing.B) {
 	ctx, cancel := context.WithCancel(b.Context())
 	defer cancel()
 
-	c, err := NewCacheTTL[string, int](ctx, time.Minute, time.Minute)
+	c, err := NewCacheTTL[int](ctx, time.Minute, time.Minute)
 	require.NoError(b, err)
 
 	b.Run("deletes existing key", func(b *testing.B) {
@@ -106,7 +106,7 @@ func BenchmarkCacheTTL_Size(b *testing.B) {
 	ctx, cancel := context.WithCancel(b.Context())
 	defer cancel()
 
-	c, err := NewCacheTTL[string, int](ctx, time.Minute, time.Minute)
+	c, err := NewCacheTTL[int](ctx, time.Minute, time.Minute)
 	require.NoError(b, err)
 
 	for i := range 10_000 {
@@ -126,7 +126,7 @@ func BenchmarkCacheTTL_EvictionEffectOnSize(b *testing.B) {
 		ctx, cancel := context.WithCancel(b.Context())
 		defer cancel()
 
-		c, err := NewCacheTTL[string, int](ctx, 2*time.Millisecond, time.Millisecond)
+		c, err := NewCacheTTL[int](ctx, 2*time.Millisecond, time.Millisecond)
 		require.NoError(b, err)
 
 		for i := range 1000 {

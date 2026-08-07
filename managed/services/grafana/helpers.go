@@ -29,8 +29,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
-
-	"github.com/percona/pmm/utils/cache"
 )
 
 // statusCodeToString returns HTTP status code string presentation.
@@ -246,8 +244,14 @@ func cleanPath(uri string) (string, error) {
 
 // extractAuthHeaders extracts auth info from request.
 func extractAuthHeaders(req *http.Request) http.Header {
-	authorization := req.Header.Get("Authorization")
-	cookie := req.Header.Get("Cookie")
+	// Marginally faster than req.Header.Get("...")
+	var authorization, cookie string
+	if vals := req.Header["Authorization"]; len(vals) > 0 {
+		authorization = vals[0]
+	}
+	if vals := req.Header["Cookie"]; len(vals) > 0 {
+		cookie = vals[0]
+	}
 
 	// Fast path: no auth headers -> no map allocation.
 	if authorization == "" && cookie == "" {
@@ -266,30 +270,16 @@ func extractAuthHeaders(req *http.Request) http.Header {
 
 var seed = maphash.MakeSeed()
 
-const hashMixer = 0x9e3779b97f4a7c15 // Fractional part of the golden ratio
-
-// authCacheKey builds a deterministic cache key directly from request auth headers.
-func authCacheKey(cache *cache.CacheTTL[uint64, cachedAuthUser], req *http.Request) uint64 {
+// getAuthCacheKey returns cache key directly from request auth headers.
+func getAuthCacheKey(req *http.Request) string {
 	// Marginally faster than req.Header.Get("...")
-	var auth, cookie string
+	var authorization, cookie string
 	if vals := req.Header["Authorization"]; len(vals) > 0 {
-		auth = vals[0]
+		authorization = vals[0]
 	}
 	if vals := req.Header["Cookie"]; len(vals) > 0 {
 		cookie = vals[0]
 	}
 
-	if auth == "" && cookie == "" {
-		return 0
-	}
-
-	// maphash.String is highly optimized.
-	// Hashing an empty string returns a deterministic, non-zero value.
-	hAuth := cache.CalculateCacheKey(auth)
-	hCookie := cache.CalculateCacheKey(cookie)
-
-	// Multiply the second hash by a prime to break symmetry.
-	// This inherently prevents collisions (e.g., auth="A", cookie="" vs auth="", cookie="A")
-	// without the need for string delimiters.
-	return hAuth ^ (hCookie * hashMixer)
+	return authorization + ":" + cookie
 }

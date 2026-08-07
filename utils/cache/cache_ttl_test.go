@@ -24,20 +24,20 @@ import (
 func TestNewCacheTTL_ReturnsErrorForInvalidInputs(t *testing.T) {
 	t.Parallel()
 
-	_, err := NewCacheTTL[string, int](nil, time.Second, time.Second) //nolint:staticcheck
+	_, err := NewCacheTTL[int](nil, time.Second, time.Second) //nolint:staticcheck
 	require.ErrorIs(t, err, errInvalidContext)
 
-	_, err = NewCacheTTL[string, int](t.Context(), 0, time.Second) //nolint:staticcheck
+	_, err = NewCacheTTL[int](t.Context(), 0, time.Second) //nolint:staticcheck
 	require.ErrorIs(t, err, errInvalidTtlInterval)
 
-	_, err = NewCacheTTL[string, int](t.Context(), time.Second, 0)
+	_, err = NewCacheTTL[int](t.Context(), time.Second, 0)
 	require.ErrorIs(t, err, errInvalidCleanupInterval)
 }
 
 func TestNewCacheTTL_ReturnsCacheForValidInputs(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCacheTTL[string, int](t.Context(), time.Second, 10*time.Millisecond)
+	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 	if c == nil {
 		t.Fatal("expected cache instance")
@@ -47,7 +47,7 @@ func TestNewCacheTTL_ReturnsCacheForValidInputs(t *testing.T) {
 func TestCacheTTL_CalculateCacheKey_ReturnsSameValueForSameInput(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCacheTTL[string, int](t.Context(), time.Second, 10*time.Millisecond)
+	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
 	key := "Authorization:Bearer token"
@@ -62,7 +62,7 @@ func TestCacheTTL_CalculateCacheKey_ReturnsSameValueForSameInput(t *testing.T) {
 func TestCacheTTL_CalculateCacheKey_ReturnsDifferentValuesForDifferentInputs(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCacheTTL[string, int](t.Context(), time.Second, 10*time.Millisecond)
+	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
 	first := c.CalculateCacheKey("Authorization:Bearer token-a")
@@ -76,7 +76,7 @@ func TestCacheTTL_CalculateCacheKey_ReturnsDifferentValuesForDifferentInputs(t *
 func TestCacheTTL_Set_Get_Delete_StoresReadsAndRemovesValue(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCacheTTL[string, int](t.Context(), time.Second, 10*time.Millisecond)
+	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
 	c.Set("k", 42)
@@ -100,7 +100,7 @@ func TestCacheTTL_Set_Get_Delete_StoresReadsAndRemovesValue(t *testing.T) {
 func TestCacheTTL_Get_ReturnsMissForUnknownKey(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCacheTTL[string, int](t.Context(), time.Second, 10*time.Millisecond)
+	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
 	got, ok := c.Get("missing")
@@ -115,7 +115,7 @@ func TestCacheTTL_Get_ReturnsMissForUnknownKey(t *testing.T) {
 func TestCacheTTL_Get_ReturnsMissAfterTTLExpiration(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCacheTTL[string, int](t.Context(), 10*time.Millisecond, time.Second)
+	c, err := NewCacheTTL[int](t.Context(), 10*time.Millisecond, time.Second)
 	require.NoError(t, err)
 
 	c.Set("k", 7)
@@ -130,7 +130,7 @@ func TestCacheTTL_Get_ReturnsMissAfterTTLExpiration(t *testing.T) {
 func TestCacheTTL_Size_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCacheTTL[string, int](t.Context(), time.Second, 10*time.Millisecond)
+	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
 	if got := c.Size(); got != 0 {
@@ -166,7 +166,7 @@ func TestCacheTTL_Size_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 func TestCacheTTL_EvictionWorker_RemovesExpiredItemsAndUpdatesSize(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCacheTTL[string, int](t.Context(), 15*time.Millisecond, 5*time.Millisecond)
+	c, err := NewCacheTTL[int](t.Context(), 15*time.Millisecond, 5*time.Millisecond)
 	require.NoError(t, err)
 
 	c.Set("a", 1)

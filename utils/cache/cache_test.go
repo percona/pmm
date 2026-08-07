@@ -21,7 +21,7 @@ import (
 func TestNewCache_ReturnsCacheForValidInputs(t *testing.T) {
 	t.Parallel()
 
-	c := NewCache[string, int]()
+	c := NewCache[int]()
 	if c == nil {
 		t.Fatal("expected cache instance")
 	}
@@ -30,7 +30,7 @@ func TestNewCache_ReturnsCacheForValidInputs(t *testing.T) {
 func TestCache_CalculateCacheKey_ReturnsSameValueForSameInput(t *testing.T) {
 	t.Parallel()
 
-	c := NewCache[string, int]()
+	c := NewCache[int]()
 
 	key := "Authorization:Bearer token"
 	first := c.CalculateCacheKey(key)
@@ -44,7 +44,7 @@ func TestCache_CalculateCacheKey_ReturnsSameValueForSameInput(t *testing.T) {
 func TestCache_CalculateCacheKey_ReturnsDifferentValuesForDifferentInputs(t *testing.T) {
 	t.Parallel()
 
-	c := NewCache[string, int]()
+	c := NewCache[int]()
 
 	first := c.CalculateCacheKey("Authorization:Bearer token-a")
 	second := c.CalculateCacheKey("Authorization:Bearer token-b")
@@ -57,7 +57,7 @@ func TestCache_CalculateCacheKey_ReturnsDifferentValuesForDifferentInputs(t *tes
 func TestCache_Set_Get_Delete_StoresReadsAndRemovesValue(t *testing.T) {
 	t.Parallel()
 
-	c := NewCache[string, int]()
+	c := NewCache[int]()
 
 	c.Set("k", 42)
 
@@ -80,7 +80,7 @@ func TestCache_Set_Get_Delete_StoresReadsAndRemovesValue(t *testing.T) {
 func TestCache_Get_ReturnsMissForUnknownKey(t *testing.T) {
 	t.Parallel()
 
-	c := NewCache[string, int]()
+	c := NewCache[int]()
 
 	got, ok := c.Get("missing")
 	if ok {
@@ -94,7 +94,7 @@ func TestCache_Get_ReturnsMissForUnknownKey(t *testing.T) {
 func TestCache_Get_ReturnsStoredZeroValue(t *testing.T) {
 	t.Parallel()
 
-	c := NewCache[string, int]()
+	c := NewCache[int]()
 
 	c.Set("k", 0)
 
@@ -110,7 +110,7 @@ func TestCache_Get_ReturnsStoredZeroValue(t *testing.T) {
 func TestCache_Size_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 	t.Parallel()
 
-	c := NewCache[string, int]()
+	c := NewCache[int]()
 
 	if got := c.Size(); got != 0 {
 		t.Fatalf("unexpected size: got %d, want %d", got, 0)
@@ -141,4 +141,3 @@ func TestCache_Size_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 		t.Fatalf("unexpected size after deleting existing key: got %d, want %d", got, 1)
 	}
 }
-
