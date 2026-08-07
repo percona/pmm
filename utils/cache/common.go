@@ -16,37 +16,37 @@
 package cache
 
 import (
-    "errors"
-    "sync"
-    "time"
+	"errors"
+	"sync"
+	"time"
 
-    "golang.org/x/sys/cpu"
+	"golang.org/x/sys/cpu"
 )
 
 const (
-    // ShardCount must be a power of 2 for bitwise modulo.
-    // 256 is optimal for typical 16-64 core server deployments.
-    shardCount = 256
-    shardMask  = shardCount - 1
+	// ShardCount must be a power of 2 for bitwise modulo.
+	// 256 is optimal for typical 16-64 core server deployments.
+	shardCount = 256
+	shardMask  = shardCount - 1
 )
 
 var (
-    errInvalidContext         = errors.New("context must not be nil")
-    errInvalidTtlInterval     = errors.New("ttl must be greater than 0")
-    errInvalidCleanupInterval = errors.New("cleanupInterval must be greater than 0")
+	errInvalidContext         = errors.New("context must not be nil")
+	errInvalidTtlInterval     = errors.New("ttl must be greater than 0")
+	errInvalidCleanupInterval = errors.New("cleanupInterval must be greater than 0")
 )
 
 // item wraps the value and its expiration timestamp.
 type item[V any] struct {
-    value   V
-    expires time.Time
+	value   V
+	expires time.Time
 }
 
 // shard contains the actual map and a lock, padded to prevent false sharing.
 type shard[K comparable, V any] struct {
-    mu    sync.RWMutex
-    items map[K]item[V]
-    size  int64
-    // Pad to GOARCH dependnt bytes to prevent false sharing in L1 CPU cache.
-    _ cpu.CacheLinePad
+	mu    sync.RWMutex
+	items map[K]item[V]
+	size  int64
+	// Pad to GOARCH dependnt bytes to prevent false sharing in L1 CPU cache.
+	_ cpu.CacheLinePad
 }
