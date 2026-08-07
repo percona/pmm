@@ -9,14 +9,12 @@ import Tabs from '@mui/material/Tabs';
 import Tooltip from '@mui/material/Tooltip';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
+import { Icon } from 'components/icon';
 import { useEscapeKey } from 'utils/keys.utils';
 import { AlertsTableRow } from '../AlertsPage.types';
 import AlertDetailsTab from './details/AlertDetailsTab';
 import { Messages } from './AlertDetailsPane.messages';
-import {
-  BottomPanelCloseIcon,
-  UseDetailsPaneNavigationResult,
-} from '@percona/peak-ui';
+import { UseDetailsPaneNavigationResult } from '@percona/percona-ui';
 import RawDataTab from './raw-data/RawDataTab';
 import { useAlertDetailsPane } from './AlertDetailsPane.utils';
 
@@ -119,7 +117,7 @@ const AlertDetailsPane: FC<Props> = ({
                 aria-label={Messages.actions.close}
                 onClick={handleClose}
               >
-                <BottomPanelCloseIcon />
+                <Icon name="bottom-panel-close" />
               </IconButton>
             </Tooltip>
           </Stack>
