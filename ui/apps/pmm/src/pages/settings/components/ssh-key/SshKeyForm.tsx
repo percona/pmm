@@ -47,7 +47,7 @@ export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
   const { label, link, tooltip, placeholder } = Messages.ssh;
 
   if (haStatus?.status === 'Enabled') {
-    return <Navigate to='/settings' />
+    return <Navigate to="/settings" />;
   }
 
   return (

@@ -67,12 +67,13 @@ export const Settings: FC = () => {
             value="advanced-settings"
             label={Messages.tabs.advanced}
           />
-          {haStatus?.status === 'Disabled' &&
-            < Tab
+          {haStatus?.status === 'Disabled' && (
+            <Tab
               data-testid="settings-tab-ssh"
               value="ssh-key"
               label={Messages.tabs.ssh}
-            />}
+            />
+          )}
         </Tabs>
 
         <Box sx={{ flex: 1 }} data-testid="settings-tab-content">

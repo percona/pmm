@@ -39,7 +39,7 @@ const renderWithRoute = (initialPath: string) =>
 
 describe('Settings', () => {
   beforeEach(() => {
-    getSettingsMock.mockImplementation(() => new Promise(() => { }));
+    getSettingsMock.mockImplementation(() => new Promise(() => {}));
     getHAStatusMock.mockResolvedValue({ status: 'Disabled' });
   });
 
