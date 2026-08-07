@@ -17,7 +17,7 @@ export default create({
   colorPrimary: CHROME.brand,
   colorSecondary: CHROME.brand,
 
-  appBg: CHROME.surfaceElevation0,
+  appBg: CHROME.surfaceElevation1,
   appContentBg: CHROME.surfaceElevation1,
   appBorderColor: CHROME.contour,
   appBorderRadius: CHROME.radiusSm,
