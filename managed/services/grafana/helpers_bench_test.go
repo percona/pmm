@@ -118,3 +118,38 @@ func BenchmarkResolveRule(b *testing.B) {
 		})
 	}
 }
+
+func BenchmarkIsLocalAgentConnection(b *testing.B) {
+	for _, tc := range []struct {
+		name       string
+		remoteAddr string
+		path       string
+	}{
+		// local IPv4
+		{name: "local connect endpoint IPv4", remoteAddr: "127.0.0.1:12345", path: connectionEndpoint},
+		{name: "local connectV2 endpoint IPv4", remoteAddr: "127.0.0.1:12345", path: connectionEndpointV2},
+		{name: "local rta endpoint IPv4", remoteAddr: "127.0.0.1:12345", path: rtaCollectEndpoint},
+		{name: "local unknown endpoint IPv4", remoteAddr: "127.0.0.1:12345", path: "/v1/server/version"},
+		// local IPv6
+		{name: "local connect endpoint IPv6", remoteAddr: "[::1]:12345", path: connectionEndpoint},
+		{name: "local connectV2 endpoint IPv6", remoteAddr: "[::1]:12345", path: connectionEndpointV2},
+		{name: "local rta endpoint IPv6", remoteAddr: "[::1]:12345", path: rtaCollectEndpoint},
+		{name: "local unknown endpoint IPv6", remoteAddr: "[::1]:12345", path: "/v1/server/version"},
+		// remote
+		{name: "remote connect endpoint IPv4", remoteAddr: "10.0.0.2:12345", path: connectionEndpoint},
+		{name: "remote connectV2 endpoint IPv4", remoteAddr: "10.0.0.2:12345", path: connectionEndpointV2},
+		{name: "remote rta endpoint IPv4", remoteAddr: "10.0.0.2:12345", path: rtaCollectEndpoint},
+		{name: "remote unknown endpoint IPv4", remoteAddr: "10.0.0.2:12345", path: "/v1/server/version"},
+	} {
+		b.Run(tc.name, func(b *testing.B) {
+			req := httptest.NewRequestWithContext(b.Context(), http.MethodGet, tc.path, nil)
+			req.RemoteAddr = tc.remoteAddr
+
+			b.ReportAllocs()
+			b.ResetTimer()
+			for b.Loop() {
+				_ = isLocalAgentConnection(req)
+			}
+		})
+	}
+}

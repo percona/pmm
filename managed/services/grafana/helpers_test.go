@@ -235,10 +235,21 @@ func TestIsLocalAgentConnection(t *testing.T) {
 		path       string
 		want       bool
 	}{
-		{name: "local connect endpoint", remoteAddr: "127.0.0.1:12345", path: connectionEndpoint, want: true},
-		{name: "local rta endpoint", remoteAddr: "127.0.0.1:12345", path: rtaCollectEndpoint, want: true},
-		{name: "remote endpoint", remoteAddr: "10.0.0.2:12345", path: connectionEndpoint, want: false},
-		{name: "local unknown path", remoteAddr: "127.0.0.1:12345", path: "/v1/server/version", want: false},
+		// local IPv4
+		{name: "local connect endpoint IPv4", remoteAddr: "127.0.0.1:12345", path: connectionEndpoint, want: true},
+		{name: "local connectV2 endpoint IPv4", remoteAddr: "127.0.0.1:12345", path: connectionEndpointV2, want: true},
+		{name: "local rta endpoint IPv4", remoteAddr: "127.0.0.1:12345", path: rtaCollectEndpoint, want: true},
+		{name: "local unknown endpoint IPv4", remoteAddr: "127.0.0.1:12345", path: "/v1/server/version", want: false},
+		// local IPv6
+		{name: "local connect endpoint IPv6", remoteAddr: "[::1]:12345", path: connectionEndpoint, want: true},
+		{name: "local connectV2 endpoint IPv6", remoteAddr: "[::1]:12345", path: connectionEndpointV2, want: true},
+		{name: "local rta endpoint IPv6", remoteAddr: "[::1]:12345", path: rtaCollectEndpoint, want: true},
+		{name: "local unknown endpoint IPv6", remoteAddr: "[::1]:12345", path: "/v1/server/version", want: false},
+		// remote
+		{name: "remote connect endpoint IPv4", remoteAddr: "10.0.0.2:12345", path: connectionEndpoint, want: false},
+		{name: "remote connectV2 endpoint IPv4", remoteAddr: "10.0.0.2:12345", path: connectionEndpointV2, want: false},
+		{name: "remote rta endpoint IPv4", remoteAddr: "10.0.0.2:12345", path: rtaCollectEndpoint, want: false},
+		{name: "remote unknown endpoint IPv4", remoteAddr: "10.0.0.2:12345", path: "/v1/server/version", want: false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
