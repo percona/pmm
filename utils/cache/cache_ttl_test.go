@@ -51,8 +51,8 @@ func TestCacheTTL_CalculateCacheKey_ReturnsSameValueForSameInput(t *testing.T) {
 	require.NoError(t, err)
 
 	key := "Authorization:Bearer token"
-	first := c.CalculateCacheKey(key)
-	second := c.CalculateCacheKey(key)
+	first := c.calculateKeyHash(key)
+	second := c.calculateKeyHash(key)
 
 	if first != second {
 		t.Fatalf("expected stable key hash: first=%d second=%d", first, second)
@@ -65,8 +65,8 @@ func TestCacheTTL_CalculateCacheKey_ReturnsDifferentValuesForDifferentInputs(t *
 	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
-	first := c.CalculateCacheKey("Authorization:Bearer token-a")
-	second := c.CalculateCacheKey("Authorization:Bearer token-b")
+	first := c.calculateKeyHash("Authorization:Bearer token-a")
+	second := c.calculateKeyHash("Authorization:Bearer token-b")
 
 	if first == second {
 		t.Fatal("expected different key hashes for different inputs")

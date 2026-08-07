@@ -40,14 +40,14 @@ func NewCache[V any]() *Cache[V] {
 	return c
 }
 
-// CalculateCacheKey builds a deterministic cache key directly from passed key.
-func (c *Cache[V]) CalculateCacheKey(key string) uint64 {
+// calculateKeyHash builds a deterministic cache key directly from passed key.
+func (c *Cache[V]) calculateKeyHash(key string) uint64 {
 	return maphash.String(c.seed, key)
 }
 
 // Get retrieves an item. Zero-allocation on the hot path.
 func (c *Cache[V]) Get(key string) (V, bool) {
-	keyHash := c.CalculateCacheKey(key)
+	keyHash := c.calculateKeyHash(key)
 	// Zero-allocation hash via maphash
 	shardKey := maphash.Comparable(c.seed, keyHash)
 	shard := c.shards[shardKey&shardMask]
@@ -66,7 +66,7 @@ func (c *Cache[V]) Get(key string) (V, bool) {
 
 // Set inserts or updates an item with a specific TTL.
 func (c *Cache[V]) Set(key string, value V) {
-	keyHash := c.CalculateCacheKey(key)
+	keyHash := c.calculateKeyHash(key)
 	shardKey := maphash.Comparable(c.seed, keyHash)
 	shard := c.shards[shardKey&shardMask]
 
@@ -82,7 +82,7 @@ func (c *Cache[V]) Set(key string, value V) {
 
 // Delete removes an item explicitly.
 func (c *Cache[V]) Delete(key string) {
-	keyHash := c.CalculateCacheKey(key)
+	keyHash := c.calculateKeyHash(key)
 	shardKey := maphash.Comparable(c.seed, keyHash)
 	shard := c.shards[shardKey&shardMask]
 

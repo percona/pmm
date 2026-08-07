@@ -33,8 +33,8 @@ func TestCache_CalculateCacheKey_ReturnsSameValueForSameInput(t *testing.T) {
 	c := NewCache[int]()
 
 	key := "Authorization:Bearer token"
-	first := c.CalculateCacheKey(key)
-	second := c.CalculateCacheKey(key)
+	first := c.calculateKeyHash(key)
+	second := c.calculateKeyHash(key)
 
 	if first != second {
 		t.Fatalf("expected stable key hash: first=%d second=%d", first, second)
@@ -46,8 +46,8 @@ func TestCache_CalculateCacheKey_ReturnsDifferentValuesForDifferentInputs(t *tes
 
 	c := NewCache[int]()
 
-	first := c.CalculateCacheKey("Authorization:Bearer token-a")
-	second := c.CalculateCacheKey("Authorization:Bearer token-b")
+	first := c.calculateKeyHash("Authorization:Bearer token-a")
+	second := c.calculateKeyHash("Authorization:Bearer token-b")
 
 	if first == second {
 		t.Fatal("expected different key hashes for different inputs")
