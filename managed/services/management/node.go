@@ -35,7 +35,7 @@ import (
 )
 
 // RegisterNode performs the registration of a new node.
-func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) { //nolint:gocognit
+func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
 	res := &managementv1.RegisterNodeResponse{}
 
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -213,7 +213,7 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 const upQuery = `up{job=~".*_hr$"}`
 
 // ListNodes returns a filtered list of Nodes.
-func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.ListNodesRequest) (*managementv1.ListNodesResponse, error) { //nolint:gocognit
+func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.ListNodesRequest) (*managementv1.ListNodesResponse, error) {
 	filters := models.NodeFilters{
 		NodeType: services.ProtoToModelNodeType(req.NodeType),
 	}

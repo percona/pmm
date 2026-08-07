@@ -252,7 +252,7 @@ func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) 
 }
 
 // RemoveNode removes single Node.
-func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:gocognit
+func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 	n, err := FindNodeByID(q, id)
 	if err != nil {
 		return err

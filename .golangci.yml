@@ -12,6 +12,7 @@ linters:
   default: all
   disable:
     - copyloopvar         # replaced exportloopref, but we don't need it for Go 1.22+
+    - cyclop              # often we use nested and long functions
     - dupl                # we can't avoid duplicating code
     - err113              # extra work & poor benefit (renamed from goerr113)
     - exhaustruct         # too many files to fix/nolint
@@ -19,8 +20,10 @@ linters:
     - funcorder           # too many so far
     - gochecknoglobals    # mostly useless
     - gochecknoinits      # we use init functions
-    - gocyclo             # using cyclop with the max 30 instead
+    - gocyclo             # too noisy for the current codebase
     - goconst             # too annoying
+    - gocognit            # often we use nested and long functions
+    - maintidx            # maintainability index too strict for the current codebase
     - godox               # we sometimes leave TODOS right in the code
     - gomoddirectives     # we use replace directives
     - gomodguard          # deprecated

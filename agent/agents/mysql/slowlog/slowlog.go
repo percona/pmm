@@ -417,8 +417,6 @@ func hashIntoQueryID(fingerprint string) string {
 }
 
 // makeBuckets is a pure function for easier testing.
-//
-//nolint:gocognit,cyclop,maintidx
 func makeBuckets(
 	agentID string,
 	res event.Result,

@@ -129,7 +129,7 @@ func sendSIGKILLwithTimeout(process *os.Process, timeout int, l *logrus.Entry) *
 	})
 }
 
-func main() { //nolint:gocognit
+func main() {
 	config := reaper.MakeConfig()
 	config.Debug = false
 	reaper.RunForked(config)

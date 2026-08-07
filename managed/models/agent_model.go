@@ -536,7 +536,7 @@ type DSNParams struct {
 }
 
 // DSN returns a DSN string for accessing a given Service with this Agent (and an implicit driver).
-func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string { //nolint:gocognit,cyclop,maintidx
+func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, pmmAgentVersion *version.Parsed) string {
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
@@ -898,7 +898,7 @@ func (a *Agent) IsMySQLTablestatsGroupEnabled() bool {
 }
 
 // Files returns files map required to connect to DB.
-func (a Agent) Files() map[string]string { //nolint:gocognit
+func (a Agent) Files() map[string]string {
 	switch a.AgentType {
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		files := make(map[string]string)

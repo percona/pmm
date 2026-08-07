@@ -236,7 +236,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 	}
 }
 
-func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport { //nolint:gocognit
+func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport {
 	initializedDataSources := make(map[DataSourceName]DataSource)
 	telemetryMetric, err := s.makeMetric(ctx)
 	if err != nil {
