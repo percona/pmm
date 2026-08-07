@@ -8,6 +8,12 @@ pmm-ami:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build \hashicorp/packer:${PACKER_VERSION} \
 		build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' \
 		-only amazon-ebs -color=false packer/pmm.json | tee build.log
+
+pmm-ami-arm64:
+	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build \hashicorp/packer:${PACKER_VERSION} \
+		build -var 'pmm_server_image_name=${PMM_SERVER_IMAGE}' \
+		-var 'watchtower_image_name=${WATCHTOWER_IMAGE}' \
+		-only amazon-ebs-arm64 -color=false packer/pmm.json | tee build.log
 ## ----------------- PACKER ------------------
 
 ## RPM Build Images
