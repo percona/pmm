@@ -1,4 +1,7 @@
-<img src=".storybook/static/logo-peak-ui.svg" alt="Peak UI" height="37" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".storybook/static/logo-peak-ui-dark.svg" />
+  <img src=".storybook/static/logo-peak-ui.svg" alt="Peak UI" height="37" />
+</picture>
 
 # Peak UI
 

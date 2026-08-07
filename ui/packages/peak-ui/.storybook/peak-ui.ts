@@ -1,4 +1,5 @@
 import { create } from "storybook/theming/create";
+import { CHROME } from "./chrome-tokens";
 
 export default create({
   base: "light",
@@ -10,24 +11,24 @@ export default create({
 
   fontBase: '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',
   fontCode: '"Roboto Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace',
-  textColor: '#2C323E',
-  textInverseColor: '#FBFBFB',
+  textColor: CHROME.textPrimary,
+  textInverseColor: CHROME.textPrimaryDark,
 
-  colorPrimary: "#2CBEA2",
-  colorSecondary: "#029CFD",
+  colorPrimary: CHROME.brand,
+  colorSecondary: CHROME.brand,
 
-  appBg: '#ffffff',
-  appContentBg: '#ffffff',
-  appBorderColor: 'rgba(38, 85, 115, 0.2)',
-  appBorderRadius: 5,
+  appBg: CHROME.surfaceElevation0,
+  appContentBg: CHROME.surfaceElevation1,
+  appBorderColor: CHROME.contour,
+  appBorderRadius: CHROME.radiusSm,
 
-  barTextColor: 'rgba(44, 50, 62, 0.7)',
-  barSelectedColor: '#029CFD',
-  barHoverColor: '#2C323E',
-  barBg: '#ffffff',
+  barTextColor: CHROME.textSecondary,
+  barSelectedColor: CHROME.brand,
+  barHoverColor: CHROME.textPrimary,
+  barBg: CHROME.surfaceElevation1,
 
-  inputBg: '#ffffff',
-  inputBorder: 'rgba(44, 50, 62, 0.25)',
-  inputTextColor: '#2C323E',
-  inputBorderRadius: 3,
+  inputBg: CHROME.surfaceElevation1,
+  inputBorder: CHROME.divider,
+  inputTextColor: CHROME.textPrimary,
+  inputBorderRadius: CHROME.radiusXs,
 });
