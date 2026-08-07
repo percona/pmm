@@ -12,6 +12,8 @@ import { SettingsFieldLabel } from '../settings-field-label';
 import { formControlClasses } from '@mui/material';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { helperTextTestId } from 'utils/mui.utils';
+import { useHAStatus } from 'hooks/api/useHA';
+import { Navigate } from 'react-router-dom';
 
 export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
   const { mutateAsync: updateSettings, isPending } = useUpdateSettings();
@@ -19,6 +21,7 @@ export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
     resolver: zodResolver(sshKeySchema),
     defaultValues: { sshKey: settings.sshKey ?? '' },
   });
+  const { data: haStatus } = useHAStatus();
 
   useEffect(() => {
     methods.reset({ sshKey: settings.sshKey ?? '' });
@@ -42,6 +45,10 @@ export const SshKeyForm: FC<SshKeyFormProps> = ({ settings }) => {
     );
 
   const { label, link, tooltip, placeholder } = Messages.ssh;
+
+  if (haStatus?.status === 'Enabled') {
+    return <Navigate to='/settings' />
+  }
 
   return (
     <FormProvider {...methods}>
