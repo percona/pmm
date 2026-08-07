@@ -1222,13 +1222,10 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
 
-	db.SetConnMaxLifetime(0)
-	db.SetConnMaxIdleTime(5 * time.Minute) //nolint:mnd
-	// Sized to give DB-bound auth/role/settings paths enough headroom during
-	// a reconnect storm from a fleet of agents, while staying well within
-	// Postgres max_connections (set to 2000 by PMM Server).
-	db.SetMaxIdleConns(50) //nolint:mnd
-	db.SetMaxOpenConns(50) //nolint:mnd
+	db.SetConnMaxLifetime(params.ConnMaxLifetime)
+	db.SetConnMaxIdleTime(params.ConnMaxIdleTime)
+	db.SetMaxIdleConns(params.MaxIdleConns)
+	db.SetMaxOpenConns(params.MaxOpenConns)
 
 	return db, nil
 }
@@ -1258,6 +1255,10 @@ type SetupDBParams struct {
 	HAPeers          []string
 	SetupFixtures    SetupFixturesMode
 	MigrationVersion *int
+	ConnMaxLifetime  time.Duration
+	ConnMaxIdleTime  time.Duration
+	MaxIdleConns     int
+	MaxOpenConns     int
 }
 
 // SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.

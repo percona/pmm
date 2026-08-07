@@ -45,7 +45,7 @@ func Fuzz(data []byte) int {
 		return 0
 	}
 
-	_ = s.authenticate(context.Background(), req, logrus.NewEntry(logrus.StandardLogger()))
+	_ = s.processRequest(context.Background(), req, logrus.NewEntry(logrus.StandardLogger()))
 
 	return 1
 }

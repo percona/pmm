@@ -133,6 +133,9 @@ unset PLUGINS_SRC PLUGINS_DST PLUGINS_MARKER BUNDLED_VERSION SYNCED_VERSION
 echo "Creating nginx temp directories..."
 mkdir -p /srv/nginx/tmp/{client,proxy,fastcgi,uwsgi,scgi}
 
+echo "Creating nginx cache directories..."
+mkdir -p /srv/nginx/cache/{static,auth}
+
 if [ ! -d "/srv/pmm-agent/tmp" ]; then
     echo "Creating pmm-agent temp directory..."
     install -d -m 770 /srv/pmm-agent/tmp

@@ -14,3 +14,18 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package grafana
+
+import (
+	"context"
+	"net/http"
+
+	"github.com/sirupsen/logrus"
+)
+
+// grafanaAuthUserGetter exist only to make fuzzing simpler.
+type grafanaAuthUserGetter interface {
+	getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
+}
+type accessControl interface {
+	isEnabled() bool
+}

@@ -129,7 +129,8 @@ func TestListServices(t *testing.T) {
 	registry := newMockAgentsRegistry(t)
 	stateUpdater := newMockAgentsStateUpdater(t)
 	store := NewStore()
-	svc := NewService(db, registry, stateUpdater, store)
+	limiter := newMockLimiter(t)
+	svc := NewService(db, registry, stateUpdater, store, limiter)
 
 	t.Run("list all supported services", func(t *testing.T) {
 		resp, err := svc.ListServices(t.Context(), &rtav1.ListServicesRequest{})
@@ -235,7 +236,8 @@ func TestListSessions(t *testing.T) {
 	t.Run("list running sessions", func(t *testing.T) {
 		registry := newMockAgentsRegistry(t)
 		registry.On("IsConnected", pmmAgent.AgentID).Return(true)
-		svc := NewService(db, registry, stateUpdater, store)
+		limiter := newMockLimiter(t)
+		svc := NewService(db, registry, stateUpdater, store, limiter)
 
 		rtaAgent.Status = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_RUNNING)]
 		err = db.Update(rtaAgent)
@@ -254,7 +256,8 @@ func TestListSessions(t *testing.T) {
 	t.Run("filter sessions by cluster", func(t *testing.T) {
 		registry := newMockAgentsRegistry(t)
 		registry.On("IsConnected", pmmAgent.AgentID).Return(true)
-		svc := NewService(db, registry, stateUpdater, store)
+		limiter := newMockLimiter(t)
+		svc := NewService(db, registry, stateUpdater, store, limiter)
 
 		resp, err := svc.ListSessions(t.Context(), &rtav1.ListSessionsRequest{ClusterName: "test-cluster"})
 		require.NoError(t, err)
@@ -268,7 +271,8 @@ func TestListSessions(t *testing.T) {
 	t.Run("show disconnected agents with unknown status", func(t *testing.T) {
 		registry := newMockAgentsRegistry(t)
 		registry.On("IsConnected", pmmAgent.AgentID).Return(false)
-		svc := NewService(db, registry, stateUpdater, store)
+		limiter := newMockLimiter(t)
+		svc := NewService(db, registry, stateUpdater, store, limiter)
 
 		resp, err := svc.ListSessions(t.Context(), &rtav1.ListSessionsRequest{})
 		require.NoError(t, err)
@@ -320,7 +324,8 @@ func TestStartSession(t *testing.T) {
 	stateUpdater.On("RequestStateUpdate", mock.Anything, pmmAgent.AgentID).Return()
 
 	store := NewStore()
-	svc := NewService(db, registry, stateUpdater, store)
+	limiter := newMockLimiter(t)
+	svc := NewService(db, registry, stateUpdater, store, limiter)
 
 	t.Run("start session for single service", func(t *testing.T) {
 		resp, err := svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
@@ -548,7 +553,8 @@ func TestStopSession(t *testing.T) {
 	stateUpdater.On("RequestStateUpdate", mock.Anything, pmmAgent.AgentID).Return()
 
 	store := NewStore()
-	svc := NewService(db, registry, stateUpdater, store)
+	limiter := newMockLimiter(t)
+	svc := NewService(db, registry, stateUpdater, store, limiter)
 
 	t.Run("stop session for single service", func(t *testing.T) {
 		resp, err := svc.StopSession(t.Context(), &rtav1.StopSessionRequest{
@@ -686,7 +692,8 @@ func TestSearchQueries(t *testing.T) {
 	registry := newMockAgentsRegistry(t)
 	stateUpdater := newMockAgentsStateUpdater(t)
 	store := NewStore()
-	svc := NewService(db, registry, stateUpdater, store)
+	limiter := newMockLimiter(t)
+	svc := NewService(db, registry, stateUpdater, store, limiter)
 
 	// Populate store with static query data for service1
 	store.Set(service1.ServiceID, getServiceQueries(service1.ServiceID, service1.ServiceName, 2))
@@ -840,7 +847,10 @@ func TestService_Collect(t *testing.T) {
 	registry := newMockAgentsRegistry(t)
 	stateUpdater := newMockAgentsStateUpdater(t)
 	store := NewStore()
-	svc := NewService(db, registry, stateUpdater, store)
+	limiter := newMockLimiter(t)
+	limiter.On("TryAcquire").Return(true).Once()
+	limiter.On("Release").Return().Once()
+	svc := NewService(db, registry, stateUpdater, store, limiter)
 	// // Create in-memory listener for testing
 	const bufSize = 1024 * 1024
 
@@ -905,4 +915,129 @@ func TestService_Collect(t *testing.T) {
 		assert.Equal(t, "service-1", storeqQs[i].ServiceId)
 		assert.Equal(t, "mongodb-1", storeqQs[i].ServiceName)
 	}
+}
+
+func TestService_CollectRejectsWhenRateLimitIsExceeded(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "test-node",
+	})
+	require.NoError(t, err)
+
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	require.NoError(t, err)
+
+	registry := newMockAgentsRegistry(t)
+	stateUpdater := newMockAgentsStateUpdater(t)
+	store := NewStore()
+	limiter := newMockLimiter(t)
+	limiter.On("TryAcquire").Return(false).Once()
+	svc := NewService(db, registry, stateUpdater, store, limiter)
+
+	const bufSize = 1024 * 1024
+	lis = bufconn.Listen(bufSize)
+
+	grpcMetrics := interceptors.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+	s := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			interceptors.Stream(grpcMetrics.StreamServerInterceptor()),
+			interceptors.StreamServiceEnabledInterceptor(),
+			grpc_validator.StreamServerInterceptor(),
+		)),
+	)
+	rtav1.RegisterCollectorServiceServer(s, svc)
+
+	serveError := make(chan error)
+	go func() {
+		serveError <- s.Serve(lis)
+	}()
+	t.Cleanup(func() {
+		s.GracefulStop()
+		require.NoError(t, <-serveError)
+	})
+
+	client := getTestClient(t)
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	t.Cleanup(cancel)
+
+	streamCtx := agentv1.AddAgentConnectMetadata(ctx, &agentv1.AgentConnectMetadata{
+		ID:      pmmAgent.AgentID,
+		Version: "1.0.0",
+	})
+
+	stream, err := client.Collect(streamCtx)
+	require.NoError(t, err)
+
+	err = stream.Send(&rtav1.CollectRequest{Queries: getServiceQueries("service-1", "mongodb-1", 1)})
+	require.NoError(t, err)
+
+	_, err = stream.CloseAndRecv()
+	require.Error(t, err)
+	assert.Equal(t, codes.ResourceExhausted, status.Code(err))
+	assert.Empty(t, store.Get("service-1"))
+}
+
+func TestService_CollectReturnsInvalidArgumentForUnknownAgentID(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	registry := newMockAgentsRegistry(t)
+	stateUpdater := newMockAgentsStateUpdater(t)
+	store := NewStore()
+	limiter := newMockLimiter(t)
+	limiter.On("TryAcquire").Return(true).Once()
+	limiter.On("Release").Return().Once()
+	svc := NewService(db, registry, stateUpdater, store, limiter)
+
+	const bufSize = 1024 * 1024
+	lis = bufconn.Listen(bufSize)
+
+	grpcMetrics := interceptors.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+	s := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			interceptors.Stream(grpcMetrics.StreamServerInterceptor()),
+			interceptors.StreamServiceEnabledInterceptor(),
+			grpc_validator.StreamServerInterceptor(),
+		)),
+	)
+	rtav1.RegisterCollectorServiceServer(s, svc)
+
+	serveError := make(chan error)
+	go func() {
+		serveError <- s.Serve(lis)
+	}()
+	t.Cleanup(func() {
+		s.GracefulStop()
+		require.NoError(t, <-serveError)
+	})
+
+	client := getTestClient(t)
+
+	ctx, cancel := context.WithTimeout(t.Context(), 5*time.Second)
+	t.Cleanup(cancel)
+
+	streamCtx := agentv1.AddAgentConnectMetadata(ctx, &agentv1.AgentConnectMetadata{
+		ID:      "missing-agent",
+		Version: "1.0.0",
+	})
+
+	stream, err := client.Collect(streamCtx)
+	require.NoError(t, err)
+
+	err = stream.Send(&rtav1.CollectRequest{Queries: getServiceQueries("service-1", "mongodb-1", 1)})
+	require.NoError(t, err)
+
+	_, err = stream.CloseAndRecv()
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	assert.Empty(t, store.Get("service-1"))
 }

@@ -7,6 +7,14 @@ services:
     platform: linux/amd64
     container_name: pmm-server
     hostname: pmm-server
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '6'
+#          memory: 16G
+#        reservations:
+#          cpus: '2'
+#          memory: 16G
     env_file:
       - .env
     # enable for delve
