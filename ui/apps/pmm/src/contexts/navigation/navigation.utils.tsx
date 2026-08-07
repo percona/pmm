@@ -1,3 +1,5 @@
+import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
+import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
@@ -204,7 +206,7 @@ export const addAccount = (
 
   children.push({
     ...NAV_THEME_TOGGLE,
-    icon: colorMode === 'light' ? 'theme-dark' : 'theme-light',
+    icon: colorMode === 'light' ? DarkModeOutlined : LightModeOutlined,
     text: `Switch to ${targetMode} mode`,
     onClick: toggleMode,
   });
