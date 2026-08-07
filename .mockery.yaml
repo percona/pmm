@@ -9,6 +9,9 @@ filename: "mock_{{ .InterfaceName | snakecase }}_test.go"
 mockname: "mock{{ .InterfaceName | camelcase | firstUpper }}"
 packages:
   # managed
+  github.com/percona/pmm/managed/services/agents:
+    interfaces:
+      Limiter:
   github.com/percona/pmm/managed/services/backup:
     interfaces:
       agentService:
@@ -69,6 +72,7 @@ packages:
     interfaces:
       agentsRegistry:
       agentsStateUpdater:
+      Limiter:
   github.com/percona/pmm/managed/services/scheduler:
     interfaces:
       backupService:

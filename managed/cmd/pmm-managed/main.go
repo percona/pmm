@@ -114,6 +114,7 @@ import (
 	platformClient "github.com/percona/pmm/managed/utils/platform"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/utils/rateLimiter"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 )
@@ -160,6 +161,13 @@ const (
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
+
+// pmmAgentsConnectionLimiter is used to limit the number of concurrent
+// connection attempts from pmm-agents to the API server.
+// Each connection attempt uses a database connection(s), so we limit the number
+// of concurrent connections to avoid exhausting the database connection pool and
+// to prevent the system from degrading during a thundering herd of connection attempts.
+var pmmAgentsConnectionsLimiter = rateLimiter.NewConcurrencyLimiter(apiDbMaxOpenConns)
 
 func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
@@ -341,7 +349,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
-	rtaSvc := realtimeanalytics.NewService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, rtaStore)
+	rtaSvc := realtimeanalytics.NewService(deps.db, deps.agentsRegistry,
+		deps.agentsStateUpdater, rtaStore, pmmAgentsConnectionsLimiter)
 	rtav1.RegisterRealtimeAnalyticsServiceServer(gRPCServer, rtaSvc)
 	rtav1.RegisterCollectorServiceServer(gRPCServer, rtaSvc)
 
@@ -1065,7 +1074,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	agentsStateUpdater := agents.NewStateUpdater(internalDB, agentsRegistry, vmdb, vmParams, nomad)
 	// Agents service handles pmm-agent <-> pmm-server communication logic.
 	// Shall use apiDB connection pool.
-	agentsHandler := agents.NewHandler(apiDB, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
+	agentsHandler := agents.NewHandler(apiDB, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService, pmmAgentsConnectionsLimiter)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 

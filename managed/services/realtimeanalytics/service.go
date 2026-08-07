@@ -55,15 +55,20 @@ type Service struct {
 	registry     agentsRegistry
 	stateUpdater agentsStateUpdater
 	store        *Store
+	// PMM Agents connection attempts rate limiter.
+	// Used to prevent the system degradation (exhausted db connections in particular)
+	// during massive agents connections (thundering herd).
+	rateLimiter Limiter
 }
 
 // NewService creates a new Real-Time Analytics service.
-func NewService(db *reform.DB, registry agentsRegistry, stateUpdater agentsStateUpdater, store *Store) *Service {
+func NewService(db *reform.DB, registry agentsRegistry, stateUpdater agentsStateUpdater, store *Store, rateLimiter Limiter) *Service {
 	return &Service{
 		db:           db,
 		registry:     registry,
 		stateUpdater: stateUpdater,
 		store:        store,
+		rateLimiter:  rateLimiter,
 	}
 }
 
@@ -521,15 +526,27 @@ func (s *Service) Collect(stream grpc.ClientStreamingServer[rtav1.CollectRequest
 
 	agentMD, err := agentv1.ReceiveAgentConnectMetadata(stream)
 	if err != nil {
-		l.Warnf("Disconnecting client: authentication failed: %v", err)
+		l.WithError(err).Warn("Disconnecting client: authentication failed")
 		return status.Error(codes.Unauthenticated, "Failed to receive agent metadata")
 	}
 
-	// Validate that the pmm-agent exists
-	agent, err := models.FindAgentByID(s.db.Querier, agentMD.ID)
+	agent, err := func() (*models.Agent, error) {
+		if !s.rateLimiter.TryAcquire() {
+			return nil, status.Error(codes.ResourceExhausted, "is rejected by ratelimit, please retry later.")
+		}
+		defer s.rateLimiter.Release()
+
+		// Validate that the pmm-agent exists
+		agent, err := models.FindAgentByID(s.db.WithContext(streamCtx), agentMD.ID)
+		if err != nil {
+			l.Warnf("Disconnecting client: agent validation failed: %v", err)
+			return nil, status.Error(codes.InvalidArgument, "Invalid Agent ID: "+agentMD.ID)
+		}
+		return agent, nil
+	}()
 	if err != nil {
-		l.Warnf("Disconnecting client: agent validation failed: %v", err)
-		return status.Error(codes.InvalidArgument, "Invalid Agent ID: "+agentMD.ID)
+		l.WithError(err).Warn("Disconnecting client")
+		return err
 	}
 
 	if agent.AgentType != models.PMMAgentType {

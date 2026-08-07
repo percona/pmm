@@ -46,11 +46,15 @@ type Handler struct {
 	qanClient   qanClient
 	state       *StateUpdater
 	jobsService jobsService
+	// PMM Agents connection attempts rate limiter.
+	// Used to prevent the system degradation (exhausted db connections in particular)
+	// during massive agents connections (thundering herd).
+	rateLimiter Limiter
 }
 
 // NewHandler creates new agents handler.
 func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, registry *Registry, state *StateUpdater,
-	jobsService jobsService,
+	jobsService jobsService, rateLimiter Limiter,
 ) *Handler {
 	h := &Handler{
 		db:          db,
@@ -59,6 +63,7 @@ func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, regi
 		qanClient:   qanClient,
 		state:       state,
 		jobsService: jobsService,
+		rateLimiter: rateLimiter,
 	}
 	return h
 }
@@ -69,8 +74,15 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 
 	ctx := stream.Context()
 	l := logger.Get(ctx)
+
+	if !h.rateLimiter.TryAcquire() {
+		l.Warnf("Disconnecting client: RESOURCE_EXHAUSTED")
+		return status.Error(codes.ResourceExhausted, "is rejected by ratelimit, please retry later.")
+	}
 	agent, err := h.r.register(stream)
+	h.rateLimiter.Release()
 	if err != nil {
+		l.WithError(err).Warn("Failed to register agent.")
 		disconnectReason = "auth"
 		return err
 	}

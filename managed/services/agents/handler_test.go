@@ -16,6 +16,8 @@
 package agents
 
 import (
+	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -25,7 +27,9 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestCheckPortChanged(t *testing.T) {
@@ -300,6 +304,214 @@ func TestCheckPortChanged(t *testing.T) {
 		changed = checkPortChanged(db.Querier, "test-agent-4", uint32(42001))
 		assert.True(t, changed, "should detect port change after uint32 to uint16 conversion")
 
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("returns false when loading agent fails with unexpected error", func(t *testing.T) {
+		t.Parallel()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("broken-agent-id").
+			WillReturnError(errors.New("db unavailable"))
+
+		changed := checkPortChanged(db.Querier, "broken-agent-id", 8080)
+		assert.False(t, changed)
+
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("treats wrapped uint32 port as unchanged when effective uint16 port matches", func(t *testing.T) {
+		t.Parallel()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("test-agent-wrap").
+			WillReturnRows(sqlmock.NewRows(agentColumns).AddRow(
+				"test-agent-wrap",
+				string(models.PMMAgentType),
+				"test-node-wrap",
+				nil, nil, nil, nil, nil,
+				time.Now(), time.Now(),
+				false, "", 8080, nil, nil, false,
+				nil, nil, nil, false, false, nil,
+				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
+			))
+
+		changed := checkPortChanged(db.Querier, "test-agent-wrap", uint32(8080+65536))
+		assert.False(t, changed)
+
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+}
+
+func TestUpdateAgentStatus(t *testing.T) {
+	t.Parallel()
+
+	agentColumns := []string{
+		"agent_id", "agent_type", "runs_on_node_id", "service_id", "node_id",
+		"pmm_agent_id", "custom_labels", "environment_variables", "created_at", "updated_at",
+		"disabled", "status", "listen_port", "version", "process_exec_path", "is_connected",
+		"username", "password", "agent_password", "tls", "tls_skip_verify",
+		"log_level", "exporter_options", "qan_options", "rta_options",
+		"aws_options", "azure_options", "mongo_options", "mysql_options", "postgresql_options", "valkey_options",
+	}
+
+	t.Run("updates enabled agent status and metadata", func(t *testing.T) {
+		t.Parallel()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("agent-update-ok").
+			WillReturnRows(sqlmock.NewRows(agentColumns).AddRow(
+				"agent-update-ok", string(models.PMMAgentType), "node-1",
+				nil, nil, nil, nil, nil,
+				time.Now(), time.Now(),
+				false, inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN.String(), 9000, "2.0.0", nil, false,
+				nil, nil, nil, false, false, nil,
+				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
+			))
+
+		mock.ExpectExec(`UPDATE "agents"`).WillReturnResult(sqlmock.NewResult(0, 1))
+
+		processPath := "/usr/bin/pmm-agent"
+		version := "3.0.0"
+		ctx := logger.Set(context.Background(), "test-request")
+		err = updateAgentStatus(
+			ctx,
+			db.Querier,
+			"agent-update-ok",
+			inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+			10000,
+			&processPath,
+			&version,
+		)
+		require.NoError(t, err)
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("returns error for missing agent with terminal stopping status", func(t *testing.T) {
+		t.Parallel()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		ctx := logger.Set(context.Background(), "test-request")
+
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("missing-stopping-agent").
+			WillReturnError(reform.ErrNoRows)
+
+		err = updateAgentStatus(
+			ctx,
+			db.Querier,
+			"missing-stopping-agent",
+			inventoryv1.AgentStatus_AGENT_STATUS_STOPPING,
+			9000,
+			nil,
+			nil,
+		)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "failed to select Agent by ID")
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("returns error for missing agent with non terminal status", func(t *testing.T) {
+		t.Parallel()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		ctx := logger.Set(context.Background(), "test-request")
+
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("missing-running-agent").
+			WillReturnError(reform.ErrNoRows)
+
+		err = updateAgentStatus(
+			ctx,
+			db.Querier,
+			"missing-running-agent",
+			inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+			9000,
+			nil,
+			nil,
+		)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "failed to select Agent by ID")
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("updates disabled agent without returning error", func(t *testing.T) {
+		t.Parallel()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		ctx := logger.Set(context.Background(), "test-request")
+
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("disabled-agent").
+			WillReturnRows(sqlmock.NewRows(agentColumns).AddRow(
+				"disabled-agent", string(models.PMMAgentType), "node-disabled",
+				nil, nil, nil, nil, nil,
+				time.Now(), time.Now(),
+				true, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING.String(), 9100, "2.0.0", nil, false,
+				nil, nil, nil, false, false, nil,
+				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
+			))
+
+		mock.ExpectExec(`UPDATE "agents"`).WillReturnResult(sqlmock.NewResult(0, 1))
+
+		err = updateAgentStatus(
+			ctx,
+			db.Querier,
+			"disabled-agent",
+			inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+			9200,
+			nil,
+			nil,
+		)
+		require.NoError(t, err)
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
 }
