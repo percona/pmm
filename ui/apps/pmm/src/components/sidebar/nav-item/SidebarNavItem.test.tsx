@@ -5,7 +5,7 @@ import { NavItemProps } from './SidebarNavItem.types';
 import { NavItem as NavTreeItem } from 'types/navigation.types';
 import { collapseClasses } from '@mui/material/Collapse';
 import { MemoryRouterProps } from 'react-router-dom';
-import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
+import { ThemeContextProvider, pmmThemeOptions } from '@percona/percona-ui';
 
 const TEST_NAV_TREE: NavTreeItem = {
   id: 'level-0',
@@ -150,7 +150,7 @@ describe('SidebarNavItem', () => {
   it('shows dot on root if children has a badge and is hidden', async () => {
     const item: NavTreeItem = {
       id: 'with-badge',
-      icon: 'pmm-rounded',
+      icon: 'home',
       url: '/root',
       children: [
         {
