@@ -26,12 +26,14 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"path"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
 
 	"github.com/lib/pq"
+	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
@@ -160,7 +162,36 @@ const (
 	// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
 	cacheInvalidationInterval = 60 * time.Second
 	authenticationTimeout     = 15 * time.Second
+	prometheusNamespace       = "pmm_managed"
+	prometheusSubsystem       = "auth"
 )
+
+func statusCodeToString(code int) string {
+	switch code {
+	case http.StatusOK:
+		return "200"
+	case http.StatusBadRequest:
+		return "400"
+	case http.StatusUnauthorized:
+		return "401"
+	case http.StatusForbidden:
+		return "403"
+	case http.StatusNotFound:
+		return "404"
+	case http.StatusMethodNotAllowed:
+		return "405"
+	case http.StatusRequestTimeout:
+		return "408"
+	case http.StatusTooManyRequests:
+		return "429"
+	case http.StatusInternalServerError:
+		return "500"
+	case http.StatusServiceUnavailable:
+		return "503"
+	default:
+		return strconv.Itoa(code)
+	}
+}
 
 // clientError contains authentication error response details.
 type authError struct {
@@ -168,11 +199,13 @@ type authError struct {
 	message string
 }
 
-// ErrInvalidUserID is returned when user ID is not valid.
-var ErrInvalidUserID = errors.New("InvalidUserID")
+var (
+	// ErrInvalidUserID is returned when user ID is not valid.
+	ErrInvalidUserID = errors.New("InvalidUserID")
 
-// ErrCannotGetUserID is returned when we cannot retrieve user ID.
-var ErrCannotGetUserID = errors.New("CannotGetUserID")
+	// ErrCannotGetUserID is returned when we cannot retrieve user ID.
+	ErrCannotGetUserID = errors.New("CannotGetUserID")
+)
 
 type cacheItem struct {
 	u       authUser
@@ -184,23 +217,45 @@ type clientInterface interface {
 	getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
 }
 
+type authMetrics struct {
+	// mAuthRequests tracks total auth requests by method, route, and response code.
+	mAuthRequests *prom.CounterVec
+	// mGrafanaAuthRequests tracks auth requests made to Grafana by response code.
+	mGrafanaAuthRequests *prom.CounterVec
+	// mCache tracks total authentication cache requests by status (hit or miss).
+	mCache *prom.CounterVec
+	// mCacheSizeDesc is the descriptor for the number of items in the auth cache.
+	mCacheSizeDesc *prom.Desc
+	// mDurations tracks latency of auth operations (labels: total, grafana, db).
+	mDurations *prom.HistogramVec
+}
+
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	c  clientInterface
+	// c is the client used to interact with the Grafana API.
+	c clientInterface
+	// db is the PostgreSQL database handle using reform ORM.
 	db *reform.DB
-	l  *logrus.Entry
+	// l is the structured logger for the auth component.
+	l *logrus.Entry
 
+	// cache stores authentication responses to reduce Grafana API calls.
+	// Stores positive responses only.
 	cache map[string]cacheItem
-	rw    sync.RWMutex
+	// rw protects the cache for concurrent access.
+	rw sync.RWMutex
 
+	// accessControl manages RBAC and LBAC filtering logic.
 	accessControl *accessControl
 
 	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
+	// Prometheus metrics for the AuthServer.
+	metrics authMetrics
 }
 
 // NewAuthServer creates new AuthServer.
 func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
-	return &AuthServer{
+	s := &AuthServer{
 		c:     c,
 		db:    db,
 		l:     logrus.WithField("component", "grafana/auth"),
@@ -208,7 +263,81 @@ func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
 		accessControl: &accessControl{
 			db: db,
 		},
+		metrics: authMetrics{
+			mAuthRequests: prom.NewCounterVec(
+				prom.CounterOpts{
+					Name: prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "requests_total"),
+					Help: "Total number of authentication requests.",
+				},
+				[]string{"method", "route", "status_code"},
+			),
+			mGrafanaAuthRequests: prom.NewCounterVec(
+				prom.CounterOpts{
+					Name: prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "grafana_requests_total"),
+					Help: "Total number of authentication requests to Grafana.",
+				},
+				[]string{"status_code"},
+			),
+			mCache: prom.NewCounterVec(
+				prom.CounterOpts{
+					Name: prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "cache_total"),
+					Help: "Total number of authentication cache requests by status (hit or miss).",
+				},
+				[]string{"status"},
+			),
+			mCacheSizeDesc: prom.NewDesc(
+				prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "cache_size"),
+				"Total number of items in the authentication cache.",
+				nil,
+				nil,
+			),
+			mDurations: prom.NewHistogramVec(prom.HistogramOpts{ // labels: total, grafana, db
+				Name:    prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "duration_seconds"),
+				Help:    "Latency of authentication operations in seconds.",
+				Buckets: prom.DefBuckets,
+			}, []string{"type"}),
+		},
 	}
+	return s
+}
+
+// Describe implements prom.Collector interface.
+func (s *AuthServer) Describe(ch chan<- *prom.Desc) {
+	s.metrics.mAuthRequests.Describe(ch)
+	s.metrics.mGrafanaAuthRequests.Describe(ch)
+	s.metrics.mCache.Describe(ch)
+	ch <- s.metrics.mCacheSizeDesc
+	s.metrics.mDurations.Describe(ch)
+}
+
+// Collect implements prom.Collector interface.
+func (s *AuthServer) Collect(ch chan<- prom.Metric) {
+	s.metrics.mAuthRequests.Collect(ch)
+	s.metrics.mGrafanaAuthRequests.Collect(ch)
+	s.metrics.mCache.Collect(ch)
+
+	s.rw.RLock()
+	cacheSize := len(s.cache)
+	s.rw.RUnlock()
+	ch <- prom.MustNewConstMetric(s.metrics.mCacheSizeDesc, prom.GaugeValue, float64(cacheSize))
+
+	s.metrics.mDurations.Collect(ch)
+}
+
+func (s *AuthServer) incAuthRequests(method, route string, code int) {
+	s.metrics.mAuthRequests.WithLabelValues(method, route, statusCodeToString(code)).Inc()
+}
+
+func (s *AuthServer) incGrafanaAuthRequests(code int) {
+	s.metrics.mGrafanaAuthRequests.WithLabelValues(statusCodeToString(code)).Inc()
+}
+
+func (s *AuthServer) incCacheHit() {
+	s.metrics.mCache.WithLabelValues("hit").Inc()
+}
+
+func (s *AuthServer) incCacheMiss() {
+	s.metrics.mCache.WithLabelValues("miss").Inc()
 }
 
 // Run runs cache invalidator which removes expired cache items.
@@ -237,7 +366,12 @@ func (s *AuthServer) Run(ctx context.Context) {
 // ServeHTTP serves internal location /auth_request for both authentication subrequests
 // and subsequent normal requests.
 func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if s.l.Logger.GetLevel() >= logrus.DebugLevel {
+	start := time.Now()
+	defer func() {
+		s.metrics.mDurations.WithLabelValues("total").Observe(time.Since(start).Seconds())
+	}()
+
+	if s.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 		b, err := httputil.DumpRequest(req, true)
 		if err != nil {
 			s.l.Errorf("Failed to dump request: %v.", err)
@@ -249,6 +383,24 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		s.l.Warnf("Failed to parse request: %s.", err)
 		rw.WriteHeader(http.StatusBadRequest)
+
+		method := req.Header.Get("X-Original-Method")
+		if method == "" {
+			method = req.Method
+		}
+
+		route := req.Header.Get("X-Original-Uri")
+		if route == "" {
+			route = req.URL.Path
+		} else if i := strings.IndexByte(route, '?'); i >= 0 {
+			route = route[:i]
+		}
+		cleaned, cleanErr := cleanPath(route)
+		if cleanErr == nil {
+			route = cleaned
+		}
+
+		s.incAuthRequests(method, route, http.StatusBadRequest)
 		return
 	}
 
@@ -266,7 +418,10 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			"error":   authErr.message,
 			"message": authErr.message, //nolint:goconst
 		}
-		s.returnError(rw, httpStatusForAuthError(authErr.code), m, l)
+
+		status := httpStatusForAuthError(authErr.code)
+		s.incAuthRequests(req.Method, req.URL.Path, status)
+		s.returnError(rw, status, m, l)
 		return
 	}
 
@@ -285,9 +440,12 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		}
 		l.Errorf("Failed to add VMProxy filters: %s", errF)
 
+		s.incAuthRequests(req.Method, req.URL.Path, authenticationErrorCode)
 		s.returnError(rw, authenticationErrorCode, m, l)
 		return
 	}
+
+	s.incAuthRequests(req.Method, req.URL.Path, http.StatusOK)
 }
 
 // httpStatusForAuthError maps an authError code to the HTTP status nginx receives.
@@ -377,6 +535,11 @@ func (s *AuthServer) shallAddLBACFilters(req *http.Request) bool {
 
 // getLBACFilters retrieves LBAC filters for the user.
 func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, error) {
+	start := time.Now()
+	defer func() {
+		s.metrics.mDurations.WithLabelValues("db").Observe(time.Since(start).Seconds())
+	}()
+
 	roles, err := models.GetUserRoles(s.db.Querier, userID)
 	if err != nil {
 		return nil, err
@@ -438,14 +601,19 @@ func extractOriginalRequest(req *http.Request) error {
 		return errors.New("empty X-Original-Uri")
 	}
 	if origURI[0] != '/' {
-		return fmt.Errorf("unexpected X-Original-Uri: %s", origURI)
+		return fmt.Errorf("unexpected X-Original-Uri: %q", origURI)
 	}
 	if !utf8.ValidString(origURI) {
-		return fmt.Errorf("invalid X-Original-Uri: %s", origURI)
+		return fmt.Errorf("invalid X-Original-Uri: %q", origURI)
+	}
+
+	cleanedOrigURI, err := cleanPath(origURI)
+	if err != nil {
+		return fmt.Errorf("failed to unescape path %q: %w", origURI, err)
 	}
 
 	req.Method = origMethod
-	req.URL.Path = origURI
+	req.URL.Path = cleanedOrigURI
 	return nil
 }
 
@@ -496,10 +664,14 @@ func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
 	}
 }
 
+// isLocalAgentConnection reports whether the request is a local PMM agent
+// connection for endpoints that are allowed from localhost.
+// This func expects that req.Method and req.URL.Path are already replaced
+// with original request values - extractOriginalRequest(req) has been called beforehand.
 func isLocalAgentConnection(req *http.Request) bool {
 	ip := strings.Split(req.RemoteAddr, ":")[0]
 	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
-	path := req.Header.Get("X-Original-Uri")
+	path := req.URL.Path
 	if ip == "127.0.0.1" &&
 		(path == connectionEndpoint || path == rtaCollectEndpoint) {
 		return true
@@ -512,19 +684,11 @@ func isLocalAgentConnection(req *http.Request) bool {
 // It returns user information retrieved during authentication.
 // Paths which require no Grafana role return zero value for
 // some user fields such as authUser.userID.
+// This func expects that req.Method and req.URL.Path are already replaced
+// with original request values - extractOriginalRequest(req) has been called beforehand.
 func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
-	// Unescape the URL-encoded parts of the path.
-	p := req.URL.Path
-	cleanedPath, err := cleanPath(p)
-	if err != nil {
-		l.Warnf("Error while unescaping path %s: %q", p, err)
-		return nil, &authError{
-			code:    codes.Internal,
-			message: "Internal server error.",
-		}
-	}
-
-	minRole, prefix := resolveRule(req.Method, cleanedPath, l)
+	// Determine the minimal required role for the (already cleaned) original request path.
+	minRole, prefix := resolveRule(req.Method, req.URL.Path, l)
 	l = l.WithField("prefix", prefix)
 
 	if minRole == none {
@@ -534,7 +698,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 
 	var user *authUser
 	if isLocalAgentConnection(req) {
-		if req.Header.Get("X-Original-Uri") == connectionEndpoint {
+		if req.URL.Path == connectionEndpoint {
 			user = &authUser{
 				role:   rules[connectionEndpoint],
 				userID: 0,
@@ -603,9 +767,11 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	// cacheInvalidationInterval, so without this an entry could be served for almost
 	// twice that long. Re-fetch once an entry is older than the interval.
 	if ok && time.Since(item.created) < cacheInvalidationInterval {
+		s.incCacheHit()
 		return &item.u, nil
 	}
 
+	s.incCacheMiss()
 	return s.retrieveRole(ctx, hash, authHeaders, l)
 }
 
@@ -623,17 +789,25 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 }
 
 func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
+	start := time.Now()
+	defer func() {
+		s.metrics.mDurations.WithLabelValues("grafana").Observe(time.Since(start).Seconds())
+	}()
+
 	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
 	if err != nil {
 		l.Warnf("%s", err)
 		cErr, ok := errors.AsType[*clientError](err)
 		if ok {
+			s.incGrafanaAuthRequests(cErr.Code)
+
 			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
+			if cErr.Code == http.StatusUnauthorized || cErr.Code == http.StatusForbidden {
 				code = codes.Unauthenticated
 			}
 			return nil, &authError{code: code, message: cErr.ErrorMessage}
 		}
+		s.incGrafanaAuthRequests(http.StatusInternalServerError)
 		return nil, &authError{code: codes.Internal, message: "Internal server error."}
 	}
 	s.rw.Lock()
@@ -643,5 +817,8 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	}
 	s.rw.Unlock()
 
+	s.incGrafanaAuthRequests(http.StatusOK)
 	return &authUser, nil
 }
+
+var _ prom.Collector = (*AuthServer)(nil)
