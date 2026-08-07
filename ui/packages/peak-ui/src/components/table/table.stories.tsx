@@ -256,24 +256,24 @@ const meta = {
     tableName: {
       control: 'text',
       description:
-        '**Peak Design prop.** Used as the `data-testid` and as the localStorage key for column-visibility persistence. Rename with care — changing it loses user-saved preferences.',
+        '**Peak UI prop.** Used as the `data-testid` and as the localStorage key for column-visibility persistence. Rename with care — changing it loses user-saved preferences.',
       table: { category: 'Data' },
     },
     noDataMessage: {
       control: 'text',
       description:
-        '**Peak Design prop.** Message shown when `data` is empty (and no `emptyState` is provided).',
+        '**Peak UI prop.** Message shown when `data` is empty (and no `emptyState` is provided).',
       table: { category: 'Empty state', defaultValue: { summary: "'No data'" } },
     },
     emptyFilterResultsMessage: {
       control: 'text',
-      description: '**Peak Design prop.** Message shown when filtering excludes all rows.',
+      description: '**Peak UI prop.** Message shown when filtering excludes all rows.',
       table: { category: 'Empty state', defaultValue: { summary: "'No data found'" } },
     },
     emptyState: {
       control: false,
       description:
-        '**Peak Design prop.** React node that fully replaces the default empty-state alert. See the [Empty state — custom illustration](?path=/story/data-display-table--empty-state-custom) story.',
+        '**Peak UI prop.** React node that fully replaces the default empty-state alert. See the [Empty state — custom illustration](?path=/story/data-display-table--empty-state-custom) story.',
       table: { category: 'Empty state' },
     },
     enableTopToolbar: {
@@ -284,7 +284,7 @@ const meta = {
     enableBottomToolbar: {
       control: 'boolean',
       description:
-        '**Peak Design override.** Coupled to `enablePagination` — both auto-enable when `data.length > 10`. In most cases, control pagination instead and this follows.',
+        '**Peak UI override.** Coupled to `enablePagination` — both auto-enable when `data.length > 10`. In most cases, control pagination instead and this follows.',
       table: { category: 'Toolbar', defaultValue: { summary: 'data.length > 10' } },
     },
     enableGlobalFilter: {
@@ -311,13 +311,13 @@ const meta = {
     enableSorting: {
       control: 'boolean',
       description:
-        '**Peak Design override.** Auto-disabled when `data` is empty. The sort affordance appears on header-cell hover/focus; the active sort direction stays visible.',
+        '**Peak UI override.** Auto-disabled when `data` is empty. The sort affordance appears on header-cell hover/focus; the active sort direction stays visible.',
       table: { category: 'Rows', defaultValue: { summary: '!!data.length' } },
     },
     enablePagination: {
       control: 'boolean',
       description:
-        '**Peak Design override.** Auto-enabled when `data.length > 10`. When disabled, all rows render without pages and the bottom toolbar hides automatically.',
+        '**Peak UI override.** Auto-enabled when `data.length > 10`. When disabled, all rows render without pages and the bottom toolbar hides automatically.',
       table: { category: 'Rows', defaultValue: { summary: 'data.length > 10' } },
     },
     enableStickyHeader: {
@@ -347,14 +347,14 @@ const meta = {
     hideExpandAllIcon: {
       control: 'boolean',
       description:
-        '**Peak Design prop.** Hide the expand-all icon in the header. Only meaningful when `enableExpanding` is `true`. Note: MRT offers a native `enableExpandAll={false}` that achieves the same result.',
+        '**Peak UI prop.** Hide the expand-all icon in the header. Only meaningful when `enableExpanding` is `true`. Note: MRT offers a native `enableExpandAll={false}` that achieves the same result.',
       table: { category: 'Rows' },
     },
     enableRowHoverAction: {
       control: 'boolean',
       description:
-        '**Peak Design prop.** Make whole rows clickable — fires `rowHoverAction(row)` and switches the cursor to a pointer. Use for "click to drill in" patterns.',
-      table: { category: 'Rows (Peak Design)', defaultValue: { summary: 'false' } },
+        '**Peak UI prop.** Make whole rows clickable — fires `rowHoverAction(row)` and switches the cursor to a pointer. Use for "click to drill in" patterns.',
+      table: { category: 'Rows (Peak UI)', defaultValue: { summary: 'false' } },
     },
     muiTableContainerProps: {
       control: false,
@@ -769,7 +769,7 @@ export const WithCustomToolbarActions: Story = {
 };
 
 export const WithRowHoverAction: Story = {
-  name: 'With row hover action (Peak Design only)',
+  name: 'With row hover action (Peak UI only)',
   parameters: {
     docs: {
       description: {
@@ -874,7 +874,7 @@ export const WithDetailsPaneNavigation: Story = {
         story: [
           'A common pattern: click a row to open a details pane that has prev/next arrows. The arrows must walk the rows the user actually sees after filtering and sorting, **not** the raw `data` array.',
           '',
-          'Two Peak Design hooks make this reusable without hand-wiring the table instance:',
+          'Two Peak UI hooks make this reusable without hand-wiring the table instance:',
           "- **`useNavigableRows`** owns the table's filter/sort state and returns `navigableRows` (the filtered + sorted rows, across all pages by default) plus `tableProps` to spread onto `<Table>`. It emits `onChange` whenever that list changes, and exposes `refresh()` to recompute right before opening the pane on a row click. Use `scope: 'currentPage'` to navigate only the visible page.",
           '- **`useDetailsPaneNavigation`** turns that list plus the current selection into `next` / `previous` actions and `isFirst` / `isLast` flags. If the selection is filtered out, navigation disables itself instead of jumping to an unrelated row.',
           '- **`usePerconaTableUrlState`** (optional) syncs filter/sort/pagination/global search to URL query params. Pass `searchParams` and `setSearchParams` from your router; spread `tableProps` onto `<Table>` and pass `tableState` into `useNavigableRows` when you need both shareable URLs and details-pane navigation. For other controlled state (e.g. `rowSelection`), pass `additionalState` to the hook or merge with `mergePerconaTableState(tableProps.state, { rowSelection })`.',

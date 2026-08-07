@@ -3,9 +3,9 @@ import { create } from "storybook/theming/create";
 export default create({
   base: "light",
 
-  brandTitle: "Percona's Peak Design Storybook",
+  brandTitle: "Percona's Peak UI Storybook",
   brandUrl: "./",
-  brandImage: "./logo-peak_design.svg",
+  brandImage: "./logo-peak-ui.svg",
   brandTarget: "_self",
 
   fontBase: '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif',

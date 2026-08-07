@@ -44,7 +44,7 @@ interface CustomIconEntry {
   keywords: string;
 }
 
-// Add new Peak Design icons here as they are created.
+// Add new Peak UI icons here as they are created.
 const customIcons: CustomIconEntry[] = [
   {
     component: PerconaIcon,
