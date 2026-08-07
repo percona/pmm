@@ -1,5 +1,6 @@
 import {
   QueryData,
+  RawQueryData,
   RealtimeSession,
   RealtimeSessionStatus,
 } from 'types/rta.types';
@@ -152,7 +153,6 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
   serviceName: 'Service 1',
   queryId: 'query-1',
   queryText: '{ find: "mycollection", filter: { status: "active" } }',
-  queryExecutionDuration: '10s',
   queryCollectTime: '2021-01-01T00:00:00Z',
   clientAddress: '127.0.0.1',
   queryRawJson: '{ find: "mycollection", filter: { status: "active" } }',
@@ -165,6 +165,12 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
     operation: 'operation',
     username: 'username',
   },
+};
+
+// Shape the API returns, before useRealtimeQueries parses the duration.
+export const TEST_RAW_MONGO_DB_QUERY_DATA: RawQueryData = {
+  ...TEST_MONGO_DB_QUERY_DATA,
+  queryExecutionDuration: '10s',
 };
 
 export const TEST_USER_ANONYMOUS: User = {
