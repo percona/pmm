@@ -12,7 +12,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
-import { TextInput, SwitchInput } from '@percona/peak-ui';
+import { TextInput, SwitchInput } from '@percona/percona-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';

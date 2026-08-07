@@ -1,4 +1,4 @@
-import type { SemanticTokens } from '@percona/peak-ui';
+import type { SemanticTokens } from '@percona/percona-ui';
 
 export type HelpCardChartKey = keyof SemanticTokens['charts'];
 
