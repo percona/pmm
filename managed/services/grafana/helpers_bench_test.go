@@ -22,6 +22,9 @@ import (
 	"testing"
 
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/utils/cache"
 )
 
 func BenchmarkCleanPath(b *testing.B) {
@@ -81,11 +84,13 @@ func BenchmarkAuthCacheKey(b *testing.B) {
 			},
 		},
 	} {
+		cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](b.Context(), cacheItemTTL, cacheInvalidationInterval)
+		require.NoError(b, err)
 		b.Run(tc.name, func(b *testing.B) {
 			req := httptest.NewRequestWithContext(b.Context(), http.MethodGet, "/", nil)
 			tc.set(req)
 			for b.Loop() {
-				key := authCacheKey(req)
+				key := authCacheKey(cache, req)
 				if key == 0 {
 					b.Fatalf("authCacheKey returned empty key")
 				}

@@ -26,7 +26,7 @@ type Cache[K comparable, V any] struct {
 }
 
 // NewCache initializes the cache.
-func NewCache[K comparable, V any]() (*Cache[K, V], error) {
+func NewCache[K comparable, V any]() *Cache[K, V] {
     c := &Cache[K, V]{
         seed: maphash.MakeSeed(),
     }
@@ -37,7 +37,12 @@ func NewCache[K comparable, V any]() (*Cache[K, V], error) {
         }
     }
 
-    return c, nil
+    return c
+}
+
+// CalculateCacheKey builds a deterministic cache key directly from passed key.
+func (c *Cache[K, V]) CalculateCacheKey(key string) uint64 {
+    return maphash.String(c.seed, key)
 }
 
 // Get retrieves an item. Zero-allocation on the hot path.

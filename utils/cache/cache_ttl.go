@@ -59,6 +59,11 @@ func NewCacheTTL[K comparable, V any](ctx context.Context, ttl time.Duration, cl
 	return c, nil
 }
 
+// CalculateCacheKey builds a deterministic cache key directly from passed key.
+func (c *CacheTTL[K, V]) CalculateCacheKey(key string) uint64 {
+	return maphash.String(c.seed, key)
+}
+
 // Get retrieves an item. Zero-allocation on the hot path.
 func (c *CacheTTL[K, V]) Get(key K) (V, bool) {
 	// Zero-allocation hash via maphash

@@ -570,7 +570,7 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	authorization := req.Header.Get("Authorization")
 	cookie := req.Header.Get("Cookie")
 
-	hash := authCacheKey(req)
+	hash := authCacheKey(s.cache, req)
 	// Hot-path: lookup user in cache first.
 	if cached, ok := s.cache.Get(hash); ok {
 		// Verify auth headers for this hash to prevent serving wrong user on rare hash collisions.

@@ -16,25 +16,48 @@ package cache
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestNewCache_ReturnsCacheForValidInputs(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCache[string, int]()
-	require.NoError(t, err)
+	c := NewCache[string, int]()
 	if c == nil {
 		t.Fatal("expected cache instance")
+	}
+}
+
+func TestCache_CalculateCacheKey_ReturnsSameValueForSameInput(t *testing.T) {
+	t.Parallel()
+
+	c := NewCache[string, int]()
+
+	key := "Authorization:Bearer token"
+	first := c.CalculateCacheKey(key)
+	second := c.CalculateCacheKey(key)
+
+	if first != second {
+		t.Fatalf("expected stable key hash: first=%d second=%d", first, second)
+	}
+}
+
+func TestCache_CalculateCacheKey_ReturnsDifferentValuesForDifferentInputs(t *testing.T) {
+	t.Parallel()
+
+	c := NewCache[string, int]()
+
+	first := c.CalculateCacheKey("Authorization:Bearer token-a")
+	second := c.CalculateCacheKey("Authorization:Bearer token-b")
+
+	if first == second {
+		t.Fatal("expected different key hashes for different inputs")
 	}
 }
 
 func TestCache_Set_Get_Delete_StoresReadsAndRemovesValue(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCache[string, int]()
-	require.NoError(t, err)
+	c := NewCache[string, int]()
 
 	c.Set("k", 42)
 
@@ -57,8 +80,7 @@ func TestCache_Set_Get_Delete_StoresReadsAndRemovesValue(t *testing.T) {
 func TestCache_Get_ReturnsMissForUnknownKey(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCache[string, int]()
-	require.NoError(t, err)
+	c := NewCache[string, int]()
 
 	got, ok := c.Get("missing")
 	if ok {
@@ -72,8 +94,7 @@ func TestCache_Get_ReturnsMissForUnknownKey(t *testing.T) {
 func TestCache_Get_ReturnsStoredZeroValue(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCache[string, int]()
-	require.NoError(t, err)
+	c := NewCache[string, int]()
 
 	c.Set("k", 0)
 
@@ -89,8 +110,7 @@ func TestCache_Get_ReturnsStoredZeroValue(t *testing.T) {
 func TestCache_Size_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 	t.Parallel()
 
-	c, err := NewCache[string, int]()
-	require.NoError(t, err)
+	c := NewCache[string, int]()
 
 	if got := c.Size(); got != 0 {
 		t.Fatalf("unexpected size: got %d, want %d", got, 0)

@@ -29,6 +29,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
+
+	"github.com/percona/pmm/utils/cache"
 )
 
 // statusCodeToString returns HTTP status code string presentation.
@@ -264,40 +266,30 @@ func extractAuthHeaders(req *http.Request) http.Header {
 
 var seed = maphash.MakeSeed()
 
+const hashMixer = 0x9e3779b97f4a7c15 // Fractional part of the golden ratio
+
 // authCacheKey builds a deterministic cache key directly from request auth headers.
-func authCacheKey(req *http.Request) uint64 {
-	var h maphash.Hash
+func authCacheKey(cache *cache.CacheTTL[uint64, cachedAuthUser], req *http.Request) uint64 {
+	// Marginally faster than req.Header.Get("...")
+	var auth, cookie string
+	if vals := req.Header["Authorization"]; len(vals) > 0 {
+		auth = vals[0]
+	}
+	if vals := req.Header["Cookie"]; len(vals) > 0 {
+		cookie = vals[0]
+	}
 
-	// Seed ensures deterministic hashing across the lifetime of the process.
-	h.SetSeed(seed)
-
-	authorization := req.Header.Get("Authorization")
-	cookie := req.Header.Get("Cookie")
-
-	if authorization == "" && cookie == "" {
+	if auth == "" && cookie == "" {
 		return 0
 	}
 
-	if authorization != "" && cookie == "" {
-		_, _ = h.WriteString(authorization)
-		// Delimiter prevents concatenation collisions
-		_ = h.WriteByte(':')
+	// maphash.String is highly optimized.
+	// Hashing an empty string returns a deterministic, non-zero value.
+	hAuth := cache.CalculateCacheKey(auth)
+	hCookie := cache.CalculateCacheKey(cookie)
 
-		return h.Sum64()
-	}
-
-	if cookie != "" && authorization == "" {
-		// Delimiter prevents concatenation collisions
-		_ = h.WriteByte(':')
-		_, _ = h.WriteString(cookie)
-
-		return h.Sum64()
-	}
-
-	_, _ = h.WriteString(authorization)
-	// Delimiter prevents concatenation collisions
-	_ = h.WriteByte(':')
-	_, _ = h.WriteString(cookie)
-
-	return h.Sum64()
+	// Multiply the second hash by a prime to break symmetry.
+	// This inherently prevents collisions (e.g., auth="A", cookie="" vs auth="", cookie="A")
+	// without the need for string delimiters.
+	return hAuth ^ (hCookie * hashMixer)
 }

@@ -15,16 +15,12 @@
 package cache
 
 import (
-	"strconv"
-	"testing"
-
-	"github.com/stretchr/testify/require"
+    "strconv"
+    "testing"
 )
 
 func BenchmarkCache_Get(b *testing.B) {
-    c, err := NewCache[string, int]()
-	require.NoError(b, err)
-
+    c := NewCache[string, int]()
 	c.Set("hit", 42)
 
 	b.Run("returns value for existing key", func(b *testing.B) {
@@ -48,8 +44,7 @@ func BenchmarkCache_Get(b *testing.B) {
 }
 
 func BenchmarkCache_Set(b *testing.B) {
-    c, err := NewCache[string, int]()
-	require.NoError(b, err)
+    c := NewCache[string, int]()
 
 	b.Run("updates same key", func(b *testing.B) {
 		b.ReportAllocs()
@@ -69,8 +64,7 @@ func BenchmarkCache_Set(b *testing.B) {
 }
 
 func BenchmarkCache_Delete(b *testing.B) {
-    c, err := NewCache[string, int]()
-	require.NoError(b, err)
+    c := NewCache[string, int]()
 
 	b.Run("deletes existing key", func(b *testing.B) {
 		b.ReportAllocs()
@@ -92,8 +86,7 @@ func BenchmarkCache_Delete(b *testing.B) {
 }
 
 func BenchmarkCache_Size(b *testing.B) {
-    c, err := NewCache[string, int]()
-	require.NoError(b, err)
+    c := NewCache[string, int]()
 
 	for i := range 10_000 {
 		c.Set(strconv.Itoa(i), i)
