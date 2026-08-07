@@ -356,6 +356,8 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	l := s.l.WithFields(logrus.Fields{"method": req.Method, "path": req.URL.Path})
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
 
+	// Limit the total time spent on authentication to avoid long delays
+	// in case of Grafana being slow or unavailable.
 	ctx, cancel := context.WithTimeout(req.Context(), authenticationTimeout)
 	defer cancel()
 
@@ -593,12 +595,23 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 			}
 		}
 
-		// Note: there is no a separate timeout for requests to Grafana.
-		// Context here already has timeout from upper layer for the whole
-		// authentication process, including cache lookup and Grafana call.
-		userAuthInfo, authErr := s.getGrafanaAuthUser(ctx, extractAuthHeaders(req), l)
+		// NOTE 1: The first request for a singlefligh.Do() becomes the leader and runs the closure with its ctx.
+		// If this ctx is canceled - it will have no effect on the closure, so that all waiting
+		// requests will be able to get the result.
+
+		// NOTE 2: leader's context is not used here directly in order to allow to finish
+		// the request to Grafana, so that even if leader's request is already terminated -
+		// the rest of waiters in singleflight group will receive the response from Grafana.
+		deadLine, ok := ctx.Deadline()
+		if !ok {
+			deadLine = time.Now().Add(authenticationTimeout)
+		}
+		grafanaCtx, cancel := context.WithDeadline(context.Background(), deadLine)
+		defer cancel()
+
+		userAuthInfo, authErr := s.getGrafanaAuthUser(grafanaCtx, extractAuthHeaders(req), l) //nolint:contextcheck
 		if authErr != nil {
-			// IMPORTANT: On error, we CALL Forget(hash) IMMEDIATELY.
+			// IMPORTANT: On error, we call Forget(hash) IMMEDIATELY.
 			// This prevents the error from getting stuck in the internal singleflight map
 			// and allows the next request to retry immediately (e.g. if the Grafana is being restored).
 			s.authUserGroup.Forget(hashStr)
