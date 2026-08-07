@@ -15,6 +15,7 @@
 package supervisor
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net"
@@ -57,10 +58,13 @@ func newPortsRegistry(minPort, maxPort uint16, reserved []uint16) *portsRegistry
 // Reserve reserves next free port.
 // It tries to reuse ports as little as possible to avoid erroneous Prometheus scrapes
 // to the different exporter type when Prometheus configuration is being reloaded.
-func (r *portsRegistry) Reserve() (uint16, error) {
+func (r *portsRegistry) Reserve(ctx context.Context) (uint16, error) {
+	err := ctx.Err()
+	if err != nil {
+		return 0, err
+	}
 	r.m.Lock()
 	defer r.m.Unlock()
-
 	size := r.max - r.min + 1
 	for i := uint16(1); i <= size; i++ {
 		port := r.min + (r.last-r.min+i)%size
@@ -68,12 +72,16 @@ func (r *portsRegistry) Reserve() (uint16, error) {
 			continue
 		}
 
-		l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+		lc := net.ListenConfig{}
+		l, err := lc.Listen(ctx, "tcp", fmt.Sprintf("127.0.0.1:%d", port))
+		if err != nil {
+			if ctx.Err() != nil {
+				return 0, ctx.Err()
+			}
+			continue
+		}
 		if l != nil {
 			_ = l.Close()
-		}
-		if err != nil {
-			continue
 		}
 
 		r.reserved[port] = struct{}{}
@@ -93,12 +101,22 @@ func (r *portsRegistry) Release(port uint16) error {
 		return errPortNotReserved
 	}
 
-	l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
-	if l != nil {
-		_ = l.Close()
-	}
+	// FIXME: net.Listen shall be removed at all because it creates the following problems:
+	// 1. Port shall be cleaned up anyway after the process is terminated,
+	// otherwise it will be kept in memory forever.
+	// 2. It is possible that the port is already used by another process,
+	// but we still need to release it from the registry to avoid deadlock in the future.
+	// 3. Release() is called from the shutdown handler, which terminates the forked processes,
+	// but the OS may not release the port immediately,
+	// so we may get "port busy" error even though the process is already terminated.
+	// If port is really still busy or used by some another process,
+	// the next Reserve() will skip it and find another free port.
+	l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port)) //nolint:noctx
 	if err != nil {
 		return errPortBusy
+	}
+	if l != nil {
+		_ = l.Close()
 	}
 
 	delete(r.reserved, port)

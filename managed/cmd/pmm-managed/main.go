@@ -334,7 +334,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	go rtaStore.Run(ctx)
 
 	// run server until it is stopped gracefully or not
-	listener, err := net.Listen("tcp", gRPCAddr)
+	listenConfig := net.ListenConfig{}
+	listener, err := listenConfig.Listen(ctx, "tcp", gRPCAddr)
 	if err != nil {
 		l.Fatal(err)
 	}

@@ -88,6 +88,11 @@ func (c *Nomad) UpdateConfiguration(settings *models.Settings) error {
 	}
 	c.cachedPMMAddress = address
 	var err error
+	// FIXME: Pass context to generate certs funcs and generateServerConfig to
+	//  allow cancellation and timeout.
+	// The whole logic of updating Nomad configuration shall be revised:
+	// generating certificates and updating configuration should be done in a transaction manner,
+	// and the whole process should be cancellable.
 	err = c.generateCACert()
 	if err != nil {
 		return fmt.Errorf("failed to generate CA certificate: %w", err)
@@ -146,7 +151,11 @@ func (c *Nomad) generateCACert() error {
 		}
 	}
 
-	command := exec.Command(pathToNomad, "tls", "ca", "create", "-days", "10000")
+	// TODO: Use exec.CommandContext with context to allow cancellation and timeout.
+	// Mute `noctx` linter for now because the whole logic of updating Nomad configuration shall be revised:
+	// generating certificates and updating configuration should be done in a transaction manner,
+	// and the whole process should be cancellable.
+	command := exec.Command(pathToNomad, "tls", "ca", "create", "-days", "10000") //nolint:noctx
 	command.Dir = pathToCerts
 	command.Stderr = c.l.WriterLevel(logrus.ErrorLevel)
 	err := command.Run()
@@ -170,7 +179,11 @@ func (c *Nomad) generateServerCert(domain string) error {
 			}
 		}
 	}
-	command := exec.Command(pathToNomad, //nolint:gosec
+	// TODO: Use exec.CommandContext with context to allow cancellation and timeout.
+	// Mute `noctx` linter for now because the whole logic of updating Nomad configuration shall be revised:
+	// generating certificates and updating configuration should be done in a transaction manner,
+	// and the whole process should be cancellable.
+	command := exec.Command(pathToNomad, //nolint:gosec,noctx
 		"tls",
 		"cert",
 		"create",
@@ -206,7 +219,11 @@ func (c *Nomad) generateClientCert() error {
 			}
 		}
 	}
-	command := exec.Command(pathToNomad, //nolint:gosec
+	// TODO: Use exec.CommandContext with context to allow cancellation and timeout.
+	// Mute `noctx` linter for now because the whole logic of updating Nomad configuration shall be revised:
+	// generating certificates and updating configuration should be done in a transaction manner,
+	// and the whole process should be cancellable.
+	command := exec.Command(pathToNomad, //nolint:gosec,noctx
 		"tls",
 		"cert",
 		"create",

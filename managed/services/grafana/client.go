@@ -160,7 +160,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		Path:     path,
 		RawQuery: rawQuery,
 	}
-	req, err := http.NewRequest(method, u.String(), bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("failed to create http request: %w", err)
 	}
@@ -171,7 +171,6 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 		req.Header.Set(k, headers.Get(k))
 	}
 
-	req = req.WithContext(ctx)
 	resp, err := c.http.Do(req)
 	if err != nil {
 		return fmt.Errorf("failed to execute http request: %w", err)
