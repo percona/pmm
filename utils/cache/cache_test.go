@@ -16,35 +16,24 @@ package cache
 
 import (
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestNew_ReturnsErrorForInvalidInputs(t *testing.T) {
+func TestNewCache_ReturnsCacheForValidInputs(t *testing.T) {
 	t.Parallel()
 
-	_, err := New[string, int](nil, time.Second, time.Second) //nolint:staticcheck
-	require.Error(t, err)
-
-	_, err = New[string, int](t.Context(), time.Second, 0)
-	require.Error(t, err)
-}
-
-func TestNew_ReturnsCacheForValidInputs(t *testing.T) {
-	t.Parallel()
-
-	c, err := New[string, int](t.Context(), time.Second, 10*time.Millisecond)
+	c, err := NewCache[string, int]()
 	require.NoError(t, err)
 	if c == nil {
 		t.Fatal("expected cache instance")
 	}
 }
 
-func TestSetGetDelete_StoresReadsAndRemovesValue(t *testing.T) {
+func TestCache_Set_Get_Delete_StoresReadsAndRemovesValue(t *testing.T) {
 	t.Parallel()
 
-	c, err := New[string, int](t.Context(), time.Second, 10*time.Millisecond)
+	c, err := NewCache[string, int]()
 	require.NoError(t, err)
 
 	c.Set("k", 42)
@@ -65,10 +54,10 @@ func TestSetGetDelete_StoresReadsAndRemovesValue(t *testing.T) {
 	}
 }
 
-func TestGet_ReturnsMissForUnknownKey(t *testing.T) {
+func TestCache_Get_ReturnsMissForUnknownKey(t *testing.T) {
 	t.Parallel()
 
-	c, err := New[string, int](t.Context(), time.Second, 10*time.Millisecond)
+	c, err := NewCache[string, int]()
 	require.NoError(t, err)
 
 	got, ok := c.Get("missing")
@@ -80,25 +69,27 @@ func TestGet_ReturnsMissForUnknownKey(t *testing.T) {
 	}
 }
 
-func TestGet_ReturnsMissAfterTTLExpiration(t *testing.T) {
+func TestCache_Get_ReturnsStoredZeroValue(t *testing.T) {
 	t.Parallel()
 
-	c, err := New[string, int](t.Context(), 10*time.Millisecond, time.Second)
+	c, err := NewCache[string, int]()
 	require.NoError(t, err)
 
-	c.Set("k", 7)
-	time.Sleep(20 * time.Millisecond)
+	c.Set("k", 0)
 
-	_, ok := c.Get("k")
-	if ok {
-		t.Fatal("expected expired key to miss")
+	got, ok := c.Get("k")
+	if !ok {
+		t.Fatal("expected key to exist")
+	}
+	if got != 0 {
+		t.Fatalf("unexpected value: got %d, want %d", got, 0)
 	}
 }
 
-func TestSize_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
+func TestCache_Size_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 	t.Parallel()
 
-	c, err := New[string, int](t.Context(), time.Second, 10*time.Millisecond)
+	c, err := NewCache[string, int]()
 	require.NoError(t, err)
 
 	if got := c.Size(); got != 0 {
@@ -131,40 +122,3 @@ func TestSize_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 	}
 }
 
-func TestEvictionWorker_RemovesExpiredItemsAndUpdatesSize(t *testing.T) {
-	t.Parallel()
-
-	c, err := New[string, int](t.Context(), 15*time.Millisecond, 5*time.Millisecond)
-	require.NoError(t, err)
-
-	c.Set("a", 1)
-	c.Set("b", 2)
-	if got := c.Size(); got != 2 {
-		t.Fatalf("unexpected initial size: got %d, want %d", got, 2)
-	}
-
-	eventually(t, 300*time.Millisecond, 5*time.Millisecond, func() bool {
-		return c.Size() == 0
-	})
-
-	if _, ok := c.Get("a"); ok {
-		t.Fatal("expected key a to be evicted")
-	}
-	if _, ok := c.Get("b"); ok {
-		t.Fatal("expected key b to be evicted")
-	}
-}
-
-func eventually(t *testing.T, timeout, interval time.Duration, fn func() bool) {
-	t.Helper()
-
-	deadline := time.Now().Add(timeout)
-	for time.Now().Before(deadline) {
-		if fn() {
-			return
-		}
-		time.Sleep(interval)
-	}
-
-	t.Fatal("condition was not met before timeout")
-}

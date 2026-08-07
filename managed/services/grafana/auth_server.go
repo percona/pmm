@@ -224,7 +224,7 @@ type AuthServer struct {
 	// cache stores authentication responses to reduce Grafana API calls.
 	// Stores positive responses only.
 	// TODO: cache negative response as well.
-	cache *cache.Cache[uint64, cachedAuthUser]
+	cache *cache.CacheTTL[uint64, cachedAuthUser]
 	// authUserGroup deduplicates concurrent Grafana auth lookups for the same auth header set.
 	authUserGroup singleflight.Group
 
@@ -238,7 +238,7 @@ type AuthServer struct {
 
 // NewAuthServer creates new AuthServer.
 func NewAuthServer(ctx context.Context, c grafanaAuthUserGetter, db *reform.DB) *AuthServer {
-	cache, err := cache.New[uint64, cachedAuthUser](ctx, cacheItemTTL, cacheInvalidationInterval)
+	cache, err := cache.NewCacheTTL[uint64, cachedAuthUser](ctx, cacheItemTTL, cacheInvalidationInterval)
 	if err != nil {
 		panic(err)
 	}

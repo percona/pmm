@@ -15,14 +15,19 @@
 package cache
 
 import (
+	"context"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
 
-func BenchmarkCache_Get(b *testing.B) {
-    c, err := NewCache[string, int]()
+func BenchmarkCacheTTL_Get(b *testing.B) {
+	ctx, cancel := context.WithCancel(b.Context())
+	defer cancel()
+
+	c, err := NewCacheTTL[string, int](ctx, time.Minute, time.Minute)
 	require.NoError(b, err)
 
 	c.Set("hit", 42)
@@ -47,8 +52,11 @@ func BenchmarkCache_Get(b *testing.B) {
 	})
 }
 
-func BenchmarkCache_Set(b *testing.B) {
-    c, err := NewCache[string, int]()
+func BenchmarkCacheTTL_Set(b *testing.B) {
+	ctx, cancel := context.WithCancel(b.Context())
+	defer cancel()
+
+	c, err := NewCacheTTL[string, int](ctx, time.Minute, time.Minute)
 	require.NoError(b, err)
 
 	b.Run("updates same key", func(b *testing.B) {
@@ -68,8 +76,11 @@ func BenchmarkCache_Set(b *testing.B) {
 	})
 }
 
-func BenchmarkCache_Delete(b *testing.B) {
-    c, err := NewCache[string, int]()
+func BenchmarkCacheTTL_Delete(b *testing.B) {
+	ctx, cancel := context.WithCancel(b.Context())
+	defer cancel()
+
+	c, err := NewCacheTTL[string, int](ctx, time.Minute, time.Minute)
 	require.NoError(b, err)
 
 	b.Run("deletes existing key", func(b *testing.B) {
@@ -91,8 +102,11 @@ func BenchmarkCache_Delete(b *testing.B) {
 	})
 }
 
-func BenchmarkCache_Size(b *testing.B) {
-    c, err := NewCache[string, int]()
+func BenchmarkCacheTTL_Size(b *testing.B) {
+	ctx, cancel := context.WithCancel(b.Context())
+	defer cancel()
+
+	c, err := NewCacheTTL[string, int](ctx, time.Minute, time.Minute)
 	require.NoError(b, err)
 
 	for i := range 10_000 {
@@ -107,3 +121,32 @@ func BenchmarkCache_Size(b *testing.B) {
 	}
 }
 
+func BenchmarkCacheTTL_EvictionEffectOnSize(b *testing.B) {
+	b.Run("size reflects evicted entries", func(b *testing.B) {
+		ctx, cancel := context.WithCancel(b.Context())
+		defer cancel()
+
+		c, err := NewCacheTTL[string, int](ctx, 2*time.Millisecond, time.Millisecond)
+		require.NoError(b, err)
+
+		for i := range 1000 {
+			c.Set(strconv.Itoa(i), i)
+		}
+
+		deadline := time.Now().Add(300 * time.Millisecond)
+		for c.Size() != 0 && time.Now().Before(deadline) {
+			time.Sleep(time.Millisecond)
+		}
+
+		if c.Size() != 0 {
+			b.Fatalf("expected empty cache after eviction, got %d", c.Size())
+		}
+
+		b.ReportAllocs()
+		for b.Loop() {
+			if got := c.Size(); got != 0 {
+				b.Fatalf("unexpected size after eviction: got %d", got)
+			}
+		}
+	})
+}

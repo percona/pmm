@@ -630,7 +630,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		t.Parallel()
 
 		s, grafanaMock, _ := newTestAuthServer(t)
-		shortTTLCache, err := ucache.New[uint64, cachedAuthUser](t.Context(), time.Millisecond, time.Second)
+		shortTTLCache, err := ucache.NewCacheTTL[uint64, cachedAuthUser](t.Context(), time.Millisecond, time.Second)
 		require.NoError(t, err)
 		s.cache = shortTTLCache
 		req := mkReq(t, "Bearer stale")
