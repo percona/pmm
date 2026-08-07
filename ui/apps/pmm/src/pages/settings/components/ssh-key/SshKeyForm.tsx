@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { TextInput } from '@percona/peak-ui';
+import { TextInput } from '@percona/percona-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';

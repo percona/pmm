@@ -9,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import { Messages } from './RawDataTab.messages';
 import TableBody from '@mui/material/TableBody';
 import { AlertDetailsPane } from '../AlertDetailsPane.types';
-import { CodeBlock } from '@percona/peak-ui';
+import { CodeBlock } from '@percona/percona-ui';
 
 interface Props {
   details: AlertDetailsPane;
