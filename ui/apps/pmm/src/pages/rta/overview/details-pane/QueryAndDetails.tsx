@@ -2,7 +2,7 @@ import Grid from '@mui/material/Grid';
 import { FC } from 'react';
 import { format } from 'date-fns';
 import { tz } from '@date-fns/tz';
-import { CodeBlock } from '@percona/peak-ui';
+import { CodeBlock } from '@percona/percona-ui';
 import { QueryData } from 'types/rta.types';
 import DetailsMetric from 'components/details-pane/DataPoint';
 import BigNumberMetric from './BigNumberMetric';

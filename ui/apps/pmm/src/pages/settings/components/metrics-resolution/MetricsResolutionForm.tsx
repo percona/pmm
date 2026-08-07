@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import { TextInput, RadioGroup } from '@percona/peak-ui';
+import { TextInput, RadioGroup } from '@percona/percona-ui';
 import { FC, useEffect, useMemo } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';

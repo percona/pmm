@@ -9,7 +9,7 @@ import {
 } from './SidebarNavItem.utils';
 import { getStyles } from './SidebarNavItem.styles';
 import { useTheme } from '@mui/material/styles';
-import { NavItem } from '@percona/peak-ui';
+import { NavItem } from '@percona/percona-ui';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import ListItem from '@mui/material/ListItem';

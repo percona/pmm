@@ -1,4 +1,4 @@
-import { ElectricBoltIcon, ElectricBoltOffIcon } from '@percona/peak-ui';
+import { Icon } from 'components/icon';
 import { FC } from 'react';
 import { Messages } from './AutoRefreshSelect.messages';
 import { keyframes } from '@mui/material/styles';
@@ -39,12 +39,13 @@ const AutoRefreshSelect: FC<Props> = ({
       }}
       startIcon={
         isFetching ? (
-          <ElectricBoltIcon
+          <Icon
+            name="electric-bolt"
             color="inherit"
             sx={{ animation: `${fadeInOut} 1.2s infinite` }}
           />
         ) : (
-          <ElectricBoltOffIcon color="inherit" fontSize="inherit" />
+          <Icon name="electric-bolt-off" color="inherit" fontSize="inherit" />
         )
       }
     />

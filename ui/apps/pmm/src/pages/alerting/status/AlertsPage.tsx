@@ -11,7 +11,7 @@ import { useAlertmanagerAlerts } from 'hooks/api/useAlertmanagerAlerts';
 import { useAlertmanagerSilences } from 'hooks/api/useAlertmanagerSilences';
 import { buildSilenceMap, flattenAlertRules } from './AlertsPage.utils';
 import { AlertStatusTable } from './table';
-import { useDetailsPaneNavigation } from '@percona/peak-ui';
+import { useDetailsPaneNavigation } from '@percona/percona-ui';
 import { AlertRow, AlertsTableRow } from './AlertsPage.types';
 import { AlertDetailsPane } from './details-pane';
 import { Messages } from './AlertsPage.messages';

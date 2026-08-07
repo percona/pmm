@@ -1,7 +1,7 @@
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { Card } from '@percona/peak-ui';
+import { Card } from '@percona/percona-ui';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { FC } from 'react';

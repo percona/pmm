@@ -4,7 +4,7 @@ import {
   type MRT_VisibilityState,
   type MaterialReactTableProps,
 } from 'material-react-table';
-import { Table, useNavigableRows } from '@percona/peak-ui';
+import { Table, useNavigableRows } from '@percona/percona-ui';
 import { useMemo, useState, type FC } from 'react';
 import type { QueryData } from 'types/rta.types';
 import { ServiceType } from 'types/services.types';
@@ -18,7 +18,7 @@ import { filterCommaSeparated, filterElapsedTime } from './OverviewTable.utils';
 // query text and Elapsed time out of view, so they start hidden and users
 // reveal the ones they need from the Show/Hide columns menu.
 // The visibility state is held here rather than in initialState because the
-// peak-ui Table controls columnVisibility from its own localStorage state,
+// percona-ui Table controls columnVisibility from its own localStorage state,
 // which cannot express a column that is hidden by default.
 const DEFAULT_COLUMN_VISIBILITY: MRT_VisibilityState = {
   databaseName: false,
