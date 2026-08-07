@@ -15,7 +15,10 @@ import {
   ServicesAutocompleteInputProps,
 } from './ServicesAutocompleteInput.types';
 import ServiceTags from './components/ServiceTags';
-import { hasMixedTechnologies } from 'pages/rta/components/technology';
+import {
+  sharedTechnology,
+  technologyLabel,
+} from 'pages/rta/components/technology';
 
 const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   disabled = false,
@@ -23,22 +26,34 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   onServiceIdsChange,
   inputProps,
   tagPresentation = 'label',
+  singleTechnology = false,
   'data-testid': testId,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const services = 'sessions' in props ? props.sessions : props.services;
   const serviceOptions = useMemo(() => getServiceOptions(services), [services]);
-  // Each screen decides from its own list: the technology is only called out
-  // when the services in this picker span more than one of them.
-  const showTechnology = useMemo(
-    () => hasMixedTechnologies(services.map((service) => service.serviceType)),
-    [services]
-  );
   const selectedServices = useMemo(
     () => serviceOptions.filter((option) => serviceIds?.includes(option.id)),
     [serviceOptions, serviceIds]
   );
+  // With singleTechnology the picker feeds one view of live queries, which
+  // cannot mix engines, so the first pick fixes the technology and the others
+  // are disabled until the selection is cleared.
+  const selectedTechnology = useMemo(
+    () =>
+      singleTechnology
+        ? sharedTechnology(
+            selectedServices
+              .filter((option) => option.type === 'service')
+              .map((option) => option.serviceType)
+          )
+        : undefined,
+    [singleTechnology, selectedServices]
+  );
+  const isOptionDisabled = (option: ServiceOption) =>
+    selectedTechnology !== undefined &&
+    option.serviceType !== selectedTechnology;
 
   const handleServiceChange = (
     _event: React.SyntheticEvent,
@@ -68,6 +83,8 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
       value={selectedServices}
       onChange={handleServiceChange}
       getOptionLabel={(option) => option.label}
+      groupBy={(option) => technologyLabel(option.serviceType)}
+      getOptionDisabled={isOptionDisabled}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       disableCloseOnSelect
       limitTags={2}
@@ -92,7 +109,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
           key={option.id}
           option={option}
           selected={selected}
-          showTechnology={showTechnology}
+          disabled={isOptionDisabled(option)}
           clusterSelectionState={
             option.type === 'cluster'
               ? getClusterSelectionState(

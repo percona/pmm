@@ -5,9 +5,10 @@ import {
   type MaterialReactTableProps,
 } from 'material-react-table';
 import { Table, useNavigableRows } from '@percona/percona-ui';
-import { useState, type FC } from 'react';
+import { useMemo, useState, type FC } from 'react';
 import type { QueryData } from 'types/rta.types';
-import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
+import { ServiceType } from 'types/services.types';
+import { getOverviewTableColumns } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
@@ -33,8 +34,16 @@ const DEFAULT_COLUMN: Partial<MRT_ColumnDef<QueryData>> = {
   enablePinning: false,
 };
 
+// Elapsed time is the key live metric; keep it visible even when the other
+// columns overflow into a horizontal scroll. Held as controlled state rather
+// than initialState so the Show/Hide menu's "Unpin all" - which MRT renders
+// unconditionally while pinning is enabled - cannot take it away.
+const COLUMN_PINNING = { right: ['queryExecutionDurationMs'] };
+
 interface Props {
   queries: QueryData[];
+  // Technology of the services being watched; the selection cannot mix them.
+  serviceType?: ServiceType;
   onQuerySelected: (query: QueryData) => void;
   onNavigableQueriesChange: (queries: QueryData[]) => void;
   actions?: MaterialReactTableProps<QueryData>['renderTopToolbarCustomActions'];
@@ -43,6 +52,7 @@ interface Props {
 
 const OverviewTable: FC<Props> = ({
   queries,
+  serviceType,
   onQuerySelected,
   onNavigableQueriesChange,
   actions,
@@ -55,6 +65,10 @@ const OverviewTable: FC<Props> = ({
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   );
+  const columns = useMemo(
+    () => getOverviewTableColumns(serviceType),
+    [serviceType]
+  );
 
   return (
     <RealtimeTableWrapper>
@@ -65,11 +79,8 @@ const OverviewTable: FC<Props> = ({
             pageSize: 25,
             pageIndex: 0,
           },
-          // Elapsed time is the key live metric; keep it visible even when
-          // the other columns overflow into a horizontal scroll.
-          columnPinning: { right: ['queryExecutionDurationMs'] },
         }}
-        columns={OVERVIEW_TABLE_COLUMNS}
+        columns={columns}
         data={queries}
         noDataMessage={Messages.noData}
         muiTopToolbarProps={{
@@ -83,7 +94,11 @@ const OverviewTable: FC<Props> = ({
           },
         }}
         {...tableProps}
-        state={{ ...tableProps.state, columnVisibility }}
+        state={{
+          ...tableProps.state,
+          columnVisibility,
+          columnPinning: COLUMN_PINNING,
+        }}
         onColumnVisibilityChange={setColumnVisibility}
         enableStickyHeader
         enableColumnPinning

@@ -30,6 +30,17 @@ vi.mock('api/rta', () => ({
   getRunningSessions,
 }));
 
+// The overview derives the technology of the selection by matching the URL's
+// serviceIds against the running sessions, so a test that cares about the
+// technology has to line those up.
+const renderMySqlSelection = () => {
+  getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+
+  return renderComponent({
+    initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+  });
+};
+
 const renderComponent = ({
   initialEntry = '/rta/overview?serviceIds=123',
 }: {
@@ -86,7 +97,7 @@ describe('RealtimeOverview', () => {
   });
 
   it('should hide the database and user columns by default', async () => {
-    renderComponent();
+    renderMySqlSelection();
 
     await waitFor(() =>
       screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
@@ -105,7 +116,7 @@ describe('RealtimeOverview', () => {
   });
 
   it('should render database and user columns from the payload once revealed', async () => {
-    renderComponent();
+    renderMySqlSelection();
 
     await waitFor(() =>
       screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
@@ -163,7 +174,7 @@ describe('RealtimeOverview', () => {
     ).toHaveTextContent('Unavailable');
   });
 
-  it('should hide the transaction control toggle when no MySQL session is running', async () => {
+  it('should hide the transaction control toggle for a MongoDB selection', async () => {
     renderComponent();
 
     await waitFor(() => screen.getByTestId('realtime-overview-table'));
@@ -173,18 +184,52 @@ describe('RealtimeOverview', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('should show the transaction control toggle when a MySQL session is running', async () => {
-    getRunningSessions.mockResolvedValue([
-      TEST_REAL_TIME_SESSION,
-      TEST_REAL_TIME_SESSION_MYSQL,
-    ]);
-
-    renderComponent();
+  it('should show the transaction control toggle for a MySQL selection', async () => {
+    renderMySqlSelection();
 
     await waitFor(() =>
       expect(
         screen.getByTestId('overview-table-hide-commit-toggle')
       ).toHaveTextContent('Hide transaction control')
+    );
+  });
+
+  it('should not offer services of another technology while one is selected', async () => {
+    getRunningSessions.mockResolvedValue([
+      TEST_REAL_TIME_SESSION,
+      TEST_REAL_TIME_SESSION_MYSQL,
+    ]);
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    fireEvent.click(await screen.findByTitle('Open'));
+
+    expect(
+      await screen.findByTestId(
+        `service-option-${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`
+      )
+    ).not.toHaveAttribute('aria-disabled', 'true');
+    expect(
+      screen.getByTestId(`service-option-${TEST_REAL_TIME_SESSION.serviceId}`)
+    ).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('should watch only the first technology when the URL names both', async () => {
+    getRunningSessions.mockResolvedValue([
+      TEST_REAL_TIME_SESSION,
+      TEST_REAL_TIME_SESSION_MYSQL,
+    ]);
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}&serviceIds=${TEST_REAL_TIME_SESSION.serviceId}`,
+    });
+
+    await waitFor(() =>
+      expect(searchQueries).toHaveBeenLastCalledWith({
+        serviceIds: [TEST_REAL_TIME_SESSION_MYSQL.serviceId],
+      })
     );
   });
 

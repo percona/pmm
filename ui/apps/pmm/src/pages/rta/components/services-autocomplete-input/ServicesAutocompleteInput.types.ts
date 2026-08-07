@@ -10,6 +10,9 @@ interface BaseProps {
   serviceIds: string[];
   onServiceIdsChange: (serviceIds: string[]) => void;
   inputProps?: Partial<AutocompleteRenderInputParams>;
+  // Restrict the selection to one database technology. Set where the picker
+  // drives a single view of live queries; starting sessions has no such limit.
+  singleTechnology?: boolean;
   'data-testid'?: string;
 }
 

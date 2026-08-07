@@ -26,12 +26,24 @@ import { ServicesAutocompleteInput } from '../components/services-autocomplete-i
 import { AutoRefreshSelect } from './auto-refresh-select';
 import { exportRtaQueriesToCsv } from './export/exportRtaQueriesToCsv';
 import { ServiceType } from 'types/services.types';
+import { resolveSelection } from './RealtimeOverview.utils';
 
 const EMPTY_QUERIES: QueryData[] = [];
 
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const serviceIds = searchParams.getAll('serviceIds');
+  const requestedServiceIds = useMemo(
+    () => searchParams.getAll('serviceIds'),
+    [searchParams]
+  );
+  const { data: sessions = [], isLoading } = useRealtimeSessions();
+  // One view of live queries shows one technology. The picker enforces that, but
+  // a URL can still name services of both (starting sessions is not restricted),
+  // so the first service's technology wins and the rest are ignored.
+  const { serviceIds, serviceType } = useMemo(
+    () => resolveSelection(requestedServiceIds, sessions),
+    [requestedServiceIds, sessions]
+  );
   const [fetching, setFetching] = useState(serviceIds.length > 0);
   const [refreshInterval, setRefreshInterval] = useState(2000);
   const { data: queries, refetch } = useRealtimeQueries(
@@ -42,23 +54,18 @@ const RealtimeOverviewPage: FC = () => {
     }
   );
   const [hideCommit, setHideCommit] = useState(false);
+  // Transaction-control statements are a MySQL concern, so the toggle is only
+  // offered while MySQL services are being watched.
+  const isMySqlSelection = serviceType === ServiceType.mysql;
   // Synced from the table after filters; details-pane arrows use this list, not the full API result.
   const [navigableQueries, setNavigableQueries] = useState<QueryData[]>([]);
   const [selectedQuery, setSelectedQuery] = useState<QueryData>();
   // We need to store the previous fetching state to restore it when the details pane is closed
   const previousFetchingState = useRef<boolean>(fetching);
-  const { data: sessions = [], isLoading } = useRealtimeSessions();
-  // Transaction-control statements are a MySQL concern, so the toggle is not
-  // shown to users whose sessions are all MongoDB. It follows the sessions
-  // rather than the current selection, so it does not appear and disappear
-  // while services are being picked.
-  const hasMySqlSession = sessions.some(
-    (session) => session.serviceType === ServiceType.mysql
-  );
-  // Gated on the toggle being on screen: if the last MySQL session goes away the
-  // control unmounts, and a filter nobody can see must not keep hiding rows (nor
-  // silently shrink the CSV export, which exports the filtered rows).
-  const hideTransactionControl = hideCommit && hasMySqlSession;
+  // Gated on the toggle being on screen: when the selection stops being MySQL
+  // the control unmounts, and a filter nobody can see must not keep hiding rows
+  // (nor silently shrink the CSV export, which exports the filtered rows).
+  const hideTransactionControl = hideCommit && isMySqlSelection;
   const tableQueries = useMemo(() => {
     const allQueries = queries ?? EMPTY_QUERIES;
     return hideTransactionControl
@@ -115,6 +122,7 @@ const RealtimeOverviewPage: FC = () => {
     <RealtimePage>
       <OverviewTable
         queries={tableQueries}
+        serviceType={serviceType}
         onQuerySelected={handleQuerySelected}
         onNavigableQueriesChange={setNavigableQueries}
         actions={({ table }) => (
@@ -143,6 +151,7 @@ const RealtimeOverviewPage: FC = () => {
                 data-testid="overview-table-services-autocomplete-input"
                 sessions={sessions}
                 serviceIds={serviceIds}
+                singleTechnology
                 onServiceIdsChange={handleServiceIdsChange}
                 inputProps={{
                   size: 'small',
@@ -226,7 +235,7 @@ const RealtimeOverviewPage: FC = () => {
               {/* This filters the rows, it does not drive live updates: keep it
                   out of the auto-refresh / playback group so that group reads as
                   one control. */}
-              {hasMySqlSession && (
+              {isMySqlSelection && (
                 <>
                   <Divider
                     orientation="vertical"

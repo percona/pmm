@@ -18,6 +18,7 @@ import {
   TEST_VERSIONED_MONGO_SERVICE,
   TEST_VERSIONED_MYSQL_SERVICE,
   TEST_REAL_TIME_SESSION,
+  TEST_REAL_TIME_SESSION_MYSQL,
   TEST_USER_ADMIN,
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
@@ -189,26 +190,7 @@ describe('RealtimeSelection', () => {
       });
     });
 
-    it('does not mark the technology when every service is MongoDB', async () => {
-      vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
-        mongodb: [TEST_VERSIONED_MONGO_SERVICE],
-      });
-
-      renderComponent();
-
-      fireEvent.click(await screen.findByTitle('Open'));
-
-      const listbox = await screen.findByRole('listbox');
-
-      expect(
-        within(listbox).getByText(TEST_VERSIONED_MONGO_SERVICE.serviceName)
-      ).toBeInTheDocument();
-      expect(
-        within(listbox).queryByTestId('technology')
-      ).not.toBeInTheDocument();
-    });
-
-    it('marks the technology of each service once both are available', async () => {
+    it('names the technology as a group header, not per row', async () => {
       vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
         mongodb: [TEST_VERSIONED_MONGO_SERVICE],
         mysql: [TEST_VERSIONED_MYSQL_SERVICE],
@@ -220,14 +202,41 @@ describe('RealtimeSelection', () => {
 
       const listbox = await screen.findByRole('listbox');
 
-      // Each service sits in its own cluster, so both the cluster row and the
-      // service row under it carry the icon.
+      // MUI renders one header per run of options, so a single header per
+      // technology also proves the options arrive sorted by group.
+      expect(within(listbox).getByText('MongoDB')).toBeInTheDocument();
+      expect(within(listbox).getByText('MySQL')).toBeInTheDocument();
       expect(
-        within(listbox).getAllByTestId('technology-icon-MongoDB')
-      ).toHaveLength(2);
+        within(listbox).getByText(TEST_VERSIONED_MONGO_SERVICE.serviceName)
+      ).toBeInTheDocument();
       expect(
-        within(listbox).getAllByTestId('technology-icon-MySQL')
-      ).toHaveLength(2);
+        within(listbox).getByText(TEST_VERSIONED_MYSQL_SERVICE.serviceName)
+      ).toBeInTheDocument();
+    });
+
+    it('lets services of both technologies be picked together', async () => {
+      vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
+        mongodb: [TEST_VERSIONED_MONGO_SERVICE],
+        mysql: [TEST_VERSIONED_MYSQL_SERVICE],
+      });
+
+      renderComponent();
+
+      fireEvent.click(await screen.findByTitle('Open'));
+
+      const listbox = await screen.findByRole('listbox');
+
+      fireEvent.click(
+        within(listbox).getByText(TEST_VERSIONED_MONGO_SERVICE.serviceName)
+      );
+
+      // Starting sessions is not restricted to one technology - only watching
+      // them is - so the MySQL service stays selectable.
+      expect(
+        within(listbox)
+          .getByText(TEST_VERSIONED_MYSQL_SERVICE.serviceName)
+          .closest('li')
+      ).not.toHaveAttribute('aria-disabled', 'true');
     });
   });
 
@@ -272,6 +281,38 @@ describe('RealtimeSelection', () => {
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalled();
       });
+    });
+
+    it('navigates to the session list when the started services mix technologies', async () => {
+      vi.mocked(realtimeApi.startSession)
+        .mockResolvedValueOnce({ session: TEST_REAL_TIME_SESSION })
+        .mockResolvedValueOnce({ session: TEST_REAL_TIME_SESSION_MYSQL });
+      vi.mocked(realtimeApi.getAvailableServices).mockResolvedValue({
+        mongodb: [TEST_VERSIONED_MONGO_SERVICE],
+        mysql: [TEST_VERSIONED_MYSQL_SERVICE],
+      });
+
+      renderComponent();
+
+      fireEvent.click(await screen.findByTitle('Open'));
+
+      const listbox = await screen.findByRole('listbox');
+
+      fireEvent.click(
+        within(listbox).getByText(TEST_VERSIONED_MONGO_SERVICE.serviceName)
+      );
+      fireEvent.click(
+        within(listbox).getByText(TEST_VERSIONED_MYSQL_SERVICE.serviceName)
+      );
+      fireEvent.click(screen.getByTestId('start-realtime-session'));
+
+      // The overview shows one technology at a time, so a mixed start hands over
+      // to the session list rather than dropping half the selection.
+      await waitFor(() =>
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('/rta/sessions')
+        )
+      );
     });
   });
 

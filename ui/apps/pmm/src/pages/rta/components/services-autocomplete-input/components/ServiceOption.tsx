@@ -5,14 +5,12 @@ import {
   ClusterSelectionState,
   ServiceOption as ServiceOptionType,
 } from '../ServicesAutocompleteInput.types';
-import { Technology } from 'pages/rta/components/technology';
-
 interface Props extends HTMLAttributes<HTMLLIElement> {
   option: ServiceOptionType;
   selected: boolean;
   clusterSelectionState?: ClusterSelectionState;
   onClusterToggle?: (clusterName: string) => void;
-  showTechnology?: boolean;
+  disabled?: boolean;
 }
 
 const ServiceOption: FC<Props> = ({
@@ -20,7 +18,7 @@ const ServiceOption: FC<Props> = ({
   selected,
   clusterSelectionState,
   onClusterToggle,
-  showTechnology = false,
+  disabled = false,
   ...props
 }) => {
   const { key, ...otherProps } = props as HTMLAttributes<HTMLLIElement> & {
@@ -33,10 +31,14 @@ const ServiceOption: FC<Props> = ({
   const isFullySelected = isCluster && clusterSelectionState === 'all';
   const isPartiallySelected = isCluster && clusterSelectionState === 'partial';
 
+  // Cluster rows drive their own toggle rather than MUI's option click, so a
+  // disabled row has to opt out of both handlers itself.
   const handleClick = isCluster
     ? (e: React.MouseEvent) => {
         e.stopPropagation();
-        onClusterToggle?.(option.label);
+        if (!disabled) {
+          onClusterToggle?.(option.label);
+        }
       }
     : otherProps.onClick;
 
@@ -54,12 +56,14 @@ const ServiceOption: FC<Props> = ({
           padding: '0 8px',
           paddingLeft: isServiceInCluster ? '40px' : '8px',
           position: 'relative',
+          ...(disabled && { opacity: 0.5, pointerEvents: 'none' }),
         },
       }}
     >
       <Checkbox
         checked={isCluster ? isFullySelected : selected}
         indeterminate={isPartiallySelected}
+        disabled={disabled}
         size="small"
         sx={{ p: 1, mr: -0.5 }}
         onClick={
@@ -81,20 +85,6 @@ const ServiceOption: FC<Props> = ({
           gap: 1,
         }}
       >
-        {/* Fixed-width slot: an option we cannot label (a cluster whose services
-            disagree) would otherwise sit flush left of its neighbours. */}
-        {showTechnology && (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minWidth: 20,
-            }}
-          >
-            <Technology serviceType={option.serviceType} iconOnly />
-          </Box>
-        )}
         {option.label}
       </Box>
       {isServiceInCluster && (
