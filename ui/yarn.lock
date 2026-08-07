@@ -1620,10 +1620,10 @@
   resolved "https://registry.yarnpkg.com/@percona/eslint-config-react/-/eslint-config-react-1.1.0.tgz#db69fcf5d6bb43e6c842f462e2c1c84d5f3eb281"
   integrity sha512-Tk9mNYslXrxW/gdS/rzxHbLuEXoNCw8r2t/pB8CXZjBl46VLMGspljbyI6525uNNfyO5H0iJQKCJu0Ckf+5erA==
 
-"@percona/peak-ui@1.0.25":
-  version "1.0.25"
-  resolved "https://registry.yarnpkg.com/@percona/peak-ui/-/peak-ui-1.0.25.tgz#4d99e3f67db9b357ba6d01fee74fe9f47d78b79f"
-  integrity sha512-C5CH16mx1Ob9lMrqDq9astS8TI1w25SA8dDjbprm0xOc5XXds3Qn5iJYXZVZTpX9+C70BOpsJIwpN1HZEAve0w==
+"@percona/percona-ui@1.0.23":
+  version "1.0.23"
+  resolved "https://registry.yarnpkg.com/@percona/percona-ui/-/percona-ui-1.0.23.tgz#aa390867cfa1a002924982822462ba688bd18094"
+  integrity sha512-C2DGyxLJrPdSLDK7YtxFA6UfwPgxfmeQhx+UKyZnAPbOO/mYgKi3RLxFJhZdYCpnb6efrYKIAyqBXpfxCjFshg==
   dependencies:
     "@fontsource/poppins" "^5.2.7"
     "@fontsource/roboto" "^5.2.9"
