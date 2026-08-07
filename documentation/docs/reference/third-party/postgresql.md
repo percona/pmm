@@ -10,7 +10,7 @@ Percona Monitoring and Management (PMM) can be configured to use an external Pos
 To configure PMM Server to connect to an external PostgreSQL database running on the same host or a remote server, set up the required environment variables, configure SSL for secure connections, and ensure proper permissions for both PMM components and Grafana.
 
 ## Prerequisites
-Before configuring PMM with an external PostgreSQL database, ensure you have a PostgreSQL 14+ server accessible from your PMM Server.
+Before configuring PMM with an external PostgreSQL database, ensure you have a PostgreSQL 18+ server accessible from your PMM Server.
 
 ## Configuration overview
 To configure PMM Server to connect to an external PostgreSQL database:
@@ -90,13 +90,11 @@ To use PostgreSQL as an external database with PMM:
 4.  Create an `init.sql.template` file in the directory with the following content:
 
     ```sql
-    CREATE DATABASE "pmm-managed";
     CREATE USER <YOUR_PG_USERNAME> WITH ENCRYPTED PASSWORD '<YOUR_PG_PASSWORD>';
-    GRANT ALL PRIVILEGES ON DATABASE "pmm-managed" TO <YOUR_PG_USERNAME>;
+    CREATE DATABASE "pmm-managed" OWNER <YOUR_PG_USERNAME>;
 
-    CREATE DATABASE grafana;
     CREATE USER <YOUR_GF_USERNAME> WITH ENCRYPTED PASSWORD '<YOUR_GF_PASSWORD>';
-    GRANT ALL PRIVILEGES ON DATABASE grafana TO <YOUR_GF_USERNAME>;
+    CREATE DATABASE grafana OWNER <YOUR_GF_USERNAME>;
 
     \c "pmm-managed"
     CREATE EXTENSION IF NOT EXISTS pg_stat_statements;

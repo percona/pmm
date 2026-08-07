@@ -33,6 +33,9 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+// TODO postgresql14.log is temporarily expected here so that this test passes against the
+// prebuilt dev container, whose supervisord still writes the version-suffixed name. Change it
+// to postgresql.log before merging, together with minPGVersion in managed/models/database.go.
 var commonExpectedFiles = []string{
 	"clickhouse-server.log",
 	"grafana.log",
