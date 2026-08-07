@@ -363,7 +363,7 @@
             "dashLength": 10,
             "dashes": false,
             "decimals": 2,
-            "description": "The Performance Schema status variables provide information about instrumentation that could not be loaded or created due to memory constraints.",
+            "description": "The Performance Schema status variables provide information about instrumentation that could not be loaded or created due to memory constraints.\n\nOnly instrumentation whose lost counter is non-zero is plotted, so an empty panel means nothing was lost. The counter is cumulative, so instrumentation that lost events before the selected range stays visible as a flat zero line, and zero samples between events remain visible.",
             "editable": true,
             "error": false,
             "fieldConfig": {
@@ -423,7 +423,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[$interval])> 0 or increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[5m]) > 0",
+                    "expr": "(increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[$interval]) or increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[5m]))\nand on (service_name, instrumentation) (max_over_time(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[$__range]) > 0)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,

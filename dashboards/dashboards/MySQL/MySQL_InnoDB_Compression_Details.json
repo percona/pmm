@@ -809,10 +809,9 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "avg by (service_name) ((sum(rate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) by (service_name) or\nsum(irate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[5m])) by (service_name))) /\nsum(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) by (node_name)) *100",
+                    "expr": "avg by (service_name) ((sum by (service_name, node_name) (rate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name, node_name) (irate(mysql_info_schema_innodb_cmp_compress_time_seconds_total{service_name=~\"$service_name\"}[5m]))) /\non (node_name) group_left () count by (node_name) (node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) * 100)",
                     "format": "time_series",
                     "hide": false,
-                    "interval": "1h",
                     "intervalFactor": 1,
                     "legendFormat": "{{service_name}}",
                     "refId": "C"
@@ -918,9 +917,8 @@
             "steppedLine": false,
             "targets": [
                 {
-                    "expr": "avg by (node_name) ((sum(rate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service=~\"$service_name\"}[$interval])) by (service_name) or\nsum(irate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{instance=~\"$service_name\"}[5m])) by (service_name))) /\nsum(count(node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) by (node_name)) * 100",
+                    "expr": "avg by (service_name) ((sum by (service_name, node_name) (rate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service_name=~\"$service_name\"}[$interval])) or\nsum by (service_name, node_name) (irate(mysql_info_schema_innodb_cmp_uncompress_time_seconds_total{service_name=~\"$service_name\"}[5m]))) /\non (node_name) group_left () count by (node_name) (node_cpu_seconds_total{mode=\"user\", node_name=~\"$node_name\"}) * 100)",
                     "format": "time_series",
-                    "interval": "1h",
                     "intervalFactor": 1,
                     "legendFormat": "{{service_name}}",
                     "refId": "B"
@@ -1563,7 +1561,7 @@
                     "pluginVersion": "8.3.5",
                     "targets": [
                         {
-                            "expr": "avg by (node_name) ((mysql_global_variables_innodb_buffer_pool_size{service_name=~\"$service_name\"} * 100)) /\non (node_name) (max by () (container_spec_memory_limit_bytes{node_name=~\"$node_name\",id=~\"/kubepods.*\",container!~\"POD|pmm-client|\"}) or \nmax by () (node_memory_MemTotal_bytes{node_name=~\"$node_name\"}))",
+                            "expr": "avg by (node_name) ((mysql_global_variables_innodb_buffer_pool_size{service_name=~\"$service_name\"} * 100)) /\non (node_name) (max by (node_name) (container_spec_memory_limit_bytes{node_name=~\"$node_name\",id=~\"/kubepods.*\",container!~\"POD|pmm-client|\"}) or \nmax by (node_name) (node_memory_MemTotal_bytes{node_name=~\"$node_name\"}))",
                             "refId": "A"
                         }
                     ],
@@ -1652,7 +1650,7 @@
                     "type": "stat"
                 },
                 {
-                    "description": "",
+                    "description": "Checkpoint age relative to the redo log size. On MySQL 8.0.30 and newer the denominator is the total InnoDB redo log capacity. Older servers expose only the legacy status variables, so the panel falls back to the sync flush threshold (Innodb_checkpoint_max_age), which is smaller than the capacity and therefore reports a higher percentage for the same workload.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -1723,7 +1721,7 @@
                             "calculatedInterval": "10m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "avg by (service_name) ((max_over_time(mysql_global_status_innodb_checkpoint_age{service_name=~\"$service_name\"}[$interval]) or \nmax_over_time(mysql_global_status_innodb_checkpoint_age{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_info_schema_innodb_metrics_recovery_log_lsn_checkpoint_age_total{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_info_schema_innodb_metrics_recovery_log_lsn_checkpoint_age_total{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_info_schema_innodb_metrics_log_log_lsn_checkpoint_age{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_info_schema_innodb_metrics_log_log_lsn_checkpoint_age{service_name=~\"$service_name\"}[5m])) / (max_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"$service_name\"}[5m]) or\nmax_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"$service_name\"}[5m])))",
+                            "expr": "avg by (service_name) (max_over_time(mysql_innodb_redo_log_checkpoint_age_ratio{service_name=~\"$service_name\"}[$interval]) or\nmax_over_time(mysql_innodb_redo_log_checkpoint_age_ratio{service_name=~\"$service_name\"}[5m]) or\n((max_over_time(mysql_global_status_innodb_checkpoint_age{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_global_status_innodb_checkpoint_age{service_name=~\"$service_name\"}[5m])) /\n(max_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"$service_name\"}[5m]))) or\n((max_over_time(mysql_info_schema_innodb_metrics_recovery_log_lsn_checkpoint_age_total{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_info_schema_innodb_metrics_recovery_log_lsn_checkpoint_age_total{service_name=~\"$service_name\"}[5m]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_lsn_checkpoint_age{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_lsn_checkpoint_age{service_name=~\"$service_name\"}[5m])) /\n(max_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"$service_name\"}[5m]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"$service_name\"}[$interval]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"$service_name\"}[5m]))))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
