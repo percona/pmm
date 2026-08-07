@@ -47,6 +47,6 @@ type shard[K comparable, V any] struct {
 	mu    sync.RWMutex
 	items map[K]item[V]
 	size  int64
-	// Pad to CPU Arch dependnt bytes to prevent false sharing in L1 CPU cache.
+	// Pad to CPU Arch dependant bytes to prevent false sharing in L1 CPU cache.
 	_ cpu.CacheLinePad
 }

@@ -22,13 +22,18 @@ import (
 	"golang.org/x/sys/cpu"
 )
 
-// ConcurrencyLimiter is used limiting total active in-flight operations
+// ConcurrencyLimiter is used for limiting total active in-flight operations
 // (e.g., max 50 concurrent database connections or worker threads).
+// It fails fast in case there are no free slots available.
+// It uses atomic operations to minimize lock contention and maximize throughput in concurrent environments.
+// Usefull in hot-paths.
 type ConcurrencyLimiter struct {
 	// Leading pad: Prevents false sharing with preceding fields if embedded in a larger struct.
+	// CPU arch dependant.
 	_              cpu.CacheLinePad
 	availableSlots atomic.Int32
 	// Trailing pad: Prevents false sharing with trailing fields or adjacent elements in a slice.
+	// CPU arch dependant.
 	_ cpu.CacheLinePad
 }
 
