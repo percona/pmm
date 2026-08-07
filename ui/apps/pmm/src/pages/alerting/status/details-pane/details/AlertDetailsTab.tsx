@@ -3,7 +3,7 @@ import { Grid, Stack, Typography } from '@mui/material';
 import { Messages } from './AlertDetailsTab.messages';
 import DataPoint from 'components/details-pane/DataPoint';
 import ValueThreshold from './value-threshold/ValueThreshold';
-import { Chip, CodeBlock } from '@percona/peak-ui';
+import { Chip, CodeBlock } from '@percona/percona-ui';
 import { STATUS_COLOR_MAP, STATUS_LABEL_MAP } from '../../AlertsPage.constants';
 import { formatTriggeredAt } from '../../table/AlertStatusTable.utils';
 import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';

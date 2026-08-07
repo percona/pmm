@@ -15,7 +15,7 @@ import { QueryData } from 'types/rta.types';
 import { useEscapeKey } from 'utils/keys.utils';
 import { Messages } from './DetailsPane.messages';
 import QueryAndDetails from './QueryAndDetails';
-import { CodeBlock } from '@percona/peak-ui';
+import { CodeBlock } from '@percona/percona-ui';
 
 interface Props {
   query?: QueryData;

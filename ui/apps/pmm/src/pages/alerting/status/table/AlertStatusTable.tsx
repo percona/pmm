@@ -1,4 +1,4 @@
-import { BottomPanelOpenIcon, Table, useNavigableRows } from '@percona/peak-ui';
+import { Table, useNavigableRows } from '@percona/percona-ui';
 import { type MRT_Row } from 'material-react-table';
 import { FC, useMemo, useState } from 'react';
 import { ALERT_STATUS_COLUMNS } from './AlertStatusTable.constants';
@@ -30,6 +30,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+import { Icon } from 'components/icon';
 import { Messages } from './AlertStatusTable.messages';
 import { useUser } from 'contexts/user';
 import AlertsStatusEmptyState from './empty-state/AlertsStatusEmptyState';
@@ -150,7 +151,7 @@ const AlertStatusTable: FC<AlertStatusTableProps> = ({
             }}
           >
             <ListItemIcon>
-              <BottomPanelOpenIcon />
+              <Icon name="bottom-panel-open" />
             </ListItemIcon>
             <ListItemText>{Messages.notificationDetails}</ListItemText>
           </MenuItem>,
