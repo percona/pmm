@@ -57,26 +57,41 @@ func GetClickHouseConfig(config string) (string, error) {
 // files those paths resolve to, so serving it the fixed names keeps drop-ins in
 // /etc/clickhouse-server/config.d and /etc/clickhouse-server/users.d for every config.
 //
-// A path that already exists and is not a symlink is left untouched: it is a deliberate
-// override, such as the config bind-mounted into the development container.
+// A path that already exists and is not a symlink is left untouched, since replacing it would
+// discard a file somebody put there deliberately.
 func LinkClickHouseConfig(config string) error {
 	return linkClickHouseConfigAt(config, clickHouseConfigDir)
 }
 
 func linkClickHouseConfigAt(config, dir string) error {
-	for _, l := range stableConfigLinks {
-		link := filepath.Join(dir, l.link)
+	// Resolve every target before touching any link, so a missing file cannot leave the links
+	// straddling two configs.
+	targets := make([]string, len(stableConfigLinks))
+	for i, l := range stableConfigLinks {
 		target := filepath.Join(dir, config+l.suffix)
-
 		_, err := os.Stat(target)
 		if err != nil {
 			return fmt.Errorf("cannot stat %s: %w", target, err)
+		}
+		targets[i] = target
+	}
+
+	for i, l := range stableConfigLinks {
+		link := filepath.Join(dir, l.link)
+		target := targets[i]
+
+		// Skip links that already resolve correctly. Beyond saving work, this keeps the common
+		// case free of writes to /etc, which an arbitrary UID may not be allowed to perform.
+		current, err := os.Readlink(link)
+		if err == nil && current == target {
+			continue
 		}
 
 		fi, err := os.Lstat(link)
 		switch {
 		case err == nil && fi.Mode()&os.ModeSymlink == 0:
-			logrus.Infof("ClickHouse: %s is not a symlink, leaving it untouched.", link)
+			logrus.Warnf("ClickHouse: %s is a regular file, not a symlink, so PMM_CLICKHOUSE_CONFIG "+
+				"cannot select it. Remove the file to restore config switching.", link)
 			continue
 		case err != nil && !errors.Is(err, os.ErrNotExist):
 			return fmt.Errorf("cannot stat %s: %w", link, err)
@@ -115,6 +130,12 @@ func replaceSymlink(target, link string) error {
 
 // validateClickHouseConfigAt returns an error if configuration files are missing for given config.
 func validateClickHouseConfigAt(config, dir string) error {
+	// The config name is only ever a file name prefix. Anything else would let a path such as
+	// ../../tmp/evil escape the config directory and point ClickHouse at an arbitrary file.
+	if config != filepath.Base(config) || strings.HasPrefix(config, ".") {
+		return fmt.Errorf("invalid PMM_CLICKHOUSE_CONFIG=%s: must be a name, not a path", config)
+	}
+
 	availableConfigs, err := availableClickHouseConfigs(dir)
 	if err != nil {
 		return fmt.Errorf("unable to get available ClickHouse configs: %w", err)

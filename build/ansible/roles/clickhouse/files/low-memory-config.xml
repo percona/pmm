@@ -686,7 +686,8 @@
              It also enables 'changeable_in_readonly' constraint type -->
         <!-- PMM: required by the 'changeable_in_readonly' constraint on the datasource profile in
              users.xml. PMM defines no other settings constraints, so the constraint-inheritance
-             change this flag also brings has no effect here. -->
+             change this flag also brings has no effect on the shipped ones. Profiles created through SQL
+         and kept in /srv/clickhouse/access/ do see the new merge behaviour. -->
         <settings_constraints_replace_previous>true</settings_constraints_replace_previous>
 
         <!-- Number of seconds since last access a role is stored in the Role Cache -->

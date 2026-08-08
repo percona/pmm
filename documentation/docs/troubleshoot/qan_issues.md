@@ -116,6 +116,9 @@ To switch back to the default profile, set `PMM_CLICKHOUSE_CONFIG=default` or re
 
     PMM points ClickHouse at `config.xml` and `users.xml`, which are symlinks to the files of the selected profile.
 
+!!! warning "Deprecated: switch-config.sh"
+    The `switch-config.sh` script previously used to switch profiles is deprecated as of PMM 3.9.0 and will be removed in a future release. Use `PMM_CLICKHOUSE_CONFIG` instead.
+
 ### Override built-in ClickHouse settings
 
 To change settings without editing the profile files, add a drop-in file inside the PMM Server container:
@@ -137,5 +140,4 @@ ClickHouse merges drop-ins over the profile in use, so the same files apply to b
 
 Set `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to the same password so Grafana connects with the new credentials, then restart ClickHouse. Drop-ins are not preserved when the container is recreated, so mount them from the host if you need them to persist.
 
-!!! warning "Deprecated: switch-config.sh"
-    The `switch-config.sh` script previously used to switch profiles is deprecated as of PMM 3.9.0 and will be removed in a future release. Use `PMM_CLICKHOUSE_CONFIG` instead.
+A drop-in is also the way to grant the data source user access to a database other than `pmm`, since the shipped grant names `pmm` explicitly. Adjust it if you set `PMM_CLICKHOUSE_DATABASE` to something else.
