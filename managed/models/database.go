@@ -1528,6 +1528,12 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents in HA mode
 	logrus.Infof("Setting up PMM Server agents in HA mode, Node ID: %s", params.HANodeID)
 
+	// Before the "agent already exists" early return, so restarted replicas still clean up.
+	err := RemoveStaleHANodes(q, params.HANodeID, params.HAPeers)
+	if err != nil {
+		return err
+	}
+
 	file, err := os.Open(AgentConfigFilePath)
 	if err != nil {
 		return err

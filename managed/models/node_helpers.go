@@ -18,10 +18,12 @@ package models
 import (
 	"errors"
 	"fmt"
+	"net"
 	"strings"
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -252,13 +254,19 @@ func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) 
 }
 
 // RemoveNode removes single Node.
-func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:gocognit
+func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
+	return removeNode(q, id, mode, false)
+}
+
+// removeNode removes a single Node. The allowPMMServerNode flag lifts the ban on Nodes flagged as PMM
+// Server Nodes; only the HA cleanup sets it, to reap replicas that are no longer part of the cluster.
+func removeNode(q *reform.Querier, id string, mode RemoveMode, allowPMMServerNode bool) error { //nolint:gocognit
 	n, err := FindNodeByID(q, id)
 	if err != nil {
 		return err
 	}
 
-	if n.IsPMMServerNode || id == PMMServerNodeID {
+	if id == PMMServerNodeID || (!allowPMMServerNode && n.IsPMMServerNode) {
 		return status.Error(codes.PermissionDenied, "PMM Server node can't be removed.")
 	}
 
@@ -333,4 +341,120 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 		return fmt.Errorf("failed to delete Node: %w", err)
 	}
 	return nil
+}
+
+// RemoveStaleHANodes removes the PMM Server Nodes of HA replicas that are no longer configured peers,
+// e.g. after a scale-down. Peers are the source of truth because they are regenerated from the replica
+// count and restart every replica, while a missing memberlist member may just be restarting.
+func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) error {
+	if len(haPeers) == 0 {
+		return nil
+	}
+
+	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": haNodeID})
+
+	expected := make(map[string]struct{}, len(haPeers))
+	for _, peer := range haPeers {
+		name, ok := haPeerNodeName(peer)
+		if !ok {
+			// Trusting the rest would treat a partial list as the whole cluster and remove live replicas.
+			l.WithField("peer", peer).Warn("Can't read a node name from a PMM_HA_PEERS entry, skipping the removal of stale HA nodes.")
+			return nil
+		}
+		expected[name] = struct{}{}
+	}
+
+	if _, ok := expected[haNodeID]; !ok {
+		l.WithField("ha_peers", haPeers).Warn("PMM_HA_PEERS doesn't list this node, skipping the removal of stale HA nodes.")
+		return nil
+	}
+
+	nodes, err := FindNodes(q, NodeFilters{})
+	if err != nil {
+		return fmt.Errorf("failed to list Nodes for stale HA node cleanup: %w", err)
+	}
+
+	for _, node := range nodes {
+		// Set by HA replicas, and by the PMM Server Node of a non-HA deployment; every other
+		// Node is one the user monitors.
+		if !node.IsPMMServerNode {
+			continue
+		}
+		if _, ok := expected[node.NodeName]; ok {
+			continue
+		}
+
+		nodeL := l.WithFields(logrus.Fields{"node_id": node.NodeID, "node_name": node.NodeName})
+
+		monitored, err := haNodeMonitoredServices(q, node.NodeID)
+		if err != nil {
+			return err
+		}
+		if len(monitored) != 0 {
+			nodeL.WithField("service_ids", monitored).Warn("Keeping stale HA node: it still monitors services, which would be removed with it. " +
+				"Re-add them from a running replica and remove the node from Inventory.")
+			continue
+		}
+
+		err = removeNode(q, node.NodeID, RemoveCascade, true)
+		switch {
+		case err == nil:
+			nodeL.Info("Removed stale HA node, it is not a part of the cluster anymore.")
+		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
+			nodeL.Info("Stale HA node was already removed by another replica.")
+		default:
+			return fmt.Errorf("failed to remove stale HA node %q: %w", node.NodeName, err)
+		}
+	}
+
+	return nil
+}
+
+// haPeerNodeName maps a PMM_HA_PEERS entry ("pmm-ha-0.pmm-ha.pmm.svc.cluster.local:9761") to a Node
+// name: the first label is the pod's PMM_HA_NODE_ID. Reports false for entries with no name, like
+// bare IPv4 or IPv6 addresses.
+func haPeerNodeName(peer string) (string, bool) {
+	peer = strings.TrimSpace(peer)
+	// Test the whole entry before cutting at ":": an unbracketed IPv6 literal would otherwise be cut
+	// into its first group, and the "2001" of "2001:db8::7" reads like a node name. Only IPv6 entries
+	// hold more than one colon, bracketed or not, and none of them starts with a name.
+	if strings.Count(peer, ":") > 1 || net.ParseIP(peer) != nil {
+		return "", false
+	}
+	host, _, _ := strings.Cut(peer, ":")
+	if net.ParseIP(host) != nil {
+		return "", false
+	}
+	// "/" is memberlist's "name/address" form, "[" a bracketed address; such a label mixes a name
+	// with an address instead of being one.
+	label, _, _ := strings.Cut(host, ".")
+	if label == "" || strings.ContainsAny(label, "/[") {
+		return "", false
+	}
+	return label, true
+}
+
+// haNodeMonitoredServices returns the IDs of Services whose exporters run under a replica's pmm-agent.
+// Remote instances bind theirs to the replica that added them (see management.RDSService), so removing
+// that replica's Node takes them with it.
+func haNodeMonitoredServices(q *reform.Querier, nodeID string) ([]string, error) {
+	pmmAgents, err := FindPMMAgentsRunningOnNode(q, nodeID)
+	if err != nil {
+		return nil, err
+	}
+
+	var serviceIDs []string
+	for _, pmmAgent := range pmmAgents {
+		agents, err := FindAgents(q, AgentFilters{PMMAgentID: pmmAgent.AgentID})
+		if err != nil {
+			return nil, err
+		}
+		for _, agent := range agents {
+			if agent.ServiceID != nil {
+				serviceIDs = append(serviceIDs, *agent.ServiceID)
+			}
+		}
+	}
+
+	return serviceIDs, nil
 }
