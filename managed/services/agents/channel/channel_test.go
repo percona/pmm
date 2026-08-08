@@ -198,6 +198,40 @@ func TestServerRequest(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestServerRequestTimeout(t *testing.T) {
+	t.Parallel()
+
+	timedOut := make(chan struct{})
+	connect := func(ch *Channel) error {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+
+		// The agent never answers this ping, exactly as it would on a silently dropped
+		// connection. Waiting for it must not block forever. See PMM-15310.
+		resp, err := ch.SendAndWaitResponseWithContext(ctx, &agentv1.Ping{})
+		assert.Nil(t, resp)
+		require.ErrorIs(t, err, context.DeadlineExceeded)
+
+		// The abandoned subscription must be gone, otherwise it leaks for the lifetime of the channel.
+		assert.Zero(t, ch.Metrics().Responses)
+		close(timedOut)
+
+		assert.Nil(t, <-ch.Requests())
+		return nil
+	}
+
+	stream, _ := setup(t, connect, io.EOF) // EOF = server exits from handler
+
+	msg, err := stream.Recv()
+	require.NoError(t, err)
+	assert.NotNil(t, msg.GetPing())
+
+	<-timedOut
+
+	err = stream.CloseSend()
+	require.NoError(t, err)
+}
+
 func TestServerExitsWithGRPCError(t *testing.T) {
 	t.Parallel()
 

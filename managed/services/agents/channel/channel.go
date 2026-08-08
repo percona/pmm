@@ -38,6 +38,9 @@ const (
 	agentRequestsCap = 32
 )
 
+// errWaitAborted is returned internally when the caller stopped waiting for a response.
+var errWaitAborted = errors.New("wait aborted")
+
 // AgentRequest represents an request from agent.
 // It is similar to agentv1.AgentMessage except it can contain only requests,
 // and the payload is already unwrapped (XXX instead of AgentMessage_XXX).
@@ -167,7 +170,29 @@ func (c *Channel) Send(resp *ServerResponse) {
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancellation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
+//
+// It waits indefinitely while the channel is open, so callers that must not hang on a silently
+// dropped connection should use SendAndWaitResponseWithContext instead.
 func (c *Channel) SendAndWaitResponse(payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
+	return c.sendAndWaitResponse(nil, payload)
+}
+
+// SendAndWaitResponseWithContext sends request to pmm-agent and blocks until the response is
+// available, the channel is closed, or ctx is done, whichever happens first.
+// On ctx expiration the subscription is dropped and ctx.Err() is returned.
+// It is no-op once channel is closed (see Wait).
+func (c *Channel) SendAndWaitResponseWithContext(ctx context.Context, payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
+	resp, err := c.sendAndWaitResponse(ctx.Done(), payload)
+	if errors.Is(err, errWaitAborted) {
+		return nil, ctx.Err()
+	}
+
+	return resp, err
+}
+
+// sendAndWaitResponse sends the request and waits for the response until done is closed.
+// A nil done channel means waiting indefinitely. It returns errWaitAborted when done fires first.
+func (c *Channel) sendAndWaitResponse(done <-chan struct{}, payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
 	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
@@ -175,12 +200,20 @@ func (c *Channel) SendAndWaitResponse(payload agentv1.ServerRequestPayload) (age
 		Id:      id,
 		Payload: payload.ServerMessageRequestPayload(),
 	})
-	resp, ok := <-ch
-	if !ok {
-		return nil, errors.New("channel is closed")
-	}
 
-	return resp.Payload, resp.Error
+	select {
+	case resp, ok := <-ch:
+		if !ok {
+			return nil, errors.New("channel is closed")
+		}
+		return resp.Payload, resp.Error
+
+	case <-done:
+		// Drop the subscription so that the map does not grow and a late response is discarded
+		// instead of being reported as coming from an unknown subscriber.
+		c.unsubscribe(id)
+		return nil, errWaitAborted
+	}
 }
 
 func (c *Channel) send(msg *agentv1.ServerMessage) {
@@ -333,6 +366,18 @@ func (c *Channel) subscribe(id uint32) chan Response {
 	c.responses[id] = ch
 	c.rw.Unlock()
 	return ch
+}
+
+// unsubscribe removes the subscription for the given ID if it is still there.
+// Unlike removeResponseChannel, a missing subscription is not an error: the response
+// may have been published just before the caller stopped waiting for it.
+func (c *Channel) unsubscribe(id uint32) {
+	c.rw.Lock()
+	defer c.rw.Unlock()
+	if c.responses == nil { // Channel is closed, no subscriptions left
+		return
+	}
+	delete(c.responses, id)
 }
 
 func (c *Channel) removeResponseChannel(id uint32) chan Response {
