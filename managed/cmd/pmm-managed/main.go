@@ -30,6 +30,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -149,14 +150,25 @@ const (
 	// DB-related consts.
 	dbMaxLifeTime = 0
 	dbMaxIdleTime = 5 * time.Minute
+
+	internalDbMinOpenConns = 20
+	apiDbMinOpenConns      = 50
+
+	// Per-P settings keep pool growth proportional to scheduler parallelism.
+	internalDbOpenConnsPerP = 5
+	apiDbOpenConnsPerP      = 12
+)
+
+var (
 	// Internal DB params.
-	internalDbMaxOpenConns = 20
+	internalDbMaxOpenConns = max(internalDbMinOpenConns, runtime.GOMAXPROCS(0)*internalDbOpenConnsPerP)
 	internalDbMaxIdleConns = internalDbMaxOpenConns
+
 	// API DB params.
 	// Sized to give DB-bound auth/role/settings paths enough headroom during
 	// a reconnect storm from a fleet of agents, while staying well within
 	// Postgres max_connections (set to 2000 by PMM Server).
-	apiDbMaxOpenConns = 50
+	apiDbMaxOpenConns = max(apiDbMinOpenConns, runtime.GOMAXPROCS(0)*apiDbOpenConnsPerP)
 	apiDbMaxIdleConns = apiDbMaxOpenConns
 )
 
@@ -167,7 +179,7 @@ var pprofSemaphore = semaphore.NewWeighted(1)
 // Each connection attempt uses a database connection(s), so we limit the number
 // of concurrent connections to avoid exhausting the database connection pool and
 // to prevent the system from degrading during a thundering herd of connection attempts.
-var pmmAgentsConnectionsLimiter = rateLimiter.NewConcurrencyLimiter(apiDbMaxOpenConns)
+var pmmAgentsConnectionsLimiter = rateLimiter.NewConcurrencyLimiter(int32(apiDbMaxOpenConns))
 
 func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
@@ -1330,3 +1342,4 @@ func parseLoggerConfig(level string, debug, trace bool) logrus.Level {
 
 	return logrus.InfoLevel
 }
+
