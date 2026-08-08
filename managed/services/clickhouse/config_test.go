@@ -99,6 +99,88 @@ func TestValidateClickHouseConfigAt(t *testing.T) {
 	})
 }
 
+func TestLinkClickHouseConfigAt(t *testing.T) {
+	t.Parallel()
+
+	// newConfigDir returns a dir holding the config files of both shipped configs.
+	newConfigDir := func(t *testing.T) string {
+		t.Helper()
+		dir := t.TempDir()
+		writeConfigFiles(
+			t, dir,
+			"default-config.xml", "default-users.xml",
+			"low-memory-config.xml", "low-memory-users.xml",
+		)
+		return dir
+	}
+
+	assertLinks := func(t *testing.T, dir, config string) {
+		t.Helper()
+		for _, l := range stableConfigLinks {
+			target, err := os.Readlink(filepath.Join(dir, l.link))
+			require.NoError(t, err)
+			assert.Equal(t, filepath.Join(dir, config+l.suffix), target)
+		}
+	}
+
+	t.Run("creates links when absent", func(t *testing.T) {
+		t.Parallel()
+
+		dir := newConfigDir(t)
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+		assertLinks(t, dir, "default")
+	})
+
+	t.Run("repoints existing links when the config changes", func(t *testing.T) {
+		t.Parallel()
+
+		dir := newConfigDir(t)
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+		require.NoError(t, linkClickHouseConfigAt("low-memory", dir))
+		assertLinks(t, dir, "low-memory")
+
+		// Switching back must work too, and leave no temporary files behind.
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+		assertLinks(t, dir, "default")
+		for _, l := range stableConfigLinks {
+			_, err := os.Lstat(filepath.Join(dir, l.link+".tmp"))
+			assert.ErrorIs(t, err, os.ErrNotExist)
+		}
+	})
+
+	t.Run("leaves a regular file untouched", func(t *testing.T) {
+		t.Parallel()
+
+		// A bind-mounted config, as used by the development container, is not a symlink
+		// and must survive untouched.
+		dir := newConfigDir(t)
+		mounted := filepath.Join(dir, "config.xml")
+		require.NoError(t, os.WriteFile(mounted, []byte("<clickhouse>mounted</clickhouse>"), 0o600))
+
+		require.NoError(t, linkClickHouseConfigAt("low-memory", dir))
+
+		content, err := os.ReadFile(mounted) //nolint:gosec
+		require.NoError(t, err)
+		assert.Equal(t, "<clickhouse>mounted</clickhouse>", string(content))
+
+		// The remaining link is still repointed.
+		target, err := os.Readlink(filepath.Join(dir, "users.xml"))
+		require.NoError(t, err)
+		assert.Equal(t, filepath.Join(dir, "low-memory-users.xml"), target)
+	})
+
+	t.Run("fails when the target is missing", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		writeConfigFiles(t, dir, "default-config.xml") // default-users.xml deliberately absent
+
+		err := linkClickHouseConfigAt("default", dir)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "default-users.xml")
+	})
+}
+
 func TestAvailableClickHouseConfigs(t *testing.T) {
 	t.Parallel()
 

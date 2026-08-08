@@ -23,12 +23,21 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
 	defaultClickHouseConfig = "default"
 	clickHouseConfigDir     = "/etc/clickhouse-server"
 )
+
+// stableConfigLinks are the fixed names ClickHouse is pointed at, paired with the suffix of the
+// config-specific file each one must resolve to.
+var stableConfigLinks = []struct{ link, suffix string }{
+	{link: "config.xml", suffix: "-config.xml"},
+	{link: "users.xml", suffix: "-users.xml"},
+}
 
 // GetClickHouseConfig returns the config name if the matching
 // <config>-config.xml files exist on disk.
@@ -39,6 +48,69 @@ func GetClickHouseConfig(config string) (string, error) {
 	}
 
 	return config, validateClickHouseConfigAt(config, clickHouseConfigDir)
+}
+
+// LinkClickHouseConfig points the fixed config.xml and users.xml names at the files of the
+// given config.
+//
+// ClickHouse derives its merge directories from the paths it is handed rather than from the
+// files those paths resolve to, so serving it the fixed names keeps drop-ins in
+// /etc/clickhouse-server/config.d and /etc/clickhouse-server/users.d for every config.
+//
+// A path that already exists and is not a symlink is left untouched: it is a deliberate
+// override, such as the config bind-mounted into the development container.
+func LinkClickHouseConfig(config string) error {
+	return linkClickHouseConfigAt(config, clickHouseConfigDir)
+}
+
+func linkClickHouseConfigAt(config, dir string) error {
+	for _, l := range stableConfigLinks {
+		link := filepath.Join(dir, l.link)
+		target := filepath.Join(dir, config+l.suffix)
+
+		_, err := os.Stat(target)
+		if err != nil {
+			return fmt.Errorf("cannot stat %s: %w", target, err)
+		}
+
+		fi, err := os.Lstat(link)
+		switch {
+		case err == nil && fi.Mode()&os.ModeSymlink == 0:
+			logrus.Infof("ClickHouse: %s is not a symlink, leaving it untouched.", link)
+			continue
+		case err != nil && !errors.Is(err, os.ErrNotExist):
+			return fmt.Errorf("cannot stat %s: %w", link, err)
+		}
+
+		err = replaceSymlink(target, link)
+		if err != nil {
+			return fmt.Errorf("cannot point %s at %s: %w", link, target, err)
+		}
+	}
+
+	return nil
+}
+
+// replaceSymlink points link at target, replacing link if it already exists.
+func replaceSymlink(target, link string) error {
+	tmp := link + ".tmp"
+
+	err := os.Remove(tmp)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+
+	err = os.Symlink(target, tmp)
+	if err != nil {
+		return err
+	}
+
+	err = os.Rename(tmp, link)
+	if err != nil {
+		return errors.Join(err, os.Remove(tmp))
+	}
+
+	return nil
 }
 
 // validateClickHouseConfigAt returns an error if configuration files are missing for given config.
