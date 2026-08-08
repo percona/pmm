@@ -122,6 +122,11 @@
                   "description": "Status of HA mode: \"Enabled\" or \"Disabled\".",
                   "type": "string",
                   "x-order": 0
+                },
+                "namespace": {
+                  "description": "Kubernetes namespace this instance is running in. Empty if unknown\n(e.g. non-Kubernetes installs).",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }

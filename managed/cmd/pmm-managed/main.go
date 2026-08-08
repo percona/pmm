@@ -804,6 +804,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	if *haPeers != "" {
 		nodes = strings.Split(*haPeers, ",")
 	}
+	var namespace string
+	if *haEnabled {
+		namespace = ha.DetectNamespace(l)
+	}
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
 		NodeID:            *haNodeID,
@@ -812,6 +816,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		RaftPort:          *haRaftPort,
 		GossipPort:        *haGossipPort,
 		GrafanaGossipPort: *haGrafanaGossipPort,
+		Namespace:         namespace,
 	}
 	haService := ha.New(haParams)
 
