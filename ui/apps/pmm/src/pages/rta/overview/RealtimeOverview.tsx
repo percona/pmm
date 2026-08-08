@@ -5,7 +5,7 @@ import {
   Link as RouterLink,
   useSearchParams,
 } from 'react-router-dom';
-import { useDetailsPaneNavigation } from '@percona/percona-ui';
+import { useDetailsPaneNavigation } from '@percona/peak-ui';
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';

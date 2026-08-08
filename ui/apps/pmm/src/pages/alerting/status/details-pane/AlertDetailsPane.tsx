@@ -14,7 +14,7 @@ import { useEscapeKey } from 'utils/keys.utils';
 import { AlertsTableRow } from '../AlertsPage.types';
 import AlertDetailsTab from './details/AlertDetailsTab';
 import { Messages } from './AlertDetailsPane.messages';
-import { UseDetailsPaneNavigationResult } from '@percona/percona-ui';
+import { UseDetailsPaneNavigationResult } from '@percona/peak-ui';
 import RawDataTab from './raw-data/RawDataTab';
 import { useAlertDetailsPane } from './AlertDetailsPane.utils';
 
