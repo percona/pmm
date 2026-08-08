@@ -92,6 +92,8 @@ func (a *ptMySQLSummaryAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, fmt.Errorf("failed to create temporary file: %w", err)
 	}
 	defer os.Remove(tmpFile.Name()) //nolint:errcheck
+	// covers the error paths below; the happy path closes the file explicitly
+	defer tmpFile.Close() //nolint:errcheck
 
 	_, err = fmt.Fprint(tmpFile, cfg)
 	if err != nil {

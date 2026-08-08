@@ -232,6 +232,8 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 			// that's why we have separate `select <-doneChan` above
 			case <-doneChan:
 				return
+			case <-ctx.Done():
+				return
 			}
 		}
 		err := cursor.Err()

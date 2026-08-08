@@ -64,6 +64,7 @@ func BenchmarkCollector(b *testing.B) {
 
 	client, err := createSession(url, "pmm-agent")
 	require.NoError(b, err)
+	disconnectOnCleanup(b, client)
 
 	// Just in case there are old dbs with matching names
 	require.NoError(b, cleanUpDBs(b.Context(), b, client))
@@ -129,6 +130,7 @@ func TestCollector(t *testing.T) {
 
 	client, err := createSession(url, "pmm-agent")
 	require.NoError(t, err)
+	disconnectOnCleanup(t, client)
 
 	require.NoError(t, cleanUpDBs(t.Context(), t, client)) // Just in case there are old dbs with matching names
 	t.Cleanup(func() {
@@ -183,6 +185,7 @@ func TestCollectorContextCancel(t *testing.T) {
 	url := "mongodb://root:root-password@127.0.0.1:27017"
 	client, err := createSession(url, "pmm-agent-test")
 	require.NoError(t, err)
+	disconnectOnCleanup(t, client)
 
 	// Create a sub-context specifically for this test to trigger cancellation.
 	ctx, cancel := context.WithCancel(t.Context())
@@ -225,6 +228,7 @@ func TestCollectorContextCancel(t *testing.T) {
 func TestCollectorStartCanceledContext(t *testing.T) {
 	client, err := mongo.Connect(t.Context(), options.Client().ApplyURI("mongodb://127.0.0.1:1").SetDirect(true))
 	require.NoError(t, err)
+	disconnectOnCleanup(t, client)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	cancel()
@@ -272,6 +276,18 @@ func genData(ctx context.Context, client *mongo.Client, maxLoops, maxDocs int) {
 
 		<-time.After(cursorTimeout)
 	}
+}
+
+// disconnectOnCleanup closes the client when the test ends. It has to be registered
+// right after the client is created so that it runs after the cleanups that still use it.
+func disconnectOnCleanup(tb testing.TB, client *mongo.Client) {
+	tb.Helper()
+
+	tb.Cleanup(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutSessionSync)
+		defer cancel()
+		assert.NoError(tb, client.Disconnect(ctx))
+	})
 }
 
 func createSession(dsn string, agentID string) (*mongo.Client, error) {
