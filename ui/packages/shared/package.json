@@ -1,49 +1,38 @@
 {
   "name": "@pmm/shared",
   "version": "1.0.0",
+  "private": true,
   "description": "",
-  "scripts": {
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "format": "prettier . --write"
-  },
-  "private": "true",
   "keywords": [],
-  "author": "Percona",
   "license": "AGPLv3",
-  "type": "module",
-  "types": "dist/index.d.ts",
-  "main": "dist/esm/index.js",
-  "module": "dist/esm/index.js",
+  "author": "Percona",
   "files": [
     "dist"
   ],
+  "type": "module",
+  "main": "dist/esm/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": "./src/index.ts"
   },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./src/index.tsx"
-      ]
-    }
+  "scripts": {
+    "lint": "oxlint --config ../../oxlintrc.json .",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "format": "oxfmt --write ."
   },
-  "prettier": "@percona/prettier-config",
   "dependencies": {
     "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
-    "@percona/eslint-config-react": "^1.1.0",
-    "@percona/prettier-config": "^1.1.0",
     "@percona/tsconfig": "^1.1.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.5",
     "@types/react": "^18.2.15",
-    "eslint": "^8.57.0",
     "jest": "^29.7.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -55,7 +44,7 @@
     "typescript": "^5.2.2"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.2.0 || ^19.0.0",
+    "react-dom": "^18.2.0 || ^19.0.0"
   }
 }
