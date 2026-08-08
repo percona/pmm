@@ -196,22 +196,24 @@ func TestCollectorContextCancel(t *testing.T) {
 	assert.Equal(t, "collector", ctr.Name())
 
 	// Cancel the context to signal the internal goroutine to exit.
+	// Don't call Stop() before the check: it closes doneChan, which would shut the collector
+	// down on its own and hide a missing ctx.Done() case.
 	cancel()
 
-	// Use Stop() as a synchronization point. It waits for the internal WaitGroup,
-	// which confirms that the start() and connectAndCollect() goroutines have exited.
-	stopDone := make(chan struct{})
+	exited := make(chan struct{})
 	go func() {
-		ctr.Stop()
-		close(stopDone)
+		ctr.wg.Wait()
+		close(exited)
 	}()
 
 	select {
-	case <-stopDone:
+	case <-exited:
 		// Success: Internal goroutines shut down gracefully.
 	case <-time.After(5 * time.Second):
-		t.Fatal("Collector did not stop via context cancellation within timeout")
+		t.Fatal("Collector goroutine did not exit on context cancellation")
 	}
+
+	ctr.Stop()
 
 	// Verify that the data channel was closed.
 	_, ok := <-docsChan

@@ -74,10 +74,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 	var log Mongolog
 
 	defer func() {
-		err := log.Stop()
-		if err != nil {
-			m.l.Errorf("Can't stop mongolog, reason: %v", err)
-		}
+		log.Stop()
 		log = nil
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
@@ -115,7 +112,7 @@ type Mongolog interface {
 	// Start begins log collection and processing until the context is canceled.
 	Start(ctx context.Context) error
 	// Stop halts log collection and processing.
-	Stop() error
+	Stop()
 }
 
 // Describe implements prometheus.Collector.

@@ -16,6 +16,7 @@ package profiler
 
 import (
 	"context"
+	"fmt"
 	"runtime/pprof"
 	"sync"
 	"time"
@@ -149,12 +150,14 @@ func (p *Profiler) Stop() error {
 	defer cancel()
 
 	err := p.client.Disconnect(ctx)
-	if err != nil {
-		p.logger.Errorf("Failed to disconnect client from MongoDB, reason: %v", err)
-	}
 
 	// set state to "not running"
 	p.running = false
+
+	if err != nil {
+		return fmt.Errorf("failed to disconnect from MongoDB: %w", err)
+	}
+
 	return nil
 }
 

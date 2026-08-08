@@ -94,23 +94,25 @@ func TestParserContextCancel(t *testing.T) {
 	// Verify parser reported as running
 	assert.Equal(t, "parser", parser.Name())
 
-	// Cancel the context to trigger the new shutdown path in start()
+	// Cancel the context to trigger the new shutdown path in start().
+	// Don't call Stop() before the check: it closes doneChan, which would shut the parser
+	// down on its own and hide a missing ctx.Done() case.
 	cancel()
 
-	// We use Stop() as a synchronization point because it waits for the internal WaitGroup.
-	// If the context cancellation logic is correct, Stop() should return immediately.
-	done := make(chan struct{})
+	exited := make(chan struct{})
 	go func() {
-		parser.Stop()
-		close(done)
+		parser.wg.Wait()
+		close(exited)
 	}()
 
 	select {
-	case <-done:
+	case <-exited:
 		// Success: the parser stopped correctly via context cancellation
 	case <-time.After(1 * time.Second):
-		t.Fatal("Parser did not stop after context cancellation within timeout")
+		t.Fatal("Parser goroutine did not exit on context cancellation")
 	}
+
+	parser.Stop()
 }
 
 func TestParserRunning(t *testing.T) {
