@@ -17,6 +17,7 @@
 
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { SEP_BASE_PATH } from '../src/base';
 import {
   apiClient,
   refreshAccessToken,
@@ -27,12 +28,16 @@ import {
 import { ApiError } from '../src/errors';
 import { server } from './msw-server';
 
-const BASE = 'http://localhost';
+const API = `http://localhost${SEP_BASE_PATH}/api`;
+
+// Read before `beforeEach` repoints the client at an absolute origin, so the
+// shipped default is still observable.
+const SHIPPED_BASE_URL = apiClient.defaults.baseURL;
 
 beforeEach(() => {
-  // Axios default baseURL is '/api' which has no origin under Node.
+  // The axios default baseURL is origin-relative and has no origin under Node.
   // Pin to a full URL so MSW can match requests predictably.
-  apiClient.defaults.baseURL = `${BASE}/api`;
+  apiClient.defaults.baseURL = API;
   setTokenProvider(() => null);
   setOnUnauthorized(() => {});
   setOnRefreshed(() => {});
@@ -44,13 +49,19 @@ afterEach(() => {
   setOnRefreshed(() => {});
 });
 
+describe('apiClient — SEP mount point', () => {
+  it('sends requests under the prefix nginx exposes the side-car on', () => {
+    expect(SHIPPED_BASE_URL).toBe('/sep/api');
+  });
+});
+
 describe('apiClient — Bearer token injection', () => {
   it('attaches Authorization header when provider returns a token', async () => {
     setTokenProvider(() => 'abc123');
     const seen = vi.fn();
 
     server.use(
-      http.get(`${BASE}/api/ping`, ({ request }) => {
+      http.get(`${API}/ping`, ({ request }) => {
         seen(request.headers.get('Authorization'));
         return HttpResponse.json({ ok: true });
       })
@@ -67,7 +78,7 @@ describe('apiClient — Bearer token injection', () => {
     const seen = vi.fn();
 
     server.use(
-      http.get(`${BASE}/api/ping`, ({ request }) => {
+      http.get(`${API}/ping`, ({ request }) => {
         seen(request.headers.get('Authorization'));
         return HttpResponse.json({ ok: true });
       })
@@ -84,7 +95,7 @@ describe('apiClient — payload pass-through (no case conversion)', () => {
     const received = vi.fn();
 
     server.use(
-      http.post(`${BASE}/api/widgets`, async ({ request }) => {
+      http.post(`${API}/widgets`, async ({ request }) => {
         received(await request.json());
         return HttpResponse.json({ ok: true });
       })
@@ -100,7 +111,7 @@ describe('apiClient — payload pass-through (no case conversion)', () => {
 
   it('returns snake_case response bodies verbatim', async () => {
     server.use(
-      http.get(`${BASE}/api/token`, () =>
+      http.get(`${API}/token`, () =>
         HttpResponse.json({
           access_token: 'tok',
           refresh_token: 'rtok',
@@ -122,7 +133,7 @@ describe('apiClient — payload pass-through (no case conversion)', () => {
 describe('apiClient — error normalization', () => {
   it('maps a 404 response to ApiError with kind "http"', async () => {
     server.use(
-      http.get(`${BASE}/api/missing`, () =>
+      http.get(`${API}/missing`, () =>
         HttpResponse.json({ detail: 'not found' }, { status: 404 })
       )
     );
@@ -139,7 +150,7 @@ describe('apiClient — error normalization', () => {
 
   it('maps a 500 response to ApiError with kind "http"', async () => {
     server.use(
-      http.get(`${BASE}/api/boom`, () =>
+      http.get(`${API}/boom`, () =>
         HttpResponse.json({ detail: 'kaboom' }, { status: 500 })
       )
     );
@@ -155,7 +166,7 @@ describe('apiClient — error normalization', () => {
   });
 
   it('maps a network error to ApiError with kind "network"', async () => {
-    server.use(http.get(`${BASE}/api/offline`, () => HttpResponse.error()));
+    server.use(http.get(`${API}/offline`, () => HttpResponse.error()));
 
     await expect(apiClient.get('/offline')).rejects.toSatisfy((err) => {
       if (!(err instanceof ApiError)) {
@@ -170,7 +181,7 @@ describe('apiClient — error normalization', () => {
     setOnUnauthorized(onUnauth);
 
     server.use(
-      http.post(`${BASE}/api/oauth/refresh`, () =>
+      http.post(`${API}/oauth/refresh`, () =>
         HttpResponse.json({ detail: 'bad refresh' }, { status: 401 })
       )
     );
@@ -193,7 +204,7 @@ describe('apiClient — 401 refresh-retry', () => {
     const seenAuth: Array<string | null> = [];
 
     server.use(
-      http.get(`${BASE}/api/protected`, ({ request }) => {
+      http.get(`${API}/protected`, ({ request }) => {
         const auth = request.headers.get('Authorization');
         seenAuth.push(auth);
         if (auth === 'Bearer new') {
@@ -201,7 +212,7 @@ describe('apiClient — 401 refresh-retry', () => {
         }
         return HttpResponse.json({ detail: 'expired' }, { status: 401 });
       }),
-      http.post(`${BASE}/api/oauth/refresh`, () =>
+      http.post(`${API}/oauth/refresh`, () =>
         HttpResponse.json({ access_token: 'new', expires_in: 300 })
       )
     );
@@ -219,10 +230,10 @@ describe('apiClient — 401 refresh-retry', () => {
     setOnUnauthorized(onUnauth);
 
     server.use(
-      http.get(`${BASE}/api/protected`, () =>
+      http.get(`${API}/protected`, () =>
         HttpResponse.json({ detail: 'expired' }, { status: 401 })
       ),
-      http.post(`${BASE}/api/oauth/refresh`, () =>
+      http.post(`${API}/oauth/refresh`, () =>
         HttpResponse.json({ detail: 'no cookie' }, { status: 401 })
       )
     );
@@ -241,21 +252,21 @@ describe('apiClient — 401 refresh-retry', () => {
     let refreshCalls = 0;
 
     server.use(
-      http.get(`${BASE}/api/a`, ({ request }) => {
+      http.get(`${API}/a`, ({ request }) => {
         const auth = request.headers.get('Authorization');
         if (auth === 'Bearer new') {
           return HttpResponse.json({ r: 'a' });
         }
         return HttpResponse.json({ detail: 'expired' }, { status: 401 });
       }),
-      http.get(`${BASE}/api/b`, ({ request }) => {
+      http.get(`${API}/b`, ({ request }) => {
         const auth = request.headers.get('Authorization');
         if (auth === 'Bearer new') {
           return HttpResponse.json({ r: 'b' });
         }
         return HttpResponse.json({ detail: 'expired' }, { status: 401 });
       }),
-      http.post(`${BASE}/api/oauth/refresh`, async () => {
+      http.post(`${API}/oauth/refresh`, async () => {
         refreshCalls += 1;
         // Delay so both 401s are in-flight before refresh resolves.
         await new Promise((resolve) => setTimeout(resolve, 20));
@@ -282,14 +293,14 @@ describe('apiClient — 401 refresh-retry', () => {
     let refreshCalls = 0;
 
     server.use(
-      http.get(`${BASE}/api/protected`, ({ request }) => {
+      http.get(`${API}/protected`, ({ request }) => {
         const auth = request.headers.get('Authorization');
         if (auth === 'Bearer new') {
           return HttpResponse.json({ ok: true });
         }
         return HttpResponse.json({ detail: 'expired' }, { status: 401 });
       }),
-      http.post(`${BASE}/api/oauth/refresh`, async () => {
+      http.post(`${API}/oauth/refresh`, async () => {
         refreshCalls += 1;
         await new Promise((resolve) => setTimeout(resolve, 20));
         return HttpResponse.json({ access_token: 'new', expires_in: 300 });
@@ -317,7 +328,7 @@ describe('apiClient — 401 refresh-retry', () => {
     const seenAuth: Array<string | null> = [];
 
     server.use(
-      http.get(`${BASE}/api/protected`, ({ request }) => {
+      http.get(`${API}/protected`, ({ request }) => {
         const auth = request.headers.get('Authorization');
         seenAuth.push(auth);
         if (auth === 'Bearer new') {
@@ -325,7 +336,7 @@ describe('apiClient — 401 refresh-retry', () => {
         }
         return HttpResponse.json({ detail: 'expired' }, { status: 401 });
       }),
-      http.post(`${BASE}/api/oauth/refresh`, () =>
+      http.post(`${API}/oauth/refresh`, () =>
         HttpResponse.json({ access_token: 'new', expires_in: 300 })
       )
     );
@@ -343,10 +354,10 @@ describe('apiClient — 401 refresh-retry', () => {
     let refreshCalls = 0;
 
     server.use(
-      http.get(`${BASE}/api/protected`, () =>
+      http.get(`${API}/protected`, () =>
         HttpResponse.json({ detail: 'expired' }, { status: 401 })
       ),
-      http.post(`${BASE}/api/oauth/refresh`, () => {
+      http.post(`${API}/oauth/refresh`, () => {
         refreshCalls += 1;
         return HttpResponse.json({ access_token: 'new', expires_in: 300 });
       })

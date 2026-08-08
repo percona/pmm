@@ -44,6 +44,7 @@ vi.mock('@sep/api', () => {
     },
     RUNNING_STATUSES,
     isRunningStatus: (status: string) => RUNNING_STATUSES.has(status),
+    SEP_BASE_PATH: '/sep',
   };
 });
 
@@ -335,7 +336,7 @@ describe('TaskHistoryTable actions', () => {
     await waitFor(() => {
       expect(mockedApiClient.get).toHaveBeenCalledWith(
         '/files/99',
-        expect.objectContaining({ baseURL: '' })
+        expect.objectContaining({ baseURL: '/sep' })
       );
     });
     expect(

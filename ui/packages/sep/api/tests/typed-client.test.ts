@@ -17,16 +17,19 @@
 
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { SEP_BASE_PATH } from '../src/base';
 import { setOnUnauthorized, setTokenProvider } from '../src/client';
 import { ApiError } from '../src/errors';
 import { mainApi, throwOnApiError } from '../src/typed-client';
 import { server } from './msw-server';
 
+const API = `http://localhost${SEP_BASE_PATH}/api`;
+
 // openapi-fetch builds absolute URLs from a `baseUrl`. The generated paths
-// already include the `/api/...` prefix, and our typed clients set
-// `baseUrl` to an absolute origin. Under Node we stub `globalThis.location`
-// so the client's origin fallback resolves to `http://localhost` in these
-// tests — matching the MSW handler URLs below.
+// already include SEP's own `/api/...` prefix, and our typed clients set
+// `baseUrl` to an absolute origin plus `SEP_BASE_PATH`. Under Node we stub
+// `globalThis.location` so the client's origin fallback resolves to
+// `http://localhost` in these tests — matching the MSW handler URLs below.
 //
 // `typed-client.ts` evaluates `CLIENT_BASE_URL` at module load (i.e. before
 // `beforeEach` runs), but the fallback path kicks in when `location` is
@@ -62,13 +65,30 @@ afterEach(() => {
   }
 });
 
+describe('typed-client — SEP mount point', () => {
+  it('resolves a generated path under the prefix nginx exposes the side-car on', async () => {
+    const seen = vi.fn();
+
+    server.use(
+      http.get('http://localhost/sep/api/users/me', ({ request }) => {
+        seen(new URL(request.url).pathname);
+        return HttpResponse.json({ id: 'x', username: 'u' });
+      })
+    );
+
+    await mainApi.GET('/api/users/me');
+
+    expect(seen).toHaveBeenCalledWith('/sep/api/users/me');
+  });
+});
+
 describe('typed-client — auth middleware', () => {
   it('attaches Bearer token from the shared provider', async () => {
     setTokenProvider(() => 'shared-token');
     const seen = vi.fn();
 
     server.use(
-      http.get('http://localhost/api/users/me', ({ request }) => {
+      http.get(`${API}/users/me`, ({ request }) => {
         seen(request.headers.get('Authorization'));
         return HttpResponse.json({ id: 'x', username: 'u' });
       })
@@ -84,7 +104,7 @@ describe('typed-client — auth middleware', () => {
     setOnUnauthorized(onUnauth);
 
     server.use(
-      http.get('http://localhost/api/users/me', () =>
+      http.get(`${API}/users/me`, () =>
         HttpResponse.json({ detail: 'nope' }, { status: 401 })
       )
     );
@@ -99,7 +119,7 @@ describe('typed-client — auth middleware', () => {
     setOnUnauthorized(onUnauth);
 
     server.use(
-      http.post('http://localhost/api/oauth/refresh', () =>
+      http.post(`${API}/oauth/refresh`, () =>
         HttpResponse.json({ detail: 'bad' }, { status: 401 })
       )
     );
@@ -114,7 +134,7 @@ describe('typed-client — auth middleware', () => {
     setOnUnauthorized(onUnauth);
 
     server.use(
-      http.get('http://localhost/api/users/me', () =>
+      http.get(`${API}/users/me`, () =>
         HttpResponse.html('<html>login</html>', { status: 200 })
       )
     );
@@ -129,7 +149,7 @@ describe('typed-client — auth middleware', () => {
 describe('throwOnApiError', () => {
   it('returns typed data on 2xx', async () => {
     server.use(
-      http.get('http://localhost/api/users/me', () =>
+      http.get(`${API}/users/me`, () =>
         HttpResponse.json({ id: 'abc', username: 'u' })
       )
     );
@@ -141,7 +161,7 @@ describe('throwOnApiError', () => {
 
   it('maps a JSON 4xx body to ApiError with status + detail', async () => {
     server.use(
-      http.get('http://localhost/api/users/me', () =>
+      http.get(`${API}/users/me`, () =>
         HttpResponse.json({ detail: 'not found' }, { status: 404 })
       )
     );
@@ -159,9 +179,7 @@ describe('throwOnApiError', () => {
   });
 
   it('maps a network failure to ApiError with kind "network"', async () => {
-    server.use(
-      http.get('http://localhost/api/users/me', () => HttpResponse.error())
-    );
+    server.use(http.get(`${API}/users/me`, () => HttpResponse.error()));
 
     await expect(
       throwOnApiError(mainApi.GET('/api/users/me'))
@@ -172,7 +190,7 @@ describe('throwOnApiError', () => {
 
   it('maps a malformed JSON body to ApiError (no raw SyntaxError leaks)', async () => {
     server.use(
-      http.get('http://localhost/api/users/me', () =>
+      http.get(`${API}/users/me`, () =>
         HttpResponse.text('not-json', {
           status: 200,
           headers: { 'content-type': 'application/json' },

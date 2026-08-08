@@ -24,6 +24,7 @@ import {
   emitUnauthorized,
   getToken,
   refreshAccessToken,
+  SEP_BASE_PATH,
 } from '@sep/api';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -77,12 +78,13 @@ function groupByStep(events: ExecutionEvent[]): {
 async function fetchExecutionEvents(
   taskHistoryId: string
 ): Promise<ExecutionEvent[]> {
-  // Use apiClient (Bearer interceptor + 401-refresh) with baseURL: '' to reach
-  // the legacy /execution-events/{id} route that is not under /api.
+  // Use apiClient (Bearer interceptor + 401-refresh) with the bare SEP mount
+  // point to reach the legacy /execution-events/{id} route, which unlike the
+  // rest of the client's traffic is not under SEP's own /api prefix.
   const res = await apiClient.get<ExecutionEvent[]>(
     `/execution-events/${taskHistoryId}`,
     {
-      baseURL: '',
+      baseURL: SEP_BASE_PATH,
     }
   );
   return Array.isArray(res.data) ? res.data : [];
@@ -146,7 +148,7 @@ export function useExecutionEvents(
     // otherwise-infinite fetchEventSource retry loop.
     let transientFailures = 0;
 
-    fetchEventSource(`/stream-logs/${idStr}/execution-events`, {
+    fetchEventSource(`${SEP_BASE_PATH}/stream-logs/${idStr}/execution-events`, {
       signal: ctrl.signal,
       openWhenHidden: true,
 

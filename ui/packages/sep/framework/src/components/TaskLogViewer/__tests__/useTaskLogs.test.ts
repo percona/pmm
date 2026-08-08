@@ -33,6 +33,7 @@ vi.mock('@sep/api', () => ({
   getToken: () => _tokenProvider(),
   refreshAccessToken: vi.fn<() => Promise<string | null>>(),
   emitUnauthorized: vi.fn(),
+  SEP_BASE_PATH: '/sep',
 }));
 
 const TEST_TOKEN = 'test-bearer-token';
@@ -51,14 +52,14 @@ describe('useTaskLogs', () => {
     vi.clearAllMocks();
   });
 
-  it('fetches /stream-logs/{id} with Bearer token', async () => {
+  it('fetches /sep/stream-logs/{id} with Bearer token', async () => {
     renderHook(() => useTaskLogs(42));
     await flushPromises();
 
     expect(mock.fetchSpy).toHaveBeenCalledTimes(1);
     const [url] = mock.fetchSpy.mock.calls[0];
     const urlStr = typeof url === 'string' ? url : (url as URL).href;
-    expect(urlStr).toBe('/stream-logs/42');
+    expect(urlStr).toBe('/sep/stream-logs/42');
     // Headers instance lowercases names; stub normalises via Object.fromEntries(headers.entries())
     expect(mock.pending[0].requestHeaders.authorization).toBe(
       `Bearer ${TEST_TOKEN}`
@@ -71,7 +72,7 @@ describe('useTaskLogs', () => {
 
     const [url] = mock.fetchSpy.mock.calls[0];
     const urlStr = typeof url === 'string' ? url : (url as URL).href;
-    expect(urlStr).toBe('/stream-logs/42?tail=1000');
+    expect(urlStr).toBe('/sep/stream-logs/42?tail=1000');
   });
 
   it('omits tail query param when tail is undefined (All)', async () => {
@@ -80,7 +81,7 @@ describe('useTaskLogs', () => {
 
     const [url] = mock.fetchSpy.mock.calls[0];
     const urlStr = typeof url === 'string' ? url : (url as URL).href;
-    expect(urlStr).toBe('/stream-logs/42');
+    expect(urlStr).toBe('/sep/stream-logs/42');
   });
 
   it('opens a fresh fetch when tail changes', async () => {
@@ -97,7 +98,7 @@ describe('useTaskLogs', () => {
       typeof mock.fetchSpy.mock.calls[0][0] === 'string'
         ? mock.fetchSpy.mock.calls[0][0]
         : (mock.fetchSpy.mock.calls[0][0] as URL).href;
-    expect(urlStr).toBe('/stream-logs/1?tail=1000');
+    expect(urlStr).toBe('/sep/stream-logs/1?tail=1000');
 
     rerender({ tail: 5000 });
     await flushPromises();
@@ -107,7 +108,7 @@ describe('useTaskLogs', () => {
       typeof mock.fetchSpy.mock.calls[1][0] === 'string'
         ? mock.fetchSpy.mock.calls[1][0]
         : (mock.fetchSpy.mock.calls[1][0] as URL).href;
-    expect(urlStr).toBe('/stream-logs/1?tail=5000');
+    expect(urlStr).toBe('/sep/stream-logs/1?tail=5000');
   });
 
   it('omits Authorization header when no token is available', async () => {
@@ -306,7 +307,7 @@ describe('useTaskLogs', () => {
     const secondUrl = mock.fetchSpy.mock.calls[1][0];
     const urlStr =
       typeof secondUrl === 'string' ? secondUrl : (secondUrl as URL).href;
-    expect(urlStr).toBe('/stream-logs/2');
+    expect(urlStr).toBe('/sep/stream-logs/2');
   });
 
   it('refreshes token on 401 and reconnects with the new token', async () => {

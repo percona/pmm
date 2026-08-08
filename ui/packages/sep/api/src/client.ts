@@ -17,6 +17,7 @@
 
 /// <reference path="./vite-env.d.ts" />
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { SEP_BASE_PATH } from './base';
 import { ApiError, normalizeAxiosError } from './errors';
 
 // ── Token provider ─────────────────────────────────────────────────────
@@ -71,8 +72,8 @@ const IS_DEV = import.meta.env.DEV;
  * field casing matches the OpenAPI spec (see `src/generated/`).
  */
 export const apiClient = axios.create({
-  baseURL: '/api',
-  // Send the HttpOnly refresh cookie on /api/oauth/* requests (same-origin
+  baseURL: `${SEP_BASE_PATH}/api`,
+  // Send the HttpOnly refresh cookie on /sep/api/oauth/* requests (same-origin
   // requests already send cookies, but make the intent explicit so tests
   // and any future cross-origin config keep working).
   withCredentials: true,

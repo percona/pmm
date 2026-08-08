@@ -43,6 +43,7 @@ vi.mock('@sep/api', () => ({
   refreshAccessToken: vi.fn<() => Promise<string | null>>(),
   emitUnauthorized: vi.fn(),
   apiClient: { get: vi.fn(), defaults: {} },
+  SEP_BASE_PATH: '/sep',
 }));
 
 describe('TaskLogViewer', () => {
@@ -62,7 +63,7 @@ describe('TaskLogViewer', () => {
   });
 
   function streamUrlFor(id: string): string {
-    return `/stream-logs/${id}`;
+    return `/sep/stream-logs/${id}`;
   }
 
   function getHandle(id: string, callIndex = -1): SseStreamHandle {
@@ -89,7 +90,7 @@ describe('TaskLogViewer', () => {
   function logFetchUrls(): string[] {
     return mock.fetchSpy.mock.calls
       .map((_, index) => fetchUrl(index))
-      .filter((url) => /^\/stream-logs\/[^/?]+(\?|$)/.test(url));
+      .filter((url) => /^\/sep\/stream-logs\/[^/?]+(\?|$)/.test(url));
   }
 
   it('renders accumulated stdout for the first step by default', async () => {
@@ -123,7 +124,7 @@ describe('TaskLogViewer', () => {
     );
     await flushPromises();
 
-    expect(logFetchUrls()[0]).toBe('/stream-logs/7');
+    expect(logFetchUrls()[0]).toBe('/sep/stream-logs/7');
     expect(getTailSelect()).toHaveTextContent('Last 1000');
     expect(getTailSelect()).toHaveAttribute('aria-disabled', 'true');
   });
@@ -136,7 +137,7 @@ describe('TaskLogViewer', () => {
     );
     await flushPromises();
 
-    expect(logFetchUrls()[0]).toBe('/stream-logs/7?tail=1000');
+    expect(logFetchUrls()[0]).toBe('/sep/stream-logs/7?tail=1000');
     expect(getTailSelect()).toHaveTextContent('Last 1000');
   });
 
@@ -150,7 +151,7 @@ describe('TaskLogViewer', () => {
     );
     await flushPromises();
 
-    expect(logFetchUrls()[0]).toBe('/stream-logs/3?tail=5000');
+    expect(logFetchUrls()[0]).toBe('/sep/stream-logs/3?tail=5000');
     expect(getTailSelect()).toHaveTextContent('Last 5000');
   });
 
@@ -161,14 +162,14 @@ describe('TaskLogViewer', () => {
       </QueryWrapper>
     );
     await flushPromises();
-    expect(logFetchUrls()[0]).toBe('/stream-logs/5?tail=1000');
+    expect(logFetchUrls()[0]).toBe('/sep/stream-logs/5?tail=1000');
 
     const user = userEvent.setup();
     await user.click(getTailSelect());
     await user.click(screen.getByRole('option', { name: /all lines/i }));
     await flushPromises();
 
-    expect(logFetchUrls().at(-1)).toBe('/stream-logs/5');
+    expect(logFetchUrls().at(-1)).toBe('/sep/stream-logs/5');
   });
 
   it('reconnects with a new tail when the line cap changes for finished tasks', async () => {
@@ -184,7 +185,7 @@ describe('TaskLogViewer', () => {
     await user.click(screen.getByRole('option', { name: 'Last 100' }));
     await flushPromises();
 
-    expect(logFetchUrls().at(-1)).toBe('/stream-logs/8?tail=100');
+    expect(logFetchUrls().at(-1)).toBe('/sep/stream-logs/8?tail=100');
     expect(globalThis.localStorage.getItem('sep.taskLogViewer.tail')).toBe(
       '100'
     );

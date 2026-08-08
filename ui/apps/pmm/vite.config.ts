@@ -27,10 +27,15 @@ const target =
   env.PMM_SERVER_URL ||
   (hasNginxCerts ? 'https://localhost:8443' : 'https://localhost');
 
-// SEP backend. The dev server proxies SEP's API paths to it so the migrated SEP
-// plugins get real data. Interim auth (Option D): if PMM_DEV_SEP_INTERNAL_TOKEN
-// is set, inject it server-side as a Bearer token so no secret reaches the
-// browser. Both variables are dev-server-only, hence the PMM_DEV_ prefix.
+// SEP backend. The dev server proxies SEP's single `/sep` mount point to it so
+// the migrated SEP plugins get real data, mirroring the shipped topology where
+// pmm-server's nginx exposes the side-car under that one location (see
+// SEP_BASE_PATH in @sep/api). The prefix is passed through unstripped, because
+// SEP serves it itself via `root_path` — so PMM_DEV_SEP_BACKEND_URL has to point
+// at a backend configured the same way.
+// Interim auth (Option D): if PMM_DEV_SEP_INTERNAL_TOKEN is set, inject it
+// server-side as a Bearer token so no secret reaches the browser. Both variables
+// are dev-server-only, hence the PMM_DEV_ prefix.
 // Replaced by the token-exchange provider (Option B) later — see src/sep/bootstrap.ts.
 const sepBackendUrl = env.PMM_DEV_SEP_BACKEND_URL || 'http://localhost:8000';
 const sepInternalToken = env.PMM_DEV_SEP_INTERNAL_TOKEN;
@@ -103,12 +108,7 @@ export default defineConfig({
         secure: false,
         changeOrigin: true,
       },
-      // SEP backend paths (no clash with PMM's /v1 + /graph).
-      '/api': sepProxy(),
-      '/sep_app': sepProxy(),
-      '/stream-logs': sepProxy(),
-      '/execution-events': sepProxy(),
-      '/files': sepProxy(),
+      '/sep': sepProxy(),
     },
     host: '0.0.0.0',
     port,

@@ -23,8 +23,9 @@
  *   - `mainApi`      — core API (oauth, users)
  *   - `sepApi`       — SEP app
  *
- * The generated `paths` keys include the mount prefix (e.g. `/api/users/me`),
- * so every client uses `baseUrl: CLIENT_BASE_URL`, which resolves to the
+ * The generated `paths` keys include SEP's own mount prefix (e.g.
+ * `/api/users/me`) but not the `SEP_BASE_PATH` the side-car is reached under,
+ * so every client uses `baseUrl: CLIENT_BASE_URL`, which appends it to the
  * current origin in the browser and falls back to a `http://localhost`
  * sentinel under Node/test environments — identical same-origin behaviour
  * to the axios `apiClient` in the browser.
@@ -36,6 +37,7 @@
  * shape regardless of which client they use.
  */
 import createClient, { type Client, type Middleware } from 'openapi-fetch';
+import { SEP_BASE_PATH } from './base';
 import { emitUnauthorized, getToken } from './client';
 import { ApiError } from './errors';
 import type { paths as MainPaths } from './generated/main';
@@ -101,11 +103,12 @@ const authMiddleware: Middleware = {
 // is no implicit document origin to resolve against. Read `location.origin`
 // when available (browser, jsdom-style tests), otherwise use a
 // `http://localhost` sentinel; MSW intercepts by URL in either case.
-const CLIENT_BASE_URL =
+const CLIENT_ORIGIN =
   typeof globalThis !== 'undefined' &&
   typeof (globalThis as { location?: Location }).location?.origin === 'string'
     ? (globalThis as { location: Location }).location.origin
     : 'http://localhost';
+const CLIENT_BASE_URL = `${CLIENT_ORIGIN}${SEP_BASE_PATH}`;
 
 // Resolve `fetch` lazily rather than capturing `globalThis.fetch` at module
 // load. Test harnesses (MSW, happy-dom) patch the global after this file is
