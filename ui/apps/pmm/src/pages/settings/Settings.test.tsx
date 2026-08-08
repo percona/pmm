@@ -4,9 +4,14 @@ import { Settings } from './Settings';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import * as settingsApi from 'api/settings';
+import * as haApi from 'api/ha';
 import type { Settings as SettingsType } from 'types/settings.types';
 
 vi.mock('api/settings');
+vi.mock('api/ha', () => ({
+  getHAStatus: vi.fn(),
+  getHANodes: vi.fn(),
+}));
 vi.mock('./components/metrics-resolution/MetricsResolutionForm', () => ({
   MetricsResolutionForm: () => null,
 }));
@@ -18,6 +23,7 @@ vi.mock('./components/ssh-key/SshKeyForm', () => ({
 }));
 
 const getSettingsMock = vi.mocked(settingsApi.getSettings);
+const getHAStatusMock = vi.mocked(haApi.getHAStatus);
 const mockSettings = {} as SettingsType;
 
 const renderWithRoute = (initialPath: string) =>
@@ -34,6 +40,7 @@ const renderWithRoute = (initialPath: string) =>
 describe('Settings', () => {
   beforeEach(() => {
     getSettingsMock.mockImplementation(() => new Promise(() => {}));
+    getHAStatusMock.mockResolvedValue({ status: 'Disabled' });
   });
 
   it('shows loading state when settings are not yet loaded', () => {
@@ -84,6 +91,14 @@ describe('Settings', () => {
           'aria-selected',
           'true'
         )
+      );
+    });
+
+    it('hides ssh tab when HA is enabled', async () => {
+      getHAStatusMock.mockResolvedValue({ status: 'Enabled' });
+      renderWithRoute('/settings/metrics-resolution');
+      await waitFor(() =>
+        expect(screen.queryByTestId('settings-tab-ssh')).not.toBeInTheDocument()
       );
     });
   });

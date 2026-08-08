@@ -14,6 +14,7 @@ import { TabValue } from './Settings.types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { OrgRole } from 'types/user.types';
 import { useUser } from 'contexts/user';
+import { useHAStatus } from 'hooks/api/useHA';
 
 export const Settings: FC = () => {
   const { user } = useUser();
@@ -25,6 +26,7 @@ export const Settings: FC = () => {
   } = useSettings({
     enabled: !!user && user.isPMMAdmin,
   });
+  const { data: haStatus } = useHAStatus();
   const navigate = useNavigate();
 
   if (isLoading || (isEnabled && !settings)) {
@@ -65,11 +67,13 @@ export const Settings: FC = () => {
             value="advanced-settings"
             label={Messages.tabs.advanced}
           />
-          <Tab
-            data-testid="settings-tab-ssh"
-            value="ssh-key"
-            label={Messages.tabs.ssh}
-          />
+          {haStatus?.status === 'Disabled' && (
+            <Tab
+              data-testid="settings-tab-ssh"
+              value="ssh-key"
+              label={Messages.tabs.ssh}
+            />
+          )}
         </Tabs>
 
         <Box sx={{ flex: 1 }} data-testid="settings-tab-content">
