@@ -68,6 +68,21 @@ func TestValidateClickHouseConfigAt(t *testing.T) {
 				"default", "low-memory",
 			},
 		},
+		{
+			name:        "path traversal",
+			config:      "../../tmp/evil",
+			errContains: []string{"must be a name, not a path"},
+		},
+		{
+			name:        "absolute path",
+			config:      "/tmp/evil",
+			errContains: []string{"must be a name, not a path"},
+		},
+		{
+			name:        "parent dir",
+			config:      "..",
+			errContains: []string{"must be a name, not a path"},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -96,6 +111,117 @@ func TestValidateClickHouseConfigAt(t *testing.T) {
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "cannot stat")
 		assert.NotContains(t, err.Error(), "available configs:")
+	})
+}
+
+func TestLinkClickHouseConfigAt(t *testing.T) {
+	t.Parallel()
+
+	// newConfigDir returns a dir holding the config files of both shipped configs.
+	newConfigDir := func(t *testing.T) string {
+		t.Helper()
+		dir := t.TempDir()
+		writeConfigFiles(
+			t, dir,
+			"default-config.xml", "default-users.xml",
+			"low-memory-config.xml", "low-memory-users.xml",
+		)
+		return dir
+	}
+
+	assertLinks := func(t *testing.T, dir, config string) {
+		t.Helper()
+		for _, l := range stableConfigLinks {
+			target, err := os.Readlink(filepath.Join(dir, l.link))
+			require.NoError(t, err)
+			assert.Equal(t, filepath.Join(dir, config+l.suffix), target)
+		}
+	}
+
+	t.Run("creates links when absent", func(t *testing.T) {
+		t.Parallel()
+
+		dir := newConfigDir(t)
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+		assertLinks(t, dir, "default")
+	})
+
+	t.Run("repoints existing links when the config changes", func(t *testing.T) {
+		t.Parallel()
+
+		dir := newConfigDir(t)
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+		require.NoError(t, linkClickHouseConfigAt("low-memory", dir))
+		assertLinks(t, dir, "low-memory")
+
+		// Switching back must work too, and leave no temporary files behind.
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+		assertLinks(t, dir, "default")
+		for _, l := range stableConfigLinks {
+			_, err := os.Lstat(filepath.Join(dir, l.link+".tmp"))
+			assert.ErrorIs(t, err, os.ErrNotExist)
+		}
+	})
+
+	t.Run("leaves a regular file untouched", func(t *testing.T) {
+		t.Parallel()
+
+		// Anything that replaced the symlink with a regular file, such as an in-place `sed -i`,
+		// is left alone rather than silently discarded.
+		dir := newConfigDir(t)
+		edited := filepath.Join(dir, "config.xml")
+		require.NoError(t, os.WriteFile(edited, []byte("<clickhouse>edited</clickhouse>"), 0o600))
+
+		require.NoError(t, linkClickHouseConfigAt("low-memory", dir))
+
+		content, err := os.ReadFile(edited) //nolint:gosec
+		require.NoError(t, err)
+		assert.Equal(t, "<clickhouse>edited</clickhouse>", string(content))
+
+		// The remaining link is still repointed.
+		target, err := os.Readlink(filepath.Join(dir, "users.xml"))
+		require.NoError(t, err)
+		assert.Equal(t, filepath.Join(dir, "low-memory-users.xml"), target)
+	})
+
+	t.Run("fails when the target is missing", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		writeConfigFiles(t, dir, "default-config.xml") // default-users.xml deliberately absent
+
+		err := linkClickHouseConfigAt("default", dir)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "default-users.xml")
+	})
+
+	t.Run("leaves links untouched when a target is missing", func(t *testing.T) {
+		t.Parallel()
+
+		// config.xml must not be repointed when users.xml cannot be, otherwise the two links
+		// straddle different configs.
+		dir := newConfigDir(t)
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+		require.NoError(t, os.Remove(filepath.Join(dir, "low-memory-users.xml")))
+
+		require.Error(t, linkClickHouseConfigAt("low-memory", dir))
+		assertLinks(t, dir, "default")
+	})
+
+	t.Run("does not rewrite links that are already correct", func(t *testing.T) {
+		t.Parallel()
+
+		// Writing to /etc may be denied under an arbitrary UID, so an unchanged config must not
+		// need any write at all.
+		dir := newConfigDir(t)
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+
+		// A directory needs its execute bit, so these are wider than gosec's file limit.
+		require.NoError(t, os.Chmod(dir, 0o500))       //nolint:gosec
+		t.Cleanup(func() { _ = os.Chmod(dir, 0o700) }) //nolint:gosec
+
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+		assertLinks(t, dir, "default")
 	})
 }
 

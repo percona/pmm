@@ -590,7 +590,7 @@
     <user_directories>
         <users_xml>
             <!-- Path to configuration file with predefined users. -->
-            <path>low-memory-users.xml</path>
+            <path>users.xml</path>
         </users_xml>
         <local_directory>
             <!-- Path to folder where users created by SQL commands are stored. -->
@@ -684,7 +684,11 @@
              If it's set to true then if settings profile has a constraint for a specific setting, then this constraint completely cancels all
              actions of previous constraint (defined in other profiles) for the same specific setting, including fields that are not set by new constraint.
              It also enables 'changeable_in_readonly' constraint type -->
-        <settings_constraints_replace_previous>false</settings_constraints_replace_previous>
+        <!-- PMM: required by the 'changeable_in_readonly' constraint on the datasource profile in
+             users.xml. PMM defines no other settings constraints, so the constraint-inheritance
+             change this flag also brings has no effect on the shipped ones. Profiles created through SQL
+         and kept in /srv/clickhouse/access/ do see the new merge behaviour. -->
+        <settings_constraints_replace_previous>true</settings_constraints_replace_previous>
 
         <!-- Number of seconds since last access a role is stored in the Role Cache -->
         <role_cache_expiration_time_seconds>600</role_cache_expiration_time_seconds>
@@ -805,6 +809,13 @@
         (forgetting to do so is a common source of error).
     -->
     <!--</remote_url_allow_hosts>-->
+
+    <!-- PMM: defense against SSRF via ClickHouse.
+        This applies to all users, including the privileged 'default' one used by qan-api2,
+        so a future privilege regression cannot re-open access to URL-based engines and table functions. 
+        No PMM component uses these functions.
+    -->
+    <remote_url_allow_hosts></remote_url_allow_hosts>
 
     <!-- The list of HTTP headers forbidden to use in HTTP-related storage engines and table functions.
         If this section is not present in configuration, all headers are allowed.
