@@ -36,7 +36,16 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-const defaultAgentPingInterval = 10 * time.Second
+const (
+	defaultAgentPingInterval = 10 * time.Second
+	// How long to wait for a pong. Without a deadline the server only learns about a silently
+	// dropped connection once the kernel's TCP retransmission timeout expires, ~15 minutes
+	// later, and keeps the dead channel registered until then. See PMM-15310.
+	defaultAgentPingTimeout = 5 * time.Second
+	// How many consecutive unanswered pings mark the connection as dead. It is then torn down,
+	// so that the agent can reconnect.
+	maxAgentPingFailures = 2
+)
 
 // Handler handles agent requests.
 type Handler struct {
@@ -85,13 +94,24 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 
 	ticker := time.NewTicker(defaultAgentPingInterval)
 	defer ticker.Stop()
+	var pingFailures int
 	for {
 		select {
 		case <-ticker.C:
-			err := h.r.ping(ctx, agent)
+			pingCtx, cancelPing := context.WithTimeout(ctx, defaultAgentPingTimeout)
+			err := h.r.ping(pingCtx, agent)
+			cancelPing()
 			if err != nil {
-				l.Errorf("agent %s ping: %v", agent.id, err)
+				pingFailures++
+				l.Errorf("agent %s ping (attempt %d of %d): %v", agent.id, pingFailures, maxAgentPingFailures, err)
+				if pingFailures >= maxAgentPingFailures {
+					disconnectReason = "ping_timeout"
+					h.r.unregister(ctx, agent.id, disconnectReason, agent)
+					return status.Error(codes.DeadlineExceeded, "Agent is not responding to pings.")
+				}
+				continue
 			}
+			pingFailures = 0
 
 		// see unregister and Kick methods
 		case <-agent.kickChan:
@@ -105,7 +125,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 			if req == nil {
 				disconnectReason = "done"
 				err = agent.channel.Wait()
-				h.r.unregister(ctx, agent.id, disconnectReason)
+				h.r.unregister(ctx, agent.id, disconnectReason, agent)
 				if err != nil {
 					l.Error(err)
 				}
