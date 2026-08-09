@@ -6,8 +6,7 @@ checks:
     description: Warns if there are inconsistent indexes across shards for sharded collections. Missing or inconsistent indexes across the shards can have a negative impact on performance.
     interval: standard
     technology: MONGODB
-    category: Query
-    subcategory: Index
+    category: Schema & indexes
     # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT

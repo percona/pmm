@@ -7,7 +7,6 @@ checks:
     interval: standard
     technology: MYSQL
     category: Security
-    subcategory: Configuration
     # author: tibi/the grinch
     queries:
       - type: MYSQL_SHOW

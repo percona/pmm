@@ -5,8 +5,7 @@ checks:
     summary: MySQL test Database
     description: Identifies databases with name 'test' or 'test_%'
     technology: MYSQL
-    category: Configuration
-    subcategory: Generic
+    category: Security
     interval: standard
     queries:
       - type: MYSQL_SHOW

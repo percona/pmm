@@ -6,8 +6,7 @@ checks:
     description: This check returns an error if the fsync configuration option is off which can lead to database corruption.
     technology: POSTGRESQL
     # author: Jobin Augustine
-    category: Configuration
-    subcategory: Generic
+    category: Durability
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

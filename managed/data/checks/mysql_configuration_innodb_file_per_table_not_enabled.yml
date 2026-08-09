@@ -5,8 +5,7 @@ checks:
     summary: innodb_file_per_table not enabled
     description: innodb_file_per_table not enabled
     interval: standard
-    category: Configuration
-    subcategory: InnoDB
+    category: Resources
     # author: Kedar Vaijanapurkar
     technology: MYSQL
     queries:

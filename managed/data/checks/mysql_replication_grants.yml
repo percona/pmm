@@ -6,7 +6,6 @@ checks:
     description: This check if node has replication configured without a user grants
     interval: standard
     category: Security
-    subcategory: Replication
     # author: The Grinch
     technology: MYSQL
     queries:

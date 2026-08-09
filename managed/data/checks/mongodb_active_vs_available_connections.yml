@@ -7,8 +7,7 @@ checks:
     description: This check returns warnings if the ratio between active and available connections is higher than 75%
     technology: MONGODB
     # author: Corrado Pandiani
-    category: Configuration
-    subcategory: Generic
+    category: Connections
     interval: standard
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA

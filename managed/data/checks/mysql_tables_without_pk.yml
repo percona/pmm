@@ -7,8 +7,7 @@ checks:
     interval: standard
     technology: MYSQL
     # author: tibi/the grinch
-    category: Query
-    subcategory: Index
+    category: Schema & indexes
     queries:
       - type: MYSQL_SELECT
         query: |

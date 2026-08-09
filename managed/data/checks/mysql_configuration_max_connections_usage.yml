@@ -5,8 +5,7 @@ checks:
     summary: Check max connections usage
     description: Checks for MySQL max_connections configuration option for maximum utilization
     interval: standard
-    category: Configuration
-    subcategory: Connection
+    category: Connections
     # author: Kedar Vaijanapurkar
     technology: MYSQL
     queries:

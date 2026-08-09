@@ -7,7 +7,6 @@ checks:
     technology: MONGODB
     # author: Divyanshu Soni
     category: Security
-    subcategory: Authentication
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS

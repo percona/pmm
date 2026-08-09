@@ -6,8 +6,7 @@ checks:
     description: This check reviews replication status to review if it is configured to skip errors or if the slave_exec_mode is configured to be idempotent.
     technology: MYSQL
     # author: Kedar Vaijanapurkar
-    category: Configuration
-    subcategory: Replication
+    category: Replication
     interval: standard
     queries:
       - type: MYSQL_SELECT

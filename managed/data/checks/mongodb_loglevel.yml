@@ -6,8 +6,7 @@ checks:
     description: This check returns warnings if MongoDB is not using the default log level.
     technology: MONGODB
     # author: Vinicius Grippa
-    category: Configuration
-    subcategory: Generic
+    category: Logging
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS

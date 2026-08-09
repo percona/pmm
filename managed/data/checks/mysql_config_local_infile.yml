@@ -6,7 +6,6 @@ checks:
     description: Identify if a load data in file is active.
     interval: standard
     category: Security
-    subcategory: Configuration
     # author: The Grinch
     technology: MYSQL
     queries:

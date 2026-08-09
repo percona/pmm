@@ -6,7 +6,6 @@ checks:
     description: Warns if MongoDB authentication is disabled.
     technology: MONGODB
     category: Security
-    subcategory: Authentication
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS

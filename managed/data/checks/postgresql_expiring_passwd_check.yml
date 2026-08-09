@@ -6,7 +6,6 @@ checks:
     description: Check for passwords which are expiring and displays the time left before it expires
     # author: Jorge Torralba
     category: Security
-    subcategory: Configuration
     interval: standard
     technology: POSTGRESQL
     queries:

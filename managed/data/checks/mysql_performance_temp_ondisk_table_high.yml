@@ -5,8 +5,7 @@ checks:
     summary: Too many on-disk temporary tables
     description: This check warns against too many on-disk temporary tables created due to unoptimized query execution.
     technology: MYSQL
-    category: Query
-    subcategory: Index
+    category: Performance
     # author: Kedar Vaijanapurkar
     interval: standard
     queries:

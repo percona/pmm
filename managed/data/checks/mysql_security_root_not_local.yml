@@ -6,7 +6,6 @@ checks:
     description: Root user has host definition that is not 127.0.0.1 or localhost.
     interval: standard
     category: Security
-    subcategory: Authentication
     # author: The Grinch
     technology: MYSQL
     queries:

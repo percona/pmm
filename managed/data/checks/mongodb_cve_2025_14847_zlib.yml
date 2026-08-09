@@ -10,7 +10,6 @@ checks:
     interval: frequent
     technology: MONGODB
     category: Security
-    subcategory: Vulnerabilities
     queries:
       - type: MONGODB_BUILDINFO
       - type: METRICS_INSTANT

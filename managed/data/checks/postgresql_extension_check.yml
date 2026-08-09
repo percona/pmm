@@ -6,8 +6,7 @@ checks:
     description: This check will list outdated extensions with newer versions available
     interval: standard
     technology: POSTGRESQL
-    category: Configuration
-    subcategory: Version
+    category: Versions
     queries:
       - type: POSTGRESQL_SELECT
         query: "current_database() AS db, name, installed_version, default_version FROM pg_available_extensions WHERE installed_version IS NOT NULL AND default_version IS NOT NULL  AND installed_version != default_version"

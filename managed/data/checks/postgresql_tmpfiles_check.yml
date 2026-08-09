@@ -6,7 +6,6 @@ checks:
     description: This check reports the number of temporary files and number of bytes written to disk since last stats reset.
     # author: Jorge Torralba
     category: Performance
-    subcategory: Generic
     interval: standard
     technology: POSTGRESQL
     queries:

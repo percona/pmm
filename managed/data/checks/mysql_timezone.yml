@@ -7,8 +7,7 @@ checks:
     interval: standard
     technology: MYSQL
     # author: tibi/the grinch
-    category: Configuration
-    subcategory: Generic
+    category: Durability
     queries:
       - type: MYSQL_SELECT
         query: count(*) as timezonecount from mysql.time_zone_name

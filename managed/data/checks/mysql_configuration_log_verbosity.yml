@@ -6,8 +6,7 @@ checks:
     description: Checks that warnings are being printed on the log
     technology: MYSQL
     # author: Carlos Tutte
-    category: Configuration
-    subcategory: Generic
+    category: Logging
     interval: standard
     queries:
       - type: MYSQL_SHOW

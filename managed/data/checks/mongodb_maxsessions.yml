@@ -6,8 +6,7 @@ checks:
     description: This check returns warnings if MongoDB is using more maxSessions value other than the default one 1000000 2
     interval: standard
     technology: MONGODB
-    category: Configuration
-    subcategory: Resources
+    category: Connections
     # author: Vinodh Krishnaswamy/Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS

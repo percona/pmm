@@ -6,8 +6,7 @@ checks:
     description: This check lists relations with indexes that have not been used since statistics were last reset
     interval: standard
     technology: POSTGRESQL
-    category: Query
-    subcategory: Index
+    category: Schema & indexes
     queries:
       - type: POSTGRESQL_SELECT
         # Using this syntax (CURRENT_TIMESTAMP(0)::TIMESTAMP WITHOUT TIME ZONE)::text since PMM does not respect date formatting. Thus converting to a string

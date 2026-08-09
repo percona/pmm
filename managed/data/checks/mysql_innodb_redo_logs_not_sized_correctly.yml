@@ -6,8 +6,7 @@ checks:
     description: This check reviews InnoDB redo log size and suggests if it is configured too low.
     technology: MYSQL
     # author: Kedar Vaijanapurkar
-    category: Configuration
-    subcategory: InnoDB
+    category: Performance
     interval: standard
     queries:
       - type: MYSQL_SELECT

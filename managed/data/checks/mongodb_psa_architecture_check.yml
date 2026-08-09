@@ -6,8 +6,7 @@ checks:
     description: This check returns an error if the replicaSet is using a PSA architecture.
     interval: standard
     technology: MONGODB
-    category: Configuration
-    subcategory: Replication
+    category: Replication
     # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT

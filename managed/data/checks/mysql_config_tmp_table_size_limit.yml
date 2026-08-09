@@ -5,8 +5,7 @@ checks:
     summary: Temp table size is larger than Heap Table size
     description: Check if the Temporary table size exceeds the heap table size.
     interval: standard
-    category: Configuration
-    subcategory: Generic
+    category: Performance
     # author: The Grinch
     technology: MYSQL
     queries:

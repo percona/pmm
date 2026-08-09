@@ -6,7 +6,6 @@ checks:
     description: Anonymous user should never be present, that is a security safe best practices.
     interval: standard
     category: Security
-    subcategory: Authentication
     # author: The Grinch
     technology: MYSQL
     queries:

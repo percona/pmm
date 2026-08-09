@@ -5,8 +5,7 @@ checks:
     summary: InnoDB strict mode
     description: Warns if innodb_strict_mode is disabled.
     interval: standard
-    category: Configuration
-    subcategory: InnoDB
+    category: Durability
     # author: The Grinch
     technology: MYSQL
     queries:

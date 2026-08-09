@@ -6,7 +6,6 @@ checks:
     description: Host definition should never be '%' given it is too open .
     interval: standard
     category: Security
-    subcategory: Authentication
     # author: The Grinch
     technology: MYSQL
     queries:

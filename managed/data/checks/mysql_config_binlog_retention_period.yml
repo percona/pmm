@@ -5,8 +5,7 @@ checks:
     summary: Binlogs retention check
     description: Binlogs should not be rotated too often, except very specific cases.
     interval: standard
-    category: Configuration
-    subcategory: Generic
+    category: Durability
     technology: MYSQL
     queries:
       - type: MYSQL_SELECT

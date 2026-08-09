@@ -5,8 +5,7 @@ checks:
     summary: End Of Life server version (5.7)
     description: Check if server version is EOL
     interval: standard
-    category: Configuration
-    subcategory: Version
+    category: Versions
     # author: The Grinch
     technology: MYSQL
     queries:

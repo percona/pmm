@@ -4,8 +4,7 @@ checks:
     name: postgresql_table_bloat_bytes
     summary: Check amount of bloat in tables if greater than 250MB
     description: Checks check verifies the size of the table bloat in bytes accross all databases and alert accordingly
-    category: Performance
-    subcategory: Vacuum
+    category: Maintenance
     interval: standard
     technology: POSTGRESQL
     queries:

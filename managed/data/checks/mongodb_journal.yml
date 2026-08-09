@@ -7,8 +7,7 @@ checks:
     description: This check returns warnings if journal is disabled.
     technology: MONGODB
     # author: Corrado Pandiani
-    category: Configuration
-    subcategory: Generic
+    category: Durability
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS

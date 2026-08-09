@@ -6,7 +6,6 @@ checks:
     description: Users have super privileges but are not connecting from local or the host is not fully restricted (i.e. 192.168.%).
     interval: standard
     category: Security
-    subcategory: Authentication
     # author: The Grinch
     technology: MYSQL
     queries:

@@ -6,8 +6,7 @@ checks:
     description: This check returns a warning if multiple mongod services are running in a single node.
     interval: standard
     technology: MONGODB
-    category: Performance
-    subcategory: Generic
+    category: Resources
     # author: Parag Bhayani
     queries:
       - type: METRICS_INSTANT

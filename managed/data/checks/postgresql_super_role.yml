@@ -6,7 +6,6 @@ checks:
     description: This check returns a warning if there are users with superuser role.
     technology: POSTGRESQL
     category: Security
-    subcategory: Authentication
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

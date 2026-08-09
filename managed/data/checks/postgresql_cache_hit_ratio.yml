@@ -7,7 +7,6 @@ checks:
     technology: POSTGRESQL
     # author: David Gonzales
     category: Performance
-    subcategory: Generic
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

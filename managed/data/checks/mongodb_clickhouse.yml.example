@@ -4,7 +4,6 @@ checks:
     name: mongodb_clickhouse
     summary: Sample Clickhouse advisor that checks if QAN is on a MongoDB instance
     category: Security
-    subcategory: Example
     description: Sample Clickhouse advisor that checks if QAN is on a MongoDB instance
     interval: standard
     technology: MONGODB

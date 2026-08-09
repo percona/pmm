@@ -6,8 +6,7 @@ checks:
     description: This check returns a warning if the oplog window is below a 24 hour period and offers a recommended oplog size based on your instance.
     interval: standard
     technology: MONGODB
-    category: Performance
-    subcategory: Replication
+    category: Replication
     # author: Parag Bhayani
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA

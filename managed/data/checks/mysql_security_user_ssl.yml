@@ -6,7 +6,6 @@ checks:
     description: User(s) not using secure SSL protocol to connect.
     interval: standard
     category: Security
-    subcategory: Authentication
     # author: The Grinch
     technology: MYSQL
     queries:

@@ -6,8 +6,7 @@ checks:
     description: This check returns the current number of connections as a warning when connection counts are above 5000.
     interval: standard
     technology: MONGODB
-    category: Configuration
-    subcategory: Connection
+    category: Connections
     # author: Parag Bhayani
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA

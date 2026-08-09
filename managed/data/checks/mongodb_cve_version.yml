@@ -6,7 +6,6 @@ checks:
     description: This check returns errors if MongoDB or Percona Server for MongoDB version is less than the latest one with CVE fixes.
     technology: MONGODB
     category: Security
-    subcategory: Vulnerabilities
     interval: standard
     queries:
       - type: MONGODB_BUILDINFO

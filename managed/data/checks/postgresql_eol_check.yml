@@ -5,8 +5,7 @@ checks:
     summary: Check if PostgreSQL version is EOL
     description: Checks to see if the currently installed PostgreSQL version is end of life and no longer supported
     # author: Jorge Torralba
-    category: Configuration
-    subcategory: Version
+    category: Versions
     interval: standard
     technology: POSTGRESQL
     queries:

@@ -5,8 +5,7 @@ checks:
     summary: Automatic relay log purging is off
     description: Identify if a replica node has relay-logs purge set.
     interval: standard
-    category: Configuration
-    subcategory: Replication
+    category: Replication
     # author: The Grinch
     technology: MYSQL
     queries:

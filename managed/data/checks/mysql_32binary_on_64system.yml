@@ -6,8 +6,7 @@ checks:
     description: This check returns a warning if version_compile_machine equals i686.
     technology: MYSQL
     # author: Carlos Tutte
-    category: Configuration
-    subcategory: Resources
+    category: Resources
     interval: standard
     queries:
       - type: MYSQL_SELECT

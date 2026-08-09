@@ -5,8 +5,7 @@ checks:
     name: mongodb_replication_lag
     summary: MongoDB Replication Lag
     description: This check returns warnings if the Replica Set member is more than 10 sec behind the primary
-    category: Performance
-    subcategory: Replication
+    category: Replication
     technology: MONGODB
     # author: Ivan Groenewold
     interval: standard

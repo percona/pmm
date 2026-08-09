@@ -6,8 +6,7 @@ checks:
     description: This check returns those tables where autovacuum parameters are specified along with autovacuum settings specified
     technology: POSTGRESQL
     # author: Jobin Augustine
-    category: Configuration
-    subcategory: Vacuum
+    category: Maintenance
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

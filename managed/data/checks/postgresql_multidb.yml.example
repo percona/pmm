@@ -7,7 +7,6 @@ checks:
     interval: standard
     technology: POSTGRESQL
     category: Security
-    subcategory: Example
     queries:
       - type: POSTGRESQL_SELECT
         query: current_database()

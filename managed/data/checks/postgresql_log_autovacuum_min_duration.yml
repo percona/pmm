@@ -6,8 +6,7 @@ checks:
     description: This check returns a warning if the log_autovacuum_min_duration configuration option is set to -1 (disabled). It is recommended to enable the logging of autovacuum run information, as that provides a lot of useful information with almost no drawbacks.
     technology: POSTGRESQL
     # author: Sergey Kuzmichev
-    category: Configuration
-    subcategory: Vacuum
+    category: Logging
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

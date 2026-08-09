@@ -5,8 +5,7 @@ checks:
     summary: Check for WAL file accumulation
     description: Checks to see if there are too many WAL files retained in the WAL directory
     # author: Jorge Torralba
-    category: Configuration
-    subcategory: Generic
+    category: Resources
     interval: standard
     technology: POSTGRESQL
     queries:

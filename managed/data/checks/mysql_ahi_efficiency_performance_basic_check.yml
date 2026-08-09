@@ -5,8 +5,7 @@ checks:
     summary: InnoDB Adaptive Hash Index (AHI) efficiency checker
     description: Check the efficiency and effectiveness of InnoDB's Adaptive Hash Index (AHI).
     interval: standard
-    category: Configuration
-    subcategory: InnoDB
+    category: Performance
     technology: MYSQL
     queries:
       - type: MYSQL_SHOW

@@ -6,8 +6,7 @@ checks:
     description: This check returns errors or warnings if your current PSMDB or MongoDB version has reached or is about to reach End-of-Life.
     interval: standard
     technology: MONGODB
-    category: Configuration
-    subcategory: Version
+    category: Versions
     # author: Parag Bhayani
     queries:
       - type: MONGODB_BUILDINFO

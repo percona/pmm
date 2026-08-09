@@ -6,7 +6,6 @@ checks:
     description: Checks something important
     interval: standard
     category: Security
-    subcategory: Example
     technology: MYSQL
     queries:
       - type: MYSQL_SHOW

@@ -6,8 +6,7 @@ checks:
     description: This check returns a warning if there is a mismatch between the MongoDB version and the internal FCV parameter setting.
     interval: standard
     technology: MONGODB
-    category: Configuration
-    subcategory: Resources
+    category: Versions
     # author: Parag Bhayani
     queries:
       - type: MONGODB_BUILDINFO

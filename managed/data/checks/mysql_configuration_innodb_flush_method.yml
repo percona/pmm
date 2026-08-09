@@ -5,8 +5,7 @@ checks:
     summary: MySQL InnoDB flush method
     description: Check if InnoDB is configured with recommended flush method
     interval: standard
-    category: Configuration
-    subcategory: InnoDB
+    category: Performance
     # author: The Grinch
     technology: MYSQL
     queries:

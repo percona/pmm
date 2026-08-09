@@ -6,8 +6,7 @@ checks:
     description: This check verifies the size of the table bloat in percentage of the total table size and alert accordingly
     technology: POSTGRESQL
     # author: David Gonzales
-    category: Performance
-    subcategory: Vacuum
+    category: Maintenance
     interval: standard
     queries:
       - type: POSTGRESQL_SELECT

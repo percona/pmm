@@ -9,7 +9,6 @@ checks:
     # The key is the CVE reference.
     # The values are a space separated list of postgresql versions where the CVE has been addressed
     category: Security
-    subcategory: Vulnerabilities
     interval: standard
     technology: POSTGRESQL
     queries:

@@ -6,8 +6,7 @@ checks:
     description: This check returns a warning if dbpath is not using xfs filesystem type.
     interval: standard
     technology: MONGODB
-    category: Configuration
-    subcategory: Resources
+    category: Resources
     # author: Parag Bhayani
     queries:
       - type: MONGODB_GETCMDLINEOPTS
