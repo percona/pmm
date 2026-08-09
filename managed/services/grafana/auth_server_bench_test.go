@@ -35,7 +35,7 @@ func BenchmarkAuthServerAuthenticateUser(b *testing.B) {
 
 		b.ReportAllocs()
 		for b.Loop() {
-			got, authErr := s.authenticateUser(b.Context(), req, l)
+			got, authErr := s.authenticateUser(req, l)
 			if authErr != nil {
 				b.Fatalf("authenticateUser returned error: %v", authErr)
 			}
@@ -55,14 +55,14 @@ func BenchmarkAuthServerAuthenticateUser(b *testing.B) {
 		grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).
 			Return(authUser{role: admin, userID: 42}, nil)
 
-		_, authErr := s.authenticateUser(b.Context(), req, l)
+		_, authErr := s.authenticateUser(req, l)
 		if authErr != nil {
 			b.Fatalf("warmup authenticateUser returned error: %v", authErr)
 		}
 
 		b.ReportAllocs()
 		for b.Loop() {
-			got, err := s.authenticateUser(b.Context(), req, l)
+			got, err := s.authenticateUser(req, l)
 			if err != nil {
 				b.Fatalf("authenticateUser returned error: %v", err)
 			}
@@ -89,7 +89,7 @@ func BenchmarkAuthServerAuthenticateUser(b *testing.B) {
 			req.Header.Set("Authorization", "Bearer "+strconv.Itoa(seq))
 			seq++
 
-			got, err := s.authenticateUser(b.Context(), req, l)
+			got, err := s.authenticateUser(req, l)
 			if err != nil {
 				b.Fatalf("authenticateUser returned error: %v", err)
 			}

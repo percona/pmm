@@ -434,7 +434,7 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 				req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, path, nil)
 				req.RemoteAddr = "127.0.0.1:12345"
 
-				got, err := s.authenticateUser(t.Context(), req, l)
+				got, err := s.authenticateUser(req, l)
 				require.NoError(t, err)
 				assert.Equal(t, staticAuthUsers[path], got)
 			})
@@ -452,7 +452,7 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 		want := authUser{role: admin, userID: 77}
 		grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).Return(want, nil).Once()
 
-		got, err := s.authenticateUser(t.Context(), req, l)
+		got, err := s.authenticateUser(req, l)
 		require.NoError(t, err)
 		assert.Equal(t, want, got)
 	})
@@ -468,7 +468,7 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 			Return(authUser{}, &clientError{Code: http.StatusUnauthorized, ErrorMessage: http.StatusText(http.StatusUnauthorized)}).
 			Once()
 
-		got, err := s.authenticateUser(t.Context(), req, l)
+		got, err := s.authenticateUser(req, l)
 		assert.Equal(t, authUser{}, got)
 		require.Error(t, err)
 		requireAuthErrorCode(t, err, codes.Unauthenticated)
@@ -485,7 +485,7 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 		want := authUser{role: admin, userID: 42}
 		grafanaMock.On("getAuthUser", mock.Anything, mock.Anything, mock.Anything).Return(want, nil).Once()
 
-		got, err := s.authenticateUser(t.Context(), req, l)
+		got, err := s.authenticateUser(req, l)
 		require.NoError(t, err)
 		assert.Equal(t, want, got)
 	})
@@ -502,7 +502,7 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 			Return(authUser{}, &clientError{Code: http.StatusUnauthorized, ErrorMessage: http.StatusText(http.StatusUnauthorized)}).
 			Once()
 
-		got, err := s.authenticateUser(t.Context(), req, l)
+		got, err := s.authenticateUser(req, l)
 		assert.Equal(t, authUser{}, got)
 		require.Error(t, err)
 		requireAuthErrorCode(t, err, codes.Unauthenticated)
@@ -519,7 +519,7 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 			Return(userInfo, nil).
 			Once()
 
-		got, err := s.authenticateUser(t.Context(), req, l)
+		got, err := s.authenticateUser(req, l)
 		require.NoError(t, err)
 		assert.Equal(t, userInfo, got)
 		// assert.True(t, len(s.cache) == 0, "cache should be empty on anonymous user")
@@ -621,7 +621,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		hash := getAuthCacheKey(req)
 		s.cache.Set(hash, cachedAuthUser{user: authUser{role: viewer, userID: 11}, authorization: "Bearer cached"})
 
-		got, authErr := s.getAuthUser(t.Context(), req, l)
+		got, authErr := s.getAuthUser(req, l)
 		require.NoError(t, authErr)
 		assert.Equal(t, authUser{role: viewer, userID: 11}, got)
 	})
@@ -643,7 +643,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		want := authUser{role: admin, userID: 99}
 		grafanaMock.On("getAuthUser", mock.Anything, headers, mock.Anything).Return(want, nil).Once()
 
-		got, authErr := s.getAuthUser(t.Context(), req, l)
+		got, authErr := s.getAuthUser(req, l)
 		require.NoError(t, authErr)
 		assert.Equal(t, want, got)
 		item, ok := s.cache.Get(hash)
@@ -662,7 +662,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		want := authUser{role: editor, userID: 8}
 		grafanaMock.On("getAuthUser", mock.Anything, headers, mock.Anything).Return(want, nil).Once()
 
-		got, authErr := s.getAuthUser(t.Context(), req, l)
+		got, authErr := s.getAuthUser(req, l)
 		require.NoError(t, authErr)
 		assert.Equal(t, want, got)
 
@@ -683,7 +683,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 			Return(authUser{}, &clientError{Code: http.StatusUnauthorized, ErrorMessage: http.StatusText(http.StatusUnauthorized)}).
 			Once()
 
-		got, authErr := s.getAuthUser(t.Context(), req, l)
+		got, authErr := s.getAuthUser(req, l)
 		assert.Equal(t, authUser{}, got)
 		require.Error(t, authErr)
 		requireAuthErrorCode(t, authErr, codes.Unauthenticated)

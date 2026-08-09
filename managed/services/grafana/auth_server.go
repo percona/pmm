@@ -496,7 +496,7 @@ func (s *AuthServer) processRequest(ctx context.Context, req *http.Request, l *l
 		return authResult{}, nil
 	}
 
-	user, err := s.authenticateUser(ctx, req, l)
+	user, err := s.authenticateUser(req, l) //nolint:contextcheck
 	if err != nil {
 		l.WithError(err).Error("Failed to authenticate user.")
 		var zero authResult
@@ -536,7 +536,7 @@ var (
 )
 
 // authenticateUser performs identity/authentication only.
-func (s *AuthServer) authenticateUser(ctx context.Context, req *http.Request, l *logrus.Entry) (authUser, error) {
+func (s *AuthServer) authenticateUser(req *http.Request, l *logrus.Entry) (authUser, error) {
 	if isLocalAgentConnection(req) {
 		user, ok := staticAuthUsers[req.URL.Path]
 		if ok {
@@ -546,7 +546,7 @@ func (s *AuthServer) authenticateUser(ctx context.Context, req *http.Request, l 
 		return zero, errStaticAuthErrorPermissionDenied
 	}
 	// Non-local requests require user info retrieval from Grafana.
-	return s.getAuthUser(ctx, req, l)
+	return s.getAuthUser(req, l)
 }
 
 // authorizeUser performs role check only.
@@ -567,7 +567,7 @@ func authorizeUser(minRole role, user authUser, l *logrus.Entry) error {
 
 // getAuthUser retrieves user information from cache (if exists) based on the request's authentication headers,
 // otherwise from Grafana.
-func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (authUser, error) {
+func (s *AuthServer) getAuthUser(req *http.Request, l *logrus.Entry) (authUser, error) {
 	// Marginally faster than req.Header.Get("...")
 	var authorization, cookie string
 	if vals := req.Header["Authorization"]; len(vals) > 0 {
@@ -602,21 +602,13 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 			}
 		}
 
-		// NOTE 1: The first request for a singlefligh.Do() becomes the leader and runs the closure with its ctx.
-		// If this ctx is canceled - it will have no effect on the closure, so that all waiting
-		// requests will be able to get the result.
-
-		// NOTE 2: leader's context is not used here directly in order to allow to finish
+		// NOTE 1: leader's context is not used here directly in order to allow to finish
 		// the request to Grafana, so that even if leader's request is already terminated -
 		// the rest of waiters in singleflight group will receive the response from Grafana.
-		deadLine, ok := ctx.Deadline()
-		if !ok {
-			deadLine = time.Now().Add(authenticationTimeout)
-		}
-		grafanaCtx, cancel := context.WithDeadline(context.Background(), deadLine)
+		grafanaCtx, cancel := context.WithTimeout(context.Background(), authenticationTimeout)
 		defer cancel()
 
-		userAuthInfo, authErr := s.getGrafanaAuthUser(grafanaCtx, extractAuthHeaders(req), l) //nolint:contextcheck
+		userAuthInfo, authErr := s.getGrafanaAuthUser(grafanaCtx, extractAuthHeaders(req), l)
 		if authErr != nil {
 			// IMPORTANT: On error, we call Forget(hash) IMMEDIATELY.
 			// This prevents the error from getting stuck in the internal singleflight map

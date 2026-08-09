@@ -29,6 +29,7 @@ import (
 	"google.golang.org/protobuf/encoding/prototext"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/agent/utils/backoff"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
@@ -36,8 +37,12 @@ import (
 
 const (
 	// Constants for delayed batch updates.
-	updateBatchDelay                = time.Second
-	stateChangeTimeout              = 5 * time.Second
+	updateBatchDelay = time.Second
+	// State update parameters.
+	stateChangeTimeout = 5 * time.Second
+	// Backoff delays to distribute re-try attempts to update agent's state in case of failure (e.g. DB timeout).
+	backoffMinDelay                 = 1 * time.Second
+	backoffMaxDelay                 = 10 * time.Second
 	loggerComponentNameStateUpdater = "state-updater"
 )
 
@@ -104,6 +109,8 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 
 // runStateChangeHandler runs pmm-agent state update loop for given pmm-agent until ctx is canceled or agent is kicked.
 func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgentInfo) {
+	// NOTE: ctx here tied to gRPC stream from /agent.v1.AgentService/Connect handler
+	// and is alive while connection to pmm-agent is up.
 	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
 
 	l.Info("Starting runStateChangeHandler ...")
@@ -116,6 +123,14 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgent
 		panic("stateChangeChan should have capacity 1")
 	}
 
+	// stateUpdateBackoff is used to avoid thundering herd problem when many
+	// pmm-agents are trying to update their state at the same time
+	// and fail due to (e.g. DB or context timeout). It is used to avoid system degradation
+	// (exhausted DB connections in particular).
+	stateUpdateBackoff := backoff.New(backoffMinDelay, backoffMaxDelay)
+	timer := time.NewTimer(updateBatchDelay)
+	defer timer.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -125,22 +140,43 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgent
 			return
 
 		case <-agent.stateChangeChan:
-			// batch several update requests together by delaying the first one
-			sleepCtx, sleepCancel := context.WithTimeout(ctx, updateBatchDelay)
-			<-sleepCtx.Done()
-			sleepCancel()
+			if !timer.Stop() {
+				select {
+				case <-timer.C:
+				default:
+				}
+			}
+			timer.Reset(updateBatchDelay)
 
-			if ctx.Err() != nil {
+			select {
+			// batch several update requests together by delaying the first one
+			case <-timer.C:
+			case <-ctx.Done():
 				return
 			}
 
 			nCtx, cancel := context.WithTimeout(ctx, stateChangeTimeout)
 			err := u.sendSetStateRequest(nCtx, agent)
+			cancel()
 			if err != nil {
 				l.Error(err)
+				if errors.Is(err, context.DeadlineExceeded) {
+					// state update failed due to context timeout
+					// (most likely - waiting for free SQL connection in pool).
+					// Sleep for a while to avoid thundering herd problem when many
+					// pmm-agents are trying to update their state at the same time.
+					timer.Reset(stateUpdateBackoff.Delay())
+					select {
+					case <-timer.C:
+					case <-ctx.Done():
+						return
+					}
+				}
 				u.RequestStateUpdate(ctx, agent.id)
+				continue
 			}
-			cancel()
+			// seems DB came back to normal - reset backoff.
+			stateUpdateBackoff.Reset()
 		}
 	}
 }
@@ -156,22 +192,14 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 	}()
 
 	// Use singleflight to avoid fetching settings for each pmm-agent separately.
-	fetchedSettings, err, _ := u.dbGroup.Do("settings", func() (any, error) {
-		// NOTE 1: The first request for a singlefligh.Do() becomes the leader and runs the closure with its ctx.
-		// If this ctx is canceled - it will have no effect on the closure, so that all waiting
-		// requests will be able to get the result.
-
-		// NOTE 2: leader's context is not used here directly in order to allow to finish
+	fetchedSettings, err, _ := u.dbGroup.Do("settings", func() (any, error) { //nolint:contextcheck
+		// NOTE 1: leader's context is not used here directly in order to allow to finish
 		// the request to DB, so that even if leader's request is already terminated -
 		// the rest of waiters in singleflight group will receive the response from DB.
-		deadLine, ok := ctx.Deadline()
-		if !ok {
-			deadLine = time.Now().Add(stateChangeTimeout)
-		}
-		settingsCtx, cancel := context.WithDeadline(context.Background(), deadLine)
+		settingsCtx, cancel := context.WithTimeout(context.Background(), stateChangeTimeout)
 		defer cancel()
 
-		sett, fetchErr := models.GetSettings(u.db.WithContext(settingsCtx)) //nolint:contextcheck
+		sett, fetchErr := models.GetSettings(u.db.WithContext(settingsCtx))
 		if fetchErr != nil {
 			// IMPORTANT: On error, we call Forget(hash) IMMEDIATELY.
 			// This prevents the error from getting stuck in the internal singleflight map
@@ -210,21 +238,13 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 	// Use singleflight to avoid fetching settings for each pmm-agent separately in cases
 	// when several pmm-agents are running on the same node.
 	nodeKey := "node/" + pmmAgentInfo.runsOnNodeID
-	fetchedNode, err, _ := u.dbGroup.Do(nodeKey, func() (any, error) {
-		// NOTE 1: The first request for a singlefligh.Do() becomes the leader and runs the closure with its ctx.
-		// If this ctx is canceled - it will have no effect on the closure, so that all waiting
-		// requests will be able to get the result.
-
-		// NOTE 2: leader's context is not used here directly in order to allow to finish
+	fetchedNode, err, _ := u.dbGroup.Do(nodeKey, func() (any, error) { //nolint:contextcheck
+		// NOTE 1: leader's context is not used here directly in order to allow to finish
 		// the request to DB, so that even if leader's request is already terminated -
 		// the rest of waiters in singleflight group will receive the response from DB.
-		deadLine, ok := ctx.Deadline()
-		if !ok {
-			deadLine = time.Now().Add(stateChangeTimeout)
-		}
-		nodeCtx, cancel := context.WithDeadline(context.Background(), deadLine)
+		nodeCtx, cancel := context.WithTimeout(context.Background(), stateChangeTimeout)
 		defer cancel()
-		node, fetchErr := models.FindNodeByID(u.db.WithContext(nodeCtx), pmmAgentInfo.runsOnNodeID) //nolint:contextcheck
+		node, fetchErr := models.FindNodeByID(u.db.WithContext(nodeCtx), pmmAgentInfo.runsOnNodeID)
 		if fetchErr != nil {
 			// IMPORTANT: On error, we call Forget(nodeKey) IMMEDIATELY.
 			// This prevents the error from getting stuck in the internal singleflight map
