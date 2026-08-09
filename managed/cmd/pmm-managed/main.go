@@ -1342,4 +1342,3 @@ func parseLoggerConfig(level string, debug, trace bool) logrus.Level {
 
 	return logrus.InfoLevel
 }
-

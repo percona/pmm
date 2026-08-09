@@ -146,7 +146,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgent
 }
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
-func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentInfo) error { //nolint:gocognit,cyclop,maintidx
+func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmmAgentInfo) error { //nolint:gocognit,cyclop,maintidx
 	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
 	start := time.Now()
 	defer func() {
@@ -154,7 +154,10 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 			l.Warnf("sendSetStateRequest took %s.", dur)
 		}
 	}()
-	pmmAgent, err := models.FindAgentByID(u.db.WithContext(ctx), agent.id)
+	// It is completely OK to re-use the same Querier for multiple queries, as it is safe for concurrent use
+	// and creates less preasure on GC.
+	q := u.db.WithContext(ctx)
+	pmmAgent, err := models.FindAgentByID(q, pmmAgentInfo.id)
 	if err != nil {
 		return fmt.Errorf("failed to get PMM Agent: %w", err)
 	}
@@ -199,14 +202,53 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 		return errors.New("failed to get settings")
 	}
 	filters := models.AgentFilters{
-		PMMAgentID:  agent.id,
+		PMMAgentID:  pmmAgentInfo.id,
 		IgnoreNomad: !settings.IsNomadEnabled(),
 		// fetch enabled only
 		Disabled: new(false),
 	}
-	agents, err := models.FindAgents(u.db.WithContext(ctx), filters)
+	agents, err := models.FindAgents(q, filters)
 	if err != nil {
 		return fmt.Errorf("failed to collect agents: %w", err)
+	}
+
+	// pre-fetch node info since it's common for all subagents of particluar pmm-agent.
+	// Use singleflight to avoid fetching settings for each pmm-agent separately in cases
+	// when several pmm-agents are running on the same node.
+	nodeKey := "node/" + pointer.GetString(pmmAgent.RunsOnNodeID)
+	fetchedNode, err, _ := u.dbGroup.Do(nodeKey, func() (any, error) {
+		// NOTE 1: The first request for a singlefligh.Do() becomes the leader and runs the closure with its ctx.
+		// If this ctx is canceled - it will have no effect on the closure, so that all waiting
+		// requests will be able to get the result.
+
+		// NOTE 2: leader's context is not used here directly in order to allow to finish
+		// the request to DB, so that even if leader's request is already terminated -
+		// the rest of waiters in singleflight group will receive the response from DB.
+		deadLine, ok := ctx.Deadline()
+		if !ok {
+			deadLine = time.Now().Add(stateChangeTimeout)
+		}
+		nodeCtx, cancel := context.WithDeadline(context.Background(), deadLine)
+		defer cancel()
+		node, fetchErr := models.FindNodeByID(u.db.WithContext(nodeCtx), pointer.GetString(pmmAgent.RunsOnNodeID))
+		if fetchErr != nil {
+			// IMPORTANT: On error, we call Forget(nodeKey) IMMEDIATELY.
+			// This prevents the error from getting stuck in the internal singleflight map
+			// and allows the next request to retry immediately (e.g. if the DB is being restored).
+			u.dbGroup.Forget(nodeKey)
+			return nil, fetchErr
+		}
+		return node, nil
+	})
+	if err != nil {
+		return fmt.Errorf("failed to fetch node info: %w", err)
+	}
+
+	node, ok := fetchedNode.(*models.Node)
+	if !ok {
+		l.WithField("node_id", pointer.GetString(pmmAgent.RunsOnNodeID)).
+			Errorf("failed to cast Node: %T", fetchedNode)
+		return fmt.Errorf("failed to fetch node %s info", pointer.GetString(pmmAgent.RunsOnNodeID))
 	}
 
 	redactMode := redactSecrets
@@ -222,16 +264,12 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 		case models.PMMAgentType:
 			continue
 		case models.VMAgentType:
-			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(u.db.WithContext(ctx), agent.id)
+			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(q, pmmAgentInfo.id)
 			if err != nil {
-				return fmt.Errorf("cannot get agent scrape config for agent %s: %w", agent.id, err)
+				return fmt.Errorf("cannot get agent scrape config for agent %s: %w", pmmAgentInfo.id, err)
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 		case models.NomadAgentType:
-			node, err := models.FindNodeByID(u.db.WithContext(ctx), pointer.GetString(row.NodeID))
-			if err != nil {
-				return err
-			}
 			params, err := nomadClientConfig(u.nomad, node, row)
 			if err != nil {
 				return err
@@ -239,11 +277,6 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 			agentProcesses[row.AgentID] = params
 
 		case models.NodeExporterType:
-			node, err := models.FindNodeByID(u.db.WithContext(ctx), pointer.GetString(row.NodeID))
-			if err != nil {
-				return err
-			}
-
 			params, err := nodeExporterConfig(node, row, pmmAgentVersion)
 			if err != nil {
 				return err
@@ -251,17 +284,17 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 			agentProcesses[row.AgentID] = params
 
 		case models.RDSExporterType:
-			node, err := models.FindNodeByID(u.db.WithContext(ctx), pointer.GetString(row.NodeID))
+			rdsNode, err := models.FindNodeByID(q, pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
-			rdsExporters[node] = row
+			rdsExporters[rdsNode] = row
 
 		case models.ExternalExporterType:
 			// ignore
 
 		case models.AzureDatabaseExporterType:
-			service, err := models.FindServiceByID(u.db.WithContext(ctx), pointer.GetString(row.ServiceID))
+			service, err := models.FindServiceByID(q, pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
 			}
@@ -277,11 +310,10 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
 			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
 			models.RTAMongoDBAgentType:
-			service, err := models.FindServiceByID(u.db.WithContext(ctx), pointer.GetString(row.ServiceID))
+			service, err := models.FindServiceByID(q, pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
 			}
-			node, _ := models.FindNodeByID(u.db.WithContext(ctx), pointer.GetString(pmmAgent.RunsOnNodeID))
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
 				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
@@ -344,7 +376,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 
 		for awsAccessKey, exporters := range groupedRdsExporters {
 			// TODO: split by 50 exporters per group
-			groupID := u.r.roster.add(agent.id, rdsPrefix+awsAccessKey, exporters)
+			groupID := u.r.roster.add(pmmAgentInfo.id, rdsPrefix+awsAccessKey, exporters)
 			c, err := rdsExporterConfig(exporters, redactMode, pmmAgentVersion)
 			if err != nil {
 				return err
@@ -364,7 +396,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 		l.Debugf("sendSetStateRequest:\n%s\n", prototext.Format(logger.RedactMessage(state)))
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(state)
+	resp, err := pmmAgentInfo.channel.SendAndWaitResponse(state)
 	if err != nil {
 		return err
 	}

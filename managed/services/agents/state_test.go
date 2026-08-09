@@ -83,7 +83,7 @@ func TestRequestStateUpdateDoesNotBlockWhenUpdateIsAlreadyQueued(t *testing.T) {
 		t.Fatal("RequestStateUpdate should not block when update is already queued")
 	}
 
-	assert.Equal(t, 1, len(agent.stateChangeChan))
+	assert.Len(t, agent.stateChangeChan, 1)
 }
 
 func TestUpdateAgentsStateQueuesUpdatesForAllConnectedAgents(t *testing.T) {
@@ -150,4 +150,3 @@ func TestUpdateAgentsStateReturnsErrorWhenFetchingAgentsFails(t *testing.T) {
 	require.ErrorContains(t, err, "cannot find pmmAgentsIDs for AgentsState update")
 	require.NoError(t, mock.ExpectationsWereMet())
 }
-
