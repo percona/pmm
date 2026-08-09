@@ -1224,8 +1224,8 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 
 	db.SetConnMaxLifetime(params.ConnMaxLifetime)
 	db.SetConnMaxIdleTime(params.ConnMaxIdleTime)
-	db.SetMaxIdleConns(params.MaxIdleConns)
-	db.SetMaxOpenConns(params.MaxOpenConns)
+	db.SetMaxIdleConns(int(params.MaxIdleConns))
+	db.SetMaxOpenConns(int(params.MaxOpenConns))
 
 	return db, nil
 }
@@ -1257,8 +1257,8 @@ type SetupDBParams struct {
 	MigrationVersion *int
 	ConnMaxLifetime  time.Duration
 	ConnMaxIdleTime  time.Duration
-	MaxIdleConns     int
-	MaxOpenConns     int
+	MaxIdleConns int32
+	MaxOpenConns int32
 }
 
 // SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.

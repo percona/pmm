@@ -161,14 +161,14 @@ const (
 
 var (
 	// Internal DB params.
-	internalDbMaxOpenConns = max(internalDbMinOpenConns, runtime.GOMAXPROCS(0)*internalDbOpenConnsPerP)
+	internalDbMaxOpenConns = int32(max(internalDbMinOpenConns, runtime.GOMAXPROCS(0)*internalDbOpenConnsPerP))
 	internalDbMaxIdleConns = internalDbMaxOpenConns
 
 	// API DB params.
 	// Sized to give DB-bound auth/role/settings paths enough headroom during
 	// a reconnect storm from a fleet of agents, while staying well within
 	// Postgres max_connections (set to 2000 by PMM Server).
-	apiDbMaxOpenConns = max(apiDbMinOpenConns, runtime.GOMAXPROCS(0)*apiDbOpenConnsPerP)
+	apiDbMaxOpenConns = int32(max(apiDbMinOpenConns, runtime.GOMAXPROCS(0)*apiDbOpenConnsPerP))
 	apiDbMaxIdleConns = apiDbMaxOpenConns
 )
 
@@ -1083,7 +1083,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	jobsService := agents.NewJobsService(internalDB, agentsRegistry, backupRetentionService)
-	agentsStateUpdater := agents.NewStateUpdater(apiDB, agentsRegistry, vmdb, vmParams, nomad)
+	agentsStateUpdater := agents.NewStateUpdater(apiDB, agentsRegistry, vmdb, vmParams, nomad, int32(apiDbMaxOpenConns))
 	// Agents service handles pmm-agent <-> pmm-server communication logic.
 	// Shall use apiDB connection pool.
 	agentsHandler := agents.NewHandler(apiDB, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService, pmmAgentsConnectionsLimiter)

@@ -33,6 +33,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/utils/rateLimiter"
 )
 
 const (
@@ -56,16 +57,24 @@ type StateUpdater struct {
 	// dbGroup deduplicates concurrent requests to DB (for example models.GetSettings).
 	// In case of massive pmm-agents connection attempts  no need to query DB for each of them, just one is enough.
 	dbGroup singleflight.Group
+	//
+	stateUpdateRateLimiter *rateLimiter.ConcurrencyLimiter
 }
 
 // NewStateUpdater creates new agent state updater.
-func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParams victoriaMetricsParams, nomad nomad) *StateUpdater {
+func NewStateUpdater(db *reform.DB,
+	r *Registry,
+	vmdb prometheusService,
+	vmParams victoriaMetricsParams,
+	nomad nomad,
+	maxConcurrentUpdates int32) *StateUpdater {
 	return &StateUpdater{
 		db:       db,
 		r:        r,
 		vmdb:     vmdb,
 		vmParams: vmParams,
 		nomad:    nomad,
+		stateUpdateRateLimiter: rateLimiter.NewConcurrencyLimiter(maxConcurrentUpdates),
 	}
 }
 
@@ -107,6 +116,8 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 	return wg.Wait()
 }
 
+var errStateUpdateLimitExceeded = errors.New("state update limit exceeded")
+
 // runStateChangeHandler runs pmm-agent state update loop for given pmm-agent until ctx is canceled or agent is kicked.
 func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgentInfo) {
 	// NOTE: ctx here tied to gRPC stream from /agent.v1.AgentService/Connect handler
@@ -130,6 +141,24 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgent
 	stateUpdateBackoff := backoff.New(backoffMinDelay, backoffMaxDelay)
 	timer := time.NewTimer(updateBatchDelay)
 	defer timer.Stop()
+
+	stateUpdateErrorHandler := func(ctx context.Context, hErr error) {
+		l.Error(hErr)
+		if errors.Is(hErr, context.DeadlineExceeded) ||
+			errors.Is(hErr, errStateUpdateLimitExceeded) {
+			// state update failed due to context timeout
+			// (most likely - waiting for free SQL connection in pool).
+			// Sleep for a while to avoid thundering herd problem when many
+			// pmm-agents are trying to update their state at the same time.
+			timer.Reset(stateUpdateBackoff.Delay())
+			select {
+			case <-timer.C:
+			case <-ctx.Done():
+				return
+			}
+		}
+		u.RequestStateUpdate(ctx, agent.id)
+	}
 
 	for {
 		select {
@@ -155,24 +184,16 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgent
 				return
 			}
 
+			if !u.stateUpdateRateLimiter.TryAcquire() {
+				stateUpdateErrorHandler(ctx, errStateUpdateLimitExceeded)
+				continue
+			}
 			nCtx, cancel := context.WithTimeout(ctx, stateChangeTimeout)
 			err := u.sendSetStateRequest(nCtx, agent)
 			cancel()
+			u.stateUpdateRateLimiter.Release()
 			if err != nil {
-				l.Error(err)
-				if errors.Is(err, context.DeadlineExceeded) {
-					// state update failed due to context timeout
-					// (most likely - waiting for free SQL connection in pool).
-					// Sleep for a while to avoid thundering herd problem when many
-					// pmm-agents are trying to update their state at the same time.
-					timer.Reset(stateUpdateBackoff.Delay())
-					select {
-					case <-timer.C:
-					case <-ctx.Done():
-						return
-					}
-				}
-				u.RequestStateUpdate(ctx, agent.id)
+				stateUpdateErrorHandler(ctx, err)
 				continue
 			}
 			// seems DB came back to normal - reset backoff.
