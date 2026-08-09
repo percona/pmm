@@ -319,6 +319,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				AWSOptions: models.AWSOptions{
 					AWSAccessKey:               req.AwsAccessKey,
 					AWSSecretKey:               req.AwsSecretKey,
+					AWSRoleARN:                 req.AwsRoleArn,
 					RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
 					RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 				},
