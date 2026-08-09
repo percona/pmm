@@ -118,6 +118,7 @@ var (
 		(*durationpb.Duration)(nil), // 1: google.protobuf.Duration
 	}
 )
+
 var file_common_metrics_resolutions_proto_depIdxs = []int32{
 	1, // 0: common.MetricsResolutions.hr:type_name -> google.protobuf.Duration
 	1, // 1: common.MetricsResolutions.mr:type_name -> google.protobuf.Duration

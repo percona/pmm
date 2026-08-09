@@ -135,6 +135,7 @@ var (
 		(*descriptorpb.FieldOptions)(nil), // 1: google.protobuf.FieldOptions
 	}
 )
+
 var file_extensions_v1_redact_proto_depIdxs = []int32{
 	1, // 0: extensions.v1.sensitive:extendee -> google.protobuf.FieldOptions
 	0, // 1: extensions.v1.sensitive:type_name -> extensions.v1.RedactType

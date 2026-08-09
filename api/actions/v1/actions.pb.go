@@ -2649,6 +2649,7 @@ var (
 		(*StartServiceActionResponse)(nil),                   // 32: actions.v1.StartServiceActionResponse
 	}
 )
+
 var file_actions_v1_actions_proto_depIdxs = []int32{
 	3,  // 0: actions.v1.StartServiceActionRequest.mysql_explain:type_name -> actions.v1.StartMySQLExplainActionParams
 	5,  // 1: actions.v1.StartServiceActionRequest.mysql_explain_json:type_name -> actions.v1.StartMySQLExplainJSONActionParams
