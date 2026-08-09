@@ -2,7 +2,7 @@
 checks:
   - version: 2
     name: mysql_timezone
-    summary: MySQL configuration check
+    summary: MySQL time zone tables are not loaded
     description: Checks if time zone is correctly loaded.
     interval: standard
     technology: MYSQL

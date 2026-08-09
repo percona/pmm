@@ -2,7 +2,7 @@
 checks:
   - version: 2
     name: mongodb_unsupported_version
-    summary: MongoDB Unspported version check
+    summary: MongoDB Unsupported version check
     description: This check returns errors if your current PSMDB or MongoDB version is not supported.
     interval: standard
     technology: MONGODB

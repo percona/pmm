@@ -2,7 +2,7 @@
 checks:
   - version: 2
     name: mysql_config_binlogs_checksummed
-    summary: Server is not configured to enforce data integrity
+    summary: Binlogs are not checksummed
     description: Please consider setting binlog_checksum=CRC32 to improve consistency and reliability.
     interval: standard
     category: Configuration

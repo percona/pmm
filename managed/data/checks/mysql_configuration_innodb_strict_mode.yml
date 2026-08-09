@@ -3,7 +3,7 @@ checks:
   - version: 2
     name: mysql_configuration_innodb_strict_mode
     summary: InnoDB strict mode
-    description: This check warns about password lifetime.
+    description: Warns if innodb_strict_mode is disabled.
     interval: standard
     category: Configuration
     subcategory: InnoDB
