@@ -40,28 +40,24 @@ import (
 )
 
 const (
-	defaultNodeEventChanSize  = 5
-	defaultRaftRetries        = 3
-	defaultTransportTimeout   = 10 * time.Second
-	defaultLeaveTimeout       = 5 * time.Second
-	defaultTickerInterval     = 5 * time.Second
-	defaultApplyTimeout       = 3 * time.Second
-	defaultRaftDataDir        = "/srv/ha"
-	defaultRaftDataDirPerm    = 0o750
-	defaultSnapshotRetention  = 3
-	defaultSnapshotThreshold  = 8192
-	defaultTrailingLogs       = 10240
-	defaultHeartbeatTimeout   = 1000 * time.Millisecond
-	defaultElectionTimeout    = 1000 * time.Millisecond
-	defaultCommitTimeout      = 50 * time.Millisecond
-	defaultLeaderLeaseTimeout = 500 * time.Millisecond
-	defaultSnapshotInterval   = 120 * time.Second
-	defaultServerOpTimeout    = 10 * time.Second
-	defaultDNSLookupTimeout   = 3 * time.Second
-
-	// serviceAccountNamespaceFile is auto-projected by Kubernetes into every pod
-	// that mounts a service account token (the default), same mechanism used by
-	// client-go's in-cluster config to detect the current namespace.
+	defaultNodeEventChanSize    = 5
+	defaultRaftRetries          = 3
+	defaultTransportTimeout     = 10 * time.Second
+	defaultLeaveTimeout         = 5 * time.Second
+	defaultTickerInterval       = 5 * time.Second
+	defaultApplyTimeout         = 3 * time.Second
+	defaultRaftDataDir          = "/srv/ha"
+	defaultRaftDataDirPerm      = 0o750
+	defaultSnapshotRetention    = 3
+	defaultSnapshotThreshold    = 8192
+	defaultTrailingLogs         = 10240
+	defaultHeartbeatTimeout     = 1000 * time.Millisecond
+	defaultElectionTimeout      = 1000 * time.Millisecond
+	defaultCommitTimeout        = 50 * time.Millisecond
+	defaultLeaderLeaseTimeout   = 500 * time.Millisecond
+	defaultSnapshotInterval     = 120 * time.Second
+	defaultServerOpTimeout      = 10 * time.Second
+	defaultDNSLookupTimeout     = 3 * time.Second
 	serviceAccountNamespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 )
 
