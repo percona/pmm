@@ -102,11 +102,8 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 
 // runStateChangeHandler runs pmm-agent state update loop for given pmm-agent until ctx is canceled or agent is kicked.
 func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgentInfo) {
-	l := logger.Get(ctx).
-		WithField("component", loggerComponentNameStateUpdater).
-		WithField("pmm_agent_id", agent.id)
+	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
 
-	ctx = logger.SetEntry(ctx, l)
 	l.Info("Starting runStateChangeHandler ...")
 	defer l.Info("Done runStateChangeHandler.")
 
