@@ -226,6 +226,13 @@ message ChangeAdvisorChecksRequest {
 
 message ChangeAdvisorChecksResponse {}
 
+message SendTestAdvisorNotificationRequest {
+  // Addresses the sample report is emailed to.
+  repeated string email_addresses = 1;
+}
+
+message SendTestAdvisorNotificationResponse {}
+
 // Insight represents a single persisted Advisor check run against a service.
 message Insight {
   // Unique identifier of the history record.
@@ -543,6 +550,17 @@ service AdvisorService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Delete Advisor Check"
       description: "Deletes a user-authored advisor check. Percona-shipped checks cannot be deleted."
+    };
+  }
+  // SendTestAdvisorNotification emails a sample Advisor report to the given addresses.
+  rpc SendTestAdvisorNotification(SendTestAdvisorNotificationRequest) returns (SendTestAdvisorNotificationResponse) {
+    option (google.api.http) = {
+      post: "/v1/advisors/notifications:test"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Send Test Advisor Notification"
+      description: "Emails a sample Advisor report to the given addresses so that email delivery can be verified. It runs no checks and stores nothing."
     };
   }
 }

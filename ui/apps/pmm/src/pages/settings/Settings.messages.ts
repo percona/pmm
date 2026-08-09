@@ -98,6 +98,12 @@ export const Messages = {
     advisorEmailsLabel: 'Notification recipients',
     advisorEmailsTooltip:
       'Email addresses the summaries are sent to, separated by commas.',
+    sendTestEmail: 'Send test email',
+    sendTestEmailPending: 'Sending…',
+    sendTestEmailTooltip:
+      'Sends a sample report to the recipients above, using the addresses currently in the field. No checks are run.',
+    sendTestEmailSuccess: (recipients: string) =>
+      `Test email sent to ${recipients}`,
   },
   metrics: {
     label: 'Metrics resolution',

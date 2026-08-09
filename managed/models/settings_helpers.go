@@ -344,7 +344,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 	}
 
-	err := validateAdvisorNotificationEmailAddresses(params.AdvisorNotificationEmailAddresses)
+	err := ValidateAdvisorNotificationEmailAddresses(params.AdvisorNotificationEmailAddresses)
 	if err != nil {
 		return err
 	}
@@ -372,9 +372,9 @@ func validateAdvisorSeverityThreshold(s common.Severity) error {
 // turn every run completion into a mass mailing.
 const maxAdvisorNotificationEmailAddresses = 20
 
-// validateAdvisorNotificationEmailAddresses accepts a nil or empty list ("do not change" and
+// ValidateAdvisorNotificationEmailAddresses accepts a nil or empty list ("do not change" and
 // "clear" respectively) and otherwise requires every entry to be a bare, parseable address.
-func validateAdvisorNotificationEmailAddresses(addresses []string) error {
+func ValidateAdvisorNotificationEmailAddresses(addresses []string) error {
 	if len(addresses) > maxAdvisorNotificationEmailAddresses {
 		return fmt.Errorf("advisor_notification_email_addresses: at most %d addresses are allowed, got %d",
 			maxAdvisorNotificationEmailAddresses, len(addresses))

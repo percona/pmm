@@ -73,6 +73,8 @@ type ClientService interface {
 
 	MarkInsightsRead(params *MarkInsightsReadParams, opts ...ClientOption) (*MarkInsightsReadOK, error)
 
+	SendTestAdvisorNotification(params *SendTestAdvisorNotificationParams, opts ...ClientOption) (*SendTestAdvisorNotificationOK, error)
+
 	StartAdvisorChecks(params *StartAdvisorChecksParams, opts ...ClientOption) (*StartAdvisorChecksOK, error)
 
 	TestAdvisorCheck(params *TestAdvisorCheckParams, opts ...ClientOption) (*TestAdvisorCheckOK, error)
@@ -562,6 +564,50 @@ func (a *Client) MarkInsightsRead(params *MarkInsightsReadParams, opts ...Client
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*MarkInsightsReadDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+SendTestAdvisorNotification sends test advisor notification
+
+Emails a sample Advisor report to the given addresses so that email delivery can be verified. It runs no checks and stores nothing.
+*/
+func (a *Client) SendTestAdvisorNotification(params *SendTestAdvisorNotificationParams, opts ...ClientOption) (*SendTestAdvisorNotificationOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewSendTestAdvisorNotificationParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "SendTestAdvisorNotification",
+		Method:             "POST",
+		PathPattern:        "/v1/advisors/notifications:test",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &SendTestAdvisorNotificationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*SendTestAdvisorNotificationOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*SendTestAdvisorNotificationDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

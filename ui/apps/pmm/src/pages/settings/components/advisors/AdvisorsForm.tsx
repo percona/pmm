@@ -1,3 +1,4 @@
+import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
@@ -8,6 +9,7 @@ import { FC, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
+import { useSendTestAdvisorNotification } from 'hooks/api/useAdvisors';
 import { Messages } from '../../Settings.messages';
 import { MAX_DAYS, MIN_DAYS } from '../advanced/Advanced.constants';
 import {
@@ -15,6 +17,7 @@ import {
   MIN_ADVISOR_CHECK_INTERVAL,
   STT_CHECK_INTERVALS,
 } from './Advisors.constants';
+import { splitEmailAddresses } from './Advisors.utils';
 import { AdvisorsFormProps } from './AdvisorsForm.types';
 import { AdvisorsFormValues, advisorsSchema } from './AdvisorsForm.schema';
 import { toFormValues, toPayload } from './AdvisorsForm.utils';
@@ -24,6 +27,8 @@ import { formControlClasses } from '@mui/material/FormControl';
 
 export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
   const { mutateAsync: updateSettings } = useUpdateSettings();
+  const { mutate: sendTestEmail, isPending: isSendingTestEmail } =
+    useSendTestAdvisorNotification();
 
   const methods = useForm<AdvisorsFormValues>({
     resolver: zodResolver(advisorsSchema),
@@ -31,10 +36,23 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
     mode: 'onChange',
   });
 
-  const { handleSubmit, reset, watch } = methods;
+  const {
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = methods;
 
   const sttEnabled = watch('stt');
   const advisorNotificationsEnabled = watch('advisorNotifications');
+
+  // the test goes to the addresses currently in the field, unsaved edits
+  // included: verifying delivery is what the operator is about to rely on
+  const testRecipients = splitEmailAddresses(
+    watch('advisorNotificationEmails')
+  );
+  const canSendTestEmail =
+    testRecipients.length > 0 && !errors.advisorNotificationEmails;
 
   useEffect(() => {
     reset(toFormValues(settings));
@@ -56,6 +74,17 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
   };
 
   const m = Messages.advisors;
+
+  const onSendTestEmail = () =>
+    sendTestEmail(
+      { emailAddresses: testRecipients },
+      {
+        onSuccess: () =>
+          enqueueSnackbar(m.sendTestEmailSuccess(testRecipients.join(', ')), {
+            variant: 'success',
+          }),
+      }
+    );
 
   return (
     <FormProvider {...methods}>
@@ -193,6 +222,26 @@ export const AdvisorsForm: FC<AdvisorsFormProps> = ({ settings }) => {
             </Stack>
           )}
         </Stack>
+
+        {sttEnabled && advisorNotificationsEnabled && (
+          <Stack
+            gap={1}
+            alignItems="flex-start"
+            data-testid="advisor-test-email"
+          >
+            <Button
+              variant="outlined"
+              onClick={onSendTestEmail}
+              disabled={!canSendTestEmail || isSendingTestEmail}
+              data-testid="advisor-test-email-button"
+            >
+              {isSendingTestEmail ? m.sendTestEmailPending : m.sendTestEmail}
+            </Button>
+            <Typography variant="caption" color="text.secondary">
+              {m.sendTestEmailTooltip}
+            </Typography>
+          </Stack>
+        )}
 
         <SettingsSubmitButton testId="advisors-button" />
       </Stack>

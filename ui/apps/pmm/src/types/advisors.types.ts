@@ -141,6 +141,10 @@ export enum AdvisorCheckTriggeredBy {
   scheduler = 'ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER',
 }
 
+export interface SendTestAdvisorNotificationRequest {
+  emailAddresses: string[];
+}
+
 export interface StartAdvisorChecksResponse {
   runId: string;
 }

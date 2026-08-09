@@ -442,6 +442,24 @@ func (_m *mockChecksService) MarkInsightsReadByFilters(ctx context.Context, filt
 	return r0
 }
 
+// SendTestNotification provides a mock function with given fields: recipients
+func (_m *mockChecksService) SendTestNotification(recipients []string) error {
+	ret := _m.Called(recipients)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SendTestNotification")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]string) error); ok {
+		r0 = rf(recipients)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // StartChecks provides a mock function with given fields: checkNames, serviceIDs
 func (_m *mockChecksService) StartChecks(checkNames []string, serviceIDs []string) (string, error) {
 	ret := _m.Called(checkNames, serviceIDs)

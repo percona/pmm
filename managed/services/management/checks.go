@@ -548,6 +548,34 @@ func (s *ChecksAPIService) TestAdvisorCheck(ctx context.Context, req *advisorsv1
 	}, nil
 }
 
+// SendTestAdvisorNotification emails a sample Advisor report to the given addresses, so that email
+// delivery can be verified without waiting for a run to produce findings.
+func (s *ChecksAPIService) SendTestAdvisorNotification(
+	_ context.Context,
+	req *advisorsv1.SendTestAdvisorNotificationRequest,
+) (*advisorsv1.SendTestAdvisorNotificationResponse, error) {
+	if len(req.EmailAddresses) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "At least one email address is required.")
+	}
+
+	err := models.ValidateAdvisorNotificationEmailAddresses(req.EmailAddresses)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "%v.", err)
+	}
+
+	err = s.checksService.SendTestNotification(req.EmailAddresses)
+	if err != nil {
+		// SMTP comes from the Grafana environment and cannot be fixed from this
+		// page, so the cause has to reach the operator intact
+		if errors.Is(err, services.ErrSMTPNotConfigured) {
+			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
+		}
+		return nil, status.Errorf(codes.Internal, "Failed to send the test email: %v.", err)
+	}
+
+	return &advisorsv1.SendTestAdvisorNotificationResponse{}, nil
+}
+
 // ListAdvisorCheckTestTargets returns the services an advisor check of the given technology can be tested against.
 func (s *ChecksAPIService) ListAdvisorCheckTestTargets(
 	ctx context.Context,

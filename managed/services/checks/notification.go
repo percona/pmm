@@ -20,6 +20,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
+
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/pi/common"
 )
@@ -88,6 +90,123 @@ func (s *Service) maybeSendAdvisorNotification(ctx context.Context, runID string
 		return
 	}
 	s.l.Infof("Advisor notification: emailed %d insight(s) for run %s", len(texts), runID)
+}
+
+// SendTestNotification emails a sample Advisor report to the given recipients so that email
+// delivery can be verified without waiting for a run to produce findings. It executes no checks
+// and persists nothing; the findings in the report are made up.
+func (s *Service) SendTestNotification(recipients []string) error {
+	threshold := models.AdvisorNotificationSeverityDefault
+	settings, err := models.GetSettings(s.db.Querier)
+	if err != nil {
+		// the report only needs the threshold to describe itself, so a settings
+		// failure must not stand between the operator and a delivery test
+		s.l.Warnf("Advisor test notification: failed to load settings, reporting the default threshold: %v", err)
+	} else if settings.AdvisorNotifications.SeverityThreshold != common.Unknown {
+		threshold = settings.AdvisorNotifications.SeverityThreshold
+	}
+
+	runID := uuid.New().String()
+	sCounts := make(map[common.Severity]int)
+	tCounts := make(map[models.ServiceType]int)
+	texts := make([]string, 0, len(sampleInsights))
+	for _, sample := range sampleInsights {
+		r := sample(runID)
+		severity := common.Severity(r.Severity)
+		// mirror the real report's filter, so the sample shows what this
+		// threshold would actually deliver
+		if severity > threshold {
+			continue
+		}
+		text, err := insightToText(r)
+		if err != nil {
+			return fmt.Errorf("failed to format the sample insight: %w", err)
+		}
+		sCounts[severity]++
+		tCounts[r.ServiceType]++
+		texts = append(texts, text)
+	}
+
+	subject := fmt.Sprintf("[Test] PMM Advisor Insights: %d sample finding(s)", len(texts))
+	body := testReportPreamble + buildAdvisorEmailReport(
+		runID, models.CheckTriggeredByUser, threshold, sCounts, tCounts, texts,
+	)
+
+	return s.sendAdvisorEmail(recipients, subject, body)
+}
+
+// testReportPreamble opens the test email, so that a recipient who was not the one pressing the
+// button cannot mistake the made-up findings below it for real ones.
+const testReportPreamble = "This is a test message sent from the PMM settings to confirm that " +
+	"Advisor notifications reach this address. The findings below are samples: no Advisor checks " +
+	"were run, and nothing was recorded in PMM.\n\n"
+
+// sampleInsights builds one made-up finding per advisor severity level, covering all three
+// technologies, so a test report exercises the same formatting a real one does. Each takes the run
+// ID so the sample reads consistently.
+var sampleInsights = []func(runID string) *models.Insight{
+	func(runID string) *models.Insight {
+		return sampleInsight(runID, models.Severity(common.Critical), "mongodb_auth", "Security",
+			"mongo-prod-1", models.MongoDBServiceType,
+			"MongoDB authentication is disabled",
+			"Warns if MongoDB authentication is disabled.",
+			"https://docs.mongodb.com/manual/tutorial/enable-authentication/")
+	},
+	func(runID string) *models.Insight {
+		return sampleInsight(runID, models.Severity(common.Error), "postgresql_fsync", "Durability",
+			"pg-prod-1", models.PostgreSQLServiceType,
+			"PostgreSQL fsync is set to off",
+			"This check returns an error if the fsync configuration option is off which can lead to database corruption.",
+			"https://www.postgresql.org/docs/current/runtime-config-wal.html")
+	},
+	func(runID string) *models.Insight {
+		return sampleInsight(runID, models.Severity(common.Warning), "mysql_version", "Versions",
+			"mysql-prod-1", models.MySQLServiceType,
+			"MySQL version 8.0.36 is not the latest",
+			"This check returns warnings if MySQL, Percona Server for MySQL, or MariaDB version is not the latest one.",
+			"https://www.percona.com/downloads")
+	},
+	func(runID string) *models.Insight {
+		return sampleInsight(runID, models.Severity(common.Info), "mysql_tables_without_pk", "Schema & indexes",
+			"mysql-prod-1", models.MySQLServiceType,
+			"2 table(s) have no primary key",
+			"Checks tables without primary keys.",
+			"https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/mysql-tables-without-pk.html")
+	},
+}
+
+// sampleInsight fills the fields insightToText renders, so a sample formats exactly like a real
+// insight. Identifiers are marked as samples rather than looking like real IDs.
+func sampleInsight(
+	runID string,
+	severity models.Severity,
+	checkName, category, serviceName string,
+	serviceType models.ServiceType,
+	summary, description, readMoreURL string,
+) *models.Insight {
+	return &models.Insight{
+		ID:             "sample-" + checkName,
+		RunID:          runID,
+		CheckName:      checkName,
+		Category:       category,
+		Interval:       models.Standard,
+		ServiceID:      "sample-service-id",
+		ServiceName:    serviceName,
+		ServiceType:    serviceType,
+		NodeID:         "sample-node-id",
+		NodeName:       serviceName + "-node",
+		Environment:    "production",
+		Cluster:        "sample-cluster",
+		ReplicationSet: "sample-rs",
+		Status:         models.CheckResultFailed,
+		Summary:        summary,
+		Description:    description,
+		Outcome:        summary,
+		ReadMoreURL:    readMoreURL,
+		Severity:       severity,
+		CheckedAt:      models.Now(),
+		TriggeredBy:    models.CheckTriggeredByUser,
+	}
 }
 
 // advisorTechnologies lists the technologies advisor checks run against, in report order, paired

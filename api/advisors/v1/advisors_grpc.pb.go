@@ -34,6 +34,7 @@ const (
 	AdvisorService_TestAdvisorCheck_FullMethodName            = "/advisors.v1.AdvisorService/TestAdvisorCheck"
 	AdvisorService_ListAdvisorCheckTestTargets_FullMethodName = "/advisors.v1.AdvisorService/ListAdvisorCheckTestTargets"
 	AdvisorService_DeleteAdvisorCheck_FullMethodName          = "/advisors.v1.AdvisorService/DeleteAdvisorCheck"
+	AdvisorService_SendTestAdvisorNotification_FullMethodName = "/advisors.v1.AdvisorService/SendTestAdvisorNotification"
 )
 
 // AdvisorServiceClient is the client API for AdvisorService service.
@@ -70,6 +71,8 @@ type AdvisorServiceClient interface {
 	ListAdvisorCheckTestTargets(ctx context.Context, in *ListAdvisorCheckTestTargetsRequest, opts ...grpc.CallOption) (*ListAdvisorCheckTestTargetsResponse, error)
 	// DeleteAdvisorCheck deletes a user-authored advisor check.
 	DeleteAdvisorCheck(ctx context.Context, in *DeleteAdvisorCheckRequest, opts ...grpc.CallOption) (*DeleteAdvisorCheckResponse, error)
+	// SendTestAdvisorNotification emails a sample Advisor report to the given addresses.
+	SendTestAdvisorNotification(ctx context.Context, in *SendTestAdvisorNotificationRequest, opts ...grpc.CallOption) (*SendTestAdvisorNotificationResponse, error)
 }
 
 type advisorServiceClient struct {
@@ -220,6 +223,16 @@ func (c *advisorServiceClient) DeleteAdvisorCheck(ctx context.Context, in *Delet
 	return out, nil
 }
 
+func (c *advisorServiceClient) SendTestAdvisorNotification(ctx context.Context, in *SendTestAdvisorNotificationRequest, opts ...grpc.CallOption) (*SendTestAdvisorNotificationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SendTestAdvisorNotificationResponse)
+	err := c.cc.Invoke(ctx, AdvisorService_SendTestAdvisorNotification_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdvisorServiceServer is the server API for AdvisorService service.
 // All implementations must embed UnimplementedAdvisorServiceServer
 // for forward compatibility.
@@ -254,6 +267,8 @@ type AdvisorServiceServer interface {
 	ListAdvisorCheckTestTargets(context.Context, *ListAdvisorCheckTestTargetsRequest) (*ListAdvisorCheckTestTargetsResponse, error)
 	// DeleteAdvisorCheck deletes a user-authored advisor check.
 	DeleteAdvisorCheck(context.Context, *DeleteAdvisorCheckRequest) (*DeleteAdvisorCheckResponse, error)
+	// SendTestAdvisorNotification emails a sample Advisor report to the given addresses.
+	SendTestAdvisorNotification(context.Context, *SendTestAdvisorNotificationRequest) (*SendTestAdvisorNotificationResponse, error)
 	mustEmbedUnimplementedAdvisorServiceServer()
 }
 
@@ -318,6 +333,10 @@ func (UnimplementedAdvisorServiceServer) ListAdvisorCheckTestTargets(context.Con
 
 func (UnimplementedAdvisorServiceServer) DeleteAdvisorCheck(context.Context, *DeleteAdvisorCheckRequest) (*DeleteAdvisorCheckResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteAdvisorCheck not implemented")
+}
+
+func (UnimplementedAdvisorServiceServer) SendTestAdvisorNotification(context.Context, *SendTestAdvisorNotificationRequest) (*SendTestAdvisorNotificationResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SendTestAdvisorNotification not implemented")
 }
 func (UnimplementedAdvisorServiceServer) mustEmbedUnimplementedAdvisorServiceServer() {}
 func (UnimplementedAdvisorServiceServer) testEmbeddedByValue()                        {}
@@ -592,6 +611,24 @@ func _AdvisorService_DeleteAdvisorCheck_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdvisorService_SendTestAdvisorNotification_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendTestAdvisorNotificationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvisorServiceServer).SendTestAdvisorNotification(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdvisorService_SendTestAdvisorNotification_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvisorServiceServer).SendTestAdvisorNotification(ctx, req.(*SendTestAdvisorNotificationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdvisorService_ServiceDesc is the grpc.ServiceDesc for AdvisorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -654,6 +691,10 @@ var AdvisorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteAdvisorCheck",
 			Handler:    _AdvisorService_DeleteAdvisorCheck_Handler,
+		},
+		{
+			MethodName: "SendTestAdvisorNotification",
+			Handler:    _AdvisorService_SendTestAdvisorNotification_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

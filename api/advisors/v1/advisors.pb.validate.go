@@ -3236,6 +3236,218 @@ var _ interface {
 	ErrorName() string
 } = ChangeAdvisorChecksResponseValidationError{}
 
+// Validate checks the field values on SendTestAdvisorNotificationRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *SendTestAdvisorNotificationRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SendTestAdvisorNotificationRequest
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// SendTestAdvisorNotificationRequestMultiError, or nil if none found.
+func (m *SendTestAdvisorNotificationRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SendTestAdvisorNotificationRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return SendTestAdvisorNotificationRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// SendTestAdvisorNotificationRequestMultiError is an error wrapping multiple
+// validation errors returned by
+// SendTestAdvisorNotificationRequest.ValidateAll() if the designated
+// constraints aren't met.
+type SendTestAdvisorNotificationRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SendTestAdvisorNotificationRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SendTestAdvisorNotificationRequestMultiError) AllErrors() []error { return m }
+
+// SendTestAdvisorNotificationRequestValidationError is the validation error
+// returned by SendTestAdvisorNotificationRequest.Validate if the designated
+// constraints aren't met.
+type SendTestAdvisorNotificationRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SendTestAdvisorNotificationRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SendTestAdvisorNotificationRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SendTestAdvisorNotificationRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SendTestAdvisorNotificationRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SendTestAdvisorNotificationRequestValidationError) ErrorName() string {
+	return "SendTestAdvisorNotificationRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SendTestAdvisorNotificationRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSendTestAdvisorNotificationRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = SendTestAdvisorNotificationRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SendTestAdvisorNotificationRequestValidationError{}
+
+// Validate checks the field values on SendTestAdvisorNotificationResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the first error encountered is returned, or nil if there are
+// no violations.
+func (m *SendTestAdvisorNotificationResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SendTestAdvisorNotificationResponse
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, the result is a list of violation errors wrapped in
+// SendTestAdvisorNotificationResponseMultiError, or nil if none found.
+func (m *SendTestAdvisorNotificationResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SendTestAdvisorNotificationResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return SendTestAdvisorNotificationResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// SendTestAdvisorNotificationResponseMultiError is an error wrapping multiple
+// validation errors returned by
+// SendTestAdvisorNotificationResponse.ValidateAll() if the designated
+// constraints aren't met.
+type SendTestAdvisorNotificationResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SendTestAdvisorNotificationResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SendTestAdvisorNotificationResponseMultiError) AllErrors() []error { return m }
+
+// SendTestAdvisorNotificationResponseValidationError is the validation error
+// returned by SendTestAdvisorNotificationResponse.Validate if the designated
+// constraints aren't met.
+type SendTestAdvisorNotificationResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SendTestAdvisorNotificationResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SendTestAdvisorNotificationResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SendTestAdvisorNotificationResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SendTestAdvisorNotificationResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SendTestAdvisorNotificationResponseValidationError) ErrorName() string {
+	return "SendTestAdvisorNotificationResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SendTestAdvisorNotificationResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSendTestAdvisorNotificationResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = SendTestAdvisorNotificationResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SendTestAdvisorNotificationResponseValidationError{}
+
 // Validate checks the field values on Insight with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.

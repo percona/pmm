@@ -17,6 +17,7 @@ package management
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -35,6 +36,58 @@ import (
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/tests"
 )
+
+func TestSendTestAdvisorNotification(t *testing.T) {
+	t.Run("no recipients", func(t *testing.T) {
+		var checksService mockChecksService
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.SendTestAdvisorNotification(t.Context(), &advisorsv1.SendTestAdvisorNotificationRequest{})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "At least one email address is required."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("invalid recipient", func(t *testing.T) {
+		var checksService mockChecksService
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.SendTestAdvisorNotification(t.Context(), &advisorsv1.SendTestAdvisorNotificationRequest{
+			EmailAddresses: []string{"not-an-address"},
+		})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument,
+			"advisor_notification_email_addresses: invalid address 'not-an-address'."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("SMTP not configured", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("SendTestNotification", []string{"dba@example.com"}).
+			Return(fmt.Errorf("%w: GF_SMTP_ENABLED is not set", services.ErrSMTPNotConfigured))
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.SendTestAdvisorNotification(t.Context(), &advisorsv1.SendTestAdvisorNotificationRequest{
+			EmailAddresses: []string{"dba@example.com"},
+		})
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
+			"SMTP is not configured in PMM Server: GF_SMTP_ENABLED is not set."), err)
+		assert.Nil(t, resp)
+	})
+
+	t.Run("sent", func(t *testing.T) {
+		var checksService mockChecksService
+		checksService.On("SendTestNotification", []string{"dba@example.com", "oncall@example.com"}).Return(nil)
+
+		s := NewChecksAPIService(&checksService)
+
+		resp, err := s.SendTestAdvisorNotification(t.Context(), &advisorsv1.SendTestAdvisorNotificationRequest{
+			EmailAddresses: []string{"dba@example.com", "oncall@example.com"},
+		})
+		require.NoError(t, err)
+		assert.NotNil(t, resp)
+		checksService.AssertExpectations(t)
+	})
+}
 
 func TestStartAdvisorChecks(t *testing.T) {
 	t.Run("internal error", func(t *testing.T) {

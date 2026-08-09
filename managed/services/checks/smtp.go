@@ -24,6 +24,8 @@ import (
 	"strconv"
 
 	gomail "gopkg.in/mail.v2"
+
+	"github.com/percona/pmm/managed/services"
 )
 
 // smtpConfig holds the SMTP settings PMM reuses from the bundled Grafana. PMM Server configures
@@ -95,10 +97,10 @@ func (s *Service) sendAdvisorEmail(to []string, subject, body string) error {
 
 	cfg := smtpConfigFromEnv()
 	if !cfg.enabled {
-		return errors.New("SMTP is not enabled (GF_SMTP_ENABLED)")
+		return fmt.Errorf("%w: GF_SMTP_ENABLED is not set", services.ErrSMTPNotConfigured)
 	}
 	if cfg.fromAddress == "" {
-		return errors.New("no sender address configured (GF_SMTP_FROM_ADDRESS)")
+		return fmt.Errorf("%w: GF_SMTP_FROM_ADDRESS is empty", services.ErrSMTPNotConfigured)
 	}
 
 	return s.sendEmail(cfg, to, subject, body)

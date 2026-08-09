@@ -17,6 +17,7 @@ import {
   ListInsightsParams,
   ListRunsParams,
   MarkInsightsReadRequest,
+  SendTestAdvisorNotificationRequest,
   StartAdvisorChecksRequest,
   StartAdvisorChecksResponse,
   TestAdvisorCheckRequest,
@@ -99,6 +100,14 @@ export const listAdvisorCheckTestTargets = async (
     { params: { technology } }
   );
   return res.data.targets ?? [];
+};
+
+// the failure reason (SMTP not configured, connection refused) is what the
+// operator needs, and the interceptor already surfaces the server message
+export const sendTestAdvisorNotification = async (
+  payload: SendTestAdvisorNotificationRequest
+): Promise<void> => {
+  await api.post<EmptyResponse>('/advisors/notifications:test', payload);
 };
 
 export const changeAdvisorChecks = async (

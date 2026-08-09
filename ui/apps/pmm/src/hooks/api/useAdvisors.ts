@@ -17,6 +17,7 @@ import {
   listInsights,
   listRuns,
   markInsightsRead,
+  sendTestAdvisorNotification,
   startAdvisorChecks,
   testAdvisorCheck,
   updateAdvisorCheck,
@@ -34,6 +35,7 @@ import {
   ListInsightsParams,
   ListRunsParams,
   MarkInsightsReadRequest,
+  SendTestAdvisorNotificationRequest,
   StartAdvisorChecksRequest,
   TestAdvisorCheckRequest,
   TestAdvisorCheckResponse,
@@ -54,6 +56,7 @@ const KEYS = {
   RUNS: 'advisors:runs',
   INSIGHTS_FILTER_VALUES: 'advisors:insights-filter-values',
   MARK_READ: 'advisors:mark-read',
+  TEST_NOTIFICATION: 'advisors:test-notification',
 };
 
 export const useAdvisors = (options?: Partial<UseQueryOptions<Advisor[]>>) =>
@@ -212,6 +215,18 @@ export const useTestAdvisorCheck = (
   useMutation({
     mutationKey: [KEYS.TEST_CHECK],
     mutationFn: testAdvisorCheck,
+    ...options,
+  });
+
+// sending a test email changes nothing on the server, so no queries are invalidated
+export const useSendTestAdvisorNotification = (
+  options?: Partial<
+    UseMutationOptions<void, Error, SendTestAdvisorNotificationRequest>
+  >
+) =>
+  useMutation({
+    mutationKey: [KEYS.TEST_NOTIFICATION],
+    mutationFn: sendTestAdvisorNotification,
     ...options,
   });
 
