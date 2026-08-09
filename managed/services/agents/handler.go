@@ -76,7 +76,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 	l := logger.Get(ctx)
 
 	if !h.rateLimiter.TryAcquire() {
-		l.Warnf("Disconnecting client: RESOURCE_EXHAUSTED")
+		disconnectReason = "RESOURCE_EXHAUSTED"
 		return status.Error(codes.ResourceExhausted, "is rejected by ratelimit, please retry later.")
 	}
 	agent, err := h.r.register(stream)
@@ -135,7 +135,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 
 			case *agentv1.StateChangedRequest:
 				pprof.Do(ctx, pprof.Labels("request", "StateChangedRequest"), func(ctx context.Context) {
-					err := h.stateChanged(ctx, p)
+					err := h.stateChanged(ctx, agent.id, p)
 					if err != nil {
 						l.Errorf("%+v", err)
 					}
@@ -186,8 +186,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 	}
 }
 
-func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedRequest) error {
-	var PMMAgentID string
+func (h *Handler) stateChanged(ctx context.Context, pmmAgentID string, req *agentv1.StateChangedRequest) error {
 	var portsChanged bool
 	l := logger.Get(ctx).WithField("component", "agents/handler")
 
@@ -195,7 +194,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 		var agentIDs []string
 		var err error
 		sAgentID := strings.TrimPrefix(req.AgentId, "/agent_id/")
-		PMMAgentID, agentIDs, err = h.r.roster.get(sAgentID)
+		_, agentIDs, err = h.r.roster.get(sAgentID)
 		if err != nil {
 			return err
 		}
@@ -238,15 +237,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 		h.vmdb.RequestConfigurationUpdate()
 	}
 
-	agent, err := models.FindAgentByID(h.db.Querier, PMMAgentID)
-	if err != nil {
-		return err
-	}
-	if agent.PMMAgentID == nil {
-		return nil
-	}
-
-	h.state.RequestStateUpdate(ctx, *agent.PMMAgentID)
+	h.state.RequestStateUpdate(ctx, pmmAgentID)
 	return nil
 }
 

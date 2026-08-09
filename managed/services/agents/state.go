@@ -68,7 +68,10 @@ func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParam
 // RequestStateUpdate requests state update on pmm-agent with given ID. It sets
 // the status to done if the agent is not connected.
 func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string) {
-	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
+	l := logger.Get(ctx).WithFields(logrus.Fields{
+		"component":    loggerComponentNameStateUpdater,
+		"pmm_agent_id": pmmAgentID,
+	})
 
 	agent, err := u.r.get(pmmAgentID)
 	if err != nil {
