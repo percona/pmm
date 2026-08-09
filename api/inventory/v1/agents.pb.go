@@ -2812,7 +2812,7 @@ type RDSExporter struct {
 	AwsAccessKey string `protobuf:"bytes,5,opt,name=aws_access_key,json=awsAccessKey,proto3" json:"aws_access_key,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	// AWS IAM role ARN assumed using the agent's ambient credentials.
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
 	AwsRoleArn string `protobuf:"bytes,7,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
 	// Actual Agent status (the same for several configurations).
 	Status AgentStatus `protobuf:"varint,10,opt,name=status,proto3,enum=inventory.v1.AgentStatus" json:"status,omitempty"`

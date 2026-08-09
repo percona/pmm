@@ -1731,7 +1731,7 @@
                         "x-order": 5
                       },
                       "aws_role_arn": {
-                        "description": "AWS IAM role ARN assumed using the agent's ambient credentials.",
+                        "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                         "type": "string",
                         "x-order": 6
                       },
@@ -4755,7 +4755,7 @@
                       "x-order": 5
                     },
                     "aws_role_arn": {
-                      "description": "AWS IAM role ARN assumed using the agent's ambient credentials.",
+                      "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                       "type": "string",
                       "x-order": 6
                     },
@@ -7484,7 +7484,7 @@
                       "x-order": 5
                     },
                     "aws_role_arn": {
-                      "description": "AWS IAM role ARN assumed using the agent's ambient credentials.",
+                      "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                       "type": "string",
                       "x-order": 6
                     },
@@ -10997,7 +10997,7 @@
                       "x-order": 5
                     },
                     "aws_role_arn": {
-                      "description": "AWS IAM role ARN assumed using the agent's ambient credentials.",
+                      "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
                       "type": "string",
                       "x-order": 6
                     },

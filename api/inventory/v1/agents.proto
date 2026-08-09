@@ -662,7 +662,7 @@ message RDSExporter {
   string aws_access_key = 5 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
-  // AWS IAM role ARN assumed using the agent's ambient credentials.
+  // AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
   string aws_role_arn = 7;
 
   //

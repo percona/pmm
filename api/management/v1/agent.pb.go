@@ -176,7 +176,7 @@ type UniversalAgent struct {
 	RtaOptions *v1.RTAOptions `protobuf:"bytes,42,opt,name=rta_options,json=rtaOptions,proto3" json:"rta_options,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,43,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	// AWS IAM role ARN assumed using ambient credentials.
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
 	AwsRoleArn    string `protobuf:"bytes,44,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

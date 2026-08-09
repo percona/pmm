@@ -910,7 +910,7 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
 
-	// AWS IAM role ARN assumed using ambient credentials.
+	// AWS IAM role ARN assumed using the pmm-agent's ambient credentials.
 	AWSRoleArn string `json:"aws_role_arn,omitempty"`
 
 	// azure options

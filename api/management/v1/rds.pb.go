@@ -375,7 +375,7 @@ type AddRDSServiceParams struct {
 	// List of collector names to disable in the PostgreSQL database exporter.
 	// Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
 	PostgresqlDisableCollectors []string `protobuf:"bytes,37,rep,name=postgresql_disable_collectors,json=postgresqlDisableCollectors,proto3" json:"postgresql_disable_collectors,omitempty"`
-	// AWS IAM role ARN to assume using the server's ambient credentials.
+	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
 	// Mutually exclusive with aws_access_key and aws_secret_key.
 	AwsRoleArn    string `protobuf:"bytes,38,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
 	unknownFields protoimpl.UnknownFields
