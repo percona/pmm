@@ -18,7 +18,10 @@ checks:
           range: 168h
           step: 5m
       - type: METRICS_INSTANT
-        query: avg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~"{{.ServiceName}}"} * mysql_global_variables_innodb_log_file_size{service_name=~"{{.ServiceName}}"})
+        # MySQL 8.0.30 and later size the redo log with innodb_redo_log_capacity and ignore
+        # innodb_log_file_size/innodb_log_files_in_group, which still report stale defaults,
+        # so prefer the capacity variable and fall back to the legacy pair for older servers.
+        query: avg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~"{{.ServiceName}}"}) or avg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~"{{.ServiceName}}"} * mysql_global_variables_innodb_log_file_size{service_name=~"{{.ServiceName}}"})
         parameters:
           lookback: 5m
       - type: METRICS_RANGE
@@ -60,7 +63,7 @@ checks:
           if missing:
               return {
                   "summary": "Redo log size could not be evaluated",
-                  "description": "No {} metrics are available for this service, so the InnoDB redo log size was not reviewed. This is expected shortly after PMM Server starts.".format(", ".join(missing)),
+                  "description": "No {} metrics are available for this service, so the InnoDB redo log size was not reviewed. This can be transient shortly after PMM Server starts. Checkpoint age needs Percona Server's innodb_checkpoint_age status variable or the equivalent InnoDB metrics counters, which vanilla MySQL does not expose by default.".format(", ".join(missing)),
                   "severity": "info",
                   "labels": {
                       "mysql_version": "{}".format(version),
@@ -69,15 +72,17 @@ checks:
                   "read_more_url":read_url.format("innodb_redo_logs_not_sized_correctly")
               }
 
-          redo_log_size = int(docs[2][0]["value"][1])
+          redo_log_size = int(float(docs[2][0]["value"][1]))
 
           for row in logsWrittenSamples:
               logsWritten.append(row[1])
-              logs_written_tot = int(logs_written_tot) + int(row[1])
-              if logs_written_max < int(row[1]):
-                logs_written_max = int(row[1])
+              # increase() yields a float, which int() cannot parse from its string form
+              written = int(float(row[1]))
+              logs_written_tot = int(logs_written_tot) + written
+              if logs_written_max < written:
+                logs_written_max = written
               cnt = int(cnt) + 1
-              if int(row[1]) > redo_log_size:
+              if written > redo_log_size:
                   cnt_high = int(cnt_high) + 1
           logs_written_avg = logs_written_tot / int(cnt) / 1024 / 1024
 
