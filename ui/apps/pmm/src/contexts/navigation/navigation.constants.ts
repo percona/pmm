@@ -548,19 +548,19 @@ export const NAV_ADVISORS: NavItem = {
 // children are listed explicitly (Insights is first, see addAdvisors)
 export const NAV_ADVISORS_CHECKS: NavItem = {
   id: 'advisors-checks',
-  text: 'Advisor checks',
+  text: 'Catalog',
   url: `${PMM_NEW_NAV_PATH}/advisors`,
 };
 
 export const NAV_ADVISORS_INSIGHTS = {
   id: 'advisors-insights',
-  text: 'Advisor insights',
+  text: 'Insights',
   url: `${PMM_NEW_NAV_PATH}/advisors/insights`,
 };
 
 export const NAV_ADVISORS_RUNS = {
   id: 'advisors-runs',
-  text: 'Advisor runs',
+  text: 'Run history',
   url: `${PMM_NEW_NAV_PATH}/advisors/runs`,
 };
 

@@ -57,6 +57,7 @@ Routes are defined in `ui/apps/pmm/src/router.tsx` using React Router's `createB
 | `/rta/overview`      | RTA overview                    |
 | `/advisors`          | Advisors                        |
 | `/advisors/insights` | Advisor insights                |
+| `/advisors/runs`     | Advisor runs                    |
 | `/graph/*`           | Grafana iframe                  |
 | `*`                  | 404 fallback                    |
 
