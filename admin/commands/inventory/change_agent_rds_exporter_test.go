@@ -97,6 +97,56 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 			}`
 			assert.JSONEq(t, expectedJSON, capturedRequestBody)
 		})
+
+		t.Run("UpdateRoleARN", func(t *testing.T) {
+			var capturedRequestBody string
+			cleanup := setupChangeAgentTestServer(t, "test-agent-rds-role-arn", `{"rds_exporter": {"agent_id": "test-agent-rds-role-arn", "log_level": "LOG_LEVEL_INFO"}}`, &capturedRequestBody)
+			defer cleanup()
+
+			cli := []string{
+				"change-agent", "rds-exporter", "test-agent-rds-role-arn",
+				"--aws-role-arn=arn:aws:iam::123456789012:role/pmm-monitoring",
+			}
+
+			var cmd ChangeAgentRDSExporterCommand
+			parser, err := kong.New(&cmd)
+			require.NoError(t, err)
+
+			_, err = parser.Parse(cli[2:])
+			require.NoError(t, err)
+
+			result, err := cmd.RunCmd()
+			require.NoError(t, err)
+			assert.NotNil(t, result)
+
+			assert.Contains(t, capturedRequestBody, `"aws_role_arn":"arn:aws:iam::123456789012:role/pmm-monitoring"`)
+			assert.Contains(t, result.String(), "updated AWS role ARN")
+		})
+
+		t.Run("ClearRoleARN", func(t *testing.T) {
+			var capturedRequestBody string
+			cleanup := setupChangeAgentTestServer(t, "test-agent-rds-role-arn-clear", `{"rds_exporter": {"agent_id": "test-agent-rds-role-arn-clear", "log_level": "LOG_LEVEL_INFO"}}`, &capturedRequestBody)
+			defer cleanup()
+
+			cli := []string{
+				"change-agent", "rds-exporter", "test-agent-rds-role-arn-clear",
+				"--aws-role-arn=",
+			}
+
+			var cmd ChangeAgentRDSExporterCommand
+			parser, err := kong.New(&cmd)
+			require.NoError(t, err)
+
+			_, err = parser.Parse(cli[2:])
+			require.NoError(t, err)
+
+			result, err := cmd.RunCmd()
+			require.NoError(t, err)
+			assert.NotNil(t, result)
+
+			assert.Contains(t, capturedRequestBody, `"aws_role_arn":""`)
+			assert.Contains(t, result.String(), "cleared AWS role ARN")
+		})
 	})
 
 	t.Run("ComprehensiveAllFieldsValidation", func(t *testing.T) {
