@@ -104,8 +104,9 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgentInfo) {
 	l := logger.Get(ctx).
 		WithField("component", loggerComponentNameStateUpdater).
-		WithField("agent_id", agent.id)
+		WithField("pmm_agent_id", agent.id)
 
+	ctx = logger.SetEntry(ctx, l)
 	l.Info("Starting runStateChangeHandler ...")
 	defer l.Info("Done runStateChangeHandler.")
 
@@ -193,14 +194,15 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 		return sett, nil
 	})
 	if err != nil {
+		l.WithError(err).Error("failed to get settings")
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
-
 	settings, ok := fetchedSettings.(*models.Settings)
 	if !ok {
 		l.Errorf("failed to cast settings: %T", fetchedSettings)
 		return errors.New("failed to get settings")
 	}
+
 	filters := models.AgentFilters{
 		PMMAgentID:  pmmAgentInfo.id,
 		IgnoreNomad: !settings.IsNomadEnabled(),
@@ -209,6 +211,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 	}
 	agents, err := models.FindAgents(q, filters)
 	if err != nil {
+		l.WithError(err).Errorf("failed to collect agents")
 		return fmt.Errorf("failed to collect agents: %w", err)
 	}
 
@@ -241,9 +244,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 		return node, nil
 	})
 	if err != nil {
+		l.WithError(err).
+			WithField("node_id", pointer.GetString(pmmAgent.RunsOnNodeID)).
+			Error("failed to fetch node info")
 		return fmt.Errorf("failed to fetch node info: %w", err)
 	}
-
 	node, ok := fetchedNode.(*models.Node)
 	if !ok {
 		l.WithField("node_id", pointer.GetString(pmmAgent.RunsOnNodeID)).
