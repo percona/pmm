@@ -179,7 +179,7 @@ var pprofSemaphore = semaphore.NewWeighted(1)
 // Each connection attempt uses a database connection(s), so we limit the number
 // of concurrent connections to avoid exhausting the database connection pool and
 // to prevent the system from degrading during a thundering herd of connection attempts.
-var pmmAgentsConnectionsLimiter = rateLimiter.NewConcurrencyLimiter(int32(apiDbMaxOpenConns * 7 / 10))
+var pmmAgentsConnectionsLimiter = rateLimiter.NewConcurrencyLimiter(int32(apiDbMaxOpenConns * 7 / 10)) //nolint:mnd
 
 func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")

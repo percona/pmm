@@ -32,7 +32,6 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
-	"github.com/percona/pmm/version"
 )
 
 const (
@@ -155,17 +154,6 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 			l.Warnf("sendSetStateRequest took %s.", dur)
 		}
 	}()
-	// It is completely OK to re-use the same Querier for multiple queries, as it is safe for concurrent use
-	// and creates less preasure on GC.
-	q := u.db.WithContext(ctx)
-	pmmAgent, err := models.FindAgentByID(q, pmmAgentInfo.id)
-	if err != nil {
-		return fmt.Errorf("failed to get PMM Agent: %w", err)
-	}
-	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
-	if err != nil {
-		return fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
-	}
 
 	// Use singleflight to avoid fetching settings for each pmm-agent separately.
 	fetchedSettings, err, _ := u.dbGroup.Do("settings", func() (any, error) {
@@ -209,6 +197,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 		// fetch enabled only
 		Disabled: new(false),
 	}
+	// It is completely OK to re-use the same Querier for multiple queries, as it is safe for concurrent use
+	// and creates less preasure on GC.
+	q := u.db.WithContext(ctx)
 	agents, err := models.FindAgents(q, filters)
 	if err != nil {
 		l.WithError(err).Errorf("failed to collect agents")
@@ -218,7 +209,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 	// pre-fetch node info since it's common for all subagents of particluar pmm-agent.
 	// Use singleflight to avoid fetching settings for each pmm-agent separately in cases
 	// when several pmm-agents are running on the same node.
-	nodeKey := "node/" + pointer.GetString(pmmAgent.RunsOnNodeID)
+	nodeKey := "node/" + pmmAgentInfo.runsOnNodeID
 	fetchedNode, err, _ := u.dbGroup.Do(nodeKey, func() (any, error) {
 		// NOTE 1: The first request for a singlefligh.Do() becomes the leader and runs the closure with its ctx.
 		// If this ctx is canceled - it will have no effect on the closure, so that all waiting
@@ -233,7 +224,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 		}
 		nodeCtx, cancel := context.WithDeadline(context.Background(), deadLine)
 		defer cancel()
-		node, fetchErr := models.FindNodeByID(u.db.WithContext(nodeCtx), pointer.GetString(pmmAgent.RunsOnNodeID))
+		node, fetchErr := models.FindNodeByID(u.db.WithContext(nodeCtx), pmmAgentInfo.runsOnNodeID) //nolint:contextcheck
 		if fetchErr != nil {
 			// IMPORTANT: On error, we call Forget(nodeKey) IMMEDIATELY.
 			// This prevents the error from getting stuck in the internal singleflight map
@@ -245,15 +236,15 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 	})
 	if err != nil {
 		l.WithError(err).
-			WithField("node_id", pointer.GetString(pmmAgent.RunsOnNodeID)).
+			WithField("node_id", pmmAgentInfo.runsOnNodeID).
 			Error("failed to fetch node info")
 		return fmt.Errorf("failed to fetch node info: %w", err)
 	}
 	node, ok := fetchedNode.(*models.Node)
 	if !ok {
-		l.WithField("node_id", pointer.GetString(pmmAgent.RunsOnNodeID)).
+		l.WithField("node_id", pmmAgentInfo.runsOnNodeID).
 			Errorf("failed to cast Node: %T", fetchedNode)
-		return fmt.Errorf("failed to fetch node %s info", pointer.GetString(pmmAgent.RunsOnNodeID))
+		return fmt.Errorf("failed to fetch node %s info", pmmAgentInfo.runsOnNodeID)
 	}
 
 	redactMode := redactSecrets
@@ -282,7 +273,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 			agentProcesses[row.AgentID] = params
 
 		case models.NodeExporterType:
-			params, err := nodeExporterConfig(node, row, pmmAgentVersion)
+			params, err := nodeExporterConfig(node, row, pmmAgentInfo.version)
 			if err != nil {
 				return err
 			}
@@ -303,7 +294,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 			if err != nil {
 				return err
 			}
-			config, err := azureDatabaseExporterConfig(row, service, redactMode, pmmAgentVersion)
+			config, err := azureDatabaseExporterConfig(row, service, redactMode, pmmAgentInfo.version)
 			if err != nil {
 				return err
 			}
@@ -321,41 +312,41 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 			}
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
-				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentInfo.version)
 				if err != nil {
 					return err
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.MongoDBExporterType:
-				cfg, err := mongodbExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				cfg, err := mongodbExporterConfig(node, service, row, redactMode, pmmAgentInfo.version)
 				if err != nil {
 					return err
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.PostgresExporterType:
-				cfg, err := postgresExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				cfg, err := postgresExporterConfig(node, service, row, redactMode, pmmAgentInfo.version)
 				if err != nil {
 					return err
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.ProxySQLExporterType:
-				agentProcesses[row.AgentID] = proxysqlExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				agentProcesses[row.AgentID] = proxysqlExporterConfig(node, service, row, redactMode, pmmAgentInfo.version)
 			case models.ValkeyExporterType:
-				agentProcesses[row.AgentID] = valkeyExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				agentProcesses[row.AgentID] = valkeyExporterConfig(node, service, row, redactMode, pmmAgentInfo.version)
 			case models.QANMySQLPerfSchemaAgentType:
-				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row, pmmAgentVersion)
+				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row, pmmAgentInfo.version)
 			case models.QANMySQLSlowlogAgentType:
-				builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(service, row, pmmAgentVersion)
+				builtinAgents[row.AgentID] = qanMySQLSlowlogAgentConfig(service, row, pmmAgentInfo.version)
 			case models.QANMongoDBProfilerAgentType:
-				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row, pmmAgentVersion)
+				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row, pmmAgentInfo.version)
 			case models.QANMongoDBMongologAgentType:
-				builtinAgents[row.AgentID] = qanMongoDBMongologAgentConfig(service, row, pmmAgentVersion)
+				builtinAgents[row.AgentID] = qanMongoDBMongologAgentConfig(service, row, pmmAgentInfo.version)
 			case models.QANPostgreSQLPgStatementsAgentType:
-				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row, pmmAgentVersion)
+				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row, pmmAgentInfo.version)
 			case models.QANPostgreSQLPgStatMonitorAgentType:
-				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row, pmmAgentVersion)
+				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row, pmmAgentInfo.version)
 			case models.RTAMongoDBAgentType:
-				builtinAgents[row.AgentID] = rtaMongoDBAgentConfig(service, row, pmmAgentVersion)
+				builtinAgents[row.AgentID] = rtaMongoDBAgentConfig(service, row, pmmAgentInfo.version)
 			}
 
 		default:
@@ -382,7 +373,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgentInfo pmm
 		for awsAccessKey, exporters := range groupedRdsExporters {
 			// TODO: split by 50 exporters per group
 			groupID := u.r.roster.add(pmmAgentInfo.id, rdsPrefix+awsAccessKey, exporters)
-			c, err := rdsExporterConfig(exporters, redactMode, pmmAgentVersion)
+			c, err := rdsExporterConfig(exporters, redactMode, pmmAgentInfo.version)
 			if err != nil {
 				return err
 			}

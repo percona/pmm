@@ -72,8 +72,10 @@ var (
 )
 
 type pmmAgentInfo struct {
-	channel         *channel.Channel
 	id              string
+	version         *version.Parsed
+	runsOnNodeID    string
+	channel         *channel.Channel
 	stateChangeChan chan struct{}
 	kickChan        chan struct{}
 }
@@ -247,6 +249,10 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgent
 		return zero, err
 	}
 	l.Infof("Connected pmm-agent: %+v.", agentMD)
+	pmmAgentVersion, err := version.Parse(agentMD.Version)
+	if err != nil {
+		return zero, fmt.Errorf("failed to parse PMM agent version %q: %w", agentMD.Version, err)
+	}
 
 	serverMD := agentv1.ServerConnectMetadata{
 		AgentRunsOnNodeID: node.NodeID,
@@ -279,8 +285,10 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgent
 	}
 
 	agent := pmmAgentInfo{
-		channel:         channel.New(ctx, stream),
 		id:              agentMD.ID,
+		runsOnNodeID:    node.NodeID,
+		version:         pmmAgentVersion,
+		channel:         channel.New(ctx, stream),
 		stateChangeChan: make(chan struct{}, 1),
 		kickChan:        make(chan struct{}),
 	}
