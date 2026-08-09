@@ -139,10 +139,11 @@ assuming a role.
 
 Two different PMM components can end up assuming the role, depending on the operation:
 
-- Discovering and adding RDS instances through the API or `pmm-admin` runs on **PMM Server**,
-  so PMM Server's ambient identity assumes the role.
-- Scraping metrics runs in `rds_exporter`, which is managed by **pmm-agent** on the host you
-  registered, so that host's ambient identity assumes the role there.
+- Discovering RDS instances through the API or `pmm-admin` runs on **PMM Server**, so PMM
+  Server's ambient identity assumes the role.
+- Adding an RDS instance only persists the role ARN; assuming it and scraping metrics happens
+  in `rds_exporter`, which is managed by **pmm-agent** on the host you registered, so that
+  host's ambient identity assumes the role there.
 
 In the common case where PMM Server and pmm-agent run on the same host (or under the same
 ambient identity), this distinction does not matter. If they run on separate hosts, make sure
@@ -164,7 +165,10 @@ another AWS account, and avoiding long-lived IAM user keys entirely.
         "Statement": [{
             "Effect": "Allow",
             "Principal": {
-                "AWS": "arn:aws:iam::<pmm-account-id>:role/<pmm-host-role>"
+                "AWS": [
+                    "arn:aws:iam::<pmm-account-id>:role/<pmm-server-role>",
+                    "arn:aws:iam::<pmm-account-id>:role/<pmm-agent-host-role>"
+                ]
             },
             "Action": "sts:AssumeRole"
         }]
