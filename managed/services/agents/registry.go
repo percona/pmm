@@ -233,8 +233,6 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgent
 	if err != nil {
 		return zero, err
 	}
-	l = l.WithField("pmm_agent_id", agentMD.ID)
-	ctx = logger.SetEntry(ctx, l)
 
 	var node *models.Node
 	err = r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {

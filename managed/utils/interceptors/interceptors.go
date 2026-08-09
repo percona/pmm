@@ -145,7 +145,7 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv any, ss grpc.Serv
 			info.FullMethod == "/realtimeanalytics.v1.CollectorService/Collect" {
 			md, _ := agentv1.ReceiveAgentConnectMetadata(ss)
 			if md != nil && md.ID != "" {
-				l = l.WithField("agent_id", md.ID)
+				l = l.WithField("pmm_agent_id", md.ID)
 			}
 		}
 		ctx = logger.SetEntry(ctx, l)
