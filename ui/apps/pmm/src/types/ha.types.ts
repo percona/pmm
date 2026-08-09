@@ -1,6 +1,5 @@
 export interface GetHAStatusResponse {
   status: HAStatus;
-  namespace?: string;
 }
 
 export type HAStatus = 'Enabled' | 'Disabled';
@@ -29,7 +28,6 @@ export interface HAInfo {
   health: HAHealth;
   leader?: GetHANodeResponse;
   nodes: GetHANodeResponse[];
-  namespace?: string;
 }
 
 export type HAHealth =
