@@ -26,6 +26,7 @@ RDS Exporter added.
 Agent ID                  : {{ .Agent.AgentID }}
 PMM-Agent ID              : {{ .Agent.PMMAgentID }}
 Node ID                   : {{ .Agent.NodeID }}
+AWS role ARN              : {{ .Agent.AWSRoleArn }}
 Listen port               : {{ .Agent.ListenPort }}
 
 Status                    : {{ .Agent.Status }}
@@ -53,6 +54,7 @@ type AddAgentRDSExporterCommand struct {
 	NodeID                 string            `arg:"" help:"Node identifier"`
 	AWSAccessKey           string            `help:"AWS Access Key ID"`
 	AWSSecretKey           string            `help:"AWS Secret Access Key"`
+	AWSRoleARN             string            `name:"aws-role-arn" help:"AWS IAM role ARN to assume via ambient credentials (excludes --aws-access-key/--aws-secret-key)"`
 	CustomLabels           map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck    bool              `help:"Skip connection check"`
 	DisableBasicMetrics    bool              `help:"Disable basic metrics"`
@@ -70,6 +72,7 @@ func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 				NodeID:                 cmd.NodeID,
 				AWSAccessKey:           cmd.AWSAccessKey,
 				AWSSecretKey:           cmd.AWSSecretKey,
+				AWSRoleArn:             cmd.AWSRoleARN,
 				CustomLabels:           *customLabels,
 				SkipConnectionCheck:    cmd.SkipConnectionCheck,
 				DisableBasicMetrics:    cmd.DisableBasicMetrics,

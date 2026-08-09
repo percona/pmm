@@ -107,6 +107,7 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 				"agent_id": "test-agent-rds-all-flags",
 				"pmm_agent_id": "pmm-agent-123",
 				"node_id": "node-456",
+				"aws_role_arn": "arn:aws:iam::123456789012:role/pmm-monitoring",
 				"listen_port": 9042,
 				"push_metrics_enabled": true,
 				"disabled": false,
@@ -174,6 +175,7 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 Agent ID                   : test-agent-rds-all-flags
 PMM-Agent ID               : pmm-agent-123
 Node ID                    : node-456
+AWS role ARN               : arn:aws:iam::123456789012:role/pmm-monitoring
 Listen port                : 9042
 Push metrics enabled       : true
 
