@@ -207,7 +207,7 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
                 rowGap: 3,
               }}
             >
-              <Field label={m.checkName}>
+              <Field label={m.checkName} span={2}>
                 <Stack direction="row" alignItems="center" gap={0.5}>
                   <Typography variant="body1">{check.checkName}</Typography>
                   <CopyToClipboardButton textToCopy={check.checkName} />
@@ -221,13 +221,6 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
                   {ADVISOR_TECHNOLOGY[check.technology]}
                 </Typography>
               </Field>
-              <Field label={m.source}>
-                <Typography variant="body1">
-                  {check.userDefined
-                    ? Messages.source.custom
-                    : Messages.source.builtin}
-                </Typography>
-              </Field>
               <Field label={m.interval}>
                 <Typography variant="body1">
                   {ADVISOR_INTERVAL[check.interval]}
@@ -238,6 +231,13 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
                   {check.enabled
                     ? Messages.status.enabled
                     : Messages.status.disabled}
+                </Typography>
+              </Field>
+              <Field label={m.source}>
+                <Typography variant="body1">
+                  {check.userDefined
+                    ? Messages.source.custom
+                    : Messages.source.builtin}
                 </Typography>
               </Field>
 
