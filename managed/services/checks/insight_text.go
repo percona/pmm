@@ -84,7 +84,6 @@ func insightToText(r *models.Insight) (string, error) {
 		{"Run ID", r.RunID},
 		{"Check Name", r.CheckName},
 		{"Category", r.Category},
-		{"Sub category", r.Subcategory},
 		{"Service Name", r.ServiceName},
 		{"Service Type", string(r.ServiceType)},
 		{"Node Name", r.NodeName},

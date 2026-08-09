@@ -60,7 +60,6 @@ type AdvisorCheck struct {
 	Summary     string      `reform:"summary"`
 	Description string      `reform:"description"`
 	Category    string      `reform:"category"`
-	Subcategory string      `reform:"subcategory"`
 	Technology  string      `reform:"technology"`
 	// Interval is the original author-defined execution interval.
 	Interval string `reform:"interval"`

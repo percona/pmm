@@ -36,7 +36,6 @@ func builtinCheck(name string) *models.AdvisorCheck {
 		Summary:     "Test summary",
 		Description: "Test description",
 		Category:    "Test",
-		Subcategory: "Helpers",
 		Technology:  "POSTGRESQL",
 		Interval:    "standard",
 		Queries:     []byte(`[{"type":"POSTGRESQL_SELECT","query":"1"}]`),

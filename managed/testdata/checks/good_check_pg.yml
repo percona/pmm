@@ -5,7 +5,6 @@ checks:
     summary: Good Check PG
     description: Good check for PostgreSQL.
     category: Development
-    subcategory: Dev
     technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT

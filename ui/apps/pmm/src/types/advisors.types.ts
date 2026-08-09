@@ -28,7 +28,6 @@ export interface AdvisorCheck {
   interval: AdvisorInterval;
   technology: AdvisorTechnology;
   category: string;
-  subcategory: string;
   userDefined: boolean;
   // IDs of services for which this check is disabled
   disabledServiceIds?: string[];
@@ -43,7 +42,6 @@ export interface AdvisorCheckInput {
   summary: string;
   description: string;
   category: string;
-  subcategory: string;
   technology: AdvisorTechnology;
   interval: AdvisorInterval;
   queries: AdvisorCheckQuery[];
@@ -52,7 +50,6 @@ export interface AdvisorCheckInput {
 
 export interface Advisor {
   category: string;
-  subcategory: string;
   checks: AdvisorCheck[];
 }
 
@@ -151,7 +148,6 @@ export interface StartAdvisorChecksResponse {
 export interface Insight {
   id: string;
   checkName: string;
-  subcategory: string;
   category: string;
   interval: AdvisorInterval;
   serviceId: string;
@@ -250,7 +246,6 @@ export interface AdvisorCheckRow {
   checkName: string;
   summary: string;
   description: string;
-  subcategory: string;
   category: string;
   technology: AdvisorTechnology;
   interval: AdvisorInterval;

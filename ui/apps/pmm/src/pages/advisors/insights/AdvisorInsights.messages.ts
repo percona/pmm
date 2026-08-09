@@ -38,7 +38,6 @@ export const Messages = {
     service: 'Service',
     node: 'Node',
     category: 'Category',
-    subcategory: 'Sub category',
     environment: 'Environment',
     cluster: 'Cluster',
     replicationSet: 'Replication set',

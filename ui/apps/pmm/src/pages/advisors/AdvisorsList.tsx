@@ -47,7 +47,6 @@ import { DisableServicesDrawer } from './disable-services';
 
 interface CheckFilters {
   category: string;
-  subcategory: string;
   technology: string;
   interval: string;
   status: string;
@@ -125,7 +124,6 @@ const AdvisorsList: FC = () => {
   const filters = useMemo<CheckFilters>(
     () => ({
       category: searchParams.get('category') || '',
-      subcategory: searchParams.get('subcategory') || '',
       technology: searchParams.get('technology') || '',
       interval: searchParams.get('interval') || '',
       status: searchParams.get('status') || '',
@@ -222,14 +220,6 @@ const AdvisorsList: FC = () => {
     [rows]
   );
 
-  const subcategoryOptions = useMemo<FilterOption[]>(
-    () =>
-      [...new Set(rows.map((row) => row.subcategory))]
-        .sort()
-        .map((subcategory) => ({ label: subcategory, value: subcategory })),
-    [rows]
-  );
-
   const technologyOptions = useMemo<FilterOption[]>(
     () =>
       [...new Set(rows.map((row) => ADVISOR_TECHNOLOGY[row.technology]))]
@@ -258,9 +248,6 @@ const AdvisorsList: FC = () => {
       if (filters.category && row.category !== filters.category) {
         return false;
       }
-      if (filters.subcategory && row.subcategory !== filters.subcategory) {
-        return false;
-      }
       if (
         filters.technology &&
         ADVISOR_TECHNOLOGY[row.technology] !== filters.technology
@@ -283,7 +270,7 @@ const AdvisorsList: FC = () => {
       }
       if (term) {
         const haystack =
-          `${row.summary} ${row.description} ${row.category} ${row.subcategory} ${ADVISOR_TECHNOLOGY[row.technology]}`.toLowerCase();
+          `${row.summary} ${row.description} ${row.category} ${ADVISOR_TECHNOLOGY[row.technology]}`.toLowerCase();
         if (!haystack.includes(term)) {
           return false;
         }
@@ -425,13 +412,6 @@ const AdvisorsList: FC = () => {
             options={categoryOptions}
             value={filters.category}
             onChange={(value) => updateFilter('category', value)}
-          />
-          <FilterSelect
-            id="subcategory"
-            label={Messages.filters.subcategory}
-            options={subcategoryOptions}
-            value={filters.subcategory}
-            onChange={(value) => updateFilter('subcategory', value)}
           />
           <FilterSelect
             id="technology"

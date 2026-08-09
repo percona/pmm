@@ -15,11 +15,10 @@
 
 package check
 
-// Advisor is an in-memory grouping of checks that share the same
-// (Category, Subcategory) pair. It is synthesized at load time from the checks
-// themselves and is not authored anywhere.
+// Advisor is an in-memory grouping of checks that share the same Category.
+// It is synthesized at load time from the checks themselves and is not
+// authored anywhere.
 type Advisor struct {
-	Category    string
-	Subcategory string
-	Checks      []Check
+	Category string
+	Checks   []Check
 }

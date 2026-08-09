@@ -204,8 +204,6 @@ func (m *AdvisorCheck) validate(all bool) error {
 
 	// no validation rules for Category
 
-	// no validation rules for Subcategory
-
 	// no validation rules for UserDefined
 
 	for idx, item := range m.GetQueries() {
@@ -354,8 +352,6 @@ func (m *Advisor) validate(all bool) error {
 	// no validation rules for Comment
 
 	// no validation rules for Category
-
-	// no validation rules for Subcategory
 
 	for idx, item := range m.GetChecks() {
 		_, _ = idx, item
@@ -3268,8 +3264,6 @@ func (m *Insight) validate(all bool) error {
 	// no validation rules for CheckName
 
 	// no validation rules for Category
-
-	// no validation rules for Subcategory
 
 	// no validation rules for Interval
 

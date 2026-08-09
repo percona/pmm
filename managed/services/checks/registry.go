@@ -40,8 +40,8 @@ func newRegistry() *registry {
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "check_insights",
-			Help:      "Number of advisor insights per service type, service name, advisor, check name and severity",
-		}, []string{"service_type", "service_name", "advisor", "check_name", "severity"}),
+			Help:      "Number of advisor insights per service type, service name, category, check name and severity",
+		}, []string{"service_type", "service_name", "category", "check_name", "severity"}),
 	}
 }
 
@@ -151,7 +151,7 @@ func (r *registry) Collect(ch chan<- prom.Metric) {
 	r.mInsights.Reset()
 	res := r.getCheckResults()
 	for _, re := range res {
-		r.mInsights.WithLabelValues(string(re.Target.ServiceType), re.Target.ServiceName, re.Subcategory, re.CheckName, re.Result.Severity.String()).Inc()
+		r.mInsights.WithLabelValues(string(re.Target.ServiceType), re.Target.ServiceName, re.Category, re.CheckName, re.Result.Severity.String()).Inc()
 	}
 	r.mInsights.Collect(ch)
 }

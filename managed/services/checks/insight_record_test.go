@@ -30,7 +30,7 @@ import (
 func TestNewCheckResultRecord(t *testing.T) {
 	t.Parallel()
 
-	c := check.Check{Name: "chk", Summary: "Check title", Description: "Check description", Category: "Performance", Subcategory: "Adv", Interval: check.Standard}
+	c := check.Check{Name: "chk", Summary: "Check title", Description: "Check description", Category: "Performance", Interval: check.Standard}
 	target := services.Target{
 		ServiceID:      "sid",
 		ServiceName:    "sname",
@@ -62,7 +62,6 @@ func TestNewCheckResultRecord(t *testing.T) {
 
 		assert.Equal(t, "chk", rec.CheckName)
 		assert.Equal(t, "Performance", rec.Category)
-		assert.Equal(t, "Adv", rec.Subcategory)
 		assert.Equal(t, models.Interval(check.Standard), rec.Interval)
 		assert.Equal(t, "sid", rec.ServiceID)
 		assert.Equal(t, "sname", rec.ServiceName)

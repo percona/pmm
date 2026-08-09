@@ -112,7 +112,6 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
       summary: fullCheck.summary,
       description: fullCheck.description,
       category: fullCheck.category,
-      subcategory: fullCheck.subcategory,
       technology: fullCheck.technology,
       interval: fullCheck.interval,
       queries: fullCheck.queries ?? [],
@@ -216,9 +215,6 @@ export const AdvisorCheckDetailsPane: FC<AdvisorCheckDetailsPaneProps> = ({
               </Field>
               <Field label={m.category}>
                 <Typography variant="body1">{check.category}</Typography>
-              </Field>
-              <Field label={m.subcategory}>
-                <Typography variant="body1">{check.subcategory}</Typography>
               </Field>
               <Field label={m.technology}>
                 <Typography variant="body1">

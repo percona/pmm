@@ -31,7 +31,6 @@ func (v *insightTableType) Columns() []string {
 		"id",
 		"check_name",
 		"category",
-		"subcategory",
 		"interval",
 		"service_id",
 		"service_name",
@@ -81,7 +80,6 @@ var InsightTable = &insightTableType{
 			{Name: "ID", Type: "string", Column: "id"},
 			{Name: "CheckName", Type: "string", Column: "check_name"},
 			{Name: "Category", Type: "string", Column: "category"},
-			{Name: "Subcategory", Type: "string", Column: "subcategory"},
 			{Name: "Interval", Type: "Interval", Column: "interval"},
 			{Name: "ServiceID", Type: "string", Column: "service_id"},
 			{Name: "ServiceName", Type: "string", Column: "service_name"},
@@ -112,33 +110,32 @@ var InsightTable = &insightTableType{
 
 // String returns a string representation of this struct or record.
 func (s Insight) String() string {
-	res := make([]string, 26)
+	res := make([]string, 25)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "CheckName: " + reform.Inspect(s.CheckName, true)
 	res[2] = "Category: " + reform.Inspect(s.Category, true)
-	res[3] = "Subcategory: " + reform.Inspect(s.Subcategory, true)
-	res[4] = "Interval: " + reform.Inspect(s.Interval, true)
-	res[5] = "ServiceID: " + reform.Inspect(s.ServiceID, true)
-	res[6] = "ServiceName: " + reform.Inspect(s.ServiceName, true)
-	res[7] = "ServiceType: " + reform.Inspect(s.ServiceType, true)
-	res[8] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[9] = "NodeName: " + reform.Inspect(s.NodeName, true)
-	res[10] = "Environment: " + reform.Inspect(s.Environment, true)
-	res[11] = "Cluster: " + reform.Inspect(s.Cluster, true)
-	res[12] = "ReplicationSet: " + reform.Inspect(s.ReplicationSet, true)
-	res[13] = "Region: " + reform.Inspect(s.Region, true)
-	res[14] = "AZ: " + reform.Inspect(s.AZ, true)
-	res[15] = "Status: " + reform.Inspect(s.Status, true)
-	res[16] = "Summary: " + reform.Inspect(s.Summary, true)
-	res[17] = "Description: " + reform.Inspect(s.Description, true)
-	res[18] = "Outcome: " + reform.Inspect(s.Outcome, true)
-	res[19] = "ReadMoreURL: " + reform.Inspect(s.ReadMoreURL, true)
-	res[20] = "Severity: " + reform.Inspect(s.Severity, true)
-	res[21] = "Labels: " + reform.Inspect(s.Labels, true)
-	res[22] = "CheckedAt: " + reform.Inspect(s.CheckedAt, true)
-	res[23] = "IsRead: " + reform.Inspect(s.IsRead, true)
-	res[24] = "RunID: " + reform.Inspect(s.RunID, true)
-	res[25] = "TriggeredBy: " + reform.Inspect(s.TriggeredBy, true)
+	res[3] = "Interval: " + reform.Inspect(s.Interval, true)
+	res[4] = "ServiceID: " + reform.Inspect(s.ServiceID, true)
+	res[5] = "ServiceName: " + reform.Inspect(s.ServiceName, true)
+	res[6] = "ServiceType: " + reform.Inspect(s.ServiceType, true)
+	res[7] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[8] = "NodeName: " + reform.Inspect(s.NodeName, true)
+	res[9] = "Environment: " + reform.Inspect(s.Environment, true)
+	res[10] = "Cluster: " + reform.Inspect(s.Cluster, true)
+	res[11] = "ReplicationSet: " + reform.Inspect(s.ReplicationSet, true)
+	res[12] = "Region: " + reform.Inspect(s.Region, true)
+	res[13] = "AZ: " + reform.Inspect(s.AZ, true)
+	res[14] = "Status: " + reform.Inspect(s.Status, true)
+	res[15] = "Summary: " + reform.Inspect(s.Summary, true)
+	res[16] = "Description: " + reform.Inspect(s.Description, true)
+	res[17] = "Outcome: " + reform.Inspect(s.Outcome, true)
+	res[18] = "ReadMoreURL: " + reform.Inspect(s.ReadMoreURL, true)
+	res[19] = "Severity: " + reform.Inspect(s.Severity, true)
+	res[20] = "Labels: " + reform.Inspect(s.Labels, true)
+	res[21] = "CheckedAt: " + reform.Inspect(s.CheckedAt, true)
+	res[22] = "IsRead: " + reform.Inspect(s.IsRead, true)
+	res[23] = "RunID: " + reform.Inspect(s.RunID, true)
+	res[24] = "TriggeredBy: " + reform.Inspect(s.TriggeredBy, true)
 	return strings.Join(res, ", ")
 }
 
@@ -149,7 +146,6 @@ func (s *Insight) Values() []interface{} {
 		s.ID,
 		s.CheckName,
 		s.Category,
-		s.Subcategory,
 		s.Interval,
 		s.ServiceID,
 		s.ServiceName,
@@ -182,7 +178,6 @@ func (s *Insight) Pointers() []interface{} {
 		&s.ID,
 		&s.CheckName,
 		&s.Category,
-		&s.Subcategory,
 		&s.Interval,
 		&s.ServiceID,
 		&s.ServiceName,

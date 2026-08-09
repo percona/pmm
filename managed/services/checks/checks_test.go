@@ -145,11 +145,10 @@ func TestUpdateAdvisorsList(t *testing.T) {
 		require.NoError(t, err)
 		require.GreaterOrEqual(t, len(advisors), 1)
 
-		// the user check carries a unique (category, subcategory), so it forms
-		// its own advisor group loaded last.
+		// the user check carries a unique category, so it forms its own advisor
+		// group loaded last.
 		advisor := advisors[len(advisors)-1]
 		require.Equal(t, "Development", advisor.Category)
-		require.Equal(t, "Dev", advisor.Subcategory)
 		require.Len(t, advisor.Checks, 1)
 
 		checkNames := make([]string, 0, len(advisor.Checks))
@@ -585,7 +584,6 @@ func TestTestAdvisorCheck(t *testing.T) {
 		Summary:     "Diagnosis probe",
 		Description: "Diagnosis probe",
 		Category:    "test",
-		Subcategory: "diagnosis",
 		Technology:  check.PostgreSQL,
 		Interval:    check.Standard,
 		Queries:     []check.Query{{Type: check.PostgreSQLSelect, Query: "1"}},
@@ -693,22 +691,19 @@ func TestFilterChecks(t *testing.T) {
 
 	valid := []check.Advisor{
 		{
-			Category:    "Test",
-			Subcategory: "MySQL",
+			Category: "MySQL",
 			Checks: []check.Check{
 				{Name: "MySQL check V2", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}, {Type: check.MySQLSelect}}},
 			},
 		},
 		{
-			Category:    "Test",
-			Subcategory: "PostgreSQL",
+			Category: "PostgreSQL",
 			Checks: []check.Check{
 				{Name: "PostgreSQL check V2", Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}},
 			},
 		},
 		{
-			Category:    "Test",
-			Subcategory: "MongoDB",
+			Category: "MongoDB",
 			Checks: []check.Check{
 				{Name: "MongoDB check V2", Version: 2, Queries: []check.Query{{Type: check.MongoDBBuildInfo}, {Type: check.MongoDBGetParameter}, {Type: check.MongoDBGetCmdLineOpts}}},
 			},
@@ -717,16 +712,14 @@ func TestFilterChecks(t *testing.T) {
 
 	invalid := []check.Advisor{
 		{
-			Category:    "Test",
-			Subcategory: "CompletelyInvalid",
+			Category: "CompletelyInvalid",
 			Checks: []check.Check{
 				{Name: "unsupported version", Version: check.MaxSupportedVersion + 1, Queries: []check.Query{{Type: check.MySQLShow}}},
 				{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},
 			},
 		},
 		{
-			Category:    "Test",
-			Subcategory: "PartiallyInvalid",
+			Category: "PartiallyInvalid",
 			Checks: []check.Check{
 				{Name: "MySQLShow", Version: 2, Queries: []check.Query{{Type: check.MySQLShow}}},
 				{Name: "unsupported type", Version: 2, Queries: []check.Query{{Type: check.Type("RedisInfo")}}},

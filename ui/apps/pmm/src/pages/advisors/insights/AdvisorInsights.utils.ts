@@ -27,7 +27,6 @@ export const insightToText = (item: Insight): string => {
     ['Run ID', item.runId],
     ['Check Name', item.checkName],
     ['Category', item.category],
-    ['Sub category', item.subcategory],
     ['Service Name', item.serviceName],
     ['Service Type', item.serviceType],
     ['Node Name', item.nodeName],

@@ -642,11 +642,8 @@ type UpdateAdvisorCheckOKBodyCheck struct {
 	// Enum: ["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]
 	Technology *string `json:"technology,omitempty"`
 
-	// Category (top-level grouping).
+	// Category the check belongs to.
 	Category string `json:"category,omitempty"`
-
-	// Subcategory (second-level grouping within a category).
-	Subcategory string `json:"subcategory,omitempty"`
 
 	// True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
 	UserDefined bool `json:"user_defined,omitempty"`
@@ -935,11 +932,8 @@ type UpdateAdvisorCheckParamsBodyCheck struct {
 	// Enum: ["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]
 	Technology *string `json:"technology,omitempty"`
 
-	// Category (top-level grouping).
+	// Category the check belongs to.
 	Category string `json:"category,omitempty"`
-
-	// Subcategory (second-level grouping within a category).
-	Subcategory string `json:"subcategory,omitempty"`
 
 	// True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
 	UserDefined bool `json:"user_defined,omitempty"`

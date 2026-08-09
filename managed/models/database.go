@@ -1191,7 +1191,6 @@ var databaseSchema = [][]string{
 			run_id VARCHAR NOT NULL,
 			check_name VARCHAR NOT NULL CHECK (check_name <> ''),
 			category VARCHAR NOT NULL,
-			subcategory VARCHAR NOT NULL,
 			interval VARCHAR NOT NULL,
 			service_id VARCHAR NOT NULL,
 			service_name VARCHAR NOT NULL,
@@ -1228,7 +1227,6 @@ var databaseSchema = [][]string{
 			summary VARCHAR NOT NULL,
 			description TEXT NOT NULL,
 			category VARCHAR NOT NULL,
-			subcategory VARCHAR NOT NULL,
 			technology VARCHAR NOT NULL,
 			interval VARCHAR NOT NULL,
 			interval_override VARCHAR,
@@ -1247,22 +1245,22 @@ var databaseSchema = [][]string{
 		// reconcile refreshes them from the shipped check files and prunes rows
 		// of checks that no longer exist.
 		`INSERT INTO advisor_checks (
-			name, source, version, summary, description, category, subcategory,
+			name, source, version, summary, description, category,
 			technology, interval, interval_override, disabled, queries, script,
 			created_at, updated_at
 		)
-		SELECT name, 'builtin', 2, '', '', '', '', '', '', interval, false, '[]', '', now(), now()
+		SELECT name, 'builtin', 2, '', '', '', '', '', interval, false, '[]', '', now(), now()
 		FROM check_settings
 		WHERE name <> ''`,
 
 		// Carry over globally-disabled check names recorded by earlier PMM
 		// versions in the settings JSON.
 		`INSERT INTO advisor_checks (
-			name, source, version, summary, description, category, subcategory,
+			name, source, version, summary, description, category,
 			technology, interval, interval_override, disabled, queries, script,
 			created_at, updated_at
 		)
-		SELECT DISTINCT x.name, 'builtin', 2, '', '', '', '', '', '', NULL, true, '[]', '', now(), now()
+		SELECT DISTINCT x.name, 'builtin', 2, '', '', '', '', '', NULL, true, '[]', '', now(), now()
 		FROM settings, jsonb_array_elements_text(
 			CASE WHEN jsonb_typeof(settings #> '{sass,disabled_advisors}') = 'array'
 				THEN settings #> '{sass,disabled_advisors}'

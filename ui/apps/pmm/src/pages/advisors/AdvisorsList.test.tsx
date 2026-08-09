@@ -29,7 +29,6 @@ vi.mock('api/services');
 const TEST_ADVISORS: Advisor[] = [
   {
     category: 'Configuration',
-    subcategory: 'Version',
     checks: [
       {
         name: 'mysql_version_check',
@@ -39,14 +38,12 @@ const TEST_ADVISORS: Advisor[] = [
         interval: AdvisorInterval.standard,
         technology: AdvisorTechnology.mysql,
         category: 'Configuration',
-        subcategory: 'Version',
         userDefined: false,
       },
     ],
   },
   {
     category: 'Security',
-    subcategory: 'Authentication',
     checks: [
       {
         name: 'postgresql_super_role',
@@ -56,7 +53,6 @@ const TEST_ADVISORS: Advisor[] = [
         interval: AdvisorInterval.rare,
         technology: AdvisorTechnology.postgresql,
         category: 'Security',
-        subcategory: 'Authentication',
         userDefined: true,
         disabledServiceIds: ['svc-1', 'svc-2'],
       },
@@ -68,7 +64,6 @@ const TEST_ADVISORS: Advisor[] = [
         interval: AdvisorInterval.standard,
         technology: AdvisorTechnology.postgresql,
         category: 'Security',
-        subcategory: 'Authentication',
         userDefined: false,
       },
     ],
@@ -197,7 +192,6 @@ describe('AdvisorsList', () => {
             summary: FULL_CHECK.summary,
             description: FULL_CHECK.description,
             category: FULL_CHECK.category,
-            subcategory: FULL_CHECK.subcategory,
             technology: FULL_CHECK.technology,
             interval: FULL_CHECK.interval,
             queries: FULL_CHECK.queries,

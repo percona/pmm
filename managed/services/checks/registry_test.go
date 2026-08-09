@@ -278,9 +278,9 @@ func TestRegistryInsightsMetric(t *testing.T) {
 	r := newRegistry()
 	r.set([]services.CheckResult{
 		{
-			CheckName:   "mysql_version",
-			Subcategory: "adv",
-			Interval:    check.Standard,
+			CheckName: "mysql_version",
+			Category:  "adv",
+			Interval:  check.Standard,
 			Target: services.Target{
 				ServiceID:   "svc-id",
 				ServiceName: "mysql-prod",
@@ -294,9 +294,9 @@ func TestRegistryInsightsMetric(t *testing.T) {
 	})
 
 	const expected = `
-# HELP pmm_managed_advisor_check_insights Number of advisor insights per service type, service name, advisor, check name and severity
+# HELP pmm_managed_advisor_check_insights Number of advisor insights per service type, service name, category, check name and severity
 # TYPE pmm_managed_advisor_check_insights gauge
-pmm_managed_advisor_check_insights{advisor="adv",check_name="mysql_version",service_name="mysql-prod",service_type="mysql",severity="error"} 1
+pmm_managed_advisor_check_insights{category="adv",check_name="mysql_version",service_name="mysql-prod",service_type="mysql",severity="error"} 1
 `
 	err := testutil.CollectAndCompare(r, strings.NewReader(expected), "pmm_managed_advisor_check_insights")
 	require.NoError(t, err)

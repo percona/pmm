@@ -44,7 +44,6 @@ const TEST_CHECK: AdvisorCheckRow = {
   summary: 'MySQL version check',
   description: 'Warns if MySQL version is EOL',
   category: 'Configuration',
-  subcategory: 'Version',
   technology: AdvisorTechnology.mysql,
   interval: AdvisorInterval.standard,
   enabled: true,

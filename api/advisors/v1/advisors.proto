@@ -70,35 +70,31 @@ message AdvisorCheck {
   AdvisorCheckInterval interval = 5;
   // DB technology.
   AdvisorCheckTechnology technology = 6;
-  // Category (top-level grouping).
+  // Category the check belongs to.
   string category = 7;
-  // Subcategory (second-level grouping within a category).
-  string subcategory = 8;
   // True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
-  bool user_defined = 9;
+  bool user_defined = 8;
   // Data-collection queries. Populated by Get/Create/Update; may be empty in list responses.
-  repeated AdvisorCheckQuery queries = 10;
+  repeated AdvisorCheckQuery queries = 9;
   // Starlark source script. Populated by Get/Create/Update; may be empty in list responses.
-  string script = 11;
+  string script = 10;
   // IDs of services for which this check is disabled.
-  repeated string disabled_service_ids = 12;
+  repeated string disabled_service_ids = 11;
 }
 
 message Advisor {
-  // Deprecated: no longer populated; an advisor is identified by its category/subcategory pair.
+  // Deprecated: no longer populated; an advisor is identified by its category.
   string name = 1 [deprecated = true];
   // Deprecated: advisor descriptions were removed.
   string description = 2 [deprecated = true];
-  // Deprecated: use subcategory instead.
+  // Deprecated: use category instead.
   string summary = 3 [deprecated = true];
   // Deprecated: no longer populated.
   string comment = 4 [deprecated = true];
-  // Category (top-level grouping).
+  // Category the checks belong to.
   string category = 5;
-  // Subcategory (second-level grouping within a category).
-  string subcategory = 6;
   // Advisor checks.
-  repeated AdvisorCheck checks = 7;
+  repeated AdvisorCheck checks = 6;
 }
 
 // ChangeAdvisorCheckParams specifies a single check parameters.
@@ -238,52 +234,50 @@ message Insight {
   string run_id = 2;
   // Name of the check that ran.
   string check_name = 3;
-  // Category the check belongs to (top-level grouping).
+  // Category the check belongs to.
   string category = 4;
-  // Subcategory the check belongs to (second-level grouping within a category).
-  string subcategory = 5;
   // Check execution interval.
-  AdvisorCheckInterval interval = 6;
+  AdvisorCheckInterval interval = 5;
   // ID of the monitored service on which the check ran.
-  string service_id = 7;
+  string service_id = 6;
   // Name of the monitored service on which the check ran.
-  string service_name = 8;
+  string service_name = 7;
   // Type of the monitored service on which the check ran.
-  string service_type = 9;
+  string service_type = 8;
   // ID of the node the service runs on.
-  string node_id = 10;
+  string node_id = 9;
   // Name of the node the service runs on.
-  string node_name = 11;
+  string node_name = 10;
   // Environment of the monitored service on which the check ran.
-  string environment = 12;
+  string environment = 11;
   // Cluster of the monitored service on which the check ran.
-  string cluster = 13;
+  string cluster = 12;
   // Replication set of the monitored service on which the check ran.
-  string replication_set = 14;
+  string replication_set = 13;
   // Outcome of the check run.
-  AdvisorCheckResultStatus status = 15;
+  AdvisorCheckResultStatus status = 14;
   // Short human-readable summary of the result.
-  string summary = 16;
+  string summary = 15;
   // Long human-readable description of the result.
-  string description = 17;
+  string description = 16;
   // URL containing information on how to resolve a detected issue.
-  string read_more_url = 18;
+  string read_more_url = 17;
   // Output returned by the check run (finding details or execution error).
-  string outcome = 19;
+  string outcome = 18;
   // Severity of the result.
-  management.v1.Severity severity = 20;
+  management.v1.Severity severity = 19;
   // Result labels.
-  map<string, string> labels = 21;
+  map<string, string> labels = 20;
   // Time when the check ran.
-  google.protobuf.Timestamp checked_at = 22;
+  google.protobuf.Timestamp checked_at = 21;
   // Whether the result has been marked as read.
-  bool is_read = 23;
+  bool is_read = 22;
   // The actor that initiated the run.
-  AdvisorCheckTriggeredBy triggered_by = 24;
+  AdvisorCheckTriggeredBy triggered_by = 23;
   // Cloud region of the node the service runs on, empty when not applicable.
-  string region = 25;
+  string region = 24;
   // Cloud availability zone of the node the service runs on, empty when not applicable.
-  string az = 26;
+  string az = 25;
 }
 
 message ListInsightsRequest {

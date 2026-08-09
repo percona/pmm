@@ -248,9 +248,6 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
             <Field label={m.category}>
               <Typography variant="body1">{insight.category}</Typography>
             </Field>
-            <Field label={m.subcategory}>
-              <Typography variant="body1">{insight.subcategory}</Typography>
-            </Field>
             <Field label={m.service}>
               <Stack direction="row" alignItems="center" gap={0.5}>
                 <Typography variant="body1">{insight.serviceName}</Typography>

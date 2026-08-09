@@ -32,7 +32,6 @@ vi.mock('api/advisors');
 const TEST_ADVISORS: Advisor[] = [
   {
     category: 'Configuration',
-    subcategory: 'Version',
     checks: [
       {
         name: 'mysql_version_check',
@@ -42,7 +41,6 @@ const TEST_ADVISORS: Advisor[] = [
         interval: AdvisorInterval.standard,
         technology: AdvisorTechnology.mysql,
         category: 'Configuration',
-        subcategory: 'Version',
         userDefined: false,
       },
       {
@@ -53,7 +51,6 @@ const TEST_ADVISORS: Advisor[] = [
         interval: AdvisorInterval.rare,
         technology: AdvisorTechnology.postgresql,
         category: 'Configuration',
-        subcategory: 'Version',
         userDefined: false,
       },
     ],
@@ -63,7 +60,6 @@ const TEST_ADVISORS: Advisor[] = [
 const TEST_ITEM: Insight = {
   id: 'result-1',
   checkName: 'mysql_version_check',
-  subcategory: 'Version',
   category: 'Configuration',
   interval: AdvisorInterval.standard,
   serviceId: 'service-1',
@@ -586,7 +582,6 @@ describe('AdvisorInsights', () => {
       '  Run ID: run-1\n' +
       '  Check Name: mysql_version_check\n' +
       '  Category: Configuration\n' +
-      '  Sub category: Version\n' +
       '  Service Name: mysql-prod\n' +
       '  Service Type: mysql\n' +
       '  Node Name: node-1\n' +

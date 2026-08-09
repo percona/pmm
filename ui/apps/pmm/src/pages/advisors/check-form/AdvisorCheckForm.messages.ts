@@ -10,7 +10,6 @@ export const Messages = {
     summary: 'Summary',
     description: 'Description',
     category: 'Category',
-    subcategory: 'Sub category',
     technology: 'Technology',
     interval: 'Interval',
     queries: 'Queries',

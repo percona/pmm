@@ -6,7 +6,6 @@ export const Messages = {
   columns: {
     check: 'Check',
     category: 'Category',
-    subcategory: 'Sub category',
     technology: 'Technology',
     source: 'Source',
     interval: 'Interval',
@@ -21,7 +20,6 @@ export const Messages = {
   filters: {
     all: 'All',
     category: 'Category',
-    subcategory: 'Sub category',
     technology: 'Technology',
     interval: 'Interval',
     status: 'Status',
@@ -49,7 +47,6 @@ export const Messages = {
     clone: 'Clone',
     checkName: 'Check name',
     category: 'Category',
-    subcategory: 'Sub category',
     technology: 'Technology',
     source: 'Source',
     interval: 'Interval',

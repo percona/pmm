@@ -75,7 +75,6 @@ func TestListAdvisors(t *testing.T) {
 	assert.NotEmpty(t, resp.Payload.Advisors)
 	for _, a := range resp.Payload.Advisors {
 		assert.NotEmpty(t, a.Category, "%+v", a)
-		assert.NotEmpty(t, a.Subcategory, "%+v", a)
 		assert.NotEmpty(t, a.Checks, "%+v", a)
 
 		for _, c := range a.Checks {

@@ -113,7 +113,6 @@ func (s *ChecksAPIService) ListInsights(
 			CheckName:      r.CheckName,
 			RunId:          r.RunID,
 			Category:       r.Category,
-			Subcategory:    r.Subcategory,
 			Severity:       managementv1.Severity(r.Severity), //nolint:gosec // severity is a bounded enum (0-8), no overflow
 			Interval:       convertModelInterval(r.Interval),
 			ServiceId:      r.ServiceID,
@@ -330,7 +329,6 @@ func (s *ChecksAPIService) ListAdvisorChecks(ctx context.Context, _ *advisorsv1.
 			Description:        c.Description,
 			Interval:           convertInterval(c.Interval),
 			Category:           c.Category,
-			Subcategory:        c.Subcategory,
 			UserDefined:        c.UserDefined,
 			DisabledServiceIds: disServices[c.Name],
 		})
@@ -374,16 +372,14 @@ func (s *ChecksAPIService) ListAdvisors(ctx context.Context, _ *advisorsv1.ListA
 				Description:        c.Description,
 				Interval:           convertInterval(c.Interval),
 				Category:           c.Category,
-				Subcategory:        c.Subcategory,
 				UserDefined:        c.UserDefined,
 				DisabledServiceIds: disServices[c.Name],
 			})
 		}
 
 		res = append(res, &advisorsv1.Advisor{
-			Category:    a.Category,
-			Subcategory: a.Subcategory,
-			Checks:      checks,
+			Category: a.Category,
+			Checks:   checks,
 		})
 	}
 
@@ -794,7 +790,6 @@ func advisorCheckToAPI(c check.Check, enabled bool, disabledServiceIDs []string)
 		Technology:         convertTechnology(c.Technology),
 		Interval:           convertInterval(c.Interval),
 		Category:           c.Category,
-		Subcategory:        c.Subcategory,
 		UserDefined:        c.UserDefined,
 		Queries:            convertQueriesToAPI(c.Queries),
 		Script:             c.Script,
@@ -809,7 +804,6 @@ func apiToAdvisorCheck(c *advisorsv1.AdvisorCheck) check.Check {
 		Summary:     c.Summary,
 		Description: c.Description,
 		Category:    c.Category,
-		Subcategory: c.Subcategory,
 		Technology:  convertAPITechnology(c.Technology),
 		Interval:    convertAPIIntervalOptional(c.Interval),
 		Queries:     convertAPIQueries(c.Queries),

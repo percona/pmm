@@ -108,15 +108,13 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
   // suggest the categories already in use; the query is shared with the list
   // page, so opening the form costs no extra request
   const { data: advisors = [] } = useAdvisors();
-  const { categoryOptions, subcategoryOptions } = useMemo(() => {
-    const rows = flattenAdvisorChecks(advisors);
-    return {
-      categoryOptions: [...new Set(rows.map((row) => row.category))].sort(),
-      subcategoryOptions: [
-        ...new Set(rows.map((row) => row.subcategory)),
+  const categoryOptions = useMemo(
+    () =>
+      [
+        ...new Set(flattenAdvisorChecks(advisors).map((row) => row.category)),
       ].sort(),
-    };
-  }, [advisors]);
+    [advisors]
+  );
 
   const test = useCheckTest({ technology, enabled: open, resetKey: open });
 
@@ -271,16 +269,6 @@ export const AdvisorCheckForm: FC<AdvisorCheckFormProps> = ({
                     freeSolo: true,
                     autoSelect: true,
                     // percona-ui defaults the Autocomplete to mt: 3
-                    sx: { mt: 0, flex: 1, minWidth: 160 },
-                  }}
-                />
-                <AutoCompleteInput
-                  name="subcategory"
-                  label={Messages.fields.subcategory}
-                  options={subcategoryOptions}
-                  autoCompleteProps={{
-                    freeSolo: true,
-                    autoSelect: true,
                     sx: { mt: 0, flex: 1, minWidth: 160 },
                   }}
                 />

@@ -36,14 +36,6 @@ export const getAdvisorsColumns = ({
     grow: false,
   },
   {
-    id: 'subcategory',
-    header: Messages.columns.subcategory,
-    accessorFn: (row) => row.subcategory,
-    // wide enough for the "Sub category" header + sort icon
-    size: 170,
-    grow: false,
-  },
-  {
     id: 'technology',
     header: Messages.columns.technology,
     accessorFn: (row) => ADVISOR_TECHNOLOGY[row.technology],

@@ -268,16 +268,15 @@ const (
 // Percona checks must not (enforced by pi-validator).
 const UserCheckNamePrefix = "custom_"
 
-// Check represents a self-contained advisor check. Category and Subcategory are
-// authored as exact display strings; the advisor "group" is the set of distinct
-// (Category, Subcategory) pairs across all loaded checks.
+// Check represents a self-contained advisor check. Category is authored as an
+// exact display string; the advisor "group" is the set of distinct categories
+// across all loaded checks.
 type Check struct {
 	Version     uint32     `yaml:"version"`
 	Name        string     `yaml:"name"`
 	Summary     string     `yaml:"summary"`
 	Description string     `yaml:"description"`
 	Category    string     `yaml:"category"`
-	Subcategory string     `yaml:"subcategory"`
 	Technology  Technology `yaml:"technology"`
 	Interval    Interval   `yaml:"interval,omitempty"`
 	Queries     []Query    `yaml:"queries"`
@@ -328,10 +327,6 @@ func (c *Check) Validate() error {
 
 	if c.Category == "" {
 		return errors.New("category is empty")
-	}
-
-	if c.Subcategory == "" {
-		return errors.New("subcategory is empty")
 	}
 
 	err = c.Technology.Validate()

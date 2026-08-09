@@ -11,7 +11,6 @@ export const flattenAdvisorChecks = (advisors: Advisor[]): AdvisorCheckRow[] =>
       checkName: check.name,
       summary: check.summary,
       description: check.description,
-      subcategory: advisor.subcategory,
       category: advisor.category,
       technology: check.technology,
       interval: check.interval,

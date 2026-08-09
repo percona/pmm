@@ -144,23 +144,23 @@ func New(
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "checks_executed_total",
-			Help:      "Number of check scripts executed per service type, advisor and check name",
-		}, []string{"service_type", "advisor", "check_name", "status"}),
+			Help:      "Number of check scripts executed per service type, category and check name",
+		}, []string{"service_type", "category", "check_name", "status"}),
 
 		mChecksAvailable: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "checks_available",
-			Help:      "Number of checks loaded in PMM per service type, advisor and check name",
-		}, []string{"service_type", "advisor", "check_name"}),
+			Help:      "Number of checks loaded in PMM per service type, category and check name",
+		}, []string{"service_type", "category", "check_name"}),
 
 		mChecksExecutionTime: prom.NewSummaryVec(prom.SummaryOpts{
 			Namespace:  prometheusNamespace,
 			Subsystem:  prometheusSubsystem,
 			Name:       "check_execution_time_seconds",
-			Help:       "Time taken to execute checks per service type, advisor, and check name",
+			Help:       "Time taken to execute checks per service type, category, and check name",
 			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}, //nolint:mnd
-		}, []string{"service_type", "advisor", "check_name"}),
+		}, []string{"service_type", "category", "check_name"}),
 	}
 
 	if d, _ := strconv.ParseBool(os.Getenv(envDisableStartDelay)); d {
@@ -852,7 +852,6 @@ func checkToModel(c check.Check) (*models.AdvisorCheck, error) {
 		Summary:     c.Summary,
 		Description: c.Description,
 		Category:    c.Category,
-		Subcategory: c.Subcategory,
 		Technology:  string(c.Technology),
 		Interval:    string(c.Interval),
 		Queries:     queries,
@@ -880,7 +879,6 @@ func modelToCheck(m *models.AdvisorCheck) (check.Check, error) {
 		Summary:     m.Summary,
 		Description: m.Description,
 		Category:    m.Category,
-		Subcategory: m.Subcategory,
 		Technology:  check.Technology(m.Technology),
 		Interval:    check.Interval(interval),
 		Queries:     queries,
@@ -1107,14 +1105,14 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			checkedAt := models.Now()
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of technology %s on target %s: %+v", c.Name, c.Technology, target.AgentID, err)
-				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Subcategory, c.Name, "error").Inc()
+				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "error").Inc()
 				history = append(history, newInsightRecord(c, target, models.CheckResultError, check.Result{Description: err.Error()}, checkedAt, ri))
 				continue
 			}
 
 			res = append(res, results...)
 
-			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Subcategory, c.Name, "ok").Inc()
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Category, c.Name, "ok").Inc()
 
 			if len(results) == 0 {
 				history = append(history, newInsightRecord(c, target, models.CheckResultOK, check.Result{}, checkedAt, ri))
@@ -1147,7 +1145,6 @@ func newInsightRecord(
 	r := &models.Insight{
 		CheckName:      c.Name,
 		Category:       c.Category,
-		Subcategory:    c.Subcategory,
 		Interval:       models.Interval(c.Interval),
 		ServiceID:      target.ServiceID,
 		ServiceName:    target.ServiceName,
@@ -1282,7 +1279,7 @@ func (s *Service) executeCheck(ctx context.Context, target services.Target, c ch
 	defer cancel()
 
 	defer func(t time.Time) {
-		s.mChecksExecutionTime.WithLabelValues(string(target.ServiceType), c.Subcategory, c.Name).Observe(time.Since(t).Seconds())
+		s.mChecksExecutionTime.WithLabelValues(string(target.ServiceType), c.Category, c.Name).Observe(time.Since(t).Seconds())
 	}(time.Now())
 
 	if c.Version < check.MinSupportedVersion || c.Version > check.MaxSupportedVersion {
@@ -1984,11 +1981,11 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 			return nil, fmt.Errorf("check result %d: %w", i+1, err)
 		}
 		checkResults[i] = services.CheckResult{
-			CheckName:   aCheck.Name,
-			Subcategory: aCheck.Subcategory,
-			Interval:    aCheck.Interval,
-			Target:      target,
-			Result:      result,
+			CheckName: aCheck.Name,
+			Category:  aCheck.Category,
+			Interval:  aCheck.Interval,
+			Target:    target,
+			Result:    result,
 		}
 	}
 	return checkResults, nil
@@ -2172,18 +2169,18 @@ func (s *Service) loadBuiltinChecks(_ context.Context) ([]check.Check, error) {
 	return s.loadChecksFromFiles(checkFiles)
 }
 
-// groupChecksIntoAdvisors groups checks into advisors by their (Category, Subcategory)
-// pair, preserving first-seen order.
+// groupChecksIntoAdvisors groups checks into advisors by their category,
+// preserving first-seen order.
 func groupChecksIntoAdvisors(checks []check.Check) []check.Advisor {
 	index := make(map[string]int, len(checks))
 	advisors := make([]check.Advisor, 0, len(checks))
 	for _, c := range checks {
-		key := c.Category + "\x00" + c.Subcategory
+		key := c.Category
 		i, ok := index[key]
 		if !ok {
 			i = len(advisors)
 			index[key] = i
-			advisors = append(advisors, check.Advisor{Category: c.Category, Subcategory: c.Subcategory})
+			advisors = append(advisors, check.Advisor{Category: c.Category})
 		}
 		advisors[i].Checks = append(advisors[i].Checks, c)
 	}
@@ -2345,7 +2342,7 @@ func (s *Service) refreshChecksInMemoryMetric() {
 
 func (s *Service) incChecksInMemoryMetric(serviceType models.ServiceType, checks map[string]check.Check) {
 	for _, c := range checks {
-		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Subcategory, c.Name).Inc()
+		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Category, c.Name).Inc()
 	}
 }
 

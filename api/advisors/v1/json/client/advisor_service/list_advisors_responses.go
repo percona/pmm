@@ -529,23 +529,20 @@ ListAdvisorsOKBodyAdvisorsItems0 list advisors OK body advisors items0
 swagger:model ListAdvisorsOKBodyAdvisorsItems0
 */
 type ListAdvisorsOKBodyAdvisorsItems0 struct {
-	// Deprecated: no longer populated; an advisor is identified by its category/subcategory pair.
+	// Deprecated: no longer populated; an advisor is identified by its category.
 	Name string `json:"name,omitempty"`
 
 	// Deprecated: advisor descriptions were removed.
 	Description string `json:"description,omitempty"`
 
-	// Deprecated: use subcategory instead.
+	// Deprecated: use category instead.
 	Summary string `json:"summary,omitempty"`
 
 	// Deprecated: no longer populated.
 	Comment string `json:"comment,omitempty"`
 
-	// Category (top-level grouping).
+	// Category the checks belong to.
 	Category string `json:"category,omitempty"`
-
-	// Subcategory (second-level grouping within a category).
-	Subcategory string `json:"subcategory,omitempty"`
 
 	// Advisor checks.
 	Checks []*ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 `json:"checks"`
@@ -678,11 +675,8 @@ type ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 struct {
 	// Enum: ["ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED","ADVISOR_CHECK_TECHNOLOGY_MYSQL","ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL","ADVISOR_CHECK_TECHNOLOGY_MONGODB"]
 	Technology *string `json:"technology,omitempty"`
 
-	// Category (top-level grouping).
+	// Category the check belongs to.
 	Category string `json:"category,omitempty"`
-
-	// Subcategory (second-level grouping within a category).
-	Subcategory string `json:"subcategory,omitempty"`
 
 	// True if the check is user-authored (editable/deletable); false for Percona-shipped checks.
 	UserDefined bool `json:"user_defined,omitempty"`
