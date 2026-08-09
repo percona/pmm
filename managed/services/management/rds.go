@@ -26,8 +26,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -149,6 +151,18 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		return nil, err
 	}
 
+	awsOptions := models.AWSOptions{
+		AWSAccessKey: req.AwsAccessKey,
+		AWSSecretKey: req.AwsSecretKey,
+		AWSRoleARN:   req.AwsRoleArn,
+	}
+	err = awsOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	regions := listRegions(settings.AWSPartitions)
+
 	// use given credentials, or default credential chain
 	var creds aws.CredentialsProvider
 	if req.AwsAccessKey != "" && req.AwsSecretKey != "" {
@@ -168,13 +182,17 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		return nil, fmt.Errorf("failed to load RDS default config: %w", err)
 	}
 
+	if req.AwsRoleArn != "" {
+		cfg.Credentials = assumeRoleProvider(cfg, req.AwsRoleArn, regions)
+	}
+
 	// do not break our API if some AWS region is slow or down
 	ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)
 	defer cancel()
 	var wg errgroup.Group
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
-	for _, region := range listRegions(settings.AWSPartitions) {
+	for _, region := range regions {
 		wg.Go(func() error {
 			regInstances, err := discoverRDSRegion(ctx, cfg, region)
 			if err != nil {
@@ -536,4 +554,28 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 		},
 	}
 	return res, nil
+}
+
+// assumeRoleProvider returns a credentials provider that assumes roleARN using the
+// credentials already resolved in cfg. The provider is cache-wrapped so the SDK refreshes
+// the assumed credentials before they expire.
+func assumeRoleProvider(cfg aws.Config, roleARN string, regions []string) aws.CredentialsProvider { //nolint:ireturn
+	stsCfg := cfg
+	stsCfg.Region = stsRegion(cfg, regions)
+
+	return aws.NewCredentialsCache(stscreds.NewAssumeRoleProvider(sts.NewFromConfig(stsCfg), roleARN))
+}
+
+// stsRegion returns the region to call STS in, preferring the ambient configuration and
+// falling back to the first region of the configured partitions. STS is partition-scoped
+// outside the standard aws partition, so the fallback must come from the partition list.
+func stsRegion(cfg aws.Config, regions []string) string {
+	if cfg.Region != "" {
+		return cfg.Region
+	}
+	if len(regions) > 0 {
+		return regions[0]
+	}
+
+	return ""
 }

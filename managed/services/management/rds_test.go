@@ -442,3 +442,40 @@ func TestRDSService(t *testing.T) {
 		assert.Equal(t, prototext.Format(expected), prototext.Format(resp)) // for better diffs
 	})
 }
+
+func TestAssumeRoleProvider(t *testing.T) {
+	t.Parallel()
+
+	const roleARN = "arn:aws:iam::123456789012:role/pmm-monitoring"
+
+	t.Run("uses the ambient region when set", func(t *testing.T) {
+		t.Parallel()
+
+		provider := assumeRoleProvider(aws.Config{Region: "eu-west-1"}, roleARN, []string{"us-east-1"})
+		require.NotNil(t, provider)
+		assert.IsType(t, &aws.CredentialsCache{}, provider)
+	})
+
+	t.Run("falls back to the first partition region", func(t *testing.T) {
+		t.Parallel()
+
+		provider := assumeRoleProvider(aws.Config{}, roleARN, []string{"cn-north-1", "cn-northwest-1"})
+		require.NotNil(t, provider)
+		assert.IsType(t, &aws.CredentialsCache{}, provider)
+	})
+
+	t.Run("tolerates an empty region list", func(t *testing.T) {
+		t.Parallel()
+
+		provider := assumeRoleProvider(aws.Config{}, roleARN, nil)
+		require.NotNil(t, provider)
+	})
+}
+
+func TestStsRegion(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "eu-west-1", stsRegion(aws.Config{Region: "eu-west-1"}, []string{"us-east-1"}))
+	assert.Equal(t, "cn-north-1", stsRegion(aws.Config{}, []string{"cn-north-1", "cn-northwest-1"}))
+	assert.Empty(t, stsRegion(aws.Config{}, nil))
+}
