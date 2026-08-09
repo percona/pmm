@@ -29,6 +29,8 @@ checks:
     script: |
       read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
       def redo_log_check(docs):
+          version = ""
+          service = ""
           for row in docs[0]:
               version = row["version"]
               service = row["service"]
@@ -42,9 +44,34 @@ checks:
           redo_log_size = 0
           logsWritten = []
 
+          # A metrics query can come back without any series, for example right after
+          # PMM Server starts, leaving nothing to size the redo log against.
+          logsWrittenSamples = docs[1][0]["values"] if docs[1] else []
+          checkpointAgeSamples = docs[3][0]["values"] if docs[3] else []
+
+          missing = []
+          if not logsWrittenSamples:
+              missing.append("redo log written")
+          if not docs[2]:
+              missing.append("redo log size")
+          if not checkpointAgeSamples:
+              missing.append("checkpoint age")
+
+          if missing:
+              return {
+                  "summary": "Redo log size could not be evaluated",
+                  "description": "No {} metrics are available for this service, so the InnoDB redo log size was not reviewed. This is expected shortly after PMM Server starts.".format(", ".join(missing)),
+                  "severity": "info",
+                  "labels": {
+                      "mysql_version": "{}".format(version),
+                      "service": "{}".format(service),
+                  },
+                  "read_more_url":read_url.format("innodb_redo_logs_not_sized_correctly")
+              }
+
           redo_log_size = int(docs[2][0]["value"][1])
 
-          for row in docs[1][0]["values"]:
+          for row in logsWrittenSamples:
               logsWritten.append(row[1])
               logs_written_tot = int(logs_written_tot) + int(row[1])
               if logs_written_max < int(row[1]):
@@ -56,7 +83,7 @@ checks:
 
           checkpoint_age_usage_perc = []
           chkpt_alert = 0
-          for row in docs[3][0]["values"]:
+          for row in checkpointAgeSamples:
               checkpoint_age_usage_perc.append(row[1])
               if float(row[1]) > 80:
                   chkpt_alert = int(chkpt_alert) + 1
