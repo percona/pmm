@@ -20,8 +20,8 @@ export const Messages = {
     filterByCheckName: 'Filter by name',
     copyAsText: 'Copy as text',
     copyUrl: 'Copy URL',
-    disableCheck: 'Disable check for this service',
-    enableCheck: 'Enable check for this service',
+    disableCheck: 'Disable check for service',
+    enableCheck: 'Enable check for service',
   },
   details: {
     title: 'Advisor insight details',
