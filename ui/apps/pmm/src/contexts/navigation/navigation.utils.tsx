@@ -249,14 +249,21 @@ export const addConfiguration = (
   return NAV_CONFIGURATION;
 };
 
-export const addHighAvailability = ({ health }: HAInfo): NavItem => {
+export const addHighAvailability = ({ health, namespace }: HAInfo): NavItem => {
   const item = { ...NAV_HIGH_AVAILABILITY };
+  const overview = { ...NAV_HIGH_AVAILABILITY_OVERVIEW };
+
+  if (namespace) {
+    const namespaceParam = `var-namespace=${encodeURIComponent(namespace)}`;
+    item.url = `${item.url}?${namespaceParam}`;
+    overview.url = `${overview.url}?${namespaceParam}`;
+  }
 
   item.badge = <HighAvailabilityBadge health={health} />;
   item.icon = <HighAvailabilityIcon health={health} />;
   item.badgeAlwaysVisible = true;
 
-  item.children = [NAV_HIGH_AVAILABILITY_OVERVIEW, NAV_HIGH_AVAILABILITY_NODES];
+  item.children = [overview, NAV_HIGH_AVAILABILITY_NODES];
 
   return item;
 };
