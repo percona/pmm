@@ -11,7 +11,7 @@ import { MetricsResolutionForm } from './components/metrics-resolution/MetricsRe
 import { AdvancedSettingsForm } from './components/advanced/AdvancedSettingsForm';
 import { Messages } from './Settings.messages';
 import { TabValue } from './Settings.types';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { OrgRole } from 'types/user.types';
 import { useUser } from 'contexts/user';
 import { useHAStatus } from 'hooks/api/useHA';
@@ -26,10 +26,10 @@ export const Settings: FC = () => {
   } = useSettings({
     enabled: !!user && user.isPMMAdmin,
   });
-  const { data: haStatus } = useHAStatus();
+  const { data: haStatus, isLoading: isHAStatusLoading } = useHAStatus();
   const navigate = useNavigate();
 
-  if (isLoading || (isEnabled && !settings)) {
+  if (isLoading || isHAStatusLoading || (isEnabled && !settings)) {
     return (
       <Page title={Messages.title}>
         <Stack alignItems="center" py={4}>
@@ -40,6 +40,10 @@ export const Settings: FC = () => {
   }
 
   const setTab = (value: TabValue) => navigate(`/settings/${value}`);
+
+  if (haStatus?.status === 'Enabled' && tab === 'ssh-key') {
+    return <Navigate to="/settings" replace />;
+  }
 
   return (
     <Page
