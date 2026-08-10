@@ -54,7 +54,7 @@ type Parser struct {
 }
 
 // Start starts but doesn't wait until it exits.
-func (p *Parser) Start(context.Context) error {
+func (p *Parser) Start(ctx context.Context) error {
 	p.m.Lock()
 	defer p.m.Unlock()
 	if p.running {
@@ -70,7 +70,6 @@ func (p *Parser) Start(context.Context) error {
 	p.wg = &sync.WaitGroup{}
 	p.wg.Add(1)
 
-	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.monitor")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
 		start(
@@ -126,6 +125,8 @@ func start(
 		// PMM-13947
 		case <-doneChan:
 			return
+		case <-ctx.Done():
+			return
 		default:
 			// just continue if not
 		}
@@ -148,6 +149,8 @@ func start(
 			// doneChan needs to be repeated in this select as docsChan can block
 			// doneChan needs to be also in separate select statement
 			// as docsChan could be always picked since select picks channels pseudo randomly
+			return
+		case <-ctx.Done():
 			return
 		}
 	}
