@@ -534,6 +534,7 @@
   },
   "tags": [
     {
+      "description": "Service Role provides public methods for managing Roles.",
       "name": "AccessControlService"
     }
   ]
