@@ -264,7 +264,7 @@ func TestRunHandlesMakeMetricError(t *testing.T) {
 
 	sqlDB, dbMock, err := sqlmock.New()
 	require.NoError(t, err)
-	t.Cleanup(func() { sqlDB.Close() }) //nolint:gosec
+	t.Cleanup(func() { sqlDB.Close() })
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	// doSend's initial GetSettings succeeds and telemetry is enabled...
