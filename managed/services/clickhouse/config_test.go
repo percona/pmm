@@ -171,12 +171,15 @@ func TestLinkClickHouseConfigAt(t *testing.T) {
 		dir := newConfigDir(t)
 		edited := filepath.Join(dir, "config.xml")
 		require.NoError(t, os.WriteFile(edited, []byte("<clickhouse>edited</clickhouse>"), 0o600))
+		before, err := os.Lstat(edited)
+		require.NoError(t, err)
 
 		require.NoError(t, linkClickHouseConfigAt("low-memory", dir))
 
-		content, err := os.ReadFile(edited) //nolint:gosec
+		after, err := os.Lstat(edited)
 		require.NoError(t, err)
-		assert.Equal(t, "<clickhouse>edited</clickhouse>", string(content))
+		assert.Zero(t, after.Mode()&os.ModeSymlink, "regular file was replaced by a symlink")
+		assert.True(t, os.SameFile(before, after), "regular file was replaced")
 	})
 
 	t.Run("does not mix configs when one path is unmanaged", func(t *testing.T) {
@@ -228,11 +231,22 @@ func TestLinkClickHouseConfigAt(t *testing.T) {
 		dir := newConfigDir(t)
 		require.NoError(t, linkClickHouseConfigAt("default", dir))
 
-		// A directory needs its execute bit, so these are wider than gosec's file limit.
-		require.NoError(t, os.Chmod(dir, 0o500))       //nolint:gosec
-		t.Cleanup(func() { _ = os.Chmod(dir, 0o700) }) //nolint:gosec
+		before := make([]os.FileInfo, len(stableConfigLinks))
+		for i, l := range stableConfigLinks {
+			fi, err := os.Lstat(filepath.Join(dir, l.link))
+			require.NoError(t, err)
+			before[i] = fi
+		}
 
 		require.NoError(t, linkClickHouseConfigAt("default", dir))
+
+		// A rewrite replaces the link through a fresh temporary symlink, so an unchanged inode
+		// is proof that nothing was written.
+		for i, l := range stableConfigLinks {
+			fi, err := os.Lstat(filepath.Join(dir, l.link))
+			require.NoError(t, err)
+			assert.True(t, os.SameFile(before[i], fi), "%s was recreated", l.link)
+		}
 		assertLinks(t, dir, "default")
 	})
 }
