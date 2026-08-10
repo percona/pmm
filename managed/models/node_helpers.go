@@ -416,7 +416,18 @@ func StaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) ([]*Node
 // RemoveStaleHANode removes a Node returned by StaleHANodes, along with the Agents and Services that
 // belong to it. Call it in a transaction of its own: it deletes those before the Node itself, so a
 // failure half-way through would otherwise leave the Node partially removed.
+//
+// It lifts the ban on removing PMM Server Nodes, so it re-reads the Services the Node monitors and
+// refuses to take a Node that has any.
 func RemoveStaleHANode(q *reform.Querier, nodeID string) error {
+	monitored, err := haNodeMonitoredServices(q, nodeID)
+	if err != nil {
+		return err
+	}
+	if len(monitored) != 0 {
+		return status.Errorf(codes.FailedPrecondition, "HA Node with ID %q still monitors services.", nodeID)
+	}
+
 	return removeNode(q, nodeID, RemoveCascade, true)
 }
 

@@ -829,7 +829,7 @@ When you scale PMM HA up or down, **all PMM pods will be recreated**. This happe
   - HAProxy continues routing to available pods during rollout
   - No data loss (distributed storage)
   - Rolling update strategy minimizes downtime
-  - The Nodes of removed replicas get removed from **Inventory > Nodes** once the remaining pods restart
+  - The Nodes of removed replicas get removed from **Inventory > Nodes** once the remaining pods restart. A Node is kept (and a warning logged) if it still monitors services, for example a remote instance that was added from that replica. Re-add those services from a running client, then remove the Node from **Inventory > Nodes**
 
 To scale PMM server replicas:
 

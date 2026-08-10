@@ -1297,6 +1297,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, err
 	}
 
+	removeStaleHANodes(db, params)
+
 	return db, nil
 }
 
@@ -1468,7 +1470,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	}
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
-	err := db.InTransaction(func(tx *reform.TX) error {
+	return db.InTransaction(func(tx *reform.TX) error {
 		for version := currentVersion + 1; version <= latestVersion; version++ {
 			if params.Logf != nil {
 				params.Logf("Migrating database to schema version %d ...", version)
@@ -1489,40 +1491,32 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return nil
 		}
 
-		return setupFixtures(tx, params)
+		err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+		if err != nil {
+			return err
+		}
+
+		// fill settings with defaults
+		s, err := GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		err = SaveSettings(tx, s)
+		if err != nil {
+			return err
+		}
+
+		if params.HANodeID != "" {
+			err = setupPMMServerHAAgents(tx.Querier, params)
+		} else {
+			err = setupPMMServerAgents(tx.Querier, params)
+		}
+		if err != nil {
+			return err
+		}
+
+		return nil
 	})
-	if err != nil {
-		return err
-	}
-
-	removeStaleHANodes(db, params)
-
-	return nil
-}
-
-// setupFixtures adds the initial data of a fresh PMM Server: encryption, default settings, and the
-// PMM Server Node with its Agents.
-func setupFixtures(tx *reform.TX, params SetupDBParams) error {
-	err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
-	if err != nil {
-		return err
-	}
-
-	// fill settings with defaults
-	s, err := GetSettings(tx)
-	if err != nil {
-		return err
-	}
-	err = SaveSettings(tx, s)
-	if err != nil {
-		return err
-	}
-
-	if params.HANodeID != "" {
-		return setupPMMServerHAAgents(tx.Querier, params)
-	}
-
-	return setupPMMServerAgents(tx.Querier, params)
 }
 
 // removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are

@@ -520,4 +520,38 @@ func TestRemoveStaleHANode(t *testing.T) {
 			require.NoError(t, err)
 		}
 	})
+
+	t.Run("RefusesANodeThatStillMonitorsServices", func(t *testing.T) {
+		db := setup(t)
+		q := db.Querier
+
+		// a Service bound to the stale replica's pmm-agent between StaleHANodes and the removal
+		for _, str := range []reform.Struct{
+			&models.Service{
+				ServiceID:   "rds-service",
+				ServiceType: models.MySQLServiceType,
+				ServiceName: "RDS instance",
+				NodeID:      "monitored-node",
+				Address:     new("rds.example.com"),
+				Port:        new(uint16(3306)),
+			},
+			&models.Agent{
+				AgentID:    "rds-exporter",
+				AgentType:  models.MySQLdExporterType,
+				PMMAgentID: new("ha-agent-2"),
+				ServiceID:  new("rds-service"),
+			},
+		} {
+			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
+		}
+
+		err := db.InTransaction(func(tx *reform.TX) error {
+			return models.RemoveStaleHANode(tx.Querier, "ha-node-2")
+		})
+		tests.AssertGRPCErrorCode(t, codes.FailedPrecondition, err)
+
+		assertNodeExists(t, q, "ha-node-2")
+		_, err = models.FindAgentByID(q, "rds-exporter")
+		require.NoError(t, err)
+	})
 }
