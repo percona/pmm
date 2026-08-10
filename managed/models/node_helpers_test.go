@@ -420,6 +420,26 @@ func TestRemoveStaleHANodes(t *testing.T) {
 		assertNodeExists(t, q, models.PMMServerNodeID)
 	})
 
+	t.Run("KeepsPreHAPMMServerNodeAfterSetupRetry", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// setupPMMServerHAAgents points PMMServerNodeID at the replica's generated Node ID, and a
+		// failed commit makes pmm-managed retry the whole setup; the guards can't key off that var.
+		restore := models.PMMServerNodeID
+		models.PMMServerNodeID = "ha-node-1"
+		t.Cleanup(func() { models.PMMServerNodeID = restore })
+
+		service, err := models.FindServiceByName(q, models.PMMServerPostgreSQLServiceName)
+		require.NoError(t, err)
+		require.NoError(t, models.RemoveService(q, service.ServiceID, models.RemoveCascade))
+
+		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761"}
+		require.NoError(t, models.RemoveStaleHANodes(q, "pmm-ha-1", peers))
+
+		assertNodeExists(t, q, "pmm-server")
+	})
+
 	t.Run("DoesNothingWhenPeersCantBeTrusted", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)

@@ -266,7 +266,7 @@ func removeNode(q *reform.Querier, id string, mode RemoveMode, allowPMMServerNod
 		return err
 	}
 
-	if id == PMMServerNodeID || (!allowPMMServerNode && n.IsPMMServerNode) {
+	if id == defaultPMMServerNodeID || (!allowPMMServerNode && n.IsPMMServerNode) {
 		return status.Error(codes.PermissionDenied, "PMM Server node can't be removed.")
 	}
 
@@ -381,8 +381,9 @@ func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) er
 			continue
 		}
 		// The PMM Server Node of a deployment converted from non-HA: HA replicas always get a
-		// generated Node ID, and removeNode bans this one outright.
-		if node.NodeID == PMMServerNodeID {
+		// generated Node ID, and removeNode bans this one outright. Compared against the const,
+		// not PMMServerNodeID: setupPMMServerHAAgents reassigns that var, and SetupDB is retried.
+		if node.NodeID == defaultPMMServerNodeID {
 			continue
 		}
 		if _, ok := expected[node.NodeName]; ok {
