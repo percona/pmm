@@ -1257,8 +1257,8 @@ type SetupDBParams struct {
 	MigrationVersion *int
 	ConnMaxLifetime  time.Duration
 	ConnMaxIdleTime  time.Duration
-	MaxIdleConns int32
-	MaxOpenConns int32
+	MaxIdleConns     int32
+	MaxOpenConns     int32
 }
 
 // SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.

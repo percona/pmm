@@ -155,7 +155,7 @@ const (
 	apiDbMinOpenConns      = 50
 
 	// Per-P settings keep pool growth proportional to scheduler parallelism.
-	internalDbOpenConnsPerP = 5
+	internalDbOpenConnsPerP = 3
 	apiDbOpenConnsPerP      = 12
 )
 
@@ -179,7 +179,7 @@ var pprofSemaphore = semaphore.NewWeighted(1)
 // Each connection attempt uses a database connection(s), so we limit the number
 // of concurrent connections to avoid exhausting the database connection pool and
 // to prevent the system from degrading during a thundering herd of connection attempts.
-var pmmAgentsConnectionsLimiter = rateLimiter.NewConcurrencyLimiter(int32(apiDbMaxOpenConns * 7 / 10)) //nolint:mnd
+var pmmAgentsConnectionsLimiter = rateLimiter.NewConcurrencyLimiter(apiDbMaxOpenConns * 7 / 10) //nolint:mnd
 
 func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
@@ -1083,7 +1083,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 
 	jobsService := agents.NewJobsService(internalDB, agentsRegistry, backupRetentionService)
-	agentsStateUpdater := agents.NewStateUpdater(apiDB, agentsRegistry, vmdb, vmParams, nomad, int32(apiDbMaxOpenConns))
+	// reserve 80% of API DB connections for state updater's rateLimiter for pmm-agents state updates.
+	agentsStateUpdater := agents.NewStateUpdater(apiDB, agentsRegistry, vmdb, vmParams, nomad, apiDbMaxOpenConns*8/10) //nolint:mnd
 	// Agents service handles pmm-agent <-> pmm-server communication logic.
 	// Shall use apiDB connection pool.
 	agentsHandler := agents.NewHandler(apiDB, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService, pmmAgentsConnectionsLimiter)
