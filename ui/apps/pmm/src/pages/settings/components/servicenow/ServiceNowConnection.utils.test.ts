@@ -272,6 +272,28 @@ describe('connectionStatus', () => {
     ).toBe('not-configured');
   });
 
+  it('judges a plan that declares no secrets on the override alone', () => {
+    expect(
+      connectionStatus([], {
+        endpoint: 'https://acme.service-now.com/',
+        secrets: {},
+        hasOverride: true,
+        isPresent: true,
+      })
+    ).toBe('configured');
+  });
+
+  it('still reads as not configured with no secrets and no override', () => {
+    expect(
+      connectionStatus([], {
+        endpoint: '',
+        secrets: {},
+        hasOverride: false,
+        isPresent: true,
+      })
+    ).toBe('not-configured');
+  });
+
   it('reports drift when the plan declares a name the stored inputs lack', () => {
     expect(
       connectionStatus(['sn_api_key', 'renamed_token'], {

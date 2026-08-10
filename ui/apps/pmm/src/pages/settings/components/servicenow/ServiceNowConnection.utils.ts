@@ -134,13 +134,21 @@ export const buildDeliveryInputsPatch = (
  * as "not configured" rather than as a failure. A declared name with no stored
  * counterpart means the image renamed one after the values were supplied — the
  * value SEP still holds no longer satisfies the plan.
+ *
+ * A plan that declares no secrets is judged on the override alone: there is no
+ * credential left for the deployment to supply, so a stored override is as
+ * configured as this form can make it, and the endpoint the operator saved
+ * would otherwise never stop reading as missing.
  */
 export const connectionStatus = (
   declaredNames: string[],
   stored: StoredDeliveryInputs
 ): ConnectionStatus => {
-  if (!stored.hasOverride || declaredNames.length === 0) {
+  if (!stored.hasOverride) {
     return 'not-configured';
+  }
+  if (declaredNames.length === 0) {
+    return 'configured';
   }
   if (declaredNames.some((name) => stored.secrets[name] === undefined)) {
     return 'drifted';
