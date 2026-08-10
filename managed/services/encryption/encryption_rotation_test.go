@@ -36,7 +36,7 @@ const (
 	// pmm-managed-username encrypted with originalEncryptionKey
 	originalUsernameHash = `AYxEFsZsg7lp9+eSy6+wPFHlaNNy0ZpTbYN0NuCLPnQOZUYf2S6H9B+XJdF4+DscxC/pJwI=`
 	// pmm-managed-password encrypted with originalEncryptionKey
-	originalPasswordHash = `AYxEFsZuL5xZb5IxGGh8NI6GrjDxCzFGxIcHe94UXcg+dnZphu7GQSgmZm633XvZ8CBU2wo=` //nolint:gosec
+	originalPasswordHash = `AYxEFsZuL5xZb5IxGGh8NI6GrjDxCzFGxIcHe94UXcg+dnZphu7GQSgmZm633XvZ8CBU2wo=`
 )
 
 func TestEncryptionRotation(t *testing.T) {
