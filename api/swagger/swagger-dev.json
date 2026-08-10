@@ -33535,54 +33535,70 @@
   ],
   "tags": [
     {
+      "description": "Server service provides generic PMM Server public APIs.",
       "name": "ServerService"
     },
     {
+      "description": "UserService contains rpcs related to user data",
       "name": "UserService"
     },
     {
+      "description": "Agents service provides public methods for managing Agents.",
       "name": "AgentsService"
     },
     {
+      "description": "Nodes service provides public methods for managing Nodes.",
       "name": "NodesService"
     },
     {
+      "description": "Services service provides public methods for managing Services.",
       "name": "ServicesService"
     },
     {
+      "description": "ManagementService provides public methods for managing and querying Services.",
       "name": "ManagementService"
     },
     {
+      "description": "Actions service provides public Management API methods for Actions.",
       "name": "ActionsService"
     },
     {
+      "description": "Alerting service lets to manage alerting templates and create alerting rules from them.",
       "name": "AlertingService"
     },
     {
+      "description": "AdvisorService service provides public Management API methods for Advisor Service.",
       "name": "AdvisorService"
     },
     {
+      "description": "Backups service handles backup operations to DB.",
       "name": "BackupService"
     },
     {
+      "description": "Locations service provides access to Backup Locations.",
       "name": "LocationsService"
     },
     {
+      "description": "RestoreService provides public methods for managing backup restore history.",
       "name": "RestoreService"
     },
     {
       "name": "DumpService"
     },
     {
+      "description": "Service Role provides public methods for managing Roles.",
       "name": "AccessControlService"
     },
     {
+      "description": "QANService provides an API to interact with PMM Query Analytics.",
       "name": "QANService"
     },
     {
+      "description": "RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.",
       "name": "RealtimeAnalyticsService"
     },
     {
+      "description": "HAService provides High Availability cluster status information.",
       "name": "HAService"
     }
   ],
