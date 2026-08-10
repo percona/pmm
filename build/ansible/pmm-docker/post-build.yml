@@ -67,6 +67,16 @@
         - directory
       no_log: true
 
+    # Must exist in the image: a named volume mounted at a path the image lacks is
+    # created root:root, which pmm-server cannot write to.
+    - name: Create the SEP secrets mountpoint
+      file:
+        path: /srv/sep-secrets
+        state: directory
+        owner: pmm
+        group: root
+        mode: 0750
+
     - name: Create empty log directory for nginx
       file:
         path: /var/log/nginx
