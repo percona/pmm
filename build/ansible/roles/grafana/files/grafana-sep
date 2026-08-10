@@ -25,7 +25,9 @@ declare GRAFANA_URL="http://127.0.0.1:3000"
 declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:-/usr/pgsql-14/bin}"
 declare SA_NAME="pmm-sep"
 declare TOKEN_NAME="pmm-sep"
-declare READY_TIMEOUT=300
+# Generous because a failed run is not retried: the one-shot cannot bound its own
+# restarts under supervisord, so waiting longer here is what absorbs a slow first boot.
+declare READY_TIMEOUT=600
 declare READY_INTERVAL=5
 declare -a TOKEN_FILES=(AUTH__PROVIDER__GRAFANA__SERVICE_ACCOUNT_TOKEN PMM__API_KEY)
 declare TMP_FILE=""
@@ -171,13 +173,18 @@ publish_token() {
     done
 }
 
-# Kept unconditionally inert: rm fails on an existing file in a directory this uid
-# cannot write, and the disabled path must never turn that into a non-zero exit.
+# Inert by design - the disabled path must not fail a start over a directory this uid
+# cannot write - but a token left behind is still readable by SEP, so say so rather
+# than swallowing the failure.
 remove_token_files() {
-    local name
+    local name path
 
     for name in "${TOKEN_FILES[@]}"; do
-        rm -f "${SECRETS_DIR:?}/$name" || true
+        path="${SECRETS_DIR:?}/$name"
+        rm -f "$path" 2> /dev/null || true
+        if [ -e "$path" ]; then
+            echo "WARNING: could not remove $path, SEP can still read this token." >&2
+        fi
     done
 }
 
