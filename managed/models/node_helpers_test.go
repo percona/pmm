@@ -317,7 +317,7 @@ func insertHAFixtures(t *testing.T, q *reform.Querier) {
 func assertNodeExists(t *testing.T, q *reform.Querier, nodeID string) {
 	t.Helper()
 	_, err := models.FindNodeByID(q, nodeID)
-	assert.NoError(t, err)
+	require.NoError(t, err)
 }
 
 func TestStaleHANodes(t *testing.T) {
