@@ -186,7 +186,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 	if err != nil {
 		return err
 	}
-	services, err := collectServices(c.db.Querier, agents)
+	services, err := collectServices(q, agents)
 	if err != nil {
 		return err
 	}

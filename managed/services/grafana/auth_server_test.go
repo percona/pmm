@@ -619,7 +619,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		req := mkReq(t, "Bearer cached")
 
 		hash := getAuthCacheKey(req)
-		s.cache.Set(hash, cachedAuthUser{user: authUser{role: viewer, userID: 11}, authorization: "Bearer cached"})
+		s.cache.Store(hash, cachedAuthUser{user: authUser{role: viewer, userID: 11}, authorization: "Bearer cached"})
 
 		got, authErr := s.getAuthUser(req, l)
 		require.NoError(t, authErr)
@@ -637,7 +637,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 
 		headers := extractAuthHeaders(req)
 		hash := getAuthCacheKey(req)
-		s.cache.Set(hash, cachedAuthUser{user: authUser{role: viewer, userID: 1}, authorization: "Bearer stale"})
+		s.cache.Store(hash, cachedAuthUser{user: authUser{role: viewer, userID: 1}, authorization: "Bearer stale"})
 		time.Sleep(2 * time.Millisecond)
 
 		want := authUser{role: admin, userID: 99}
@@ -646,7 +646,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		got, authErr := s.getAuthUser(req, l)
 		require.NoError(t, authErr)
 		assert.Equal(t, want, got)
-		item, ok := s.cache.Get(hash)
+		item, ok := s.cache.Load(hash)
 		require.True(t, ok)
 		assert.Equal(t, want, item.user)
 	})
@@ -667,7 +667,7 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		assert.Equal(t, want, got)
 
 		hash := getAuthCacheKey(req)
-		item, ok := s.cache.Get(hash)
+		item, ok := s.cache.Load(hash)
 		require.True(t, ok)
 		assert.Equal(t, want, item.user)
 	})
@@ -742,7 +742,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 		assert.Equal(t, authResult{}, res)
 
 		hash := getAuthCacheKey(req)
-		item, ok := s.cache.Get(hash)
+		item, ok := s.cache.Load(hash)
 		require.True(t, ok)
 		assert.Equal(t, userInfo, item.user)
 

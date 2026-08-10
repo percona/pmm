@@ -76,15 +76,15 @@ func TestCacheTTL_CalculateCacheKey_ReturnsDifferentValuesForDifferentInputs(t *
 	}
 }
 
-func TestCacheTTL_Set_Get_Delete_StoresReadsAndRemovesValue(t *testing.T) {
+func TestCacheTTL_Store_Load_Delete_StoresReadsAndRemovesValue(t *testing.T) {
 	t.Parallel()
 
 	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
-	c.Set("k", 42)
+	c.Store("k", 42)
 
-	got, ok := c.Get("k")
+	got, ok := c.Load("k")
 	if !ok {
 		t.Fatal("expected key to exist")
 	}
@@ -94,19 +94,19 @@ func TestCacheTTL_Set_Get_Delete_StoresReadsAndRemovesValue(t *testing.T) {
 
 	c.Delete("k")
 
-	_, ok = c.Get("k")
+	_, ok = c.Load("k")
 	if ok {
 		t.Fatal("expected key to be deleted")
 	}
 }
 
-func TestCacheTTL_Get_ReturnsMissForUnknownKey(t *testing.T) {
+func TestCacheTTL_Load_ReturnsMissForUnknownKey(t *testing.T) {
 	t.Parallel()
 
 	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
-	got, ok := c.Get("missing")
+	got, ok := c.Load("missing")
 	if ok {
 		t.Fatal("expected missing key")
 	}
@@ -115,16 +115,16 @@ func TestCacheTTL_Get_ReturnsMissForUnknownKey(t *testing.T) {
 	}
 }
 
-func TestCacheTTL_Get_ReturnsMissAfterTTLExpiration(t *testing.T) {
+func TestCacheTTL_Load_ReturnsMissAfterTTLExpiration(t *testing.T) {
 	t.Parallel()
 
 	c, err := NewCacheTTL[int](t.Context(), 10*time.Millisecond, time.Second)
 	require.NoError(t, err)
 
-	c.Set("k", 7)
+	c.Store("k", 7)
 	time.Sleep(20 * time.Millisecond)
 
-	_, ok := c.Get("k")
+	_, ok := c.Load("k")
 	if ok {
 		t.Fatal("expected expired key to miss")
 	}
@@ -140,17 +140,17 @@ func TestCacheTTL_Size_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 		t.Fatalf("unexpected size: got %d, want %d", got, 0)
 	}
 
-	c.Set("a", 1)
+	c.Store("a", 1)
 	if got := c.Size(); got != 1 {
 		t.Fatalf("unexpected size after first insert: got %d, want %d", got, 1)
 	}
 
-	c.Set("a", 2)
+	c.Store("a", 2)
 	if got := c.Size(); got != 1 {
 		t.Fatalf("unexpected size after update: got %d, want %d", got, 1)
 	}
 
-	c.Set("b", 3)
+	c.Store("b", 3)
 	if got := c.Size(); got != 2 {
 		t.Fatalf("unexpected size after second insert: got %d, want %d", got, 2)
 	}
@@ -172,8 +172,8 @@ func TestCacheTTL_EvictionWorker_RemovesExpiredItemsAndUpdatesSize(t *testing.T)
 	c, err := NewCacheTTL[int](t.Context(), 15*time.Millisecond, 5*time.Millisecond)
 	require.NoError(t, err)
 
-	c.Set("a", 1)
-	c.Set("b", 2)
+	c.Store("a", 1)
+	c.Store("b", 2)
 	if got := c.Size(); got != 2 {
 		t.Fatalf("unexpected initial size: got %d, want %d", got, 2)
 	}
@@ -182,11 +182,113 @@ func TestCacheTTL_EvictionWorker_RemovesExpiredItemsAndUpdatesSize(t *testing.T)
 		return c.Size() == 0
 	})
 
-	if _, ok := c.Get("a"); ok {
+	if _, ok := c.Load("a"); ok {
 		t.Fatal("expected key a to be evicted")
 	}
-	if _, ok := c.Get("b"); ok {
+	if _, ok := c.Load("b"); ok {
 		t.Fatal("expected key b to be evicted")
+	}
+}
+
+func TestCacheTTL_LoadAndDelete_ReturnsValueAndRemovesKey(t *testing.T) {
+	t.Parallel()
+
+	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
+	require.NoError(t, err)
+
+	c.Store("k", 42)
+
+	got, ok := c.LoadAndDelete("k")
+	if !ok {
+		t.Fatal("expected key to exist")
+	}
+	if got != 42 {
+		t.Fatalf("unexpected value: got %d, want %d", got, 42)
+	}
+
+	if gotSize := c.Size(); gotSize != 0 {
+		t.Fatalf("unexpected size after LoadAndDelete: got %d, want %d", gotSize, 0)
+	}
+
+	_, exists := c.Load("k")
+	if exists {
+		t.Fatal("expected key to be deleted")
+	}
+}
+
+func TestCacheTTL_LoadAndDelete_ReturnsMissForExpiredKey(t *testing.T) {
+	t.Parallel()
+
+	c, err := NewCacheTTL[int](t.Context(), 10*time.Millisecond, time.Second)
+	require.NoError(t, err)
+
+	c.Store("k", 42)
+	time.Sleep(20 * time.Millisecond)
+
+	got, ok := c.LoadAndDelete("k")
+	if ok {
+		t.Fatal("expected expired key to miss")
+	}
+	if got != 0 {
+		t.Fatalf("unexpected zero value: got %d", got)
+	}
+
+	if gotSize := c.Size(); gotSize != 0 {
+		t.Fatalf("unexpected size after expired LoadAndDelete: got %d, want %d", gotSize, 0)
+	}
+}
+
+func TestCacheTTL_LoadAndDelete_ReturnsMissForUnknownKey(t *testing.T) {
+	t.Parallel()
+
+	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
+	require.NoError(t, err)
+
+	got, ok := c.LoadAndDelete("missing")
+	if ok {
+		t.Fatal("expected missing key")
+	}
+	if got != 0 {
+		t.Fatalf("unexpected zero value: got %d", got)
+	}
+}
+
+func TestCacheTTL_LoadAndDelete_ReturnsStoredZeroValueAndTrue(t *testing.T) {
+	t.Parallel()
+
+	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
+	require.NoError(t, err)
+
+	c.Store("k", 0)
+
+	got, ok := c.LoadAndDelete("k")
+	if !ok {
+		t.Fatal("expected key to exist")
+	}
+	if got != 0 {
+		t.Fatalf("unexpected value: got %d, want %d", got, 0)
+	}
+}
+
+func TestCacheTTL_LoadAndDelete_ReturnsMissOnSecondCallForSameKey(t *testing.T) {
+	t.Parallel()
+
+	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
+	require.NoError(t, err)
+
+	c.Store("k", 7)
+
+	_, ok := c.LoadAndDelete("k")
+	if !ok {
+		t.Fatal("expected key to exist on first call")
+	}
+
+	got, ok := c.LoadAndDelete("k")
+	if ok {
+		t.Fatal("expected key to be missing on second call")
+	}
+	if got != 0 {
+		t.Fatalf("unexpected zero value: got %d", got)
 	}
 }
 

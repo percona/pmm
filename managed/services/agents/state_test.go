@@ -34,13 +34,13 @@ func TestRequestStateUpdateQueuesUpdateForConnectedAgent(t *testing.T) {
 	t.Parallel()
 
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
-	r.agentsCache.Set("agent-1", pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)})
+	r.agentsCache.Store("agent-1", pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)})
 	u := NewStateUpdater(nil, r, nil, nil, nil, 1)
 	ctx := logger.Set(context.Background(), "test-request")
 
 	u.RequestStateUpdate(ctx, "agent-1")
 
-	agent, ok := r.agentsCache.Get("agent-1")
+	agent, ok := r.agentsCache.Load("agent-1")
 	require.True(t, ok)
 	select {
 	case <-agent.stateChangeChan:
@@ -67,7 +67,7 @@ func TestRequestStateUpdateDoesNotBlockWhenUpdateIsAlreadyQueued(t *testing.T) {
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
 	agent := pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)}
 	agent.stateChangeChan <- struct{}{}
-	r.agentsCache.Set("agent-1", agent)
+	r.agentsCache.Store("agent-1", agent)
 	u := NewStateUpdater(nil, r, nil, nil, nil, 1)
 	ctx := logger.Set(context.Background(), "test-request")
 
@@ -98,8 +98,8 @@ func TestUpdateAgentsStateQueuesUpdatesForAllConnectedAgents(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
-	r.agentsCache.Set("agent-1", pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)})
-	r.agentsCache.Set("agent-2", pmmAgentInfo{id: "agent-2", stateChangeChan: make(chan struct{}, 1)})
+	r.agentsCache.Store("agent-1", pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)})
+	r.agentsCache.Store("agent-2", pmmAgentInfo{id: "agent-2", stateChangeChan: make(chan struct{}, 1)})
 	u := NewStateUpdater(db, r, nil, nil, nil, 1)
 	ctx := logger.Set(context.Background(), "test-request")
 
@@ -114,7 +114,7 @@ func TestUpdateAgentsStateQueuesUpdatesForAllConnectedAgents(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, agentID := range []string{"agent-1", "agent-2"} {
-		agent, ok := r.agentsCache.Get(agentID)
+		agent, ok := r.agentsCache.Load(agentID)
 		require.True(t, ok)
 		select {
 		case <-agent.stateChangeChan:
@@ -163,7 +163,7 @@ func TestUpdateAgentsStateIgnoresAgentsThatAreNotInRegistry(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
-	r.agentsCache.Set("agent-1", pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)})
+	r.agentsCache.Store("agent-1", pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)})
 	u := NewStateUpdater(db, r, nil, nil, nil, 1)
 	ctx := logger.Set(context.Background(), "test-request")
 
@@ -177,7 +177,7 @@ func TestUpdateAgentsStateIgnoresAgentsThatAreNotInRegistry(t *testing.T) {
 	err = u.UpdateAgentsState(ctx)
 	require.NoError(t, err)
 
-	agent, ok := r.agentsCache.Get("agent-1")
+	agent, ok := r.agentsCache.Load("agent-1")
 	require.True(t, ok)
 	select {
 	case <-agent.stateChangeChan:

@@ -25,7 +25,7 @@ import (
 
 // TTLCache is a high-performance, sharded, generic TTL cache.
 type TTLCache[V any] struct {
-	shards [shardCount]*shard[uint64, V]
+	shards [shardCount]*shard[V]
 	seed   maphash.Seed
 	ttl    time.Duration
 }
@@ -50,7 +50,7 @@ func NewCacheTTL[V any](ctx context.Context, ttl time.Duration, cleanupInterval 
 	}
 
 	for i := range shardCount {
-		c.shards[i] = &shard[uint64, V]{
+		c.shards[i] = &shard[V]{
 			items: make(map[uint64]item[V]),
 		}
 	}
@@ -64,12 +64,17 @@ func (c *TTLCache[V]) calculateKeyHash(key string) uint64 {
 	return maphash.String(c.seed, key)
 }
 
-// Get retrieves an item. Zero-allocation on the hot path.
-func (c *TTLCache[V]) Get(key string) (V, bool) {
-	keyHash := c.calculateKeyHash(key)
-	// Zero-allocation hash via maphash
+// getShard returns the shard for a precomputed key hash.
+func (c *TTLCache[V]) getShard(keyHash uint64) *shard[V] {
 	shardKey := maphash.Comparable(c.seed, keyHash)
-	shard := c.shards[shardKey&shardMask]
+	return c.shards[shardKey&shardMask]
+}
+
+// Load retrieves an item. Zero-allocation on the hot path.
+// If the key is not found or already exired, the second return value will be false.
+func (c *TTLCache[V]) Load(key string) (V, bool) {
+	keyHash := c.calculateKeyHash(key)
+	shard := c.getShard(keyHash)
 
 	shard.mu.RLock()
 	itm, found := shard.items[keyHash]
@@ -101,13 +106,10 @@ func (c *TTLCache[V]) Get(key string) (V, bool) {
 	return itm.value, true
 }
 
-// Set inserts or updates an item with a specific TTL.
-func (c *TTLCache[V]) Set(key string, value V) {
+// Store inserts or updates an item with a specific TTL.
+func (c *TTLCache[V]) Store(key string, value V) {
 	keyHash := c.calculateKeyHash(key)
-	shardKey := maphash.Comparable(c.seed, keyHash)
-	shard := c.shards[shardKey&shardMask]
-
-	expires := time.Now().Add(c.ttl)
+	shard := c.getShard(keyHash)
 
 	shard.mu.Lock()
 	if _, exists := shard.items[keyHash]; !exists {
@@ -115,7 +117,7 @@ func (c *TTLCache[V]) Set(key string, value V) {
 	}
 	shard.items[keyHash] = item[V]{
 		value:   value,
-		expires: expires,
+		expires: time.Now().Add(c.ttl),
 	}
 	shard.mu.Unlock()
 }
@@ -123,8 +125,7 @@ func (c *TTLCache[V]) Set(key string, value V) {
 // Delete removes an item explicitly.
 func (c *TTLCache[V]) Delete(key string) {
 	keyHash := c.calculateKeyHash(key)
-	shardKey := maphash.Comparable(c.seed, keyHash)
-	shard := c.shards[shardKey&shardMask]
+	shard := c.getShard(keyHash)
 
 	shard.mu.Lock()
 	if _, exists := shard.items[keyHash]; exists {
@@ -132,6 +133,33 @@ func (c *TTLCache[V]) Delete(key string) {
 		shard.size--
 	}
 	shard.mu.Unlock()
+}
+
+// LoadAndDelete atomically retrieves and removes a non-expired item.
+func (c *TTLCache[V]) LoadAndDelete(key string) (V, bool) {
+	keyHash := c.calculateKeyHash(key)
+	shard := c.getShard(keyHash)
+
+	now := time.Now()
+
+	shard.mu.Lock()
+	itm, exists := shard.items[keyHash]
+	if !exists {
+		shard.mu.Unlock()
+		var zero V
+		return zero, false
+	}
+
+	delete(shard.items, keyHash)
+	shard.size--
+	shard.mu.Unlock()
+
+	if now.After(itm.expires) {
+		var zero V
+		return zero, false
+	}
+
+	return itm.value, true
 }
 
 // Size returns the total number of items across all cache shards.

@@ -42,9 +42,9 @@ type item[V any] struct {
 }
 
 // shard contains the actual map and a lock, padded to prevent false sharing.
-type shard[K comparable, V any] struct {
+type shard[V any] struct {
 	mu    sync.RWMutex
-	items map[K]item[V]
+	items map[uint64]item[V]
 	size  int64
 	// Pad to CPU Arch dependant bytes to prevent false sharing in L1 CPU cache.
 	_ cpu.CacheLinePad

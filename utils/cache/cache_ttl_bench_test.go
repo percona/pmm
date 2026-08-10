@@ -26,21 +26,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func BenchmarkCacheTTL_Get(b *testing.B) {
+func BenchmarkCacheTTL_Load(b *testing.B) {
 	ctx, cancel := context.WithCancel(b.Context())
 	defer cancel()
 
 	c, err := NewCacheTTL[int](ctx, time.Minute, time.Minute)
 	require.NoError(b, err)
 
-	c.Set("hit", 42)
+	c.Store("hit", 42)
 
 	b.Run("returns value for existing key", func(b *testing.B) {
 		b.ReportAllocs()
 		for b.Loop() {
-			v, ok := c.Get("hit")
+			v, ok := c.Load("hit")
 			if !ok || v != 42 {
-				b.Fatalf("unexpected get result: ok=%v value=%d", ok, v)
+				b.Fatalf("unexpected Load result: ok=%v value=%d", ok, v)
 			}
 		}
 	})
@@ -48,14 +48,14 @@ func BenchmarkCacheTTL_Get(b *testing.B) {
 	b.Run("returns miss for unknown key", func(b *testing.B) {
 		b.ReportAllocs()
 		for b.Loop() {
-			if _, ok := c.Get("missing"); ok {
+			if _, ok := c.Load("missing"); ok {
 				b.Fatal("expected cache miss")
 			}
 		}
 	})
 }
 
-func BenchmarkCacheTTL_Set(b *testing.B) {
+func BenchmarkCacheTTL_Store(b *testing.B) {
 	ctx, cancel := context.WithCancel(b.Context())
 	defer cancel()
 
@@ -65,7 +65,7 @@ func BenchmarkCacheTTL_Set(b *testing.B) {
 	b.Run("updates same key", func(b *testing.B) {
 		b.ReportAllocs()
 		for b.Loop() {
-			c.Set("stable", 1)
+			c.Store("stable", 1)
 		}
 	})
 
@@ -73,7 +73,7 @@ func BenchmarkCacheTTL_Set(b *testing.B) {
 		b.ReportAllocs()
 		n := 0
 		for b.Loop() {
-			c.Set(strconv.Itoa(n), n)
+			c.Store(strconv.Itoa(n), n)
 			n++
 		}
 	})
@@ -91,7 +91,7 @@ func BenchmarkCacheTTL_Delete(b *testing.B) {
 		n := 0
 		for b.Loop() {
 			k := strconv.Itoa(n)
-			c.Set(k, n)
+			c.Store(k, n)
 			c.Delete(k)
 			n++
 		}
@@ -113,7 +113,7 @@ func BenchmarkCacheTTL_Size(b *testing.B) {
 	require.NoError(b, err)
 
 	for i := range 10_000 {
-		c.Set(strconv.Itoa(i), i)
+		c.Store(strconv.Itoa(i), i)
 	}
 
 	b.ReportAllocs()
@@ -133,7 +133,7 @@ func BenchmarkCacheTTL_EvictionEffectOnSize(b *testing.B) {
 		require.NoError(b, err)
 
 		for i := range 1000 {
-			c.Set(strconv.Itoa(i), i)
+			c.Store(strconv.Itoa(i), i)
 		}
 
 		deadline := time.Now().Add(300 * time.Millisecond)
@@ -149,6 +149,37 @@ func BenchmarkCacheTTL_EvictionEffectOnSize(b *testing.B) {
 		for b.Loop() {
 			if got := c.Size(); got != 0 {
 				b.Fatalf("unexpected size after eviction: got %d", got)
+			}
+		}
+	})
+}
+
+func BenchmarkCacheTTL_LoadAndDelete(b *testing.B) {
+	ctx, cancel := context.WithCancel(b.Context())
+	defer cancel()
+
+	c, err := NewCacheTTL[int](ctx, time.Minute, time.Minute)
+	require.NoError(b, err)
+
+	b.Run("loads and deletes existing key", func(b *testing.B) {
+		b.ReportAllocs()
+		n := 0
+		for b.Loop() {
+			k := strconv.Itoa(n)
+			c.Store(k, n)
+			v, ok := c.LoadAndDelete(k)
+			if !ok || v != n {
+				b.Fatalf("unexpected load and delete result: ok=%v value=%d want=%d", ok, v, n)
+			}
+			n++
+		}
+	})
+
+	b.Run("returns miss for unknown key", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			if _, ok := c.LoadAndDelete("missing"); ok {
+				b.Fatal("expected cache miss")
 			}
 		}
 	})

@@ -329,7 +329,7 @@ func TestCheckPortChanged(t *testing.T) {
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
 
-	t.Run("treats wrapped uint32 port as unchanged when effective uint16 port matches", func(t *testing.T) {
+	t.Run("returns false without query when new port exceeds max allowed", func(t *testing.T) {
 		t.Parallel()
 
 		sqlDB, mock, err := sqlmock.New()
@@ -340,19 +340,6 @@ func TestCheckPortChanged(t *testing.T) {
 		})
 
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
-			WithArgs("test-agent-wrap").
-			WillReturnRows(sqlmock.NewRows(agentColumns).AddRow(
-				"test-agent-wrap",
-				string(models.PMMAgentType),
-				"test-node-wrap",
-				nil, nil, nil, nil, nil,
-				time.Now(), time.Now(),
-				false, "", 8080, nil, nil, false,
-				nil, nil, nil, false, false, nil,
-				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
-			))
 
 		changed := checkPortChanged(db.Querier, "test-agent-wrap", uint32(8080+65536))
 		assert.False(t, changed)
@@ -414,7 +401,7 @@ func TestUpdateAgentStatus(t *testing.T) {
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
 
-	t.Run("returns error for missing agent with terminal stopping status", func(t *testing.T) {
+	t.Run("returns nil for missing agent with terminal stopping status", func(t *testing.T) {
 		t.Parallel()
 
 		sqlDB, mock, err := sqlmock.New()
@@ -440,8 +427,7 @@ func TestUpdateAgentStatus(t *testing.T) {
 			nil,
 			nil,
 		)
-		require.Error(t, err)
-		require.ErrorContains(t, err, "failed to select Agent by ID")
+		require.NoError(t, err)
 		require.NoError(t, mock.ExpectationsWereMet())
 	})
 
@@ -508,6 +494,73 @@ func TestUpdateAgentStatus(t *testing.T) {
 			"disabled-agent",
 			inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
 			9200,
+			nil,
+			nil,
+		)
+		require.NoError(t, err)
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("returns error when listen port exceeds max allowed", func(t *testing.T) {
+		t.Parallel()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		ctx := logger.Set(context.Background(), "test-request")
+
+		err = updateAgentStatus(
+			ctx,
+			db.Querier,
+			"invalid-port-agent",
+			inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+			maxTCPPort+1,
+			nil,
+			nil,
+		)
+		require.Error(t, err)
+		require.ErrorContains(t, err, "invalid listen port")
+
+		require.NoError(t, mock.ExpectationsWereMet())
+	})
+
+	t.Run("updates agent when listen port is max allowed", func(t *testing.T) {
+		t.Parallel()
+
+		sqlDB, mock, err := sqlmock.New()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			_ = mock.ExpectClose()
+			assert.NoError(t, sqlDB.Close())
+		})
+
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		ctx := logger.Set(context.Background(), "test-request")
+
+		mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE .+ LIMIT 1`).
+			WithArgs("agent-max-port").
+			WillReturnRows(sqlmock.NewRows(agentColumns).AddRow(
+				"agent-max-port", string(models.PMMAgentType), "node-max",
+				nil, nil, nil, nil, nil,
+				time.Now(), time.Now(),
+				false, inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN.String(), 9000, "2.0.0", nil, false,
+				nil, nil, nil, false, false, nil,
+				`{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`, `{}`,
+			))
+
+		mock.ExpectExec(`UPDATE "agents"`).WillReturnResult(sqlmock.NewResult(0, 1))
+
+		err = updateAgentStatus(
+			ctx,
+			db.Querier,
+			"agent-max-port",
+			inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+			maxTCPPort,
 			nil,
 			nil,
 		)

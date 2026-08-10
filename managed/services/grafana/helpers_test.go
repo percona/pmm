@@ -491,3 +491,31 @@ func TestGetAuthCacheKey(t *testing.T) {
 		assert.NotEqual(t, keyCookieOnly, keyBoth)
 	})
 }
+
+func TestWriteResponseErrorStatus(t *testing.T) {
+	t.Parallel()
+
+	t.Run("escapes quotes and backslashes in auth headers", func(t *testing.T) {
+		t.Parallel()
+
+		rw := httptest.NewRecorder()
+		writeResponseErrorStatus(rw, http.StatusForbidden, 7, `denied "by" policy\\rule`, `cannot use token "abc\\def"`)
+
+		assert.Equal(t, http.StatusForbidden, rw.Code)
+		assert.Equal(t, `7`, rw.Header().Get(authResponseCodeHeader))
+		assert.Equal(t, `denied \\"by\\" policy\\\\rule`, rw.Header().Get(authResponseErrorHeader))
+		assert.Equal(t, `cannot use token \\"abc\\\\def\\"`, rw.Header().Get(authResponseMessageHeader))
+	})
+
+	t.Run("keeps safe values unchanged", func(t *testing.T) {
+		t.Parallel()
+
+		rw := httptest.NewRecorder()
+		writeResponseErrorStatus(rw, http.StatusUnauthorized, 16, "Access denied.", "Access denied.")
+
+		assert.Equal(t, http.StatusUnauthorized, rw.Code)
+		assert.Equal(t, `16`, rw.Header().Get(authResponseCodeHeader))
+		assert.Equal(t, "Access denied.", rw.Header().Get(authResponseErrorHeader))
+		assert.Equal(t, "Access denied.", rw.Header().Get(authResponseMessageHeader))
+	})
+}

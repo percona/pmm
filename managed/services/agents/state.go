@@ -68,11 +68,11 @@ func NewStateUpdater(db *reform.DB,
 	maxConcurrentUpdates int32,
 ) *StateUpdater {
 	return &StateUpdater{
-		db:       db,
-		r:        r,
-		vmdb:     vmdb,
-		vmParams: vmParams,
-		nomad:    nomad,
+		db:                     db,
+		r:                      r,
+		vmdb:                   vmdb,
+		vmParams:               vmParams,
+		nomad:                  nomad,
 		stateUpdateRateLimiter: rateLimiter.NewConcurrencyLimiter(maxConcurrentUpdates),
 	}
 }
@@ -214,7 +214,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgent pmmAgen
 
 	// Use singleflight to avoid fetching settings for each pmm-agent separately.
 	fetchedSettings, err, _ := u.dbGroup.Do("settings", func() (any, error) { //nolint:contextcheck
-		// NOTE 1: leader's context is not used here directly in order to allow to finish
+		// NOTE: leader's context is not used here directly in order to allow to finish
 		// the request to DB, so that even if leader's request is already terminated -
 		// the rest of waiters in singleflight group will receive the response from DB.
 		settingsCtx, cancel := context.WithTimeout(context.Background(), stateChangeTimeout)
@@ -222,7 +222,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgent pmmAgen
 
 		sett, fetchErr := models.GetSettings(u.db.WithContext(settingsCtx))
 		if fetchErr != nil {
-			// IMPORTANT: On error, we call Forget(hash) IMMEDIATELY.
+			// IMPORTANT: On error, we call Forget("settings") IMMEDIATELY.
 			// This prevents the error from getting stuck in the internal singleflight map
 			// and allows the next request to retry immediately (e.g. if the DB is being restored).
 			u.dbGroup.Forget("settings")
@@ -239,13 +239,13 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgent pmmAgen
 	}
 
 	filters := models.AgentFilters{
-		PMMAgentID: pmmAgent.id,
+		PMMAgentID:  pmmAgent.id,
 		IgnoreNomad: !settings.IsNomadEnabled(),
 		// fetch enabled only
 		Disabled: new(false),
 	}
 	// It is completely OK to re-use the same Querier for multiple queries, as it is safe for concurrent use
-	// and creates less preasure on GC.
+	// and creates less pressure on GC.
 	q := u.db.WithContext(ctx)
 	agents, err := models.FindAgents(q, filters)
 	if err != nil {
@@ -253,11 +253,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgent pmmAgen
 	}
 
 	// pre-fetch node info since it's common for all subagents of particluar pmm-agent.
-	// Use singleflight to avoid fetching settings for each pmm-agent separately in cases
+	// Use singleflight to avoid fetching node info for each pmm-agent separately in cases
 	// when several pmm-agents are running on the same node.
 	nodeKey := "node/" + pmmAgent.runsOnNodeID
 	fetchedNode, err, _ := u.dbGroup.Do(nodeKey, func() (any, error) { //nolint:contextcheck
-		// NOTE 1: leader's context is not used here directly in order to allow to finish
+		// NOTE: leader's context is not used here directly in order to allow to finish
 		// the request to DB, so that even if leader's request is already terminated -
 		// the rest of waiters in singleflight group will receive the response from DB.
 		nodeCtx, cancel := context.WithTimeout(context.Background(), stateChangeTimeout)

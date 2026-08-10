@@ -174,7 +174,7 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 func (r *Registry) IsConnected(pmmAgentID string) bool {
 	if !r.haService.Params().Enabled {
 		// Non-HA mode: check in-memory registry
-		_, exists := r.agentsCache.Get(pmmAgentID)
+		_, exists := r.agentsCache.Load(pmmAgentID)
 		return exists
 	}
 
@@ -265,15 +265,27 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgent
 		return zero, err
 	}
 
-	currentAgent, exists := r.agentsCache.Get(agentMD.ID)
-	if exists {
+	agent := pmmAgentInfo{
+		id:              agentMD.ID,
+		runsOnNodeID:    node.NodeID,
+		version:         pmmAgentVersion,
+		channel:         channel.New(ctx, stream),
+		stateChangeChan: make(chan struct{}, 1),
+		kickChan:        make(chan struct{}),
+	}
+
+	for {
+		currentAgent, exists := r.agentsCache.LoadOrStore(agentMD.ID, agent)
+		if !exists {
+			break
+		}
 		// pmm-agent with the same ID can still be connected in two cases:
 		//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
 		//   2. pmm-agent detects broken connection and reconnects,
 		//      but pmm-managed still thinks that the previous connection is okay.
-		// If agent respond with pong (no error) new connection is not established,
+		// If agent responds with pong (no error) new connection is not established,
 		// so we return AlreadyExists error. Otherwise we kick the previous connection
-		// and proceed with the new one.
+		// and retry atomic registration.
 		err := r.ping(ctx, currentAgent)
 		if err == nil {
 			return zero, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
@@ -283,16 +295,6 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgent
 		r.Kick(ctx, agentMD.ID)
 		l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
 	}
-
-	agent := pmmAgentInfo{
-		id:              agentMD.ID,
-		runsOnNodeID:    node.NodeID,
-		version:         pmmAgentVersion,
-		channel:         channel.New(ctx, stream),
-		stateChangeChan: make(chan struct{}, 1),
-		kickChan:        make(chan struct{}),
-	}
-	r.agentsCache.Set(agentMD.ID, agent)
 
 	// Only persist is_connected to database when HA is enabled
 	if r.haService.Params().Enabled {
@@ -383,12 +385,11 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 	// We do not check that pmmAgentID is in fact ID of existing pmm-agent because
 	// it may be already deleted from the database, that's why we unregister it.
 
-	agent, ok := r.agentsCache.Get(pmmAgentID)
+	agent, ok := r.agentsCache.LoadAndDelete(pmmAgentID)
 	if !ok {
 		return zero
 	}
 
-	r.agentsCache.Delete(pmmAgentID)
 	r.roster.clear(pmmAgentID)
 
 	// Only persist connection status when HA is enabled
@@ -515,7 +516,7 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 }
 
 func (r *Registry) get(pmmAgentID string) (pmmAgentInfo, error) {
-	pmmAgent, ok := r.agentsCache.Get(pmmAgentID)
+	pmmAgent, ok := r.agentsCache.Load(pmmAgentID)
 	if !ok {
 		var zero pmmAgentInfo
 		return zero, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s is not currently connected", pmmAgentID)
@@ -534,7 +535,7 @@ func (r *Registry) Describe(ch chan<- *prom.Desc) {
 
 // Collect implement prometheus.Collector.
 func (r *Registry) Collect(ch chan<- prom.Metric) {
-	for _, agent := range r.agentsCache.All() {
+	for _, agent := range r.agentsCache.IterAll() {
 		m := agent.channel.Metrics()
 
 		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, m.Sent, agent.id)
@@ -553,7 +554,7 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 // KickAll sends a signal to all registered agents in the registry to perform a kick action.
 func (r *Registry) KickAll(ctx context.Context) {
 	ids := make([]string, 0, int(r.agentsCache.Size()))
-	for _, agentInfo := range r.agentsCache.All() {
+	for _, agentInfo := range r.agentsCache.IterAll() {
 		// NOTE: Can't call Kick() inside `for r.agentsCache.All()` loop.
 		ids = append(ids, agentInfo.id)
 	}

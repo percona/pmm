@@ -21,7 +21,7 @@ import (
 
 // Cache is a high-performance, sharded, generic cache.
 type Cache[V any] struct {
-	shards [shardCount]*shard[uint64, V]
+	shards [shardCount]*shard[V]
 	seed   maphash.Seed
 }
 
@@ -32,7 +32,7 @@ func NewCache[V any]() *Cache[V] {
 	}
 
 	for i := range shardCount {
-		c.shards[i] = &shard[uint64, V]{
+		c.shards[i] = &shard[V]{
 			items: make(map[uint64]item[V]),
 		}
 	}
@@ -45,12 +45,17 @@ func (c *Cache[V]) calculateKeyHash(key string) uint64 {
 	return maphash.String(c.seed, key)
 }
 
-// Get retrieves an item. Zero-allocation on the hot path.
-func (c *Cache[V]) Get(key string) (V, bool) {
-	keyHash := c.calculateKeyHash(key)
-	// Zero-allocation hash via maphash
+// getShard returns the shard for a precomputed key hash.
+func (c *Cache[V]) getShard(keyHash uint64) *shard[V] {
 	shardKey := maphash.Comparable(c.seed, keyHash)
-	shard := c.shards[shardKey&shardMask]
+	return c.shards[shardKey&shardMask]
+}
+
+// Load retrieves an item. Zero-allocation on the hot path.
+// If the key is not found, the second return value will be false.
+func (c *Cache[V]) Load(key string) (V, bool) {
+	keyHash := c.calculateKeyHash(key)
+	shard := c.getShard(keyHash)
 
 	shard.mu.RLock()
 	itm, found := shard.items[keyHash]
@@ -64,11 +69,11 @@ func (c *Cache[V]) Get(key string) (V, bool) {
 	return itm.value, true
 }
 
-// All returns an iterator over all items in the cache.
+// IterAll returns an iterator over all items in the cache.
 // Deadlock Risk: Because the yield function executes while the shard's read lock is held,
 // you must not write to the cache inside the loop.
 // Calling a method that acquires a Lock() on the same shard will cause a deadlock.
-func (c *Cache[V]) All() iter.Seq2[uint64, V] {
+func (c *Cache[V]) IterAll() iter.Seq2[uint64, V] {
 	return func(yield func(uint64, V) bool) {
 		for i := range shardCount {
 			s := c.shards[i]
@@ -85,11 +90,10 @@ func (c *Cache[V]) All() iter.Seq2[uint64, V] {
 	}
 }
 
-// Set inserts or updates an item with a specific TTL.
-func (c *Cache[V]) Set(key string, value V) {
+// Store inserts or updates an item. If the key already exists, it will be overwritten.
+func (c *Cache[V]) Store(key string, value V) {
 	keyHash := c.calculateKeyHash(key)
-	shardKey := maphash.Comparable(c.seed, keyHash)
-	shard := c.shards[shardKey&shardMask]
+	shard := c.getShard(keyHash)
 
 	shard.mu.Lock()
 	if _, exists := shard.items[keyHash]; !exists {
@@ -101,11 +105,32 @@ func (c *Cache[V]) Set(key string, value V) {
 	shard.mu.Unlock()
 }
 
+// LoadOrStore returns the existing value for a key if present.
+// Otherwise, it stores and returns the given value. The loaded result is true when the key already existed.
+func (c *Cache[V]) LoadOrStore(key string, value V) (V, bool) {
+	keyHash := c.calculateKeyHash(key)
+	shard := c.getShard(keyHash)
+
+	shard.mu.Lock()
+	itm, exists := shard.items[keyHash]
+	if exists {
+		shard.mu.Unlock()
+		return itm.value, true
+	}
+
+	shard.size++
+	shard.items[keyHash] = item[V]{
+		value: value,
+	}
+	shard.mu.Unlock()
+
+	return value, false
+}
+
 // Delete removes an item explicitly.
 func (c *Cache[V]) Delete(key string) {
 	keyHash := c.calculateKeyHash(key)
-	shardKey := maphash.Comparable(c.seed, keyHash)
-	shard := c.shards[shardKey&shardMask]
+	shard := c.getShard(keyHash)
 
 	shard.mu.Lock()
 	if _, exists := shard.items[keyHash]; exists {
@@ -113,6 +138,27 @@ func (c *Cache[V]) Delete(key string) {
 		shard.size--
 	}
 	shard.mu.Unlock()
+}
+
+// LoadAndDelete atomically retrieves and removes an item.
+func (c *Cache[V]) LoadAndDelete(key string) (V, bool) {
+	keyHash := c.calculateKeyHash(key)
+	shard := c.getShard(keyHash)
+
+	shard.mu.Lock()
+	itm, exists := shard.items[keyHash]
+	if exists {
+		delete(shard.items, keyHash)
+		shard.size--
+	}
+	shard.mu.Unlock()
+
+	if !exists {
+		var zero V
+		return zero, false
+	}
+
+	return itm.value, true
 }
 
 // Size returns the total number of items across all cache shards.

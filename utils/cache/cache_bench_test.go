@@ -19,16 +19,16 @@ import (
 	"testing"
 )
 
-func BenchmarkCache_Get(b *testing.B) {
+func BenchmarkCache_Load(b *testing.B) {
 	c := NewCache[int]()
-	c.Set("hit", 42)
+	c.Store("hit", 42)
 
 	b.Run("returns value for existing key", func(b *testing.B) {
 		b.ReportAllocs()
 		for b.Loop() {
-			v, ok := c.Get("hit")
+			v, ok := c.Load("hit")
 			if !ok || v != 42 {
-				b.Fatalf("unexpected get result: ok=%v value=%d", ok, v)
+				b.Fatalf("unexpected Load result: ok=%v value=%d", ok, v)
 			}
 		}
 	})
@@ -36,20 +36,20 @@ func BenchmarkCache_Get(b *testing.B) {
 	b.Run("returns miss for unknown key", func(b *testing.B) {
 		b.ReportAllocs()
 		for b.Loop() {
-			if _, ok := c.Get("missing"); ok {
+			if _, ok := c.Load("missing"); ok {
 				b.Fatal("expected cache miss")
 			}
 		}
 	})
 }
 
-func BenchmarkCache_Set(b *testing.B) {
+func BenchmarkCache_Store(b *testing.B) {
 	c := NewCache[int]()
 
 	b.Run("updates same key", func(b *testing.B) {
 		b.ReportAllocs()
 		for b.Loop() {
-			c.Set("stable", 1)
+			c.Store("stable", 1)
 		}
 	})
 
@@ -57,7 +57,7 @@ func BenchmarkCache_Set(b *testing.B) {
 		b.ReportAllocs()
 		n := 0
 		for b.Loop() {
-			c.Set(strconv.Itoa(n), n)
+			c.Store(strconv.Itoa(n), n)
 			n++
 		}
 	})
@@ -71,7 +71,7 @@ func BenchmarkCache_Delete(b *testing.B) {
 		n := 0
 		for b.Loop() {
 			k := strconv.Itoa(n)
-			c.Set(k, n)
+			c.Store(k, n)
 			c.Delete(k)
 			n++
 		}
@@ -89,7 +89,7 @@ func BenchmarkCache_Size(b *testing.B) {
 	c := NewCache[int]()
 
 	for i := range 10_000 {
-		c.Set(strconv.Itoa(i), i)
+		c.Store(strconv.Itoa(i), i)
 	}
 
 	b.ReportAllocs()
@@ -98,4 +98,61 @@ func BenchmarkCache_Size(b *testing.B) {
 			b.Fatalf("unexpected size: got %d, want %d", got, 10_000)
 		}
 	}
+}
+
+func BenchmarkCache_LoadAndDelete(b *testing.B) {
+	c := NewCache[int]()
+
+	b.Run("loads and deletes existing key", func(b *testing.B) {
+		b.ReportAllocs()
+		n := 0
+		for b.Loop() {
+			k := strconv.Itoa(n)
+			c.Store(k, n)
+			v, ok := c.LoadAndDelete(k)
+			if !ok || v != n {
+				b.Fatalf("unexpected load and delete result: ok=%v value=%d want=%d", ok, v, n)
+			}
+			n++
+		}
+	})
+
+	b.Run("returns miss for unknown key", func(b *testing.B) {
+		b.ReportAllocs()
+		for b.Loop() {
+			if _, ok := c.LoadAndDelete("missing"); ok {
+				b.Fatal("expected cache miss")
+			}
+		}
+	})
+}
+
+func BenchmarkCache_LoadOrStore_Miss(b *testing.B) {
+	c := NewCache[int]()
+
+	b.ResetTimer()
+	for i := range b.N {
+		c.LoadOrStore("k-"+strconv.Itoa(i), i)
+	}
+}
+
+func BenchmarkCache_LoadOrStore_Hit(b *testing.B) {
+	c := NewCache[int]()
+	c.Store("k", 1)
+
+	b.ResetTimer()
+	for i := range b.N {
+		c.LoadOrStore("k", i)
+	}
+}
+
+func BenchmarkCache_LoadOrStore_ParallelContention(b *testing.B) {
+	c := NewCache[int]()
+
+	b.ResetTimer()
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			c.LoadOrStore("k", 1)
+		}
+	})
 }

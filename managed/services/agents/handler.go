@@ -38,6 +38,8 @@ import (
 
 const defaultAgentPingInterval = 10 * time.Second
 
+const maxTCPPort = uint32(1<<16 - 1)
+
 // Handler handles agent requests.
 type Handler struct {
 	db          *reform.DB
@@ -243,6 +245,10 @@ func (h *Handler) stateChanged(ctx context.Context, pmmAgentID string, req *agen
 
 // checkPortChanged checks if the agent's listen port is changing.
 func checkPortChanged(q *reform.Querier, agentID string, newPort uint32) bool {
+	if newPort > maxTCPPort {
+		return false
+	}
+
 	agent, err := models.FindAgentByID(q, agentID)
 	if err != nil {
 		// Can't determine, assume no change
@@ -258,36 +264,40 @@ func updateAgentStatus(
 	ctx context.Context,
 	q *reform.Querier,
 	agentID string,
-	status inventoryv1.AgentStatus,
+	agentStatus inventoryv1.AgentStatus,
 	listenPort uint32,
 	processExecPath *string,
 	version *string,
 ) error {
 	l := logger.Get(ctx).WithField("component", "agents/handler")
-	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
+	l.Debugf("updateAgentStatus: %s %s %d", agentID, agentStatus, listenPort)
+
+	if listenPort > maxTCPPort {
+		return fmt.Errorf("invalid listen port %d: must be <= %d", listenPort, maxTCPPort)
+	}
 
 	agent, err := models.FindAgentByID(q, agentID)
 
 	// agent can be already deleted, but we still can receive status message from pmm-agent.
-	if errors.Is(err, reform.ErrNoRows) {
-		if status == inventoryv1.AgentStatus_AGENT_STATUS_STOPPING || status == inventoryv1.AgentStatus_AGENT_STATUS_DONE {
+	if errors.Is(err, reform.ErrNoRows) || status.Code(err) == codes.NotFound {
+		if agentStatus == inventoryv1.AgentStatus_AGENT_STATUS_STOPPING || agentStatus == inventoryv1.AgentStatus_AGENT_STATUS_DONE {
 			return nil
 		}
 
-		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, status)
+		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, agentStatus)
 	}
 	if err != nil {
 		return fmt.Errorf("failed to select Agent by ID: %w", err)
 	}
 
 	if agent.Disabled {
-		if status != inventoryv1.AgentStatus_AGENT_STATUS_DONE {
-			l.Debugf("Agent %s is disabled, but status is %s. Setting status to DONE.", agentID, status)
+		if agentStatus != inventoryv1.AgentStatus_AGENT_STATUS_DONE {
+			l.Debugf("Agent %s is disabled, but status is %s. Setting status to DONE.", agentID, agentStatus)
 		}
-		status = inventoryv1.AgentStatus_AGENT_STATUS_DONE
+		agentStatus = inventoryv1.AgentStatus_AGENT_STATUS_DONE
 	}
 
-	agent.Status = status.String()
+	agent.Status = agentStatus.String()
 	agent.ProcessExecPath = processExecPath
 	agent.ListenPort = new(uint16(listenPort)) //nolint:gosec // port is uint16
 	if version != nil {

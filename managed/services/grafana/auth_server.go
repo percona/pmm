@@ -580,7 +580,7 @@ func (s *AuthServer) getAuthUser(req *http.Request, l *logrus.Entry) (authUser, 
 	authCacheKey := getAuthCacheKey(req)
 
 	// Hot-path: lookup user in cache first.
-	if cached, ok := s.cache.Get(authCacheKey); ok {
+	if cached, ok := s.cache.Load(authCacheKey); ok {
 		// Verify auth headers for this hash to prevent serving wrong user on rare hash collisions.
 		if cached.authorization == authorization && cached.cookie == cookie {
 			s.incCacheHit()
@@ -596,7 +596,7 @@ func (s *AuthServer) getAuthUser(req *http.Request, l *logrus.Entry) (authUser, 
 	res, err, _ := s.authUserGroup.Do(authCacheKey, func() (any, error) {
 		// Recheck inside singleflight to avoid duplicate upstream calls when
 		// another goroutine already populated cache while we were waiting.
-		if cached, ok := s.cache.Get(authCacheKey); ok {
+		if cached, ok := s.cache.Load(authCacheKey); ok {
 			if cached.authorization == authorization && cached.cookie == cookie {
 				return cached.user, nil
 			}
@@ -618,7 +618,7 @@ func (s *AuthServer) getAuthUser(req *http.Request, l *logrus.Entry) (authUser, 
 		}
 
 		// Store the retrieved user info in cache for future requests.
-		s.cache.Set(authCacheKey, cachedAuthUser{
+		s.cache.Store(authCacheKey, cachedAuthUser{
 			user:          userAuthInfo,
 			authorization: authorization,
 			cookie:        cookie,

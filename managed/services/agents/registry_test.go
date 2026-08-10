@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"net/url"
+	"sync"
 	"testing"
 	"time"
 
@@ -37,7 +38,7 @@ func TestRegistryIsConnectedUsesInMemoryStateWhenHAIsDisabled(t *testing.T) {
 	t.Parallel()
 
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
-	r.agentsCache.Set("agent-connected", pmmAgentInfo{id: "agent-connected"})
+	r.agentsCache.Store("agent-connected", pmmAgentInfo{id: "agent-connected"})
 
 	assert.True(t, r.IsConnected("agent-connected"))
 	assert.False(t, r.IsConnected("agent-missing"))
@@ -106,7 +107,7 @@ func TestRegistryGetReturnsConnectedAgentAndMissingAgentError(t *testing.T) {
 	t.Parallel()
 
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
-	r.agentsCache.Set("agent-connected", pmmAgentInfo{id: "agent-connected"})
+	r.agentsCache.Store("agent-connected", pmmAgentInfo{id: "agent-connected"})
 
 	agent, err := r.get("agent-connected")
 	require.NoError(t, err)
@@ -122,12 +123,12 @@ func TestRegistryKickRemovesAgentAndClosesKickChannel(t *testing.T) {
 
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
 	kickCh := make(chan struct{})
-	r.agentsCache.Set("agent-1", pmmAgentInfo{id: "agent-1", kickChan: kickCh})
+	r.agentsCache.Store("agent-1", pmmAgentInfo{id: "agent-1", kickChan: kickCh})
 	ctx := logger.Set(context.Background(), "test-request")
 
 	r.Kick(ctx, "agent-1")
 
-	_, exists := r.agentsCache.Get("agent-1")
+	_, exists := r.agentsCache.Load("agent-1")
 	assert.False(t, exists)
 
 	select {
@@ -143,8 +144,8 @@ func TestRegistryKickAllDisconnectsEveryRegisteredAgent(t *testing.T) {
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
 	kickCh1 := make(chan struct{})
 	kickCh2 := make(chan struct{})
-	r.agentsCache.Set("agent-1", pmmAgentInfo{id: "agent-1", kickChan: kickCh1})
-	r.agentsCache.Set("agent-2", pmmAgentInfo{id: "agent-2", kickChan: kickCh2})
+	r.agentsCache.Store("agent-1", pmmAgentInfo{id: "agent-1", kickChan: kickCh1})
+	r.agentsCache.Store("agent-2", pmmAgentInfo{id: "agent-2", kickChan: kickCh2})
 	ctx := logger.Set(context.Background(), "test-request")
 
 	r.KickAll(ctx)
@@ -161,6 +162,33 @@ func TestRegistryKickAllDisconnectsEveryRegisteredAgent(t *testing.T) {
 	case <-kickCh2:
 	default:
 		t.Fatal("second kick channel should be closed")
+	}
+}
+
+func TestRegistryKick_ConcurrentCallsOnSameAgentDisconnectOnce(t *testing.T) {
+	t.Parallel()
+
+	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
+	kickCh := make(chan struct{})
+	r.agentsCache.Store("agent-1", pmmAgentInfo{id: "agent-1", kickChan: kickCh})
+	ctx := logger.Set(context.Background(), "test-request")
+
+	const goroutines = 128
+	var wg sync.WaitGroup
+	for range goroutines {
+		wg.Go(func() {
+			r.Kick(ctx, "agent-1")
+		})
+	}
+	wg.Wait()
+
+	_, exists := r.agentsCache.Load("agent-1")
+	assert.False(t, exists)
+
+	select {
+	case <-kickCh:
+	default:
+		t.Fatal("kick channel should be closed")
 	}
 }
 

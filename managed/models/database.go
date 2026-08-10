@@ -1193,6 +1193,16 @@ var databaseSchema = [][]string{
 // OpenDB returns configured connection pool for PostgreSQL.
 // OpenDB just validates its arguments without creating a connection to the database.
 func OpenDB(params SetupDBParams) (*sql.DB, error) {
+	if params.ConnMaxIdleTime <= 0 {
+		return nil, errors.New("conn_max_idle_time must be set to a positive duration")
+	}
+	if params.MaxOpenConns <= 0 {
+		return nil, errors.New("max_open_conns must be set to a positive value")
+	}
+	if params.MaxIdleConns <= 0 {
+		params.MaxIdleConns = params.MaxOpenConns
+	}
+
 	q := make(url.Values)
 	if params.SSLMode == "" {
 		params.SSLMode = DisableSSLMode
@@ -1399,7 +1409,15 @@ func initWithRoot(params SetupDBParams) error {
 	}
 
 	// we use postgres user for creating database
-	db, err := OpenDB(SetupDBParams{Address: params.Address, Username: "postgres", Password: string(passwordBytes)})
+	db, err := OpenDB(SetupDBParams{
+		Address:         params.Address,
+		Username:        "postgres",
+		Password:        string(passwordBytes),
+		ConnMaxLifetime: params.ConnMaxLifetime,
+		ConnMaxIdleTime: params.ConnMaxIdleTime,
+		MaxIdleConns:    params.MaxIdleConns,
+		MaxOpenConns:    params.MaxOpenConns,
+	})
 	if err != nil {
 		return fmt.Errorf("failed to open the database: %w", err)
 	}

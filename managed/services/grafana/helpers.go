@@ -68,14 +68,25 @@ func convertAuthErrorToHTTPStatus(code codes.Code) int {
 	return authenticationErrorCode
 }
 
+var jsonStringValueEscaper = strings.NewReplacer(`\\`, `\\\\`, `"`, `\\"`)
+
+// escapeJSONStringValue escapes characters that break JSON string values when headers
+// are later interpolated into JSON payloads by downstream components.
+func escapeJSONStringValue(s string) string {
+	if !strings.ContainsAny(s, `\\"`) {
+		return s
+	}
+	return jsonStringValueEscaper.Replace(s)
+}
+
 // writeResponseErrorStatus sends an HTTP response header with the provided
 // status code and writes custom HTTP headers with auth error details.
 func writeResponseErrorStatus(rw http.ResponseWriter, status, authCode int, authError, authMessage string) {
 	// nginx ignores the auth_request subrequest body: we use custom HTTP headers
 	// to pass auth response error details to nginx.
 	rw.Header().Set(authResponseCodeHeader, strconv.Itoa(authCode))
-	rw.Header().Set(authResponseErrorHeader, authError)
-	rw.Header().Set(authResponseMessageHeader, authMessage)
+	rw.Header().Set(authResponseErrorHeader, escapeJSONStringValue(authError))
+	rw.Header().Set(authResponseMessageHeader, escapeJSONStringValue(authMessage))
 	rw.WriteHeader(status)
 }
 
@@ -238,6 +249,9 @@ func cleanPath(uri string) (string, error) {
 	}
 	unescaped = strings.ReplaceAll(unescaped, "\n", " ")
 	unescaped = strings.ReplaceAll(unescaped, "\r", " ")
+	if i := strings.IndexByte(unescaped, '?'); i >= 0 {
+		unescaped = unescaped[:i]
+	}
 	return path.Clean(unescaped), nil
 }
 
