@@ -1,22 +1,17 @@
 #!/bin/bash
 #
 # Provisions the Grafana service account SEP authenticates with, and publishes its
-# token to a secrets directory the SEP container mounts. One file per canonical SEP
-# settings name, mode 0640 in a setgid 2770 directory, so the SEP container must join
-# group 0 to read them. The setgid bit is load-bearing: without it a file takes the
-# publishing process's primary group, which is 0 only in the stock image.
+# token to a secrets directory the SEP container mounts, one file per canonical SEP
+# settings name. The files are 0640 and take group 0 from the setgid directory
+# post-build.yml ships - nothing here sets their group, so that bit must stay.
 #
 # Everything below is a no-op unless PMM_ENABLE_SEP is set. When it is unset again,
 # the token files this script wrote are removed on the next start; the Grafana
 # service account itself is left in place.
 #
 # Runs under supervisord rather than from the entrypoint because Grafana is neither
-# running nor migrated - on a first boot its schema does not exist at all - until
-# long after the entrypoint has exec'd supervisord.
-#
-# The token is validated against Grafana on every start, and replaced when the file is
-# missing or empty or Grafana rejects it, because SEP reads the secrets directory once
-# at its own start: re-minting unconditionally would revoke a running SEP's token.
+# running nor migrated - on a first boot its schema does not exist - until long after
+# the entrypoint has exec'd supervisord.
 
 set -o errexit
 set -o pipefail
@@ -27,7 +22,7 @@ declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:-/usr/pgsql-14/bin}"
 declare SA_NAME="pmm-sep"
 declare TOKEN_NAME="pmm-sep"
 # Generous because a failed run is not retried: the one-shot cannot bound its own
-# restarts under supervisord, so waiting longer here is what absorbs a slow first boot.
+# restarts under supervisord.
 declare READY_TIMEOUT=600
 declare READY_INTERVAL=5
 declare -a TOKEN_FILES=(AUTH__PROVIDER__GRAFANA__SERVICE_ACCOUNT_TOKEN PMM__API_KEY)
@@ -62,9 +57,8 @@ wait_for_grafana() {
 }
 
 # Prints the status of an authenticated call to the access-control endpoint SEP's
-# org-role lookups go through, or 000 when the call could not be made at all. The
-# header is fed on stdin rather than passed with -H so the token never appears in any
-# process's argv.
+# org-role lookups go through, or 000 when the call could not be made at all. Fed on
+# stdin rather than -H so the token never appears in any process's argv.
 #
 # Unreachable is kept distinct from rejected, and retried, because a transient failure
 # is not a revoked token: reading one as the other re-mints on the reuse path below.
@@ -88,7 +82,6 @@ grafana_auth_status() {
 
 # The validator endpoint answers 200 for any role, so a service account demoted in the
 # Grafana UI would keep authenticating while SEP's org-role lookups silently degrade.
-# Idempotent, and writes only when the role has actually drifted.
 ensure_admin_role() {
     psql_grafana -v sa_name="$SA_NAME" <<'SQL'
 UPDATE org_user ou
@@ -100,10 +93,10 @@ WHERE u.id = ou.user_id
 SQL
 }
 
-# Prints the token value, its api_key.key hash, and the user row's salt, rands and
-# uid, one per line. The encoding reproduces Grafana's own: the checksum is
-# crc32("glsa_" + secret) serialised little-endian, and the stored hash is
-# util.EncodePassword(secret, checksum).
+# Prints, one per line and in the order the caller unpacks them: the token value, its
+# api_key.key hash, and the user row's salt, rands and uid. The encoding reproduces
+# Grafana's own - crc32("glsa_" + secret) little-endian as the checksum,
+# util.EncodePassword(secret, checksum) as the stored hash.
 generate_token_material() {
     python3 - <<'PY'
 import binascii
@@ -126,15 +119,13 @@ print("".join(secrets.choice(string.ascii_lowercase + string.digits) for _ in ra
 PY
 }
 
-# Administers Grafana through the database it owns, the way postgres-sep provisions
-# the sep role as the local superuser: Grafana exposes no credential-free path to
-# create a service account, and pmm-server holds no Grafana admin credential once an
-# operator has changed the admin password.
+# Administers Grafana through the database it owns, the way postgres-sep provisions the
+# sep role as the local superuser: Grafana exposes no credential-free path to create a
+# service account, and once an operator changes the admin password pmm-server holds none.
 #
-# psql only interpolates :'var' when reading a script, hence stdin rather than -c.
-# \gset is what carries the org and service-account ids between statements; the
-# ON CONFLICT clauses target UQE_user_login and UQE_org_user_org_id_user_id, and
-# DO UPDATE rather than DO NOTHING is what makes RETURNING fire on re-provisioning.
+# psql only interpolates :'var' when reading a script, hence stdin rather than -c. The
+# ON CONFLICT clauses target UQE_user_login and UQE_org_user_org_id_user_id, and DO
+# UPDATE rather than DO NOTHING is what makes RETURNING fire on re-provisioning.
 provision_service_account() {
     local hashed="$1" salt="$2" rands="$3" uid="$4"
 
@@ -159,8 +150,8 @@ INSERT INTO org_user (org_id, user_id, role, created, updated)
 VALUES (:'org_id', :'sa_id', 'Admin', now(), now())
 ON CONFLICT (org_id, user_id) DO UPDATE SET role = 'Admin', updated = now();
 
--- Also matched on (org_id, name) so a token orphaned from an earlier account cannot
--- collide with UQE_api_key_org_id_name and abort the insert below.
+-- Every token on the account, plus any token elsewhere in the org already holding the
+-- name, which would otherwise collide with UQE_api_key_org_id_name below.
 DELETE FROM api_key
 WHERE service_account_id = :'sa_id' OR (org_id = :'org_id' AND name = :'token_name');
 
@@ -186,9 +177,8 @@ publish_token() {
     done
 }
 
-# Inert by design - the disabled path must not fail a start over a directory this uid
-# cannot write - but a token left behind is still readable by SEP, so say so rather
-# than swallowing the failure.
+# Never fatal, so the disabled path cannot fail a start over a directory this uid cannot
+# write - but a token left behind is still readable by SEP, so it is reported.
 remove_token_files() {
     local name path
 
