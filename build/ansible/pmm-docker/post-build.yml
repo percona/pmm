@@ -70,13 +70,16 @@
     # Must exist in the image: a named volume mounted at a path the image lacks is
     # created root:root, which pmm-server cannot write to. Group-writable like the
     # other /srv directories, so an arbitrary runtime uid in group 0 can still write.
+    # Setgid so the token files written here belong to group 0 whatever that uid's
+    # primary group is - the SEP container joins group 0 to read them. Docker carries
+    # the bit into a fresh named volume mounted at this path.
     - name: Create the SEP secrets mountpoint
       file:
         path: /srv/sep-secrets
         state: directory
         owner: pmm
         group: root
-        mode: 0770
+        mode: 02770
 
     - name: Create empty log directory for nginx
       file:
