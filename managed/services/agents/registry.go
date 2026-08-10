@@ -552,7 +552,7 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 
 // KickAll sends a signal to all registered agents in the registry to perform a kick action.
 func (r *Registry) KickAll(ctx context.Context) {
-	ids := make([]string, 0, r.agentsCache.Size())
+	ids := make([]string, 0, int(r.agentsCache.Size()))
 	for _, agentInfo := range r.agentsCache.All() {
 		// NOTE: Can't call Kick() inside `for r.agentsCache.All()` loop.
 		ids = append(ids, agentInfo.id)
