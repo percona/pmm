@@ -2,7 +2,8 @@
 #
 # Provisions the Grafana service account SEP authenticates with, and publishes its
 # token to a secrets directory the SEP container mounts. One file per canonical SEP
-# settings name, mode 0640, owned by pmm's primary group, so SEP must join group 0.
+# settings name, mode 0640 in a 0770 directory, owned by pmm's primary group, so the
+# SEP container must join group 0 to read them.
 #
 # Everything below is a no-op unless PMM_ENABLE_SEP is set. When it is unset again,
 # the token files this script wrote are removed on the next start; the Grafana
@@ -12,9 +13,9 @@
 # running nor migrated - on a first boot its schema does not exist at all - until
 # long after the entrypoint has exec'd supervisord.
 #
-# The token is validated against Grafana on every start and replaced only when
-# Grafana rejects it, because SEP reads the secrets directory once at its own start:
-# re-minting unconditionally would revoke the token a running SEP is still holding.
+# The token is validated against Grafana on every start, and replaced when the file is
+# missing or empty or Grafana rejects it, because SEP reads the secrets directory once
+# at its own start: re-minting unconditionally would revoke a running SEP's token.
 
 set -o errexit
 set -o pipefail
@@ -27,6 +28,13 @@ declare TOKEN_NAME="pmm-sep"
 declare READY_TIMEOUT=300
 declare READY_INTERVAL=5
 declare -a TOKEN_FILES=(AUTH__PROVIDER__GRAFANA__SERVICE_ACCOUNT_TOKEN PMM__API_KEY)
+declare TMP_FILE=""
+
+cleanup() {
+    [ -n "$TMP_FILE" ] && rm -f "$TMP_FILE"
+    return 0
+}
+trap cleanup EXIT
 
 is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
 
@@ -57,10 +65,24 @@ grafana_authenticates() {
     local code
 
     code=$(printf 'header = "Authorization: Bearer %s"\n' "$1" |
-        curl -sS -K - -o /dev/null -w '%{http_code}' \
+        curl -sS -K - --max-time 10 -o /dev/null -w '%{http_code}' \
             "$GRAFANA_URL/api/access-control/user/permissions") || return 1
 
     [ "$code" = "200" ]
+}
+
+# The validator endpoint answers 200 for any role, so a service account demoted in the
+# Grafana UI would keep authenticating while SEP's org-role lookups silently degrade.
+# Idempotent, and writes only when the role has actually drifted.
+ensure_admin_role() {
+    psql_grafana -v sa_name="$SA_NAME" <<'SQL'
+UPDATE org_user ou
+SET role = 'Admin', updated = now()
+FROM "user" u
+WHERE u.id = ou.user_id
+  AND u.login = 'sa-' || ou.org_id || '-' || :'sa_name'
+  AND ou.role <> 'Admin';
+SQL
 }
 
 # Prints the token value, its api_key.key hash, and the user row's salt, rands and
@@ -138,21 +160,24 @@ SQL
 
 # Written through a temporary file so SEP never reads a half-written secret.
 publish_token() {
-    local token="$1" name tmp
+    local token="$1" name
 
     for name in "${TOKEN_FILES[@]}"; do
-        tmp=$(mktemp "$SECRETS_DIR/.${name}.XXXXXX")
-        printf '%s' "$token" > "$tmp"
-        chmod 0640 "$tmp"
-        mv "$tmp" "$SECRETS_DIR/$name"
+        TMP_FILE=$(mktemp "$SECRETS_DIR/.${name}.XXXXXX")
+        printf '%s' "$token" > "$TMP_FILE"
+        chmod 0640 "$TMP_FILE"
+        mv "$TMP_FILE" "$SECRETS_DIR/$name"
+        TMP_FILE=""
     done
 }
 
+# Kept unconditionally inert: rm fails on an existing file in a directory this uid
+# cannot write, and the disabled path must never turn that into a non-zero exit.
 remove_token_files() {
     local name
 
     for name in "${TOKEN_FILES[@]}"; do
-        rm -f "${SECRETS_DIR:?}/$name"
+        rm -f "${SECRETS_DIR:?}/$name" || true
     done
 }
 
@@ -167,8 +192,8 @@ if is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" ||
     exit 0
 fi
 
-if ! install -d -m 0750 "$SECRETS_DIR" 2> /dev/null || [ ! -w "$SECRETS_DIR" ]; then
-    echo "FATAL: $SECRETS_DIR is not writable for $(id -un)." >&2
+if ! install -d -m 0770 "$SECRETS_DIR" 2> /dev/null || [ ! -w "$SECRETS_DIR" ]; then
+    echo "FATAL: $SECRETS_DIR is not writable for uid $(id -u)." >&2
     echo "Please make sure the volume mounted there is owned by uid $(id -u) and gid $(id -g) and try again." >&2
     exit 1
 fi
@@ -185,6 +210,7 @@ fi
 
 if [ -n "$TOKEN" ] && grafana_authenticates "$TOKEN"; then
     echo "The Grafana service account token for SEP is still valid, keeping it."
+    ensure_admin_role
     publish_token "$TOKEN"
     exit 0
 fi
