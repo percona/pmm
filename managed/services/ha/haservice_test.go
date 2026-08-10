@@ -283,38 +283,6 @@ func TestService_BroadcastMessage(t *testing.T) {
 	})
 }
 
-func TestDetectNamespaceAt(t *testing.T) {
-	t.Parallel()
-
-	l := logrus.WithField("component", "test")
-
-	t.Run("file present", func(t *testing.T) {
-		t.Parallel()
-
-		path := filepath.Join(t.TempDir(), "namespace")
-		require.NoError(t, os.WriteFile(path, []byte("pmm-ha\n"), 0o600))
-
-		assert.Equal(t, "pmm-ha", detectNamespaceAt(path, l))
-	})
-
-	t.Run("file missing", func(t *testing.T) {
-		t.Parallel()
-
-		path := filepath.Join(t.TempDir(), "does-not-exist")
-
-		assert.Empty(t, detectNamespaceAt(path, l))
-	})
-
-	t.Run("file with surrounding whitespace", func(t *testing.T) {
-		t.Parallel()
-
-		path := filepath.Join(t.TempDir(), "namespace")
-		require.NoError(t, os.WriteFile(path, []byte("  pmm-ha  \n\n"), 0o600))
-
-		assert.Equal(t, "pmm-ha", detectNamespaceAt(path, l))
-	})
-}
-
 type mockSnapshotSink struct {
 	closed bool
 }

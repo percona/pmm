@@ -40,25 +40,24 @@ import (
 )
 
 const (
-	defaultNodeEventChanSize    = 5
-	defaultRaftRetries          = 3
-	defaultTransportTimeout     = 10 * time.Second
-	defaultLeaveTimeout         = 5 * time.Second
-	defaultTickerInterval       = 5 * time.Second
-	defaultApplyTimeout         = 3 * time.Second
-	defaultRaftDataDir          = "/srv/ha"
-	defaultRaftDataDirPerm      = 0o750
-	defaultSnapshotRetention    = 3
-	defaultSnapshotThreshold    = 8192
-	defaultTrailingLogs         = 10240
-	defaultHeartbeatTimeout     = 1000 * time.Millisecond
-	defaultElectionTimeout      = 1000 * time.Millisecond
-	defaultCommitTimeout        = 50 * time.Millisecond
-	defaultLeaderLeaseTimeout   = 500 * time.Millisecond
-	defaultSnapshotInterval     = 120 * time.Second
-	defaultServerOpTimeout      = 10 * time.Second
-	defaultDNSLookupTimeout     = 3 * time.Second
-	serviceAccountNamespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+	defaultNodeEventChanSize  = 5
+	defaultRaftRetries        = 3
+	defaultTransportTimeout   = 10 * time.Second
+	defaultLeaveTimeout       = 5 * time.Second
+	defaultTickerInterval     = 5 * time.Second
+	defaultApplyTimeout       = 3 * time.Second
+	defaultRaftDataDir        = "/srv/ha"
+	defaultRaftDataDirPerm    = 0o750
+	defaultSnapshotRetention  = 3
+	defaultSnapshotThreshold  = 8192
+	defaultTrailingLogs       = 10240
+	defaultHeartbeatTimeout   = 1000 * time.Millisecond
+	defaultElectionTimeout    = 1000 * time.Millisecond
+	defaultCommitTimeout      = 50 * time.Millisecond
+	defaultLeaderLeaseTimeout = 500 * time.Millisecond
+	defaultSnapshotInterval   = 120 * time.Second
+	defaultServerOpTimeout    = 10 * time.Second
+	defaultDNSLookupTimeout   = 3 * time.Second
 )
 
 // Service represents the high-availability service.
@@ -207,23 +206,6 @@ func setupRaftStorage(nodeID string, l *logrus.Entry) (*raftboltdb.BoltStore, *r
 	}
 
 	return logStore, stableStore, snapshotStore, nil
-}
-
-// DetectNamespace returns the Kubernetes namespace this process is running in,
-// or an empty string if it can't be determined (e.g. non-Kubernetes installs,
-// or a service account without the token automounted). Missing the file is an
-// expected, non-fatal condition, not an error worth surfacing to the user.
-func DetectNamespace(l *logrus.Entry) string {
-	return detectNamespaceAt(serviceAccountNamespaceFile, l)
-}
-
-func detectNamespaceAt(path string, l *logrus.Entry) string {
-	data, err := os.ReadFile(path) //nolint:gosec
-	if err != nil {
-		l.WithError(err).Debug("could not detect Kubernetes namespace")
-		return ""
-	}
-	return strings.TrimSpace(string(data))
 }
 
 // New provides a new instance of the high availability service.
