@@ -223,6 +223,22 @@ func TestLinkClickHouseConfigAt(t *testing.T) {
 		assertLinks(t, dir, "default")
 	})
 
+	t.Run("restores earlier links when a later one cannot be replaced", func(t *testing.T) {
+		t.Parallel()
+
+		dir := newConfigDir(t)
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+
+		// A non-empty directory parked on the temporary path makes replaceSymlink fail for
+		// users.xml only, by which point config.xml has already been repointed.
+		blocked := filepath.Join(dir, "users.xml.tmp")
+		require.NoError(t, os.Mkdir(blocked, 0o700))
+		require.NoError(t, os.WriteFile(filepath.Join(blocked, "occupied"), nil, 0o600))
+
+		require.Error(t, linkClickHouseConfigAt("low-memory", dir))
+		assertLinks(t, dir, "default")
+	})
+
 	t.Run("does not rewrite links that are already correct", func(t *testing.T) {
 		t.Parallel()
 

@@ -93,24 +93,58 @@ func linkClickHouseConfigAt(config, dir string) error {
 		}
 	}
 
+	// A link that fails halfway through would leave the ones before it on the new config, so undo
+	// them and report the original failure.
+	var done []replacedLink
+
 	for i, l := range stableConfigLinks {
 		link := filepath.Join(dir, l.link)
 		target := targets[i]
 
 		// Skip links that already resolve correctly. Beyond saving work, this keeps the common
 		// case free of writes to /etc, which an arbitrary UID may not be allowed to perform.
-		current, err := os.Readlink(link)
-		if err == nil && current == target {
+		previous, err := os.Readlink(link)
+		if err == nil && previous == target {
 			continue
+		}
+		if err != nil {
+			// The preflight above leaves only a missing link as the remaining possibility.
+			previous = ""
 		}
 
 		err = replaceSymlink(target, link)
 		if err != nil {
+			restoreLinks(done)
 			return fmt.Errorf("cannot point %s at %s: %w", link, target, err)
 		}
+
+		done = append(done, replacedLink{link: link, previous: previous})
 	}
 
 	return nil
+}
+
+// replacedLink records a link that was repointed, so it can be put back.
+type replacedLink struct {
+	link string
+	// previous is the target the link had, or empty when the link did not exist.
+	previous string
+}
+
+// restoreLinks puts already repointed links back, on a best-effort basis. The failure that
+// triggered the rollback is the one worth reporting, so problems here are only logged.
+func restoreLinks(done []replacedLink) {
+	for _, d := range done {
+		var err error
+		if d.previous == "" {
+			err = os.Remove(d.link)
+		} else {
+			err = replaceSymlink(d.previous, d.link)
+		}
+		if err != nil {
+			logrus.WithField("path", d.link).Warnf("Cannot restore ClickHouse config link: %s.", err)
+		}
+	}
 }
 
 // replaceSymlink points link at target, replacing link if it already exists.
