@@ -343,12 +343,13 @@ func removeNode(q *reform.Querier, id string, mode RemoveMode, allowPMMServerNod
 	return nil
 }
 
-// RemoveStaleHANodes removes the PMM Server Nodes of HA replicas that are no longer configured peers,
-// e.g. after a scale-down. Peers are the source of truth because they are regenerated from the replica
-// count and restart every replica, while a missing memberlist member may just be restarting.
-func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) error {
+// StaleHANodes returns the PMM Server Nodes of HA replicas that are no longer configured peers,
+// e.g. after a scale-down, and that can be removed without taking a user's monitoring with them.
+// Peers are the source of truth because they are regenerated from the replica count and restart
+// every replica, while a missing memberlist member may just be restarting.
+func StaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) ([]*Node, error) {
 	if len(haPeers) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": haNodeID})
@@ -359,21 +360,22 @@ func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) er
 		if !ok {
 			// Trusting the rest would treat a partial list as the whole cluster and remove live replicas.
 			l.WithField("peer", peer).Warn("Can't read a node name from a PMM_HA_PEERS entry, skipping the removal of stale HA nodes.")
-			return nil
+			return nil, nil
 		}
 		expected[name] = struct{}{}
 	}
 
 	if _, ok := expected[haNodeID]; !ok {
 		l.WithField("ha_peers", haPeers).Warn("PMM_HA_PEERS doesn't list this node, skipping the removal of stale HA nodes.")
-		return nil
+		return nil, nil
 	}
 
 	nodes, err := FindNodes(q, NodeFilters{})
 	if err != nil {
-		return fmt.Errorf("failed to list Nodes for stale HA node cleanup: %w", err)
+		return nil, fmt.Errorf("failed to list Nodes for stale HA node cleanup: %w", err)
 	}
 
+	var stale []*Node
 	for _, node := range nodes {
 		// Set by HA replicas, and by the PMM Server Node of a non-HA deployment; every other
 		// Node is one the user monitors.
@@ -392,9 +394,12 @@ func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) er
 
 		nodeL := l.WithFields(logrus.Fields{"node_id": node.NodeID, "node_name": node.NodeName})
 
+		// Keeping a Node is per Node: another replica removing the same rows concurrently must not
+		// hide the Nodes this pass hasn't reached yet.
 		monitored, err := haNodeMonitoredServices(q, node.NodeID)
 		if err != nil {
-			return err
+			nodeL.WithError(err).Warn("Can't tell whether a stale HA node monitors services, keeping it.")
+			continue
 		}
 		if len(monitored) != 0 {
 			nodeL.WithField("service_ids", monitored).Warn("Keeping stale HA node: it still monitors services, which would be removed with it. " +
@@ -402,18 +407,17 @@ func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) er
 			continue
 		}
 
-		err = removeNode(q, node.NodeID, RemoveCascade, true)
-		switch {
-		case err == nil:
-			nodeL.Info("Removed stale HA node, it is not a part of the cluster anymore.")
-		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
-			nodeL.Info("Stale HA node was already removed by another replica.")
-		default:
-			return fmt.Errorf("failed to remove stale HA node %q: %w", node.NodeName, err)
-		}
+		stale = append(stale, node)
 	}
 
-	return nil
+	return stale, nil
+}
+
+// RemoveStaleHANode removes a Node returned by StaleHANodes, along with the Agents and Services that
+// belong to it. Call it in a transaction of its own: it deletes those before the Node itself, so a
+// failure half-way through would otherwise leave the Node partially removed.
+func RemoveStaleHANode(q *reform.Querier, nodeID string) error {
+	return removeNode(q, nodeID, RemoveCascade, true)
 }
 
 // haPeerNodeName maps a PMM_HA_PEERS entry ("pmm-ha-0.pmm-ha.pmm.svc.cluster.local:9761") to a Node

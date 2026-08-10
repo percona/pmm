@@ -1468,7 +1468,7 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	}
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
-	return db.InTransaction(func(tx *reform.TX) error {
+	err := db.InTransaction(func(tx *reform.TX) error {
 		for version := currentVersion + 1; version <= latestVersion; version++ {
 			if params.Logf != nil {
 				params.Logf("Migrating database to schema version %d ...", version)
@@ -1489,32 +1489,75 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			return nil
 		}
 
-		err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
-		if err != nil {
-			return err
-		}
-
-		// fill settings with defaults
-		s, err := GetSettings(tx)
-		if err != nil {
-			return err
-		}
-		err = SaveSettings(tx, s)
-		if err != nil {
-			return err
-		}
-
-		if params.HANodeID != "" {
-			err = setupPMMServerHAAgents(tx.Querier, params)
-		} else {
-			err = setupPMMServerAgents(tx.Querier, params)
-		}
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return setupFixtures(tx, params)
 	})
+	if err != nil {
+		return err
+	}
+
+	removeStaleHANodes(db, params)
+
+	return nil
+}
+
+// setupFixtures adds the initial data of a fresh PMM Server: encryption, default settings, and the
+// PMM Server Node with its Agents.
+func setupFixtures(tx *reform.TX, params SetupDBParams) error {
+	err := EncryptDB(tx, params.Name, DefaultAgentEncryptionColumnsV3)
+	if err != nil {
+		return err
+	}
+
+	// fill settings with defaults
+	s, err := GetSettings(tx)
+	if err != nil {
+		return err
+	}
+	err = SaveSettings(tx, s)
+	if err != nil {
+		return err
+	}
+
+	if params.HANodeID != "" {
+		return setupPMMServerHAAgents(tx.Querier, params)
+	}
+
+	return setupPMMServerAgents(tx.Querier, params)
+}
+
+// removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are
+// cosmetic, so this runs outside the migration transaction and only logs failures: tidying them up
+// must never keep a replica from starting.
+func removeStaleHANodes(db *reform.DB, params SetupDBParams) {
+	if params.HANodeID == "" || params.SetupFixtures == SkipFixtures {
+		return
+	}
+
+	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": params.HANodeID})
+
+	nodes, err := StaleHANodes(db.Querier, params.HANodeID, params.HAPeers)
+	if err != nil {
+		l.WithError(err).Warn("Failed to look for stale HA nodes.")
+		return
+	}
+
+	for _, node := range nodes {
+		nodeL := l.WithFields(logrus.Fields{"node_id": node.NodeID, "node_name": node.NodeName})
+
+		// A transaction per Node: a failure rolls that Node back whole instead of leaving it
+		// half-removed, and leaves the Nodes this sweep hasn't reached yet alone.
+		err := db.InTransaction(func(tx *reform.TX) error {
+			return RemoveStaleHANode(tx.Querier, node.NodeID)
+		})
+		switch {
+		case err == nil:
+			nodeL.Info("Removed stale HA node, it is not a part of the cluster anymore.")
+		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
+			nodeL.Info("Stale HA node was already removed by another replica.")
+		default:
+			nodeL.WithError(err).Warn("Failed to remove a stale HA node, keeping it.")
+		}
+	}
 }
 
 type agentConfig struct {
@@ -1527,12 +1570,6 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 
 	// create PMM Server Node and associated Agents in HA mode
 	logrus.Infof("Setting up PMM Server agents in HA mode, Node ID: %s", params.HANodeID)
-
-	// Before the "agent already exists" early return, so restarted replicas still clean up.
-	err := RemoveStaleHANodes(q, params.HANodeID, params.HAPeers)
-	if err != nil {
-		return err
-	}
 
 	file, err := os.Open(AgentConfigFilePath)
 	if err != nil {
