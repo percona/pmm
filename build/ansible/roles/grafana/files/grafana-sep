@@ -2,8 +2,10 @@
 #
 # Provisions the Grafana service account SEP authenticates with, and publishes its
 # token to a secrets directory the SEP container mounts. One file per canonical SEP
-# settings name, mode 0640 in a 0770 directory, owned by pmm's primary group, so the
-# SEP container must join group 0 to read them.
+# settings name, mode 0640 in a setgid 2770 directory, so each file's group is
+# inherited from the directory - group 0 - whatever uid pmm-server runs as, and the
+# SEP container must join group 0 to read them. Without setgid a file takes the
+# publishing process's primary group, which is 0 only in the stock image.
 #
 # Everything below is a no-op unless PMM_ENABLE_SEP is set. When it is unset again,
 # the token files this script wrote are removed on the next start; the Grafana
@@ -20,7 +22,7 @@
 set -o errexit
 set -o pipefail
 
-declare SECRETS_DIR="${SECRETS_DIR:-/srv/sep-secrets}"
+declare SECRETS_DIR="${PMM_SEP_SECRETS_DIR:-/srv/sep-secrets}"
 declare GRAFANA_URL="http://127.0.0.1:3000"
 declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:-/usr/pgsql-14/bin}"
 declare SA_NAME="pmm-sep"
@@ -60,17 +62,30 @@ wait_for_grafana() {
     return 1
 }
 
-# Proves the token by an authenticated call to the access-control endpoint SEP's
-# org-role lookups go through. The header is fed on stdin rather than passed with
-# -H so the token never appears in any process's argv.
-grafana_authenticates() {
-    local code
+# Prints the status of an authenticated call to the access-control endpoint SEP's
+# org-role lookups go through, or 000 when the call could not be made at all. The
+# header is fed on stdin rather than passed with -H so the token never appears in any
+# process's argv.
+#
+# Retried, and unreachable kept distinct from rejected, because a transient failure is
+# not a revoked token: reading one as the other on the reuse path would re-mint and so
+# revoke the token a running SEP holds - the very thing this script avoids.
+grafana_auth_status() {
+    local code attempt=0
 
-    code=$(printf 'header = "Authorization: Bearer %s"\n' "$1" |
-        curl -sS -K - --max-time 10 -o /dev/null -w '%{http_code}' \
-            "$GRAFANA_URL/api/access-control/user/permissions") || return 1
+    while :; do
+        code=$(printf 'header = "Authorization: Bearer %s"\n' "$1" |
+            curl -sS -K - --max-time 10 -o /dev/null -w '%{http_code}' \
+                "$GRAFANA_URL/api/access-control/user/permissions") || code="000"
 
-    [ "$code" = "200" ]
+        attempt=$((attempt + 1))
+        if [ "$code" != "000" ] || [ "$attempt" -ge 3 ]; then
+            break
+        fi
+        sleep "$READY_INTERVAL"
+    done
+
+    printf '%s' "$code"
 }
 
 # The validator endpoint answers 200 for any role, so a service account demoted in the
@@ -196,10 +211,21 @@ fi
 if is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" ||
     [ -n "$GF_DATABASE_URL" ] || [ -n "$GF_DATABASE_HOST" ]; then
     echo "WARNING: ignoring PMM_ENABLE_SEP, Grafana is not using the embedded PostgreSQL." >&2
+    # Same cleanup as the disabled path: a token this script can no longer revalidate or
+    # replace must not be left behind for SEP to keep reading.
+    remove_token_files
     exit 0
 fi
 
-if ! install -d -m 0770 "$SECRETS_DIR" 2> /dev/null || [ ! -w "$SECRETS_DIR" ]; then
+# Created only when absent, because install -d on an existing directory also chmods it,
+# which a uid that does not own the mountpoint cannot do. The mountpoint ships in the
+# image already setgid (post-build.yml), so this create path is only for setups that
+# mount nothing here.
+if [ ! -d "$SECRETS_DIR" ]; then
+    install -d -m 2770 "$SECRETS_DIR" 2> /dev/null || true
+fi
+
+if [ ! -w "$SECRETS_DIR" ]; then
     echo "FATAL: $SECRETS_DIR is not writable for uid $(id -u)." >&2
     echo "Please make sure the volume mounted there is owned by uid $(id -u) and gid $(id -g) and try again." >&2
     exit 1
@@ -215,12 +241,29 @@ if [ -s "$SECRETS_DIR/${TOKEN_FILES[0]}" ]; then
     TOKEN=$(< "$SECRETS_DIR/${TOKEN_FILES[0]}")
 fi
 
-if [ -n "$TOKEN" ] && grafana_authenticates "$TOKEN"; then
-    echo "The Grafana service account token for SEP is still valid, keeping it."
-    ensure_admin_role
-    publish_token "$TOKEN"
-    exit 0
+declare STATUS=""
+if [ -n "$TOKEN" ]; then
+    STATUS=$(grafana_auth_status "$TOKEN")
 fi
+
+case "$STATUS" in
+    200)
+        echo "The Grafana service account token for SEP is still valid, keeping it."
+        # Published before the role repair so a token already proven valid still reaches
+        # SEP if that secondary step fails under errexit.
+        publish_token "$TOKEN"
+        ensure_admin_role
+        exit 0
+        ;;
+    "" | 401 | 403)
+        # No token yet, or Grafana genuinely rejected it: fall through and mint.
+        ;;
+    *)
+        echo "FATAL: could not verify the existing Grafana token for SEP, the check answered $STATUS." >&2
+        echo "Please retry once Grafana answers again; replacing the token now would revoke the one SEP is using." >&2
+        exit 1
+        ;;
+esac
 
 echo "Provisioning the Grafana service account for SEP..."
 
@@ -240,7 +283,7 @@ provision_service_account "${PARTS[1]}" "${PARTS[2]}" "${PARTS[3]}" "${PARTS[4]}
 # Validated before publishing so a half-working credential never reaches SEP, and so a
 # future change to Grafana's schema or token encoding fails loudly here instead of
 # silently breaking SEP's authentication.
-if ! grafana_authenticates "$TOKEN"; then
+if [ "$(grafana_auth_status "$TOKEN")" != "200" ]; then
     echo "FATAL: Grafana rejected the service account token just provisioned for SEP." >&2
     exit 1
 fi
