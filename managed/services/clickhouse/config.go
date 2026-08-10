@@ -76,6 +76,23 @@ func linkClickHouseConfigAt(config, dir string) error {
 		targets[i] = target
 	}
 
+	// Repointing only some of the links would leave ClickHouse reading a server config and a users
+	// file from different configs, so a single unmanaged path opts all of them out.
+	for _, l := range stableConfigLinks {
+		link := filepath.Join(dir, l.link)
+
+		fi, err := os.Lstat(link)
+		switch {
+		case err == nil && fi.Mode()&os.ModeSymlink == 0:
+			logrus.WithField("path", link).Warn("ClickHouse config path is a regular file rather than a " +
+				"symlink. Leaving all ClickHouse config links untouched, so PMM_CLICKHOUSE_CONFIG has no " +
+				"effect. Remove the file to restore config switching.")
+			return nil
+		case err != nil && !errors.Is(err, os.ErrNotExist):
+			return fmt.Errorf("cannot stat %s: %w", link, err)
+		}
+	}
+
 	for i, l := range stableConfigLinks {
 		link := filepath.Join(dir, l.link)
 		target := targets[i]
@@ -85,16 +102,6 @@ func linkClickHouseConfigAt(config, dir string) error {
 		current, err := os.Readlink(link)
 		if err == nil && current == target {
 			continue
-		}
-
-		fi, err := os.Lstat(link)
-		switch {
-		case err == nil && fi.Mode()&os.ModeSymlink == 0:
-			logrus.Warnf("ClickHouse: %s is a regular file, not a symlink, so PMM_CLICKHOUSE_CONFIG "+
-				"cannot select it. Remove the file to restore config switching.", link)
-			continue
-		case err != nil && !errors.Is(err, os.ErrNotExist):
-			return fmt.Errorf("cannot stat %s: %w", link, err)
 		}
 
 		err = replaceSymlink(target, link)

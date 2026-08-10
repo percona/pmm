@@ -177,11 +177,23 @@ func TestLinkClickHouseConfigAt(t *testing.T) {
 		content, err := os.ReadFile(edited) //nolint:gosec
 		require.NoError(t, err)
 		assert.Equal(t, "<clickhouse>edited</clickhouse>", string(content))
+	})
 
-		// The remaining link is still repointed.
+	t.Run("does not mix configs when one path is unmanaged", func(t *testing.T) {
+		t.Parallel()
+
+		// config.xml as a regular file must not leave users.xml pointing at a different config,
+		// which would have ClickHouse read its server settings and its users from two configs.
+		dir := newConfigDir(t)
+		require.NoError(t, linkClickHouseConfigAt("default", dir))
+		require.NoError(t, os.Remove(filepath.Join(dir, "config.xml")))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "config.xml"), []byte("<clickhouse/>"), 0o600))
+
+		require.NoError(t, linkClickHouseConfigAt("low-memory", dir))
+
 		target, err := os.Readlink(filepath.Join(dir, "users.xml"))
 		require.NoError(t, err)
-		assert.Equal(t, filepath.Join(dir, "low-memory-users.xml"), target)
+		assert.Equal(t, filepath.Join(dir, "default-users.xml"), target)
 	})
 
 	t.Run("fails when the target is missing", func(t *testing.T) {

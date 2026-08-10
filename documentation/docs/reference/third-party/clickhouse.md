@@ -73,10 +73,10 @@ The built-in ClickHouse ships with a suitable read-only user. On an external Cli
 
 ```sql
 CREATE USER <readonly-username> IDENTIFIED WITH sha256_password BY '<readonly-password>' SETTINGS readonly = 1, max_execution_time CHANGEABLE_IN_READONLY;
-GRANT SELECT ON pmm.* TO <readonly-username>;
+GRANT SELECT ON <database-name>.* TO <readonly-username>;
 ```
 
-Grant nothing beyond `SELECT` on the PMM database.
+Use the same database name you pass in `PMM_CLICKHOUSE_DATABASE`, and grant nothing beyond `SELECT` on it.
 
 `readonly = 1` blocks writes, DDL and all setting changes. The Grafana ClickHouse plugin sets `max_execution_time` on every query to enforce its query timeout, so that one setting is marked `CHANGEABLE_IN_READONLY`; without it, every query fails with `Cannot modify 'max_execution_time' setting in readonly mode`. Do not use `readonly = 2` instead — the [plugin documentation](https://grafana.com/docs/plugins/grafana-clickhouse-datasource/latest/configure/#clickhouse-user-and-permissions) advises against it.
 
