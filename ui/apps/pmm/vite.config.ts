@@ -30,9 +30,9 @@ const target =
 // SEP backend. The dev server proxies SEP's single `/sep` mount point to it so
 // the migrated SEP plugins get real data, mirroring the shipped topology where
 // pmm-server's nginx exposes the side-car under that one location (see
-// SEP_BASE_PATH in @sep/api). The prefix is passed through unstripped, because
-// SEP serves it itself via `root_path` — so PMM_DEV_SEP_BACKEND_URL has to point
-// at a backend configured the same way.
+// SEP_BASE_PATH in @sep/api). The prefix is forwarded unstripped by default,
+// for a SEP that serves it itself — so PMM_DEV_SEP_BACKEND_URL has to point at a
+// backend configured that way, or PMM_DEV_SEP_STRIP_PREFIX has to be set (below).
 //
 // Residual interim auth: if PMM_DEV_SEP_INTERNAL_TOKEN is set, inject it
 // server-side as a Bearer token so no secret reaches the browser. Both variables
@@ -50,14 +50,42 @@ const target =
 const SEP_BASE_PATH = '/sep';
 const sepBackendUrl = env.PMM_DEV_SEP_BACKEND_URL || 'http://localhost:8000';
 const sepInternalToken = env.PMM_DEV_SEP_INTERNAL_TOKEN;
-// Matched against the proxied request URL, which still carries the `/sep`
-// prefix — it is forwarded unstripped.
+// Escape hatch for a dev SEP that does not serve the `/sep` prefix itself.
+// Setting PMM_DEV_SEP_STRIP_PREFIX=1 strips it on the way out. SEP carries no
+// `root_path` support today — not a flag, not a setting, not on the shipped
+// side-car's `python -m app.sep.main` — so in practice both ways of running it
+// locally need this:
+//
+//   - `python -m app.main` serves its routes at `/api/…` and 404s the prefix.
+//   - `uvicorn --root-path /sep` *prepends* root_path to the request path
+//     (uvicorn `h11_impl.py`: `full_path = root_path + path`) and so expects
+//     the proxy to forward the tail. Left unstripped, SEP sees `/sep/sep/…`
+//     and 404s. This is the setup that also keeps `url_for()` emitting
+//     correctly prefixed links, so it is the closer match to the shipped
+//     topology.
+//
+// Off by default, because the default belongs to whatever the server-side
+// nginx location ends up doing — which does not exist in this repo yet. Against
+// the first setup it is lossy: with no root_path, SEP's `request.url_for()`
+// emits prefix-less absolute URLs inside JSON payloads, so any link it hands
+// back (file downloads in particular) escapes the mount point. Fine for
+// surfaces that return plain data.
+const sepStripPrefix = env.PMM_DEV_SEP_STRIP_PREFIX === '1';
+// Matched against the proxied request URL. Vite applies `rewrite` to `req.url`
+// before the proxy sees it, so with the strip enabled the prefix is already
+// gone by the time this runs — both forms have to match, or the token would be
+// injected onto the OAuth routes it must never cover.
 const isSepAuthPath = (url: string | undefined) =>
-  !!url && url.startsWith(`${SEP_BASE_PATH}/api/oauth/`);
+  !!url &&
+  (url.startsWith(`${SEP_BASE_PATH}/api/oauth/`) ||
+    url.startsWith('/api/oauth/'));
 const sepProxy = () => ({
   target: sepBackendUrl,
   secure: false,
   changeOrigin: true,
+  ...(sepStripPrefix
+    ? { rewrite: (path: string) => path.slice(SEP_BASE_PATH.length) || '/' }
+    : {}),
   configure: (proxy: {
     on: (e: string, cb: (...a: unknown[]) => void) => void;
   }) => {
