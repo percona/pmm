@@ -717,6 +717,7 @@
   },
   "tags": [
     {
+      "description": "Alerting service lets to manage alerting templates and create alerting rules from them.",
       "name": "AlertingService"
     }
   ]

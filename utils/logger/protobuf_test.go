@@ -84,7 +84,6 @@ func getRtaQueryDataMessage(t *testing.T) []proto.Message {
 	return []proto.Message{&dataOrig, &dataRedacted}
 }
 
-//nolint:gosec
 func getSetStateRequestMessage(t *testing.T) []proto.Message {
 	t.Helper()
 
@@ -315,7 +314,6 @@ func getStartActionRequestPTMySQLSummaryParams(t *testing.T) []proto.Message {
 	return []proto.Message{startActionOrig, startActionRedacted}
 }
 
-//nolint:gosec
 func getServerMessageMessage(t *testing.T) []proto.Message {
 	t.Helper()
 
@@ -431,7 +429,6 @@ func Test_maskString(t *testing.T) {
 	}
 }
 
-//nolint:gosec
 func Test_maskDSN(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
