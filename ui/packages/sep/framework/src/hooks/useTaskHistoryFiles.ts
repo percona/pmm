@@ -16,7 +16,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
-import { apiClient, type SepComponents } from '@sep/api';
+import { apiClient, SEP_BASE_PATH, type SepComponents } from '@sep/api';
 
 export type FileMetadata = SepComponents['schemas']['FileMetadata'];
 export type TaskHistoryFilesMap = Record<string, FileMetadata>;
@@ -42,7 +42,7 @@ export function useTaskHistoryFiles(
       const { data } = await apiClient.get<TaskHistoryFilesMap>(
         `/files/${taskHistoryId}`,
         {
-          baseURL: '',
+          baseURL: SEP_BASE_PATH,
         }
       );
       return data;

@@ -27,10 +27,16 @@ const target =
   env.PMM_SERVER_URL ||
   (hasNginxCerts ? 'https://localhost:8443' : 'https://localhost');
 
-// SEP backend. The dev server proxies SEP's API paths to it so the migrated SEP
-// plugins get real data. Residual interim auth: if PMM_DEV_SEP_INTERNAL_TOKEN is
-// set, inject it server-side as a Bearer token so no secret reaches the browser.
-// Both variables are dev-server-only, hence the PMM_DEV_ prefix.
+// SEP backend. The dev server proxies SEP's single `/sep` mount point to it so
+// the migrated SEP plugins get real data, mirroring the shipped topology where
+// pmm-server's nginx exposes the side-car under that one location (see
+// SEP_BASE_PATH in @sep/api). The prefix is passed through unstripped, because
+// SEP serves it itself via `root_path` — so PMM_DEV_SEP_BACKEND_URL has to point
+// at a backend configured the same way.
+//
+// Residual interim auth: if PMM_DEV_SEP_INTERNAL_TOKEN is set, inject it
+// server-side as a Bearer token so no secret reaches the browser. Both variables
+// are dev-server-only, hence the PMM_DEV_ prefix.
 //
 // The browser now mints its own bearer by exchanging the PMM session (see
 // src/sep/bootstrap.ts), so the injection is only a fallback for a SEP instance
@@ -38,10 +44,16 @@ const target =
 // routes: overwriting Authorization there would authenticate the exchange as
 // SEP's internal service principal and mask whether the cookie path works at
 // all. Retiring the injection entirely is a follow-up.
+// Mirrors SEP_BASE_PATH in @sep/api. Declared locally rather than imported:
+// this config is evaluated by Node before any of the app's module resolution
+// applies, and pulling the browser client in for one string is not worth it.
+const SEP_BASE_PATH = '/sep';
 const sepBackendUrl = env.PMM_DEV_SEP_BACKEND_URL || 'http://localhost:8000';
 const sepInternalToken = env.PMM_DEV_SEP_INTERNAL_TOKEN;
+// Matched against the proxied request URL, which still carries the `/sep`
+// prefix — it is forwarded unstripped.
 const isSepAuthPath = (url: string | undefined) =>
-  !!url && url.startsWith('/api/oauth/');
+  !!url && url.startsWith(`${SEP_BASE_PATH}/api/oauth/`);
 const sepProxy = () => ({
   target: sepBackendUrl,
   secure: false,
@@ -114,12 +126,7 @@ export default defineConfig({
         secure: false,
         changeOrigin: true,
       },
-      // SEP backend paths (no clash with PMM's /v1 + /graph).
-      '/api': sepProxy(),
-      '/sep_app': sepProxy(),
-      '/stream-logs': sepProxy(),
-      '/execution-events': sepProxy(),
-      '/files': sepProxy(),
+      [SEP_BASE_PATH]: sepProxy(),
     },
     host: '0.0.0.0',
     port,

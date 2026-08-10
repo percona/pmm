@@ -17,6 +17,9 @@
 
 /// <reference path="./vite-env.d.ts" />
 
+// Backend mount point
+export { SEP_BASE_PATH } from './base';
+
 // API client
 export {
   apiClient,

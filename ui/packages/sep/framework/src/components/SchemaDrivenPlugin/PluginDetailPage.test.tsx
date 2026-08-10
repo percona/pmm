@@ -66,6 +66,7 @@ vi.mock('@sep/api', () => ({
   getToken: () => null,
   refreshAccessToken: vi.fn(),
   emitUnauthorized: vi.fn(),
+  SEP_BASE_PATH: '/sep',
   apiClient: { get: vi.fn(), post: vi.fn(), defaults: {} },
   setTokenProvider: vi.fn(),
   ApiError: class ApiError extends Error {

@@ -8,7 +8,7 @@ import {
 /**
  * In-memory holder for the SEP bearer PMM mints from its own session.
  *
- * `POST /api/oauth/session/exchange` (SEP-1692) trades the ambient `pmm_session`
+ * `POST /sep/api/oauth/session/exchange` (SEP-1692) trades the ambient `pmm_session`
  * cookie — attached automatically, same origin through PMM's proxy — for a
  * short-lived bearer. No cookie is set and no refresh token is issued, so the
  * holder re-exchanges before expiry instead of refreshing.

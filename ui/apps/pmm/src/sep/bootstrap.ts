@@ -16,7 +16,7 @@ import {
  *
  * PMM owns the session, so SEP is authenticated as the actual PMM user by
  * exchanging the `pmm_session` cookie for a short-lived SEP bearer
- * (`POST /api/oauth/session/exchange`, SEP-1692) rather than by logging in.
+ * (`POST /sep/api/oauth/session/exchange`, SEP-1692) rather than by logging in.
  * This replaces the interim wiring in which the dev proxy injected
  * `PMM_DEV_SEP_INTERNAL_TOKEN` server-side: that authenticated as SEP's
  * internal service principal, which hardcodes `is_admin = False`, so every
