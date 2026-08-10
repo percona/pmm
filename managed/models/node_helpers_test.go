@@ -554,4 +554,24 @@ func TestRemoveStaleHANode(t *testing.T) {
 		_, err = models.FindAgentByID(q, "rds-exporter")
 		require.NoError(t, err)
 	})
+
+	t.Run("RefusesThePreHAPMMServerNode", func(t *testing.T) {
+		db := setup(t)
+		q := db.Querier
+
+		// With the internal PostgreSQL Service gone, nothing marks it as monitoring, so only the
+		// literal "pmm-server" ID stands between the lifted PMM Server ban and the Node.
+		service, err := models.FindServiceByName(q, models.PMMServerPostgreSQLServiceName)
+		require.NoError(t, err)
+		require.NoError(t, models.RemoveService(q, service.ServiceID, models.RemoveCascade))
+
+		err = db.InTransaction(func(tx *reform.TX) error {
+			return models.RemoveStaleHANode(tx.Querier, models.PMMServerNodeID)
+		})
+		// the Node ban, not RemoveAgent's ban on the PMM Server pmm-agent, which also answers
+		// PermissionDenied once the removal gets that far
+		tests.AssertGRPCError(t, status.New(codes.PermissionDenied, `PMM Server node can't be removed.`), err)
+
+		assertNodeExists(t, q, models.PMMServerNodeID)
+	})
 }
