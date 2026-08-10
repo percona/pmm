@@ -54,8 +54,8 @@ services:
       - ${PMM_PORT_HTTPS:-443}:8443
     volumes:
       - pmm-data:/srv
-      # Credentials PMM provisions for SEP. Mount this same volume in the SEP container
-      # and point SECRETS_DIR at it; never share pmm-data itself with SEP.
+      # Credentials PMM provisions for SEP. Mount this same volume read-only in the SEP
+      # container and point SECRETS_DIR at it; never share pmm-data itself with SEP.
       - pmm-sep-secrets:/srv/sep-secrets
 
   pmm-client:
