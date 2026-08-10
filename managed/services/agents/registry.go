@@ -285,11 +285,19 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 		}
 
 		l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
-		r.Kick(ctx, agentMD.ID)
+		r.kickConn(ctx, currentAgent)
 		l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
 	}
 	r.rw.Lock()
 	defer r.rw.Unlock()
+
+	if _, ok := r.agents[agentMD.ID]; ok {
+		// Another connection for the same ID finished registering while we were probing, so it is
+		// newer than the one we probed. It wins: overwriting it here would leave its handler
+		// running and its stream alive with no registry entry, which is the state that makes
+		// pmm-managed report a connected agent as disconnected (PMM-15310).
+		return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
+	}
 
 	agent := &pmmAgentInfo{
 		channel:         channel.New(ctx, stream),
@@ -511,9 +519,23 @@ func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOn
 	return nil
 }
 
-// Kick unregisters and forcefully disconnects pmm-agent with given ID.
+// Kick unregisters and forcefully disconnects pmm-agent with given ID, whichever connection is
+// registered for it. Use it for explicit, forced kicks.
 func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
-	agent := r.unregister(ctx, pmmAgentID, "kick", nil)
+	r.kick(ctx, pmmAgentID, nil)
+}
+
+// kickConn unregisters and forcefully disconnects the given connection, but only while it is
+// still the registered one. Concurrent registrations can probe the same stale connection, and
+// the one that loses the race must not disconnect the connection that replaced it (PMM-15310).
+func (r *Registry) kickConn(ctx context.Context, conn *pmmAgentInfo) {
+	r.kick(ctx, conn.id, conn)
+}
+
+func (r *Registry) kick(ctx context.Context, pmmAgentID string, conn *pmmAgentInfo) {
+	// unregister returns the connection only to the caller that actually removed it,
+	// so kickChan is closed exactly once.
+	agent := r.unregister(ctx, pmmAgentID, "kick", conn)
 	if agent == nil {
 		return
 	}

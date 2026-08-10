@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -103,7 +104,11 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 			cancelPing()
 			if err != nil {
 				pingFailures++
-				l.Errorf("agent %s ping (attempt %d of %d): %v", agent.id, pingFailures, maxAgentPingFailures, err)
+				l.WithError(err).WithFields(logrus.Fields{
+					"agent_id":          agent.id,
+					"ping_failures":     pingFailures,
+					"max_ping_failures": maxAgentPingFailures,
+				}).Error("Failed to ping pmm-agent.")
 				if pingFailures >= maxAgentPingFailures {
 					disconnectReason = "ping_timeout"
 					h.r.unregister(ctx, agent.id, disconnectReason, agent)

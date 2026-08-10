@@ -232,6 +232,73 @@ func TestServerRequestTimeout(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestLateResponseAfterTimeout(t *testing.T) {
+	t.Parallel()
+
+	timedOut := make(chan struct{})
+	lateSent := make(chan struct{})
+	connect := func(ch *Channel) error {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+		defer cancel()
+
+		_, err := ch.SendAndWaitResponseWithContext(ctx, &agentv1.Ping{})
+		require.ErrorIs(t, err, context.DeadlineExceeded)
+		close(timedOut)
+
+		<-lateSent
+
+		// The second exchange proves the late response for ID 1 has already been handled,
+		// because runReceiver processes messages in order.
+		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
+		require.NoError(t, err)
+		assert.NotNil(t, resp)
+
+		// A response to an abandoned request is expected, not unsolicited, so the channel
+		// recognizes it and stops tracking the abandoned ID. See PMM-15310.
+		ch.rw.RLock()
+		abandoned := len(ch.abandoned)
+		ch.rw.RUnlock()
+		assert.Zero(t, abandoned)
+
+		assert.Nil(t, <-ch.Requests())
+		return nil
+	}
+
+	stream, _ := setup(t, connect, io.EOF) // EOF = server exits from handler
+
+	// ID 1 is answered only after the wait for it has already timed out.
+	msg, err := stream.Recv()
+	require.NoError(t, err)
+	assert.EqualValues(t, 1, msg.Id)
+
+	<-timedOut
+
+	err = stream.Send(&agentv1.AgentMessage{
+		Id: 1,
+		Payload: (&agentv1.Pong{
+			CurrentTime: timestamppb.Now(),
+		}).AgentMessageResponsePayload(),
+	})
+	require.NoError(t, err)
+	close(lateSent)
+
+	// ID 2 is answered normally.
+	msg, err = stream.Recv()
+	require.NoError(t, err)
+	assert.EqualValues(t, 2, msg.Id)
+
+	err = stream.Send(&agentv1.AgentMessage{
+		Id: 2,
+		Payload: (&agentv1.Pong{
+			CurrentTime: timestamppb.Now(),
+		}).AgentMessageResponsePayload(),
+	})
+	require.NoError(t, err)
+
+	err = stream.CloseSend()
+	require.NoError(t, err)
+}
+
 func TestServerExitsWithGRPCError(t *testing.T) {
 	t.Parallel()
 

@@ -17,6 +17,7 @@ package agents
 
 import (
 	"context"
+	"sync"
 	"testing"
 
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -27,9 +28,28 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+const testAgentID = "/agent_id/00000000-0000-4000-8000-000000000001"
+
 type haServiceStub struct{}
 
 func (haServiceStub) Params() *models.HAParams { return &models.HAParams{} }
+
+func newTestConn() *pmmAgentInfo {
+	return &pmmAgentInfo{
+		id:              testAgentID,
+		stateChangeChan: make(chan struct{}, 1),
+		kickChan:        make(chan struct{}),
+	}
+}
+
+func isKicked(conn *pmmAgentInfo) bool {
+	select {
+	case <-conn.kickChan:
+		return true
+	default:
+		return false
+	}
+}
 
 func newTestRegistry() *Registry {
 	return &Registry{
@@ -48,18 +68,16 @@ func newTestRegistry() *Registry {
 func TestUnregister(t *testing.T) {
 	t.Parallel()
 
-	const agentID = "/agent_id/00000000-0000-4000-8000-000000000001"
-
 	ctx := logger.SetEntry(context.Background(), logrus.WithField("test", t.Name()))
 
 	t.Run("removes the current connection", func(t *testing.T) {
 		t.Parallel()
 
 		r := newTestRegistry()
-		current := &pmmAgentInfo{id: agentID}
-		r.agents[agentID] = current
+		current := &pmmAgentInfo{id: testAgentID}
+		r.agents[testAgentID] = current
 
-		assert.Same(t, current, r.unregister(ctx, agentID, "done", current))
+		assert.Same(t, current, r.unregister(ctx, testAgentID, "done", current))
 		assert.Empty(t, r.agents)
 	})
 
@@ -67,10 +85,10 @@ func TestUnregister(t *testing.T) {
 		t.Parallel()
 
 		r := newTestRegistry()
-		current := &pmmAgentInfo{id: agentID}
-		r.agents[agentID] = current
+		current := &pmmAgentInfo{id: testAgentID}
+		r.agents[testAgentID] = current
 
-		assert.Same(t, current, r.unregister(ctx, agentID, "kick", nil))
+		assert.Same(t, current, r.unregister(ctx, testAgentID, "kick", nil))
 		assert.Empty(t, r.agents)
 	})
 
@@ -82,12 +100,12 @@ func TestUnregister(t *testing.T) {
 		t.Parallel()
 
 		r := newTestRegistry()
-		stale := &pmmAgentInfo{id: agentID}
-		current := &pmmAgentInfo{id: agentID}
-		r.agents[agentID] = current
+		stale := &pmmAgentInfo{id: testAgentID}
+		current := &pmmAgentInfo{id: testAgentID}
+		r.agents[testAgentID] = current
 
-		assert.Nil(t, r.unregister(ctx, agentID, "done", stale))
-		assert.Same(t, current, r.agents[agentID])
+		assert.Nil(t, r.unregister(ctx, testAgentID, "done", stale))
+		assert.Same(t, current, r.agents[testAgentID])
 	})
 
 	t.Run("does nothing for an unknown agent", func(t *testing.T) {
@@ -95,7 +113,73 @@ func TestUnregister(t *testing.T) {
 
 		r := newTestRegistry()
 
-		assert.Nil(t, r.unregister(ctx, agentID, "done", &pmmAgentInfo{id: agentID}))
+		assert.Nil(t, r.unregister(ctx, testAgentID, "done", &pmmAgentInfo{id: testAgentID}))
 		assert.Empty(t, r.agents)
+	})
+}
+
+func TestKickConn(t *testing.T) {
+	t.Parallel()
+
+	ctx := logger.SetEntry(context.Background(), logrus.WithField("test", t.Name()))
+
+	t.Run("kicks the connection it probed", func(t *testing.T) {
+		t.Parallel()
+
+		r := newTestRegistry()
+		current := newTestConn()
+		r.agents[testAgentID] = current
+
+		r.kickConn(ctx, current)
+
+		assert.Empty(t, r.agents)
+		assert.True(t, isKicked(current))
+	})
+
+	t.Run("leaves the connection that superseded the probed one", func(t *testing.T) {
+		// Two registrations can probe the same stale connection concurrently. The one that
+		// loses the race must not disconnect the connection that already replaced it,
+		// otherwise it takes down a healthy agent. See PMM-15310.
+		t.Parallel()
+
+		r := newTestRegistry()
+		stale := newTestConn()
+		current := newTestConn()
+		r.agents[testAgentID] = current
+
+		r.kickConn(ctx, stale)
+
+		assert.Same(t, current, r.agents[testAgentID])
+		assert.False(t, isKicked(current))
+		assert.False(t, isKicked(stale))
+	})
+
+	t.Run("concurrent kicks of the same ID hit only the registered connection", func(t *testing.T) {
+		t.Parallel()
+
+		const conns = 8
+
+		r := newTestRegistry()
+		probed := make([]*pmmAgentInfo, conns)
+		for i := range probed {
+			probed[i] = newTestConn()
+		}
+		r.agents[testAgentID] = probed[0]
+
+		var wg sync.WaitGroup
+		for _, conn := range probed {
+			wg.Add(1)
+			go func(conn *pmmAgentInfo) {
+				defer wg.Done()
+				r.kickConn(ctx, conn)
+			}(conn)
+		}
+		wg.Wait()
+
+		assert.Empty(t, r.agents)
+		assert.True(t, isKicked(probed[0]))
+		for _, conn := range probed[1:] {
+			assert.False(t, isKicked(conn))
+		}
 	})
 }

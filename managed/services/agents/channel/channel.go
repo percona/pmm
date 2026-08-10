@@ -96,6 +96,7 @@ type Channel struct {
 
 	rw        sync.RWMutex
 	responses map[uint32]chan Response
+	abandoned map[uint32]struct{}
 	requests  chan *AgentRequest
 
 	closeOnce sync.Once
@@ -113,6 +114,7 @@ func New(ctx context.Context, stream Stream) *Channel {
 		s: stream,
 
 		responses: make(map[uint32]chan Response),
+		abandoned: make(map[uint32]struct{}),
 		requests:  make(chan *AgentRequest, agentRequestsCap),
 
 		closeWait: make(chan struct{}),
@@ -135,6 +137,7 @@ func (c *Channel) close(err error) {
 			close(ch)
 		}
 		c.responses = nil // prevent future subscriptions
+		c.abandoned = nil
 		c.rw.Unlock()
 
 		close(c.closeWait)
@@ -209,8 +212,8 @@ func (c *Channel) sendAndWaitResponse(done <-chan struct{}, payload agentv1.Serv
 		return resp.Payload, resp.Error
 
 	case <-done:
-		// Drop the subscription so that the map does not grow and a late response is discarded
-		// instead of being reported as coming from an unknown subscriber.
+		// Drop the subscription so that the map does not grow. A response that arrives later
+		// is discarded, and recognized as expected rather than logged as unsolicited.
 		c.unsubscribe(id)
 		return nil, errWaitAborted
 	}
@@ -368,9 +371,8 @@ func (c *Channel) subscribe(id uint32) chan Response {
 	return ch
 }
 
-// unsubscribe removes the subscription for the given ID if it is still there.
-// Unlike removeResponseChannel, a missing subscription is not an error: the response
-// may have been published just before the caller stopped waiting for it.
+// unsubscribe drops the subscription for the given ID and remembers that it was abandoned,
+// so that a response arriving later is recognized as expected rather than unsolicited.
 func (c *Channel) unsubscribe(id uint32) {
 	c.rw.Lock()
 	defer c.rw.Unlock()
@@ -378,6 +380,7 @@ func (c *Channel) unsubscribe(id uint32) {
 		return
 	}
 	delete(c.responses, id)
+	c.abandoned[id] = struct{}{}
 }
 
 func (c *Channel) removeResponseChannel(id uint32) chan Response {
@@ -389,6 +392,12 @@ func (c *Channel) removeResponseChannel(id uint32) chan Response {
 
 	ch := c.responses[id]
 	if ch == nil {
+		if _, abandoned := c.abandoned[id]; abandoned {
+			delete(c.abandoned, id)
+			c.l.Debugf("Response for ID %d arrived after the caller stopped waiting for it.", id)
+			return nil
+		}
+
 		c.l.Errorf("No subscriber for ID %d", id)
 		return nil
 	}
