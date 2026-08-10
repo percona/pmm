@@ -2,9 +2,8 @@
 #
 # Provisions the Grafana service account SEP authenticates with, and publishes its
 # token to a secrets directory the SEP container mounts. One file per canonical SEP
-# settings name, mode 0640 in a setgid 2770 directory, so each file's group is
-# inherited from the directory - group 0 - whatever uid pmm-server runs as, and the
-# SEP container must join group 0 to read them. Without setgid a file takes the
+# settings name, mode 0640 in a setgid 2770 directory, so the SEP container must join
+# group 0 to read them. The setgid bit is load-bearing: without it a file takes the
 # publishing process's primary group, which is 0 only in the stock image.
 #
 # Everything below is a no-op unless PMM_ENABLE_SEP is set. When it is unset again,
@@ -67,9 +66,8 @@ wait_for_grafana() {
 # header is fed on stdin rather than passed with -H so the token never appears in any
 # process's argv.
 #
-# Retried, and unreachable kept distinct from rejected, because a transient failure is
-# not a revoked token: reading one as the other on the reuse path would re-mint and so
-# revoke the token a running SEP holds - the very thing this script avoids.
+# Unreachable is kept distinct from rejected, and retried, because a transient failure
+# is not a revoked token: reading one as the other re-mints on the reuse path below.
 grafana_auth_status() {
     local code attempt=0
 
@@ -211,16 +209,12 @@ fi
 if is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" ||
     [ -n "$GF_DATABASE_URL" ] || [ -n "$GF_DATABASE_HOST" ]; then
     echo "WARNING: ignoring PMM_ENABLE_SEP, Grafana is not using the embedded PostgreSQL." >&2
-    # Same cleanup as the disabled path: a token this script can no longer revalidate or
-    # replace must not be left behind for SEP to keep reading.
     remove_token_files
     exit 0
 fi
 
-# Created only when absent, because install -d on an existing directory also chmods it,
-# which a uid that does not own the mountpoint cannot do. The mountpoint ships in the
-# image already setgid (post-build.yml), so this create path is only for setups that
-# mount nothing here.
+# Created only when absent: install -d on an existing directory also chmods it, which a
+# uid that does not own the mountpoint cannot do.
 if [ ! -d "$SECRETS_DIR" ]; then
     install -d -m 2770 "$SECRETS_DIR" 2> /dev/null || true
 fi
@@ -249,8 +243,8 @@ fi
 case "$STATUS" in
     200)
         echo "The Grafana service account token for SEP is still valid, keeping it."
-        # Published before the role repair so a token already proven valid still reaches
-        # SEP if that secondary step fails under errexit.
+        # Ordered so a token already proven valid reaches SEP even if the role repair
+        # below fails under errexit.
         publish_token "$TOKEN"
         ensure_admin_role
         exit 0
