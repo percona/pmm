@@ -60,9 +60,9 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	db, err := models.OpenDB(setupParams)
 	require.NoError(tb, err)
 
-	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + testDatabase + `"`)
+	_, err = db.ExecContext(tb.Context(), `DROP DATABASE IF EXISTS "`+testDatabase+`"`)
 	require.NoError(tb, err)
-	_, err = db.Exec(`CREATE DATABASE "` + testDatabase + `"`)
+	_, err = db.ExecContext(tb.Context(), `CREATE DATABASE "`+testDatabase+`"`)
 	require.NoError(tb, err)
 
 	err = db.Close()

@@ -49,8 +49,8 @@ func NewDsGrafanaDBSelect(config DSConfigGrafanaDB, l *logrus.Entry) DataSource 
 	}
 }
 
-func (d *dsGrafanaDBSelect) Init(context.Context) error {
-	db, err := openGrafanaDBConnection(d.config, d.l)
+func (d *dsGrafanaDBSelect) Init(ctx context.Context) error {
+	db, err := openGrafanaDBConnection(ctx, d.config, d.l)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (d *dsGrafanaDBSelect) Init(context.Context) error {
 	return nil
 }
 
-func openGrafanaDBConnection(config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB, error) {
+func openGrafanaDBConnection(ctx context.Context, config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB, error) {
 	var user *url.Userinfo
 	if config.UseSeparateCredentials {
 		user = url.UserPassword(config.SeparateCredentials.Username, config.SeparateCredentials.Password)
@@ -84,7 +84,7 @@ func openGrafanaDBConnection(config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB
 	db.SetMaxIdleConns(defaultMaxIdleConns)
 	db.SetMaxOpenConns(defaultMaxOpenConns)
 
-	err = db.Ping() //nolint:noctx
+	err = db.PingContext(ctx)
 	if err != nil {
 		l.Warnf("Grafana DB is not reachable [%s]: %s", config.DSN.Host, err)
 	}

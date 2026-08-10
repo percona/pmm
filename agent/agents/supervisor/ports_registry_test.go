@@ -31,10 +31,10 @@ func TestRegistry(t *testing.T) {
 		_ = l1.Close()
 	})
 
-	p, err := r.Reserve()
+	p, err := r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65002, p)
-	_, err = r.Reserve()
+	_, err = r.Reserve(t.Context())
 	assert.Equal(t, errNoFreePort, err)
 
 	l2, err := net.Listen("tcp", "127.0.0.1:65002")
@@ -53,44 +53,44 @@ func TestRegistry(t *testing.T) {
 	require.NoError(t, l1.Close())
 	require.NoError(t, l2.Close())
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65001, p)
-	_, err = r.Reserve()
+	_, err = r.Reserve(t.Context())
 	assert.Equal(t, errNoFreePort, err)
 
 	err = r.Release(65002)
 	require.NoError(t, err)
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65002, p)
-	_, err = r.Reserve()
+	_, err = r.Reserve(t.Context())
 	assert.Equal(t, errNoFreePort, err)
 }
 
 func TestPreferNewPort(t *testing.T) {
 	r := newPortsRegistry(65000, 65002, nil)
 
-	p, err := r.Reserve()
+	p, err := r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 
 	err = r.Release(p)
 	require.NoError(t, err)
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65001, p)
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65002, p)
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 }
@@ -98,17 +98,17 @@ func TestPreferNewPort(t *testing.T) {
 func TestSinglePort(t *testing.T) {
 	r := newPortsRegistry(65000, 65000, nil)
 
-	p, err := r.Reserve()
+	p, err := r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 
-	_, err = r.Reserve()
+	_, err = r.Reserve(t.Context())
 	assert.Equal(t, errNoFreePort, err)
 
 	err = r.Release(p)
 	require.NoError(t, err)
 
-	p, err = r.Reserve()
+	p, err = r.Reserve(t.Context())
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 }

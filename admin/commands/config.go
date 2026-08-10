@@ -15,6 +15,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -144,10 +145,10 @@ func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 	return res, switchedToTLS
 }
 
-// RunCmd runs config command.
-func (cmd *ConfigCommand) RunCmd(globals *flags.GlobalFlags) (Result, error) {
+// RunCmdWithContext runs config command.
+func (cmd *ConfigCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (Result, error) {
 	args, switchedToTLS := cmd.args(globals)
-	c := exec.Command("pmm-agent", args...) //nolint:gosec
+	c := exec.CommandContext(ctx, "pmm-agent", args...) //nolint:gosec
 	logrus.Debugf("Running: %s", strings.Join(c.Args, " "))
 	b, err := c.Output() // hide pmm-agent's stderr logging
 	res := &configResult{

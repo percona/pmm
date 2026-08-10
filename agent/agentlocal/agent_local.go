@@ -107,7 +107,8 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 
 	// Get random free port for gRPC server.
 	// If we can't get one, panic since everything is seriously broken.
-	l, err := net.Listen("tcp", "127.0.0.1:0")
+	lc := net.ListenConfig{}
+	l, err := lc.Listen(ctx, "tcp", "127.0.0.1:0")
 	if err != nil {
 		s.l.Panic(err)
 	}

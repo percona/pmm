@@ -73,7 +73,8 @@ const (
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, bind string) {
 	l := logrus.WithField("component", "gRPC")
-	lis, err := net.Listen("tcp", bind)
+	lc := net.ListenConfig{}
+	lis, err := lc.Listen(ctx, "tcp", bind)
 	if err != nil {
 		l.Fatalf("Cannot start gRPC server on: %v", err)
 	}
