@@ -380,6 +380,11 @@ func RemoveStaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) er
 		if !node.IsPMMServerNode {
 			continue
 		}
+		// The PMM Server Node of a deployment converted from non-HA: HA replicas always get a
+		// generated Node ID, and removeNode bans this one outright.
+		if node.NodeID == PMMServerNodeID {
+			continue
+		}
 		if _, ok := expected[node.NodeName]; ok {
 			continue
 		}

@@ -404,6 +404,22 @@ func TestRemoveStaleHANodes(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("KeepsPreHAPMMServerNode", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// A deployment converted from non-HA keeps a Node with the literal "pmm-server" ID; without
+		// the internal PostgreSQL Service nothing marks it as monitoring, so only its ID keeps it.
+		service, err := models.FindServiceByName(q, models.PMMServerPostgreSQLServiceName)
+		require.NoError(t, err)
+		require.NoError(t, models.RemoveService(q, service.ServiceID, models.RemoveCascade))
+
+		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761"}
+		require.NoError(t, models.RemoveStaleHANodes(q, "pmm-ha-1", peers))
+
+		assertNodeExists(t, q, models.PMMServerNodeID)
+	})
+
 	t.Run("DoesNothingWhenPeersCantBeTrusted", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
