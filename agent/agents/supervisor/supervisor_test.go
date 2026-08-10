@@ -393,7 +393,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 		assert.NotEmpty(t, actual.TemplateParams)
 		assert.NotEmpty(t, actual.TemplateRenderer)
 		require.FileExists(t, configFilePath)
-		b, err := os.ReadFile(configFilePath) //nolint:gosec
+		b, err := os.ReadFile(configFilePath)
 		require.NoError(t, err)
 		assert.Equal(t, "test=12345", string(b))
 	})
@@ -570,7 +570,7 @@ plugin "raw_exec" {
 		assert.NotEmpty(t, actual.TemplateParams)
 		assert.NotEmpty(t, actual.TemplateRenderer)
 		require.FileExists(t, configFilePath)
-		b, err := os.ReadFile(configFilePath) //nolint:gosec
+		b, err := os.ReadFile(configFilePath)
 		require.NoError(t, err)
 		assert.Equal(t, expectedConfig, string(b))
 	})
@@ -638,7 +638,7 @@ plugin "raw_exec" {
 		assert.NotEmpty(t, actual.TemplateParams)
 		assert.NotEmpty(t, actual.TemplateRenderer)
 		require.FileExists(t, configFilePath)
-		b, err := os.ReadFile(configFilePath) //nolint:gosec
+		b, err := os.ReadFile(configFilePath)
 		require.NoError(t, err)
 		assert.Equal(t, "global:\n  scrape_interval: 15s\n", string(b))
 	})
