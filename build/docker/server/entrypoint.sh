@@ -214,6 +214,10 @@ else
     rm -f "$SEP_NGINX_DIR"/*.conf
 fi
 
+# Unconditional: the script owns its own gates, so the files it published are still
+# removed on the start after PMM_ENABLE_SEP is cleared.
+bash /opt/ansible/roles/sep/files/sep-secrets
+
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
 
