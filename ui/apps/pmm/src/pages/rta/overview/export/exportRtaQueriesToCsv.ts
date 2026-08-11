@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { QueryData } from 'types/rta.types';
+import { isPlainObject } from 'utils/object.utils';
 
 const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
 
@@ -57,9 +58,6 @@ const columnRank = (column: string): number => {
 
   return index === -1 ? CSV_COLUMN_ORDER.length : index;
 };
-
-const isPlainObject = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
 
 // export-to-csv rejects object values outright, so anything that is not a
 // primitive has to be flattened or serialized before it reaches the generator.
