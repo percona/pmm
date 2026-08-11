@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -309,6 +310,63 @@ func TestLateResponseAfterTimeout(t *testing.T) {
 
 	err = stream.CloseSend()
 	require.NoError(t, err)
+}
+
+func TestUnsubscribe(t *testing.T) {
+	t.Parallel()
+
+	// The interleaving that matters cannot be forced through the gRPC harness, so drive the
+	// primitives directly: only `responses` and `l` are touched by the paths under test.
+	newChannel := func() *Channel {
+		return &Channel{
+			responses: make(map[uint32]chan Response),
+			l:         logrus.WithField("test", t.Name()),
+		}
+	}
+
+	t.Run("marks a request that is still tracked", func(t *testing.T) {
+		t.Parallel()
+
+		c := newChannel()
+		c.subscribe(1)
+
+		assert.True(t, c.unsubscribe(1))
+		// Tracked as abandoned rather than dropped, so a late response is recognized.
+		assert.Len(t, c.responses, 1)
+		assert.Nil(t, c.responses[1])
+		assert.Zero(t, c.Metrics().Responses)
+	})
+
+	t.Run("does not resurrect an entry the publisher already took", func(t *testing.T) {
+		// The waiter sees an empty response channel, then the publisher removes the entry and
+		// delivers before the waiter marks it. Marking it anyway would leave an entry that no
+		// future response can ever clear, because the response was already published.
+		// See PMM-15310.
+		t.Parallel()
+
+		c := newChannel()
+		ch := c.subscribe(1)
+
+		c.publish(1, nil, &agentv1.Pong{CurrentTime: timestamppb.Now()})
+
+		assert.False(t, c.unsubscribe(1))
+		assert.Empty(t, c.responses)
+
+		// The response the publisher delivered is still there to be collected.
+		resp := <-ch
+		require.NoError(t, resp.Error)
+		assert.IsType(t, &agentv1.Pong{}, resp.Payload)
+	})
+
+	t.Run("is a no-op once the channel is closed", func(t *testing.T) {
+		t.Parallel()
+
+		c := newChannel()
+		c.subscribe(1)
+		c.responses = nil
+
+		assert.False(t, c.unsubscribe(1))
+	})
 }
 
 func TestServerExitsWithGRPCError(t *testing.T) {

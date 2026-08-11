@@ -217,20 +217,19 @@ func (c *Channel) sendAndWaitResponse(done <-chan struct{}, payload agentv1.Serv
 
 	case <-done:
 		// select picks a ready case at random, so the response may already have been delivered
-		// when done fired. Check once more before giving up, otherwise a response that did
-		// arrive in time is reported as a timeout.
-		select {
-		case resp, ok := <-ch:
-			if !ok {
-				return nil, errors.New("channel is closed")
-			}
-			return resp.Payload, resp.Error
-		default:
+		// when done fired, and it may land while we are giving up. Marking the request
+		// abandoned settles that: it succeeds only while nothing has taken the subscription,
+		// and once taken the publisher is committed to sending, so the response is imminent.
+		// Reporting a timeout for a response that did arrive would be wrong.
+		if c.unsubscribe(id) {
+			return nil, errWaitAborted
 		}
 
-		// Mark the request abandoned so that a response arriving later is discarded quietly.
-		c.unsubscribe(id)
-		return nil, errWaitAborted
+		resp, ok := <-ch
+		if !ok {
+			return nil, errors.New("channel is closed")
+		}
+		return resp.Payload, resp.Error
 	}
 }
 
@@ -388,14 +387,23 @@ func (c *Channel) subscribe(id uint32) chan Response {
 
 // unsubscribe marks the request as abandoned: its sender is gone, but a response may still
 // arrive and must not be mistaken for an unsolicited one.
-func (c *Channel) unsubscribe(id uint32) {
+//
+// It reports whether the request was still tracked. False means the publisher took the entry
+// first and is committed to delivering a response, so there is nothing left to mark: writing
+// the marker anyway would leave an entry behind that nothing ever clears.
+func (c *Channel) unsubscribe(id uint32) bool {
 	c.rw.Lock()
 	defer c.rw.Unlock()
 	// Channel is closed, no subscriptions left
 	if c.responses == nil {
-		return
+		return false
+	}
+	if _, ok := c.responses[id]; !ok {
+		return false
 	}
 	c.responses[id] = nil
+
+	return true
 }
 
 func (c *Channel) removeResponseChannel(id uint32) chan Response {
