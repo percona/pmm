@@ -3,7 +3,7 @@ import {
   usePerconaTableUrlState,
   type UsePerconaTableUrlStateOptions,
   type UsePerconaTableUrlStateResult,
-} from '@percona/percona-ui';
+} from '@percona/peak-ui';
 
 export type UseTableUrlStateOptions = Omit<
   UsePerconaTableUrlStateOptions,
