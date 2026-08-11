@@ -420,8 +420,7 @@ type StatusOKBody struct {
 	// Status of HA mode: "Enabled" or "Disabled".
 	Status string `json:"status,omitempty"`
 
-	// Kubernetes namespace this instance is running in. Empty if unknown
-	// (e.g. non-Kubernetes installs).
+	// Kubernetes namespace this instance is running in.
 	Namespace string `json:"namespace,omitempty"`
 }
 
