@@ -361,6 +361,18 @@ func TestStaleHANodes(t *testing.T) {
 		assertStale(t, stale, "ha-node-2")
 	})
 
+	t.Run("ReportsScaledDownReplicaDespiteBlankPeers", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// a trailing comma in PMM_HA_PEERS, or a blank element in the list the chart joins
+		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761", "", "   "}
+		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		require.NoError(t, err)
+
+		assertStale(t, stale, "ha-node-2")
+	})
+
 	t.Run("ReportsNothingWhenNothingWasScaledDown", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
@@ -506,6 +518,7 @@ func TestStaleHANodes(t *testing.T) {
 			{"pmm-ha-1.pmm-ha:9761", "pmm-ha-2/10.0.0.2"}, // memberlist "name/address" form
 			{"pmm-ha-1.pmm-ha:9761", "2001:db8::7"},       // an unbracketed IPv6 entry hides a live replica
 			{"pmm-ha-1.pmm-ha:9761", "[2001:db8::7]:9761"},
+			{"", "   "}, // only blank entries, so nothing is left to compare against
 			nil,
 		} {
 			stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)

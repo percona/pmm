@@ -356,6 +356,12 @@ func StaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) ([]*Node
 
 	expected := make(map[string]struct{}, len(haPeers))
 	for _, peer := range haPeers {
+		// A trailing comma in PMM_HA_PEERS, or a blank element in the list the chart joins, yields an
+		// empty entry. It names no replica, so unlike an unreadable one it hides nothing.
+		if strings.TrimSpace(peer) == "" {
+			continue
+		}
+
 		name, ok := haPeerNodeName(peer)
 		if !ok {
 			// Trusting the rest would treat a partial list as the whole cluster and remove live replicas.
