@@ -156,7 +156,58 @@ else
 fi
 
 if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; }; then
-    echo "WARNING: ignoring PMM_ENABLE_SEP, the embedded PostgreSQL is not in use." >&2
+    echo "WARNING: not exposing a database to SEP, the embedded PostgreSQL is not in use." >&2
+fi
+
+# The reverse proxy is independent of which database SEP uses, so it is not nested
+# in the embedded-PostgreSQL branch above.
+declare SEP_NGINX_DIR=/etc/nginx/sep.d
+declare SEP_NGINX_TEMPLATE=/opt/ansible/roles/nginx/files/sep/sep.conf.template
+if is_enabled "$PMM_ENABLE_SEP"; then
+    declare SEP_ADDRESS="${PMM_SEP_ADDRESS:-sep:9000}"
+    # The address is interpolated into an nginx config, so an unvalidated value
+    # is a config-injection vector. The digit count is capped so the range test
+    # below cannot be handed a value that overflows the shell's integer parsing
+    # and fails open.
+    if ! [[ "$SEP_ADDRESS" =~ ^[A-Za-z0-9._-]+:[0-9]{1,5}$ ]]; then
+        echo "FATAL: PMM_SEP_ADDRESS must be <host>:<port>, got '${SEP_ADDRESS}'." >&2
+        exit 1
+    fi
+    # A variable proxy_pass resolves per request, so an out-of-range port would
+    # pass nginx -t and only surface as a 502 at runtime.
+    if [ "${SEP_ADDRESS##*:}" -lt 1 ] || [ "${SEP_ADDRESS##*:}" -gt 65535 ]; then
+        echo "FATAL: PMM_SEP_ADDRESS port must be 1-65535, got '${SEP_ADDRESS##*:}'." >&2
+        exit 1
+    fi
+
+    # Container DNS: 127.0.0.11 under Docker, an aardvark address under Podman.
+    # IPv4 is preferred because nginx needs IPv6 resolver addresses bracketed,
+    # and a bare one fails nginx -t and so blocks the whole server from starting.
+    declare SEP_RESOLVER
+    SEP_RESOLVER=$(awk '/^nameserver/ && $2 !~ /:/ { print $2; exit }' /etc/resolv.conf 2>/dev/null || true)
+    if [ -z "$SEP_RESOLVER" ]; then
+        SEP_RESOLVER=$(awk '/^nameserver/ { sub(/%.*/, "", $2); print "[" $2 "]"; exit }' /etc/resolv.conf 2>/dev/null || true)
+    fi
+    if [ -z "$SEP_RESOLVER" ]; then
+        echo "FATAL: PMM_ENABLE_SEP is set but no nameserver found in /etc/resolv.conf." >&2
+        echo "Please attach the container to a network with working DNS, or unset PMM_ENABLE_SEP." >&2
+        exit 1
+    fi
+
+    if [ ! -f "$SEP_NGINX_TEMPLATE" ]; then
+        echo "FATAL: missing ${SEP_NGINX_TEMPLATE}, cannot configure the SEP reverse proxy." >&2
+        exit 1
+    fi
+
+    echo "Installing nginx reverse-proxy configuration for SEP at ${SEP_ADDRESS}..."
+    mkdir -p "$SEP_NGINX_DIR"
+    sed -e "s|__SEP_ADDRESS__|${SEP_ADDRESS}|" \
+        -e "s|__SEP_RESOLVER__|${SEP_RESOLVER}|" \
+        "$SEP_NGINX_TEMPLATE" > "$SEP_NGINX_DIR/sep.conf"
+else
+    # Clears the whole directory, not just the file this version writes: an older
+    # build or an operator may have left others behind in the writable layer.
+    rm -f "$SEP_NGINX_DIR"/*.conf
 fi
 
 echo "Generating self-signed certificates for nginx..."
