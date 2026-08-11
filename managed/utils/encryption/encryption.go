@@ -192,12 +192,9 @@ func Fingerprint() (string, error) {
 	return getDefaultEncryption().Fingerprint()
 }
 
-// Fingerprint returns a stable identifier of the encryption key.
-//
-// It is recorded next to the encrypted data so a node can tell whether it holds the key the
-// data was encrypted with without decrypting anything, which also works when there is no
-// encrypted row to test against yet. It is a digest of the key, so it cannot be used to
-// reconstruct it.
+// Fingerprint returns a stable identifier of the encryption key: a digest, so it cannot be used
+// to reconstruct the key. It is recorded next to the encrypted data so that a node can tell
+// whether it holds the right key without having an encrypted row to test against.
 func (e *Encryption) Fingerprint() (string, error) {
 	if e == nil || e.Key == "" {
 		return "", ErrEncryptionNotInitialized
@@ -299,10 +296,8 @@ func Decrypt(cipherText string) (string, error) {
 }
 
 // Decrypt returns input string decrypted.
-// On failure it returns an empty string rather than the input ciphertext. Returning the
-// ciphertext let callers that only logged the error pass it on as if it were the decrypted
-// value, which is how encrypted credentials reached pmm-agent as usernames and passwords
-// when a node's encryption key did not match the data in a shared database.
+// On failure it returns an empty string rather than the input ciphertext, so that a caller which
+// ignores the error cannot pass ciphertext on as if it were the decrypted value.
 func (e *Encryption) Decrypt(cipherText string) (string, error) {
 	if e == nil || e.Primitive == nil {
 		return "", ErrEncryptionNotInitialized

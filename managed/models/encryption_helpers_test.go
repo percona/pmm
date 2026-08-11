@@ -125,11 +125,9 @@ func TestEncryptDecryptAgentRoundTrip(t *testing.T) {
 }
 
 // TestDecryptAgentDoesNotReturnCiphertext guards the fix for
-// https://perconadev.atlassian.net/browse/PMM-14979: a value that this node's key cannot
-// decrypt must surface as an error, and the undecrypted value must not be handed back to the
-// caller. It previously came back as the field value with only a warning logged, so the
-// ciphertext reached pmm-agent as a username and produced
-// `password authentication failed for user "AQ+rKT/..."`.
+// https://perconadev.atlassian.net/browse/PMM-14979: a value that this node's key cannot decrypt
+// must surface as an error, and the ciphertext must not be handed back to the caller as if it
+// were the decrypted value.
 func TestDecryptAgentDoesNotReturnCiphertext(t *testing.T) {
 	// Valid base64 but not ciphertext produced by this node's key, which is what an HA
 	// follower reads when the row was encrypted with another node's key.

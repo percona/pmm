@@ -86,10 +86,8 @@ func main() {
 
 // checkHAEncryptionKey refuses to start an HA node that has no encryption key yet.
 //
-// All nodes of an HA cluster share one PostgreSQL database, but the encryption key is a local
-// file. Letting a node generate its own key leaves it unable to decrypt rows written by the
-// other nodes, and the credentials it hands to pmm-agent are then unusable. The key has to be
-// generated once and copied to every node before they start.
+// All nodes of an HA cluster share one PostgreSQL database but keep their own key file, so
+// letting a node generate its own key leaves it unable to decrypt rows written by the others.
 func checkHAEncryptionKey() error {
 	path := encryption.KeyPath()
 

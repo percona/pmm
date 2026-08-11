@@ -147,9 +147,8 @@ const (
 
 var pprofSemaphore = semaphore.NewWeighted(1)
 
-// mEncryptionKeyMismatch is set when this node's encryption key is not the one the database was
-// encrypted with. Standalone PMM keeps running in that state, so the condition needs to be
-// visible to monitoring rather than only present in the log.
+// mEncryptionKeyMismatch makes the condition visible to monitoring, since standalone PMM keeps
+// running with a mismatched key.
 var mEncryptionKeyMismatch = prom.NewGauge(prom.GaugeOpts{
 	Namespace: "pmm_managed",
 	Name:      "encryption_key_mismatch",
@@ -665,27 +664,25 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 // verifyEncryptionKey checks that this node holds the encryption key the database was encrypted
 // with.
 //
-// In HA the nodes share one database but each keeps its own key file, so a node holding a
-// different key cannot read the stored credentials and must not start: it would keep handing
-// undecryptable credentials to pmm-agent and write rows the other nodes cannot read. A
-// standalone node only logs the problem and exposes a metric, so that an upgrade cannot turn an
-// installation whose key went missing into one that no longer boots.
+// A mismatch is fatal in HA, where the node would otherwise write rows its peers cannot read. A
+// standalone node only logs it, so that an upgrade cannot turn an installation whose key went
+// missing into one that no longer boots.
 func verifyEncryptionKey(l *logrus.Entry, db *reform.DB, haEnabled bool) {
 	err := models.VerifyEncryptionKey(db)
-	switch {
-	case err == nil:
-		mEncryptionKeyMismatch.Set(0)
-	case errors.Is(err, models.ErrEncryptionKeyMismatch):
-		mEncryptionKeyMismatch.Set(1)
-		if haEnabled {
-			l.Fatalf("%s. Every PMM Server node in an HA cluster must use the same encryption key: "+
-				"copy %s from a node that works and restart this one.", err, encryption.KeyPath())
-		}
-		l.Errorf("%s. Stored credentials cannot be decrypted, so monitoring will not work until the "+
-			"matching key is restored to %s.", err, encryption.KeyPath())
-	default:
+	if err == nil {
+		return
+	}
+	if !errors.Is(err, models.ErrEncryptionKeyMismatch) {
 		l.Panicf("Failed to verify encryption key: %+v", err)
 	}
+
+	mEncryptionKeyMismatch.Set(1)
+	if haEnabled {
+		l.Fatalf("%s. Every PMM Server node in an HA cluster must use the same encryption key: "+
+			"copy %s from a node that works and restart this one.", err, encryption.KeyPath())
+	}
+	l.Errorf("%s. Stored credentials cannot be decrypted, so monitoring will not work until the "+
+		"matching key is restored to %s.", err, encryption.KeyPath())
 }
 
 // newClickhouseDB return a new Clickhouse db.

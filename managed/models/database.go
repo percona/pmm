@@ -1358,7 +1358,7 @@ func dbEncryption(tx *reform.TX, database string, items []encryption.Table,
 
 	// The fingerprint is recorded in the same transaction as the encrypted column list, so a
 	// concurrently starting node cannot observe encrypted data with no fingerprint to check its
-	// own key against. Decrypting clears it, which is what lets key rotation record the new key.
+	// own key against.
 	encryptedItems := []string{}
 	fingerprint := ""
 	if expectedState {
