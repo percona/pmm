@@ -167,11 +167,9 @@ func TestKickConn(t *testing.T) {
 
 		var wg sync.WaitGroup
 		for _, conn := range probed {
-			wg.Add(1)
-			go func(conn *pmmAgentInfo) {
-				defer wg.Done()
+			wg.Go(func() {
 				r.kickConn(ctx, conn)
-			}(conn)
+			})
 		}
 		wg.Wait()
 
