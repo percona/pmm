@@ -166,16 +166,27 @@ if is_enabled "$PMM_ENABLE_SEP"; then
     fi
 
     # Container DNS: 127.0.0.11 under Docker, an aardvark address under Podman.
-    # IPv4 is preferred because nginx needs IPv6 resolver addresses bracketed,
-    # and a bare one fails nginx -t and so blocks the whole server from starting.
+    # IPv4 first, then an unscoped IPv6 in brackets -- nginx requires the brackets
+    # and rejects a bare address, which fails nginx -t and so blocks the whole
+    # server from starting.
     declare SEP_RESOLVER
     SEP_RESOLVER=$(awk '/^nameserver/ && $2 !~ /:/ { print $2; exit }' /etc/resolv.conf 2>/dev/null || true)
     if [ -z "$SEP_RESOLVER" ]; then
-        SEP_RESOLVER=$(awk '/^nameserver/ { sub(/%.*/, "", $2); print "[" $2 "]"; exit }' /etc/resolv.conf 2>/dev/null || true)
+        # Scoped addresses are skipped rather than stripped of their zone: nginx has
+        # no syntax for the interface scope, so a stripped fe80:: address yields a
+        # config that passes nginx -t and can never route DNS -- trading a startup
+        # failure for every /sep/ request timing out into the 503.
+        SEP_RESOLVER=$(awk '/^nameserver/ && $2 !~ /%/ { print "[" $2 "]"; exit }' /etc/resolv.conf 2>/dev/null || true)
     fi
     if [ -z "$SEP_RESOLVER" ]; then
-        echo "FATAL: PMM_ENABLE_SEP is set but no nameserver found in /etc/resolv.conf." >&2
-        echo "Please attach the container to a network with working DNS, or unset PMM_ENABLE_SEP." >&2
+        if awk '/^nameserver/ && $2 ~ /%/ { found = 1 } END { exit !found }' /etc/resolv.conf 2>/dev/null; then
+            echo "FATAL: /etc/resolv.conf lists only scoped IPv6 nameservers, such as fe80::1%eth0." >&2
+            echo "nginx cannot express the interface scope, so such an address cannot be used." >&2
+            echo "Please attach the container to a network with an IPv4 or unscoped IPv6 nameserver, or unset PMM_ENABLE_SEP." >&2
+        else
+            echo "FATAL: PMM_ENABLE_SEP is set but no nameserver found in /etc/resolv.conf." >&2
+            echo "Please attach the container to a network with working DNS, or unset PMM_ENABLE_SEP." >&2
+        fi
         exit 1
     fi
 

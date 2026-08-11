@@ -204,6 +204,38 @@ func TestFiles(t *testing.T) {
 	assert.Equal(t, commonExpectedFiles, actual)
 }
 
+func TestSepConfigFiles(t *testing.T) {
+	t.Parallel()
+
+	t.Run("collects the drop-ins and ignores everything else", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		sep := filepath.Join(dir, "sep.conf")
+		extra := filepath.Join(dir, "extra.conf")
+		require.NoError(t, os.WriteFile(sep, []byte("location /sep/ {}\n"), 0o600))
+		require.NoError(t, os.WriteFile(extra, []byte("# left by an older build\n"), 0o600))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "sep.conf.template"), []byte("# not a drop-in\n"), 0o600))
+
+		ctx := logger.Set(t.Context(), t.Name())
+		assert.ElementsMatch(t, []string{sep, extra}, sepConfigFiles(ctx, dir))
+	})
+
+	t.Run("absent directory is not an error", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := logger.Set(t.Context(), t.Name())
+		assert.Empty(t, sepConfigFiles(ctx, filepath.Join(t.TempDir(), "sep.d")))
+	})
+
+	t.Run("empty directory is not an error", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := logger.Set(t.Context(), t.Name())
+		assert.Empty(t, sepConfigFiles(ctx, t.TempDir()))
+	})
+}
+
 func TestZip(t *testing.T) {
 	t.Skip("FIXME")
 
