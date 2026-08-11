@@ -65,6 +65,19 @@ export const TEST_USER_VIEWER: User = {
   },
 };
 
+export const TEST_USER_ANONYMOUS: User = {
+  ...TEST_USER_VIEWER,
+  id: 0,
+  login: 'anonymous',
+  name: 'Anonymous',
+  isAnonymous: true,
+  isPMMAdmin: false,
+  info: {
+    ...TEST_USER_ADMIN.info,
+    userId: 0,
+  },
+};
+
 export const TEST_SERVICE: BaseService = {
   serviceId: 'service-1',
   serviceName: 'Service 1',
@@ -171,17 +184,4 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
 export const TEST_RAW_MONGO_DB_QUERY_DATA: RawQueryData = {
   ...TEST_MONGO_DB_QUERY_DATA,
   queryExecutionDuration: '10s',
-};
-
-export const TEST_USER_ANONYMOUS: User = {
-  ...TEST_USER_VIEWER,
-  id: 0,
-  login: 'anonymous',
-  name: 'Anonymous',
-  isAnonymous: true,
-  isPMMAdmin: false,
-  info: {
-    ...TEST_USER_ADMIN.info,
-    userId: 0,
-  },
 };
