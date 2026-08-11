@@ -181,6 +181,13 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
+		// Present only when the container was started with PMM_ENABLE_SEP,
+		// so it cannot belong to a fixed expectation either way.
+		if f.Name == "sep.conf" {
+			require.NoError(t, f.Err, "name = %q", f.Name)
+			continue
+		}
+
 		if f.Name == "supervisorctl_status.log" {
 			require.EqualError(t, f.Err, "exit status 3")
 			// NOTE: this fails in supervisorctl v4+ if there are stopped services; it is not critical because the call succeeds
