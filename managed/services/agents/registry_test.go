@@ -16,7 +16,6 @@
 package agents
 
 import (
-	"context"
 	"sync"
 	"testing"
 
@@ -68,7 +67,7 @@ func newTestRegistry() *Registry {
 func TestUnregister(t *testing.T) {
 	t.Parallel()
 
-	ctx := logger.SetEntry(context.Background(), logrus.WithField("test", t.Name()))
+	ctx := logger.SetEntry(t.Context(), logrus.WithField("test", t.Name()))
 
 	t.Run("removes the current connection", func(t *testing.T) {
 		t.Parallel()
@@ -121,7 +120,7 @@ func TestUnregister(t *testing.T) {
 func TestKickConn(t *testing.T) {
 	t.Parallel()
 
-	ctx := logger.SetEntry(context.Background(), logrus.WithField("test", t.Name()))
+	ctx := logger.SetEntry(t.Context(), logrus.WithField("test", t.Name()))
 
 	t.Run("kicks the connection it probed", func(t *testing.T) {
 		t.Parallel()

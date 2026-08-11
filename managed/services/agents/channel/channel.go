@@ -94,9 +94,11 @@ type Channel struct {
 
 	sendM sync.Mutex
 
-	rw        sync.RWMutex
+	rw sync.RWMutex
+	// responses maps a request ID to the channel its sender is waiting on. A nil value marks a
+	// request whose sender stopped waiting, so that a response arriving later can be recognized
+	// as expected rather than unsolicited.
 	responses map[uint32]chan Response
-	abandoned map[uint32]struct{}
 	requests  chan *AgentRequest
 
 	closeOnce sync.Once
@@ -114,7 +116,6 @@ func New(ctx context.Context, stream Stream) *Channel {
 		s: stream,
 
 		responses: make(map[uint32]chan Response),
-		abandoned: make(map[uint32]struct{}),
 		requests:  make(chan *AgentRequest, agentRequestsCap),
 
 		closeWait: make(chan struct{}),
@@ -133,11 +134,14 @@ func (c *Channel) close(err error) {
 		c.closeErr = err
 
 		c.rw.Lock()
-		for _, ch := range c.responses { // unblock all subscribers
-			close(ch)
+		for _, ch := range c.responses {
+			// unblock all subscribers; a nil channel marks an abandoned request with no subscriber
+			if ch != nil {
+				close(ch)
+			}
 		}
-		c.responses = nil // prevent future subscriptions
-		c.abandoned = nil
+		// prevent future subscriptions
+		c.responses = nil
 		c.rw.Unlock()
 
 		close(c.closeWait)
@@ -171,7 +175,7 @@ func (c *Channel) Send(resp *ServerResponse) {
 
 // SendAndWaitResponse sends request to pmm-agent, blocks until response is available.
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancellation.
-// Response and error will be both nil if channel is closed.
+// If the channel is closed, the payload is nil and the error says so.
 // It is no-op once channel is closed (see Wait).
 //
 // It waits indefinitely while the channel is open, so callers that must not hang on a silently
@@ -212,8 +216,19 @@ func (c *Channel) sendAndWaitResponse(done <-chan struct{}, payload agentv1.Serv
 		return resp.Payload, resp.Error
 
 	case <-done:
-		// Drop the subscription so that the map does not grow. A response that arrives later
-		// is discarded, and recognized as expected rather than logged as unsolicited.
+		// select picks a ready case at random, so the response may already have been delivered
+		// when done fired. Check once more before giving up, otherwise a response that did
+		// arrive in time is reported as a timeout.
+		select {
+		case resp, ok := <-ch:
+			if !ok {
+				return nil, errors.New("channel is closed")
+			}
+			return resp.Payload, resp.Error
+		default:
+		}
+
+		// Mark the request abandoned so that a response arriving later is discarded quietly.
 		c.unsubscribe(id)
 		return nil, errWaitAborted
 	}
@@ -371,37 +386,37 @@ func (c *Channel) subscribe(id uint32) chan Response {
 	return ch
 }
 
-// unsubscribe drops the subscription for the given ID and remembers that it was abandoned,
-// so that a response arriving later is recognized as expected rather than unsolicited.
+// unsubscribe marks the request as abandoned: its sender is gone, but a response may still
+// arrive and must not be mistaken for an unsolicited one.
 func (c *Channel) unsubscribe(id uint32) {
 	c.rw.Lock()
 	defer c.rw.Unlock()
-	if c.responses == nil { // Channel is closed, no subscriptions left
+	// Channel is closed, no subscriptions left
+	if c.responses == nil {
 		return
 	}
-	delete(c.responses, id)
-	c.abandoned[id] = struct{}{}
+	c.responses[id] = nil
 }
 
 func (c *Channel) removeResponseChannel(id uint32) chan Response {
 	c.rw.Lock()
 	defer c.rw.Unlock()
-	if c.responses == nil { // Channel is closed, no more publishing
+	// Channel is closed, no more publishing
+	if c.responses == nil {
 		return nil
 	}
 
-	ch := c.responses[id]
-	if ch == nil {
-		if _, abandoned := c.abandoned[id]; abandoned {
-			delete(c.abandoned, id)
-			c.l.Debugf("Response for ID %d arrived after the caller stopped waiting for it.", id)
-			return nil
-		}
-
+	ch, ok := c.responses[id]
+	if !ok {
 		c.l.Errorf("No subscriber for ID %d", id)
 		return nil
 	}
 	delete(c.responses, id)
+
+	if ch == nil {
+		c.l.Debugf("Response for ID %d arrived after its sender stopped waiting for it.", id)
+		return nil
+	}
 	return ch
 }
 
@@ -428,7 +443,13 @@ func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentv1.Ag
 // Metrics returns current channel metrics.
 func (c *Channel) Metrics() *Metrics {
 	c.rw.RLock()
-	responses := len(c.responses)
+	var responses int
+	for _, ch := range c.responses {
+		// abandoned requests have no sender waiting on them, so they are not queued responses
+		if ch != nil {
+			responses++
+		}
+	}
 	requests := len(c.requests)
 	c.rw.RUnlock()
 

@@ -96,6 +96,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 	ticker := time.NewTicker(defaultAgentPingInterval)
 	defer ticker.Stop()
 	var pingFailures int
+	lastRecv := agent.channel.Metrics().Recv
 	for {
 		select {
 		case <-ticker.C:
@@ -103,6 +104,19 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 			err := h.r.ping(pingCtx, agent)
 			cancelPing()
 			if err != nil {
+				// pmm-agent answers Ping from the same loop that runs every other request, so a
+				// long one (a connection check with a large --connection-timeout, or gathering
+				// software versions) delays the pong without the connection being dead. Anything
+				// received since the last check proves it is alive, which a silently dropped
+				// connection can never do. See PMM-15310.
+				if recv := agent.channel.Metrics().Recv; recv > lastRecv {
+					lastRecv = recv
+					pingFailures = 0
+					l.WithError(err).WithField("agent_id", agent.id).
+						Warn("Ping timed out while pmm-agent is still sending data.")
+					continue
+				}
+
 				pingFailures++
 				l.WithError(err).WithFields(logrus.Fields{
 					"agent_id":          agent.id,
@@ -117,6 +131,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 				continue
 			}
 			pingFailures = 0
+			lastRecv = agent.channel.Metrics().Recv
 
 		// see unregister and Kick methods
 		case <-agent.kickChan:

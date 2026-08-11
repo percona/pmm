@@ -203,24 +203,31 @@ func TestServerRequestTimeout(t *testing.T) {
 
 	timedOut := make(chan struct{})
 	connect := func(ch *Channel) error {
-		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-		defer cancel()
+		// connect runs on the gRPC handler goroutine while the test goroutine waits on
+		// timedOut. Closing it from a defer keeps a failed require, which exits this
+		// goroutine, from deadlocking the test instead of failing it.
+		func() {
+			defer close(timedOut)
 
-		// The agent never answers this ping, exactly as it would on a silently dropped
-		// connection. Waiting for it must not block forever. See PMM-15310.
-		resp, err := ch.SendAndWaitResponseWithContext(ctx, &agentv1.Ping{})
-		assert.Nil(t, resp)
-		require.ErrorIs(t, err, context.DeadlineExceeded)
+			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+			defer cancel()
 
-		// The abandoned subscription must be gone, otherwise it leaks for the lifetime of the channel.
-		assert.Zero(t, ch.Metrics().Responses)
-		close(timedOut)
+			// The agent never answers this ping, exactly as it would on a silently dropped
+			// connection. Waiting for it must not block forever. See PMM-15310.
+			resp, err := ch.SendAndWaitResponseWithContext(ctx, &agentv1.Ping{})
+			assert.Nil(t, resp)
+			require.ErrorIs(t, err, context.DeadlineExceeded)
+
+			// The abandoned request must not be counted as a queued response.
+			assert.Zero(t, ch.Metrics().Responses)
+		}()
 
 		assert.Nil(t, <-ch.Requests())
 		return nil
 	}
 
-	stream, _ := setup(t, connect, io.EOF) // EOF = server exits from handler
+	// EOF = server exits from handler
+	stream, _ := setup(t, connect, io.EOF)
 
 	msg, err := stream.Recv()
 	require.NoError(t, err)
@@ -238,12 +245,16 @@ func TestLateResponseAfterTimeout(t *testing.T) {
 	timedOut := make(chan struct{})
 	lateSent := make(chan struct{})
 	connect := func(ch *Channel) error {
-		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
-		defer cancel()
+		// See the note in TestServerRequestTimeout on closing timedOut from a defer.
+		func() {
+			defer close(timedOut)
 
-		_, err := ch.SendAndWaitResponseWithContext(ctx, &agentv1.Ping{})
-		require.ErrorIs(t, err, context.DeadlineExceeded)
-		close(timedOut)
+			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+			defer cancel()
+
+			_, err := ch.SendAndWaitResponseWithContext(ctx, &agentv1.Ping{})
+			require.ErrorIs(t, err, context.DeadlineExceeded)
+		}()
 
 		<-lateSent
 
@@ -254,17 +265,18 @@ func TestLateResponseAfterTimeout(t *testing.T) {
 		assert.NotNil(t, resp)
 
 		// A response to an abandoned request is expected, not unsolicited, so the channel
-		// recognizes it and stops tracking the abandoned ID. See PMM-15310.
+		// recognizes it and drops the entry it was tracking. See PMM-15310.
 		ch.rw.RLock()
-		abandoned := len(ch.abandoned)
+		tracked := len(ch.responses)
 		ch.rw.RUnlock()
-		assert.Zero(t, abandoned)
+		assert.Zero(t, tracked)
 
 		assert.Nil(t, <-ch.Requests())
 		return nil
 	}
 
-	stream, _ := setup(t, connect, io.EOF) // EOF = server exits from handler
+	// EOF = server exits from handler
+	stream, _ := setup(t, connect, io.EOF)
 
 	// ID 1 is answered only after the wait for it has already timed out.
 	msg, err := stream.Recv()

@@ -393,8 +393,6 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 // A connection that took a long time to die must not evict the one that already replaced it,
 // or the agent stays connected while pmm-managed reports it as disconnected forever (PMM-15310).
 func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason string, conn *pmmAgentInfo) *pmmAgentInfo {
-	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
-
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
@@ -409,6 +407,10 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 		logger.Get(ctx).Debugf("Skipping unregistration of a superseded connection for agent %s.", pmmAgentID)
 		return nil
 	}
+
+	// Counted only once the connection is actually being unregistered: the guards above are
+	// routine when connections race, and counting them inflates the metric (PMM-15310).
+	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
 
 	delete(r.agents, pmmAgentID)
 	r.roster.clear(pmmAgentID)
