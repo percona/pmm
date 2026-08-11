@@ -349,7 +349,6 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 ### Code Style
 - Format with `gofumpt -s`; run `make format`
-- Follow [Effective Go](https://golang.org/doc/effective_go.html) and [CodeReviewComments](https://github.com/golang/go/wiki/CodeReviewComments)
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
 - Use modern slice helpers (`slices.Contains`), range loops
