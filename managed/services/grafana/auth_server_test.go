@@ -866,7 +866,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 						require.NoError(t, authErr)
 						assert.Equal(t, authResult{}, res)
 					} else {
-						assert.Equal(t, errStaticAuthErrorPermissionDenied, authErr)
+						require.Equal(t, errStaticAuthErrorPermissionDenied, authErr)
 						assert.Equal(t, authResult{}, res)
 					}
 				})
@@ -886,8 +886,8 @@ func TestAuthServerProcessRequest(t *testing.T) {
 			Once()
 
 		res, authErr := s.processRequest(t.Context(), req, l)
-		assert.Equal(t, errStaticAuthErrorPermissionDenied, authErr)
-		assert.Equal(t, authResult{}, res)
+		require.Equal(t, errStaticAuthErrorPermissionDenied, authErr)
+		require.Equal(t, authResult{}, res)
 		assert.Zero(t, s.cache.Size(), "cache should be empty on anonymous user")
 	})
 
@@ -904,7 +904,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 
 		res, authErr := s.processRequest(t.Context(), req, l)
 		require.NoError(t, authErr)
-		assert.Empty(t, res.vmProxyFilters)
+		require.Empty(t, res.vmProxyFilters)
 		assert.Zero(t, s.cache.Size(), "cache should be empty on anonymous user")
 	})
 
@@ -922,7 +922,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 
 		res, authErr := s.processRequest(t.Context(), req, l)
 		require.NoError(t, authErr)
-		assert.Empty(t, res.vmProxyFilters)
+		require.Empty(t, res.vmProxyFilters)
 		assert.Zero(t, s.cache.Size(), "cache should be empty on anonymous user")
 	})
 }
@@ -938,7 +938,7 @@ func TestAuthServerServeHTTP(t *testing.T) {
 
 		rw := httptest.NewRecorder()
 		s.ServeHTTP(rw, req)
-		assert.Equal(t, http.StatusBadRequest, rw.Code)
+		require.Equal(t, http.StatusBadRequest, rw.Code)
 	})
 
 	t.Run("permission denied returns 403 status code", func(t *testing.T) {
@@ -956,7 +956,7 @@ func TestAuthServerServeHTTP(t *testing.T) {
 		rw := httptest.NewRecorder()
 		s.ServeHTTP(rw, req)
 
-		assert.Equal(t, http.StatusForbidden, rw.Code)
+		require.Equal(t, http.StatusForbidden, rw.Code)
 		assert.Empty(t, rw.Body.String())
 		assert.Equal(t, strconv.Itoa(int(codes.PermissionDenied)), rw.Header().Get(authResponseCodeHeader))
 		assert.Equal(t, "Access denied.", rw.Header().Get(authResponseErrorHeader))

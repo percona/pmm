@@ -495,7 +495,7 @@ func (s *AuthServer) processRequest(ctx context.Context, req *http.Request, l *l
 
 	needLbacFilter := s.needAddLBACFilters(req.URL.Path)
 	if minRole == none && !needLbacFilter {
-		l.WithField("path", req.URL.Path).Debugf("Minimum required role is %s, granting access without authentication.", minRole)
+		l.WithField("path", req.URL.Path).Debug("Minimum required role is 'none', granting access without authentication.")
 		return authResult{}, nil
 	}
 
