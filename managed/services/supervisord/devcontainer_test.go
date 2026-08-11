@@ -47,7 +47,7 @@ func TestDevContainer(t *testing.T) {
 		matches, err := filepath.Glob("/etc/supervisord.d/*.ini")
 		require.NoError(t, err)
 		for _, m := range matches {
-			b, err := os.ReadFile(m) //nolint:gosec
+			b, err := os.ReadFile(m)
 			require.NoError(t, err)
 			originals[m] = b
 		}

@@ -21,6 +21,9 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
   {
     header: Messages.columns.host,
     accessorKey: 'serviceName',
+    // without this the column falls back to MRT's 'fuzzy' default, which
+    // matches any host containing the typed characters in order
+    filterFn: 'contains',
     // @ts-expect-error - muiTableBodyCellProps is not typed correctly
     muiTableBodyCellProps: ({ row }) => ({
       'data-testid': `query-${row.original.queryId}-host-cell`,
