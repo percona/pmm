@@ -602,6 +602,33 @@ func TestRemoveStaleHANode(t *testing.T) {
 		for _, nodeID := range []string{"ha-node-1", "monitored-node", models.PMMServerNodeID} {
 			assertNodeExists(t, q, nodeID)
 		}
+
+		// the cascade must not reach past the stale Node: the live replica's pmm-agent, and PMM
+		// Server's own Service and pmm-agent, are untouched
+		_, err = models.FindAgentByID(q, "ha-agent-1")
+		require.NoError(t, err)
+		_, err = models.FindServiceByName(q, models.PMMServerPostgreSQLServiceName)
+		require.NoError(t, err)
+		_, err = models.FindAgentByID(q, models.PMMServerAgentID)
+		require.NoError(t, err)
+	})
+
+	t.Run("ReportsNotFoundWhenAlreadyRemoved", func(t *testing.T) {
+		db := setup(t)
+		q := db.Querier
+
+		require.NoError(t, db.InTransaction(func(tx *reform.TX) error {
+			return models.RemoveStaleHANode(tx.Querier, "ha-node-2")
+		}))
+
+		// what a replica sees when another one won the race; removeStaleHANodes reads this as
+		// "already removed by another replica" rather than as a failure
+		err := db.InTransaction(func(tx *reform.TX) error {
+			return models.RemoveStaleHANode(tx.Querier, "ha-node-2")
+		})
+		tests.AssertGRPCErrorCode(t, codes.NotFound, err)
+
+		assertNodeExists(t, q, "ha-node-1")
 	})
 
 	t.Run("LeavesTheNodeWholeWhenRemovalFails", func(t *testing.T) {
