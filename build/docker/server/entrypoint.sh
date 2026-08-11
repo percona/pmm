@@ -218,6 +218,11 @@ fi
 # removed on the start after PMM_ENABLE_SEP is cleared.
 bash /opt/ansible/roles/sep/files/sep-secrets
 
+# The last consumer has run, so drop the password before exec'ing supervisord: otherwise
+# every child inherits it, and pmm-managed-init logs each variable it is handed - name and
+# value - once PMM_TRACE is set.
+unset PMM_SEP_POSTGRES_PASSWORD
+
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
 
