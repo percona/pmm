@@ -77,27 +77,25 @@ export const toCsvValue = (value: unknown): CsvValue => {
   return sanitizeCsvCell(JSON.stringify(value) ?? '');
 };
 
-// Nested payloads are hoisted into the parent key space, so a new
-// database-specific payload is exported without any mapping.
-export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
+// Recurses so that nested payloads are hoisted into the parent key space,
+// which is what lets a new database-specific payload export without any
+// mapping.
+const flattenToCsvRow = (source: Record<string, unknown>): CsvRow => {
   const row: CsvRow = {};
 
-  const collect = (source: Record<string, unknown>) => {
-    Object.entries(source).forEach(([key, value]) => {
-      if (isPlainObject(value)) {
-        collect(value);
-
-        return;
-      }
-
+  for (const [key, value] of Object.entries(source)) {
+    if (isPlainObject(value)) {
+      Object.assign(row, flattenToCsvRow(value));
+    } else {
       row[toCsvHeader(key)] = toCsvValue(value);
-    });
-  };
-
-  collect(query as unknown as Record<string, unknown>);
+    }
+  }
 
   return row;
 };
+
+export const mapQueryToCsvRow = (query: QueryData): CsvRow =>
+  flattenToCsvRow(query as unknown as Record<string, unknown>);
 
 // Columns are collected across every row: export-to-csv derives headers from
 // the first row only, which would drop fields that are unset on it.
