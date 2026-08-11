@@ -105,6 +105,7 @@ linters:
           - forcetypeassert  # for tests' brevity sake 
           - funlen           # tests may be long
           - gocognit         # triggered by subtests
+          - gosec            # not critical, too many things to disable
           - ireturn          # we have exceptions, so need to silence them in tests
           - lll              # tests often require long lines
           - maintidx         # not critical for tests
@@ -113,10 +114,6 @@ linters:
           - testpackage      # senseless
           - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
           - unusedwrite      # not critical for tests
-        path: _test\.go
-      - linters:
-          - gosec
-        text: G101 # Potential hardcoded credentials - acceptable in tests
         path: _test\.go
       - linters:
           - recvcheck
