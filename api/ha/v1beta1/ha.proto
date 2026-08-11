@@ -36,8 +36,7 @@ message StatusRequest {}
 message StatusResponse {
   // Status of HA mode: "Enabled" or "Disabled".
   string status = 1;
-  // Kubernetes namespace this instance is running in. Empty if unknown
-  // (e.g. non-Kubernetes installs).
+  // Kubernetes namespace this instance is running in.
   string namespace = 2;
 }
 
