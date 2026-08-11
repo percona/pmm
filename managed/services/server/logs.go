@@ -45,8 +45,8 @@ import (
 const (
 	maxLogReadLines = 50000
 
-	// sepNginxConfigDir holds the nginx drop-ins the entrypoint renders when
-	// PMM_ENABLE_SEP is set. It is absent on a default installation.
+	// The entrypoint renders the SEP nginx drop-ins here when PMM_ENABLE_SEP is
+	// set. The directory is absent on a default installation.
 	sepNginxConfigDir = "/etc/nginx/sep.d"
 )
 
