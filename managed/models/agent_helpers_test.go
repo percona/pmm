@@ -464,6 +464,55 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Empty(t, agents)
 	})
 
+	t.Run("FindAgentsOnNode", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		agents, err := models.FindAgentsOnNode(q, "N1")
+		require.NoError(t, err)
+		agentIDs := make([]string, len(agents))
+		for i, agent := range agents {
+			agentIDs[i] = agent.AgentID
+			assert.True(t,
+				pointer.GetString(agent.RunsOnNodeID) == "N1" || pointer.GetString(agent.NodeID) == "N1",
+				"%s is on neither runs_on_node_id nor node_id of N1", agent.AgentID)
+		}
+		assert.Contains(t, agentIDs, "A1")    // a pmm-agent running on the Node
+		assert.Contains(t, agentIDs, "A3")    // an exporter attached to the Node
+		assert.Contains(t, agentIDs, "A7")    // attached to the Node, but started by a pmm-agent on N2
+		assert.NotContains(t, agentIDs, "A2") // bound to a Service, not to the Node
+
+		// find with non existing node.
+		agents, err = models.FindAgentsOnNode(q, "X1")
+		require.NoError(t, err)
+		assert.Empty(t, agents)
+	})
+
+	t.Run("FindAgentsByPMMAgentIDs", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		agents, err := models.FindAgentsByPMMAgentIDs(q, []string{"A1"})
+		require.NoError(t, err)
+		agentIDs := make([]string, len(agents))
+		for i, agent := range agents {
+			agentIDs[i] = agent.AgentID
+		}
+		assert.Equal(t, []string{"A2", "A3"}, agentIDs)
+
+		agents, err = models.FindAgentsByPMMAgentIDs(q, []string{"A1", "A4"})
+		require.NoError(t, err)
+		agentIDs = make([]string, len(agents))
+		for i, agent := range agents {
+			agentIDs[i] = agent.AgentID
+		}
+		assert.Equal(t, []string{"A2", "A3", "A5", "A6", "A7"}, agentIDs)
+
+		agents, err = models.FindAgentsByPMMAgentIDs(q, nil)
+		require.NoError(t, err)
+		assert.Empty(t, agents)
+	})
+
 	t.Run("FindPMMAgentsForServicesOnNode", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)

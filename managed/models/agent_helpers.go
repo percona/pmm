@@ -427,6 +427,49 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 	return res, nil
 }
 
+// FindAgentsOnNode returns Agents attached to or running on the Node: node-level exporters, the
+// pmm-agents themselves, and external exporters in pull mode.
+func FindAgentsOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
+	structs, err := q.SelectAllFrom(AgentTable, "WHERE runs_on_node_id = $1 OR node_id = $1 ORDER BY agent_id", nodeID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to select Agents on Node %q: %w", nodeID, err)
+	}
+
+	res := make([]*Agent, len(structs))
+	for i, str := range structs {
+		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
+		res[i] = &decryptedAgent
+	}
+
+	return res, nil
+}
+
+// FindAgentsByPMMAgentIDs returns Agents started by any of the given pmm-agents.
+func FindAgentsByPMMAgentIDs(q *reform.Querier, pmmAgentIDs []string) ([]*Agent, error) {
+	if len(pmmAgentIDs) == 0 {
+		return []*Agent{}, nil
+	}
+
+	p := strings.Join(q.Placeholders(1, len(pmmAgentIDs)), ", ")
+	tail := fmt.Sprintf("WHERE pmm_agent_id IN (%s) ORDER BY agent_id", p)
+	args := make([]any, len(pmmAgentIDs))
+	for i, id := range pmmAgentIDs {
+		args[i] = id
+	}
+	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
+	if err != nil {
+		return nil, fmt.Errorf("failed to select Agents started by pmm-agents: %w", err)
+	}
+
+	res := make([]*Agent, len(structs))
+	for i, str := range structs {
+		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
+		res[i] = &decryptedAgent
+	}
+
+	return res, nil
+}
+
 // FindPMMAgentsForService gets pmm-agents for service.
 func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, error) {
 	_, err := q.SelectOneFrom(ServiceTable, "WHERE service_id = $1", serviceID)

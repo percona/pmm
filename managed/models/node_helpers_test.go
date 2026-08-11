@@ -404,6 +404,59 @@ func TestStaleHANodes(t *testing.T) {
 		assertStale(t, stale)
 	})
 
+	t.Run("KeepsScaledDownReplicaWithAServiceOnIt", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// a Service registered against the replica's own Node, monitored from somewhere else
+		require.NoError(t, q.Insert(&models.Service{
+			ServiceID:   "service-on-replica",
+			ServiceType: models.MySQLServiceType,
+			ServiceName: "MySQL on the replica",
+			NodeID:      "ha-node-2",
+			Address:     new("mysql.example.com"),
+			Port:        new(uint16(3306)),
+		}))
+
+		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761"}
+		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		require.NoError(t, err)
+
+		assertStale(t, stale)
+	})
+
+	t.Run("KeepsScaledDownReplicaRunningAnExternalExporter", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// an external exporter in pull mode: no pmm-agent owns it, it just runs on the replica
+		for _, str := range []reform.Struct{
+			&models.Service{
+				ServiceID:     "external-service",
+				ServiceType:   models.ExternalServiceType,
+				ServiceName:   "External instance",
+				NodeID:        "monitored-node",
+				Address:       new("external.example.com"),
+				Port:          new(uint16(9100)),
+				ExternalGroup: "external",
+			},
+			&models.Agent{
+				AgentID:      "external-exporter",
+				AgentType:    models.ExternalExporterType,
+				RunsOnNodeID: new("ha-node-2"),
+				ServiceID:    new("external-service"),
+			},
+		} {
+			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
+		}
+
+		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761"}
+		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		require.NoError(t, err)
+
+		assertStale(t, stale)
+	})
+
 	t.Run("KeepsPreHAPMMServerNode", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
@@ -552,6 +605,31 @@ func TestRemoveStaleHANode(t *testing.T) {
 
 		assertNodeExists(t, q, "ha-node-2")
 		_, err = models.FindAgentByID(q, "rds-exporter")
+		require.NoError(t, err)
+	})
+
+	t.Run("RefusesANodeWithAServiceOnIt", func(t *testing.T) {
+		db := setup(t)
+		q := db.Querier
+
+		// the re-check is the last line of defence, so it has to cover the same ground as the
+		// selection: a Service attached to the Node would be cascaded away with it
+		require.NoError(t, q.Insert(&models.Service{
+			ServiceID:   "service-on-replica",
+			ServiceType: models.MySQLServiceType,
+			ServiceName: "MySQL on the replica",
+			NodeID:      "ha-node-2",
+			Address:     new("mysql.example.com"),
+			Port:        new(uint16(3306)),
+		}))
+
+		err := db.InTransaction(func(tx *reform.TX) error {
+			return models.RemoveStaleHANode(tx.Querier, "ha-node-2")
+		})
+		tests.AssertGRPCErrorCode(t, codes.FailedPrecondition, err)
+
+		assertNodeExists(t, q, "ha-node-2")
+		_, err = models.FindServiceByID(q, "service-on-replica")
 		require.NoError(t, err)
 	})
 

@@ -455,27 +455,45 @@ func haPeerNodeName(peer string) (string, bool) {
 	return label, true
 }
 
-// haNodeMonitoredServices returns the IDs of Services whose exporters run under a replica's pmm-agent.
-// Remote instances bind theirs to the replica that added them (see management.RDSService), so removing
-// that replica's Node takes them with it.
+// haNodeMonitoredServices returns the IDs of the Services that removing the Node would take with it:
+// those attached to the Node, those whose exporters run on it (an external exporter in pull mode), and
+// those whose exporters run under its pmm-agent (remote instances bind theirs to the replica that
+// added them. All three are cascaded away by removeNode.
 func haNodeMonitoredServices(q *reform.Querier, nodeID string) ([]string, error) {
-	pmmAgents, err := FindPMMAgentsRunningOnNode(q, nodeID)
+	// An external exporter carries a service_id itself, and the pmm-agents are the parents of the
+	// exporters read next.
+	agents, err := FindAgentsOnNode(q, nodeID)
 	if err != nil {
 		return nil, err
 	}
 
-	var serviceIDs []string
-	for _, pmmAgent := range pmmAgents {
-		agents, err := FindAgents(q, AgentFilters{PMMAgentID: pmmAgent.AgentID})
-		if err != nil {
-			return nil, err
+	var serviceIDs, pmmAgentIDs []string
+	for _, agent := range agents {
+		if agent.ServiceID != nil {
+			serviceIDs = append(serviceIDs, *agent.ServiceID)
 		}
-		for _, agent := range agents {
-			if agent.ServiceID != nil {
-				serviceIDs = append(serviceIDs, *agent.ServiceID)
-			}
+		if agent.AgentType == PMMAgentType {
+			pmmAgentIDs = append(pmmAgentIDs, agent.AgentID)
 		}
 	}
 
-	return serviceIDs, nil
+	started, err := FindAgentsByPMMAgentIDs(q, pmmAgentIDs)
+	if err != nil {
+		return nil, err
+	}
+	for _, agent := range started {
+		if agent.ServiceID != nil {
+			serviceIDs = append(serviceIDs, *agent.ServiceID)
+		}
+	}
+
+	services, err := FindServices(q, ServiceFilters{NodeID: nodeID})
+	if err != nil {
+		return nil, err
+	}
+	for _, service := range services {
+		serviceIDs = append(serviceIDs, service.ServiceID)
+	}
+
+	return deduplicateStrings(serviceIDs), nil
 }
