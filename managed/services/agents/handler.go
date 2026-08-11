@@ -24,7 +24,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -39,13 +38,10 @@ import (
 
 const (
 	defaultAgentPingInterval = 10 * time.Second
-	// How long to wait for a pong. Without a deadline the server only learns about a silently
-	// dropped connection once the kernel's TCP retransmission timeout expires, ~15 minutes
-	// later, and keeps the dead channel registered until then. See PMM-15310.
+	// How long to wait for a pong. Without a deadline this loop parks inside a single ping
+	// forever on a silently dropped connection, so it stops noticing that the connection was
+	// kicked and the stream stays alive until the kernel gives up on it. See PMM-15310.
 	defaultAgentPingTimeout = 5 * time.Second
-	// How many consecutive unanswered pings mark the connection as dead. It is then torn down,
-	// so that the agent can reconnect.
-	maxAgentPingFailures = 2
 )
 
 // Handler handles agent requests.
@@ -95,8 +91,6 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 
 	ticker := time.NewTicker(defaultAgentPingInterval)
 	defer ticker.Stop()
-	var pingFailures int
-	lastRecv := agent.channel.Metrics().Recv
 	for {
 		select {
 		case <-ticker.C:
@@ -104,34 +98,14 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 			err := h.r.ping(pingCtx, agent)
 			cancelPing()
 			if err != nil {
-				// pmm-agent answers Ping from the same loop that runs every other request, so a
-				// long one (a connection check with a large --connection-timeout, or gathering
-				// software versions) delays the pong without the connection being dead. Anything
-				// received since the last check proves it is alive, which a silently dropped
-				// connection can never do. See PMM-15310.
-				if recv := agent.channel.Metrics().Recv; recv > lastRecv {
-					lastRecv = recv
-					pingFailures = 0
-					l.WithError(err).WithField("agent_id", agent.id).
-						Warn("Ping timed out while pmm-agent is still sending data.")
-					continue
-				}
-
-				pingFailures++
-				l.WithError(err).WithFields(logrus.Fields{
-					"agent_id":          agent.id,
-					"ping_failures":     pingFailures,
-					"max_ping_failures": maxAgentPingFailures,
-				}).Error("Failed to ping pmm-agent.")
-				if pingFailures >= maxAgentPingFailures {
-					disconnectReason = "ping_timeout"
-					h.r.unregister(ctx, agent.id, disconnectReason, agent)
-					return status.Error(codes.DeadlineExceeded, "Agent is not responding to pings.")
-				}
-				continue
+				// Not fatal: pmm-agent answers Ping from the same loop that runs every other
+				// request, so a long one - a connection check carrying the user's unbounded
+				// --connection-timeout, or gathering software versions - delays the pong while
+				// the connection is perfectly alive. The channel carries no other signal that
+				// tells the two apart, so a dead connection is reclaimed when the agent
+				// reconnects and takes over its own registration instead. See PMM-15310.
+				l.WithError(err).WithField("agent_id", agent.id).Warn("Failed to ping pmm-agent.")
 			}
-			pingFailures = 0
-			lastRecv = agent.channel.Metrics().Recv
 
 		// see unregister and Kick methods
 		case <-agent.kickChan:
