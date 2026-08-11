@@ -7,8 +7,8 @@ const { usePerconaTableUrlState } = vi.hoisted(() => ({
   usePerconaTableUrlState: vi.fn(),
 }));
 
-vi.mock('@percona/percona-ui', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@percona/percona-ui')>();
+vi.mock('@percona/peak-ui', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@percona/peak-ui')>();
   return {
     ...actual,
     usePerconaTableUrlState,
