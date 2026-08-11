@@ -221,6 +221,24 @@ func TestNodeHelpers(t *testing.T) {
 		require.Equal(t, expected, nodes)
 	})
 
+	t.Run("FindNodesByIsPMMServerNode", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		nodes, err := models.FindNodes(q, models.NodeFilters{IsPMMServerNode: new(true)})
+		require.NoError(t, err)
+		require.Len(t, nodes, 1)
+		assert.Equal(t, models.PMMServerNodeID, nodes[0].NodeID)
+
+		nodes, err = models.FindNodes(q, models.NodeFilters{IsPMMServerNode: new(false)})
+		require.NoError(t, err)
+		nodeIDs := make([]string, len(nodes))
+		for i, node := range nodes {
+			nodeIDs[i] = node.NodeID
+		}
+		assert.Equal(t, []string{"EmptyNode", "GenericNode", "MySQLNode", "NodeWithPMMAgent"}, nodeIDs)
+	})
+
 	t.Run("RemoveNode", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)

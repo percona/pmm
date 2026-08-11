@@ -92,15 +92,28 @@ func CheckUniqueNodeAddressRegion(q *reform.Querier, address string, region *str
 type NodeFilters struct {
 	// Return Nodes with provided type.
 	NodeType *NodeType
+	// Return only Nodes that are (or are not) PMM Server Nodes.
+	IsPMMServerNode *bool
 }
 
 // FindNodes returns Nodes by filters.
 func FindNodes(q *reform.Querier, filters NodeFilters) ([]*Node, error) {
-	var whereClause string
+	var conditions []string
 	var args []any
+	idx := 1
 	if filters.NodeType != nil {
-		whereClause = "WHERE node_type = $1"
+		conditions = append(conditions, "node_type = "+q.Placeholder(idx))
 		args = append(args, *filters.NodeType)
+		idx++
+	}
+	if filters.IsPMMServerNode != nil {
+		conditions = append(conditions, "is_pmm_server_node = "+q.Placeholder(idx))
+		args = append(args, *filters.IsPMMServerNode)
+		// idx++
+	}
+	var whereClause string
+	if len(conditions) != 0 {
+		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
 	structs, err := q.SelectAllFrom(NodeTable, whereClause+" ORDER BY node_id", args...)
 	if err != nil {
@@ -376,18 +389,14 @@ func StaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) ([]*Node
 		return nil, nil
 	}
 
-	nodes, err := FindNodes(q, NodeFilters{})
+	// Only PMM Server Nodes can be stale replicas; the rest are Nodes the user monitors.
+	nodes, err := FindNodes(q, NodeFilters{IsPMMServerNode: new(true)})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list Nodes for stale HA node cleanup: %w", err)
 	}
 
 	var stale []*Node
 	for _, node := range nodes {
-		// Set by HA replicas, and by the PMM Server Node of a non-HA deployment; every other
-		// Node is one the user monitors.
-		if !node.IsPMMServerNode {
-			continue
-		}
 		// The PMM Server Node of a deployment converted from non-HA: HA replicas always get a
 		// generated Node ID, and removeNode bans this one outright. Compared against the const,
 		// not PMMServerNodeID: setupPMMServerHAAgents reassigns that var, and SetupDB is retried.
