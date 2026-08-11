@@ -473,7 +473,7 @@ func haPeerNodeName(peer string) (string, bool) {
 // haNodeMonitoredServices returns the IDs of the Services that removing the Node would take with it:
 // those attached to the Node, those whose exporters run on it (an external exporter in pull mode), and
 // those whose exporters run under its pmm-agent (remote instances bind theirs to the replica that
-// added them. All three are cascaded away by removeNode.
+// added them). All three are cascaded away by removeNode.
 func haNodeMonitoredServices(q *reform.Querier, nodeID string) ([]string, error) {
 	// An external exporter carries a service_id itself, and the pmm-agents are the parents of the
 	// exporters read next.
