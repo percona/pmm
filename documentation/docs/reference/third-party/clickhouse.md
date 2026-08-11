@@ -78,6 +78,14 @@ GRANT SELECT ON <database-name>.* TO <readonly-username>;
 
 Use the same database name you pass in `PMM_CLICKHOUSE_DATABASE`, and grant nothing beyond `SELECT` on it.
 
+Also make sure your server requires a grant to read the system database. Without it the user can read `system.query_log`, and with it the SQL text of every query any user has run, whatever its grants say. ClickHouse has defaulted this on since 25.3:
+
+```xml
+<access_control_improvements>
+    <select_from_system_db_requires_grant>true</select_from_system_db_requires_grant>
+</access_control_improvements>
+```
+
 `readonly = 1` blocks writes, DDL and all setting changes. The Grafana ClickHouse plugin sets `max_execution_time` on every query to enforce its query timeout, so that one setting is marked `CHANGEABLE_IN_READONLY`; without it, every query fails with `Cannot modify 'max_execution_time' setting in readonly mode`. Do not use `readonly = 2` instead — the [plugin documentation](https://grafana.com/docs/plugins/grafana-clickhouse-datasource/latest/configure/#clickhouse-user-and-permissions) advises against it.
 
 `CHANGEABLE_IN_READONLY` requires the server to enable the following, otherwise ClickHouse rejects the constraint with `NOT_IMPLEMENTED`:

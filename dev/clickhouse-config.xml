@@ -633,7 +633,13 @@
              Exceptions: a few system tables ("tables", "columns", "databases", and some constant tables like "one", "contributors")
              are still accessible for everyone; and if there is a SHOW privilege (e.g. "SHOW USERS") granted the corresponding system
              table (i.e. "system.users") will be accessible. -->
-        <select_from_system_db_requires_grant>false</select_from_system_db_requires_grant>
+        <!-- PMM: with this off, a grants allowlist does not bound reads of the system database, so
+             the read-only data source user could read system.query_log and with it the SQL text of
+             every query any user has run. The metadata the Grafana ClickHouse plugin needs
+             (system.tables, columns, databases, one) stays readable either way, and qan-api2 is
+             unaffected because its user holds implicit full privileges. Upstream ClickHouse has
+             defaulted this to true since 25.3; PMM's copy carried the older value. -->
+        <select_from_system_db_requires_grant>true</select_from_system_db_requires_grant>
 
         <!-- By default, for backward compatibility "SELECT * FROM information_schema.<table>" doesn't require any grants and can be
              executed by any user. You can change this behaviour by setting this to true.
