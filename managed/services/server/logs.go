@@ -29,6 +29,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"sync"
 	"time"
@@ -164,8 +165,15 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 			Err:      err,
 		})
 	}
+	// The SEP nginx drop-ins exist only when PMM_ENABLE_SEP was set at container start,
+	// so they are globbed rather than listed: absent must not mean an error in the archive.
+	sepConfigs, err := filepath.Glob("/etc/nginx/sep.d/*.conf")
+	if err != nil {
+		logger.Get(ctx).WithField("component", "logs").Error(err)
+	}
+
 	// add configs
-	for _, f := range []string{
+	configs := slices.Concat([]string{
 		"/etc/nginx/nginx.conf",
 		"/etc/nginx/conf.d/pmm.conf",
 		"/etc/nginx/conf.d/pmm-ssl.conf",
@@ -182,7 +190,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		"/etc/supervisord.d/vmproxy.ini",
 
 		models.AgentConfigFilePath,
-	} {
+	}, sepConfigs)
+
+	for _, f := range configs {
 		b, m, err := readFile(f)
 		files = append(files, fileContent{
 			Name:     filepath.Base(f),
