@@ -56,9 +56,7 @@ describe('Search::', () => {
 
   it('clears search when the input is emptied', () => {
     const handleSearch = jest.fn();
-    const { container } = render(
-      <Search handleSearch={handleSearch} initialValue="select" />,
-    );
+    const { container } = render(<Search handleSearch={handleSearch} initialValue="select" />);
     const input = container.querySelector('input');
 
     fireEvent.change(input!, { target: { value: '' } });

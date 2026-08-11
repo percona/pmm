@@ -1,10 +1,6 @@
-import React, {
-  FC, useEffect, useMemo, useRef,
-} from 'react';
+import React, { FC, useEffect, useMemo, useRef } from 'react';
 import { Field, Form } from 'react-final-form';
-import {
-  Button, Icon, Input, useTheme,
-} from '@grafana/ui';
+import { Button, Icon, Input, useTheme } from '@grafana/ui';
 import { debounce } from 'lodash';
 import { Messages } from 'pmm-qan/panel/QueryAnalytics.messages';
 import { getStyles } from './Search.styles';
@@ -23,15 +19,19 @@ export const Search: FC<SearchProps> = ({ dataTestId, initialValue, handleSearch
   handleSearchRef.current = handleSearch;
 
   const debouncedSearch = useMemo(
-    () => debounce((search: string) => {
-      handleSearchRef.current({ search });
-    }, SEARCH_DEBOUNCE_MS),
+    () =>
+      debounce((search: string) => {
+        handleSearchRef.current({ search });
+      }, SEARCH_DEBOUNCE_MS),
     [],
   );
 
-  useEffect(() => () => {
-    debouncedSearch.cancel();
-  }, [debouncedSearch]);
+  useEffect(
+    () => () => {
+      debouncedSearch.cancel();
+    },
+    [debouncedSearch],
+  );
 
   const onSubmit = (values: SearchValues) => {
     debouncedSearch.cancel();
