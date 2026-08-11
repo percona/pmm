@@ -24,11 +24,21 @@ import (
 	"path"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode/utf8"
 
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 )
+
+var keyBufPool = sync.Pool{
+	New: func() any {
+		// Pre-allocate 128 bytes to cover 99th percentile header sizes,
+		// avoiding dynamic slice growth during append.
+		b := make([]byte, 0, 128) //nolint:mnd
+		return &b
+	},
+}
 
 // statusCodeToString returns HTTP status code string presentation.
 func statusCodeToString(code int) string {
@@ -283,14 +293,25 @@ func extractAuthHeaders(req *http.Request) http.Header {
 
 // getAuthCacheKey returns cache key directly from request auth headers.
 func getAuthCacheKey(req *http.Request) string {
-	// Marginally faster than req.Header.Get("...")
-	var authorization, cookie string
+	bufPtr := keyBufPool.Get().(*[]byte) //nolint:forcetypeassert
+	buf := (*bufPtr)[:0]                 // Reset length, retain underlying capacity
+
 	if vals := req.Header["Authorization"]; len(vals) > 0 {
-		authorization = vals[0]
-	}
-	if vals := req.Header["Cookie"]; len(vals) > 0 {
-		cookie = vals[0]
+		buf = append(buf, vals[0]...)
 	}
 
-	return authorization + ":" + cookie
+	buf = append(buf, '\x00') // Delimiter
+
+	if vals := req.Header["Cookie"]; len(vals) > 0 {
+		buf = append(buf, vals[0]...)
+	}
+
+	// The single allocation. Copies the bytes into an immutable string.
+	key := string(buf)
+
+	// Instantly release the working buffer. No defer required.
+	// The string is now completely decoupled from the pool.
+	keyBufPool.Put(bufPtr)
+
+	return key
 }

@@ -173,6 +173,9 @@ const (
 	cacheItemTTL = 60 * time.Second
 	// Auth response cache cleanup interval.
 	cacheInvalidationInterval = 2 * cacheItemTTL
+	// MaxAuthCollisionRetries limits retry attempts when singleflight returns
+	// a result for colliding auth headers and avoids an unbounded retry loop.
+	maxAuthCollisionRetries = 3
 )
 
 // authResult contains authentication response details that is a result of all
@@ -387,7 +390,7 @@ func (s *AuthServer) addLBACFilters(ctx context.Context, userID int, l *logrus.E
 	if userID <= 0 {
 		// Anonymous users don't have a numeric user ID and cannot have LBAC roles.
 		// Skip adding filters and allow the request to proceed.
-		l.Debugf("Skipping LBAC filters for anonymous user.")
+		l.Debug("Skipping LBAC filters for anonymous user.")
 		return "", nil
 	}
 
@@ -461,7 +464,7 @@ func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, 
 	}
 
 	if len(roles) == 0 {
-		logrus.Errorf("User %d has no roles", userID)
+		s.l.Errorf("User %d has no roles", userID)
 		return nil, fmt.Errorf("user %d has no roles", userID)
 	}
 
@@ -593,52 +596,88 @@ func (s *AuthServer) getAuthUser(req *http.Request, l *logrus.Entry) (authUser, 
 	// Use single-flight to avoid calling Grafana for the same user's authHeaders.
 	// It appears when after restart the same vm-agent starts to send buffered metrics
 	// to server in parallel and all such requests have to be authenticated.
-	res, err, _ := s.authUserGroup.Do(authCacheKey, func() (any, error) {
-		// Recheck inside singleflight to avoid duplicate upstream calls when
-		// another goroutine already populated cache while we were waiting.
-		if cached, ok := s.cache.Load(authCacheKey); ok {
-			if cached.authorization == authorization && cached.cookie == cookie {
-				return cached.user, nil
+	for attempt := range maxAuthCollisionRetries {
+		res, err, _ := s.authUserGroup.Do(authCacheKey, func() (any, error) {
+			// Recheck inside singleflight to avoid duplicate upstream calls when
+			// another goroutine already populated cache while we were waiting.
+			if cached, ok := s.cache.Load(authCacheKey); ok {
+				if cached.authorization == authorization && cached.cookie == cookie {
+					return cached, nil
+				}
 			}
+
+			// NOTE: leader's context is not used here directly in order to allow to finish
+			// the request to Grafana, so that even if leader's request is already terminated -
+			// the rest of waiters in singleflight group will receive the response from Grafana.
+			grafanaCtx, cancel := context.WithTimeout(context.Background(), authenticationTimeout)
+			defer cancel()
+
+			userAuthInfo, authErr := s.getGrafanaAuthUser(grafanaCtx, extractAuthHeaders(req), l)
+			if authErr != nil {
+				// IMPORTANT: On error, we call Forget(authCacheKey) IMMEDIATELY.
+				// This prevents the error from getting stuck in the internal singleflight map
+				// and allows the next request to retry immediately (e.g. if the Grafana is being restored).
+				s.authUserGroup.Forget(authCacheKey)
+				return nil, authErr
+			}
+
+			cached := cachedAuthUser{
+				user:          userAuthInfo,
+				authorization: authorization,
+				cookie:        cookie,
+			}
+
+			// Don't store anonymous users (userID == 0) in cache.
+			if userAuthInfo.userID > 0 {
+				// Store the retrieved user info in cache for future requests.
+				s.cache.Store(authCacheKey, cached)
+			}
+			return cached, nil
+		})
+		if err != nil {
+			l.WithError(err).Error("Grafana user lookup failed.")
+			var zero authUser
+			return zero, err
 		}
 
-		// NOTE 1: leader's context is not used here directly in order to allow to finish
-		// the request to Grafana, so that even if leader's request is already terminated -
-		// the rest of waiters in singleflight group will receive the response from Grafana.
-		grafanaCtx, cancel := context.WithTimeout(context.Background(), authenticationTimeout)
-		defer cancel()
-
-		userAuthInfo, authErr := s.getGrafanaAuthUser(grafanaCtx, extractAuthHeaders(req), l)
-		if authErr != nil {
-			// IMPORTANT: On error, we call Forget(hash) IMMEDIATELY.
-			// This prevents the error from getting stuck in the internal singleflight map
-			// and allows the next request to retry immediately (e.g. if the Grafana is being restored).
-			s.authUserGroup.Forget(authCacheKey)
-			return nil, authErr
+		cached, ok := res.(cachedAuthUser)
+		if !ok {
+			l.WithField("type", fmt.Sprintf("%T", res)).Error("Unexpected Grafana user result type.")
+			var zero authUser
+			return zero, errStaticAuthErrorInternalError
 		}
 
-		// Store the retrieved user info in cache for future requests.
+		if cached.authorization == authorization && cached.cookie == cookie {
+			return cached.user, nil
+		}
+
+		// Rare collision path: a waiter received a result for a different header pair.
+		// Forget and retry so this request resolves with its own identity.
+		l.WithField("attempt", attempt+1).Warn("Auth cache key collision detected; retrying auth lookup.")
+		s.authUserGroup.Forget(authCacheKey)
+	}
+
+	// Last-resort fallback: bypass singleflight to guarantee forward progress
+	// even if colliding requests keep winning group leadership.
+	grafanaCtx, cancel := context.WithTimeout(context.Background(), authenticationTimeout)
+	defer cancel()
+
+	userAuthInfo, authErr := s.getGrafanaAuthUser(grafanaCtx, extractAuthHeaders(req), l)
+	if authErr != nil {
+		l.WithError(authErr).Error("Grafana user lookup failed after collision retries.")
+		var zero authUser
+		return zero, authErr
+	}
+
+	if userAuthInfo.userID > 0 {
 		s.cache.Store(authCacheKey, cachedAuthUser{
 			user:          userAuthInfo,
 			authorization: authorization,
 			cookie:        cookie,
 		})
-		return userAuthInfo, nil
-	})
-	if err != nil {
-		l.WithError(err).Error("Grafana user lookup failed.")
-		var zero authUser
-		return zero, err
 	}
 
-	user, ok := res.(authUser)
-	if !ok {
-		l.WithField("type", fmt.Sprintf("%T", res)).Error("Unexpected Grafana user result type.")
-		var zero authUser
-		return zero, errStaticAuthErrorInternalError
-	}
-
-	return user, nil
+	return userAuthInfo, nil
 }
 
 // getGrafanaAuthUser calls Grafana to retrieve user's info. Passed authHeaders are used for authentication.

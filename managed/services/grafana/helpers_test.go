@@ -183,7 +183,24 @@ func TestNextPrefix(t *testing.T) {
 		{"./", "/", "/"},
 		{"hax0r", "/", "/"},
 		{"", "/"},
-		{"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List'"},
+		{
+			"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/List'",
+			"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services/",
+			"/v1/server/AWSInstanceCheck/..%2f..%2finventory/Services",
+			"/v1/server/AWSInstanceCheck/..%2f..%2finventory/",
+			"/v1/server/AWSInstanceCheck/..%2f..%2finventory",
+			"/v1/server/AWSInstanceCheck/..%2f..",
+			"/v1/server/AWSInstanceCheck/..%2f",
+			"/v1/server/AWSInstanceCheck/..",
+			"/v1/server/AWSInstanceCheck/",
+			"/v1/server/AWSInstanceCheck",
+			"/v1/server/",
+			"/v1/server",
+			"/v1/",
+			"/v1",
+			"/",
+			"/",
+		},
 	} {
 		t.Run(paths[0], func(t *testing.T) {
 			t.Parallel()
@@ -394,7 +411,7 @@ func TestGetAuthCacheKey(t *testing.T) {
 
 		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		key := getAuthCacheKey(req)
-		assert.Equal(t, ":", key)
+		require.Equal(t, "\x00", key)
 	})
 
 	t.Run("returns key for authorization header", func(t *testing.T) {
@@ -403,7 +420,7 @@ func TestGetAuthCacheKey(t *testing.T) {
 		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req.Header.Set("Authorization", "Bearer token")
 		key := getAuthCacheKey(req)
-		assert.Equal(t, "Bearer token:", key)
+		require.Equal(t, "Bearer token\x00", key)
 	})
 
 	t.Run("returns key for cookie header", func(t *testing.T) {
@@ -412,7 +429,7 @@ func TestGetAuthCacheKey(t *testing.T) {
 		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req.Header.Set("Cookie", "grafana_session=abc")
 		key := getAuthCacheKey(req)
-		assert.Equal(t, ":grafana_session=abc", key)
+		require.Equal(t, "\x00grafana_session=abc", key)
 	})
 
 	t.Run("returns key for combined authorization and cookie headers", func(t *testing.T) {
@@ -422,7 +439,7 @@ func TestGetAuthCacheKey(t *testing.T) {
 		req.Header.Set("Authorization", "Bearer token")
 		req.Header.Set("Cookie", "grafana_session=abc")
 		key := getAuthCacheKey(req)
-		assert.Equal(t, "Bearer token:grafana_session=abc", key)
+		require.Equal(t, "Bearer token\x00grafana_session=abc", key)
 	})
 
 	t.Run("produces deterministic key for the same auth headers", func(t *testing.T) {
@@ -438,7 +455,7 @@ func TestGetAuthCacheKey(t *testing.T) {
 		req2.Header.Set("Cookie", "grafana_session=abc")
 		key2 := getAuthCacheKey(req2)
 
-		assert.Equal(t, key1, key2)
+		require.Equal(t, key1, key2)
 	})
 
 	t.Run("ignores unrelated headers", func(t *testing.T) {
@@ -455,7 +472,7 @@ func TestGetAuthCacheKey(t *testing.T) {
 		req2.Header.Set("X-Extra", "ignored")
 		key2 := getAuthCacheKey(req2)
 
-		assert.Equal(t, key1, key2)
+		require.Equal(t, key1, key2)
 	})
 
 	t.Run("changes key when auth header value changes", func(t *testing.T) {
@@ -467,7 +484,7 @@ func TestGetAuthCacheKey(t *testing.T) {
 		req2 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 		req2.Header.Set("Authorization", "Bearer token-b")
 
-		assert.NotEqual(t, getAuthCacheKey(req1), getAuthCacheKey(req2))
+		require.NotEqual(t, getAuthCacheKey(req1), getAuthCacheKey(req2))
 	})
 
 	t.Run("uses both headers when both are present", func(t *testing.T) {
@@ -487,8 +504,8 @@ func TestGetAuthCacheKey(t *testing.T) {
 		keyCookieOnly := getAuthCacheKey(reqCookieOnly)
 		keyBoth := getAuthCacheKey(reqBoth)
 
-		assert.NotEqual(t, keyAuthOnly, keyBoth)
-		assert.NotEqual(t, keyCookieOnly, keyBoth)
+		require.NotEqual(t, keyAuthOnly, keyBoth)
+		require.NotEqual(t, keyCookieOnly, keyBoth)
 	})
 }
 

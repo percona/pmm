@@ -1084,7 +1084,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	jobsService := agents.NewJobsService(internalDB, agentsRegistry, backupRetentionService)
 	// reserve 80% of API DB connections for state updater's rateLimiter for pmm-agents state updates.
-	agentsStateUpdater := agents.NewStateUpdater(apiDB, agentsRegistry, vmdb, vmParams, nomad, apiDbMaxOpenConns*8/10) //nolint:mnd
+	agentsStateUpdater := agents.NewStateUpdater(apiDB, agentsRegistry, vmdb, vmParams, nomad, pmmAgentsConnectionsLimiter)
 	// Agents service handles pmm-agent <-> pmm-server communication logic.
 	// Shall use apiDB connection pool.
 	agentsHandler := agents.NewHandler(apiDB, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService, pmmAgentsConnectionsLimiter)

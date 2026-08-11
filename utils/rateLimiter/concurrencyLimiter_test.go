@@ -18,6 +18,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewConcurrencyLimiter_TryAcquireSucceedsUpToConfiguredLimit(t *testing.T) {
@@ -25,18 +27,10 @@ func TestNewConcurrencyLimiter_TryAcquireSucceedsUpToConfiguredLimit(t *testing.
 
 	limiter := NewConcurrencyLimiter(3)
 
-	if !limiter.TryAcquire() {
-		t.Fatal("expected first acquire to succeed")
-	}
-	if !limiter.TryAcquire() {
-		t.Fatal("expected second acquire to succeed")
-	}
-	if !limiter.TryAcquire() {
-		t.Fatal("expected third acquire to succeed")
-	}
-	if limiter.TryAcquire() {
-		t.Fatal("expected acquire to fail when limit is exhausted")
-	}
+	require.True(t, limiter.TryAcquire(), "expected first acquire to succeed")
+	require.True(t, limiter.TryAcquire(), "expected second acquire to succeed")
+	require.True(t, limiter.TryAcquire(), "expected third acquire to succeed")
+	require.False(t, limiter.TryAcquire(), "expected acquire to fail when limit is exhausted")
 }
 
 func TestConcurrencyLimiter_ReleaseMakesSlotAvailableAgain(t *testing.T) {
@@ -44,18 +38,12 @@ func TestConcurrencyLimiter_ReleaseMakesSlotAvailableAgain(t *testing.T) {
 
 	limiter := NewConcurrencyLimiter(1)
 
-	if !limiter.TryAcquire() {
-		t.Fatal("expected initial acquire to succeed")
-	}
-	if limiter.TryAcquire() {
-		t.Fatal("expected acquire to fail when slot is already taken")
-	}
+	require.True(t, limiter.TryAcquire(), "expected initial acquire to succeed")
+	require.False(t, limiter.TryAcquire(), "expected acquire to fail when slot is already taken")
 
 	limiter.Release()
 
-	if !limiter.TryAcquire() {
-		t.Fatal("expected acquire to succeed after release")
-	}
+	require.True(t, limiter.TryAcquire(), "expected acquire to succeed after release")
 }
 
 func TestNewConcurrencyLimiter_WithZeroSlotsAlwaysRejectsAcquire(t *testing.T) {
@@ -63,23 +51,20 @@ func TestNewConcurrencyLimiter_WithZeroSlotsAlwaysRejectsAcquire(t *testing.T) {
 
 	limiter := NewConcurrencyLimiter(0)
 
-	if limiter.TryAcquire() {
-		t.Fatal("expected acquire to fail for zero-capacity limiter")
-	}
+	require.False(t, limiter.TryAcquire(), "expected acquire to fail for zero-capacity limiter")
 }
 
-func TestConcurrencyLimiter_ReleaseWithoutPriorAcquireIncreasesAvailableCapacity(t *testing.T) {
+func TestConcurrencyLimiter_ExtraReleaseDoesNotIncreaseCapacity(t *testing.T) {
 	t.Parallel()
 
-	limiter := NewConcurrencyLimiter(0)
-	limiter.Release()
+	limiter := NewConcurrencyLimiter(1)
+	require.True(t, limiter.TryAcquire(), "expected initial acquire to succeed")
 
-	if !limiter.TryAcquire() {
-		t.Fatal("expected acquire to succeed after release from zero capacity")
-	}
-	if limiter.TryAcquire() {
-		t.Fatal("expected second acquire to fail after consuming released slot")
-	}
+	limiter.Release()
+	limiter.Release() // unmatched release must not increase capacity beyond configured max
+
+	require.True(t, limiter.TryAcquire(), "expected acquire to succeed after matched release")
+	require.False(t, limiter.TryAcquire(), "expected acquire to fail after configured capacity is consumed")
 }
 
 func TestConcurrencyLimiter_TryAcquireConcurrentCallersNeverExceedsLimit(t *testing.T) {
@@ -105,7 +90,5 @@ func TestConcurrencyLimiter_TryAcquireConcurrentCallersNeverExceedsLimit(t *test
 	}
 	wg.Wait()
 
-	if got := successes.Load(); got != slots {
-		t.Fatalf("unexpected number of successful acquires: got %d, want %d", got, slots)
-	}
+	require.Equal(t, slots, successes.Load(), "unexpected number of successful acquires")
 }

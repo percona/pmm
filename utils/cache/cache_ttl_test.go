@@ -11,9 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// You should have received a copy of the GNU Affero General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package cache
 
@@ -42,9 +39,7 @@ func TestNewCacheTTL_ReturnsCacheForValidInputs(t *testing.T) {
 
 	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
-	if c == nil {
-		t.Fatal("expected cache instance")
-	}
+	require.NotNil(t, c, "expected cache instance")
 }
 
 func TestCacheTTL_CalculateCacheKey_ReturnsSameValueForSameInput(t *testing.T) {
@@ -57,9 +52,7 @@ func TestCacheTTL_CalculateCacheKey_ReturnsSameValueForSameInput(t *testing.T) {
 	first := c.calculateKeyHash(key)
 	second := c.calculateKeyHash(key)
 
-	if first != second {
-		t.Fatalf("expected stable key hash: first=%d second=%d", first, second)
-	}
+	require.Equal(t, first, second, "expected stable key hash")
 }
 
 func TestCacheTTL_CalculateCacheKey_ReturnsDifferentValuesForDifferentInputs(t *testing.T) {
@@ -71,9 +64,7 @@ func TestCacheTTL_CalculateCacheKey_ReturnsDifferentValuesForDifferentInputs(t *
 	first := c.calculateKeyHash("Authorization:Bearer token-a")
 	second := c.calculateKeyHash("Authorization:Bearer token-b")
 
-	if first == second {
-		t.Fatal("expected different key hashes for different inputs")
-	}
+	require.NotEqual(t, first, second, "expected different key hashes for different inputs")
 }
 
 func TestCacheTTL_Store_Load_Delete_StoresReadsAndRemovesValue(t *testing.T) {
@@ -85,19 +76,13 @@ func TestCacheTTL_Store_Load_Delete_StoresReadsAndRemovesValue(t *testing.T) {
 	c.Store("k", 42)
 
 	got, ok := c.Load("k")
-	if !ok {
-		t.Fatal("expected key to exist")
-	}
-	if got != 42 {
-		t.Fatalf("unexpected value: got %d, want %d", got, 42)
-	}
+	require.True(t, ok, "expected key to exist")
+	require.Equal(t, 42, got, "unexpected value")
 
 	c.Delete("k")
 
 	_, ok = c.Load("k")
-	if ok {
-		t.Fatal("expected key to be deleted")
-	}
+	require.False(t, ok, "expected key to be deleted")
 }
 
 func TestCacheTTL_Load_ReturnsMissForUnknownKey(t *testing.T) {
@@ -107,12 +92,8 @@ func TestCacheTTL_Load_ReturnsMissForUnknownKey(t *testing.T) {
 	require.NoError(t, err)
 
 	got, ok := c.Load("missing")
-	if ok {
-		t.Fatal("expected missing key")
-	}
-	if got != 0 {
-		t.Fatalf("unexpected zero value: got %d", got)
-	}
+	require.False(t, ok, "expected missing key")
+	require.Zero(t, got, "unexpected zero value")
 }
 
 func TestCacheTTL_Load_ReturnsMissAfterTTLExpiration(t *testing.T) {
@@ -125,9 +106,7 @@ func TestCacheTTL_Load_ReturnsMissAfterTTLExpiration(t *testing.T) {
 	time.Sleep(20 * time.Millisecond)
 
 	_, ok := c.Load("k")
-	if ok {
-		t.Fatal("expected expired key to miss")
-	}
+	require.False(t, ok, "expected expired key to miss")
 }
 
 func TestCacheTTL_Size_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
@@ -136,34 +115,22 @@ func TestCacheTTL_Size_TracksInsertUpdateDeleteAndMissingDelete(t *testing.T) {
 	c, err := NewCacheTTL[int](t.Context(), time.Second, 10*time.Millisecond)
 	require.NoError(t, err)
 
-	if got := c.Size(); got != 0 {
-		t.Fatalf("unexpected size: got %d, want %d", got, 0)
-	}
+	require.Zero(t, c.Size(), "unexpected size")
 
 	c.Store("a", 1)
-	if got := c.Size(); got != 1 {
-		t.Fatalf("unexpected size after first insert: got %d, want %d", got, 1)
-	}
+	require.EqualValues(t, 1, c.Size(), "unexpected size after first insert")
 
 	c.Store("a", 2)
-	if got := c.Size(); got != 1 {
-		t.Fatalf("unexpected size after update: got %d, want %d", got, 1)
-	}
+	require.EqualValues(t, 1, c.Size(), "unexpected size after update")
 
 	c.Store("b", 3)
-	if got := c.Size(); got != 2 {
-		t.Fatalf("unexpected size after second insert: got %d, want %d", got, 2)
-	}
+	require.EqualValues(t, 2, c.Size(), "unexpected size after second insert")
 
 	c.Delete("missing")
-	if got := c.Size(); got != 2 {
-		t.Fatalf("unexpected size after deleting missing key: got %d, want %d", got, 2)
-	}
+	require.EqualValues(t, 2, c.Size(), "unexpected size after deleting missing key")
 
 	c.Delete("a")
-	if got := c.Size(); got != 1 {
-		t.Fatalf("unexpected size after deleting existing key: got %d, want %d", got, 1)
-	}
+	require.EqualValues(t, 1, c.Size(), "unexpected size after deleting existing key")
 }
 
 func TestCacheTTL_EvictionWorker_RemovesExpiredItemsAndUpdatesSize(t *testing.T) {
@@ -174,20 +141,16 @@ func TestCacheTTL_EvictionWorker_RemovesExpiredItemsAndUpdatesSize(t *testing.T)
 
 	c.Store("a", 1)
 	c.Store("b", 2)
-	if got := c.Size(); got != 2 {
-		t.Fatalf("unexpected initial size: got %d, want %d", got, 2)
-	}
+	require.EqualValues(t, 2, c.Size(), "unexpected initial size")
 
 	eventually(t, 300*time.Millisecond, 5*time.Millisecond, func() bool {
 		return c.Size() == 0
 	})
 
-	if _, ok := c.Load("a"); ok {
-		t.Fatal("expected key a to be evicted")
-	}
-	if _, ok := c.Load("b"); ok {
-		t.Fatal("expected key b to be evicted")
-	}
+	_, okA := c.Load("a")
+	require.False(t, okA, "expected key a to be evicted")
+	_, okB := c.Load("b")
+	require.False(t, okB, "expected key b to be evicted")
 }
 
 func TestCacheTTL_LoadAndDelete_ReturnsValueAndRemovesKey(t *testing.T) {
@@ -199,21 +162,13 @@ func TestCacheTTL_LoadAndDelete_ReturnsValueAndRemovesKey(t *testing.T) {
 	c.Store("k", 42)
 
 	got, ok := c.LoadAndDelete("k")
-	if !ok {
-		t.Fatal("expected key to exist")
-	}
-	if got != 42 {
-		t.Fatalf("unexpected value: got %d, want %d", got, 42)
-	}
+	require.True(t, ok, "expected key to exist")
+	require.Equal(t, 42, got, "unexpected value")
 
-	if gotSize := c.Size(); gotSize != 0 {
-		t.Fatalf("unexpected size after LoadAndDelete: got %d, want %d", gotSize, 0)
-	}
+	require.Zero(t, c.Size(), "unexpected size after LoadAndDelete")
 
 	_, exists := c.Load("k")
-	if exists {
-		t.Fatal("expected key to be deleted")
-	}
+	require.False(t, exists, "expected key to be deleted")
 }
 
 func TestCacheTTL_LoadAndDelete_ReturnsMissForExpiredKey(t *testing.T) {
@@ -226,16 +181,10 @@ func TestCacheTTL_LoadAndDelete_ReturnsMissForExpiredKey(t *testing.T) {
 	time.Sleep(20 * time.Millisecond)
 
 	got, ok := c.LoadAndDelete("k")
-	if ok {
-		t.Fatal("expected expired key to miss")
-	}
-	if got != 0 {
-		t.Fatalf("unexpected zero value: got %d", got)
-	}
+	require.False(t, ok, "expected expired key to miss")
+	require.Zero(t, got, "unexpected zero value")
 
-	if gotSize := c.Size(); gotSize != 0 {
-		t.Fatalf("unexpected size after expired LoadAndDelete: got %d, want %d", gotSize, 0)
-	}
+	require.Zero(t, c.Size(), "unexpected size after expired LoadAndDelete")
 }
 
 func TestCacheTTL_LoadAndDelete_ReturnsMissForUnknownKey(t *testing.T) {
@@ -245,12 +194,8 @@ func TestCacheTTL_LoadAndDelete_ReturnsMissForUnknownKey(t *testing.T) {
 	require.NoError(t, err)
 
 	got, ok := c.LoadAndDelete("missing")
-	if ok {
-		t.Fatal("expected missing key")
-	}
-	if got != 0 {
-		t.Fatalf("unexpected zero value: got %d", got)
-	}
+	require.False(t, ok, "expected missing key")
+	require.Zero(t, got, "unexpected zero value")
 }
 
 func TestCacheTTL_LoadAndDelete_ReturnsStoredZeroValueAndTrue(t *testing.T) {
@@ -262,12 +207,8 @@ func TestCacheTTL_LoadAndDelete_ReturnsStoredZeroValueAndTrue(t *testing.T) {
 	c.Store("k", 0)
 
 	got, ok := c.LoadAndDelete("k")
-	if !ok {
-		t.Fatal("expected key to exist")
-	}
-	if got != 0 {
-		t.Fatalf("unexpected value: got %d, want %d", got, 0)
-	}
+	require.True(t, ok, "expected key to exist")
+	require.Zero(t, got, "unexpected value")
 }
 
 func TestCacheTTL_LoadAndDelete_ReturnsMissOnSecondCallForSameKey(t *testing.T) {
@@ -279,17 +220,11 @@ func TestCacheTTL_LoadAndDelete_ReturnsMissOnSecondCallForSameKey(t *testing.T) 
 	c.Store("k", 7)
 
 	_, ok := c.LoadAndDelete("k")
-	if !ok {
-		t.Fatal("expected key to exist on first call")
-	}
+	require.True(t, ok, "expected key to exist on first call")
 
 	got, ok := c.LoadAndDelete("k")
-	if ok {
-		t.Fatal("expected key to be missing on second call")
-	}
-	if got != 0 {
-		t.Fatalf("unexpected zero value: got %d", got)
-	}
+	require.False(t, ok, "expected key to be missing on second call")
+	require.Zero(t, got, "unexpected zero value")
 }
 
 func eventually(t *testing.T, timeout, interval time.Duration, fn func() bool) {
@@ -303,5 +238,5 @@ func eventually(t *testing.T, timeout, interval time.Duration, fn func() bool) {
 		time.Sleep(interval)
 	}
 
-	t.Fatal("condition was not met before timeout")
+	require.FailNow(t, "condition was not met before timeout")
 }

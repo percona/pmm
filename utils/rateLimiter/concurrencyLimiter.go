@@ -29,7 +29,9 @@ import (
 type ConcurrencyLimiter struct {
 	// Leading pad: Prevents false sharing with preceding fields if embedded in a larger struct.
 	// CPU arch dependant.
-	_              cpu.CacheLinePad
+	_ cpu.CacheLinePad
+	// maxSlots is immutable after construction and used to cap Release.
+	maxSlots       int32
 	availableSlots atomic.Int32
 	// Trailing pad: Prevents false sharing with trailing fields or adjacent elements in a slice.
 	// CPU arch dependant.
@@ -38,7 +40,7 @@ type ConcurrencyLimiter struct {
 
 // NewConcurrencyLimiter creates a new ConcurrencyLimiter with the specified maximum number of slots.
 func NewConcurrencyLimiter(maxSlots int32) *ConcurrencyLimiter {
-	cl := &ConcurrencyLimiter{}
+	cl := &ConcurrencyLimiter{maxSlots: maxSlots}
 	cl.availableSlots.Store(maxSlots)
 	return cl
 }
@@ -58,5 +60,13 @@ func (cl *ConcurrencyLimiter) TryAcquire() bool {
 
 // Release frees an active slot back to the pool.
 func (cl *ConcurrencyLimiter) Release() {
-	cl.availableSlots.Add(1)
+	for {
+		current := cl.availableSlots.Load()
+		if current >= cl.maxSlots {
+			return
+		}
+		if cl.availableSlots.CompareAndSwap(current, current+1) {
+			return
+		}
+	}
 }

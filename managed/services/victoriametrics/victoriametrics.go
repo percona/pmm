@@ -481,12 +481,13 @@ func (svc *Service) BuildScrapeConfigForVMAgent(q *reform.Querier, pmmAgentID st
 	var cfg config.Config
 	settings, err := models.GetSettings(q)
 	if err != nil {
-		return nil, err
-	} // In HA mode, skip ExternalExporter agents if this node is not the leader
+		return nil, fmt.Errorf("failed to get settings from DB: %w", err)
+	}
+	// In HA mode, skip ExternalExporter agents if this node is not the leader
 	skipExternalExporter := !svc.haService.IsLeader()
 	err = AddScrapeConfigs(svc.l, &cfg, q, new(settings.MetricsResolutions), new(pmmAgentID), true, skipExternalExporter)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to add scrape config for vm-agent %q: %w", pmmAgentID, err)
 	}
 
 	return yaml.Marshal(cfg)

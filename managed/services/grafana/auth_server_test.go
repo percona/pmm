@@ -16,6 +16,7 @@
 package grafana
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -23,6 +24,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strconv"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -37,6 +40,12 @@ import (
 
 	ucache "github.com/percona/pmm/utils/cache"
 )
+
+type grafanaAuthUserGetterFunc func(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
+
+func (f grafanaAuthUserGetterFunc) getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error) {
+	return f(ctx, authHeaders, l)
+}
 
 // newTestAuthServer creates an AuthServer with access-control cache disabled,
 // so tests never trigger DB reload unless they explicitly need it.
@@ -522,7 +531,7 @@ func TestAuthServerAuthenticateUser(t *testing.T) {
 		got, err := s.authenticateUser(req, l)
 		require.NoError(t, err)
 		assert.Equal(t, userInfo, got)
-		// assert.True(t, len(s.cache) == 0, "cache should be empty on anonymous user")
+		assert.Zero(t, s.cache.Size(), "cache should be empty on anonymous user")
 	})
 }
 
@@ -689,6 +698,87 @@ func TestAuthServerGetAuthUser(t *testing.T) {
 		requireAuthErrorCode(t, authErr, codes.Unauthenticated)
 		assert.Zero(t, cacheSize(s), "cache should be empty on auth failure")
 	})
+
+	t.Run("concurrent colliding header pairs do not mix identities", func(t *testing.T) {
+		t.Parallel()
+
+		s, _, _ := newTestAuthServer(t)
+
+		const (
+			auth1   = "Bearer-A"
+			cookie1 = "B\x00C"
+			auth2   = "Bearer-A\x00B"
+			cookie2 = "C"
+		)
+
+		req1 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/server/settings", nil)
+		req1.Header["Authorization"] = []string{auth1}
+		req1.Header["Cookie"] = []string{cookie1}
+
+		req2 := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/v1/server/settings", nil)
+		req2.Header["Authorization"] = []string{auth2}
+		req2.Header["Cookie"] = []string{cookie2}
+
+		key1 := getAuthCacheKey(req1)
+		key2 := getAuthCacheKey(req2)
+		require.Equal(t, key1, key2, "test precondition: crafted header pairs must collide")
+
+		user1 := authUser{role: viewer, userID: 101}
+		user2 := authUser{role: admin, userID: 202}
+
+		var callsForPair1, callsForPair2 atomic.Int32
+		firstCallStarted := make(chan struct{})
+		releaseFirstCall := make(chan struct{})
+		var firstCallFlag atomic.Bool
+
+		s.c = grafanaAuthUserGetterFunc(func(_ context.Context, authHeaders http.Header, _ *logrus.Entry) (authUser, error) {
+			if firstCallFlag.CompareAndSwap(false, true) {
+				close(firstCallStarted)
+				<-releaseFirstCall
+			}
+
+			a := authHeaders.Get("Authorization")
+			c := authHeaders.Get("Cookie")
+			switch {
+			case a == auth1 && c == cookie1:
+				callsForPair1.Add(1)
+				return user1, nil
+			case a == auth2 && c == cookie2:
+				callsForPair2.Add(1)
+				return user2, nil
+			default:
+				return authUser{}, fmt.Errorf("unexpected headers: authorization=%q cookie=%q", a, c)
+			}
+		})
+
+		var (
+			got1, got2 authUser
+			err1, err2 error
+			wg         sync.WaitGroup
+		)
+
+		wg.Go(func() {
+			got1, err1 = s.getAuthUser(req1, l)
+		})
+
+		<-firstCallStarted
+
+		wg.Go(func() {
+			got2, err2 = s.getAuthUser(req2, l)
+		})
+
+		// Keep the leader blocked briefly so the second call joins the same singleflight key.
+		time.Sleep(20 * time.Millisecond)
+		close(releaseFirstCall)
+		wg.Wait()
+
+		require.NoError(t, err1)
+		require.NoError(t, err2)
+		assert.Equal(t, user1, got1)
+		assert.Equal(t, user2, got2)
+		assert.GreaterOrEqual(t, callsForPair1.Load(), int32(1))
+		assert.GreaterOrEqual(t, callsForPair2.Load(), int32(1))
+	})
 }
 
 func TestAuthServerProcessRequest(t *testing.T) {
@@ -798,7 +888,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 		res, authErr := s.processRequest(t.Context(), req, l)
 		assert.Equal(t, errStaticAuthErrorPermissionDenied, authErr)
 		assert.Equal(t, authResult{}, res)
-		// assert.True(t, len(s.cache) == 0, "cache should be empty on anonymous user")
+		assert.Zero(t, s.cache.Size(), "cache should be empty on anonymous user")
 	})
 
 	t.Run("access granted for anonymous user", func(t *testing.T) {
@@ -815,7 +905,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 		res, authErr := s.processRequest(t.Context(), req, l)
 		require.NoError(t, authErr)
 		assert.Empty(t, res.vmProxyFilters)
-		// assert.True(t, len(s.cache) == 0, "cache should be empty on anonymous user")
+		assert.Zero(t, s.cache.Size(), "cache should be empty on anonymous user")
 	})
 
 	t.Run("access granted for anonymous user with LBAC enabled", func(t *testing.T) {
@@ -833,7 +923,7 @@ func TestAuthServerProcessRequest(t *testing.T) {
 		res, authErr := s.processRequest(t.Context(), req, l)
 		require.NoError(t, authErr)
 		assert.Empty(t, res.vmProxyFilters)
-		// assert.True(t, len(s.cache) == 0, "cache should be empty on anonymous user")
+		assert.Zero(t, s.cache.Size(), "cache should be empty on anonymous user")
 	})
 }
 

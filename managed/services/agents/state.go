@@ -31,7 +31,6 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
-	"github.com/percona/pmm/utils/rateLimiter"
 )
 
 const (
@@ -55,8 +54,9 @@ type StateUpdater struct {
 	// dbGroup deduplicates concurrent requests to DB (for example models.GetSettings).
 	// In case of massive pmm-agents connection attempts  no need to query DB for each of them, just one is enough.
 	dbGroup singleflight.Group
-	//
-	stateUpdateRateLimiter *rateLimiter.ConcurrencyLimiter
+	// stateUpdateRateLimiter limits the number of concurrent state updates to avoid system degradation (exhausted DB connections in particular).
+	// NOTE: it is shared with Handler to limit the number of concurrent pmm-agents connection attempts.
+	stateUpdateRateLimiter Limiter
 }
 
 // NewStateUpdater creates new agent state updater.
@@ -65,7 +65,7 @@ func NewStateUpdater(db *reform.DB,
 	vmdb prometheusService,
 	vmParams victoriaMetricsParams,
 	nomad nomad,
-	maxConcurrentUpdates int32,
+	rateLimiter Limiter,
 ) *StateUpdater {
 	return &StateUpdater{
 		db:                     db,
@@ -73,7 +73,7 @@ func NewStateUpdater(db *reform.DB,
 		vmdb:                   vmdb,
 		vmParams:               vmParams,
 		nomad:                  nomad,
-		stateUpdateRateLimiter: rateLimiter.NewConcurrencyLimiter(maxConcurrentUpdates),
+		stateUpdateRateLimiter: rateLimiter,
 	}
 }
 

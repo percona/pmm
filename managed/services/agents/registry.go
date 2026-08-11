@@ -42,6 +42,8 @@ const (
 	prometheusSubsystem = "agents"
 	// ConnectionCacheTTL is the duration for which agent connection status is cached in HA mode.
 	connectionCacheTTL = 10 * time.Second
+	// MaxRegisterRetries bounds duplicate-ID contention retries during registration.
+	maxRegisterRetries = 5
 )
 
 var (
@@ -233,7 +235,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgent
 
 	agentMD, err := agentv1.ReceiveAgentConnectMetadata(stream)
 	if err != nil {
-		return zero, err
+		return zero, fmt.Errorf("failed to receive pmm-agent connect metadata: %w", err)
 	}
 
 	var node *models.Node
@@ -262,7 +264,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgent
 	l.Debugf("Sending metadata: %+v.", serverMD)
 	err = agentv1.SendServerConnectMetadata(stream, &serverMD)
 	if err != nil {
-		return zero, err
+		return zero, fmt.Errorf("failed to send server connect metadata to pmm-agent: %w", err)
 	}
 
 	agent := pmmAgentInfo{
@@ -274,9 +276,16 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgent
 		kickChan:        make(chan struct{}),
 	}
 
-	for {
+	registered := false
+	for attempt := range maxRegisterRetries {
+		err = ctx.Err()
+		if err != nil {
+			return zero, status.FromContextError(err).Err()
+		}
+
 		currentAgent, exists := r.agentsCache.LoadOrStore(agentMD.ID, agent)
 		if !exists {
+			registered = true
 			break
 		}
 		// pmm-agent with the same ID can still be connected in two cases:
@@ -286,14 +295,22 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgent
 		// If agent responds with pong (no error) new connection is not established,
 		// so we return AlreadyExists error. Otherwise we kick the previous connection
 		// and retry atomic registration.
-		err := r.ping(ctx, currentAgent)
+		err = r.ping(ctx, currentAgent)
 		if err == nil {
 			return zero, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
 		}
 
-		l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
+		err = ctx.Err()
+		if err != nil {
+			return zero, status.FromContextError(err).Err()
+		}
+
+		l.Warningf("Failed to ping pmm-agent with ID %q on registration attempt %d/%d: %v", agentMD.ID, attempt+1, maxRegisterRetries, err)
 		r.Kick(ctx, agentMD.ID)
 		l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
+	}
+	if !registered {
+		return zero, status.Errorf(codes.Aborted, "failed to register pmm-agent with ID %q after %d retries", agentMD.ID, maxRegisterRetries)
 	}
 
 	// Only persist is_connected to database when HA is enabled

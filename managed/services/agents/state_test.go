@@ -17,6 +17,7 @@ package agents
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
@@ -30,12 +31,20 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
+type testLimiter struct{}
+
+func (testLimiter) TryAcquire() bool {
+	return true
+}
+
+func (testLimiter) Release() {}
+
 func TestRequestStateUpdateQueuesUpdateForConnectedAgent(t *testing.T) {
 	t.Parallel()
 
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
 	r.agentsCache.Store("agent-1", pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)})
-	u := NewStateUpdater(nil, r, nil, nil, nil, 1)
+	u := NewStateUpdater(nil, r, nil, nil, nil, testLimiter{})
 	ctx := logger.Set(context.Background(), "test-request")
 
 	u.RequestStateUpdate(ctx, "agent-1")
@@ -53,7 +62,7 @@ func TestRequestStateUpdateDoesNothingForMissingAgent(t *testing.T) {
 	t.Parallel()
 
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
-	u := NewStateUpdater(nil, r, nil, nil, nil, 1)
+	u := NewStateUpdater(nil, r, nil, nil, nil, testLimiter{})
 	ctx := logger.Set(context.Background(), "test-request")
 
 	assert.NotPanics(t, func() {
@@ -68,7 +77,7 @@ func TestRequestStateUpdateDoesNotBlockWhenUpdateIsAlreadyQueued(t *testing.T) {
 	agent := pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)}
 	agent.stateChangeChan <- struct{}{}
 	r.agentsCache.Store("agent-1", agent)
-	u := NewStateUpdater(nil, r, nil, nil, nil, 1)
+	u := NewStateUpdater(nil, r, nil, nil, nil, testLimiter{})
 	ctx := logger.Set(context.Background(), "test-request")
 
 	done := make(chan struct{})
@@ -82,6 +91,30 @@ func TestRequestStateUpdateDoesNotBlockWhenUpdateIsAlreadyQueued(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("RequestStateUpdate should not block when update is already queued")
 	}
+
+	assert.Len(t, agent.stateChangeChan, 1)
+}
+
+func TestRequestStateUpdateConcurrentCallsQueueSingleUpdate(t *testing.T) {
+	t.Parallel()
+
+	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
+	agent := pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)}
+	r.agentsCache.Store("agent-1", agent)
+	u := NewStateUpdater(nil, r, nil, nil, nil, testLimiter{})
+	ctx := logger.Set(context.Background(), "test-request")
+
+	const callers = 32
+	var wg sync.WaitGroup
+	wg.Add(callers)
+
+	for range callers {
+		go func() {
+			defer wg.Done()
+			u.RequestStateUpdate(ctx, "agent-1")
+		}()
+	}
+	wg.Wait()
 
 	assert.Len(t, agent.stateChangeChan, 1)
 }
@@ -100,7 +133,7 @@ func TestUpdateAgentsStateQueuesUpdatesForAllConnectedAgents(t *testing.T) {
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
 	r.agentsCache.Store("agent-1", pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)})
 	r.agentsCache.Store("agent-2", pmmAgentInfo{id: "agent-2", stateChangeChan: make(chan struct{}, 1)})
-	u := NewStateUpdater(db, r, nil, nil, nil, 1)
+	u := NewStateUpdater(db, r, nil, nil, nil, testLimiter{})
 	ctx := logger.Set(context.Background(), "test-request")
 
 	mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE agent_type = \$1 ORDER BY agent_id`).
@@ -138,7 +171,7 @@ func TestUpdateAgentsStateReturnsErrorWhenFetchingAgentsFails(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
-	u := NewStateUpdater(db, r, nil, nil, nil, 1)
+	u := NewStateUpdater(db, r, nil, nil, nil, testLimiter{})
 	ctx := logger.Set(context.Background(), "test-request")
 
 	mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE agent_type = \$1 ORDER BY agent_id`).
@@ -164,7 +197,7 @@ func TestUpdateAgentsStateIgnoresAgentsThatAreNotInRegistry(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
 	r.agentsCache.Store("agent-1", pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)})
-	u := NewStateUpdater(db, r, nil, nil, nil, 1)
+	u := NewStateUpdater(db, r, nil, nil, nil, testLimiter{})
 	ctx := logger.Set(context.Background(), "test-request")
 
 	mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE agent_type = \$1 ORDER BY agent_id`).
@@ -200,7 +233,7 @@ func TestUpdateAgentsStateSucceedsWhenThereAreNoPMMAgents(t *testing.T) {
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
-	u := NewStateUpdater(db, r, nil, nil, nil, 1)
+	u := NewStateUpdater(db, r, nil, nil, nil, testLimiter{})
 	ctx := logger.Set(context.Background(), "test-request")
 
 	mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE agent_type = \$1 ORDER BY agent_id`).
@@ -209,5 +242,33 @@ func TestUpdateAgentsStateSucceedsWhenThereAreNoPMMAgents(t *testing.T) {
 
 	err = u.UpdateAgentsState(ctx)
 	require.NoError(t, err)
+	require.NoError(t, mock.ExpectationsWereMet())
+}
+
+func TestUpdateAgentsStateDoesNotQueueDuplicateSignalWhenAlreadyQueued(t *testing.T) {
+	t.Parallel()
+
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		_ = mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
+
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	r := NewRegistry(nil, fakeVictoriaMetricsParams{}, &fakeHAService{params: &models.HAParams{Enabled: false}})
+	agent := pmmAgentInfo{id: "agent-1", stateChangeChan: make(chan struct{}, 1)}
+	agent.stateChangeChan <- struct{}{}
+	r.agentsCache.Store("agent-1", agent)
+	u := NewStateUpdater(db, r, nil, nil, nil, testLimiter{})
+	ctx := logger.Set(context.Background(), "test-request")
+
+	mock.ExpectQuery(`SELECT .+ FROM "agents" WHERE agent_type = \$1 ORDER BY agent_id`).
+		WithArgs(string(models.PMMAgentType)).
+		WillReturnRows(newAgentRows(agentRow{id: "agent-1", connected: true}))
+
+	err = u.UpdateAgentsState(ctx)
+	require.NoError(t, err)
+	assert.Len(t, agent.stateChangeChan, 1)
 	require.NoError(t, mock.ExpectationsWereMet())
 }
