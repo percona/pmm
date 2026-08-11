@@ -268,8 +268,7 @@ type StatusResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Status of HA mode: "Enabled" or "Disabled".
 	Status string `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
-	// Kubernetes namespace this instance is running in. Empty if unknown
-	// (e.g. non-Kubernetes installs).
+	// Kubernetes namespace this instance is running in.
 	Namespace     string `protobuf:"bytes,2,opt,name=namespace,proto3" json:"namespace,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache

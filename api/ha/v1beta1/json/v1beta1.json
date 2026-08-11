@@ -124,7 +124,7 @@
                   "x-order": 0
                 },
                 "namespace": {
-                  "description": "Kubernetes namespace this instance is running in. Empty if unknown\n(e.g. non-Kubernetes installs).",
+                  "description": "Kubernetes namespace this instance is running in.",
                   "type": "string",
                   "x-order": 1
                 }
