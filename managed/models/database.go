@@ -1547,7 +1547,7 @@ func removeStaleHANodes(ctx context.Context, db *reform.DB, params SetupDBParams
 		case err == nil:
 			nodeL.Info("Removed stale HA node, it is not a part of the cluster anymore.")
 		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
-			nodeL.Info("Stale HA node was already removed by another replica.")
+			nodeL.WithError(err).Info("Stale HA node was already removed by another replica.")
 		case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
 			nodeL.WithError(err).Warn("Startup was cancelled, stopping the removal of stale HA nodes.")
 			return

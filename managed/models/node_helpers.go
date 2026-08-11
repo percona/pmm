@@ -418,7 +418,7 @@ func StaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) ([]*Node
 		}
 		if len(monitored) != 0 {
 			nodeL.WithField("service_ids", monitored).Warn("Keeping stale HA node: it still monitors services, which would be removed with it. " +
-				"Re-add them from a running replica and remove the node from Inventory.")
+				"Re-add them from a running replica; the next restart removes the node.")
 			continue
 		}
 
@@ -428,9 +428,9 @@ func StaleHANodes(q *reform.Querier, haNodeID string, haPeers []string) ([]*Node
 	return stale, nil
 }
 
-// RemoveStaleHANode removes a Node returned by StaleHANodes, along with the Agents and Services that
-// belong to it. Call it in a transaction of its own: it deletes those before the Node itself, so a
-// failure half-way through would otherwise leave the Node partially removed.
+// RemoveStaleHANode removes a Node returned by StaleHANodes together with its Agents. Call it in a
+// transaction of its own: it deletes those before the Node itself, so a failure half-way through
+// would otherwise leave the Node partially removed.
 //
 // It lifts the ban on removing PMM Server Nodes, so it re-reads the Services the Node monitors and
 // refuses to take a Node that has any.
@@ -470,10 +470,10 @@ func haPeerNodeName(peer string) (string, bool) {
 	return label, true
 }
 
-// haNodeMonitoredServices returns the IDs of the Services that removing the Node would take with it:
-// those attached to the Node, those whose exporters run on it (an external exporter in pull mode), and
-// those whose exporters run under its pmm-agent (remote instances bind theirs to the replica that
-// added them). All three are cascaded away by removeNode.
+// haNodeMonitoredServices returns the IDs of the Services that removing the Node would damage: those
+// attached to the Node, which removeNode deletes outright, and those whose exporters run on it (an
+// external exporter in pull mode) or under its pmm-agent (remote instances bind theirs to the replica
+// that added them), which survive but lose their monitoring. A Node with any of them is kept.
 func haNodeMonitoredServices(q *reform.Querier, nodeID string) ([]string, error) {
 	// An external exporter carries a service_id itself, and the pmm-agents are the parents of the
 	// exporters read next.

@@ -834,7 +834,7 @@ When you scale PMM HA up or down, **all PMM pods will be recreated**. This happe
 !!! info "When PMM keeps a stale Node"
     PMM logs a warning (`component=ha`) and keeps the Node when:
 
-    - the Node still monitors services, for example a remote instance that was added from that replica. Re-add those services from a running client, then remove the Node from **Inventory > Nodes**
+    - the Node still monitors services, for example a remote instance that was added from that replica. Re-add those services from a running replica; the next restart removes the Node
     - `PMM_HA_PEERS` carries no readable node names, for example bare IP addresses
     - `PMM_HA_PEERS` does not list the pod that is doing the cleanup
 
