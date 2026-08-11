@@ -101,7 +101,7 @@ func insertAgentWithSecrets(ctx context.Context, t *testing.T, db *sql.DB) {
 	})
 	require.NoError(t, err)
 
-	azureOptions, err := json.Marshal(models.AzureOptions{ //nolint:gosec
+	azureOptions, err := json.Marshal(models.AzureOptions{
 		SubscriptionID: "azure-subscription-id",
 		ClientID:       "azure-client-id",
 		ClientSecret:   "azure-client-secret",
