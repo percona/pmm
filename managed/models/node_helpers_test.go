@@ -391,6 +391,29 @@ func TestStaleHANodes(t *testing.T) {
 		assertStale(t, stale, "ha-node-2")
 	})
 
+	t.Run("ReportsEveryDepartedReplicaWhenScaledToOne", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// The surviving replica's own Node. It goes here rather than into insertHAFixtures, where
+		// ReportsNothingWhenNothingWasScaledDown would then see it as stale.
+		require.NoError(t, q.Insert(&models.Node{
+			NodeID:          "ha-node-0",
+			NodeType:        models.GenericNodeType,
+			NodeName:        "pmm-ha-0",
+			Address:         models.LocalhostAddr,
+			IsPMMServerNode: true,
+		}))
+
+		// what the chart renders at replicas: 1 - a single entry, and it is this pod
+		peers := []string{"pmm-ha-0.monitoring-service.pmm.svc.cluster.local"}
+		stale, err := models.StaleHANodes(q, "pmm-ha-0", peers)
+		require.NoError(t, err)
+
+		// both departed replicas in one sweep, the survivor's own Node untouched
+		assertStale(t, stale, "ha-node-1", "ha-node-2")
+	})
+
 	t.Run("ReportsNothingWhenNothingWasScaledDown", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
