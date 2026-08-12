@@ -138,7 +138,7 @@ export interface paths {
      *     that has no override row succeeds with 204. Attempting to delete a field
      *     the code declares NOT_OVERRIDABLE responds 409, since it cannot have an
      *     override row in the first place and the operator's intent is
-     *     unsatisfiable. A field only ``SETTINGS_OVERRIDE_ALLOWED_KEYS`` withheld
+     *     unsatisfiable. A field only ``SETTINGS_OVERRIDE.ALLOWED_KEYS`` withheld
      *     may still carry a row written before the restriction applied, so that
      *     row is deleted normally and only the no-row case answers 409.
      *
@@ -899,7 +899,9 @@ export interface components {
        * Meta
        * @default {}
        */
-      meta: Record<string, never>;
+      meta: {
+        [key: string]: unknown;
+      };
       /** Payload */
       payload?: string | null;
     };
@@ -1066,9 +1068,8 @@ export interface components {
      * @description Enumerate settings classes that may have HOT override rows.
      *
      *     The wired classes are ``SEPSettings``, ``TasksSettings``,
-     *     ``SnippetsSettings``, ``MessagesSettings``, the global ``Settings``,
-     *     ``AlertSettings``, ``AlertsSettings``, ``AnonymizerSettings`` and
-     *     ``InventorySettings``.
+     *     ``SnippetsSettings``, the global ``Settings``, ``AlertSettings``,
+     *     ``AlertsSettings``, ``AnonymizerSettings`` and ``InventorySettings``.
      *
      *     To wire a new settings class:
      *
@@ -1088,7 +1089,6 @@ export interface components {
       | 'SEPSettings'
       | 'TasksSettings'
       | 'SnippetsSettings'
-      | 'MessagesSettings'
       | 'Settings'
       | 'AlertSettings'
       | 'AnonymizerSettings'
@@ -1273,7 +1273,9 @@ export interface components {
        * Meta
        * @default {}
        */
-      meta: Record<string, never>;
+      meta: {
+        [key: string]: unknown;
+      };
       /** Payload */
       payload?: string | null;
     };
@@ -1286,13 +1288,11 @@ export interface components {
      *     :param target: The target system or environment.
      *     :type target: str
      *     :param meta: Additional metadata for the task. Defaults to an empty dictionary.
-     *     :type meta: dict | None
      *     :param payload: Optional payload or file path for parameterizing the task.
      *         Defaults to None.
      *     :type payload: str | None
      *     :param tracking: Tracking information for task execution. Defaults to a dictionary
      *         with keys for allocation and evaluation IDs.
-     *     :type tracking: dict | None
      */
     TaskExecutionRequest: {
       /** Eta */
@@ -1301,7 +1301,9 @@ export interface components {
        * Meta
        * @default {}
        */
-      meta: Record<string, never> | null;
+      meta: {
+        [key: string]: unknown;
+      } | null;
       /** Payload */
       payload?: string | null;
       /** Target */
@@ -1312,7 +1314,9 @@ export interface components {
        * Tracking
        * @default {}
        */
-      tracking: Record<string, never> | null;
+      tracking: {
+        [key: string]: unknown;
+      } | null;
     } & {
       [key: string]: unknown;
     };
@@ -1562,7 +1566,9 @@ export interface components {
       /** Created By */
       created_by: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Deleted At */
       deleted_at: string | null;
       /** Id */
@@ -1610,7 +1616,9 @@ export interface components {
        *     :return: A dictionary summarizing average, last, and total task durations.
        *     :rtype: dict[str, Any]
        */
-      readonly duration: Record<string, never>;
+      readonly duration: {
+        [key: string]: unknown;
+      };
       /**
        * Engine
        * @default nomad
@@ -1631,7 +1639,9 @@ export interface components {
        *     :return: A dictionary summarizing the number of passed and failed tasks.
        *     :rtype: dict[str, int]
        */
-      readonly status: Record<string, never>;
+      readonly status: {
+        [key: string]: number;
+      };
       /**
        * Total
        * @description Return the total number of tasks.
@@ -1676,7 +1686,9 @@ export interface components {
       /** @default nomad */
       backend: components['schemas']['TaskBackendEnum'];
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /**
        * Is Template
        * @default false
@@ -1759,6 +1771,20 @@ export interface operations {
         self_parent?: boolean | null;
         offset?: number;
         limit?: number;
+        /** @description Sort key; prefix with '-' for descending order. */
+        sort?:
+          | 'backend'
+          | '-backend'
+          | 'created_at'
+          | '-created_at'
+          | 'name'
+          | '-name'
+          | 'owner'
+          | '-owner'
+          | 'updated_at'
+          | '-updated_at';
+        /** @description Case-insensitive search across the searchable columns. */
+        search?: string | null;
       };
       header?: never;
       path?: never;
@@ -2011,6 +2037,20 @@ export interface operations {
         exclude_internal?: boolean;
         offset?: number;
         limit?: number;
+        /** @description Sort key; prefix with '-' for descending order. */
+        sort?:
+          | 'created_at'
+          | '-created_at'
+          | 'executed_by'
+          | '-executed_by'
+          | 'finished_at'
+          | '-finished_at'
+          | 'started_at'
+          | '-started_at'
+          | 'status'
+          | '-status';
+        /** @description Case-insensitive search across the searchable columns. */
+        search?: string | null;
       };
       header?: never;
       path?: never;
@@ -2738,6 +2778,20 @@ export interface operations {
         snippet_filename?: string | null;
         offset?: number;
         limit?: number;
+        /** @description Sort key; prefix with '-' for descending order. */
+        sort?:
+          | 'created_at'
+          | '-created_at'
+          | 'executed_by'
+          | '-executed_by'
+          | 'finished_at'
+          | '-finished_at'
+          | 'started_at'
+          | '-started_at'
+          | 'status'
+          | '-status';
+        /** @description Case-insensitive search across the searchable columns. */
+        search?: string | null;
       };
       header?: never;
       path: {

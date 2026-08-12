@@ -9,7 +9,9 @@
             "type": "boolean"
           }
         },
-        "required": ["available"],
+        "required": [
+          "available"
+        ],
         "title": "AlertConfigResponse",
         "type": "object"
       },
@@ -65,7 +67,10 @@
             "type": "string"
           }
         },
-        "required": ["username", "password"],
+        "required": [
+          "username",
+          "password"
+        ],
         "title": "Body_oauth_create_oauth_token_api_oauth_token_post",
         "type": "object"
       },
@@ -153,7 +158,13 @@
             "type": "string"
           }
         },
-        "required": ["id", "username", "owner", "fullName", "isActive"],
+        "required": [
+          "id",
+          "username",
+          "owner",
+          "fullName",
+          "isActive"
+        ],
         "title": "CasdoorUser",
         "type": "object"
       },
@@ -221,7 +232,10 @@
             "type": "string"
           }
         },
-        "required": ["username", "password"],
+        "required": [
+          "username",
+          "password"
+        ],
         "title": "SPALoginBody",
         "type": "object"
       },
@@ -237,7 +251,10 @@
             "type": "integer"
           }
         },
-        "required": ["access_token", "expires_in"],
+        "required": [
+          "access_token",
+          "expires_in"
+        ],
         "title": "SPAOAuthTokenResponse",
         "type": "object"
       },
@@ -253,7 +270,10 @@
             "type": "integer"
           }
         },
-        "required": ["access_token", "expires_in"],
+        "required": [
+          "access_token",
+          "expires_in"
+        ],
         "title": "SessionExchangeTokenResponse",
         "type": "object"
       },
@@ -289,7 +309,11 @@
             "type": "string"
           }
         },
-        "required": ["loc", "msg", "type"],
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
         "title": "ValidationError",
         "type": "object"
       }
@@ -335,7 +359,9 @@
           }
         ],
         "summary": "Get Alert Config",
-        "tags": ["config"]
+        "tags": [
+          "config"
+        ]
       }
     },
     "/api/oauth/login": {
@@ -375,7 +401,9 @@
           }
         },
         "summary": "Spa Login",
-        "tags": ["oauth"]
+        "tags": [
+          "oauth"
+        ]
       }
     },
     "/api/oauth/logout": {
@@ -393,7 +421,9 @@
           }
         ],
         "summary": "Spa Logout",
-        "tags": ["oauth"]
+        "tags": [
+          "oauth"
+        ]
       }
     },
     "/api/oauth/refresh": {
@@ -441,7 +471,9 @@
           }
         },
         "summary": "Refresh Token",
-        "tags": ["oauth"]
+        "tags": [
+          "oauth"
+        ]
       }
     },
     "/api/oauth/session": {
@@ -461,12 +493,14 @@
           }
         },
         "summary": "Spa Session Login",
-        "tags": ["oauth"]
+        "tags": [
+          "oauth"
+        ]
       }
     },
     "/api/oauth/session/exchange": {
       "post": {
-        "description": "Mint a short-lived SEP bearer from an ambient Grafana session.\n\nServes an embedded client that already carries the host's session cookie on\nthe same origin. Unlike ``POST /session``, set no cookie and issue no refresh\ntoken: the caller holds the bearer in memory and exchanges again before it\nexpires, so the deployment never shares a long-lived credential.\n\nEvery exchange re-reads the identity from the provider and no validation is\ncached, so a role change takes effect within one bearer lifetime. A\nsigned-out browser loses embedded access just as fast, because without the\nsession cookie it cannot obtain another bearer -- though whether a\n*previously copied* host cookie stops working depends on the host revoking\nits own session server-side, which is outside SEP's control.\n\nCarries no auth dependency by design: the caller is not yet SEP-authenticated,\nand the ambient session cookie is the credential being presented. No CSRF\nprimitive applies either -- ``IsCsrfValidated`` guards form data on the\nserver-rendered login route, and requiring a Bearer token cannot gate an\nendpoint whose purpose is to issue one. That is safe because a cross-origin\nattacker cannot read this response (the CORS posture is an explicit\nper-environment origin allowlist, with the middleware absent when none is\nconfigured), and the bearer-authenticated calls the token enables are\nCSRF-exempt by design, since browsers never attach an ``Authorization``\nheader automatically.\n\nEvery failure -- no cookie, a rejected session, an unreachable provider --\ndenies with the same ``401`` rather than reporting a reason the route cannot\ndistinguish.\n\n:param request: The incoming request, carrying the ambient session cookie.\n:param response: The HTTP response, marked uncacheable so no intermediary\n    stores the minted bearer.\n:return: The minted bearer and its lifetime.\n:raises HTTPUnauthorizedException: If there is no valid ambient session.",
+        "description": "Mint a short-lived SEP bearer from an ambient Grafana session.\n\nServes an embedded client that already carries the host's session cookie on\nthe same origin. Unlike ``POST /session``, set no cookie and issue no refresh\ntoken: the caller holds the bearer in memory and exchanges again before it\nexpires, so the deployment never shares a long-lived credential.\n\nEvery exchange re-reads the identity from the provider and no validation is\ncached, so a role change takes effect within one bearer lifetime. A\nsigned-out browser loses embedded access just as fast, because without the\nsession cookie it cannot obtain another bearer -- though whether a\n*previously copied* host cookie stops working depends on the host revoking\nits own session server-side, which is outside SEP's control.\n\nCarries no auth dependency by design: the caller is not yet SEP-authenticated,\nand the ambient session cookie is the credential being presented. No CSRF\nprimitive applies either: requiring a Bearer token cannot gate an\nendpoint whose purpose is to issue one. That is safe because a cross-origin\nattacker cannot read this response (the CORS posture is an explicit\nper-environment origin allowlist, with the middleware absent when none is\nconfigured), and the bearer-authenticated calls the token enables are\nCSRF-exempt by design, since browsers never attach an ``Authorization``\nheader automatically.\n\nEvery failure -- no cookie, a rejected session, an unreachable provider --\ndenies with the same ``401`` rather than reporting a reason the route cannot\ndistinguish.\n\n:param request: The incoming request, carrying the ambient session cookie.\n:param response: The HTTP response, marked uncacheable so no intermediary\n    stores the minted bearer.\n:return: The minted bearer and its lifetime.\n:raises HTTPUnauthorizedException: If there is no valid ambient session.",
         "operationId": "oauth_spa_session_exchange_api_oauth_session_exchange_post",
         "responses": {
           "200": {
@@ -481,7 +515,9 @@
           }
         },
         "summary": "Spa Session Exchange",
-        "tags": ["oauth"]
+        "tags": [
+          "oauth"
+        ]
       }
     },
     "/api/oauth/token": {
@@ -521,7 +557,9 @@
           }
         },
         "summary": "Create Oauth Token",
-        "tags": ["oauth"]
+        "tags": [
+          "oauth"
+        ]
       }
     },
     "/api/users/": {
@@ -550,7 +588,9 @@
           }
         ],
         "summary": "List Users",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/me": {
@@ -575,7 +615,9 @@
           }
         ],
         "summary": "Retrieve Current User",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     },
     "/api/users/{username}": {
@@ -621,7 +663,9 @@
           }
         ],
         "summary": "Retrieve User",
-        "tags": ["users"]
+        "tags": [
+          "users"
+        ]
       }
     }
   }

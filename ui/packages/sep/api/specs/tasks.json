@@ -24,7 +24,10 @@
             "type": "integer"
           }
         },
-        "required": ["success", "task_history_id"],
+        "required": [
+          "success",
+          "task_history_id"
+        ],
         "title": "ConnectivityCheckResponse",
         "type": "object"
       },
@@ -54,13 +57,22 @@
             "type": "integer"
           }
         },
-        "required": ["target", "host", "port", "service_type"],
+        "required": [
+          "target",
+          "host",
+          "port",
+          "service_type"
+        ],
         "title": "ConnectivityCheckWrite",
         "type": "object"
       },
       "ConnectivityServiceType": {
         "description": "Define supported database service types for connectivity checks.\n\n:cvar MYSQL: MySQL database service.\n:vartype MYSQL: str\n:cvar POSTGRESQL: PostgreSQL database service.\n:vartype POSTGRESQL: str\n:cvar MONGODB: MongoDB database service.\n:vartype MONGODB: str",
-        "enum": ["mysql", "postgresql", "mongodb"],
+        "enum": [
+          "mysql",
+          "postgresql",
+          "mongodb"
+        ],
         "title": "ConnectivityServiceType",
         "type": "string"
       },
@@ -129,7 +141,11 @@
             "type": "string"
           }
         },
-        "required": ["timestamp", "type", "description"],
+        "required": [
+          "timestamp",
+          "type",
+          "description"
+        ],
         "title": "ExecutionEvent",
         "type": "object"
       },
@@ -175,7 +191,10 @@
             "$ref": "#/components/schemas/Period"
           }
         },
-        "required": ["every", "period"],
+        "required": [
+          "every",
+          "period"
+        ],
         "title": "IntervalSchedule",
         "type": "object"
       },
@@ -202,7 +221,12 @@
             "type": "integer"
           }
         },
-        "required": ["items", "total", "offset", "limit"],
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
         "title": "PaginatedResponse[TaskHistoryResponse]",
         "type": "object"
       },
@@ -228,12 +252,23 @@
             "type": "integer"
           }
         },
-        "required": ["items", "total", "offset", "limit"],
+        "required": [
+          "items",
+          "total",
+          "offset",
+          "limit"
+        ],
         "title": "PaginatedResponse[TaskResponse]",
         "type": "object"
       },
       "Period": {
-        "enum": ["days", "hours", "minutes", "seconds", "microseconds"],
+        "enum": [
+          "days",
+          "hours",
+          "minutes",
+          "seconds",
+          "microseconds"
+        ],
         "title": "Period",
         "type": "string"
       },
@@ -306,7 +341,10 @@
             "type": "string"
           }
         },
-        "required": ["task", "kwargs"],
+        "required": [
+          "task",
+          "kwargs"
+        ],
         "title": "PeriodicTaskCreate",
         "type": "object"
       },
@@ -356,6 +394,7 @@
             "title": "Eta"
           },
           "meta": {
+            "additionalProperties": true,
             "default": {},
             "title": "Meta",
             "type": "object"
@@ -594,17 +633,20 @@
       },
       "ReloadClassification": {
         "description": "Declare the reload behavior of an overridable settings field.\n\n:cvar HOT: Field can be overridden via a DB row and the new value takes\n    effect on the next snapshot refresh, without restarting the service.\n    For a nested-model field, ``HOT`` permits both whole-object override\n    (``PATCH {parent: {...}}``) and per-child override (``parent__leaf``).\n:vartype HOT: str\n:cvar NESTED_ONLY: Nested-model field whose children may be overridden\n    (``parent__leaf``) while the parent itself rejects whole-object\n    override (``PATCH {parent: {...}}`` → 422). Children default to\n    HOT-inherit unless explicitly marked :func:`not_overridable_field`.\n:vartype NESTED_ONLY: str\n:cvar NOT_OVERRIDABLE: Field is not overridable from the database; YAML\n    and environment variables remain the only sources of truth.\n:vartype NOT_OVERRIDABLE: str",
-        "enum": ["hot", "nested_only", "not_overridable"],
+        "enum": [
+          "hot",
+          "nested_only",
+          "not_overridable"
+        ],
         "title": "ReloadClassification",
         "type": "string"
       },
       "SettingClassEnum": {
-        "description": "Enumerate settings classes that may have HOT override rows.\n\nThe wired classes are ``SEPSettings``, ``TasksSettings``,\n``SnippetsSettings``, ``MessagesSettings``, the global ``Settings``,\n``AlertSettings``, ``AlertsSettings``, ``AnonymizerSettings`` and\n``InventorySettings``.\n\nTo wire a new settings class:\n\n1. Add a member here whose value matches the Pydantic class ``__name__``.\n2. Generate an Alembic migration on every consumer track that extends the\n   ``CHECK`` constraint on ``settingoverride.setting_class``. The column\n   uses ``native_enum=False`` so the value list lives in a constraint,\n   not a PostgreSQL ``TYPE`` -- the migration ``ALTER``s the constraint.\n   Note that the column and ``CHECK`` constraint persist the enum member\n   *names* (e.g. ``SEP_SETTINGS``), which is distinct from the member\n   *value* (the Pydantic class name, e.g. ``SEPSettings``).\n3. Wire a ``ProxyEntry`` for the new class in the relevant service's\n   lifespan (``app/sep/main.py`` or ``app/tasks/main.py``).",
+        "description": "Enumerate settings classes that may have HOT override rows.\n\nThe wired classes are ``SEPSettings``, ``TasksSettings``,\n``SnippetsSettings``, the global ``Settings``, ``AlertSettings``,\n``AlertsSettings``, ``AnonymizerSettings`` and ``InventorySettings``.\n\nTo wire a new settings class:\n\n1. Add a member here whose value matches the Pydantic class ``__name__``.\n2. Generate an Alembic migration on every consumer track that extends the\n   ``CHECK`` constraint on ``settingoverride.setting_class``. The column\n   uses ``native_enum=False`` so the value list lives in a constraint,\n   not a PostgreSQL ``TYPE`` -- the migration ``ALTER``s the constraint.\n   Note that the column and ``CHECK`` constraint persist the enum member\n   *names* (e.g. ``SEP_SETTINGS``), which is distinct from the member\n   *value* (the Pydantic class name, e.g. ``SEPSettings``).\n3. Wire a ``ProxyEntry`` for the new class in the relevant service's\n   lifespan (``app/sep/main.py`` or ``app/tasks/main.py``).",
         "enum": [
           "SEPSettings",
           "TasksSettings",
           "SnippetsSettings",
-          "MessagesSettings",
           "Settings",
           "AlertSettings",
           "AnonymizerSettings",
@@ -666,7 +708,10 @@
             "type": "array"
           }
         },
-        "required": ["setting_class", "settings"],
+        "required": [
+          "setting_class",
+          "settings"
+        ],
         "title": "SettingClassGroup",
         "type": "object"
       },
@@ -760,7 +805,9 @@
             "type": "array"
           }
         },
-        "required": ["groups"],
+        "required": [
+          "groups"
+        ],
         "title": "SettingsListResponse",
         "type": "object"
       },
@@ -775,7 +822,11 @@
       },
       "TaskBackendEnum": {
         "description": "Control the choice of backends.\n\n:cvar NOMAD: Enum value for Nomad backend.\n:vartype NOMAD: str\n:cvar PROXY: Enum value for Proxy backend.\n:vartype PROXY: str\n:cvar CELERY: Enum value for Celery backend.\n:vartype CELERY: str",
-        "enum": ["nomad", "proxy", "celery"],
+        "enum": [
+          "nomad",
+          "proxy",
+          "celery"
+        ],
         "title": "TaskBackendEnum",
         "type": "string"
       },
@@ -825,6 +876,7 @@
             "title": "Eta"
           },
           "meta": {
+            "additionalProperties": true,
             "default": {},
             "title": "Meta",
             "type": "object"
@@ -846,7 +898,7 @@
       },
       "TaskExecutionRequest": {
         "additionalProperties": true,
-        "description": "Represent an execution request.\n\n:param task: The task name.\n:type task: str\n:param target: The target system or environment.\n:type target: str\n:param meta: Additional metadata for the task. Defaults to an empty dictionary.\n:type meta: dict | None\n:param payload: Optional payload or file path for parameterizing the task.\n    Defaults to None.\n:type payload: str | None\n:param tracking: Tracking information for task execution. Defaults to a dictionary\n    with keys for allocation and evaluation IDs.\n:type tracking: dict | None",
+        "description": "Represent an execution request.\n\n:param task: The task name.\n:type task: str\n:param target: The target system or environment.\n:type target: str\n:param meta: Additional metadata for the task. Defaults to an empty dictionary.\n:param payload: Optional payload or file path for parameterizing the task.\n    Defaults to None.\n:type payload: str | None\n:param tracking: Tracking information for task execution. Defaults to a dictionary\n    with keys for allocation and evaluation IDs.",
         "properties": {
           "eta": {
             "anyOf": [
@@ -863,6 +915,7 @@
           "meta": {
             "anyOf": [
               {
+                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -894,6 +947,7 @@
           "tracking": {
             "anyOf": [
               {
+                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -904,7 +958,10 @@
             "title": "Tracking"
           }
         },
-        "required": ["task", "target"],
+        "required": [
+          "task",
+          "target"
+        ],
         "title": "TaskExecutionRequest",
         "type": "object"
       },
@@ -1262,6 +1319,7 @@
             "title": "Created By"
           },
           "data": {
+            "additionalProperties": true,
             "title": "Data",
             "type": "object"
           },
@@ -1371,6 +1429,7 @@
         "description": "Model for task statistics.\n\n:param engine: The backend engine used for task execution. Defaults to \"nomad\".\n:type engine: str\n:param tasks: A list of task execution histories.\n:type tasks: list[TaskHistory]",
         "properties": {
           "duration": {
+            "additionalProperties": true,
             "description": "Return the task duration summary.\n\n:return: A dictionary summarizing average, last, and total task durations.\n:rtype: dict[str, Any]",
             "readOnly": true,
             "title": "Duration",
@@ -1395,6 +1454,9 @@
             "title": "Last Finished At"
           },
           "status": {
+            "additionalProperties": {
+              "type": "integer"
+            },
             "description": "Return the task status summary.\n\n:return: A dictionary summarizing the number of passed and failed tasks.\n:rtype: dict[str, int]",
             "readOnly": true,
             "title": "Status",
@@ -1407,7 +1469,12 @@
             "type": "integer"
           }
         },
-        "required": ["total", "status", "duration", "last_finished_at"],
+        "required": [
+          "total",
+          "status",
+          "duration",
+          "last_finished_at"
+        ],
         "title": "TaskStats",
         "type": "object"
       },
@@ -1446,6 +1513,7 @@
             "default": "nomad"
           },
           "data": {
+            "additionalProperties": true,
             "title": "Data",
             "type": "object"
           },
@@ -1493,7 +1561,10 @@
             "title": "Run Result Recorder"
           }
         },
-        "required": ["name", "data"],
+        "required": [
+          "name",
+          "data"
+        ],
         "title": "TaskWrite",
         "type": "object"
       },
@@ -1501,7 +1572,11 @@
         "description": "Define the request body for the /transform/ API route.\n\n:param payload: The job specification payload to be parsed.\n:type payload: str | bytes\n:param fmt: The format of the payload, which can be \"hcl\", \"json\", or \"yaml\".\n:type fmt: Literal[\"hcl\", \"json\", \"yaml\"]",
         "properties": {
           "fmt": {
-            "enum": ["hcl", "json", "yaml"],
+            "enum": [
+              "hcl",
+              "json",
+              "yaml"
+            ],
             "title": "Fmt",
             "type": "string"
           },
@@ -1518,7 +1593,10 @@
             "title": "Payload"
           }
         },
-        "required": ["payload", "fmt"],
+        "required": [
+          "payload",
+          "fmt"
+        ],
         "title": "TransformPayloadRequest",
         "type": "object"
       },
@@ -1561,7 +1639,11 @@
             "type": "string"
           }
         },
-        "required": ["loc", "msg", "type"],
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
         "title": "ValidationError",
         "type": "object"
       }
@@ -1692,6 +1774,48 @@
               "title": "Limit",
               "type": "integer"
             }
+          },
+          {
+            "description": "Sort key; prefix with '-' for descending order.",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "-created_at",
+              "description": "Sort key; prefix with '-' for descending order.",
+              "enum": [
+                "backend",
+                "-backend",
+                "created_at",
+                "-created_at",
+                "name",
+                "-name",
+                "owner",
+                "-owner",
+                "updated_at",
+                "-updated_at"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Case-insensitive search across the searchable columns.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive search across the searchable columns.",
+              "title": "Search"
+            }
           }
         ],
         "responses": {
@@ -1722,7 +1846,9 @@
           }
         ],
         "summary": "List Tasks",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       },
       "post": {
         "description": "Create a new task.",
@@ -1765,7 +1891,9 @@
           }
         ],
         "summary": "Create Task",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/admin/settings/": {
@@ -1790,7 +1918,9 @@
           }
         ],
         "summary": "List Settings",
-        "tags": ["settings"]
+        "tags": [
+          "settings"
+        ]
       }
     },
     "/admin/settings/{setting_class}": {
@@ -1849,12 +1979,14 @@
           }
         ],
         "summary": "Patch Settings",
-        "tags": ["settings"]
+        "tags": [
+          "settings"
+        ]
       }
     },
     "/admin/settings/{setting_class}/{key}": {
       "delete": {
-        "description": "Revert one override row to the field's declared default.\n\nFor a remote class the DELETE is forwarded to the owning sub-app, which\nowns the idempotency and ``NOT_OVERRIDABLE`` semantics; its status and\n``detail`` are preserved through the proxy.\n\nFor a local class the DELETE is idempotent: deleting a (class, key) pair\nthat has no override row succeeds with 204. Attempting to delete a field\nthe code declares NOT_OVERRIDABLE responds 409, since it cannot have an\noverride row in the first place and the operator's intent is\nunsatisfiable. A field only ``SETTINGS_OVERRIDE_ALLOWED_KEYS`` withheld\nmay still carry a row written before the restriction applied, so that\nrow is deleted normally and only the no-row case answers 409.\n\nAfter republishing the snapshot, fires the rebind callbacks for the\nreverted key so a HOT target rebinds to its restored value without\nwaiting for the next background refresh cycle.\n\n:param request: The incoming request; its ``app.state`` carries the\n    sub-app's rebind-callback registry.\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.\n:raises HTTPConflictException: If the field is NOT_OVERRIDABLE and has\n    no row to delete.\n:raises HTTPUnprocessableEntityException: If ``key`` names a\n    ``NESTED_ONLY`` parent (the whole parent cannot be overridden;\n    target an individual ``parent__leaf`` instead).\n:raises HTTPBadGatewayException: For a remote class, when the owning\n    sub-app returns a server error (status >= 500) or is unreachable.",
+        "description": "Revert one override row to the field's declared default.\n\nFor a remote class the DELETE is forwarded to the owning sub-app, which\nowns the idempotency and ``NOT_OVERRIDABLE`` semantics; its status and\n``detail`` are preserved through the proxy.\n\nFor a local class the DELETE is idempotent: deleting a (class, key) pair\nthat has no override row succeeds with 204. Attempting to delete a field\nthe code declares NOT_OVERRIDABLE responds 409, since it cannot have an\noverride row in the first place and the operator's intent is\nunsatisfiable. A field only ``SETTINGS_OVERRIDE.ALLOWED_KEYS`` withheld\nmay still carry a row written before the restriction applied, so that\nrow is deleted normally and only the no-row case answers 409.\n\nAfter republishing the snapshot, fires the rebind callbacks for the\nreverted key so a HOT target rebinds to its restored value without\nwaiting for the next background refresh cycle.\n\n:param request: The incoming request; its ``app.state`` carries the\n    sub-app's rebind-callback registry.\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.\n:raises HTTPConflictException: If the field is NOT_OVERRIDABLE and has\n    no row to delete.\n:raises HTTPUnprocessableEntityException: If ``key`` names a\n    ``NESTED_ONLY`` parent (the whole parent cannot be overridden;\n    target an individual ``parent__leaf`` instead).\n:raises HTTPBadGatewayException: For a remote class, when the owning\n    sub-app returns a server error (status >= 500) or is unreachable.",
         "operationId": "settings_delete_setting_admin_settings__setting_class___key__delete",
         "parameters": [
           {
@@ -1896,7 +2028,9 @@
           }
         ],
         "summary": "Delete Setting",
-        "tags": ["settings"]
+        "tags": [
+          "settings"
+        ]
       },
       "get": {
         "description": "Return one field's metadata and current value.\n\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:return: The structured response for the field.\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.",
@@ -1948,7 +2082,9 @@
           }
         ],
         "summary": "Get Setting",
-        "tags": ["settings"]
+        "tags": [
+          "settings"
+        ]
       }
     },
     "/connectivity-check/": {
@@ -1993,7 +2129,9 @@
           }
         ],
         "summary": "Connectivity Check",
-        "tags": ["connectivity"]
+        "tags": [
+          "connectivity"
+        ]
       }
     },
     "/execute/{task_name}": {
@@ -2056,7 +2194,9 @@
           }
         ],
         "summary": "Execute Task Name",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/history/": {
@@ -2112,6 +2252,48 @@
               "title": "Limit",
               "type": "integer"
             }
+          },
+          {
+            "description": "Sort key; prefix with '-' for descending order.",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "-created_at",
+              "description": "Sort key; prefix with '-' for descending order.",
+              "enum": [
+                "created_at",
+                "-created_at",
+                "executed_by",
+                "-executed_by",
+                "finished_at",
+                "-finished_at",
+                "started_at",
+                "-started_at",
+                "status",
+                "-status"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Case-insensitive search across the searchable columns.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive search across the searchable columns.",
+              "title": "Search"
+            }
           }
         ],
         "responses": {
@@ -2142,7 +2324,9 @@
           }
         ],
         "summary": "List Task History",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       },
       "post": {
         "description": "Create a new task history.\n\n``has_logs`` is not populated on this response -- a row that was just\ncreated has no chunk-store entry or legacy tracking blob yet, so the\nfield defaults to ``False`` on serialization.",
@@ -2185,7 +2369,9 @@
           }
         ],
         "summary": "Create Task History",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/history/latest": {
@@ -2241,7 +2427,9 @@
           }
         ],
         "summary": "Latest Task History",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/history/{task_history_id}": {
@@ -2287,7 +2475,9 @@
           }
         ],
         "summary": "Retrieve Task History",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/history/{task_history_id}/events": {
@@ -2346,7 +2536,9 @@
           }
         ],
         "summary": "List Task History Events",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/history/{task_history_id}/file/": {
@@ -2408,7 +2600,9 @@
           }
         ],
         "summary": "Stream Task History File",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/history/{task_history_id}/files/": {
@@ -2467,7 +2661,9 @@
           }
         ],
         "summary": "List Task History Files",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/history/{task_history_id}/logs/": {
@@ -2553,7 +2749,9 @@
           }
         ],
         "summary": "Stream Task History Logs",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/history/{task_history_id}/stop/": {
@@ -2608,7 +2806,9 @@
           }
         ],
         "summary": "Stop Task History",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/history/{task_history_id}/sync/": {
@@ -2663,7 +2863,9 @@
           }
         ],
         "summary": "Sync Task History",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/hosts/": {
@@ -2713,7 +2915,9 @@
           }
         ],
         "summary": "Get Executor Hosts",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/periodic/": {
@@ -2786,7 +2990,11 @@
           }
         ],
         "summary": "List Periodic Tasks",
-        "tags": ["periodic", "schedule", "tasks"]
+        "tags": [
+          "periodic",
+          "schedule",
+          "tasks"
+        ]
       }
     },
     "/periodic/{periodic_task_id}": {
@@ -2825,7 +3033,11 @@
           }
         ],
         "summary": "Delete Periodic Task",
-        "tags": ["periodic", "schedule", "tasks"]
+        "tags": [
+          "periodic",
+          "schedule",
+          "tasks"
+        ]
       },
       "get": {
         "description": "Retrieve a periodic task by ID.",
@@ -2869,7 +3081,11 @@
           }
         ],
         "summary": "Retrieve Periodic Task",
-        "tags": ["periodic", "schedule", "tasks"]
+        "tags": [
+          "periodic",
+          "schedule",
+          "tasks"
+        ]
       },
       "put": {
         "description": "Update a periodic task.",
@@ -2923,7 +3139,11 @@
           }
         ],
         "summary": "Update Periodic Task",
-        "tags": ["periodic", "schedule", "tasks"]
+        "tags": [
+          "periodic",
+          "schedule",
+          "tasks"
+        ]
       }
     },
     "/stats/{task}": {
@@ -2969,7 +3189,9 @@
           }
         ],
         "summary": "Get Task Stats",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/transform/": {
@@ -3025,7 +3247,9 @@
           }
         ],
         "summary": "Transform Payload",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/{task_name}": {
@@ -3071,7 +3295,9 @@
           }
         ],
         "summary": "Delete Task",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       },
       "get": {
         "description": "Retrieve a task by its name.",
@@ -3115,7 +3341,9 @@
           }
         ],
         "summary": "Get Task",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       },
       "put": {
         "description": "Update an existing task.",
@@ -3169,7 +3397,9 @@
           }
         ],
         "summary": "Update Task",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/{task_name}/periodic/": {
@@ -3219,7 +3449,9 @@
           }
         ],
         "summary": "List Periodic Tasks By Task Name",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       },
       "post": {
         "description": "Create a new periodic task for the specified task name.",
@@ -3273,7 +3505,9 @@
           }
         ],
         "summary": "Create Periodic Task For Task Name",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     },
     "/{task}/history/": {
@@ -3345,6 +3579,48 @@
               "title": "Limit",
               "type": "integer"
             }
+          },
+          {
+            "description": "Sort key; prefix with '-' for descending order.",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "-created_at",
+              "description": "Sort key; prefix with '-' for descending order.",
+              "enum": [
+                "created_at",
+                "-created_at",
+                "executed_by",
+                "-executed_by",
+                "finished_at",
+                "-finished_at",
+                "started_at",
+                "-started_at",
+                "status",
+                "-status"
+              ],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Case-insensitive search across the searchable columns.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive search across the searchable columns.",
+              "title": "Search"
+            }
           }
         ],
         "responses": {
@@ -3375,7 +3651,9 @@
           }
         ],
         "summary": "Get Task History",
-        "tags": ["tasks"]
+        "tags": [
+          "tasks"
+        ]
       }
     }
   }
