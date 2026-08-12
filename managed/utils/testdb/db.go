@@ -36,6 +36,11 @@ const (
 
 	// Variable postgresPasswordFile defines the file where the generated PostgreSQL password is stored.
 	postgresPasswordFile = "/srv/.postgres_password" //nolint:gosec
+
+	testConnMaxLifetime = 5 * time.Minute
+	testConnMaxIdleTime = 1 * time.Minute
+	testMaxIdleConns    = int32(2)
+	testMaxOpenConns    = int32(4)
 )
 
 // postgresPassword returns the PostgreSQL password, reading it from the password file if available.
@@ -52,9 +57,13 @@ func Open(tb testing.TB, setupFixtures models.SetupFixturesMode, migrationVersio
 	tb.Helper()
 
 	setupParams := models.SetupDBParams{
-		Address:  "127.0.0.1:5432",
-		Username: username,
-		Password: postgresPassword(),
+		Address:         "127.0.0.1:5432",
+		Username:        username,
+		Password:        postgresPassword(),
+		ConnMaxLifetime: testConnMaxLifetime,
+		ConnMaxIdleTime: testConnMaxIdleTime,
+		MaxIdleConns:    testMaxIdleConns,
+		MaxOpenConns:    testMaxOpenConns,
 	}
 
 	db, err := models.OpenDB(setupParams)
@@ -94,6 +103,10 @@ func SetupDB(tb testing.TB, db *sql.DB, setupFixtures models.SetupFixturesMode, 
 		Password:         postgresPassword(),
 		SetupFixtures:    setupFixtures,
 		MigrationVersion: migrationVersion,
+		ConnMaxLifetime:  testConnMaxLifetime,
+		ConnMaxIdleTime:  testConnMaxIdleTime,
+		MaxIdleConns:     testMaxIdleConns,
+		MaxOpenConns:     testMaxOpenConns,
 	}
 
 	_, err := models.SetupDB(ctx, db, params)

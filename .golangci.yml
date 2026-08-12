@@ -68,6 +68,7 @@ linters:
         - error
         - empty
         - stdlib
+        - generic   # allow generic types to be returned
         - github.com/percona/pmm/admin/commands.Result
         - github.com/percona/pmm/agent/runner/actions.Action
         - github.com/percona/pmm/managed/services/telemetry.DataSource

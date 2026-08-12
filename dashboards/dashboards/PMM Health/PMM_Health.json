@@ -2189,7 +2189,7 @@
                         "h": 3,
                         "w": 6,
                         "x": 0,
-                        "y": 3
+                        "y": 223
                     },
                     "id": 1071,
                     "options": {
@@ -2252,7 +2252,7 @@
                         "h": 3,
                         "w": 6,
                         "x": 6,
-                        "y": 3
+                        "y": 223
                     },
                     "id": 1080,
                     "options": {
@@ -2315,7 +2315,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 12,
-                        "y": 3
+                        "y": 223
                     },
                     "id": 1078,
                     "options": {
@@ -2382,7 +2382,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 16,
-                        "y": 3
+                        "y": 223
                     },
                     "id": 1082,
                     "options": {
@@ -2446,7 +2446,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 20,
-                        "y": 3
+                        "y": 223
                     },
                     "id": 1081,
                     "options": {
@@ -2544,7 +2544,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 84
+                        "y": 226
                     },
                     "id": 1072,
                     "options": {
@@ -2645,7 +2645,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 84
+                        "y": 226
                     },
                     "id": 1058,
                     "options": {
@@ -2756,7 +2756,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 92
+                        "y": 234
                     },
                     "id": 1075,
                     "options": {
@@ -2849,7 +2849,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 92
+                        "y": 234
                     },
                     "id": 1077,
                     "options": {
@@ -4365,6 +4365,9 @@
                         },
                         "insertNulls": false,
                         "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "fill": "solid"
+                        },
                         "lineWidth": 1,
                         "pointSize": 5,
                         "scaleDistribution": {
@@ -4372,7 +4375,7 @@
                         },
                         "showPoints": "auto",
                         "showValues": false,
-                        "spanNulls": 60000,
+                        "spanNulls": true,
                         "stacking": {
                             "group": "A",
                             "mode": "normal"
@@ -4903,7 +4906,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Heap and allocation throughput.\n\ngo_memstats_mallocs_total - Total number of heap objects allocated, both live and gc-ed.\n\ngo_memstats_frees_total - Total number of heap objects frees.",
+            "description": "Heap objects allocation throughput.\n\ngo_memstats_mallocs_total - Total number of heap objects allocated, both live and gc-ed.\n\ngo_memstats_frees_total - Total number of heap objects frees.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -5031,7 +5034,7 @@
                     "refId": "C"
                 }
             ],
-            "title": "Heap Allocations",
+            "title": "Heap Objects Allocations",
             "transparent": true,
             "type": "timeseries"
         },
@@ -5132,7 +5135,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.3",
+            "pluginVersion": "12.4.5",
             "targets": [
                 {
                     "editorMode": "code",
@@ -5250,7 +5253,7 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.3",
+            "pluginVersion": "12.4.5",
             "targets": [
                 {
                     "expr": "go_goroutines{job=\"pmm-managed\"}",
@@ -5271,7 +5274,186 @@
         },
         {
             "datasource": "Metrics",
-            "description": "go_sql_connections_max_open - Maximum number of open connections to the database.\n\ngo_sql_connections_in_use - The number of connections currently in use.\n\nWait rate.\n\ngo_sql_connections_wait_duration_seconds - The total time blocked waiting for a new connection. If the result is 1.0, it means that at any given moment, exactly one goroutine is completely blocked waiting for a DB connection. If it spikes to 5.0, five goroutines are perpetually blocked. It should be 0 ideally.",
+            "description": "SQL connections used for internal system staff (configurations, periodic jobs, etc).\n\ngo_sql_connections_max_open - Maximum number of open connections to the database.\n\ngo_sql_connections_in_use - The number of connections currently in use.\n\nWait rate.\n\ngo_sql_connections_wait_duration_seconds - The total time blocked waiting for a new connection. If the result is 1.0, it means that at any given moment, exactly one goroutine is completely blocked waiting for a DB connection. If it spikes to 5.0, five goroutines are perpetually blocked. It should be 0 ideally.",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "series",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineStyle": {
+                            "dash": [
+                                10,
+                                10
+                            ],
+                            "fill": "dash"
+                        },
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "showValues": false,
+                        "spanNulls": 60000,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "min": 0,
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": 0
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "blocked go-routines"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.axisPlacement",
+                                "value": "right"
+                            },
+                            {
+                                "id": "unit",
+                                "value": "short"
+                            },
+                            {
+                                "id": "min",
+                                "value": 0
+                            },
+                            {
+                                "id": "custom.lineStyle"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "in-use"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.lineStyle"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "max"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "green",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 74
+            },
+            "id": 1129,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "12.4.5",
+            "targets": [
+                {
+                    "editorMode": "code",
+                    "expr": "go_sql_connections_max_open{job=\"pmm-managed\", db=\"pmm-managed/internal\"}",
+                    "legendFormat": "max",
+                    "range": true,
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "go_sql_connections_in_use{job=\"pmm-managed\", db=\"pmm-managed/internal\"}",
+                    "instant": false,
+                    "legendFormat": "in-use",
+                    "range": true,
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PA58DA793C7250F1B"
+                    },
+                    "editorMode": "code",
+                    "exemplar": false,
+                    "expr": "rate(go_sql_connections_wait_duration_seconds{db=\"pmm-managed/internal\",driver=\"postgres\"}[$__interval])",
+                    "instant": false,
+                    "legendFormat": "blocked go-routines",
+                    "range": true,
+                    "refId": "C"
+                }
+            ],
+            "title": "Internal SQL connections pool",
+            "transparent": true,
+            "type": "timeseries"
+        },
+        {
+            "datasource": "Metrics",
+            "description": "SQL connections used for handling:\n- connections and events from PMM Agents.\n- incoming gRPC/REST requests.\n\ngo_sql_connections_max_open - Maximum number of open connections to the database.\n\ngo_sql_connections_in_use - The number of connections currently in use.\n\nWait rate.\n\ngo_sql_connections_wait_duration_seconds - The total time blocked waiting for a new connection. If the result is 1.0, it means that at any given moment, exactly one goroutine is completely blocked waiting for a DB connection. If it spikes to 5.0, five goroutines are perpetually blocked. It should be 0 ideally.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -5393,11 +5575,11 @@
                     "sort": "none"
                 }
             },
-            "pluginVersion": "12.4.3",
+            "pluginVersion": "12.4.5",
             "targets": [
                 {
                     "editorMode": "code",
-                    "expr": "go_sql_connections_max_open{job=\"pmm-managed\", db=\"pmm-managed\"}",
+                    "expr": "go_sql_connections_max_open{job=\"pmm-managed\", db=\"pmm-managed/api\"}",
                     "legendFormat": "max",
                     "range": true,
                     "refId": "A"
@@ -5409,7 +5591,7 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "go_sql_connections_in_use{job=\"pmm-managed\", db=\"pmm-managed\"}",
+                    "expr": "go_sql_connections_in_use{job=\"pmm-managed\", db=\"pmm-managed/api\"}",
                     "instant": false,
                     "legendFormat": "in-use",
                     "range": true,
@@ -5422,1032 +5604,14 @@
                     },
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "rate(go_sql_connections_wait_duration_seconds{db=\"pmm-managed\",driver=\"postgres\"}[$__interval])",
+                    "expr": "rate(go_sql_connections_wait_duration_seconds{db=\"pmm-managed/api\",driver=\"postgres\"}[$__interval])",
                     "instant": false,
                     "legendFormat": "blocked go-routines",
                     "range": true,
                     "refId": "C"
                 }
             ],
-            "title": "SQL connections pool",
-            "transparent": true,
-            "type": "timeseries"
-        },
-        {
-            "collapsed": false,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 82
-            },
-            "id": 1033,
-            "panels": [],
-            "title": "Grafana",
-            "type": "row"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "Is Grafana UP and running",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "0": {
-                                    "color": "red",
-                                    "index": 1,
-                                    "text": "DOWN"
-                                },
-                                "1": {
-                                    "color": "green",
-                                    "index": 0,
-                                    "text": "UP"
-                                }
-                            },
-                            "type": "value"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "red",
-                                "value": 0
-                            },
-                            {
-                                "color": "green",
-                                "value": 1
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 6,
-                "x": 0,
-                "y": 83
-            },
-            "id": 1059,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.3",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "up{job=\"grafana\"}",
-                    "legendFormat": "__auto",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Grafana Status",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 6,
-                "x": 6,
-                "y": 83
-            },
-            "id": 1047,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.3",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "rate(grafana_database_conn_open[$__interval])",
-                    "instant": false,
-                    "legendFormat": "open conn",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "DB Open Connections",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "total amount of orgs",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 12,
-                "y": 83
-            },
-            "id": 1049,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.3",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "grafana_stat_total_orgs{instance=\"$instance\"}",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Organisations Count",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "total amount of users",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 15,
-                "y": 83
-            },
-            "id": 1029,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "last"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.3",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "grafana_stat_total_users",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "User Count",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "total amount of folders",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 18,
-                "y": 83
-            },
-            "id": 1051,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.3",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "grafana_stat_totals_folder{instance=\"$instance\"}",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Folders Count",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "total amount of dashboards",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 3,
-                "w": 3,
-                "x": 21,
-                "y": 83
-            },
-            "id": 1031,
-            "maxDataPoints": 100,
-            "options": {
-                "colorMode": "none",
-                "graphMode": "area",
-                "justifyMode": "auto",
-                "orientation": "horizontal",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "12.4.3",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "grafana_stat_totals_dashboard",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Dashboard Count",
-            "type": "stat"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "Average user and system CPU time spent in seconds.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "showValues": false,
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "s"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 86
-            },
-            "id": 1039,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "lastNotNull",
-                        "max",
-                        "min"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.3",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "avg(rate(process_cpu_seconds_total{job=\"grafana\"}[$__interval]))",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "CPU Time",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Average CPU Usage",
-            "type": "timeseries"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "Virtual and Resident memory size in bytes, averages over 5 min interval",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "showValues": false,
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "decbytes"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 86
-            },
-            "id": 1037,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "lastNotNull",
-                        "max",
-                        "min"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.3",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "avg(rate(process_resident_memory_bytes{job=\"grafana\"}[$__interval]))",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "Resident Mem",
-                    "range": true,
-                    "refId": "A"
-                },
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "avg(rate(process_virtual_memory_bytes{job=\"grafana\"}[5m]))",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "Virtual Mem",
-                    "range": true,
-                    "refId": "B"
-                }
-            ],
-            "title": "Average Memory Usage",
-            "type": "timeseries"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "http response status",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "showValues": false,
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 94
-            },
-            "id": 1041,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "lastNotNull",
-                        "max",
-                        "min"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "rate(grafana_api_response_status_total[$__interval])",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "API {{ code }}",
-                    "range": true,
-                    "refId": "A"
-                },
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "rate(grafana_page_response_status_total[$__interval])",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "Page {{ code }}",
-                    "range": true,
-                    "refId": "B"
-                },
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "rate(grafana_proxy_response_status_total[$__interval])",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "Proxy {{ code }}",
-                    "range": true,
-                    "refId": "C"
-                }
-            ],
-            "title": "Total Response Statuses",
-            "type": "timeseries"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "api login counters",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "showValues": false,
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 94
-            },
-            "id": 1043,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "mean",
-                        "lastNotNull",
-                        "max",
-                        "min"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "rate(grafana_api_login_post_total[$__interval])",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "POST",
-                    "range": true,
-                    "refId": "A"
-                },
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "rate(grafana_api_login_oauth_total[$__interval])",
-                    "format": "time_series",
-                    "intervalFactor": 2,
-                    "legendFormat": "OAuth",
-                    "range": true,
-                    "refId": "B"
-                }
-            ],
-            "title": "Login Events",
-            "type": "timeseries"
-        },
-        {
-            "datasource": "Metrics",
-            "description": "go_sql_connections_max_open - Maximum number of open connections to the database.\n\ngo_sql_connections_in_use - The number of connections currently in use.\n\nWait rate.\n\ngo_sql_connections_wait_duration_seconds - The total time blocked waiting for a new connection. If the result is 1.0, it means that at any given moment, exactly one goroutine is completely blocked waiting for a DB connection. If it spikes to 5.0, five goroutines are perpetually blocked. It should be 0 ideally.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "series",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "barWidthFactor": 0.6,
-                        "drawStyle": "line",
-                        "fillOpacity": 0,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "auto",
-                        "showValues": false,
-                        "spanNulls": 60000,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 0,
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": 0
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "max"
-                        },
-                        "properties": [
-                            {
-                                "id": "custom.lineStyle",
-                                "value": {
-                                    "dash": [
-                                        10,
-                                        10
-                                    ],
-                                    "fill": "dash"
-                                }
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 102
-            },
-            "id": 1127,
-            "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "list",
-                    "placement": "bottom",
-                    "showLegend": true
-                },
-                "tooltip": {
-                    "hideZeros": false,
-                    "mode": "single",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "12.4.5",
-            "targets": [
-                {
-                    "editorMode": "code",
-                    "expr": "go_sql_stats_connections_max_open{job=\"grafana\", db_name=\"grafana\"}",
-                    "legendFormat": "max",
-                    "range": true,
-                    "refId": "A"
-                },
-                {
-                    "datasource": {
-                        "type": "prometheus",
-                        "uid": "PA58DA793C7250F1B"
-                    },
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "go_sql_stats_connections_in_use{job=\"grafana\",db_name=\"grafana\"}",
-                    "instant": false,
-                    "legendFormat": "in-use",
-                    "range": true,
-                    "refId": "B"
-                }
-            ],
-            "title": "SQL connections pool",
+            "title": "API SQL connections pool",
             "transparent": true,
             "type": "timeseries"
         },
@@ -6457,7 +5621,1026 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 110
+                "y": 82
+            },
+            "id": 1033,
+            "panels": [
+                {
+                    "datasource": "Metrics",
+                    "description": "Is Grafana UP and running",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "0": {
+                                            "color": "red",
+                                            "index": 1,
+                                            "text": "DOWN"
+                                        },
+                                        "1": {
+                                            "color": "green",
+                                            "index": 0,
+                                            "text": "UP"
+                                        }
+                                    },
+                                    "type": "value"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "red",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "green",
+                                        "value": 1
+                                    }
+                                ]
+                            }
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 6,
+                        "x": 0,
+                        "y": 437
+                    },
+                    "id": 1059,
+                    "options": {
+                        "colorMode": "value",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "auto",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "up{job=\"grafana\"}",
+                            "legendFormat": "__auto",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Grafana Status",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 6,
+                        "x": 6,
+                        "y": 437
+                    },
+                    "id": 1047,
+                    "options": {
+                        "colorMode": "value",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "auto",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "rate(grafana_database_conn_open[$__interval])",
+                            "instant": false,
+                            "legendFormat": "open conn",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "DB Open Connections",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "total amount of orgs",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 12,
+                        "y": 437
+                    },
+                    "id": 1049,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "value",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "grafana_stat_total_orgs{instance=\"$instance\"}",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Organisations Count",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "total amount of users",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "match": "null",
+                                        "result": {
+                                            "text": "N/A"
+                                        }
+                                    },
+                                    "type": "special"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 15,
+                        "y": 437
+                    },
+                    "id": 1029,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "none",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "last"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "grafana_stat_total_users",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "User Count",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "total amount of folders",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "match": "null",
+                                        "result": {
+                                            "text": "N/A"
+                                        }
+                                    },
+                                    "type": "special"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 18,
+                        "y": 437
+                    },
+                    "id": 1051,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "value",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "grafana_stat_totals_folder{instance=\"$instance\"}",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Folders Count",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "total amount of dashboards",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "thresholds"
+                            },
+                            "mappings": [
+                                {
+                                    "options": {
+                                        "match": "null",
+                                        "result": {
+                                            "text": "N/A"
+                                        }
+                                    },
+                                    "type": "special"
+                                }
+                            ],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "none"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 3,
+                        "w": 3,
+                        "x": 21,
+                        "y": 437
+                    },
+                    "id": 1031,
+                    "maxDataPoints": 100,
+                    "options": {
+                        "colorMode": "none",
+                        "graphMode": "area",
+                        "justifyMode": "auto",
+                        "orientation": "horizontal",
+                        "percentChangeColorMode": "standard",
+                        "reduceOptions": {
+                            "calcs": [
+                                "lastNotNull"
+                            ],
+                            "fields": "",
+                            "values": false
+                        },
+                        "showPercentChange": false,
+                        "textMode": "auto",
+                        "wideLayout": true
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "grafana_stat_totals_dashboard",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Dashboard Count",
+                    "type": "stat"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Average user and system CPU time spent in seconds.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "showValues": false,
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "s"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 458
+                    },
+                    "id": 1039,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "lastNotNull",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg(rate(process_cpu_seconds_total{job=\"grafana\"}[$__interval]))",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "CPU Time",
+                            "range": true,
+                            "refId": "A"
+                        }
+                    ],
+                    "title": "Average CPU Usage",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "Virtual and Resident memory size in bytes, averages over 5 min interval",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "showValues": false,
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "decbytes"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 12,
+                        "y": 458
+                    },
+                    "id": 1037,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "lastNotNull",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg(rate(process_resident_memory_bytes{job=\"grafana\"}[$__interval]))",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "Resident Mem",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "avg(rate(process_virtual_memory_bytes{job=\"grafana\"}[5m]))",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "Virtual Mem",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "Average Memory Usage",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "http response status",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "showValues": false,
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 0,
+                        "y": 466
+                    },
+                    "id": 1041,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "lastNotNull",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "rate(grafana_api_response_status_total[$__interval])",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "API {{ code }}",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "rate(grafana_page_response_status_total[$__interval])",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "Page {{ code }}",
+                            "range": true,
+                            "refId": "B"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "rate(grafana_proxy_response_status_total[$__interval])",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "Proxy {{ code }}",
+                            "range": true,
+                            "refId": "C"
+                        }
+                    ],
+                    "title": "Total Response Statuses",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "api login counters",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "text",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 10,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "never",
+                                "showValues": false,
+                                "spanNulls": false,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "mappings": [],
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 12,
+                        "y": 466
+                    },
+                    "id": 1043,
+                    "options": {
+                        "legend": {
+                            "calcs": [
+                                "mean",
+                                "lastNotNull",
+                                "max",
+                                "min"
+                            ],
+                            "displayMode": "table",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "multi",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "rate(grafana_api_login_post_total[$__interval])",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "POST",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": "Metrics",
+                            "editorMode": "code",
+                            "expr": "rate(grafana_api_login_oauth_total[$__interval])",
+                            "format": "time_series",
+                            "intervalFactor": 2,
+                            "legendFormat": "OAuth",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "Login Events",
+                    "type": "timeseries"
+                },
+                {
+                    "datasource": "Metrics",
+                    "description": "go_sql_connections_max_open - Maximum number of open connections to the database.\n\ngo_sql_connections_in_use - The number of connections currently in use.\n\nWait rate.\n\ngo_sql_connections_wait_duration_seconds - The total time blocked waiting for a new connection. If the result is 1.0, it means that at any given moment, exactly one goroutine is completely blocked waiting for a DB connection. If it spikes to 5.0, five goroutines are perpetually blocked. It should be 0 ideally.",
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": {
+                                "mode": "palette-classic"
+                            },
+                            "custom": {
+                                "axisBorderShow": false,
+                                "axisCenteredZero": false,
+                                "axisColorMode": "series",
+                                "axisLabel": "",
+                                "axisPlacement": "auto",
+                                "barAlignment": 0,
+                                "barWidthFactor": 0.6,
+                                "drawStyle": "line",
+                                "fillOpacity": 0,
+                                "gradientMode": "none",
+                                "hideFrom": {
+                                    "legend": false,
+                                    "tooltip": false,
+                                    "viz": false
+                                },
+                                "insertNulls": false,
+                                "lineInterpolation": "linear",
+                                "lineWidth": 1,
+                                "pointSize": 5,
+                                "scaleDistribution": {
+                                    "type": "linear"
+                                },
+                                "showPoints": "auto",
+                                "showValues": false,
+                                "spanNulls": 60000,
+                                "stacking": {
+                                    "group": "A",
+                                    "mode": "none"
+                                },
+                                "thresholdsStyle": {
+                                    "mode": "off"
+                                }
+                            },
+                            "decimals": 0,
+                            "mappings": [],
+                            "min": 0,
+                            "thresholds": {
+                                "mode": "absolute",
+                                "steps": [
+                                    {
+                                        "color": "green",
+                                        "value": 0
+                                    },
+                                    {
+                                        "color": "red",
+                                        "value": 80
+                                    }
+                                ]
+                            },
+                            "unit": "short"
+                        },
+                        "overrides": [
+                            {
+                                "matcher": {
+                                    "id": "byName",
+                                    "options": "max"
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.lineStyle",
+                                        "value": {
+                                            "dash": [
+                                                10,
+                                                10
+                                            ],
+                                            "fill": "dash"
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "gridPos": {
+                        "h": 8,
+                        "w": 12,
+                        "x": 12,
+                        "y": 474
+                    },
+                    "id": 1127,
+                    "options": {
+                        "legend": {
+                            "calcs": [],
+                            "displayMode": "list",
+                            "placement": "bottom",
+                            "showLegend": true
+                        },
+                        "tooltip": {
+                            "hideZeros": false,
+                            "mode": "single",
+                            "sort": "none"
+                        }
+                    },
+                    "pluginVersion": "12.4.5",
+                    "targets": [
+                        {
+                            "editorMode": "code",
+                            "expr": "go_sql_stats_connections_max_open{job=\"grafana\", db_name=\"grafana\"}",
+                            "legendFormat": "max",
+                            "range": true,
+                            "refId": "A"
+                        },
+                        {
+                            "datasource": {
+                                "type": "prometheus",
+                                "uid": "PA58DA793C7250F1B"
+                            },
+                            "editorMode": "code",
+                            "exemplar": false,
+                            "expr": "go_sql_stats_connections_in_use{job=\"grafana\",db_name=\"grafana\"}",
+                            "instant": false,
+                            "legendFormat": "in-use",
+                            "range": true,
+                            "refId": "B"
+                        }
+                    ],
+                    "title": "SQL connections pool",
+                    "transparent": true,
+                    "type": "timeseries"
+                }
+            ],
+            "title": "Grafana",
+            "type": "row"
+        },
+        {
+            "collapsed": true,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 83
             },
             "id": 1009,
             "panels": [
@@ -6506,7 +6689,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 0,
-                        "y": 230
+                        "y": 84
                     },
                     "id": 1011,
                     "maxDataPoints": 100,
@@ -6591,7 +6774,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 5,
-                        "y": 230
+                        "y": 84
                     },
                     "id": 1013,
                     "maxDataPoints": 100,
@@ -6684,7 +6867,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 10,
-                        "y": 230
+                        "y": 84
                     },
                     "id": 1015,
                     "maxDataPoints": 100,
@@ -6766,7 +6949,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 15,
-                        "y": 230
+                        "y": 84
                     },
                     "id": 1017,
                     "maxDataPoints": 100,
@@ -6848,7 +7031,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 19,
-                        "y": 230
+                        "y": 84
                     },
                     "id": 1019,
                     "maxDataPoints": 100,
@@ -6948,13 +7131,38 @@
                             },
                             "unit": "ops"
                         },
-                        "overrides": []
+                        "overrides": [
+                            {
+                                "__systemRef": "hideSeriesFrom",
+                                "matcher": {
+                                    "id": "byNames",
+                                    "options": {
+                                        "mode": "exclude",
+                                        "names": [
+                                            "/api/v1/write"
+                                        ],
+                                        "prefix": "All except:",
+                                        "readOnly": true
+                                    }
+                                },
+                                "properties": [
+                                    {
+                                        "id": "custom.hideFrom",
+                                        "value": {
+                                            "legend": false,
+                                            "tooltip": true,
+                                            "viz": true
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
                     },
                     "gridPos": {
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 233
+                        "y": 87
                     },
                     "id": 1021,
                     "options": {
@@ -7056,7 +7264,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 233
+                        "y": 87
                     },
                     "id": 1023,
                     "options": {
@@ -7156,7 +7364,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 0,
-                        "y": 241
+                        "y": 95
                     },
                     "id": 1025,
                     "options": {
@@ -7257,7 +7465,7 @@
                         "h": 7,
                         "w": 12,
                         "x": 12,
-                        "y": 241
+                        "y": 95
                     },
                     "id": 1027,
                     "links": [
@@ -7288,12 +7496,14 @@
                     "targets": [
                         {
                             "datasource": "Metrics",
+                            "editorMode": "code",
                             "expr": "vm_cache_entries{job=\"$job\", instance=~\"$instance\", type=\"storage/hour_metric_ids\"}",
                             "format": "time_series",
                             "hide": true,
                             "interval": "$interval",
                             "intervalFactor": 1,
                             "legendFormat": "Time Series",
+                            "range": true,
                             "refId": "A"
                         },
                         {
@@ -7317,7 +7527,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 111
+                "y": 84
             },
             "id": 1084,
             "panels": [
@@ -7366,7 +7576,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 0,
-                        "y": 231
+                        "y": 681
                     },
                     "id": 1094,
                     "options": {
@@ -7445,7 +7655,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 4,
-                        "y": 231
+                        "y": 681
                     },
                     "id": 1095,
                     "options": {
@@ -7524,7 +7734,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 8,
-                        "y": 231
+                        "y": 681
                     },
                     "id": 1096,
                     "options": {
@@ -7604,7 +7814,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 12,
-                        "y": 231
+                        "y": 681
                     },
                     "id": 1099,
                     "options": {
@@ -7684,7 +7894,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 16,
-                        "y": 231
+                        "y": 681
                     },
                     "id": 1098,
                     "options": {
@@ -7764,7 +7974,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 20,
-                        "y": 231
+                        "y": 681
                     },
                     "id": 1097,
                     "options": {
@@ -7862,7 +8072,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 0,
-                        "y": 234
+                        "y": 684
                     },
                     "id": 1101,
                     "maxDataPoints": 200,
@@ -7960,7 +8170,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 234
+                        "y": 684
                     },
                     "id": 1103,
                     "maxDataPoints": 200,
@@ -8068,7 +8278,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 0,
-                        "y": 239
+                        "y": 689
                     },
                     "id": 1105,
                     "maxDataPoints": 200,
@@ -8177,7 +8387,7 @@
                         "h": 5,
                         "w": 12,
                         "x": 12,
-                        "y": 239
+                        "y": 689
                     },
                     "id": 1107,
                     "maxDataPoints": 200,
@@ -8221,7 +8431,7 @@
                 "h": 1,
                 "w": 24,
                 "x": 0,
-                "y": 112
+                "y": 85
             },
             "id": 1007,
             "panels": [
@@ -8280,7 +8490,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 0,
-                        "y": 263
+                        "y": 713
                     },
                     "id": 63,
                     "maxDataPoints": 100,
@@ -8328,7 +8538,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 4,
-                        "y": 263
+                        "y": 713
                     },
                     "id": 1001,
                     "options": {
@@ -8369,7 +8579,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 9,
-                        "y": 263
+                        "y": 713
                     },
                     "id": 65,
                     "options": {
@@ -8445,7 +8655,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 14,
-                        "y": 263
+                        "y": 713
                     },
                     "id": 67,
                     "links": [
@@ -8532,7 +8742,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 19,
-                        "y": 263
+                        "y": 713
                     },
                     "id": 69,
                     "links": [
@@ -8632,7 +8842,7 @@
                         "h": 3,
                         "w": 4,
                         "x": 0,
-                        "y": 266
+                        "y": 716
                     },
                     "id": 85,
                     "links": [
@@ -8721,7 +8931,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 4,
-                        "y": 266
+                        "y": 716
                     },
                     "id": 86,
                     "maxDataPoints": 100,
@@ -8804,7 +9014,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 9,
-                        "y": 266
+                        "y": 716
                     },
                     "id": 1005,
                     "links": [
@@ -8892,7 +9102,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 14,
-                        "y": 266
+                        "y": 716
                     },
                     "id": 70,
                     "links": [
@@ -8980,7 +9190,7 @@
                         "h": 3,
                         "w": 5,
                         "x": 19,
-                        "y": 266
+                        "y": 716
                     },
                     "id": 68,
                     "links": [
@@ -9137,7 +9347,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 269
+                        "y": 719
                     },
                     "id": 23,
                     "options": {
@@ -9293,7 +9503,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 269
+                        "y": 719
                     },
                     "id": 34,
                     "options": {
@@ -9403,7 +9613,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 0,
-                        "y": 277
+                        "y": 727
                     },
                     "id": 36,
                     "options": {
@@ -9540,7 +9750,7 @@
                         "h": 8,
                         "w": 12,
                         "x": 12,
-                        "y": 277
+                        "y": 727
                     },
                     "id": 26,
                     "options": {
@@ -9732,6 +9942,6 @@
     "timezone": "",
     "title": "PMM Health",
     "uid": "pmm-health",
-    "version": 6,
+    "version": 4,
     "weekStart": ""
 }
