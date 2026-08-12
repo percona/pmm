@@ -1,4 +1,4 @@
-import { MRT_ColumnDef, TextInput } from '@percona/percona-ui';
+import { MRT_ColumnDef, TextInput } from '@percona/peak-ui';
 import { AlertThresholdRow } from './AlertThresholds.types';
 import ResetValueCell from './reset-value-cell';
 

@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { Table } from '@percona/percona-ui';
+import { Table } from '@percona/peak-ui';
 import { OpenAlertThresholdsModalMessage } from '@pmm/shared';
 import { Modal } from 'components/modal';
 import {
