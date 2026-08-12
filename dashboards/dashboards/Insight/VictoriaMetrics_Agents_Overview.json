@@ -486,6 +486,7 @@
             "type": "stat"
         },
         {
+            "description": "vmagent status per node over the selected time range. Use the pagination controls at the bottom of the panel when many nodes are selected.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -559,11 +560,12 @@
                 "legend": {
                     "displayMode": "list",
                     "placement": "bottom",
-                    "showLegend": true
+                    "showLegend": false
                 },
                 "mergeValues": true,
+                "perPage": 8,
                 "rowHeight": 0.9,
-                "showValue": "always",
+                "showValue": "auto",
                 "tooltip": {
                     "mode": "single",
                     "sort": "none"
