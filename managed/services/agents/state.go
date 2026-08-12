@@ -331,7 +331,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		l.Debugf("sendSetStateRequest:\n%s\n", prototext.Format(logger.RedactMessage(state)))
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(state)
+	resp, err := agent.channel.SendAndWaitResponse(ctx, state)
 	if err != nil {
 		return err
 	}

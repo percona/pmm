@@ -452,7 +452,7 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
-	resp, err := agent.channel.SendAndWaitResponseWithContext(ctx, &agentv1.Ping{})
+	resp, err := agent.channel.SendAndWaitResponse(ctx, &agentv1.Ping{})
 	if err != nil {
 		return err
 	}

@@ -34,12 +34,9 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-const (
-	agentRequestsCap = 32
-)
+const agentRequestsCap = 32
 
-// errWaitAborted is returned internally when the caller stopped waiting for a response.
-var errWaitAborted = errors.New("wait aborted")
+var errChannelClosed = errors.New("channel is closed")
 
 // AgentRequest represents an request from agent.
 // It is similar to agentv1.AgentMessage except it can contain only requests,
@@ -173,33 +170,12 @@ func (c *Channel) Send(resp *ServerResponse) {
 	c.send(msg)
 }
 
-// SendAndWaitResponse sends request to pmm-agent, blocks until response is available.
-// If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancellation.
-// If the channel is closed, the payload is nil and the error says so.
+// SendAndWaitResponse sends request to pmm-agent and blocks until the response is available,
+// the channel is closed, or ctx is done, whichever happens first.
+// If the subscription got canceled or the channel is closed, the returned payload is nil and the
+// error contains the reason. On ctx expiration the subscription is dropped and ctx.Err() is returned.
 // It is no-op once channel is closed (see Wait).
-//
-// It waits indefinitely while the channel is open, so callers that must not hang on a silently
-// dropped connection should use SendAndWaitResponseWithContext instead.
-func (c *Channel) SendAndWaitResponse(payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
-	return c.sendAndWaitResponse(nil, payload)
-}
-
-// SendAndWaitResponseWithContext sends request to pmm-agent and blocks until the response is
-// available, the channel is closed, or ctx is done, whichever happens first.
-// On ctx expiration the subscription is dropped and ctx.Err() is returned.
-// It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponseWithContext(ctx context.Context, payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
-	resp, err := c.sendAndWaitResponse(ctx.Done(), payload)
-	if errors.Is(err, errWaitAborted) {
-		return nil, ctx.Err()
-	}
-
-	return resp, err
-}
-
-// sendAndWaitResponse sends the request and waits for the response until done is closed.
-// A nil done channel means waiting indefinitely. It returns errWaitAborted when done fires first.
-func (c *Channel) sendAndWaitResponse(done <-chan struct{}, payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
+func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
 	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
@@ -211,23 +187,23 @@ func (c *Channel) sendAndWaitResponse(done <-chan struct{}, payload agentv1.Serv
 	select {
 	case resp, ok := <-ch:
 		if !ok {
-			return nil, errors.New("channel is closed")
+			return nil, errChannelClosed
 		}
 		return resp.Payload, resp.Error
 
-	case <-done:
+	case <-ctx.Done():
 		// select picks a ready case at random, so the response may already have been delivered
-		// when done fired, and it may land while we are giving up. Marking the request
+		// when ctx expired, and it may land while we are giving up. Marking the request
 		// abandoned settles that: it succeeds only while nothing has taken the subscription,
 		// and once taken the publisher is committed to sending, so the response is imminent.
 		// Reporting a timeout for a response that did arrive would be wrong.
 		if c.unsubscribe(id) {
-			return nil, errWaitAborted
+			return nil, ctx.Err()
 		}
 
 		resp, ok := <-ch
 		if !ok {
-			return nil, errors.New("channel is closed")
+			return nil, errChannelClosed
 		}
 		return resp.Payload, resp.Error
 	}

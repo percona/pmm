@@ -48,7 +48,7 @@ func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 
 var _ agentv1.AgentServiceServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(*Channel) error, expected error) (agentv1.AgentService_ConnectClient, *grpc.ClientConn) {
+func setup(t *testing.T, connect func(context.Context, *Channel) error, expected error) (agentv1.AgentService_ConnectClient, *grpc.ClientConn) {
 	t.Helper()
 
 	// start server with given connect handler
@@ -68,7 +68,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected error) (agentv1.
 	agentv1.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: func(stream agentv1.AgentService_ConnectServer) error {
 			channel = New(stream.Context(), stream)
-			return connect(channel)
+			return connect(stream.Context(), channel)
 		},
 	})
 	serveError := make(chan error)
@@ -111,7 +111,7 @@ func TestAgentRequest(t *testing.T) {
 	require.Greater(t, count, agentRequestsCap)
 
 	var channel *Channel
-	connect := func(ch *Channel) error {
+	connect := func(_ context.Context, ch *Channel) error {
 		channel = ch // store to check metrics below
 
 		for i := uint32(1); i <= count; i++ {
@@ -163,9 +163,9 @@ func TestServerRequest(t *testing.T) {
 	const count = 50
 	require.Greater(t, count, agentRequestsCap)
 
-	connect := func(ch *Channel) error {
+	connect := func(ctx context.Context, ch *Channel) error {
 		for i := uint32(1); i <= count; i++ {
-			resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
+			resp, err := ch.SendAndWaitResponse(ctx, &agentv1.Ping{})
 			require.NoError(t, err)
 			pong := resp.(*agentv1.Pong)
 			ts := pong.CurrentTime.AsTime()
@@ -203,19 +203,19 @@ func TestServerRequestTimeout(t *testing.T) {
 	t.Parallel()
 
 	timedOut := make(chan struct{})
-	connect := func(ch *Channel) error {
+	connect := func(ctx context.Context, ch *Channel) error {
 		// connect runs on the gRPC handler goroutine while the test goroutine waits on
 		// timedOut. Closing it from a defer keeps a failed require, which exits this
 		// goroutine, from deadlocking the test instead of failing it.
 		func() {
 			defer close(timedOut)
 
-			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+			ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
 			defer cancel()
 
 			// The agent never answers this ping, exactly as it would on a silently dropped
 			// connection. Waiting for it must not block forever. See PMM-15310.
-			resp, err := ch.SendAndWaitResponseWithContext(ctx, &agentv1.Ping{})
+			resp, err := ch.SendAndWaitResponse(ctx, &agentv1.Ping{})
 			assert.Nil(t, resp)
 			require.ErrorIs(t, err, context.DeadlineExceeded)
 
@@ -245,15 +245,15 @@ func TestLateResponseAfterTimeout(t *testing.T) {
 
 	timedOut := make(chan struct{})
 	lateSent := make(chan struct{})
-	connect := func(ch *Channel) error {
+	connect := func(ctx context.Context, ch *Channel) error {
 		// See the note in TestServerRequestTimeout on closing timedOut from a defer.
 		func() {
 			defer close(timedOut)
 
-			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+			ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
 			defer cancel()
 
-			_, err := ch.SendAndWaitResponseWithContext(ctx, &agentv1.Ping{})
+			_, err := ch.SendAndWaitResponse(ctx, &agentv1.Ping{})
 			require.ErrorIs(t, err, context.DeadlineExceeded)
 		}()
 
@@ -261,7 +261,7 @@ func TestLateResponseAfterTimeout(t *testing.T) {
 
 		// The second exchange proves the late response for ID 1 has already been handled,
 		// because runReceiver processes messages in order.
-		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
+		resp, err := ch.SendAndWaitResponse(ctx, &agentv1.Ping{})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 
@@ -373,7 +373,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	t.Parallel()
 
 	errUnimplemented := status.Error(codes.Unimplemented, "Test error")
-	connect := func(ch *Channel) error {
+	connect := func(_ context.Context, ch *Channel) error {
 		req := <-ch.Requests()
 		require.NotNil(t, req)
 		assert.EqualValues(t, 1, req.ID)
@@ -398,7 +398,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 	t.Parallel()
 
-	connect := func(ch *Channel) error {
+	connect := func(_ context.Context, ch *Channel) error {
 		req := <-ch.Requests()
 		require.NotNil(t, req)
 		assert.EqualValues(t, 1, req.ID)
@@ -423,8 +423,8 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 func TestAgentClosesStream(t *testing.T) {
 	t.Parallel()
 
-	connect := func(ch *Channel) error {
-		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
+	connect := func(ctx context.Context, ch *Channel) error {
+		resp, err := ch.SendAndWaitResponse(ctx, &agentv1.Ping{})
 		require.Errorf(t, err, "channel is closed")
 		assert.Nil(t, resp)
 
@@ -445,8 +445,8 @@ func TestAgentClosesStream(t *testing.T) {
 func TestAgentClosesConnection(t *testing.T) {
 	t.Parallel()
 
-	connect := func(ch *Channel) error {
-		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
+	connect := func(ctx context.Context, ch *Channel) error {
+		resp, err := ch.SendAndWaitResponse(ctx, &agentv1.Ping{})
 		require.Errorf(t, err, "channel is closed")
 		assert.Nil(t, resp)
 
@@ -466,7 +466,7 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 	t.Parallel()
 
 	invalidIDSent := make(chan struct{})
-	connect := func(ch *Channel) error {
+	connect := func(_ context.Context, ch *Channel) error {
 		<-invalidIDSent
 		select {
 		case req := <-ch.Requests():
@@ -515,7 +515,7 @@ func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
 
 	stop := make(chan struct{})
 	stopServer := make(chan struct{})
-	connect := func(_ *Channel) error {
+	connect := func(_ context.Context, _ *Channel) error {
 		<-stopServer
 		close(stop)
 		return nil
