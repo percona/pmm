@@ -42,8 +42,8 @@ const (
 const defaultPMMServerNodeID = "pmm-server"
 
 // PMMServerNodeID is a special Node ID representing PMM Server Node.
-// It takes the value of "pmm-server" in regular non-HA setups and in Active/Passive HA setups,
-// while in Active/Active HA setups it is set to a dynamically generated UUID.
+// It takes the value of "pmm-server" in non-HA setups, while in HA setups it is set to a dynamically
+// generated UUID: every replica registers a PMM Server Node of its own.
 var PMMServerNodeID = defaultPMMServerNodeID
 
 // Node represents Node as stored in database.
