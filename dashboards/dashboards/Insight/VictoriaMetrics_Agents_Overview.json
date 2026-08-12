@@ -492,7 +492,7 @@
             "type": "stat"
         },
         {
-            "description": "vmagent status per node over the selected time range. Use the pagination controls at the bottom of the panel when many nodes are selected.",
+            "description": "vmagent status per node over the selected time range. Nodes that are down are listed first. Use the pagination controls at the bottom of the panel when many nodes are selected.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -580,7 +580,7 @@
             "pluginVersion": "7.1.3",
             "targets": [
                 {
-                    "expr": "sum(up{node_name=~\"$node_name\",agent_type=\"vmagent\"} offset 3s) by (node_name)",
+                    "expr": "sort(sum(up{node_name=~\"$node_name\",agent_type=\"vmagent\"} offset 3s) by (node_name))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "$interval",
