@@ -173,7 +173,9 @@ func (c *Channel) Send(resp *ServerResponse) {
 // SendAndWaitResponse sends request to pmm-agent and blocks until the response is available,
 // the channel is closed, or ctx is done, whichever happens first.
 // If the subscription got canceled or the channel is closed, the returned payload is nil and the
-// error contains the reason. On ctx expiration the subscription is dropped and ctx.Err() is returned.
+// error contains the reason.
+// When ctx is done it returns ctx.Err(), unless the response had already been delivered by then, in
+// which case that response is returned instead.
 // It is no-op once channel is closed (see Wait).
 func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.ServerRequestPayload) (agentv1.AgentResponsePayload, error) { //nolint:ireturn
 	id := c.lastSentRequestID.Add(1)
@@ -196,7 +198,8 @@ func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.Serve
 		// when ctx expired, and it may land while we are giving up. Marking the request
 		// abandoned settles that: it succeeds only while nothing has taken the subscription,
 		// and once taken the publisher is committed to sending, so the response is imminent.
-		// Reporting a timeout for a response that did arrive would be wrong.
+		// Reporting a timeout for a response that did arrive would be wrong - for the stale
+		// connection probe it decides whether a live agent gets kicked.
 		if c.abandon(id) {
 			return nil, ctx.Err()
 		}
