@@ -338,7 +338,7 @@ func assertNodeExists(t *testing.T, q *reform.Querier, nodeID string) {
 	require.NoError(t, err)
 }
 
-func TestStaleHANodes(t *testing.T) {
+func TestFindStaleHANodes(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -372,7 +372,7 @@ func TestStaleHANodes(t *testing.T) {
 		defer teardown(t)
 
 		peers := []string{"pmm-ha-0.pmm-ha.pmm.svc.cluster.local:9761", " pmm-ha-1.pmm-ha.pmm.svc.cluster.local "}
-		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
 		require.NoError(t, err)
 
 		// neither the live replica, the monitored nodes nor the pre-HA pmm-server Node are reported
@@ -385,7 +385,7 @@ func TestStaleHANodes(t *testing.T) {
 
 		// a trailing comma in PMM_HA_PEERS, or a blank element in the list the chart joins
 		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761", "", "   "}
-		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
 		require.NoError(t, err)
 
 		assertStale(t, stale, "ha-node-2")
@@ -407,7 +407,7 @@ func TestStaleHANodes(t *testing.T) {
 
 		// what the chart renders at replicas: 1 - a single entry, and it is this pod
 		peers := []string{"pmm-ha-0.monitoring-service.pmm.svc.cluster.local"}
-		stale, err := models.StaleHANodes(q, "pmm-ha-0", peers)
+		stale, err := models.FindStaleHANodes(q, "pmm-ha-0", peers)
 		require.NoError(t, err)
 
 		// both departed replicas in one sweep, the survivor's own Node untouched
@@ -420,7 +420,7 @@ func TestStaleHANodes(t *testing.T) {
 
 		// a dotless host with a port is what a hand-written PMM_HA_PEERS looks like
 		peers := []string{"pmm-ha-1.pmm-ha:9761", "pmm-ha-2:9761"}
-		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
 		require.NoError(t, err)
 
 		assertStale(t, stale)
@@ -451,7 +451,7 @@ func TestStaleHANodes(t *testing.T) {
 		}
 
 		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761"}
-		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
 		require.NoError(t, err)
 
 		assertStale(t, stale)
@@ -472,7 +472,7 @@ func TestStaleHANodes(t *testing.T) {
 		}))
 
 		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761"}
-		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
 		require.NoError(t, err)
 
 		assertStale(t, stale)
@@ -504,7 +504,7 @@ func TestStaleHANodes(t *testing.T) {
 		}
 
 		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761"}
-		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
 		require.NoError(t, err)
 
 		assertStale(t, stale)
@@ -521,7 +521,7 @@ func TestStaleHANodes(t *testing.T) {
 		require.NoError(t, models.RemoveService(q, service.ServiceID, models.RemoveCascade))
 
 		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761"}
-		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
 		require.NoError(t, err)
 
 		assertStale(t, stale, "ha-node-2")
@@ -542,28 +542,42 @@ func TestStaleHANodes(t *testing.T) {
 		require.NoError(t, models.RemoveService(q, service.ServiceID, models.RemoveCascade))
 
 		peers := []string{"pmm-ha-0.pmm-ha:9761", "pmm-ha-1.pmm-ha:9761"}
-		stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
+		stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
 		require.NoError(t, err)
 
 		assertStale(t, stale, "ha-node-2")
 	})
 
-	t.Run("ReportsNothingWhenPeersCantBeTrusted", func(t *testing.T) {
+	t.Run("ReportsNothingWhenPeersCarryNoNames", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
 		for _, peers := range [][]string{
-			{"pmm-ha-2.pmm-ha:9761"},                      // lists only the other replica
 			{"10.244.1.7:9761", "10.244.2.8:9761"},        // no node names to read
 			{"pmm-ha-1.pmm-ha:9761", "10.244.2.8:9761"},   // mixed: one entry hides a live replica
 			{"pmm-ha-1.pmm-ha:9761", "pmm-ha-2/10.0.0.2"}, // memberlist "name/address" form
 			{"pmm-ha-1.pmm-ha:9761", "2001:db8::7"},       // an unbracketed IPv6 entry hides a live replica
 			{"pmm-ha-1.pmm-ha:9761", "[2001:db8::7]:9761"},
-			{"", "   "}, // only blank entries, so nothing is left to compare against
+		} {
+			stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
+			require.NoError(t, err, "peers: %v", peers)
+
+			assertStale(t, stale)
+		}
+	})
+
+	t.Run("FailsWhenPeersDontDescribeThisNode", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		for _, peers := range [][]string{
+			{"pmm-ha-2.pmm-ha:9761"}, // lists only the other replica
+			{"", "   "},              // only blank entries, so nothing is left to compare against
+			{},
 			nil,
 		} {
-			stale, err := models.StaleHANodes(q, "pmm-ha-1", peers)
-			require.NoError(t, err, "peers: %v", peers)
+			stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
+			require.Error(t, err, "peers: %v", peers)
 
 			assertStale(t, stale)
 		}
@@ -621,7 +635,7 @@ func TestRemoveStaleHANode(t *testing.T) {
 			return models.RemoveStaleHANode(tx.Querier, "ha-node-2")
 		}))
 
-		// what a replica sees when another one won the race; removeStaleHANodes reads this as
+		// what a replica sees when another one won the race; RemoveStaleHANodes reads this as
 		// "already removed by another replica" rather than as a failure
 		err := db.InTransaction(func(tx *reform.TX) error {
 			return models.RemoveStaleHANode(tx.Querier, "ha-node-2")
@@ -659,7 +673,7 @@ func TestRemoveStaleHANode(t *testing.T) {
 		db := setup(t)
 		q := db.Querier
 
-		// a Service bound to the stale replica's pmm-agent between StaleHANodes and the removal
+		// a Service bound to the stale replica's pmm-agent between FindStaleHANodes and the removal
 		for _, str := range []reform.Struct{
 			&models.Service{
 				ServiceID:   "rds-service",

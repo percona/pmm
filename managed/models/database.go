@@ -1297,8 +1297,6 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, err
 	}
 
-	removeStaleHANodes(ctx, db, params)
-
 	return db, nil
 }
 
@@ -1519,17 +1517,24 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	})
 }
 
-// removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are
-// cosmetic, so this runs outside the migration transaction and only logs failures: tidying them up
-// must never keep a replica from starting.
-func removeStaleHANodes(ctx context.Context, db *reform.DB, params SetupDBParams) {
-	if params.HANodeID == "" || params.SetupFixtures == SkipFixtures {
+// RemoveStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are
+// cosmetic, so failures are only logged and never returned: tidying them up must not take a replica
+// with it.
+//
+// Register it as a leader service, so one replica sweeps at a time and the sweep repeats on every
+// failover rather than only at startup. It is still written to tolerate a concurrent sweep: each
+// Node is removed in a transaction of its own, and one that another replica already took is
+// tolerated, so losing leadership half-way through cannot leave a Node partially removed.
+//
+// The localHANodeID argument is the calling replica's own PMM_HA_NODE_ID; see FindStaleHANodes.
+func RemoveStaleHANodes(ctx context.Context, db *reform.DB, localHANodeID string, haPeers []string) {
+	if localHANodeID == "" {
 		return
 	}
 
-	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": params.HANodeID})
+	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": localHANodeID})
 
-	nodes, err := StaleHANodes(db.WithContext(ctx), params.HANodeID, params.HAPeers)
+	nodes, err := FindStaleHANodes(db.WithContext(ctx), localHANodeID, haPeers)
 	if err != nil {
 		l.WithError(err).Warn("Failed to look for stale HA nodes.")
 		return
@@ -1549,7 +1554,8 @@ func removeStaleHANodes(ctx context.Context, db *reform.DB, params SetupDBParams
 		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
 			nodeL.WithError(err).Info("Stale HA node was already removed by another replica.")
 		case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
-			nodeL.WithError(err).Warn("Startup was cancelled, stopping the removal of stale HA nodes.")
+			// Shutdown, or this replica is no longer the leader. The next leader sweeps again.
+			nodeL.WithError(err).Info("Stopped removing stale HA nodes, the context was cancelled.")
 			return
 		default:
 			nodeL.WithError(err).Warn("Failed to remove a stale HA node, keeping it.")
