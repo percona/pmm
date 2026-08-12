@@ -47,16 +47,6 @@ const IS_DEV = import.meta.env.DEV;
 
 const isRefreshRequest = (url: string) => url.includes('/oauth/refresh');
 
-/**
- * A 200 HTML response (e.g. a follow of a login redirect) means the session
- * is gone. The browser can't observe the 303, so content-type is the only
- * signal. Synthesise a 401 so the normal error path runs.
- */
-function isHtmlLoginResponse(response: Response): boolean {
-  const ct = response.headers.get('content-type') ?? '';
-  return response.ok && ct.includes('text/html');
-}
-
 const authMiddleware: Middleware = {
   onRequest({ request }) {
     const token = getToken();
@@ -79,18 +69,7 @@ const authMiddleware: Middleware = {
       );
     }
 
-    if (isHtmlLoginResponse(response) && !isRefreshRequest(request.url)) {
-      emitUnauthorized();
-      return new Response(null, {
-        status: 401,
-        statusText: 'Session expired (redirected to login page)',
-      });
-    }
-
-    if (
-      (response.status === 401 || response.status === 303) &&
-      !isRefreshRequest(request.url)
-    ) {
+    if (response.status === 401 && !isRefreshRequest(request.url)) {
       emitUnauthorized();
     }
 

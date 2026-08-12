@@ -128,22 +128,6 @@ describe('typed-client — auth middleware', () => {
 
     expect(onUnauth).not.toHaveBeenCalled();
   });
-
-  it('synthesises a 401 and notifies when the server returns HTML (session expired)', async () => {
-    const onUnauth = vi.fn();
-    setOnUnauthorized(onUnauth);
-
-    server.use(
-      http.get(`${API}/users/me`, () =>
-        HttpResponse.html('<html>login</html>', { status: 200 })
-      )
-    );
-
-    await expect(
-      throwOnApiError(mainApi.GET('/api/users/me'))
-    ).rejects.toSatisfy((err) => err instanceof ApiError && err.status === 401);
-    expect(onUnauth).toHaveBeenCalledOnce();
-  });
 });
 
 describe('throwOnApiError', () => {
