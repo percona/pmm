@@ -159,6 +159,16 @@ if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "
     echo "WARNING: ignoring PMM_ENABLE_SEP, the embedded PostgreSQL is not in use." >&2
 fi
 
+# Cleared here rather than in grafana-sep alone: sep-provision is priority 20, so a probe
+# firing before it starts would otherwise observe the marker the previous run left. Fatal
+# only when SEP is in use - a non-SEP start must never fail over a file it does not read.
+declare SEP_MARKER="/srv/.sep_provisioned"
+rm -f "$SEP_MARKER" 2> /dev/null || true
+if is_enabled "$PMM_ENABLE_SEP" && [ -e "$SEP_MARKER" ]; then
+    echo "FATAL: could not remove $SEP_MARKER; the health gate would report the previous provisioning run as this one." >&2
+    exit 1
+fi
+
 # Unconditional: the script owns its own gates, so the files it published are still
 # removed on the start after PMM_ENABLE_SEP is cleared.
 bash /opt/ansible/roles/sep/files/sep-secrets
@@ -166,7 +176,7 @@ bash /opt/ansible/roles/sep/files/sep-secrets
 # The last consumer has run, so drop the password before exec'ing supervisord: otherwise
 # every child inherits it, and pmm-managed-init logs each variable it is handed - name and
 # value - once PMM_TRACE is set.
-unset PMM_SEP_POSTGRES_PASSWORD
+unset PMM_SEP_POSTGRES_PASSWORD SEP_MARKER
 
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
