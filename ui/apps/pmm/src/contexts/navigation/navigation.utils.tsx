@@ -1,7 +1,7 @@
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
-import { MySqlIcon } from '@percona/percona-ui';
+import { MySqlIcon } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
