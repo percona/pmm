@@ -313,7 +313,7 @@ func TestLateResponseAfterTimeout(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestUnsubscribe(t *testing.T) {
+func TestAbandon(t *testing.T) {
 	t.Parallel()
 
 	// The interleaving that matters cannot be forced through the gRPC harness, so drive the
@@ -331,7 +331,7 @@ func TestUnsubscribe(t *testing.T) {
 		c := newChannel()
 		c.subscribe(1)
 
-		assert.True(t, c.unsubscribe(1))
+		assert.True(t, c.abandon(1))
 		// Tracked as abandoned rather than dropped, so a late response is recognized.
 		assert.Len(t, c.responses, 1)
 		assert.Nil(t, c.responses[1])
@@ -350,7 +350,7 @@ func TestUnsubscribe(t *testing.T) {
 
 		c.publish(1, nil, &agentv1.Pong{CurrentTime: timestamppb.Now()})
 
-		assert.False(t, c.unsubscribe(1))
+		assert.False(t, c.abandon(1))
 		assert.Empty(t, c.responses)
 
 		// The response the publisher delivered is still there to be collected.
@@ -366,7 +366,7 @@ func TestUnsubscribe(t *testing.T) {
 		c.subscribe(1)
 		c.responses = nil
 
-		assert.False(t, c.unsubscribe(1))
+		assert.False(t, c.abandon(1))
 	})
 }
 
@@ -434,7 +434,7 @@ func TestDeliver(t *testing.T) {
 
 		c, hook := newChannel()
 		c.subscribe(1)
-		require.True(t, c.unsubscribe(1))
+		require.True(t, c.abandon(1))
 
 		c.deliver(1, pong())
 

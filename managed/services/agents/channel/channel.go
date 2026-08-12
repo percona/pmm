@@ -197,7 +197,7 @@ func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.Serve
 		// abandoned settles that: it succeeds only while nothing has taken the subscription,
 		// and once taken the publisher is committed to sending, so the response is imminent.
 		// Reporting a timeout for a response that did arrive would be wrong.
-		if c.unsubscribe(id) {
+		if c.abandon(id) {
 			return nil, ctx.Err()
 		}
 
@@ -361,13 +361,14 @@ func (c *Channel) subscribe(id uint32) chan Response {
 	return ch
 }
 
-// unsubscribe marks the request as abandoned: its sender is gone, but a response may still
-// arrive and must not be mistaken for an unsolicited one.
+// abandon leaves a marker behind instead of dropping the entry, which is the whole difference
+// from removeResponseChannel: the sender is gone, but a response may still arrive, and only the
+// marker tells that apart from a response to an ID the server never sent.
 //
 // It reports whether the request was still tracked. False means the publisher took the entry
 // first and is committed to delivering a response, so there is nothing left to mark: writing
 // the marker anyway would leave an entry behind that nothing ever clears.
-func (c *Channel) unsubscribe(id uint32) bool {
+func (c *Channel) abandon(id uint32) bool {
 	c.rw.Lock()
 	defer c.rw.Unlock()
 	// Channel is closed, no subscriptions left
@@ -388,7 +389,7 @@ type subscription int
 const (
 	// A sender is still waiting on the returned channel.
 	subscriptionWaiting subscription = iota
-	// The sender stopped waiting for the response (see unsubscribe).
+	// The sender stopped waiting for the response (see abandon).
 	subscriptionAbandoned
 	// Nothing was ever tracked for the ID.
 	subscriptionUnknown
