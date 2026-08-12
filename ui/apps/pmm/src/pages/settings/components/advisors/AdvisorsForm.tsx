@@ -2,7 +2,7 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import MenuItem from '@mui/material/MenuItem';
-import { TextInput, SwitchInput, SelectInput } from '@percona/percona-ui';
+import { TextInput, SwitchInput, SelectInput } from '@percona/peak-ui';
 import { SEVERITY } from 'lib/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FC, useEffect } from 'react';

@@ -6,7 +6,7 @@ import {
   NotistackMuiSnackbar,
   ThemeContextProvider,
   pmmThemeOptions,
-} from '@percona/percona-ui';
+} from '@percona/peak-ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { addApiErrorInterceptor, removeApiErrorInterceptor } from 'api/api';
 import { ThemeClass } from 'components/theme-class';

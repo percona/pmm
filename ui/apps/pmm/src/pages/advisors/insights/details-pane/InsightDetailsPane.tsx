@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { CopyToClipboardButton } from '@percona/percona-ui';
+import { CopyToClipboardButton } from '@percona/peak-ui';
 import { format } from 'date-fns';
 import {
   DRAWER_CLOSED_WIDTH,

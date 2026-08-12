@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { SxProps, Theme } from '@mui/material/styles';
-import { CodeBlock } from '@percona/percona-ui';
+import { CodeBlock } from '@percona/peak-ui';
 import { Messages } from './CheckTest.messages';
 import { CheckTestState } from './useCheckTest';
 

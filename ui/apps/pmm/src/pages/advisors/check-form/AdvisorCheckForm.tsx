@@ -12,7 +12,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { AutoCompleteInput, SelectInput, TextInput } from '@percona/percona-ui';
+import { AutoCompleteInput, SelectInput, TextInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';

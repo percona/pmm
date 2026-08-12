@@ -1,0 +1,1411 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "advisors/v1/advisors.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AdvisorService",
+      "description": "AdvisorService service provides public Management API methods for Advisor Service."
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/advisors": {
+      "get": {
+        "summary": "List Advisors",
+        "description": "List advisors available to the user.",
+        "operationId": "ListAdvisors",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListAdvisorsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/checks": {
+      "get": {
+        "summary": "List Advisor Checks",
+        "description": "List advisor checks available to the user.",
+        "operationId": "ListAdvisorChecks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListAdvisorChecksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdvisorService"
+        ]
+      },
+      "post": {
+        "summary": "Create Advisor Check",
+        "description": "Creates a new user-authored advisor check.",
+        "operationId": "CreateAdvisorCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateAdvisorCheckResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateAdvisorCheckRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/checks/{name}": {
+      "get": {
+        "summary": "Get Advisor Check",
+        "description": "Returns a single advisor check by name, including its queries and script.",
+        "operationId": "GetAdvisorCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAdvisorCheckResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "description": "Machine-readable name (ID) of the check.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      },
+      "delete": {
+        "summary": "Delete Advisor Check",
+        "description": "Deletes a user-authored advisor check. Percona-shipped checks cannot be deleted.",
+        "operationId": "DeleteAdvisorCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteAdvisorCheckResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "description": "Machine-readable name (ID) of the check to delete.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      },
+      "put": {
+        "summary": "Update Advisor Check",
+        "description": "Updates an existing user-authored advisor check. Percona-shipped checks cannot be modified. A check cannot be renamed: the name in the request body must either be empty or match the name in the path.",
+        "operationId": "UpdateAdvisorCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateAdvisorCheckResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "description": "Machine-readable name (ID) of the check to update.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AdvisorServiceUpdateAdvisorCheckBody"
+            }
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/checks:batchChange": {
+      "post": {
+        "summary": "Change Advisor Checks",
+        "description": "Enables/disables advisor checks or changes their exec interval.",
+        "operationId": "ChangeAdvisorChecks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ChangeAdvisorChecksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ChangeAdvisorChecksRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/checks:start": {
+      "post": {
+        "summary": "Start Advisor Checks",
+        "description": "Executes Advisor checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
+        "operationId": "StartAdvisorChecks",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1StartAdvisorChecksResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1StartAdvisorChecksRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/checks:test": {
+      "post": {
+        "summary": "Test Advisor Check",
+        "description": "Executes an advisor check definition against a single service without saving the check; results are returned and not persisted.",
+        "operationId": "TestAdvisorCheck",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TestAdvisorCheckResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1TestAdvisorCheckRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/checks:testTargets": {
+      "get": {
+        "summary": "List Advisor Check Test Targets",
+        "description": "Lists the services an advisor check of the given technology can be tested against.",
+        "operationId": "ListAdvisorCheckTestTargets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListAdvisorCheckTestTargetsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "technology",
+            "description": "Technology of the check to be tested; determines the eligible service type.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+              "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+              "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+              "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
+            ],
+            "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/insights": {
+      "get": {
+        "summary": "List Advisor Insights",
+        "description": "Returns the history of Advisor check results (insights), including their outcomes.",
+        "operationId": "ListInsights",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListInsightsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page_size",
+            "description": "Maximum number of results per page.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_index",
+            "description": "Index of the requested page, starts from 0.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "service_id",
+            "description": "Filter by service ID.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "description": "Filter by outcome.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+              "ADVISOR_CHECK_RESULT_STATUS_OK",
+              "ADVISOR_CHECK_RESULT_STATUS_FAILED",
+              "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+            ],
+            "default": "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED"
+          },
+          {
+            "name": "is_read",
+            "description": "Filter by read state.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "from",
+            "description": "Return only results recorded at or after this time.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "description": "Return only results recorded at or before this time.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "service_name",
+            "description": "Filter by service name (partial, case-insensitive match).",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "node_name",
+            "description": "Filter by node name (partial, case-insensitive match).",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "category",
+            "description": "Filter by advisor category.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "check_name",
+            "description": "Filter by check name.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "severity",
+            "description": "Filter by severity.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "SEVERITY_UNSPECIFIED",
+              "SEVERITY_EMERGENCY",
+              "SEVERITY_ALERT",
+              "SEVERITY_CRITICAL",
+              "SEVERITY_ERROR",
+              "SEVERITY_WARNING",
+              "SEVERITY_NOTICE",
+              "SEVERITY_INFO",
+              "SEVERITY_DEBUG"
+            ],
+            "default": "SEVERITY_UNSPECIFIED"
+          },
+          {
+            "name": "run_id",
+            "description": "Filter by run ID.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "triggered_by",
+            "description": "Filter by the actor that initiated the run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+              "ADVISOR_CHECK_TRIGGERED_BY_USER",
+              "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+            ],
+            "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED"
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/insights:filterValues": {
+      "get": {
+        "summary": "List Advisor Insights Filter Values",
+        "description": "Returns the distinct service and node names present in the Advisor insights, for populating filter dropdowns.",
+        "operationId": "ListInsightsFilterValues",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListInsightsFilterValuesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/insights:markRead": {
+      "post": {
+        "summary": "Mark Advisor Insights Read",
+        "description": "Sets the read state on the specified Advisor insights. Set is_read to false to mark them unread.",
+        "operationId": "MarkInsightsRead",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1MarkInsightsReadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1MarkInsightsReadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/notifications:test": {
+      "post": {
+        "summary": "Send Test Advisor Notification",
+        "description": "Emails a sample Advisor report to the given addresses so that email delivery can be verified. It runs no checks and stores nothing.",
+        "operationId": "SendTestAdvisorNotification",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SendTestAdvisorNotificationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SendTestAdvisorNotificationRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    },
+    "/v1/advisors/runs": {
+      "get": {
+        "summary": "List Advisor Runs",
+        "description": "Returns the chronological history of Advisor check executions with their totals.",
+        "operationId": "ListRuns",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListRunsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "page_size",
+            "description": "Maximum number of results per page.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page_index",
+            "description": "Index of the requested page, starts from 0.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "triggered_by",
+            "description": "Filter by the actor that initiated the run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+              "ADVISOR_CHECK_TRIGGERED_BY_USER",
+              "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+            ],
+            "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED"
+          },
+          {
+            "name": "from",
+            "description": "Return only runs started at or after this time.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "to",
+            "description": "Return only runs started at or before this time.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "tags": [
+          "AdvisorService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "AdvisorServiceUpdateAdvisorCheckBody": {
+      "type": "object",
+      "properties": {
+        "check": {
+          "$ref": "#/definitions/v1AdvisorCheck",
+          "description": "The updated check definition. A check cannot be renamed: leave its name\nempty or set it to the name above, otherwise the request is rejected."
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1Advisor": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Deprecated: no longer populated; an advisor is identified by its category."
+        },
+        "description": {
+          "type": "string",
+          "description": "Deprecated: advisor descriptions were removed."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Deprecated: use category instead."
+        },
+        "comment": {
+          "type": "string",
+          "description": "Deprecated: no longer populated."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category the checks belong to."
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AdvisorCheck"
+          },
+          "description": "Advisor checks."
+        }
+      }
+    },
+    "v1AdvisorCheck": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Machine-readable name (ID) that is used in expression."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "True if that check is enabled."
+        },
+        "description": {
+          "type": "string",
+          "description": "Long human-readable description."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Short human-readable summary."
+        },
+        "interval": {
+          "$ref": "#/definitions/v1AdvisorCheckInterval",
+          "description": "Check execution interval."
+        },
+        "technology": {
+          "$ref": "#/definitions/v1AdvisorCheckTechnology",
+          "description": "DB technology."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category the check belongs to."
+        },
+        "user_defined": {
+          "type": "boolean",
+          "description": "True if the check is user-authored (editable/deletable); false for Percona-shipped checks."
+        },
+        "queries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AdvisorCheckQuery"
+          },
+          "description": "Data-collection queries. Populated by Get/Create/Update; may be empty in list responses."
+        },
+        "script": {
+          "type": "string",
+          "description": "Starlark source script. Populated by Get/Create/Update; may be empty in list responses."
+        },
+        "disabled_service_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of services for which this check is disabled."
+        }
+      },
+      "description": "AdvisorCheck contains check name and status."
+    },
+    "v1AdvisorCheckInterval": {
+      "type": "string",
+      "enum": [
+        "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+        "ADVISOR_CHECK_INTERVAL_STANDARD",
+        "ADVISOR_CHECK_INTERVAL_FREQUENT",
+        "ADVISOR_CHECK_INTERVAL_RARE"
+      ],
+      "default": "ADVISOR_CHECK_INTERVAL_UNSPECIFIED",
+      "description": "AdvisorCheckInterval represents possible execution interval values for checks."
+    },
+    "v1AdvisorCheckQuery": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Query type, e.g. \"MYSQL_SHOW\", \"POSTGRESQL_SELECT\", \"METRICS_RANGE\"."
+        },
+        "query": {
+          "type": "string",
+          "description": "Query text (may be empty for parameterless types such as MYSQL_SHOW)."
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Optional query parameters (e.g. range/step for metrics range queries)."
+        }
+      },
+      "description": "AdvisorCheckQuery is a single data-collection query of an advisor check."
+    },
+    "v1AdvisorCheckResultStatus": {
+      "type": "string",
+      "enum": [
+        "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+        "ADVISOR_CHECK_RESULT_STATUS_OK",
+        "ADVISOR_CHECK_RESULT_STATUS_FAILED",
+        "ADVISOR_CHECK_RESULT_STATUS_ERROR"
+      ],
+      "default": "ADVISOR_CHECK_RESULT_STATUS_UNSPECIFIED",
+      "description": "AdvisorCheckResultStatus represents the outcome of an Advisor check run against a service.\n\n - ADVISOR_CHECK_RESULT_STATUS_OK: The check ran and found no issue.\n - ADVISOR_CHECK_RESULT_STATUS_FAILED: The check ran and detected an issue.\n - ADVISOR_CHECK_RESULT_STATUS_ERROR: The check could not be executed."
+    },
+    "v1AdvisorCheckTechnology": {
+      "type": "string",
+      "enum": [
+        "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED",
+        "ADVISOR_CHECK_TECHNOLOGY_MYSQL",
+        "ADVISOR_CHECK_TECHNOLOGY_POSTGRESQL",
+        "ADVISOR_CHECK_TECHNOLOGY_MONGODB"
+      ],
+      "default": "ADVISOR_CHECK_TECHNOLOGY_UNSPECIFIED"
+    },
+    "v1AdvisorCheckTestTarget": {
+      "type": "object",
+      "properties": {
+        "service_id": {
+          "type": "string",
+          "description": "ID of the eligible service."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Name of the eligible service."
+        }
+      },
+      "description": "AdvisorCheckTestTarget is a service an advisor check can be tested against."
+    },
+    "v1AdvisorCheckTriggeredBy": {
+      "type": "string",
+      "enum": [
+        "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+        "ADVISOR_CHECK_TRIGGERED_BY_USER",
+        "ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER"
+      ],
+      "default": "ADVISOR_CHECK_TRIGGERED_BY_UNSPECIFIED",
+      "description": "AdvisorCheckTriggeredBy represents the actor that initiated an Advisor check run.\n\n - ADVISOR_CHECK_TRIGGERED_BY_USER: The run was started by a user via the API or UI.\n - ADVISOR_CHECK_TRIGGERED_BY_SCHEDULER: The run was started by the built-in scheduler."
+    },
+    "v1AdvisorRun": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID shared by every insight the run produced."
+        },
+        "triggered_by": {
+          "$ref": "#/definitions/v1AdvisorCheckTriggeredBy",
+          "description": "The actor that initiated the run."
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the run began."
+        },
+        "finished_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the run completed; unset while it is still running."
+        },
+        "checks_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of distinct checks the run executed."
+        },
+        "services_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of distinct services the run covered."
+        },
+        "findings_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of findings, i.e. checks that detected an issue."
+        },
+        "errors_count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of checks that could not be executed at all."
+        },
+        "severity_counts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SeverityCount"
+          },
+          "description": "Number of findings per severity, most severe first. A repeated field rather\nthan a map so severity stays a typed enum instead of a free-form key."
+        }
+      },
+      "description": "AdvisorRun is a single execution of Advisor checks. Its totals are recorded on\ncompletion, so they stay accurate after the run's insights have been pruned."
+    },
+    "v1ChangeAdvisorCheckParams": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the check to change."
+        },
+        "enable": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "interval": {
+          "$ref": "#/definitions/v1AdvisorCheckInterval",
+          "description": "check execution interval."
+        },
+        "service_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of services to apply the enable/disable to. When set, enable/disable\naffects only the given services instead of the whole check; interval\nchanges are not allowed in the same params entry."
+        }
+      },
+      "description": "ChangeAdvisorCheckParams specifies a single check parameters."
+    },
+    "v1ChangeAdvisorChecksRequest": {
+      "type": "object",
+      "properties": {
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ChangeAdvisorCheckParams"
+          }
+        }
+      }
+    },
+    "v1ChangeAdvisorChecksResponse": {
+      "type": "object"
+    },
+    "v1CreateAdvisorCheckRequest": {
+      "type": "object",
+      "properties": {
+        "check": {
+          "$ref": "#/definitions/v1AdvisorCheck",
+          "description": "The check to create. Its name must be unique across all checks."
+        }
+      }
+    },
+    "v1CreateAdvisorCheckResponse": {
+      "type": "object",
+      "properties": {
+        "check": {
+          "$ref": "#/definitions/v1AdvisorCheck"
+        }
+      }
+    },
+    "v1DeleteAdvisorCheckResponse": {
+      "type": "object"
+    },
+    "v1GetAdvisorCheckResponse": {
+      "type": "object",
+      "properties": {
+        "check": {
+          "$ref": "#/definitions/v1AdvisorCheck"
+        }
+      }
+    },
+    "v1Insight": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the history record."
+        },
+        "run_id": {
+          "type": "string",
+          "description": "ID of the run this result belongs to; all results produced by one execution share it."
+        },
+        "check_name": {
+          "type": "string",
+          "description": "Name of the check that ran."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category the check belongs to."
+        },
+        "interval": {
+          "$ref": "#/definitions/v1AdvisorCheckInterval",
+          "description": "Check execution interval."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "ID of the monitored service on which the check ran."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Name of the monitored service on which the check ran."
+        },
+        "service_type": {
+          "type": "string",
+          "description": "Type of the monitored service on which the check ran."
+        },
+        "node_id": {
+          "type": "string",
+          "description": "ID of the node the service runs on."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Name of the node the service runs on."
+        },
+        "environment": {
+          "type": "string",
+          "description": "Environment of the monitored service on which the check ran."
+        },
+        "cluster": {
+          "type": "string",
+          "description": "Cluster of the monitored service on which the check ran."
+        },
+        "replication_set": {
+          "type": "string",
+          "description": "Replication set of the monitored service on which the check ran."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AdvisorCheckResultStatus",
+          "description": "Outcome of the check run."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Short human-readable summary of the result."
+        },
+        "description": {
+          "type": "string",
+          "description": "Long human-readable description of the result."
+        },
+        "read_more_url": {
+          "type": "string",
+          "description": "URL containing information on how to resolve a detected issue."
+        },
+        "outcome": {
+          "type": "string",
+          "description": "Output returned by the check run (finding details or execution error)."
+        },
+        "severity": {
+          "$ref": "#/definitions/v1Severity",
+          "description": "Severity of the result."
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Result labels."
+        },
+        "checked_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time when the check ran."
+        },
+        "is_read": {
+          "type": "boolean",
+          "description": "Whether the result has been marked as read."
+        },
+        "triggered_by": {
+          "$ref": "#/definitions/v1AdvisorCheckTriggeredBy",
+          "description": "The actor that initiated the run."
+        },
+        "region": {
+          "type": "string",
+          "description": "Cloud region of the node the service runs on, empty when not applicable."
+        },
+        "az": {
+          "type": "string",
+          "description": "Cloud availability zone of the node the service runs on, empty when not applicable."
+        }
+      },
+      "description": "Insight represents a single persisted Advisor check run against a service."
+    },
+    "v1InsightsFilters": {
+      "type": "object",
+      "properties": {
+        "check_name": {
+          "type": "string",
+          "description": "Filter by check name."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Filter by service name (partial, case-insensitive match)."
+        },
+        "node_name": {
+          "type": "string",
+          "description": "Filter by node name (partial, case-insensitive match)."
+        },
+        "category": {
+          "type": "string",
+          "description": "Filter by advisor category."
+        },
+        "severity": {
+          "$ref": "#/definitions/v1Severity",
+          "x-nullable": true,
+          "description": "Filter by severity."
+        },
+        "status": {
+          "$ref": "#/definitions/v1AdvisorCheckResultStatus",
+          "x-nullable": true,
+          "description": "Filter by outcome."
+        },
+        "is_read": {
+          "type": "boolean",
+          "x-nullable": true,
+          "description": "Filter by read state."
+        },
+        "run_id": {
+          "type": "string",
+          "description": "Filter by run ID."
+        }
+      },
+      "description": "InsightsFilters select Advisor insights by attribute; all present fields must match."
+    },
+    "v1ListAdvisorCheckTestTargetsResponse": {
+      "type": "object",
+      "properties": {
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AdvisorCheckTestTarget"
+          },
+          "description": "Services a check of the requested technology can be tested against."
+        }
+      }
+    },
+    "v1ListAdvisorChecksResponse": {
+      "type": "object",
+      "properties": {
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AdvisorCheck"
+          }
+        }
+      }
+    },
+    "v1ListAdvisorsResponse": {
+      "type": "object",
+      "properties": {
+        "advisors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Advisor"
+          }
+        }
+      }
+    },
+    "v1ListInsightsFilterValuesResponse": {
+      "type": "object",
+      "properties": {
+        "service_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Distinct service names present in the check results history, sorted alphabetically."
+        },
+        "node_names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Distinct node names present in the check results history, sorted alphabetically."
+        }
+      }
+    },
+    "v1ListInsightsResponse": {
+      "type": "object",
+      "properties": {
+        "total_items": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of results."
+        },
+        "total_pages": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of pages."
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Insight"
+          },
+          "description": "Insight records."
+        }
+      }
+    },
+    "v1ListRunsResponse": {
+      "type": "object",
+      "properties": {
+        "total_items": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of results."
+        },
+        "total_pages": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of pages."
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AdvisorRun"
+          },
+          "description": "Runs, most recently started first."
+        }
+      }
+    },
+    "v1MarkInsightsReadRequest": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of the insights to update. Takes precedence over filters."
+        },
+        "is_read": {
+          "type": "boolean",
+          "description": "Read state to set on the records."
+        },
+        "filters": {
+          "$ref": "#/definitions/v1InsightsFilters",
+          "description": "When set and ids is empty, all insights matching these filters are updated\n(an empty filter set matches every record). Either ids or filters must be provided."
+        }
+      }
+    },
+    "v1MarkInsightsReadResponse": {
+      "type": "object"
+    },
+    "v1SendTestAdvisorNotificationRequest": {
+      "type": "object",
+      "properties": {
+        "email_addresses": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Addresses the sample report is emailed to."
+        }
+      }
+    },
+    "v1SendTestAdvisorNotificationResponse": {
+      "type": "object"
+    },
+    "v1Severity": {
+      "type": "string",
+      "enum": [
+        "SEVERITY_UNSPECIFIED",
+        "SEVERITY_EMERGENCY",
+        "SEVERITY_ALERT",
+        "SEVERITY_CRITICAL",
+        "SEVERITY_ERROR",
+        "SEVERITY_WARNING",
+        "SEVERITY_NOTICE",
+        "SEVERITY_INFO",
+        "SEVERITY_DEBUG"
+      ],
+      "default": "SEVERITY_UNSPECIFIED",
+      "description": "Severity represents severity level of the check result or alert."
+    },
+    "v1SeverityCount": {
+      "type": "object",
+      "properties": {
+        "severity": {
+          "$ref": "#/definitions/v1Severity"
+        },
+        "count": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "description": "SeverityCount is the number of findings a run produced at a single severity."
+    },
+    "v1StartAdvisorChecksRequest": {
+      "type": "object",
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Names of the checks that should be started."
+        },
+        "service_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "IDs of the services to run the checks against. When empty, the checks run\nagainst every monitored service of a matching technology."
+        }
+      }
+    },
+    "v1StartAdvisorChecksResponse": {
+      "type": "object",
+      "properties": {
+        "run_id": {
+          "type": "string",
+          "description": "ID assigned to this run; all check results produced by it share this run_id."
+        }
+      }
+    },
+    "v1TestAdvisorCheckRequest": {
+      "type": "object",
+      "properties": {
+        "check": {
+          "$ref": "#/definitions/v1AdvisorCheck",
+          "description": "Check definition to execute; it is not saved."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "ID of the service to run the check against."
+        }
+      }
+    },
+    "v1TestAdvisorCheckResponse": {
+      "type": "object",
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TestAdvisorCheckResult"
+          },
+          "description": "Findings produced by the check script; empty means the check passed."
+        },
+        "script_output": {
+          "type": "string",
+          "description": "Output produced by the script's print() calls, for debugging."
+        }
+      }
+    },
+    "v1TestAdvisorCheckResult": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/definitions/v1Severity"
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "read_more_url": {
+          "type": "string",
+          "description": "URL containing information on how to resolve an issue detected by the check."
+        },
+        "service_name": {
+          "type": "string",
+          "description": "Name of the monitored service on which the check ran."
+        },
+        "service_id": {
+          "type": "string",
+          "description": "ID of the monitored service on which the check ran."
+        },
+        "check_name": {
+          "type": "string",
+          "description": "Name of the tested check."
+        }
+      },
+      "description": "TestAdvisorCheckResult is a single finding produced by a test (dry-run) check execution."
+    },
+    "v1UpdateAdvisorCheckResponse": {
+      "type": "object",
+      "properties": {
+        "check": {
+          "$ref": "#/definitions/v1AdvisorCheck"
+        }
+      }
+    }
+  }
+}
