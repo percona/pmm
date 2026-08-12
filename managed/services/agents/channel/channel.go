@@ -382,34 +382,63 @@ func (c *Channel) unsubscribe(id uint32) bool {
 	return true
 }
 
-func (c *Channel) removeResponseChannel(id uint32) chan Response {
+// subscription tells what the responses map held for a request ID.
+type subscription int
+
+const (
+	// A sender is still waiting on the returned channel.
+	subscriptionWaiting subscription = iota
+	// The sender stopped waiting for the response (see unsubscribe).
+	subscriptionAbandoned
+	// Nothing was ever tracked for the ID.
+	subscriptionUnknown
+	// The channel is closed, so there are no subscriptions left.
+	subscriptionClosed
+)
+
+// removeResponseChannel drops the entry for id and returns the channel its sender is waiting on,
+// together with what was there. The channel is non-nil only for subscriptionWaiting.
+func (c *Channel) removeResponseChannel(id uint32) (chan Response, subscription) {
 	c.rw.Lock()
 	defer c.rw.Unlock()
-	// Channel is closed, no more publishing
 	if c.responses == nil {
-		return nil
+		return nil, subscriptionClosed
 	}
 
 	ch, ok := c.responses[id]
 	if !ok {
-		c.l.Errorf("No subscriber for ID %d", id)
-		return nil
+		return nil, subscriptionUnknown
 	}
 	delete(c.responses, id)
 
 	if ch == nil {
-		c.l.Debugf("Response for ID %d arrived after its sender stopped waiting for it.", id)
-		return nil
+		return nil, subscriptionAbandoned
 	}
-	return ch
+
+	return ch, subscriptionWaiting
+}
+
+// deliver passes resp to whoever is waiting for id, and reports the cases where nobody is.
+// It closes the subscription channel for an error, as nothing can follow one.
+func (c *Channel) deliver(id uint32, resp Response) {
+	ch, s := c.removeResponseChannel(id)
+	switch s {
+	case subscriptionWaiting:
+		ch <- resp
+		if resp.Error != nil {
+			close(ch)
+		}
+	case subscriptionAbandoned:
+		c.l.Debugf("Response for ID %d arrived after its sender stopped waiting for it.", id)
+	case subscriptionUnknown:
+		c.l.Errorf("No subscriber for ID %d", id)
+	case subscriptionClosed:
+	}
 }
 
 // cancel sends an error to the subscriber and closes the subscription channel.
 func (c *Channel) cancel(id uint32, err error) {
-	if ch := c.removeResponseChannel(id); ch != nil {
-		ch <- Response{Error: err}
-		close(ch)
-	}
+	c.deliver(id, Response{Error: err})
 }
 
 func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentv1.AgentResponsePayload) {
@@ -419,9 +448,7 @@ func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentv1.Ag
 		return
 	}
 
-	if ch := c.removeResponseChannel(id); ch != nil {
-		ch <- Response{Payload: resp}
-	}
+	c.deliver(id, Response{Payload: resp})
 }
 
 // Metrics returns current channel metrics.

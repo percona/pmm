@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -366,6 +367,104 @@ func TestUnsubscribe(t *testing.T) {
 		c.responses = nil
 
 		assert.False(t, c.unsubscribe(1))
+	})
+}
+
+func TestDeliver(t *testing.T) {
+	t.Parallel()
+
+	// What deliver says about a response is the whole point of the four states, so give each
+	// channel its own logger to read back.
+	newChannel := func() (*Channel, *logrustest.Hook) {
+		l, hook := logrustest.NewNullLogger()
+		l.SetLevel(logrus.DebugLevel)
+
+		return &Channel{
+			responses: make(map[uint32]chan Response),
+			l:         l.WithField("test", t.Name()),
+		}, hook
+	}
+
+	pong := func() Response {
+		return Response{Payload: &agentv1.Pong{CurrentTime: timestamppb.Now()}}
+	}
+
+	levels := func(hook *logrustest.Hook) []logrus.Level {
+		out := make([]logrus.Level, 0, len(hook.Entries))
+		for _, e := range hook.Entries {
+			out = append(out, e.Level)
+		}
+
+		return out
+	}
+
+	t.Run("hands the response to a waiting sender", func(t *testing.T) {
+		t.Parallel()
+
+		c, hook := newChannel()
+		ch := c.subscribe(1)
+
+		c.deliver(1, pong())
+
+		resp := <-ch
+		require.NoError(t, resp.Error)
+		assert.IsType(t, &agentv1.Pong{}, resp.Payload)
+		assert.Empty(t, levels(hook))
+		assert.Empty(t, c.responses)
+	})
+
+	t.Run("closes the subscription after an error", func(t *testing.T) {
+		t.Parallel()
+
+		c, hook := newChannel()
+		ch := c.subscribe(1)
+
+		c.deliver(1, Response{Error: errChannelClosed})
+
+		resp := <-ch
+		require.ErrorIs(t, resp.Error, errChannelClosed)
+		// Nothing can follow an error, so the sender must see the channel closed.
+		_, ok := <-ch
+		assert.False(t, ok)
+		assert.Empty(t, levels(hook))
+	})
+
+	t.Run("reports an abandoned request at debug level", func(t *testing.T) {
+		t.Parallel()
+
+		c, hook := newChannel()
+		c.subscribe(1)
+		require.True(t, c.unsubscribe(1))
+
+		c.deliver(1, pong())
+
+		// Expected, not unsolicited: the marker is what keeps this off the error log.
+		assert.Equal(t, []logrus.Level{logrus.DebugLevel}, levels(hook))
+		assert.Empty(t, c.responses)
+	})
+
+	t.Run("reports an unknown ID as an error", func(t *testing.T) {
+		t.Parallel()
+
+		c, hook := newChannel()
+
+		c.deliver(1, pong())
+
+		assert.Equal(t, []logrus.Level{logrus.ErrorLevel}, levels(hook))
+	})
+
+	t.Run("stays silent once the channel is closed", func(t *testing.T) {
+		t.Parallel()
+
+		c, hook := newChannel()
+		c.subscribe(1)
+		c.responses = nil
+
+		// close unblocks every sender itself, so a response racing it is not worth a word -
+		// least of all "no subscriber", which would show up on any rough disconnect.
+		c.deliver(1, pong())
+
+		assert.Empty(t, levels(hook))
 	})
 }
 
