@@ -481,7 +481,7 @@ func haPeerNodeName(peer string) (string, bool) {
 func haNodeMonitoredServices(q *reform.Querier, nodeID string) ([]string, error) {
 	// An external exporter carries a service_id itself, and the pmm-agents are the parents of the
 	// exporters read next.
-	agents, err := FindAgentsOnNode(q, nodeID)
+	agents, err := FindAgents(q, AgentFilters{OnNodeID: nodeID})
 	if err != nil {
 		return nil, err
 	}
@@ -496,13 +496,17 @@ func haNodeMonitoredServices(q *reform.Querier, nodeID string) ([]string, error)
 		}
 	}
 
-	started, err := FindAgentsByPMMAgentIDs(q, pmmAgentIDs)
-	if err != nil {
-		return nil, err
-	}
-	for _, agent := range started {
-		if agent.ServiceID != nil {
-			serviceIDs = append(serviceIDs, *agent.ServiceID)
+	// Guarded because an empty PMMAgentIDs is not a filter: it would match every Agent in the
+	// inventory, and the Node would look like it monitors every Service.
+	if len(pmmAgentIDs) != 0 {
+		started, err := FindAgents(q, AgentFilters{PMMAgentIDs: pmmAgentIDs})
+		if err != nil {
+			return nil, err
+		}
+		for _, agent := range started {
+			if agent.ServiceID != nil {
+				serviceIDs = append(serviceIDs, *agent.ServiceID)
+			}
 		}
 	}
 

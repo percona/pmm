@@ -218,8 +218,13 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 type AgentFilters struct {
 	// Return only Agents started by this pmm-agent.
 	PMMAgentID string
+	// Return only Agents started by any of these pmm-agents. An empty slice is not a filter.
+	PMMAgentIDs []string
 	// Return only Agents that provide insights for that Node.
 	NodeID string
+	// Return only Agents attached to or running on that Node: node-level exporters, the pmm-agents
+	// themselves, and external exporters in pull mode.
+	OnNodeID string
 	// Return only Agents that provide insights for that Service.
 	ServiceID string
 	// Return Agents with provided type.
@@ -246,6 +251,14 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		args = append(args, filters.PMMAgentID)
 		idx++
 	}
+	if len(filters.PMMAgentIDs) != 0 {
+		p := strings.Join(q.Placeholders(idx, len(filters.PMMAgentIDs)), ", ")
+		conditions = append(conditions, "pmm_agent_id IN ("+p+")")
+		for _, id := range filters.PMMAgentIDs {
+			args = append(args, id)
+		}
+		idx += len(filters.PMMAgentIDs)
+	}
 	if filters.NodeID != "" {
 		_, err := FindNodeByID(q, filters.NodeID)
 		if err != nil {
@@ -254,6 +267,12 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		conditions = append(conditions, "node_id = "+q.Placeholder(idx))
 		args = append(args, filters.NodeID)
 		idx++
+	}
+	if filters.OnNodeID != "" {
+		// No existence check: the callers tolerate a Node that another actor has just removed.
+		conditions = append(conditions, fmt.Sprintf("(runs_on_node_id = %s OR node_id = %s)", q.Placeholder(idx), q.Placeholder(idx+1)))
+		args = append(args, filters.OnNodeID, filters.OnNodeID)
+		idx += 2
 	}
 	if filters.ServiceID != "" {
 		_, err := FindServiceByID(q, filters.ServiceID)
@@ -290,6 +309,12 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
 	structs, err := q.SelectAllFrom(AgentTable, whereClause+" ORDER BY agent_id", args...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Decryption is not free; skip it when the caller has already gone away.
+	err = q.Context().Err()
 	if err != nil {
 		return nil, err
 	}
@@ -422,61 +447,6 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 	for _, str := range structs {
 		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
 		res = append(res, &decryptedAgent)
-	}
-
-	return res, nil
-}
-
-// FindAgentsOnNode returns Agents attached to or running on the Node: node-level exporters, the
-// pmm-agents themselves, and external exporters in pull mode.
-func FindAgentsOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
-	structs, err := q.SelectAllFrom(AgentTable, "WHERE runs_on_node_id = $1 OR node_id = $1 ORDER BY agent_id", nodeID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to select Agents on Node %q: %w", nodeID, err)
-	}
-
-	// Decryption is not free; skip it when the caller has already gone away.
-	err = q.Context().Err()
-	if err != nil {
-		return nil, err
-	}
-
-	res := make([]*Agent, len(structs))
-	for i, str := range structs {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
-	}
-
-	return res, nil
-}
-
-// FindAgentsByPMMAgentIDs returns Agents started by any of the given pmm-agents.
-func FindAgentsByPMMAgentIDs(q *reform.Querier, pmmAgentIDs []string) ([]*Agent, error) {
-	if len(pmmAgentIDs) == 0 {
-		return []*Agent{}, nil
-	}
-
-	p := strings.Join(q.Placeholders(1, len(pmmAgentIDs)), ", ")
-	tail := fmt.Sprintf("WHERE pmm_agent_id IN (%s) ORDER BY agent_id", p)
-	args := make([]any, len(pmmAgentIDs))
-	for i, id := range pmmAgentIDs {
-		args[i] = id
-	}
-	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
-	if err != nil {
-		return nil, fmt.Errorf("failed to select Agents started by pmm-agents: %w", err)
-	}
-
-	// Decryption is not free; skip it when the caller has already gone away.
-	err = q.Context().Err()
-	if err != nil {
-		return nil, err
-	}
-
-	res := make([]*Agent, len(structs))
-	for i, str := range structs {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
 	}
 
 	return res, nil

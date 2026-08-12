@@ -464,11 +464,11 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Empty(t, agents)
 	})
 
-	t.Run("FindAgentsOnNode", func(t *testing.T) {
+	t.Run("FindAgentsByOnNodeID", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.FindAgentsOnNode(q, "N1")
+		agents, err := models.FindAgents(q, models.AgentFilters{OnNodeID: "N1"})
 		require.NoError(t, err)
 		agentIDs := make([]string, len(agents))
 		for i, agent := range agents {
@@ -482,8 +482,15 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Contains(t, agentIDs, "A7")    // attached to the Node, but started by a pmm-agent on N2
 		assert.NotContains(t, agentIDs, "A2") // bound to a Service, not to the Node
 
-		// find with non existing node.
-		agents, err = models.FindAgentsOnNode(q, "X1")
+		// NodeID alone can't answer this: it never matches the pmm-agent running on the Node.
+		agents, err = models.FindAgents(q, models.AgentFilters{NodeID: "N1"})
+		require.NoError(t, err)
+		for _, agent := range agents {
+			assert.NotEqual(t, "A1", agent.AgentID)
+		}
+
+		// Unlike NodeID, OnNodeID does not probe for the Node, so an unknown one is not an error.
+		agents, err = models.FindAgents(q, models.AgentFilters{OnNodeID: "X1"})
 		require.NoError(t, err)
 		assert.Empty(t, agents)
 	})
@@ -492,7 +499,7 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.FindAgentsByPMMAgentIDs(q, []string{"A1"})
+		agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentIDs: []string{"A1"}})
 		require.NoError(t, err)
 		agentIDs := make([]string, len(agents))
 		for i, agent := range agents {
@@ -500,7 +507,7 @@ func TestAgentHelpers(t *testing.T) {
 		}
 		assert.Equal(t, []string{"A2", "A3"}, agentIDs)
 
-		agents, err = models.FindAgentsByPMMAgentIDs(q, []string{"A1", "A4"})
+		agents, err = models.FindAgents(q, models.AgentFilters{PMMAgentIDs: []string{"A1", "A4"}})
 		require.NoError(t, err)
 		agentIDs = make([]string, len(agents))
 		for i, agent := range agents {
@@ -508,9 +515,14 @@ func TestAgentHelpers(t *testing.T) {
 		}
 		assert.Equal(t, []string{"A2", "A3", "A5", "A6", "A7"}, agentIDs)
 
-		agents, err = models.FindAgentsByPMMAgentIDs(q, nil)
+		// An empty slice is not a filter, so it matches everything - callers that build the list
+		// dynamically have to check for that themselves.
+		filtered, err := models.FindAgents(q, models.AgentFilters{PMMAgentIDs: nil})
 		require.NoError(t, err)
-		assert.Empty(t, agents)
+		all, err := models.FindAgents(q, models.AgentFilters{})
+		require.NoError(t, err)
+		assert.Equal(t, all, filtered)
+		assert.NotEmpty(t, filtered)
 	})
 
 	t.Run("FindPMMAgentsForServicesOnNode", func(t *testing.T) {

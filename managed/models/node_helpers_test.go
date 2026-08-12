@@ -426,6 +426,28 @@ func TestFindStaleHANodes(t *testing.T) {
 		assertStale(t, stale)
 	})
 
+	// A Node with no pmm-agent of its own yields no IDs to filter the second query by. An empty
+	// PMMAgentIDs is not a filter, so an unguarded query there would match every Agent in the
+	// inventory and the Node would look like it monitors every Service.
+	t.Run("ReportsScaledDownReplicaWithNoAgents", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		require.NoError(t, q.Insert(&models.Node{
+			NodeID:          "ha-node-3",
+			NodeType:        models.GenericNodeType,
+			NodeName:        "pmm-ha-3",
+			Address:         models.LocalhostAddr,
+			IsPMMServerNode: true,
+		}))
+
+		peers := []string{"pmm-ha-1.pmm-ha:9761", "pmm-ha-2:9761"}
+		stale, err := models.FindStaleHANodes(q, "pmm-ha-1", peers)
+		require.NoError(t, err)
+
+		assertStale(t, stale, "ha-node-3")
+	})
+
 	t.Run("KeepsScaledDownReplicaThatStillMonitorsServices", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
