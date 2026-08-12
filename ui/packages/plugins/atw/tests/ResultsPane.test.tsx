@@ -21,7 +21,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { ResultsPane } from '../src/ResultsPane';
 
-vi.mock('@sep/api', () => ({
+vi.mock('@sep/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@sep/api')>()),
   apiClient: { get: vi.fn() },
 }));
 

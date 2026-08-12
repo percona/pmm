@@ -1,5 +1,5 @@
 import { PropsWithChildren, ReactNode } from 'react';
-import type { PageContainerMaxWidth } from '@percona/percona-ui';
+import type { PageContainerMaxWidth } from '@percona/peak-ui';
 import { OrgRole } from 'types/user.types';
 
 export interface PageProps extends PropsWithChildren {

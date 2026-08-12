@@ -15,11 +15,12 @@
         "type": "object"
       },
       "HostSystemObservationResponse": {
-        "description": "Define the response model for host system observation data.\n\n:param id: The primary key of the observation record.\n:type id: int | None\n:param created_at: When the record was created.\n:type created_at: UTCDatetime\n:param updated_at: When the record was last updated.\n:type updated_at: UTCDatetime | None\n:param node_id: The unique identifier of the observed node.\n:type node_id: int\n:param os_version: The observed operating system version.\n:type os_version: str | None\n:param installed_packages: Snapshot of installed packages.\n:type installed_packages: list[dict[str, Any]] | None\n:param config: Snapshot of host configuration.\n:type config: dict[str, Any] | None\n:param observed_at: When this observation was collected.\n:type observed_at: UTCDatetime",
+        "description": "Define the response model for host system observation data.\n\n:param id: The primary key of the observation record.\n:type id: int | None\n:param created_at: When the record was created.\n:type created_at: UTCDatetime\n:param updated_at: When the record was last updated.\n:type updated_at: UTCDatetime | None\n:param node_id: The unique identifier of the observed node.\n:type node_id: int\n:param os_version: The observed operating system version.\n:type os_version: str | None\n:param installed_packages: Snapshot of installed packages.\n:param config: Snapshot of host configuration.\n:param observed_at: When this observation was collected.\n:type observed_at: UTCDatetime",
         "properties": {
           "config": {
             "anyOf": [
               {
+                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -48,6 +49,7 @@
             "anyOf": [
               {
                 "items": {
+                  "additionalProperties": true,
                   "type": "object"
                 },
                 "type": "array"
@@ -96,11 +98,12 @@
         "type": "object"
       },
       "HostSystemObservationWrite": {
-        "description": "Define the model for writing host system observation data to the inventory.\n\n:param node_id: The foreign key referencing the node. Defaults to None.\n:type node_id: int | None\n:param os_version: The observed operating system version. Defaults to None.\n:type os_version: str | None\n:param installed_packages: Snapshot of installed packages. Defaults to None.\n:type installed_packages: list[dict[str, Any]] | None\n:param config: Snapshot of host configuration. Defaults to None.\n:type config: dict[str, Any] | None\n:param observed_at: When this observation was collected.\n:type observed_at: UTCDatetime",
+        "description": "Define the model for writing host system observation data to the inventory.\n\n:param node_id: The foreign key referencing the node. Defaults to None.\n:type node_id: int | None\n:param os_version: The observed operating system version. Defaults to None.\n:type os_version: str | None\n:param installed_packages: Snapshot of installed packages. Defaults to None.\n:param config: Snapshot of host configuration. Defaults to None.\n:param observed_at: When this observation was collected.\n:type observed_at: UTCDatetime",
         "properties": {
           "config": {
             "anyOf": [
               {
+                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -113,6 +116,7 @@
             "anyOf": [
               {
                 "items": {
+                  "additionalProperties": true,
                   "type": "object"
                 },
                 "type": "array"
@@ -722,7 +726,7 @@
         "type": "object"
       },
       "Service": {
-        "description": "Represent a service running on a node in the inventory.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param external_id: An external identifier for the service. Must be unique for\n    node_id, as defined by composite index ix_service_external_id_node_id.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running. Must be unique for\n    node_id, as defined by composite index ix_service_port_node_id.\n:type port: int | None\n:param environment: The environment in which the service is running, if set.\n:type environment: str | None\n:param cluster: The cluster in which the service is running, if set.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running, if set.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service, if set.\n:type custom_labels: dict[str, Any] | None\n:param node_id: The unique identifier of the node on which the service is running.\n    Must be unique for external_id, as defined by composite index\n    ix_service_external_id_node_id, and for port, as defined by composite index\n    ix_service_port_node_id.\n:type node_id: int\n:param node: The node to which the service is associated.\n:type node: Node\n:param schemas: A list of schemas associated with the service.\n:type schemas: list[Schema]",
+        "description": "Represent a service running on a node in the inventory.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param external_id: An external identifier for the service. Must be unique for\n    node_id, as defined by composite index ix_service_external_id_node_id.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running. Must be unique for\n    node_id, as defined by composite index ix_service_port_node_id.\n:type port: int | None\n:param environment: The environment in which the service is running, if set.\n:type environment: str | None\n:param cluster: The cluster in which the service is running, if set.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running, if set.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service, if set.\n:param node_id: The unique identifier of the node on which the service is running.\n    Must be unique for external_id, as defined by composite index\n    ix_service_external_id_node_id, and for port, as defined by composite index\n    ix_service_port_node_id.\n:type node_id: int\n:param node: The node to which the service is associated.\n:type node: Node\n:param schemas: A list of schemas associated with the service.\n:type schemas: list[Schema]",
         "properties": {
           "cluster": {
             "anyOf": [
@@ -743,6 +747,7 @@
           "custom_labels": {
             "anyOf": [
               {
+                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -837,7 +842,7 @@
         "type": "object"
       },
       "ServiceDetailResponse": {
-        "description": "Define the service retrieve API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param external_id: An external identifier for the service.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running.\n:type port: int | None\n:param environment: The environment in which the service is running, if set.\n:type environment: str | None\n:param cluster: The cluster in which the service is running, if set.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running, if set.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service, if set.\n:type custom_labels: dict[str, Any] | None\n:param node_id: The unique identifier of the node on which the service is running.\n:type node_id: int\n:param schemas: A list of schemas associated with the service.\n:type schemas: list[Schema]\n:param node: The service's node.\n:type node: Node",
+        "description": "Define the service retrieve API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param external_id: An external identifier for the service.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running.\n:type port: int | None\n:param environment: The environment in which the service is running, if set.\n:type environment: str | None\n:param cluster: The cluster in which the service is running, if set.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running, if set.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service, if set.\n:param node_id: The unique identifier of the node on which the service is running.\n:type node_id: int\n:param schemas: A list of schemas associated with the service.\n:type schemas: list[Schema]\n:param node: The service's node.\n:type node: Node",
         "properties": {
           "cluster": {
             "anyOf": [
@@ -858,6 +863,7 @@
           "custom_labels": {
             "anyOf": [
               {
+                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -962,7 +968,7 @@
         "type": "object"
       },
       "ServiceResponse": {
-        "description": "Define the service API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param external_id: An external identifier for the service.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running.\n:type port: int | None\n:param environment: The environment in which the service is running, if set.\n:type environment: str | None\n:param cluster: The cluster in which the service is running, if set.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running, if set.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service, if set.\n:type custom_labels: dict[str, Any] | None\n:param node_id: The unique identifier of the node on which the service is running.\n:type node_id: int\n:param schemas: A list of schemas associated with the service.\n:type schemas: list[Schema]\n:param node: The node to which the service is associated.\n:type node: Node",
+        "description": "Define the service API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param external_id: An external identifier for the service.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running.\n:type port: int | None\n:param environment: The environment in which the service is running, if set.\n:type environment: str | None\n:param cluster: The cluster in which the service is running, if set.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running, if set.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service, if set.\n:param node_id: The unique identifier of the node on which the service is running.\n:type node_id: int\n:param schemas: A list of schemas associated with the service.\n:type schemas: list[Schema]\n:param node: The node to which the service is associated.\n:type node: Node",
         "properties": {
           "cluster": {
             "anyOf": [
@@ -983,6 +989,7 @@
           "custom_labels": {
             "anyOf": [
               {
+                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -1180,7 +1187,7 @@
         "type": "string"
       },
       "ServiceWrite": {
-        "description": "Define the model for writing service data to the inventory.\n\n:param external_id: An external identifier for the service, indexed for quick\n    lookup. Defaults to None.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running. Defaults to None.\n:type port: int | None\n:param environment: The environment in which the service is running (e.g.,\n    production, staging). Defaults to None.\n:type environment: str | None\n:param cluster: The cluster in which the service is running. Defaults to None.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running. Defaults to None.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service. Defaults to None.\n:type custom_labels: dict[str, Any] | None\n:param node_id: The foreign key referencing the node to which the service belongs.\n    Defaults to None.\n:type node_id: int | None",
+        "description": "Define the model for writing service data to the inventory.\n\n:param external_id: An external identifier for the service, indexed for quick\n    lookup. Defaults to None.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running. Defaults to None.\n:type port: int | None\n:param environment: The environment in which the service is running (e.g.,\n    production, staging). Defaults to None.\n:type environment: str | None\n:param cluster: The cluster in which the service is running. Defaults to None.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running. Defaults to None.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service. Defaults to None.\n:param node_id: The foreign key referencing the node to which the service belongs.\n    Defaults to None.\n:type node_id: int | None",
         "properties": {
           "cluster": {
             "anyOf": [
@@ -1196,6 +1203,7 @@
           "custom_labels": {
             "anyOf": [
               {
+                "additionalProperties": true,
                 "type": "object"
               },
               {
@@ -1274,12 +1282,11 @@
         "type": "object"
       },
       "SettingClassEnum": {
-        "description": "Enumerate settings classes that may have HOT override rows.\n\nThe wired classes are ``SEPSettings``, ``TasksSettings``,\n``SnippetsSettings``, ``MessagesSettings``, the global ``Settings``,\n``AlertSettings``, ``AlertsSettings``, ``AnonymizerSettings`` and\n``InventorySettings``.\n\nTo wire a new settings class:\n\n1. Add a member here whose value matches the Pydantic class ``__name__``.\n2. Generate an Alembic migration on every consumer track that extends the\n   ``CHECK`` constraint on ``settingoverride.setting_class``. The column\n   uses ``native_enum=False`` so the value list lives in a constraint,\n   not a PostgreSQL ``TYPE`` -- the migration ``ALTER``s the constraint.\n   Note that the column and ``CHECK`` constraint persist the enum member\n   *names* (e.g. ``SEP_SETTINGS``), which is distinct from the member\n   *value* (the Pydantic class name, e.g. ``SEPSettings``).\n3. Wire a ``ProxyEntry`` for the new class in the relevant service's\n   lifespan (``app/sep/main.py`` or ``app/tasks/main.py``).",
+        "description": "Enumerate settings classes that may have HOT override rows.\n\nThe wired classes are ``SEPSettings``, ``TasksSettings``,\n``SnippetsSettings``, the global ``Settings``, ``AlertSettings``,\n``AlertsSettings``, ``AnonymizerSettings`` and ``InventorySettings``.\n\nTo wire a new settings class:\n\n1. Add a member here whose value matches the Pydantic class ``__name__``.\n2. Generate an Alembic migration on every consumer track that extends the\n   ``CHECK`` constraint on ``settingoverride.setting_class``. The column\n   uses ``native_enum=False`` so the value list lives in a constraint,\n   not a PostgreSQL ``TYPE`` -- the migration ``ALTER``s the constraint.\n   Note that the column and ``CHECK`` constraint persist the enum member\n   *names* (e.g. ``SEP_SETTINGS``), which is distinct from the member\n   *value* (the Pydantic class name, e.g. ``SEPSettings``).\n3. Wire a ``ProxyEntry`` for the new class in the relevant service's\n   lifespan (``app/sep/main.py`` or ``app/tasks/main.py``).",
         "enum": [
           "SEPSettings",
           "TasksSettings",
           "SnippetsSettings",
-          "MessagesSettings",
           "Settings",
           "AlertSettings",
           "AnonymizerSettings",
@@ -1480,6 +1487,7 @@
             "title": "Id"
           },
           "keys": {
+            "additionalProperties": true,
             "title": "Keys",
             "type": "object"
           },
@@ -1537,6 +1545,7 @@
             "title": "Id"
           },
           "keys": {
+            "additionalProperties": true,
             "title": "Keys",
             "type": "object"
           },
@@ -1591,6 +1600,7 @@
             "title": "Id"
           },
           "keys": {
+            "additionalProperties": true,
             "title": "Keys",
             "type": "object"
           },
@@ -1629,6 +1639,7 @@
             "type": "string"
           },
           "keys": {
+            "additionalProperties": true,
             "title": "Keys",
             "type": "object"
           },
@@ -1795,7 +1806,7 @@
     },
     "/admin/settings/{setting_class}/{key}": {
       "delete": {
-        "description": "Revert one override row to the field's declared default.\n\nFor a remote class the DELETE is forwarded to the owning sub-app, which\nowns the idempotency and ``NOT_OVERRIDABLE`` semantics; its status and\n``detail`` are preserved through the proxy.\n\nFor a local class the DELETE is idempotent: deleting a (class, key) pair\nthat has no override row succeeds with 204. Attempting to delete a field\nthe code declares NOT_OVERRIDABLE responds 409, since it cannot have an\noverride row in the first place and the operator's intent is\nunsatisfiable. A field only ``SETTINGS_OVERRIDE_ALLOWED_KEYS`` withheld\nmay still carry a row written before the restriction applied, so that\nrow is deleted normally and only the no-row case answers 409.\n\nAfter republishing the snapshot, fires the rebind callbacks for the\nreverted key so a HOT target rebinds to its restored value without\nwaiting for the next background refresh cycle.\n\n:param request: The incoming request; its ``app.state`` carries the\n    sub-app's rebind-callback registry.\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.\n:raises HTTPConflictException: If the field is NOT_OVERRIDABLE and has\n    no row to delete.\n:raises HTTPUnprocessableEntityException: If ``key`` names a\n    ``NESTED_ONLY`` parent (the whole parent cannot be overridden;\n    target an individual ``parent__leaf`` instead).\n:raises HTTPBadGatewayException: For a remote class, when the owning\n    sub-app returns a server error (status >= 500) or is unreachable.",
+        "description": "Revert one override row to the field's declared default.\n\nFor a remote class the DELETE is forwarded to the owning sub-app, which\nowns the idempotency and ``NOT_OVERRIDABLE`` semantics; its status and\n``detail`` are preserved through the proxy.\n\nFor a local class the DELETE is idempotent: deleting a (class, key) pair\nthat has no override row succeeds with 204. Attempting to delete a field\nthe code declares NOT_OVERRIDABLE responds 409, since it cannot have an\noverride row in the first place and the operator's intent is\nunsatisfiable. A field only ``SETTINGS_OVERRIDE.ALLOWED_KEYS`` withheld\nmay still carry a row written before the restriction applied, so that\nrow is deleted normally and only the no-row case answers 409.\n\nAfter republishing the snapshot, fires the rebind callbacks for the\nreverted key so a HOT target rebinds to its restored value without\nwaiting for the next background refresh cycle.\n\n:param request: The incoming request; its ``app.state`` carries the\n    sub-app's rebind-callback registry.\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.\n:raises HTTPConflictException: If the field is NOT_OVERRIDABLE and has\n    no row to delete.\n:raises HTTPUnprocessableEntityException: If ``key`` names a\n    ``NESTED_ONLY`` parent (the whole parent cannot be overridden;\n    target an individual ``parent__leaf`` instead).\n:raises HTTPBadGatewayException: For a remote class, when the owning\n    sub-app returns a server error (status >= 500) or is unreachable.",
         "operationId": "settings_delete_setting_admin_settings__setting_class___key__delete",
         "parameters": [
           {
@@ -1968,6 +1979,37 @@
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "description": "Sort key; prefix with '-' for descending order.",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "description": "Sort key; prefix with '-' for descending order.",
+              "enum": ["created_at", "-created_at", "name", "-name"],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Case-insensitive search across the searchable columns.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive search across the searchable columns.",
+              "title": "Search"
             }
           }
         ],
@@ -2234,6 +2276,37 @@
               "title": "Limit",
               "type": "integer"
             }
+          },
+          {
+            "description": "Sort key; prefix with '-' for descending order.",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "description": "Sort key; prefix with '-' for descending order.",
+              "enum": ["created_at", "-created_at", "name", "-name"],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Case-insensitive search across the searchable columns.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive search across the searchable columns.",
+              "title": "Search"
+            }
           }
         ],
         "responses": {
@@ -2448,6 +2521,37 @@
               "title": "Limit",
               "type": "integer"
             }
+          },
+          {
+            "description": "Sort key; prefix with '-' for descending order.",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "description": "Sort key; prefix with '-' for descending order.",
+              "enum": ["created_at", "-created_at", "name", "-name"],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Case-insensitive search across the searchable columns.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive search across the searchable columns.",
+              "title": "Search"
+            }
           }
         ],
         "responses": {
@@ -2634,22 +2738,6 @@
           },
           {
             "in": "query",
-            "name": "search",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Search"
-            }
-          },
-          {
-            "in": "query",
             "name": "offset",
             "required": false,
             "schema": {
@@ -2669,6 +2757,37 @@
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "description": "Sort key; prefix with '-' for descending order.",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "description": "Sort key; prefix with '-' for descending order.",
+              "enum": ["created_at", "-created_at", "name", "-name"],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Case-insensitive search across the searchable columns.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive search across the searchable columns.",
+              "title": "Search"
             }
           }
         ],
@@ -2799,6 +2918,37 @@
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "description": "Sort key; prefix with '-' for descending order.",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "description": "Sort key; prefix with '-' for descending order.",
+              "enum": ["created_at", "-created_at", "name", "-name"],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Case-insensitive search across the searchable columns.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive search across the searchable columns.",
+              "title": "Search"
             }
           }
         ],
@@ -2972,7 +3122,7 @@
     },
     "/services/{service_id}/schemas/": {
       "get": {
-        "description": "List Schemas by Service.\n\nReturn ``SchemaResponse`` (with nested tables) when ``include_tables``\nis set, otherwise return ``SchemaCompactResponse`` (without tables).\n\n:param session: The async database session.\n:type session: AsyncSession\n:param service: The resolved service dependency.\n:type service: Service\n:param search: Filter schemas by name using ILIKE matching.\n:type search: str | None\n:param include_tables: Include nested tables in the response when set to\n    any non-empty value. Defaults to compact mode (no tables).\n:type include_tables: str | None\n:param pagination: Validated offset/limit query parameters.\n:type pagination: Pagination\n:return: A paginated response of schema responses.\n:rtype: PaginatedResponse[SchemaResponse | SchemaCompactResponse]",
+        "description": "List Schemas by Service.\n\nReturn ``SchemaResponse`` (with nested tables) when ``include_tables``\nis set, otherwise return ``SchemaCompactResponse`` (without tables).\n\n:param session: The async database session.\n:param service: The resolved service dependency.\n:param pagination: Validated offset/limit query parameters.\n:param list_query: The resolved sort/search produced at the request\n    boundary.\n:param include_tables: Include nested tables in the response when set to\n    any non-empty value. Defaults to compact mode (no tables).\n:return: A paginated response of schema responses.",
         "operationId": "services_list_schemas_by_service_services__service_id__schemas__get",
         "parameters": [
           {
@@ -2982,22 +3132,6 @@
             "schema": {
               "title": "Service Id",
               "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "search",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Search"
             }
           },
           {
@@ -3037,6 +3171,37 @@
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "description": "Sort key; prefix with '-' for descending order.",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "description": "Sort key; prefix with '-' for descending order.",
+              "enum": ["created_at", "-created_at", "name", "-name"],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Case-insensitive search across the searchable columns.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive search across the searchable columns.",
+              "title": "Search"
             }
           }
         ],
@@ -3280,6 +3445,37 @@
               "minimum": 1,
               "title": "Limit",
               "type": "integer"
+            }
+          },
+          {
+            "description": "Sort key; prefix with '-' for descending order.",
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "name",
+              "description": "Sort key; prefix with '-' for descending order.",
+              "enum": ["created_at", "-created_at", "name", "-name"],
+              "title": "Sort",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Case-insensitive search across the searchable columns.",
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Case-insensitive search across the searchable columns.",
+              "title": "Search"
             }
           }
         ],

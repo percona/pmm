@@ -20,7 +20,10 @@ import type { SectionField } from '@sep/api';
 import {
   buildBatchPayload,
   fieldDeclaresGate,
+  filterSnippetOptions,
+  mergeSnippetOptions,
   namespaceField,
+  snippetMatchesTerm,
 } from '../src/CollectPane';
 import type { AtwSnippetSummary } from '../src/types';
 
@@ -87,6 +90,105 @@ describe('buildBatchPayload', () => {
     const payload = buildBatchPayload({ overrides: {} }, []);
     expect(payload.executor_host).toBe('');
     expect(payload.sudo).toBe(false);
+  });
+});
+
+describe('mergeSnippetOptions', () => {
+  it('dedupes on filename, not title, keeping first-seen order', () => {
+    const selectedRow: AtwSnippetSummary = {
+      name: 'a.sh',
+      title: 'A',
+      description: '',
+    };
+    const categoryRow: AtwSnippetSummary = {
+      name: 'a.sh',
+      title: 'A (renamed)',
+      description: '',
+    };
+    const searchRow: AtwSnippetSummary = {
+      name: 'c.sh',
+      title: 'A',
+      description: '',
+    };
+
+    const merged = mergeSnippetOptions(
+      [selectedRow],
+      [categoryRow],
+      [searchRow]
+    );
+
+    expect(merged.map((snippet) => snippet.name)).toEqual(['a.sh', 'c.sh']);
+    // Same filename from a later source wins the row, so the picker shows the
+    // freshest metadata while the option itself stays single.
+    expect(merged[0].title).toBe('A (renamed)');
+  });
+
+  it('returns an empty list when every source is empty', () => {
+    expect(mergeSnippetOptions([], [], [])).toEqual([]);
+  });
+});
+
+describe('snippetMatchesTerm', () => {
+  const snippet: AtwSnippetSummary = {
+    name: 'ops/pt-summary.sh',
+    title: 'PT Summary',
+    description: 'Collects a percona-toolkit system summary.',
+  };
+
+  it('matches title, filename and description case-insensitively', () => {
+    expect(snippetMatchesTerm(snippet, 'pt summary')).toBe(true);
+    expect(snippetMatchesTerm(snippet, 'OPS/PT-')).toBe(true);
+    expect(snippetMatchesTerm(snippet, 'percona-toolkit')).toBe(true);
+  });
+
+  it('keeps everything for an empty or blank term', () => {
+    expect(snippetMatchesTerm(snippet, '')).toBe(true);
+    expect(snippetMatchesTerm(snippet, '   ')).toBe(true);
+  });
+
+  it('rejects a term present in none of the three fields', () => {
+    expect(snippetMatchesTerm(snippet, 'mongodb')).toBe(false);
+  });
+});
+
+describe('filterSnippetOptions', () => {
+  const category: AtwSnippetSummary = {
+    name: 'diag/slow-query.sh',
+    title: 'Slow Query Diagnostics',
+    description: '',
+  };
+  const searched: AtwSnippetSummary = {
+    name: 'ops/pt-summary.sh',
+    title: 'PT Summary',
+    description: 'Collects a percona-toolkit system summary.',
+  };
+
+  it('keeps a server match whose label does not contain the term', () => {
+    const filtered = filterSnippetOptions(
+      [category, searched],
+      'percona-toolkit',
+      new Set([searched.name])
+    );
+    expect(filtered).toEqual([searched]);
+  });
+
+  it('still filters category options the server never saw', () => {
+    const filtered = filterSnippetOptions(
+      [category, searched],
+      'slow',
+      new Set([searched.name])
+    );
+    // The searched row survives on server provenance, the category row on its title.
+    expect(filtered.map((snippet) => snippet.name)).toEqual([
+      category.name,
+      searched.name,
+    ]);
+  });
+
+  it('passes every option through when nothing is typed', () => {
+    expect(filterSnippetOptions([category, searched], '  ', new Set())).toEqual(
+      [category, searched]
+    );
   });
 });
 

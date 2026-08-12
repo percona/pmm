@@ -190,8 +190,7 @@ export interface paths {
      *
      *     Carries no auth dependency by design: the caller is not yet SEP-authenticated,
      *     and the ambient session cookie is the credential being presented. No CSRF
-     *     primitive applies either -- ``IsCsrfValidated`` guards form data on the
-     *     server-rendered login route, and requiring a Bearer token cannot gate an
+     *     primitive applies either: requiring a Bearer token cannot gate an
      *     endpoint whose purpose is to issue one. That is safe because a cross-origin
      *     attacker cannot read this response (the CORS posture is an explicit
      *     per-environment origin allowlist, with the middleware absent when none is

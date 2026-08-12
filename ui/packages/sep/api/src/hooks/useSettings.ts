@@ -20,7 +20,7 @@
  *
  * Every settings group is reached through the single SEP gateway endpoint
  * `/api/sep/admin/settings`. SEP serves its own classes (SEPSettings,
- * SnippetsSettings, MessagesSettings) locally and proxies `TasksSettings`
+ * SnippetsSettings) locally and proxies `TasksSettings`
  * server-side from the Tasks sub-app, so the frontend never calls
  * `/api/tasks/admin/settings/*` directly (API-First Rule 1). The list response
  * already carries all groups, so there is no client-side fan-out or merge, and

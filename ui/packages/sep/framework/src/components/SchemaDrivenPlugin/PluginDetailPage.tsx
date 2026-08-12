@@ -15,7 +15,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { lazy, Suspense, useMemo, useState, type ReactNode } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
 import {
   Routes,
   Route,
@@ -28,6 +35,7 @@ import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -53,6 +61,7 @@ import {
   useDeletePluginTask,
   usePluginEntityDetail,
   usePluginTask,
+  usePluginTasks,
   type DetailSection,
   type ListView,
   type PluginEntitySchema,
@@ -68,6 +77,7 @@ import {
 } from '../TaskHistoryTable';
 import { TaskLogViewer } from '../TaskLogViewer';
 import { ScheduleSummary } from '../ScheduleSummary';
+import { ChainBuilder, type ChainValue } from '../ChainBuilder';
 import {
   useExecuteTask,
   useStopTaskHistory,
@@ -668,6 +678,10 @@ interface ActionBarProps {
   hasStoredForm: boolean;
 }
 
+function emptyChain(): ChainValue {
+  return { chain_task_names: [], chain_on_failure: false };
+}
+
 function ActionBar({
   schema,
   pluginName,
@@ -683,6 +697,26 @@ function ActionBar({
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingExecute, setPendingExecute] =
     useState<TaskExecuteAction | null>(null);
+  const [chain, setChain] = useState<ChainValue>(emptyChain);
+
+  const chainingEnabled = !!schema.capabilities?.chaining;
+  const {
+    data: pluginTasksData,
+    isLoading: pluginTasksLoading,
+    isError: pluginTasksError,
+    error: pluginTasksLoadError,
+  } = usePluginTasks<{ name: string }>(pluginName, undefined, {
+    fetchAllPages: true,
+    enabled: chainingEnabled,
+  });
+  const availableTasks = useMemo(
+    () => (pluginTasksData?.items ?? []).map((t) => ({ name: t.name })),
+    [pluginTasksData]
+  );
+
+  useEffect(() => {
+    setChain(emptyChain());
+  }, [pendingExecute]);
 
   const resolvedExecuteActions =
     executeActions ??
@@ -698,17 +732,27 @@ function ActionBar({
     if (!pendingExecute) {
       return;
     }
+    const hasChain = chain.chain_task_names.length > 0;
+    let executeBody = pendingExecute.executeBody;
+    if (hasChain) {
+      executeBody = {
+        ...pendingExecute.executeBody,
+        chain_task_names: chain.chain_task_names,
+        chain_on_failure: chain.chain_on_failure,
+      };
+    }
     try {
-      await executeTask.mutateAsync({
-        taskName: pendingExecute.taskName,
-        executeBody: pendingExecute.executeBody,
-      });
+      const executeArgs = executeBody
+        ? { taskName: pendingExecute.taskName, executeBody }
+        : { taskName: pendingExecute.taskName };
+      await executeTask.mutateAsync(executeArgs);
       enqueueSnackbar(
         `${schema.display_name} task "${pendingExecute.taskName}" started`,
         {
           variant: 'success',
         }
       );
+      setPendingExecute(null);
     } catch (e) {
       enqueueSnackbar(
         e instanceof Error ? e.message : 'Failed to execute task',
@@ -716,8 +760,6 @@ function ActionBar({
           variant: 'error',
         }
       );
-    } finally {
-      setPendingExecute(null);
     }
   };
 
@@ -813,7 +855,13 @@ function ActionBar({
 
       <Dialog
         open={pendingExecute !== null}
-        onClose={() => setPendingExecute(null)}
+        onClose={() => {
+          if (!executeTask.isPending) {
+            setPendingExecute(null);
+          }
+        }}
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle>
           {pendingExecute?.label ?? 'Execute'} {schema.display_name} task?
@@ -823,6 +871,33 @@ function ActionBar({
             {pendingExecute?.confirmMessage ??
               `Are you sure you want to execute the task ${pendingExecute?.taskName ?? taskName} now?`}
           </DialogContentText>
+          {chainingEnabled && pendingExecute && (
+            <Box sx={{ mt: 2 }}>
+              {pluginTasksLoading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                  <CircularProgress
+                    size={24}
+                    data-testid="chain-tasks-loading"
+                  />
+                </Box>
+              ) : pluginTasksError ? (
+                <Alert severity="error" data-testid="chain-tasks-error">
+                  Couldn&apos;t load tasks available to chain
+                  {pluginTasksLoadError instanceof Error
+                    ? `: ${pluginTasksLoadError.message}`
+                    : ''}
+                </Alert>
+              ) : (
+                <ChainBuilder
+                  availableTasks={availableTasks}
+                  currentTaskName={pendingExecute.taskName}
+                  value={chain}
+                  onChange={setChain}
+                  disabled={executeTask.isPending}
+                />
+              )}
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button
