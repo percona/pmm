@@ -126,8 +126,8 @@ export default defineConfig({
     ],
   },
   optimizeDeps: {
-    // Uncomment when using pnpm link for @percona/percona-ui locally
-    // exclude: ['@percona/percona-ui'],
+    // Uncomment when using pnpm link for @percona/peak-ui locally
+    // exclude: ['@percona/peak-ui'],
     force: true,
   },
   server: {
@@ -136,7 +136,7 @@ export default defineConfig({
       : undefined,
     watch: {
       // Watch the linked package for changes (negated pattern means "don't ignore")
-      ignored: ['!**/node_modules/@percona/percona-ui/**'],
+      ignored: ['!**/node_modules/@percona/peak-ui/**'],
     },
     proxy: {
       '/v1': {

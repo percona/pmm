@@ -1,6 +1,6 @@
 import vscDarkPlus from 'react-syntax-highlighter/dist/esm/styles/prism/vsc-dark-plus';
 import { Theme } from '@mui/material/styles';
-import { semanticTokensLight, semanticTokensDark } from '@percona/percona-ui';
+import { semanticTokensLight, semanticTokensDark } from '@percona/peak-ui';
 import { CodeLanguage } from 'types/util.types';
 
 export const getSyntaxHighlighterStyle = (

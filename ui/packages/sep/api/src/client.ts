@@ -18,7 +18,7 @@
 /// <reference path="./vite-env.d.ts" />
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { SEP_BASE_PATH } from './base';
-import { ApiError, normalizeAxiosError } from './errors';
+import { normalizeAxiosError } from './errors';
 
 // ── Token provider ─────────────────────────────────────────────────────
 // Instead of owning a copy of the access token, the API layer delegates
@@ -236,19 +236,6 @@ export function refreshAccessToken(): Promise<string | null> {
 
 apiClient.interceptors.response.use(
   (response) => {
-    const ct = String(response.headers['content-type'] ?? '');
-    if (ct.includes('text/html') && !isRefreshRequest(response.config?.url)) {
-      _onUnauthorized();
-      return Promise.reject(
-        new ApiError({
-          kind: 'http',
-          status: 401,
-          message: 'Session expired (redirected to login page)',
-          url: response.config?.url,
-          method: response.config?.method?.toUpperCase(),
-        })
-      );
-    }
     if (IS_DEV) {
       const method = response.config?.method?.toUpperCase() ?? 'GET';
       // eslint-disable-next-line no-console

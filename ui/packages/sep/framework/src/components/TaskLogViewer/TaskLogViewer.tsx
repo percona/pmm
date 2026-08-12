@@ -18,6 +18,7 @@
 import DownloadIcon from '@mui/icons-material/Download';
 import Badge from '@mui/material/Badge';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
@@ -33,7 +34,11 @@ import Typography from '@mui/material/Typography';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useExecutionEvents } from '../../hooks/useExecutionEvents';
 import { useLogDownload } from '../../hooks/useLogDownload';
-import { useTaskLogs, type LogType } from '../../hooks/useTaskLogs';
+import {
+  useTaskLogs,
+  type LogType,
+  type StepText,
+} from '../../hooks/useTaskLogs';
 import { ExecutionEventsPanel } from './ExecutionEventsPanel';
 import { LogOutputPane } from './LogOutputPane';
 import { LogStepTabs } from './LogStepTabs';
@@ -52,6 +57,23 @@ export const LOG_TAIL_LINE_OPTIONS = [
 ] as const;
 
 export type LogTailLineChoice = (typeof LOG_TAIL_LINE_OPTIONS)[number]['value'];
+
+const NUMERIC_LOG_TAIL_OPTIONS = LOG_TAIL_LINE_OPTIONS.map((option) =>
+  Number(option.value)
+).filter((value) => Number.isFinite(value));
+
+/**
+ * Smallest numeric cap on offer. A proven-complete log at or below this size
+ * looks identical under every option, so the select has nothing left to do.
+ * Derived from the options list so changing the list moves the threshold.
+ *
+ * Falls back to 0 when the list holds no numeric option: `Math.min()` of an
+ * empty list is Infinity, which would hide the select for every finished task.
+ */
+const SMALLEST_LOG_TAIL_OPTION =
+  NUMERIC_LOG_TAIL_OPTIONS.length > 0
+    ? Math.min(...NUMERIC_LOG_TAIL_OPTIONS)
+    : 0;
 
 const LOG_TAIL_STORAGE_KEY = 'sep.taskLogViewer.tail';
 
@@ -85,6 +107,52 @@ function isRunningStatus(status?: string): boolean {
   return (status ?? '').toLowerCase() === 'running';
 }
 
+/**
+ * Line count, saturating at `limit + 1`. Callers only need to know whether a
+ * pane is over the threshold, so a large log stops being scanned as soon as it
+ * provably is — no full pass over megabytes of "All lines" output.
+ */
+function countLinesUpTo(text: string, limit: number): number {
+  if (text === '') {
+    return 0;
+  }
+  let lines = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    if (text[index] === '\n') {
+      lines += 1;
+      if (lines > limit) {
+        return lines;
+      }
+    }
+  }
+  // A trailing fragment without its newline is still a line on screen.
+  return text.endsWith('\n') ? lines : lines + 1;
+}
+
+/**
+ * Largest line count across every step and both streams, saturating at
+ * `limit + 1`. The line-cap decision uses this rather than the visible pane so
+ * the control does not appear and disappear as the user moves between step or
+ * stream tabs.
+ */
+function maxPaneLineCountUpTo(
+  textByStep: Record<string, StepText>,
+  limit: number
+): number {
+  let max = 0;
+  for (const pane of Object.values(textByStep)) {
+    max = Math.max(
+      max,
+      countLinesUpTo(pane.stdout, limit),
+      countLinesUpTo(pane.stderr, limit)
+    );
+    if (max > limit) {
+      return max;
+    }
+  }
+  return max;
+}
+
 function resolveBadgeStatus(
   finishStatus: ReturnType<typeof useTaskLogs>['finishStatus'],
   error: ReturnType<typeof useTaskLogs>['error']
@@ -106,10 +174,8 @@ export function TaskLogViewer({
   );
   const tailLines = logTailChoiceToParam(logTailChoice);
   const effectiveTailLines = running ? undefined : tailLines;
-  const { textByStep, stepOrder, finishStatus, error } = useTaskLogs(
-    taskHistoryId,
-    effectiveTailLines
-  );
+  const { textByStep, stepOrder, streamStatus, finishStatus, error } =
+    useTaskLogs(taskHistoryId, effectiveTailLines);
   const { eventsByStep, stepOrder: eventStepOrder } = useExecutionEvents(
     taskHistoryId,
     running
@@ -120,20 +186,16 @@ export function TaskLogViewer({
   const [wrap, setWrap] = useState(false);
 
   const [unreadTypes, setUnreadTypes] = useState<Set<LogType>>(new Set());
-  const [unreadEvents, setUnreadEvents] = useState(false);
   const [unreadSteps, setUnreadSteps] = useState<Set<string>>(new Set());
 
   const prevLogSizesRef = useRef<Record<string, number>>({});
-  const prevEventCountRef = useRef(0);
 
   // Reset view state when switching to a different task history
   useEffect(() => {
     setActiveStep(undefined);
     setUnreadTypes(new Set());
     setUnreadSteps(new Set());
-    setUnreadEvents(false);
     prevLogSizesRef.current = {};
-    prevEventCountRef.current = 0;
   }, [taskHistoryId]);
 
   useEffect(() => {
@@ -180,32 +242,22 @@ export function TaskLogViewer({
     }
   }, [textByStep, stepOrder, topTab, activeStep]);
 
-  // Events unread badge on top tab
-  useEffect(() => {
-    const total = Object.values(eventsByStep).reduce(
-      (sum, list) => sum + list.length,
-      0
-    );
-    if (total > prevEventCountRef.current && topTab !== 'events') {
-      setUnreadEvents(true);
-    }
-    prevEventCountRef.current = total;
-  }, [eventsByStep, topTab]);
-
   const handleTopTab = (value: TopTab) => {
     setTopTab(value);
+    // Execution events deliberately carry no unread indicator: they arrive over
+    // SSE on every pushed event, and badging them pulled attention away from
+    // stdout and stderr, which are the reason the console is open.
     if (value === 'events') {
-      setUnreadEvents(false);
-    } else {
-      setUnreadTypes((prev) => {
-        if (!prev.has(value)) {
-          return prev;
-        }
-        const next = new Set(prev);
-        next.delete(value);
-        return next;
-      });
+      return;
     }
+    setUnreadTypes((prev) => {
+      if (!prev.has(value)) {
+        return prev;
+      }
+      const next = new Set(prev);
+      next.delete(value);
+      return next;
+    });
   };
 
   const handleStepSelect = (step: string) => {
@@ -254,6 +306,25 @@ export function TaskLogViewer({
 
   const badgeStatus = resolveBadgeStatus(finishStatus, error);
 
+  // Hide the line cap once a finished history has streamed a log that is
+  // provably complete and short enough that every option would show the same
+  // thing. Gated on the terminal stream status so the control does not flicker
+  // while lines are still arriving.
+  const showLogTailSelect = useMemo(() => {
+    if (running || streamStatus !== 'finished') {
+      return true;
+    }
+    // Saturated at one over the threshold: any pane above it keeps the select
+    // regardless of the requested cap, so the exact count no longer matters.
+    const maxLines = maxPaneLineCountUpTo(textByStep, SMALLEST_LOG_TAIL_OPTION);
+    if (maxLines > SMALLEST_LOG_TAIL_OPTION) {
+      return true;
+    }
+    // A pane sitting exactly at the requested cap may have been trimmed
+    // server-side, so only a count strictly below the cap proves completeness.
+    return effectiveTailLines !== undefined && maxLines >= effectiveTailLines;
+  }, [running, streamStatus, textByStep, effectiveTailLines]);
+
   return (
     <Paper variant="outlined" sx={{ display: 'flex', flexDirection: 'column' }}>
       <Stack
@@ -262,12 +333,19 @@ export function TaskLogViewer({
         sx={{ px: 1, pt: 1, borderBottom: 1, borderColor: 'divider' }}
       >
         <Tabs
-          value={topTab}
-          onChange={(_, v: TopTab) => handleTopTab(v)}
-          sx={{ flex: 1, minHeight: 40 }}
+          // The events view is not one of these tabs, so hand MUI `false`
+          // rather than an out-of-range value: no tab reads as active and no
+          // out-of-range warning is logged.
+          value={topTab === 'events' ? false : topTab}
+          onChange={(_, v: LogType) => handleTopTab(v)}
+          sx={{ minHeight: 40 }}
         >
           <Tab
             value="stdout"
+            // MUI gives every tab tabIndex -1 when no tab is selected, which
+            // would strand keyboard users outside the strip while the events
+            // view is open. Keep one entry point; arrow keys move from there.
+            {...(topTab === 'events' ? { tabIndex: 0 } : {})}
             label={
               <Badge
                 color="primary"
@@ -290,55 +368,71 @@ export function TaskLogViewer({
               </Badge>
             }
           />
-          <Tab
-            value="events"
-            label={
-              <Badge color="primary" variant="dot" invisible={!unreadEvents}>
-                <span>Execution events</span>
-              </Badge>
-            }
-          />
         </Tabs>
+        {/* Subordinate to the primary tabs, but still one click away. */}
+        <Button
+          size="small"
+          color="inherit"
+          onClick={() => handleTopTab('events')}
+          // Not a toggle: a second click is a no-op and the way back is a
+          // primary tab, so mark it as the current view rather than pressed.
+          aria-current={topTab === 'events' ? 'true' : undefined}
+          sx={{
+            ml: 1,
+            textTransform: 'none',
+            color: topTab === 'events' ? 'text.primary' : 'text.secondary',
+            bgcolor: topTab === 'events' ? 'action.selected' : 'transparent',
+          }}
+        >
+          Execution events
+        </Button>
+        <Box sx={{ flex: 1 }} />
         <Stack direction="row" alignItems="center" spacing={1} sx={{ pr: 1 }}>
           {badgeStatus && <StatusBadge status={badgeStatus} />}
-          <Tooltip
-            title={
-              running
-                ? 'Line cap applies to finished task logs only'
-                : 'Limit how many lines are loaded from the server'
-            }
-          >
-            <FormControl size="small" sx={{ minWidth: 96 }} disabled={running}>
-              <Select
-                value={logTailChoice}
-                onChange={(event) =>
-                  handleLogTailChange(event.target.value as LogTailLineChoice)
-                }
-                aria-label="Log lines to show"
+          {showLogTailSelect && (
+            <Tooltip
+              title={
+                running
+                  ? 'Line cap applies to finished task logs only'
+                  : 'Limit how many lines are loaded from the server'
+              }
+            >
+              <FormControl
+                size="small"
+                sx={{ minWidth: 96 }}
                 disabled={running}
-                renderValue={(value) => (
-                  <Typography variant="body2" component="span">
-                    {value === 'all' ? 'All lines' : `Last ${value}`}
-                  </Typography>
-                )}
-                sx={{
-                  '& .MuiSelect-select': {
-                    py: 0.75,
-                    display: 'flex',
-                    alignItems: 'center',
-                  },
-                }}
               >
-                {LOG_TAIL_LINE_OPTIONS.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label === 'All'
-                      ? 'All lines'
-                      : `Last ${option.label}`}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Tooltip>
+                <Select
+                  value={logTailChoice}
+                  onChange={(event) =>
+                    handleLogTailChange(event.target.value as LogTailLineChoice)
+                  }
+                  aria-label="Log lines to show"
+                  disabled={running}
+                  renderValue={(value) => (
+                    <Typography variant="body2" component="span">
+                      {value === 'all' ? 'All lines' : `Last ${value}`}
+                    </Typography>
+                  )}
+                  sx={{
+                    '& .MuiSelect-select': {
+                      py: 0.75,
+                      display: 'flex',
+                      alignItems: 'center',
+                    },
+                  }}
+                >
+                  {LOG_TAIL_LINE_OPTIONS.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label === 'All'
+                        ? 'All lines'
+                        : `Last ${option.label}`}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Tooltip>
+          )}
           <FormControlLabel
             control={
               <Switch

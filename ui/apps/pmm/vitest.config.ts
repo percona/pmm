@@ -30,7 +30,7 @@ export default defineConfig({
         fallbackCJS: true,
         // Route these React consumers through Vite's transform so their `react`
         // imports go through `dedupe` and share the app's single React instance.
-        inline: ['@percona/percona-ui', 'react-dom', '@testing-library/react'],
+        inline: ['@percona/peak-ui', 'react-dom', '@testing-library/react'],
       },
     },
   },
