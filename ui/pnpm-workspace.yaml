@@ -52,4 +52,4 @@ overrides:
   picomatch: ^4.0.4
 
 minimumReleaseAgeExclude:
-  - '@percona/percona-ui@1.0.24'
+  - '@percona/peak-ui@1.0.25'
