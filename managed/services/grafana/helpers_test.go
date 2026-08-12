@@ -509,6 +509,26 @@ func TestGetAuthCacheKey(t *testing.T) {
 	})
 }
 
+func TestEscapeJSONStringValue(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{name: "escapes backslash", input: `path\\to\\file`, want: `path\\\\to\\\\file`},
+		{name: "escapes quote", input: `say "hello"`, want: `say \"hello\"`},
+		{name: "escapes backslash quote", input: `\\"`, want: `\\\\\"`},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, escapeJSONStringValue(tc.input))
+		})
+	}
+}
+
 func TestWriteResponseErrorStatus(t *testing.T) {
 	t.Parallel()
 
@@ -520,8 +540,8 @@ func TestWriteResponseErrorStatus(t *testing.T) {
 
 		assert.Equal(t, http.StatusForbidden, rw.Code)
 		assert.Equal(t, `7`, rw.Header().Get(authResponseCodeHeader))
-		assert.Equal(t, `denied \\"by\\" policy\\\\rule`, rw.Header().Get(authResponseErrorHeader))
-		assert.Equal(t, `cannot use token \\"abc\\\\def\\"`, rw.Header().Get(authResponseMessageHeader))
+		assert.Equal(t, `denied \"by\" policy\\\\rule`, rw.Header().Get(authResponseErrorHeader))
+		assert.Equal(t, `cannot use token \"abc\\\\def\"`, rw.Header().Get(authResponseMessageHeader))
 	})
 
 	t.Run("keeps safe values unchanged", func(t *testing.T) {

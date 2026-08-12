@@ -306,8 +306,9 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgent
 		}
 
 		l.Warningf("Failed to ping pmm-agent with ID %q on registration attempt %d/%d: %v", agentMD.ID, attempt+1, maxRegisterRetries, err)
-		r.Kick(ctx, agentMD.ID)
-		l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
+		if r.kickMatchingConnection(ctx, agentMD.ID, currentAgent) {
+			l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
+		}
 	}
 	if !registered {
 		return zero, status.Errorf(codes.Aborted, "failed to register pmm-agent with ID %q after %d retries", agentMD.ID, maxRegisterRetries)
@@ -532,6 +533,49 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	// closing agent.kickChan is enough to exit runStateChangeHandler goroutine.
 }
 
+// kickMatchingConnection removes and kicks only the expected connection instance.
+func (r *Registry) kickMatchingConnection(ctx context.Context, pmmAgentID string, currentAgent pmmAgentInfo) bool {
+	agent, ok := r.agentsCache.CompareAndDelete(pmmAgentID, func(cached pmmAgentInfo) bool {
+		return cached.channel == currentAgent.channel && cached.kickChan == currentAgent.kickChan
+	})
+	if !ok {
+		return false
+	}
+
+	r.mDisconnects.WithLabelValues("kick").Inc()
+	r.roster.clear(pmmAgentID)
+
+	if r.haService.Params().Enabled {
+		l := logger.Get(ctx)
+		err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			a, err := models.FindAgentByID(tx.Querier, pmmAgentID)
+			if err != nil {
+				if status.Code(err) == codes.NotFound {
+					return nil
+				}
+				return fmt.Errorf("failed to find agent: %w", err)
+			}
+			a.IsConnected = false
+			err = tx.Update(a)
+			if err != nil {
+				return fmt.Errorf("failed to update agent: %w", err)
+			}
+			return nil
+		})
+		if err != nil {
+			l.Errorf("Failed to update the connection status for agent %s: %v", pmmAgentID, err)
+		}
+
+		r.cacheMu.Lock()
+		delete(r.connectionCache, pmmAgentID)
+		r.cacheMu.Unlock()
+	}
+
+	close(agent.kickChan)
+
+	return true
+}
+
 func (r *Registry) get(pmmAgentID string) (pmmAgentInfo, error) {
 	pmmAgent, ok := r.agentsCache.Load(pmmAgentID)
 	if !ok {
@@ -552,13 +596,26 @@ func (r *Registry) Describe(ch chan<- *prom.Desc) {
 
 // Collect implement prometheus.Collector.
 func (r *Registry) Collect(ch chan<- prom.Metric) {
-	for _, agent := range r.agentsCache.IterAll() {
-		m := agent.channel.Metrics()
+	type agentMetricsSnapshot struct {
+		id      string
+		metrics channel.Metrics
+	}
 
-		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, m.Sent, agent.id)
-		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, m.Recv, agent.id)
-		ch <- prom.MustNewConstMetric(mResponsesDesc, prom.GaugeValue, m.Responses, agent.id)
-		ch <- prom.MustNewConstMetric(mRequestsDesc, prom.GaugeValue, m.Requests, agent.id)
+	snapshots := make([]agentMetricsSnapshot, 0, int(r.agentsCache.Size()))
+	for _, agent := range r.agentsCache.IterAll() {
+		metrics := agent.channel.Metrics()
+		snapshots = append(snapshots, agentMetricsSnapshot{
+			id:      agent.id,
+			metrics: *metrics,
+		})
+	}
+
+	for i := range snapshots {
+		s := snapshots[i]
+		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, s.metrics.Sent, s.id)
+		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, s.metrics.Recv, s.id)
+		ch <- prom.MustNewConstMetric(mResponsesDesc, prom.GaugeValue, s.metrics.Responses, s.id)
+		ch <- prom.MustNewConstMetric(mRequestsDesc, prom.GaugeValue, s.metrics.Requests, s.id)
 	}
 
 	r.mAgents.Collect(ch)

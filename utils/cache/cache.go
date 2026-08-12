@@ -161,6 +161,25 @@ func (c *Cache[V]) LoadAndDelete(key string) (V, bool) {
 	return itm.value, true
 }
 
+// CompareAndDelete atomically removes an item only when match returns true for the current value.
+func (c *Cache[V]) CompareAndDelete(key string, match func(V) bool) (V, bool) {
+	keyHash := c.calculateKeyHash(key)
+	shard := c.getShard(keyHash)
+
+	shard.mu.Lock()
+	itm, exists := shard.items[keyHash]
+	if !exists || !match(itm.value) {
+		shard.mu.Unlock()
+		var zero V
+		return zero, false
+	}
+	delete(shard.items, keyHash)
+	shard.size--
+	shard.mu.Unlock()
+
+	return itm.value, true
+}
+
 // Size returns the total number of items across all cache shards.
 func (c *Cache[V]) Size() int64 {
 	var total int64

@@ -16,6 +16,7 @@
 package grafana
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -78,15 +79,21 @@ func convertAuthErrorToHTTPStatus(code codes.Code) int {
 	return authenticationErrorCode
 }
 
-var jsonStringValueEscaper = strings.NewReplacer(`\\`, `\\\\`, `"`, `\\"`)
-
 // escapeJSONStringValue escapes characters that break JSON string values when headers
 // are later interpolated into JSON payloads by downstream components.
 func escapeJSONStringValue(s string) string {
-	if !strings.ContainsAny(s, `\\"`) {
+	b, err := json.Marshal(s)
+	if err != nil {
 		return s
 	}
-	return jsonStringValueEscaper.Replace(s)
+
+	// json.Marshal wraps the encoded string in quotes; remove them because this
+	// value is stored as a header value and interpolated later into JSON.
+	if len(b) >= 2 { //nolint:mnd
+		return string(b[1 : len(b)-1])
+	}
+
+	return s
 }
 
 // writeResponseErrorStatus sends an HTTP response header with the provided

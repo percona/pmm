@@ -86,7 +86,7 @@ func BenchmarkAuthCacheKey(b *testing.B) {
 			tc.set(req)
 			for b.Loop() {
 				key := getAuthCacheKey(req)
-				if key == ":" {
+				if key == "\\x00" {
 					b.Fatalf("authCacheKey returned empty key")
 				}
 			}

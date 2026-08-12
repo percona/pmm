@@ -43,7 +43,7 @@ func BenchmarkConcurrencyLimiter_TryAcquireWhenExhausted(b *testing.B) {
 }
 
 func BenchmarkConcurrencyLimiter_ParallelAcquireRelease(b *testing.B) {
-	limiter := NewConcurrencyLimiter(int32(runtime.GOMAXPROCS(0))) //nolint:gosec
+	limiter := NewConcurrencyLimiter(int32(runtime.GOMAXPROCS(0))) //nolint:nolintlint
 	b.ReportAllocs()
 
 	b.RunParallel(func(pb *testing.PB) {

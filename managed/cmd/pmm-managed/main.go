@@ -157,18 +157,26 @@ const (
 	// Per-P settings keep pool growth proportional to scheduler parallelism.
 	internalDbOpenConnsPerP = 3
 	apiDbOpenConnsPerP      = 12
+
+	// Keep total pmm-managed pools below PostgreSQL max_connections.
+	// The remainder is reserved for PostgreSQL internals and other PMM components.
+	postgresMaxConnections      = 2000
+	postgresConnectionsReserved = 500
+	postgresPoolBudget          = postgresMaxConnections - postgresConnectionsReserved
+
+	internalDbPoolCap = 100
+	apiDbPoolCap      = postgresPoolBudget - internalDbPoolCap
 )
 
 var (
 	// Internal DB params.
-	internalDbMaxOpenConns = int32(max(internalDbMinOpenConns, runtime.GOMAXPROCS(0)*internalDbOpenConnsPerP))
+	internalDbMaxOpenConns = int32(min(max(internalDbMinOpenConns, runtime.GOMAXPROCS(0)*internalDbOpenConnsPerP), internalDbPoolCap))
 	internalDbMaxIdleConns = internalDbMaxOpenConns
 
 	// API DB params.
-	// Sized to give DB-bound auth/role/settings paths enough headroom during
-	// a reconnect storm from a fleet of agents, while staying well within
-	// Postgres max_connections (set to 2000 by PMM Server).
-	apiDbMaxOpenConns = int32(max(apiDbMinOpenConns, runtime.GOMAXPROCS(0)*apiDbOpenConnsPerP))
+	// Sized to give DB-bound auth/role/settings paths enough headroom during a
+	// reconnect storm while staying within the shared PostgreSQL pool budget.
+	apiDbMaxOpenConns = int32(min(max(apiDbMinOpenConns, runtime.GOMAXPROCS(0)*apiDbOpenConnsPerP), apiDbPoolCap))
 	apiDbMaxIdleConns = apiDbMaxOpenConns
 )
 

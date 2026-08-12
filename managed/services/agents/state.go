@@ -238,6 +238,13 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgent pmmAgen
 		return fmt.Errorf("settings singleflight returned %T", fetchedSettings)
 	}
 
+	// the context may already be terminated
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("stop after fetching settings: %w", ctx.Err())
+	default:
+	}
+
 	filters := models.AgentFilters{
 		PMMAgentID:  pmmAgent.id,
 		IgnoreNomad: !settings.IsNomadEnabled(),
@@ -278,6 +285,13 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, pmmAgent pmmAgen
 	node, ok := fetchedNode.(*models.Node)
 	if !ok {
 		return fmt.Errorf("node %s singleflight returned %T", nodeKey, fetchedNode)
+	}
+
+	// the context may already be terminated
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("stop after node %s lookup: %w", nodeKey, ctx.Err())
+	default:
 	}
 
 	redactMode := redactSecrets
