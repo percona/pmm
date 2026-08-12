@@ -1,22 +1,22 @@
 ---
-description: "Percona UI + PMM UI styling — MUI + @percona/percona-ui, theme tokens, layout conventions, what not to do"
+description: "Percona UI + PMM UI styling — MUI + @percona/peak-ui, theme tokens, layout conventions, what not to do"
 alwaysApply: true
 ---
 
 ## Stack order
 
 1. **MUI** (mostly `@mui/material`, `@mui/icons-material`, `@mui/x-date-pickers` — though other MUI dependencies may also be in use) is the base component and styling API. Use MUI primitives for layout and composition.
-2. **`@percona/percona-ui`** is the Percona design layer on top of MUI (theme, branded components, tables, dialogs). Prefer exports from `@percona/percona-ui` when they wrap or standardize behavior (e.g. `Table`, `Dialog`, `ThemeContextProvider`, `pmmThemeOptions`, `NotistackMuiSnackbar`, `primitives`).
+2. **`@percona/peak-ui`** is the Percona design layer on top of MUI (theme, branded components, tables, dialogs). Prefer exports from `@percona/peak-ui` when they wrap or standardize behavior (e.g. `Table`, `Dialog`, `ThemeContextProvider`, `pmmThemeOptions`, `NotistackMuiSnackbar`, `primitives`).
 
 ## Do not introduce
 
 - Do not introduce other CSS/UI frameworks (Tailwind, Bootstrap, styled-components, etc.) or ad-hoc global CSS that fights the theme.
 - Do not introduce hard-coded colors, font families, or spacing that bypass the theme. Prefer `sx` with `theme.palette`, `theme.spacing`, breakpoints, and MUI `Typography` variants.
-- Do not introduce custom component libraries outside MUI + `@percona/percona-ui` unless explicitly requested.
+- Do not introduce custom component libraries outside MUI + `@percona/peak-ui` unless explicitly requested.
 
 ## Theming and color mode
 
-- The app root uses `ThemeContextProvider` with `pmmThemeOptions` from `@percona/percona-ui` — do not replace with a separate `ThemeProvider` or duplicate theme objects in feature code.
+- The app root uses `ThemeContextProvider` with `pmmThemeOptions` from `@percona/peak-ui` — do not replace with a separate `ThemeProvider` or duplicate theme objects in feature code.
 - Use `ColorModeContext` / existing hooks (e.g. `useColorMode` in `hooks/theme.ts`) for light/dark; avoid direct `document` or `localStorage` theme hacks.
 
 ## Layout and PMM consistency
@@ -31,8 +31,8 @@ alwaysApply: true
 
 ## When something is missing
 
-- If a token or component behavior should be shared across products, explain it to them, plan a change, present it as a proposal to extend **`@percona/percona-ui`** (theme / components) rather than embedding one-off design in PMM only.
-- If unsure whether a primitive exists in `percona-ui`, check that package or Storybook before inventing a parallel implementation in PMM.
+- If a token or component behavior should be shared across products, explain it to them, plan a change, present it as a proposal to extend **`@percona/peak-ui`** (theme / components) rather than embedding one-off design in PMM only.
+- If unsure whether a primitive exists in `peak-ui`, check that package or Storybook before inventing a parallel implementation in PMM.
 
 ## Examples
 
@@ -44,7 +44,7 @@ alwaysApply: true
 <div className="tailwind-p-4 text-gray-500">
 
 // Good — branded table from design system
-import { Table } from '@percona/percona-ui';
+import { Table } from '@percona/peak-ui';
 
 // Bad — pulling in another data-table library for the same job
 ```
