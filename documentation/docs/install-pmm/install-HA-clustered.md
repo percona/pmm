@@ -692,12 +692,20 @@ pmmEnv:
   PMM_HA_GOSSIP_PORT: "9096"                # Gossip protocol port
   PMM_HA_RAFT_PORT: "9097"                  # Raft consensus port
   PMM_HA_GRAFANA_GOSSIP_PORT: "9094"        # Grafana gossip port
-  PMM_DISABLE_BUILTIN_CLICKHOUSE: "1"       # Use external ClickHouse
-  PMM_DISABLE_BUILTIN_POSTGRES: "1"         # Use external PostgreSQL
+  PMM_DISABLE_BUILTIN_CLICKHOUSE: "1"       # Use the operator-managed ClickHouse cluster
+  PMM_DISABLE_BUILTIN_POSTGRES: "1"         # Use the operator-managed PostgreSQL cluster
   PMM_CLICKHOUSE_IS_CLUSTER: "1"            # Enable ClickHouse clustering
 ```
 
-These variables are tested and validated for the HA architecture - modifying them is not recommended. PMM updates are managed through Helm chart upgrades rather than the UI to ensure consistency across all replicas.
+These variables are tested and validated for the HA architecture, so modifying them is not recommended. PMM updates are managed through Helm chart upgrades rather than the UI to ensure consistency across all replicas.
+
+#### Built-in, operator-managed, and external databases
+
+By default, PMM sets up and manages ClickHouse, VictoriaMetrics, and PostgreSQL for you. Each runs as its own pod. These are called operator-managed clusters.
+
+You can point PMM at your own instance instead, for example a ClickHouse cluster your database team already runs. To do this, set `PMM_DISABLE_BUILTIN_CLICKHOUSE` (or the PostgreSQL equivalent).
+
+These variable names say "built-in", but HA doesn't have a built-in database to switch off. That naming carries over from standalone deployments, where it disables the copy bundled inside the `pmm-server` container. In HA, setting the same variable does something slightly different: it switches PMM away from the operator-managed cluster to the one you provide.
 
 #### Customizable settings
 
@@ -1066,7 +1074,7 @@ We are aware of the following issues in this Tech Preview version and plan to fi
 | **[PMM-14705](https://perconadev.atlassian.net/browse/PMM-14705)**: CLI-added services show no metrics | Services from `pmm-admin` appear as UNSPECIFIED, dashboards empty (QAN works) | Add services via PMM UI instead |
 | **[PMM-14706](https://perconadev.atlassian.net/browse/PMM-14706)**: Extra 'pmm-' prefix | PostgreSQL nodes show as `pmm-pmm-ha-pg-...` | Cosmetic only - no action needed |
 | **[PMM-14707](https://perconadev.atlassian.net/browse/PMM-14707)**: Wrong PostgreSQL status | Inventory shows FAILED/UNSPECIFIED despite working metrics | Check dashboards to verify metrics flow |
-| **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |                                   |
+| **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |                                   
 | **[PMM-14709](https://perconadev.atlassian.net/browse/PMM-14709)**: Data retention does not work on HA | Changing data retention under **Configuration > Settings > Advanced Settings** has no effect and older metrics remain available despite the new retention value. | Technical Preview only: The UI-based data retention setting does not work in HA clusters. To implement retention, configure it directly in ClickHouse using `ALTER TABLE ... TTL` instead of relying on this UI option to remove old metrics. |
 
 ### Scaling limitations

@@ -1,13 +1,18 @@
 # Configure PMM with external PostgreSQL
 
-Percona Monitoring and Management (PMM) can be configured to use an external PostgreSQL database instead of its built-in instance. This provides several advantages, including:
+Use an external PostgreSQL instance when you want PMM to store its metadata outside the `pmm-server` container, on a host or cluster you manage yourself.
 
-- enhanced high availability (HA) capabilities
-- improved performance with dedicated database servers
-- integration with existing database infrastructure
-- better control over data retention and backups
+This lets you:
+
+- scale PostgreSQL independently of PMM Server
+- reuse a database your team already runs
+- set your own backup and retention schedule
+
+This applies to standalone PMM deployments, where PostgreSQL is either bundled in the `pmm-server` container (built-in) or a separate instance you provide (external), as described on this page.
 
 To configure PMM Server to connect to an external PostgreSQL database running on the same host or a remote server, set up the required environment variables, configure SSL for secure connections, and ensure proper permissions for both PMM components and Grafana.
+
+If you're running PMM HA Cluster instead, PMM's Helm chart deploys and manages PostgreSQL for you automatically. Configure it using the [PMM HA environment variables](../../install-pmm/install-HA-clustered.md#pre-configured-ha-variables).
 
 ## Prerequisites
 Before configuring PMM with an external PostgreSQL database, ensure you have a PostgreSQL 14+ server accessible from your PMM Server.
