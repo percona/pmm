@@ -9,9 +9,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "available"
-        ],
+        "required": ["available"],
         "title": "AlertConfigResponse",
         "type": "object"
       },
@@ -67,10 +65,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "username",
-          "password"
-        ],
+        "required": ["username", "password"],
         "title": "Body_oauth_create_oauth_token_api_oauth_token_post",
         "type": "object"
       },
@@ -158,13 +153,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "username",
-          "owner",
-          "fullName",
-          "isActive"
-        ],
+        "required": ["id", "username", "owner", "fullName", "isActive"],
         "title": "CasdoorUser",
         "type": "object"
       },
@@ -232,10 +221,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "username",
-          "password"
-        ],
+        "required": ["username", "password"],
         "title": "SPALoginBody",
         "type": "object"
       },
@@ -251,10 +237,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "access_token",
-          "expires_in"
-        ],
+        "required": ["access_token", "expires_in"],
         "title": "SPAOAuthTokenResponse",
         "type": "object"
       },
@@ -270,10 +253,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "access_token",
-          "expires_in"
-        ],
+        "required": ["access_token", "expires_in"],
         "title": "SessionExchangeTokenResponse",
         "type": "object"
       },
@@ -309,11 +289,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError",
         "type": "object"
       }
@@ -359,9 +335,7 @@
           }
         ],
         "summary": "Get Alert Config",
-        "tags": [
-          "config"
-        ]
+        "tags": ["config"]
       }
     },
     "/api/oauth/login": {
@@ -401,9 +375,7 @@
           }
         },
         "summary": "Spa Login",
-        "tags": [
-          "oauth"
-        ]
+        "tags": ["oauth"]
       }
     },
     "/api/oauth/logout": {
@@ -421,9 +393,7 @@
           }
         ],
         "summary": "Spa Logout",
-        "tags": [
-          "oauth"
-        ]
+        "tags": ["oauth"]
       }
     },
     "/api/oauth/refresh": {
@@ -471,9 +441,7 @@
           }
         },
         "summary": "Refresh Token",
-        "tags": [
-          "oauth"
-        ]
+        "tags": ["oauth"]
       }
     },
     "/api/oauth/session": {
@@ -493,9 +461,7 @@
           }
         },
         "summary": "Spa Session Login",
-        "tags": [
-          "oauth"
-        ]
+        "tags": ["oauth"]
       }
     },
     "/api/oauth/session/exchange": {
@@ -515,9 +481,7 @@
           }
         },
         "summary": "Spa Session Exchange",
-        "tags": [
-          "oauth"
-        ]
+        "tags": ["oauth"]
       }
     },
     "/api/oauth/token": {
@@ -557,9 +521,7 @@
           }
         },
         "summary": "Create Oauth Token",
-        "tags": [
-          "oauth"
-        ]
+        "tags": ["oauth"]
       }
     },
     "/api/users/": {
@@ -588,9 +550,7 @@
           }
         ],
         "summary": "List Users",
-        "tags": [
-          "users"
-        ]
+        "tags": ["users"]
       }
     },
     "/api/users/me": {
@@ -615,9 +575,7 @@
           }
         ],
         "summary": "Retrieve Current User",
-        "tags": [
-          "users"
-        ]
+        "tags": ["users"]
       }
     },
     "/api/users/{username}": {
@@ -663,9 +621,7 @@
           }
         ],
         "summary": "Retrieve User",
-        "tags": [
-          "users"
-        ]
+        "tags": ["users"]
       }
     }
   }

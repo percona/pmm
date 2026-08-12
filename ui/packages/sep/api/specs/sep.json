@@ -3,12 +3,7 @@
     "schemas": {
       "AlertServiceType": {
         "description": "Enumerate the supported service types for alert-related features.\n\n:cvar GENERIC: Generic service type.\n:vartype GENERIC: str\n:cvar MYSQL: MySQL service type.\n:vartype MYSQL: str\n:cvar MONGODB: MongoDB service type.\n:vartype MONGODB: str\n:cvar POSTGRESQL: PostgreSQL service type.\n:vartype POSTGRESQL: str",
-        "enum": [
-          "generic",
-          "mysql",
-          "mongodb",
-          "postgresql"
-        ],
+        "enum": ["generic", "mysql", "mongodb", "postgresql"],
         "title": "AlertServiceType",
         "type": "string"
       },
@@ -20,9 +15,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "footer_text"
-        ],
+        "required": ["footer_text"],
         "title": "AppInfo",
         "type": "object"
       },
@@ -169,12 +162,7 @@
       },
       "AppLifecycleEnum": {
         "description": "Enumerate the runtime lifecycle states of an app.\n\nMember names equal their values, so the DB column, its CHECK constraint, the\nAPI wire value, and any operator SQL all share one uppercase token. The\ntransitional states ``ENABLING`` and ``DISABLING`` expose an observable\nwindow for future machinery to finish in-flight work before an app goes\nfully offline; the request guard treats every state other than ``ENABLED``\nas unreachable.",
-        "enum": [
-          "ENABLED",
-          "DISABLED",
-          "ENABLING",
-          "DISABLING"
-        ],
+        "enum": ["ENABLED", "DISABLED", "ENABLING", "DISABLING"],
         "title": "AppLifecycleEnum",
         "type": "string"
       },
@@ -193,11 +181,7 @@
             "$ref": "#/components/schemas/AppLifecycleEnum"
           }
         },
-        "required": [
-          "app_key",
-          "enabled",
-          "lifecycle_state"
-        ],
+        "required": ["app_key", "enabled", "lifecycle_state"],
         "title": "AppStateResponse",
         "type": "object"
       },
@@ -208,9 +192,7 @@
             "$ref": "#/components/schemas/AppLifecycleEnum"
           }
         },
-        "required": [
-          "lifecycle_state"
-        ],
+        "required": ["lifecycle_state"],
         "title": "AppStateWrite",
         "type": "object"
       },
@@ -238,11 +220,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "approved",
-          "skipped_already_approved",
-          "count"
-        ],
+        "required": ["approved", "skipped_already_approved", "count"],
         "title": "BatchApprovalResponse",
         "type": "object"
       },
@@ -258,9 +236,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "targets"
-        ],
+        "required": ["targets"],
         "title": "ConnectivityCheckRequest",
         "type": "object"
       },
@@ -287,10 +263,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "success",
-          "task_history_id"
-        ],
+        "required": ["success", "task_history_id"],
         "title": "ConnectivityCheckResponse",
         "type": "object"
       },
@@ -324,12 +297,7 @@
             "title": "Version"
           }
         },
-        "required": [
-          "service",
-          "reachable",
-          "status",
-          "detail"
-        ],
+        "required": ["service", "reachable", "status", "detail"],
         "title": "ConnectivityResult",
         "type": "object"
       },
@@ -366,12 +334,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "nodes",
-          "tasks",
-          "snippets",
-          "targets"
-        ],
+        "required": ["nodes", "tasks", "snippets", "targets"],
         "title": "DashboardStatsResponse",
         "type": "object"
       },
@@ -403,11 +366,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "timestamp",
-          "type",
-          "description"
-        ],
+        "required": ["timestamp", "type", "description"],
         "title": "ExecutionEvent",
         "type": "object"
       },
@@ -457,11 +416,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "name",
-          "address"
-        ],
+        "required": ["id", "name", "address"],
         "title": "HostResponse",
         "type": "object"
       },
@@ -477,10 +432,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "name"
-        ],
+        "required": ["id", "name"],
         "title": "InventorySelectorOption",
         "type": "object"
       },
@@ -555,11 +507,7 @@
             "title": "Updated At"
           }
         },
-        "required": [
-          "id",
-          "address",
-          "name"
-        ],
+        "required": ["id", "address", "name"],
         "title": "Node",
         "type": "object"
       },
@@ -583,12 +531,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[Any]",
         "type": "object"
       },
@@ -615,12 +558,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[ArbitraryMapping]",
         "type": "object"
       },
@@ -646,12 +584,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[ServiceResponse]",
         "type": "object"
       },
@@ -677,12 +610,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[SnippetResponse]",
         "type": "object"
       },
@@ -708,12 +636,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[TaskHistoryResponse]",
         "type": "object"
       },
@@ -726,19 +649,13 @@
             "type": "string"
           }
         },
-        "required": [
-          "refreshed_at"
-        ],
+        "required": ["refreshed_at"],
         "title": "RefreshResponse",
         "type": "object"
       },
       "ReloadClassification": {
         "description": "Declare the reload behavior of an overridable settings field.\n\n:cvar HOT: Field can be overridden via a DB row and the new value takes\n    effect on the next snapshot refresh, without restarting the service.\n    For a nested-model field, ``HOT`` permits both whole-object override\n    (``PATCH {parent: {...}}``) and per-child override (``parent__leaf``).\n:vartype HOT: str\n:cvar NESTED_ONLY: Nested-model field whose children may be overridden\n    (``parent__leaf``) while the parent itself rejects whole-object\n    override (``PATCH {parent: {...}}`` → 422). Children default to\n    HOT-inherit unless explicitly marked :func:`not_overridable_field`.\n:vartype NESTED_ONLY: str\n:cvar NOT_OVERRIDABLE: Field is not overridable from the database; YAML\n    and environment variables remain the only sources of truth.\n:vartype NOT_OVERRIDABLE: str",
-        "enum": [
-          "hot",
-          "nested_only",
-          "not_overridable"
-        ],
+        "enum": ["hot", "nested_only", "not_overridable"],
         "title": "ReloadClassification",
         "type": "string"
       },
@@ -783,22 +700,13 @@
             "title": "Updated At"
           }
         },
-        "required": [
-          "name",
-          "service_id",
-          "id"
-        ],
+        "required": ["name", "service_id", "id"],
         "title": "Schema",
         "type": "object"
       },
       "ServiceEnum": {
         "description": "Enumerate the probeable services, used as stable ``service`` identifiers.",
-        "enum": [
-          "pmm",
-          "inventory",
-          "tasks",
-          "nomad"
-        ],
+        "enum": ["pmm", "inventory", "tasks", "nomad"],
         "title": "ServiceEnum",
         "type": "string"
       },
@@ -924,14 +832,7 @@
             "title": "Updated At"
           }
         },
-        "required": [
-          "name",
-          "type",
-          "node_id",
-          "id",
-          "schemas",
-          "node"
-        ],
+        "required": ["name", "type", "node_id", "id", "schemas", "node"],
         "title": "ServiceResponse",
         "type": "object"
       },
@@ -1016,10 +917,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "setting_class",
-          "settings"
-        ],
+        "required": ["setting_class", "settings"],
         "title": "SettingClassGroup",
         "type": "object"
       },
@@ -1113,9 +1011,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "groups"
-        ],
+        "required": ["groups"],
         "title": "SettingsListResponse",
         "type": "object"
       },
@@ -1130,11 +1026,7 @@
       },
       "SnippetApprovalFilter": {
         "description": "Enumerate the approval-status filter selections.\n\n:cvar ALL: Do not filter on approval status.\n:cvar APPROVED: Keep only approved snippets (``approved_at IS NOT NULL``).\n:cvar NOT_APPROVED: Keep only unapproved snippets (``approved_at IS NULL``).",
-        "enum": [
-          "all",
-          "approved",
-          "not_approved"
-        ],
+        "enum": ["all", "approved", "not_approved"],
         "title": "SnippetApprovalFilter",
         "type": "string"
       },
@@ -1151,9 +1043,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "filenames"
-        ],
+        "required": ["filenames"],
         "title": "SnippetBatchApproveRequest",
         "type": "object"
       },
@@ -1296,10 +1186,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "service_types",
-          "has_uncategorized"
-        ],
+        "required": ["service_types", "has_uncategorized"],
         "title": "SnippetServiceTypesResponse",
         "type": "object"
       },
@@ -1311,28 +1198,20 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "manual_sync_enabled"
-        ],
+        "required": ["manual_sync_enabled"],
         "title": "SnippetsCapabilitiesResponse",
         "type": "object"
       },
       "SourceEnum": {
         "const": "pmm",
         "description": "Enumeration of possible data sources for a node.\n\n:cvar PMM: Represents the PMM data source.\n:vartype PMM: str",
-        "enum": [
-          "pmm"
-        ],
+        "enum": ["pmm"],
         "title": "SourceEnum",
         "type": "string"
       },
       "TaskBackendEnum": {
         "description": "Control the choice of backends.\n\n:cvar NOMAD: Enum value for Nomad backend.\n:vartype NOMAD: str\n:cvar PROXY: Enum value for Proxy backend.\n:vartype PROXY: str\n:cvar CELERY: Enum value for Celery backend.\n:vartype CELERY: str",
-        "enum": [
-          "nomad",
-          "proxy",
-          "celery"
-        ],
+        "enum": ["nomad", "proxy", "celery"],
         "title": "TaskBackendEnum",
         "type": "string"
       },
@@ -1398,10 +1277,7 @@
             "title": "Tracking"
           }
         },
-        "required": [
-          "task",
-          "target"
-        ],
+        "required": ["task", "target"],
         "title": "TaskExecutionRequest",
         "type": "object"
       },
@@ -1739,11 +1615,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError",
         "type": "object"
       },
@@ -1761,10 +1633,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "alert",
-          "snippets"
-        ],
+        "required": ["alert", "snippets"],
         "title": "AlertDetailResponse",
         "type": "object"
       },
@@ -1786,11 +1655,7 @@
             "$ref": "#/components/schemas/AlertServiceType"
           }
         },
-        "required": [
-          "service_type",
-          "label",
-          "alerts"
-        ],
+        "required": ["service_type", "label", "alerts"],
         "title": "AlertGroup",
         "type": "object"
       },
@@ -1817,10 +1682,7 @@
             ]
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "AlertInfo",
         "type": "object"
       },
@@ -1836,10 +1698,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "AlertSummary",
         "type": "object"
       },
@@ -1919,10 +1778,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "type"
-        ],
+        "required": ["name", "type"],
         "title": "BackupDetailContactPoint",
         "type": "object"
       },
@@ -1934,9 +1790,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "title"
-        ],
+        "required": ["title"],
         "title": "BackupDetailFolder",
         "type": "object"
       },
@@ -1948,9 +1802,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "title"
-        ],
+        "required": ["title"],
         "title": "BackupDetailRule",
         "type": "object"
       },
@@ -1966,10 +1818,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "summary"
-        ],
+        "required": ["name", "summary"],
         "title": "BackupDetailTemplate",
         "type": "object"
       },
@@ -1991,11 +1840,7 @@
             "type": "object"
           }
         },
-        "required": [
-          "id",
-          "created_at",
-          "metadata"
-        ],
+        "required": ["id", "created_at", "metadata"],
         "title": "BackupSummary",
         "type": "object"
       },
@@ -2012,10 +1857,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "id",
-          "created_at"
-        ],
+        "required": ["id", "created_at"],
         "title": "IndexBackupSummary",
         "type": "object"
       },
@@ -2038,9 +1880,7 @@
             "title": "Uid"
           }
         },
-        "required": [
-          "configured"
-        ],
+        "required": ["configured"],
         "title": "IndexPagerDutyStatus",
         "type": "object"
       },
@@ -2076,12 +1916,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "groups",
-          "pmm_connected",
-          "pagerduty",
-          "recent_backups"
-        ],
+        "required": ["groups", "pmm_connected", "pagerduty", "recent_backups"],
         "title": "IndexResponse",
         "type": "object"
       },
@@ -2153,11 +1988,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "service_type",
-          "label",
-          "templates"
-        ],
+        "required": ["service_type", "label", "templates"],
         "title": "IndexTemplateGroup",
         "type": "object"
       },
@@ -2170,9 +2001,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "integration_key"
-        ],
+        "required": ["integration_key"],
         "title": "PagerDutyRequest",
         "type": "object"
       },
@@ -2180,18 +2009,12 @@
         "description": "Describe the response body for the PagerDuty save / delete endpoints.\n\n:param status: ``\"created\"``, ``\"updated\"`` (save) or ``\"deleted\"`` (delete).",
         "properties": {
           "status": {
-            "enum": [
-              "created",
-              "updated",
-              "deleted"
-            ],
+            "enum": ["created", "updated", "deleted"],
             "title": "Status",
             "type": "string"
           }
         },
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "title": "PagerDutyResponse",
         "type": "object"
       },
@@ -2217,12 +2040,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[BackupSummary]",
         "type": "object"
       },
@@ -2238,20 +2056,12 @@
             "type": "string"
           },
           "status": {
-            "enum": [
-              "success",
-              "skipped",
-              "error"
-            ],
+            "enum": ["success", "skipped", "error"],
             "title": "Status",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "status",
-          "message"
-        ],
+        "required": ["name", "status", "message"],
         "title": "PushItemResult",
         "type": "object"
       },
@@ -2268,9 +2078,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "selected_templates"
-        ],
+        "required": ["selected_templates"],
         "title": "PushRequest",
         "type": "object"
       },
@@ -2285,9 +2093,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "results"
-        ],
+        "required": ["results"],
         "title": "PushResponse",
         "type": "object"
       },
@@ -2300,9 +2106,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "backup_id"
-        ],
+        "required": ["backup_id"],
         "title": "RestoreRequest",
         "type": "object"
       },
@@ -2316,17 +2120,12 @@
           },
           "status": {
             "const": "success",
-            "enum": [
-              "success"
-            ],
+            "enum": ["success"],
             "title": "Status",
             "type": "string"
           }
         },
-        "required": [
-          "status",
-          "details"
-        ],
+        "required": ["status", "details"],
         "title": "RestoreResponse",
         "type": "object"
       },
@@ -2720,12 +2519,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[AltersTaskResponse]",
         "type": "object"
       },
@@ -2932,12 +2726,7 @@
             "title": "Where"
           }
         },
-        "required": [
-          "task_name",
-          "hostname",
-          "service_id",
-          "source"
-        ],
+        "required": ["task_name", "hostname", "service_id", "source"],
         "title": "ArchivesCreate",
         "type": "object"
       },
@@ -2952,16 +2741,12 @@
           "mode": {
             "const": "file",
             "default": "file",
-            "enum": [
-              "file"
-            ],
+            "enum": ["file"],
             "title": "Mode",
             "type": "string"
           }
         },
-        "required": [
-          "dest_file"
-        ],
+        "required": ["dest_file"],
         "title": "DestByFile",
         "type": "object"
       },
@@ -2998,16 +2783,12 @@
           "mode": {
             "const": "table",
             "default": "table",
-            "enum": [
-              "table"
-            ],
+            "enum": ["table"],
             "title": "Mode",
             "type": "string"
           }
         },
-        "required": [
-          "dest_table"
-        ],
+        "required": ["dest_table"],
         "title": "DestByTable",
         "type": "object"
       },
@@ -3021,16 +2802,12 @@
           "mode": {
             "const": "service",
             "default": "service",
-            "enum": [
-              "service"
-            ],
+            "enum": ["service"],
             "title": "Mode",
             "type": "string"
           }
         },
-        "required": [
-          "dest_service"
-        ],
+        "required": ["dest_service"],
         "title": "HostByService",
         "type": "object"
       },
@@ -3058,16 +2835,12 @@
           "mode": {
             "const": "manual",
             "default": "manual",
-            "enum": [
-              "manual"
-            ],
+            "enum": ["manual"],
             "title": "Mode",
             "type": "string"
           }
         },
-        "required": [
-          "dest_host"
-        ],
+        "required": ["dest_host"],
         "title": "HostManual",
         "type": "object"
       },
@@ -3077,9 +2850,7 @@
           "mode": {
             "const": "query",
             "default": "query",
-            "enum": [
-              "query"
-            ],
+            "enum": ["query"],
             "title": "Mode",
             "type": "string"
           },
@@ -3089,9 +2860,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "source_query"
-        ],
+        "required": ["source_query"],
         "title": "SourceByQuery",
         "type": "object"
       },
@@ -3101,9 +2870,7 @@
           "mode": {
             "const": "table",
             "default": "table",
-            "enum": [
-              "table"
-            ],
+            "enum": ["table"],
             "title": "Mode",
             "type": "string"
           },
@@ -3132,10 +2899,7 @@
             "title": "Source Table"
           }
         },
-        "required": [
-          "source_db",
-          "source_table"
-        ],
+        "required": ["source_db", "source_table"],
         "title": "SourceByTable",
         "type": "object"
       },
@@ -3189,9 +2953,7 @@
             "title": "Task Name"
           }
         },
-        "required": [
-          "snippet_filename"
-        ],
+        "required": ["snippet_filename"],
         "title": "ATWBatchExecuteItemResponse",
         "type": "object"
       },
@@ -3210,9 +2972,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "snippet_filename"
-        ],
+        "required": ["snippet_filename"],
         "title": "ATWBatchExecuteItemWrite",
         "type": "object"
       },
@@ -3227,9 +2987,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "items"
-        ],
+        "required": ["items"],
         "title": "ATWBatchExecuteResponse",
         "type": "object"
       },
@@ -3262,10 +3020,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "executor_host",
-          "items"
-        ],
+        "required": ["executor_host", "items"],
         "title": "ATWBatchExecuteWrite",
         "type": "object"
       },
@@ -3399,12 +3154,7 @@
             ]
           }
         },
-        "required": [
-          "id",
-          "snippet_filename",
-          "task_history_id",
-          "created_at"
-        ],
+        "required": ["id", "snippet_filename", "task_history_id", "created_at"],
         "title": "ATWIncidentExecutionResponse",
         "type": "object"
       },
@@ -3516,10 +3266,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "shared",
-          "per_snippet"
-        ],
+        "required": ["shared", "per_snippet"],
         "title": "ATWMergedSchemaResponse",
         "type": "object"
       },
@@ -3629,10 +3376,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "snippet_filename",
-          "fields"
-        ],
+        "required": ["snippet_filename", "fields"],
         "title": "ATWSnippetSchema",
         "type": "object"
       },
@@ -3652,11 +3396,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "title",
-          "description"
-        ],
+        "required": ["name", "title", "description"],
         "title": "ATWSnippetSummary",
         "type": "object"
       },
@@ -3671,9 +3411,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "send_disabled_reasons"
-        ],
+        "required": ["send_disabled_reasons"],
         "title": "AtwConfigResponse",
         "type": "object"
       },
@@ -3811,10 +3549,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "case_ref",
-          "execution_ids"
-        ],
+        "required": ["case_ref", "execution_ids"],
         "title": "AtwSendJobWrite",
         "type": "object"
       },
@@ -3894,12 +3629,7 @@
       },
       "atw__AtwSendStatusEnum": {
         "description": "Enumerate the lifecycle of one diagnostics send attempt.\n\nThe column stores member *names* (``PENDING``); the API serializes the\n``StrEnum`` *values* (``pending``).",
-        "enum": [
-          "pending",
-          "running",
-          "success",
-          "failed"
-        ],
+        "enum": ["pending", "running", "success", "failed"],
         "title": "AtwSendStatusEnum",
         "type": "string"
       },
@@ -3925,12 +3655,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[ATWIncidentExecutionResponse]",
         "type": "object"
       },
@@ -3956,12 +3681,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[AtwIncidentResponse]",
         "type": "object"
       },
@@ -3987,12 +3707,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[AtwSendLogResponse]",
         "type": "object"
       },
@@ -4018,10 +3733,7 @@
             ]
           }
         },
-        "required": [
-          "name",
-          "backup_type"
-        ],
+        "required": ["name", "backup_type"],
         "title": "BackupDerivedTaskSummary",
         "type": "object"
       },
@@ -4569,12 +4281,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "task_name",
-          "hostname",
-          "service_id",
-          "storage_type"
-        ],
+        "required": ["task_name", "hostname", "service_id", "storage_type"],
         "title": "BackupTaskWrite",
         "type": "object"
       },
@@ -4593,14 +4300,7 @@
       },
       "backup_mongo__CompressionAlgorithm": {
         "description": "Represents algorithm of choice whem compressing wirteTiger datafiles.",
-        "enum": [
-          "gzip",
-          "snappy",
-          "lz4",
-          "s2",
-          "pgzip",
-          "zstd"
-        ],
+        "enum": ["gzip", "snappy", "lz4", "s2", "pgzip", "zstd"],
         "title": "CompressionAlgorithm",
         "type": "string"
       },
@@ -4626,12 +4326,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[BackupTaskResponse]",
         "type": "object"
       },
@@ -4657,12 +4352,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[RestoreTaskResponse]",
         "type": "object"
       },
@@ -4684,9 +4374,7 @@
             ]
           }
         },
-        "required": [
-          "name"
-        ],
+        "required": ["name"],
         "title": "RestoreDerivedTaskSummary",
         "type": "object"
       },
@@ -5170,12 +4858,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "task_name",
-          "hostname",
-          "backup_type",
-          "backup_source"
-        ],
+        "required": ["task_name", "hostname", "backup_type", "backup_source"],
         "title": "RestoreTaskWrite",
         "type": "object"
       },
@@ -5680,21 +5363,13 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[BackupTaskResponse]",
         "type": "object"
       },
       "backup_pg__PgBackRestBackupType": {
         "description": "PgBackRest backup types.",
-        "enum": [
-          "incr",
-          "diff"
-        ],
+        "enum": ["incr", "diff"],
         "title": "PgBackRestBackupType",
         "type": "string"
       },
@@ -5811,20 +5486,13 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "task_name",
-          "hostname",
-          "service_id"
-        ],
+        "required": ["task_name", "hostname", "service_id"],
         "title": "ChecksumsForm",
         "type": "object"
       },
       "dipper__CollectorTypeEnum": {
         "description": "Define enum for Dipper collector types.",
-        "enum": [
-          "environment",
-          "pmm"
-        ],
+        "enum": ["environment", "pmm"],
         "title": "CollectorTypeEnum",
         "type": "string"
       },
@@ -5861,10 +5529,7 @@
             "title": "Sudo"
           }
         },
-        "required": [
-          "service_id",
-          "executor_host"
-        ],
+        "required": ["service_id", "executor_host"],
         "title": "DipperExecuteWrite",
         "type": "object"
       },
@@ -6268,12 +5933,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "display_name",
-          "forms",
-          "list_view"
-        ],
+        "required": ["name", "display_name", "forms", "list_view"],
         "title": "AppEntitySchema",
         "type": "object"
       },
@@ -6438,10 +6098,7 @@
             "title": "Task Type"
           }
         },
-        "required": [
-          "name",
-          "display_name"
-        ],
+        "required": ["name", "display_name"],
         "title": "AppSchema",
         "type": "object"
       },
@@ -6842,17 +6499,12 @@
           "type": {
             "const": "bool",
             "default": "bool",
-            "enum": [
-              "bool"
-            ],
+            "enum": ["bool"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "BoolField",
         "type": "object"
       },
@@ -6947,9 +6599,7 @@
             "title": "When"
           }
         },
-        "required": [
-          "fields"
-        ],
+        "required": ["fields"],
         "title": "CardinalityRule",
         "type": "object"
       },
@@ -6964,10 +6614,7 @@
           },
           "on_failure": {
             "default": "halt",
-            "enum": [
-              "halt",
-              "continue"
-            ],
+            "enum": ["halt", "continue"],
             "title": "On Failure",
             "type": "string"
           },
@@ -6977,9 +6624,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "name_suffix"
-        ],
+        "required": ["name_suffix"],
         "title": "ChainedPredecessor",
         "type": "object"
       },
@@ -7021,10 +6666,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "label",
-          "value"
-        ],
+        "required": ["label", "value"],
         "title": "Choice",
         "type": "object"
       },
@@ -7108,18 +6750,12 @@
           "type": {
             "const": "choice",
             "default": "choice",
-            "enum": [
-              "choice"
-            ],
+            "enum": ["choice"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "choices"
-        ],
+        "required": ["name", "label", "choices"],
         "title": "ChoiceField",
         "type": "object"
       },
@@ -7153,10 +6789,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "key",
-          "label"
-        ],
+        "required": ["key", "label"],
         "title": "Column",
         "type": "object"
       },
@@ -7202,11 +6835,7 @@
             "title": "Task History Id"
           }
         },
-        "required": [
-          "target",
-          "service_type",
-          "message"
-        ],
+        "required": ["target", "service_type", "message"],
         "title": "ConnectivityWarning",
         "type": "object"
       },
@@ -7282,17 +6911,12 @@
           "type": {
             "const": "datetime",
             "default": "datetime",
-            "enum": [
-              "datetime"
-            ],
+            "enum": ["datetime"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "DateTimeField",
         "type": "object"
       },
@@ -7351,9 +6975,7 @@
             "title": "Payload Substitutions"
           }
         },
-        "required": [
-          "name_suffix"
-        ],
+        "required": ["name_suffix"],
         "title": "DerivedTask",
         "type": "object"
       },
@@ -7383,21 +7005,13 @@
             "type": "string"
           }
         },
-        "required": [
-          "path",
-          "label"
-        ],
+        "required": ["path", "label"],
         "title": "DetailField",
         "type": "object"
       },
       "framework__DetailHighlightLanguage": {
         "description": "Enumerate supported syntax highlighters for detail fields.",
-        "enum": [
-          "sql",
-          "json",
-          "bash",
-          "yaml"
-        ],
+        "enum": ["sql", "json", "bash", "yaml"],
         "title": "DetailHighlightLanguage",
         "type": "string"
       },
@@ -7418,10 +7032,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "title",
-          "fields"
-        ],
+        "required": ["title", "fields"],
         "title": "DetailSection",
         "type": "object"
       },
@@ -7437,9 +7048,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "sections"
-        ],
+        "required": ["sections"],
         "title": "DetailView",
         "type": "object"
       },
@@ -7472,10 +7081,7 @@
             "title": "Message"
           }
         },
-        "required": [
-          "fail_when",
-          "error_fields"
-        ],
+        "required": ["fail_when", "error_fields"],
         "title": "FailRule",
         "type": "object"
       },
@@ -7501,9 +7107,7 @@
             "type": "object"
           }
         },
-        "required": [
-          "when"
-        ],
+        "required": ["when"],
         "title": "FieldGate",
         "type": "object"
       },
@@ -7593,17 +7197,12 @@
           "type": {
             "const": "file",
             "default": "file",
-            "enum": [
-              "file"
-            ],
+            "enum": ["file"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "FileField",
         "type": "object"
       },
@@ -7712,17 +7311,12 @@
           "type": {
             "const": "float",
             "default": "float",
-            "enum": [
-              "float"
-            ],
+            "enum": ["float"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "FloatField",
         "type": "object"
       },
@@ -7876,10 +7470,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "title",
-          "fields"
-        ],
+        "required": ["title", "fields"],
         "title": "FormSection",
         "type": "object"
       },
@@ -7978,17 +7569,12 @@
           "type": {
             "const": "host",
             "default": "host",
-            "enum": [
-              "host"
-            ],
+            "enum": ["host"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "HostField",
         "type": "object"
       },
@@ -8097,17 +7683,12 @@
           "type": {
             "const": "integer",
             "default": "integer",
-            "enum": [
-              "integer"
-            ],
+            "enum": ["integer"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "IntegerField",
         "type": "object"
       },
@@ -8143,9 +7724,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "columns"
-        ],
+        "required": ["columns"],
         "title": "ListView",
         "type": "object"
       },
@@ -8229,18 +7808,12 @@
           "type": {
             "const": "multi_choice",
             "default": "multi_choice",
-            "enum": [
-              "multi_choice"
-            ],
+            "enum": ["multi_choice"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "choices"
-        ],
+        "required": ["name", "label", "choices"],
         "title": "MultiChoiceField",
         "type": "object"
       },
@@ -8339,17 +7912,12 @@
           "type": {
             "const": "multi_host",
             "default": "multi_host",
-            "enum": [
-              "multi_host"
-            ],
+            "enum": ["multi_host"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "MultiHostField",
         "type": "object"
       },
@@ -8441,18 +8009,12 @@
           "type": {
             "const": "multi_schema",
             "default": "multi_schema",
-            "enum": [
-              "multi_schema"
-            ],
+            "enum": ["multi_schema"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "depends_on"
-        ],
+        "required": ["name", "label", "depends_on"],
         "title": "MultiSchemaField",
         "type": "object"
       },
@@ -8546,18 +8108,12 @@
           "type": {
             "const": "multi_service",
             "default": "multi_service",
-            "enum": [
-              "multi_service"
-            ],
+            "enum": ["multi_service"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "service_types"
-        ],
+        "required": ["name", "label", "service_types"],
         "title": "MultiServiceField",
         "type": "object"
       },
@@ -8649,18 +8205,12 @@
           "type": {
             "const": "multi_table",
             "default": "multi_table",
-            "enum": [
-              "multi_table"
-            ],
+            "enum": ["multi_table"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "depends_on"
-        ],
+        "required": ["name", "label", "depends_on"],
         "title": "MultiTableField",
         "type": "object"
       },
@@ -8937,11 +8487,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "value",
-          "label",
-          "fields"
-        ],
+        "required": ["value", "label", "fields"],
         "title": "OneOfBranch",
         "type": "object"
       },
@@ -9001,19 +8547,12 @@
           "type": {
             "const": "one_of",
             "default": "one_of",
-            "enum": [
-              "one_of"
-            ],
+            "enum": ["one_of"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "discriminator",
-          "branches"
-        ],
+        "required": ["name", "label", "discriminator", "branches"],
         "title": "OneOfGroup",
         "type": "object"
       },
@@ -9039,12 +8578,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[BaseTaskResponse]",
         "type": "object"
       },
@@ -9069,11 +8603,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "app_key",
-          "label",
-          "route_segment"
-        ],
+        "required": ["app_key", "label", "route_segment"],
         "title": "RelatedApp",
         "type": "object"
       },
@@ -9177,18 +8707,12 @@
           "type": {
             "const": "remote_choice",
             "default": "remote_choice",
-            "enum": [
-              "remote_choice"
-            ],
+            "enum": ["remote_choice"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "endpoint_url"
-        ],
+        "required": ["name", "label", "endpoint_url"],
         "title": "RemoteChoiceField",
         "type": "object"
       },
@@ -9280,18 +8804,12 @@
           "type": {
             "const": "schema",
             "default": "schema",
-            "enum": [
-              "schema"
-            ],
+            "enum": ["schema"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "depends_on"
-        ],
+        "required": ["name", "label", "depends_on"],
         "title": "SchemaField",
         "type": "object"
       },
@@ -9315,9 +8833,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "executor_host"
-        ],
+        "required": ["executor_host"],
         "title": "ScriptExecuteWrite",
         "type": "object"
       },
@@ -9346,10 +8862,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "task_name",
-          "snippet_filename"
-        ],
+        "required": ["task_name", "snippet_filename"],
         "title": "ScriptExecutionResponse",
         "type": "object"
       },
@@ -9450,18 +8963,12 @@
           "type": {
             "const": "script_preview",
             "default": "script_preview",
-            "enum": [
-              "script_preview"
-            ],
+            "enum": ["script_preview"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "endpoint_url"
-        ],
+        "required": ["name", "label", "endpoint_url"],
         "title": "ScriptPreviewField",
         "type": "object"
       },
@@ -9481,11 +8988,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "content",
-          "language",
-          "is_truncated"
-        ],
+        "required": ["content", "language", "is_truncated"],
         "title": "ScriptPreviewResponse",
         "type": "object"
       },
@@ -9579,18 +9082,12 @@
           "type": {
             "const": "service",
             "default": "service",
-            "enum": [
-              "service"
-            ],
+            "enum": ["service"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "service_types"
-        ],
+        "required": ["name", "label", "service_types"],
         "title": "ServiceField",
         "type": "object"
       },
@@ -9714,17 +9211,12 @@
           "type": {
             "const": "string",
             "default": "string",
-            "enum": [
-              "string"
-            ],
+            "enum": ["string"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "StringField",
         "type": "object"
       },
@@ -9816,18 +9308,12 @@
           "type": {
             "const": "table",
             "default": "table",
-            "enum": [
-              "table"
-            ],
+            "enum": ["table"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label",
-          "depends_on"
-        ],
+        "required": ["name", "label", "depends_on"],
         "title": "TableField",
         "type": "object"
       },
@@ -9894,9 +9380,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "task_name"
-        ],
+        "required": ["task_name"],
         "title": "TaskExecutionResponse",
         "type": "object"
       },
@@ -9996,17 +9480,12 @@
           "type": {
             "const": "textarea",
             "default": "textarea",
-            "enum": [
-              "textarea"
-            ],
+            "enum": ["textarea"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "TextAreaField",
         "type": "object"
       },
@@ -10106,17 +9585,12 @@
           "type": {
             "const": "yaml",
             "default": "yaml",
-            "enum": [
-              "yaml"
-            ],
+            "enum": ["yaml"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "label"
-        ],
+        "required": ["name", "label"],
         "title": "YamlField",
         "type": "object"
       },
@@ -10132,10 +9606,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "display_name"
-        ],
+        "required": ["name", "display_name"],
         "title": "AvailableSyncer",
         "type": "object"
       },
@@ -10147,9 +9618,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "is_running"
-        ],
+        "required": ["is_running"],
         "title": "InventorySyncStatusResponse",
         "type": "object"
       },
@@ -10184,10 +9653,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "display_name"
-        ],
+        "required": ["name", "display_name"],
         "title": "PluginTaskResponse",
         "type": "object"
       },
@@ -10561,11 +10027,7 @@
           "xtrabackup_bin_cmd": {
             "anyOf": [
               {
-                "enum": [
-                  "xtrabackup",
-                  "mariadb-backup",
-                  "innobackupex"
-                ],
+                "enum": ["xtrabackup", "mariadb-backup", "innobackupex"],
                 "type": "string"
               },
               {
@@ -10617,16 +10079,7 @@
           "xtrabackup_incremental_cycle": {
             "anyOf": [
               {
-                "enum": [
-                  "daily",
-                  "weekly",
-                  "2",
-                  "3",
-                  "4",
-                  "5",
-                  "6",
-                  "7"
-                ],
+                "enum": ["daily", "weekly", "2", "3", "4", "5", "6", "7"],
                 "type": "string"
               },
               {
@@ -10638,10 +10091,7 @@
           "xtrabackup_incremental_method": {
             "anyOf": [
               {
-                "enum": [
-                  "less_space",
-                  "fast_restore"
-                ],
+                "enum": ["less_space", "fast_restore"],
                 "type": "string"
               },
               {
@@ -10669,10 +10119,7 @@
           "xtrabackup_kill_query_type": {
             "anyOf": [
               {
-                "enum": [
-                  "select",
-                  "all"
-                ],
+                "enum": ["select", "all"],
                 "type": "string"
               },
               {
@@ -10741,12 +10188,7 @@
             "type": "boolean"
           }
         },
-        "required": [
-          "task_name",
-          "hostname",
-          "service_id",
-          "backup_type"
-        ],
+        "required": ["task_name", "hostname", "service_id", "backup_type"],
         "title": "BackupCreate",
         "type": "object"
       },
@@ -10754,10 +10196,7 @@
         "description": "Expose one catalog record over the per-service query path.\n\n:param id: The record's primary key.\n:param service_name: The inventory service the backup was taken from.\n:param service_id: The inventory id of that service, or ``None`` on a record\n    written before the id was stamped.\n:param hostname: The backup target host.\n:param backup_type: The backup tool, ``\"M\"`` (mydumper) or ``\"X\"`` (xtrabackup).\n    Narrower than :class:`BackupType`: binlog runs are never catalogued, so\n    ``\"B\"`` never appears here.\n:param location: The resolved on-disk directory the run produced.\n:param upload_destination: The upload destination when one was configured.\n:param size_bytes: The backup size in bytes, when the run reported it.\n:param started_at: When the run started.\n:param finished_at: When the run finished.",
         "properties": {
           "backup_type": {
-            "enum": [
-              "M",
-              "X"
-            ],
+            "enum": ["M", "X"],
             "title": "Backup Type",
             "type": "string"
           },
@@ -11038,22 +10477,13 @@
       },
       "mysql_backups__BackupType": {
         "description": "Backup types.",
-        "enum": [
-          "M",
-          "X",
-          "B"
-        ],
+        "enum": ["M", "X", "B"],
         "title": "BackupType",
         "type": "string"
       },
       "mysql_backups__CompressionAlgorithm": {
         "description": "Enumeration for Compression Algorithms.",
-        "enum": [
-          "zstd",
-          "lz4",
-          "gzip",
-          "quicklz"
-        ],
+        "enum": ["zstd", "lz4", "gzip", "quicklz"],
         "title": "CompressionAlgorithm",
         "type": "string"
       },
@@ -11079,12 +10509,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[BackupRunResponse]",
         "type": "object"
       },
@@ -11110,12 +10535,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[BackupTaskResponse]",
         "type": "object"
       },
@@ -11141,12 +10561,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[RestoresResponse]",
         "type": "object"
       },
@@ -11616,12 +11031,7 @@
             "title": "Xtrabackup Restore Args"
           }
         },
-        "required": [
-          "task_name",
-          "hostname",
-          "backup_type",
-          "backup_source"
-        ],
+        "required": ["task_name", "hostname", "backup_type", "backup_source"],
         "title": "RestoreCreate",
         "type": "object"
       },
@@ -11814,30 +11224,19 @@
       },
       "mysql_backups__S3Tool": {
         "description": "Allowed tools to interact with S3-compatible services.",
-        "enum": [
-          "s3cmd",
-          "awscli"
-        ],
+        "enum": ["s3cmd", "awscli"],
         "title": "S3Tool",
         "type": "string"
       },
       "mysql_backups__UploadProvider": {
         "description": "Upload providers.",
-        "enum": [
-          "rsync",
-          "s3",
-          "gsutil"
-        ],
+        "enum": ["rsync", "s3", "gsutil"],
         "title": "UploadProvider",
         "type": "string"
       },
       "mysql_backups__XtraBackupTool": {
         "description": "Allowed commands for XtraBackup-style restores.",
-        "enum": [
-          "innobackupex",
-          "xtrabackup",
-          "mariadb-backup"
-        ],
+        "enum": ["innobackupex", "xtrabackup", "mariadb-backup"],
         "title": "XtraBackupTool",
         "type": "string"
       },
@@ -11889,11 +11288,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "description",
-          "summary"
-        ],
+        "required": ["name", "description", "summary"],
         "title": "AdvisorCheck",
         "type": "object"
       },
@@ -11926,10 +11321,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "family_key",
-          "display_name"
-        ],
+        "required": ["family_key", "display_name"],
         "title": "AdvisorFamily",
         "type": "object"
       },
@@ -12133,9 +11525,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id"
-        ],
+        "required": ["id"],
         "title": "BackupEntry",
         "type": "object"
       },
@@ -12188,12 +11578,7 @@
       },
       "report__BackupStatus": {
         "description": "Status values for a backup entry.",
-        "enum": [
-          "pass",
-          "fail",
-          "inactive",
-          "unknown"
-        ],
+        "enum": ["pass", "fail", "inactive", "unknown"],
         "title": "BackupStatus",
         "type": "string"
       },
@@ -12249,10 +11634,7 @@
             "type": "number"
           }
         },
-        "required": [
-          "node_name",
-          "mountpoint"
-        ],
+        "required": ["node_name", "mountpoint"],
         "title": "DiskUsageEntry",
         "type": "object"
       },
@@ -12324,12 +11706,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "description",
-          "summary",
-          "severity"
-        ],
+        "required": ["name", "description", "summary", "severity"],
         "title": "FailedCheck",
         "type": "object"
       },
@@ -12368,10 +11745,7 @@
             "default": "OK"
           }
         },
-        "required": [
-          "service_name",
-          "service_type"
-        ],
+        "required": ["service_name", "service_type"],
         "title": "InventoryServiceEntry",
         "type": "object"
       },
@@ -12437,9 +11811,7 @@
             "$ref": "#/components/schemas/report__UptimeSection"
           }
         },
-        "required": [
-          "metadata"
-        ],
+        "required": ["metadata"],
         "title": "ReportData",
         "type": "object"
       },
@@ -12483,10 +11855,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "job_id",
-          "status"
-        ],
+        "required": ["job_id", "status"],
         "title": "ReportJobResponse",
         "type": "object"
       },
@@ -12514,9 +11883,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "generated_at"
-        ],
+        "required": ["generated_at"],
         "title": "ReportMetadata",
         "type": "object"
       },
@@ -12527,18 +11894,13 @@
             "$ref": "#/components/schemas/report__ReportData"
           }
         },
-        "required": [
-          "report"
-        ],
+        "required": ["report"],
         "title": "ReportSnapshotWrite",
         "type": "object"
       },
       "report__ServiceStatus": {
         "description": "Agent connectivity status for an inventory service.",
-        "enum": [
-          "OK",
-          "Not OK"
-        ],
+        "enum": ["OK", "Not OK"],
         "title": "ServiceStatus",
         "type": "string"
       },
@@ -12574,10 +11936,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "service_name",
-          "uptime"
-        ],
+        "required": ["service_name", "uptime"],
         "title": "UptimeEntry",
         "type": "object"
       },
@@ -12607,10 +11966,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "value",
-          "label"
-        ],
+        "required": ["value", "label"],
         "title": "ExecutorHostMetadata",
         "type": "object"
       },
@@ -12636,12 +11992,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[TaskListResponse]",
         "type": "object"
       },
@@ -12724,11 +12075,7 @@
             "title": "Total Run Count"
           }
         },
-        "required": [
-          "id",
-          "name",
-          "enabled"
-        ],
+        "required": ["id", "name", "enabled"],
         "title": "PeriodicTaskSummary",
         "type": "object"
       },
@@ -12758,9 +12105,7 @@
             "$ref": "#/components/schemas/TaskResponse"
           }
         },
-        "required": [
-          "task"
-        ],
+        "required": ["task"],
         "title": "TaskDetailResponse",
         "type": "object"
       },
@@ -12809,10 +12154,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "name",
-          "backend"
-        ],
+        "required": ["name", "backend"],
         "title": "TaskListResponse",
         "type": "object"
       },
@@ -12828,18 +12170,12 @@
           },
           "type": {
             "const": "cluster",
-            "enum": [
-              "cluster"
-            ],
+            "enum": ["cluster"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "type",
-          "data"
-        ],
+        "required": ["id", "type", "data"],
         "title": "ClusterNode",
         "type": "object"
       },
@@ -12880,9 +12216,7 @@
             "title": "Status"
           }
         },
-        "required": [
-          "cluster_name"
-        ],
+        "required": ["cluster_name"],
         "title": "ClusterNodeData",
         "type": "object"
       },
@@ -12908,19 +12242,12 @@
           },
           "type": {
             "const": "dual_primary",
-            "enum": [
-              "dual_primary"
-            ],
+            "enum": ["dual_primary"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "source",
-          "target",
-          "type"
-        ],
+        "required": ["id", "source", "target", "type"],
         "title": "DualPrimaryEdge",
         "type": "object"
       },
@@ -12965,9 +12292,7 @@
             "title": "Local State Comment"
           }
         },
-        "required": [
-          "cluster_name"
-        ],
+        "required": ["cluster_name"],
         "title": "MySQLClusterInfo",
         "type": "object"
       },
@@ -12983,18 +12308,12 @@
           },
           "type": {
             "const": "mysql",
-            "enum": [
-              "mysql"
-            ],
+            "enum": ["mysql"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "type",
-          "data"
-        ],
+        "required": ["id", "type", "data"],
         "title": "MySQLNode",
         "type": "object"
       },
@@ -13080,18 +12399,12 @@
             ]
           },
           "status": {
-            "enum": [
-              "ok",
-              "error"
-            ],
+            "enum": ["ok", "error"],
             "title": "Status",
             "type": "string"
           }
         },
-        "required": [
-          "host_entry",
-          "status"
-        ],
+        "required": ["host_entry", "status"],
         "title": "MySQLNodeData",
         "type": "object"
       },
@@ -13123,10 +12436,7 @@
           "repl_filter": {
             "anyOf": [
               {
-                "enum": [
-                  "yes",
-                  "none"
-                ],
+                "enum": ["yes", "none"],
                 "type": "string"
               },
               {
@@ -13138,10 +12448,7 @@
           "repl_status": {
             "anyOf": [
               {
-                "enum": [
-                  "ok",
-                  "err"
-                ],
+                "enum": ["ok", "err"],
                 "type": "string"
               },
               {
@@ -13226,10 +12533,7 @@
           "log_bin": {
             "anyOf": [
               {
-                "enum": [
-                  "ON",
-                  "OFF"
-                ],
+                "enum": ["ON", "OFF"],
                 "type": "string"
               },
               {
@@ -13252,11 +12556,7 @@
           "read_only": {
             "anyOf": [
               {
-                "enum": [
-                  "RW",
-                  "RO",
-                  "SR"
-                ],
+                "enum": ["RW", "RO", "SR"],
                 "type": "string"
               },
               {
@@ -13340,19 +12640,12 @@
           },
           "type": {
             "const": "replication",
-            "enum": [
-              "replication"
-            ],
+            "enum": ["replication"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "source",
-          "target",
-          "type"
-        ],
+        "required": ["id", "source", "target", "type"],
         "title": "ReplicationEdge",
         "type": "object"
       },
@@ -13428,10 +12721,7 @@
           "status": {
             "anyOf": [
               {
-                "enum": [
-                  "ok",
-                  "err"
-                ],
+                "enum": ["ok", "err"],
                 "type": "string"
               },
               {
@@ -13571,9 +12861,7 @@
             "$ref": "#/components/schemas/topology__TopologyGraphSummary"
           }
         },
-        "required": [
-          "summary"
-        ],
+        "required": ["summary"],
         "title": "TopologyGraph",
         "type": "object"
       },
@@ -13639,18 +12927,12 @@
             "type": "array"
           },
           "status": {
-            "enum": [
-              "running",
-              "ok",
-              "failed"
-            ],
+            "enum": ["running", "ok", "failed"],
             "title": "Status",
             "type": "string"
           }
         },
-        "required": [
-          "status"
-        ],
+        "required": ["status"],
         "title": "TopologyResultResponse",
         "type": "object"
       },
@@ -13666,18 +12948,12 @@
           },
           "type": {
             "const": "unknown_source",
-            "enum": [
-              "unknown_source"
-            ],
+            "enum": ["unknown_source"],
             "title": "Type",
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "type",
-          "data"
-        ],
+        "required": ["id", "type", "data"],
         "title": "UnknownSourceNode",
         "type": "object"
       },
@@ -13751,9 +13027,7 @@
           }
         },
         "summary": "List Apps",
-        "tags": [
-          "admin"
-        ]
+        "tags": ["admin"]
       }
     },
     "/api/admin/apps/{app_key}/force-disable": {
@@ -13794,9 +13068,7 @@
           }
         },
         "summary": "Force Disable App",
-        "tags": [
-          "admin"
-        ]
+        "tags": ["admin"]
       }
     },
     "/api/admin/apps/{app_key}/state": {
@@ -13847,9 +13119,7 @@
           }
         },
         "summary": "Update App State",
-        "tags": [
-          "admin"
-        ]
+        "tags": ["admin"]
       }
     },
     "/api/apps/": {
@@ -13873,10 +13143,7 @@
           }
         },
         "summary": "List Apps For Navigation",
-        "tags": [
-          "apps",
-          "apps"
-        ]
+        "tags": ["apps", "apps"]
       }
     },
     "/api/apps/alert_troubleshooting/": {
@@ -13900,9 +13167,7 @@
           }
         },
         "summary": "Alert Troubleshooting Api List",
-        "tags": [
-          "alert_troubleshooting"
-        ]
+        "tags": ["alert_troubleshooting"]
       }
     },
     "/api/apps/alert_troubleshooting/schema": {
@@ -13922,9 +13187,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "alert_troubleshooting"
-        ]
+        "tags": ["alert_troubleshooting"]
       }
     },
     "/api/apps/alert_troubleshooting/{service_type}/{alert_name}": {
@@ -13975,9 +13238,7 @@
           }
         },
         "summary": "Alert Troubleshooting Api Detail",
-        "tags": [
-          "alert_troubleshooting"
-        ]
+        "tags": ["alert_troubleshooting"]
       }
     },
     "/api/apps/alerts/": {
@@ -13997,9 +13258,7 @@
           }
         },
         "summary": "Alerts Api Index",
-        "tags": [
-          "alerts"
-        ]
+        "tags": ["alerts"]
       }
     },
     "/api/apps/alerts/backups": {
@@ -14054,9 +13313,7 @@
           }
         },
         "summary": "Alerts Api List Backups",
-        "tags": [
-          "alerts"
-        ]
+        "tags": ["alerts"]
       }
     },
     "/api/apps/alerts/backups/{backup_id}": {
@@ -14097,9 +13354,7 @@
           }
         },
         "summary": "Alerts Api Get Backup",
-        "tags": [
-          "alerts"
-        ]
+        "tags": ["alerts"]
       }
     },
     "/api/apps/alerts/pagerduty": {
@@ -14139,9 +13394,7 @@
           }
         },
         "summary": "Alerts Api Pagerduty Save",
-        "tags": [
-          "alerts"
-        ]
+        "tags": ["alerts"]
       }
     },
     "/api/apps/alerts/pagerduty/delete": {
@@ -14161,9 +13414,7 @@
           }
         },
         "summary": "Alerts Api Pagerduty Delete",
-        "tags": [
-          "alerts"
-        ]
+        "tags": ["alerts"]
       }
     },
     "/api/apps/alerts/push": {
@@ -14203,9 +13454,7 @@
           }
         },
         "summary": "Alerts Api Push",
-        "tags": [
-          "alerts"
-        ]
+        "tags": ["alerts"]
       }
     },
     "/api/apps/alerts/restore": {
@@ -14245,9 +13494,7 @@
           }
         },
         "summary": "Alerts Api Restore",
-        "tags": [
-          "alerts"
-        ]
+        "tags": ["alerts"]
       }
     },
     "/api/apps/alters/": {
@@ -14333,9 +13580,7 @@
           }
         },
         "summary": "List",
-        "tags": [
-          "alters"
-        ]
+        "tags": ["alters"]
       },
       "post": {
         "description": "Create an alters task group from a JSON payload request body.",
@@ -14385,9 +13630,7 @@
           }
         },
         "summary": "Alters Api Create",
-        "tags": [
-          "alters"
-        ]
+        "tags": ["alters"]
       }
     },
     "/api/apps/alters/schema": {
@@ -14407,9 +13650,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "alters"
-        ]
+        "tags": ["alters"]
       }
     },
     "/api/apps/alters/{task_name}": {
@@ -14443,9 +13684,7 @@
           }
         },
         "summary": "Alters Api Delete",
-        "tags": [
-          "alters"
-        ]
+        "tags": ["alters"]
       },
       "get": {
         "description": "Retrieve a single parent alters task.",
@@ -14484,9 +13723,7 @@
           }
         },
         "summary": "Alters Api Detail",
-        "tags": [
-          "alters"
-        ]
+        "tags": ["alters"]
       },
       "put": {
         "description": "Update an alters task group from a JSON payload request body.\n\n:param check_connectivity: Whether to verify the target database is\n    reachable after the update. Defaults to ``True``; pass\n    ``check_connectivity=false`` to opt out. Note that the form flow\n    defaults to ``False`` (HTML checkbox semantics); this asymmetry is\n    intentional.\n:type check_connectivity: bool",
@@ -14545,9 +13782,7 @@
           }
         },
         "summary": "Alters Api Update",
-        "tags": [
-          "alters"
-        ]
+        "tags": ["alters"]
       }
     },
     "/api/apps/alters/{task_name}/execute": {
@@ -14598,9 +13833,7 @@
           }
         },
         "summary": "Alters Api Execute",
-        "tags": [
-          "alters"
-        ]
+        "tags": ["alters"]
       }
     },
     "/api/apps/archives/": {
@@ -14670,9 +13903,7 @@
           }
         },
         "summary": "List",
-        "tags": [
-          "archives"
-        ]
+        "tags": ["archives"]
       },
       "post": {
         "operationId": "archives__create_api_apps_archives__post",
@@ -14721,9 +13952,7 @@
           }
         },
         "summary": "Create",
-        "tags": [
-          "archives"
-        ]
+        "tags": ["archives"]
       }
     },
     "/api/apps/archives/schema": {
@@ -14743,9 +13972,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "archives"
-        ]
+        "tags": ["archives"]
       }
     },
     "/api/apps/archives/{task_name}": {
@@ -14778,9 +14005,7 @@
           }
         },
         "summary": "Delete",
-        "tags": [
-          "archives"
-        ]
+        "tags": ["archives"]
       },
       "get": {
         "operationId": "archives__detail_api_apps_archives__task_name__get",
@@ -14818,9 +14043,7 @@
           }
         },
         "summary": "Detail",
-        "tags": [
-          "archives"
-        ]
+        "tags": ["archives"]
       },
       "put": {
         "operationId": "archives__update_api_apps_archives__task_name__put",
@@ -14878,9 +14101,7 @@
           }
         },
         "summary": "Update",
-        "tags": [
-          "archives"
-        ]
+        "tags": ["archives"]
       }
     },
     "/api/apps/archives/{task_name}/execute": {
@@ -14931,9 +14152,7 @@
           }
         },
         "summary": "Archives Api Execute",
-        "tags": [
-          "archives"
-        ]
+        "tags": ["archives"]
       }
     },
     "/api/apps/atw/": {
@@ -14957,9 +14176,7 @@
           }
         },
         "summary": "Atw Api List",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/atw/config/": {
@@ -14979,9 +14196,7 @@
           }
         },
         "summary": "Atw Config",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/atw/execution-schema/": {
@@ -15029,9 +14244,7 @@
           }
         },
         "summary": "Atw Execution Schema",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/atw/incidents/": {
@@ -15086,9 +14299,7 @@
           }
         },
         "summary": "Atw List Incidents",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       },
       "post": {
         "description": "Create a diagnostic incident owned by the current user.\n\n:param session: The database session.\n:param current_user: The authenticated user, stamped as ``created_by``.\n:param body: The incident create payload.\n:return: The created incident.",
@@ -15126,9 +14337,7 @@
           }
         },
         "summary": "Atw Create Incident",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/atw/incidents/{incident_id}": {
@@ -15163,9 +14372,7 @@
           }
         },
         "summary": "Atw Delete Incident",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       },
       "get": {
         "description": "Retrieve a single diagnostic incident by id.\n\n:param incident: The incident resolved from the ``incident_id`` path parameter.\n:return: The matching incident.",
@@ -15205,9 +14412,7 @@
           }
         },
         "summary": "Atw Get Incident",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       },
       "patch": {
         "description": "Update a diagnostic incident's name or support-case reference.\n\n:param session: The database session.\n:param incident: The incident resolved from the ``incident_id`` path parameter.\n:param body: The partial update payload; unset fields are untouched.\n:return: The updated incident.",
@@ -15257,9 +14462,7 @@
           }
         },
         "summary": "Atw Update Incident",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/atw/incidents/{incident_id}/close/": {
@@ -15301,9 +14504,7 @@
           }
         },
         "summary": "Atw Close Incident",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/atw/incidents/{incident_id}/executions/": {
@@ -15368,9 +14569,7 @@
           }
         },
         "summary": "Atw List Incident Executions",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       },
       "post": {
         "description": "Execute several snippets against one incident, reporting each item separately.\n\nA malformed selection fails the whole request up front: ``resolve_snippets``\nruns the traversal guard over every filename before dispatch, so an unsafe\nfilename raises before any item runs. Past that guard, one failing item never\nblocks the rest: each is dispatched and recorded inside its own guard, and the\nresponse always carries an entry per requested item — an unresolved filename\nbecomes that item's error. A failed attempt produces no task-history row to\nreference, so it is reported here rather than persisted.\n\nThe row-write guard rolls the shared session back before the loop continues,\nor one failed write would leave the transaction aborted and doom every later\nitem on PostgreSQL; the dispatch guard rolls back defensively, having written\nnothing itself. ``incident.id`` is read once up front because both a commit and\na rollback expire the instance, and re-reading it would trigger a lazy load.\n\n:param session: The database session.\n:param incident: The incident resolved from the ``incident_id`` path parameter.\n:param body: The batch payload.\n:param tasks_api: The authenticated Tasks API client.\n:return: One outcome entry per requested item, in request order.\n:raises HTTPBadRequestException: When any filename is unsafe or malformed,\n    failing the whole request before any item is dispatched.",
@@ -15420,9 +14619,7 @@
           }
         },
         "summary": "Atw Batch Execute",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/atw/incidents/{incident_id}/reopen/": {
@@ -15464,9 +14661,7 @@
           }
         },
         "summary": "Atw Reopen Incident",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/atw/incidents/{incident_id}/send-jobs/": {
@@ -15531,9 +14726,7 @@
           }
         },
         "summary": "Atw List Send Jobs",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       },
       "post": {
         "description": "Start delivering the selected executions' output files and logs to the support case.\n\nThe row is created before the task is queued so a broker failure is still\nrecorded as a failed attempt rather than vanishing: the row is the only place\na support engineer can see that a send was ever tried.\n\n:param session: The database session.\n:param incident: The incident resolved from the ``incident_id`` path parameter.\n:param current_user: The authenticated user, stamped as ``requested_by``.\n:param body: The send payload naming the case reference and executions.\n:return: The created send log, pending.\n:raises HTTPUnprocessableEntityException: When an execution id does not belong\n    to this incident.\n:raises HTTPServiceUnavailableException: When the send could not be queued.\n:raises HTTPBadRequestException: Propagated from the manager when the row\n    cannot be written.",
@@ -15583,9 +14776,7 @@
           }
         },
         "summary": "Atw Start Send Job",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/atw/incidents/{incident_id}/send-jobs/{send_job_id}": {
@@ -15637,9 +14828,7 @@
           }
         },
         "summary": "Atw Get Send Job",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/atw/schema": {
@@ -15659,9 +14848,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "atw"
-        ]
+        "tags": ["atw"]
       }
     },
     "/api/apps/backup_mongo/": {
@@ -15731,9 +14918,7 @@
           }
         },
         "summary": "List",
-        "tags": [
-          "backup_mongo"
-        ]
+        "tags": ["backup_mongo"]
       },
       "post": {
         "description": "Create a backup task group from a JSON payload request body.",
@@ -15771,9 +14956,7 @@
           }
         },
         "summary": "Backup Mongo Api Create",
-        "tags": [
-          "backup_mongo"
-        ]
+        "tags": ["backup_mongo"]
       }
     },
     "/api/apps/backup_mongo/restore/": {
@@ -15844,9 +15027,7 @@
           }
         },
         "summary": "Restore Mongo Api List",
-        "tags": [
-          "backup_mongo/restore"
-        ]
+        "tags": ["backup_mongo/restore"]
       },
       "post": {
         "description": "Create a restore task group from a JSON payload request body.",
@@ -15884,9 +15065,7 @@
           }
         },
         "summary": "Restore Mongo Api Create",
-        "tags": [
-          "backup_mongo/restore"
-        ]
+        "tags": ["backup_mongo/restore"]
       }
     },
     "/api/apps/backup_mongo/restore/schema": {
@@ -15906,9 +15085,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "backup_mongo/restore"
-        ]
+        "tags": ["backup_mongo/restore"]
       }
     },
     "/api/apps/backup_mongo/restore/{task_name}": {
@@ -15942,9 +15119,7 @@
           }
         },
         "summary": "Restore Mongo Api Delete",
-        "tags": [
-          "backup_mongo/restore"
-        ]
+        "tags": ["backup_mongo/restore"]
       },
       "get": {
         "description": "Retrieve a single parent restore task with child task status.",
@@ -15983,9 +15158,7 @@
           }
         },
         "summary": "Restore Mongo Api Detail",
-        "tags": [
-          "backup_mongo/restore"
-        ]
+        "tags": ["backup_mongo/restore"]
       },
       "put": {
         "description": "Update a restore task from a JSON payload request body.\n\nPUTs the parent config payload to the config task name and refreshes each\nchild leg (restore, pbm-list, optional force-resync) in place. The\n``EditableRestoreParent`` dependency resolves a satellite URL to the parent\nand blocks protected or in-flight groups before any write.",
@@ -16034,9 +15207,7 @@
           }
         },
         "summary": "Restore Mongo Api Update",
-        "tags": [
-          "backup_mongo/restore"
-        ]
+        "tags": ["backup_mongo/restore"]
       }
     },
     "/api/apps/backup_mongo/restore/{task_name}/execute": {
@@ -16087,9 +15258,7 @@
           }
         },
         "summary": "Backup Mongo Restores Api Execute",
-        "tags": [
-          "backup_mongo/restore"
-        ]
+        "tags": ["backup_mongo/restore"]
       }
     },
     "/api/apps/backup_mongo/schema": {
@@ -16109,9 +15278,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "backup_mongo"
-        ]
+        "tags": ["backup_mongo"]
       }
     },
     "/api/apps/backup_mongo/{task_name}": {
@@ -16145,9 +15312,7 @@
           }
         },
         "summary": "Backup Mongo Api Delete",
-        "tags": [
-          "backup_mongo"
-        ]
+        "tags": ["backup_mongo"]
       },
       "get": {
         "description": "Retrieve a single parent backup task with derived sibling status.",
@@ -16186,9 +15351,7 @@
           }
         },
         "summary": "Backup Mongo Api Detail",
-        "tags": [
-          "backup_mongo"
-        ]
+        "tags": ["backup_mongo"]
       },
       "put": {
         "description": "Update a backup task group from a JSON payload request body.\n\nCascade-updates the parent ``pbm_config`` task and its derived logical,\nphysical, status, and incremental siblings, re-stamping ``_form`` so the edit page keeps\nprefilling. The ``EditableBackupParent`` dependency resolves a satellite URL\nto the parent and blocks protected or in-flight groups before any write.\nRejects a parent rename with a conflict and surfaces a partial cascade\nfailure as an HTTP 500 naming the failed legs.",
@@ -16237,9 +15400,7 @@
           }
         },
         "summary": "Backup Mongo Api Update",
-        "tags": [
-          "backup_mongo"
-        ]
+        "tags": ["backup_mongo"]
       }
     },
     "/api/apps/backup_mongo/{task_name}/execute": {
@@ -16290,9 +15451,7 @@
           }
         },
         "summary": "Backup Mongo Api Execute",
-        "tags": [
-          "backup_mongo"
-        ]
+        "tags": ["backup_mongo"]
       }
     },
     "/api/apps/backup_pg/": {
@@ -16362,9 +15521,7 @@
           }
         },
         "summary": "List",
-        "tags": [
-          "backup_pg"
-        ]
+        "tags": ["backup_pg"]
       },
       "post": {
         "operationId": "backup_pg__create_api_apps_backup_pg__post",
@@ -16413,9 +15570,7 @@
           }
         },
         "summary": "Create",
-        "tags": [
-          "backup_pg"
-        ]
+        "tags": ["backup_pg"]
       }
     },
     "/api/apps/backup_pg/schema": {
@@ -16435,9 +15590,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "backup_pg"
-        ]
+        "tags": ["backup_pg"]
       }
     },
     "/api/apps/backup_pg/{task_name}": {
@@ -16470,9 +15623,7 @@
           }
         },
         "summary": "Delete",
-        "tags": [
-          "backup_pg"
-        ]
+        "tags": ["backup_pg"]
       },
       "get": {
         "operationId": "backup_pg__detail_api_apps_backup_pg__task_name__get",
@@ -16510,9 +15661,7 @@
           }
         },
         "summary": "Detail",
-        "tags": [
-          "backup_pg"
-        ]
+        "tags": ["backup_pg"]
       },
       "put": {
         "operationId": "backup_pg__update_api_apps_backup_pg__task_name__put",
@@ -16570,9 +15719,7 @@
           }
         },
         "summary": "Update",
-        "tags": [
-          "backup_pg"
-        ]
+        "tags": ["backup_pg"]
       }
     },
     "/api/apps/backup_pg/{task_name}/execute": {
@@ -16623,9 +15770,7 @@
           }
         },
         "summary": "Backup Pg Api Execute",
-        "tags": [
-          "backup_pg"
-        ]
+        "tags": ["backup_pg"]
       }
     },
     "/api/apps/checksums/": {
@@ -16711,9 +15856,7 @@
           }
         },
         "summary": "List",
-        "tags": [
-          "checksums"
-        ]
+        "tags": ["checksums"]
       },
       "post": {
         "operationId": "checksums__create_api_apps_checksums__post",
@@ -16762,9 +15905,7 @@
           }
         },
         "summary": "Create",
-        "tags": [
-          "checksums"
-        ]
+        "tags": ["checksums"]
       }
     },
     "/api/apps/checksums/schema": {
@@ -16784,9 +15925,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "checksums"
-        ]
+        "tags": ["checksums"]
       }
     },
     "/api/apps/checksums/{task_name}": {
@@ -16819,9 +15958,7 @@
           }
         },
         "summary": "Delete",
-        "tags": [
-          "checksums"
-        ]
+        "tags": ["checksums"]
       },
       "get": {
         "operationId": "checksums__detail_api_apps_checksums__task_name__get",
@@ -16859,9 +15996,7 @@
           }
         },
         "summary": "Detail",
-        "tags": [
-          "checksums"
-        ]
+        "tags": ["checksums"]
       },
       "put": {
         "operationId": "checksums__update_api_apps_checksums__task_name__put",
@@ -16919,9 +16054,7 @@
           }
         },
         "summary": "Update",
-        "tags": [
-          "checksums"
-        ]
+        "tags": ["checksums"]
       }
     },
     "/api/apps/checksums/{task_name}/execute": {
@@ -16972,9 +16105,7 @@
           }
         },
         "summary": "Checksums Api Execute",
-        "tags": [
-          "checksums"
-        ]
+        "tags": ["checksums"]
       }
     },
     "/api/apps/dipper/": {
@@ -17029,9 +16160,7 @@
           }
         },
         "summary": "Dipper Api List",
-        "tags": [
-          "dipper"
-        ]
+        "tags": ["dipper"]
       },
       "post": {
         "description": "Execute a Dipper collector script against a database service.\n\nDelegates all script resolution, PMM defaults merging, argument\nvalidation, and metadata assembly to ``build_dipper_execution_meta``.\n\n:param request: The HTTP request (used to derive the artifact download URL).\n:type request: Request\n:param body: Validated JSON request body.\n:type body: DipperExecuteWrite\n:param inventory_api: Async client for the inventory sub-app.\n:type inventory_api: RemoteAPI\n:param tasks_api: Async client for the tasks sub-app.\n:type tasks_api: RemoteAPI\n:return: Execution response with the created task identifier.\n:rtype: DipperExecutionResponse\n:raises HTTPNotFoundException: When the service does not exist.\n:raises HTTPUnprocessableEntityException: When the script/args are invalid.",
@@ -17069,9 +16198,7 @@
           }
         },
         "summary": "Dipper Api Execute",
-        "tags": [
-          "dipper"
-        ]
+        "tags": ["dipper"]
       }
     },
     "/api/apps/dipper/form-schema": {
@@ -17120,9 +16247,7 @@
           }
         },
         "summary": "Dipper Api Form Schema",
-        "tags": [
-          "dipper"
-        ]
+        "tags": ["dipper"]
       }
     },
     "/api/apps/dipper/schema": {
@@ -17142,9 +16267,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "dipper"
-        ]
+        "tags": ["dipper"]
       }
     },
     "/api/apps/dipper/script-preview": {
@@ -17193,9 +16316,7 @@
           }
         },
         "summary": "Dipper Api Script Preview",
-        "tags": [
-          "dipper"
-        ]
+        "tags": ["dipper"]
       }
     },
     "/api/apps/inventory/": {
@@ -17219,9 +16340,7 @@
           }
         },
         "summary": "Inventory Plugin Tasks",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       }
     },
     "/api/apps/inventory/available-syncers/": {
@@ -17245,9 +16364,7 @@
           }
         },
         "summary": "Inventory Available Syncers",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       }
     },
     "/api/apps/inventory/nodes/{node_id}/system-observation": {
@@ -17288,9 +16405,7 @@
           }
         },
         "summary": "Inventory Node System Observation",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       }
     },
     "/api/apps/inventory/schema": {
@@ -17310,9 +16425,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       }
     },
     "/api/apps/inventory/services/{service_id}/check-connectivity/": {
@@ -17353,9 +16466,7 @@
           }
         },
         "summary": "Inventory Service Check Connectivity",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       }
     },
     "/api/apps/inventory/services/{service_id}/system-observation": {
@@ -17396,9 +16507,7 @@
           }
         },
         "summary": "Inventory Service System Observation",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       }
     },
     "/api/apps/inventory/sync/": {
@@ -17438,9 +16547,7 @@
           }
         },
         "summary": "Inventory Sync Trigger",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       }
     },
     "/api/apps/inventory/sync/status/": {
@@ -17460,9 +16567,7 @@
           }
         },
         "summary": "Inventory Sync Status",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       }
     },
     "/api/apps/inventory/{entity}/": {
@@ -17526,9 +16631,7 @@
           }
         },
         "summary": "Inventory List Entity",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       },
       "post": {
         "description": "Create an inventory node, service, schema, or table.",
@@ -17567,9 +16670,7 @@
           }
         },
         "summary": "Inventory Create Entity",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       }
     },
     "/api/apps/inventory/{entity}/{item_id}": {
@@ -17617,9 +16718,7 @@
           }
         },
         "summary": "Inventory Delete Entity",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       },
       "get": {
         "description": "Retrieve a single inventory node, service, schema, or table.",
@@ -17667,9 +16766,7 @@
           }
         },
         "summary": "Inventory Get Entity",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       },
       "put": {
         "description": "Update an inventory node, service, schema, or table.",
@@ -17717,9 +16814,7 @@
           }
         },
         "summary": "Inventory Update Entity",
-        "tags": [
-          "inventory"
-        ]
+        "tags": ["inventory"]
       }
     },
     "/api/apps/mysql_backups/": {
@@ -17789,9 +16884,7 @@
           }
         },
         "summary": "List",
-        "tags": [
-          "mysql_backups"
-        ]
+        "tags": ["mysql_backups"]
       },
       "post": {
         "operationId": "mysql_backups__create_api_apps_mysql_backups__post",
@@ -17840,9 +16933,7 @@
           }
         },
         "summary": "Create",
-        "tags": [
-          "mysql_backups"
-        ]
+        "tags": ["mysql_backups"]
       }
     },
     "/api/apps/mysql_backups/backup-sources/choices": {
@@ -17896,9 +16987,7 @@
           }
         },
         "summary": "List Backup Source Choices",
-        "tags": [
-          "mysql_backups"
-        ]
+        "tags": ["mysql_backups"]
       }
     },
     "/api/apps/mysql_backups/restore/": {
@@ -17968,9 +17057,7 @@
           }
         },
         "summary": "List",
-        "tags": [
-          "mysql_backups/restore"
-        ]
+        "tags": ["mysql_backups/restore"]
       },
       "post": {
         "operationId": "mysql_backups_restore__create_api_apps_mysql_backups_restore__post",
@@ -18007,9 +17094,7 @@
           }
         },
         "summary": "Create",
-        "tags": [
-          "mysql_backups/restore"
-        ]
+        "tags": ["mysql_backups/restore"]
       }
     },
     "/api/apps/mysql_backups/restore/schema": {
@@ -18029,9 +17114,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "mysql_backups/restore"
-        ]
+        "tags": ["mysql_backups/restore"]
       }
     },
     "/api/apps/mysql_backups/restore/{task_name}": {
@@ -18064,9 +17147,7 @@
           }
         },
         "summary": "Delete",
-        "tags": [
-          "mysql_backups/restore"
-        ]
+        "tags": ["mysql_backups/restore"]
       },
       "get": {
         "operationId": "mysql_backups_restore__detail_api_apps_mysql_backups_restore__task_name__get",
@@ -18104,9 +17185,7 @@
           }
         },
         "summary": "Detail",
-        "tags": [
-          "mysql_backups/restore"
-        ]
+        "tags": ["mysql_backups/restore"]
       },
       "put": {
         "operationId": "mysql_backups_restore__update_api_apps_mysql_backups_restore__task_name__put",
@@ -18154,9 +17233,7 @@
           }
         },
         "summary": "Update",
-        "tags": [
-          "mysql_backups/restore"
-        ]
+        "tags": ["mysql_backups/restore"]
       }
     },
     "/api/apps/mysql_backups/restore/{task_name}/execute": {
@@ -18207,9 +17284,7 @@
           }
         },
         "summary": "Mysql Backups Restores Api Execute",
-        "tags": [
-          "mysql_backups/restore"
-        ]
+        "tags": ["mysql_backups/restore"]
       }
     },
     "/api/apps/mysql_backups/schema": {
@@ -18229,9 +17304,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "mysql_backups"
-        ]
+        "tags": ["mysql_backups"]
       }
     },
     "/api/apps/mysql_backups/services/{service_id}/backups": {
@@ -18295,9 +17368,7 @@
           }
         },
         "summary": "List Service Backups",
-        "tags": [
-          "mysql_backups"
-        ]
+        "tags": ["mysql_backups"]
       }
     },
     "/api/apps/mysql_backups/{task_name}": {
@@ -18330,9 +17401,7 @@
           }
         },
         "summary": "Delete",
-        "tags": [
-          "mysql_backups"
-        ]
+        "tags": ["mysql_backups"]
       },
       "get": {
         "operationId": "mysql_backups__detail_api_apps_mysql_backups__task_name__get",
@@ -18370,9 +17439,7 @@
           }
         },
         "summary": "Detail",
-        "tags": [
-          "mysql_backups"
-        ]
+        "tags": ["mysql_backups"]
       },
       "put": {
         "operationId": "mysql_backups__update_api_apps_mysql_backups__task_name__put",
@@ -18430,9 +17497,7 @@
           }
         },
         "summary": "Update",
-        "tags": [
-          "mysql_backups"
-        ]
+        "tags": ["mysql_backups"]
       }
     },
     "/api/apps/mysql_backups/{task_name}/execute": {
@@ -18483,9 +17548,7 @@
           }
         },
         "summary": "Mysql Backups Api Execute",
-        "tags": [
-          "mysql_backups"
-        ]
+        "tags": ["mysql_backups"]
       }
     },
     "/api/apps/report/config": {
@@ -18503,9 +17566,7 @@
           }
         },
         "summary": "Report Config",
-        "tags": [
-          "report"
-        ]
+        "tags": ["report"]
       }
     },
     "/api/apps/report/generate/json": {
@@ -18594,9 +17655,7 @@
           }
         },
         "summary": "Report Generate Json Api",
-        "tags": [
-          "report"
-        ]
+        "tags": ["report"]
       }
     },
     "/api/apps/report/pdf-jobs": {
@@ -18636,9 +17695,7 @@
           }
         },
         "summary": "Report Start Pdf Job Api",
-        "tags": [
-          "report"
-        ]
+        "tags": ["report"]
       }
     },
     "/api/apps/report/pdf-jobs/{job_id}": {
@@ -18679,9 +17736,7 @@
           }
         },
         "summary": "Report Pdf Job Api",
-        "tags": [
-          "report"
-        ]
+        "tags": ["report"]
       }
     },
     "/api/apps/report/pdf-jobs/{job_id}/pdf": {
@@ -18720,9 +17775,7 @@
           }
         },
         "summary": "Report Download Pdf Api",
-        "tags": [
-          "report"
-        ]
+        "tags": ["report"]
       }
     },
     "/api/apps/report/upload-jobs": {
@@ -18762,9 +17815,7 @@
           }
         },
         "summary": "Report Start Upload Job Api",
-        "tags": [
-          "report"
-        ]
+        "tags": ["report"]
       }
     },
     "/api/apps/report/upload-jobs/{job_id}": {
@@ -18805,9 +17856,7 @@
           }
         },
         "summary": "Report Upload Job Api",
-        "tags": [
-          "report"
-        ]
+        "tags": ["report"]
       }
     },
     "/api/apps/snippets/": {
@@ -18945,9 +17994,7 @@
           }
         },
         "summary": "List",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/approvals": {
@@ -18987,9 +18034,7 @@
           }
         },
         "summary": "Snippets Api Batch Approve",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/capabilities": {
@@ -19009,9 +18054,7 @@
           }
         },
         "summary": " Snippets Capabilities Provider",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/refresh": {
@@ -19031,9 +18074,7 @@
           }
         },
         "summary": "Snippets Api Refresh",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/schema": {
@@ -19053,9 +18094,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/service_types": {
@@ -19075,9 +18114,7 @@
           }
         },
         "summary": "Snippets Api Service Types",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/snippet/approval": {
@@ -19113,9 +18150,7 @@
           }
         },
         "summary": "Snippets Api Remove Approval",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       },
       "put": {
         "description": "Approve a single snippet (idempotent).\n\nRe-approving an already-approved snippet returns ``200`` with the\ncurrent state — ``approved_at`` is *not* overwritten so the audit\ntrail is preserved.\n\n:param snippet: The snippet whose approval is being set.\n:type snippet: Snippet\n:param user: The authenticated admin performing the action.\n:type user: User\n:param session: The active database session.\n:type session: AsyncSession\n:return: The snippet entity after the call, including approval state.\n:rtype: SnippetResponse",
@@ -19156,9 +18191,7 @@
           }
         },
         "summary": "Snippets Api Approve",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/snippet/download": {
@@ -19199,9 +18232,7 @@
           }
         },
         "summary": "Snippets Api Download",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/snippet/execute": {
@@ -19254,9 +18285,7 @@
           }
         },
         "summary": "Execute script",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/snippet/history": {
@@ -19301,9 +18330,7 @@
           }
         },
         "summary": "Script history",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/snippet/preview": {
@@ -19346,9 +18373,7 @@
           }
         },
         "summary": "Snippets Api Script Preview",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/snippets/snippet/schema": {
@@ -19391,9 +18416,7 @@
           }
         },
         "summary": "Script schema",
-        "tags": [
-          "snippets"
-        ]
+        "tags": ["snippets"]
       }
     },
     "/api/apps/tasks/": {
@@ -19448,9 +18471,7 @@
           }
         },
         "summary": "Tasks Api List",
-        "tags": [
-          "Task Manager"
-        ]
+        "tags": ["Task Manager"]
       }
     },
     "/api/apps/tasks/schema": {
@@ -19470,9 +18491,7 @@
           }
         },
         "summary": "Get Schema",
-        "tags": [
-          "Task Manager"
-        ]
+        "tags": ["Task Manager"]
       }
     },
     "/api/apps/tasks/{task_name}": {
@@ -19529,9 +18548,7 @@
           }
         },
         "summary": "Tasks Api Detail",
-        "tags": [
-          "Task Manager"
-        ]
+        "tags": ["Task Manager"]
       }
     },
     "/api/apps/topology/collect": {
@@ -19571,9 +18588,7 @@
           }
         },
         "summary": "Topology Collect",
-        "tags": [
-          "topology"
-        ]
+        "tags": ["topology"]
       }
     },
     "/api/apps/topology/result": {
@@ -19616,9 +18631,7 @@
           }
         },
         "summary": "Topology Result",
-        "tags": [
-          "topology"
-        ]
+        "tags": ["topology"]
       }
     },
     "/api/sep/admin/connectivity-check/": {
@@ -19662,9 +18675,7 @@
           }
         },
         "summary": "Check Connectivity",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/admin/settings/": {
@@ -19684,9 +18695,7 @@
           }
         },
         "summary": "List Settings",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/admin/settings/export": {
@@ -19742,9 +18751,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "detail"
-                  ],
+                  "required": ["detail"],
                   "type": "object"
                 }
               }
@@ -19753,9 +18760,7 @@
           }
         },
         "summary": "Export Settings",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/admin/settings/{setting_class}": {
@@ -19809,9 +18814,7 @@
           }
         },
         "summary": "Patch Settings",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/admin/settings/{setting_class}/{key}": {
@@ -19853,9 +18856,7 @@
           }
         },
         "summary": "Delete Setting",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       },
       "get": {
         "description": "Return one field's metadata and current value.\n\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:return: The structured response for the field.\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.",
@@ -19902,9 +18903,7 @@
           }
         },
         "summary": "Get Setting",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/app-info/": {
@@ -19924,9 +18923,7 @@
           }
         },
         "summary": "Get App Info",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/dashboard/": {
@@ -19946,9 +18943,7 @@
           }
         },
         "summary": "Get Dashboard Stats",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/hosts/": {
@@ -19979,9 +18974,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "detail"
-                  ],
+                  "required": ["detail"],
                   "type": "object"
                 }
               }
@@ -19990,9 +18983,7 @@
           }
         },
         "summary": "List Hosts",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/periodic-tasks/": {
@@ -20024,9 +19015,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "detail"
-                  ],
+                  "required": ["detail"],
                   "type": "object"
                 }
               }
@@ -20035,9 +19024,7 @@
           }
         },
         "summary": "List Periodic Tasks",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/api/sep/periodic-tasks/{periodic_task_id}": {
@@ -20078,9 +19065,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "detail"
-                  ],
+                  "required": ["detail"],
                   "type": "object"
                 }
               }
@@ -20089,9 +19074,7 @@
           }
         },
         "summary": "Delete Periodic Task",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       },
       "put": {
         "description": "Dispatch a full-replacement update of a periodic task to the Tasks API.\n\n:param periodic_task_id: The id of the periodic task to update.\n:param tasks_api: The Tasks API client used to update the periodic task.\n:param body: The ``PeriodicTaskUpdate`` JSON body, forwarded verbatim.\n:return: The updated periodic task as returned by the Tasks API.\n:raises HTTPException: Re-raised unchanged for an upstream client error\n    (status < 500).\n:raises HTTPBadGatewayException: For an upstream server error (status >= 500)\n    or a connection-level ``OSError``.",
@@ -20151,9 +19134,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "detail"
-                  ],
+                  "required": ["detail"],
                   "type": "object"
                 }
               }
@@ -20162,9 +19143,7 @@
           }
         },
         "summary": "Update Periodic Task",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/api/sep/periodic-tasks/{task_name}/": {
@@ -20226,9 +19205,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "detail"
-                  ],
+                  "required": ["detail"],
                   "type": "object"
                 }
               }
@@ -20237,9 +19214,7 @@
           }
         },
         "summary": "Create Periodic Task",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/api/sep/schemas/{schema_id}/tables": {
@@ -20300,9 +19275,7 @@
           }
         },
         "summary": "List Schema Tables",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/services/": {
@@ -20373,9 +19346,7 @@
           }
         },
         "summary": "List Services",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/services/{service_id}/schemas": {
@@ -20436,9 +19407,7 @@
           }
         },
         "summary": "List Service Schemas",
-        "tags": [
-          "sep"
-        ]
+        "tags": ["sep"]
       }
     },
     "/api/sep/task-history/": {
@@ -20545,9 +19514,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "detail"
-                  ],
+                  "required": ["detail"],
                   "type": "object"
                 }
               }
@@ -20556,9 +19523,7 @@
           }
         },
         "summary": "List Merged Task History",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/api/sep/task-history/{task_history_id}/stop/": {
@@ -20608,9 +19573,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "detail"
-                  ],
+                  "required": ["detail"],
                   "type": "object"
                 }
               }
@@ -20619,9 +19582,7 @@
           }
         },
         "summary": "Stop Task History",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/api/sep/task-stats/{task_name}": {
@@ -20671,9 +19632,7 @@
                       "type": "string"
                     }
                   },
-                  "required": [
-                    "detail"
-                  ],
+                  "required": ["detail"],
                   "type": "object"
                 }
               }
@@ -20682,9 +19641,7 @@
           }
         },
         "summary": "Get Task Stats",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/execution-events/{task_history_id}": {
@@ -20745,9 +19702,7 @@
           }
         },
         "summary": "List Task Execution Events",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/files/{task_history_id}": {
@@ -20808,9 +19763,7 @@
           }
         },
         "summary": "List Task History Files",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/files/{task_history_id}/download": {
@@ -20865,9 +19818,7 @@
           }
         },
         "summary": "Download Task History File",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/stream-logs/{task_history_id}": {
@@ -20922,9 +19873,7 @@
           }
         },
         "summary": "Task Logs Event Stream",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/stream-logs/{task_history_id}/execution-events": {
@@ -20979,9 +19928,7 @@
           }
         },
         "summary": "Task Execution Events Stream",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     }
   }

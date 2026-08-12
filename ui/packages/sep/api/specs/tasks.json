@@ -24,10 +24,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "success",
-          "task_history_id"
-        ],
+        "required": ["success", "task_history_id"],
         "title": "ConnectivityCheckResponse",
         "type": "object"
       },
@@ -57,22 +54,13 @@
             "type": "integer"
           }
         },
-        "required": [
-          "target",
-          "host",
-          "port",
-          "service_type"
-        ],
+        "required": ["target", "host", "port", "service_type"],
         "title": "ConnectivityCheckWrite",
         "type": "object"
       },
       "ConnectivityServiceType": {
         "description": "Define supported database service types for connectivity checks.\n\n:cvar MYSQL: MySQL database service.\n:vartype MYSQL: str\n:cvar POSTGRESQL: PostgreSQL database service.\n:vartype POSTGRESQL: str\n:cvar MONGODB: MongoDB database service.\n:vartype MONGODB: str",
-        "enum": [
-          "mysql",
-          "postgresql",
-          "mongodb"
-        ],
+        "enum": ["mysql", "postgresql", "mongodb"],
         "title": "ConnectivityServiceType",
         "type": "string"
       },
@@ -141,11 +129,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "timestamp",
-          "type",
-          "description"
-        ],
+        "required": ["timestamp", "type", "description"],
         "title": "ExecutionEvent",
         "type": "object"
       },
@@ -191,10 +175,7 @@
             "$ref": "#/components/schemas/Period"
           }
         },
-        "required": [
-          "every",
-          "period"
-        ],
+        "required": ["every", "period"],
         "title": "IntervalSchedule",
         "type": "object"
       },
@@ -221,12 +202,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[TaskHistoryResponse]",
         "type": "object"
       },
@@ -252,23 +228,12 @@
             "type": "integer"
           }
         },
-        "required": [
-          "items",
-          "total",
-          "offset",
-          "limit"
-        ],
+        "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[TaskResponse]",
         "type": "object"
       },
       "Period": {
-        "enum": [
-          "days",
-          "hours",
-          "minutes",
-          "seconds",
-          "microseconds"
-        ],
+        "enum": ["days", "hours", "minutes", "seconds", "microseconds"],
         "title": "Period",
         "type": "string"
       },
@@ -341,10 +306,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "task",
-          "kwargs"
-        ],
+        "required": ["task", "kwargs"],
         "title": "PeriodicTaskCreate",
         "type": "object"
       },
@@ -633,11 +595,7 @@
       },
       "ReloadClassification": {
         "description": "Declare the reload behavior of an overridable settings field.\n\n:cvar HOT: Field can be overridden via a DB row and the new value takes\n    effect on the next snapshot refresh, without restarting the service.\n    For a nested-model field, ``HOT`` permits both whole-object override\n    (``PATCH {parent: {...}}``) and per-child override (``parent__leaf``).\n:vartype HOT: str\n:cvar NESTED_ONLY: Nested-model field whose children may be overridden\n    (``parent__leaf``) while the parent itself rejects whole-object\n    override (``PATCH {parent: {...}}`` → 422). Children default to\n    HOT-inherit unless explicitly marked :func:`not_overridable_field`.\n:vartype NESTED_ONLY: str\n:cvar NOT_OVERRIDABLE: Field is not overridable from the database; YAML\n    and environment variables remain the only sources of truth.\n:vartype NOT_OVERRIDABLE: str",
-        "enum": [
-          "hot",
-          "nested_only",
-          "not_overridable"
-        ],
+        "enum": ["hot", "nested_only", "not_overridable"],
         "title": "ReloadClassification",
         "type": "string"
       },
@@ -708,10 +666,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "setting_class",
-          "settings"
-        ],
+        "required": ["setting_class", "settings"],
         "title": "SettingClassGroup",
         "type": "object"
       },
@@ -805,9 +760,7 @@
             "type": "array"
           }
         },
-        "required": [
-          "groups"
-        ],
+        "required": ["groups"],
         "title": "SettingsListResponse",
         "type": "object"
       },
@@ -822,11 +775,7 @@
       },
       "TaskBackendEnum": {
         "description": "Control the choice of backends.\n\n:cvar NOMAD: Enum value for Nomad backend.\n:vartype NOMAD: str\n:cvar PROXY: Enum value for Proxy backend.\n:vartype PROXY: str\n:cvar CELERY: Enum value for Celery backend.\n:vartype CELERY: str",
-        "enum": [
-          "nomad",
-          "proxy",
-          "celery"
-        ],
+        "enum": ["nomad", "proxy", "celery"],
         "title": "TaskBackendEnum",
         "type": "string"
       },
@@ -958,10 +907,7 @@
             "title": "Tracking"
           }
         },
-        "required": [
-          "task",
-          "target"
-        ],
+        "required": ["task", "target"],
         "title": "TaskExecutionRequest",
         "type": "object"
       },
@@ -1469,12 +1415,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "total",
-          "status",
-          "duration",
-          "last_finished_at"
-        ],
+        "required": ["total", "status", "duration", "last_finished_at"],
         "title": "TaskStats",
         "type": "object"
       },
@@ -1561,10 +1502,7 @@
             "title": "Run Result Recorder"
           }
         },
-        "required": [
-          "name",
-          "data"
-        ],
+        "required": ["name", "data"],
         "title": "TaskWrite",
         "type": "object"
       },
@@ -1572,11 +1510,7 @@
         "description": "Define the request body for the /transform/ API route.\n\n:param payload: The job specification payload to be parsed.\n:type payload: str | bytes\n:param fmt: The format of the payload, which can be \"hcl\", \"json\", or \"yaml\".\n:type fmt: Literal[\"hcl\", \"json\", \"yaml\"]",
         "properties": {
           "fmt": {
-            "enum": [
-              "hcl",
-              "json",
-              "yaml"
-            ],
+            "enum": ["hcl", "json", "yaml"],
             "title": "Fmt",
             "type": "string"
           },
@@ -1593,10 +1527,7 @@
             "title": "Payload"
           }
         },
-        "required": [
-          "payload",
-          "fmt"
-        ],
+        "required": ["payload", "fmt"],
         "title": "TransformPayloadRequest",
         "type": "object"
       },
@@ -1639,11 +1570,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
+        "required": ["loc", "msg", "type"],
         "title": "ValidationError",
         "type": "object"
       }
@@ -1846,9 +1773,7 @@
           }
         ],
         "summary": "List Tasks",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       },
       "post": {
         "description": "Create a new task.",
@@ -1891,9 +1816,7 @@
           }
         ],
         "summary": "Create Task",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/admin/settings/": {
@@ -1918,9 +1841,7 @@
           }
         ],
         "summary": "List Settings",
-        "tags": [
-          "settings"
-        ]
+        "tags": ["settings"]
       }
     },
     "/admin/settings/{setting_class}": {
@@ -1979,9 +1900,7 @@
           }
         ],
         "summary": "Patch Settings",
-        "tags": [
-          "settings"
-        ]
+        "tags": ["settings"]
       }
     },
     "/admin/settings/{setting_class}/{key}": {
@@ -2028,9 +1947,7 @@
           }
         ],
         "summary": "Delete Setting",
-        "tags": [
-          "settings"
-        ]
+        "tags": ["settings"]
       },
       "get": {
         "description": "Return one field's metadata and current value.\n\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:return: The structured response for the field.\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.",
@@ -2082,9 +1999,7 @@
           }
         ],
         "summary": "Get Setting",
-        "tags": [
-          "settings"
-        ]
+        "tags": ["settings"]
       }
     },
     "/connectivity-check/": {
@@ -2129,9 +2044,7 @@
           }
         ],
         "summary": "Connectivity Check",
-        "tags": [
-          "connectivity"
-        ]
+        "tags": ["connectivity"]
       }
     },
     "/execute/{task_name}": {
@@ -2194,9 +2107,7 @@
           }
         ],
         "summary": "Execute Task Name",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/history/": {
@@ -2324,9 +2235,7 @@
           }
         ],
         "summary": "List Task History",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       },
       "post": {
         "description": "Create a new task history.\n\n``has_logs`` is not populated on this response -- a row that was just\ncreated has no chunk-store entry or legacy tracking blob yet, so the\nfield defaults to ``False`` on serialization.",
@@ -2369,9 +2278,7 @@
           }
         ],
         "summary": "Create Task History",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/history/latest": {
@@ -2427,9 +2334,7 @@
           }
         ],
         "summary": "Latest Task History",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/history/{task_history_id}": {
@@ -2475,9 +2380,7 @@
           }
         ],
         "summary": "Retrieve Task History",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/history/{task_history_id}/events": {
@@ -2536,9 +2439,7 @@
           }
         ],
         "summary": "List Task History Events",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/history/{task_history_id}/file/": {
@@ -2600,9 +2501,7 @@
           }
         ],
         "summary": "Stream Task History File",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/history/{task_history_id}/files/": {
@@ -2661,9 +2560,7 @@
           }
         ],
         "summary": "List Task History Files",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/history/{task_history_id}/logs/": {
@@ -2749,9 +2646,7 @@
           }
         ],
         "summary": "Stream Task History Logs",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/history/{task_history_id}/stop/": {
@@ -2806,9 +2701,7 @@
           }
         ],
         "summary": "Stop Task History",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/history/{task_history_id}/sync/": {
@@ -2863,9 +2756,7 @@
           }
         ],
         "summary": "Sync Task History",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/hosts/": {
@@ -2915,9 +2806,7 @@
           }
         ],
         "summary": "Get Executor Hosts",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/periodic/": {
@@ -2990,11 +2879,7 @@
           }
         ],
         "summary": "List Periodic Tasks",
-        "tags": [
-          "periodic",
-          "schedule",
-          "tasks"
-        ]
+        "tags": ["periodic", "schedule", "tasks"]
       }
     },
     "/periodic/{periodic_task_id}": {
@@ -3033,11 +2918,7 @@
           }
         ],
         "summary": "Delete Periodic Task",
-        "tags": [
-          "periodic",
-          "schedule",
-          "tasks"
-        ]
+        "tags": ["periodic", "schedule", "tasks"]
       },
       "get": {
         "description": "Retrieve a periodic task by ID.",
@@ -3081,11 +2962,7 @@
           }
         ],
         "summary": "Retrieve Periodic Task",
-        "tags": [
-          "periodic",
-          "schedule",
-          "tasks"
-        ]
+        "tags": ["periodic", "schedule", "tasks"]
       },
       "put": {
         "description": "Update a periodic task.",
@@ -3139,11 +3016,7 @@
           }
         ],
         "summary": "Update Periodic Task",
-        "tags": [
-          "periodic",
-          "schedule",
-          "tasks"
-        ]
+        "tags": ["periodic", "schedule", "tasks"]
       }
     },
     "/stats/{task}": {
@@ -3189,9 +3062,7 @@
           }
         ],
         "summary": "Get Task Stats",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/transform/": {
@@ -3247,9 +3118,7 @@
           }
         ],
         "summary": "Transform Payload",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/{task_name}": {
@@ -3295,9 +3164,7 @@
           }
         ],
         "summary": "Delete Task",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       },
       "get": {
         "description": "Retrieve a task by its name.",
@@ -3341,9 +3208,7 @@
           }
         ],
         "summary": "Get Task",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       },
       "put": {
         "description": "Update an existing task.",
@@ -3397,9 +3262,7 @@
           }
         ],
         "summary": "Update Task",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/{task_name}/periodic/": {
@@ -3449,9 +3312,7 @@
           }
         ],
         "summary": "List Periodic Tasks By Task Name",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       },
       "post": {
         "description": "Create a new periodic task for the specified task name.",
@@ -3505,9 +3366,7 @@
           }
         ],
         "summary": "Create Periodic Task For Task Name",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     },
     "/{task}/history/": {
@@ -3651,9 +3510,7 @@
           }
         ],
         "summary": "Get Task History",
-        "tags": [
-          "tasks"
-        ]
+        "tags": ["tasks"]
       }
     }
   }
