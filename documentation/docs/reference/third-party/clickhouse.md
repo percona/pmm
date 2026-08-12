@@ -74,39 +74,39 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
     1. Run the following on your external ClickHouse instance, replacing `your-password` with a [strong, randomly generated password](#enhance-clickhouse-security-for-pmm) and its SHA256 hash:
  
     ```sql
-        CREATE USER grafana IDENTIFIED WITH sha256_password BY 'your-password'
-        SETTINGS readonly = 1, max_execution_time CHANGEABLE_IN_READONLY;
+    CREATE USER grafana IDENTIFIED WITH sha256_password BY 'your-password'
+    SETTINGS readonly = 1, max_execution_time CHANGEABLE_IN_READONLY;
  
-        GRANT SELECT ON pmm.* TO grafana;
+    GRANT SELECT ON pmm.* TO grafana;
     ```
  
         If you manage ClickHouse users through configuration files instead, use the XML equivalent:
  
     ```xml
-        <clickhouse>
-            <users>
-                <grafana>
-                    <password_sha256_hex>your-password-hash</password_sha256_hex>
-                    <networks>
-                        <ip>::/0</ip>
-                    </networks>
-                    <profile>readonly</profile>
-                </grafana>
-            </users>
-            <profiles>
-                <readonly>
-                    <readonly>1</readonly>
-                    <constraints>
-                        <max_execution_time>
-                            <changeable_in_readonly>1</changeable_in_readonly>
-                        </max_execution_time>
-                    </constraints>
-                </readonly>
-            </profiles>
-        </clickhouse>
+    <clickhouse>
+        <users>
+            <grafana>
+                <password_sha256_hex>your-password-hash</password_sha256_hex>
+                <networks>
+                    <ip>::/0</ip>
+                </networks>
+                <profile>readonly</profile>
+            </grafana>
+        </users>
+        <profiles>
+            <readonly>
+                <readonly>1</readonly>
+                <constraints>
+                    <max_execution_time>
+                        <changeable_in_readonly>1</changeable_in_readonly>
+                    </max_execution_time>
+                </constraints>
+            </readonly>
+        </profiles>
+    </clickhouse>
     ```
  
-        Some ClickHouse versions require `settings_constraints_replace_previous` for the `max_execution_time` constraint to take effect, so check your version if the constraint doesn't apply.
+    Some ClickHouse versions require `settings_constraints_replace_previous` for the `max_execution_time` constraint to take effect, so check your version if the constraint doesn't apply.
  
     2. Set `PMM_CLICKHOUSE_DATASOURCE_USER` and `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to this user's credentials, as shown in the [previous example](#example). If you skip this step, PMM can't authenticate to ClickHouse after upgrading. PMM won't fall back to the privileged `PMM_CLICKHOUSE_USER` account, because that fallback would reopen the vulnerability this fix closes.
 
@@ -114,11 +114,11 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
 
 When configuring PMM to use an external ClickHouse instance, make sure to enforce robust security practices to protect sensitive data and prevent unauthorized access:
 
-- Enable SSL/TLS encryption for all connections
-- Ensure that your ClickHouse instance is properly secured and monitored
-- Disable empty passwords and plain text passwords
-- Define all ClickHouse users explicitly, including permissions, to prevent automatic creation of unsecured users without passwords.
-- Generate strong, random passwords for the dedicated PMM ClickHouse user. Use the following commands to generate a password and its SHA256 hash (useful for advanced ClickHouse configurations):
+- enable SSL/TLS encryption for all connections
+- ensure that your ClickHouse instance is properly secured and monitored
+- disable empty passwords and plain text passwords
+- define all ClickHouse users explicitly, including permissions, to prevent automatic creation of unsecured users without passwords.
+- generate strong, random passwords for the dedicated PMM ClickHouse user. Use the following commands to generate a password and its SHA256 hash (useful for advanced ClickHouse configurations):
 
     ```sh
     PASSWORD=$(base64 < /dev/urandom | head -c12)

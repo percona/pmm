@@ -711,9 +711,9 @@ These variable names say "built-in", but HA doesn't have a built-in database to 
 
 Adjust these variables in your `values.yaml` to match your monitoring requirements:
 ```yaml
-  pmmEnv:
-    PMM_DATA_RETENTION: "2160h"  # Adjust based on your retention policy (default: 90 days)
-    # Add other environment variables as needed
+pmmEnv:
+  PMM_DATA_RETENTION: "2160h"  # Adjust based on your retention policy (default: 90 days)
+  # Add other environment variables as needed
 ```
 
 #### Common customizations
