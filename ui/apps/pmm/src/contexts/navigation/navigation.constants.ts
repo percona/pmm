@@ -1,5 +1,37 @@
 import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
+import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
+import AppsRounded from '@mui/icons-material/AppsRounded';
+import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
+import ExploreOutlined from '@mui/icons-material/ExploreOutlined';
+import Groups from '@mui/icons-material/Groups';
+import HelpOutline from '@mui/icons-material/HelpOutline';
+import Logout from '@mui/icons-material/Logout';
+import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
+import NorthEast from '@mui/icons-material/NorthEast';
+import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
+import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
+import Search from '@mui/icons-material/Search';
+import Security from '@mui/icons-material/Security';
+import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
+import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
+import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import {
+  CirclesExtIcon,
+  Graph4Icon,
+  Graph5Icon,
+  HaproxyIcon,
+  HomeIcon,
+  NetworkIntelligenceIcon,
+  NetworkNodeIcon,
+  PerconaMoIcon,
+  PerconaMyIcon,
+  PerconaPoIcon,
+  PerconaVaIcon,
+  ProxyIcon,
+  QueryStatsIcon,
+  SearchInsightsIcon,
+} from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 
 export const NAV_DIVIDERS: Record<'home' | 'inventory' | 'backups', NavItem> = {
@@ -19,7 +51,7 @@ export const NAV_DIVIDERS: Record<'home' | 'inventory' | 'backups', NavItem> = {
 
 export const NAV_HOME_PAGE: NavItem = {
   id: 'home-page',
-  icon: 'home',
+  icon: HomeIcon,
   text: 'Home page',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/`,
   matches: [
@@ -34,24 +66,24 @@ export const NAV_HOME_PAGE: NavItem = {
 export const NAV_MYSQL: NavItem = {
   id: 'mysql',
   text: 'MySQL',
-  icon: 'percona-my',
+  icon: PerconaMyIcon,
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-overview/mysql-instances-overview`,
   children: [
     {
       id: 'mysql-overview',
-      icon: 'overview',
+      icon: PageviewOutlined,
       text: 'Overview',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-overview/mysql-instances-overview`,
     },
     {
       id: 'mysql-summary',
-      icon: 'summary',
+      icon: AppsRounded,
       text: 'Summary',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-instance-summary/mysql-instance-summary`,
     },
     {
       id: 'mysql-high-availability',
-      icon: 'high-availability',
+      icon: Graph5Icon,
       text: 'High availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mysql-group-replicaset-summary`,
       children: [
@@ -120,25 +152,25 @@ export const NAV_MYSQL: NavItem = {
 //
 export const NAV_MONGO: NavItem = {
   id: 'mongo',
-  icon: 'percona-mo',
+  icon: PerconaMoIcon,
   text: 'MongoDB',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-instance-overview/mongodb-instances-overview`,
   children: [
     {
       id: 'mongo-overview',
-      icon: 'overview',
+      icon: PageviewOutlined,
       text: 'Overview',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-instance-overview/mongodb-instances-overview`,
     },
     {
       id: 'mongo-summary',
-      icon: 'summary',
+      icon: AppsRounded,
       text: 'Summary',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-instance-summary/mongodb-instance-summary`,
     },
     {
       id: 'mongo-high-availability',
-      icon: 'high-availability',
+      icon: Graph5Icon,
       text: 'High availability',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-cluster-summary`,
       children: [
@@ -188,25 +220,25 @@ export const NAV_MONGO: NavItem = {
 export const NAV_POSTGRESQL: NavItem = {
   id: 'postgre',
   text: 'PostgreSQL',
-  icon: 'percona-po',
+  icon: PerconaPoIcon,
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-instance-overview/postgresql-instances-overview`,
   children: [
     {
       id: 'postgresql-overwiew',
       text: 'Overview',
-      icon: 'overview',
+      icon: PageviewOutlined,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-instance-overview/postgresql-instances-overview`,
     },
     {
       id: 'postgresql-summary',
       text: 'Summary',
-      icon: 'summary',
+      icon: AppsRounded,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-instance-summary/postgresql-instance-summary`,
     },
     {
       id: 'postgresql-ha',
       text: 'High availability',
-      icon: 'high-availability',
+      icon: Graph5Icon,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/postgresql-replication-overview`,
       children: [
         {
@@ -234,19 +266,19 @@ export const NAV_POSTGRESQL: NavItem = {
 //
 export const NAV_OS: NavItem = {
   id: 'system',
-  icon: 'operating-system',
+  icon: SettingsApplicationsOutlined,
   text: 'Operating system',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-instance-overview/nodes-overview`,
   children: [
     {
       id: 'node-overview',
-      icon: 'overview',
+      icon: PageviewOutlined,
       text: 'Overview',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-instance-overview/nodes-overview`,
     },
     {
       id: 'node-summary',
-      icon: 'summary',
+      icon: AppsRounded,
       text: 'Summary',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/node-instance-summary/node-summary`,
     },
@@ -293,7 +325,7 @@ export const NAV_OS: NavItem = {
 //
 export const NAV_HAPROXY: NavItem = {
   id: 'haproxy',
-  icon: 'haproxy',
+  icon: HaproxyIcon,
   text: 'HAProxy',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/haproxy-instance-summary/haproxy-instance-summary`,
 };
@@ -303,7 +335,7 @@ export const NAV_HAPROXY: NavItem = {
 //
 export const NAV_PROXYSQL: NavItem = {
   id: 'proxysql',
-  icon: 'proxysql',
+  icon: ProxyIcon,
   text: 'ProxySQL',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/proxysql-instance-summary/proxysql-instance-summary`,
 };
@@ -314,67 +346,67 @@ export const NAV_PROXYSQL: NavItem = {
 export const NAV_VALKEY: NavItem = {
   id: 'valkey',
   text: 'Valkey',
-  icon: 'percona-va',
+  icon: PerconaVaIcon,
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-overview/valkey-redis-overview`,
   children: [
     {
       id: 'valkey-overview',
       text: 'Overview',
-      icon: 'overview',
+      icon: PageviewOutlined,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-overview/valkey-redis-overview`,
     },
     {
       id: 'valkey-load',
       text: 'Load',
-      icon: 'my-organization',
+      icon: Groups,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-load/valkey-redis-load`,
     },
     {
       id: 'valkey-memory',
       text: 'Memory',
-      icon: 'memory',
+      icon: MemoryOutlined,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-memory/valkey-redis-memory`,
     },
     {
       id: 'valkey-network',
       text: 'Network',
-      icon: 'network',
+      icon: NetworkNodeIcon,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-network/valkey-redis-network`,
     },
     {
       id: 'valkey-clients',
       text: 'Clients',
-      icon: 'my-organization',
+      icon: Groups,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-clients/valkey-redis-clients`,
     },
     {
       id: 'valkey-cluster-details',
       text: 'Cluster Details',
-      icon: 'high-availability',
+      icon: Graph5Icon,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-cluster-details/valkey-redis-cluster-detail`,
     },
     {
       id: 'valkey-replication',
       text: 'Replication',
-      icon: 'high-availability',
+      icon: Graph5Icon,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-replication/valkey-redis-replication`,
     },
     {
       id: 'valkey-persistence',
       text: 'Persistence',
-      icon: 'my-organization',
+      icon: Groups,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-persistence-details/valkey-redis-persistence-details`,
     },
     {
       id: 'valkey-commands',
       text: 'Command details',
-      icon: 'my-organization',
+      icon: Groups,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-command-details/valkey-redis-command-detail`,
     },
     {
       id: 'valkey-slowlog',
       text: 'Slow Log',
-      icon: 'my-organization',
+      icon: Groups,
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/valkey-slowlog/valkey-redis-slowlog`,
     },
   ],
@@ -385,7 +417,7 @@ export const NAV_VALKEY: NavItem = {
 //
 export const NAV_QAN: NavItem = {
   id: 'qan',
-  icon: 'qan',
+  icon: QueryStatsIcon,
   text: 'Query Analytics (QAN)',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-qan/pmm-query-analytics`,
   matches: ['*', `${PMM_NEW_NAV_PATH}/rta/*`],
@@ -396,7 +428,7 @@ export const NAV_QAN: NavItem = {
 //
 export const NAV_RTA: NavItem = {
   id: 'rta',
-  icon: 'qan',
+  icon: QueryStatsIcon,
   text: 'Real-Time Query Analysis',
   url: `${PMM_NEW_NAV_PATH}/rta/selection`,
 };
@@ -406,14 +438,14 @@ export const NAV_RTA: NavItem = {
 //
 export const NAV_DASHBOARDS: NavItem = {
   id: 'dashboards',
-  icon: 'dashboards',
+  icon: DashboardOutlined,
   text: 'All dashboards',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards`,
 };
 
 export const NAV_DASHBOARDS_BROWSE: NavItem = {
   id: 'dashboards-browse',
-  icon: 'browse-dashboards',
+  icon: SearchInsightsIcon,
   text: 'Browse all dashboards',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/dashboards`,
 };
@@ -463,7 +495,7 @@ export const NAV_EXPLORE_BUILDER: NavItem = {
 
 export const NAV_EXPLORE: NavItem = {
   id: 'explore',
-  icon: 'explore',
+  icon: ExploreOutlined,
   text: 'Explore',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/explore`,
   matches: [
@@ -532,14 +564,14 @@ export const NAV_ALERTS_SETTINGS: NavItem = {
 
 export const NAV_ALERTS: NavItem = {
   id: 'alerts',
-  icon: 'alerts',
+  icon: NotificationsOutlined,
   text: 'Alerts',
   url: `${PMM_NEW_NAV_PATH}/alerting/status`,
 };
 
 export const NAV_ADVISORS: NavItem = {
   id: 'advisors',
-  icon: 'intelligence',
+  icon: NetworkIntelligenceIcon,
   text: 'Advisors',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/advisors`,
 };
@@ -555,7 +587,7 @@ export const NAV_ADVISORS_INSIGHTS = {
 //
 export const NAV_INVENTORY: NavItem = {
   id: 'inventory',
-  icon: 'inventory',
+  icon: Graph4Icon,
   text: 'Inventory',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory`,
   children: [
@@ -585,7 +617,7 @@ export const NAV_INVENTORY: NavItem = {
 //
 export const NAV_BACKUPS: NavItem = {
   id: 'backups',
-  icon: 'backups',
+  icon: SettingsBackupRestore,
   text: 'Backups',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/backup/inventory`,
   children: [
@@ -618,7 +650,7 @@ export const NAV_BACKUPS: NavItem = {
 //
 export const NAV_CONFIGURATION: NavItem = {
   id: 'configuration',
-  icon: 'configuration',
+  icon: SettingsOutlined,
   text: 'Configuration',
   url: `${PMM_NEW_NAV_PATH}/settings`,
   matches: [
@@ -678,7 +710,7 @@ export const NAV_CONFIGURATION: NavItem = {
 //
 export const NAV_USERS_AND_ACCESS: NavItem = {
   id: 'users-and-access',
-  icon: 'encrypted',
+  icon: Security,
   text: 'Users and access',
   url: PMM_NEW_NAV_GRAFANA_PATH + '/admin/access',
   children: [
@@ -714,7 +746,7 @@ export const NAV_ACCESS_CONTROL: NavItem = {
 //
 export const NAV_ACCOUNT: NavItem = {
   id: 'account',
-  icon: 'account',
+  icon: AccountCircleOutlined,
   text: 'Account',
   url: PMM_NEW_NAV_GRAFANA_PATH + '/profile',
   children: [
@@ -744,7 +776,7 @@ export const NAV_THEME_TOGGLE: NavItem = {
 
 export const NAV_SIGN_OUT: NavItem = {
   id: 'sign-out',
-  icon: 'sign-out',
+  icon: Logout,
   text: 'Sign out',
   url: '/graph/logout',
   target: '_self',
@@ -752,7 +784,7 @@ export const NAV_SIGN_OUT: NavItem = {
 
 export const NAV_HELP: NavItem = {
   id: 'help',
-  icon: 'help',
+  icon: HelpOutline,
   text: 'Help',
   url: `${PMM_NEW_NAV_PATH}/help`,
 };
@@ -779,7 +811,7 @@ export const NAV_FOLDER_MAP: Record<string, string> = {
 };
 
 export const NAV_OTHER_DASHBOARDS_TEMPLATE: Partial<NavItem> = {
-  icon: 'search',
+  icon: Search,
   text: 'Other dashboards',
 };
 
@@ -788,7 +820,7 @@ export const NAV_OTHER_DASHBOARDS_TEMPLATE: Partial<NavItem> = {
  */
 export const NAV_HIGH_AVAILABILITY: NavItem = {
   id: 'high-availability',
-  icon: 'cluster',
+  icon: CirclesExtIcon,
   text: 'PMM HA',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability`,
 };
@@ -801,7 +833,7 @@ export const NAV_HIGH_AVAILABILITY_LEADER: NavItem = {
 
 export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
   id: 'high-availability-nodes',
-  icon: 'arrow-link',
+  icon: NorthEast,
   text: 'Identify Nodes',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes?isPmmServerNode=true`,
 };
