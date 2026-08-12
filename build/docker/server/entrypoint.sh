@@ -159,9 +159,8 @@ if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "
     echo "WARNING: ignoring PMM_ENABLE_SEP, the embedded PostgreSQL is not in use." >&2
 fi
 
-# Cleared here rather than in grafana-sep alone: sep-provision is priority 20, so a probe
-# firing before it starts would otherwise observe the marker the previous run left. Fatal
-# only when SEP is in use - a non-SEP start must never fail over a file it does not read.
+# Not in grafana-sep: sep-provision is priority 20, so a probe firing before it starts would
+# still see the previous run's marker. Fatal only when SEP is in use.
 declare SEP_MARKER="/srv/.sep_provisioned"
 rm -f "$SEP_MARKER" 2> /dev/null || true
 if is_enabled "$PMM_ENABLE_SEP" && [ -e "$SEP_MARKER" ]; then
