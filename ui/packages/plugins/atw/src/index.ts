@@ -24,11 +24,15 @@ export { ResultsPane } from './ResultsPane';
 export { SendDialog } from './SendDialog';
 export {
   useAtwCategories,
+  useAtwSnippetSearch,
+  toAtwSnippetSummary,
+  ATW_SNIPPET_SEARCH_LIMIT,
   useAtwIncidents,
   useAtwIncident,
   useCreateAtwIncident,
   useUpdateAtwIncident,
   useDeleteAtwIncident,
+  useAtwIncidentLifecycle,
   useAtwMergedSchema,
   useAtwBatchExecute,
   useAtwIncidentExecutions,
@@ -43,6 +47,7 @@ export {
 export type {
   AtwCategoryListing,
   AtwSnippetSummary,
+  AtwSnippetSearchRow,
   AtwIncident,
   AtwIncidentWrite,
   AtwIncidentUpdate,

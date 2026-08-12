@@ -20,6 +20,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -37,9 +38,12 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import { Link } from 'react-router-dom';
 import {
   ATW_PAGE_SIZE,
+  useAtwIncidentLifecycle,
   useAtwIncidents,
   useCreateAtwIncident,
   useDeleteAtwIncident,
@@ -59,6 +63,7 @@ export function IncidentListPage() {
   const createMutation = useCreateAtwIncident();
   const updateMutation = useUpdateAtwIncident();
   const deleteMutation = useDeleteAtwIncident();
+  const lifecycle = useAtwIncidentLifecycle();
 
   useEffect(() => {
     if (data && data.total > 0 && data.offset >= data.total) {
@@ -149,6 +154,12 @@ export function IncidentListPage() {
         </Alert>
       )}
 
+      {lifecycle.error && (
+        <Alert severity="error" sx={{ mb: 2 }} onClose={lifecycle.reset}>
+          {lifecycle.error}
+        </Alert>
+      )}
+
       {!isLoading && !error && (!incidents || incidents.length === 0) && (
         <Alert severity="info">
           No incidents yet. Create one to get started.
@@ -171,9 +182,30 @@ export function IncidentListPage() {
               }}
             >
               <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-                <MuiLink component={Link} to={incident.id} variant="subtitle1">
-                  {incident.name}
-                </MuiLink>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <MuiLink
+                    component={Link}
+                    to={incident.id}
+                    variant="subtitle1"
+                  >
+                    {incident.name}
+                  </MuiLink>
+                  {incident.closed_at && (
+                    <Chip
+                      label="Closed"
+                      size="small"
+                      color="default"
+                      variant="outlined"
+                    />
+                  )}
+                </Box>
                 <Typography
                   variant="caption"
                   color="text.secondary"
@@ -183,6 +215,27 @@ export function IncidentListPage() {
                   Created by {incident.created_by}
                 </Typography>
               </Box>
+              {incident.closed_at ? (
+                <Tooltip title="Reopen">
+                  <IconButton
+                    aria-label={`Reopen ${incident.name}`}
+                    disabled={lifecycle.isPending(incident.id)}
+                    onClick={() => lifecycle.reopen(incident.id)}
+                  >
+                    <LockOpenOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                <Tooltip title="Close">
+                  <IconButton
+                    aria-label={`Close ${incident.name}`}
+                    disabled={lifecycle.isPending(incident.id)}
+                    onClick={() => lifecycle.close(incident.id)}
+                  >
+                    <LockOutlinedIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
+              )}
               <Tooltip title="Rename">
                 <IconButton
                   aria-label={`Rename ${incident.name}`}

@@ -153,13 +153,12 @@ export function CategoryBrowser({ onSnippetsChange }: CategoryBrowserProps) {
         </FormControl>
       ) : null}
 
-      <FormControl fullWidth>
+      <FormControl fullWidth disabled={!selectedRoot}>
         <InputLabel id="atw-parent-label">Subcategory 1</InputLabel>
         <Select
           labelId="atw-parent-label"
           value={selectedParent}
           label="Subcategory 1"
-          disabled={!selectedRoot}
           onChange={(event: SelectChangeEvent) => {
             setSelectedParent(event.target.value);
             setSelectedCategory('');

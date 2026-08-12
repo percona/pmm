@@ -15,13 +15,21 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { useState } from 'react';
 import {
   keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { apiClient } from '@sep/api';
+import {
+  apiClient,
+  DEFAULT_PLUGIN_LIST_LIMIT,
+  normalizePluginListResponse,
+  type PluginListResult,
+  type PaginatedPluginList,
+} from '@sep/api';
+import { SNIPPETS_PLUGINS_API_BASE } from '@sep/framework';
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
@@ -37,6 +45,8 @@ import type {
   AtwSendJobWrite,
   AtwSendLog,
   AtwSendLogDetail,
+  AtwSnippetSearchRow,
+  AtwSnippetSummary,
 } from './types';
 
 const ATW_BASE = '/apps/atw';
@@ -102,6 +112,71 @@ export function useAtwCategories() {
       return data;
     },
     staleTime: ATW_STALE_TIME_MS,
+  });
+}
+
+// ── Snippet search ───────────────────────────────────────────────────────
+
+/**
+ * Rows fetched per search request.
+ *
+ * The endpoint is paginated, so a broad term can match more snippets than one
+ * page holds; the picker reports that overflow rather than dropping it
+ * silently. Kept at the shared app-list default for consistency with every
+ * other app list — the snippets route itself would serve up to
+ * `MAX_PAGINATION_LIMIT` (200), so raising this is a deliberate change, not a
+ * ceiling to lift.
+ */
+export const ATW_SNIPPET_SEARCH_LIMIT = DEFAULT_PLUGIN_LIST_LIMIT;
+
+/** Project a snippets-app list row onto the picker's snippet shape. */
+export function toAtwSnippetSummary(
+  row: AtwSnippetSearchRow
+): AtwSnippetSummary {
+  return {
+    name: row.filename,
+    title: row.title || row.filename,
+    description: row.description,
+  };
+}
+
+/**
+ * Search every snippet by free text, independent of the ATW category taxonomy.
+ *
+ * Served by the snippets app's own list endpoint (the same one the Snippet
+ * Manager list uses), so the picker reaches snippets the ATW category listing
+ * does not expose — the `atw` metadata tag is a presentation filter on that
+ * listing, never consulted by the execute path.
+ *
+ * `approval=approved` is load-bearing: executing an unapproved snippet is
+ * rejected server-side, so offering one would only fail at execute time. The
+ * query is disabled while the term is empty; callers debounce the term.
+ *
+ * A local hook rather than the Snippet Manager's `useSnippets`, since `@sep/atw`
+ * does not depend on `@sep/snippets` and an app-to-app dependency is worse than
+ * this duplication. If a third consumer appears, lift it into `@sep/framework`.
+ */
+export function useAtwSnippetSearch(search: string) {
+  const term = search.trim();
+  return useQuery<PluginListResult<AtwSnippetSummary>>({
+    queryKey: ['atw', 'snippet-search', term],
+    enabled: term.length > 0,
+    staleTime: ATW_STALE_TIME_MS,
+    placeholderData: keepPreviousData,
+    queryFn: async () => {
+      const { data } = await apiClient.get<
+        AtwSnippetSearchRow[] | PaginatedPluginList<AtwSnippetSearchRow>
+      >(`${SNIPPETS_PLUGINS_API_BASE}/`, {
+        params: {
+          search: term,
+          approval: 'approved',
+          offset: 0,
+          limit: ATW_SNIPPET_SEARCH_LIMIT,
+        },
+      });
+      const page = normalizePluginListResponse<AtwSnippetSearchRow>(data);
+      return { ...page, items: page.items.map(toAtwSnippetSummary) };
+    },
   });
 }
 
@@ -175,11 +250,8 @@ export function useUpdateAtwIncident() {
       );
       return data;
     },
-    onSuccess: (incident) => {
-      queryClient.invalidateQueries({ queryKey: incidentsKey });
-      queryClient.invalidateQueries({
-        queryKey: ['atw', 'incidents', incident.id],
-      });
+    onSuccess: () => {
+      invalidateAtwIncidentQueries(queryClient);
     },
   });
 }
@@ -194,6 +266,76 @@ export function useDeleteAtwIncident() {
       queryClient.invalidateQueries({ queryKey: incidentsKey });
     },
   });
+}
+
+function invalidateAtwIncidentQueries(
+  queryClient: ReturnType<typeof useQueryClient>
+) {
+  queryClient.invalidateQueries({ queryKey: incidentsKey });
+}
+
+function useAtwIncidentLifecycleAction(
+  action: 'close' | 'reopen',
+  onDone: (incidentId: string) => void
+) {
+  const queryClient = useQueryClient();
+  return useMutation<AtwIncident, Error, string>({
+    mutationFn: async (incidentId) => {
+      const { data } = await apiClient.post<AtwIncident>(
+        `${ATW_BASE}/incidents/${incidentId}/${action}/`
+      );
+      return data;
+    },
+    onSuccess: () => {
+      invalidateAtwIncidentQueries(queryClient);
+    },
+    onSettled: (_data, _error, incidentId) => {
+      onDone(incidentId);
+    },
+  });
+}
+
+/** Shared close/reopen mutations, error text, and in-flight ids for list and workspace. */
+export function useAtwIncidentLifecycle() {
+  const [pendingIncidentIds, setPendingIncidentIds] = useState<
+    ReadonlySet<string>
+  >(() => new Set());
+
+  const clearPending = (incidentId: string) => {
+    setPendingIncidentIds((prev) => {
+      const next = new Set(prev);
+      next.delete(incidentId);
+      return next;
+    });
+  };
+
+  const closeMutation = useAtwIncidentLifecycleAction('close', clearPending);
+  const reopenMutation = useAtwIncidentLifecycleAction('reopen', clearPending);
+
+  const reset = () => {
+    closeMutation.reset();
+    reopenMutation.reset();
+  };
+
+  return {
+    close: (incidentId: string) => {
+      reopenMutation.reset();
+      setPendingIncidentIds((prev) => new Set(prev).add(incidentId));
+      closeMutation.mutate(incidentId);
+    },
+    reopen: (incidentId: string) => {
+      closeMutation.reset();
+      setPendingIncidentIds((prev) => new Set(prev).add(incidentId));
+      reopenMutation.mutate(incidentId);
+    },
+    reset,
+    error: closeMutation.isError
+      ? (closeMutation.error?.message ?? 'Failed to close incident')
+      : reopenMutation.isError
+        ? (reopenMutation.error?.message ?? 'Failed to reopen incident')
+        : null,
+    isPending: (incidentId: string) => pendingIncidentIds.has(incidentId),
+  };
 }
 
 // ── Merged execution schema ──────────────────────────────────────────────

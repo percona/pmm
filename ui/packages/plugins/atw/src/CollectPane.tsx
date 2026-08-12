@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Autocomplete,
@@ -30,7 +30,11 @@ import {
 } from '@sep/framework';
 import type { FormSection, SectionField } from '@sep/api';
 import { CategoryBrowser } from './CategoryBrowser';
-import { useAtwBatchExecute, useAtwMergedSchema } from './hooks';
+import {
+  useAtwBatchExecute,
+  useAtwMergedSchema,
+  useAtwSnippetSearch,
+} from './hooks';
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
@@ -39,7 +43,17 @@ import type {
 
 export interface CollectPaneProps {
   incidentId: string;
+  isClosed?: boolean;
 }
+
+/** Pause after the last keystroke before the snippet search fires (ms). */
+const SNIPPET_SEARCH_DEBOUNCE_MS = 300;
+
+/** Stable empty list so an idle search does not churn the options memo. */
+const NO_SNIPPETS: AtwSnippetSummary[] = [];
+
+/** Stable empty provenance set for when no search result may be trusted. */
+const NO_NAMES: ReadonlySet<string> = new Set<string>();
 
 /** Namespace prefix for a selected snippet's override fields, keyed by position. */
 function snippetPrefix(index: number): string {
@@ -144,36 +158,160 @@ function batchItemErrors(response: AtwBatchExecuteResponse): string[] {
 }
 
 /**
+ * Merge the picker's option sources, deduping on filename.
+ *
+ * Three independent sources feed one Autocomplete: the current selection (so a
+ * snippet picked under another category or search term stays a removable chip),
+ * the selected leaf category's snippets, and the server-side search results. A
+ * snippet reachable through several of them must appear once, and identity is
+ * the filename — titles are not unique by contract.
+ */
+export function mergeSnippetOptions(
+  ...sources: readonly AtwSnippetSummary[][]
+): AtwSnippetSummary[] {
+  const byName = new Map<string, AtwSnippetSummary>();
+  for (const source of sources) {
+    for (const snippet of source) {
+      byName.set(snippet.name, snippet);
+    }
+  }
+  return [...byName.values()];
+}
+
+/** Whether a snippet matches a typed term the way the server's search does. */
+export function snippetMatchesTerm(
+  snippet: AtwSnippetSummary,
+  term: string
+): boolean {
+  const needle = term.trim().toLowerCase();
+  if (needle === '') {
+    return true;
+  }
+  return (
+    snippet.title.toLowerCase().includes(needle) ||
+    snippet.name.toLowerCase().includes(needle) ||
+    snippet.description.toLowerCase().includes(needle)
+  );
+}
+
+/**
+ * Filter the merged options against the typed term.
+ *
+ * Replaces the Autocomplete's default filter, which matches the option label
+ * only: the server matches filename and description too, so a search hit whose
+ * title does not contain the term would otherwise be fetched and then hidden.
+ * Any option the server returned (`serverMatched`) is kept as-is; the
+ * category-derived rest is matched locally over the same three fields.
+ */
+export function filterSnippetOptions(
+  options: readonly AtwSnippetSummary[],
+  term: string,
+  serverMatched: ReadonlySet<string>
+): AtwSnippetSummary[] {
+  if (term.trim() === '') {
+    return [...options];
+  }
+  return options.filter(
+    (option) =>
+      serverMatched.has(option.name) || snippetMatchesTerm(option, term)
+  );
+}
+
+/**
  * The Collect pane: browse categories to feed a snippet multi-select, render the
  * merged execution form (a shared-parameter section plus one override card per
  * selected snippet), and batch-execute every selection against the incident.
  * Per-task status is polled by the Results pane's execution list.
  */
-export function CollectPane({ incidentId }: CollectPaneProps) {
+export function CollectPane({
+  incidentId,
+  isClosed = false,
+}: CollectPaneProps) {
   const [available, setAvailable] = useState<AtwSnippetSummary[]>([]);
   const [selected, setSelected] = useState<AtwSnippetSummary[]>([]);
   const [itemErrors, setItemErrors] = useState<string[]>([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const handleSnippetsChange = useCallback((snippets: AtwSnippetSummary[]) => {
     setAvailable(snippets);
   }, []);
 
+  // Matches the Snippet Manager list's 300ms window.
+  useEffect(() => {
+    const handle = setTimeout(
+      () => setDebouncedSearch(searchInput.trim()),
+      SNIPPET_SEARCH_DEBOUNCE_MS
+    );
+    return () => clearTimeout(handle);
+  }, [searchInput]);
+
+  useEffect(() => {
+    if (!isClosed) {
+      return;
+    }
+    setSelected([]);
+    setAvailable([]);
+    setItemErrors([]);
+  }, [isClosed]);
+
   const selectedNames = useMemo(
     () => selected.map((snippet) => snippet.name),
     [selected]
   );
-  const schemaQuery = useAtwMergedSchema(selectedNames);
+  const schemaQuery = useAtwMergedSchema(isClosed ? [] : selectedNames);
   const batchMutation = useAtwBatchExecute(incidentId);
+  const searchQuery = useAtwSnippetSearch(debouncedSearch);
 
-  // Options merge the current category's snippets with the current selection so
-  // already-picked snippets from other categories still render as removable chips.
-  const options = useMemo(() => {
-    const byName = new Map<string, AtwSnippetSummary>();
-    for (const snippet of [...selected, ...available]) {
-      byName.set(snippet.name, snippet);
-    }
-    return [...byName.values()];
-  }, [available, selected]);
+  // A disabled query keeps its previous data, so an emptied box must not leave
+  // the last term's hits in the list: read results only while a term is active.
+  const searchResults =
+    debouncedSearch === ''
+      ? NO_SNIPPETS
+      : (searchQuery.data?.items ?? NO_SNIPPETS);
+
+  const searchMatchedNames = useMemo(
+    () => new Set(searchResults.map((snippet) => snippet.name)),
+    [searchResults]
+  );
+
+  const options = useMemo(
+    () => mergeSnippetOptions(selected, available, searchResults),
+    [available, selected, searchResults]
+  );
+
+  // Whether the page currently in hand was fetched for the term now in the box.
+  // `isPlaceholderData` is the precise signal: under `keepPreviousData` it is set
+  // exactly while the previous term's page stands in for an unresolved one. Plain
+  // `isFetching` would also fire on a background refetch of the *same* term, and
+  // no result is stale then.
+  const searchPageIsCurrent = !searchQuery.isPlaceholderData;
+
+  // Server provenance only counts while that page belongs to the typed text —
+  // otherwise the stand-in page would smuggle the old term's hits past the local
+  // filter, which keeps anything the server matched unconditionally.
+  const filterOptions = useCallback(
+    (candidates: AtwSnippetSummary[], state: { inputValue: string }) => {
+      const fetchedTermIsCurrent =
+        state.inputValue.trim() === debouncedSearch && searchPageIsCurrent;
+      return filterSnippetOptions(
+        candidates,
+        state.inputValue,
+        fetchedTermIsCurrent ? searchMatchedNames : NO_NAMES
+      );
+    },
+    [debouncedSearch, searchMatchedNames, searchPageIsCurrent]
+  );
+
+  // The endpoint pages, so a broad term can match more than one page holds.
+  // Report the overflow instead of silently showing the first page. Suppressed
+  // while a stand-in page is showing: its total belongs to the previous term,
+  // and the notice names the term it counts.
+  const searchPagination = searchQuery.data?.pagination ?? null;
+  const hiddenMatchCount =
+    debouncedSearch !== '' && searchPagination && searchPageIsCurrent
+      ? Math.max(searchPagination.total - searchResults.length, 0)
+      : 0;
 
   const sections = useMemo<FormSection[]>(() => {
     const merged = schemaQuery.data;
@@ -246,10 +384,38 @@ export function CollectPane({ incidentId }: CollectPaneProps) {
         Collect
       </Typography>
 
-      <CategoryBrowser onSnippetsChange={handleSnippetsChange} />
+      {isClosed && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          This incident is closed. Reopen it to run more diagnostic snippets.
+        </Alert>
+      )}
+
+      {!isClosed && <CategoryBrowser onSnippetsChange={handleSnippetsChange} />}
+
+      {searchQuery.error && debouncedSearch !== '' && (
+        <Alert severity="error" sx={{ mt: 3 }}>
+          Snippet search failed: {searchQuery.error.message}
+        </Alert>
+      )}
+
+      {/*
+        Above the picker on purpose: the option popup opens downward and would
+        cover a notice rendered under the input, which is exactly when the user
+        is reading the results it describes.
+      */}
+      {hiddenMatchCount > 0 && (
+        // Polite, not the Alert default's assertive: this mounts and unmounts as
+        // the user keeps typing, and must not interrupt a screen reader mid-word.
+        <Alert severity="info" role="status" sx={{ mt: 3 }}>
+          Showing the first {searchResults.length} of {searchPagination?.total}{' '}
+          snippets matching &ldquo;{debouncedSearch}&rdquo;. Type more of the
+          name or description to narrow the results.
+        </Alert>
+      )}
 
       <Autocomplete
         multiple
+        disabled={isClosed}
         sx={{ mt: 3 }}
         options={options}
         value={selected}
@@ -258,14 +424,47 @@ export function CollectPane({ incidentId }: CollectPaneProps) {
           // The stale batch-result banner belongs to the previous selection.
           setItemErrors([]);
         }}
+        inputValue={searchInput}
+        onInputChange={(_event, value) => setSearchInput(value)}
+        filterOptions={filterOptions}
+        loading={debouncedSearch !== '' && searchQuery.isFetching}
+        loadingText="Searching snippets…"
+        noOptionsText={
+          searchInput.trim() === ''
+            ? 'Type to search every snippet, or pick a category above.'
+            : 'No approved snippet matches this search.'
+        }
         getOptionLabel={(option) => option.title}
+        // Without this MUI keys each row on the label, and titles are not unique
+        // by contract — two snippets sharing one would collide on re-render.
+        getOptionKey={(option) => option.name}
         isOptionEqualToValue={(option, value) => option.name === value.name}
+        renderOption={(props, option) => {
+          const { key, ...liProps } = props as typeof props & { key: string };
+          return (
+            // The server matches filename and description too, so a hit can look
+            // unrelated to the typed term.
+            <Box
+              component="li"
+              key={key}
+              {...liProps}
+              sx={{ display: 'block' }}
+            >
+              <Typography variant="body2">{option.title}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                {option.name}
+              </Typography>
+            </Box>
+          );
+        }}
         renderInput={(params) => (
           <TextField
             {...params}
             label="Snippets"
             placeholder={
-              selected.length === 0 ? 'Select snippets to run' : undefined
+              selected.length === 0
+                ? 'Search or select snippets to run'
+                : undefined
             }
           />
         )}
@@ -273,8 +472,8 @@ export function CollectPane({ incidentId }: CollectPaneProps) {
 
       {selected.length === 0 && (
         <Alert severity="info" sx={{ mt: 3 }}>
-          Browse a category and select one or more snippets to build the
-          execution form.
+          Search for a snippet by name or description, or browse a category,
+          then select one or more snippets to build the execution form.
         </Alert>
       )}
 
@@ -309,7 +508,7 @@ export function CollectPane({ incidentId }: CollectPaneProps) {
         </Alert>
       )}
 
-      {selected.length > 0 && schemaQuery.data && (
+      {selected.length > 0 && schemaQuery.data && !isClosed && (
         <Box sx={{ mt: 3 }}>
           <SchemaFormRenderer
             key={formKey}
