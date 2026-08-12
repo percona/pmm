@@ -435,6 +435,12 @@ func FindAgentsOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
 		return nil, fmt.Errorf("failed to select Agents on Node %q: %w", nodeID, err)
 	}
 
+	// Decryption is not free; skip it when the caller has already gone away.
+	err = q.Context().Err()
+	if err != nil {
+		return nil, err
+	}
+
 	res := make([]*Agent, len(structs))
 	for i, str := range structs {
 		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
@@ -459,6 +465,12 @@ func FindAgentsByPMMAgentIDs(q *reform.Querier, pmmAgentIDs []string) ([]*Agent,
 	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to select Agents started by pmm-agents: %w", err)
+	}
+
+	// Decryption is not free; skip it when the caller has already gone away.
+	err = q.Context().Err()
+	if err != nil {
+		return nil, err
 	}
 
 	res := make([]*Agent, len(structs))
