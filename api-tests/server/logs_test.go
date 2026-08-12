@@ -68,6 +68,7 @@ func TestDownloadLogs(t *testing.T) {
 		"prometheus.base.yml",
 		"qan-api2.ini",
 		"qan-api2.log",
+		"sep-provision.log",
 		"supervisorctl_status.log",
 		"supervisord.conf",
 		"supervisord.log",
