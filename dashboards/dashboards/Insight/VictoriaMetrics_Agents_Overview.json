@@ -187,7 +187,13 @@
                     ],
                     "show": false
                 },
-                "showHeader": true
+                "showHeader": true,
+                "sortBy": [
+                    {
+                        "desc": false,
+                        "displayName": "Uptime"
+                    }
+                ]
             },
             "pluginVersion": "8.3.5",
             "targets": [
