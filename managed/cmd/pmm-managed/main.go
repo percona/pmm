@@ -1177,6 +1177,17 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
+	// A leader service, so a single replica sweeps and it repeats on every failover. Registered only
+	// in HA because a non-HA server counts as its own leader - IsLeader reports true when HA is
+	// disabled, which is what keeps the services above running on a standalone install - and there it
+	// would sweep with no replicas and no PMM_HA_NODE_ID.
+	if *haEnabled {
+		haService.AddLeaderService(ha.NewContextService("staleHANodes", func(ctx context.Context) error {
+			models.RemoveStaleHANodes(ctx, db, haParams.NodeID, haParams.Nodes)
+			return nil
+		}))
+	}
+
 	wg.Go(func() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
