@@ -1,0 +1,276 @@
+#!/bin/bash
+#
+# Provisions the Grafana service account SEP authenticates with, and publishes its
+# token to a secrets directory the SEP container mounts, one file per canonical SEP
+# settings name. The files are 0640 and take group 0 from the setgid directory
+# post-build.yml ships - nothing here sets their group, so that bit must stay.
+#
+# Everything below is a no-op unless PMM_ENABLE_SEP is set. When it is unset again,
+# the token files this script wrote are removed on the next start; the Grafana
+# service account itself is left in place.
+#
+# Runs under supervisord rather than from the entrypoint because Grafana is neither
+# running nor migrated - on a first boot its schema does not exist - until long after
+# the entrypoint has exec'd supervisord.
+
+set -o errexit
+set -o pipefail
+
+declare SECRETS_DIR="${PMM_SEP_SECRETS_DIR:-/srv/sep-secrets}"
+declare GRAFANA_URL="http://127.0.0.1:3000"
+declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:-/usr/pgsql-14/bin}"
+declare SA_NAME="pmm-sep"
+declare TOKEN_NAME="pmm-sep"
+# Generous because a failed run is not retried: the one-shot cannot bound its own
+# restarts under supervisord.
+declare READY_TIMEOUT=600
+declare READY_INTERVAL=5
+declare -a TOKEN_FILES=(AUTH__PROVIDER__GRAFANA__SERVICE_ACCOUNT_TOKEN PMM__API_KEY)
+declare TMP_FILE=""
+
+cleanup() {
+    [ -n "$TMP_FILE" ] && rm -f "$TMP_FILE"
+    return 0
+}
+trap cleanup EXIT
+
+is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
+
+psql_grafana() {
+    "$POSTGRES_BIN_DIR/psql" -X -q -v ON_ERROR_STOP=1 -U postgres -h /run/postgresql -d grafana "$@"
+}
+
+# Same readiness signal pmm-managed waits on: /api/health reporting the database as ok.
+wait_for_grafana() {
+    local waited=0
+
+    while [ "$waited" -lt "$READY_TIMEOUT" ]; do
+        if curl -sS --max-time 5 "$GRAFANA_URL/api/health" 2> /dev/null |
+            grep -q '"database": *"ok"'; then
+            return 0
+        fi
+        sleep "$READY_INTERVAL"
+        waited=$((waited + READY_INTERVAL))
+    done
+
+    return 1
+}
+
+# Prints the status of an authenticated call to the access-control endpoint SEP's
+# org-role lookups go through, or 000 when the call could not be made at all. Fed on
+# stdin rather than -H so the token never appears in any process's argv.
+#
+# Unreachable is kept distinct from rejected, and retried, because a transient failure
+# is not a revoked token: reading one as the other re-mints on the reuse path below.
+grafana_auth_status() {
+    local code attempt=0
+
+    while :; do
+        code=$(printf 'header = "Authorization: Bearer %s"\n' "$1" |
+            curl -sS -K - --max-time 10 -o /dev/null -w '%{http_code}' \
+                "$GRAFANA_URL/api/access-control/user/permissions") || code="000"
+
+        attempt=$((attempt + 1))
+        if [ "$code" != "000" ] || [ "$attempt" -ge 3 ]; then
+            break
+        fi
+        sleep "$READY_INTERVAL"
+    done
+
+    printf '%s' "$code"
+}
+
+# The validator endpoint answers 200 for any role, so a service account demoted in the
+# Grafana UI would keep authenticating while SEP's org-role lookups silently degrade.
+ensure_admin_role() {
+    psql_grafana -v sa_name="$SA_NAME" <<'SQL'
+UPDATE org_user ou
+SET role = 'Admin', updated = now()
+FROM "user" u
+WHERE u.id = ou.user_id
+  AND u.login = 'sa-' || ou.org_id || '-' || :'sa_name'
+  AND ou.role <> 'Admin';
+SQL
+}
+
+# Prints, one per line and in the order the caller unpacks them: the token value, its
+# api_key.key hash, and the user row's salt, rands and uid. The encoding reproduces
+# Grafana's own - crc32("glsa_" + secret) little-endian as the checksum,
+# util.EncodePassword(secret, checksum) as the stored hash.
+generate_token_material() {
+    python3 - <<'PY'
+import binascii
+import hashlib
+import secrets
+import string
+import zlib
+
+alnum = string.ascii_letters + string.digits
+secret = "".join(secrets.choice(alnum) for _ in range(32))
+checksum = binascii.hexlify(
+    zlib.crc32(("glsa_" + secret).encode()).to_bytes(4, "little")
+).decode()
+
+print(f"glsa_{secret}_{checksum}")
+print(hashlib.pbkdf2_hmac("sha256", secret.encode(), checksum.encode(), 10000, 50).hex())
+print("".join(secrets.choice(alnum) for _ in range(10)))
+print("".join(secrets.choice(alnum) for _ in range(10)))
+print("".join(secrets.choice(string.ascii_lowercase + string.digits) for _ in range(14)))
+PY
+}
+
+# Administers Grafana through the database it owns, the way postgres-sep provisions the
+# sep role as the local superuser: Grafana exposes no credential-free path to create a
+# service account, and once an operator changes the admin password pmm-server holds none.
+#
+# psql only interpolates :'var' when reading a script, hence stdin rather than -c. The
+# ON CONFLICT clauses target UQE_user_login and UQE_org_user_org_id_user_id, and DO
+# UPDATE rather than DO NOTHING is what makes RETURNING fire on re-provisioning.
+provision_service_account() {
+    local hashed="$1" salt="$2" rands="$3" uid="$4"
+
+    psql_grafana -v sa_name="$SA_NAME" -v token_name="$TOKEN_NAME" -v hashed="$hashed" \
+        -v salt="$salt" -v rands="$rands" -v uid="$uid" <<'SQL'
+BEGIN;
+
+SELECT id AS org_id FROM org ORDER BY id LIMIT 1
+\gset
+
+INSERT INTO "user" (version, login, email, name, password, salt, rands, company, org_id,
+                    is_admin, email_verified, theme, created, updated, help_flags1,
+                    is_disabled, is_service_account, uid, is_provisioned)
+VALUES (0, 'sa-' || :'org_id' || '-' || :'sa_name', 'sa-' || :'org_id' || '-' || :'sa_name',
+        :'sa_name', '', :'salt', :'rands', '', :'org_id',
+        false, false, '', now(), now(), 0, false, true, :'uid', false)
+ON CONFLICT (login) DO UPDATE SET updated = now(), is_disabled = false
+RETURNING id AS sa_id
+\gset
+
+INSERT INTO org_user (org_id, user_id, role, created, updated)
+VALUES (:'org_id', :'sa_id', 'Admin', now(), now())
+ON CONFLICT (org_id, user_id) DO UPDATE SET role = 'Admin', updated = now();
+
+-- Every token on the account, plus any token elsewhere in the org already holding the
+-- name, which would otherwise collide with UQE_api_key_org_id_name below.
+DELETE FROM api_key
+WHERE service_account_id = :'sa_id' OR (org_id = :'org_id' AND name = :'token_name');
+
+-- Grafana stores Viewer in api_key.role for every service-account token whatever role
+-- the request asked for; the effective authority is org_user.role above.
+INSERT INTO api_key (org_id, name, key, role, created, updated, service_account_id, is_revoked)
+VALUES (:'org_id', :'token_name', :'hashed', 'Viewer', now(), now(), :'sa_id', false);
+
+COMMIT;
+SQL
+}
+
+# Written through a temporary file so SEP never reads a half-written secret.
+publish_token() {
+    local token="$1" name
+
+    for name in "${TOKEN_FILES[@]}"; do
+        TMP_FILE=$(mktemp "$SECRETS_DIR/.${name}.XXXXXX")
+        printf '%s' "$token" > "$TMP_FILE"
+        chmod 0640 "$TMP_FILE"
+        mv "$TMP_FILE" "$SECRETS_DIR/$name"
+        TMP_FILE=""
+    done
+}
+
+# Never fatal, so the disabled path cannot fail a start over a directory this uid cannot
+# write - but a token left behind is still readable by SEP, so it is reported.
+remove_token_files() {
+    local name path
+
+    for name in "${TOKEN_FILES[@]}"; do
+        path="${SECRETS_DIR:?}/$name"
+        rm -f "$path" 2> /dev/null || true
+        if [ -e "$path" ]; then
+            echo "WARNING: could not remove $path, SEP can still read this token." >&2
+        fi
+    done
+}
+
+if ! is_enabled "$PMM_ENABLE_SEP"; then
+    remove_token_files
+    exit 0
+fi
+
+if is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" ||
+    [ -n "$GF_DATABASE_URL" ] || [ -n "$GF_DATABASE_HOST" ]; then
+    echo "WARNING: ignoring PMM_ENABLE_SEP, Grafana is not using the embedded PostgreSQL." >&2
+    remove_token_files
+    exit 0
+fi
+
+# Created only when absent: install -d on an existing directory also chmods it, which a
+# uid that does not own the mountpoint cannot do.
+if [ ! -d "$SECRETS_DIR" ]; then
+    install -d -m 2770 "$SECRETS_DIR" 2> /dev/null || true
+fi
+
+if [ ! -w "$SECRETS_DIR" ]; then
+    echo "FATAL: $SECRETS_DIR is not writable for uid $(id -u)." >&2
+    echo "Please make sure the volume mounted there is owned by uid $(id -u) and gid $(id -g) and try again." >&2
+    exit 1
+fi
+
+if ! wait_for_grafana; then
+    echo "FATAL: Grafana did not become ready within ${READY_TIMEOUT}s, cannot provision the SEP service account." >&2
+    exit 1
+fi
+
+declare TOKEN=""
+if [ -s "$SECRETS_DIR/${TOKEN_FILES[0]}" ]; then
+    TOKEN=$(< "$SECRETS_DIR/${TOKEN_FILES[0]}")
+fi
+
+declare STATUS=""
+if [ -n "$TOKEN" ]; then
+    STATUS=$(grafana_auth_status "$TOKEN")
+fi
+
+case "$STATUS" in
+    200)
+        echo "The Grafana service account token for SEP is still valid, keeping it."
+        # Ordered so a token already proven valid reaches SEP even if the role repair
+        # below fails under errexit.
+        publish_token "$TOKEN"
+        ensure_admin_role
+        exit 0
+        ;;
+    "" | 401 | 403)
+        # No token yet, or Grafana genuinely rejected it: fall through and mint.
+        ;;
+    *)
+        echo "FATAL: could not verify the existing Grafana token for SEP, the check answered $STATUS." >&2
+        echo "Please retry once Grafana answers again; replacing the token now would revoke the one SEP is using." >&2
+        exit 1
+        ;;
+esac
+
+echo "Provisioning the Grafana service account for SEP..."
+
+declare MATERIAL
+MATERIAL=$(generate_token_material)
+
+declare -a PARTS
+mapfile -t PARTS <<< "$MATERIAL"
+if [ ${#PARTS[@]} -ne 5 ]; then
+    echo "FATAL: could not generate the Grafana service account token." >&2
+    exit 1
+fi
+
+TOKEN="${PARTS[0]}"
+provision_service_account "${PARTS[1]}" "${PARTS[2]}" "${PARTS[3]}" "${PARTS[4]}"
+
+# Validated before publishing so a half-working credential never reaches SEP, and so a
+# future change to Grafana's schema or token encoding fails loudly here instead of
+# silently breaking SEP's authentication.
+if [ "$(grafana_auth_status "$TOKEN")" != "200" ]; then
+    echo "FATAL: Grafana rejected the service account token just provisioned for SEP." >&2
+    exit 1
+fi
+
+publish_token "$TOKEN"
+echo "Published the Grafana service account token for SEP to $SECRETS_DIR."
