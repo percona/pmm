@@ -28,13 +28,11 @@ declare READY_INTERVAL=5
 declare -a TOKEN_FILES=(AUTH__PROVIDER__GRAFANA__SERVICE_ACCOUNT_TOKEN PMM__API_KEY)
 declare TMP_FILE=""
 declare SEP_MARKER="/srv/.sep_provisioned"
-# Cleared by the one exit-0 path that leaves SEP half-provisioned - see the guard below.
 declare MARK_RUN=1
 
-# The marker tracks this script's own exit status, which is the same contract sep.ini
-# declares with exitcodes = 0: every deliberate exit 0 below publishes it, and every FATAL
-# path - including an errexit abort - leaves none. entrypoint.sh removes it before
-# supervisord starts, so it can only ever describe the current start.
+# The marker follows this script's exit status, the contract sep.ini already declares with
+# exitcodes = 0, so no exit path can forget it. status must be captured first: the TMP_FILE
+# test below would overwrite $?.
 cleanup() {
     local status=$?
 
@@ -211,12 +209,9 @@ fi
 if is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" ||
     [ -n "$GF_DATABASE_URL" ] || [ -n "$GF_DATABASE_HOST" ]; then
     echo "WARNING: ignoring PMM_ENABLE_SEP, Grafana is not using the embedded PostgreSQL." >&2
-    # Mirrors sep-secrets' own precedence: it bails on the first two conditions whatever
-    # GF_DATABASE_* says, removing every file SEP has, so a container reporting healthy
-    # there vouches for nothing and holds no deployment that does not use SEP. It
-    # deliberately does not bail on an external Grafana database alone, where it still
-    # publishes SEP's other four files - and a start that leaves SEP holding database
-    # credentials and no Grafana token must not report healthy.
+    # Same precedence as sep-secrets, which bails on those two whatever GF_DATABASE_* says
+    # but keeps publishing SEP's password files for an external Grafana database alone.
+    # Only that last case leaves SEP able to start with its Grafana auth inert.
     if ! is_enabled "$PMM_HA_ENABLE" && ! is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
         MARK_RUN=0
     fi
