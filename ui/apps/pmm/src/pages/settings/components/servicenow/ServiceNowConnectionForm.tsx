@@ -7,7 +7,7 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { formControlClasses } from '@mui/material';
-import { TextInput } from '@percona/percona-ui';
+import { TextInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
