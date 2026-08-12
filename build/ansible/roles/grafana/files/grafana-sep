@@ -27,9 +27,21 @@ declare READY_TIMEOUT=600
 declare READY_INTERVAL=5
 declare -a TOKEN_FILES=(AUTH__PROVIDER__GRAFANA__SERVICE_ACCOUNT_TOKEN PMM__API_KEY)
 declare TMP_FILE=""
+declare SEP_MARKER="/srv/.sep_provisioned"
+# Cleared by the one exit-0 path that leaves SEP half-provisioned - see the guard below.
+declare MARK_RUN=1
 
+# The marker tracks this script's own exit status, which is the same contract sep.ini
+# declares with exitcodes = 0: every deliberate exit 0 below publishes it, and every FATAL
+# path - including an errexit abort - leaves none. entrypoint.sh removes it before
+# supervisord starts, so it can only ever describe the current start.
 cleanup() {
+    local status=$?
+
     [ -n "$TMP_FILE" ] && rm -f "$TMP_FILE"
+    if [ "$status" -eq 0 ] && [ "$MARK_RUN" -eq 1 ] && ! : > "$SEP_MARKER"; then
+        echo "WARNING: could not write $SEP_MARKER, the container will not report healthy." >&2
+    fi
     return 0
 }
 trap cleanup EXIT
@@ -199,6 +211,15 @@ fi
 if is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" ||
     [ -n "$GF_DATABASE_URL" ] || [ -n "$GF_DATABASE_HOST" ]; then
     echo "WARNING: ignoring PMM_ENABLE_SEP, Grafana is not using the embedded PostgreSQL." >&2
+    # Mirrors sep-secrets' own precedence: it bails on the first two conditions whatever
+    # GF_DATABASE_* says, removing every file SEP has, so a container reporting healthy
+    # there vouches for nothing and holds no deployment that does not use SEP. It
+    # deliberately does not bail on an external Grafana database alone, where it still
+    # publishes SEP's other four files - and a start that leaves SEP holding database
+    # credentials and no Grafana token must not report healthy.
+    if ! is_enabled "$PMM_HA_ENABLE" && ! is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
+        MARK_RUN=0
+    fi
     remove_token_files
     exit 0
 fi
