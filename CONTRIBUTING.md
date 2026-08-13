@@ -136,7 +136,7 @@ Exporters are independent applications, so each of them contains its own README 
 
 ### UI
 
-The devcontainer ships NodeJS and Yarn out of the box and `make run-ui` starts all of it: Vite (main PMM UI), webpack + livereload (`pmm-compat` and the QAN Grafana plugin), and a watcher that syncs dashboard JSON changes automatically. See:
+The devcontainer ships NodeJS and PNPM out of the box and `make run-ui` starts all of it: Vite (main PMM UI), webpack + livereload (`pmm-compat` and the QAN Grafana plugin), and a watcher that syncs dashboard JSON changes automatically. See:
 
 - [`ui/README.md`](https://github.com/percona/pmm/tree/main/ui/README.md) — main PMM UI (Vite, React, MUI).
 - [`ui/apps/pmm-app/CONTRIBUTING.md`](https://github.com/percona/pmm/tree/main/ui/apps/pmm-app/CONTRIBUTING.md) — QAN plugin and Grafana dashboards.

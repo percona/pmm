@@ -62,9 +62,9 @@ run: run-all                         ## Aliased to "run-all"
 	echo "run is aliased to run-all"
 
 UI_INSTALL_STAMP := ui/node_modules/.install.stamp
-UI_DEPS := ui/package.json ui/yarn.lock $(wildcard ui/apps/*/package.json) $(wildcard ui/packages/*/package.json)
+UI_DEPS := ui/package.json ui/pnpm-lock.yaml $(wildcard ui/apps/*/package.json) $(wildcard ui/packages/*/package.json)
 
-ui-setup: $(UI_INSTALL_STAMP)         ## Install UI dependencies (skips yarn install if deps are unchanged)
+ui-setup: $(UI_INSTALL_STAMP)         ## Install UI dependencies (skips pnpm install if deps are unchanged)
 
 $(UI_INSTALL_STAMP): $(UI_DEPS)
 	cd ui && pnpm install

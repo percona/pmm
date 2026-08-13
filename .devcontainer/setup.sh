@@ -47,7 +47,7 @@ install_go() {
     go env
 }
 
-# Installs Node.js 22, pnpm (for ui/) and Yarn (for dashboards/pmm-app).
+# Installs Node.js 22, pnpm (for ui/) and Yarn (for ui/apps/pmm-app).
 install_node() {
     dnf module enable -y nodejs:22
     dnf install -y nodejs npm
