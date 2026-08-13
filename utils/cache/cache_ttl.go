@@ -115,9 +115,11 @@ func (c *TTLCache[V]) Store(key string, value V) {
 	if _, exists := shard.items[keyHash]; !exists {
 		shard.size++
 	}
+	shard.rev++
 	shard.items[keyHash] = item[V]{
 		value:   value,
 		expires: time.Now().Add(c.ttl),
+		rev:     shard.rev,
 	}
 	shard.mu.Unlock()
 }

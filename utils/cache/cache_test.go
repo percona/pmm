@@ -17,6 +17,7 @@ package cache
 import (
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -162,6 +163,62 @@ func TestCache_LoadAndDelete_ReturnsMissOnSecondCallForSameKey(t *testing.T) {
 	got, ok := c.LoadAndDelete("k")
 	require.False(t, ok, "expected key to be missing on second call")
 	require.Zero(t, got, "unexpected zero value")
+}
+
+func TestCache_CompareAndDelete_PanickingPredicateDoesNotLeaveLockHeld(t *testing.T) {
+	t.Parallel()
+
+	c := NewCache[int]()
+	c.Store("k", 42)
+
+	require.Panics(t, func() {
+		c.CompareAndDelete("k", func(_ int) bool {
+			panic("boom")
+		})
+	}, "expected predicate panic to propagate")
+
+	got, ok := c.Load("k")
+	require.True(t, ok, "entry should remain after panic")
+	require.Equal(t, 42, got, "unexpected value after panic")
+
+	deleted, removed := c.CompareAndDelete("k", func(v int) bool {
+		return v == 42
+	})
+	require.True(t, removed, "expected follow-up delete to succeed")
+	require.Equal(t, 42, deleted, "unexpected deleted value")
+}
+
+func TestCache_CompareAndDelete_ReentrantPredicateDoesNotDeadlockAndPreventsStaleDelete(t *testing.T) {
+	t.Parallel()
+
+	c := NewCache[int]()
+	c.Store("k", 1)
+
+	type result struct {
+		value int
+		ok    bool
+	}
+
+	resultCh := make(chan result, 1)
+	go func() {
+		value, ok := c.CompareAndDelete("k", func(_ int) bool {
+			c.Store("k", 2)
+			return true
+		})
+		resultCh <- result{value: value, ok: ok}
+	}()
+
+	select {
+	case r := <-resultCh:
+		require.False(t, r.ok, "delete must fail when value changed after predicate evaluation")
+		require.Zero(t, r.value, "unexpected value when delete fails")
+	case <-time.After(2 * time.Second):
+		t.Fatal("CompareAndDelete deadlocked with re-entrant predicate")
+	}
+
+	got, ok := c.Load("k")
+	require.True(t, ok, "entry should still exist")
+	require.Equal(t, 2, got, "re-entrant update should win")
 }
 
 func TestCache_LoadOrStore_StoresValueForMissingKeyAndReturnsLoadedFalse(t *testing.T) {

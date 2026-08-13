@@ -99,8 +99,10 @@ func (c *Cache[V]) Store(key string, value V) {
 	if _, exists := shard.items[keyHash]; !exists {
 		shard.size++
 	}
+	shard.rev++
 	shard.items[keyHash] = item[V]{
 		value: value,
+		rev:   shard.rev,
 	}
 	shard.mu.Unlock()
 }
@@ -119,8 +121,10 @@ func (c *Cache[V]) LoadOrStore(key string, value V) (V, bool) {
 	}
 
 	shard.size++
+	shard.rev++
 	shard.items[keyHash] = item[V]{
 		value: value,
+		rev:   shard.rev,
 	}
 	shard.mu.Unlock()
 
@@ -168,16 +172,33 @@ func (c *Cache[V]) CompareAndDelete(key string, match func(V) bool) (V, bool) {
 
 	shard.mu.Lock()
 	itm, exists := shard.items[keyHash]
-	if !exists || !match(itm.value) {
+	if !exists {
 		shard.mu.Unlock()
 		var zero V
 		return zero, false
 	}
+	value := itm.value
+	rev := itm.rev
+	shard.mu.Unlock()
+
+	if !match(value) {
+		var zero V
+		return zero, false
+	}
+
+	shard.mu.Lock()
+	current, stillExists := shard.items[keyHash]
+	if !stillExists || current.rev != rev {
+		shard.mu.Unlock()
+		var zero V
+		return zero, false
+	}
+
 	delete(shard.items, keyHash)
 	shard.size--
 	shard.mu.Unlock()
 
-	return itm.value, true
+	return value, true
 }
 
 // Size returns the total number of items across all cache shards.

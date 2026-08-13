@@ -39,6 +39,7 @@ var (
 type item[V any] struct {
 	value   V
 	expires time.Time
+	rev     uint64
 }
 
 // shard contains the actual map and a lock, padded to prevent false sharing.
@@ -46,6 +47,7 @@ type shard[V any] struct {
 	mu    sync.RWMutex
 	items map[uint64]item[V]
 	size  int64
+	rev   uint64
 	// Pad to CPU Arch dependant bytes to prevent false sharing in L1 CPU cache.
 	_ cpu.CacheLinePad
 }
