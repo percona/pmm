@@ -11,12 +11,7 @@ import { TextInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
-import {
-  type ApiError,
-  useResetSetting,
-  usePatchSetting,
-  useSettingsList,
-} from '@sep/api';
+import { type ApiError, useResetSetting, usePatchSetting } from '@sep/api';
 import { Modal } from 'components/modal';
 import { helperTextTestId } from 'utils/mui.utils';
 import { Messages } from '../../Settings.messages';
@@ -31,13 +26,11 @@ import { serviceNowSchema } from './ServiceNowConnectionForm.schema';
 import { ServiceNowFormValues } from './ServiceNowConnection.types';
 import {
   buildDeliveryInputsPatch,
-  connectionStatus,
-  declaredSecretNames,
   sepErrorMessage,
   secretLabel,
-  storedDeliveryInputs,
   toFormValues,
 } from './ServiceNowConnection.utils';
+import { useServiceNowConnection } from './ServiceNowConnection.hooks';
 
 const STATUS_SEVERITY = {
   configured: 'success',
@@ -65,15 +58,17 @@ const STATUS_MESSAGE = {
  * previous configuration standing, which is why nothing here is optimistic.
  */
 export const ServiceNowConnectionForm: FC = () => {
-  const { data: groups, isLoading, error: loadError } = useSettingsList();
+  const {
+    declaredNames,
+    stored,
+    status,
+    isLoading,
+    error: loadError,
+  } = useServiceNowConnection();
   const { mutateAsync: patchSetting, error: saveError } = usePatchSetting();
   const { mutateAsync: resetSetting, isPending: isDisconnecting } =
     useResetSetting();
   const [disconnectOpen, setDisconnectOpen] = useState(false);
-
-  const declaredNames = useMemo(() => declaredSecretNames(groups), [groups]);
-  const stored = useMemo(() => storedDeliveryInputs(groups), [groups]);
-  const status = connectionStatus(declaredNames, stored);
 
   // `values` (not `defaultValues`) so a refetch — the invalidation after a save,
   // in particular — re-seeds the fields with what SEP actually stored. React
