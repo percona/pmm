@@ -160,9 +160,10 @@ if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "
 fi
 
 # Not in grafana-sep: sep-provision is priority 20, so a probe firing before it starts would
-# still see the previous run's marker. Fatal only where grafana-sep will not rewrite it this
-# start - under the two flags just warned about it marks the run whatever provisioning did, so
-# a marker that cannot be removed there misleads nothing and must not take the container down.
+# still see the previous run's marker. Fatal only where a stale marker could outlive this
+# start's provisioning - under the two flags just warned about grafana-sep marks the run
+# whatever provisioning did, so one it cannot remove there misleads nothing and must not take
+# the container down.
 declare SEP_MARKER="/srv/.sep_provisioned"
 rm -f "$SEP_MARKER" 2> /dev/null || true
 if is_enabled "$PMM_ENABLE_SEP" && ! is_enabled "$PMM_HA_ENABLE" &&
@@ -170,6 +171,7 @@ if is_enabled "$PMM_ENABLE_SEP" && ! is_enabled "$PMM_HA_ENABLE" &&
     echo "FATAL: could not remove $SEP_MARKER; the health gate would report the previous provisioning run as this one." >&2
     exit 1
 fi
+unset SEP_MARKER
 
 # Unconditional: the script owns its own gates, so the files it published are still
 # removed on the start after PMM_ENABLE_SEP is cleared.
@@ -178,7 +180,7 @@ bash /opt/ansible/roles/sep/files/sep-secrets
 # The last consumer has run, so drop the password before exec'ing supervisord: otherwise
 # every child inherits it, and pmm-managed-init logs each variable it is handed - name and
 # value - once PMM_TRACE is set.
-unset PMM_SEP_POSTGRES_PASSWORD SEP_MARKER
+unset PMM_SEP_POSTGRES_PASSWORD
 
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
