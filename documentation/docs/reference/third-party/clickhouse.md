@@ -72,7 +72,7 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
     {.power-number}
 
     1. Run the following on your external ClickHouse instance, replacing `your-password` with a [strong, randomly generated password](#enhance-clickhouse-security-for-pmm) and its SHA256 hash:
- 
+
         ```sql
         CREATE USER grafana IDENTIFIED WITH sha256_password BY 'your-password'
         SETTINGS readonly = 1, max_execution_time CHANGEABLE_IN_READONLY;
@@ -105,9 +105,9 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
             </profiles>
         </clickhouse>
         ```
- 
-    Some ClickHouse versions require `settings_constraints_replace_previous` for the `max_execution_time` constraint to take effect, so check your version if the constraint doesn't apply.
- 
+
+        Some ClickHouse versions require `settings_constraints_replace_previous` for the `max_execution_time` constraint to take effect, so check your version if the constraint does not apply.
+
     2. Set `PMM_CLICKHOUSE_DATASOURCE_USER` and `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to this user's credentials, as shown in the [previous example](#example). If you skip this step, PMM can't authenticate to ClickHouse after upgrading. PMM won't fall back to the privileged `PMM_CLICKHOUSE_USER` account, because that fallback would reopen the vulnerability this fix closes.
 
 ## Enhance ClickHouse security for PMM
