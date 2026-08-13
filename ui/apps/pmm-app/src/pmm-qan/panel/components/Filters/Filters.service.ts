@@ -36,7 +36,7 @@ export default {
         main_metric_name: mainMetric,
         period_start_from: from,
         period_start_to: to,
-      },
+      }
     );
 
     return markCheckedLabels(labels, paramLabels);

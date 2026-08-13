@@ -49,7 +49,7 @@ export const getMetricDistribution = (data) => {
       value: currentPercent,
       description: humanize.transform(
         currentPercent / PERCENT_COUNT,
-        'percent',
+        'percent'
       ),
       color: 'gray',
     });

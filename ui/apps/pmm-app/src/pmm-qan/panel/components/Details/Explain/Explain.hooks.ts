@@ -37,7 +37,7 @@ export const useExplains = (examples, databaseType): any[] => {
         const results = await fetchExplains(
           queryId,
           notEmptyExample[0],
-          databaseType,
+          databaseType
         );
 
         setClassicExplain(results.classicExplain);

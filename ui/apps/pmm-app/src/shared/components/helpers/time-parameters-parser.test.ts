@@ -20,7 +20,7 @@ describe('Time parameters parser::', () => {
     const result = ParseQueryParamDate.transform('123456789000', 'to');
 
     expect(result.format('YYYY-MM-DDTHH:mm:ss.000')).toStrictEqual(
-      '1973-11-29T21:33:09.000',
+      '1973-11-29T21:33:09.000'
     );
   });
 
@@ -30,13 +30,13 @@ describe('Time parameters parser::', () => {
     const result3 = ParseQueryParamDate.transform('now/d', 'from');
 
     expect(result1.format('YYYY-MM-DDTHH:mm:ss.000')).toStrictEqual(
-      '2020-11-14T23:59:59.000',
+      '2020-11-14T23:59:59.000'
     );
     expect(result2.format('YYYY-MM-DDTHH:mm:ss.000')).toStrictEqual(
-      '2020-11-22T23:58:59.000',
+      '2020-11-22T23:58:59.000'
     );
     expect(result3.format('YYYY-MM-DDTHH:mm:ss.000')).toStrictEqual(
-      '2020-11-21T23:59:00.000',
+      '2020-11-21T23:59:00.000'
     );
   });
 

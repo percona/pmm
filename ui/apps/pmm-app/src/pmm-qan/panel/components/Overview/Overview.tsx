@@ -47,7 +47,7 @@ export const Overview: FC = () => {
 
   useEffect(() => {
     setHeight(
-      (tableWrapperRef.current && tableWrapperRef.current.clientHeight) || 0,
+      (tableWrapperRef.current && tableWrapperRef.current.clientHeight) || 0
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tableWrapperRef.current && tableWrapperRef.current.clientHeight]);
@@ -92,7 +92,7 @@ export const Overview: FC = () => {
 
       return '';
     },
-    [querySelected, totals, queryId],
+    [querySelected, totals, queryId]
   );
 
   const onSortChange = useCallback(
@@ -104,7 +104,7 @@ export const Overview: FC = () => {
       contextActions.changeSort(data[0].desc ? data[0].id : `-${data[0].id}`);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [contextActions.changeSort],
+    [contextActions.changeSort]
   );
 
   return (
@@ -126,7 +126,7 @@ export const Overview: FC = () => {
                     queryId: selected.original.dimension,
                     database: selected.original.database,
                   },
-                  selected.index === 0,
+                  selected.index === 0
                 );
               }}
               scroll={{ y: Math.min(height, 550), x: '100%' }}
@@ -144,7 +144,7 @@ export const Overview: FC = () => {
           </div>
         ),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [overviewMetricsList, loading, loadingDetails, height, getRowClassName],
+        [overviewMetricsList, loading, loadingDetails, height, getRowClassName]
       )}
       {overviewMetricsList.rows.length > 1 ? (
         <div className={styles.overviewFooter}>

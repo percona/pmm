@@ -7,7 +7,7 @@ export default {
     return apiRequest.post<any, any>(
       '/v1/actions:startServiceAction',
       requestBody,
-      disableNotifications,
+      disableNotifications
     );
   },
 };

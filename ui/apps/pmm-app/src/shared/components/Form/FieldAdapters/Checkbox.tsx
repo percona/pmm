@@ -49,7 +49,7 @@ export const getCheckboxStyles = (theme: GrafanaTheme2) => {
       labelStyles.label,
       css`
         padding-left: ${theme.v1.spacing.formSpacingBase}px;
-      `,
+      `
     ),
     wrapper: css`
       position: relative;
@@ -112,7 +112,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           onChange(e);
         }
       },
-      [onChange],
+      [onChange]
     );
     const styles = useStyles2(getCheckboxStyles);
 
@@ -131,7 +131,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         {label && <span className={styles.label}>{label}</span>}
       </label>
     );
-  },
+  }
 );
 
 Checkbox.displayName = 'Checkbox';

@@ -5,7 +5,7 @@ import { OverflowTooltip } from './OverflowTooptip';
 xdescribe('OverflowTooltip test', () => {
   it('OverflowTooltip renders correctly with children', () => {
     const { asFragment } = render(
-      <OverflowTooltip>Test label</OverflowTooltip>,
+      <OverflowTooltip>Test label</OverflowTooltip>
     );
 
     const firstRender = asFragment();

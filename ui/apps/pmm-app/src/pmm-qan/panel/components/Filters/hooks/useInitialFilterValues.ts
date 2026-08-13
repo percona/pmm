@@ -22,7 +22,7 @@ export const useInitialFilterValues = () => {
 
           return acc;
         },
-        {},
+        {}
       );
 
       setInitialValues(initialFiltersValues);

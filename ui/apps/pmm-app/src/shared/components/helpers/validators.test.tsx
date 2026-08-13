@@ -3,7 +3,7 @@ import validators from './validators';
 describe('validatePort test', () => {
   it('return error string when value is 0', () => {
     expect(validators.validatePort(0)).toEqual(
-      'Port should be a number and between 0 and 65535',
+      'Port should be a number and between 0 and 65535'
     );
   });
 
@@ -63,7 +63,7 @@ describe('Validate email', () => {
     expect(validators.validateEmail('test@example')).toBeUndefined();
     expect(validators.validateEmail('someone@127.0.0.1')).toBeUndefined();
     expect(
-      validators.validateEmail("!#$%&'*+/=?^_`{|}~.-@com.com"),
+      validators.validateEmail("!#$%&'*+/=?^_`{|}~.-@com.com")
     ).toBeUndefined();
     expect(validators.validateEmail('te..st@example.com')).toBeUndefined();
   });
@@ -71,22 +71,22 @@ describe('Validate email', () => {
   test('email validator should return an error string if the passed email is invalid', () => {
     expect(validators.validateEmail('test')).toEqual('Invalid email address');
     expect(validators.validateEmail('invalid:email@example.com')).toEqual(
-      'Invalid email address',
+      'Invalid email address'
     );
     expect(validators.validateEmail('someone@somewhere.com.')).toEqual(
-      'Invalid email address',
+      'Invalid email address'
     );
     expect(validators.validateEmail('""test\blah""@example.com')).toEqual(
-      'Invalid email address',
+      'Invalid email address'
     );
     expect(validators.validateEmail('a\u3000@p.com')).toEqual(
-      'Invalid email address',
+      'Invalid email address'
     );
     expect(validators.validateEmail('ddjk-s-jk@asl-.com')).toEqual(
-      'Invalid email address',
+      'Invalid email address'
     );
     expect(validators.validateEmail('a @p.com')).toEqual(
-      'Invalid email address',
+      'Invalid email address'
     );
     expect(validators.validateEmail('')).toEqual('Invalid email address');
   });
@@ -158,13 +158,13 @@ describe('Validate containCases', () => {
 
   it('Validator should return undefined if the passed value is invalid', () => {
     expect(validators.containBothCases('test')).toEqual(
-      'Must include upper and lower cases',
+      'Must include upper and lower cases'
     );
     expect(validators.containBothCases('TEST')).toEqual(
-      'Must include upper and lower cases',
+      'Must include upper and lower cases'
     );
     expect(validators.containBothCases('111')).toEqual(
-      'Must include upper and lower cases',
+      'Must include upper and lower cases'
     );
   });
 });
@@ -193,10 +193,10 @@ describe('Validate min length', () => {
     const testedLength = 8;
 
     expect(validators.minLength(testedLength)('1234567')).toEqual(
-      `Must contain at least ${testedLength} characters`,
+      `Must contain at least ${testedLength} characters`
     );
     expect(validators.minLength(testedLength)('0')).toEqual(
-      `Must contain at least ${testedLength} characters`,
+      `Must contain at least ${testedLength} characters`
     );
   });
 });

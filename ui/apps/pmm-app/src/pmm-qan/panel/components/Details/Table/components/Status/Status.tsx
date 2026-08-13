@@ -15,7 +15,7 @@ export const Status: FC<TableProps> = ({
     databaseType,
     example,
     tableName,
-    database,
+    database
   );
 
   return (

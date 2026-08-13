@@ -9,7 +9,7 @@ xdescribe('Checkbox field test', () => {
       <Form
         onSubmit={jest.fn()}
         render={() => <CheckboxField name="test_field" />}
-      />,
+      />
     );
 
     const firstRender = asFragment();

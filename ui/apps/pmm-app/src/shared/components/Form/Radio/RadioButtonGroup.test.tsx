@@ -27,21 +27,21 @@ describe('RadioButtonGroup::', () => {
     expect(wrapper.children.length).toBe(4);
     expect(wrapper.firstElementChild?.id).toEqual(options[0].key);
     expect(wrapper.firstElementChild?.getAttribute('name')).toEqual(
-      testProps.name,
+      testProps.name
     );
     expect(wrapper.querySelectorAll('label')[0]).toHaveTextContent(
-      options[0].value,
+      options[0].value
     );
     expect(wrapper.querySelectorAll('label')[1].className).toContain('active');
   });
   it('Renders correctly with disabled options', () => {
     const root = render(
-      <RadioButtonGroup {...testProps} disabledOptions={['option1']} />,
+      <RadioButtonGroup {...testProps} disabledOptions={['option1']} />
     );
     const wrapper = root.getByTestId('radio-button-group');
 
     expect(wrapper.querySelectorAll('label')[0].className).toContain(
-      'disabled',
+      'disabled'
     );
   });
 });

@@ -6,7 +6,7 @@ export default {
 
     return apiRequest.post<any, any>(
       '/v1/actions:startServiceAction',
-      requestBody,
+      requestBody
     );
   },
 
@@ -15,7 +15,7 @@ export default {
 
     return apiRequest.post<any, any>(
       '/v1/actions:startServiceAction',
-      requestBody,
+      requestBody
     );
   },
 
@@ -24,7 +24,7 @@ export default {
 
     return apiRequest.post<any, any>(
       '/v1/actions:startServiceAction',
-      requestBody,
+      requestBody
     );
   },
 
@@ -34,7 +34,7 @@ export default {
     return apiRequest.post<any, any>(
       '/v1/actions:startServiceAction',
       requestBody,
-      disableNotifications,
+      disableNotifications
     );
   },
 
@@ -44,7 +44,7 @@ export default {
     return apiRequest.post<any, any>(
       '/v1/actions:startServiceAction',
       requestBody,
-      disableNotifications,
+      disableNotifications
     );
   },
 };

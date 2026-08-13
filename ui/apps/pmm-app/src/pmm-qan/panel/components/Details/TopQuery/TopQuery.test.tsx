@@ -13,7 +13,7 @@ describe('TopQuery::', () => {
         databaseType={Databases.postgresql}
         query="test"
         queryId="testId"
-      />,
+      />
     );
 
     expect(getByText('test')).not.toBeNull();
@@ -38,7 +38,7 @@ describe('TopQuery::', () => {
           query="test"
           queryId="testId"
         />
-      </QueryAnalyticsProvider.Provider>,
+      </QueryAnalyticsProvider.Provider>
     );
 
     fireEvent.click(getByText('test'));

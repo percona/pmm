@@ -21,7 +21,7 @@ const getExample = async ({
 
   return apiRequestQAN.post<QueryExampleResponse, any>(
     '/query:getExample',
-    data,
+    data
   );
 };
 

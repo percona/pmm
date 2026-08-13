@@ -12,7 +12,7 @@ const testProps = {
 describe('RadioButton::', () => {
   it('Renders correctly', () => {
     const { container } = render(
-      <RadioButton {...testProps}>Test</RadioButton>,
+      <RadioButton {...testProps}>Test</RadioButton>
     );
     const input = container.querySelector('input');
     const label = container.querySelector('label');
@@ -26,7 +26,7 @@ describe('RadioButton::', () => {
     const { container } = render(
       <RadioButton {...testProps} active>
         Test
-      </RadioButton>,
+      </RadioButton>
     );
 
     expect(container.querySelector('label')?.className).toContain('active');
@@ -36,7 +36,7 @@ describe('RadioButton::', () => {
     const { container } = render(
       <RadioButton {...testProps} disabled>
         Test
-      </RadioButton>,
+      </RadioButton>
     );
 
     expect(container.querySelector('label')?.className).toContain('disabled');
@@ -44,7 +44,7 @@ describe('RadioButton::', () => {
 
   it('Calls onChange when clicked', () => {
     const { container } = render(
-      <RadioButton {...testProps}>Test</RadioButton>,
+      <RadioButton {...testProps}>Test</RadioButton>
     );
 
     const label = container.querySelector('label');

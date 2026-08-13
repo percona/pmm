@@ -64,7 +64,7 @@ export const refreshGrafanaVariables = (state) => {
         : labels[key];
 
     variablesQuery[`var-${key}`] = variables.map((variable) =>
-      variable === 'na' ? '' : variable,
+      variable === 'na' ? '' : variable
     );
   });
 

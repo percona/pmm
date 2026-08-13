@@ -63,7 +63,7 @@ describe('POST::', () => {
     const apiRequest = new ApiRequest({});
 
     (apiRequest.axiosInstance as AxiosInstanceEx).post.mockImplementationOnce(
-      () => Promise.reject(response),
+      () => Promise.reject(response)
     );
     const result = apiRequest.post('/test/path', { key: 'value' });
 
@@ -77,7 +77,7 @@ describe('POST::', () => {
     const response = { message: 'Error' };
 
     (apiRequest.axiosInstance as AxiosInstanceEx).post.mockImplementationOnce(
-      () => Promise.reject(response),
+      () => Promise.reject(response)
     );
     const result = apiRequest.post('/test/path', { key: 'value' }, true);
 

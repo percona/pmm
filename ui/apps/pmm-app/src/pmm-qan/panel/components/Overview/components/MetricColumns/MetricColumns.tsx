@@ -130,8 +130,8 @@ export const metricColumnRender =
       const MetricsList = ({ data }) => (
         <div className={styles.metricsWrapper} data-testid="metrics-list">
           {data.map((metricItem, metricIndex, list) => (
-            // eslint-disable-next-line react/jsx-key
             <div
+              key={metricItem.header}
               className={styles.singleMetricWrapper}
               data-testid={metricItem.key || ''}
             >
@@ -216,7 +216,7 @@ export const getOverviewColumn = (
   columnIndex,
   totalValues,
   orderBy,
-  mainMetric,
+  mainMetric
 ) => {
   const metric = METRIC_CATALOGUE[metricName];
 

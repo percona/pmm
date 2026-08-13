@@ -16,7 +16,7 @@ export const getMetricSparklineKey = (metricName) => {
 };
 export const getAdditionalPoint = (last, previous) =>
   new Date(
-    (+moment(last) || 0) - ((+moment(previous) || 0) - (+moment(last) || 0)),
+    (+moment(last) || 0) - ((+moment(previous) || 0) - (+moment(last) || 0))
   ).toISOString();
 export const isMetricExists = (metric) =>
   metric === 'NaN' || metric === undefined || metric === '';

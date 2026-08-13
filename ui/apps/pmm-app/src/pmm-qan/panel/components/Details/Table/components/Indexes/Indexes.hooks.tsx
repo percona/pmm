@@ -30,7 +30,7 @@ export const useIndexes = (
   databaseType,
   example,
   tableName,
-  database,
+  database
 ): [StatusData, ActionResult] => {
   const [data, setData] = useState<StatusData>({ columns: [], rows: [] });
   const [indexes, setIndexes] = useState<ActionResult>(actionResult);

@@ -37,7 +37,7 @@ export const useMetricsDetails = (): [
         setTextMetrics(result.text_metrics);
         setMetadata(result.metadata);
         contextActions.setFingerprint(
-          groupBy === 'queryid' ? result.fingerprint : queryId,
+          groupBy === 'queryid' ? result.fingerprint : queryId
         );
         setLoading(false);
       } catch (e) {
