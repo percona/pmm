@@ -73,6 +73,7 @@ import (
 	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	pomv1 "github.com/percona/pmm/api/pom/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -95,6 +96,7 @@ import (
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
+	"github.com/percona/pmm/managed/services/pom"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/realtimeanalytics"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -234,6 +236,11 @@ type gRPCServerDeps struct {
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
+
+	// Where SEP is, optional. Empty means POM builds its document from PMM's own
+	// inventory and metrics alone and records the probe source as disabled.
+	sepURL   string
+	sepToken string
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -323,6 +330,14 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
 	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
+
+	pomSvc := pom.New(deps.db, v1.NewAPI(*deps.vmClient), logrus.WithField("component", "pom"))
+	pomSvc.WithProbeSource(deps.sepURL, deps.sepToken)
+	pomv1.RegisterPomServiceServer(gRPCServer, pomSvc)
+
+	// Refresh the topology document on a timer, so the run history exists even when
+	// nobody is looking at the page.
+	go pomSvc.Run(ctx)
 
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
@@ -430,6 +445,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backupv1.RegisterRestoreServiceHandler,
 
 		dumpv1beta1.RegisterDumpServiceHandler,
+
+		pomv1.RegisterPomServiceHandler,
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
 
@@ -677,6 +694,16 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
+
+	// Where SEP is, not where any one of its apps is: POM's on-host facts come from
+	// the pom_discovery app today and the actions apps will come from the same SEP, so
+	// each consumer appends its own /api/apps/<module> path. Optional -- with no URL
+	// the probe source reports itself disabled and the document is built from PMM's own
+	// inventory and metrics alone.
+	sepURLF := kingpin.Flag("sep-url", "Base URL of SEP, e.g. http://127.0.0.1:8000").
+		Envar("PMM_SEP_URL").String()
+	sepTokenF := kingpin.Flag("sep-token", "Bearer token for SEP's API").
+		Envar("PMM_SEP_TOKEN").String()
 
 	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").Envar("PMM_VM_URL").
 		Default(models.VMBaseURL).String()
@@ -1208,6 +1235,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				templatesService:          alertingService,
 				versionCache:              versionCache,
 				vmalert:                   vmalert,
+				sepURL:                    *sepURLF,
+				sepToken:                  *sepTokenF,
 				vmClient:                  &vmClient,
 				vmdb:                      vmdb,
 			})

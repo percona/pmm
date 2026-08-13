@@ -1185,6 +1185,40 @@ var databaseSchema = [][]string{
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
 	},
+	119: {
+		// POM (PSMDB Open Manager) discovery: one row per collection pass, and the
+		// topology document it produced.
+		`CREATE TABLE pom_runs (
+			run_id            VARCHAR PRIMARY KEY,
+			started_at        TIMESTAMP NOT NULL,
+			finished_at       TIMESTAMP,
+			status            VARCHAR NOT NULL,
+			services_total    INTEGER NOT NULL DEFAULT 0,
+			services_resolved INTEGER NOT NULL DEFAULT 0,
+			services_orphaned INTEGER NOT NULL DEFAULT 0,
+			probes_ok         INTEGER NOT NULL DEFAULT 0,
+			services_stale    INTEGER NOT NULL DEFAULT 0,
+			origin_node       VARCHAR NOT NULL DEFAULT '',
+			sources           JSONB,
+			errors            JSONB,
+			created_at        TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX pom_runs_started_at_idx ON pom_runs (started_at DESC)`,
+
+		// The document is JSONB rather than a relational tree because the topology model
+		// is still moving; schema_version is what a reader checks. It is deleted with its
+		// run, which is what bounds retention.
+		`CREATE TABLE pom_snapshots (
+			run_id         VARCHAR PRIMARY KEY REFERENCES pom_runs (run_id) ON DELETE CASCADE,
+			generated_at   TIMESTAMP NOT NULL,
+			observed_at    TIMESTAMP,
+			stale          BOOLEAN NOT NULL DEFAULT false,
+			schema_version INTEGER NOT NULL,
+			document       JSONB NOT NULL,
+			created_at     TIMESTAMP NOT NULL
+		)`,
+		`CREATE INDEX pom_snapshots_generated_at_idx ON pom_snapshots (generated_at DESC)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
