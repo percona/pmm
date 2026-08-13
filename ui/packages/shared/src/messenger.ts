@@ -1,4 +1,4 @@
-import { Message, MessageListener, MessageType } from './types';
+import type { Message, MessageListener, MessageType } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
 export class CrossFrameMessenger {

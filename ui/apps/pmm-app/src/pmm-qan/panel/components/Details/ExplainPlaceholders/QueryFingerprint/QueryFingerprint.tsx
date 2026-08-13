@@ -1,6 +1,6 @@
 import React from 'react';
 import { Highlight } from 'shared/components/Hightlight/Highlight';
-import { QueryFingerprintProps } from './QueryFingerprint.types';
+import type { QueryFingerprintProps } from './QueryFingerprint.types';
 import { replacePlaceholders } from './QueryFingerprint.utils';
 
 const QueryFingerprint: React.FC<QueryFingerprintProps> = ({

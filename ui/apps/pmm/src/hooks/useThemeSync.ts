@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useUserPreferences } from './api/useUser';
 import { useColorMode } from './theme';
 import { useAuth } from 'contexts/auth';
-import { ColorMode } from '@pmm/shared';
+import type { ColorMode } from '@pmm/shared';
 
 const DEFAULT_THEME: ColorMode = 'dark';
 

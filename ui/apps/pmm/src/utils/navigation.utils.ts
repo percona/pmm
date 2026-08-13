@@ -1,5 +1,5 @@
 import { matchPath } from 'react-router-dom';
-import { NavItem } from 'types/navigation.types';
+import type { NavItem } from 'types/navigation.types';
 
 export const findActiveNavItem = (
   navtree: NavItem[] | NavItem,

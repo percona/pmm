@@ -1,10 +1,11 @@
-import React, { FC, useContext, useCallback } from 'react';
+import type { FC} from 'react';
+import React, { useContext, useCallback } from 'react';
 import { useStyles } from '@grafana/ui';
 import { QueryTooltip } from 'shared/components/Elements/QueryTooltip/QueryTooltip';
 import { Info } from 'shared/components/Elements/Icons/Info';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
 import { getStyles } from './TopQuery.styles';
-import { TopQueryProps } from './TopQuery.types';
+import type { TopQueryProps } from './TopQuery.types';
 
 export const TopQuery: FC<TopQueryProps> = ({
   databaseType,

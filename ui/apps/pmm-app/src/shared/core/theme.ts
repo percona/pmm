@@ -1,5 +1,5 @@
 import { defaultTheme } from '@ant-design/compatible';
-import { ThemeConfig } from 'antd';
+import type { ThemeConfig } from 'antd';
 import type { GrafanaTheme } from '@grafana/data';
 
 export const antdDarkTheme: ThemeConfig = {

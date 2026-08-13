@@ -1,4 +1,4 @@
-import { QueryExampleResponseItem } from 'pmm-qan/panel/components/Details/Details.types';
+import type { QueryExampleResponseItem } from 'pmm-qan/panel/components/Details/Details.types';
 
 export interface PlaceholdersFormProps {
   example: QueryExampleResponseItem;

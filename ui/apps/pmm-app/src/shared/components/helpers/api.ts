@@ -1,4 +1,5 @@
-import axios, { CancelToken, AxiosInstance } from 'axios';
+import type { CancelToken, AxiosInstance } from 'axios';
+import axios from 'axios';
 import { showErrorNotification } from './notification-manager';
 
 export class ApiRequest {

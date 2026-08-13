@@ -3,7 +3,7 @@ import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
 import { processMetrics } from 'shared/components/helpers/processMetrics';
 import { METRIC_CATALOGUE } from 'pmm-qan/panel/QueryAnalytics.constants';
 import MetricsService from '../Metrics.service';
-import { TextMetrics } from '../Metrics.types';
+import type { TextMetrics } from '../Metrics.types';
 
 export const useMetricsDetails = (): [
   any[],

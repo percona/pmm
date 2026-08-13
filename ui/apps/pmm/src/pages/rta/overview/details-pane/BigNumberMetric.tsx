@@ -1,7 +1,8 @@
 import Box from '@mui/material/Box';
-import Typography, { TypographyProps } from '@mui/material/Typography';
+import type { TypographyProps } from '@mui/material/Typography';
+import Typography from '@mui/material/Typography';
 import UnavailableText from 'components/unavailable-text';
-import { FC } from 'react';
+import type { FC } from 'react';
 
 type Props = {
   mainText?: string;

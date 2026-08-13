@@ -5,7 +5,7 @@ import validators from 'shared/components/helpers/validators';
 import { Messages } from './PlaceholdersForm.messages';
 import PrepareExplainFingerPrint from '../QueryFingerprint';
 import { getStyles } from './PlaceholdersForm.styles';
-import {
+import type {
   PlaceholdersFormProps,
   PlaceholdersFormValues,
 } from './PlaceholdersForm.types';

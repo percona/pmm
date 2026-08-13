@@ -1,6 +1,6 @@
 import { Divider, Stack } from '@mui/material';
 import { useChangeLogs } from 'hooks/api/useUpdates';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { ReleaseNotes } from './release-notes';
 
 export const ChangeLog: FC = () => {

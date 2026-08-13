@@ -1,5 +1,5 @@
-import { TextSelectOption } from 'components/text-select/TextSelect.types';
-import { AlertStatus } from 'types/alerting.types';
+import type { TextSelectOption } from 'components/text-select/TextSelect.types';
+import type { AlertStatus } from 'types/alerting.types';
 
 export const ALL_STATES_FILTER = '__all_states__';
 export const SILENCED_FILTER = '__silenced__';

@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Grid, Stack, Typography } from '@mui/material';
 import { Messages } from './AlertDetailsTab.messages';
 import DataPoint from 'components/details-pane/DataPoint';
@@ -10,7 +10,7 @@ import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOu
 import { useTimezone } from 'hooks/utils/useTimezone';
 import { formatDurationSeconds } from 'utils/duration.utils';
 import AlertSeverityDetail from './severity/AlertSeverityDetail';
-import { AlertDetailsPane } from '../AlertDetailsPane.types';
+import type { AlertDetailsPane } from '../AlertDetailsPane.types';
 
 interface Props {
   details: AlertDetailsPane;

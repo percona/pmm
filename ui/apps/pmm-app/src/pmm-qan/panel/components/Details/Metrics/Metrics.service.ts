@@ -1,6 +1,6 @@
 import { apiRequest } from 'shared/components/helpers/api';
 import { getLabelQueryParams } from 'pmm-qan/panel/QueryAnalytics.tools';
-import { HistogramRequest, HistogramResponse } from './Metrics.types';
+import type { HistogramRequest, HistogramResponse } from './Metrics.types';
 
 export const getMetrics = async ({
   filterBy,

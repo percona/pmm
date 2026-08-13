@@ -1,6 +1,6 @@
-import { ChartData } from 'chart.js';
-import { GrafanaTheme2 } from '@grafana/data';
-import { HistogramAPI } from './Metrics.types';
+import type { ChartData } from 'chart.js';
+import type { GrafanaTheme2 } from '@grafana/data';
+import type { HistogramAPI } from './Metrics.types';
 
 export const getChartDataFromHistogramItems = (
   histogram_items: HistogramAPI[],

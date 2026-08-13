@@ -1,14 +1,16 @@
-import {
+import type {
   FC,
-  PropsWithChildren,
+  PropsWithChildren} from 'react';
+import {
   useState,
   useCallback,
   useMemo,
   useEffect,
 } from 'react';
-import { TourProvider as ReactTourProvider, StepType } from '@reactour/tour';
+import type { StepType } from '@reactour/tour';
+import { TourProvider as ReactTourProvider } from '@reactour/tour';
 import { TourContext } from './tour.context';
-import { StepsMap, TourName } from './tour.context.types';
+import type { StepsMap, TourName } from './tour.context.types';
 import { TourNavigation } from 'components/tour-navigation';
 import { DRAWER_WIDTH } from 'components/sidebar/drawer/Drawer.constants';
 import { waitForVisible } from 'utils/dom.utils';

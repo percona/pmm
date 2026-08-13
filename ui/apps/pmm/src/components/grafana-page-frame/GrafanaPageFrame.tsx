@@ -1,7 +1,7 @@
 import GlobalStyles from '@mui/material/GlobalStyles';
 import Stack from '@mui/material/Stack';
 import { useHeader } from 'hooks/useHeader';
-import { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
 const GrafanaPageFrame: FC<PropsWithChildren> = ({ children }) => {
   const { visible: headerVisible } = useHeader();

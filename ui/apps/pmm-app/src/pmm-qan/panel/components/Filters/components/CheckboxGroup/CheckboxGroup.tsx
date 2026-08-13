@@ -1,11 +1,12 @@
-import React, { FC, useRef } from 'react';
+import type { FC} from 'react';
+import React, { useRef } from 'react';
 import { CheckboxField } from 'shared/components/Form/Checkbox/Checkbox';
 import { humanize } from 'shared/components/helpers/Humanization';
 import { Icon, useTheme } from '@grafana/ui';
 import { ViewportList } from 'react-viewport-list';
-import { RawTimeRange } from '@grafana/data';
+import type { RawTimeRange } from '@grafana/data';
 import { getStyles } from './CheckboxGroup.styles';
-import { CheckboxGroupProps } from './CheckboxGroup.types';
+import type { CheckboxGroupProps } from './CheckboxGroup.types';
 
 export const CheckboxGroup: FC<CheckboxGroupProps> = ({
   name,

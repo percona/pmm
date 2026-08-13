@@ -1,5 +1,5 @@
-import { AxiosResponse } from 'axios';
-import {
+import type { AxiosResponse } from 'axios';
+import type {
   GetChangeLogsResponse,
   GetUpdateStatusBody,
   GetUpdateStatusResponse,

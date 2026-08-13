@@ -1,18 +1,19 @@
 import { checkForUpdates, getChangeLogs, startUpdate } from 'api/updates';
+import type {
+  UseMutationOptions,
+  UseQueryOptions} from '@tanstack/react-query';
 import {
   useMutation,
-  UseMutationOptions,
-  useQuery,
-  UseQueryOptions,
+  useQuery
 } from '@tanstack/react-query';
-import {
+import type {
   GetChangeLogsResponse,
   GetUpdatesResponse,
   StartUpdateBody,
   StartUpdateResponse,
 } from 'types/updates.types';
-import { AxiosError } from 'axios';
-import { ApiError } from 'types/api.types';
+import type { AxiosError } from 'axios';
+import type { ApiError } from 'types/api.types';
 
 export const useCheckUpdates = (
   options?: Partial<UseQueryOptions<GetUpdatesResponse>>

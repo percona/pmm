@@ -1,4 +1,5 @@
-import React, { FC, useState, useRef, useEffect } from 'react';
+import type { FC} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Latency,
   Sparkline,
@@ -15,7 +16,7 @@ import {
   HISTOGRAM_MARGIN,
   MetricsTabs,
 } from './Metrics.constants';
-import { MetricsProps } from './Metrics.types';
+import type { MetricsProps } from './Metrics.types';
 import { getStyles } from './Metrics.styles';
 import { useHistogram } from './hooks/useHistogram';
 import { TopQuery } from '../TopQuery/TopQuery';

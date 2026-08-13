@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { logger } from 'shared/core';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
 import { PlanService } from './Plan.service';
-import { QueryPlan } from './Plan.types';
+import type { QueryPlan } from './Plan.types';
 
 export const usePlan = (): [QueryPlan | undefined, boolean] => {
   const {

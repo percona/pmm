@@ -1,6 +1,7 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { FC, useMemo, useState } from 'react';
+import type { FC} from 'react';
+import { useMemo, useState } from 'react';
 import { Messages } from './SessionsTable.messages';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
@@ -17,7 +18,7 @@ import {
 import { StopSessionModal } from './modal-stop-session';
 import { NewSessionModal } from './modal-new-session';
 import StopMultipleSessionsModal from './modal-stop-multiple-sessions/StopMultipleSessionsModal';
-import { ModalType, SessionRow } from './SessionsTable.types';
+import type { ModalType, SessionRow } from './SessionsTable.types';
 import { enqueueSnackbar } from 'notistack';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { useUser } from 'contexts/user';
@@ -77,13 +78,13 @@ const SessionsTable: FC = () => {
   };
 
   const handleStopSession = async () => {
-    if (!sessionToBeStopped) return;
+    if (!sessionToBeStopped) {return;}
 
     await handleStop([sessionToBeStopped]);
   };
 
   const handleStopSelectedSessions = async () => {
-    if (!selectedSessions.length) return;
+    if (!selectedSessions.length) {return;}
 
     await handleStop(selectedSessions);
   };

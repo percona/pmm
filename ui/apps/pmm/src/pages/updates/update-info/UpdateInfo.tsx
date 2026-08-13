@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Messages } from './UpdateInfo.messages';
 
 export const UpdateInfo: FC = () => (

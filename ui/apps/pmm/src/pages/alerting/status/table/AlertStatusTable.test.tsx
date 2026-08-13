@@ -3,7 +3,7 @@ import { format } from 'date-fns/format';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { TestWrapper } from 'utils/testWrapper';
-import { AlertRow } from '../AlertsPage.types';
+import type { AlertRow } from '../AlertsPage.types';
 import AlertStatusTable from './AlertStatusTable';
 
 const createAlert = (overrides: Partial<AlertRow>): AlertRow => ({

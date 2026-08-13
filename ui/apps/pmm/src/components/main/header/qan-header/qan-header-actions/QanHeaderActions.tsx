@@ -1,7 +1,7 @@
 import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { useCreateShortUrl } from 'hooks/api/useShortUrls';
 import { constructUrl } from 'utils/link.utils';
 import { enqueueSnackbar } from 'notistack';

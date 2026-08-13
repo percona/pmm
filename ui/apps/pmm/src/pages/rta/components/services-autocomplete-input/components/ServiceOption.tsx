@@ -1,7 +1,7 @@
-import { FC, HTMLAttributes } from 'react';
+import type { FC, HTMLAttributes } from 'react';
 import Box from '@mui/material/Box';
 import Checkbox from '@mui/material/Checkbox';
-import {
+import type {
   ClusterSelectionState,
   ServiceOption as ServiceOptionType,
 } from '../ServicesAutocompleteInput.types';

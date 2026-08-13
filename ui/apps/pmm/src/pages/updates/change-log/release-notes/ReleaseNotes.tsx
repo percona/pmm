@@ -1,6 +1,6 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import Markdown from 'react-markdown';
-import { ReleaseNotesProps } from './ReleaseNotes.types';
+import type { ReleaseNotesProps } from './ReleaseNotes.types';
 import rehypeRaw from 'rehype-raw';
 import remarkGfm from 'remark-gfm';
 import { Link, Stack } from '@mui/material';

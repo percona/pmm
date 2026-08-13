@@ -1,4 +1,4 @@
-import { Settings } from '../types';
+import type { Settings } from '../types';
 
 export const SettingsService = {
   async getSettings(): Promise<Settings> {

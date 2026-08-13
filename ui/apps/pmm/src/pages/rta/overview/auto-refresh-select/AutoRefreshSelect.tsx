@@ -1,5 +1,5 @@
 import { ElectricBoltIcon, ElectricBoltOffIcon } from '@percona/peak-ui';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Messages } from './AutoRefreshSelect.messages';
 import { keyframes } from '@mui/material/styles';
 import { TextSelect } from 'components/text-select';

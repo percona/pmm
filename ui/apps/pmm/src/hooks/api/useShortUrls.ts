@@ -1,7 +1,8 @@
-import { useMutation, UseMutationOptions } from '@tanstack/react-query';
+import type { UseMutationOptions } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { createShortUrl } from 'api/short-urls';
-import { ApiError } from 'types/api.types';
-import { CreateShortUrlResponse } from 'types/short-urls.types';
+import type { ApiError } from 'types/api.types';
+import type { CreateShortUrlResponse } from 'types/short-urls.types';
 
 const buildHostUrl = () => {
   const iframe = document.getElementById(

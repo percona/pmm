@@ -1,4 +1,5 @@
-import { FC, PropsWithChildren, useMemo } from 'react';
+import type { FC, PropsWithChildren} from 'react';
+import { useMemo } from 'react';
 import { UserContext } from './user.context';
 import {
   useCurrentUser,
@@ -8,7 +9,7 @@ import {
 } from 'hooks/api/useUser';
 import { getPerconaUser, isAuthorized } from './user.utils';
 import { useAuth } from 'contexts/auth';
-import { GetPreferenceResponse, UserInfo } from 'types/user.types';
+import type { GetPreferenceResponse, UserInfo } from 'types/user.types';
 
 export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
   const auth = useAuth();

@@ -1,5 +1,5 @@
 import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
-import { Path } from 'react-router-dom';
+import type { Path } from 'react-router-dom';
 
 export const getLocationUrl = (location: Path) => {
   const pathname = location.pathname.startsWith('/pmm-ui')

@@ -1,4 +1,4 @@
-import {
+import type {
   AlertStatus,
   GrafanaAlertRuleDefinition,
   GrafanaRulerLabels,

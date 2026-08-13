@@ -1,6 +1,7 @@
 import Chip from '@mui/material/Chip';
-import { FC, isValidElement } from 'react';
-import { NavItem } from 'types/navigation.types';
+import type { FC} from 'react';
+import { isValidElement } from 'react';
+import type { NavItem } from 'types/navigation.types';
 
 interface Props {
   badge: NavItem['badge'];

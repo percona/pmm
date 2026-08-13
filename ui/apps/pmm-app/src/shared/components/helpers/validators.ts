@@ -1,4 +1,4 @@
-import { Validator, VResult } from './validator.types';
+import type { Validator, VResult } from './validator.types';
 
 export const validators = {
   validatePort: (value) => {

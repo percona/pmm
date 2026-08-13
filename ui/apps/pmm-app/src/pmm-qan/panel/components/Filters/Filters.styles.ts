@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 
 import { stylesFactory } from '@grafana/ui';
-import { GrafanaTheme } from '@grafana/data';
+import type { GrafanaTheme } from '@grafana/data';
 import { getPmmTheme } from 'shared/components/helpers/getPmmTheme';
 import { TABLE_HEIGHT } from './Filters.constants';
 

@@ -1,5 +1,6 @@
-import { FunctionComponent, lazy, LazyExoticComponent, SVGProps } from 'react';
-import { IconName } from './Icon.types';
+import type { FunctionComponent, LazyExoticComponent, SVGProps } from 'react';
+import { lazy } from 'react';
+import type { IconName } from './Icon.types';
 import { DYNAMIC_ICON_IMPORT_MAP } from './Icon.constants';
 
 const IconCache: Partial<

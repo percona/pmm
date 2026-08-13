@@ -9,7 +9,7 @@ import {
   Skeleton,
   Alert,
 } from '@mui/material';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { PMM_HOME_URL } from 'lib/constants';
 import { Messages } from './UpdateCard.messages';
 import { FetchingIcon } from 'components/fetching-icon';
@@ -27,7 +27,7 @@ export const UpdateCard: FC = () => {
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates();
 
   if (isLoading)
-    return (
+    {return (
       <Card variant="outlined">
         <CardContent>
           <Stack spacing={1}>
@@ -36,7 +36,7 @@ export const UpdateCard: FC = () => {
           </Stack>
         </CardContent>
       </Card>
-    );
+    );}
 
   if (!data || error) {
     return (

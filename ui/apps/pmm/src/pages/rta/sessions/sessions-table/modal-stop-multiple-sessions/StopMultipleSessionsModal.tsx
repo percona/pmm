@@ -2,7 +2,8 @@ import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { Dialog, DialogTitle } from '@percona/peak-ui';
-import { FC, useState } from 'react';
+import type { FC} from 'react';
+import { useState } from 'react';
 import { Messages } from './StopMultipleSessionsModal.messages';
 
 interface Props {

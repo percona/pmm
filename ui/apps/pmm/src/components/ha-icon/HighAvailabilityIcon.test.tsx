@@ -1,6 +1,6 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import HighAvailabilityIcon from './HighAvailabilityIcon';
-import { HAHealth } from 'types/ha.types';
+import type { HAHealth } from 'types/ha.types';
 
 describe('HighAvailabilityIcon', () => {
   it('should render the main icon', async () => {

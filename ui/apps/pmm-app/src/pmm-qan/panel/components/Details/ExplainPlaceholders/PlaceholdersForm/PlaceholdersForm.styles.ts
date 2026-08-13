@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import { GrafanaTheme } from '@grafana/data';
+import type { GrafanaTheme } from '@grafana/data';
 
 export const getStyles = ({ spacing }: GrafanaTheme) => ({
   container: css`

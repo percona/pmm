@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActionResult } from 'shared/components/Actions';
+import type { ActionResult } from 'shared/components/Actions';
 import { fetchExplains } from '../Explain/Explain.tools';
-import { ExplainPlaceholdersProps } from './ExplainPlaceholders.types';
+import type { ExplainPlaceholdersProps } from './ExplainPlaceholders.types';
 import PlaceholdersForm from './PlaceholdersForm';
-import { PlaceholdersFormValues } from './PlaceholdersForm/PlaceholdersForm.types';
+import type { PlaceholdersFormValues } from './PlaceholdersForm/PlaceholdersForm.types';
 
 const actionResult: ActionResult = {
   error: '',

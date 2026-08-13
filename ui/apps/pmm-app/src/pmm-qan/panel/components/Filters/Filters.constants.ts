@@ -1,6 +1,6 @@
 import { Databases } from 'shared/core';
 import { getServiceType } from './Filters.tools';
-import { FilterGroup } from './Filters.types';
+import type { FilterGroup } from './Filters.types';
 
 export const FILTERS_BODY_HEIGHT = 1205;
 export const FILTERS_HEADER_SIZE = 50;

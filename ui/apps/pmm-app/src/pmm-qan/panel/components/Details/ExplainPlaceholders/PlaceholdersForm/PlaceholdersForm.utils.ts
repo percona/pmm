@@ -1,5 +1,5 @@
 import { times } from 'lodash';
-import { PlaceholderInput } from './PlaceholdersForm.types';
+import type { PlaceholderInput } from './PlaceholdersForm.types';
 
 export const prepareInputs = (count: number): PlaceholderInput[] =>
   times(count, (idx) => ({

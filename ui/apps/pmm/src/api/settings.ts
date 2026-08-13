@@ -1,5 +1,5 @@
 import type { AxiosRequestConfig } from 'axios';
-import {
+import type {
   GetFrontendSettingsResponse,
   GetReadonlySettingsResponse,
   GetSettingsResponse,

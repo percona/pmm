@@ -1,7 +1,8 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { SelectableValue } from '@grafana/data';
-import { RadioButtonGroup, RadioButtonGroupProps } from './RadioButtonGroup';
+import type { SelectableValue } from '@grafana/data';
+import type { RadioButtonGroupProps } from './RadioButtonGroup';
+import { RadioButtonGroup } from './RadioButtonGroup';
 
 const options: SelectableValue[] = [
   { key: 'option1', value: 'Option 1' },

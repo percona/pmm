@@ -1,11 +1,12 @@
-import { AxiosError } from 'axios';
-import {
-  OrgRole,
+import type { AxiosError } from 'axios';
+import type {
   User,
   GetUserResponse,
   UserOrg,
   UserInfo,
-  UserPreferences,
+  UserPreferences} from 'types/user.types';
+import {
+  OrgRole
 } from 'types/user.types';
 
 export const getPerconaUser = (

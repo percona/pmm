@@ -1,5 +1,5 @@
 import { apiRequestQAN } from 'shared/components/helpers/api';
-import { QueryPlan, QueryPlanRequest, QueryPlanResponse } from './Plan.types';
+import type { QueryPlan, QueryPlanRequest, QueryPlanResponse } from './Plan.types';
 
 export const PlanService = {
   async getPlan(queryId?: string): Promise<QueryPlan | undefined> {

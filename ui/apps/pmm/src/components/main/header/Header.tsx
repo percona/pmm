@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { useHeader } from 'hooks/useHeader';
 import Stack from '@mui/material/Stack';
 

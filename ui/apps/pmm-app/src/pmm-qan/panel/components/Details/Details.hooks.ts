@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
 import DetailsService from './Details.service';
-import { DatabasesType, QueryExampleResponseItem } from './Details.types';
+import type { DatabasesType, QueryExampleResponseItem } from './Details.types';
 
 export const useDetails = (): [
   boolean,

@@ -1,6 +1,7 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getRulerRule } from 'api/alerting';
-import { GrafanaRulerRuleDTO } from 'types/alerting.types';
+import type { GrafanaRulerRuleDTO } from 'types/alerting.types';
 
 export const useGrafanaRulerRule = (
   uid: string,

@@ -1,6 +1,7 @@
-import React, {
+import type {
   MutableRefObject,
-  RefObject,
+  RefObject} from 'react';
+import React, {
   useContext,
   useEffect,
   useRef,
@@ -12,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { scaleLinear } from 'd3';
 import moment from 'moment';
 import { humanize } from '../../../helpers/Humanization';
-import { PolygonChartInterface } from './Sparkline.types';
+import type { PolygonChartInterface } from './Sparkline.types';
 import {
   findXRange,
   findYRange,

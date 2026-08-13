@@ -3,10 +3,11 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Tooltip } from '@percona/peak-ui';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import Grid, { GridProps } from '@mui/material/Grid';
+import type { GridProps } from '@mui/material/Grid';
+import Grid from '@mui/material/Grid';
 import UnavailableText from 'components/unavailable-text';
 
 interface Props extends PropsWithChildren {

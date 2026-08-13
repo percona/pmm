@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import { GrafanaTheme2 } from '@grafana/data';
+import type { GrafanaTheme2 } from '@grafana/data';
 import { getPmmTheme } from 'shared/components/helpers/getPmmTheme';
 
 export const getStyles = (theme: GrafanaTheme2) => {

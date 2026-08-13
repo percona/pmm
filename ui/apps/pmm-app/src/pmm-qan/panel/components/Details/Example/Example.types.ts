@@ -1,4 +1,4 @@
-import { DatabasesType, QueryExampleResponseItem } from '../Details.types';
+import type { DatabasesType, QueryExampleResponseItem } from '../Details.types';
 
 export interface ExampleInterface {
   databaseType: DatabasesType;

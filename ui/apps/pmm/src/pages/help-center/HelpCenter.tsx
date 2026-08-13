@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
 import { Page } from 'components/page';
-import { FC, useMemo } from 'react';
+import type { FC} from 'react';
+import { useMemo } from 'react';
 import { Messages } from './HelpCenter.messages';
 import { getCardData } from './HelpCenter.constants';
 import { useUser } from 'contexts/user';

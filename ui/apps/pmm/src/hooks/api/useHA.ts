@@ -1,8 +1,10 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getHANodes, getHAStatus } from 'api/ha';
-import {
+import type {
   GetHANodesResponse,
-  GetHAStatusResponse,
+  GetHAStatusResponse} from 'types/ha.types';
+import {
   NodeRole,
 } from 'types/ha.types';
 import { getHAHealth } from 'utils/ha.utils';

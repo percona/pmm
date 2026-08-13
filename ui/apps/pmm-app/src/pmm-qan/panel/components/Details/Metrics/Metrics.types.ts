@@ -1,5 +1,5 @@
-import { DatabasesType } from '../Details.types';
-import { QueryDimension } from '../../../provider/provider.types';
+import type { DatabasesType } from '../Details.types';
+import type { QueryDimension } from '../../../provider/provider.types';
 
 export interface MetricsProps {
   databaseType: DatabasesType;

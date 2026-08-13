@@ -6,7 +6,7 @@ import {
   COMMENT_NAME_LENGTH,
   HIDDEN_FILTER_LABELS,
 } from '../Filters.constants';
-import { Filters, FilterGroup } from '../Filters.types';
+import type { Filters, FilterGroup } from '../Filters.types';
 
 export const useFilters = (): [Filters, boolean, FilterGroup[], boolean] => {
   const [filters, setFilters] = useState<Filters>({});

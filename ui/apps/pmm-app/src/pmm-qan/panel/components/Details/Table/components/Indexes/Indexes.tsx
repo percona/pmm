@@ -1,8 +1,9 @@
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import { Table } from 'shared/components/Elements/Table';
 import { Overlay } from 'shared/components/Elements/Overlay/Overlay';
 import { Messages } from '../../../Details.messages';
-import { TableProps } from '../Table.types';
+import type { TableProps } from '../Table.types';
 import { useIndexes } from './Indexes.hooks';
 
 export const Indexes: FC<TableProps> = ({

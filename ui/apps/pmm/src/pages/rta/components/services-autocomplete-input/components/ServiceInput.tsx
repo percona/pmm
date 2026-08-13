@@ -1,6 +1,6 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import TextField from '@mui/material/TextField';
-import { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
+import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
 import { Messages } from '../ServicesAutocompleteInput.messages';
 
 interface Props extends AutocompleteRenderInputParams {

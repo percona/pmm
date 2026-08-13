@@ -1,5 +1,5 @@
-import { ActionResult } from 'shared/components/Actions';
-import { DatabasesType, QueryExampleResponseItem } from '../Details.types';
+import type { ActionResult } from 'shared/components/Actions';
+import type { DatabasesType, QueryExampleResponseItem } from '../Details.types';
 
 export interface ExplainProps {
   databaseType: DatabasesType;

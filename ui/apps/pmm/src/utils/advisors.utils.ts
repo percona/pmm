@@ -1,5 +1,5 @@
 import { ADVISOR_FAMILY, ADVISOR_INTERVAL } from 'lib/constants';
-import { Advisor, CategorizedAdvisor } from 'types/advisors.types';
+import type { Advisor, CategorizedAdvisor } from 'types/advisors.types';
 
 export const groupAdvisorsIntoCategories = (
   advisors: Advisor[]

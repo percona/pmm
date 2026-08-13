@@ -1,7 +1,7 @@
 import { backOff } from 'exponential-backoff';
 import { AxiosError } from 'axios';
 import { capitalize } from 'shared/core/utils';
-import { ActionResult } from './Actions.types';
+import type { ActionResult } from './Actions.types';
 import { ActionsService } from './Actions.service';
 
 const INTERVAL = 500;

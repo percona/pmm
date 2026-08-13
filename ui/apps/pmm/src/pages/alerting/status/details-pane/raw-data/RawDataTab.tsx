@@ -1,5 +1,5 @@
 import Stack from '@mui/material/Stack';
-import { FC } from 'react';
+import type { FC } from 'react';
 import Table from '@mui/material/Table';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
@@ -8,7 +8,7 @@ import TableCell from '@mui/material/TableCell';
 import Typography from '@mui/material/Typography';
 import { Messages } from './RawDataTab.messages';
 import TableBody from '@mui/material/TableBody';
-import { AlertDetailsPane } from '../AlertDetailsPane.types';
+import type { AlertDetailsPane } from '../AlertDetailsPane.types';
 import { CodeBlock } from '@percona/peak-ui';
 
 interface Props {

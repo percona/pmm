@@ -1,4 +1,5 @@
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   BarElement,
@@ -9,7 +10,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { useTheme2 } from '@grafana/ui';
-import { BarChartProps } from './BarChart.types';
+import type { BarChartProps } from './BarChart.types';
 import { getStyles } from './BarChart.styles';
 import { getDefaultOptions } from './BarChart.utils';
 

@@ -1,4 +1,5 @@
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import { Icon, useStyles, Tooltip } from '@grafana/ui';
 import { Overlay } from 'shared/components/Elements/Overlay/Overlay';
 import { Highlight } from 'shared/components/Hightlight/Highlight';

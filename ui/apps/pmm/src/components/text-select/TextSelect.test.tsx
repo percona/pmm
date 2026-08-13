@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { TextSelect } from './TextSelect';
-import { TextSelectOption } from './TextSelect.types';
+import type { TextSelectOption } from './TextSelect.types';
 
 const OPTIONS: TextSelectOption<string>[] = [
   {

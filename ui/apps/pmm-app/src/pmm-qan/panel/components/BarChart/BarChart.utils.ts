@@ -1,5 +1,5 @@
-import { ChartOptions } from 'chart.js';
-import { GetDefaultOptionsProps } from './BarChart.types';
+import type { ChartOptions } from 'chart.js';
+import type { GetDefaultOptionsProps } from './BarChart.types';
 
 export const getDefaultOptions = ({
   options,

@@ -1,4 +1,4 @@
-import { StepType } from '@reactour/tour';
+import type { StepType } from '@reactour/tour';
 
 export type TourName = 'product' | 'alerting';
 

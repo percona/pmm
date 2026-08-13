@@ -1,4 +1,4 @@
-import { RawTimeRange } from '@grafana/data';
+import type { RawTimeRange } from '@grafana/data';
 
 export interface CheckboxGroupProps {
   filter: string;

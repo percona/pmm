@@ -1,4 +1,4 @@
-import { GetFoldersResponse } from 'types/folders.types';
+import type { GetFoldersResponse } from 'types/folders.types';
 import { grafanaApi } from './api';
 
 export const getDashboardFolders = async () => {

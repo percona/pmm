@@ -1,9 +1,10 @@
 /* eslint max-len: 0 */
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import { useTheme } from '@grafana/ui';
 import { cx } from '@emotion/css';
 import { getStyles } from './Icons.styles';
-import { SvgProps } from './Icons.types';
+import type { SvgProps } from './Icons.types';
 
 export const Info: FC<SvgProps> = ({ className, ...rest }) => {
   const theme = useTheme();

@@ -1,4 +1,5 @@
-import { FC, useCallback, useEffect, useState } from 'react';
+import type { FC} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigation } from 'contexts/navigation';
 import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
@@ -8,7 +9,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import { useLocation } from 'react-router-dom';
-import { NavItem as NavItemType } from 'types/navigation.types';
+import type { NavItem as NavItemType } from 'types/navigation.types';
 
 export const Sidebar: FC = () => {
   const { navTree, navOpen, setNavOpen } = useNavigation();

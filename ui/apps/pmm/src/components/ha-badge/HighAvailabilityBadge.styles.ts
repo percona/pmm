@@ -1,4 +1,4 @@
-import { Theme } from '@mui/material';
+import type { Theme } from '@mui/material';
 
 export const getStyles = (theme: Theme) => ({
   healthy: {

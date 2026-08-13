@@ -1,9 +1,10 @@
-import {
+import type {
   QueryData,
-  RealtimeSession,
+  RealtimeSession} from 'types/rta.types';
+import {
   RealtimeSessionStatus,
 } from 'types/rta.types';
-import {
+import type {
   BaseService,
   ListServicesResponse,
   ManagedService,
@@ -11,7 +12,8 @@ import {
   MySqlService,
   VersionedService,
 } from 'types/services.types';
-import { OrgRole, User } from 'types/user.types';
+import type { User } from 'types/user.types';
+import { OrgRole } from 'types/user.types';
 
 export const TEST_USER_ADMIN: User = {
   id: 1,

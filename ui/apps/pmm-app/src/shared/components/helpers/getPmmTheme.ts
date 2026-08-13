@@ -1,4 +1,4 @@
-import { GrafanaTheme } from '@grafana/data';
+import type { GrafanaTheme } from '@grafana/data';
 
 interface TableTheme {
   backgroundColor: string;

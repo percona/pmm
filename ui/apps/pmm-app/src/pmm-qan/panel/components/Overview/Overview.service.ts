@@ -1,6 +1,6 @@
 import { apiRequestQAN } from 'shared/components/helpers/api';
 import { getLabelQueryParams } from 'pmm-qan/panel/QueryAnalytics.tools';
-import { OverviewServiceInterface } from './Overview.types';
+import type { OverviewServiceInterface } from './Overview.types';
 
 export default {
   getReport: async (body: OverviewServiceInterface) => {

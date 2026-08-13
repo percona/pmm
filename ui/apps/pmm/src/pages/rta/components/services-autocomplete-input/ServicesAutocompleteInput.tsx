@@ -1,5 +1,6 @@
 import Autocomplete from '@mui/material/Autocomplete';
-import { FC, useMemo, useState } from 'react';
+import type { FC} from 'react';
+import { useMemo, useState } from 'react';
 import {
   ServiceInput,
   ServiceOption as ServiceOptionComponent,
@@ -10,7 +11,7 @@ import {
   getServiceOptions,
   toggleClusterServices,
 } from './ServicesAutocompleteInput.utils';
-import {
+import type {
   ServiceOption,
   ServicesAutocompleteInputProps,
 } from './ServicesAutocompleteInput.types';

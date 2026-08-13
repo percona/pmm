@@ -3,7 +3,7 @@ import React from 'react';
 import sqlFormatter from 'sql-formatter';
 import { render, screen } from '@testing-library/react';
 import Example from './Example';
-import { ExampleInterface } from './Example.types';
+import type { ExampleInterface } from './Example.types';
 
 jest.mock('shared/components/helpers/notification-manager');
 jest.mock('@microlink/react-json-view', () => ({ src = {} }) => (

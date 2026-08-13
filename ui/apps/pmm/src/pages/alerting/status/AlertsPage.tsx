@@ -12,7 +12,7 @@ import { useAlertmanagerSilences } from 'hooks/api/useAlertmanagerSilences';
 import { buildSilenceMap, flattenAlertRules } from './AlertsPage.utils';
 import { AlertStatusTable } from './table';
 import { useDetailsPaneNavigation } from '@percona/peak-ui';
-import { AlertRow, AlertsTableRow } from './AlertsPage.types';
+import type { AlertRow, AlertsTableRow } from './AlertsPage.types';
 import { AlertDetailsPane } from './details-pane';
 import { Messages } from './AlertsPage.messages';
 import { updateDocumentTitle } from 'utils/document.utils';

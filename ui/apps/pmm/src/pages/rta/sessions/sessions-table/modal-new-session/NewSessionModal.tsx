@@ -1,7 +1,7 @@
 import DialogContent from '@mui/material/DialogContent';
 import Typography from '@mui/material/Typography';
 import { Dialog, DialogTitle } from '@percona/peak-ui';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Messages } from './NewSessionModal.messages';
 import { Messages as RtaMessages } from '../../../messages';
 import Stack from '@mui/material/Stack';

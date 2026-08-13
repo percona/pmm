@@ -1,7 +1,8 @@
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import { Spinner } from '@grafana/ui';
 import { cx } from '@emotion/css';
-import { OverlayProps } from './Overlay.types';
+import type { OverlayProps } from './Overlay.types';
 import { styles } from './Overlay.styles';
 
 export const Overlay: FC<OverlayProps> = ({

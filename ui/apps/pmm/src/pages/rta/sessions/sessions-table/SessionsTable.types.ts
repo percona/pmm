@@ -1,4 +1,4 @@
-import { RealtimeSessionStatus } from 'types/rta.types';
+import type { RealtimeSessionStatus } from 'types/rta.types';
 
 export interface SessionRow {
   // serviceId or clusterName

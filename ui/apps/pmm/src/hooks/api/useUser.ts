@@ -1,9 +1,10 @@
+import type {
+  UseMutationOptions,
+  UseQueryOptions} from '@tanstack/react-query';
 import {
   useMutation,
-  UseMutationOptions,
   useQuery,
-  useQueryClient,
-  UseQueryOptions,
+  useQueryClient
 } from '@tanstack/react-query';
 import {
   getCurrentUser,
@@ -13,8 +14,8 @@ import {
   updatePreferences,
   updateUserInfo,
 } from 'api/user';
-import { ApiError } from 'types/api.types';
-import {
+import type { ApiError } from 'types/api.types';
+import type {
   GetPreferenceResponse,
   GetUserResponse,
   UpdatePreferencesBody,

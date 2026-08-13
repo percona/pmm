@@ -1,6 +1,6 @@
 import { apiRequestQAN } from 'shared/components/helpers/api';
 import { getLabelQueryParams } from 'pmm-qan/panel/QueryAnalytics.tools';
-import { QueryExampleResponse } from './Details.types';
+import type { QueryExampleResponse } from './Details.types';
 
 const getExample = async ({
   filterBy,

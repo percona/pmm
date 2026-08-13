@@ -1,8 +1,10 @@
-import React, { FC, useContext, useState } from 'react';
+import type { FC} from 'react';
+import React, { useContext, useState } from 'react';
 import { Collapse } from '@grafana/ui';
 import { Databases } from 'shared/core';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
-import { ExplainProps, ExplainTabs } from './Explain.types';
+import type { ExplainProps} from './Explain.types';
+import { ExplainTabs } from './Explain.types';
 // import { VisualExplain } from './components/VisualExplain/VisualExplain';
 import { ClassicExplain } from './components/ClassicExplain/ClassicExplain';
 import { JsonExplain } from './components/JsonExplain/JsonExplain';

@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
@@ -14,7 +14,7 @@ import {
   useRealtimeSessions,
 } from 'hooks/api/useRealtime';
 import { DOCS_URLS } from 'lib/constants';
-import { RealtimeSession } from 'types/rta.types';
+import type { RealtimeSession } from 'types/rta.types';
 import { createRealtimeOverviewUrl } from 'utils/link.utils';
 import { RealtimeSelectionForm } from '../components/selection-form';
 import { ServiceType } from 'types/services.types';

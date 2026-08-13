@@ -1,5 +1,5 @@
 import { metadataNames } from './Metadata.constants';
-import { LineMetadata } from './Metadata.types';
+import type { LineMetadata } from './Metadata.types';
 
 export const showMetadata = (metadata: string[]): LineMetadata[] => {
   const metadataToShow: LineMetadata[] = [];

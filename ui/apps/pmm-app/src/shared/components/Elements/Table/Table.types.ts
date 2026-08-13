@@ -1,5 +1,5 @@
-import { ChangeEvent, ReactNode } from 'react';
-import { Column } from 'react-table';
+import type { ChangeEvent, ReactNode } from 'react';
+import type { Column } from 'react-table';
 
 export interface SelectedTableRows<T> {
   id: string;

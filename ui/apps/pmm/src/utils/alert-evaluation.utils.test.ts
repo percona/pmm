@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
+import type {
   AlertEvalFrame,
   GrafanaAlertRuleDefinition,
 } from 'types/alerting.types';

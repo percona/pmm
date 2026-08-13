@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import { GrafanaTheme } from '@grafana/data';
+import type { GrafanaTheme } from '@grafana/data';
 
 export const getStyles = (theme: GrafanaTheme) => {
   const mainHighlightColor = theme.isLight ? theme.colors.text : '#e6e1dc';

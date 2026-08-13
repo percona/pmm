@@ -1,4 +1,4 @@
-import { TextSelectOption } from 'components/text-select/TextSelect.types';
+import type { TextSelectOption } from 'components/text-select/TextSelect.types';
 import { Messages } from './UpdateClients.messages';
 import { VersionsFilter } from './UpdateClients.types';
 

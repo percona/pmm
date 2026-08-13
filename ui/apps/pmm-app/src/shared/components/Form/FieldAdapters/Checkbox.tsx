@@ -1,5 +1,6 @@
-import React, { HTMLProps, useCallback } from 'react';
-import { GrafanaTheme2 } from '@grafana/data';
+import type { HTMLProps} from 'react';
+import React, { useCallback } from 'react';
+import type { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 import { css, cx } from '@emotion/css';
 

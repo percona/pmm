@@ -1,6 +1,7 @@
 import { Pagination } from 'antd';
+import type {
+  FC} from 'react';
 import React, {
-  FC,
   useCallback,
   useContext,
   useEffect,

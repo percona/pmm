@@ -4,13 +4,14 @@ import {
   ThemeChangedEvent,
   config,
 } from '@grafana/runtime';
-import {
+import type {
   ChangeThemeMessage,
-  CrossFrameMessenger,
   DashboardVariablesMessage,
   HistoryAction,
   LocationChangeMessage,
-  ColorMode,
+  ColorMode} from '@pmm/shared';
+import {
+  CrossFrameMessenger,
   isRenderingServer,
 } from '@pmm/shared';
 import {

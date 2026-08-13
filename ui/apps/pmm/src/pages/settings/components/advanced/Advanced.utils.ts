@@ -1,8 +1,8 @@
-import { AdvisorRunIntervals } from 'types/settings.types';
+import type { AdvisorRunIntervals } from 'types/settings.types';
 import { HOURS, MINUTES_IN_DAY, SECONDS_IN_DAY } from './Advanced.constants';
 
 export const convertSecondsToDays = (dataRetention: string): number | '' => {
-  if (!dataRetention) return '';
+  if (!dataRetention) {return '';}
   const value = parseFloat(dataRetention.replace(/[^\d.-]/g, ''));
   const units = dataRetention.slice(-1).toLowerCase();
 
@@ -35,11 +35,11 @@ export const convertCheckIntervalsToHours = (
   sttCheckIntervals: AdvisorRunIntervals | undefined
 ) => {
   if (!sttCheckIntervals)
-    return {
+    {return {
       rareInterval: '24',
       standardInterval: '24',
       frequentInterval: '24',
-    };
+    };}
   return {
     rareInterval: `${convertSecondsStringToHour(sttCheckIntervals.rareInterval)}`,
     standardInterval: `${convertSecondsStringToHour(sttCheckIntervals.standardInterval)}`,

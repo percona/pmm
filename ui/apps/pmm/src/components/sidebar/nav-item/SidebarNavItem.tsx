@@ -1,6 +1,7 @@
 import { useLinkWithVariables } from 'hooks/utils/useLinkWithVariables';
-import { FC, useCallback, useEffect, useMemo, useState } from 'react';
-import { NavItemProps } from './SidebarNavItem.types';
+import type { FC} from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { NavItemProps } from './SidebarNavItem.types';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import {
   getLinkProps,

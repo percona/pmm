@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { AlertRow } from '../AlertsPage.types';
+import type { AlertRow } from '../AlertsPage.types';
 import { useAlertDetailsPane } from './AlertDetailsPane.utils';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 

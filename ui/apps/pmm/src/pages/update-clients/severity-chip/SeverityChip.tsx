@@ -1,6 +1,8 @@
-import { FC, useMemo } from 'react';
-import { SeverityChipProps } from './SeverityChip.types';
-import { Chip, ChipOwnProps } from '@mui/material';
+import type { FC} from 'react';
+import { useMemo } from 'react';
+import type { SeverityChipProps } from './SeverityChip.types';
+import type { ChipOwnProps } from '@mui/material';
+import { Chip } from '@mui/material';
 import { AgentUpdateSeverity } from 'types/agent.types';
 
 import WarningIcon from '@mui/icons-material/Warning';

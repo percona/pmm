@@ -3,8 +3,8 @@ import {
   SHOW_UPDATE_MODAL_AFTER_MS,
   UPDATE_SNOOZE_DURATION_OVERRIDE_KEY,
 } from 'lib/constants';
-import { LatestInfo } from 'types/updates.types';
-import { UserInfo } from 'types/user.types';
+import type { LatestInfo } from 'types/updates.types';
+import type { UserInfo } from 'types/user.types';
 
 type SnoozeUserInfo = Pick<UserInfo, 'snoozedAt' | 'snoozedPmmVersion'>;
 

@@ -1,9 +1,10 @@
+import type {
+  UseMutationOptions,
+  UseQueryOptions} from '@tanstack/react-query';
 import {
   useMutation,
-  UseMutationOptions,
   useQuery,
-  useQueryClient,
-  UseQueryOptions,
+  useQueryClient
 } from '@tanstack/react-query';
 import {
   getFrontendSettings,
@@ -12,7 +13,7 @@ import {
   updateSettings,
 } from 'api/settings';
 import messenger from 'lib/messenger';
-import {
+import type {
   FrontendSettings,
   ReadonlySettings,
   Settings,

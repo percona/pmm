@@ -42,7 +42,7 @@ export const advancedSettingsSchema = z
     accessControl: z.boolean(),
   })
   .superRefine((data, ctx) => {
-    if (!data.stt) return;
+    if (!data.stt) {return;}
     for (const field of intervalFields) {
       const v = data[field];
       const n = parseFloat(v);

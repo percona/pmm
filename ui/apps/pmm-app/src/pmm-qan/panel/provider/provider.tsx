@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { isEqual, omit } from 'lodash';
 import moment from 'moment';
 import { parseURL, refreshGrafanaVariables, setLabels } from './provider.tools';
-import { QueryAnalyticsContext } from './provider.types';
+import type { QueryAnalyticsContext } from './provider.types';
 
 const initialState = {} as QueryAnalyticsContext;
 

@@ -1,6 +1,6 @@
 import { SERVICE_ID_PREFIX } from 'shared/core';
-import { QueryExampleResponseItem } from '../../Details.types';
-import { MySQLExplainPayload } from './mysql.types';
+import type { QueryExampleResponseItem } from '../../Details.types';
+import type { MySQLExplainPayload } from './mysql.types';
 import { stripPrefix } from '../utils';
 
 export const getExplainPayload = (

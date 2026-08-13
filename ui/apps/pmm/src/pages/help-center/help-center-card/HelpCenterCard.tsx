@@ -6,14 +6,15 @@ import DatasetOutlined from '@mui/icons-material/DatasetOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import SaveAlt from '@mui/icons-material/SaveAlt';
 import MapOutlined from '@mui/icons-material/MapOutlined';
-import { FC, ReactNode, useCallback } from 'react';
+import type { FC, ReactNode} from 'react';
+import { useCallback } from 'react';
 import {
   semanticTokensLight,
   semanticTokensDark,
   KnowledgeBaseIcon,
 } from '@percona/peak-ui';
 import { CARD_IDS, START_ICON } from '../HelpCenter.constants';
-import { HelpCenterCardProps } from './HelpCenterCard.types';
+import type { HelpCenterCardProps } from './HelpCenterCard.types';
 import { Link } from 'react-router-dom';
 
 export const HelpCenterCard: FC<HelpCenterCardProps> = ({ card }) => {

@@ -1,5 +1,6 @@
-import { Chip, MRT_ColumnDef } from '@percona/peak-ui';
-import { AlertsTableRow } from '../AlertsPage.types';
+import type { MRT_ColumnDef } from '@percona/peak-ui';
+import { Chip } from '@percona/peak-ui';
+import type { AlertsTableRow } from '../AlertsPage.types';
 import type { AlertSeverity as Severity } from 'types/alerting.types';
 import { Stack, Typography } from '@mui/material';
 import NotificationsOffOutlinedIcon from '@mui/icons-material/NotificationsOffOutlined';

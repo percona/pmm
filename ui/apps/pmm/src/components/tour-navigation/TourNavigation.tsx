@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Messages } from './TourNavigation.messages';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';

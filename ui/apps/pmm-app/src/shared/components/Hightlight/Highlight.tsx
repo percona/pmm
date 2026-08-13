@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import highlight from 'highlight.js';
 import { useStyles } from '@grafana/ui';
 import { cx } from '@emotion/css';
-import { HighlightProps } from './Highlight.types';
+import type { HighlightProps } from './Highlight.types';
 import { getStyles } from './Highlight.styles';
 
 export const Highlight = ({

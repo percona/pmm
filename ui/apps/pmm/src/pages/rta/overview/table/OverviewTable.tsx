@@ -1,7 +1,8 @@
-import { FC } from 'react';
-import { type MRT_Row, MaterialReactTableProps } from 'material-react-table';
+import type { FC } from 'react';
+import type { MaterialReactTableProps } from 'material-react-table';
+import { type MRT_Row } from 'material-react-table';
 import { Table, useNavigableRows } from '@percona/peak-ui';
-import { QueryData } from 'types/rta.types';
+import type { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';

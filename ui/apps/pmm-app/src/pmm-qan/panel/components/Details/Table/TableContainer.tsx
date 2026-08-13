@@ -1,4 +1,5 @@
-import React, { FC, useEffect, useState } from 'react';
+import type { FC} from 'react';
+import React, { useEffect, useState } from 'react';
 import { Collapse, Tab, TabContent, TabsBar } from '@grafana/ui';
 import { Databases } from 'shared/core';
 import { Messages } from 'pmm-qan/panel/components/Details/Details.messages';
@@ -6,7 +7,7 @@ import { TableCreate } from './components/TableCreate/TableCreate';
 import { Indexes } from './components/Indexes/Indexes';
 import { Status } from './components/Status/Status';
 import { TableTabs } from './TableContainer.constants';
-import { TableContainerProps } from './TableContainer.types';
+import type { TableContainerProps } from './TableContainer.types';
 import { useTables } from './TableContainer.hooks';
 
 const TableCreateContainer: FC<TableContainerProps> = ({

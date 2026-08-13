@@ -1,16 +1,18 @@
-import React, {
+import type {
   FC,
   ReactElement,
-  ReactNode,
+  ReactNode} from 'react';
+import React, {
   useCallback,
   useEffect,
   useState,
 } from 'react';
-import {
+import type {
   Column,
   HeaderGroup,
   TableOptions,
-  TableState,
+  TableState} from 'react-table';
+import {
   useBlockLayout,
   useRowSelect,
   useSortBy,

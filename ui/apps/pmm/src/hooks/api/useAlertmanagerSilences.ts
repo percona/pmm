@@ -1,6 +1,7 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import type { UseQueryOptions } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getAlertmanagerSilences } from 'api/alerting';
-import { AlertmanagerSilence } from 'types/alerting.types';
+import type { AlertmanagerSilence } from 'types/alerting.types';
 
 export const ALERTMANAGER_SILENCES_QUERY_KEY = [
   'alerting:alertmanagerSilences',

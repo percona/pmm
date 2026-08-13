@@ -1,6 +1,6 @@
-import { ReactNode } from 'react';
-import { DatabasesType, QueryExampleResponseItem } from '../Details.types';
-import { FetchExplainsResult } from '../Explain/Explain.types';
+import type { ReactNode } from 'react';
+import type { DatabasesType, QueryExampleResponseItem } from '../Details.types';
+import type { FetchExplainsResult } from '../Explain/Explain.types';
 
 export interface ExplainPlaceholdersChildProps extends FetchExplainsResult {
   databaseType: DatabasesType;

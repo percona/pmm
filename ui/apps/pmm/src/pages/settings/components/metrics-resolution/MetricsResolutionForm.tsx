@@ -1,12 +1,13 @@
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { TextInput, RadioGroup } from '@percona/peak-ui';
-import { FC, useEffect, useMemo } from 'react';
+import type { FC} from 'react';
+import { useEffect, useMemo } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
-import { MetricsResolutions } from 'types/settings.types';
+import type { MetricsResolutions } from 'types/settings.types';
 import { Messages } from '../../Settings.messages';
 import {
   defaultResolutions,
@@ -20,10 +21,11 @@ import {
   getResolutionPreset,
   removeUnits,
 } from './MetricsResolution.utils';
-import { MetricsResolutionFormProps } from './MetricsResolutionForm.types';
+import type { MetricsResolutionFormProps } from './MetricsResolutionForm.types';
+import type {
+  MetricsResolutionFormValues} from './MetricsResolutionForm.schema';
 import {
-  metricsResolutionSchema,
-  MetricsResolutionFormValues,
+  metricsResolutionSchema
 } from './MetricsResolutionForm.schema';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';

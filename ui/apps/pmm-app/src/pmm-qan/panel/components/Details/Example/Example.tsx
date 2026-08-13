@@ -1,7 +1,8 @@
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import { Overlay } from 'shared/components/Elements/Overlay/Overlay';
 import { getExample } from './Example.tools';
-import { ExampleInterface } from './Example.types';
+import type { ExampleInterface } from './Example.types';
 import { Messages } from '../Details.messages';
 import { OVERLAY_LOADER_SIZE } from '../Details.constants';
 

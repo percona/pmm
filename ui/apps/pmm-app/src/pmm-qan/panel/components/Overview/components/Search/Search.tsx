@@ -1,10 +1,11 @@
-import React, { FC, useEffect, useMemo, useRef } from 'react';
+import type { FC} from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Field, Form } from 'react-final-form';
 import { Button, Icon, Input, useTheme } from '@grafana/ui';
 import { debounce } from 'lodash';
 import { Messages } from 'pmm-qan/panel/QueryAnalytics.messages';
 import { getStyles } from './Search.styles';
-import { SearchProps, SearchValues } from './Search.types';
+import type { SearchProps, SearchValues } from './Search.types';
 
 const SEARCH_DEBOUNCE_MS = 300;
 

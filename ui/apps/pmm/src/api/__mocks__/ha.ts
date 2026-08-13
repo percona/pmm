@@ -1,6 +1,7 @@
-import {
+import type {
   GetHANodesResponse,
-  GetHAStatusResponse,
+  GetHAStatusResponse} from 'types/ha.types';
+import {
   NodeRole,
 } from 'types/ha.types';
 

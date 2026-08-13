@@ -1,5 +1,5 @@
 import { apiRequest } from '../helpers/api';
-import { ActionRequest, ActionResponse } from './Actions.types';
+import type { ActionRequest, ActionResponse } from './Actions.types';
 
 export const ActionsService = {
   getActionResult(body: ActionRequest): Promise<ActionResponse> {

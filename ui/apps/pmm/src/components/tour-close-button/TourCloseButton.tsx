@@ -1,7 +1,7 @@
 import Close from '@mui/icons-material/Close';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-import { FC } from 'react';
+import type { FC } from 'react';
 
 interface Props {
   endTour: () => void;

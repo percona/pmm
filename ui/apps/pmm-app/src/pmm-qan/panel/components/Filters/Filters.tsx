@@ -1,4 +1,5 @@
-import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
+import type { FC} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Form } from 'react-final-form';
 import { cx } from '@emotion/css';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
