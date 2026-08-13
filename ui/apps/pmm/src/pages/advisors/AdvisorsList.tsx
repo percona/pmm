@@ -449,7 +449,9 @@ const AdvisorsList: FC = () => {
           <Tooltip title={Messages.runAll} arrow>
             <Box component="span">
               <IconButton
-                disabled={isStarting}
+                // a narrowed list makes "all" misleading, so the two run
+                // actions are mutually exclusive
+                disabled={isStarting || hasActiveFilters}
                 onClick={() => runChecks([], Messages.success.checksStarted)}
                 aria-label={Messages.runAll}
                 data-testid="run-all-checks"

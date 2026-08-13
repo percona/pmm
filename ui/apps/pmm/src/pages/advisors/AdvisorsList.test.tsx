@@ -223,6 +223,48 @@ describe('AdvisorsList', () => {
     await waitForRows();
 
     expect(screen.getByTestId('run-selected-checks')).toBeDisabled();
+    expect(screen.getByTestId('run-all-checks')).not.toBeDisabled();
+  });
+
+  it('disables run all while a filter narrows the list', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    await selectFilterOption('technology-filter', 'PostgreSQL');
+
+    await waitFor(() =>
+      expect(screen.getByTestId('run-all-checks')).toBeDisabled()
+    );
+    expect(screen.getByTestId('run-selected-checks')).not.toBeDisabled();
+
+    fireEvent.click(screen.getByTestId('clear-filters'));
+
+    await waitFor(() =>
+      expect(screen.getByTestId('run-all-checks')).not.toBeDisabled()
+    );
+  });
+
+  it('disables run all while the search box narrows the list', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    fireEvent.change(screen.getByPlaceholderText(/search/i), {
+      target: { value: 'super role' },
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('run-all-checks')).toBeDisabled()
+    );
+
+    fireEvent.change(screen.getByPlaceholderText(/search/i), {
+      target: { value: '' },
+    });
+
+    await waitFor(() =>
+      expect(screen.getByTestId('run-all-checks')).not.toBeDisabled()
+    );
   });
 
   it('filters checks with global search', async () => {
