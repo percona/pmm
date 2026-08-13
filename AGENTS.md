@@ -140,7 +140,7 @@ CI runs separate linters per area. `make prepare-pr` covers **Go only** — it d
 | `.proto` only | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
 | UI (anything under `ui/`) | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
 | Grafana dashboard JSON (`dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate JS linter) |
-| Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
+| Grafana plugin / QAN app (`ui/apps/pmm-app`) | `cd ui/apps/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
 | Before any PR | Run the row(s) that match **every** area you touched; fix errors, not just warnings, unless CI allows them |
 
 ---
