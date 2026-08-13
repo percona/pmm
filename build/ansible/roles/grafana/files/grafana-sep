@@ -22,7 +22,7 @@ declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:-/usr/pgsql-14/bin}"
 declare SA_NAME="pmm-sep"
 declare TOKEN_NAME="pmm-sep"
 # Generous because a failed run is not retried: the one-shot cannot bound its own
-# restarts under supervisord.
+# restarts under supervisord. The image's HEALTHCHECK start-period is sized on this.
 declare READY_TIMEOUT=600
 declare READY_INTERVAL=5
 declare -a TOKEN_FILES=(AUTH__PROVIDER__GRAFANA__SERVICE_ACCOUNT_TOKEN PMM__API_KEY)
