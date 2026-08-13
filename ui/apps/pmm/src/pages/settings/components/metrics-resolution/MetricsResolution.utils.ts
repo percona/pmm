@@ -2,7 +2,7 @@ import type { MetricsResolutions } from 'types/settings.types';
 import {
   type ResolutionPreset,
   defaultResolutions,
-  resolutionOptions
+  resolutionOptions,
 } from './MetricsResolution.constants';
 
 const replaceS = (r: string) => r.replace(/s$/, '');
@@ -31,7 +31,9 @@ const resolutionsEqual = (a: MetricsResolutions, b: MetricsResolutions) =>
 export const getResolutionPreset = (
   metricsResolutions: MetricsResolutions | undefined
 ): ResolutionPreset => {
-  if (!metricsResolutions) {return 'custom';}
+  if (!metricsResolutions) {
+    return 'custom';
+  }
   const index = defaultResolutions.findIndex((r) =>
     resolutionsEqual(r, metricsResolutions)
   );

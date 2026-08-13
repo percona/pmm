@@ -7,7 +7,9 @@ import { Messages } from './Footer.messages';
 export const Footer: FC = () => {
   const { inProgress, versionInfo } = useUpdates();
 
-  if (!versionInfo) {return null;}
+  if (!versionInfo) {
+    return null;
+  }
 
   return (
     <Stack direction="row" gap={2} data-testid="pmm-footer">

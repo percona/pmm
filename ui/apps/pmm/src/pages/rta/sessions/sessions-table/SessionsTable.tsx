@@ -77,13 +77,17 @@ const SessionsTable: FC = () => {
   };
 
   const handleStopSession = async () => {
-    if (!sessionToBeStopped) {return;}
+    if (!sessionToBeStopped) {
+      return;
+    }
 
     await handleStop([sessionToBeStopped]);
   };
 
   const handleStopSelectedSessions = async () => {
-    if (!selectedSessions.length) {return;}
+    if (!selectedSessions.length) {
+      return;
+    }
 
     await handleStop(selectedSessions);
   };

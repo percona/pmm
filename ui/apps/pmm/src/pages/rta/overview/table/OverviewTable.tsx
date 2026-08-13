@@ -1,5 +1,8 @@
 import type { FC } from 'react';
-import { type MaterialReactTableProps,type MRT_Row } from 'material-react-table';
+import {
+  type MaterialReactTableProps,
+  type MRT_Row,
+} from 'material-react-table';
 import { Table, useNavigableRows } from '@percona/peak-ui';
 import type { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';

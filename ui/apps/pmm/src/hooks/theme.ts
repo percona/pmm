@@ -5,8 +5,12 @@ import type { ColorMode, MessageType } from '@pmm/shared';
 import { ColorModeContext } from '@percona/peak-ui';
 
 function normalizeMode(v: unknown): ColorMode {
-  if (typeof v === 'string' && v.toLowerCase() === 'dark') {return 'dark';}
-  if (v === true) {return 'dark';}
+  if (typeof v === 'string' && v.toLowerCase() === 'dark') {
+    return 'dark';
+  }
+  if (v === true) {
+    return 'dark';
+  }
   return 'light';
 }
 

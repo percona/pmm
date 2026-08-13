@@ -26,8 +26,8 @@ export const UpdateCard: FC = () => {
   const { status } = useUpdates();
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates();
 
-  if (isLoading)
-    {return (
+  if (isLoading) {
+    return (
       <Card variant="outlined">
         <CardContent>
           <Stack spacing={1}>
@@ -36,7 +36,8 @@ export const UpdateCard: FC = () => {
           </Stack>
         </CardContent>
       </Card>
-    );}
+    );
+  }
 
   if (!data || error) {
     return (

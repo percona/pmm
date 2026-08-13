@@ -23,7 +23,7 @@ import {
 import type { MetricsResolutionFormProps } from './MetricsResolutionForm.types';
 import {
   type MetricsResolutionFormValues,
-  metricsResolutionSchema
+  metricsResolutionSchema,
 } from './MetricsResolutionForm.schema';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';

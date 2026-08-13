@@ -1,9 +1,4 @@
-import {
-  type FC,
-  type PropsWithChildren,
-  useEffect,
-  useMemo,
-} from 'react';
+import { type FC, type PropsWithChildren, useEffect, useMemo } from 'react';
 import { AuthContext } from './auth.context';
 import { useQuery } from '@tanstack/react-query';
 import { rotateToken } from 'api/auth';
