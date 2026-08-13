@@ -1,4 +1,5 @@
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -188,6 +189,41 @@ describe('AdvisorRuns', () => {
     expect(mockNavigate).toHaveBeenCalledWith(
       '/advisors/insights?runId=run-finished'
     );
+  });
+
+  it('polls once a minute while runs are in flight, then stops', async () => {
+    // two concurrent runs: the interval is per query, so still one request
+    vi.mocked(advisorsApi.listRuns).mockResolvedValue({
+      totalItems: 2,
+      totalPages: 1,
+      results: [RUNNING_RUN, { ...RUNNING_RUN, id: 'run-open-2' }],
+    });
+
+    vi.useFakeTimers();
+    try {
+      renderComponent();
+      // let the initial fetch resolve while the clock is still frozen
+      await act(() => vi.advanceTimersByTimeAsync(0));
+      expect(advisorsApi.listRuns).toHaveBeenCalledTimes(1);
+
+      await act(() => vi.advanceTimersByTimeAsync(60_000));
+      expect(advisorsApi.listRuns).toHaveBeenCalledTimes(2);
+
+      vi.mocked(advisorsApi.listRuns).mockResolvedValue({
+        totalItems: 2,
+        totalPages: 1,
+        results: [FINISHED_RUN],
+      });
+
+      await act(() => vi.advanceTimersByTimeAsync(60_000));
+      expect(advisorsApi.listRuns).toHaveBeenCalledTimes(3);
+
+      // nothing is running anymore, so the polling stops
+      await act(() => vi.advanceTimersByTimeAsync(180_000));
+      expect(advisorsApi.listRuns).toHaveBeenCalledTimes(3);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('copies the run ID from the row menu', async () => {

@@ -28,8 +28,10 @@ import { OrgRole } from 'types/user.types';
 import { getRunsColumns } from './AdvisorRuns.constants';
 import { TRIGGERED_BY_FILTER_OPTIONS } from './AdvisorRuns.filters';
 import { Messages } from './AdvisorRuns.messages';
+import { isRunning } from './AdvisorRuns.utils';
 
 const DEFAULT_PAGE_SIZE = 50;
+const RUNNING_POLL_INTERVAL_MS = 60_000;
 
 interface ActionMenuState {
   anchorEl: HTMLElement;
@@ -83,11 +85,22 @@ const AdvisorRuns: FC = () => {
     setSearchParams(next, { replace: true });
   };
 
-  const { data, isLoading, isFetching, refetch } = useRuns({
-    pageIndex: pagination.pageIndex,
-    pageSize: pagination.pageSize,
-    triggeredBy: (triggeredBy as AdvisorCheckTriggeredBy) || undefined,
-  });
+  const { data, isLoading, isFetching, refetch } = useRuns(
+    {
+      pageIndex: pagination.pageIndex,
+      pageSize: pagination.pageSize,
+      triggeredBy: (triggeredBy as AdvisorCheckTriggeredBy) || undefined,
+    },
+    {
+      // a run only shows a duration once it finishes, so poll until none is
+      // in flight; the interval belongs to the query, so concurrent runs still
+      // cost one request per minute
+      refetchInterval: (query) =>
+        query.state.data?.results.some(isRunning)
+          ? RUNNING_POLL_INTERVAL_MS
+          : false,
+    }
+  );
 
   const columns = useMemo(() => getRunsColumns(), []);
 
