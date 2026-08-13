@@ -50,8 +50,6 @@ VOLUME [ "/srv" ]
 
 EXPOSE 8080 8443
 
-# start-period covers grafana-sep's READY_TIMEOUT plus its bounded token validation; raise it
-# with that timeout. It delays only the unhealthy verdict for a server that was never ready.
 HEALTHCHECK --interval=4s --timeout=2s --start-period=720s --retries=3 CMD ["/opt/healthcheck.sh"]
 
 CMD ["/opt/entrypoint.sh"]
