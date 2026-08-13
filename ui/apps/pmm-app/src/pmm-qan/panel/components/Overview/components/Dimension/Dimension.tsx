@@ -1,4 +1,4 @@
-import type { FC} from 'react';
+import type { FC } from 'react';
 import React, { useContext } from 'react';
 import { Select } from 'antd';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';

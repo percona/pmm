@@ -1,4 +1,4 @@
-import type { FC} from 'react';
+import type { FC } from 'react';
 import React, { useEffect, useState } from 'react';
 import { Collapse, Tab, TabContent, TabsBar } from '@grafana/ui';
 import { Databases } from 'shared/core';

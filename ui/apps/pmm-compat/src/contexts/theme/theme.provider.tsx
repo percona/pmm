@@ -1,6 +1,6 @@
 import { ThemeContext } from '@grafana/data';
 import { config, getAppEvents, ThemeChangedEvent } from '@grafana/runtime';
-import type { FC, PropsWithChildren} from 'react';
+import type { FC, PropsWithChildren } from 'react';
 import React, { useEffect, useState } from 'react';
 
 export const ThemeProvider: FC<PropsWithChildren> = ({ children }) => {

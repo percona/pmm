@@ -1,4 +1,4 @@
-import type { FC} from 'react';
+import type { FC } from 'react';
 import React, { useContext, useCallback } from 'react';
 import { useStyles } from '@grafana/ui';
 import { QueryTooltip } from 'shared/components/Elements/QueryTooltip/QueryTooltip';

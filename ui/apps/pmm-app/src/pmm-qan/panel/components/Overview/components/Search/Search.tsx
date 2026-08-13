@@ -1,4 +1,4 @@
-import type { FC} from 'react';
+import type { FC } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Field, Form } from 'react-final-form';
 import { Button, Icon, Input, useTheme } from '@grafana/ui';

@@ -1,4 +1,4 @@
-import type { FC} from 'react';
+import type { FC } from 'react';
 import React, { useCallback } from 'react';
 import type { SelectableValue } from '@grafana/data';
 import { useTheme } from '@grafana/ui';

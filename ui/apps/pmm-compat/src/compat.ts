@@ -9,11 +9,9 @@ import type {
   DashboardVariablesMessage,
   HistoryAction,
   LocationChangeMessage,
-  ColorMode} from '@pmm/shared';
-import {
-  CrossFrameMessenger,
-  isRenderingServer,
+  ColorMode,
 } from '@pmm/shared';
+import { CrossFrameMessenger, isRenderingServer } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_LOCAL_STORAGE_KEY,
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,

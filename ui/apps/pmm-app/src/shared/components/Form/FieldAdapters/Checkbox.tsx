@@ -1,4 +1,4 @@
-import type { HTMLProps} from 'react';
+import type { HTMLProps } from 'react';
 import React, { useCallback } from 'react';
 import type { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';

@@ -1,4 +1,4 @@
-import type { FC} from 'react';
+import type { FC } from 'react';
 import React, { useContext, useEffect, useState } from 'react';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
 import { Button, Tab, TabContent, TabsBar, useTheme } from '@grafana/ui';

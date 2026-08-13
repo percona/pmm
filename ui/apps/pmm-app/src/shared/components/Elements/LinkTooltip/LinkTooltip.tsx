@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import React from 'react';
-import type { IconName} from '@grafana/ui';
+import type { IconName } from '@grafana/ui';
 import { Icon, Tooltip, useTheme } from '@grafana/ui';
 import { getStyles } from './LinkTooltip.styles';
 

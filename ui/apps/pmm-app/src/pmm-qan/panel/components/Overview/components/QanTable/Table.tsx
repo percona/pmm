@@ -1,23 +1,12 @@
-import type {
-  FC,
-  ReactElement,
-  ReactNode} from 'react';
-import React, {
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
+import type { FC, ReactElement, ReactNode } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type {
   Column,
   HeaderGroup,
   TableOptions,
-  TableState} from 'react-table';
-import {
-  useBlockLayout,
-  useRowSelect,
-  useSortBy,
-  useTable,
+  TableState,
 } from 'react-table';
+import { useBlockLayout, useRowSelect, useSortBy, useTable } from 'react-table';
 import { Spinner, useTheme } from '@grafana/ui';
 import { cx } from '@emotion/css';
 import useWindowSize from 'shared/components/hooks/WindowSize.hooks';
