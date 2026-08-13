@@ -73,38 +73,38 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
 
     1. Run the following on your external ClickHouse instance, replacing `your-password` with a [strong, randomly generated password](#enhance-clickhouse-security-for-pmm) and its SHA256 hash:
  
-    ```sql
-    CREATE USER grafana IDENTIFIED WITH sha256_password BY 'your-password'
-    SETTINGS readonly = 1, max_execution_time CHANGEABLE_IN_READONLY;
+        ```sql
+        CREATE USER grafana IDENTIFIED WITH sha256_password BY 'your-password'
+        SETTINGS readonly = 1, max_execution_time CHANGEABLE_IN_READONLY;
  
-    GRANT SELECT ON pmm.* TO grafana;
-    ```
+        GRANT SELECT ON pmm.* TO grafana;
+        ```
  
         If you manage ClickHouse users through configuration files instead, use the XML equivalent:
  
-    ```xml
-    <clickhouse>
-        <users>
-            <grafana>
-                <password_sha256_hex>your-password-hash</password_sha256_hex>
-                <networks>
-                    <ip>::/0</ip>
-                </networks>
-                <profile>readonly</profile>
-            </grafana>
-        </users>
-        <profiles>
-            <readonly>
-                <readonly>1</readonly>
-                <constraints>
-                    <max_execution_time>
-                        <changeable_in_readonly>1</changeable_in_readonly>
-                    </max_execution_time>
-                </constraints>
-            </readonly>
-        </profiles>
-    </clickhouse>
-    ```
+        ```xml
+        <clickhouse>
+            <users>
+                <grafana>
+                    <password_sha256_hex>your-password-hash</password_sha256_hex>
+                    <networks>
+                        <ip>::/0</ip>
+                    </networks>
+                    <profile>readonly</profile>
+                </grafana>
+            </users>
+            <profiles>
+                <readonly>
+                    <readonly>1</readonly>
+                    <constraints>
+                        <max_execution_time>
+                            <changeable_in_readonly>1</changeable_in_readonly>
+                        </max_execution_time>
+                    </constraints>
+                </readonly>
+            </profiles>
+        </clickhouse>
+        ```
  
     Some ClickHouse versions require `settings_constraints_replace_previous` for the `max_execution_time` constraint to take effect, so check your version if the constraint doesn't apply.
  
