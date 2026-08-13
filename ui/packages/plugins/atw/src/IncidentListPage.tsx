@@ -124,18 +124,26 @@ export function IncidentListPage() {
         justifyContent="space-between"
         sx={{ mb: 1 }}
       >
-        <Typography variant="h4">Collect Diagnostic Data</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => {
-            createMutation.reset();
-            setCreateName('');
-            setCreateOpen(true);
-          }}
-        >
-          New incident
-        </Button>
+        <Typography variant="h4">Support diagnostics</Typography>
+        {/*
+          Withheld while the list is unavailable: a create would hit the same
+          backend that just failed, so offering it only produces a second error
+          on top of one the user cannot act on.
+        */}
+        {!error && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            disabled={isLoading}
+            onClick={() => {
+              createMutation.reset();
+              setCreateName('');
+              setCreateOpen(true);
+            }}
+          >
+            New incident
+          </Button>
+        )}
       </Stack>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         Open an incident to run diagnostic snippets and review their results in
