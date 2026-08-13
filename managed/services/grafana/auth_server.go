@@ -65,6 +65,7 @@ var rules = map[string]role{
 	"/server.v1.":               admin,
 	"/qan.v1.CollectorService.": viewer,
 	"/qan.v1.QANService.":       viewer,
+	"/pom.":                     viewer,
 
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,
@@ -101,6 +102,9 @@ var rules = map[string]role{
 
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
+
+	// POM only reads: the trigger recomputes a document, it does not change the estate.
+	"/v1/pom": viewer,
 
 	"/prometheus":      admin,
 	"/victoriametrics": admin,

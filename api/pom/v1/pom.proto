@@ -1,0 +1,269 @@
+syntax = "proto3";
+
+package pom.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+// Service represents one monitored MongoDB service as the topology document records it.
+//
+// Two sentinel conventions, and they differ on purpose. cpu_usage_percent and
+// connections_free_percent are -1 when not measured, never null and never 0, because
+// zero CPU is a legitimate reading and a numeric column must keep "idle" and "unknown"
+// apart. replication_lag_seconds and oplog_window_seconds are null when they do not
+// apply -- a router and a standalone have no replica-set oplog -- which is a different
+// statement from -1's "we could not measure it".
+message Service {
+  // Service name as PMM inventory registered it.
+  string service_name = 1;
+  // Node the service runs on.
+  google.protobuf.StringValue host = 2;
+  // host:port as the replica set itself addresses the member.
+  google.protobuf.StringValue endpoint = 3;
+  // PMM's service ID. The join key against VictoriaMetrics.
+  google.protobuf.StringValue service_id = 4;
+  // Always "mongodb" today.
+  google.protobuf.StringValue service_type = 5;
+  // Running server version.
+  google.protobuf.StringValue version = 6;
+  // MongoDB or Percona.
+  google.protobuf.StringValue vendor = 7;
+  // Community or Enterprise.
+  google.protobuf.StringValue edition = 8;
+  // Replica set, or unset for a router or a standalone.
+  google.protobuf.StringValue replication_set = 9;
+  // PRIMARY, SECONDARY or ARBITER, or unset where there is no replica-set state.
+  google.protobuf.StringValue state = 10;
+  // UP when the exporter reached the service, DOWN when it did not.
+  string status = 11;
+  // CPU percentage, or -1 when not measured.
+  double cpu_usage_percent = 12;
+  // Percentage of free connections, or -1 when not measured.
+  double connections_free_percent = 13;
+  // mongod, mongos, configsvr or shardsvr.
+  string process_role = 14;
+  // Seconds this member trails the primary; unset where there is no primary to trail.
+  google.protobuf.DoubleValue replication_lag_seconds = 15;
+  // Seconds of history the oplog holds; unset where there is no replica-set oplog.
+  google.protobuf.DoubleValue oplog_window_seconds = 16;
+
+  // The MongoDB binary installed on the node, which is not necessarily the one
+  // running. Divergence from `version` is the upgraded-but-not-restarted case. Only
+  // an on-host probe can see it, so this is unset wherever one has not run.
+  google.protobuf.StringValue installed_version = 17;
+  // The configuration file the running server read. Probe-only.
+  google.protobuf.StringValue config_path = 18;
+  // The command line the running server was started with. Probe-only.
+  google.protobuf.StringValue argv = 19;
+}
+
+// Cluster represents one cluster or replica set.
+message Cluster {
+  // Cluster label, unset when its services carry none.
+  google.protobuf.StringValue name = 1;
+  // Its services, ordered by name.
+  repeated Service services = 2;
+}
+
+// Environment represents one monitoring environment.
+message Environment {
+  // Environment label, unset when its services carry none.
+  google.protobuf.StringValue env_name = 1;
+  // Its clusters, ordered by name.
+  repeated Cluster clusters = 2;
+}
+
+// Summary carries the fleet-level counts, so a caller need not re-derive them.
+message Summary {
+  // Environments in the document.
+  int32 environments = 1;
+  // Clusters across all of them.
+  int32 clusters = 2;
+  // Services in the document.
+  int32 services_total = 3;
+  // Services the exporter reached.
+  int32 services_up = 4;
+  // Services it did not.
+  int32 services_down = 5;
+  // Service counts per process role.
+  map<string, int32> by_process_role = 6;
+}
+
+// Snapshot carries the provenance every snapshot-backed response repeats.
+message Snapshot {
+  // When the document was assembled.
+  google.protobuf.Timestamp generated_at = 1;
+  // The newest observation in it, unset when nothing was observed at all.
+  google.protobuf.Timestamp observed_at = 2;
+  // Whether the document is older than the staleness grace period.
+  bool stale = 3;
+  // The document schema version.
+  int32 schema_version = 4;
+  // The discovery run that produced it.
+  string run_id = 5;
+}
+
+// GetTopologyRequest is the request for GetTopology. It takes no parameters: the
+// document describes the whole estate, and filtering it is the caller's business.
+message GetTopologyRequest {}
+
+// GetTopologyResponse is the whole topology document plus the provenance of the run
+// behind it.
+message GetTopologyResponse {
+  // Which run produced this, when, and whether it is stale.
+  Snapshot snapshot = 1;
+  // The PMM node the document was assembled on.
+  google.protobuf.StringValue origin_node = 2;
+  // The VictoriaMetrics queries the document was derived from.
+  repeated string source_queries = 3;
+  // Fleet-level counts.
+  Summary summary = 4;
+  // The estate, grouped environment then cluster.
+  repeated Environment environments = 5;
+}
+
+// RunCounts counts what one discovery run saw.
+message RunCounts {
+  // MongoDB services inventory reported.
+  int32 services_total = 1;
+  // ...of which carried a service ID to join metrics on.
+  int32 services_resolved = 2;
+  // ...of which did not. Not an error.
+  int32 services_orphaned = 3;
+  // Services metrics actually observed as reachable.
+  int32 probes_ok = 4;
+  // Services carrying at least one volatile fact too old to read as current.
+  int32 services_stale = 5;
+}
+
+// SourceReport says how completely one discovery source answered, and what it saw.
+//
+// Recorded per source so a thin document is legible rather than merely thin: a snapshot
+// assembled with metrics=ok and probe=failed is still correct about every version and
+// honest about reachability.
+message SourceReport {
+  // The source key, e.g. "inventory", "metrics" or "probe".
+  string source = 1;
+  // ok, partial, failed or disabled.
+  string status = 2;
+  // How many facts it produced.
+  int32 facts = 3;
+  // Source-specific counters, rendered as strings so a source can report whatever it has
+  // without this contract naming every counter.
+  map<string, string> detail = 4;
+}
+
+// RunError describes one thing that went wrong during a run.
+message RunError {
+  // What the error is about, e.g. "run" or "query".
+  string scope = 1;
+  // The service it concerns, when scoped to one.
+  google.protobuf.StringValue service_name = 2;
+  // A machine-readable cause.
+  string code = 3;
+  // The human-readable detail.
+  string message = 4;
+}
+
+// Run represents one discovery run.
+message Run {
+  // The run's ID, also the snapshot key.
+  string run_id = 1;
+  // running, success, partial or failed.
+  string status = 2;
+  // When the run began.
+  google.protobuf.Timestamp started_at = 3;
+  // When it reached a terminal status; unset while running.
+  google.protobuf.Timestamp finished_at = 4;
+  // What it saw.
+  RunCounts counts = 5;
+  // Query-level, service-level and run-level failures.
+  repeated RunError errors = 6;
+  // How completely each discovery source answered.
+  repeated SourceReport sources = 7;
+}
+
+// GetDiscoveryRunRequest is the request for GetDiscoveryRun.
+message GetDiscoveryRunRequest {
+  // The run to return.
+  string run_id = 1 [(validate.rules).string = {min_len: 1}];
+}
+
+// GetDiscoveryRunResponse returns one discovery run.
+message GetDiscoveryRunResponse {
+  // The run.
+  Run run = 1;
+}
+
+// ListDiscoveryRunsRequest is the request for ListDiscoveryRuns.
+message ListDiscoveryRunsRequest {
+  // How many runs to return, newest first. Defaults to 25, capped at 100.
+  int32 limit = 1 [(validate.rules).int32 = {
+    gte: 0
+    lte: 100
+  }];
+}
+
+// ListDiscoveryRunsResponse returns the run history, newest first.
+message ListDiscoveryRunsResponse {
+  // The runs.
+  repeated Run runs = 1;
+}
+
+// TriggerDiscoveryRequest is the request for TriggerDiscovery.
+message TriggerDiscoveryRequest {}
+
+// TriggerDiscoveryResponse acknowledges a completed discovery run.
+message TriggerDiscoveryResponse {
+  // The run's ID.
+  string run_id = 1;
+  // The run's terminal status.
+  string status = 2;
+  // When the run began.
+  google.protobuf.Timestamp started_at = 3;
+}
+
+// PomService provides the PSMDB Open Manager topology and health API.
+service PomService {
+  // GetTopology returns the whole MongoDB estate as one document.
+  rpc GetTopology(GetTopologyRequest) returns (GetTopologyResponse) {
+    option (google.api.http) = {get: "/v1/pom/topology"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get the MongoDB topology"
+      description: "Returns every monitored MongoDB service, grouped by environment then cluster, with its identity, replica-set state, reachability and load."
+    };
+  }
+
+  // ListDiscoveryRuns returns the discovery run history, newest first.
+  rpc ListDiscoveryRuns(ListDiscoveryRunsRequest) returns (ListDiscoveryRunsResponse) {
+    option (google.api.http) = {get: "/v1/pom/discovery/runs"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List discovery runs"
+      description: "Returns the recorded discovery runs, newest first, with what each one saw and any errors it hit."
+    };
+  }
+
+  // GetDiscoveryRun returns one discovery run.
+  rpc GetDiscoveryRun(GetDiscoveryRunRequest) returns (GetDiscoveryRunResponse) {
+    option (google.api.http) = {get: "/v1/pom/discovery/runs/{run_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get a discovery run"
+      description: "Returns one recorded discovery run, with what it saw, how each source answered, and any errors it hit."
+    };
+  }
+
+  // TriggerDiscovery rebuilds the topology document now.
+  rpc TriggerDiscovery(TriggerDiscoveryRequest) returns (TriggerDiscoveryResponse) {
+    option (google.api.http) = {
+      post: "/v1/pom/discovery/runs"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Trigger a discovery run"
+      description: "Rebuilds the topology document from PMM inventory and VictoriaMetrics, and records the run."
+    };
+  }
+}
