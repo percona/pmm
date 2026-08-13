@@ -1,5 +1,4 @@
-import type { FC } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { type FC, useEffect, useMemo, useRef } from 'react';
 import { Field, Form } from 'react-final-form';
 import { Button, Icon, Input, useTheme } from '@grafana/ui';
 import { debounce } from 'lodash';

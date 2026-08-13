@@ -1,6 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import type { AxiosInstanceEx } from './api';
-import { ApiRequest } from './api';
+import { ApiRequest, type AxiosInstanceEx } from './api';
 import * as NotificationManager from './notification-manager';
 
 declare module './api' {

@@ -1,5 +1,4 @@
-import type { FC } from 'react';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { type FC, useState, useRef, useEffect } from 'react';
 import {
   Latency,
   Sparkline,

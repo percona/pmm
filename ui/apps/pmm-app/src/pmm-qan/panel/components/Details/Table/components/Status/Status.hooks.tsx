@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ActionResult } from 'shared/components/Actions';
-import { getActionResult } from 'shared/components/Actions';
+import {
+  type ActionResult,
+  getActionResult,
+} from 'shared/components/Actions';
 import { Databases } from 'shared/core';
 import { mysqlMethods } from '../../../database-models';
 import { processTableData } from '../../TableContainer.tools';

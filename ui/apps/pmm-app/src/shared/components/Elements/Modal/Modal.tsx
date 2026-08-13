@@ -1,5 +1,4 @@
-import type { FC, ReactNode } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, type FC, type ReactNode } from 'react';
 
 import { IconButton, useTheme } from '@grafana/ui';
 import { getStyles } from './Modal.styles';

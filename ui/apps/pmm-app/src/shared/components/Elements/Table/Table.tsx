@@ -1,5 +1,4 @@
-import type { FC } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, type FC } from 'react';
 import { useRowSelect, useTable } from 'react-table';
 import { Spinner, useTheme } from '@grafana/ui';
 import { cx } from '@emotion/css';

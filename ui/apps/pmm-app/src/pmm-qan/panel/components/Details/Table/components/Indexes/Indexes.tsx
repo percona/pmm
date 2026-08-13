@@ -1,5 +1,4 @@
-import type { FC } from 'react';
-import React from 'react';
+import React, { type FC } from 'react';
 import { Table } from 'shared/components/Elements/Table';
 import { Overlay } from 'shared/components/Elements/Overlay/Overlay';
 import { Messages } from '../../../Details.messages';

@@ -1,5 +1,4 @@
-import type { FC } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { type FC, useEffect, useState } from 'react';
 import { Collapse, Tab, TabContent, TabsBar } from '@grafana/ui';
 import { Databases } from 'shared/core';
 import { Messages } from 'pmm-qan/panel/components/Details/Details.messages';

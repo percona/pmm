@@ -1,5 +1,4 @@
-import type { FC, ReactNode } from 'react';
-import React from 'react';
+import React, { type FC, type ReactNode } from 'react';
 import { cx } from '@emotion/css';
 import { useTheme } from '@grafana/ui';
 import { getStyles } from './RadioButton.styles';

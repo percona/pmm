@@ -1,8 +1,6 @@
-import type { FC } from 'react';
-import React from 'react';
+import React, { type FC } from 'react';
 import { cx } from '@emotion/css';
-import type { ButtonProps } from '@grafana/ui';
-import { Button, Spinner } from '@grafana/ui';
+import { Button, type ButtonProps, Spinner } from '@grafana/ui';
 import * as styles from './ButtonWithSpinner.styles';
 
 type ButtonWithSpinnerProps = ButtonProps & {

@@ -1,6 +1,9 @@
 import { logger } from 'shared/core/logger';
-import type { ActionResult } from 'shared/components/Actions';
-import { getActionResult, catchActionError } from 'shared/components/Actions';
+import {
+  type ActionResult,
+  getActionResult,
+  catchActionError,
+} from 'shared/components/Actions';
 import { Databases } from 'shared/core';
 import { mongodbMethods, mysqlMethods } from '../database-models';
 import type { DatabasesType, QueryExampleResponseItem } from '../Details.types';

@@ -1,5 +1,4 @@
-import type { FC } from 'react';
-import React, { useRef } from 'react';
+import React, { type FC, useRef } from 'react';
 import { CheckboxField } from 'shared/components/Form/Checkbox/Checkbox';
 import { humanize } from 'shared/components/helpers/Humanization';
 import { Icon, useTheme } from '@grafana/ui';

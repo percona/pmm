@@ -1,8 +1,9 @@
-import type { FulfilledPromiseResult, RejectedPromiseResult } from './promises';
 import {
   processPromiseResults,
   filterFulfilled,
   filterRejected,
+  type FulfilledPromiseResult,
+  type RejectedPromiseResult,
 } from './promises';
 
 describe('processPromiseResults::', () => {

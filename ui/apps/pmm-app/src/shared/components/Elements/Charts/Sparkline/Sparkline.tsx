@@ -1,5 +1,11 @@
-import type { MutableRefObject, RefObject } from 'react';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  type MutableRefObject,
+  type RefObject,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Tippy from '@tippyjs/react';
 import { followCursor } from 'tippy.js';
 import { v4 as uuidv4 } from 'uuid';

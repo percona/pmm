@@ -1,7 +1,6 @@
 /* eslint max-len: 0 */
 
-import type { FC } from 'react';
-import React from 'react';
+import React, { type FC } from 'react';
 import { useTheme } from '@grafana/ui';
 import { cx } from '@emotion/css';
 import { getStyles } from './Icons.styles';

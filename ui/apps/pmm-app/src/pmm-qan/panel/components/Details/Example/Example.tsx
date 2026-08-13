@@ -1,5 +1,4 @@
-import type { FC } from 'react';
-import React from 'react';
+import React, { type FC } from 'react';
 import { Overlay } from 'shared/components/Elements/Overlay/Overlay';
 import { getExample } from './Example.tools';
 import type { ExampleInterface } from './Example.types';

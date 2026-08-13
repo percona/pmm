@@ -1,6 +1,5 @@
 /* eslint max-len: 0 */
-import type { FC } from 'react';
-import React from 'react';
+import React, { type FC } from 'react';
 import { cx } from '@emotion/css';
 import { useTheme } from '@grafana/ui';
 import type { SvgProps } from './Icons.types';
