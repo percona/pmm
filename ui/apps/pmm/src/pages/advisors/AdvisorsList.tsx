@@ -634,7 +634,10 @@ const AdvisorsList: FC = () => {
           )}
           muiTableBodyRowProps={({ row }) => ({
             'data-testid': `advisor-row-${row.original.checkName}`,
+            'data-check-disabled': row.original.enabled ? undefined : 'true',
             onDoubleClick: () => openDetails(row.original),
+            // dim checks that are off globally, as the insights table does
+            sx: row.original.enabled ? undefined : { opacity: 0.5 },
           })}
           muiTableContainerProps={{
             sx: {

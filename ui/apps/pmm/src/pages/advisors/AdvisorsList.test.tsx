@@ -217,6 +217,19 @@ describe('AdvisorsList', () => {
     expect(screen.getByTestId('add-advisor')).toBeInTheDocument();
   });
 
+  it('dims globally disabled checks', async () => {
+    renderComponent();
+
+    await waitForRows();
+
+    expect(
+      screen.getByTestId('advisor-row-postgresql_disabled_check')
+    ).toHaveAttribute('data-check-disabled', 'true');
+    expect(
+      screen.getByTestId('advisor-row-mysql_version_check')
+    ).not.toHaveAttribute('data-check-disabled');
+  });
+
   it('disables run selected when nothing is filtered', async () => {
     renderComponent();
 
