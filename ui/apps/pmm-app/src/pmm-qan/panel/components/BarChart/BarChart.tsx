@@ -18,7 +18,7 @@ ChartJs.register(
   LinearScale,
   BarElement,
   Tooltip,
-  ChartDataLabels
+  ChartDataLabels,
 );
 
 export const BarChart: FC<BarChartProps> = ({

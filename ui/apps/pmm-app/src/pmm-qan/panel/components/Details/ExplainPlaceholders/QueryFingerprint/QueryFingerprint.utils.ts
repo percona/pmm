@@ -2,7 +2,7 @@ import sqlFormatter from 'sql-formatter';
 
 export const replacePlaceholders = (
   fingerprint: string,
-  placeholders: string[] = []
+  placeholders: string[] = [],
 ): string => {
   let replaced = fingerprint || '';
 
@@ -12,7 +12,7 @@ export const replacePlaceholders = (
     if (value && replaced.includes(`::${fingerprintIdx}`)) {
       replaced = replaced.replace(
         new RegExp(`::${fingerprintIdx}`, 'g'),
-        value
+        value,
       );
     } else if (value) {
       replaced = replaced.replace(new RegExp(`:${fingerprintIdx}`, 'g'), value);

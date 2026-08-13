@@ -4435,7 +4435,7 @@ describe('TimeDistributionChart chart test', () => {
     };
 
     const dataDistribution = getMetricDistribution(
-      TimeDistributionChartProps.data
+      TimeDistributionChartProps.data,
     );
 
     const sum = dataDistribution.reduce((acc, metric) => {
@@ -4453,7 +4453,7 @@ describe('TimeDistributionChart chart test', () => {
       data: MOCK_METRICS,
     };
     const { asFragment } = render(
-      <TimeDistribution {...TimeDistributionChartProps} />
+      <TimeDistribution {...TimeDistributionChartProps} />,
     );
 
     const firstRender = asFragment();

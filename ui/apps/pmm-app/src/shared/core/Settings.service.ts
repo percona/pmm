@@ -5,7 +5,7 @@ import type { Settings, SettingsAPIResponse, SettingsPayload } from './types';
 export const SettingsService = {
   async getSettings(): Promise<Settings> {
     const { settings } = (await apiRequest.get(
-      API.SETTINGS
+      API.SETTINGS,
     )) as SettingsAPIResponse;
 
     return toModel(settings);

@@ -6,7 +6,7 @@ import { stripPrefix } from '../utils';
 export const getExplainPayload = (
   example: QueryExampleResponseItem,
   queryId: string,
-  placeholders?: string[]
+  placeholders?: string[],
 ): MySQLExplainPayload => {
   const payload: MySQLExplainPayload = {
     database: example.database,

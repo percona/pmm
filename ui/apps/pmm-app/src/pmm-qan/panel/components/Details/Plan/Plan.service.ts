@@ -14,7 +14,7 @@ export const PlanService = {
     return apiRequestQAN
       .get<QueryPlanResponse, QueryPlanRequest>(`/query/${body.queryid}/plan`)
       .then(({ planid, query_plan }) =>
-        planid && query_plan ? { id: planid, plan: query_plan } : undefined
+        planid && query_plan ? { id: planid, plan: query_plan } : undefined,
       );
   },
 };

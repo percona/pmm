@@ -62,7 +62,7 @@ export const DetailsSection: FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(
     () => setLoadingDetails(loading || metricsLoading),
-    [loading, metricsLoading]
+    [loading, metricsLoading, setLoadingDetails],
   );
 
   const tabs = [

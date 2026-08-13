@@ -15,7 +15,7 @@ export const useTables = (example, explains, databaseType): any[] => {
         const parsedJSON = JSON.parse(jsonExplain.value);
 
         const realTableName = [get(parsedJSON, 'real_table_name')].filter(
-          Boolean
+          Boolean,
         );
 
         setTables(realTableName);

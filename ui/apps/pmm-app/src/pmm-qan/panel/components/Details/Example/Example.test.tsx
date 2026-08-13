@@ -19,7 +19,7 @@ describe('Example tab page render test', () => {
     const { container } = render(<Example {...props} />);
 
     expect(container.querySelector('pre')?.textContent).toContain(
-      'Sorry, no examples found for this query'
+      'Sorry, no examples found for this query',
     );
   });
 
@@ -42,11 +42,11 @@ describe('Example tab page render test', () => {
     };
 
     render(
-      <Example databaseType={props.databaseType} examples={props.examples} />
+      <Example databaseType={props.databaseType} examples={props.examples} />,
     );
 
     expect(screen.getByTestId('highlight-code').textContent).toEqual(
-      sqlFormatter.format(props.examples[0].example)
+      sqlFormatter.format(props.examples[0].example),
     );
   });
 
@@ -70,7 +70,7 @@ describe('Example tab page render test', () => {
     const { container } = render(<Example {...props} />);
 
     expect(
-      container.querySelector('.json')?.getAttribute('data-src')
+      container.querySelector('.json')?.getAttribute('data-src'),
     ).toContain(innerExample);
   });
 
@@ -115,11 +115,11 @@ describe('Example tab page render test', () => {
     };
 
     render(
-      <Example databaseType={props.databaseType} examples={props.examples} />
+      <Example databaseType={props.databaseType} examples={props.examples} />,
     );
 
     expect(screen.getByTestId('highlight-code').textContent).toEqual(
-      sqlFormatter.format(props.examples[0].example)
+      sqlFormatter.format(props.examples[0].example),
     );
   });
 });

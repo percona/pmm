@@ -124,7 +124,7 @@ export const Table: FC<TableProps> = ({
         ...columns,
       ]);
     },
-    useBlockLayout
+    useBlockLayout,
   );
 
   useEffect(() => {
@@ -200,19 +200,19 @@ export const Table: FC<TableProps> = ({
           className={cx(
             'tr',
             `tr-${row.index}`,
-            rowClassName(row.original, row.index)
+            rowClassName(row.original, row.index),
           )}
           onClick={() => {
             const selectedColumn = document.querySelector(`.tr-${row.index}`);
             const tableBody = document.querySelector(
-              '.table-wrapper .table-body'
+              '.table-wrapper .table-body',
             );
 
             if (selectedColumn && tableBody) {
               setTimeout(() => {
                 tableBody.scroll(
                   0,
-                  (selectedColumn as HTMLElement).offsetTop - 55
+                  (selectedColumn as HTMLElement).offsetTop - 55,
                 );
               });
             }
@@ -232,7 +232,7 @@ export const Table: FC<TableProps> = ({
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [prepareRow, rows, rowClassName]
+    [prepareRow, rows, rowClassName],
   );
 
   return (

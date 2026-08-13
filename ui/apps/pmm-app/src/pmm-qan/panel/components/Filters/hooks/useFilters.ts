@@ -27,12 +27,12 @@ export const useFilters = (): [Filters, boolean, FilterGroup[], boolean] => {
           labels,
           from,
           to,
-          columns[0]
+          columns[0],
         );
 
         const filtersGroups = Object.keys(result)
           .filter(
-            (key) => !FILTERS_GROUPS.some((group) => group.dataKey === key)
+            (key) => !FILTERS_GROUPS.some((group) => group.dataKey === key),
           )
           .filter((key) => !HIDDEN_FILTER_LABELS.includes(key))
           .reduce(
@@ -49,7 +49,7 @@ export const useFilters = (): [Filters, boolean, FilterGroup[], boolean] => {
 
               return groups;
             },
-            [...FILTERS_GROUPS]
+            [...FILTERS_GROUPS],
           );
 
         setFilters(result);

@@ -26,7 +26,7 @@ export const getMainColumnWidth = (columns) => {
 
   return Math.max(
     width - getAllColumns(columns) + FIXED_COLUMN_WIDTH - SCROLLBAR_WIDTH,
-    MAIN_METRIC_MIN_WIDTH
+    MAIN_METRIC_MIN_WIDTH,
   );
 };
 
@@ -38,7 +38,7 @@ export const getAllColumnsWidth = (mainColumnWidth, columns) => {
   return (
     Math.max(
       getAllColumns(columns) + mainColumnWidth - FIXED_COLUMN_WIDTH,
-      width
+      width,
     ) - SCROLLBAR_WIDTH
   );
 };

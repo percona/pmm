@@ -29,7 +29,7 @@ describe('Modal window::', () => {
   it('Should NOT call onClose callback on escape when closeOnEscape is NOT set', () => {
     const onClose = jest.fn();
     const { container } = render(
-      <Modal onClose={onClose} isVisible closeOnEscape={false} title="test" />
+      <Modal onClose={onClose} isVisible closeOnEscape={false} title="test" />,
     );
 
     expect(onClose.mock.calls.length).toBe(0);
@@ -56,7 +56,7 @@ describe('Modal window::', () => {
         isVisible
         closeOnClickaway={false}
         title="test"
-      />
+      />,
     );
 
     expect(onClose.mock.calls.length).toBe(0);

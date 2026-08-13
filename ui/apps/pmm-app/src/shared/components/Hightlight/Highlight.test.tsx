@@ -11,11 +11,11 @@ describe('Highlight::', () => {
     render(
       <Highlight language="sql">
         <span>Test children</span>
-      </Highlight>
+      </Highlight>,
     );
 
     expect(screen.getByTestId('highlight-code').textContent).toEqual(
-      'Test children'
+      'Test children',
     );
   });
 
@@ -23,11 +23,11 @@ describe('Highlight::', () => {
     render(
       <Highlight language="sql">
         <span>Test children</span>
-      </Highlight>
+      </Highlight>,
     );
 
     expect(screen.getByTestId('highlight-code').className).toEqual(
-      'language-sql'
+      'language-sql',
     );
   });
 });

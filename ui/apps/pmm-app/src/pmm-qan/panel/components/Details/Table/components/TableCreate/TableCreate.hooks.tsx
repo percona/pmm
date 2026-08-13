@@ -10,7 +10,7 @@ export const useShowCreateTable = (
   databaseType,
   example,
   tableName,
-  database
+  database,
 ) => {
   const [showCreateTable, setShowCreateTable] = useState<ActionResult>({
     error: '',

@@ -105,7 +105,7 @@ const Metrics: FC<MetricsProps> = ({
           {item.metric.avg
             ? humanize.transform(
                 item.metric.avg,
-                item.pipeTypes.perQueryStatsPipe
+                item.pipeTypes.perQueryStatsPipe,
               )
             : (+item.metric.sum / +item.queryCount).toFixed(2) || '0'}
         </span>

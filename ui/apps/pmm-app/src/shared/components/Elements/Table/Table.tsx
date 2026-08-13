@@ -16,7 +16,7 @@ const TableCheckbox = (props: TableCheckboxProps) => {
       className={cx(
         styles.checkboxContainer,
         'checkbox-container--main',
-        'no-gap'
+        'no-gap',
       )}
     >
       <input
@@ -76,7 +76,7 @@ export const Table: FC<TableProps> = ({
           ...columns,
         ]);
       }
-    }
+    },
   );
 
   useEffect(() => {

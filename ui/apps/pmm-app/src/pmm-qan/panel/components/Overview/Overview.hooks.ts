@@ -44,7 +44,7 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
         const mainMetric = columns[0];
         // eslint-disable-next-line max-len
         const metricsColumns = columns.map((key, index) =>
-          getOverviewColumn(key, index, result.rows[0], orderBy, mainMetric)
+          getOverviewColumn(key, index, result.rows[0], orderBy, mainMetric),
         );
 
         const allColumns = [...defaultColumns, ...metricsColumns];

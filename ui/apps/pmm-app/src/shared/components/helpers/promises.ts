@@ -11,7 +11,7 @@ export interface RejectedPromiseResult {
 export type PromiseResult = FulfilledPromiseResult | RejectedPromiseResult;
 
 export const processPromiseResults = (
-  requests: Array<Promise<any>>
+  requests: Array<Promise<any>>,
 ): Promise<PromiseResult[]> =>
   Promise.all(
     requests.map((promise) =>
@@ -20,15 +20,15 @@ export const processPromiseResults = (
           (value): FulfilledPromiseResult => ({
             status: 'fulfilled',
             value,
-          })
+          }),
         )
         .catch(
           (reason): RejectedPromiseResult => ({
             status: 'rejected',
             reason,
-          })
-        )
-    )
+          }),
+        ),
+    ),
   );
 
 export const filterFulfilled = ({
