@@ -37,11 +37,11 @@ export const getLabelStyles = ({
 export const getCheckboxStyles = (theme: GrafanaTheme2) => {
   const labelStyles = getLabelStyles(theme);
   const checkboxSize = '16px';
-  // @ts-ignore-next-line
   const {
     main: primaryMain,
     shade: primaryShade,
     contrastText: primaryContrastText,
+    // @ts-ignore-next-line
   } = theme.colors.primary;
 
   return {
