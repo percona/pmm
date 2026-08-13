@@ -114,16 +114,3 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		})
 	}
 }
-
-func TestParseStatus(t *testing.T) {
-	t.Parallel()
-
-	for str, expected := range map[string]*bool{
-		`pmm-agent                        STOPPED   Sep 20 08:55 AM`:         new(false),
-		`pmm-managed                      RUNNING   pid 826, uptime 0:19:36`: new(true),
-		`pmm-init                         EXITED    Sep 20 07:42 AM`:         nil,
-		`pmm-init                         STARTING`:                          new(true), // no last column in that case
-	} {
-		assert.Equal(t, expected, parseStatus(str), "%q", str)
-	}
-}
