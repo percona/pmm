@@ -147,7 +147,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 
         ```bash
         # If using ClusterIP (default)
-        kkubectl port-forward svc/monitoring-service 8443:443
+        kubectl port-forward svc/monitoring-service 8443:443
 
         # If using NodePort
         kubectl get svc monitoring-service -o jsonpath='{.spec.ports[0].nodePort}'
