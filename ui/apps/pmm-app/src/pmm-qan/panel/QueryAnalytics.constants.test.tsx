@@ -371,7 +371,8 @@ describe('Query analytics metrics::', () => {
   });
 
   it('locks_database_acquire_wait_count_read_shared', () => {
-    const metric = METRIC_CATALOGUE.locks_database_acquire_wait_count_read_shared;
+    const metric =
+      METRIC_CATALOGUE.locks_database_acquire_wait_count_read_shared;
     const processedMetric = metric.metricRelation(metrics);
     const absentMetric = metric.metricRelation({});
 

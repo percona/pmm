@@ -6,7 +6,11 @@ import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
 import { getStyles } from './TopQuery.styles';
 import { TopQueryProps } from './TopQuery.types';
 
-export const TopQuery: FC<TopQueryProps> = ({ databaseType, query, queryId }) => {
+export const TopQuery: FC<TopQueryProps> = ({
+  databaseType,
+  query,
+  queryId,
+}) => {
   const styles = useStyles(getStyles);
   const { contextActions } = useContext(QueryAnalyticsProvider);
   const selectQuery = useCallback(() => {
@@ -16,7 +20,7 @@ export const TopQuery: FC<TopQueryProps> = ({ databaseType, query, queryId }) =>
         queryId,
         database: databaseType,
       },
-      false,
+      false
     );
   }, [contextActions, queryId, databaseType]);
 

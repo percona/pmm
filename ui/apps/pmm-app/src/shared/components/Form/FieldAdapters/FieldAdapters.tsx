@@ -7,7 +7,13 @@ import { Checkbox } from './Checkbox';
 import { Field } from './Field';
 import { RadioButtonGroup } from '../Radio/RadioButtonGroup';
 
-export const InputFieldAdapter = ({ input, className, label, meta, ...props }) => {
+export const InputFieldAdapter = ({
+  input,
+  className,
+  label,
+  meta,
+  ...props
+}) => {
   const theme = useTheme();
   const styles = getStyles(theme);
 
@@ -20,7 +26,10 @@ export const InputFieldAdapter = ({ input, className, label, meta, ...props }) =
           className={cx(className, { invalid: meta.touched && meta.error })}
           title={meta.touched ? meta.error : ''}
         />
-        <div data-testid="input-field-error-message" className={styles.errorMessage}>
+        <div
+          data-testid="input-field-error-message"
+          className={styles.errorMessage}
+        >
           {meta.touched && meta.error}
         </div>
       </>
@@ -28,7 +37,13 @@ export const InputFieldAdapter = ({ input, className, label, meta, ...props }) =
   );
 };
 
-export const TextAreaAdapter = ({ input, className, label, meta, ...props }) => {
+export const TextAreaAdapter = ({
+  input,
+  className,
+  label,
+  meta,
+  ...props
+}) => {
   const theme = useTheme();
   const styles = getStyles(theme);
 
@@ -42,7 +57,10 @@ export const TextAreaAdapter = ({ input, className, label, meta, ...props }) => 
           title={meta.touched ? meta.error : ''}
           className={cx(className, { invalid: meta.touched && meta.error })}
         />
-        <div data-testid="textarea-field-error-message" className={styles.errorMessage}>
+        <div
+          data-testid="textarea-field-error-message"
+          className={styles.errorMessage}
+        >
           {meta.touched && meta.error}
         </div>
       </>
@@ -58,7 +76,10 @@ export const CheckboxFieldAdapter = ({ input, className, meta, ...props }) => {
     <Field>
       <div className={cx(className, { invalid: meta.touched && meta.error })}>
         <Checkbox {...input} {...props} />
-        <div data-testid="checkbox-field-error-message" className={styles.errorMessage}>
+        <div
+          data-testid="checkbox-field-error-message"
+          className={styles.errorMessage}
+        >
           {meta.touched && meta.error}
         </div>
       </div>
@@ -90,7 +111,10 @@ export const SelectFieldAdapter = ({
           invalid={meta.touched && meta.error}
           noOptionsMessage={noOptionsMessage}
         />
-        <div data-testid="select-field-error-message" className={styles.errorMessage}>
+        <div
+          data-testid="select-field-error-message"
+          className={styles.errorMessage}
+        >
           {meta.touched && meta.error}
         </div>
       </div>
@@ -122,7 +146,10 @@ export const RadioButtonGroupAdapter = ({
           value={input.value || selected}
           dataTestId={dataTestId}
         />
-        <div data-testid="radio-field-error-message" className={styles.errorMessage}>
+        <div
+          data-testid="radio-field-error-message"
+          className={styles.errorMessage}
+        >
           {meta.touched && meta.error}
         </div>
       </>

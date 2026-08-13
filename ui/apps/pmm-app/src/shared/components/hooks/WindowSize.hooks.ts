@@ -5,7 +5,10 @@ const useWindowSize = (): [number, number] => {
 
   useLayoutEffect(() => {
     function updateSize() {
-      setSize([document.documentElement.clientWidth, document.documentElement.clientHeight]);
+      setSize([
+        document.documentElement.clientWidth,
+        document.documentElement.clientHeight,
+      ]);
     }
 
     window.addEventListener('resize', updateSize);

@@ -3,7 +3,10 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 import { css, cx } from '@emotion/css';
 
-export interface CheckboxProps extends Omit<HTMLProps<HTMLInputElement>, 'value'> {
+export interface CheckboxProps extends Omit<
+  HTMLProps<HTMLInputElement>,
+  'value'
+> {
   label?: string;
   value?: boolean;
 }
@@ -17,7 +20,9 @@ export const getFocusCss = ({ v1: { colors } }: GrafanaTheme2) => css`
   transition: all 0.2s cubic-bezier(0.19, 1, 0.22, 1);
 `;
 
-export const getLabelStyles = ({ v1: { typography, spacing, colors } }: GrafanaTheme2) => ({
+export const getLabelStyles = ({
+  v1: { typography, spacing, colors },
+}: GrafanaTheme2) => ({
   label: css`
     font-size: ${typography.size.sm};
     font-weight: ${typography.weight.semibold};
@@ -33,14 +38,18 @@ export const getCheckboxStyles = (theme: GrafanaTheme2) => {
   const labelStyles = getLabelStyles(theme);
   const checkboxSize = '16px';
   // @ts-ignore-next-line
-  const { main: primaryMain, shade: primaryShade, contrastText: primaryContrastText } = theme.colors.primary;
+  const {
+    main: primaryMain,
+    shade: primaryShade,
+    contrastText: primaryContrastText,
+  } = theme.colors.primary;
 
   return {
     label: cx(
       labelStyles.label,
       css`
         padding-left: ${theme.v1.spacing.formSpacingBase}px;
-      `,
+      `
     ),
     wrapper: css`
       position: relative;
@@ -103,7 +112,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           onChange(e);
         }
       },
-      [onChange],
+      [onChange]
     );
     const styles = useStyles2(getCheckboxStyles);
 
@@ -122,7 +131,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         {label && <span className={styles.label}>{label}</span>}
       </label>
     );
-  },
+  }
 );
 
 Checkbox.displayName = 'Checkbox';

@@ -8,7 +8,7 @@ describe('Overlay::', () => {
       <Overlay isPending={false}>
         <p>Child 1</p>
         <p>Child 2</p>
-      </Overlay>,
+      </Overlay>
     );
     const wrapper = root.getByTestId('pmm-overlay-wrapper');
 
@@ -19,7 +19,7 @@ describe('Overlay::', () => {
     const root = render(
       <Overlay isPending>
         <p>Test</p>
-      </Overlay>,
+      </Overlay>
     );
     const wrapper = root.getByTestId('pmm-overlay-wrapper');
 
@@ -31,7 +31,7 @@ describe('Overlay::', () => {
     const { container } = render(
       <Overlay isPending={false}>
         <p>Test</p>
-      </Overlay>,
+      </Overlay>
     );
 
     expect(container?.querySelector('i')).toBeNull();

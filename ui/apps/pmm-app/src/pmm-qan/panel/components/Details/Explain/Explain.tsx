@@ -16,7 +16,11 @@ const Explain: FC<ExplainProps> = ({ databaseType, examples }) => {
   } = useContext(QueryAnalyticsProvider);
 
   return (
-    <ExplainPlaceholders queryId={queryId} databaseType={databaseType} examples={examples}>
+    <ExplainPlaceholders
+      queryId={queryId}
+      databaseType={databaseType}
+      examples={examples}
+    >
       {({ classicExplain, jsonExplain }) => (
         <div>
           {databaseType !== Databases.mongodb ? (

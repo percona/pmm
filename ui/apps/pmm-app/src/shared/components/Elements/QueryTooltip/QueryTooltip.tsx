@@ -29,9 +29,13 @@ export const QueryTooltip = ({
       overlayClassName={styles.queryTooltip(float)}
       title={() => (
         <div className={styles.queryTooltipDataWrapper}>
-          {queryId ? <h5 className={styles.queryId}>{`Query Id: ${queryId}`}</h5> : null}
+          {queryId ? (
+            <h5 className={styles.queryId}>{`Query Id: ${queryId}`}</h5>
+          ) : null}
           {query ? (
-            <Highlight language="sql">{sqlFormatter.format(query, { language: 'pl/sql' })}</Highlight>
+            <Highlight language="sql">
+              {sqlFormatter.format(query, { language: 'pl/sql' })}
+            </Highlight>
           ) : null}
         </div>
       )}

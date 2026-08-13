@@ -11,7 +11,10 @@ export const getSelectedCheckboxes = (filters, filtersGroups) => {
   return selectedFilters;
 };
 
-export const getServiceType = (value: string, name: string): string | undefined => {
+export const getServiceType = (
+  value: string,
+  name: string
+): string | undefined => {
   const variables = getTemplateSrv().getVariables();
   const variable = variables.find((v) => v.name === 'filter_data') as any;
   let serviceType = '';

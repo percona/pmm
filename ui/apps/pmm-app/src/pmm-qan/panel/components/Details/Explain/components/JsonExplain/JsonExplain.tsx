@@ -7,7 +7,9 @@ import { Messages } from '../../../Details.messages';
 export const JsonExplain = ({ jsonExplain }) => (
   <Overlay isPending={jsonExplain.loading}>
     <Scrollbar>
-      {jsonExplain.error ? <pre data-testid="json-explain-error">{jsonExplain.error}</pre> : null}
+      {jsonExplain.error ? (
+        <pre data-testid="json-explain-error">{jsonExplain.error}</pre>
+      ) : null}
       {!jsonExplain.error && jsonExplain.value ? (
         <div data-testid="json-explain-value">
           <ReactJSON json={JSON.parse(jsonExplain.value)} />

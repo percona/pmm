@@ -2,7 +2,11 @@ import React from 'react';
 import HSBar from 'react-horizontal-stacked-bar-chart';
 import { humanize } from '../../../helpers/Humanization';
 // eslint-disable-next-line max-len
-import { METRICS_COLORS, PERCENT_COUNT, TIME_METRICS } from './TimeDistribution.constants';
+import {
+  METRICS_COLORS,
+  PERCENT_COUNT,
+  TIME_METRICS,
+} from './TimeDistribution.constants';
 
 export const getMetricDistribution = (data) => {
   let totalValue = 0;
@@ -43,7 +47,10 @@ export const getMetricDistribution = (data) => {
     normalizedTimeMetrics.push({
       name: 'Other',
       value: currentPercent,
-      description: humanize.transform(currentPercent / PERCENT_COUNT, 'percent'),
+      description: humanize.transform(
+        currentPercent / PERCENT_COUNT,
+        'percent'
+      ),
       color: 'gray',
     });
   }
@@ -56,7 +63,13 @@ export const TimeDistribution = ({ data }) => {
 
   return (
     <>
-      <HSBar height={30} showTextIn id="query-time-chart" fontColor="white" data={normalizedTimeMetrics} />
+      <HSBar
+        height={30}
+        showTextIn
+        id="query-time-chart"
+        fontColor="white"
+        data={normalizedTimeMetrics}
+      />
     </>
   );
 };

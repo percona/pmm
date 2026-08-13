@@ -29,20 +29,28 @@ describe('GET::', () => {
   it('should return data', async () => {
     const apiRequest = new ApiRequest({});
 
-    (apiRequest.axiosInstance as AxiosInstanceEx).get.mockResolvedValueOnce({ data: 'some data' });
-    const result = await apiRequest.get('/test/path', { params: { key: 'value' } });
+    (apiRequest.axiosInstance as AxiosInstanceEx).get.mockResolvedValueOnce({
+      data: 'some data',
+    });
+    const result = await apiRequest.get('/test/path', {
+      params: { key: 'value' },
+    });
 
     expect(result).toEqual('some data');
   });
 });
 
 describe('POST::', () => {
-  const { showErrorNotification } = NotificationManager as jest.Mocked<typeof NotificationManager>;
+  const { showErrorNotification } = NotificationManager as jest.Mocked<
+    typeof NotificationManager
+  >;
 
   it('should return response data', async () => {
     const apiRequest = new ApiRequest({});
 
-    (apiRequest.axiosInstance as AxiosInstanceEx).post.mockResolvedValueOnce({ data: 'some data' });
+    (apiRequest.axiosInstance as AxiosInstanceEx).post.mockResolvedValueOnce({
+      data: 'some data',
+    });
     const result = await apiRequest.post('/test/path', { key: 'value' });
 
     expect(result).toEqual('some data');
@@ -54,7 +62,9 @@ describe('POST::', () => {
     const response = { response: { data: { message: 'Error' } } };
     const apiRequest = new ApiRequest({});
 
-    (apiRequest.axiosInstance as AxiosInstanceEx).post.mockImplementationOnce(() => Promise.reject(response));
+    (apiRequest.axiosInstance as AxiosInstanceEx).post.mockImplementationOnce(
+      () => Promise.reject(response)
+    );
     const result = apiRequest.post('/test/path', { key: 'value' });
 
     await expect(result).rejects.toEqual(response);
@@ -66,7 +76,9 @@ describe('POST::', () => {
     const apiRequest = new ApiRequest({});
     const response = { message: 'Error' };
 
-    (apiRequest.axiosInstance as AxiosInstanceEx).post.mockImplementationOnce(() => Promise.reject(response));
+    (apiRequest.axiosInstance as AxiosInstanceEx).post.mockImplementationOnce(
+      () => Promise.reject(response)
+    );
     const result = apiRequest.post('/test/path', { key: 'value' }, true);
 
     await expect(result).rejects.toEqual(response);
@@ -78,7 +90,9 @@ describe('PATCH::', () => {
   it('should return response data', async () => {
     const apiRequest = new ApiRequest({});
 
-    (apiRequest.axiosInstance as AxiosInstanceEx).patch.mockResolvedValueOnce({ data: 'some data' });
+    (apiRequest.axiosInstance as AxiosInstanceEx).patch.mockResolvedValueOnce({
+      data: 'some data',
+    });
     const result = await apiRequest.patch('/test/path', { key: 'value' });
 
     await expect(result).toEqual('some data');
@@ -89,7 +103,9 @@ describe('DELETE::', () => {
   it('should return response data', async () => {
     const apiRequest = new ApiRequest({});
 
-    (apiRequest.axiosInstance as AxiosInstanceEx).delete.mockResolvedValueOnce({ data: 'some data' });
+    (apiRequest.axiosInstance as AxiosInstanceEx).delete.mockResolvedValueOnce({
+      data: 'some data',
+    });
     const result = await apiRequest.delete('/test/path');
 
     await expect(result).toEqual('some data');

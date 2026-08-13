@@ -5,7 +5,12 @@ import { METRIC_CATALOGUE } from 'pmm-qan/panel/QueryAnalytics.constants';
 import MetricsService from '../Metrics.service';
 import { TextMetrics } from '../Metrics.types';
 
-export const useMetricsDetails = (): [any[], TextMetrics, boolean, string[]] => {
+export const useMetricsDetails = (): [
+  any[],
+  TextMetrics,
+  boolean,
+  string[],
+] => {
   const {
     contextActions,
     panelState: { queryId, groupBy, from, to, labels, totals },
@@ -31,7 +36,9 @@ export const useMetricsDetails = (): [any[], TextMetrics, boolean, string[]] => 
         setMetrics(processMetrics(METRIC_CATALOGUE, result));
         setTextMetrics(result.text_metrics);
         setMetadata(result.metadata);
-        contextActions.setFingerprint(groupBy === 'queryid' ? result.fingerprint : queryId);
+        contextActions.setFingerprint(
+          groupBy === 'queryid' ? result.fingerprint : queryId
+        );
         setLoading(false);
       } catch (e) {
         setLoading(false);

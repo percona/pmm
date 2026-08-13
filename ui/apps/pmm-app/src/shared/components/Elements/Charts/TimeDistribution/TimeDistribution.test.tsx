@@ -4434,7 +4434,9 @@ describe('TimeDistributionChart chart test', () => {
       data: MOCK_METRICS,
     };
 
-    const dataDistribution = getMetricDistribution(TimeDistributionChartProps.data);
+    const dataDistribution = getMetricDistribution(
+      TimeDistributionChartProps.data
+    );
 
     const sum = dataDistribution.reduce((acc, metric) => {
       // eslint-disable-next-line no-param-reassign
@@ -4450,7 +4452,9 @@ describe('TimeDistributionChart chart test', () => {
     const TimeDistributionChartProps = {
       data: MOCK_METRICS,
     };
-    const { asFragment } = render(<TimeDistribution {...TimeDistributionChartProps} />);
+    const { asFragment } = render(
+      <TimeDistribution {...TimeDistributionChartProps} />
+    );
 
     const firstRender = asFragment();
 

@@ -34,7 +34,10 @@ export const Dimension: FC = () => {
           </Option>
         ))}
       </Select>
-      <Search initialValue={dimensionSearchText} handleSearch={contextActions.setDimensionSearchText} />
+      <Search
+        initialValue={dimensionSearchText}
+        handleSearch={contextActions.setDimensionSearchText}
+      />
     </div>
   );
 };

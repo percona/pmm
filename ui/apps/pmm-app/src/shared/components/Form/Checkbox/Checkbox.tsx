@@ -13,7 +13,13 @@ interface CheckboxFieldInterface {
   disabled?: boolean;
 }
 
-export const CheckboxField = ({ name, label, required, disabled, dataTestId }: CheckboxFieldInterface) => {
+export const CheckboxField = ({
+  name,
+  label,
+  required,
+  disabled,
+  dataTestId,
+}: CheckboxFieldInterface) => {
   const field = useField(name, { type: 'checkbox' });
   const theme = useTheme();
   const styles = getCheckboxStyles(theme);
@@ -28,7 +34,9 @@ export const CheckboxField = ({ name, label, required, disabled, dataTestId }: C
         data-testid={dataTestId}
       />
       <span className="checkbox-container__checkmark" />
-      <OverflowTooltip className="checkbox-container__label-text">{label}</OverflowTooltip>
+      <OverflowTooltip className="checkbox-container__label-text">
+        {label}
+      </OverflowTooltip>
     </label>
   );
 };

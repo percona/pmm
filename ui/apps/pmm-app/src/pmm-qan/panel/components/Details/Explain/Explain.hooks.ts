@@ -18,7 +18,9 @@ export const useExplains = (examples, databaseType): any[] => {
 
   useEffect(() => {
     const getExplains = async () => {
-      const notEmptyExample = examples ? examples.filter((example) => example.example) : [];
+      const notEmptyExample = examples
+        ? examples.filter((example) => example.example)
+        : [];
 
       try {
         setJsonExplain(actionResult);
@@ -32,7 +34,11 @@ export const useExplains = (examples, databaseType): any[] => {
           return;
         }
 
-        const results = await fetchExplains(queryId, notEmptyExample[0], databaseType);
+        const results = await fetchExplains(
+          queryId,
+          notEmptyExample[0],
+          databaseType
+        );
 
         setClassicExplain(results.classicExplain);
         setJsonExplain(results.jsonExplain);

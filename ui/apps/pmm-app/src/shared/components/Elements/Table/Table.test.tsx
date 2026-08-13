@@ -62,7 +62,9 @@ describe('Table', () => {
 
   it('Render spinner if table is loading', () => {
     const noData = <div data-testid="custom-no-data">123</div>;
-    const root = render(<Table columns={columns} data={[]} noData={noData} loading />);
+    const root = render(
+      <Table columns={columns} data={[]} noData={noData} loading />
+    );
 
     expect(root.queryAllByTestId('table-loading').length).toEqual(1);
     expect(root.queryAllByTestId('table-no-data').length).toEqual(0);

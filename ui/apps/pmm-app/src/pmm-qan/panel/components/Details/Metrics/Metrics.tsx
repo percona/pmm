@@ -1,12 +1,20 @@
 import React, { FC, useState, useRef, useEffect } from 'react';
-import { Latency, Sparkline, TimeDistribution } from 'shared/components/Elements/Charts';
+import {
+  Latency,
+  Sparkline,
+  TimeDistribution,
+} from 'shared/components/Elements/Charts';
 import { humanize } from 'shared/components/helpers/Humanization';
 import { Overlay } from 'shared/components/Elements/Overlay/Overlay';
 import { Collapse, useStyles2 } from '@grafana/ui';
 import { Table } from 'shared/components/Elements/Table';
 import { Databases } from 'shared/core';
 import { LinkTooltip } from 'shared/components/Elements/LinkTooltip/LinkTooltip';
-import { HISTOGRAM_HEIGHT, HISTOGRAM_MARGIN, MetricsTabs } from './Metrics.constants';
+import {
+  HISTOGRAM_HEIGHT,
+  HISTOGRAM_MARGIN,
+  MetricsTabs,
+} from './Metrics.constants';
 import { MetricsProps } from './Metrics.types';
 import { getStyles } from './Metrics.styles';
 import { useHistogram } from './hooks/useHistogram';
@@ -14,11 +22,20 @@ import { TopQuery } from '../TopQuery/TopQuery';
 import { BarChart } from '../../BarChart/BarChart';
 import { OVERLAY_LOADER_SIZE } from '../Details.constants';
 
-const Metrics: FC<MetricsProps> = ({ databaseType, totals, metrics, textMetrics = {}, loading, groupBy }) => {
+const Metrics: FC<MetricsProps> = ({
+  databaseType,
+  totals,
+  metrics,
+  textMetrics = {},
+  loading,
+  groupBy,
+}) => {
   const styles = useStyles2(getStyles);
-  const isHistogramAvailable = databaseType === Databases.postgresql && !totals && groupBy === 'queryid';
+  const isHistogramAvailable =
+    databaseType === Databases.postgresql && !totals && groupBy === 'queryid';
   const [histogramData, histogramLoading] = useHistogram(isHistogramAvailable);
-  const [isDistributionPanelOpen, setDistributionPanelVisibility] = useState(true);
+  const [isDistributionPanelOpen, setDistributionPanelVisibility] =
+    useState(true);
   const [isMetricsPanelOpen, setMetricsPanelVisibility] = useState(true);
   const [isHistogramOpen, setHistogramOpen] = useState(true);
   const [isTopQueryOpen, setTopQueryVisibility] = useState(true);
@@ -47,7 +64,9 @@ const Metrics: FC<MetricsProps> = ({ databaseType, totals, metrics, textMetrics 
         <span className={styles.metricData}>
           {`${isRate ? humanize.transform(metric.rate, pipeTypes.ratePipe) : '0'} ${units}`}
         </span>
-        <span className={styles.sparkline}>{sparkline && <Sparkline {...polygonChartProps} />}</span>
+        <span className={styles.sparkline}>
+          {sparkline && <Sparkline {...polygonChartProps} />}
+        </span>
       </div>
     );
   };
@@ -61,7 +80,9 @@ const Metrics: FC<MetricsProps> = ({ databaseType, totals, metrics, textMetrics 
           </span>
         )}
         {item.percentOfTotal ? (
-          <span className={styles.percentOfTotal}>{`${item.percentOfTotal}% of total`}</span>
+          <span
+            className={styles.percentOfTotal}
+          >{`${item.percentOfTotal}% of total`}</span>
         ) : null}
       </div>
       {item.complexMetric ? (
@@ -82,7 +103,10 @@ const Metrics: FC<MetricsProps> = ({ databaseType, totals, metrics, textMetrics 
       <div className={styles.metricColumn}>
         <span className={styles.perQueryStats}>
           {item.metric.avg
-            ? humanize.transform(item.metric.avg, item.pipeTypes.perQueryStatsPipe)
+            ? humanize.transform(
+                item.metric.avg,
+                item.pipeTypes.perQueryStatsPipe
+              )
             : (+item.metric.sum / +item.queryCount).toFixed(2) || '0'}
         </span>
         {!!item.isLatencyChart && <Latency {...latencyChartProps} />}
@@ -117,13 +141,19 @@ const Metrics: FC<MetricsProps> = ({ databaseType, totals, metrics, textMetrics 
   }, [histogramRef.current]);
 
   return (
-    <Overlay isPending={loading || histogramLoading} className="metrics-wrapper" size={OVERLAY_LOADER_SIZE}>
+    <Overlay
+      isPending={loading || histogramLoading}
+      className="metrics-wrapper"
+      size={OVERLAY_LOADER_SIZE}
+    >
       {databaseType !== Databases.mongodb ? (
         <Collapse
           collapsible
           label={MetricsTabs.distribution}
           isOpen={isDistributionPanelOpen}
-          onToggle={() => setDistributionPanelVisibility(!isDistributionPanelOpen)}
+          onToggle={() =>
+            setDistributionPanelVisibility(!isDistributionPanelOpen)
+          }
         >
           <TimeDistribution data={metrics} />
         </Collapse>
@@ -135,7 +165,11 @@ const Metrics: FC<MetricsProps> = ({ databaseType, totals, metrics, textMetrics 
           isOpen={isTopQueryOpen}
           onToggle={() => setTopQueryVisibility(!isTopQueryOpen)}
         >
-          <TopQuery databaseType={databaseType} query={topQuery} queryId={topQueryId} />
+          <TopQuery
+            databaseType={databaseType}
+            query={topQuery}
+            queryId={topQueryId}
+          />
         </Collapse>
       ) : null}
       <Collapse
@@ -144,7 +178,12 @@ const Metrics: FC<MetricsProps> = ({ databaseType, totals, metrics, textMetrics 
         isOpen={isMetricsPanelOpen}
         onToggle={() => setMetricsPanelVisibility(!isMetricsPanelOpen)}
       >
-        <Table columns={columns} data={metrics} loading={loading} noData={null} />
+        <Table
+          columns={columns}
+          data={metrics}
+          loading={loading}
+          noData={null}
+        />
       </Collapse>
       {isHistogramAvailable && histogramData && (
         <div

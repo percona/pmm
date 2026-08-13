@@ -8,7 +8,11 @@ import { SearchProps, SearchValues } from './Search.types';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-export const Search: FC<SearchProps> = ({ dataTestId, initialValue, handleSearch }) => {
+export const Search: FC<SearchProps> = ({
+  dataTestId,
+  initialValue,
+  handleSearch,
+}) => {
   const theme = useTheme();
   const styles = getStyles(theme);
   const {
@@ -23,14 +27,14 @@ export const Search: FC<SearchProps> = ({ dataTestId, initialValue, handleSearch
       debounce((search: string) => {
         handleSearchRef.current({ search });
       }, SEARCH_DEBOUNCE_MS),
-    [],
+    []
   );
 
   useEffect(
     () => () => {
       debouncedSearch.cancel();
     },
-    [debouncedSearch],
+    [debouncedSearch]
   );
 
   const onSubmit = (values: SearchValues) => {
@@ -43,7 +47,11 @@ export const Search: FC<SearchProps> = ({ dataTestId, initialValue, handleSearch
       onSubmit={onSubmit}
       initialValues={{ search: initialValue }}
       render={({ handleSubmit }) => (
-        <form onSubmit={handleSubmit} className={styles.searchWrapper} data-testid={dataTestId}>
+        <form
+          onSubmit={handleSubmit}
+          className={styles.searchWrapper}
+          data-testid={dataTestId}
+        >
           <Field
             name="search"
             render={({ input }) => (

@@ -71,7 +71,9 @@ export const Field: React.FC<FieldProps> = ({
       {label && (
         <div className={cx(styles.label, className)}>
           <label htmlFor={inputId}>
-            <div className={styles.labelContent}>{`${label}${required ? ' *' : ''}`}</div>
+            <div
+              className={styles.labelContent}
+            >{`${label}${required ? ' *' : ''}`}</div>
           </label>
         </div>
       )}

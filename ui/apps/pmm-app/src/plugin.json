@@ -7,12 +7,7 @@
     "author": {
       "name": "Percona"
     },
-    "keywords": [
-      "percona",
-      "query analytics",
-      "pmm",
-      "qan"
-    ],
+    "keywords": ["percona", "query analytics", "pmm", "qan"],
     "links": [
       {
         "name": "Project site",

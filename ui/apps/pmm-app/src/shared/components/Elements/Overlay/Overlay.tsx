@@ -11,7 +11,10 @@ export const Overlay: FC<OverlayProps> = ({
   isPending,
   size = 20,
 }) => (
-  <div className={cx(styles.getOverlayWrapper(size), className)} data-testid="pmm-overlay-wrapper">
+  <div
+    className={cx(styles.getOverlayWrapper(size), className)}
+    data-testid="pmm-overlay-wrapper"
+  >
     {isPending ? (
       <>
         <div className={styles.overlay}>

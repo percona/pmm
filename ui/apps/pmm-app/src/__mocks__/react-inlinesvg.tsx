@@ -21,7 +21,13 @@ const InlineSVG = ({ src }: { src: string }) => {
   // (e.g. `public/img/icons/angle-double-down.svg` -> `angle-double-down`)
   const testId = src.replace(SVG_FILE_NAME_REGEX, '$2');
 
-  return <svg xmlns="http://www.w3.org/2000/svg" data-testid={testId} viewBox="0 0 24 24" />;
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      data-testid={testId}
+      viewBox="0 0 24 24"
+    />
+  );
 };
 
 export default InlineSVG;

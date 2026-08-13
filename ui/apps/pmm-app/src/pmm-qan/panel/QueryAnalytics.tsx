@@ -12,11 +12,17 @@ import SplitPane from 'react-split-pane';
 import { Button, useTheme } from '@grafana/ui';
 import type { GrafanaTheme } from '@grafana/data';
 import { cx } from '@emotion/css';
-import { showSuccessNotification, showWarningNotification } from 'shared/components/helpers';
+import {
+  showSuccessNotification,
+  showWarningNotification,
+} from 'shared/components/helpers';
 import { ConfigProvider } from 'antd';
 import { getAntdTheme } from 'shared/core/theme';
 import { applyPmmCssVariables } from 'shared/components/helpers/getPmmTheme';
-import { QueryAnalyticsProvider, UrlParametersProvider } from './provider/provider';
+import {
+  QueryAnalyticsProvider,
+  UrlParametersProvider,
+} from './provider/provider';
 import { Details, Filters, ManageColumns, Overview } from './components';
 import 'shared/styles.scss';
 import 'shared/style.less';
@@ -30,7 +36,9 @@ interface QueryAnalyticsPanelProps {
   grafanaTheme: GrafanaTheme;
 }
 
-const QueryAnalyticsPanel: FC<QueryAnalyticsPanelProps> = ({ grafanaTheme }) => {
+const QueryAnalyticsPanel: FC<QueryAnalyticsPanelProps> = ({
+  grafanaTheme,
+}) => {
   const {
     panelState: { querySelected, from, to },
   } = useContext(QueryAnalyticsProvider);
@@ -65,7 +73,12 @@ const QueryAnalyticsPanel: FC<QueryAnalyticsPanelProps> = ({ grafanaTheme }) => 
     // Force remount when theme changes to ensure Ant Design components (Table, Select, Checkbox)
     // pick up the new theme from ConfigProvider. Without this, components render with wrong colors
     // until page refresh (e.g., dark mode Table in light theme).
-    <div key={grafanaTheme.type} className="query-analytics-grid" id="antd" ref={queryAnalyticsWrapper}>
+    <div
+      key={grafanaTheme.type}
+      className="query-analytics-grid"
+      id="antd"
+      ref={queryAnalyticsWrapper}
+    >
       <div className="overview-filters">
         <Filters />
       </div>
@@ -97,7 +110,9 @@ const QueryAnalyticsPanel: FC<QueryAnalyticsPanelProps> = ({ grafanaTheme }) => 
               pane2Style={{ minHeight: '20%', zIndex: 999 }}
             >
               <Overview />
-              <div className={styles.detailsWrapper}>{querySelected ? <Details /> : null}</div>
+              <div className={styles.detailsWrapper}>
+                {querySelected ? <Details /> : null}
+              </div>
             </SplitPane>
           </div>
         </div>

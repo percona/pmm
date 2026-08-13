@@ -5,5 +5,7 @@ import { UseRowSelectInstanceProps } from 'react-table';
 
 declare module 'react-table' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  export interface TableInstance<D extends object = {}> extends UseRowSelectInstanceProps<D> {}
+  export interface TableInstance<
+    D extends object = {},
+  > extends UseRowSelectInstanceProps<D> {}
 }

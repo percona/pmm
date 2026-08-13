@@ -19,28 +19,36 @@ jest.mock('shared/components/helpers/getPmmTheme', () => ({
 
 describe('TimeMetric::', () => {
   it('should render time metric correct with value', async () => {
-    const { container } = render(<TimeMetric value={10} percentage={10} cnt={10} />);
+    const { container } = render(
+      <TimeMetric value={10} percentage={10} cnt={10} />
+    );
     const span = container.querySelector('div > span');
 
     expect(span?.textContent).toBe('10.00 sec');
   });
 
   it('should render time metric correct without value but with positive cnt', async () => {
-    const { container } = render(<TimeMetric value={undefined} percentage={10} cnt={10} />);
+    const { container } = render(
+      <TimeMetric value={undefined} percentage={10} cnt={10} />
+    );
     const span = container.querySelector('div > span');
 
     expect(span?.textContent).toBe('0');
   });
 
   it('should render time metric correct without value but with negative cnt', async () => {
-    const { container } = render(<TimeMetric value={undefined} percentage={10} cnt={-10} />);
+    const { container } = render(
+      <TimeMetric value={undefined} percentage={10} cnt={-10} />
+    );
     const span = container.querySelector('div > span');
 
     expect(span?.textContent).toBe('');
   });
 
   it('should render time metric correct without value and without cnt', async () => {
-    const { container } = render(<TimeMetric value={undefined} percentage={10} cnt={undefined} />);
+    const { container } = render(
+      <TimeMetric value={undefined} percentage={10} cnt={undefined} />
+    );
     const span = container.querySelector('div > span');
 
     expect(span?.textContent).toBe('N/A');
@@ -49,21 +57,27 @@ describe('TimeMetric::', () => {
 
 describe('NonTimeMetric::', () => {
   it('should render non metric correct with value', async () => {
-    const { container } = render(<NonTimeMetric value={10} percentage={10} cnt={10} units="test" />);
+    const { container } = render(
+      <NonTimeMetric value={10} percentage={10} cnt={10} units="test" />
+    );
     const span = container.querySelector('div > span');
 
     expect(span?.textContent).toBe('10.00 test');
   });
 
   it('should render non metric correct without value but with positive cnt', async () => {
-    const { container } = render(<NonTimeMetric value={undefined} percentage={10} cnt={10} units="test" />);
+    const { container } = render(
+      <NonTimeMetric value={undefined} percentage={10} cnt={10} units="test" />
+    );
     const span = container.querySelector('div > span');
 
     expect(span?.textContent).toBe('0 test');
   });
 
   it('should render non metric correct without value but with negative cnt', async () => {
-    const { container } = render(<NonTimeMetric value={undefined} percentage={10} cnt={-10} units="test" />);
+    const { container } = render(
+      <NonTimeMetric value={undefined} percentage={10} cnt={-10} units="test" />
+    );
     const span = container.querySelector('div > span');
 
     expect(span?.textContent).toBe('');
@@ -71,7 +85,12 @@ describe('NonTimeMetric::', () => {
 
   it('should render time metric correct without value and without cnt', async () => {
     const { container } = render(
-      <NonTimeMetric value={undefined} percentage={10} cnt={undefined} units="test" />,
+      <NonTimeMetric
+        value={undefined}
+        percentage={10}
+        cnt={undefined}
+        units="test"
+      />
     );
     const span = container.querySelector('div > span');
 

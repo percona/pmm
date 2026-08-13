@@ -59,9 +59,13 @@ export const refreshGrafanaVariables = (state) => {
 
   Object.keys(labels).forEach((key) => {
     const variables =
-      labels[key].length > 1 ? labels[key].filter((label) => label !== ALL_VARIABLE_TEXT) : labels[key];
+      labels[key].length > 1
+        ? labels[key].filter((label) => label !== ALL_VARIABLE_TEXT)
+        : labels[key];
 
-    variablesQuery[`var-${key}`] = variables.map((variable) => (variable === 'na' ? '' : variable));
+    variablesQuery[`var-${key}`] = variables.map((variable) =>
+      variable === 'na' ? '' : variable
+    );
   });
 
   // set defaults when filters are empty
@@ -135,11 +139,14 @@ export const parseURL = (query) => ({
   labels: setFilters(query),
   pageNumber: query.get('page_number') || DEFAULT_PAGE_NUMBER,
   pageSize: query.get('page_size') || DEFAULT_PAGE_SIZE,
-  orderBy: query.get('order_by') || `-${(JSON.parse(query.get('columns')) || DEFAULT_COLUMNS)[0]}`,
+  orderBy:
+    query.get('order_by') ||
+    `-${(JSON.parse(query.get('columns')) || DEFAULT_COLUMNS)[0]}`,
   queryId: query.get('filter_by'),
   database: query.get('selected_query_database'),
   totals: query.get('totals') === 'true',
-  querySelected: !!query.get('filter_by') || query.get('query_selected') === 'true',
+  querySelected:
+    !!query.get('filter_by') || query.get('query_selected') === 'true',
   groupBy: query.get('group_by') || 'queryid',
   openDetailsTab: query.get('details_tab') || 'details',
   dimensionSearchText: query.get('dimensionSearchText') || '',

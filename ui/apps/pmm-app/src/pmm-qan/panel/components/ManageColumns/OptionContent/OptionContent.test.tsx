@@ -8,7 +8,9 @@ const tags = ['mysql', 'postgresql'];
 
 describe('OptionContent::', () => {
   it('should render with title, description and tags', () => {
-    const { container } = render(<OptionContent title={title} description={description} tags={tags} />);
+    const { container } = render(
+      <OptionContent title={title} description={description} tags={tags} />
+    );
     const spans = container.querySelectorAll('div > div > span');
 
     expect(spans[0].textContent).toEqual(title);
@@ -18,7 +20,9 @@ describe('OptionContent::', () => {
   });
 
   it('should render with title, description and one tag', () => {
-    const { container } = render(<OptionContent title={title} description={description} tags={[tags[0]]} />);
+    const { container } = render(
+      <OptionContent title={title} description={description} tags={[tags[0]]} />
+    );
     const spans = container.querySelectorAll('div > div > span');
 
     expect(spans[0].textContent).toEqual(title);
@@ -27,7 +31,9 @@ describe('OptionContent::', () => {
   });
 
   it('should render with title, description and empty tags', () => {
-    const { container } = render(<OptionContent title={title} description={description} tags={[]} />);
+    const { container } = render(
+      <OptionContent title={title} description={description} tags={[]} />
+    );
     const spans = container.querySelectorAll('div > div > span');
 
     expect(spans[0].textContent).toEqual(title);

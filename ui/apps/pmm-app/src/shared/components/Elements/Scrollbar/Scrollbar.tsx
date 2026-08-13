@@ -9,7 +9,10 @@ export const Scrollbar = (props) => {
 
   return (
     // @ts-ignore
-    <SimpleBar {...restProps} className={cx(restProps.className, styles.scrollbar)}>
+    <SimpleBar
+      {...restProps}
+      className={cx(restProps.className, styles.scrollbar)}
+    >
       {children}
     </SimpleBar>
   );

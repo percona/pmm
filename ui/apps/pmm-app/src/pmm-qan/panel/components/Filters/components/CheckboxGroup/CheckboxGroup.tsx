@@ -51,10 +51,16 @@ export const CheckboxGroup: FC<CheckboxGroupProps> = ({
   return itemsList.length ? (
     <div>
       <p className={styles.filterHeaderWrapper}>
-        <span className={styles.filterHeader} data-testid="checkbox-group-header">
+        <span
+          className={styles.filterHeader}
+          data-testid="checkbox-group-header"
+        >
           {name}
         </span>
-        <span className={styles.showModeSwitcher} data-testid="show-top-switcher">
+        <span
+          className={styles.showModeSwitcher}
+          data-testid="show-top-switcher"
+        >
           {`${filteredData.filter(searchFilter).length}`}
         </span>
       </p>
@@ -102,7 +108,11 @@ export const FilterCheckbox: FC<FilterCheckboxProps> = ({
       : '';
 
   return (
-    <div hidden={hidden} className={styles.label} data-testid={`filter-checkbox-${item.value}`}>
+    <div
+      hidden={hidden}
+      className={styles.label}
+      data-testid={`filter-checkbox-${item.value}`}
+    >
       <span className={styles.filterName}>
         <CheckboxField
           // TODO: using '--' because final form think that it is a nested fields
@@ -113,13 +123,22 @@ export const FilterCheckbox: FC<FilterCheckboxProps> = ({
       </span>
       {dashboardURL && item.value && (
         <span className={styles.dashboardLink}>
-          <a href={dashboardURL} target="_blank" rel="noreferrer" aria-label="Open dashboard">
+          <a
+            href={dashboardURL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open dashboard"
+          >
             <Icon name="graph-bar" />
           </a>
         </span>
       )}
       <span className={styles.percentage}>
-        <span>{valueExists ? humanize.transform(item.main_metric_percent, 'percent') : null}</span>
+        <span>
+          {valueExists
+            ? humanize.transform(item.main_metric_percent, 'percent')
+            : null}
+        </span>
       </span>
     </div>
   );

@@ -77,7 +77,10 @@ export class ParseQueryParamDate {
       // Calculate complex time range, for example 'Week to date'
       // from=now-5d&to=now-6M ... from=now/w&to=now/w
       // https://grafana.com/docs/grafana/latest/dashboards/time-range-controls/
-      parsedDate = getComplexTimeValue(date, nowFunc, edge).subtract(1, 'minute');
+      parsedDate = getComplexTimeValue(date, nowFunc, edge).subtract(
+        1,
+        'minute'
+      );
     } else {
       // expect unix timestamp in milliseconds
       const isNum = /^\d+$/.test(date);

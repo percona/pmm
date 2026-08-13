@@ -1,5 +1,9 @@
 import { logger } from 'shared/core/logger';
-import { ActionResult, getActionResult, catchActionError } from 'shared/components/Actions';
+import {
+  ActionResult,
+  getActionResult,
+  catchActionError,
+} from 'shared/components/Actions';
 import { Databases } from 'shared/core';
 import { mongodbMethods, mysqlMethods } from '../database-models';
 import { DatabasesType, QueryExampleResponseItem } from '../Details.types';
@@ -32,7 +36,7 @@ export const processClassicExplain = (classic): ClassicExplainInterface => {
         acc[headerList[index].accessor] = row;
 
         return acc;
-      }, {}),
+      }, {})
   );
 
   return { columns: headerList, rows: rowsList };
@@ -68,7 +72,7 @@ export const fetchExplains = async (
   queryId: string,
   example: QueryExampleResponseItem,
   databaseType: DatabasesType,
-  placeholders?: string[],
+  placeholders?: string[]
 ): Promise<FetchExplainsResult> => {
   const hasPlaceholders = placeholders?.length || !example.placeholders_count;
   const hasExample = !!example?.example;
@@ -82,15 +86,24 @@ export const fetchExplains = async (
       };
 
       const [classicResult, jsonResult] = await Promise.all([
-        mysqlMethods.getExplain(payload, true).then(getActionResult).catch(catchActionError),
-        mysqlMethods.getExplainJSON(payload, true).then(getActionResult).catch(catchActionError),
+        mysqlMethods
+          .getExplain(payload, true)
+          .then(getActionResult)
+          .catch(catchActionError),
+        mysqlMethods
+          .getExplainJSON(payload, true)
+          .then(getActionResult)
+          .catch(catchActionError),
       ]);
 
       const jsonValue = parseExplain(jsonResult);
       const classicValue = parseExplain(classicResult);
 
       return {
-        jsonExplain: { ...jsonResult, value: jsonValue ? jsonValue.explain_result : jsonValue },
+        jsonExplain: {
+          ...jsonResult,
+          value: jsonValue ? jsonValue.explain_result : jsonValue,
+        },
         classicExplain: { ...classicResult, value: classicValue },
         visualExplain: actionResult,
       };

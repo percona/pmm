@@ -6,7 +6,9 @@ const getPercentOfTotal = (current, total) => {
 
 const getSparkline = (sparklines, metricName) =>
   sparklines.map((sparkline) => {
-    const key = Object.keys(sparkline).find((sparklineKey) => sparklineKey.includes(metricName)) as string;
+    const key = Object.keys(sparkline).find((sparklineKey) =>
+      sparklineKey.includes(metricName)
+    ) as string;
 
     return {
       point: sparkline.point,
@@ -46,7 +48,9 @@ const metricHasData = ([, value]: [string, unknown]) =>
   Object.values(value as Record<string, number>).some((value) => value !== 0);
 
 export const processMetrics = (metricsCatalogue, metrics) => {
-  const data = Object.keys(metrics.metrics).length ? metrics.metrics : metrics.totals;
+  const data = Object.keys(metrics.metrics).length
+    ? metrics.metrics
+    : metrics.totals;
 
   return Object.entries(data)
     .filter((metricData) => Object.keys(metricData[1] as any[]).length)

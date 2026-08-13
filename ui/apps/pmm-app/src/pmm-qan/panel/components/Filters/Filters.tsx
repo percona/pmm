@@ -91,7 +91,7 @@ export const Filters: FC = () => {
         />
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    []
   );
 
   return (
@@ -109,7 +109,10 @@ export const Filters: FC = () => {
             setFilter('');
           }}
         >
-          <div ref={filtersWrapperRef} className={cx({ [styles.filtersDisabled]: loadingDetails })}>
+          <div
+            ref={filtersWrapperRef}
+            className={cx({ [styles.filtersDisabled]: loadingDetails })}
+          >
             <FiltersHeader loading={loading} />
             <Overlay isPending={loading}>
               <Scrollbar className={styles.filtersWrapper}>

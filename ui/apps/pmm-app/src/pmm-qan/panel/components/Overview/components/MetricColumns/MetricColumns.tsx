@@ -5,7 +5,11 @@ import { cx } from '@emotion/css';
 import { useTheme } from '@grafana/ui';
 import { METRIC_CATALOGUE } from 'pmm-qan/panel/QueryAnalytics.constants';
 import { humanize } from 'shared/components/helpers/Humanization';
-import { Latency, Sparkline, TotalPercentage } from 'shared/components/Elements/Charts';
+import {
+  Latency,
+  Sparkline,
+  TotalPercentage,
+} from 'shared/components/Elements/Charts';
 import { COLUMN_WIDTH, FIXED_COLUMN_WIDTH } from '../../Overview.constants';
 import { ManageColumns } from '../../../ManageColumns/ManageColumns';
 import { getStyles } from './MetricColumn.styles';
@@ -18,9 +22,17 @@ export const TimeMetric = ({ value, percentage, cnt }) => {
   return (
     <div className={styles.metricStyle}>
       <span className={cx('summarize', styles.summarize(value))}>
-        {value === undefined && cnt > 0 ? `${humanize.transform(0, 'time')}` : null}
-        {(value === undefined && cnt === undefined) || value === null || value === 'NaN' ? 'N/A' : null}
-        {value && value !== 'NaN' ? `${humanize.transform(value, 'time')}` : null}
+        {value === undefined && cnt > 0
+          ? `${humanize.transform(0, 'time')}`
+          : null}
+        {(value === undefined && cnt === undefined) ||
+        value === null ||
+        value === 'NaN'
+          ? 'N/A'
+          : null}
+        {value && value !== 'NaN'
+          ? `${humanize.transform(value, 'time')}`
+          : null}
       </span>
       {value === undefined || value === null || value === 'NaN' ? null : (
         <TotalPercentage width={percentage} />
@@ -37,8 +49,14 @@ export const NonTimeMetric = ({ value, units, percentage, cnt }) => {
     <div className={styles.metricStyle}>
       <span className={cx('summarize', styles.summarize(value))}>
         {value === undefined && cnt > 0 ? `0 ${units}` : null}
-        {(value === undefined && cnt === undefined) || value === null || value === 'NaN' ? 'N/A' : null}
-        {value && value !== 'NaN' ? `${humanize.transform(value, 'number')} ${units}` : null}
+        {(value === undefined && cnt === undefined) ||
+        value === null ||
+        value === 'NaN'
+          ? 'N/A'
+          : null}
+        {value && value !== 'NaN'
+          ? `${humanize.transform(value, 'number')} ${units}`
+          : null}
       </span>
       {value === undefined || value === null || value === 'NaN' ? null : (
         <TotalPercentage width={percentage} />
@@ -85,7 +103,9 @@ export const metricColumnRender =
         },
         {
           header: 'Sum',
-          value: stats.sum && humanize.transform(stats.sum, metric.pipeTypes.sumPipe),
+          value:
+            stats.sum &&
+            humanize.transform(stats.sum, metric.pipeTypes.sumPipe),
           key: 'sum',
         },
         {
@@ -102,15 +122,25 @@ export const metricColumnRender =
         { header: '• 99%', value: stats.p99 },
       ]
         .filter((element) => element.value)
-        .map(({ header, value }) => ({ header, value: humanize.transform(value) }));
+        .map(({ header, value }) => ({
+          header,
+          value: humanize.transform(value),
+        }));
 
       const MetricsList = ({ data }) => (
         <div className={styles.metricsWrapper} data-testid="metrics-list">
           {data.map((metricItem, metricIndex, list) => (
             // eslint-disable-next-line react/jsx-key
-            <div className={styles.singleMetricWrapper} data-testid={metricItem.key || ''}>
-              <span className={styles.metricName}>{`${metricItem.header} : ${metricItem.value}`}</span>
-              {list.length === metricIndex + 1 ? null : <Divider className={styles.metricsListDivider} />}
+            <div
+              className={styles.singleMetricWrapper}
+              data-testid={metricItem.key || ''}
+            >
+              <span
+                className={styles.metricName}
+              >{`${metricItem.header} : ${metricItem.value}`}</span>
+              {list.length === metricIndex + 1 ? null : (
+                <Divider className={styles.metricsListDivider} />
+              )}
             </div>
           ))}
         </div>
@@ -125,7 +155,10 @@ export const metricColumnRender =
             <>
               <Divider className={styles.tooltipLatencyDivider} />
               {metricName === 'query_time' && (
-                <Latency {...{ data: stats }} className="latency-chart-container" />
+                <Latency
+                  {...{ data: stats }}
+                  className="latency-chart-container"
+                />
               )}
               <MetricsList data={latencyTooltipData} />
             </>
@@ -146,17 +179,24 @@ export const metricColumnRender =
           {columnIndex === 0 && <Sparkline {...polygonChartProps} />}
         </div>
         <Tooltip
-          getPopupContainer={() => document.querySelector('#antd') || document.body}
+          getPopupContainer={() =>
+            document.querySelector('#antd') || document.body
+          }
           placement="left"
           overlayClassName="overview-column-tooltip"
           title={
-            (stats.avg && stats.avg !== 'NaN') || (statPerSec && statPerSec !== 'NaN') ? (
+            (stats.avg && stats.avg !== 'NaN') ||
+            (statPerSec && statPerSec !== 'NaN') ? (
               <MetricTooltip />
             ) : null
           }
         >
           {isTimeMetric ? (
-            <TimeMetric value={stats.avg} cnt={stats.cnt} percentage={percentFromTotal} />
+            <TimeMetric
+              value={stats.avg}
+              cnt={stats.cnt}
+              percentage={percentFromTotal}
+            />
           ) : null}
           {!isTimeMetric ? (
             <NonTimeMetric
@@ -171,7 +211,13 @@ export const metricColumnRender =
     );
   };
 
-export const getOverviewColumn = (metricName, columnIndex, totalValues, orderBy, mainMetric) => {
+export const getOverviewColumn = (
+  metricName,
+  columnIndex,
+  totalValues,
+  orderBy,
+  mainMetric
+) => {
   const metric = METRIC_CATALOGUE[metricName];
 
   return {
@@ -183,7 +229,12 @@ export const getOverviewColumn = (metricName, columnIndex, totalValues, orderBy,
     width: columnIndex === 0 ? COLUMN_WIDTH * 1.8 : FIXED_COLUMN_WIDTH,
     Header: metricName,
     HeaderAccessor: () => (
-      <ManageColumns placeholder={metricName} currentMetric={metric} mainMetric={mainMetric} width="100%" />
+      <ManageColumns
+        placeholder={metricName}
+        currentMetric={metric}
+        mainMetric={mainMetric}
+        width="100%"
+      />
     ),
     accessor: metricColumnRender({
       metricName,

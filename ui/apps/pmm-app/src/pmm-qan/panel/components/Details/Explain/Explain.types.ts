@@ -30,7 +30,7 @@ export interface UseExplain {
   fetchExplains: (
     example: QueryExampleResponseItem,
     databaseType: DatabasesType,
-    placeholders?: string[],
+    placeholders?: string[]
   ) => Promise<boolean>;
 }
 

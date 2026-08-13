@@ -3,7 +3,12 @@ import { ActionResult, getActionResult } from 'shared/components/Actions';
 import { Databases } from 'shared/core';
 import { mysqlMethods, postgresqlMethods } from '../../../database-models';
 
-export const useShowCreateTable = (databaseType, example, tableName, database) => {
+export const useShowCreateTable = (
+  databaseType,
+  example,
+  tableName,
+  database
+) => {
   const [showCreateTable, setShowCreateTable] = useState<ActionResult>({
     error: '',
     loading: true,
@@ -14,9 +19,17 @@ export const useShowCreateTable = (databaseType, example, tableName, database) =
     let id;
 
     if (databaseType === Databases.postgresql) {
-      id = await postgresqlMethods.getShowCreateTables({ example, tableName, database });
+      id = await postgresqlMethods.getShowCreateTables({
+        example,
+        tableName,
+        database,
+      });
     } else if (databaseType === Databases.mysql) {
-      id = await mysqlMethods.getShowCreateTables({ example, tableName, database });
+      id = await mysqlMethods.getShowCreateTables({
+        example,
+        tableName,
+        database,
+      });
     }
 
     const result = await getActionResult(id);

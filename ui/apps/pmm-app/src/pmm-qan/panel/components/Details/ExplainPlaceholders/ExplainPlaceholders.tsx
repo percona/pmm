@@ -22,8 +22,9 @@ const ExplainPlaceholders: React.FC<ExplainPlaceholdersProps> = ({
   const [visualExplain, setVisualExplain] = useState(actionResult);
   const [initialized, setInitialized] = useState(false);
   const example = useMemo(
-    () => examples.find((e) => e.example || e.explain_fingerprint || e.query_id),
-    [examples],
+    () =>
+      examples.find((e) => e.example || e.explain_fingerprint || e.query_id),
+    [examples]
   );
 
   useEffect(() => {
@@ -53,14 +54,21 @@ const ExplainPlaceholders: React.FC<ExplainPlaceholdersProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [example]);
 
-  const handlePlaceholderSubmit = async ({ placeholders }: PlaceholdersFormValues) => {
+  const handlePlaceholderSubmit = async ({
+    placeholders,
+  }: PlaceholdersFormValues) => {
     if (!example || !queryId) {
       setInitialized(true);
 
       return;
     }
 
-    const results = await fetchExplains(queryId, example, databaseType, placeholders);
+    const results = await fetchExplains(
+      queryId,
+      example,
+      databaseType,
+      placeholders
+    );
 
     setClassicExplain(results.classicExplain);
     setJsonExplain(results.jsonExplain);
@@ -70,7 +78,9 @@ const ExplainPlaceholders: React.FC<ExplainPlaceholdersProps> = ({
   };
 
   if (!initialized && example) {
-    return <PlaceholdersForm onSubmit={handlePlaceholderSubmit} example={example} />;
+    return (
+      <PlaceholdersForm onSubmit={handlePlaceholderSubmit} example={example} />
+    );
   }
 
   return (

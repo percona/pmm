@@ -11,19 +11,23 @@ describe('Highlight::', () => {
     render(
       <Highlight language="sql">
         <span>Test children</span>
-      </Highlight>,
+      </Highlight>
     );
 
-    expect(screen.getByTestId('highlight-code').textContent).toEqual('Test children');
+    expect(screen.getByTestId('highlight-code').textContent).toEqual(
+      'Test children'
+    );
   });
 
   it('renders correct language', () => {
     render(
       <Highlight language="sql">
         <span>Test children</span>
-      </Highlight>,
+      </Highlight>
     );
 
-    expect(screen.getByTestId('highlight-code').className).toEqual('language-sql');
+    expect(screen.getByTestId('highlight-code').className).toEqual(
+      'language-sql'
+    );
   });
 });

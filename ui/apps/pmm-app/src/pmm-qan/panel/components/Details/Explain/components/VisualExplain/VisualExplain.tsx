@@ -4,7 +4,9 @@ import { Messages } from '../../../Details.messages';
 
 export const VisualExplain = ({ visualExplain }) => (
   <Overlay isPending={false}>
-    {visualExplain.error ? <pre data-testid="visual-explain-error">{visualExplain.error}</pre> : null}
+    {visualExplain.error ? (
+      <pre data-testid="visual-explain-error">{visualExplain.error}</pre>
+    ) : null}
     {!visualExplain.error && visualExplain.value ? (
       <div data-testid="visual-explain-value">
         <pre>{visualExplain.value}</pre>

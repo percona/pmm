@@ -5,13 +5,22 @@ import validators from 'shared/components/helpers/validators';
 import { Messages } from './PlaceholdersForm.messages';
 import PrepareExplainFingerPrint from '../QueryFingerprint';
 import { getStyles } from './PlaceholdersForm.styles';
-import { PlaceholdersFormProps, PlaceholdersFormValues } from './PlaceholdersForm.types';
+import {
+  PlaceholdersFormProps,
+  PlaceholdersFormValues,
+} from './PlaceholdersForm.types';
 import { prepareInputs } from './PlaceholdersForm.utils';
 
-const PlaceholdersForm: React.FC<PlaceholdersFormProps> = ({ onSubmit, example }) => {
+const PlaceholdersForm: React.FC<PlaceholdersFormProps> = ({
+  onSubmit,
+  example,
+}) => {
   // recreate initial values if example changes to reset the form
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const initialValues = useMemo<PlaceholdersFormValues>(() => ({ placeholders: [] }), [example]);
+  const initialValues = useMemo<PlaceholdersFormValues>(
+    () => ({ placeholders: [] }),
+    [example]
+  );
   const styles = useStyles(getStyles);
   const placeholders = prepareInputs(example.placeholders_count || 0);
 
@@ -33,13 +42,25 @@ const PlaceholdersForm: React.FC<PlaceholdersFormProps> = ({ onSubmit, example }
                   name={placeholder.fieldName}
                   validate={validators.required}
                   render={({ input, meta }) => (
-                    <Field invalid={meta.error && meta.touched} error={meta.error}>
-                      <Input {...input} autoFocus autoCapitalize="none" placeholder={placeholder.label} />
+                    <Field
+                      invalid={meta.error && meta.touched}
+                      error={meta.error}
+                    >
+                      <Input
+                        {...input}
+                        autoFocus
+                        autoCapitalize="none"
+                        placeholder={placeholder.label}
+                      />
                     </Field>
                   )}
                 />
               ))}
-              <Button type="submit" onClick={handleSubmit} disabled={submitting}>
+              <Button
+                type="submit"
+                onClick={handleSubmit}
+                disabled={submitting}
+              >
                 {Messages.submit}
               </Button>
             </div>

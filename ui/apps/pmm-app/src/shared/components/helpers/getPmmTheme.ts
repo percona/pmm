@@ -32,7 +32,9 @@ interface Themes {
  */
 export const getPmmTheme = (theme: GrafanaTheme): Themes => {
   const isLight = theme?.isLight ?? true;
-  const mainTextColor = isLight ? (theme?.colors?.text ?? '#000000') : 'rgba(255, 255, 255, 0.8)';
+  const mainTextColor = isLight
+    ? (theme?.colors?.text ?? '#000000')
+    : 'rgba(255, 255, 255, 0.8)';
 
   const backgroundColor = isLight ? '#f7f8fa' : '#0b0c0e';
   const borderColor = isLight ? mainTextColor : '#292929';
@@ -90,7 +92,10 @@ export const applyPmmCssVariables = (grafanaTheme: GrafanaTheme): void => {
   root.style.setProperty('--qan-dropdown-bg', pmmTheme.dropdown.bg);
   root.style.setProperty('--qan-dropdown-text', pmmTheme.dropdown.text);
   root.style.setProperty('--qan-dropdown-hover-bg', pmmTheme.dropdown.hoverBg);
-  root.style.setProperty('--qan-dropdown-bgSmallText', pmmTheme.dropdown.bgSmallText);
+  root.style.setProperty(
+    '--qan-dropdown-bgSmallText',
+    pmmTheme.dropdown.bgSmallText
+  );
 
   // Page background and text color
   root.style.setProperty('--page-background', pmmTheme.table.backgroundColor);

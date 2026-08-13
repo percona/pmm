@@ -8,7 +8,8 @@ export const getDefaultOptions = ({
   showLegend,
   theme,
 }: GetDefaultOptionsProps): ChartOptions<'bar'> => {
-  const indexAxis: 'x' | 'y' | undefined = orientation && orientation === 'horizontal' ? 'y' : 'x';
+  const indexAxis: 'x' | 'y' | undefined =
+    orientation && orientation === 'horizontal' ? 'y' : 'x';
 
   const defaultOptions = {
     indexAxis,

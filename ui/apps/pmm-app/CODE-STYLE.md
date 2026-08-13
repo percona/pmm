@@ -1027,12 +1027,18 @@
   ```javascript
   // bad
   ['get', 'post', 'put'].map((httpMethod) =>
-    Object.prototype.hasOwnProperty.call(httpMagicObjectWithAVeryLongName, httpMethod),
+    Object.prototype.hasOwnProperty.call(
+      httpMagicObjectWithAVeryLongName,
+      httpMethod
+    )
   );
 
   // good
   ['get', 'post', 'put'].map((httpMethod) =>
-    Object.prototype.hasOwnProperty.call(httpMagicObjectWithAVeryLongName, httpMethod),
+    Object.prototype.hasOwnProperty.call(
+      httpMagicObjectWithAVeryLongName,
+      httpMethod
+    )
   );
   ```
 
@@ -1052,13 +1058,13 @@
   // bad
   [1, 2, 3].map(
     (number) =>
-      `A long string with the ${number}. It’s so long that we don’t want it to take up space on the .map line!`,
+      `A long string with the ${number}. It’s so long that we don’t want it to take up space on the .map line!`
   );
 
   // good
   [1, 2, 3].map(
     (number) =>
-      `A long string with the ${number}. It’s so long that we don’t want it to take up space on the .map line!`,
+      `A long string with the ${number}. It’s so long that we don’t want it to take up space on the .map line!`
   );
 
   // bad
@@ -1080,13 +1086,16 @@
 
   ```javascript
   // bad
-  const itemHeight = (item) => (item.height <= 256 ? item.largeSize : item.smallSize);
+  const itemHeight = (item) =>
+    item.height <= 256 ? item.largeSize : item.smallSize;
 
   // bad
-  const itemHeight = (item) => (item.height >= 256 ? item.largeSize : item.smallSize);
+  const itemHeight = (item) =>
+    item.height >= 256 ? item.largeSize : item.smallSize;
 
   // good
-  const itemHeight = (item) => (item.height <= 256 ? item.largeSize : item.smallSize);
+  const itemHeight = (item) =>
+    item.height <= 256 ? item.largeSize : item.smallSize;
 
   // good
   const itemHeight = (item) => {
@@ -2324,7 +2333,11 @@
 
   ```javascript
   // bad
-  if ((foo === 123 || bar === 'abc') && doesItLookGoodWhenItBecomesThatLong() && isThisReallyHappening()) {
+  if (
+    (foo === 123 || bar === 'abc') &&
+    doesItLookGoodWhenItBecomesThatLong() &&
+    isThisReallyHappening()
+  ) {
     thing1();
   }
 
@@ -2349,7 +2362,11 @@
   }
 
   // good
-  if ((foo === 123 || bar === 'abc') && doesItLookGoodWhenItBecomesThatLong() && isThisReallyHappening()) {
+  if (
+    (foo === 123 || bar === 'abc') &&
+    doesItLookGoodWhenItBecomesThatLong() &&
+    isThisReallyHappening()
+  ) {
     thing1();
   }
 
@@ -3131,7 +3148,7 @@
     (async function meanwhileOnTheFalcon() {
       // handle `leia`, `lando`, `chewie`, `r2`, `c3p0`
       // ...
-    })(),
+    })()
   );
 
   // bad - returns `undefined` instead of the value on the next line - always happens when `return` is on a line by itself because of ASI!
@@ -3476,7 +3493,8 @@
 
   ```javascript
   // bad
-  const PRIVATE_VARIABLE = 'should not be unnecessarily uppercased within a file';
+  const PRIVATE_VARIABLE =
+    'should not be unnecessarily uppercased within a file';
 
   // bad
   export const THING_TO_BE_CHANGED = 'should obviously not be uppercased';

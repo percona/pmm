@@ -5,8 +5,18 @@ import { Messages } from '../../../Details.messages';
 import { TableProps } from '../Table.types';
 import { useIndexes } from './Indexes.hooks';
 
-export const Indexes: FC<TableProps> = ({ tableName, databaseType, example, database }) => {
-  const [data, indexes] = useIndexes(databaseType, example, tableName, database);
+export const Indexes: FC<TableProps> = ({
+  tableName,
+  databaseType,
+  example,
+  database,
+}) => {
+  const [data, indexes] = useIndexes(
+    databaseType,
+    example,
+    tableName,
+    database
+  );
 
   return (
     <div>
@@ -15,7 +25,9 @@ export const Indexes: FC<TableProps> = ({ tableName, databaseType, example, data
         {!indexes.error && data.rows.length ? (
           <Table columns={data.columns} data={data.rows} noData={null} />
         ) : null}
-        {!indexes.error && !data.rows.length ? <pre>{Messages.noDataFound}</pre> : null}
+        {!indexes.error && !data.rows.length ? (
+          <pre>{Messages.noDataFound}</pre>
+        ) : null}
       </Overlay>
     </div>
   );

@@ -6,7 +6,11 @@ export const validators = {
     const MIN_PORT_NUMBER = 0;
     const MAX_PORT_NUMBER = 65535;
 
-    if (portNumber > MIN_PORT_NUMBER && portNumber < MAX_PORT_NUMBER && Number.isFinite(portNumber)) {
+    if (
+      portNumber > MIN_PORT_NUMBER &&
+      portNumber < MAX_PORT_NUMBER &&
+      Number.isFinite(portNumber)
+    ) {
       return undefined;
     }
 
@@ -26,7 +30,9 @@ export const validators = {
       return undefined;
     }
 
-    return value >= from && value <= to ? undefined : `Value should be in the range from ${from} to ${to}`;
+    return value >= from && value <= to
+      ? undefined
+      : `Value should be in the range from ${from} to ${to}`;
   },
 
   min: (from) => (value) => {
@@ -34,7 +40,9 @@ export const validators = {
       return undefined;
     }
 
-    return value >= from ? undefined : `Value should be greater or equal to ${from}`;
+    return value >= from
+      ? undefined
+      : `Value should be greater or equal to ${from}`;
   },
 
   validateEmail: (value: string) => {
@@ -88,7 +96,8 @@ export const validators = {
 
   required: (value) => (value ? undefined : 'Required field'),
 
-  requiredTrue: (value: boolean) => (value === true ? undefined : 'Required field'),
+  requiredTrue: (value: boolean) =>
+    value === true ? undefined : 'Required field',
 
   compose:
     (...validators: Validator[]) =>

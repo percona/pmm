@@ -13,7 +13,10 @@ function resolvePackageRoot(pkgName) {
   let dir = path.dirname(require.resolve(pkgName));
   for (;;) {
     const pkgJsonPath = path.join(dir, 'package.json');
-    if (fs.existsSync(pkgJsonPath) && JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8')).name === pkgName) {
+    if (
+      fs.existsSync(pkgJsonPath) &&
+      JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8')).name === pkgName
+    ) {
       return dir;
     }
     const parent = path.dirname(dir);

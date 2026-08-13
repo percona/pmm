@@ -1,7 +1,11 @@
 import { config } from '@grafana/runtime';
-import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from './QueryAnalytics.constants';
+import {
+  ALL_VARIABLE_TEXT,
+  ALL_VARIABLE_VALUE,
+} from './QueryAnalytics.constants';
 
-const hasAllValueOrText = (element) => element !== ALL_VARIABLE_VALUE && element !== ALL_VARIABLE_TEXT;
+const hasAllValueOrText = (element) =>
+  element !== ALL_VARIABLE_VALUE && element !== ALL_VARIABLE_TEXT;
 
 export const getLabelQueryParams = (labels) =>
   Object.keys(labels)
@@ -12,7 +16,8 @@ export const getLabelQueryParams = (labels) =>
     }))
     .filter((item) => item.value.filter(hasAllValueOrText).length) || [];
 
-export const toUnixTimestamp = (date: string) => Math.floor(new Date(date).getTime());
+export const toUnixTimestamp = (date: string) =>
+  Math.floor(new Date(date).getTime());
 
 export function buildShareLink(from: number, to: number) {
   const { origin, pathname, search } = window.location;

@@ -10,7 +10,9 @@ export interface RejectedPromiseResult {
 
 export type PromiseResult = FulfilledPromiseResult | RejectedPromiseResult;
 
-export const processPromiseResults = (requests: Array<Promise<any>>): Promise<PromiseResult[]> =>
+export const processPromiseResults = (
+  requests: Array<Promise<any>>
+): Promise<PromiseResult[]> =>
   Promise.all(
     requests.map((promise) =>
       promise
@@ -18,16 +20,24 @@ export const processPromiseResults = (requests: Array<Promise<any>>): Promise<Pr
           (value): FulfilledPromiseResult => ({
             status: 'fulfilled',
             value,
-          }),
+          })
         )
         .catch(
           (reason): RejectedPromiseResult => ({
             status: 'rejected',
             reason,
-          }),
-        ),
-    ),
+          })
+        )
+    )
   );
 
-export const filterFulfilled = ({ status }: { status: PromiseResult['status'] }) => status === 'fulfilled';
-export const filterRejected = ({ status }: { status: PromiseResult['status'] }) => status === 'rejected';
+export const filterFulfilled = ({
+  status,
+}: {
+  status: PromiseResult['status'];
+}) => status === 'fulfilled';
+export const filterRejected = ({
+  status,
+}: {
+  status: PromiseResult['status'];
+}) => status === 'rejected';

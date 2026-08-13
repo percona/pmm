@@ -2,7 +2,11 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { Databases } from 'shared/core';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
-import { QueryDimension, DetailsTabs, RawTime } from 'pmm-qan/panel/provider/provider.types';
+import {
+  QueryDimension,
+  DetailsTabs,
+  RawTime,
+} from 'pmm-qan/panel/provider/provider.types';
 import Metrics from './Metrics';
 import { getChartDataFromHistogramItems } from './Metrics.utils';
 
@@ -14,7 +18,10 @@ jest.mock('../../BarChart/BarChart', () => ({
 
 jest.mock('./hooks/useHistogram', () => ({
   useHistogram: jest.fn(({ theme }) => [
-    getChartDataFromHistogramItems([{ frequency: 6175, range: '(0-3)' }], theme),
+    getChartDataFromHistogramItems(
+      [{ frequency: 6175, range: '(0-3)' }],
+      theme
+    ),
     true,
   ]),
 }));
@@ -2720,7 +2727,7 @@ describe('useFilters::', () => {
           textMetrics={textMetrics}
           loading={false}
         />
-      </QueryAnalyticsProvider.Provider>,
+      </QueryAnalyticsProvider.Provider>
     );
 
     expect(wrapper.queryAllByTestId('top-query').length).toEqual(1);
@@ -2733,8 +2740,14 @@ describe('useFilters::', () => {
           panelState,
         }}
       >
-        <Metrics databaseType={Databases.mysql} groupBy="queryid" totals metrics={metrics} loading={false} />
-      </QueryAnalyticsProvider.Provider>,
+        <Metrics
+          databaseType={Databases.mysql}
+          groupBy="queryid"
+          totals
+          metrics={metrics}
+          loading={false}
+        />
+      </QueryAnalyticsProvider.Provider>
     );
 
     expect(wrapper.queryAllByTestId('top-query').length).toEqual(0);
@@ -2755,9 +2768,11 @@ describe('useFilters::', () => {
           textMetrics={textMetrics}
           loading={false}
         />
-      </QueryAnalyticsProvider.Provider>,
+      </QueryAnalyticsProvider.Provider>
     );
 
-    expect(wrapper.queryAllByTestId('histogram-collapse-container').length).toEqual(0);
+    expect(
+      wrapper.queryAllByTestId('histogram-collapse-container').length
+    ).toEqual(0);
   });
 });

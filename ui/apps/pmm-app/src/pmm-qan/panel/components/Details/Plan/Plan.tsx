@@ -20,7 +20,11 @@ export const Plan: FC = () => {
               {plan?.plan || ''}
             </Highlight>
             <div className={styles.tooltipWrapper}>
-              <Tooltip interactive placement="left" content={`${Messages.planId} ${plan?.id}`}>
+              <Tooltip
+                interactive
+                placement="left"
+                content={`${Messages.planId} ${plan?.id}`}
+              >
                 <div>
                   <Icon name="info-circle" />
                 </div>

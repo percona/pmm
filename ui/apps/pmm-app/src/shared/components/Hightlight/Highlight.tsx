@@ -5,7 +5,11 @@ import { cx } from '@emotion/css';
 import { HighlightProps } from './Highlight.types';
 import { getStyles } from './Highlight.styles';
 
-export const Highlight = ({ children, className, language }: HighlightProps) => {
+export const Highlight = ({
+  children,
+  className,
+  language,
+}: HighlightProps) => {
   const styles = useStyles(getStyles);
   const ref = useRef<HTMLElement>(null);
 
@@ -16,8 +20,15 @@ export const Highlight = ({ children, className, language }: HighlightProps) => 
   }, [ref]);
 
   return (
-    <pre data-testid="highlight-pre" className={cx(className, styles.highlightWrapper)}>
-      <code data-testid="highlight-code" className={`language-${language}`} ref={ref}>
+    <pre
+      data-testid="highlight-pre"
+      className={cx(className, styles.highlightWrapper)}
+    >
+      <code
+        data-testid="highlight-code"
+        className={`language-${language}`}
+        ref={ref}
+      >
         {children}
       </code>
     </pre>

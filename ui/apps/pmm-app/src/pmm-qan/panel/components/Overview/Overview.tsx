@@ -1,11 +1,23 @@
 import { Pagination } from 'antd';
-import React, { FC, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  FC,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import './Overview.scss';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
 import 'shared/components/Elements/Spinner/Spinner';
 import { useTheme } from '@grafana/ui';
 import { useOverviewTable } from './Overview.hooks';
-import { DEFAULT_PAGE_NUMBER, DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '../../QueryAnalytics.constants';
+import {
+  DEFAULT_PAGE_NUMBER,
+  DEFAULT_PAGE_SIZE,
+  PAGE_SIZE_OPTIONS,
+} from '../../QueryAnalytics.constants';
 import { Table } from './components/QanTable';
 import { getStyles } from '../../QueryAnalytics.styles';
 import { Messages } from './Overview.messages';
@@ -20,13 +32,23 @@ export const Overview: FC = () => {
 
   const {
     contextActions,
-    panelState: { queryId, querySelected, totals, pageNumber, pageSize, orderBy, loadingDetails },
+    panelState: {
+      queryId,
+      querySelected,
+      totals,
+      pageNumber,
+      pageSize,
+      orderBy,
+      loadingDetails,
+    },
   } = useContext(QueryAnalyticsProvider);
   const styles = getStyles(theme, querySelected);
   const tableWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setHeight((tableWrapperRef.current && tableWrapperRef.current.clientHeight) || 0);
+    setHeight(
+      (tableWrapperRef.current && tableWrapperRef.current.clientHeight) || 0
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tableWrapperRef.current && tableWrapperRef.current.clientHeight]);
 
@@ -70,7 +92,7 @@ export const Overview: FC = () => {
 
       return '';
     },
-    [querySelected, totals, queryId],
+    [querySelected, totals, queryId]
   );
 
   const onSortChange = useCallback(
@@ -82,7 +104,7 @@ export const Overview: FC = () => {
       contextActions.changeSort(data[0].desc ? data[0].id : `-${data[0].id}`);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [contextActions.changeSort],
+    [contextActions.changeSort]
   );
 
   return (
@@ -92,7 +114,11 @@ export const Overview: FC = () => {
           <div className={styles.queryTableWrapper}>
             <Table
               columns={overviewMetricsList.columns}
-              data={overviewMetricsList.rows.length > 1 ? overviewMetricsList.rows : []}
+              data={
+                overviewMetricsList.rows.length > 1
+                  ? overviewMetricsList.rows
+                  : []
+              }
               rowClassName={getRowClassName}
               onRowClick={(selected) => {
                 contextActions.selectQuery(
@@ -100,12 +126,16 @@ export const Overview: FC = () => {
                     queryId: selected.original.dimension,
                     database: selected.original.database,
                   },
-                  selected.index === 0,
+                  selected.index === 0
                 );
               }}
               scroll={{ y: Math.min(height, 550), x: '100%' }}
               onSortChange={onSortChange}
-              rowNumber={(index) => <div>{index === 0 ? '' : (pageNumber - 1) * pageSize + index}</div>}
+              rowNumber={(index) => (
+                <div>
+                  {index === 0 ? '' : (pageNumber - 1) * pageSize + index}
+                </div>
+              )}
               orderBy={orderBy}
               noData={<h1>{Messages.table.noData}</h1>}
               loading={loading}
@@ -114,7 +144,7 @@ export const Overview: FC = () => {
           </div>
         ),
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [overviewMetricsList, loading, loadingDetails, height, getRowClassName],
+        [overviewMetricsList, loading, loadingDetails, height, getRowClassName]
       )}
       {overviewMetricsList.rows.length > 1 ? (
         <div className={styles.overviewFooter}>

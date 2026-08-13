@@ -97,7 +97,9 @@ export const Latency = (props) => {
   return (
     <>
       <Tooltip
-        getPopupContainer={() => document.querySelector('#antd') || document.body}
+        getPopupContainer={() =>
+          document.querySelector('#antd') || document.body
+        }
         placement="left"
         overlayClassName={styles.latencyTooltip}
         title={
@@ -106,7 +108,11 @@ export const Latency = (props) => {
           </pre>
         }
       >
-        <div className={`${className || ''} d3-bar-chart-container`} ref={graphContainer} data-tip="" />
+        <div
+          className={`${className || ''} d3-bar-chart-container`}
+          ref={graphContainer}
+          data-tip=""
+        />
       </Tooltip>
     </>
   );

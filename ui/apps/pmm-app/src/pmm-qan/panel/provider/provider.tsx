@@ -6,7 +6,8 @@ import { QueryAnalyticsContext } from './provider.types';
 
 const initialState = {} as QueryAnalyticsContext;
 
-export const QueryAnalyticsProvider = React.createContext<QueryAnalyticsContext>(initialState);
+export const QueryAnalyticsProvider =
+  React.createContext<QueryAnalyticsContext>(initialState);
 
 export const UrlParametersProvider = (props) => {
   const { timeRange, children, timeZone } = props;
@@ -19,7 +20,7 @@ export const UrlParametersProvider = (props) => {
           labels: setLabels(value),
           pageNumber: 1,
         },
-        ['queryId', 'querySelected'],
+        ['queryId', 'querySelected']
       ),
     resetLabels: () => (state) =>
       omit(
@@ -28,7 +29,7 @@ export const UrlParametersProvider = (props) => {
           labels: {},
           pageNumber: 1,
         },
-        ['queryId', 'querySelected'],
+        ['queryId', 'querySelected']
       ),
     selectTime: (value) => (state) => ({
       ...state,
@@ -79,7 +80,9 @@ export const UrlParametersProvider = (props) => {
         ...state,
         columns,
         orderBy:
-          value.oldColumn.simpleName === state.orderBy.replace('-', '') ? `-${columns[0]}` : state.orderBy,
+          value.oldColumn.simpleName === state.orderBy.replace('-', '')
+            ? `-${columns[0]}`
+            : state.orderBy,
       };
     },
     swapMainColumn: (value) => (state) => {
@@ -104,7 +107,10 @@ export const UrlParametersProvider = (props) => {
       return {
         ...state,
         columns,
-        orderBy: value.simpleName === state.orderBy.replace('-', '') ? `-${columns[0]}` : state.orderBy,
+        orderBy:
+          value.simpleName === state.orderBy.replace('-', '')
+            ? `-${columns[0]}`
+            : state.orderBy,
       };
     },
     changePage: (value) => (state) =>
@@ -113,7 +119,7 @@ export const UrlParametersProvider = (props) => {
           ...state,
           pageNumber: value,
         },
-        ['queryId', 'querySelected'],
+        ['queryId', 'querySelected']
       ),
     changePageSize: (value) => (state) =>
       omit(
@@ -122,7 +128,7 @@ export const UrlParametersProvider = (props) => {
           pageSize: value,
           pageNumber: 1,
         },
-        ['queryId', 'querySelected'],
+        ['queryId', 'querySelected']
       ),
     changeSort: (value) => (state) =>
       omit(
@@ -131,7 +137,7 @@ export const UrlParametersProvider = (props) => {
           orderBy: value,
           pageNumber: 1,
         },
-        ['queryId', 'querySelected'],
+        ['queryId', 'querySelected']
       ),
     changeGroupBy: (value) => (state) =>
       omit(
@@ -141,7 +147,7 @@ export const UrlParametersProvider = (props) => {
           querySelected: false,
           pageNumber: 1,
         },
-        ['queryId', 'querySelected'],
+        ['queryId', 'querySelected']
       ),
     closeDetails: () => (state) =>
       omit(
@@ -149,7 +155,7 @@ export const UrlParametersProvider = (props) => {
           ...state,
           loadingDetails: false,
         },
-        ['queryId', 'querySelected'],
+        ['queryId', 'querySelected']
       ),
     setFingerprint: (value) => (state) => ({
       ...state,
@@ -169,14 +175,15 @@ export const UrlParametersProvider = (props) => {
       }),
   };
 
-  const getAbsoluteTime = (timeValue) => (timeValue.valueOf ? timeValue.valueOf() : timeValue);
+  const getAbsoluteTime = (timeValue) =>
+    timeValue.valueOf ? timeValue.valueOf() : timeValue;
   const query = new URLSearchParams(window.location.search);
   const searchRef = useRef<string | null>(null);
   const [fromTimeMomentValue, setFromTimeMomentValue] = useState(
-    timeRange.from.clone().subtract(1, 'minute').format('YYYY-MM-DDTHH:mm:ssZ'),
+    timeRange.from.clone().subtract(1, 'minute').format('YYYY-MM-DDTHH:mm:ssZ')
   );
   const [toTimeMomentValue, setToTimeMomentValue] = useState(
-    timeRange.to.clone().subtract(1, 'minute').format('YYYY-MM-DDTHH:mm:ssZ'),
+    timeRange.to.clone().subtract(1, 'minute').format('YYYY-MM-DDTHH:mm:ssZ')
   );
 
   const [panelState, setContext] = useState({
@@ -224,16 +231,30 @@ export const UrlParametersProvider = (props) => {
     const newTo = getAbsoluteTime(timeRange.raw.to);
 
     if (newTo === 'now') {
-      setToTimeMomentValue(timeRange.to.clone().subtract(1, 'minute').format('YYYY-MM-DDTHH:mm:ssZ'));
+      setToTimeMomentValue(
+        timeRange.to
+          .clone()
+          .subtract(1, 'minute')
+          .format('YYYY-MM-DDTHH:mm:ssZ')
+      );
 
       if (moment.isMoment(timeRange.raw.from)) {
-        setFromTimeMomentValue(timeRange.from.clone().format('YYYY-MM-DDTHH:mm:ssZ'));
+        setFromTimeMomentValue(
+          timeRange.from.clone().format('YYYY-MM-DDTHH:mm:ssZ')
+        );
       } else {
-        setFromTimeMomentValue(timeRange.from.clone().subtract(1, 'minute').format('YYYY-MM-DDTHH:mm:ssZ'));
+        setFromTimeMomentValue(
+          timeRange.from
+            .clone()
+            .subtract(1, 'minute')
+            .format('YYYY-MM-DDTHH:mm:ssZ')
+        );
       }
     } else {
       setToTimeMomentValue(timeRange.to.clone().format('YYYY-MM-DDTHH:mm:ssZ'));
-      setFromTimeMomentValue(timeRange.from.clone().format('YYYY-MM-DDTHH:mm:ssZ'));
+      setFromTimeMomentValue(
+        timeRange.from.clone().format('YYYY-MM-DDTHH:mm:ssZ')
+      );
     }
   }, [timeRange, from, to]);
 

@@ -2,7 +2,14 @@ import { apiRequestQAN } from 'shared/components/helpers/api';
 import { getLabelQueryParams } from 'pmm-qan/panel/QueryAnalytics.tools';
 import { QueryExampleResponse } from './Details.types';
 
-const getExample = async ({ filterBy, groupBy, labels = [], from, to, tables = [] }) => {
+const getExample = async ({
+  filterBy,
+  groupBy,
+  labels = [],
+  from,
+  to,
+  tables = [],
+}) => {
   const data = {
     filter_by: filterBy,
     group_by: groupBy,
@@ -12,7 +19,10 @@ const getExample = async ({ filterBy, groupBy, labels = [], from, to, tables = [
     tables,
   };
 
-  return apiRequestQAN.post<QueryExampleResponse, any>('/query:getExample', data);
+  return apiRequestQAN.post<QueryExampleResponse, any>(
+    '/query:getExample',
+    data
+  );
 };
 
 export default {

@@ -10,7 +10,10 @@ export class ApiRequest {
     });
   }
 
-  async get<T, B>(path: string, query?: { params: B; cancelToken?: CancelToken }): Promise<T> {
+  async get<T, B>(
+    path: string,
+    query?: { params: B; cancelToken?: CancelToken }
+  ): Promise<T> {
     return this.axiosInstance
       .get<T>(path, query)
       .then((response): T => response.data)
@@ -24,14 +27,16 @@ export class ApiRequest {
     path: string,
     body: B,
     disableNotifications = false,
-    cancelToken?: CancelToken,
+    cancelToken?: CancelToken
   ): Promise<T> {
     return this.axiosInstance
       .post<T>(path, body, { cancelToken })
       .then((response): T => response.data)
       .catch((e) => {
         if (!disableNotifications && !axios.isCancel(e)) {
-          showErrorNotification({ message: e.response.data?.message ?? 'Unknown error' });
+          showErrorNotification({
+            message: e.response.data?.message ?? 'Unknown error',
+          });
         }
 
         throw e;
@@ -61,6 +66,8 @@ export class ApiRequest {
 
 export const apiRequest = new ApiRequest({});
 export const apiRequestQAN = new ApiRequest({ baseURL: '/v1/qan' });
-export const apiRequestManagement = new ApiRequest({ baseURL: '/v1/management' });
+export const apiRequestManagement = new ApiRequest({
+  baseURL: '/v1/management',
+});
 export const apiRequestInventory = new ApiRequest({ baseURL: '/v1/inventory' });
 export const apiRequestSettings = new ApiRequest({ baseURL: '/v1/Settings' });

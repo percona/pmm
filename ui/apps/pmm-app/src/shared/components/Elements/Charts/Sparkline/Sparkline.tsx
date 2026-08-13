@@ -1,4 +1,11 @@
-import React, { MutableRefObject, RefObject, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  MutableRefObject,
+  RefObject,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import Tippy from '@tippyjs/react';
 import { followCursor } from 'tippy.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -48,7 +55,7 @@ export const Sparkline = ({
       point: appLoadPolygonChart[appLoadPolygonChart.length - 1].point + 1,
       timestamp: getAdditionalPoint(
         appLoadPolygonChart[appLoadPolygonChart.length - 1].timestamp,
-        appLoadPolygonChart[appLoadPolygonChart.length - 2].timestamp,
+        appLoadPolygonChart[appLoadPolygonChart.length - 2].timestamp
       ),
     });
   }
@@ -79,16 +86,23 @@ export const Sparkline = ({
     y: scaleY(isMetricExists(item[ykey]) ? 0 : Math.max(maxY / 15, item[ykey])),
   }));
 
-  const sparklineCanvas: MutableRefObject<HTMLCanvasElement | undefined> = useRef();
+  const sparklineCanvas: MutableRefObject<HTMLCanvasElement | undefined> =
+    useRef();
 
   useEffect(() => {
     if (!sparklineCanvas.current) {
       return;
     }
 
-    const ctx = sparklineCanvas.current.getContext('2d') as CanvasRenderingContext2D;
+    const ctx = sparklineCanvas.current.getContext(
+      '2d'
+    ) as CanvasRenderingContext2D;
 
-    const drawBar = (barIndex: number, color: string, minHeight?: boolean): void => {
+    const drawBar = (
+      barIndex: number,
+      color: string,
+      minHeight?: boolean
+    ): void => {
       ctx.fillStyle = color;
       const height = drawData[barIndex].y;
       const offsetX = drawData[barIndex].x;
@@ -100,7 +114,7 @@ export const Sparkline = ({
         offsetX,
         minHeight ? Math.min(BAR_HEIGHT - 2, height) : height,
         width,
-        minHeight ? 30 : BAR_HEIGHT - height,
+        minHeight ? 30 : BAR_HEIGHT - height
       );
     };
 
@@ -111,18 +125,26 @@ export const Sparkline = ({
 
       // TODO: respect other time zones
       const tzFn = timeZone === 'utc' ? moment.utc : moment;
-      const dateToShow = tzFn(appLoadPolygonChart[columnNumber][xkey]).format('YYYY-MM-DD HH:mm:ss Z');
+      const dateToShow = tzFn(appLoadPolygonChart[columnNumber][xkey]).format(
+        'YYYY-MM-DD HH:mm:ss Z'
+      );
 
       // eslint-disable-next-line max-len
       const isTimeBased =
-        metricName.endsWith('_time') || metricName.endsWith('_wait') || metricName === 'load';
+        metricName.endsWith('_time') ||
+        metricName.endsWith('_wait') ||
+        metricName === 'load';
       const load = humanize.transform(value, 'number');
 
-      return !value ? `NA at ${dateToShow}` : `${load} ${isTimeBased ? '' : '/ sec'} at ${dateToShow}`;
+      return !value
+        ? `NA at ${dateToShow}`
+        : `${load} ${isTimeBased ? '' : '/ sec'} at ${dateToShow}`;
     };
 
     sparklineCanvas.current.addEventListener('mousemove', (e) => {
-      const columnNumber = Math.floor(e.offsetX / (GRAPH_WIDTH / (drawData.length - 1)));
+      const columnNumber = Math.floor(
+        e.offsetX / (GRAPH_WIDTH / (drawData.length - 1))
+      );
 
       setTooltip(createTooltip(columnNumber));
 

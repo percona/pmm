@@ -1,4 +1,11 @@
-import React, { FC, ReactElement, ReactNode, useCallback, useEffect, useState } from 'react';
+import React, {
+  FC,
+  ReactElement,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import {
   Column,
   HeaderGroup,
@@ -14,7 +21,10 @@ import { cx } from '@emotion/css';
 import useWindowSize from 'shared/components/hooks/WindowSize.hooks';
 import { Scrollbar } from 'shared/components/Elements/Scrollbar/Scrollbar';
 import { getStyles } from './Table.styles';
-import { getAllColumnsWidth, getMainColumnWidth } from '../DefaultColumns/DefaultColumns';
+import {
+  getAllColumnsWidth,
+  getMainColumnWidth,
+} from '../DefaultColumns/DefaultColumns';
 
 interface TableProps {
   rowSelection?: boolean;
@@ -54,9 +64,11 @@ export const Table: FC<TableProps> = ({
       const width = getMainColumnWidth(columns.length);
       const allColumnsWidth = getAllColumnsWidth(width, columns.length);
 
-      document.querySelectorAll('.table-body .tr>div:nth-child(2)').forEach((element) => {
-        (element as HTMLElement).style['min-width'] = `${width}px`;
-      });
+      document
+        .querySelectorAll('.table-body .tr>div:nth-child(2)')
+        .forEach((element) => {
+          (element as HTMLElement).style['min-width'] = `${width}px`;
+        });
       document.querySelectorAll('.table-body .tr').forEach((element) => {
         (element as HTMLElement).style['min-width'] = `${allColumnsWidth}px`;
       });
@@ -67,41 +79,53 @@ export const Table: FC<TableProps> = ({
 
   const theme = useTheme();
   const styles = getStyles(theme);
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, selectedFlatRows, state }: any =
-    useTable(
-      {
-        columns,
-        data,
-        manualSortBy: true,
-        disableSortRemove: true,
-        initialState: {
-          sortBy: orderBy ? [{ id: orderBy.replace('-', ''), desc: !orderBy.startsWith('-') }] : [],
-        } as TableState,
-      } as TableOptions<any>,
-      useSortBy,
-      useRowSelect,
-      (hooks) => {
-        hooks.visibleColumns.push((columns) => [
-          {
-            id: 'number',
-            width: 40,
-            sortable: false,
-            HeaderAccessor: () => (
-              <div data-testid="row-number-header" className={styles.rowNumberCell}>
-                #
-              </div>
-            ),
-            Cell: ({ row }: { row: any }) => (
-              <div data-testid="row-number-cell" className={styles.rowNumberCell}>
-                {rowNumber ? rowNumber(row.index) : row.index}
-              </div>
-            ),
-          },
-          ...columns,
-        ]);
-      },
-      useBlockLayout,
-    );
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+    selectedFlatRows,
+    state,
+  }: any = useTable(
+    {
+      columns,
+      data,
+      manualSortBy: true,
+      disableSortRemove: true,
+      initialState: {
+        sortBy: orderBy
+          ? [{ id: orderBy.replace('-', ''), desc: !orderBy.startsWith('-') }]
+          : [],
+      } as TableState,
+    } as TableOptions<any>,
+    useSortBy,
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        {
+          id: 'number',
+          width: 40,
+          sortable: false,
+          HeaderAccessor: () => (
+            <div
+              data-testid="row-number-header"
+              className={styles.rowNumberCell}
+            >
+              #
+            </div>
+          ),
+          Cell: ({ row }: { row: any }) => (
+            <div data-testid="row-number-cell" className={styles.rowNumberCell}>
+              {rowNumber ? rowNumber(row.index) : row.index}
+            </div>
+          ),
+        },
+        ...columns,
+      ]);
+    },
+    useBlockLayout
+  );
 
   useEffect(() => {
     if (onRowSelection) {
@@ -140,11 +164,18 @@ export const Table: FC<TableProps> = ({
         }
 
         return (
-          <div {...column.getHeaderProps()} className={cx('th', { [styles.rowNumberCell]: index === 0 })}>
+          <div
+            {...column.getHeaderProps()}
+            className={cx('th', { [styles.rowNumberCell]: index === 0 })}
+          >
             <div className={styles.headerContent}>
               <div className="header-wrapper">{column.render('Header')}</div>
               {column.sortable ? (
-                <a className={styles.sortBy} {...column.getSortByToggleProps()} data-testid="sort-by-control">
+                <a
+                  className={styles.sortBy}
+                  {...column.getSortByToggleProps()}
+                  data-testid="sort-by-control"
+                >
                   <span className={`sort-by ${sorted}`} />
                 </a>
               ) : null}
@@ -166,14 +197,23 @@ export const Table: FC<TableProps> = ({
           {...row.getRowProps({
             style,
           })}
-          className={cx('tr', `tr-${row.index}`, rowClassName(row.original, row.index))}
+          className={cx(
+            'tr',
+            `tr-${row.index}`,
+            rowClassName(row.original, row.index)
+          )}
           onClick={() => {
             const selectedColumn = document.querySelector(`.tr-${row.index}`);
-            const tableBody = document.querySelector('.table-wrapper .table-body');
+            const tableBody = document.querySelector(
+              '.table-wrapper .table-body'
+            );
 
             if (selectedColumn && tableBody) {
               setTimeout(() => {
-                tableBody.scroll(0, (selectedColumn as HTMLElement).offsetTop - 55);
+                tableBody.scroll(
+                  0,
+                  (selectedColumn as HTMLElement).offsetTop - 55
+                );
               });
             }
 
@@ -181,7 +221,10 @@ export const Table: FC<TableProps> = ({
           }}
         >
           {row.cells.map((cell) => (
-            <div {...cell.getCellProps()} className={cx('td', styles.tableCell)}>
+            <div
+              {...cell.getCellProps()}
+              className={cx('td', styles.tableCell)}
+            >
               {cell.render('Cell')}
             </div>
           ))}
@@ -189,7 +232,7 @@ export const Table: FC<TableProps> = ({
       );
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [prepareRow, rows, rowClassName],
+    [prepareRow, rows, rowClassName]
   );
 
   return (
@@ -208,7 +251,10 @@ export const Table: FC<TableProps> = ({
                   {headerGroups.map(RenderHeader)}
                   {!!rows.length && rows.map(RenderRow)}
                   {!rows.length && (
-                    <div data-testid="table-no-data" className={styles.empty(scroll.y)}>
+                    <div
+                      data-testid="table-no-data"
+                      className={styles.empty(scroll.y)}
+                    >
                       {noData || <h1>No data</h1>}
                     </div>
                   )}

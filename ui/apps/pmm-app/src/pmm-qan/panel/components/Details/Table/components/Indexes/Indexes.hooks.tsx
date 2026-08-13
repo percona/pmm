@@ -26,7 +26,12 @@ const DATABASE_INSTANCES = {
   [Databases.mysql]: mysqlMethods.getIndexes,
 };
 
-export const useIndexes = (databaseType, example, tableName, database): [StatusData, ActionResult] => {
+export const useIndexes = (
+  databaseType,
+  example,
+  tableName,
+  database
+): [StatusData, ActionResult] => {
   const [data, setData] = useState<StatusData>({ columns: [], rows: [] });
   const [indexes, setIndexes] = useState<ActionResult>(actionResult);
 

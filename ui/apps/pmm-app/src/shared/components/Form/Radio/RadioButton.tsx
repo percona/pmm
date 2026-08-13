@@ -29,7 +29,12 @@ export const RadioButton: FC<RadioButtonProps> = ({
 
   return (
     <>
-      <input className={styles.radioButtonInput} type="radio" id={id} name={name} />
+      <input
+        className={styles.radioButtonInput}
+        type="radio"
+        id={id}
+        name={name}
+      />
       <label
         className={cx(styles.radioButtonLabel, radioButtonStyles)}
         htmlFor={id}

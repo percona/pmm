@@ -12,8 +12,20 @@ const TableCheckbox = (props: TableCheckboxProps) => {
   const { checked, onChange, style, title } = props;
 
   return (
-    <label className={cx(styles.checkboxContainer, 'checkbox-container--main', 'no-gap')}>
-      <input type="checkbox" checked={checked} onChange={onChange} style={style} title={title} />
+    <label
+      className={cx(
+        styles.checkboxContainer,
+        'checkbox-container--main',
+        'no-gap'
+      )}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        style={style}
+        title={title}
+      />
       <span className="checkbox-container__checkmark" />
     </label>
   );
@@ -64,7 +76,7 @@ export const Table: FC<TableProps> = ({
           ...columns,
         ]);
       }
-    },
+    }
   );
 
   useEffect(() => {
@@ -91,11 +103,17 @@ export const Table: FC<TableProps> = ({
           <table {...getTableProps()}>
             <thead>
               {headerGroups.map((headerGroup, i) => (
-                <tr data-testid="table-header" {...headerGroup.getHeaderGroupProps()} key={i}>
+                <tr
+                  data-testid="table-header"
+                  {...headerGroup.getHeaderGroupProps()}
+                  key={i}
+                >
                   {headerGroup.headers.map((column, index) => (
                     <th
                       {...column.getHeaderProps()}
-                      className={index === 0 && rowSelection ? styles.checkboxColumn : ''}
+                      className={
+                        index === 0 && rowSelection ? styles.checkboxColumn : ''
+                      }
                       key={index}
                     >
                       {column.render('Header')}
@@ -109,12 +127,20 @@ export const Table: FC<TableProps> = ({
                 prepareRow(row);
 
                 return (
-                  <tr data-testid="table-row" {...row.getRowProps()} key={rowKey ? rowKey(row) : i}>
+                  <tr
+                    data-testid="table-row"
+                    {...row.getRowProps()}
+                    key={rowKey ? rowKey(row) : i}
+                  >
                     {row.cells.map((cell, index) => (
                       // eslint-disable-next-line react/jsx-key
                       <td
                         {...cell.getCellProps()}
-                        className={index === 0 && rowSelection ? styles.checkboxColumn : ''}
+                        className={
+                          index === 0 && rowSelection
+                            ? styles.checkboxColumn
+                            : ''
+                        }
                         key={index}
                       >
                         {cell.render('Cell')}

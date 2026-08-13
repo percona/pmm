@@ -6,7 +6,9 @@ import { useTheme2 } from '@grafana/ui';
 import MetricsService from '../Metrics.service';
 import { getChartDataFromHistogramItems } from '../Metrics.utils';
 
-export const useHistogram = (isHistogramAvailable: boolean): [ChartData<'bar'> | undefined, boolean] => {
+export const useHistogram = (
+  isHistogramAvailable: boolean
+): [ChartData<'bar'> | undefined, boolean] => {
   const theme = useTheme2();
   const {
     panelState: { queryId, from, to, labels },

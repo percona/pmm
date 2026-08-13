@@ -20,7 +20,9 @@ export const ManageColumns = (props) => {
     contextActions,
     panelState: { columns },
   } = useContext(QueryAnalyticsProvider);
-  const [availableColumns, setAvailableColumns] = useState(Object.values(METRIC_CATALOGUE));
+  const [availableColumns, setAvailableColumns] = useState(
+    Object.values(METRIC_CATALOGUE)
+  );
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const extraSelectProps = {
     dropdownAlign: { overflow: { adjustX: true } },
@@ -29,7 +31,9 @@ export const ManageColumns = (props) => {
 
   useEffect(() => {
     setAvailableColumns(
-      Object.values(METRIC_CATALOGUE).filter((metric) => !columns.find((item) => item === metric.simpleName)),
+      Object.values(METRIC_CATALOGUE).filter(
+        (metric) => !columns.find((item) => item === metric.simpleName)
+      )
     );
   }, [columns]);
 
@@ -45,19 +49,27 @@ export const ManageColumns = (props) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentMetric, onlyAdd],
+    [currentMetric, onlyAdd]
   );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const removeColumn = useCallback(() => contextActions.removeColumn(currentMetric), [currentMetric]);
+  const removeColumn = useCallback(
+    () => contextActions.removeColumn(currentMetric),
+    [currentMetric]
+  );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const swapWithMain = useCallback(() => contextActions.swapMainColumn(currentMetric), [currentMetric]);
+  const swapWithMain = useCallback(
+    () => contextActions.swapMainColumn(currentMetric),
+    [currentMetric]
+  );
 
   const Placeholder = () =>
     !onlyAdd ? (
       <Tooltip
         title={() => (
           <div className={styles.metricsTooltip}>
-            <b className={styles.placeholder}>{placeholder && METRIC_CATALOGUE[placeholder].humanizeName}</b>
+            <b className={styles.placeholder}>
+              {placeholder && METRIC_CATALOGUE[placeholder].humanizeName}
+            </b>
             <span className={styles.placeholder}>
               {placeholder && METRIC_CATALOGUE[placeholder].tooltipText}
             </span>
@@ -87,13 +99,21 @@ export const ManageColumns = (props) => {
       {menu}
       {!onlyAdd ? <Divider className={styles.dividerMargin} /> : null}
       {!onlyAdd && columns.length > 1 ? (
-        <div className={styles.actionElement} onMouseDown={(e) => e.preventDefault()} onClick={removeColumn}>
+        <div
+          className={styles.actionElement}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={removeColumn}
+        >
           <MinusOutlined className={styles.iconMargin} />
           Remove column
         </div>
       ) : null}
       {!onlyAdd && mainMetric !== currentMetric.simpleName ? (
-        <div className={styles.actionElement} onMouseDown={(e) => e.preventDefault()} onClick={swapWithMain}>
+        <div
+          className={styles.actionElement}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={swapWithMain}
+        >
           <SwapOutlined className={styles.iconMargin} />
           Swap with main metric
         </div>
@@ -102,14 +122,19 @@ export const ManageColumns = (props) => {
   );
 
   return (
-    <div className={!onlyAdd ? styles.manageColumns : styles.addColumns} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={!onlyAdd ? styles.manageColumns : styles.addColumns}
+      onClick={(e) => e.stopPropagation()}
+    >
       <Select
         optionLabelProp="label"
         showSearch
         style={{ width: width || '125px' }}
         placeholder={<Placeholder />}
         filterOption={(value, option) =>
-          String(option?.props.label).toLowerCase().includes(value.toLowerCase())
+          String(option?.props.label)
+            .toLowerCase()
+            .includes(value.toLowerCase())
         }
         onChange={changeColumn}
         onDropdownVisibleChange={(open) => setDropdownOpen(open)}

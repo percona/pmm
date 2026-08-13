@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { locationService } from '@grafana/runtime';
 
-type ParameterHook = (key: string, defaultValue?: string) => [string, (parameter: string) => void];
+type ParameterHook = (
+  key: string,
+  defaultValue?: string
+) => [string, (parameter: string) => void];
 
 const useQueryParams: ParameterHook = (key, defaultValue) => {
   const query = new URLSearchParams(window.location.search);

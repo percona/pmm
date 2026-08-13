@@ -20,7 +20,9 @@ describe('Search::', () => {
   });
 
   it('renders correctly with initial value', () => {
-    const { container } = render(<Search handleSearch={() => {}} initialValue="Test value" />);
+    const { container } = render(
+      <Search handleSearch={() => {}} initialValue="Test value" />
+    );
 
     expect(container.querySelector('input')?.value).toEqual('Test value');
   });
@@ -56,7 +58,9 @@ describe('Search::', () => {
 
   it('clears search when the input is emptied', () => {
     const handleSearch = jest.fn();
-    const { container } = render(<Search handleSearch={handleSearch} initialValue="select" />);
+    const { container } = render(
+      <Search handleSearch={handleSearch} initialValue="select" />
+    );
     const input = container.querySelector('input');
 
     fireEvent.change(input!, { target: { value: '' } });

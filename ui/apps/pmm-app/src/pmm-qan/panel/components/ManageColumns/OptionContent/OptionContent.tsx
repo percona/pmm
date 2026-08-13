@@ -7,7 +7,11 @@ interface OptionContentProps {
   tags: string[];
 }
 
-export const OptionContent: FC<OptionContentProps> = ({ title, description, tags }) => (
+export const OptionContent: FC<OptionContentProps> = ({
+  title,
+  description,
+  tags,
+}) => (
   <div className={styles.optionWrapper}>
     <div className={styles.optionText}>
       <span className={styles.optionTitle}>{title}</span>

@@ -18,7 +18,9 @@ describe('Example tab page render test', () => {
     };
     const { container } = render(<Example {...props} />);
 
-    expect(container.querySelector('pre')?.textContent).toContain('Sorry, no examples found for this query');
+    expect(container.querySelector('pre')?.textContent).toContain(
+      'Sorry, no examples found for this query'
+    );
   });
 
   it('Component renders classic example for postgresql', () => {
@@ -26,8 +28,10 @@ describe('Example tab page render test', () => {
       databaseType: 'postgresql',
       examples: [
         {
-          example: 'SELECT SUM(K) FROM sbtest1 WHERE id BETWEEN 91131 AND 91230',
-          explain_fingerprint: 'SELECT SUM(K) FROM sbtest1 WHERE id BETWEEN :1 AND :2',
+          example:
+            'SELECT SUM(K) FROM sbtest1 WHERE id BETWEEN 91131 AND 91230',
+          explain_fingerprint:
+            'SELECT SUM(K) FROM sbtest1 WHERE id BETWEEN :1 AND :2',
           placeholders_count: 2,
           example_format: 'EXAMPLE',
           example_type: 'RANDOM',
@@ -37,10 +41,12 @@ describe('Example tab page render test', () => {
       ],
     };
 
-    render(<Example databaseType={props.databaseType} examples={props.examples} />);
+    render(
+      <Example databaseType={props.databaseType} examples={props.examples} />
+    );
 
     expect(screen.getByTestId('highlight-code').textContent).toEqual(
-      sqlFormatter.format(props.examples[0].example),
+      sqlFormatter.format(props.examples[0].example)
     );
   });
 
@@ -63,7 +69,9 @@ describe('Example tab page render test', () => {
       '{"ns":"admin.system.version","op":"command","command":{"collStats":"system.version","scale":{"$numberInt":"1"},"lsid":{"id":{"$binary":{"base64":"7bcIiWGnQ7eH3G+AfVMdEA==","subType":"04"}}},"$clusterTime":{"clusterTime":{"$timestamp":{"t":1588860655,"i":1}},"signature":{"hash":{"$binary":{"base64":"AAAAAAAAAAAAAAAAAAAAAAAAAAA=","subType":"00"}},"keyId":{"$numberLong":"0"}}},"$db":"admin","$readPreference":{"mode":"primaryPreferred"}}}';
     const { container } = render(<Example {...props} />);
 
-    expect(container.querySelector('.json')?.getAttribute('data-src')).toContain(innerExample);
+    expect(
+      container.querySelector('.json')?.getAttribute('data-src')
+    ).toContain(innerExample);
   });
 
   it('Component renders when invalid json example is provided for mongodb', () => {
@@ -71,7 +79,8 @@ describe('Example tab page render test', () => {
       databaseType: 'mongodb',
       examples: [
         {
-          example: '{"ns":"admin.system.version","op":"command","command":{"collStats":"system.version"',
+          example:
+            '{"ns":"admin.system.version","op":"command","command":{"collStats":"system.version"',
           example_format: 'EXAMPLE',
           example_type: 'RANDOM',
           service_id: '/service_id/a0bf892b-931e-4fdd-aee1-566a3682a774',
@@ -91,10 +100,12 @@ describe('Example tab page render test', () => {
       databaseType: 'mysql',
       examples: [
         {
-          example: 'SELECT SUM(K) FROM sbtest1 WHERE id BETWEEN 91131 AND 91230',
+          example:
+            'SELECT SUM(K) FROM sbtest1 WHERE id BETWEEN 91131 AND 91230',
           example_format: 'EXAMPLE',
           example_type: 'RANDOM',
-          explain_fingerprint: 'SELECT SUM(K) FROM sbtest1 WHERE id BETWEEN :1 AND :2',
+          explain_fingerprint:
+            'SELECT SUM(K) FROM sbtest1 WHERE id BETWEEN :1 AND :2',
           placeholders_count: 2,
           service_id: '/service_id/98f52fef-043b-47dc-9086-82c96581ff4d',
           service_type: 'mysql',
@@ -103,10 +114,12 @@ describe('Example tab page render test', () => {
       ],
     };
 
-    render(<Example databaseType={props.databaseType} examples={props.examples} />);
+    render(
+      <Example databaseType={props.databaseType} examples={props.examples} />
+    );
 
     expect(screen.getByTestId('highlight-code').textContent).toEqual(
-      sqlFormatter.format(props.examples[0].example),
+      sqlFormatter.format(props.examples[0].example)
     );
   });
 });

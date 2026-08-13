@@ -15,7 +15,12 @@ const actionResult = {
   value: null,
 };
 
-export const useTableStatus = (databaseType, example, tableName, database): [StatusData, ActionResult] => {
+export const useTableStatus = (
+  databaseType,
+  example,
+  tableName,
+  database
+): [StatusData, ActionResult] => {
   const [data, setData] = useState<StatusData>({ columns: [], rows: [] });
   const [status, setStatus] = useState<ActionResult>(actionResult);
 

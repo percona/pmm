@@ -10,17 +10,20 @@ export const useInitialFilterValues = () => {
 
   useEffect(() => {
     (async () => {
-      const initialFiltersValues = Object.entries(labels).reduce((acc, data) => {
-        const [key, values] = data;
+      const initialFiltersValues = Object.entries(labels).reduce(
+        (acc, data) => {
+          const [key, values] = data;
 
-        if (Array.isArray(values)) {
-          values.forEach((value) => {
-            acc[`${key};${value.replace(/\./gi, '--') || 'na'}`] = true;
-          });
-        }
+          if (Array.isArray(values)) {
+            values.forEach((value) => {
+              acc[`${key};${value.replace(/\./gi, '--') || 'na'}`] = true;
+            });
+          }
 
-        return acc;
-      }, {});
+          return acc;
+        },
+        {}
+      );
 
       setInitialValues(initialFiltersValues);
     })();

@@ -28,7 +28,9 @@ describe('Modal window::', () => {
 
   it('Should NOT call onClose callback on escape when closeOnEscape is NOT set', () => {
     const onClose = jest.fn();
-    const { container } = render(<Modal onClose={onClose} isVisible closeOnEscape={false} title="test" />);
+    const { container } = render(
+      <Modal onClose={onClose} isVisible closeOnEscape={false} title="test" />
+    );
 
     expect(onClose.mock.calls.length).toBe(0);
     fireEvent.keyDown(container, { key: 'Escape' });
@@ -48,7 +50,14 @@ describe('Modal window::', () => {
 
   it('Should NOT call onClose callback on background click when closeOnClickaway is NOT set', () => {
     const onClose = jest.fn();
-    const root = render(<Modal onClose={onClose} isVisible closeOnClickaway={false} title="test" />);
+    const root = render(
+      <Modal
+        onClose={onClose}
+        isVisible
+        closeOnClickaway={false}
+        title="test"
+      />
+    );
 
     expect(onClose.mock.calls.length).toBe(0);
     const modalBackground = root.getByTestId('modal-background');

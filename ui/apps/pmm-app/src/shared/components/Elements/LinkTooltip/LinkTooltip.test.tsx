@@ -11,7 +11,9 @@ const testProps = {
 
 describe('LinkTooltip::', () => {
   it('Renders icon correctly', () => {
-    const { container } = render(<LinkTooltip icon="question-circle" {...testProps} />);
+    const { container } = render(
+      <LinkTooltip icon="question-circle" {...testProps} />
+    );
 
     expect(container.children.length).toEqual(1);
   });

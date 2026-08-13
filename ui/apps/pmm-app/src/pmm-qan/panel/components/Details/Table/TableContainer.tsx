@@ -9,7 +9,12 @@ import { TableTabs } from './TableContainer.constants';
 import { TableContainerProps } from './TableContainer.types';
 import { useTables } from './TableContainer.hooks';
 
-const TableCreateContainer: FC<TableContainerProps> = ({ databaseType, example, database, ...explains }) => {
+const TableCreateContainer: FC<TableContainerProps> = ({
+  databaseType,
+  example,
+  database,
+  ...explains
+}) => {
   const [tables] = useTables(example, explains, databaseType);
   const [isTableTableOpen, setTableTableOpen] = useState(true);
   const [isTableStatusOpen, setTableStatusOpen] = useState(true);
@@ -31,7 +36,12 @@ const TableCreateContainer: FC<TableContainerProps> = ({ databaseType, example, 
           isOpen={isTableTableOpen}
           onToggle={() => setTableTableOpen(!isTableTableOpen)}
         >
-          <TableCreate tableName={table} example={example} databaseType={databaseType} database={database} />
+          <TableCreate
+            tableName={table}
+            example={example}
+            databaseType={databaseType}
+            database={database}
+          />
         </Collapse>
         {databaseType === Databases.mysql ? (
           <Collapse
@@ -40,7 +50,12 @@ const TableCreateContainer: FC<TableContainerProps> = ({ databaseType, example, 
             isOpen={isTableStatusOpen}
             onToggle={() => setTableStatusOpen(!isTableStatusOpen)}
           >
-            <Status tableName={table} example={example} databaseType={databaseType} database={database} />
+            <Status
+              tableName={table}
+              example={example}
+              databaseType={databaseType}
+              database={database}
+            />
           </Collapse>
         ) : null}
         <Collapse
@@ -49,7 +64,12 @@ const TableCreateContainer: FC<TableContainerProps> = ({ databaseType, example, 
           isOpen={isTableIndexesOpen}
           onToggle={() => setTableIndexesOpen(!isTableIndexesOpen)}
         >
-          <Indexes tableName={table} example={example} databaseType={databaseType} database={database} />
+          <Indexes
+            tableName={table}
+            example={example}
+            databaseType={databaseType}
+            database={database}
+          />
         </Collapse>
       </div>
     ),
@@ -69,12 +89,16 @@ const TableCreateContainer: FC<TableContainerProps> = ({ databaseType, example, 
           />
         ))}
       </TabsBar>
-      <TabContent>{tabs.map((tab) => tab.key === activeTab && tab.component)}</TabContent>
+      <TabContent>
+        {tabs.map((tab) => tab.key === activeTab && tab.component)}
+      </TabContent>
     </>
   ) : (
     <div>
       {explains.classicExplain.error ? (
-        <pre data-testid="classic-explain-error">{explains.classicExplain.error}</pre>
+        <pre data-testid="classic-explain-error">
+          {explains.classicExplain.error}
+        </pre>
       ) : (
         <pre>{Messages.cantExtractTables}</pre>
       )}

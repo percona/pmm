@@ -65,10 +65,12 @@ describe('CheckboxGroup ::', () => {
             rawTime={rawTime}
           />
         )}
-      />,
+      />
     );
 
-    expect(root.queryAllByTestId('filter-checkbox-postgresql').length).toEqual(1);
+    expect(root.queryAllByTestId('filter-checkbox-postgresql').length).toEqual(
+      1
+    );
     expect(root.queryAllByTestId('filter-checkbox-mysql').length).toEqual(0);
     expect(root.queryAllByTestId('checkbox-group-header').length).toEqual(1);
   });
@@ -89,10 +91,12 @@ describe('CheckboxGroup ::', () => {
             rawTime={rawTime}
           />
         )}
-      />,
+      />
     );
 
-    expect(root.queryAllByTestId('filter-checkbox-postgresql').length).toEqual(1);
+    expect(root.queryAllByTestId('filter-checkbox-postgresql').length).toEqual(
+      1
+    );
     expect(root.queryAllByTestId('filter-checkbox-mysql').length).toEqual(0);
     expect(root.queryAllByTestId('checkbox-group-header').length).toEqual(1);
   });
@@ -113,10 +117,12 @@ describe('CheckboxGroup ::', () => {
             rawTime={rawTime}
           />
         )}
-      />,
+      />
     );
 
-    expect(root.queryAllByTestId('filter-checkbox-postgresql').length).toEqual(0);
+    expect(root.queryAllByTestId('filter-checkbox-postgresql').length).toEqual(
+      0
+    );
     expect(root.queryAllByTestId('filter-checkbox-mysql').length).toEqual(0);
     expect(root.queryAllByTestId('checkbox-group-header').length).toEqual(0);
   });
@@ -137,10 +143,12 @@ describe('CheckboxGroup ::', () => {
             rawTime={rawTime}
           />
         )}
-      />,
+      />
     );
 
-    expect(root.queryAllByTestId('filter-checkbox-postgresql').length).toEqual(0);
+    expect(root.queryAllByTestId('filter-checkbox-postgresql').length).toEqual(
+      0
+    );
     expect(root.queryAllByTestId('filter-checkbox-mysql').length).toEqual(1);
     expect(root.queryAllByTestId('checkbox-group-header').length).toEqual(1);
   });
@@ -161,11 +169,16 @@ describe('CheckboxGroup ::', () => {
             rawTime={rawTime}
           />
         )}
-      />,
+      />
     );
 
     expect(root.getAllByTestId('show-top-switcher').length).toEqual(1);
-    expect(root.queryAllByTestId((testId) => testId.startsWith('filter-checkbox')).length).toEqual(1);
-    expect(root.getByTestId('show-top-switcher')).toHaveTextContent(`${ITEMS_LIST.length}`);
+    expect(
+      root.queryAllByTestId((testId) => testId.startsWith('filter-checkbox'))
+        .length
+    ).toEqual(1);
+    expect(root.getByTestId('show-top-switcher')).toHaveTextContent(
+      `${ITEMS_LIST.length}`
+    );
   });
 });

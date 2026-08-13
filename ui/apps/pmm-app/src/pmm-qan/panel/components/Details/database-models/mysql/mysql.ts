@@ -46,18 +46,30 @@ export const mysqlMethods = {
     return result.mysql_show_table_status.action_id;
   },
 
-  getExplainJSON: async ({ example, queryId, placeholders }, disableNotifications = false) => {
+  getExplainJSON: async (
+    { example, queryId, placeholders },
+    disableNotifications = false
+  ) => {
     const payload = getExplainPayload(example, queryId, placeholders);
 
-    const result = await MysqlDatabaseService.getExplainJSON(payload, disableNotifications);
+    const result = await MysqlDatabaseService.getExplainJSON(
+      payload,
+      disableNotifications
+    );
 
     return result.mysql_explain_json.action_id;
   },
 
-  getExplain: async ({ example, queryId, placeholders }, disableNotifications = false) => {
+  getExplain: async (
+    { example, queryId, placeholders },
+    disableNotifications = false
+  ) => {
     const payload = getExplainPayload(example, queryId, placeholders);
 
-    const result = await MysqlDatabaseService.getExplain(payload, disableNotifications);
+    const result = await MysqlDatabaseService.getExplain(
+      payload,
+      disableNotifications
+    );
 
     return result.mysql_explain.action_id;
   },

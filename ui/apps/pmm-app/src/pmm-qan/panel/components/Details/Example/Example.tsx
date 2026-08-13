@@ -6,7 +6,8 @@ import { Messages } from '../Details.messages';
 import { OVERLAY_LOADER_SIZE } from '../Details.constants';
 
 const Example: FC<ExampleInterface> = ({ databaseType, examples, loading }) => {
-  const isExample = examples && examples.filter((example) => example.example).length;
+  const isExample =
+    examples && examples.filter((example) => example.example).length;
 
   return (
     <Overlay isPending={loading} size={OVERLAY_LOADER_SIZE}>

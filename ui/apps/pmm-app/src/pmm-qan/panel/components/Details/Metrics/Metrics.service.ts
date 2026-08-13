@@ -2,7 +2,15 @@ import { apiRequest } from 'shared/components/helpers/api';
 import { getLabelQueryParams } from 'pmm-qan/panel/QueryAnalytics.tools';
 import { HistogramRequest, HistogramResponse } from './Metrics.types';
 
-export const getMetrics = async ({ filterBy, groupBy, labels = [], from, to, tables = [], totals }) => {
+export const getMetrics = async ({
+  filterBy,
+  groupBy,
+  labels = [],
+  from,
+  to,
+  tables = [],
+  totals,
+}) => {
   const body = {
     filter_by: filterBy || '',
     group_by: groupBy,
@@ -24,7 +32,10 @@ export const getHistogram = async ({ queryId, labels = [], from, to }) => {
     period_start_to: to,
   };
 
-  return apiRequest.post<HistogramResponse, HistogramRequest>('/v1/qan:getHistogram', body);
+  return apiRequest.post<HistogramResponse, HistogramRequest>(
+    '/v1/qan:getHistogram',
+    body
+  );
 };
 
 export default {
