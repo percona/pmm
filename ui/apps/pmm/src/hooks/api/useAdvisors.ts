@@ -1,5 +1,4 @@
-import type { UseQueryOptions } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
+import { type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { listAdvisors } from 'api/advisors';
 import type { Advisor } from 'types/advisors.types';
 

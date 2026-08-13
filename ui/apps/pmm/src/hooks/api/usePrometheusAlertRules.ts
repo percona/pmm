@@ -1,5 +1,4 @@
-import type { UseQueryOptions } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
+import { type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { getPrometheusAlertRules } from 'api/alerting';
 import type { PrometheusAlertRulesResponse } from 'types/alerting.types';
 

@@ -1,7 +1,6 @@
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
-import type { FC} from 'react';
-import { memo } from 'react';
+import { type FC, memo } from 'react';
 import type { NavigationHeadingProps } from './NavigationHeading.types';
 import { Icon } from 'components/icon';
 import IconButton from '@mui/material/IconButton';

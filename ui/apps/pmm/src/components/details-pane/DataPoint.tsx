@@ -6,8 +6,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import type { FC, PropsWithChildren } from 'react';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
-import type { GridProps } from '@mui/material/Grid';
-import Grid from '@mui/material/Grid';
+import Grid, { type GridProps } from '@mui/material/Grid';
 import UnavailableText from 'components/unavailable-text';
 
 interface Props extends PropsWithChildren {

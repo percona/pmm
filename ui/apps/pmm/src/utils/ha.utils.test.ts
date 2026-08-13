@@ -1,5 +1,4 @@
-import type { GetHANodeResponse} from 'types/ha.types';
-import { NodeRole } from 'types/ha.types';
+import { type GetHANodeResponse, NodeRole } from 'types/ha.types';
 import { getHAHealth } from './ha.utils';
 
 const expectedNodes = 3;

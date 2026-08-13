@@ -1,5 +1,4 @@
-import type { FC} from 'react';
-import { useState } from 'react';
+import { type FC, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import CardContent from '@mui/material/CardContent';

@@ -1,15 +1,13 @@
 import Stack from '@mui/material/Stack';
 import { TextInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { FC} from 'react';
-import { useEffect } from 'react';
+import { type FC, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
 import { Messages } from '../../Settings.messages';
 import type { SshKeyFormProps } from './SshKeyForm.types';
-import type { SshKeyFormValues} from './SshKeyForm.schema';
-import { sshKeySchema } from './SshKeyForm.schema';
+import { type SshKeyFormValues, sshKeySchema } from './SshKeyForm.schema';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { formControlClasses } from '@mui/material';
 import { SettingsSubmitButton } from '../settings-submit-button';

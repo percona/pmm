@@ -1,5 +1,7 @@
-import type { GetAgentVersionItem } from 'types/agent.types';
-import { AgentUpdateSeverity } from 'types/agent.types';
+import {
+  type GetAgentVersionItem,
+  AgentUpdateSeverity,
+} from 'types/agent.types';
 
 export const getAgentVersions = async (): Promise<GetAgentVersionItem[]> => [
   {

@@ -52,8 +52,7 @@ import {
 import type { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
 import type { DashboardFolder } from 'types/folders.types';
-import type { GetUpdatesResponse} from 'types/updates.types';
-import { UpdateStatus } from 'types/updates.types';
+import { type GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import { HighAvailabilityIcon } from 'components/ha-icon';
 import { HighAvailabilityBadge } from 'components/ha-badge';
 import type { HAInfo } from 'types/ha.types';

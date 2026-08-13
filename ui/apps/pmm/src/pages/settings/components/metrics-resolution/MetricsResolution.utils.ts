@@ -1,7 +1,6 @@
 import type { MetricsResolutions } from 'types/settings.types';
-import type {
-  ResolutionPreset} from './MetricsResolution.constants';
 import {
+  type ResolutionPreset,
   defaultResolutions,
   resolutionOptions
 } from './MetricsResolution.constants';

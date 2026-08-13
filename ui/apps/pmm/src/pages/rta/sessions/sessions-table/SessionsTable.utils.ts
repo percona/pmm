@@ -1,5 +1,4 @@
-import type { RealtimeSession} from 'types/rta.types';
-import { RealtimeSessionStatus } from 'types/rta.types';
+import { type RealtimeSession, RealtimeSessionStatus } from 'types/rta.types';
 import type { SessionRow } from './SessionsTable.types';
 
 export const getSessionRows = (sessions: RealtimeSession[]): SessionRow[] => {

@@ -1,5 +1,4 @@
-import type { UseQueryOptions } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
+import { type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { getAgentVersions } from 'api/agents';
 import type { GetAgentVersionItem } from 'types/agent.types';
 

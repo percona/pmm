@@ -1,5 +1,4 @@
-import type { GetAgentVersionItem } from 'types/agent.types';
-import { AgentUpdateSeverity } from 'types/agent.types';
+import { type GetAgentVersionItem, AgentUpdateSeverity } from 'types/agent.types';
 import { VersionsFilter } from './UpdateClients.types';
 
 export const filterClients = (

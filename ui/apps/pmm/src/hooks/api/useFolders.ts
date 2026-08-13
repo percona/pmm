@@ -1,5 +1,4 @@
-import type { UseQueryOptions } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
+import { type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { getDashboardFolders } from 'api/folders';
 import type { GetFoldersResponse } from 'types/folders.types';
 

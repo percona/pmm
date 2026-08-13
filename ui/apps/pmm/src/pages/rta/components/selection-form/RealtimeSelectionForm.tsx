@@ -1,5 +1,4 @@
-import type { FC} from 'react';
-import { useState } from 'react';
+import { type FC, useState } from 'react';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { enqueueSnackbar } from 'notistack';

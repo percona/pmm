@@ -6,8 +6,7 @@ import DatasetOutlined from '@mui/icons-material/DatasetOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import SaveAlt from '@mui/icons-material/SaveAlt';
 import MapOutlined from '@mui/icons-material/MapOutlined';
-import type { FC, ReactNode} from 'react';
-import { useCallback } from 'react';
+import { type FC, type ReactNode, useCallback } from 'react';
 import {
   semanticTokensLight,
   semanticTokensDark,

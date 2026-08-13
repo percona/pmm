@@ -1,5 +1,4 @@
-import type { AxiosError } from 'axios';
-import axios from 'axios';
+import axios, { type AxiosError } from 'axios';
 import applyCaseMiddleware from 'axios-case-converter';
 import { enqueueSnackbar } from 'notistack';
 

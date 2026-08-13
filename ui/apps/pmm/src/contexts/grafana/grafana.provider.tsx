@@ -1,5 +1,10 @@
-import type { FC, PropsWithChildren} from 'react';
-import { useEffect, useRef, useState } from 'react';
+import {
+  type FC,
+  type PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router';
 import { GrafanaContext } from './grafana.context';
 import {

@@ -1,5 +1,4 @@
-import type { UseMutationOptions } from '@tanstack/react-query';
-import { useMutation } from '@tanstack/react-query';
+import { type UseMutationOptions, useMutation } from '@tanstack/react-query';
 import { createShortUrl } from 'api/short-urls';
 import type { ApiError } from 'types/api.types';
 import type { CreateShortUrlResponse } from 'types/short-urls.types';

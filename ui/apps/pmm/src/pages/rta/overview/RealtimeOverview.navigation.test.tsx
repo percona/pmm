@@ -10,8 +10,7 @@
  * unfiltered array. RealtimeOverview.test.tsx keeps the real table for other behavior.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import type { FC} from 'react';
-import { useEffect } from 'react';
+import { type FC, useEffect } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import {

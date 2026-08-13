@@ -1,5 +1,9 @@
-import type { FC, PropsWithChildren} from 'react';
-import { useEffect, useMemo } from 'react';
+import {
+  type FC,
+  type PropsWithChildren,
+  useEffect,
+  useMemo,
+} from 'react';
 import { AuthContext } from './auth.context';
 import { useQuery } from '@tanstack/react-query';
 import { rotateToken } from 'api/auth';
@@ -10,8 +14,7 @@ import {
 } from './auth.clientSession';
 import { ROTATE_TOKEN_QUERY_KEY } from './auth.queryKeys';
 import { getRefetchInterval, redirectToLogin } from './auth.utils';
-import type { AxiosError} from 'axios';
-import { HttpStatusCode } from 'axios';
+import { type AxiosError, HttpStatusCode } from 'axios';
 import { useFrontendSettings } from 'hooks/api/useSettings';
 
 export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {

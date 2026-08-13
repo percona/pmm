@@ -1,19 +1,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import type { UpdatesContextProps } from 'contexts/updates';
-import { UpdatesContext } from 'contexts/updates';
-import type { UserContextProps } from 'contexts/user';
-import { UserContext } from 'contexts/user';
+import { type UpdatesContextProps, UpdatesContext } from 'contexts/updates';
+import { type UserContextProps, UserContext } from 'contexts/user';
 import type { ReactElement, ReactNode } from 'react';
 import { UpdateStatus } from 'types/updates.types';
 import { TEST_USER_ADMIN } from './testStubs';
-import type { MemoryRouterProps } from 'react-router-dom';
-import { MemoryRouter } from 'react-router-dom';
+import { type MemoryRouterProps, MemoryRouter } from 'react-router-dom';
 import { SettingsContext } from 'contexts/settings';
 import type { FrontendSettings, Settings } from 'types/settings.types';
-import type { GrafanaContextProps } from 'contexts/grafana';
-import { GrafanaContext } from 'contexts/grafana';
-import type { SnackbarProviderProps } from 'notistack';
-import { SnackbarProvider } from 'notistack';
+import { type GrafanaContextProps, GrafanaContext } from 'contexts/grafana';
+import { type SnackbarProviderProps, SnackbarProvider } from 'notistack';
 
 export const wrapWithUpdatesProvider = (
   children: ReactElement,

@@ -1,5 +1,10 @@
-import type { FC, PropsWithChildren} from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import {
+  type FC,
+  type PropsWithChildren,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { UpdatesContext } from './updates.context';
 import { UpdateStatus } from 'types/updates.types';
 import { useCheckUpdates } from 'hooks/api/useUpdates';

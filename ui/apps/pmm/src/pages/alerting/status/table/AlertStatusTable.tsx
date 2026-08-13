@@ -1,7 +1,6 @@
 import { BottomPanelOpenIcon, Table, useNavigableRows } from '@percona/peak-ui';
 import { type MRT_Row } from 'material-react-table';
-import type { FC} from 'react';
-import { useMemo, useState } from 'react';
+import { type FC, useMemo, useState } from 'react';
 import { ALERT_STATUS_COLUMNS } from './AlertStatusTable.constants';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';

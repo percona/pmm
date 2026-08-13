@@ -1,6 +1,5 @@
 import Box from '@mui/material/Box';
-import type { TypographyProps } from '@mui/material/Typography';
-import Typography from '@mui/material/Typography';
+import Typography, { type TypographyProps } from '@mui/material/Typography';
 import UnavailableText from 'components/unavailable-text';
 import type { FC } from 'react';
 

@@ -1,5 +1,4 @@
-import type { FC, PropsWithChildren} from 'react';
-import { useMemo } from 'react';
+import { type FC, type PropsWithChildren, useMemo } from 'react';
 import { UserContext } from './user.context';
 import {
   useCurrentUser,

@@ -1,5 +1,4 @@
-import type { FC} from 'react';
-import { useState } from 'react';
+import { type FC, useState } from 'react';
 import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -14,10 +13,9 @@ import { useEscapeKey } from 'utils/keys.utils';
 import type { AlertsTableRow } from '../AlertsPage.types';
 import AlertDetailsTab from './details/AlertDetailsTab';
 import { Messages } from './AlertDetailsPane.messages';
-import type {
-  UseDetailsPaneNavigationResult} from '@percona/peak-ui';
 import {
-  BottomPanelCloseIcon
+  type UseDetailsPaneNavigationResult,
+  BottomPanelCloseIcon,
 } from '@percona/peak-ui';
 import RawDataTab from './raw-data/RawDataTab';
 import { useAlertDetailsPane } from './AlertDetailsPane.utils';

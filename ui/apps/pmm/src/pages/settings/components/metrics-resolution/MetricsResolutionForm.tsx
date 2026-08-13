@@ -1,8 +1,7 @@
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { TextInput, RadioGroup } from '@percona/peak-ui';
-import type { FC} from 'react';
-import { useEffect, useMemo } from 'react';
+import { type FC, useEffect, useMemo } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
@@ -22,9 +21,8 @@ import {
   removeUnits,
 } from './MetricsResolution.utils';
 import type { MetricsResolutionFormProps } from './MetricsResolutionForm.types';
-import type {
-  MetricsResolutionFormValues} from './MetricsResolutionForm.schema';
 import {
+  type MetricsResolutionFormValues,
   metricsResolutionSchema
 } from './MetricsResolutionForm.schema';
 import { SettingsFieldLabel } from '../settings-field-label';

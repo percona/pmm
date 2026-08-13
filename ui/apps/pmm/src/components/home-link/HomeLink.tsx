@@ -1,13 +1,11 @@
-import type { LinkProps } from '@mui/material';
-import { Link } from '@mui/material';
+import { type LinkProps, Link } from '@mui/material';
 import {
   PMM_HOME_URL,
   PMM_NEW_NAV_HOME_URL,
   PMM_NEW_NAV_PATH,
 } from 'lib/constants';
 import { useUpdates } from 'contexts/updates';
-import type { FC} from 'react';
-import { useMemo, useState } from 'react';
+import { type FC, useMemo, useState } from 'react';
 import { UpdateStatus } from 'types/updates.types';
 import { ClientsModal } from './clients-modal';
 import { useLocation, Link as RouterLink } from 'react-router-dom';

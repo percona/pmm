@@ -1,5 +1,9 @@
-import type { FunctionComponent, LazyExoticComponent, SVGProps } from 'react';
-import { lazy } from 'react';
+import {
+  type FunctionComponent,
+  type LazyExoticComponent,
+  type SVGProps,
+  lazy,
+} from 'react';
 import type { IconName } from './Icon.types';
 import { DYNAMIC_ICON_IMPORT_MAP } from './Icon.constants';
 

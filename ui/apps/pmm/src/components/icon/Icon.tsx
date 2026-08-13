@@ -1,5 +1,4 @@
-import type { FC} from 'react';
-import { memo, Suspense } from 'react';
+import { type FC, memo, Suspense } from 'react';
 import type { IconProps } from './Icon.types';
 import { DYNAMIC_ICON_IMPORT_MAP, VIEWBOX_MAP } from './Icon.constants';
 import SvgIcon from '@mui/material/SvgIcon';

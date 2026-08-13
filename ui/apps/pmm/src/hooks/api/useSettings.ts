@@ -1,10 +1,9 @@
-import type {
-  UseMutationOptions,
-  UseQueryOptions} from '@tanstack/react-query';
 import {
+  type UseMutationOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
-  useQueryClient
+  useQueryClient,
 } from '@tanstack/react-query';
 import {
   getFrontendSettings,

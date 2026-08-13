@@ -1,16 +1,14 @@
-import type { UseQueryOptions } from '@tanstack/react-query';
-import { useQuery } from '@tanstack/react-query';
+import { type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { evalAlertQueries } from 'api/alerting';
 import type {
   GrafanaAlertRuleDefinition,
   GrafanaRulerLabels,
 } from 'types/alerting.types';
-import type {
-  ValueThresholdResult} from 'utils/alert-evaluation.utils';
 import {
+  type ValueThresholdResult,
   computeValueThreshold,
   pickSeriesValue,
-  resolveEvalPlan
+  resolveEvalPlan,
 } from 'utils/alert-evaluation.utils';
 
 export const ALERT_VALUE_THRESHOLD_QUERY_KEY = 'alerting:valueThreshold';

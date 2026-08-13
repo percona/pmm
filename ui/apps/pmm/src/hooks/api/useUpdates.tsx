@@ -1,10 +1,9 @@
 import { checkForUpdates, getChangeLogs, startUpdate } from 'api/updates';
-import type {
-  UseMutationOptions,
-  UseQueryOptions} from '@tanstack/react-query';
 import {
+  type UseMutationOptions,
+  type UseQueryOptions,
   useMutation,
-  useQuery
+  useQuery,
 } from '@tanstack/react-query';
 import type {
   GetChangeLogsResponse,

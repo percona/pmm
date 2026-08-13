@@ -3,8 +3,7 @@ import {
   useReadonlySettings,
   useSettings,
 } from 'hooks/api/useSettings';
-import type { FC, PropsWithChildren} from 'react';
-import { useMemo } from 'react';
+import { type FC, type PropsWithChildren, useMemo } from 'react';
 import { SettingsContext } from './settings.context';
 import type { CombinedSettings } from './settings.context.types';
 import { useUser } from 'contexts/user';

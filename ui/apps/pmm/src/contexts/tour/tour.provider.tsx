@@ -1,14 +1,15 @@
-import type {
-  FC,
-  PropsWithChildren} from 'react';
 import {
+  type FC,
+  type PropsWithChildren,
   useState,
   useCallback,
   useMemo,
   useEffect,
 } from 'react';
-import type { StepType } from '@reactour/tour';
-import { TourProvider as ReactTourProvider } from '@reactour/tour';
+import {
+  type StepType,
+  TourProvider as ReactTourProvider,
+} from '@reactour/tour';
 import { TourContext } from './tour.context';
 import type { StepsMap, TourName } from './tour.context.types';
 import { TourNavigation } from 'components/tour-navigation';
