@@ -34,7 +34,7 @@ export const getHistogram = async ({ queryId, labels = [], from, to }) => {
 
   return apiRequest.post<HistogramResponse, HistogramRequest>(
     '/v1/qan:getHistogram',
-    body
+    body,
   );
 };
 

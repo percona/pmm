@@ -20,7 +20,7 @@ export const TopQuery: FC<TopQueryProps> = ({
         queryId,
         database: databaseType,
       },
-      false
+      false,
     );
   }, [contextActions, queryId, databaseType]);
 

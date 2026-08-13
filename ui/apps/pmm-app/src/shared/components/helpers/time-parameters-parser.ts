@@ -79,7 +79,7 @@ export class ParseQueryParamDate {
       // https://grafana.com/docs/grafana/latest/dashboards/time-range-controls/
       parsedDate = getComplexTimeValue(date, nowFunc, edge).subtract(
         1,
-        'minute'
+        'minute',
       );
     } else {
       // expect unix timestamp in milliseconds

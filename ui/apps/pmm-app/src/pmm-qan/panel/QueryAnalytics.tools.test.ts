@@ -19,10 +19,10 @@ describe('QueryAnalytics.tools::', () => {
   test('toUnixTimestamp', () => {
     expect(toUnixTimestamp('2022-01-17T11:07:29+00:00')).toBe(1642417649000);
     expect(toUnixTimestamp('Mon, 17 Jan 2022 11:09:12 +0000')).toBe(
-      1642417752000
+      1642417752000,
     );
     expect(toUnixTimestamp('Tue, 22 June 2021 23:30:10 +0100')).toBe(
-      1624401010000
+      1624401010000,
     );
   });
   test('buildShareLink', () => {

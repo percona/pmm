@@ -19,7 +19,7 @@ const PlaceholdersForm: React.FC<PlaceholdersFormProps> = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const initialValues = useMemo<PlaceholdersFormValues>(
     () => ({ placeholders: [] }),
-    []
+    [],
   );
   const styles = useStyles(getStyles);
   const placeholders = prepareInputs(example.placeholders_count || 0);

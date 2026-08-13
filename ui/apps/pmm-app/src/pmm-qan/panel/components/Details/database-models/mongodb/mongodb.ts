@@ -11,7 +11,7 @@ export const mongodbMethods = {
           service_id: stripPrefix(example.service_id, SERVICE_ID_PREFIX),
           query: example.example,
         },
-        disableNotifications
+        disableNotifications,
       );
 
       return result.mongodb_explain.action_id;

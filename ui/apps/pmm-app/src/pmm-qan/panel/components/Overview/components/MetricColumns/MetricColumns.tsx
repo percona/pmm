@@ -216,7 +216,7 @@ export const getOverviewColumn = (
   columnIndex,
   totalValues,
   orderBy,
-  mainMetric
+  mainMetric,
 ) => {
   const metric = METRIC_CATALOGUE[metricName];
 

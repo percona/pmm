@@ -14,7 +14,7 @@ export const TableCreate: FC<TableProps> = ({
     databaseType,
     example,
     tableName,
-    database
+    database,
   );
 
   return (

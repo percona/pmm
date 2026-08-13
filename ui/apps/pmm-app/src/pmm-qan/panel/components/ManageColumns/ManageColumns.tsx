@@ -21,7 +21,7 @@ export const ManageColumns = (props) => {
     panelState: { columns },
   } = useContext(QueryAnalyticsProvider);
   const [availableColumns, setAvailableColumns] = useState(
-    Object.values(METRIC_CATALOGUE)
+    Object.values(METRIC_CATALOGUE),
   );
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const extraSelectProps = {
@@ -32,8 +32,8 @@ export const ManageColumns = (props) => {
   useEffect(() => {
     setAvailableColumns(
       Object.values(METRIC_CATALOGUE).filter(
-        (metric) => !columns.find((item) => item === metric.simpleName)
-      )
+        (metric) => !columns.find((item) => item === metric.simpleName),
+      ),
     );
   }, [columns]);
 
@@ -49,17 +49,17 @@ export const ManageColumns = (props) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentMetric, onlyAdd]
+    [currentMetric, onlyAdd],
   );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const removeColumn = useCallback(
     () => contextActions.removeColumn(currentMetric),
-    [currentMetric, contextActions]
+    [currentMetric, contextActions],
   );
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const swapWithMain = useCallback(
     () => contextActions.swapMainColumn(currentMetric),
-    [currentMetric, contextActions]
+    [currentMetric, contextActions],
   );
 
   const Placeholder = () =>

@@ -6,7 +6,7 @@ export default {
 
     return apiRequest.post<any, any>(
       '/v1/actions:startServiceAction',
-      requestBody
+      requestBody,
     );
   },
   getShowCreateTablePostgreSQL(body) {
@@ -14,7 +14,7 @@ export default {
 
     return apiRequest.post<any, any>(
       '/v1/actions:startServiceAction',
-      requestBody
+      requestBody,
     );
   },
 };

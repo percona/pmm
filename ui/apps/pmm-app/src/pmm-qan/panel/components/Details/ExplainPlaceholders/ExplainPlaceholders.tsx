@@ -24,7 +24,7 @@ const ExplainPlaceholders: React.FC<ExplainPlaceholdersProps> = ({
   const example = useMemo(
     () =>
       examples.find((e) => e.example || e.explain_fingerprint || e.query_id),
-    [examples]
+    [examples],
   );
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const ExplainPlaceholders: React.FC<ExplainPlaceholdersProps> = ({
       queryId,
       example,
       databaseType,
-      placeholders
+      placeholders,
     );
 
     setClassicExplain(results.classicExplain);

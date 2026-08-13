@@ -52,10 +52,10 @@ describe('QueryFingerprint component::', () => {
       <QueryFingerprint
         fingerprint={QUERY_WITHOUT_PLACEHOLDERS}
         placeholders={[]}
-      />
+      />,
     );
     expect(screen.getByTestId('highlight-code').textContent).toEqual(
-      QUERY_WITHOUT_PLACEHOLDERS
+      QUERY_WITHOUT_PLACEHOLDERS,
     );
   });
 
@@ -64,10 +64,10 @@ describe('QueryFingerprint component::', () => {
       <QueryFingerprint
         fingerprint={RAW_QUERY_WITH_PLACEHOLDERS}
         placeholders={[]}
-      />
+      />,
     );
     expect(screen.getByTestId('highlight-code').textContent).toEqual(
-      QUERY_WITH_PLACEHOLDERS
+      QUERY_WITH_PLACEHOLDERS,
     );
   });
 
@@ -76,10 +76,10 @@ describe('QueryFingerprint component::', () => {
       <QueryFingerprint
         fingerprint={RAW_QUERY_WITH_PLACEHOLDERS}
         placeholders={["'placeholder_1'", "('placeholder_2')"]}
-      />
+      />,
     );
     expect(screen.getByTestId('highlight-code').textContent).toEqual(
-      QUERY_WITH_PLACEHOLDERS_FILLED
+      QUERY_WITH_PLACEHOLDERS_FILLED,
     );
   });
 });
