@@ -1,3 +1,5 @@
+import { PERCONA_SUPPORT_URL } from './Settings.constants';
+
 export const Messages = {
   title: 'Settings',
   tabs: {
@@ -110,7 +112,7 @@ export const Messages = {
     scopeNote:
       "This connection applies to the whole PMM instance. Once connected, anyone with access to Support features can send results to your organization's cases.",
     subscriptionPrompt: "Don't have a Percona Support subscription?",
-    subscriptionLink: 'https://www.percona.com/services/support',
+    subscriptionLink: PERCONA_SUPPORT_URL,
     subscriptionLinkText: 'Learn about Percona Support',
     endpointLabel: 'Receiver endpoint',
     endpointPlaceholder: 'https://percona.service-now.com/',
