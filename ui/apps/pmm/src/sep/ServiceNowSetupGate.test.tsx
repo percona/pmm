@@ -108,6 +108,24 @@ describe('ServiceNowSetupGate', () => {
     );
   });
 
+  it('renders the app when SEP does not carry the delivery inputs key', () => {
+    mockList({
+      data: [
+        {
+          setting_class: 'SEPSettings',
+          is_app_owned: false,
+          settings: [setting('DIAGNOSTICS_DELIVERY', { secrets: {} })],
+        },
+      ] as SettingClassGroup[],
+    });
+    renderGate();
+
+    expect(screen.getByTestId('atw-app')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('servicenow-setup-prompt')
+    ).not.toBeInTheDocument();
+  });
+
   it('renders the app when the settings read failed', () => {
     mockList({
       error: new ApiError({ kind: 'network', message: 'down' }),

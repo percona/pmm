@@ -86,11 +86,15 @@ const SetupPrompt: FC = () => (
  * A settings read that failed says nothing about the connection, so it does
  * *not* produce the prompt: the app renders and reports its own failures, which
  * is better than telling an operator with a working connection to go configure
- * one. `drifted` does gate — SEP holds values the current delivery plan no
- * longer accepts, so delivery is as broken as if nothing were stored.
+ * one. A SEP build whose settings carry no `DIAGNOSTICS_DELIVERY_INPUTS` key at
+ * all is the same case for a different reason — the prompt would send the
+ * operator to a settings tab that can only answer that it is unavailable, so
+ * the prompt is worse than useless there. `drifted` does gate — SEP holds
+ * values the current delivery plan no longer accepts, so delivery is as broken
+ * as if nothing were stored.
  */
 export const ServiceNowSetupGate: FC<PropsWithChildren> = ({ children }) => {
-  const { status, isLoading, error } = useServiceNowConnection();
+  const { status, stored, isLoading, error } = useServiceNowConnection();
 
   if (isLoading) {
     return (
@@ -108,7 +112,7 @@ export const ServiceNowSetupGate: FC<PropsWithChildren> = ({ children }) => {
     );
   }
 
-  if (error || status === 'configured') {
+  if (error || !stored.isPresent || status === 'configured') {
     return <>{children}</>;
   }
 
