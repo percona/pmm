@@ -160,10 +160,13 @@ if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "
 fi
 
 # Not in grafana-sep: sep-provision is priority 20, so a probe firing before it starts would
-# still see the previous run's marker. Fatal only when SEP is in use.
+# still see the previous run's marker. Fatal only where grafana-sep will not rewrite it this
+# start - under the two flags just warned about it marks the run whatever provisioning did, so
+# a marker that cannot be removed there misleads nothing and must not take the container down.
 declare SEP_MARKER="/srv/.sep_provisioned"
 rm -f "$SEP_MARKER" 2> /dev/null || true
-if is_enabled "$PMM_ENABLE_SEP" && [ -e "$SEP_MARKER" ]; then
+if is_enabled "$PMM_ENABLE_SEP" && ! is_enabled "$PMM_HA_ENABLE" &&
+    ! is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" && [ -e "$SEP_MARKER" ]; then
     echo "FATAL: could not remove $SEP_MARKER; the health gate would report the previous provisioning run as this one." >&2
     exit 1
 fi
