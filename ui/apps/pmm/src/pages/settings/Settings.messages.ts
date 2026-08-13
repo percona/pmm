@@ -1,4 +1,4 @@
-import { PERCONA_SUPPORT_URL } from './Settings.constants';
+import { PERCONA_SUPPORT_URL } from 'lib/constants';
 
 export const Messages = {
   title: 'Settings',
