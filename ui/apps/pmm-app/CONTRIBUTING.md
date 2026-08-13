@@ -37,7 +37,7 @@ As a general rule of thumb, please try to create bug reports that are:
 
 ### In the PMM devcontainer (recommended)
 
-The PMM devcontainer ships Node 22 + Yarn and wires the QAN plugin straight into the bundled Grafana. From the repo root **on the host**:
+The PMM devcontainer ships Node 22 + PNPM and wires the QAN plugin straight into the bundled Grafana. From the repo root **on the host**:
 
 ```bash
 make env-up      # first run only; reuses the container afterwards
@@ -63,7 +63,7 @@ If you'd rather not run the PMM devcontainer, the `pmm-app` folder ships a minim
 ```
 cd pmm-app
 docker-compose up -d
-yarn dev
+pnpm dev
 ```
 
 For a much simpler development environment you could run `docker compose up -d pmm-server` just to start setup the PMM server inside of `pmm-app` folder.
@@ -76,7 +76,7 @@ Then to run it:
 ```bash
 cd pmm-app
 docker-compose -f ./docker-compose.local.yml up -d
-yarn dev
+pnpm dev
 ```
 
 ## Submitting a Pull Request

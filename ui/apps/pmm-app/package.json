@@ -16,7 +16,7 @@
     "jest": "jest",
     "lint": "eslint --ext .tsx,.ts src/",
     "lint:dev": "eslint --ext .tsx,.ts --fix src/",
-    "lint:fix": "yarn run lint:dev",
+    "lint:fix": "pnpm run lint:dev",
     "server": "docker-compose up --build",
     "sign": "npx --yes @grafana/sign-plugin@latest",
     "test": "jest --passWithNoTests --maxWorkers 4",
@@ -148,6 +148,5 @@
   },
   "engines": {
     "node": ">=18"
-  },
-  "packageManager": "yarn@1.22.21"
+  }
 }

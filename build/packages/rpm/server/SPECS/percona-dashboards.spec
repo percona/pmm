@@ -46,7 +46,7 @@ using VictoriaMetrics datasource.
 %build
 node -v
 npm version
-cd ui && yarn install --frozen-lockfile && yarn turbo run build --filter=pmm-app
+cd ui && pnpm install --frozen-lockfile && pnpm turbo run build --filter=pmm-app
 
 
 %install

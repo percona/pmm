@@ -3,7 +3,7 @@
 > **Parent guide**: [AGENTS.md](../../../AGENTS.md) — product overview, architecture, domain model, global conventions
 > **Related**: [dashboards/AGENTS.md](../../../dashboards/AGENTS.md) (dashboard JSON definitions bundled by this plugin) · [ui/AGENTS.md](../../AGENTS.md) (main PMM frontend, monorepo this app is part of) · [api/AGENTS.md](../../../api/AGENTS.md) (API definitions consumed by QAN) · [qan-api2/AGENTS.md](../../../qan-api2/AGENTS.md) (QAN backend)
 
-The `ui/apps/pmm-app/` directory contains a **Grafana application plugin** (`type: app`, `id: pmm-app`) that bundles PMM dashboard JSON definitions and provides the custom **Query Analytics (QAN) panel** (`pmm-qan-app-panel`). It is built with TypeScript and React on top of Grafana's plugin SDK, and is a workspace member of the `ui/` Yarn workspaces + Turborepo monorepo (see [ui/AGENTS.md](../../AGENTS.md)).
+The `ui/apps/pmm-app/` directory contains a **Grafana application plugin** (`type: app`, `id: pmm-app`) that bundles PMM dashboard JSON definitions and provides the custom **Query Analytics (QAN) panel** (`pmm-qan-app-panel`). It is built with TypeScript and React on top of Grafana's plugin SDK, and is a workspace member of the `ui/` PNPM workspaces + Turborepo monorepo (see [ui/AGENTS.md](../../AGENTS.md)).
 
 ## Architecture
 
@@ -34,7 +34,6 @@ Build (webpack) → dist/
 | **TypeScript**                                   | Type-safe development                                                      |
 | **React 18**                                     | UI framework                                                               |
 | **Webpack**                                      | Build tooling (Grafana plugin scaffolding)                                 |
-| **Yarn 1.x**                                     | Package manager, hoisted from the `ui/` workspace root                     |
 | **SCSS / LESS**                                  | Styling                                                                    |
 | **@grafana/data, @grafana/ui, @grafana/runtime** | Grafana plugin SDK (`>=11.x.x`)                                            |
 | **Ant Design**                                   | Additional UI components (QAN panel)                                       |
@@ -91,32 +90,32 @@ The Query Analytics panel lives in `src/pmm-qan/` and is registered as a `PanelP
 - **Libraries**: `@testing-library/react`, `@testing-library/jest-dom`, `@testing-library/user-event`, `jest-canvas-mock`, `mockdate`
 - **Config**: `jest.config.js` extends `.config/jest.config.js`; sets `TZ=GMT`
 - **Pattern**: ~35 co-located `*.test.tsx` / `*.test.ts` files under `src/`
-- **Run**: `yarn test` (one-shot) or `yarn test:watch` (watch mode) from `ui/apps/pmm-app/`, or `turbo run test --filter=pmm-app` from `ui/`
-- **Linting**: `yarn lint` runs ESLint on `src/**/*.{ts,tsx}` (non-mutating; use `yarn lint:fix` to auto-fix); `yarn typecheck` runs `tsc --noEmit`
+- **Run**: `pnpm test` (one-shot) or `pnpm test:watch` (watch mode) from `ui/apps/pmm-app/`, or `turbo run test --filter=pmm-app` from `ui/`
+- **Linting**: `pnpm lint` runs ESLint on `src/**/*.{ts,tsx}` (non-mutating; use `pnpm lint:fix` to auto-fix); `pnpm typecheck` runs `tsc --noEmit`
 
 ## Development Workflow
 
 ```bash
-# Prerequisites: Node >= 18, Yarn 1.x
+# Prerequisites: Node >= 18
 cd ui/apps/pmm-app
 
 # Install dependencies (or from ui/ to install the whole workspace)
-yarn install
+pnpm install
 
 # Start webpack in watch mode + the dashboard JSON watcher (development)
-yarn dev
+pnpm dev
 
 # Production build
-yarn build
+pnpm build
 
 # Run tests (one-shot)
-yarn test
+pnpm test
 
 # Lint and typecheck
-yarn lint && yarn typecheck
+pnpm lint && pnpm typecheck
 ```
 
-`yarn dev` runs two processes concurrently: webpack in watch mode with `webpack-livereload-plugin` (QAN JS/TS changes), and `scripts/watch-dashboards.mjs`, a chokidar watcher that mirrors dashboard JSON changes (reached through the `src/dashboards` symlink) into the Grafana-provisioned dashboards directory — both update automatically with no extra commands.
+`pnpm dev` runs two processes concurrently: webpack in watch mode with `webpack-livereload-plugin` (QAN JS/TS changes), and `scripts/watch-dashboards.mjs`, a chokidar watcher that mirrors dashboard JSON changes (reached through the `src/dashboards` symlink) into the Grafana-provisioned dashboards directory — both update automatically with no extra commands.
 
 ### Docker Development
 
@@ -125,12 +124,12 @@ yarn lint && yarn typecheck
 ```bash
 cd ui/apps/pmm-app
 docker-compose up -d
-yarn dev
+pnpm dev
 ```
 
 ### From the `ui/` monorepo
 
-Since this app is a `ui/` workspace member, the standard monorepo commands also work: `cd ui && yarn dev` (or `make run-ui` inside the devcontainer) starts this app's `dev` script alongside `pmm` and `pmm-compat` via Turborepo; `yarn build`/`yarn lint`/`yarn test` similarly fan out via `turbo run <task> --filter=pmm-app` when scoped.
+Since this app is a `ui/` workspace member, the standard monorepo commands also work: `cd ui && pnpm dev` (or `make run-ui` inside the devcontainer) starts this app's `dev` script alongside `pmm` and `pmm-compat` via Turborepo; `pnpm build`/`pnpm lint`/`pnpm test` similarly fan out via `turbo run <task> --filter=pmm-app` when scoped.
 
 ## Key Files to Reference
 

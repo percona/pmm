@@ -7,7 +7,7 @@ const baseConfig = require('./.config/jest.config');
 process.env.TZ = 'GMT';
 
 // d3's package.json "exports" map doesn't expose ./dist/d3.min.js as a subpath, and its
-// install location varies with Yarn workspace hoisting, so resolve the package root by
+// install location varies with PNPM workspace hoisting, so resolve the package root by
 // walking up from its entry point instead of assuming a fixed node_modules layout.
 function resolvePackageRoot(pkgName) {
   let dir = path.dirname(require.resolve(pkgName));

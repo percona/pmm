@@ -19,7 +19,7 @@ dashboards/*.json
       → Grafana UI (visualization)
 ```
 
-In local development, `ui/apps/pmm-app`'s `yarn dev` also runs a chokidar watcher (`scripts/watch-dashboards.mjs`) that mirrors any dashboard JSON change straight into the devcontainer's provisioned dashboards path — Grafana's file provisioner polls that path every 60s, so edits show up without restarting anything or running a manual reload command.
+In local development, `ui/apps/pmm-app`'s `pnpm dev` also runs a chokidar watcher (`scripts/watch-dashboards.mjs`) that mirrors any dashboard JSON change straight into the devcontainer's provisioned dashboards path — Grafana's file provisioner polls that path every 60s, so edits show up without restarting anything or running a manual reload command.
 
 ## Dashboard categories
 

@@ -4,6 +4,7 @@ packages:
 
 allowBuilds:
   '@swc/core': true
+  core-js: true
   esbuild: true
   msw: true
   protobufjs: true
@@ -30,7 +31,7 @@ packageExtensions:
       '@types/react': '*'
 
 overrides:
-  # Keep MUI core pinned to 7.3.7 (matches the yarn baseline). Floating ^7.3.7 to
+  # Keep MUI core pinned to 7.3.7. Floating ^7.3.7 to
   # 7.3.11 breaks @mui/x-date-pickers, which deep-imports @mui/utils/generateUtilityClass
   # (dropped from @mui/utils 7.3.11's exports map).
   '@mui/material': 7.3.7
