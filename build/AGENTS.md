@@ -85,6 +85,7 @@ make rpmbuild-el9         # Build RPM build environment image
 
 - `build/docker/server/Dockerfile.el9` — PMM Server Docker image definition
 - `build/docker/server/entrypoint.sh` — Server container entrypoint
+- `build/docker/server/healthcheck.sh` — Server container healthcheck
 - `build/ansible/pmm-docker/main.yml` — Docker provisioning playbook
 - `build/ansible/roles/` — All Ansible roles for server components
 - `build/packages/rpm/server/SPECS/` — RPM spec files for server components

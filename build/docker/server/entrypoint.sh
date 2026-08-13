@@ -159,9 +159,16 @@ if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "
     echo "WARNING: ignoring PMM_ENABLE_SEP, the embedded PostgreSQL is not in use." >&2
 fi
 
-if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; }; then
-    echo "WARNING: not exposing a database to SEP, the embedded PostgreSQL is not in use." >&2
+# Not in grafana-sep: sep-provision is priority 20, so a probe firing before it starts would
+# still see the previous run's marker. Fatal only when SEP is in use.
+declare SEP_MARKER="/srv/.sep_provisioned"
+rm -f "$SEP_MARKER" 2> /dev/null || true
+if is_enabled "$PMM_ENABLE_SEP" && ! is_enabled "$PMM_HA_ENABLE" &&
+    ! is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" && [ -e "$SEP_MARKER" ]; then
+    echo "FATAL: could not remove $SEP_MARKER; the health gate would report the previous provisioning run as this one." >&2
+    exit 1
 fi
+unset SEP_MARKER
 
 # The reverse proxy is independent of which database SEP uses, so it is not nested
 # in the embedded-PostgreSQL branch above.
