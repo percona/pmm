@@ -1297,6 +1297,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, err
 	}
 
+	removeStaleHANodes(ctx, db, params.HANodeID, params.HAPeers)
+
 	return db, nil
 }
 
@@ -1517,17 +1519,24 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	})
 }
 
-// RemoveStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are
+// removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are
 // cosmetic, so failures are only logged and never returned: tidying them up must not take a replica
 // with it.
 //
-// Register it as a leader service, so one replica sweeps at a time and the sweep repeats on every
-// failover rather than only at startup. It is still written to tolerate a concurrent sweep: each
-// Node is removed in a transaction of its own, and one that another replica already took is
-// tolerated, so losing leadership half-way through cannot leave a Node partially removed.
+// It runs at startup on every replica, deliberately not on the elected leader. PMM_HA_PEERS is
+// fixed into a process's environment when the pod starts and cannot be re-read, so only at startup
+// is it guaranteed to describe the current cluster - the pod was just created from the current
+// StatefulSet template. Leadership can be acquired much later: a rolling update recreates the
+// leader, forcing an election that a not-yet-updated pod can win, and that pod would then sweep
+// with a peer list older than the cluster. On a scale-up that deletes the new replica's Node and
+// Agents, which was reproduced on a 2 -> 3 scale-up. It also has to work without a leader at all,
+// since a replica scaled down to one cannot reach quorum.
+//
+// Replicas racing each other is harmless: each Node is removed in a transaction of its own, and one
+// that another replica already took is tolerated.
 //
 // The localHANodeID argument is the calling replica's own PMM_HA_NODE_ID; see FindStaleHANodes.
-func RemoveStaleHANodes(ctx context.Context, db *reform.DB, localHANodeID string, haPeers []string) {
+func removeStaleHANodes(ctx context.Context, db *reform.DB, localHANodeID string, haPeers []string) {
 	if localHANodeID == "" {
 		return
 	}
@@ -1554,8 +1563,7 @@ func RemoveStaleHANodes(ctx context.Context, db *reform.DB, localHANodeID string
 		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
 			nodeL.WithError(err).Info("Stale HA node was already removed by another replica.")
 		case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
-			// Shutdown, or this replica is no longer the leader. The next leader sweeps again.
-			nodeL.WithError(err).Info("Stopped removing stale HA nodes, the context was cancelled.")
+			nodeL.WithError(err).Info("Startup was cancelled, stopping the removal of stale HA nodes.")
 			return
 		default:
 			nodeL.WithError(err).Warn("Failed to remove a stale HA node, keeping it.")
