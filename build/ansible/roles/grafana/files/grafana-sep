@@ -30,10 +30,7 @@ declare TMP_FILE=""
 declare SEP_MARKER="/srv/.sep_provisioned"
 declare MARK_RUN=1
 
-# The marker follows this script's exit status and MARK_RUN, which every skip path clears: a
-# run that published nothing has not provisioned this start. sep.ini already declares the
-# exitcodes = 0 half of that contract, so no exit path can forget it. status must be captured
-# first: the TMP_FILE test below would overwrite $?.
+# status must be captured first: the TMP_FILE test below would overwrite $?.
 cleanup() {
     local status=$?
 
@@ -246,9 +243,8 @@ fi
 case "$STATUS" in
     200)
         echo "The Grafana service account token for SEP is still valid, keeping it."
-        # Ordered so a token already proven valid is on disk for an already-running SEP even
-        # if the role repair below fails under errexit. That failure still withholds the
-        # marker, so a side-car gated on container health waits for the next start instead.
+        # Ordered so a token already proven valid is on disk even if the role repair below
+        # fails under errexit.
         publish_token "$TOKEN"
         ensure_admin_role
         exit 0

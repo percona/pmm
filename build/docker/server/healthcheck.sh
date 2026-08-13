@@ -12,10 +12,6 @@ is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
 
 curl -sf "$READYZ_URL" || exit 1
 
-# The two flags override PMM_ENABLE_SEP outright, so SEP never provisions under them and
-# nothing would ever satisfy this condition - the same precedence entrypoint.sh warns about
-# and sep-secrets bails on. An external Grafana database alone is not one of them: SEP does
-# start there, with its Grafana auth inert, which is exactly what must not report healthy.
 if is_enabled "$PMM_ENABLE_SEP" && ! is_enabled "$PMM_HA_ENABLE" &&
     ! is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" && [ ! -e "$SEP_MARKER" ]; then
     # Leading newline: curl's unredirected body shares the Health.Log entry.
