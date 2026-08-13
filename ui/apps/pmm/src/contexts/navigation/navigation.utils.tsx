@@ -1,7 +1,7 @@
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
-import { MySqlIcon } from '@percona/peak-ui';
+import { MongoIcon, MySqlIcon } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
@@ -11,6 +11,7 @@ import {
   PMM_NEW_NAV_GRAFANA_PATH,
   SEP_ATW_PATH,
   SEP_MYSQL_BACKUPS_PATH,
+  POM_PATH,
 } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
@@ -317,5 +318,41 @@ export const addSepApps = (): NavItem[] => [
     icon: MySqlIcon,
     url: SEP_MYSQL_BACKUPS_PATH,
     matches: [SEP_MYSQL_BACKUPS_PATH],
+  },
+];
+
+/**
+ * POM's navigation, deliberately not part of `addSepApps`.
+ *
+ * Those entries are gated as a group on SEP, and the group is expected to gain a
+ * flag gate with real auth. POM is served by pmm-managed and reads PMM's own data,
+ * so hiding it when SEP is off or unreachable would hide a working page.
+ */
+export const addPom = (): NavItem[] => [
+  {
+    id: 'pom',
+    text: 'PSMDB OpenManager',
+    icon: MongoIcon,
+    url: POM_PATH,
+    matches: [POM_PATH],
+    children: [
+      {
+        id: 'pom-overview',
+        text: 'Overview',
+        url: POM_PATH,
+      },
+      {
+        id: 'pom-topology',
+        text: 'Topology',
+        url: `${POM_PATH}/topology`,
+        matches: [`${POM_PATH}/topology`],
+      },
+      {
+        id: 'pom-discovery',
+        text: 'Discovery',
+        url: `${POM_PATH}/runs`,
+        matches: [`${POM_PATH}/runs`],
+      },
+    ],
   },
 ];
