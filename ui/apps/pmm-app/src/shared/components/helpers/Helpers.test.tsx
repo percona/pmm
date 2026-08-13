@@ -8,7 +8,7 @@ describe('PluginTooltip', () => {
       <PluginTooltip
         links={[{ url: '/test-url', text: 'Some text' }]}
         text="test tooltip text"
-      />,
+      />
     );
 
     const firstRender = asFragment();

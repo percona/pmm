@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  type ActionResult,
-  getActionResult,
-} from 'shared/components/Actions';
+import { type ActionResult, getActionResult } from 'shared/components/Actions';
 import { Databases } from 'shared/core';
 import { mysqlMethods } from '../../../database-models';
 import { processTableData } from '../../TableContainer.tools';
@@ -22,7 +19,7 @@ export const useTableStatus = (
   databaseType,
   example,
   tableName,
-  database,
+  database
 ): [StatusData, ActionResult] => {
   const [data, setData] = useState<StatusData>({ columns: [], rows: [] });
   const [status, setStatus] = useState<ActionResult>(actionResult);

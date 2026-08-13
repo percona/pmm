@@ -27,14 +27,14 @@ export const Search: FC<SearchProps> = ({
       debounce((search: string) => {
         handleSearchRef.current({ search });
       }, SEARCH_DEBOUNCE_MS),
-    [],
+    []
   );
 
   useEffect(
     () => () => {
       debouncedSearch.cancel();
     },
-    [debouncedSearch],
+    [debouncedSearch]
   );
 
   const onSubmit = (values: SearchValues) => {

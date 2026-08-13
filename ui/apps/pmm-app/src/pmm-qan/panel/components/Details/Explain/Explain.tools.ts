@@ -39,7 +39,7 @@ export const processClassicExplain = (classic): ClassicExplainInterface => {
         acc[headerList[index].accessor] = row;
 
         return acc;
-      }, {}),
+      }, {})
   );
 
   return { columns: headerList, rows: rowsList };
@@ -75,7 +75,7 @@ export const fetchExplains = async (
   queryId: string,
   example: QueryExampleResponseItem,
   databaseType: DatabasesType,
-  placeholders?: string[],
+  placeholders?: string[]
 ): Promise<FetchExplainsResult> => {
   const hasPlaceholders = placeholders?.length || !example.placeholders_count;
   const hasExample = !!example?.example;

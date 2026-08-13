@@ -15,7 +15,7 @@ export const Indexes: FC<TableProps> = ({
     databaseType,
     example,
     tableName,
-    database,
+    database
   );
 
   return (

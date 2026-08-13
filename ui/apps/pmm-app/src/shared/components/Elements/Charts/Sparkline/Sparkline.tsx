@@ -55,7 +55,7 @@ export const Sparkline = ({
       point: appLoadPolygonChart[appLoadPolygonChart.length - 1].point + 1,
       timestamp: getAdditionalPoint(
         appLoadPolygonChart[appLoadPolygonChart.length - 1].timestamp,
-        appLoadPolygonChart[appLoadPolygonChart.length - 2].timestamp,
+        appLoadPolygonChart[appLoadPolygonChart.length - 2].timestamp
       ),
     });
   }
@@ -95,13 +95,13 @@ export const Sparkline = ({
     }
 
     const ctx = sparklineCanvas.current.getContext(
-      '2d',
+      '2d'
     ) as CanvasRenderingContext2D;
 
     const drawBar = (
       barIndex: number,
       color: string,
-      minHeight?: boolean,
+      minHeight?: boolean
     ): void => {
       ctx.fillStyle = color;
       const height = drawData[barIndex].y;
@@ -114,7 +114,7 @@ export const Sparkline = ({
         offsetX,
         minHeight ? Math.min(BAR_HEIGHT - 2, height) : height,
         width,
-        minHeight ? 30 : BAR_HEIGHT - height,
+        minHeight ? 30 : BAR_HEIGHT - height
       );
     };
 
@@ -126,7 +126,7 @@ export const Sparkline = ({
       // TODO: respect other time zones
       const tzFn = timeZone === 'utc' ? moment.utc : moment;
       const dateToShow = tzFn(appLoadPolygonChart[columnNumber][xkey]).format(
-        'YYYY-MM-DD HH:mm:ss Z',
+        'YYYY-MM-DD HH:mm:ss Z'
       );
 
       // eslint-disable-next-line max-len
@@ -143,7 +143,7 @@ export const Sparkline = ({
 
     sparklineCanvas.current.addEventListener('mousemove', (e) => {
       const columnNumber = Math.floor(
-        e.offsetX / (GRAPH_WIDTH / (drawData.length - 1)),
+        e.offsetX / (GRAPH_WIDTH / (drawData.length - 1))
       );
 
       setTooltip(createTooltip(columnNumber));

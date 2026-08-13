@@ -7,18 +7,18 @@ describe('CheckPanel::', () => {
     const root = render(<ButtonWithSpinner>Test text</ButtonWithSpinner>);
 
     expect(root.queryByRole('button')?.querySelectorAll('svg')?.length).toEqual(
-      0,
+      0
     );
     expect(root.queryByRole('button')?.textContent).toEqual('Test text');
   });
 
   it('should show children if not loading', () => {
     const root = render(
-      <ButtonWithSpinner isLoading>Test text</ButtonWithSpinner>,
+      <ButtonWithSpinner isLoading>Test text</ButtonWithSpinner>
     );
 
     expect(root.queryByRole('button')?.querySelectorAll('svg')?.length).toEqual(
-      1,
+      1
     );
     expect(root.queryByRole('button')?.textContent).not.toEqual('Test text');
   });

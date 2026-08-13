@@ -48,13 +48,13 @@ export const mysqlMethods = {
 
   getExplainJSON: async (
     { example, queryId, placeholders },
-    disableNotifications = false,
+    disableNotifications = false
   ) => {
     const payload = getExplainPayload(example, queryId, placeholders);
 
     const result = await MysqlDatabaseService.getExplainJSON(
       payload,
-      disableNotifications,
+      disableNotifications
     );
 
     return result.mysql_explain_json.action_id;
@@ -62,13 +62,13 @@ export const mysqlMethods = {
 
   getExplain: async (
     { example, queryId, placeholders },
-    disableNotifications = false,
+    disableNotifications = false
   ) => {
     const payload = getExplainPayload(example, queryId, placeholders);
 
     const result = await MysqlDatabaseService.getExplain(
       payload,
-      disableNotifications,
+      disableNotifications
     );
 
     return result.mysql_explain.action_id;

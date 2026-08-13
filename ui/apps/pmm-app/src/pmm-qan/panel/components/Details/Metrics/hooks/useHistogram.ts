@@ -7,7 +7,7 @@ import MetricsService from '../Metrics.service';
 import { getChartDataFromHistogramItems } from '../Metrics.utils';
 
 export const useHistogram = (
-  isHistogramAvailable: boolean,
+  isHistogramAvailable: boolean
 ): [ChartData<'bar'> | undefined, boolean] => {
   const theme = useTheme2();
   const {

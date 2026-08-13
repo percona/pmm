@@ -94,7 +94,7 @@ export const applyPmmCssVariables = (grafanaTheme: GrafanaTheme): void => {
   root.style.setProperty('--qan-dropdown-hover-bg', pmmTheme.dropdown.hoverBg);
   root.style.setProperty(
     '--qan-dropdown-bgSmallText',
-    pmmTheme.dropdown.bgSmallText,
+    pmmTheme.dropdown.bgSmallText
   );
 
   // Page background and text color

@@ -16,7 +16,7 @@ export const processTableData = (input): { columns: any[]; rows: any[] } => {
         acc[headerList[index].accessor] = row;
 
         return acc;
-      }, {}),
+      }, {})
   );
 
   return { columns: headerList, rows: rowsList };

@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import {
-  type ActionResult,
-  getActionResult,
-} from 'shared/components/Actions';
+import { type ActionResult, getActionResult } from 'shared/components/Actions';
 import { Databases } from 'shared/core';
 import { mysqlMethods, postgresqlMethods } from '../../../database-models';
 import { processTableData } from '../../TableContainer.tools';
@@ -33,7 +30,7 @@ export const useIndexes = (
   databaseType,
   example,
   tableName,
-  database,
+  database
 ): [StatusData, ActionResult] => {
   const [data, setData] = useState<StatusData>({ columns: [], rows: [] });
   const [indexes, setIndexes] = useState<ActionResult>(actionResult);

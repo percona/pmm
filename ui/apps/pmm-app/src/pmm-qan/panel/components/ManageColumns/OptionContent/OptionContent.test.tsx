@@ -9,7 +9,7 @@ const tags = ['mysql', 'postgresql'];
 describe('OptionContent::', () => {
   it('should render with title, description and tags', () => {
     const { container } = render(
-      <OptionContent title={title} description={description} tags={tags} />,
+      <OptionContent title={title} description={description} tags={tags} />
     );
     const spans = container.querySelectorAll('div > div > span');
 
@@ -21,7 +21,7 @@ describe('OptionContent::', () => {
 
   it('should render with title, description and one tag', () => {
     const { container } = render(
-      <OptionContent title={title} description={description} tags={[tags[0]]} />,
+      <OptionContent title={title} description={description} tags={[tags[0]]} />
     );
     const spans = container.querySelectorAll('div > div > span');
 
@@ -32,7 +32,7 @@ describe('OptionContent::', () => {
 
   it('should render with title, description and empty tags', () => {
     const { container } = render(
-      <OptionContent title={title} description={description} tags={[]} />,
+      <OptionContent title={title} description={description} tags={[]} />
     );
     const spans = container.querySelectorAll('div > div > span');
 

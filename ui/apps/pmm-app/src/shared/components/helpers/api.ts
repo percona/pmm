@@ -12,7 +12,7 @@ export class ApiRequest {
 
   async get<T, B>(
     path: string,
-    query?: { params: B; cancelToken?: CancelToken },
+    query?: { params: B; cancelToken?: CancelToken }
   ): Promise<T> {
     return this.axiosInstance
       .get<T>(path, query)
@@ -27,7 +27,7 @@ export class ApiRequest {
     path: string,
     body: B,
     disableNotifications = false,
-    cancelToken?: CancelToken,
+    cancelToken?: CancelToken
   ): Promise<T> {
     return this.axiosInstance
       .post<T>(path, body, { cancelToken })
