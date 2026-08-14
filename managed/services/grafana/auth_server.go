@@ -38,6 +38,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 const (
@@ -648,7 +649,33 @@ func cleanPath(p string) (string, error) {
 
 func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
 	// check Grafana with some headers from request
-	authHeaders := s.authHeaders(req)
+	return s.authUserForHeaders(ctx, s.authHeaders(req), l)
+}
+
+// BoundNodeID returns the node whose service token the caller presented, or an empty string
+// for every other caller: users, unbound tokens and requests without credentials. Handlers
+// use it to confine a node's own token to that node. It shares AuthServer's cache, so it
+// costs no extra Grafana round-trip on the nginx-authenticated path.
+func (s *AuthServer) BoundNodeID(ctx context.Context) string {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return ""
+	}
+
+	// Only service tokens are ever bound; skip the lookup for user credentials.
+	if auth.GetTokenFromHeaders(authHeaders) == "" {
+		return ""
+	}
+
+	user, authErr := s.authUserForHeaders(ctx, authHeaders, s.l)
+	if authErr != nil || user == nil {
+		return ""
+	}
+
+	return user.nodeID
+}
+
+func (s *AuthServer) authUserForHeaders(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
 	j, err := json.Marshal(authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
@@ -711,7 +738,8 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 // string when the token is not bound to one. A lookup failure is not an authentication
 // failure: the caller falls back to role-based authorization.
 func (s *AuthServer) resolveBoundNode(serviceAccountID int, l *logrus.Entry) string {
-	if serviceAccountID == 0 {
+	// NewAuthServer accepts a nil db, in which case no token can be bound to anything.
+	if serviceAccountID == 0 || s.db == nil {
 		return ""
 	}
 

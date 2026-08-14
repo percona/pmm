@@ -18,6 +18,7 @@ package management
 import (
 	"context"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -31,6 +32,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 // RegisterNode performs the registration of a new node.
@@ -155,6 +157,11 @@ func nodeIDFromResponse(res *managementv1.RegisterNodeResponse) string {
 
 // UnregisterNode unregisters the node.
 func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
+	err := auth.CheckNodeScope(ctx, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
 
@@ -246,6 +253,11 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 		nodes, err = models.FindNodes(tx.Querier, filters)
 		if err != nil {
 			return err
+		}
+
+		// A node's own token only sees its own node.
+		if scoped, ok := auth.NodeScope(ctx); ok {
+			nodes = slices.DeleteFunc(nodes, func(n *models.Node) bool { return n.NodeID != scoped })
 		}
 
 		agentFilters := models.AgentFilters{}
@@ -381,6 +393,11 @@ const nodeUpQuery = `up{job=~".*_hr$",node_id=%q}`
 
 // GetNode returns a single Node by ID.
 func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNodeRequest) (*managementv1.GetNodeResponse, error) {
+	err := auth.CheckNodeScope(ctx, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
 	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
 	if err != nil {
 		return nil, err

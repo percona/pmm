@@ -25,6 +25,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 // NodesService works with inventory API Nodes.
@@ -56,6 +57,7 @@ func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]
 	if e != nil {
 		return nil, e
 	}
+	nodes = scopeNodes(ctx, nodes)
 
 	res := make([]inventoryv1.Node, len(nodes))
 	for i, n := range nodes {
@@ -69,6 +71,11 @@ func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]
 
 // Get returns a single Node by ID.
 func (s *NodesService) Get(ctx context.Context, req *inventoryv1.GetNodeRequest) (inventoryv1.Node, error) { //nolint:ireturn
+	err := auth.CheckNodeScope(ctx, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
 	modelNode := &models.Node{}
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
@@ -92,6 +99,11 @@ func (s *NodesService) Get(ctx context.Context, req *inventoryv1.GetNodeRequest)
 
 // AddNode adds any type of Node.
 func (s *NodesService) AddNode(ctx context.Context, req *inventoryv1.AddNodeRequest) (*inventoryv1.AddNodeResponse, error) {
+	err := s.CheckAddNodeScope(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	res := &inventoryv1.AddNodeResponse{}
 
 	switch req.Node.(type) {
@@ -303,6 +315,11 @@ func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inve
 // Removes Node with the Agents and Services if force == true.
 // Returns an error if force == false and Node has Agents or Services.
 func (s *NodesService) Remove(ctx context.Context, id string, force bool) error {
+	err := auth.CheckNodeScope(ctx, id)
+	if err != nil {
+		return err
+	}
+
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
 

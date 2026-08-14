@@ -221,6 +221,7 @@ type gRPCServerDeps struct {
 	agentsStateUpdater        *agents.StateUpdater
 	externalExporterStatusSvc *agents.ExternalExporterStatusService
 	grafanaClient             *grafana.Client
+	authServer                *grafana.AuthServer
 	templatesService          *alerting.Service
 	backupService             *backup.Service
 	dumpService               *dump.Service
@@ -260,6 +261,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.UnaryAdd(grpcMetrics.UnaryServerInterceptor()),
 			interceptors.UnaryServiceEnabledInterceptor(),
+			interceptors.UnaryNodeScopeInterceptor(deps.authServer),
 			grpc_validator.UnaryServerInterceptor(),
 		)),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
@@ -1221,6 +1223,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				db:                        db,
 				dumpService:               dumpService,
 				grafanaClient:             grafanaClient,
+				authServer:                authServer,
 				handler:                   agentsHandler,
 				ha:                        haService,
 				jobsService:               jobsService,

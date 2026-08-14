@@ -111,6 +111,11 @@ func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) 
 			return err
 		}
 
+		agents, err = scopeAgents(ctx, tx.Querier, agents)
+		if err != nil {
+			return err
+		}
+
 		// TODO That loop makes len(agents) SELECTs, that can be slow. Optimize when needed.
 		res = make([]inventoryv1.Agent, len(agents))
 		for i, a := range agents {

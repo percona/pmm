@@ -183,6 +183,9 @@ func TestServerClientConnection(t *testing.T) {
 		assert.Equal(t, codes.Unauthenticated, authError.code)
 	})
 
+	// An agent token carries the None role, so it connects on the strength of its binding to
+	// a registered node and on nothing else. This exercises the whole path: a real Grafana
+	// service account, a real node row, and the binding between them.
 	t.Run("Token auth - success", func(t *testing.T) {
 		t.Parallel()
 
@@ -191,7 +194,7 @@ func TestServerClientConnection(t *testing.T) {
 			"Authorization": "Basic YWRtaW46YWRtaW4=",
 		})
 		ctx := metadata.NewIncomingContext(t.Context(), headersMD)
-		_, serviceToken, err := c.CreateServiceAccount(ctx, nodeName, true)
+		serviceAccountID, serviceToken, err := c.CreateServiceAccount(ctx, nodeName, true)
 		require.NoError(t, err)
 		defer func() {
 			warning, err := c.DeleteServiceAccount(ctx, nodeName, true)
@@ -199,12 +202,33 @@ func TestServerClientConnection(t *testing.T) {
 			require.Empty(t, warning)
 		}()
 
+		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+
+		node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: nodeName,
+			Address:  "10.30.30.30",
+		})
+		require.NoError(t, err)
+		require.NoError(t, models.SetNodeServiceAccountID(db.Querier, node.NodeID, serviceAccountID))
+
+		boundServer := NewAuthServer(c, db)
+
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, connectionEndpoint, nil)
 		require.NoError(t, err)
 		req.Header.Set("Authorization", "Bearer "+serviceToken)
 
-		_, authError := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
-		assert.Nil(t, authError)
+		user, authError := boundServer.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		require.Nil(t, authError)
+		require.NotNil(t, user)
+		assert.Equal(t, none, user.role)
+		assert.Equal(t, node.NodeID, user.nodeID)
+
+		// The same token gets nowhere without the binding.
+		_, authError = s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+		require.NotNil(t, authError)
+		assert.Equal(t, codes.PermissionDenied, authError.code)
 	})
 
 	t.Run("Token auth - fail", func(t *testing.T) {
@@ -418,8 +442,10 @@ func TestAuthServerTokenBinding(t *testing.T) {
 		{"bound rta collect", boundServiceAccountID, rtaCollectEndpoint, true},
 		{"bound vm write", boundServiceAccountID, "/victoriametrics/api/v1/write", true},
 
-		// The binding grants those paths and nothing else.
-		{"bound inventory", boundServiceAccountID, "/v1/inventory/services", false},
+		// ...and the inventory it manages on that node.
+		{"bound inventory", boundServiceAccountID, "/v1/inventory/services", true},
+
+		// The binding grants those and nothing else.
 		{"bound backups", boundServiceAccountID, "/v1/backups", false},
 		{"bound settings", boundServiceAccountID, "/v1/server/settings", false},
 		{"bound server logs", boundServiceAccountID, "/v1/server/logs.zip", false},
