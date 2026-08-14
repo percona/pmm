@@ -88,8 +88,6 @@ var rules = map[string]role{
 	"/v1/platform:":                   admin,
 	"/v1/platform":                    viewer,
 	"/v1/users":                       viewer,
-	"/v1/users/current":               none,
-	"/v1/users/current/orgs":          none,
 
 	// must be available without authentication for health checking
 	"/v1/server/readyz":            none,
@@ -335,10 +333,7 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 	}
 
 	if userID <= 0 {
-		// Anonymous users don't have a numeric user ID and cannot have LBAC roles.
-		// Skip adding filters and allow the request to proceed.
-		l.Debugf("Skipping LBAC filters for anonymous user.")
-		return nil
+		return ErrInvalidUserID
 	}
 
 	filters, err := s.getLBACFilters(ctx, userID)
