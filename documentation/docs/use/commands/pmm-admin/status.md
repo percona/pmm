@@ -174,6 +174,12 @@ The archive includes:
 - System information (OS, hardware)
 - Network diagnostics
 
+!!! caution alert alert-warning "PMM Server logs are no longer collected by default"
+
+    The archive no longer includes PMM Server logs. Server logs are server-wide, so they are not reachable with the credentials a PMM Client holds. To include them, run the command with `--no-skip-server` and credentials for a PMM user with the **Admin** role.
+
+    All client-side data listed above is collected either way.
+
 ### Syntax
 
 ```bash
@@ -185,7 +191,8 @@ pmm-admin summary [FLAGS]
 | Flag | Description |
 |------|-------------|
 | `--filename=PATH` | Output file path (default: auto-generated in current directory) |
-| `--skip-server` | Skip collecting PMM Server logs (`logs.zip`) |
+| `--skip-server` | Skip collecting PMM Server logs (`logs.zip`). Enabled by default |
+| `--no-skip-server` | Collect PMM Server logs. Requires credentials for a user with the **Admin** role |
 | `--pprof` | Include Go performance profiling data (for advanced debugging) |
 | `--json` | Output summary metadata in JSON format |
 
