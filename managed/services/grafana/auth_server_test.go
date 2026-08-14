@@ -16,6 +16,7 @@
 package grafana
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -375,6 +376,77 @@ func TestCleanPath(t *testing.T) {
 			cleanedPath, err := cleanPath(tt.path)
 			require.NoError(t, err)
 			assert.Equalf(t, tt.expected, cleanedPath, "cleanPath(%v)", tt.path)
+		})
+	}
+}
+
+// fakeAuthClient returns a fixed authUser, standing in for Grafana so the binding logic
+// can be exercised without minting real service accounts.
+type fakeAuthClient struct {
+	u authUser
+}
+
+func (f *fakeAuthClient) getAuthUser(_ context.Context, _ http.Header, _ *logrus.Entry) (authUser, error) {
+	return f.u, nil
+}
+
+func TestAuthServerTokenBinding(t *testing.T) {
+	ctx := logger.Set(t.Context(), t.Name())
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "bound-node",
+		Address:  "10.20.30.40",
+	})
+	require.NoError(t, err)
+
+	const boundServiceAccountID = 4242
+	require.NoError(t, models.SetNodeServiceAccountID(db.Querier, node.NodeID, boundServiceAccountID))
+
+	for _, tc := range []struct {
+		name             string
+		serviceAccountID int
+		path             string
+		wantAllowed      bool
+	}{
+		// A bound token reaches everything a pmm-agent needs, with no Grafana role at all.
+		{"bound agent connect", boundServiceAccountID, connectionEndpoint, true},
+		{"bound v2 agent connect", boundServiceAccountID, connectionEndpointV2, true},
+		{"bound rta collect", boundServiceAccountID, rtaCollectEndpoint, true},
+		{"bound vm write", boundServiceAccountID, "/victoriametrics/api/v1/write", true},
+
+		// The binding grants those paths and nothing else.
+		{"bound inventory", boundServiceAccountID, "/v1/inventory/services", false},
+		{"bound backups", boundServiceAccountID, "/v1/backups", false},
+		{"bound settings", boundServiceAccountID, "/v1/server/settings", false},
+		{"bound server logs", boundServiceAccountID, "/v1/server/logs.zip", false},
+		{"bound vm read", boundServiceAccountID, "/victoriametrics/api/v1/query", false},
+
+		// An unbound service account gets nothing from the binding path.
+		{"unbound agent connect", 9999, connectionEndpoint, false},
+		{"no service account", 0, connectionEndpoint, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			c := &fakeAuthClient{u: authUser{role: none, serviceAccountID: tc.serviceAccountID}}
+			s := NewAuthServer(c, db)
+
+			req, err := http.NewRequestWithContext(ctx, http.MethodPost, tc.path, nil)
+			require.NoError(t, err)
+			req.Header.Set("Authorization", "Bearer "+tc.name)
+
+			u, authErr := s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+			if !tc.wantAllowed {
+				require.NotNil(t, authErr, "expected access to be denied")
+				assert.Equal(t, codes.PermissionDenied, authErr.code)
+				return
+			}
+
+			require.Nil(t, authErr)
+			require.NotNil(t, u)
+			assert.Equal(t, node.NodeID, u.nodeID)
 		})
 	}
 }

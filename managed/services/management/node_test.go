@@ -28,6 +28,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
@@ -228,6 +229,35 @@ func TestNodeService(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.Empty(t, res.Warning)
+		})
+
+		// Registration used to hand the caller's own token back, so one admin token ended up
+		// on every node registered with it. Each node must get its own, bound to its own
+		// service account.
+		t.Run("MintsNodeSpecificToken", func(t *testing.T) {
+			nodeName := "test-node-token"
+			const serviceAccountID = 77
+
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			callerCtx := metadata.NewIncomingContext(ctx, metadata.Pairs("Authorization", "Bearer caller-token"))
+			authProvider.On("CreateServiceAccount", callerCtx, nodeName, false).Return(serviceAccountID, "node-token", nil)
+			s.grafanaClient = authProvider
+
+			res, err := s.RegisterNode(callerCtx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName: nodeName,
+				Address:  "token.address.org",
+			})
+			require.NoError(t, err)
+			assert.Equal(t, "node-token", res.Token)
+			assert.NotEqual(t, "caller-token", res.Token)
+
+			node, err := models.FindNodeByServiceAccountID(s.db.Querier, serviceAccountID)
+			require.NoError(t, err)
+			assert.Equal(t, res.GenericNode.NodeId, node.NodeID)
+
+			authProvider.AssertExpectations(t)
 		})
 	})
 

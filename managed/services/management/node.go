@@ -31,7 +31,6 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/auth"
 )
 
 // RegisterNode performs the registration of a new node.
@@ -123,18 +122,35 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		return nil, e
 	}
 
-	authHeaders, _ := auth.GetHeadersFromContext(ctx)
-	token := auth.GetTokenFromHeaders(authHeaders)
-	if token != "" {
-		res.Token = token
-	} else {
-		_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
-		if e != nil {
-			return nil, e
-		}
+	// Always mint a node-specific service account, even when the caller authenticated with a
+	// token. Echoing the caller's token back put one credential on every node registered with
+	// it; a per-node token is what lets AuthServer tell the nodes apart.
+	serviceAccountID, token, e := s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
+	if e != nil {
+		return nil, e
+	}
+	res.Token = token
+
+	nodeID := nodeIDFromResponse(res)
+	e = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		return models.SetNodeServiceAccountID(tx.Querier, nodeID, serviceAccountID)
+	})
+	if e != nil {
+		return nil, e
 	}
 
 	return res, nil
+}
+
+// nodeIDFromResponse returns the ID of the node RegisterNode just created.
+func nodeIDFromResponse(res *managementv1.RegisterNodeResponse) string {
+	if res.GenericNode != nil {
+		return res.GenericNode.NodeId
+	}
+	if res.ContainerNode != nil {
+		return res.ContainerNode.NodeId
+	}
+	return ""
 }
 
 // UnregisterNode unregisters the node.

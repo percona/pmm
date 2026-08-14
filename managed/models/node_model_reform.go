@@ -44,6 +44,7 @@ func (v *nodeTableType) Columns() []string {
 		"container_name",
 		"region",
 		"is_pmm_server_node",
+		"service_account_id",
 	}
 }
 
@@ -84,6 +85,7 @@ var NodeTable = &nodeTableType{
 			{Name: "ContainerName", Type: "*string", Column: "container_name"},
 			{Name: "Region", Type: "*string", Column: "region"},
 			{Name: "IsPMMServerNode", Type: "bool", Column: "is_pmm_server_node"},
+			{Name: "ServiceAccountID", Type: "int", Column: "service_account_id"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -92,7 +94,7 @@ var NodeTable = &nodeTableType{
 
 // String returns a string representation of this struct or record.
 func (s Node) String() string {
-	res := make([]string, 16)
+	res := make([]string, 17)
 	res[0] = "NodeID: " + reform.Inspect(s.NodeID, true)
 	res[1] = "NodeType: " + reform.Inspect(s.NodeType, true)
 	res[2] = "NodeName: " + reform.Inspect(s.NodeName, true)
@@ -109,6 +111,7 @@ func (s Node) String() string {
 	res[13] = "ContainerName: " + reform.Inspect(s.ContainerName, true)
 	res[14] = "Region: " + reform.Inspect(s.Region, true)
 	res[15] = "IsPMMServerNode: " + reform.Inspect(s.IsPMMServerNode, true)
+	res[16] = "ServiceAccountID: " + reform.Inspect(s.ServiceAccountID, true)
 	return strings.Join(res, ", ")
 }
 
@@ -132,6 +135,7 @@ func (s *Node) Values() []interface{} {
 		s.ContainerName,
 		s.Region,
 		s.IsPMMServerNode,
+		s.ServiceAccountID,
 	}
 }
 
@@ -155,6 +159,7 @@ func (s *Node) Pointers() []interface{} {
 		&s.ContainerName,
 		&s.Region,
 		&s.IsPMMServerNode,
+		&s.ServiceAccountID,
 	}
 }
 

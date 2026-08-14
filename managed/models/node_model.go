@@ -72,6 +72,10 @@ type Node struct {
 
 	// IsPMMServerNode indicates if this node is a PMM Server node.
 	IsPMMServerNode bool `reform:"is_pmm_server_node"`
+
+	// ServiceAccountID is the Grafana service account backing this node's pmm-agent token.
+	// Zero means the node is not bound to one; such nodes are authorized by Grafana role only.
+	ServiceAccountID int `reform:"service_account_id"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

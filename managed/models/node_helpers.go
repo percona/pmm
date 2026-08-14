@@ -172,6 +172,44 @@ func FindNodeByName(q *reform.Querier, name string) (*Node, error) {
 	return &node, nil
 }
 
+// FindNodeByServiceAccountID finds the Node bound to the given Grafana service account.
+// Zero is never bound, so it returns NotFound without querying.
+func FindNodeByServiceAccountID(q *reform.Querier, serviceAccountID int) (*Node, error) {
+	if serviceAccountID == 0 {
+		return nil, status.Error(codes.NotFound, "Node for service account 0 not found.")
+	}
+
+	var node Node
+	err := q.FindOneTo(&node, "service_account_id", serviceAccountID)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Node for service account %d not found.", serviceAccountID)
+		}
+		return nil, err
+	}
+
+	return &node, nil
+}
+
+// SetNodeServiceAccountID binds a Node to a Grafana service account, clearing any other
+// node that was bound to it. The unique index allows only one node per service account.
+func SetNodeServiceAccountID(q *reform.Querier, nodeID string, serviceAccountID int) error {
+	if serviceAccountID != 0 {
+		_, err := q.Exec("UPDATE nodes SET service_account_id = 0 WHERE service_account_id = $1 AND node_id <> $2", serviceAccountID, nodeID)
+		if err != nil {
+			return err
+		}
+	}
+
+	node, err := FindNodeByID(q, nodeID)
+	if err != nil {
+		return err
+	}
+	node.ServiceAccountID = serviceAccountID
+
+	return q.Update(node)
+}
+
 // CreateNodeParams contains parameters for creating Nodes.
 type CreateNodeParams struct {
 	NodeName        string

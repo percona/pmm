@@ -34,6 +34,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
@@ -124,6 +125,17 @@ var rules = map[string]role{
 	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code
+}
+
+// agentPaths are the exact paths a pmm-agent needs to do its job. A Grafana service token
+// bound to a registered node may call them whatever its Grafana role, so agents no longer
+// need an Admin token. This is an additional grant on top of the role rules, never a
+// relaxation of them: agents still holding Admin tokens keep authenticating by role.
+var agentPaths = map[string]struct{}{
+	connectionEndpointV2:            {},
+	connectionEndpoint:              {},
+	rtaCollectEndpoint:              {},
+	"/victoriametrics/api/v1/write": {},
 }
 
 // methodRules maps "METHOD url-prefix" to the minimal role. Entries take precedence
@@ -560,8 +572,20 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		return user, nil
 	}
 
+	if user.nodeID != "" && s.isGrantedByBinding(cleanedPath) {
+		l.WithField("node_id", user.nodeID).Debugf("Service token is bound to a node, granting access.")
+		return user, nil
+	}
+
 	l.Warnf("Minimal required role is %s, denying access.", minRole)
 	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
+}
+
+// isGrantedByBinding reports whether a service token bound to a node may call this path
+// regardless of its Grafana role.
+func (s *AuthServer) isGrantedByBinding(cleanedPath string) bool {
+	_, ok := agentPaths[cleanedPath]
+	return ok
 }
 
 func cleanPath(p string) (string, error) {
@@ -631,6 +655,8 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 		}
 		return nil, &authError{code: codes.Internal, message: "Internal server error."}
 	}
+	authUser.nodeID = s.resolveBoundNode(authUser.serviceAccountID, l)
+
 	s.rw.Lock()
 	s.cache[hash] = cacheItem{
 		u:       authUser,
@@ -639,4 +665,23 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	s.rw.Unlock()
 
 	return &authUser, nil
+}
+
+// resolveBoundNode returns the node a Grafana service account was issued for, or an empty
+// string when the token is not bound to one. A lookup failure is not an authentication
+// failure: the caller falls back to role-based authorization.
+func (s *AuthServer) resolveBoundNode(serviceAccountID int, l *logrus.Entry) string {
+	if serviceAccountID == 0 {
+		return ""
+	}
+
+	node, err := models.FindNodeByServiceAccountID(s.db.Querier, serviceAccountID)
+	if err != nil {
+		if status.Code(err) != codes.NotFound {
+			l.Warnf("Failed to resolve service account %d to a node: %s", serviceAccountID, err)
+		}
+		return ""
+	}
+
+	return node.NodeID
 }

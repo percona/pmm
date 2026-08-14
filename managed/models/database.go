@@ -1185,6 +1185,12 @@ var databaseSchema = [][]string{
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
 	},
+	119: {
+		// Grafana service account backing this node's pmm-agent token; 0 means not bound.
+		// Nodes registered before this migration keep 0 and stay authorized by Grafana role.
+		`ALTER TABLE nodes ADD COLUMN service_account_id INTEGER NOT NULL DEFAULT 0`,
+		`CREATE UNIQUE INDEX nodes_service_account_id ON nodes (service_account_id) WHERE service_account_id <> 0`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
