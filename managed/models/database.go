@@ -1191,6 +1191,19 @@ var databaseSchema = [][]string{
 		`ALTER TABLE nodes ADD COLUMN service_account_id INTEGER NOT NULL DEFAULT 0`,
 		`CREATE UNIQUE INDEX nodes_service_account_id ON nodes (service_account_id) WHERE service_account_id <> 0`,
 	},
+	120: {
+		// Agent tokens issued by pmm-managed itself, so enrolling a node needs no Grafana
+		// credentials at all. Only the hash is stored; the token is shown once, at creation.
+		`CREATE TABLE agent_tokens (
+			token_hash VARCHAR NOT NULL,
+			node_id VARCHAR NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (token_hash),
+			FOREIGN KEY (node_id) REFERENCES nodes (node_id) ON DELETE CASCADE
+		)`,
+		`CREATE INDEX agent_tokens_node_id ON agent_tokens (node_id)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

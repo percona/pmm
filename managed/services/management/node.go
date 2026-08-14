@@ -124,22 +124,25 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		return nil, e
 	}
 
-	// Always mint a node-specific service account, even when the caller authenticated with a
-	// token. Echoing the caller's token back put one credential on every node registered with
-	// it; a per-node token is what lets AuthServer tell the nodes apart.
-	serviceAccountID, token, e := s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
-	if e != nil {
-		return nil, e
-	}
-	res.Token = token
-
+	// Issue the node's credential from PMM's own store. It used to be a Grafana service
+	// account, which made enrolling a node require Grafana Org Admin and fail outright where
+	// Grafana has no local users at all - LDAP with disable_initial_admin_creation. Nothing
+	// about a monitoring agent's credential needs Grafana to be involved.
 	nodeID := nodeIDFromResponse(res)
+	var token string
 	e = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		return models.SetNodeServiceAccountID(tx.Querier, nodeID, serviceAccountID)
+		err := models.RemoveAgentTokensForNode(tx.Querier, nodeID)
+		if err != nil {
+			return err
+		}
+
+		_, token, err = models.CreateAgentToken(tx.Querier, nodeID)
+		return err
 	})
 	if e != nil {
 		return nil, e
 	}
+	res.Token = token
 
 	return res, nil
 }
@@ -217,6 +220,14 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 	if req.Force {
 		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
 		s.vmdb.RequestConfigurationUpdate()
+	}
+
+	// Removing the node cascades to its agent tokens, so a node registered with a PMM-issued
+	// token is already fully revoked. Only nodes enrolled before that, which still have a
+	// Grafana service account, need Grafana cleaning up - and only that path needs Grafana
+	// credentials, so unregistering a modern node no longer touches Grafana at all.
+	if node.ServiceAccountID == 0 {
+		return &managementv1.UnregisterNodeResponse{}, nil
 	}
 
 	warning, err := s.grafanaClient.DeleteServiceAccount(ctx, node.NodeName, req.Force)

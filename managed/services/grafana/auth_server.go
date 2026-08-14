@@ -566,6 +566,19 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		return nil, nil
 	}
 
+	// A token pmm-managed issued itself is resolved against PMM's own database. Grafana is
+	// never consulted, so an agent keeps working when Grafana is down, and enrolling a node
+	// needs no Grafana credentials at all.
+	if user, ok := s.authenticateAgentToken(req, l); ok {
+		if isGrantedByBinding(req.Method, cleanedPath) {
+			l.WithField("node_id", user.nodeID).Debugf("Agent token, granting access.")
+			return user, nil
+		}
+
+		l.Warnf("Agent token may not call this path, denying access.")
+		return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
+	}
+
 	var user *authUser
 	if isLocalAgentConnection(req) {
 		if req.Header.Get("X-Original-Uri") == connectionEndpoint {
@@ -606,6 +619,31 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 
 	l.Warnf("Minimal required role is %s, denying access.", minRole)
 	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
+}
+
+// authenticateAgentToken resolves a PMM-issued agent token to the node it belongs to.
+// The second result is false when the request carries no such token, in which case the
+// caller falls through to Grafana. An unrecognised PMM token also returns false and is
+// then refused by the Grafana path, so a revoked token cannot be replayed.
+func (s *AuthServer) authenticateAgentToken(req *http.Request, l *logrus.Entry) (*authUser, bool) {
+	if s.db == nil {
+		return nil, false
+	}
+
+	token := auth.GetTokenFromHeaders(s.authHeaders(req))
+	if !models.IsAgentToken(token) {
+		return nil, false
+	}
+
+	nodeID, err := models.FindNodeIDByAgentToken(s.db.Querier, token)
+	if err != nil {
+		if !errors.Is(err, models.ErrInvalidAgentToken) {
+			l.Warnf("Failed to look up agent token: %s", err)
+		}
+		return nil, false
+	}
+
+	return &authUser{role: none, nodeID: nodeID}, true
 }
 
 // isGrantedByBinding reports whether a service token bound to a node may perform this
@@ -662,9 +700,24 @@ func (s *AuthServer) BoundNodeID(ctx context.Context) string {
 		return ""
 	}
 
-	// Only service tokens are ever bound; skip the lookup for user credentials.
-	if auth.GetTokenFromHeaders(authHeaders) == "" {
+	// Only tokens are ever bound; skip the lookup for user credentials.
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if token == "" {
 		return ""
+	}
+
+	// A PMM-issued token resolves locally. This must stay in step with authenticate: if the
+	// scope were resolved only through Grafana, a PMM token would pass the endpoint check
+	// and then reach the handlers unconfined.
+	if models.IsAgentToken(token) {
+		if s.db == nil {
+			return ""
+		}
+		nodeID, err := models.FindNodeIDByAgentToken(s.db.Querier, token)
+		if err != nil {
+			return ""
+		}
+		return nodeID
 	}
 
 	user, authErr := s.authUserForHeaders(ctx, authHeaders, s.l)

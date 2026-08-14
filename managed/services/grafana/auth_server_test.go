@@ -543,3 +543,100 @@ func TestIsGrantedByBinding(t *testing.T) {
 		})
 	}
 }
+
+// A PMM-issued agent token is resolved against PMM's own database, so it must authenticate
+// with no Grafana involvement whatsoever. NewClient points at a dead address here: if any of
+// this reached Grafana the test would fail rather than silently pass.
+func TestAuthServerAgentToken(t *testing.T) {
+	ctx := logger.Set(t.Context(), t.Name())
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+
+	nodeA, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "agent-token-node-a", Address: "10.2.0.1",
+	})
+	require.NoError(t, err)
+	nodeB, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "agent-token-node-b", Address: "10.2.0.2",
+	})
+	require.NoError(t, err)
+
+	_, tokenA, err := models.CreateAgentToken(db.Querier, nodeA.NodeID)
+	require.NoError(t, err)
+	_, tokenB, err := models.CreateAgentToken(db.Querier, nodeB.NodeID)
+	require.NoError(t, err)
+
+	// Port 1 has nothing listening: any Grafana call fails loudly.
+	s := NewAuthServer(NewClient("127.0.0.1:1"), db)
+
+	authenticate := func(t *testing.T, method, path, token string) (*authUser, *authError) {
+		t.Helper()
+
+		req, err := http.NewRequestWithContext(ctx, method, path, nil)
+		require.NoError(t, err)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		return s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+	}
+
+	t.Run("authenticates and carries its node without Grafana", func(t *testing.T) {
+		for _, path := range []string{
+			connectionEndpoint,
+			rtaCollectEndpoint,
+			"/victoriametrics/api/v1/write",
+			"/v1/inventory/services",
+		} {
+			user, authErr := authenticate(t, http.MethodPost, path, tokenA)
+			require.Nil(t, authErr, "path = %s", path)
+			require.NotNil(t, user)
+			assert.Equal(t, nodeA.NodeID, user.nodeID)
+			assert.Equal(t, none, user.role, "an agent token carries no Grafana role at all")
+		}
+	})
+
+	t.Run("reaches nothing beyond the agent grant", func(t *testing.T) {
+		for _, path := range []string{
+			"/v1/backups",
+			"/v1/server/settings",
+			"/v1/server/logs.zip",
+			"/v1/accesscontrol",
+			"/prometheus/api/v1/query",
+			"/v1/management/nodes", // registration
+		} {
+			_, authErr := authenticate(t, http.MethodPost, path, tokenA)
+			require.NotNil(t, authErr, "path = %s", path)
+			assert.Equal(t, codes.PermissionDenied, authErr.code)
+		}
+	})
+
+	t.Run("scope follows the token, and BoundNodeID agrees with authenticate", func(t *testing.T) {
+		for token, wantNode := range map[string]string{tokenA: nodeA.NodeID, tokenB: nodeB.NodeID} {
+			user, authErr := authenticate(t, http.MethodGet, "/v1/inventory/services", token)
+			require.Nil(t, authErr)
+			assert.Equal(t, wantNode, user.nodeID)
+
+			md := metadata.New(map[string]string{"Authorization": "Bearer " + token})
+			assert.Equal(t, wantNode, s.BoundNodeID(metadata.NewIncomingContext(ctx, md)),
+				"the interceptor must confine the token to the same node authenticate did")
+		}
+	})
+
+	t.Run("a revoked token stops working", func(t *testing.T) {
+		_, token, err := models.CreateAgentToken(db.Querier, nodeA.NodeID)
+		require.NoError(t, err)
+		user, authErr := authenticate(t, http.MethodGet, "/v1/inventory/services", token)
+		require.Nil(t, authErr)
+		require.NotNil(t, user)
+
+		require.NoError(t, models.RemoveAgentTokensForNode(db.Querier, nodeA.NodeID))
+
+		// Falls through to Grafana, which is unreachable, so it cannot be replayed.
+		_, authErr = authenticate(t, http.MethodGet, "/v1/inventory/services", token)
+		require.NotNil(t, authErr)
+
+		md := metadata.New(map[string]string{"Authorization": "Bearer " + token})
+		assert.Empty(t, s.BoundNodeID(metadata.NewIncomingContext(ctx, md)))
+	})
+}

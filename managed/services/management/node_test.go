@@ -56,10 +56,6 @@ func TestNodeService(t *testing.T) {
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-			serviceAccountID := int(0)
-			nodeName := getTestNodeName()
-			reregister := false
-
 			r := &mockAgentsRegistry{}
 			r.Test(t)
 
@@ -71,7 +67,6 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
@@ -118,10 +113,11 @@ func TestNodeService(t *testing.T) {
 					AgentId:      "00000000-0000-4000-8000-000000000006",
 					RunsOnNodeId: "00000000-0000-4000-8000-000000000005",
 				},
-				Token: "test-token",
 			}
-			assert.Equal(t, expected, res)
 			require.NoError(t, err)
+			assert.True(t, models.IsAgentToken(res.Token), "registration must issue a PMM token, got %q", res.Token)
+			res.Token = ""
+			assert.Equal(t, expected, res)
 		})
 
 		t.Run("Exist", func(t *testing.T) {
@@ -134,14 +130,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("Reregister", func(t *testing.T) {
-			serviceAccountID := int(0)
 			nodeName := "test-node-new"
-			reregister := false
-
-			authProvider := &mockGrafanaClient{}
-			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			s.grafanaClient = authProvider
 
 			_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 				NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
@@ -155,14 +144,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("Reregister-force", func(t *testing.T) {
-			serviceAccountID := int(0)
 			nodeName := "test-node-new"
-			reregister := true
-
-			authProvider := &mockGrafanaClient{}
-			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			s.grafanaClient = authProvider
 
 			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 				NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
@@ -183,22 +165,21 @@ func TestNodeService(t *testing.T) {
 					AgentId:      "00000000-0000-4000-8000-000000000009",
 					RunsOnNodeId: "00000000-0000-4000-8000-000000000008",
 				},
-				Token: "test-token",
 			}
-			assert.Equal(t, expected, res)
 			require.NoError(t, err)
+			assert.True(t, models.IsAgentToken(res.Token))
+			res.Token = ""
+			assert.Equal(t, expected, res)
 		})
 
 		t.Run("Register/Unregister", func(t *testing.T) {
-			serviceAccountID := int(0)
 			nodeName := getTestNodeName()
-			reregister := true
-			force := true
 
+			// The node is registered with a PMM-issued token, so neither registering nor
+			// unregistering it may reach Grafana. The mock has no expectations set: any call
+			// to it fails the test.
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
 			s.grafanaClient = authProvider
 
 			state := &mockAgentsStateUpdater{}
@@ -232,32 +213,42 @@ func TestNodeService(t *testing.T) {
 		})
 
 		// Registration used to hand the caller's own token back, so one admin token ended up
-		// on every node registered with it. Each node must get its own, bound to its own
-		// service account.
+		// on every node registered with it. Each node must get its own, resolvable to that
+		// node and to no other - and it must be issued without touching Grafana, which is
+		// what lets a node be enrolled where Grafana has no local users.
 		t.Run("MintsNodeSpecificToken", func(t *testing.T) {
-			nodeName := "test-node-token"
-			const serviceAccountID = 77
-
+			// No expectations: any call to Grafana fails the test.
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			callerCtx := metadata.NewIncomingContext(ctx, metadata.Pairs("Authorization", "Bearer caller-token"))
-			authProvider.On("CreateServiceAccount", callerCtx, nodeName, false).Return(serviceAccountID, "node-token", nil)
 			s.grafanaClient = authProvider
 
-			res, err := s.RegisterNode(callerCtx, &managementv1.RegisterNodeRequest{
+			callerCtx := metadata.NewIncomingContext(ctx, metadata.Pairs("Authorization", "Bearer caller-token"))
+
+			first, err := s.RegisterNode(callerCtx, &managementv1.RegisterNodeRequest{
 				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
-				NodeName: nodeName,
-				Address:  "token.address.org",
+				NodeName: "test-node-token-1",
+				Address:  "token1.address.org",
 			})
 			require.NoError(t, err)
-			assert.Equal(t, "node-token", res.Token)
-			assert.NotEqual(t, "caller-token", res.Token)
-
-			node, err := models.FindNodeByServiceAccountID(s.db.Querier, serviceAccountID)
+			second, err := s.RegisterNode(callerCtx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName: "test-node-token-2",
+				Address:  "token2.address.org",
+			})
 			require.NoError(t, err)
-			assert.Equal(t, res.GenericNode.NodeId, node.NodeID)
 
-			authProvider.AssertExpectations(t)
+			assert.True(t, models.IsAgentToken(first.Token))
+			assert.NotEqual(t, "caller-token", first.Token)
+			assert.NotEqual(t, first.Token, second.Token, "each node must get its own token")
+
+			for _, tc := range []struct{ token, nodeID string }{
+				{first.Token, first.GenericNode.NodeId},
+				{second.Token, second.GenericNode.NodeId},
+			} {
+				gotNode, err := models.FindNodeIDByAgentToken(s.db.Querier, tc.token)
+				require.NoError(t, err)
+				assert.Equal(t, tc.nodeID, gotNode)
+			}
 		})
 	})
 
