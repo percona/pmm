@@ -132,27 +132,43 @@ func TestNodeHelpers(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			structs, err := q.SelectAllFrom(models.NodeTable, "WHERE machine_id = $1 ORDER BY node_id", machineID)
+			// Index by ID rather than relying on the order. The fixture node's ID is the
+			// literal "GenericNode" and the created one is a random UUID, so ORDER BY node_id
+			// put them either way round depending on whether the UUID happened to start with
+			// a digit or a letter.
+			structs, err := q.SelectAllFrom(models.NodeTable, "WHERE machine_id = $1", machineID)
 			require.NoError(t, err)
 			require.Len(t, structs, 2)
-			expected := &models.Node{
-				NodeID:    structs[0].(*models.Node).NodeID,
-				NodeType:  models.GenericNodeType,
-				NodeName:  t.Name(),
-				MachineID: &machineID,
-				CreatedAt: now,
-				UpdatedAt: now,
+
+			nodesByID := make(map[string]*models.Node, len(structs))
+			for _, str := range structs {
+				node := str.(*models.Node)
+				nodesByID[node.NodeID] = node
 			}
-			assert.Equal(t, expected, structs[0])
-			expected = &models.Node{
+
+			fixture := nodesByID["GenericNode"]
+			require.NotNil(t, fixture, "the fixture node must still be there")
+			assert.Equal(t, &models.Node{
 				NodeID:    "GenericNode",
 				NodeType:  models.GenericNodeType,
 				NodeName:  "Node for Agents",
 				MachineID: &machineID, // \n trimmed
 				CreatedAt: now,
 				UpdatedAt: now,
+			}, fixture)
+
+			delete(nodesByID, "GenericNode")
+			require.Len(t, nodesByID, 1)
+			for _, created := range nodesByID {
+				assert.Equal(t, &models.Node{
+					NodeID:    created.NodeID,
+					NodeType:  models.GenericNodeType,
+					NodeName:  t.Name(),
+					MachineID: &machineID, // \n trimmed
+					CreatedAt: now,
+					UpdatedAt: now,
+				}, created)
 			}
-			assert.Equal(t, expected, structs[1])
 		})
 	})
 
