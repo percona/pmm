@@ -1517,7 +1517,7 @@
             {
               "datasource": "Metrics",
               "editorMode": "code",
-              "expr": "count(pmm_managed_inventory_agents{job=\"pmm-managed\"})",
+              "expr": "count(pmm_managed_inventory_agents{job=\"pmm-managed\",agent_type=\"pmm-agent\"})",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
