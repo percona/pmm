@@ -132,6 +132,7 @@ func TestConnectionRequestDialTimeoutPostgreSQLCloudDefaults(t *testing.T) {
 		nodeColumns := []string{
 			"node_id", "node_type", "node_name", "machine_id", "distro", "node_model", "az", "custom_labels",
 			"address", "instance_id", "created_at", "updated_at", "container_id", "container_name", "region", "is_pmm_server_node",
+			"service_account_id",
 		}
 		mock.ExpectQuery(`SELECT .+ FROM "nodes" WHERE .+ LIMIT 1`).
 			WithArgs("node-id").
@@ -152,6 +153,7 @@ func TestConnectionRequestDialTimeoutPostgreSQLCloudDefaults(t *testing.T) {
 				nil,
 				nil,
 				false,
+				0,
 			))
 
 		service := &models.Service{
