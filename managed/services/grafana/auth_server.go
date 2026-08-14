@@ -127,15 +127,41 @@ var rules = map[string]role{
 	// "/" is a special case in this code
 }
 
-// agentPaths are the exact paths a pmm-agent needs to do its job. A Grafana service token
-// bound to a registered node may call them whatever its Grafana role, so agents no longer
-// need an Admin token. This is an additional grant on top of the role rules, never a
-// relaxation of them: agents still holding Admin tokens keep authenticating by role.
-var agentPaths = map[string]struct{}{
-	connectionEndpointV2:            {},
-	connectionEndpoint:              {},
-	rtaCollectEndpoint:              {},
-	"/victoriametrics/api/v1/write": {},
+// boundGrant is one operation a service token bound to a registered node may perform.
+// An empty method matches any method. A path ending in "/" matches by prefix, so operations
+// that carry an ID in the path are covered; any other path must match exactly.
+type boundGrant struct {
+	method string
+	path   string
+}
+
+// boundGrants is what a node's own token may do. It is an additional grant on top of the
+// role rules, never a relaxation of them: agents still holding Admin tokens keep
+// authenticating by role, and nothing here widens what a user account can reach.
+//
+// Everything outside this set stays denied - backups, dumps, server settings, access
+// control, server logs, the platform APIs and the bulk metrics endpoints.
+var boundGrants = []boundGrant{
+	// The pmm-agent daemon.
+	{"", connectionEndpointV2},
+	{"", connectionEndpoint},
+	{"", rtaCollectEndpoint},
+	{http.MethodPost, "/victoriametrics/api/v1/write"},
+
+	// The operations pmm-admin performs on behalf of its node.
+	// RegisterNode (POST /v1/management/nodes) is deliberately absent: it makes pmm-managed
+	// create a Grafana service account using the caller's own credentials, which a None-role
+	// token cannot do. Registration still requires Grafana Org Admin.
+	{http.MethodDelete, "/v1/management/nodes/"},
+	{http.MethodGet, "/v1/management/nodes"},
+	{http.MethodGet, "/v1/management/nodes/"},
+	{http.MethodGet, "/v1/management/agents"},
+	{http.MethodGet, "/v1/management/agents/"},
+	{http.MethodPost, "/v1/management/services"},
+	{http.MethodGet, "/v1/management/services"},
+	{http.MethodDelete, "/v1/management/services/"},
+	{http.MethodPost, "/v1/management/annotations"},
+	{"", "/v1/inventory/"},
 }
 
 // methodRules maps "METHOD url-prefix" to the minimal role. Entries take precedence
@@ -572,7 +598,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		return user, nil
 	}
 
-	if user.nodeID != "" && s.isGrantedByBinding(cleanedPath) {
+	if user.nodeID != "" && isGrantedByBinding(req.Method, cleanedPath) {
 		l.WithField("node_id", user.nodeID).Debugf("Service token is bound to a node, granting access.")
 		return user, nil
 	}
@@ -581,11 +607,25 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
 }
 
-// isGrantedByBinding reports whether a service token bound to a node may call this path
-// regardless of its Grafana role.
-func (s *AuthServer) isGrantedByBinding(cleanedPath string) bool {
-	_, ok := agentPaths[cleanedPath]
-	return ok
+// isGrantedByBinding reports whether a service token bound to a node may perform this
+// operation regardless of its Grafana role.
+func isGrantedByBinding(method, cleanedPath string) bool {
+	for _, g := range boundGrants {
+		if g.method != "" && g.method != method {
+			continue
+		}
+		if strings.HasSuffix(g.path, "/") {
+			if strings.HasPrefix(cleanedPath, g.path) {
+				return true
+			}
+			continue
+		}
+		if cleanedPath == g.path {
+			return true
+		}
+	}
+
+	return false
 }
 
 func cleanPath(p string) (string, error) {

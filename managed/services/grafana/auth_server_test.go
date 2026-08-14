@@ -450,3 +450,70 @@ func TestAuthServerTokenBinding(t *testing.T) {
 		})
 	}
 }
+
+func TestIsGrantedByBinding(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		method string
+		path   string
+		want   bool
+	}{
+		// The pmm-agent daemon.
+		{http.MethodPost, connectionEndpoint, true},
+		{http.MethodPost, connectionEndpointV2, true},
+		{http.MethodPost, rtaCollectEndpoint, true},
+		{http.MethodPost, "/victoriametrics/api/v1/write", true},
+
+		// Everything pmm-admin does on behalf of its node.
+		{http.MethodDelete, "/v1/management/nodes/node-1", true},   // unregister
+		{http.MethodPost, "/v1/management/services", true},         // add <type>
+		{http.MethodDelete, "/v1/management/services/svc-1", true}, // remove
+		{http.MethodPost, "/v1/management/annotations", true},      // annotate
+		{http.MethodGet, "/v1/management/nodes", true},             // list
+		{http.MethodGet, "/v1/management/nodes/node-1", true},
+		{http.MethodGet, "/v1/management/agents", true},
+		{http.MethodGet, "/v1/management/agents/versions", true},
+		{http.MethodGet, "/v1/management/services", true},
+		{http.MethodGet, "/v1/inventory/services", true},
+		{http.MethodGet, "/v1/inventory/nodes", true},
+		{http.MethodGet, "/v1/inventory/agents", true},
+		{http.MethodPost, "/v1/inventory/agents", true},
+		{http.MethodPut, "/v1/inventory/agents/agent-1", true},
+		{http.MethodDelete, "/v1/inventory/agents/agent-1", true},
+
+		// Registration mints a Grafana service account with the caller's credentials,
+		// which a None-role token cannot do, so it is not granted here.
+		{http.MethodPost, "/v1/management/nodes", false},
+
+		// The method matters: a bound token may delete a service, not create a node.
+		{http.MethodPost, "/v1/management/nodes/node-1", false},
+		{http.MethodPut, "/v1/management/services", false},
+
+		// Server-wide surfaces stay out of reach.
+		{http.MethodGet, "/v1/server/logs.zip", false},
+		{http.MethodGet, "/v1/server/settings", false},
+		{http.MethodPut, "/v1/server/settings", false},
+		{http.MethodGet, "/v1/backups", false},
+		{http.MethodGet, "/v1/dumps", false},
+		{http.MethodGet, "/v1/accesscontrol", false},
+		{http.MethodGet, "/v1/platform", false},
+		{http.MethodGet, "/v1/users", false},
+		{http.MethodGet, "/prometheus/api/v1/query", false},
+		{http.MethodGet, "/victoriametrics/api/v1/query", false},
+		{http.MethodGet, "/v1/qan/metrics:getFilters", false},
+		{http.MethodGet, "/graph/api/serviceaccounts", false},
+
+		// Neighbouring paths must not be swept in by prefix matching.
+		{http.MethodPost, "/v1/management/services:discoverRDS", false},
+		{http.MethodPost, "/v1/management/services:discoverAzure", false},
+		{http.MethodGet, "/v1/inventoryX", false},
+		{http.MethodGet, "/v1/inventory", false},
+	} {
+		t.Run(tc.method+" "+tc.path, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.want, isGrantedByBinding(tc.method, tc.path))
+		})
+	}
+}
