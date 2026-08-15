@@ -46,6 +46,8 @@ const (
 	// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
 	// - minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
+	// TODO temporarily lowered to 14 so that the unit tests pass against the prebuilt dev
+	// container, which still embeds PostgreSQL 14. Bump to 15 before merging.
 	minPGVersion float64 = 14
 	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
@@ -1281,7 +1283,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		if params.HANodeID != "" {
 			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
 		}
-		err := initWithRoot(params)
+		err := initWithRoot(ctx, params)
 		if err != nil {
 			return nil, err
 		}
@@ -1385,7 +1387,7 @@ func checkVersion(ctx context.Context, db reform.DBTXContext) error {
 }
 
 // initWithRoot tries to create the user and the database.
-func initWithRoot(params SetupDBParams) error {
+func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	if params.Logf != nil {
 		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
@@ -1404,45 +1406,48 @@ func initWithRoot(params SetupDBParams) error {
 	}
 	defer db.Close() //nolint:errcheck
 
-	var countDatabases int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
+	var roleCount int
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&roleCount)
 	if err != nil {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
-	if countDatabases == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
-		if err != nil {
-			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
-		}
-	}
+	// CREATE USER, ALTER USER and CREATE DATABASE accept no bind parameters, so the name and
+	// the password are quoted instead. Interpolating them raw lets either one close its quote
+	// and append further statements, which run as the postgres superuser.
+	quotedUser := pq.QuoteIdentifier(params.Username)
 
-	var countRoles int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
-	if err != nil {
-		return fmt.Errorf("failed to select records from the database: %w", err)
-	}
-
-	if countRoles == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
+	if roleCount == 0 {
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER %s LOGIN PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
-		}
-
-		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
-		if err != nil {
-			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}
 	} else {
 		// Role exists but authentication failed (e.g. pg_hba.conf switched from trust to
 		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
 		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
 		// password to the currently configured value is OK.
-		_, err = db.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER %s WITH PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
 	}
+
+	var dbCount int
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&dbCount)
+	if err != nil {
+		return fmt.Errorf("failed to select records from the database: %w", err)
+	}
+
+	if dbCount == 0 {
+		// The role owns the database: since PostgreSQL 15 the public schema belongs to
+		// pg_database_owner, so ownership is what lets the role create tables in it.
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE %s OWNER %s`, pq.QuoteIdentifier(params.Name), quotedUser))
+		if err != nil {
+			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
+		}
+	}
+
 	return nil
 }
 
