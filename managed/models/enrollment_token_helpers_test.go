@@ -36,6 +36,25 @@ func TestEnrollmentTokens(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
 
+	t.Run("an expiry is always set, defaulting to a short life", func(t *testing.T) {
+		row, _, err := models.CreateEnrollmentToken(db.Querier, &models.CreateEnrollmentTokenParams{
+			Description: "no expiry given",
+		})
+		require.NoError(t, err)
+		require.NotNil(t, row.ExpiresAt, "a token must never be issued without an expiry")
+		assert.WithinDuration(t, models.Now().Add(models.DefaultEnrollmentTokenTTL), *row.ExpiresAt, time.Minute)
+		assert.True(t, row.Usable())
+
+		// An explicit expiry still wins, so a long rollout can ask for one.
+		longer := models.Now().Add(8 * time.Hour)
+		row, _, err = models.CreateEnrollmentToken(db.Querier, &models.CreateEnrollmentTokenParams{
+			Description: "long rollout", ExpiresAt: &longer,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, row.ExpiresAt)
+		assert.WithinDuration(t, longer, *row.ExpiresAt, time.Second)
+	})
+
 	t.Run("a token is identifiable and stored only as a hash", func(t *testing.T) {
 		row, token, err := models.CreateEnrollmentToken(db.Querier, &models.CreateEnrollmentTokenParams{
 			Description: "ops team",

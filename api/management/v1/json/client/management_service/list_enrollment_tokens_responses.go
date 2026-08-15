@@ -538,7 +538,7 @@ type ListEnrollmentTokensOKBodyEnrollmentTokensItems0 struct {
 	// What the token is for, to make a list of them readable.
 	Description string `json:"description,omitempty"`
 
-	// When the token stops working. Unset means it never expires.
+	// When the token stops working.
 	// Format: date-time
 	ExpiresAt strfmt.DateTime `json:"expires_at,omitempty"`
 

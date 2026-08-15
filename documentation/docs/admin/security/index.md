@@ -68,6 +68,63 @@ pmm-admin config \
 
     Plan for the services you will need to recreate before you start. Run `pmm-admin list` first and keep the output.
 
+## Registering nodes without an admin account
+
+Registering a node normally requires a PMM user with the **Admin** role, because adding a node is an administrative operation. That is awkward when the people who install PMM Clients are not the people who administer PMM: giving an ops team the ability to add hosts would mean giving them full administrative access.
+
+An enrollment token is the narrower grant. It authorizes creating a node and obtaining that node's client token, and nothing else.
+
+### Create an enrollment token
+
+Creating, listing and revoking enrollment tokens requires the **Admin** role.
+
+```bash
+curl -X POST https://PMM_SERVER/v1/management/enrollmentTokens \
+  -u admin:PASSWORD \
+  -H 'Content-Type: application/json' \
+  -d '{"description": "ops team rollout", "max_uses": 50}'
+```
+
+| Field | Meaning |
+|-------|---------|
+| `description` | Required. What the token is for, so a list of tokens is auditable. |
+| `expires_at` | When the token stops working. Defaults to 30 minutes from creation. |
+| `max_uses` | How many nodes the token may enroll. Omit or set `0` for unlimited. |
+
+The response contains the token. **It is shown only once**: PMM Server stores a hash, not the token, so it cannot be retrieved later. If you lose it, revoke it and create another.
+
+### Enroll a node with it
+
+On the client host, pass the token in place of a username and password, using `service_token` as the username:
+
+```bash
+pmm-admin config \
+  --server-url="https://service_token:ENROLLMENT_TOKEN@PMM_SERVER" \
+  --server-insecure-tls \
+  NODE_ADDRESS generic NODE_NAME
+```
+
+PMM Server issues the node its own client token and `pmm-agent` stores that in its configuration file. The enrollment token is not kept on the node and is not what the agent authenticates with afterwards.
+
+### List and revoke
+
+```bash
+curl -u admin:PASSWORD https://PMM_SERVER/v1/management/enrollmentTokens
+```
+
+Listing shows each token's description, expiry, and how many of its uses are spent. It never shows token values. To revoke one, pass the `token_hash` from the listing:
+
+```bash
+curl -X DELETE -u admin:PASSWORD \
+  https://PMM_SERVER/v1/management/enrollmentTokens/TOKEN_HASH
+```
+
+Revoking an enrollment token does not affect nodes it has already enrolled. Those hold their own client tokens, which are unrelated to the token that enrolled them.
+
+!!! caution alert alert-warning "Treat an enrollment token as a credential"
+
+    Anyone holding a valid enrollment token can add nodes to your PMM Server until it expires or its uses run out. Give it the shortest expiry and the smallest use count that fit the job, and revoke it when the rollout is finished.
+
 ### Clients registered before this model
 
 Nodes registered with older PMM Server versions hold Grafana service account tokens with the **Admin** role, which carry far broader access than the scoped tokens described above.

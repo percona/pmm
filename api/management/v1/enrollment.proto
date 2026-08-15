@@ -14,7 +14,7 @@ message EnrollmentToken {
   string token_hash = 1;
   // What the token is for, to make a list of them readable.
   string description = 2;
-  // When the token stops working. Unset means it never expires.
+  // When the token stops working.
   google.protobuf.Timestamp expires_at = 3;
   // How many Nodes the token may enroll. Zero means unlimited.
   int32 max_uses = 4;
@@ -28,7 +28,7 @@ message EnrollmentToken {
 message CreateEnrollmentTokenRequest {
   // What the token is for. Required, so that a list of tokens is auditable.
   string description = 1 [(validate.rules).string.min_len = 1];
-  // When the token stops working. Unset means it never expires.
+  // When the token stops working. Unset defaults to 30 minutes from now.
   google.protobuf.Timestamp expires_at = 2;
   // How many Nodes the token may enroll. Zero means unlimited.
   int32 max_uses = 3 [(validate.rules).int32.gte = 0];

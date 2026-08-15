@@ -31,6 +31,12 @@ import (
 // tell an enrollment token from an agent token without a database lookup.
 const EnrollmentTokenPrefix = "pmmet_"
 
+// DefaultEnrollmentTokenTTL bounds a token that was minted without an explicit expiry.
+// A token that never expires is a standing credential to enrol nodes, which is the shape of
+// thing agent tokens were just changed to stop being. Long-lived tokens remain possible, but
+// only by asking for one.
+const DefaultEnrollmentTokenTTL = 30 * time.Minute
+
 // ErrInvalidEnrollmentToken is returned when a token is malformed or matches nothing issued.
 var ErrInvalidEnrollmentToken = errors.New("invalid enrollment token")
 
@@ -42,7 +48,7 @@ func IsEnrollmentToken(token string) bool {
 // CreateEnrollmentTokenParams contains parameters for minting an enrollment token.
 type CreateEnrollmentTokenParams struct {
 	Description string
-	// ExpiresAt is when the token stops working. Nil means it never expires.
+	// ExpiresAt is when the token stops working. Nil applies DefaultEnrollmentTokenTTL.
 	ExpiresAt *time.Time
 	// MaxUses is how many nodes it may enroll. Zero means unlimited.
 	MaxUses int
@@ -68,6 +74,12 @@ func CreateEnrollmentToken(q *reform.Querier, params *CreateEnrollmentTokenParam
 		return nil, "", err
 	}
 
+	expiresAt := params.ExpiresAt
+	if expiresAt == nil {
+		bounded := Now().Add(DefaultEnrollmentTokenTTL)
+		expiresAt = &bounded
+	}
+
 	buf := make([]byte, agentTokenBytes)
 	_, err = rand.Read(buf)
 	if err != nil {
@@ -78,7 +90,7 @@ func CreateEnrollmentToken(q *reform.Querier, params *CreateEnrollmentTokenParam
 	row := &EnrollmentToken{
 		TokenHash:   HashAgentToken(token),
 		Description: params.Description,
-		ExpiresAt:   params.ExpiresAt,
+		ExpiresAt:   expiresAt,
 		MaxUses:     params.MaxUses,
 	}
 	err = q.Insert(row)

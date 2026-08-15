@@ -34,7 +34,7 @@ type EnrollmentToken struct {
 	TokenHash string `protobuf:"bytes,1,opt,name=token_hash,json=tokenHash,proto3" json:"token_hash,omitempty"`
 	// What the token is for, to make a list of them readable.
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// When the token stops working. Unset means it never expires.
+	// When the token stops working.
 	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	// How many Nodes the token may enroll. Zero means unlimited.
 	MaxUses int32 `protobuf:"varint,4,opt,name=max_uses,json=maxUses,proto3" json:"max_uses,omitempty"`
@@ -123,7 +123,7 @@ type CreateEnrollmentTokenRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// What the token is for. Required, so that a list of tokens is auditable.
 	Description string `protobuf:"bytes,1,opt,name=description,proto3" json:"description,omitempty"`
-	// When the token stops working. Unset means it never expires.
+	// When the token stops working. Unset defaults to 30 minutes from now.
 	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	// How many Nodes the token may enroll. Zero means unlimited.
 	MaxUses       int32 `protobuf:"varint,3,opt,name=max_uses,json=maxUses,proto3" json:"max_uses,omitempty"`

@@ -54,7 +54,8 @@ func (t *EnrollmentToken) AfterFind() error { //nolint:unparam
 	return nil
 }
 
-// Expired reports whether the token is past its expiry. A token with no expiry never is.
+// Expired reports whether the token is past its expiry. Minting always sets one, so a token
+// with none is only ever a row written before that was the case.
 func (t *EnrollmentToken) Expired() bool {
 	return t.ExpiresAt != nil && !Now().Before(*t.ExpiresAt)
 }

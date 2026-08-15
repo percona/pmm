@@ -193,7 +193,7 @@ type CreateEnrollmentTokenBody struct {
 	// What the token is for. Required, so that a list of tokens is auditable.
 	Description string `json:"description,omitempty"`
 
-	// When the token stops working. Unset means it never expires.
+	// When the token stops working. Unset defaults to 30 minutes from now.
 	// Format: date-time
 	ExpiresAt strfmt.DateTime `json:"expires_at,omitempty"`
 
@@ -597,7 +597,7 @@ type CreateEnrollmentTokenOKBodyEnrollmentToken struct {
 	// What the token is for, to make a list of them readable.
 	Description string `json:"description,omitempty"`
 
-	// When the token stops working. Unset means it never expires.
+	// When the token stops working.
 	// Format: date-time
 	ExpiresAt strfmt.DateTime `json:"expires_at,omitempty"`
 

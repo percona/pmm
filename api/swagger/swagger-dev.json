@@ -22170,7 +22170,7 @@
                         "x-order": 1
                       },
                       "expires_at": {
-                        "description": "When the token stops working. Unset means it never expires.",
+                        "description": "When the token stops working.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 2
@@ -22256,7 +22256,7 @@
                   "x-order": 0
                 },
                 "expires_at": {
-                  "description": "When the token stops working. Unset means it never expires.",
+                  "description": "When the token stops working. Unset defaults to 30 minutes from now.",
                   "type": "string",
                   "format": "date-time",
                   "x-order": 1
@@ -22293,7 +22293,7 @@
                       "x-order": 1
                     },
                     "expires_at": {
-                      "description": "When the token stops working. Unset means it never expires.",
+                      "description": "When the token stops working.",
                       "type": "string",
                       "format": "date-time",
                       "x-order": 2
