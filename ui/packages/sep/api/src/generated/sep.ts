@@ -650,7 +650,7 @@ export interface paths {
      *     the ATW enum still defines the full taxonomy for validation (plugin schema).
      *
      *     :param session: The database session.
-     *     :return: One listing row per category that has at least one snippet.
+     *     :return: One listing row per category that has at least one approved snippet.
      */
     get: operations['atw_atw_api_list_api_apps_atw__get'];
     put?: never;
@@ -979,6 +979,38 @@ export interface paths {
      *     :return: The plugin schema instance.
      */
     get: operations['atw_get_schema_api_apps_atw_schema_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/atw/snippets/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Atw Snippet Search
+     * @description Search approved snippets by free text, independent of the ATW taxonomy.
+     *
+     *     Served from ATW's own router over the snippets library, so the capability does
+     *     not depend on the Snippet Manager app being activated. The ``atw`` metadata tag
+     *     is a presentation filter on the category listing and is deliberately not
+     *     applied here, so search reaches snippets that listing never exposes.
+     *
+     *     :param session: The database session.
+     *     :param list_query: The vetted sort and search selections, pinned to approved.
+     *     :param pagination: The offset/limit window for the page.
+     *     :return: A paginated page of approved snippet summaries.
+     *     :raises sqlalchemy.exc.SQLAlchemyError: When the count or data query fails to
+     *         execute.
+     */
+    get: operations['atw_atw_snippet_search_api_apps_atw_snippets__get'];
     put?: never;
     post?: never;
     delete?: never;
@@ -3763,6 +3795,19 @@ export interface components {
     };
     JsonValue: unknown;
     /**
+     * LogCaptureStatusEnum
+     * @description Describe how completely SEP captured a task's log stream.
+     *
+     *     Distinguishes a stream that genuinely produced nothing from one whose bytes
+     *     were lost before SEP could read them — the stored offsets alone cannot tell
+     *     those apart, since both leave the cursors at zero.
+     *
+     *     ``UNKNOWN`` is the honest verdict where no evidence survives: rows written
+     *     before the column existed, and histories carrying no state rows at all.
+     * @enum {string}
+     */
+    LogCaptureStatusEnum: 'complete' | 'incomplete' | 'unknown';
+    /**
      * Node
      * @description Represent a node in the inventory.
      *
@@ -4041,7 +4086,8 @@ export interface components {
      *
      *     The wired classes are ``SEPSettings``, ``TasksSettings``,
      *     ``SnippetsSettings``, the global ``Settings``, ``AlertSettings``,
-     *     ``AlertsSettings``, ``AnonymizerSettings`` and ``InventorySettings``.
+     *     ``AlertsSettings``, ``AnonymizerSettings``, ``HealthReportSettings`` and
+     *     ``InventorySettings``.
      *
      *     To wire a new settings class:
      *
@@ -4065,6 +4111,7 @@ export interface components {
       | 'AlertSettings'
       | 'AnonymizerSettings'
       | 'AlertsSettings'
+      | 'HealthReportSettings'
       | 'InventorySettings';
     /**
      * SettingClassGroup
@@ -4107,6 +4154,19 @@ export interface components {
       settings: components['schemas']['SettingResponse'][];
     };
     /**
+     * SettingOption
+     * @description Represent one selectable member for an enum-typed setting.
+     *
+     *     :param label: The enum member name shown in the UI (e.g. ``WARNING``).
+     *     :param value: The JSON-dumped member value the client must PATCH
+     *         (e.g. ``30`` for an ``IntEnum``).
+     */
+    SettingOption: {
+      /** Label */
+      label: string;
+      value: components['schemas']['JsonValue'];
+    };
+    /**
      * SettingResponse
      * @description Represent a single setting's metadata and current value.
      *
@@ -4137,6 +4197,8 @@ export interface components {
      *         (e.g. the active auth provider). ``False`` lets the UI present the field
      *         as inert. Display-only, like ``is_advanced``: it does not block
      *         PATCH/DELETE server-side; the runtime gate is the real enforcement.
+     *     :param options: Selectable enum members for dropdown UIs, or ``None`` when
+     *         the field is not an ``Enum`` annotation. Aliased members are excluded.
      */
     SettingResponse: {
       /** Default Value */
@@ -4163,6 +4225,8 @@ export interface components {
       key: string;
       /** Key Path */
       key_path?: string[];
+      /** Options */
+      options?: components['schemas']['SettingOption'][] | null;
       reload: components['schemas']['ReloadClassification'];
       setting_class: components['schemas']['SettingClassEnum'];
       /** Type */
@@ -4417,25 +4481,23 @@ export interface components {
      * @description Represent a task history API response.
      *
      *     :param execution_request: The request that triggered the task execution.
-     *     :type execution_request: TaskExecutionRequest
      *     :param status: The status of the task execution.
-     *     :type status: TaskHistoryStatusEnum
      *     :param started_at: The datetime when the task execution started.
-     *     :type started_at: UTCDatetime | None
      *     :param finished_at: The datetime when the task execution finished.
-     *     :type finished_at: UTCDatetime | None
      *     :param anonymize_mask: The bitmask representing PII entities to be anonymized in
      *         logs and files generated by the execution. Defaults to None, meaning it uses
      *         the value defined in the associated task's :attr:`Task.anonymize_mask`.
-     *     :type anonymize_mask: int | None
      *     :param task: The task associated with this execution history.
-     *     :type task: TaskResponse
      *     :param executed_by: The user ID of the user who executed the task.
-     *     :type executed_by: str | None
      *     :param has_logs: Whether this task history has any readable log content --
      *         either a chunk-store row or a legacy ``tracking["task_logs"]`` blob.
      *         Populated by list/retrieve routes; defaults to ``False``.
-     *     :type has_logs: bool
+     *     :param log_capture: How completely SEP captured this execution's logs,
+     *         aggregated over its state rows: any incomplete stream reports
+     *         ``"incomplete"``, else any unknown reports ``"unknown"``, else
+     *         ``"complete"``. Populated by list/retrieve routes; defaults to
+     *         ``"unknown"``, which is also what a history carrying no state rows
+     *         reports.
      *     :param display_name: A user-meaningful label derived from the task name or
      *         execution-request metadata. Read-only; computed on serialisation.
      */
@@ -4482,6 +4544,8 @@ export interface components {
       has_logs: boolean;
       /** Id */
       id: number | null;
+      /** @default unknown */
+      log_capture: components['schemas']['LogCaptureStatusEnum'];
       /** Started At */
       started_at?: string | null;
       /** @default pending */
@@ -5815,6 +5879,17 @@ export interface components {
     atw__PaginatedResponse_ATWIncidentExecutionResponse_: {
       /** Items */
       items: components['schemas']['atw__ATWIncidentExecutionResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** PaginatedResponse[ATWSnippetSummary] */
+    atw__PaginatedResponse_ATWSnippetSummary_: {
+      /** Items */
+      items: components['schemas']['atw__ATWSnippetSummary'][];
       /** Limit */
       limit: number;
       /** Offset */
@@ -11748,6 +11823,52 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['framework__AppSchema'];
+        };
+      };
+    };
+  };
+  atw_atw_snippet_search_api_apps_atw_snippets__get: {
+    parameters: {
+      query?: {
+        /** @description Sort key; prefix with '-' for descending order. */
+        sort?:
+          | 'approved_at'
+          | '-approved_at'
+          | 'created_at'
+          | '-created_at'
+          | 'filename'
+          | '-filename'
+          | 'service_type'
+          | '-service_type'
+          | 'title'
+          | '-title';
+        /** @description Case-insensitive search across the searchable columns. */
+        search?: string | null;
+        offset?: number;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__PaginatedResponse_ATWSnippetSummary_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
