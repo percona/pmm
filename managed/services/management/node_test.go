@@ -250,6 +250,52 @@ func TestNodeService(t *testing.T) {
 				assert.Equal(t, tc.nodeID, gotNode)
 			}
 		})
+
+		// An enrollment token exists to add hosts. Re-registering removes the existing node
+		// and cascades to everything on it, so a token issued to bring a new host into
+		// monitoring must not be able to destroy an existing one and take over its name.
+		t.Run("EnrollmentTokenCannotReregister", func(t *testing.T) {
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			s.grafanaClient = authProvider
+
+			_, enrollmentToken, err := models.CreateEnrollmentToken(s.db.Querier, &models.CreateEnrollmentTokenParams{
+				Description: "reregister probe",
+			})
+			require.NoError(t, err)
+
+			enrollCtx := metadata.NewIncomingContext(ctx,
+				metadata.Pairs("Authorization", "Bearer "+enrollmentToken))
+
+			// It may create a node it is naming for the first time.
+			fresh, err := s.RegisterNode(enrollCtx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName: "enroll-fresh-node",
+				Address:  "10.44.0.1",
+			})
+			require.NoError(t, err)
+			require.NotNil(t, fresh)
+
+			// It may not replace one.
+			_, err = s.RegisterNode(enrollCtx, &managementv1.RegisterNodeRequest{
+				NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName:   "enroll-fresh-node",
+				Address:    "10.44.0.2",
+				Reregister: true,
+			})
+			require.Error(t, err)
+			assert.Equal(t, codes.PermissionDenied, status.Code(err))
+
+			// The node it tried to replace is untouched.
+			node, err := models.FindNodeByName(s.db.Querier, "enroll-fresh-node")
+			require.NoError(t, err)
+			assert.Equal(t, fresh.GenericNode.NodeId, node.NodeID)
+
+			// The refused attempt did not burn a use.
+			row, err := models.FindEnrollmentToken(s.db.Querier, enrollmentToken)
+			require.NoError(t, err)
+			assert.Equal(t, 1, row.UsedCount)
+		})
 	})
 
 	t.Run("ListNodes", func(t *testing.T) {

@@ -37,6 +37,15 @@ import (
 
 // RegisterNode performs the registration of a new node.
 func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) { //nolint:gocognit
+	// An enrollment token may add a Node, not replace one. Re-registering removes the
+	// existing Node and cascades to every Service and Agent on it, so a token handed out to
+	// bring new hosts into monitoring could otherwise be used to destroy an existing host's
+	// configuration and take over its name.
+	_, enrolling := enrollmentTokenFromContext(ctx)
+	if enrolling && req.Reregister {
+		return nil, status.Error(codes.PermissionDenied, "An enrollment token may not re-register an existing Node.")
+	}
+
 	res := &managementv1.RegisterNodeResponse{}
 
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -548,16 +557,27 @@ func (s *ManagementService) nodeHasConnectedPMMAgent(agents []*models.Agent, nod
 	return false
 }
 
-// useEnrollmentToken records a use when the caller enrolled with an enrollment token.
-// Callers authenticated any other way are unaffected.
-func (s *ManagementService) useEnrollmentToken(ctx context.Context, q *reform.Querier) error {
+// enrollmentTokenFromContext returns the caller's enrollment token, and whether they used
+// one at all. Callers authenticated any other way get false.
+func enrollmentTokenFromContext(ctx context.Context) (string, bool) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
-		return nil //nolint:nilerr // no credentials at all is not this function's business
+		return "", false
 	}
 
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if !models.IsEnrollmentToken(token) {
+		return "", false
+	}
+
+	return token, true
+}
+
+// useEnrollmentToken records a use when the caller enrolled with an enrollment token.
+// Callers authenticated any other way are unaffected.
+func (s *ManagementService) useEnrollmentToken(ctx context.Context, q *reform.Querier) error {
+	token, ok := enrollmentTokenFromContext(ctx)
+	if !ok {
 		return nil
 	}
 
