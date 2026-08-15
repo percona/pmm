@@ -75,6 +75,7 @@ function makeEntry(
     duration: status === 'running' || status === 'pending' ? null : 30,
     executed_by: 'admin',
     has_logs: true,
+    log_capture: 'unknown',
     task: {
       id,
       name: `task-${id}`,

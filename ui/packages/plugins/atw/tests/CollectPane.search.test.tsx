@@ -21,7 +21,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { CollectPane } from '../src/CollectPane';
-import { toAtwSnippetSummary } from '../src/hooks';
 
 vi.mock('@sep/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@sep/api')>()),
@@ -52,7 +51,7 @@ const CATEGORY_LISTING = [
 
 /** A snippet reachable only through search — it carries no `atw` tag. */
 const SEARCH_ROW = {
-  filename: 'ops/pt-summary.sh',
+  name: 'ops/pt-summary.sh',
   title: 'PT Summary',
   description: 'Collects a percona-toolkit system summary.',
 };
@@ -62,10 +61,15 @@ interface SearchPage {
   total?: number;
 }
 
-/** Route each mocked GET by path; the search page is configurable per test. */
+/**
+ * Route each mocked GET by path; the search page is configurable per test.
+ *
+ * Search and the category listing share the `/apps/atw` prefix, so the more
+ * specific search path must be matched before the listing fallback below.
+ */
 function mockApis(page: SearchPage = { items: [SEARCH_ROW] }): void {
   mockedApi.get.mockImplementation((url: string) => {
-    if (url.startsWith('/apps/snippets/')) {
+    if (url.startsWith('/apps/atw/snippets/')) {
       return Promise.resolve({
         data: {
           items: page.items,
@@ -91,15 +95,10 @@ function renderPane(ui: ReactNode) {
   );
 }
 
-/** Every snippets-search request issued so far, with its query params. */
-function searchCalls(): {
-  search?: string;
-  approval?: string;
-  limit?: number;
-  offset?: number;
-}[] {
+/** Every snippet-search request issued so far, with its query params. */
+function searchCalls(): { search?: string; limit?: number; offset?: number }[] {
   return mockedApi.get.mock.calls
-    .filter((call) => String(call[0]).startsWith('/apps/snippets/'))
+    .filter((call) => String(call[0]).startsWith('/apps/atw/snippets/'))
     .map((call) => (call[1] as { params: Record<string, unknown> }).params);
 }
 
@@ -115,7 +114,7 @@ describe('CollectPane snippet search', () => {
     vi.clearAllMocks();
   });
 
-  it('debounces typing into one approved-only search request', async () => {
+  it('debounces typing into one search request', async () => {
     mockApis();
     renderPane(<CollectPane incidentId="inc-1" />);
 
@@ -126,10 +125,45 @@ describe('CollectPane snippet search', () => {
     });
     expect(searchCalls()[0]).toEqual({
       search: 'summary',
-      approval: 'approved',
       offset: 0,
       limit: 50,
     });
+  });
+
+  it('searches ATW’s own route rather than the snippets app’s', async () => {
+    // The snippets app is not activated on the PMM-embedded profile, so a
+    // request to its route would 404 there while the category browser worked.
+    mockApis();
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    await typeSearch('summary');
+
+    await waitFor(() => expect(searchCalls()).toHaveLength(1), {
+      timeout: 3000,
+    });
+    const urls = mockedApi.get.mock.calls.map((call) => String(call[0]));
+    expect(urls).not.toEqual(
+      expect.arrayContaining([expect.stringContaining('/apps/snippets')])
+    );
+    expect(urls.every((url) => url.startsWith('/apps/atw'))).toBe(true);
+  });
+
+  it('never sends an approval param, since the route pins approved-only', async () => {
+    mockApis();
+    renderPane(<CollectPane incidentId="inc-1" />);
+
+    const input = await typeSearch('summary');
+    await waitFor(() => expect(searchCalls()).toHaveLength(1), {
+      timeout: 3000,
+    });
+    await userEvent.type(input, ' log');
+
+    // Across every request the picker issues, not just the first: a widened set
+    // would offer snippets the execute path rejects.
+    await waitFor(() => expect(searchCalls().length).toBeGreaterThan(1), {
+      timeout: 3000,
+    });
+    expect(searchCalls().every((params) => !('approval' in params))).toBe(true);
   });
 
   it('issues no search while the picker text is empty', async () => {
@@ -190,12 +224,12 @@ describe('CollectPane snippet search', () => {
     mockApis({
       items: [
         {
-          filename: 'ops/pt-summary.sh',
+          name: 'ops/pt-summary.sh',
           title: 'Summary',
           description: 'Toolkit summary.',
         },
         {
-          filename: 'diag/summary.sh',
+          name: 'diag/summary.sh',
           title: 'Summary',
           description: 'Diagnostic summary.',
         },
@@ -230,7 +264,7 @@ describe('CollectPane snippet search', () => {
     // the first term's page as placeholder data throughout the assertion.
     mockedApi.get.mockImplementation(
       (url: string, config: { params: { search: string } }) => {
-        if (url.startsWith('/apps/snippets/')) {
+        if (url.startsWith('/apps/atw/snippets/')) {
           if (config.params.search === 'percona') {
             return Promise.resolve({
               data: { items: [SEARCH_ROW], total: 1, offset: 0, limit: 50 },
@@ -305,7 +339,7 @@ describe('CollectPane snippet search', () => {
 
   it('surfaces a failed search instead of leaving the picker silently empty', async () => {
     mockedApi.get.mockImplementation((url: string) => {
-      if (url.startsWith('/apps/snippets/')) {
+      if (url.startsWith('/apps/atw/snippets/')) {
         return Promise.reject(new Error('search backend down'));
       }
       return Promise.resolve({ data: CATEGORY_LISTING });
@@ -318,21 +352,5 @@ describe('CollectPane snippet search', () => {
       timeout: 3000,
     });
     expect(alert).toHaveTextContent('search backend down');
-  });
-});
-
-describe('toAtwSnippetSummary', () => {
-  it('keys the picker option on the filename the batch payload sends', () => {
-    expect(toAtwSnippetSummary(SEARCH_ROW)).toEqual({
-      name: 'ops/pt-summary.sh',
-      title: 'PT Summary',
-      description: 'Collects a percona-toolkit system summary.',
-    });
-  });
-
-  it('falls back to the filename when the snippet declares no title', () => {
-    expect(toAtwSnippetSummary({ ...SEARCH_ROW, title: '' }).title).toBe(
-      'ops/pt-summary.sh'
-    );
   });
 });
