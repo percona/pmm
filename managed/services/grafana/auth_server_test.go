@@ -640,3 +640,51 @@ func TestAuthServerAgentToken(t *testing.T) {
 		assert.Empty(t, s.BoundNodeID(metadata.NewIncomingContext(ctx, md)))
 	})
 }
+
+// The loopback exception used to admit every caller: nginx makes every auth_request
+// subrequest from 127.0.0.1, so testing req.RemoteAddr matched unconditionally and left
+// Connect and RTA Collect reachable without credentials from anywhere on the network.
+func TestIsLocalAgentConnection(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name   string
+		path   string
+		realIP string
+		want   bool
+	}{
+		// PMM Server's own agent, which holds no credentials.
+		{"loopback v4", connectionEndpoint, "127.0.0.1", true},
+		{"loopback v6", connectionEndpoint, "::1", true},
+		{"loopback with port", connectionEndpoint, "127.0.0.1:54321", true},
+		{"loopback rta", rtaCollectEndpoint, "127.0.0.1", true},
+
+		// Anything arriving over the network must authenticate.
+		{"remote client", connectionEndpoint, "10.0.0.7", false},
+		{"remote client rta", rtaCollectEndpoint, "192.168.1.50", false},
+		{"public address", connectionEndpoint, "203.0.113.9", false},
+
+		// Absent or unparseable means we cannot prove it is local, so it is not.
+		{"header missing", connectionEndpoint, "", false},
+		{"header garbage", connectionEndpoint, "not-an-ip", false},
+
+		// The exception is limited to the two agent paths regardless of origin.
+		{"loopback but other path", "/v1/inventory/services", "127.0.0.1", false},
+		{"loopback but backups", "/v1/backups", "127.0.0.1", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			req, err := http.NewRequestWithContext(t.Context(), http.MethodPost, "/auth_request", nil)
+			require.NoError(t, err)
+			// nginx always reaches pmm-managed from loopback; the original client is in X-Real-IP.
+			req.RemoteAddr = "127.0.0.1:33333"
+			req.Header.Set("X-Original-Uri", tc.path)
+			if tc.realIP != "" {
+				req.Header.Set("X-Real-IP", tc.realIP)
+			}
+
+			assert.Equal(t, tc.want, isLocalAgentConnection(req))
+		})
+	}
+}

@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -530,16 +531,40 @@ func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
 	}
 }
 
+// isLocalAgentConnection reports whether this is PMM Server's own built-in pmm-agent
+// connecting over loopback. That agent holds no credentials at all, so it is the one caller
+// on these paths that cannot authenticate.
+//
+// The address must come from X-Real-IP, which nginx sets from the original client. Every
+// auth_request subrequest reaches pmm-managed from nginx on loopback, so req.RemoteAddr is
+// always 127.0.0.1 and testing it admitted every caller on the network.
+//
+// This only opens the door. Registry.authenticate then confines an uncredentialed
+// connection to an agent running on the PMM Server node.
 func isLocalAgentConnection(req *http.Request) bool {
-	ip := strings.Split(req.RemoteAddr, ":")[0]
-	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
-	if ip == "127.0.0.1" &&
-		(path == connectionEndpoint || path == rtaCollectEndpoint) {
-		return true
+	if path != connectionEndpoint && path != rtaCollectEndpoint {
+		return false
 	}
 
-	return false
+	return isLoopback(req.Header.Get("X-Real-IP"))
+}
+
+func isLoopback(addr string) bool {
+	if addr == "" {
+		return false
+	}
+
+	// Tolerate a port and IPv6 brackets, since what nginx sets is not guaranteed to be bare.
+	host, _, err := net.SplitHostPort(addr)
+	if err == nil {
+		addr = host
+	}
+	addr = strings.Trim(addr, "[]")
+
+	ip := net.ParseIP(addr)
+
+	return ip != nil && ip.IsLoopback()
 }
 
 // authenticate checks if user has access to a specific path.
