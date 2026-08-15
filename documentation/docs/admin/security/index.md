@@ -31,9 +31,25 @@ It cannot do anything else. Specifically, a client token has no access to:
 - Grafana dashboards, users or service accounts;
 - **any other node's inventory**. A token issued for one node cannot read or modify another node, and inventory listings return only that node's own services and agents.
 
-### Rotating and revoking a client token
+### Revoking a client token
 
-Each node has its own token, so a compromised client host affects only that node. To replace a node's token, re-register the node:
+Each node has its own token, so a compromised client host affects only that node.
+
+To revoke a node's token, unregister the node from PMM Server:
+
+```bash
+pmm-admin unregister --force
+```
+
+This removes the node and revokes its token immediately. The node stops being monitored.
+
+!!! note
+
+    Tokens are stored on PMM Server as hashes only. The token value is shown once, when the node is registered, and cannot be retrieved afterwards.
+
+### Replacing a client token
+
+PMM has no in-place token rotation yet. The only way to give a node a different token is to register it again with `--force`:
 
 ```bash
 pmm-admin config \
@@ -41,15 +57,22 @@ pmm-admin config \
   --force
 ```
 
-Re-registering issues a new token and invalidates the previous one. Removing a node with `pmm-admin unregister` revokes its token outright.
+!!! caution alert alert-warning "Re-registering is destructive"
 
-!!! note
+    `--force` removes the existing node and creates a new one. It is a recovery procedure, not a routine rotation procedure. Before using it, be aware that:
 
-    Tokens are stored on PMM Server as hashes only. The token value is shown once, when the node is registered, and cannot be retrieved afterwards. If you lose it, re-register the node.
+    - the node and its agents get **new IDs**, so metrics history recorded against the old IDs no longer joins up with the new ones in dashboards;
+    - **all services on the node are removed** and must be added again with `pmm-admin add`, including their connection credentials, custom labels and Query Analytics settings;
+    - scheduled backups that reference those services stop working;
+    - the node is not monitored between unregistering and finishing the re-add.
+
+    Plan for the services you will need to recreate before you start. Run `pmm-admin list` first and keep the output.
 
 ### Clients registered before this model
 
-Nodes registered with older PMM Server versions hold Grafana service account tokens with the **Admin** role, which carry far broader access than the scoped tokens described above. Re-register those nodes to replace their credentials.
+Nodes registered with older PMM Server versions hold Grafana service account tokens with the **Admin** role, which carry far broader access than the scoped tokens described above.
+
+These tokens keep working, so upgrading PMM Server does not break existing clients. Replacing them means re-registering each node, with the consequences described above, so weigh that against the exposure: an old client token can create further Grafana Admin credentials and reach every administrative API. Prioritise nodes on untrusted or externally reachable hosts.
 
 ## Manually configure the PostgreSQL Grafana datasource
 
