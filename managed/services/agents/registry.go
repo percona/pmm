@@ -32,6 +32,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
+	"github.com/percona/pmm/managed/utils/auth"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
@@ -236,7 +237,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 	}
 	var node *models.Node
 	err = r.db.InTransaction(func(tx *reform.TX) error {
-		node, err = r.authenticate(agentMD, tx.Querier)
+		node, err = r.authenticate(ctx, agentMD, tx.Querier)
 		if err != nil {
 			return err
 		}
@@ -315,7 +316,7 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 	return agent, nil
 }
 
-func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
+func (r *Registry) authenticate(ctx context.Context, md *agentv1.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
 	if md.ID == "" {
 		return nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
 	}
@@ -336,6 +337,11 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 	runsOnNodeID := pointer.GetString(agent.RunsOnNodeID)
 	if runsOnNodeID == "" {
 		return nil, status.Errorf(codes.PermissionDenied, "Can't get 'runs_on_node_id' for pmm-agent with ID %q.", md.ID)
+	}
+
+	err = r.checkAgentIdentity(ctx, q, md.ID, runsOnNodeID)
+	if err != nil {
+		return nil, err
 	}
 
 	// Get agent version
@@ -560,3 +566,52 @@ func (r *Registry) KickAll(ctx context.Context) {
 var (
 	_ prom.Collector = (*Registry)(nil)
 )
+
+// checkAgentIdentity confirms that whoever opened this stream is entitled to act as this
+// agent. Until PMM issued agent tokens of its own there was nothing to check an agent
+// against: the ID is asserted by the caller, so any credential that got past the auth layer
+// could act as any agent.
+//
+// Two rules, matching the two ways a connection can arrive:
+//
+//   - With a PMM-issued token: the token resolves to a node, and that node must be the one
+//     the agent runs on. A node's token can therefore only ever act as its own agents.
+//   - With no credential at all: the connection was admitted by the loopback exception for
+//     PMM Server's built-in agent, which holds no credentials. Confine it to an agent
+//     running on the PMM Server node so that exception cannot be used to impersonate a
+//     remote node's agent.
+//
+// Agents registered before PMM issued its own tokens present a Grafana service token. Those
+// are resolved by the auth layer against Grafana and are left alone here, so upgrading a
+// server does not disconnect the fleet.
+func (r *Registry) checkAgentIdentity(ctx context.Context, q *reform.Querier, agentID, runsOnNodeID string) error {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		// No credentials: only PMM Server's own agent may connect this way.
+		node, err := models.FindNodeByID(q, runsOnNodeID)
+		if err != nil {
+			return err
+		}
+		if !node.IsPMMServerNode {
+			return status.Errorf(codes.PermissionDenied, "Agent with ID %s must authenticate.", agentID)
+		}
+
+		return nil
+	}
+
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if !models.IsAgentToken(token) {
+		// A Grafana service token, already resolved by the auth layer.
+		return nil
+	}
+
+	tokenNodeID, err := models.FindNodeIDByAgentToken(q, token)
+	if err != nil {
+		return status.Errorf(codes.PermissionDenied, "Agent with ID %s presented an unknown token.", agentID)
+	}
+	if tokenNodeID != runsOnNodeID {
+		return status.Errorf(codes.PermissionDenied, "Agent with ID %s does not belong to this token's node.", agentID)
+	}
+
+	return nil
+}

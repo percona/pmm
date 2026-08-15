@@ -22,6 +22,7 @@ import (
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -130,6 +131,11 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventoryv1.ListAgen
 
 // GetAgent returns a single Agent by ID.
 func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRequest) (*inventoryv1.GetAgentResponse, error) {
+	err := s.s.CheckAgentScope(ctx, req.GetAgentId())
+	if err != nil {
+		return nil, err
+	}
+
 	agent, err := s.s.Get(ctx, req.GetAgentId())
 	if err != nil {
 		return nil, err
@@ -183,6 +189,11 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventoryv1.GetAgentRe
 
 // GetAgentLogs returns Agent logs by ID.
 func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventoryv1.GetAgentLogsRequest) (*inventoryv1.GetAgentLogsResponse, error) {
+	err := s.s.CheckAgentScope(ctx, req.GetAgentId())
+	if err != nil {
+		return nil, err
+	}
+
 	logs, agentConfigLogLinesCount, err := s.s.Logs(ctx, req.GetAgentId(), req.GetLimit())
 	if err != nil {
 		return nil, err
@@ -194,8 +205,40 @@ func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventoryv1.GetAge
 	}, nil
 }
 
+// addAgentTargets returns the pmm-agent, service and node IDs carried by whichever agent
+// params the request sets. It reads them reflectively so that an agent type added later is
+// scoped like the rest instead of silently skipping the check.
+func addAgentTargets(req *inventoryv1.AddAgentRequest) (string, string, string) {
+	m := req.ProtoReflect()
+	oneof := m.Descriptor().Oneofs().ByName("agent")
+	if oneof == nil {
+		return "", "", ""
+	}
+	fd := m.WhichOneof(oneof)
+	if fd == nil {
+		return "", "", ""
+	}
+
+	params := m.Get(fd).Message()
+	get := func(name string) string {
+		f := params.Descriptor().Fields().ByName(protoreflect.Name(name))
+		if f == nil || f.Kind() != protoreflect.StringKind {
+			return ""
+		}
+		return params.Get(f).String()
+	}
+
+	return get("pmm_agent_id"), get("service_id"), get("node_id")
+}
+
 // AddAgent adds an Agent.
 func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRequest) (*inventoryv1.AddAgentResponse, error) {
+	pmmAgentID, serviceID, nodeID := addAgentTargets(req)
+	err := s.s.CheckAddAgentScope(ctx, pmmAgentID, serviceID, nodeID)
+	if err != nil {
+		return nil, err
+	}
+
 	switch req.Agent.(type) {
 	case *inventoryv1.AddAgentRequest_PmmAgent:
 		return s.s.AddPMMAgent(ctx, req.GetPmmAgent())
@@ -240,6 +283,11 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeAgentRequest) (*inventoryv1.ChangeAgentResponse, error) {
 	agentID := req.GetAgentId()
 
+	err := s.s.CheckAgentScope(ctx, agentID)
+	if err != nil {
+		return nil, err
+	}
+
 	switch req.Agent.(type) {
 	case *inventoryv1.ChangeAgentRequest_NodeExporter:
 		return s.s.ChangeNodeExporter(ctx, agentID, req.GetNodeExporter())
@@ -282,7 +330,12 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 
 // RemoveAgent removes the Agent.
 func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventoryv1.RemoveAgentRequest) (*inventoryv1.RemoveAgentResponse, error) {
-	err := s.s.Remove(ctx, req.GetAgentId(), req.GetForce())
+	err := s.s.CheckAgentScope(ctx, req.GetAgentId())
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.s.Remove(ctx, req.GetAgentId(), req.GetForce())
 	if err != nil {
 		return nil, err
 	}

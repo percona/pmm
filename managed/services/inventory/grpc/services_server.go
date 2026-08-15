@@ -142,8 +142,35 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventoryv1.GetSer
 	return res, nil
 }
 
+// nodeIDForAddService returns the Node the requested Service would be attached to.
+func nodeIDForAddService(req *inventoryv1.AddServiceRequest) string {
+	switch req.Service.(type) {
+	case *inventoryv1.AddServiceRequest_Mysql:
+		return req.GetMysql().NodeId
+	case *inventoryv1.AddServiceRequest_Mongodb:
+		return req.GetMongodb().NodeId
+	case *inventoryv1.AddServiceRequest_Postgresql:
+		return req.GetPostgresql().NodeId
+	case *inventoryv1.AddServiceRequest_Valkey:
+		return req.GetValkey().NodeId
+	case *inventoryv1.AddServiceRequest_Proxysql:
+		return req.GetProxysql().NodeId
+	case *inventoryv1.AddServiceRequest_Haproxy:
+		return req.GetHaproxy().NodeId
+	case *inventoryv1.AddServiceRequest_External:
+		return req.GetExternal().NodeId
+	default:
+		return ""
+	}
+}
+
 // AddService adds any type of Service.
 func (s *servicesServer) AddService(ctx context.Context, req *inventoryv1.AddServiceRequest) (*inventoryv1.AddServiceResponse, error) {
+	err := s.s.CheckNodeScope(ctx, nodeIDForAddService(req))
+	if err != nil {
+		return nil, err
+	}
+
 	switch req.Service.(type) {
 	case *inventoryv1.AddServiceRequest_Mysql:
 		return s.addMySQLService(ctx, req.GetMysql())

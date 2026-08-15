@@ -18,6 +18,7 @@ package management
 import (
 	"context"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -36,6 +37,15 @@ import (
 
 // RegisterNode performs the registration of a new node.
 func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) { //nolint:gocognit
+	// An enrollment token may add a Node, not replace one. Re-registering removes the
+	// existing Node and cascades to every Service and Agent on it, so a token handed out to
+	// bring new hosts into monitoring could otherwise be used to destroy an existing host's
+	// configuration and take over its name.
+	_, enrolling := enrollmentTokenFromContext(ctx)
+	if enrolling && req.Reregister {
+		return nil, status.Error(codes.PermissionDenied, "An enrollment token may not re-register an existing Node.")
+	}
+
 	res := &managementv1.RegisterNodeResponse{}
 
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -123,22 +133,54 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 		return nil, e
 	}
 
-	authHeaders, _ := auth.GetHeadersFromContext(ctx)
-	token := auth.GetTokenFromHeaders(authHeaders)
-	if token != "" {
-		res.Token = token
-	} else {
-		_, res.Token, e = s.grafanaClient.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
-		if e != nil {
-			return nil, e
+	// Issue the node's credential from PMM's own store. It used to be a Grafana service
+	// account, which made enrolling a node require Grafana Org Admin and fail outright where
+	// Grafana has no local users at all - LDAP with disable_initial_admin_creation. Nothing
+	// about a monitoring agent's credential needs Grafana to be involved.
+	nodeID := nodeIDFromResponse(res)
+	var token string
+	e = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		// Count the use of an enrollment token here rather than at authentication, so that a
+		// registration which fails does not burn one.
+		err := s.useEnrollmentToken(ctx, tx.Querier)
+		if err != nil {
+			return err
 		}
+
+		err = models.RemoveAgentTokensForNode(tx.Querier, nodeID)
+		if err != nil {
+			return err
+		}
+
+		_, token, err = models.CreateAgentToken(tx.Querier, nodeID)
+		return err
+	})
+	if e != nil {
+		return nil, e
 	}
+	res.Token = token
 
 	return res, nil
 }
 
+// nodeIDFromResponse returns the ID of the node RegisterNode just created.
+func nodeIDFromResponse(res *managementv1.RegisterNodeResponse) string {
+	if res.GenericNode != nil {
+		return res.GenericNode.NodeId
+	}
+	if res.ContainerNode != nil {
+		return res.ContainerNode.NodeId
+	}
+	return ""
+}
+
 // UnregisterNode unregisters the node.
 func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv1.UnregisterNodeRequest) (*managementv1.UnregisterNodeResponse, error) {
+	err := auth.CheckNodeScope(ctx, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
 
@@ -196,6 +238,14 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 		s.vmdb.RequestConfigurationUpdate()
 	}
 
+	// Removing the node cascades to its agent tokens, so a node registered with a PMM-issued
+	// token is already fully revoked. Only nodes enrolled before that, which still have a
+	// Grafana service account, need Grafana cleaning up - and only that path needs Grafana
+	// credentials, so unregistering a modern node no longer touches Grafana at all.
+	if node.ServiceAccountID == 0 {
+		return &managementv1.UnregisterNodeResponse{}, nil
+	}
+
 	warning, err := s.grafanaClient.DeleteServiceAccount(ctx, node.NodeName, req.Force)
 	if err != nil {
 		// TODO: need to pass the logger to the service
@@ -230,6 +280,11 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 		nodes, err = models.FindNodes(tx.Querier, filters)
 		if err != nil {
 			return err
+		}
+
+		// A node's own token only sees its own node.
+		if scoped, ok := auth.NodeScope(ctx); ok {
+			nodes = slices.DeleteFunc(nodes, func(n *models.Node) bool { return n.NodeID != scoped })
 		}
 
 		agentFilters := models.AgentFilters{}
@@ -365,6 +420,11 @@ const nodeUpQuery = `up{job=~".*_hr$",node_id=%q}`
 
 // GetNode returns a single Node by ID.
 func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNodeRequest) (*managementv1.GetNodeResponse, error) {
+	err := auth.CheckNodeScope(ctx, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
 	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
 	if err != nil {
 		return nil, err
@@ -495,4 +555,31 @@ func (s *ManagementService) nodeHasConnectedPMMAgent(agents []*models.Agent, nod
 		}
 	}
 	return false
+}
+
+// enrollmentTokenFromContext returns the caller's enrollment token, and whether they used
+// one at all. Callers authenticated any other way get false.
+func enrollmentTokenFromContext(ctx context.Context) (string, bool) {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return "", false
+	}
+
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if !models.IsEnrollmentToken(token) {
+		return "", false
+	}
+
+	return token, true
+}
+
+// useEnrollmentToken records a use when the caller enrolled with an enrollment token.
+// Callers authenticated any other way are unaffected.
+func (s *ManagementService) useEnrollmentToken(ctx context.Context, q *reform.Querier) error {
+	token, ok := enrollmentTokenFromContext(ctx)
+	if !ok {
+		return nil
+	}
+
+	return models.UseEnrollmentToken(q, token)
 }

@@ -175,6 +175,12 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 type authUser struct {
 	role   role
 	userID int
+
+	// serviceAccountID is the Grafana service account behind a service token, 0 for users.
+	// AuthServer resolves it to the node the token was issued for, if any.
+	serviceAccountID int
+	// nodeID is the node bound to serviceAccountID, empty when the token is not bound.
+	nodeID string
 }
 
 // role defines Grafana user role within the organization
@@ -240,14 +246,15 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header, l *lo
 	// Check if API Key or Service Token is authorized.
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
-		role, err := c.getRoleForServiceToken(ctx, token)
+		role, serviceAccountID, err := c.getRoleForServiceToken(ctx, token)
 		if err != nil {
 			return emptyUser, err
 		}
 
 		return authUser{
-			role:   role,
-			userID: 0,
+			role:             role,
+			userID:           0,
+			serviceAccountID: serviceAccountID,
 		}, nil
 	}
 
@@ -329,22 +336,27 @@ func (c *Client) IsAnonymousAccessEnabled(ctx context.Context) (bool, error) {
 	return settings.AnonymousEnabled, nil
 }
 
-func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
+// getRoleForServiceToken returns the org role of the service account behind the token and its
+// Grafana service account ID. The ID is what binds a token to the node it was issued for.
+func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, int, error) {
 	header := http.Header{}
 	header.Add("Authorization", "Bearer "+token)
 
 	var k map[string]any
 	err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k)
 	if err != nil {
-		return none, err
+		return none, 0, err
 	}
 
-	if id, _ := k["orgId"].(float64); id != 1 {
-		return none, nil
+	id, _ := k["id"].(float64)
+	serviceAccountID := int(id)
+
+	if orgID, _ := k["orgId"].(float64); orgID != 1 {
+		return none, serviceAccountID, nil
 	}
 
 	role, _ := k["role"].(string)
-	return c.convertRole(role), nil
+	return c.convertRole(role), serviceAccountID, nil
 }
 
 type serviceAccountSearch struct {
@@ -439,14 +451,17 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 	return c.do(ctx, "DELETE", "/api/admin/users/"+strconv.Itoa(userID), "", authHeaders, nil, nil)
 }
 
-// CreateServiceAccount creates service account and token with Admin role.
+// CreateServiceAccount creates a service account and token for a node's pmm-agent.
+// Both carry the None role: everything the resulting token may do comes from the binding
+// between its service account and the node, resolved in AuthServer. In particular it cannot
+// create further service accounts or tokens, which an Admin token could.
 func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string, reregister bool) (int, string, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, "", err
 	}
 
-	serviceAccountID, err := c.createServiceAccount(ctx, admin, nodeName, reregister, authHeaders)
+	serviceAccountID, err := c.createServiceAccount(ctx, none, nodeName, reregister, authHeaders)
 	if err != nil {
 		return 0, "", err
 	}
@@ -660,10 +675,6 @@ type serviceToken struct {
 }
 
 func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName string, reregister bool, authHeaders http.Header) (int, error) {
-	if role == none {
-		return 0, errors.New("you cannot create service account with empty role")
-	}
-
 	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: reregister})
 	if err != nil {
@@ -701,7 +712,7 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 		}
 	}
 
-	b, err := json.Marshal(serviceToken{Name: serviceTokenName, Role: admin.String()})
+	b, err := json.Marshal(serviceToken{Name: serviceTokenName, Role: none.String()})
 	if err != nil {
 		return 0, "", fmt.Errorf("failed to marshal service token: %w", err)
 	}

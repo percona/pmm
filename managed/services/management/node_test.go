@@ -28,6 +28,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
@@ -55,10 +56,6 @@ func TestNodeService(t *testing.T) {
 			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-			serviceAccountID := int(0)
-			nodeName := getTestNodeName()
-			reregister := false
-
 			r := &mockAgentsRegistry{}
 			r.Test(t)
 
@@ -70,7 +67,6 @@ func TestNodeService(t *testing.T) {
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 
 			vmClient := &mockVictoriaMetricsClient{}
 			vmClient.Test(t)
@@ -117,10 +113,11 @@ func TestNodeService(t *testing.T) {
 					AgentId:      "00000000-0000-4000-8000-000000000006",
 					RunsOnNodeId: "00000000-0000-4000-8000-000000000005",
 				},
-				Token: "test-token",
 			}
-			assert.Equal(t, expected, res)
 			require.NoError(t, err)
+			assert.True(t, models.IsAgentToken(res.Token), "registration must issue a PMM token, got %q", res.Token)
+			res.Token = ""
+			assert.Equal(t, expected, res)
 		})
 
 		t.Run("Exist", func(t *testing.T) {
@@ -133,14 +130,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("Reregister", func(t *testing.T) {
-			serviceAccountID := int(0)
 			nodeName := "test-node-new"
-			reregister := false
-
-			authProvider := &mockGrafanaClient{}
-			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			s.grafanaClient = authProvider
 
 			_, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 				NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
@@ -154,14 +144,7 @@ func TestNodeService(t *testing.T) {
 		})
 
 		t.Run("Reregister-force", func(t *testing.T) {
-			serviceAccountID := int(0)
 			nodeName := "test-node-new"
-			reregister := true
-
-			authProvider := &mockGrafanaClient{}
-			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			s.grafanaClient = authProvider
 
 			res, err := s.RegisterNode(ctx, &managementv1.RegisterNodeRequest{
 				NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
@@ -182,22 +165,21 @@ func TestNodeService(t *testing.T) {
 					AgentId:      "00000000-0000-4000-8000-000000000009",
 					RunsOnNodeId: "00000000-0000-4000-8000-000000000008",
 				},
-				Token: "test-token",
 			}
-			assert.Equal(t, expected, res)
 			require.NoError(t, err)
+			assert.True(t, models.IsAgentToken(res.Token))
+			res.Token = ""
+			assert.Equal(t, expected, res)
 		})
 
 		t.Run("Register/Unregister", func(t *testing.T) {
-			serviceAccountID := int(0)
 			nodeName := getTestNodeName()
-			reregister := true
-			force := true
 
+			// The node is registered with a PMM-issued token, so neither registering nor
+			// unregistering it may reach Grafana. The mock has no expectations set: any call
+			// to it fails the test.
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
 			s.grafanaClient = authProvider
 
 			state := &mockAgentsStateUpdater{}
@@ -228,6 +210,91 @@ func TestNodeService(t *testing.T) {
 			})
 			require.NoError(t, err)
 			assert.Empty(t, res.Warning)
+		})
+
+		// Registration used to hand the caller's own token back, so one admin token ended up
+		// on every node registered with it. Each node must get its own, resolvable to that
+		// node and to no other - and it must be issued without touching Grafana, which is
+		// what lets a node be enrolled where Grafana has no local users.
+		t.Run("MintsNodeSpecificToken", func(t *testing.T) {
+			// No expectations: any call to Grafana fails the test.
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			s.grafanaClient = authProvider
+
+			callerCtx := metadata.NewIncomingContext(ctx, metadata.Pairs("Authorization", "Bearer caller-token"))
+
+			first, err := s.RegisterNode(callerCtx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName: "test-node-token-1",
+				Address:  "token1.address.org",
+			})
+			require.NoError(t, err)
+			second, err := s.RegisterNode(callerCtx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName: "test-node-token-2",
+				Address:  "token2.address.org",
+			})
+			require.NoError(t, err)
+
+			assert.True(t, models.IsAgentToken(first.Token))
+			assert.NotEqual(t, "caller-token", first.Token)
+			assert.NotEqual(t, first.Token, second.Token, "each node must get its own token")
+
+			for _, tc := range []struct{ token, nodeID string }{
+				{first.Token, first.GenericNode.NodeId},
+				{second.Token, second.GenericNode.NodeId},
+			} {
+				gotNode, err := models.FindNodeIDByAgentToken(s.db.Querier, tc.token)
+				require.NoError(t, err)
+				assert.Equal(t, tc.nodeID, gotNode)
+			}
+		})
+
+		// An enrollment token exists to add hosts. Re-registering removes the existing node
+		// and cascades to everything on it, so a token issued to bring a new host into
+		// monitoring must not be able to destroy an existing one and take over its name.
+		t.Run("EnrollmentTokenCannotReregister", func(t *testing.T) {
+			authProvider := &mockGrafanaClient{}
+			authProvider.Test(t)
+			s.grafanaClient = authProvider
+
+			_, enrollmentToken, err := models.CreateEnrollmentToken(s.db.Querier, &models.CreateEnrollmentTokenParams{
+				Description: "reregister probe",
+			})
+			require.NoError(t, err)
+
+			enrollCtx := metadata.NewIncomingContext(ctx,
+				metadata.Pairs("Authorization", "Bearer "+enrollmentToken))
+
+			// It may create a node it is naming for the first time.
+			fresh, err := s.RegisterNode(enrollCtx, &managementv1.RegisterNodeRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName: "enroll-fresh-node",
+				Address:  "10.44.0.1",
+			})
+			require.NoError(t, err)
+			require.NotNil(t, fresh)
+
+			// It may not replace one.
+			_, err = s.RegisterNode(enrollCtx, &managementv1.RegisterNodeRequest{
+				NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeName:   "enroll-fresh-node",
+				Address:    "10.44.0.2",
+				Reregister: true,
+			})
+			require.Error(t, err)
+			assert.Equal(t, codes.PermissionDenied, status.Code(err))
+
+			// The node it tried to replace is untouched.
+			node, err := models.FindNodeByName(s.db.Querier, "enroll-fresh-node")
+			require.NoError(t, err)
+			assert.Equal(t, fresh.GenericNode.NodeId, node.NodeID)
+
+			// The refused attempt did not burn a use.
+			row, err := models.FindEnrollmentToken(s.db.Querier, enrollmentToken)
+			require.NoError(t, err)
+			assert.Equal(t, 1, row.UsedCount)
 		})
 	})
 

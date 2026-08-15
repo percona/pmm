@@ -852,7 +852,7 @@ var File_management_v1_service_proto protoreflect.FileDescriptor
 
 const file_management_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1bmanagement/v1/service.proto\x12\rmanagement.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a\x19management/v1/agent.proto\x1a\x1emanagement/v1/annotation.proto\x1a\x19management/v1/azure.proto\x1a\x1cmanagement/v1/external.proto\x1a\x1bmanagement/v1/haproxy.proto\x1a\x1bmanagement/v1/mongodb.proto\x1a\x19management/v1/mysql.proto\x1a\x18management/v1/node.proto\x1a\x1emanagement/v1/postgresql.proto\x1a\x1cmanagement/v1/proxysql.proto\x1a\x17management/v1/rds.proto\x1a\x1amanagement/v1/valkey.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xb8\x04\n" +
+	"\x1bmanagement/v1/service.proto\x12\rmanagement.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1binventory/v1/services.proto\x1a\x19management/v1/agent.proto\x1a\x1emanagement/v1/annotation.proto\x1a\x19management/v1/azure.proto\x1a\x1emanagement/v1/enrollment.proto\x1a\x1cmanagement/v1/external.proto\x1a\x1bmanagement/v1/haproxy.proto\x1a\x1bmanagement/v1/mongodb.proto\x1a\x19management/v1/mysql.proto\x1a\x18management/v1/node.proto\x1a\x1emanagement/v1/postgresql.proto\x1a\x1cmanagement/v1/proxysql.proto\x1a\x17management/v1/rds.proto\x1a\x1amanagement/v1/valkey.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\"\xb8\x04\n" +
 	"\x11AddServiceRequest\x12<\n" +
 	"\x05mysql\x18\x01 \x01(\v2$.management.v1.AddMySQLServiceParamsH\x00R\x05mysql\x12B\n" +
 	"\amongodb\x18\x02 \x01(\v2&.management.v1.AddMongoDBServiceParamsH\x00R\amongodb\x12K\n" +
@@ -919,7 +919,7 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\fservice_type\x18\x02 \x01(\x0e2\x19.inventory.v1.ServiceTypeR\vserviceType\x12%\n" +
 	"\x0eexternal_group\x18\x03 \x01(\tR\rexternalGroup\"S\n" +
 	"\x14ListServicesResponse\x12;\n" +
-	"\bservices\x18\x01 \x03(\v2\x1f.management.v1.UniversalServiceR\bservices2\xa2\x13\n" +
+	"\bservices\x18\x01 \x03(\v2\x1f.management.v1.UniversalServiceR\bservices2\xf3\x19\n" +
 	"\x11ManagementService\x12\xac\x01\n" +
 	"\rAddAnnotation\x12#.management.v1.AddAnnotationRequest\x1a$.management.v1.AddAnnotationResponse\"P\x92A(\x12\x11Add an Annotation\x1a\x13Adds an annotation.\x82\xd3\xe4\x93\x02\x1f:\x01*\"\x1a/v1/management/annotations\x12\x9b\x01\n" +
 	"\n" +
@@ -936,7 +936,10 @@ const file_management_v1_service_proto_rawDesc = "" +
 	"\vDiscoverRDS\x12!.management.v1.DiscoverRDSRequest\x1a\".management.v1.DiscoverRDSResponse\"Y\x92A(\x12\fDiscover RDS\x1a\x18Discovers RDS instances.\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/management/services:discoverRDS\x12\x8f\x02\n" +
 	"\x15DiscoverAzureDatabase\x12+.management.v1.DiscoverAzureDatabaseRequest\x1a,.management.v1.DiscoverAzureDatabaseResponse\"\x9a\x01\x92Ag\x12\x17Discover Azure Database\x1aLDiscovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.\x82\xd3\xe4\x93\x02*:\x01*\"%/v1/management/services:discoverAzure\x12\xc6\x01\n" +
 	"\x10AddAzureDatabase\x12&.management.v1.AddAzureDatabaseRequest\x1a'.management.v1.AddAzureDatabaseResponse\"a\x92A6\x12\x12Add Azure Database\x1a Adds an Azure Database instance.\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/management/services/azure\x12\xc7\x01\n" +
-	"\rRemoveService\x12#.management.v1.RemoveServiceRequest\x1a$.management.v1.RemoveServiceResponse\"k\x92A<\x12\x10Remove a Service\x1a(Removes a Service along with its Agents.\x82\xd3\xe4\x93\x02&*$/v1/management/services/{service_id}B\xad\x01\n" +
+	"\rRemoveService\x12#.management.v1.RemoveServiceRequest\x1a$.management.v1.RemoveServiceResponse\"k\x92A<\x12\x10Remove a Service\x1a(Removes a Service along with its Agents.\x82\xd3\xe4\x93\x02&*$/v1/management/services/{service_id}\x12\xbf\x02\n" +
+	"\x15CreateEnrollmentToken\x12+.management.v1.CreateEnrollmentTokenRequest\x1a,.management.v1.CreateEnrollmentTokenResponse\"\xca\x01\x92A\x9c\x01\x12\x1aCreate an enrollment token\x1a~Mints a token that authorizes enrolling Nodes and nothing else. The token is returned once and cannot be retrieved afterwards.\x82\xd3\xe4\x93\x02$:\x01*\"\x1f/v1/management/enrollmentTokens\x12\x82\x02\n" +
+	"\x14ListEnrollmentTokens\x12*.management.v1.ListEnrollmentTokensRequest\x1a+.management.v1.ListEnrollmentTokensResponse\"\x90\x01\x92Af\x12\x16List enrollment tokens\x1aLLists enrollment tokens. Token values are not stored and are never returned.\x82\xd3\xe4\x93\x02!\x12\x1f/v1/management/enrollmentTokens\x12\x87\x02\n" +
+	"\x15DeleteEnrollmentToken\x12+.management.v1.DeleteEnrollmentTokenRequest\x1a,.management.v1.DeleteEnrollmentTokenResponse\"\x92\x01\x92A[\x12\x1aRevoke an enrollment token\x1a=Revokes an enrollment token so it can no longer enroll Nodes.\x82\xd3\xe4\x93\x02.*,/v1/management/enrollmentTokens/{token_hash}B\xad\x01\n" +
 	"\x11com.management.v1B\fServiceProtoP\x01Z5github.com/percona/pmm/api/management/v1;managementv1\xa2\x02\x03MXX\xaa\x02\rManagement.V1\xca\x02\rManagement\\V1\xe2\x02\x19Management\\V1\\GPBMetadata\xea\x02\x0eManagement::V1b\x06proto3"
 
 var (
@@ -993,16 +996,22 @@ var (
 		(*DiscoverRDSRequest)(nil),            // 35: management.v1.DiscoverRDSRequest
 		(*DiscoverAzureDatabaseRequest)(nil),  // 36: management.v1.DiscoverAzureDatabaseRequest
 		(*AddAzureDatabaseRequest)(nil),       // 37: management.v1.AddAzureDatabaseRequest
-		(*AddAnnotationResponse)(nil),         // 38: management.v1.AddAnnotationResponse
-		(*ListAgentsResponse)(nil),            // 39: management.v1.ListAgentsResponse
-		(*ListAgentVersionsResponse)(nil),     // 40: management.v1.ListAgentVersionsResponse
-		(*RegisterNodeResponse)(nil),          // 41: management.v1.RegisterNodeResponse
-		(*UnregisterNodeResponse)(nil),        // 42: management.v1.UnregisterNodeResponse
-		(*ListNodesResponse)(nil),             // 43: management.v1.ListNodesResponse
-		(*GetNodeResponse)(nil),               // 44: management.v1.GetNodeResponse
-		(*DiscoverRDSResponse)(nil),           // 45: management.v1.DiscoverRDSResponse
-		(*DiscoverAzureDatabaseResponse)(nil), // 46: management.v1.DiscoverAzureDatabaseResponse
-		(*AddAzureDatabaseResponse)(nil),      // 47: management.v1.AddAzureDatabaseResponse
+		(*CreateEnrollmentTokenRequest)(nil),  // 38: management.v1.CreateEnrollmentTokenRequest
+		(*ListEnrollmentTokensRequest)(nil),   // 39: management.v1.ListEnrollmentTokensRequest
+		(*DeleteEnrollmentTokenRequest)(nil),  // 40: management.v1.DeleteEnrollmentTokenRequest
+		(*AddAnnotationResponse)(nil),         // 41: management.v1.AddAnnotationResponse
+		(*ListAgentsResponse)(nil),            // 42: management.v1.ListAgentsResponse
+		(*ListAgentVersionsResponse)(nil),     // 43: management.v1.ListAgentVersionsResponse
+		(*RegisterNodeResponse)(nil),          // 44: management.v1.RegisterNodeResponse
+		(*UnregisterNodeResponse)(nil),        // 45: management.v1.UnregisterNodeResponse
+		(*ListNodesResponse)(nil),             // 46: management.v1.ListNodesResponse
+		(*GetNodeResponse)(nil),               // 47: management.v1.GetNodeResponse
+		(*DiscoverRDSResponse)(nil),           // 48: management.v1.DiscoverRDSResponse
+		(*DiscoverAzureDatabaseResponse)(nil), // 49: management.v1.DiscoverAzureDatabaseResponse
+		(*AddAzureDatabaseResponse)(nil),      // 50: management.v1.AddAzureDatabaseResponse
+		(*CreateEnrollmentTokenResponse)(nil), // 51: management.v1.CreateEnrollmentTokenResponse
+		(*ListEnrollmentTokensResponse)(nil),  // 52: management.v1.ListEnrollmentTokensResponse
+		(*DeleteEnrollmentTokenResponse)(nil), // 53: management.v1.DeleteEnrollmentTokenResponse
 	}
 )
 
@@ -1044,21 +1053,27 @@ var file_management_v1_service_proto_depIdxs = []int32{
 	36, // 34: management.v1.ManagementService.DiscoverAzureDatabase:input_type -> management.v1.DiscoverAzureDatabaseRequest
 	37, // 35: management.v1.ManagementService.AddAzureDatabase:input_type -> management.v1.AddAzureDatabaseRequest
 	3,  // 36: management.v1.ManagementService.RemoveService:input_type -> management.v1.RemoveServiceRequest
-	38, // 37: management.v1.ManagementService.AddAnnotation:output_type -> management.v1.AddAnnotationResponse
-	39, // 38: management.v1.ManagementService.ListAgents:output_type -> management.v1.ListAgentsResponse
-	40, // 39: management.v1.ManagementService.ListAgentVersions:output_type -> management.v1.ListAgentVersionsResponse
-	41, // 40: management.v1.ManagementService.RegisterNode:output_type -> management.v1.RegisterNodeResponse
-	42, // 41: management.v1.ManagementService.UnregisterNode:output_type -> management.v1.UnregisterNodeResponse
-	43, // 42: management.v1.ManagementService.ListNodes:output_type -> management.v1.ListNodesResponse
-	44, // 43: management.v1.ManagementService.GetNode:output_type -> management.v1.GetNodeResponse
-	2,  // 44: management.v1.ManagementService.AddService:output_type -> management.v1.AddServiceResponse
-	7,  // 45: management.v1.ManagementService.ListServices:output_type -> management.v1.ListServicesResponse
-	45, // 46: management.v1.ManagementService.DiscoverRDS:output_type -> management.v1.DiscoverRDSResponse
-	46, // 47: management.v1.ManagementService.DiscoverAzureDatabase:output_type -> management.v1.DiscoverAzureDatabaseResponse
-	47, // 48: management.v1.ManagementService.AddAzureDatabase:output_type -> management.v1.AddAzureDatabaseResponse
-	4,  // 49: management.v1.ManagementService.RemoveService:output_type -> management.v1.RemoveServiceResponse
-	37, // [37:50] is the sub-list for method output_type
-	24, // [24:37] is the sub-list for method input_type
+	38, // 37: management.v1.ManagementService.CreateEnrollmentToken:input_type -> management.v1.CreateEnrollmentTokenRequest
+	39, // 38: management.v1.ManagementService.ListEnrollmentTokens:input_type -> management.v1.ListEnrollmentTokensRequest
+	40, // 39: management.v1.ManagementService.DeleteEnrollmentToken:input_type -> management.v1.DeleteEnrollmentTokenRequest
+	41, // 40: management.v1.ManagementService.AddAnnotation:output_type -> management.v1.AddAnnotationResponse
+	42, // 41: management.v1.ManagementService.ListAgents:output_type -> management.v1.ListAgentsResponse
+	43, // 42: management.v1.ManagementService.ListAgentVersions:output_type -> management.v1.ListAgentVersionsResponse
+	44, // 43: management.v1.ManagementService.RegisterNode:output_type -> management.v1.RegisterNodeResponse
+	45, // 44: management.v1.ManagementService.UnregisterNode:output_type -> management.v1.UnregisterNodeResponse
+	46, // 45: management.v1.ManagementService.ListNodes:output_type -> management.v1.ListNodesResponse
+	47, // 46: management.v1.ManagementService.GetNode:output_type -> management.v1.GetNodeResponse
+	2,  // 47: management.v1.ManagementService.AddService:output_type -> management.v1.AddServiceResponse
+	7,  // 48: management.v1.ManagementService.ListServices:output_type -> management.v1.ListServicesResponse
+	48, // 49: management.v1.ManagementService.DiscoverRDS:output_type -> management.v1.DiscoverRDSResponse
+	49, // 50: management.v1.ManagementService.DiscoverAzureDatabase:output_type -> management.v1.DiscoverAzureDatabaseResponse
+	50, // 51: management.v1.ManagementService.AddAzureDatabase:output_type -> management.v1.AddAzureDatabaseResponse
+	4,  // 52: management.v1.ManagementService.RemoveService:output_type -> management.v1.RemoveServiceResponse
+	51, // 53: management.v1.ManagementService.CreateEnrollmentToken:output_type -> management.v1.CreateEnrollmentTokenResponse
+	52, // 54: management.v1.ManagementService.ListEnrollmentTokens:output_type -> management.v1.ListEnrollmentTokensResponse
+	53, // 55: management.v1.ManagementService.DeleteEnrollmentToken:output_type -> management.v1.DeleteEnrollmentTokenResponse
+	40, // [40:56] is the sub-list for method output_type
+	24, // [24:40] is the sub-list for method input_type
 	24, // [24:24] is the sub-list for extension type_name
 	24, // [24:24] is the sub-list for extension extendee
 	0,  // [0:24] is the sub-list for field type_name
@@ -1072,6 +1087,7 @@ func file_management_v1_service_proto_init() {
 	file_management_v1_agent_proto_init()
 	file_management_v1_annotation_proto_init()
 	file_management_v1_azure_proto_init()
+	file_management_v1_enrollment_proto_init()
 	file_management_v1_external_proto_init()
 	file_management_v1_haproxy_proto_init()
 	file_management_v1_mongodb_proto_init()

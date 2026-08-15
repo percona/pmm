@@ -359,9 +359,12 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 
 // SummaryCommand is used by Kong for CLI flags and commands.
 type SummaryCommand struct {
-	Filename   string `help:"Summary archive filename"`
-	SkipServer bool   `help:"Skip fetching logs.zip from PMM Server"`
-	Pprof      bool   `name:"pprof" help:"Include performance profiling data"`
+	Filename string `help:"Summary archive filename"`
+	// Server logs are server-wide and are not reachable from a node's own token, which is
+	// all a pmm-agent holds. Fetching them needs admin credentials, so it is opt-in via
+	// --no-skip-server; client-side data is always collected.
+	SkipServer bool `negatable:"" default:"true" help:"Skip fetching logs.zip from PMM Server (use --no-skip-server with admin credentials to include them)"`
+	Pprof      bool `name:"pprof" help:"Include performance profiling data"`
 }
 
 func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.GlobalFlags) error {

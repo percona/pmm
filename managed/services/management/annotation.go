@@ -27,6 +27,7 @@ import (
 
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 // AddAnnotation creates an annotation in grafana.
@@ -45,10 +46,22 @@ func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1
 	if len(req.ServiceNames) == 0 && req.NodeName == "" {
 		tags = append([]string{"pmm_annotation"}, tags...)
 	}
+	// A node's own token may only annotate that node and the services on it. An annotation
+	// naming neither is server-wide, so it is refused too.
+	_, scoped := auth.NodeScope(ctx)
+	if scoped && len(req.ServiceNames) == 0 && req.NodeName == "" {
+		return nil, status.Error(codes.PermissionDenied, "This token may only annotate its own node or its services.")
+	}
+
 	var postfix []string
 	if len(req.ServiceNames) != 0 {
 		for _, sn := range req.ServiceNames {
-			_, err := models.FindServiceByName(s.db.Querier, sn)
+			service, err := models.FindServiceByName(s.db.Querier, sn)
+			if err != nil {
+				return nil, err
+			}
+
+			err = auth.CheckNodeScope(ctx, service.NodeID)
 			if err != nil {
 				return nil, err
 			}
@@ -59,7 +72,12 @@ func (s *ManagementService) AddAnnotation(ctx context.Context, req *managementv1
 	}
 
 	if req.NodeName != "" {
-		_, err := models.FindNodeByName(s.db.Querier, req.NodeName)
+		node, err := models.FindNodeByName(s.db.Querier, req.NodeName)
+		if err != nil {
+			return nil, err
+		}
+
+		err = auth.CheckNodeScope(ctx, node.NodeID)
 		if err != nil {
 			return nil, err
 		}

@@ -200,8 +200,31 @@ func TestClient(t *testing.T) {
 				actualRole := u.role
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())
+				assert.Equal(t, serviceAccountID, u.serviceAccountID)
 			})
 		}
+
+		// Tokens minted for pmm-agents carry no role at all; the service account ID is the
+		// only thing AuthServer can authorize them by.
+		t.Run("Service token auth None", func(t *testing.T) {
+			name, err := stringsgen.GenerateRandomString(256)
+			require.NoError(t, err)
+			nodeName := name + "-none"
+			serviceAccountID, err := c.createServiceAccount(ctx, none, nodeName, true, authHeaders)
+			require.NoError(t, err)
+			defer func() {
+				err := c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
+				require.NoError(t, err)
+			}()
+
+			_, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, true, authHeaders)
+			require.NoError(t, err)
+
+			gotRole, gotID, err := c.getRoleForServiceToken(ctx, serviceToken)
+			require.NoError(t, err)
+			assert.Equal(t, none, gotRole)
+			assert.Equal(t, serviceAccountID, gotID)
+		})
 	})
 
 	t.Run("CreateAnnotation", func(t *testing.T) {

@@ -33,6 +33,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 // ManagementService allows to interact with services.
@@ -108,8 +109,44 @@ var supportedServices = map[string]inventoryv1.ServiceType{
 	string(models.HAProxyServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 }
 
+// nodeIDForAddService returns the Node the requested Service would be attached to.
+// RDS and Azure create their own remote node, so they carry no node ID of their own.
+func nodeIDForAddService(req *managementv1.AddServiceRequest) string {
+	switch req.Service.(type) {
+	case *managementv1.AddServiceRequest_Mysql:
+		return req.GetMysql().NodeId
+	case *managementv1.AddServiceRequest_Mongodb:
+		return req.GetMongodb().NodeId
+	case *managementv1.AddServiceRequest_Postgresql:
+		return req.GetPostgresql().NodeId
+	case *managementv1.AddServiceRequest_Proxysql:
+		return req.GetProxysql().NodeId
+	case *managementv1.AddServiceRequest_Haproxy:
+		return req.GetHaproxy().NodeId
+	case *managementv1.AddServiceRequest_External:
+		return req.GetExternal().NodeId
+	case *managementv1.AddServiceRequest_Valkey:
+		return req.GetValkey().NodeId
+	default:
+		return ""
+	}
+}
+
 // AddService add a Service and its Agents.
 func (s *ManagementService) AddService(ctx context.Context, req *managementv1.AddServiceRequest) (*managementv1.AddServiceResponse, error) {
+	// A node's own token may only add services to that node. RDS and Azure provision a new
+	// remote node, which is beyond what a node token is for, so they are refused outright.
+	if _, scoped := auth.NodeScope(ctx); scoped {
+		nodeID := nodeIDForAddService(req)
+		if nodeID == "" {
+			return nil, status.Error(codes.PermissionDenied, "This token may only add services to its own node.")
+		}
+		err := auth.CheckNodeScope(ctx, nodeID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	switch req.Service.(type) {
 	case *managementv1.AddServiceRequest_Mysql:
 		return s.addMySQL(ctx, req.GetMysql())
@@ -138,6 +175,14 @@ func (s *ManagementService) ListServices(ctx context.Context, req *managementv1.
 		NodeID:        req.NodeId,
 		ServiceType:   services.ProtoToModelServiceType(req.ServiceType),
 		ExternalGroup: req.ExternalGroup,
+	}
+
+	// A node's own token only sees its own node's services.
+	if scoped, ok := auth.NodeScope(ctx); ok {
+		if filters.NodeID != "" && filters.NodeID != scoped {
+			return nil, status.Error(codes.PermissionDenied, "This token may only list its own node's services.")
+		}
+		filters.NodeID = scoped
 	}
 
 	metrics, err := s.queryUpMetrics(ctx, false)
@@ -354,6 +399,11 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			// if it's not a service ID, it is a service name then
 			service, err = models.FindServiceByName(tx.Querier, req.ServiceId)
 		}
+		if err != nil {
+			return err
+		}
+
+		err = auth.CheckNodeScope(ctx, service.NodeID)
 		if err != nil {
 			return err
 		}

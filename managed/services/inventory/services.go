@@ -63,7 +63,11 @@ func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilte
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		servicesM, err = models.FindServices(tx.Querier, filters)
-		return err
+		if err != nil {
+			return err
+		}
+		servicesM = scopeServices(ctx, servicesM)
+		return nil
 	})
 	if e != nil {
 		return nil, e
@@ -115,6 +119,11 @@ func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]invent
 
 // Get selects a single Service by ID.
 func (ss *ServicesService) Get(ctx context.Context, id string) (inventoryv1.Service, error) { //nolint:ireturn
+	err := ss.CheckServiceScope(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
 	service := &models.Service{}
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
@@ -300,6 +309,11 @@ func (ss *ServicesService) AddExternalService(ctx context.Context, params *model
 // Removes Service with the Agents if force == true.
 // Returns an error if force == false and Service has Agents.
 func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) error { //nolint:gocognit
+	err := ss.CheckServiceScope(ctx, id)
+	if err != nil {
+		return err
+	}
+
 	pmmAgentIDs := make(map[string]struct{})
 
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -376,7 +390,12 @@ func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) er
 func (ss *ServicesService) ChangeService(ctx context.Context, labels *models.ChangeStandardLabelsParams, custom *commonv1.StringMap) (inventoryv1.Service, error) { //nolint:ireturn,lll,nolintlint
 	var service *models.Service
 
-	err := ss.ms.RemoveScheduledTasks(ctx, ss.db, labels)
+	err := ss.CheckServiceScope(ctx, labels.ServiceID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ss.ms.RemoveScheduledTasks(ctx, ss.db, labels)
 	if err != nil {
 		return nil, err
 	}

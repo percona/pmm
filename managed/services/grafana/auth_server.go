@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -34,12 +35,17 @@ import (
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 const (
+	// The one operation an enrollment token authorizes.
+	registerNodePath = "/v1/management/nodes"
+
 	connectionEndpointV2 = "/agent.Agent/Connect"
 	connectionEndpoint   = "/agent.v1.AgentService/Connect"
 	rtaCollectEndpoint   = "/realtimeanalytics.v1.CollectorService/Collect"
@@ -124,6 +130,43 @@ var rules = map[string]role{
 	// "/auth_request"  has auth_request disabled in nginx config
 
 	// "/" is a special case in this code
+}
+
+// boundGrant is one operation a service token bound to a registered node may perform.
+// An empty method matches any method. A path ending in "/" matches by prefix, so operations
+// that carry an ID in the path are covered; any other path must match exactly.
+type boundGrant struct {
+	method string
+	path   string
+}
+
+// boundGrants is what a node's own token may do. It is an additional grant on top of the
+// role rules, never a relaxation of them: agents still holding Admin tokens keep
+// authenticating by role, and nothing here widens what a user account can reach.
+//
+// Everything outside this set stays denied - backups, dumps, server settings, access
+// control, server logs, the platform APIs and the bulk metrics endpoints.
+var boundGrants = []boundGrant{
+	// The pmm-agent daemon.
+	{"", connectionEndpointV2},
+	{"", connectionEndpoint},
+	{"", rtaCollectEndpoint},
+	{http.MethodPost, "/victoriametrics/api/v1/write"},
+
+	// The operations pmm-admin performs on behalf of its node.
+	// RegisterNode (POST /v1/management/nodes) is deliberately absent: it makes pmm-managed
+	// create a Grafana service account using the caller's own credentials, which a None-role
+	// token cannot do. Registration still requires Grafana Org Admin.
+	{http.MethodDelete, "/v1/management/nodes/"},
+	{http.MethodGet, "/v1/management/nodes"},
+	{http.MethodGet, "/v1/management/nodes/"},
+	{http.MethodGet, "/v1/management/agents"},
+	{http.MethodGet, "/v1/management/agents/"},
+	{http.MethodPost, "/v1/management/services"},
+	{http.MethodGet, "/v1/management/services"},
+	{http.MethodDelete, "/v1/management/services/"},
+	{http.MethodPost, "/v1/management/annotations"},
+	{"", "/v1/inventory/"},
 }
 
 // methodRules maps "METHOD url-prefix" to the minimal role. Entries take precedence
@@ -491,16 +534,40 @@ func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
 	}
 }
 
+// isLocalAgentConnection reports whether this is PMM Server's own built-in pmm-agent
+// connecting over loopback. That agent holds no credentials at all, so it is the one caller
+// on these paths that cannot authenticate.
+//
+// The address must come from X-Real-IP, which nginx sets from the original client. Every
+// auth_request subrequest reaches pmm-managed from nginx on loopback, so req.RemoteAddr is
+// always 127.0.0.1 and testing it admitted every caller on the network.
+//
+// This only opens the door. Registry.authenticate then confines an uncredentialed
+// connection to an agent running on the PMM Server node.
 func isLocalAgentConnection(req *http.Request) bool {
-	ip := strings.Split(req.RemoteAddr, ":")[0]
-	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
 	path := req.Header.Get("X-Original-Uri")
-	if ip == "127.0.0.1" &&
-		(path == connectionEndpoint || path == rtaCollectEndpoint) {
-		return true
+	if path != connectionEndpoint && path != rtaCollectEndpoint {
+		return false
 	}
 
-	return false
+	return isLoopback(req.Header.Get("X-Real-IP"))
+}
+
+func isLoopback(addr string) bool {
+	if addr == "" {
+		return false
+	}
+
+	// Tolerate a port and IPv6 brackets, since what nginx sets is not guaranteed to be bare.
+	host, _, err := net.SplitHostPort(addr)
+	if err == nil {
+		addr = host
+	}
+	addr = strings.Trim(addr, "[]")
+
+	ip := net.ParseIP(addr)
+
+	return ip != nil && ip.IsLoopback()
 }
 
 // authenticate checks if user has access to a specific path.
@@ -525,6 +592,31 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	if minRole == none {
 		l.Debugf("Minimal required role is %s, granting access without checking Grafana.", minRole)
 		return nil, nil
+	}
+
+	// An enrollment token authorizes creating a node and nothing else. It is what lets an
+	// operator add hosts without holding Grafana Org Admin.
+	if s.authenticateEnrollmentToken(req, l) {
+		if req.Method == http.MethodPost && cleanedPath == registerNodePath {
+			l.Debugf("Enrollment token, granting node registration.")
+			return &authUser{role: none}, nil
+		}
+
+		l.Warnf("Enrollment token may only register a node, denying access.")
+		return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
+	}
+
+	// A token pmm-managed issued itself is resolved against PMM's own database. Grafana is
+	// never consulted, so an agent keeps working when Grafana is down, and enrolling a node
+	// needs no Grafana credentials at all.
+	if user, ok := s.authenticateAgentToken(req, l); ok {
+		if isGrantedByBinding(req.Method, cleanedPath) {
+			l.WithField("node_id", user.nodeID).Debugf("Agent token, granting access.")
+			return user, nil
+		}
+
+		l.Warnf("Agent token may not call this path, denying access.")
+		return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
 	}
 
 	var user *authUser
@@ -560,8 +652,91 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		return user, nil
 	}
 
+	if user.nodeID != "" && isGrantedByBinding(req.Method, cleanedPath) {
+		l.WithField("node_id", user.nodeID).Debugf("Service token is bound to a node, granting access.")
+		return user, nil
+	}
+
 	l.Warnf("Minimal required role is %s, denying access.", minRole)
 	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
+}
+
+// authenticateAgentToken resolves a PMM-issued agent token to the node it belongs to.
+// The second result is false when the request carries no such token, in which case the
+// caller falls through to Grafana. An unrecognised PMM token also returns false and is
+// then refused by the Grafana path, so a revoked token cannot be replayed.
+func (s *AuthServer) authenticateAgentToken(req *http.Request, l *logrus.Entry) (*authUser, bool) {
+	if s.db == nil {
+		return nil, false
+	}
+
+	token := auth.GetTokenFromHeaders(s.authHeaders(req))
+	if !models.IsAgentToken(token) {
+		return nil, false
+	}
+
+	nodeID, err := models.FindNodeIDByAgentToken(s.db.Querier, token)
+	if err != nil {
+		if !errors.Is(err, models.ErrInvalidAgentToken) {
+			l.Warnf("Failed to look up agent token: %s", err)
+		}
+		return nil, false
+	}
+
+	return &authUser{role: none, nodeID: nodeID}, true
+}
+
+// authenticateEnrollmentToken reports whether the request carries an enrollment token that
+// is still usable. An expired, exhausted or unknown one returns false and is then refused by
+// the paths below, so a revoked token cannot be replayed.
+//
+// The use is not counted here. Registration counts it, inside the transaction that creates
+// the node, so a registration that fails does not burn a use.
+func (s *AuthServer) authenticateEnrollmentToken(req *http.Request, l *logrus.Entry) bool {
+	if s.db == nil {
+		return false
+	}
+
+	token := auth.GetTokenFromHeaders(s.authHeaders(req))
+	if !models.IsEnrollmentToken(token) {
+		return false
+	}
+
+	row, err := models.FindEnrollmentToken(s.db.Querier, token)
+	if err != nil {
+		if !errors.Is(err, models.ErrInvalidEnrollmentToken) {
+			l.Warnf("Failed to look up enrollment token: %s", err)
+		}
+		return false
+	}
+
+	if !row.Usable() {
+		l.Warnf("Enrollment token is expired or exhausted.")
+		return false
+	}
+
+	return true
+}
+
+// isGrantedByBinding reports whether a service token bound to a node may perform this
+// operation regardless of its Grafana role.
+func isGrantedByBinding(method, cleanedPath string) bool {
+	for _, g := range boundGrants {
+		if g.method != "" && g.method != method {
+			continue
+		}
+		if strings.HasSuffix(g.path, "/") {
+			if strings.HasPrefix(cleanedPath, g.path) {
+				return true
+			}
+			continue
+		}
+		if cleanedPath == g.path {
+			return true
+		}
+	}
+
+	return false
 }
 
 func cleanPath(p string) (string, error) {
@@ -584,7 +759,48 @@ func cleanPath(p string) (string, error) {
 
 func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
 	// check Grafana with some headers from request
-	authHeaders := s.authHeaders(req)
+	return s.authUserForHeaders(ctx, s.authHeaders(req), l)
+}
+
+// BoundNodeID returns the node whose service token the caller presented, or an empty string
+// for every other caller: users, unbound tokens and requests without credentials. Handlers
+// use it to confine a node's own token to that node. It shares AuthServer's cache, so it
+// costs no extra Grafana round-trip on the nginx-authenticated path.
+func (s *AuthServer) BoundNodeID(ctx context.Context) string {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return ""
+	}
+
+	// Only tokens are ever bound; skip the lookup for user credentials.
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if token == "" {
+		return ""
+	}
+
+	// A PMM-issued token resolves locally. This must stay in step with authenticate: if the
+	// scope were resolved only through Grafana, a PMM token would pass the endpoint check
+	// and then reach the handlers unconfined.
+	if models.IsAgentToken(token) {
+		if s.db == nil {
+			return ""
+		}
+		nodeID, err := models.FindNodeIDByAgentToken(s.db.Querier, token)
+		if err != nil {
+			return ""
+		}
+		return nodeID
+	}
+
+	user, authErr := s.authUserForHeaders(ctx, authHeaders, s.l)
+	if authErr != nil || user == nil {
+		return ""
+	}
+
+	return user.nodeID
+}
+
+func (s *AuthServer) authUserForHeaders(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
 	j, err := json.Marshal(authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
@@ -631,6 +847,8 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 		}
 		return nil, &authError{code: codes.Internal, message: "Internal server error."}
 	}
+	authUser.nodeID = s.resolveBoundNode(authUser.serviceAccountID, l)
+
 	s.rw.Lock()
 	s.cache[hash] = cacheItem{
 		u:       authUser,
@@ -639,4 +857,24 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	s.rw.Unlock()
 
 	return &authUser, nil
+}
+
+// resolveBoundNode returns the node a Grafana service account was issued for, or an empty
+// string when the token is not bound to one. A lookup failure is not an authentication
+// failure: the caller falls back to role-based authorization.
+func (s *AuthServer) resolveBoundNode(serviceAccountID int, l *logrus.Entry) string {
+	// NewAuthServer accepts a nil db, in which case no token can be bound to anything.
+	if serviceAccountID == 0 || s.db == nil {
+		return ""
+	}
+
+	node, err := models.FindNodeByServiceAccountID(s.db.Querier, serviceAccountID)
+	if err != nil {
+		if status.Code(err) != codes.NotFound {
+			l.Warnf("Failed to resolve service account %d to a node: %s", serviceAccountID, err)
+		}
+		return ""
+	}
+
+	return node.NodeID
 }
