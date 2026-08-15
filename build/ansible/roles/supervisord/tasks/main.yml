@@ -81,6 +81,7 @@
     - supervisord.ini
     - grafana.ini
     - pmm.ini
+    - sep.ini
 
 - name: Fix credentials
   ini_file:

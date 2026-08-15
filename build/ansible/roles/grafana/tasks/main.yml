@@ -53,3 +53,9 @@
     src: change-admin-password
     dest: /usr/local/sbin/change-admin-password
     mode: 0755
+
+- name: Copy grafana-sep command
+  copy:
+    src: grafana-sep
+    dest: /usr/local/sbin/grafana-sep
+    mode: 0755
