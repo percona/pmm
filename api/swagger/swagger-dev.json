@@ -22169,26 +22169,26 @@
                         "type": "string",
                         "x-order": 1
                       },
-                      "expires_at": {
-                        "description": "When the token stops working.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 2
-                      },
                       "max_uses": {
                         "description": "How many Nodes the token may enroll. Zero means unlimited.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 3
+                        "x-order": 2
                       },
                       "used_count": {
                         "description": "How many Nodes it has enrolled so far.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 4
+                        "x-order": 3
                       },
                       "created_at": {
                         "description": "When the token was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 4
+                      },
+                      "expires_at": {
+                        "description": "When the token stops working.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 5
@@ -22292,26 +22292,26 @@
                       "type": "string",
                       "x-order": 1
                     },
-                    "expires_at": {
-                      "description": "When the token stops working.",
-                      "type": "string",
-                      "format": "date-time",
-                      "x-order": 2
-                    },
                     "max_uses": {
                       "description": "How many Nodes the token may enroll. Zero means unlimited.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 3
+                      "x-order": 2
                     },
                     "used_count": {
                       "description": "How many Nodes it has enrolled so far.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 4
+                      "x-order": 3
                     },
                     "created_at": {
                       "description": "When the token was created.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 4
+                    },
+                    "expires_at": {
+                      "description": "When the token stops working.",
                       "type": "string",
                       "format": "date-time",
                       "x-order": 5

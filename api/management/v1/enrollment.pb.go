@@ -34,14 +34,14 @@ type EnrollmentToken struct {
 	TokenHash string `protobuf:"bytes,1,opt,name=token_hash,json=tokenHash,proto3" json:"token_hash,omitempty"`
 	// What the token is for, to make a list of them readable.
 	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	// When the token stops working.
-	ExpiresAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	// How many Nodes the token may enroll. Zero means unlimited.
-	MaxUses int32 `protobuf:"varint,4,opt,name=max_uses,json=maxUses,proto3" json:"max_uses,omitempty"`
+	MaxUses int32 `protobuf:"varint,3,opt,name=max_uses,json=maxUses,proto3" json:"max_uses,omitempty"`
 	// How many Nodes it has enrolled so far.
-	UsedCount int32 `protobuf:"varint,5,opt,name=used_count,json=usedCount,proto3" json:"used_count,omitempty"`
+	UsedCount int32 `protobuf:"varint,4,opt,name=used_count,json=usedCount,proto3" json:"used_count,omitempty"`
 	// When the token was created.
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// When the token stops working.
+	ExpiresAt     *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=expires_at,json=expiresAt,proto3" json:"expires_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -90,13 +90,6 @@ func (x *EnrollmentToken) GetDescription() string {
 	return ""
 }
 
-func (x *EnrollmentToken) GetExpiresAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.ExpiresAt
-	}
-	return nil
-}
-
 func (x *EnrollmentToken) GetMaxUses() int32 {
 	if x != nil {
 		return x.MaxUses
@@ -114,6 +107,13 @@ func (x *EnrollmentToken) GetUsedCount() int32 {
 func (x *EnrollmentToken) GetCreatedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *EnrollmentToken) GetExpiresAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.ExpiresAt
 	}
 	return nil
 }
@@ -409,14 +409,14 @@ const file_management_v1_enrollment_proto_rawDesc = "" +
 	"\x0fEnrollmentToken\x12\x1d\n" +
 	"\n" +
 	"token_hash\x18\x01 \x01(\tR\ttokenHash\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\x129\n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x19\n" +
+	"\bmax_uses\x18\x03 \x01(\x05R\amaxUses\x12\x1d\n" +
 	"\n" +
-	"expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\x12\x19\n" +
-	"\bmax_uses\x18\x04 \x01(\x05R\amaxUses\x12\x1d\n" +
+	"used_count\x18\x04 \x01(\x05R\tusedCount\x129\n" +
 	"\n" +
-	"used_count\x18\x05 \x01(\x05R\tusedCount\x129\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\"\xa8\x01\n" +
+	"expires_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\texpiresAt\"\xa8\x01\n" +
 	"\x1cCreateEnrollmentTokenRequest\x12)\n" +
 	"\vdescription\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\vdescription\x129\n" +
 	"\n" +
@@ -461,8 +461,8 @@ var (
 )
 
 var file_management_v1_enrollment_proto_depIdxs = []int32{
-	7, // 0: management.v1.EnrollmentToken.expires_at:type_name -> google.protobuf.Timestamp
-	7, // 1: management.v1.EnrollmentToken.created_at:type_name -> google.protobuf.Timestamp
+	7, // 0: management.v1.EnrollmentToken.created_at:type_name -> google.protobuf.Timestamp
+	7, // 1: management.v1.EnrollmentToken.expires_at:type_name -> google.protobuf.Timestamp
 	7, // 2: management.v1.CreateEnrollmentTokenRequest.expires_at:type_name -> google.protobuf.Timestamp
 	0, // 3: management.v1.CreateEnrollmentTokenResponse.enrollment_token:type_name -> management.v1.EnrollmentToken
 	0, // 4: management.v1.ListEnrollmentTokensResponse.enrollment_tokens:type_name -> management.v1.EnrollmentToken

@@ -14,14 +14,14 @@ message EnrollmentToken {
   string token_hash = 1;
   // What the token is for, to make a list of them readable.
   string description = 2;
-  // When the token stops working.
-  google.protobuf.Timestamp expires_at = 3;
   // How many Nodes the token may enroll. Zero means unlimited.
-  int32 max_uses = 4;
+  int32 max_uses = 3;
   // How many Nodes it has enrolled so far.
-  int32 used_count = 5;
+  int32 used_count = 4;
   // When the token was created.
-  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp created_at = 5;
+  // When the token stops working.
+  google.protobuf.Timestamp expires_at = 6;
 }
 
 // CreateEnrollmentTokenRequest contains parameters for minting an enrollment token.

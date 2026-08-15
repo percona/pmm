@@ -597,10 +597,6 @@ type CreateEnrollmentTokenOKBodyEnrollmentToken struct {
 	// What the token is for, to make a list of them readable.
 	Description string `json:"description,omitempty"`
 
-	// When the token stops working.
-	// Format: date-time
-	ExpiresAt strfmt.DateTime `json:"expires_at,omitempty"`
-
 	// How many Nodes the token may enroll. Zero means unlimited.
 	MaxUses int32 `json:"max_uses,omitempty"`
 
@@ -610,17 +606,21 @@ type CreateEnrollmentTokenOKBodyEnrollmentToken struct {
 	// When the token was created.
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
+
+	// When the token stops working.
+	// Format: date-time
+	ExpiresAt strfmt.DateTime `json:"expires_at,omitempty"`
 }
 
 // Validate validates this create enrollment token OK body enrollment token
 func (o *CreateEnrollmentTokenOKBodyEnrollmentToken) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateExpiresAt(formats); err != nil {
+	if err := o.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateCreatedAt(formats); err != nil {
+	if err := o.validateExpiresAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -630,24 +630,24 @@ func (o *CreateEnrollmentTokenOKBodyEnrollmentToken) Validate(formats strfmt.Reg
 	return nil
 }
 
-func (o *CreateEnrollmentTokenOKBodyEnrollmentToken) validateExpiresAt(formats strfmt.Registry) error {
-	if swag.IsZero(o.ExpiresAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("createEnrollmentTokenOk"+"."+"enrollment_token"+"."+"expires_at", "body", "date-time", o.ExpiresAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (o *CreateEnrollmentTokenOKBodyEnrollmentToken) validateCreatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(o.CreatedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("createEnrollmentTokenOk"+"."+"enrollment_token"+"."+"created_at", "body", "date-time", o.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *CreateEnrollmentTokenOKBodyEnrollmentToken) validateExpiresAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.ExpiresAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("createEnrollmentTokenOk"+"."+"enrollment_token"+"."+"expires_at", "body", "date-time", o.ExpiresAt.String(), formats); err != nil {
 		return err
 	}
 
