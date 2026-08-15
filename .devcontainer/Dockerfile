@@ -2,7 +2,7 @@ ARG PMM_SERVER_IMAGE="perconalab/pmm-server:3-dev-latest"
 FROM $PMM_SERVER_IMAGE
 
 ARG PMM_SERVER_IMAGE
-ARG GO_VERSION
+ARG GO_VERSION=latest
 
 ENV GOPRIVATE='github.com/percona,github.com/Percona-Lab'
 
