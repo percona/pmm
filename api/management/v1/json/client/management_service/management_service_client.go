@@ -57,6 +57,10 @@ type ClientService interface {
 
 	AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error)
 
+	CreateEnrollmentToken(params *CreateEnrollmentTokenParams, opts ...ClientOption) (*CreateEnrollmentTokenOK, error)
+
+	DeleteEnrollmentToken(params *DeleteEnrollmentTokenParams, opts ...ClientOption) (*DeleteEnrollmentTokenOK, error)
+
 	DiscoverAzureDatabase(params *DiscoverAzureDatabaseParams, opts ...ClientOption) (*DiscoverAzureDatabaseOK, error)
 
 	DiscoverRDS(params *DiscoverRDSParams, opts ...ClientOption) (*DiscoverRDSOK, error)
@@ -66,6 +70,8 @@ type ClientService interface {
 	ListAgentVersions(params *ListAgentVersionsParams, opts ...ClientOption) (*ListAgentVersionsOK, error)
 
 	ListAgents(params *ListAgentsParams, opts ...ClientOption) (*ListAgentsOK, error)
+
+	ListEnrollmentTokens(params *ListEnrollmentTokensParams, opts ...ClientOption) (*ListEnrollmentTokensOK, error)
 
 	ListNodes(params *ListNodesParams, opts ...ClientOption) (*ListNodesOK, error)
 
@@ -208,6 +214,94 @@ func (a *Client) AddService(params *AddServiceParams, opts ...ClientOption) (*Ad
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*AddServiceDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+CreateEnrollmentToken creates an enrollment token
+
+Mints a token that authorizes enrolling Nodes and nothing else. The token is returned once and cannot be retrieved afterwards.
+*/
+func (a *Client) CreateEnrollmentToken(params *CreateEnrollmentTokenParams, opts ...ClientOption) (*CreateEnrollmentTokenOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewCreateEnrollmentTokenParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "CreateEnrollmentToken",
+		Method:             "POST",
+		PathPattern:        "/v1/management/enrollmentTokens",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &CreateEnrollmentTokenReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*CreateEnrollmentTokenOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*CreateEnrollmentTokenDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+DeleteEnrollmentToken revokes an enrollment token
+
+Revokes an enrollment token so it can no longer enroll Nodes.
+*/
+func (a *Client) DeleteEnrollmentToken(params *DeleteEnrollmentTokenParams, opts ...ClientOption) (*DeleteEnrollmentTokenOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewDeleteEnrollmentTokenParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DeleteEnrollmentToken",
+		Method:             "DELETE",
+		PathPattern:        "/v1/management/enrollmentTokens/{token_hash}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteEnrollmentTokenReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*DeleteEnrollmentTokenOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*DeleteEnrollmentTokenDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -428,6 +522,50 @@ func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*Li
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListAgentsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListEnrollmentTokens lists enrollment tokens
+
+Lists enrollment tokens. Token values are not stored and are never returned.
+*/
+func (a *Client) ListEnrollmentTokens(params *ListEnrollmentTokensParams, opts ...ClientOption) (*ListEnrollmentTokensOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListEnrollmentTokensParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListEnrollmentTokens",
+		Method:             "GET",
+		PathPattern:        "/v1/management/enrollmentTokens",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListEnrollmentTokensReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListEnrollmentTokensOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListEnrollmentTokensDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

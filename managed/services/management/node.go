@@ -131,7 +131,14 @@ func (s *ManagementService) RegisterNode(ctx context.Context, req *managementv1.
 	nodeID := nodeIDFromResponse(res)
 	var token string
 	e = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		err := models.RemoveAgentTokensForNode(tx.Querier, nodeID)
+		// Count the use of an enrollment token here rather than at authentication, so that a
+		// registration which fails does not burn one.
+		err := s.useEnrollmentToken(ctx, tx.Querier)
+		if err != nil {
+			return err
+		}
+
+		err = models.RemoveAgentTokensForNode(tx.Querier, nodeID)
 		if err != nil {
 			return err
 		}
@@ -539,4 +546,20 @@ func (s *ManagementService) nodeHasConnectedPMMAgent(agents []*models.Agent, nod
 		}
 	}
 	return false
+}
+
+// useEnrollmentToken records a use when the caller enrolled with an enrollment token.
+// Callers authenticated any other way are unaffected.
+func (s *ManagementService) useEnrollmentToken(ctx context.Context, q *reform.Querier) error {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return nil //nolint:nilerr // no credentials at all is not this function's business
+	}
+
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if !models.IsEnrollmentToken(token) {
+		return nil
+	}
+
+	return models.UseEnrollmentToken(q, token)
 }

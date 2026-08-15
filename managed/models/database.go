@@ -1204,6 +1204,20 @@ var databaseSchema = [][]string{
 		)`,
 		`CREATE INDEX agent_tokens_node_id ON agent_tokens (node_id)`,
 	},
+	121: {
+		// Tokens that authorize enrolling a node and nothing else, so an operator can add
+		// nodes without holding Grafana Org Admin. Only the hash is stored.
+		`CREATE TABLE enrollment_tokens (
+			token_hash VARCHAR NOT NULL,
+			description VARCHAR NOT NULL,
+			expires_at TIMESTAMP,
+			max_uses INTEGER NOT NULL,
+			used_count INTEGER NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (token_hash)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

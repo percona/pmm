@@ -43,6 +43,9 @@ import (
 )
 
 const (
+	// The one operation an enrollment token authorizes.
+	registerNodePath = "/v1/management/nodes"
+
 	connectionEndpointV2 = "/agent.Agent/Connect"
 	connectionEndpoint   = "/agent.v1.AgentService/Connect"
 	rtaCollectEndpoint   = "/realtimeanalytics.v1.CollectorService/Collect"
@@ -591,6 +594,18 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 		return nil, nil
 	}
 
+	// An enrollment token authorizes creating a node and nothing else. It is what lets an
+	// operator add hosts without holding Grafana Org Admin.
+	if s.authenticateEnrollmentToken(req, l) {
+		if req.Method == http.MethodPost && cleanedPath == registerNodePath {
+			l.Debugf("Enrollment token, granting node registration.")
+			return &authUser{role: none}, nil
+		}
+
+		l.Warnf("Enrollment token may only register a node, denying access.")
+		return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
+	}
+
 	// A token pmm-managed issued itself is resolved against PMM's own database. Grafana is
 	// never consulted, so an agent keeps working when Grafana is down, and enrolling a node
 	// needs no Grafana credentials at all.
@@ -669,6 +684,38 @@ func (s *AuthServer) authenticateAgentToken(req *http.Request, l *logrus.Entry) 
 	}
 
 	return &authUser{role: none, nodeID: nodeID}, true
+}
+
+// authenticateEnrollmentToken reports whether the request carries an enrollment token that
+// is still usable. An expired, exhausted or unknown one returns false and is then refused by
+// the paths below, so a revoked token cannot be replayed.
+//
+// The use is not counted here. Registration counts it, inside the transaction that creates
+// the node, so a registration that fails does not burn a use.
+func (s *AuthServer) authenticateEnrollmentToken(req *http.Request, l *logrus.Entry) bool {
+	if s.db == nil {
+		return false
+	}
+
+	token := auth.GetTokenFromHeaders(s.authHeaders(req))
+	if !models.IsEnrollmentToken(token) {
+		return false
+	}
+
+	row, err := models.FindEnrollmentToken(s.db.Querier, token)
+	if err != nil {
+		if !errors.Is(err, models.ErrInvalidEnrollmentToken) {
+			l.Warnf("Failed to look up enrollment token: %s", err)
+		}
+		return false
+	}
+
+	if !row.Usable() {
+		l.Warnf("Enrollment token is expired or exhausted.")
+		return false
+	}
+
+	return true
 }
 
 // isGrantedByBinding reports whether a service token bound to a node may perform this

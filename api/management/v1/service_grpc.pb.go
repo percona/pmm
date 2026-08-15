@@ -33,6 +33,9 @@ const (
 	ManagementService_DiscoverAzureDatabase_FullMethodName = "/management.v1.ManagementService/DiscoverAzureDatabase"
 	ManagementService_AddAzureDatabase_FullMethodName      = "/management.v1.ManagementService/AddAzureDatabase"
 	ManagementService_RemoveService_FullMethodName         = "/management.v1.ManagementService/RemoveService"
+	ManagementService_CreateEnrollmentToken_FullMethodName = "/management.v1.ManagementService/CreateEnrollmentToken"
+	ManagementService_ListEnrollmentTokens_FullMethodName  = "/management.v1.ManagementService/ListEnrollmentTokens"
+	ManagementService_DeleteEnrollmentToken_FullMethodName = "/management.v1.ManagementService/DeleteEnrollmentToken"
 )
 
 // ManagementServiceClient is the client API for ManagementService service.
@@ -67,6 +70,12 @@ type ManagementServiceClient interface {
 	AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error)
 	// RemoveService removes a Service along with its Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
+	// CreateEnrollmentToken mints a token that authorizes enrolling Nodes.
+	CreateEnrollmentToken(ctx context.Context, in *CreateEnrollmentTokenRequest, opts ...grpc.CallOption) (*CreateEnrollmentTokenResponse, error)
+	// ListEnrollmentTokens lists enrollment tokens.
+	ListEnrollmentTokens(ctx context.Context, in *ListEnrollmentTokensRequest, opts ...grpc.CallOption) (*ListEnrollmentTokensResponse, error)
+	// DeleteEnrollmentToken revokes an enrollment token.
+	DeleteEnrollmentToken(ctx context.Context, in *DeleteEnrollmentTokenRequest, opts ...grpc.CallOption) (*DeleteEnrollmentTokenResponse, error)
 }
 
 type managementServiceClient struct {
@@ -207,6 +216,36 @@ func (c *managementServiceClient) RemoveService(ctx context.Context, in *RemoveS
 	return out, nil
 }
 
+func (c *managementServiceClient) CreateEnrollmentToken(ctx context.Context, in *CreateEnrollmentTokenRequest, opts ...grpc.CallOption) (*CreateEnrollmentTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateEnrollmentTokenResponse)
+	err := c.cc.Invoke(ctx, ManagementService_CreateEnrollmentToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) ListEnrollmentTokens(ctx context.Context, in *ListEnrollmentTokensRequest, opts ...grpc.CallOption) (*ListEnrollmentTokensResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListEnrollmentTokensResponse)
+	err := c.cc.Invoke(ctx, ManagementService_ListEnrollmentTokens_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *managementServiceClient) DeleteEnrollmentToken(ctx context.Context, in *DeleteEnrollmentTokenRequest, opts ...grpc.CallOption) (*DeleteEnrollmentTokenResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteEnrollmentTokenResponse)
+	err := c.cc.Invoke(ctx, ManagementService_DeleteEnrollmentToken_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ManagementServiceServer is the server API for ManagementService service.
 // All implementations must embed UnimplementedManagementServiceServer
 // for forward compatibility.
@@ -239,6 +278,12 @@ type ManagementServiceServer interface {
 	AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error)
 	// RemoveService removes a Service along with its Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
+	// CreateEnrollmentToken mints a token that authorizes enrolling Nodes.
+	CreateEnrollmentToken(context.Context, *CreateEnrollmentTokenRequest) (*CreateEnrollmentTokenResponse, error)
+	// ListEnrollmentTokens lists enrollment tokens.
+	ListEnrollmentTokens(context.Context, *ListEnrollmentTokensRequest) (*ListEnrollmentTokensResponse, error)
+	// DeleteEnrollmentToken revokes an enrollment token.
+	DeleteEnrollmentToken(context.Context, *DeleteEnrollmentTokenRequest) (*DeleteEnrollmentTokenResponse, error)
 	mustEmbedUnimplementedManagementServiceServer()
 }
 
@@ -299,6 +344,18 @@ func (UnimplementedManagementServiceServer) AddAzureDatabase(context.Context, *A
 
 func (UnimplementedManagementServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method RemoveService not implemented")
+}
+
+func (UnimplementedManagementServiceServer) CreateEnrollmentToken(context.Context, *CreateEnrollmentTokenRequest) (*CreateEnrollmentTokenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CreateEnrollmentToken not implemented")
+}
+
+func (UnimplementedManagementServiceServer) ListEnrollmentTokens(context.Context, *ListEnrollmentTokensRequest) (*ListEnrollmentTokensResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListEnrollmentTokens not implemented")
+}
+
+func (UnimplementedManagementServiceServer) DeleteEnrollmentToken(context.Context, *DeleteEnrollmentTokenRequest) (*DeleteEnrollmentTokenResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteEnrollmentToken not implemented")
 }
 func (UnimplementedManagementServiceServer) mustEmbedUnimplementedManagementServiceServer() {}
 func (UnimplementedManagementServiceServer) testEmbeddedByValue()                           {}
@@ -555,6 +612,60 @@ func _ManagementService_RemoveService_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ManagementService_CreateEnrollmentToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateEnrollmentTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).CreateEnrollmentToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_CreateEnrollmentToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).CreateEnrollmentToken(ctx, req.(*CreateEnrollmentTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_ListEnrollmentTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListEnrollmentTokensRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).ListEnrollmentTokens(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_ListEnrollmentTokens_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).ListEnrollmentTokens(ctx, req.(*ListEnrollmentTokensRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ManagementService_DeleteEnrollmentToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteEnrollmentTokenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ManagementServiceServer).DeleteEnrollmentToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ManagementService_DeleteEnrollmentToken_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ManagementServiceServer).DeleteEnrollmentToken(ctx, req.(*DeleteEnrollmentTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ManagementService_ServiceDesc is the grpc.ServiceDesc for ManagementService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -613,6 +724,18 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveService",
 			Handler:    _ManagementService_RemoveService_Handler,
+		},
+		{
+			MethodName: "CreateEnrollmentToken",
+			Handler:    _ManagementService_CreateEnrollmentToken_Handler,
+		},
+		{
+			MethodName: "ListEnrollmentTokens",
+			Handler:    _ManagementService_ListEnrollmentTokens_Handler,
+		},
+		{
+			MethodName: "DeleteEnrollmentToken",
+			Handler:    _ManagementService_DeleteEnrollmentToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

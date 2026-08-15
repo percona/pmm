@@ -688,3 +688,77 @@ func TestIsLocalAgentConnection(t *testing.T) {
 		})
 	}
 }
+
+// An enrollment token exists so an operator can add hosts without holding Grafana Org Admin.
+// It must therefore reach node registration and nothing else at all.
+func TestAuthServerEnrollmentToken(t *testing.T) {
+	ctx := logger.Set(t.Context(), t.Name())
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+
+	_, token, err := models.CreateEnrollmentToken(db.Querier, &models.CreateEnrollmentTokenParams{
+		Description: "auth test",
+	})
+	require.NoError(t, err)
+
+	_, exhausted, err := models.CreateEnrollmentToken(db.Querier, &models.CreateEnrollmentTokenParams{
+		Description: "used up", MaxUses: 1,
+	})
+	require.NoError(t, err)
+	require.NoError(t, models.UseEnrollmentToken(db.Querier, exhausted))
+
+	// Port 1 has nothing listening: any Grafana call fails rather than quietly succeeding.
+	s := NewAuthServer(NewClient("127.0.0.1:1"), db)
+
+	authenticate := func(t *testing.T, method, path, token string) (*authUser, *authError) {
+		t.Helper()
+
+		req, err := http.NewRequestWithContext(ctx, method, path, nil)
+		require.NoError(t, err)
+		req.Header.Set("Authorization", "Bearer "+token)
+
+		return s.authenticate(ctx, req, logrus.WithField("test", t.Name()))
+	}
+
+	t.Run("registers a node", func(t *testing.T) {
+		_, authErr := authenticate(t, http.MethodPost, "/v1/management/nodes", token)
+		assert.Nil(t, authErr)
+	})
+
+	t.Run("reaches nothing else", func(t *testing.T) {
+		for _, tc := range []struct{ method, path string }{
+			// Not even the other half of node management.
+			{http.MethodGet, "/v1/management/nodes"},
+			{http.MethodDelete, "/v1/management/nodes/node-1"},
+			// Nor anything an agent or pmm-admin does.
+			{http.MethodPost, "/v1/management/services"},
+			{http.MethodGet, "/v1/inventory/services"},
+			{http.MethodPost, connectionEndpoint},
+			{http.MethodPost, "/victoriametrics/api/v1/write"},
+			// Nor, most importantly, minting more of itself.
+			{http.MethodPost, "/v1/management/enrollmentTokens"},
+			{http.MethodGet, "/v1/management/enrollmentTokens"},
+			// Nor the administrative surfaces.
+			{http.MethodGet, "/v1/backups"},
+			{http.MethodGet, "/v1/server/settings"},
+			{http.MethodGet, "/v1/server/logs.zip"},
+			{http.MethodGet, "/v1/users"},
+		} {
+			_, authErr := authenticate(t, tc.method, tc.path, token)
+			require.NotNil(t, authErr, "%s %s must be denied", tc.method, tc.path)
+			assert.Equal(t, codes.PermissionDenied, authErr.code)
+		}
+	})
+
+	t.Run("an exhausted token registers nothing", func(t *testing.T) {
+		_, authErr := authenticate(t, http.MethodPost, "/v1/management/nodes", exhausted)
+		require.NotNil(t, authErr)
+	})
+
+	t.Run("an unknown token registers nothing", func(t *testing.T) {
+		_, authErr := authenticate(t, http.MethodPost, "/v1/management/nodes", models.EnrollmentTokenPrefix+"nope")
+		require.NotNil(t, authErr)
+	})
+}
