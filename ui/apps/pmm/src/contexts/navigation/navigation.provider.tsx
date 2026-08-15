@@ -12,6 +12,7 @@ import {
   addHighAvailability,
   addUsersAndAccess,
   addHomePage,
+  addSepApps,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
@@ -88,6 +89,10 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         items.push(NAV_DIVIDERS.inventory);
 
         items.push(NAV_INVENTORY);
+
+        // SEP apps mounted as native routes (migration). Shown once the session
+        // is established; role/flag gating comes with real auth (Option B).
+        items.push(...addSepApps());
 
         if (settings.backupManagementEnabled) {
           items.push(NAV_BACKUPS);
