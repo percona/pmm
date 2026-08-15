@@ -22,14 +22,22 @@ declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:-/usr/pgsql-14/bin}"
 declare SA_NAME="pmm-sep"
 declare TOKEN_NAME="pmm-sep"
 # Generous because a failed run is not retried: the one-shot cannot bound its own
-# restarts under supervisord.
+# restarts under supervisord. The image's HEALTHCHECK start-period is sized on this.
 declare READY_TIMEOUT=600
 declare READY_INTERVAL=5
 declare -a TOKEN_FILES=(AUTH__PROVIDER__GRAFANA__SERVICE_ACCOUNT_TOKEN PMM__API_KEY)
 declare TMP_FILE=""
+declare SEP_MARKER="/srv/.sep_provisioned"
+declare MARK_RUN=1
 
+# status must be captured first: the TMP_FILE test below would overwrite $?.
 cleanup() {
+    local status=$?
+
     [ -n "$TMP_FILE" ] && rm -f "$TMP_FILE"
+    if [ "$status" -eq 0 ] && [ "$MARK_RUN" -eq 1 ] && ! : > "$SEP_MARKER"; then
+        echo "WARNING: could not write $SEP_MARKER, the container will not report healthy." >&2
+    fi
     return 0
 }
 trap cleanup EXIT
@@ -192,6 +200,7 @@ remove_token_files() {
 }
 
 if ! is_enabled "$PMM_ENABLE_SEP"; then
+    MARK_RUN=0
     remove_token_files
     exit 0
 fi
@@ -199,6 +208,7 @@ fi
 if is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" ||
     [ -n "$GF_DATABASE_URL" ] || [ -n "$GF_DATABASE_HOST" ]; then
     echo "WARNING: ignoring PMM_ENABLE_SEP, Grafana is not using the embedded PostgreSQL." >&2
+    MARK_RUN=0
     remove_token_files
     exit 0
 fi
@@ -233,8 +243,8 @@ fi
 case "$STATUS" in
     200)
         echo "The Grafana service account token for SEP is still valid, keeping it."
-        # Ordered so a token already proven valid reaches SEP even if the role repair
-        # below fails under errexit.
+        # Ordered so a token already proven valid is on disk even if the role repair below
+        # fails under errexit.
         publish_token "$TOKEN"
         ensure_admin_role
         exit 0

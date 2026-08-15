@@ -221,6 +221,17 @@ else
     rm -f "$SEP_NGINX_DIR"/*.conf
 fi
 
+# Not in grafana-sep: sep-provision is priority 20, so a probe firing before it starts would
+# still see the previous run's marker. Fatal only when SEP is in use.
+declare SEP_MARKER="/srv/.sep_provisioned"
+rm -f "$SEP_MARKER" 2> /dev/null || true
+if is_enabled "$PMM_ENABLE_SEP" && ! is_enabled "$PMM_HA_ENABLE" &&
+    ! is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES" && [ -e "$SEP_MARKER" ]; then
+    echo "FATAL: could not remove $SEP_MARKER; the health gate would report the previous provisioning run as this one." >&2
+    exit 1
+fi
+unset SEP_MARKER
+
 # Unconditional: the script owns its own gates, so the files it published are still
 # removed on the start after PMM_ENABLE_SEP is cleared.
 bash /opt/ansible/roles/sep/files/sep-secrets
