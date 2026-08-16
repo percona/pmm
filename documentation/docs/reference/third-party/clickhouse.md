@@ -79,6 +79,8 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
  
         GRANT SELECT ON pmm.* TO grafana;
         ```
+
+        If you set `PMM_CLICKHOUSE_DATABASE` to something other than `pmm`, grant `SELECT` on that database instead. Grant nothing beyond `SELECT`. If you restrict the user by network, allow the PMM Server host, since Grafana connects from there.
  
         If you manage ClickHouse users through configuration files instead, use the XML equivalent:
  
@@ -106,9 +108,25 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
         </clickhouse>
         ```
 
-        Some ClickHouse versions require `settings_constraints_replace_previous` for the `max_execution_time` constraint to take effect, so check your version if the constraint does not apply.
+        `readonly = 1` blocks writes, DDL and all setting changes. `max_execution_time` is the one exception because the Grafana ClickHouse plugin sets it on every query to enforce its query timeout. Without `CHANGEABLE_IN_READONLY`, every query fails with `Cannot modify 'max_execution_time' setting in readonly mode`. Do not use `readonly = 2` instead — the [plugin documentation](https://grafana.com/docs/plugins/grafana-clickhouse-datasource/latest/configure/#clickhouse-user-and-permissions) advises against it.
 
-    2. Set `PMM_CLICKHOUSE_DATASOURCE_USER` and `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to this user's credentials, as shown in the [previous example](#example). If you skip this step, PMM can't authenticate to ClickHouse after upgrading. PMM won't fall back to the privileged `PMM_CLICKHOUSE_USER` account, because that fallback would reopen the vulnerability this fix closes.
+        `CHANGEABLE_IN_READONLY` also requires the server to enable the following, otherwise ClickHouse rejects the constraint with `NOT_IMPLEMENTED`:
+
+        ```xml
+        <access_control_improvements>
+            <settings_constraints_replace_previous>true</settings_constraints_replace_previous>
+        </access_control_improvements>
+        ```
+
+    2. Make sure your server requires a grant to read the system database. Without it, the read-only user can read `system.query_log`, and with it the SQL text of every query any user has run, whatever its grants say. ClickHouse has defaulted this on since 25.3:
+
+        ```xml
+        <access_control_improvements>
+            <select_from_system_db_requires_grant>true</select_from_system_db_requires_grant>
+        </access_control_improvements>
+        ```
+
+    3. Set `PMM_CLICKHOUSE_DATASOURCE_USER` and `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to this user's credentials, as shown in the [previous example](#example). If you skip this step, PMM can't authenticate to ClickHouse after upgrading. PMM won't fall back to the privileged `PMM_CLICKHOUSE_USER` account, because that fallback would reopen the vulnerability this fix closes.
 
 ## Enhance ClickHouse security for PMM
 

@@ -77,12 +77,16 @@ To install PMM HA:
         --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
         --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
+        --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
+        --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
         --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
         --from-literal=VMAGENT_remoteWrite_basicAuth_password="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
         --from-literal=GF_PASSWORD="grafana-password" \
         --namespace pmm
       ```
+
+      `PMM_CLICKHOUSE_DATASOURCE_*` must name a **read-only** ClickHouse user, separate from `PMM_CLICKHOUSE_USER`. Create it on your ClickHouse cluster first — see [Restrict the ClickHouse data source to a read-only user](../reference/third-party/clickhouse.md#restrict-the-clickhouse-data-source-to-a-read-only-user).
 
     5. Install PMM HA:
       ```sh
@@ -201,6 +205,8 @@ To install PMM HA:
           --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
           --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
           --from-literal=PMM_CLICKHOUSE_PASSWORD="your-clickhouse-password" \
+          --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
+          --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="your-clickhouse-readonly-password" \
           --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
           --from-literal=VMAGENT_remoteWrite_basicAuth_password="your-vm-password" \
           --from-literal=PG_PASSWORD="your-postgres-password" \
@@ -225,6 +231,8 @@ To install PMM HA:
           PMM_ADMIN_PASSWORD: "your-secure-password"
           PMM_CLICKHOUSE_USER: "clickhouse_pmm"
           PMM_CLICKHOUSE_PASSWORD: "your-clickhouse-password"
+          PMM_CLICKHOUSE_DATASOURCE_USER: "clickhouse_pmm_readonly"
+          PMM_CLICKHOUSE_DATASOURCE_PASSWORD: "your-clickhouse-readonly-password"
           VMAGENT_remoteWrite_basicAuth_username: "victoriametrics_pmm"
           VMAGENT_remoteWrite_basicAuth_password: "your-vm-password"
           PG_PASSWORD: "your-postgres-password"
