@@ -98,6 +98,10 @@
         - ansible.posix
         - community.general
         - community.postgresql
+      register: result
+      retries: 2
+      delay: 10
+      until: result is not failed
 
     - name: Install bats
       shell: "npm install -g bats"
@@ -166,12 +170,12 @@
         name: "{{ item }}"
         virtualenv: /home/ec2-user/venv
       loop: # Lookup versions at: https://pypi.org/search/
-        - pyaml==24.12.1
-        - GitPython==3.1.43
-        - PyGithub==2.5.0
+        - pyaml==26.7.0
+        - GitPython==3.1.59
+        - PyGithub==2.9.1
         - python-digitalocean==1.17.0
-        - docker==7.1.0
-        - linode-cli==5.55.0
+        - docker==7.2.0
+        - linode-cli==5.68.0
 
     - name: Copy docker daemon config
       copy:
