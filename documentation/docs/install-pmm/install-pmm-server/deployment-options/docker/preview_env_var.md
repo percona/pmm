@@ -22,8 +22,6 @@
 | `PMM_CLICKHOUSE_DATABASE`         | Database name of the external ClickHouse instance
 | `​​PMM_CLICKHOUSE_USER`             | Database user
 | `PMM_CLICKHOUSE_PASSWORD`         | Database user password
-| `PMM_CLICKHOUSE_DATASOURCE_USER`  | Read-only database user for the Grafana ClickHouse data source
-| `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` | Read-only data source user password
 
 ## Testing external ClickHouse connections
 The ClickHouse-related preview variables are useful for testing PMM Server with an external ClickHouse instance:
