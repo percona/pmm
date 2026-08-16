@@ -16,7 +16,7 @@ OS_VARIANT=${OS_VARIANT:-ol8}
 # * pmm_release to contain only pre-release part (can be empty): 'alpha3'.
 pmm_branch=$(git rev-parse --abbrev-ref HEAD)
 
-pmm_base_version=$(cat ${root_dir}/VERSION)
+pmm_base_version=$(< "${root_dir}/VERSION")
 full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
@@ -25,8 +25,8 @@ if [[ ${pmm_branch} =~ pmm-3.* || ${pmm_branch} == "main" ]]; then
     full_pmm_version=${pmm_base_version}
 fi
 
-new_pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
-new_pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
+new_pmm_version=$(awk -F'-' '{print $1}' < "${root_dir}/VERSION")
+new_pmm_release=$(awk -F'-' '{print $2}' < "${root_dir}/VERSION")
 
 # Failsafe during refactoring - check that we did not redefine pmm_version in some other script
 if [ -n "${pmm_version}" ] && [ "${new_pmm_version}" != "${pmm_version}" ]; then
