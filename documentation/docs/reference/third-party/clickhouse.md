@@ -71,7 +71,24 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
     Before upgrading to PMM 3.9.1, complete the steps to keep the data source working:
     {.power-number}
 
-    1. Run the following on your external ClickHouse instance, replacing `your-password` with a [strong, randomly generated password](#enhance-clickhouse-security-for-pmm) and its SHA256 hash:
+    1. Check that both of these are enabled in your server configuration, in `config.xml` or a drop-in under `config.d/`:
+
+        ```xml
+        <access_control_improvements>
+            <settings_constraints_replace_previous>true</settings_constraints_replace_previous>
+            <select_from_system_db_requires_grant>true</select_from_system_db_requires_grant>
+        </access_control_improvements>
+        ```
+
+        `settings_constraints_replace_previous` is a prerequisite for the `CHANGEABLE_IN_READONLY` constraint in the next step. Without it, `CREATE USER` fails with `CHANGEABLE_IN_READONLY for max_execution_time is not allowed unless settings_constraints_replace_previous is enabled (NOT_IMPLEMENTED)`.
+
+        `select_from_system_db_requires_grant` keeps the read-only user out of `system.query_log`, which holds the SQL text of every query any user has run. Without it, the user can read that table whatever its grants say.
+
+        ClickHouse enables both by default from 25.3 onwards, so you only need to act if you run an older version or override these values.
+
+        Restart ClickHouse to apply any change here. `SYSTEM RELOAD CONFIG` and `SYSTEM RELOAD USERS` do not pick up `access_control_improvements`.
+
+    2. Run the following on your external ClickHouse instance, replacing `your-password` with a [strong, randomly generated password](#enhance-clickhouse-security-for-pmm) and its SHA256 hash:
 
         ```sql
         CREATE USER grafana IDENTIFIED WITH sha256_password BY 'your-password'
@@ -109,22 +126,6 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
         ```
 
         `readonly = 1` blocks writes, DDL and all setting changes. `max_execution_time` is the one exception because the Grafana ClickHouse plugin sets it on every query to enforce its query timeout. Without `CHANGEABLE_IN_READONLY`, every query fails with `Cannot modify 'max_execution_time' setting in readonly mode`. Do not use `readonly = 2` instead — the [plugin documentation](https://grafana.com/docs/plugins/grafana-clickhouse-datasource/latest/configure/#clickhouse-user-and-permissions) advises against it.
-
-        `CHANGEABLE_IN_READONLY` also requires the server to enable the following, otherwise ClickHouse rejects the constraint with `NOT_IMPLEMENTED`:
-
-        ```xml
-        <access_control_improvements>
-            <settings_constraints_replace_previous>true</settings_constraints_replace_previous>
-        </access_control_improvements>
-        ```
-
-    2. Make sure your server requires a grant to read the system database. Without it, the read-only user can read `system.query_log`, and with it the SQL text of every query any user has run, whatever its grants say. ClickHouse has defaulted this on since 25.3:
-
-        ```xml
-        <access_control_improvements>
-            <select_from_system_db_requires_grant>true</select_from_system_db_requires_grant>
-        </access_control_improvements>
-        ```
 
     3. Set `PMM_CLICKHOUSE_DATASOURCE_USER` and `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to this user's credentials, as shown in the [previous example](#example). If you skip this step, PMM can't authenticate to ClickHouse after upgrading. PMM won't fall back to the privileged `PMM_CLICKHOUSE_USER` account, because that fallback would reopen the vulnerability this fix closes.
 
