@@ -1,3 +1,4 @@
+# shellcheck disable=SC2034
 bin_dir=$(cd $(dirname $0); pwd -P)
 # NOTE: in most cases, `root_dir` evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
 root_dir_tmp=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
