@@ -10,7 +10,6 @@ on:
       - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
-      - "update/**"
       - "vmproxy/**"
       - "ui/**"
 
