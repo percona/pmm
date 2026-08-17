@@ -20,6 +20,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/alecthomas/kong"
 	"github.com/sirupsen/logrus"
@@ -32,6 +33,13 @@ import (
 )
 
 const codeDBConnectionFailed = 1
+
+const (
+	encryptionRotationConnMaxLifetime = 5 * time.Minute
+	encryptionRotationConnMaxIdleTime = 1 * time.Minute
+	encryptionRotationMaxIdleConns    = int32(2)
+	encryptionRotationMaxOpenConns    = int32(4)
+)
 
 func main() {
 	signal.Ignore(syscall.SIGINT, syscall.SIGTERM) // to prevent any interuptions during process
@@ -97,13 +105,17 @@ type flags struct {
 
 func setupParams(opts flags) models.SetupDBParams {
 	return models.SetupDBParams{
-		Address:     opts.Address,
-		Name:        opts.DBName,
-		Username:    opts.DBUsername,
-		Password:    opts.DBPassword,
-		SSLMode:     opts.SSLMode,
-		SSLCAPath:   opts.SSLCAPath,
-		SSLKeyPath:  opts.SSLKeyPath,
-		SSLCertPath: opts.SSLCertPath,
+		Address:         opts.Address,
+		Name:            opts.DBName,
+		Username:        opts.DBUsername,
+		Password:        opts.DBPassword,
+		SSLMode:         opts.SSLMode,
+		SSLCAPath:       opts.SSLCAPath,
+		SSLKeyPath:      opts.SSLKeyPath,
+		SSLCertPath:     opts.SSLCertPath,
+		ConnMaxLifetime: encryptionRotationConnMaxLifetime,
+		ConnMaxIdleTime: encryptionRotationConnMaxIdleTime,
+		MaxIdleConns:    encryptionRotationMaxIdleConns,
+		MaxOpenConns:    encryptionRotationMaxOpenConns,
 	}
 }

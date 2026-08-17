@@ -24,19 +24,18 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
-	"net/url"
-	"path"
 	"strings"
-	"sync"
 	"time"
-	"unicode/utf8"
 
 	"github.com/lib/pq"
+	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/singleflight"
 	"google.golang.org/grpc/codes"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/cache"
 )
 
 const (
@@ -92,9 +91,9 @@ var rules = map[string]role{
 	"/v1/users/current/orgs":          none,
 
 	// must be available without authentication for health checking
+	// Handled in NGINX config.
 	"/v1/server/readyz":            none,
 	"/v1/server/leaderHealthCheck": none,
-	"/ping":                        none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
 	"/v1/server/version": viewer,
@@ -150,17 +149,41 @@ var lbacPrefixes = []string{
 
 const lbacHeaderName = "X-Proxy-Filter"
 
-// nginx auth_request directive supports only 401 and 403 - every other code results in 500.
-// Our APIs can return codes.PermissionDenied which maps to 403 / http.StatusForbidden.
-// Our APIs MUST NOT return codes.Unauthenticated which maps to 401 / http.StatusUnauthorized
-// as this code is reserved for auth_request.
-const authenticationErrorCode = 401
+const (
+	// Nginx auth_request directive supports only 401 and 403 - every other code results in 500.
+	// Our APIs can return codes.PermissionDenied which maps to 403 / http.StatusForbidden.
+	// Our APIs MUST NOT return codes.Unauthenticated which maps to 401 / http.StatusUnauthorized
+	// as this code is reserved for auth_request.
+	authenticationErrorCode = 401
+	// HTTP headers used to pass auth error details back to NGINX.
+	// The same headers are parsed in NGINX configuration file.
+	authResponseCodeHeader    = "X-Auth-Code"
+	authResponseErrorHeader   = "X-Auth-Error"
+	authResponseMessageHeader = "X-Auth-Message"
+)
 
 const (
-	// Note: cacheInvalidationInterval is used to invalidate cache for grafana responses.
-	cacheInvalidationInterval = 60 * time.Second
-	authenticationTimeout     = 15 * time.Second
+	authenticationTimeout = 15 * time.Second
+	prometheusNamespace   = "pmm_managed"
+	prometheusSubsystem   = "auth"
 )
+
+const (
+	// Ttl for auth response validiness in auth cache.
+	cacheItemTTL = 60 * time.Second
+	// Auth response cache cleanup interval.
+	cacheInvalidationInterval = 2 * cacheItemTTL
+	// MaxAuthCollisionRetries limits retry attempts when singleflight returns
+	// a result for colliding auth headers and avoids an unbounded retry loop.
+	maxAuthCollisionRetries = 3
+)
+
+// authResult contains authentication response details that is a result of all
+// authentication and authorization (including LBAC) checks.
+type authResult struct {
+	// encoded filers to be added as proxy headers.
+	vmProxyFilters string
+}
 
 // clientError contains authentication error response details.
 type authError struct {
@@ -168,76 +191,150 @@ type authError struct {
 	message string
 }
 
-// ErrInvalidUserID is returned when user ID is not valid.
-var ErrInvalidUserID = errors.New("InvalidUserID")
-
-// ErrCannotGetUserID is returned when we cannot retrieve user ID.
-var ErrCannotGetUserID = errors.New("CannotGetUserID")
-
-type cacheItem struct {
-	u       authUser
-	created time.Time
+func (a *authError) Error() string {
+	return fmt.Sprintf("%s: %s", a.message, a.code)
 }
 
-// clientInterface exist only to make fuzzing simpler.
-type clientInterface interface {
-	getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
+type authMetrics struct {
+	// mAuthRequests tracks total auth requests by method, route, and response code.
+	mAuthRequests *prom.CounterVec
+	// mGrafanaAuthRequests tracks auth requests made to Grafana by response code.
+	mGrafanaAuthRequests *prom.CounterVec
+	// mCache tracks total authentication cache requests by status (hit or miss).
+	mCache *prom.CounterVec
+	// mCacheSizeDesc is the descriptor for the number of items in the auth cache.
+	mCacheSizeDesc *prom.Desc
+	// mDurations tracks latency of auth operations (labels: total, grafana, db).
+	mDurations *prom.HistogramVec
+}
+
+type cachedAuthUser struct {
+	user          authUser
+	authorization string
+	cookie        string
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
 type AuthServer struct {
-	c  clientInterface
+	// c is the client used to interact with the Grafana API.
+	c grafanaAuthUserGetter
+	// db is the PostgreSQL database handle using reform ORM.
 	db *reform.DB
-	l  *logrus.Entry
+	// l is the structured logger for the auth component.
+	l *logrus.Entry
 
-	cache map[string]cacheItem
-	rw    sync.RWMutex
+	// cache stores authentication responses to reduce Grafana API calls.
+	// Stores positive responses only.
+	// TODO: cache negative response as well.
+	cache *cache.TTLCache[cachedAuthUser]
+	// authUserGroup deduplicates concurrent Grafana auth lookups for the same auth header set.
+	authUserGroup singleflight.Group
 
-	accessControl *accessControl
+	// accessControl manages RBAC and LBAC filtering logic.
+	accessControl accessControl
 
 	// TODO server metrics should be provided by middleware https://jira.percona.com/browse/PMM-4326
+	// Prometheus metrics for the AuthServer.
+	metrics authMetrics
 }
 
 // NewAuthServer creates new AuthServer.
-func NewAuthServer(c clientInterface, db *reform.DB) *AuthServer {
-	return &AuthServer{
-		c:     c,
-		db:    db,
-		l:     logrus.WithField("component", "grafana/auth"),
-		cache: make(map[string]cacheItem),
-		accessControl: &accessControl{
+func NewAuthServer(ctx context.Context, c grafanaAuthUserGetter, db *reform.DB) *AuthServer {
+	cache, err := cache.NewCacheTTL[cachedAuthUser](ctx, cacheItemTTL, cacheInvalidationInterval)
+	if err != nil {
+		panic(err)
+	}
+	s := &AuthServer{
+		c:  c,
+		db: db,
+		l:  logrus.WithField("component", "grafana/auth"),
+		accessControl: &accessControlCache{
 			db: db,
 		},
+		cache: cache,
+		metrics: authMetrics{
+			mAuthRequests: prom.NewCounterVec(
+				prom.CounterOpts{
+					Name: prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "requests_total"),
+					Help: "Total number of authentication requests.",
+				},
+				[]string{"method", "route", "status_code"},
+			),
+			mGrafanaAuthRequests: prom.NewCounterVec(
+				prom.CounterOpts{
+					Name: prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "grafana_requests_total"),
+					Help: "Total number of authentication requests to Grafana.",
+				},
+				[]string{"status_code"},
+			),
+			mCache: prom.NewCounterVec(
+				prom.CounterOpts{
+					Name: prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "cache_total"),
+					Help: "Total number of authentication cache requests by status (hit or miss).",
+				},
+				[]string{"status"},
+			),
+			mCacheSizeDesc: prom.NewDesc(
+				prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "cache_size"),
+				"Total number of items in the authentication cache.",
+				nil,
+				nil,
+			),
+			mDurations: prom.NewHistogramVec(prom.HistogramOpts{ // labels: total, grafana, db
+				Name:    prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "duration_seconds"),
+				Help:    "Latency of authentication operations in seconds.",
+				Buckets: prom.DefBuckets,
+			}, []string{"type"}),
+		},
 	}
+	return s
 }
 
-// Run runs cache invalidator which removes expired cache items.
-func (s *AuthServer) Run(ctx context.Context) {
-	t := time.NewTicker(cacheInvalidationInterval)
-	defer t.Stop()
+// Describe implements prom.Collector interface.
+func (s *AuthServer) Describe(ch chan<- *prom.Desc) {
+	s.metrics.mAuthRequests.Describe(ch)
+	s.metrics.mGrafanaAuthRequests.Describe(ch)
+	s.metrics.mCache.Describe(ch)
+	ch <- s.metrics.mCacheSizeDesc
+	s.metrics.mDurations.Describe(ch)
+}
 
-	for {
-		select {
-		case <-ctx.Done():
-			return
+// Collect implements prom.Collector interface.
+func (s *AuthServer) Collect(ch chan<- prom.Metric) {
+	s.metrics.mAuthRequests.Collect(ch)
+	s.metrics.mGrafanaAuthRequests.Collect(ch)
+	s.metrics.mCache.Collect(ch)
 
-		case <-t.C:
-			now := time.Now()
-			s.rw.Lock()
-			for key, item := range s.cache {
-				if now.Add(-cacheInvalidationInterval).After(item.created) {
-					delete(s.cache, key)
-				}
-			}
-			s.rw.Unlock()
-		}
-	}
+	ch <- prom.MustNewConstMetric(s.metrics.mCacheSizeDesc, prom.GaugeValue, float64(s.cache.Size()))
+
+	s.metrics.mDurations.Collect(ch)
+}
+
+func (s *AuthServer) incAuthRequests(method, route string, code int) {
+	s.metrics.mAuthRequests.WithLabelValues(method, route, statusCodeToString(code)).Inc()
+}
+
+func (s *AuthServer) incGrafanaAuthRequests(code int) {
+	s.metrics.mGrafanaAuthRequests.WithLabelValues(statusCodeToString(code)).Inc()
+}
+
+func (s *AuthServer) incCacheHit() {
+	s.metrics.mCache.WithLabelValues("hit").Inc()
+}
+
+func (s *AuthServer) incCacheMiss() {
+	s.metrics.mCache.WithLabelValues("miss").Inc()
 }
 
 // ServeHTTP serves internal location /auth_request for both authentication subrequests
 // and subsequent normal requests.
 func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if s.l.Logger.GetLevel() >= logrus.DebugLevel {
+	start := time.Now()
+	defer func() {
+		s.metrics.mDurations.WithLabelValues("total").Observe(time.Since(start).Seconds())
+	}()
+
+	if s.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 		b, err := httputil.DumpRequest(req, true)
 		if err != nil {
 			s.l.Errorf("Failed to dump request: %v.", err)
@@ -247,127 +344,81 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	err := extractOriginalRequest(req)
 	if err != nil {
-		s.l.Warnf("Failed to parse request: %s.", err)
+		s.l.WithError(err).Warn("Failed to parse original request headers.")
 		rw.WriteHeader(http.StatusBadRequest)
+
+		s.incAuthRequests(req.Method, req.URL.Path, http.StatusBadRequest)
 		return
 	}
 
-	l := s.l.WithField("req", fmt.Sprintf("%s %s", req.Method, req.URL.Path))
+	// NOTE: now req.Method and req.URL.Path contain original request values
+	// that NGINX received from the client. The original request values are used for
+	// logging and authentication.
+
+	l := s.l.WithFields(logrus.Fields{"method": req.Method, "path": req.URL.Path})
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
 
+	// Limit the total time spent on authentication to avoid long delays
+	// in case of Grafana being slow or unavailable.
 	ctx, cancel := context.WithTimeout(req.Context(), authenticationTimeout)
 	defer cancel()
 
-	authUser, authErr := s.authenticate(ctx, req, l)
-	if authErr != nil {
-		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]any{
-			"code":    int(authErr.code),
-			"error":   authErr.message,
-			"message": authErr.message, //nolint:goconst
-		}
-		s.returnError(rw, httpStatusForAuthError(authErr.code), m, l)
-		return
-	}
-
-	var userID int
-	if authUser != nil {
-		userID = authUser.userID
-	}
-
-	errF := s.maybeAddLBACFilters(ctx, rw, req, userID, l)
-	if errF != nil {
-		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]any{
-			"code":    int(codes.Internal),
-			"error":   "Internal server error.",
-			"message": "Internal server error.",
-		}
-		l.Errorf("Failed to add VMProxy filters: %s", errF)
-
-		s.returnError(rw, authenticationErrorCode, m, l)
-		return
-	}
-}
-
-// httpStatusForAuthError maps an authError code to the HTTP status nginx receives.
-// PermissionDenied uses 403 so nginx denies outright; the 401 re-run is a GET and would
-// wrongly pass method-specific rules. Authentication and internal errors stay 401.
-func httpStatusForAuthError(code codes.Code) int {
-	if code == codes.PermissionDenied {
-		return http.StatusForbidden
-	}
-	return authenticationErrorCode
-}
-
-func (s *AuthServer) returnError(rw http.ResponseWriter, status int, msg map[string]any, l *logrus.Entry) {
-	// nginx ignores the auth_request subrequest body: on 401 it re-runs the request to
-	// /auth_request to fetch this body; on 403 it serves a static body via error_page 403.
-	rw.Header().Set("Content-Type", "application/json")
-
-	rw.WriteHeader(status)
-	err := json.NewEncoder(rw).Encode(msg)
+	authRes, err := s.processRequest(ctx, req, l)
 	if err != nil {
-		l.Warnf("%s", err)
+		authErr, ok := errors.AsType[*authError](err)
+		if ok {
+			status := convertAuthErrorToHTTPStatus(authErr.code)
+			s.incAuthRequests(req.Method, req.URL.Path, status)
+			writeResponseErrorStatus(rw, status, int(authErr.code), authErr.message, authErr.message)
+			return
+		}
+		s.incAuthRequests(req.Method, req.URL.Path, http.StatusInternalServerError)
+		writeResponseErrorStatus(rw, http.StatusInternalServerError, http.StatusInternalServerError,
+			statusCodeToString(http.StatusInternalServerError), statusCodeToString(http.StatusInternalServerError))
+		return
 	}
+
+	if authRes.vmProxyFilters != "" {
+		// Add HTTP headers to response based on filled fields in authResult.
+		rw.Header().Set(lbacHeaderName, authRes.vmProxyFilters)
+	}
+	s.incAuthRequests(req.Method, req.URL.Path, http.StatusOK)
 }
 
-// maybeAddLBACFilters adds extra filters to requests proxied through VMProxy.
-// In case the request is not proxied through VMProxy, this is a no-op.
-func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
-	if !s.shallAddLBACFilters(req) {
-		l.Debugf("Skipping LBAC filters for non-proxied request.")
-		return nil
-	}
-
-	if userID == 0 {
-		l.Debugf("Getting authenticated user info")
-		authUser, err := s.getAuthUser(ctx, req, l)
-		if err != nil {
-			return ErrCannotGetUserID
-		}
-
-		if authUser == nil {
-			return fmt.Errorf("%w: user is empty", ErrCannotGetUserID)
-		}
-
-		userID = authUser.userID
-	}
-
+// addLBACFilters adds extra filters to requests proxied through VMProxy.
+func (s *AuthServer) addLBACFilters(ctx context.Context, userID int, l *logrus.Entry) (string, error) {
 	if userID <= 0 {
 		// Anonymous users don't have a numeric user ID and cannot have LBAC roles.
 		// Skip adding filters and allow the request to proceed.
-		l.Debugf("Skipping LBAC filters for anonymous user.")
-		return nil
+		l.Debug("Skipping LBAC filters for anonymous user.")
+		return "", nil
 	}
 
 	filters, err := s.getLBACFilters(ctx, userID)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if len(filters) == 0 {
-		return nil
+		return "", nil
 	}
 
 	jsonFilters, err := json.Marshal(filters)
 	if err != nil {
-		return fmt.Errorf("failed to marshal LBAC filters: %w", err)
+		return "", fmt.Errorf("failed to marshal LBAC filters: %w", err)
 	}
 
-	rw.Header().Set(lbacHeaderName, base64.StdEncoding.EncodeToString(jsonFilters))
-
-	return nil
+	return base64.StdEncoding.EncodeToString(jsonFilters), nil
 }
 
-// shallAddLBACFilters decides if LBAC filters must be added to the outgoing request.
-func (s *AuthServer) shallAddLBACFilters(req *http.Request) bool {
+// needAddLBACFilters decides if LBAC filters must be added to the outgoing request.
+func (s *AuthServer) needAddLBACFilters(urlPath string) bool {
 	if !s.accessControl.isEnabled() {
 		return false
 	}
 
 	for _, p := range lbacPrefixes {
-		if strings.HasPrefix(req.URL.Path, p) {
+		if strings.HasPrefix(urlPath, p) {
 			return true
 		}
 	}
@@ -377,7 +428,12 @@ func (s *AuthServer) shallAddLBACFilters(req *http.Request) bool {
 
 // getLBACFilters retrieves LBAC filters for the user.
 func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, error) {
-	roles, err := models.GetUserRoles(s.db.Querier, userID)
+	start := time.Now()
+	defer func() {
+		s.metrics.mDurations.WithLabelValues("db").Observe(time.Since(start).Seconds())
+	}()
+
+	roles, err := models.GetUserRoles(s.db.WithContext(ctx), userID)
 	if err != nil {
 		return nil, err
 	}
@@ -401,14 +457,15 @@ func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, 
 		}
 
 		// Reload roles
-		roles, err = models.GetUserRoles(s.db.Querier, userID)
+		roles, err = models.GetUserRoles(s.db.WithContext(ctx), userID)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	if len(roles) == 0 {
-		logrus.Panicf("User %d has no roles", userID)
+		s.l.Errorf("User %d has no roles", userID)
+		return nil, fmt.Errorf("user %d has no roles", userID)
 	}
 
 	filters := make([]string, 0, len(roles))
@@ -425,223 +482,231 @@ func (s *AuthServer) getLBACFilters(ctx context.Context, userID int) ([]string, 
 	return filters, nil
 }
 
-// extractOriginalRequest replaces req.Method and req.URL.Path with values from original request.
-// Error is returned if original request information is missing or invalid.
-func extractOriginalRequest(req *http.Request) error {
-	origMethod, origURI := req.Header.Get("X-Original-Method"), req.Header.Get("X-Original-Uri")
-
-	if origMethod == "" {
-		return errors.New("empty X-Original-Method")
-	}
-
-	if origURI == "" {
-		return errors.New("empty X-Original-Uri")
-	}
-	if origURI[0] != '/' {
-		return fmt.Errorf("unexpected X-Original-Uri: %s", origURI)
-	}
-	if !utf8.ValidString(origURI) {
-		return fmt.Errorf("invalid X-Original-Uri: %s", origURI)
-	}
-
-	req.Method = origMethod
-	req.URL.Path = origURI
-	return nil
-}
-
-// nextPrefix returns path's prefix, stopping on slashes, dots, and colons, e.g.:
-// /inventory.Nodes/ListNodes -> /inventory.Nodes/ -> /inventory.Nodes -> /inventory. -> /inventory -> /
-// /v1/inventory/Nodes/List -> /v1/inventory/Nodes/ -> /v1/inventory/Nodes -> /v1/inventory/ -> /v1/inventory -> /v1/ -> /v1 -> /
-// That works for both gRPC and JSON URLs.
-// The chain ends with "/" no matter what.
-func nextPrefix(path string) string {
-	if len(path) == 0 || path[0] != '/' || path == "/" {
-		return "/"
-	}
-
-	if t := strings.TrimRight(path, "."); t != path {
-		return t
-	}
-
-	if t := strings.TrimRight(path, "/"); t != path {
-		return t
-	}
-
-	if t := strings.TrimRight(path, ":"); t != path {
-		return t
-	}
-
-	i := strings.LastIndexAny(path, "/.:")
-	return path[:i+1]
-}
-
-// resolveRule returns the minimal role for the given method and path, plus the matched
-// prefix. It walks prefixes longest-to-shortest; a method-specific rule ("METHOD prefix")
-// beats a path-only rule at the same prefix, so read and write on a shared path can differ.
-// With no match it logs a warning and falls back to grafanaAdmin.
-func resolveRule(method, cleanedPath string, l *logrus.Entry) (role, string) {
-	prefix := cleanedPath
-	for {
-		if r, ok := methodRules[method+" "+prefix]; ok {
-			return r, prefix
-		}
-		if r, ok := rules[prefix]; ok {
-			return r, prefix
-		}
-		if prefix == "/" {
-			l.Warn("No explicit rule, falling back to Grafana admin.")
-			return grafanaAdmin, prefix
-		}
-		prefix = nextPrefix(prefix)
-	}
-}
-
-func isLocalAgentConnection(req *http.Request) bool {
-	ip := strings.Split(req.RemoteAddr, ":")[0]
-	// pmmAgent := req.Header.Get("Pmm-Agent-Id")
-	path := req.Header.Get("X-Original-Uri")
-	if ip == "127.0.0.1" &&
-		(path == connectionEndpoint || path == rtaCollectEndpoint) {
-		return true
-	}
-
-	return false
-}
-
-// authenticate checks if user has access to a specific path.
+// processRequest checks if user has access to a specific path.
 // It returns user information retrieved during authentication.
 // Paths which require no Grafana role return zero value for
 // some user fields such as authUser.userID.
-func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
-	// Unescape the URL-encoded parts of the path.
-	p := req.URL.Path
-	cleanedPath, err := cleanPath(p)
-	if err != nil {
-		l.Warnf("Error while unescaping path %s: %q", p, err)
-		return nil, &authError{
-			code:    codes.Internal,
-			message: "Internal server error.",
-		}
-	}
-
-	minRole, prefix := resolveRule(req.Method, cleanedPath, l)
+// This func expects that req.Method and req.URL.Path are already replaced
+// with original request values - extractOriginalRequest(req) has been called beforehand.
+func (s *AuthServer) processRequest(ctx context.Context, req *http.Request, l *logrus.Entry) (authResult, error) {
+	// Determine the minimal required role for the (already cleaned) original request path.
+	minRole, prefix := resolveRule(req.Method, req.URL.Path, l)
 	l = l.WithField("prefix", prefix)
 
-	if minRole == none {
-		l.Debugf("Minimal required role is %s, granting access without checking Grafana.", minRole)
-		return nil, nil
+	needLbacFilter := s.needAddLBACFilters(req.URL.Path)
+	if minRole == none && !needLbacFilter {
+		l.WithField("path", req.URL.Path).Debug("Minimum required role is 'none', granting access without authentication.")
+		return authResult{}, nil
 	}
 
-	var user *authUser
-	if isLocalAgentConnection(req) {
-		if req.Header.Get("X-Original-Uri") == connectionEndpoint {
-			user = &authUser{
-				role:   rules[connectionEndpoint],
-				userID: 0,
-			}
-		} else {
-			user = &authUser{
-				role:   rules[rtaCollectEndpoint],
-				userID: 0,
-			}
-		}
-	} else {
-		var authErr *authError
-		// Get authenticated user from Grafana
-		user, authErr = s.getAuthUser(ctx, req, l)
-		if authErr != nil {
-			return nil, authErr
-		}
+	user, err := s.authenticateUser(req, l) //nolint:contextcheck
+	if err != nil {
+		l.WithError(err).Error("Failed to authenticate user.")
+		var zero authResult
+		return zero, err
 	}
+
 	l = l.WithField("role", user.role.String())
+	err = authorizeUser(minRole, user, l)
+	if err != nil {
+		l.WithError(err).Error("Failed to authorize user.")
+		var zero authResult
+		return zero, err
+	}
 
+	var lbacFilters string
+	if needLbacFilter {
+		lbacFilters, err = s.addLBACFilters(ctx, user.userID, l)
+		if err != nil {
+			l.WithError(err).Error("Failed to add VMProxy LBAC filters.")
+			var zero authResult
+			return zero, errStaticAuthErrorInternalError
+		}
+	}
+
+	return authResult{vmProxyFilters: lbacFilters}, nil
+}
+
+var (
+	// Holds mapping of local agent connect endpoints to *authUser.
+	staticAuthUsers = map[string]authUser{
+		connectionEndpoint:   {role: rules[connectionEndpoint], userID: 0},
+		connectionEndpointV2: {role: rules[connectionEndpointV2], userID: 0},
+		rtaCollectEndpoint:   {role: rules[rtaCollectEndpoint], userID: 0},
+	}
+	errStaticAuthErrorPermissionDenied = &authError{code: codes.PermissionDenied, message: "Access denied."}
+	errStaticAuthErrorInternalError    = &authError{code: codes.Internal, message: "Internal server error."}
+)
+
+// authenticateUser performs identity/authentication only.
+func (s *AuthServer) authenticateUser(req *http.Request, l *logrus.Entry) (authUser, error) {
+	if isLocalAgentConnection(req) {
+		user, ok := staticAuthUsers[req.URL.Path]
+		if ok {
+			return user, nil
+		}
+		var zero authUser
+		return zero, errStaticAuthErrorPermissionDenied
+	}
+	// Non-local requests require user info retrieval from Grafana.
+	return s.getAuthUser(req, l)
+}
+
+// authorizeUser performs role check only.
+func authorizeUser(minRole role, user authUser, l *logrus.Entry) error {
 	if user.role == grafanaAdmin {
 		l.Debugf("Grafana admin, granting access.")
-		return user, nil
+		return nil
 	}
 
 	if minRole <= user.role {
 		l.Debugf("Minimal required role is %s, granting access.", minRole)
-		return user, nil
+		return nil
 	}
 
 	l.Warnf("Minimal required role is %s, denying access.", minRole)
-	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
+	return errStaticAuthErrorPermissionDenied
 }
 
-func cleanPath(p string) (string, error) {
-	unescaped, err := url.PathUnescape(p)
-	if err != nil {
-		return "", err
+// getAuthUser retrieves user information from cache (if exists) based on the request's authentication headers,
+// otherwise from Grafana.
+func (s *AuthServer) getAuthUser(req *http.Request, l *logrus.Entry) (authUser, error) {
+	// Marginally faster than req.Header.Get("...")
+	var authorization, cookie string
+	if vals := req.Header["Authorization"]; len(vals) > 0 {
+		authorization = vals[0]
+	}
+	if vals := req.Header["Cookie"]; len(vals) > 0 {
+		cookie = vals[0]
 	}
 
-	cleanedPath := path.Clean(unescaped)
+	authCacheKey := getAuthCacheKey(req)
 
-	cleanedPath = strings.ReplaceAll(cleanedPath, "\n", " ")
-
-	u, err := url.Parse(cleanedPath)
-	if err != nil {
-		return "", err
-	}
-	u.RawQuery = ""
-	return u.String(), nil
-}
-
-func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
-	// check Grafana with some headers from request
-	authHeaders := s.authHeaders(req)
-	j, err := json.Marshal(authHeaders)
-	if err != nil {
-		l.Warnf("%s", err)
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
-	}
-	hash := base64.StdEncoding.EncodeToString(j)
-	s.rw.RLock()
-	item, ok := s.cache[hash]
-	s.rw.RUnlock()
-	// Check the item's age on read: the background invalidator runs only once per
-	// cacheInvalidationInterval, so without this an entry could be served for almost
-	// twice that long. Re-fetch once an entry is older than the interval.
-	if ok && time.Since(item.created) < cacheInvalidationInterval {
-		return &item.u, nil
-	}
-
-	return s.retrieveRole(ctx, hash, authHeaders, l)
-}
-
-func (s *AuthServer) authHeaders(req *http.Request) http.Header {
-	authHeaders := make(http.Header)
-	for _, k := range []string{
-		"Authorization",
-		"Cookie",
-	} {
-		if v := req.Header.Get(k); v != "" {
-			authHeaders.Set(k, v)
+	// Hot-path: lookup user in cache first.
+	if cached, ok := s.cache.Load(authCacheKey); ok {
+		// Verify auth headers for this hash to prevent serving wrong user on rare hash collisions.
+		if cached.authorization == authorization && cached.cookie == cookie {
+			s.incCacheHit()
+			return cached.user, nil
 		}
 	}
-	return authHeaders
+	s.incCacheMiss()
+
+	// Cold-path: Cache miss / Stale data.
+	// Use single-flight to avoid calling Grafana for the same user's authHeaders.
+	// It appears when after restart the same vm-agent starts to send buffered metrics
+	// to server in parallel and all such requests have to be authenticated.
+	for attempt := range maxAuthCollisionRetries {
+		res, err, _ := s.authUserGroup.Do(authCacheKey, func() (any, error) {
+			// Recheck inside singleflight to avoid duplicate upstream calls when
+			// another goroutine already populated cache while we were waiting.
+			if cached, ok := s.cache.Load(authCacheKey); ok {
+				if cached.authorization == authorization && cached.cookie == cookie {
+					return cached, nil
+				}
+			}
+
+			// NOTE: leader's context is not used here directly in order to allow to finish
+			// the request to Grafana, so that even if leader's request is already terminated -
+			// the rest of waiters in singleflight group will receive the response from Grafana.
+			grafanaCtx, cancel := context.WithTimeout(context.Background(), authenticationTimeout)
+			defer cancel()
+
+			userAuthInfo, authErr := s.getGrafanaAuthUser(grafanaCtx, extractAuthHeaders(req), l)
+			if authErr != nil {
+				// IMPORTANT: On error, we call Forget(authCacheKey) IMMEDIATELY.
+				// This prevents the error from getting stuck in the internal singleflight map
+				// and allows the next request to retry immediately (e.g. if the Grafana is being restored).
+				s.authUserGroup.Forget(authCacheKey)
+				return nil, authErr
+			}
+
+			cached := cachedAuthUser{
+				user:          userAuthInfo,
+				authorization: authorization,
+				cookie:        cookie,
+			}
+
+			// Don't store anonymous users (userID == 0) in cache.
+			if userAuthInfo.userID > 0 {
+				// Store the retrieved user info in cache for future requests.
+				s.cache.Store(authCacheKey, cached)
+			}
+			return cached, nil
+		})
+		if err != nil {
+			l.WithError(err).Error("Grafana user lookup failed.")
+			var zero authUser
+			return zero, err
+		}
+
+		cached, ok := res.(cachedAuthUser)
+		if !ok {
+			l.WithField("type", fmt.Sprintf("%T", res)).Error("Unexpected Grafana user result type.")
+			var zero authUser
+			return zero, errStaticAuthErrorInternalError
+		}
+
+		if cached.authorization == authorization && cached.cookie == cookie {
+			return cached.user, nil
+		}
+
+		// Rare collision path: a waiter received a result for a different header pair.
+		// Forget and retry so this request resolves with its own identity.
+		l.WithField("attempt", attempt+1).Warn("Auth cache key collision detected; retrying auth lookup.")
+		s.authUserGroup.Forget(authCacheKey)
+	}
+
+	// Last-resort fallback: bypass singleflight to guarantee forward progress
+	// even if colliding requests keep winning group leadership.
+	grafanaCtx, cancel := context.WithTimeout(context.Background(), authenticationTimeout)
+	defer cancel()
+
+	userAuthInfo, authErr := s.getGrafanaAuthUser(grafanaCtx, extractAuthHeaders(req), l)
+	if authErr != nil {
+		l.WithError(authErr).Error("Grafana user lookup failed after collision retries.")
+		var zero authUser
+		return zero, authErr
+	}
+
+	if userAuthInfo.userID > 0 {
+		s.cache.Store(authCacheKey, cachedAuthUser{
+			user:          userAuthInfo,
+			authorization: authorization,
+			cookie:        cookie,
+		})
+	}
+
+	return userAuthInfo, nil
 }
 
-func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
-	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
+// getGrafanaAuthUser calls Grafana to retrieve user's info. Passed authHeaders are used for authentication.
+func (s *AuthServer) getGrafanaAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error) {
+	start := time.Now()
+	defer func() {
+		s.metrics.mDurations.WithLabelValues("grafana").Observe(time.Since(start).Seconds())
+	}()
+
+	authUserInfo, err := s.c.getAuthUser(ctx, authHeaders, l)
 	if err != nil {
-		l.Warnf("%s", err)
+		var zero authUser
+		l.WithError(err).Error("Failed to retrieve user info from Grafana.")
 		cErr, ok := errors.AsType[*clientError](err)
 		if ok {
+			s.incGrafanaAuthRequests(cErr.Code)
+
 			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
+			if cErr.Code == http.StatusUnauthorized || cErr.Code == http.StatusForbidden {
 				code = codes.Unauthenticated
 			}
-			return nil, &authError{code: code, message: cErr.ErrorMessage}
+			return zero, &authError{code: code, message: cErr.ErrorMessage}
 		}
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
+		s.incGrafanaAuthRequests(http.StatusInternalServerError)
+		return zero, errStaticAuthErrorInternalError
 	}
-	s.rw.Lock()
-	s.cache[hash] = cacheItem{
-		u:       authUser,
-		created: time.Now(),
-	}
-	s.rw.Unlock()
 
-	return &authUser, nil
+	s.incGrafanaAuthRequests(http.StatusOK)
+	return authUserInfo, nil
 }
+
+var _ prom.Collector = (*AuthServer)(nil)

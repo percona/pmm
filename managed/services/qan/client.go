@@ -179,15 +179,18 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsB
 		}
 	}()
 
-	agents, err := collectAgents(c.db.Querier, metricsBuckets)
+	// It is completely OK to re-use the same Querier for multiple queries, as it is safe for concurrent use
+	// and creates less preasure on GC.
+	q := c.db.WithContext(ctx)
+	agents, err := collectAgents(q, metricsBuckets)
 	if err != nil {
 		return err
 	}
-	services, err := collectServices(c.db.Querier, agents)
+	services, err := collectServices(q, agents)
 	if err != nil {
 		return err
 	}
-	nodes, err := collectNodes(c.db.Querier, services)
+	nodes, err := collectNodes(q, services)
 	if err != nil {
 		return err
 	}

@@ -28,7 +28,7 @@ import (
 const accessControlCacheExpiration = 3 * time.Second
 
 // accessControl provides caching for the access control configuration.
-type accessControl struct {
+type accessControlCache struct {
 	mu sync.RWMutex
 
 	db          *reform.DB
@@ -36,7 +36,7 @@ type accessControl struct {
 	lastUpdated time.Time
 }
 
-func (a *accessControl) isEnabled() bool {
+func (a *accessControlCache) isEnabled() bool {
 	a.mu.RLock()
 
 	if a.lastUpdated.Add(accessControlCacheExpiration).After(time.Now()) {
@@ -54,7 +54,7 @@ func (a *accessControl) isEnabled() bool {
 	return enabled
 }
 
-func (a *accessControl) reload() (bool, error) {
+func (a *accessControlCache) reload() (bool, error) {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 

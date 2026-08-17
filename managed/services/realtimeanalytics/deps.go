@@ -27,3 +27,13 @@ type agentsRegistry interface {
 type agentsStateUpdater interface {
 	RequestStateUpdate(ctx context.Context, pmmAgentID string)
 }
+
+// Limiter defines the interface to perform request rate limiting.
+// If TryAcquire function return false, the request will be rejected.
+// Otherwise, the request will pass.
+type Limiter interface {
+	// Try to acquire a free slot to handle incoming request.
+	TryAcquire() bool
+	// Release the used slot.
+	Release()
+}

@@ -38,6 +38,8 @@ import (
 
 const defaultAgentPingInterval = 10 * time.Second
 
+const maxTCPPort = uint32(1<<16 - 1)
+
 // Handler handles agent requests.
 type Handler struct {
 	db          *reform.DB
@@ -46,11 +48,15 @@ type Handler struct {
 	qanClient   qanClient
 	state       *StateUpdater
 	jobsService jobsService
+	// PMM Agents connection attempts rate limiter.
+	// Used to prevent the system degradation (exhausted db connections in particular)
+	// during massive agents connections (thundering herd).
+	rateLimiter Limiter
 }
 
 // NewHandler creates new agents handler.
 func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, registry *Registry, state *StateUpdater,
-	jobsService jobsService,
+	jobsService jobsService, rateLimiter Limiter,
 ) *Handler {
 	h := &Handler{
 		db:          db,
@@ -59,6 +65,7 @@ func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, regi
 		qanClient:   qanClient,
 		state:       state,
 		jobsService: jobsService,
+		rateLimiter: rateLimiter,
 	}
 	return h
 }
@@ -69,8 +76,15 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 
 	ctx := stream.Context()
 	l := logger.Get(ctx)
+
+	if !h.rateLimiter.TryAcquire() {
+		disconnectReason = "RESOURCE_EXHAUSTED"
+		return status.Error(codes.ResourceExhausted, "is rejected by ratelimit, please retry later.")
+	}
 	agent, err := h.r.register(stream)
+	h.rateLimiter.Release()
 	if err != nil {
+		l.WithError(err).Warn("Failed to register agent.")
 		disconnectReason = "auth"
 		return err
 	}
@@ -123,7 +137,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 
 			case *agentv1.StateChangedRequest:
 				pprof.Do(ctx, pprof.Labels("request", "StateChangedRequest"), func(ctx context.Context) {
-					err := h.stateChanged(ctx, p)
+					err := h.stateChanged(ctx, agent.id, p)
 					if err != nil {
 						l.Errorf("%+v", err)
 					}
@@ -174,8 +188,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 	}
 }
 
-func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedRequest) error {
-	var PMMAgentID string
+func (h *Handler) stateChanged(ctx context.Context, pmmAgentID string, req *agentv1.StateChangedRequest) error {
 	var portsChanged bool
 	l := logger.Get(ctx).WithField("component", "agents/handler")
 
@@ -183,7 +196,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 		var agentIDs []string
 		var err error
 		sAgentID := strings.TrimPrefix(req.AgentId, "/agent_id/")
-		PMMAgentID, agentIDs, err = h.r.roster.get(sAgentID)
+		_, agentIDs, err = h.r.roster.get(sAgentID)
 		if err != nil {
 			return err
 		}
@@ -226,20 +239,16 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedReq
 		h.vmdb.RequestConfigurationUpdate()
 	}
 
-	agent, err := models.FindAgentByID(h.db.Querier, PMMAgentID)
-	if err != nil {
-		return err
-	}
-	if agent.PMMAgentID == nil {
-		return nil
-	}
-
-	h.state.RequestStateUpdate(ctx, *agent.PMMAgentID)
+	h.state.RequestStateUpdate(ctx, pmmAgentID)
 	return nil
 }
 
 // checkPortChanged checks if the agent's listen port is changing.
 func checkPortChanged(q *reform.Querier, agentID string, newPort uint32) bool {
+	if newPort > maxTCPPort {
+		return false
+	}
+
 	agent, err := models.FindAgentByID(q, agentID)
 	if err != nil {
 		// Can't determine, assume no change
@@ -255,36 +264,40 @@ func updateAgentStatus(
 	ctx context.Context,
 	q *reform.Querier,
 	agentID string,
-	status inventoryv1.AgentStatus,
+	agentStatus inventoryv1.AgentStatus,
 	listenPort uint32,
 	processExecPath *string,
 	version *string,
 ) error {
 	l := logger.Get(ctx).WithField("component", "agents/handler")
-	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
+	l.Debugf("updateAgentStatus: %s %s %d", agentID, agentStatus, listenPort)
+
+	if listenPort > maxTCPPort {
+		return fmt.Errorf("invalid listen port %d: must be <= %d", listenPort, maxTCPPort)
+	}
 
 	agent, err := models.FindAgentByID(q, agentID)
 
 	// agent can be already deleted, but we still can receive status message from pmm-agent.
-	if errors.Is(err, reform.ErrNoRows) {
-		if status == inventoryv1.AgentStatus_AGENT_STATUS_STOPPING || status == inventoryv1.AgentStatus_AGENT_STATUS_DONE {
+	if errors.Is(err, reform.ErrNoRows) || status.Code(err) == codes.NotFound {
+		if agentStatus == inventoryv1.AgentStatus_AGENT_STATUS_STOPPING || agentStatus == inventoryv1.AgentStatus_AGENT_STATUS_DONE {
 			return nil
 		}
 
-		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, status)
+		l.Warnf("Failed to select Agent by ID for (%s, %s).", agentID, agentStatus)
 	}
 	if err != nil {
 		return fmt.Errorf("failed to select Agent by ID: %w", err)
 	}
 
 	if agent.Disabled {
-		if status != inventoryv1.AgentStatus_AGENT_STATUS_DONE {
-			l.Debugf("Agent %s is disabled, but status is %s. Setting status to DONE.", agentID, status)
+		if agentStatus != inventoryv1.AgentStatus_AGENT_STATUS_DONE {
+			l.Debugf("Agent %s is disabled, but status is %s. Setting status to DONE.", agentID, agentStatus)
 		}
-		status = inventoryv1.AgentStatus_AGENT_STATUS_DONE
+		agentStatus = inventoryv1.AgentStatus_AGENT_STATUS_DONE
 	}
 
-	agent.Status = status.String()
+	agent.Status = agentStatus.String()
 	agent.ProcessExecPath = processExecPath
 	agent.ListenPort = new(uint16(listenPort)) //nolint:gosec // port is uint16
 	if version != nil {

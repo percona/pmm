@@ -32,6 +32,7 @@ import (
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
+	"github.com/percona/pmm/utils/cache"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
@@ -41,6 +42,8 @@ const (
 	prometheusSubsystem = "agents"
 	// ConnectionCacheTTL is the duration for which agent connection status is cached in HA mode.
 	connectionCacheTTL = 10 * time.Second
+	// MaxRegisterRetries bounds duplicate-ID contention retries during registration.
+	maxRegisterRetries = 5
 )
 
 var (
@@ -71,8 +74,10 @@ var (
 )
 
 type pmmAgentInfo struct {
-	channel         *channel.Channel
 	id              string
+	version         *version.Parsed
+	runsOnNodeID    string
+	channel         *channel.Channel
 	stateChangeChan chan struct{}
 	kickChan        chan struct{}
 }
@@ -86,8 +91,8 @@ type haService interface {
 type Registry struct {
 	db *reform.DB
 
-	rw     sync.RWMutex
-	agents map[string]*pmmAgentInfo // id -> info
+	// Currently registered PMM Agents cache.
+	agentsCache *cache.Cache[pmmAgentInfo] // id -> info
 
 	roster *roster
 
@@ -109,11 +114,10 @@ type Registry struct {
 
 // NewRegistry creates a new registry with given database connection.
 func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *Registry {
-	agents := make(map[string]*pmmAgentInfo)
 	r := &Registry{
 		db: db,
 
-		agents: agents,
+		agentsCache: cache.NewCache[pmmAgentInfo](),
 
 		roster: newRoster(db),
 
@@ -157,10 +161,7 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 		Name:      "connected",
 		Help:      "The current number of connected pmm-agents.",
 	}, func() float64 {
-		r.rw.Lock()
-		defer r.rw.Unlock()
-
-		return float64(len(agents))
+		return float64(r.agentsCache.Size())
 	})
 
 	// initialize metrics with labels
@@ -175,8 +176,8 @@ func NewRegistry(db *reform.DB, vmParams victoriaMetricsParams, ha haService) *R
 func (r *Registry) IsConnected(pmmAgentID string) bool {
 	if !r.haService.Params().Enabled {
 		// Non-HA mode: check in-memory registry
-		_, err := r.get(pmmAgentID)
-		return err == nil
+		_, exists := r.agentsCache.Load(pmmAgentID)
+		return exists
 	}
 
 	// HA mode: check cache first, then database
@@ -225,17 +226,20 @@ func (r *Registry) rebuildConnectionCache() {
 	r.cacheMu.Unlock()
 }
 
-func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgentInfo, error) {
+func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
 	r.mConnects.Inc()
+	// used to return smth in case of error
+	var zero pmmAgentInfo
 
 	agentMD, err := agentv1.ReceiveAgentConnectMetadata(stream)
 	if err != nil {
-		return nil, err
+		return zero, fmt.Errorf("failed to receive pmm-agent connect metadata: %w", err)
 	}
+
 	var node *models.Node
-	err = r.db.InTransaction(func(tx *reform.TX) error {
+	err = r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		node, err = r.authenticate(agentMD, tx.Querier)
 		if err != nil {
 			return err
@@ -244,9 +248,13 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 	})
 	if err != nil {
 		l.Warnf("Failed to authenticate connected pmm-agent %+v.", agentMD)
-		return nil, err
+		return zero, err
 	}
 	l.Infof("Connected pmm-agent: %+v.", agentMD)
+	pmmAgentVersion, err := version.Parse(agentMD.Version)
+	if err != nil {
+		return zero, fmt.Errorf("failed to parse PMM agent version %q: %w", agentMD.Version, err)
+	}
 
 	serverMD := agentv1.ServerConnectMetadata{
 		AgentRunsOnNodeID: node.NodeID,
@@ -256,37 +264,55 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 	l.Debugf("Sending metadata: %+v.", serverMD)
 	err = agentv1.SendServerConnectMetadata(stream, &serverMD)
 	if err != nil {
-		return nil, err
+		return zero, fmt.Errorf("failed to send server connect metadata to pmm-agent: %w", err)
 	}
 
-	currentAgent, err := r.get(agentMD.ID)
-	if err == nil {
+	agent := pmmAgentInfo{
+		id:              agentMD.ID,
+		runsOnNodeID:    node.NodeID,
+		version:         pmmAgentVersion,
+		channel:         channel.New(ctx, stream),
+		stateChangeChan: make(chan struct{}, 1),
+		kickChan:        make(chan struct{}),
+	}
+
+	registered := false
+	for attempt := range maxRegisterRetries {
+		err = ctx.Err()
+		if err != nil {
+			return zero, status.FromContextError(err).Err()
+		}
+
+		currentAgent, exists := r.agentsCache.LoadOrStore(agentMD.ID, agent)
+		if !exists {
+			registered = true
+			break
+		}
 		// pmm-agent with the same ID can still be connected in two cases:
 		//   1. Someone uses the same ID by mistake, glitch, or malicious intent.
 		//   2. pmm-agent detects broken connection and reconnects,
 		//      but pmm-managed still thinks that the previous connection is okay.
-		// If agent respond with pong (no error) new connection is not established,
+		// If agent responds with pong (no error) new connection is not established,
 		// so we return AlreadyExists error. Otherwise we kick the previous connection
-		// and proceed with the new one.
-		err := r.ping(ctx, currentAgent)
+		// and retry atomic registration.
+		err = r.ping(ctx, currentAgent)
 		if err == nil {
-			return nil, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
+			return zero, status.Errorf(codes.AlreadyExists, "pmm-agent with ID %q is already connected.", agentMD.ID)
 		}
 
-		l.Warningf("Failed to ping pmm-agent with ID %q: %v", agentMD.ID, err)
-		r.Kick(ctx, agentMD.ID)
-		l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
-	}
-	r.rw.Lock()
-	defer r.rw.Unlock()
+		err = ctx.Err()
+		if err != nil {
+			return zero, status.FromContextError(err).Err()
+		}
 
-	agent := &pmmAgentInfo{
-		channel:         channel.New(ctx, stream),
-		id:              agentMD.ID,
-		stateChangeChan: make(chan struct{}, 1),
-		kickChan:        make(chan struct{}),
+		l.Warningf("Failed to ping pmm-agent with ID %q on registration attempt %d/%d: %v", agentMD.ID, attempt+1, maxRegisterRetries, err)
+		if r.kickMatchingConnection(ctx, agentMD.ID, currentAgent) {
+			l.Warningf("pmm-agent with ID %q is kicked.", agentMD.ID)
+		}
 	}
-	r.agents[agentMD.ID] = agent
+	if !registered {
+		return zero, status.Errorf(codes.Aborted, "failed to register pmm-agent with ID %q after %d retries", agentMD.ID, maxRegisterRetries)
+	}
 
 	// Only persist is_connected to database when HA is enabled
 	if r.haService.Params().Enabled {
@@ -303,8 +329,8 @@ func (r *Registry) register(stream agentv1.AgentService_ConnectServer) (*pmmAgen
 			return nil
 		})
 		if err != nil {
-			delete(r.agents, agentMD.ID)
-			return nil, fmt.Errorf("failed to persist the connection status for agent %s: %w", agentMD.ID, err)
+			r.agentsCache.Delete(agentMD.ID)
+			return zero, fmt.Errorf("failed to persist the connection status for agent %s: %w", agentMD.ID, err)
 		}
 
 		r.cacheMu.Lock()
@@ -369,21 +395,19 @@ func (r *Registry) authenticate(md *agentv1.AgentConnectMetadata, q *reform.Quer
 }
 
 // unregister removes pmm-agent with given ID from the registry.
-func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason string) *pmmAgentInfo {
+func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason string) pmmAgentInfo {
 	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
-
-	r.rw.Lock()
-	defer r.rw.Unlock()
+	// used to return smth in case of error
+	var zero pmmAgentInfo
 
 	// We do not check that pmmAgentID is in fact ID of existing pmm-agent because
 	// it may be already deleted from the database, that's why we unregister it.
 
-	agent := r.agents[pmmAgentID]
-	if agent == nil {
-		return nil
+	agent, ok := r.agentsCache.LoadAndDelete(pmmAgentID)
+	if !ok {
+		return zero
 	}
 
-	delete(r.agents, pmmAgentID)
 	r.roster.clear(pmmAgentID)
 
 	// Only persist connection status when HA is enabled
@@ -420,7 +444,7 @@ func (r *Registry) unregister(ctx context.Context, pmmAgentID, disconnectReason 
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
 // Returns true if pong is received, false if there is no pong or error occurred.
-func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
+func (r *Registry) ping(ctx context.Context, agent pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
 	resp, err := agent.channel.SendAndWaitResponse(&agentv1.Ping{})
@@ -443,7 +467,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 }
 
 // addOrRemoveVMAgent - creates vmAgent agentType if pmm-agent's version supports it and agent does not exist yet,
-// otherwise ensures that vmAgent does not start for pmm-agent when pmm-agent's agents don't have push_metrics mode,
+// otherwise ensures that vmAgent does not start for pmm-agent when pmm-agent's agentsCache don't have push_metrics mode,
 // removes it if needed.
 func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
 	return r.addVMAgentToPMMAgent(q, pmmAgentID, runsOnNodeID)
@@ -495,7 +519,7 @@ func (r *Registry) addNomadAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOn
 // Kick unregisters and forcefully disconnects pmm-agent with given ID.
 func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	agent := r.unregister(ctx, pmmAgentID, "kick")
-	if agent == nil {
+	if agent.id == "" {
 		return
 	}
 
@@ -509,12 +533,54 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	// closing agent.kickChan is enough to exit runStateChangeHandler goroutine.
 }
 
-func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
-	r.rw.RLock()
-	pmmAgent := r.agents[pmmAgentID]
-	r.rw.RUnlock()
-	if pmmAgent == nil {
-		return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s is not currently connected", pmmAgentID)
+// kickMatchingConnection removes and kicks only the expected connection instance.
+func (r *Registry) kickMatchingConnection(ctx context.Context, pmmAgentID string, currentAgent pmmAgentInfo) bool {
+	agent, ok := r.agentsCache.CompareAndDelete(pmmAgentID, func(cached pmmAgentInfo) bool {
+		return cached.channel == currentAgent.channel && cached.kickChan == currentAgent.kickChan
+	})
+	if !ok {
+		return false
+	}
+
+	r.mDisconnects.WithLabelValues("kick").Inc()
+	r.roster.clear(pmmAgentID)
+
+	if r.haService.Params().Enabled {
+		l := logger.Get(ctx)
+		err := r.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			a, err := models.FindAgentByID(tx.Querier, pmmAgentID)
+			if err != nil {
+				if status.Code(err) == codes.NotFound {
+					return nil
+				}
+				return fmt.Errorf("failed to find agent: %w", err)
+			}
+			a.IsConnected = false
+			err = tx.Update(a)
+			if err != nil {
+				return fmt.Errorf("failed to update agent: %w", err)
+			}
+			return nil
+		})
+		if err != nil {
+			l.Errorf("Failed to update the connection status for agent %s: %v", pmmAgentID, err)
+		}
+
+		r.cacheMu.Lock()
+		delete(r.connectionCache, pmmAgentID)
+		r.cacheMu.Unlock()
+	}
+
+	close(agent.kickChan)
+
+	return true
+}
+
+func (r *Registry) get(pmmAgentID string) (pmmAgentInfo, error) {
+	pmmAgent, ok := r.agentsCache.Load(pmmAgentID)
+	if !ok {
+		var zero pmmAgentInfo
+		return zero, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %s is not currently connected", pmmAgentID)
 	}
 	return pmmAgent, nil
 }
@@ -530,17 +596,27 @@ func (r *Registry) Describe(ch chan<- *prom.Desc) {
 
 // Collect implement prometheus.Collector.
 func (r *Registry) Collect(ch chan<- prom.Metric) {
-	r.rw.RLock()
-
-	for _, agent := range r.agents {
-		m := agent.channel.Metrics()
-
-		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, m.Sent, agent.id)
-		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, m.Recv, agent.id)
-		ch <- prom.MustNewConstMetric(mResponsesDesc, prom.GaugeValue, m.Responses, agent.id)
-		ch <- prom.MustNewConstMetric(mRequestsDesc, prom.GaugeValue, m.Requests, agent.id)
+	type agentMetricsSnapshot struct {
+		id      string
+		metrics channel.Metrics
 	}
-	r.rw.RUnlock()
+
+	snapshots := make([]agentMetricsSnapshot, 0, int(r.agentsCache.Size()))
+	for _, agent := range r.agentsCache.IterAll() {
+		metrics := agent.channel.Metrics()
+		snapshots = append(snapshots, agentMetricsSnapshot{
+			id:      agent.id,
+			metrics: *metrics,
+		})
+	}
+
+	for i := range snapshots {
+		s := snapshots[i]
+		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, s.metrics.Sent, s.id)
+		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, s.metrics.Recv, s.id)
+		ch <- prom.MustNewConstMetric(mResponsesDesc, prom.GaugeValue, s.metrics.Responses, s.id)
+		ch <- prom.MustNewConstMetric(mRequestsDesc, prom.GaugeValue, s.metrics.Requests, s.id)
+	}
 
 	r.mAgents.Collect(ch)
 	r.mConnects.Collect(ch)
@@ -551,8 +627,14 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 
 // KickAll sends a signal to all registered agents in the registry to perform a kick action.
 func (r *Registry) KickAll(ctx context.Context) {
-	for _, agentInfo := range r.agents {
-		r.Kick(ctx, agentInfo.id)
+	ids := make([]string, 0, int(r.agentsCache.Size()))
+	for _, agentInfo := range r.agentsCache.IterAll() {
+		// NOTE: Can't call Kick() inside `for r.agentsCache.All()` loop.
+		ids = append(ids, agentInfo.id)
+	}
+
+	for _, id := range ids {
+		r.Kick(ctx, id)
 	}
 }
 
