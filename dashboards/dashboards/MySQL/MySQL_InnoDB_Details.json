@@ -1496,7 +1496,7 @@
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
-                            "legendFormat": "Rows {{ operation }}",
+                            "legendFormat": "Rows",
                             "metric": "",
                             "refId": "A",
                             "step": 300
