@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".storybook/static/logo-peak-ui-dark.svg" />
-  <img src=".storybook/static/logo-peak-ui.svg" alt="Peak UI" height="37" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/percona/peak-ui/main/.storybook/static/logo-peak-ui-dark.svg" />
+  <img src="https://raw.githubusercontent.com/percona/peak-ui/main/.storybook/static/logo-peak-ui.svg" alt="Peak UI" height="37" />
 </picture>
 
 # Peak UI
