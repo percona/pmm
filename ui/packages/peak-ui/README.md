@@ -1,6 +1,11 @@
-# Peak Design
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/percona/peak-ui/main/.storybook/static/logo-peak-ui-dark.svg" />
+  <img src="https://raw.githubusercontent.com/percona/peak-ui/main/.storybook/static/logo-peak-ui.svg" alt="Peak UI" height="37" />
+</picture>
 
-Peak Design (`@percona/peak-ui`) is Percona's React component library built on top of [MUI v7](https://mui.com/). It provides themed UI components, design tokens, and [react-hook-form](https://react-hook-form.com/)-integrated form inputs for Percona products, with theme variants, such as PMM (for Percona Monitoring and Management native UI).
+# Peak UI
+
+Peak UI (`@percona/peak-ui`) is Percona's React component library built on top of [MUI v7](https://mui.com/). It provides themed UI components, design tokens, and [react-hook-form](https://react-hook-form.com/)-integrated form inputs for Percona products, with theme variants, such as PMM (for Percona Monitoring and Management native UI).
 
 Browse the components in [Storybook](https://percona.github.io/peak-ui/).
 

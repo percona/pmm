@@ -62,7 +62,7 @@ export const badgeStyle = (colors: MaturityTagColors, context: BadgeContext) => 
   fontSize: FONT_SIZE[context],
   fontWeight: 600,
   textTransform: "uppercase" as const,
-  padding: "0.125em 0.375em",
+  padding: "0.25em 0.375em",
   borderRadius: "999px",
   letterSpacing: "0.0625em",
   lineHeight: 1,

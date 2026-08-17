@@ -26,7 +26,7 @@ interface IllustrationEntry {
   keywords: string;
 }
 
-// Add new Peak Design illustrations here as they are created.
+// Add new Peak UI illustrations here as they are created.
 const illustrations: IllustrationEntry[] = [
   {
     component: RealTimeDatabaseOffIllustration,
