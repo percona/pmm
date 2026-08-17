@@ -657,7 +657,7 @@ func TestRemoveStaleHANode(t *testing.T) {
 			return models.RemoveStaleHANode(tx.Querier, "ha-node-2")
 		}))
 
-		// what a replica sees when another one won the race; RemoveStaleHANodes reads this as
+		// what a replica sees when another one won the race; removeStaleHANodes reads this as
 		// "already removed by another replica" rather than as a failure
 		err := db.InTransaction(func(tx *reform.TX) error {
 			return models.RemoveStaleHANode(tx.Querier, "ha-node-2")

@@ -238,6 +238,9 @@ type AgentFilters struct {
 }
 
 // FindAgents returns Agents by filters.
+//
+// An empty PMMAgentIDs matches every Agent, not none. An unknown PMMAgentID fails with NotFound; an
+// unknown ID in PMMAgentIDs returns an empty result.
 func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	var conditions []string
 	var args []any
