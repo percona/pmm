@@ -110,6 +110,7 @@ export const wrapWithSettings = (
         backupManagementEnabled: false,
         azurediscoverEnabled: false,
         enableAccessControl: false,
+        updateSnoozeDuration: '10s',
         ...props?.settings,
         frontend: {
           anonymousEnabled: false,

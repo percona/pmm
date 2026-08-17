@@ -2,17 +2,41 @@ import { useUpdates } from 'contexts/updates';
 import { useUser } from 'contexts/user';
 import { useUpdateUserInfo } from './api/useUser';
 import { useCallback, useMemo } from 'react';
-import { isUpdateSnoozeActive } from './updates.utils';
+import { useSettings } from 'contexts/settings';
+import { parseDuration } from 'utils/duration.utils';
+import { diffFromNow } from 'utils/datetime.utils';
+import { SHOW_UPDATE_MODAL_AFTER_MS } from 'lib/constants';
 
 export const useSnooze = () => {
+  const { settings } = useSettings();
   const { versionInfo } = useUpdates();
   const { user } = useUser();
   const { mutateAsync } = useUpdateUserInfo();
   const latest = versionInfo?.latest || null;
-  const snoozeActive = useMemo(
-    () => isUpdateSnoozeActive(latest, user?.info ?? null),
-    [latest, user]
-  );
+  const snoozeActive = useMemo(() => {
+    if (!latest || !user || !settings) {
+      return true;
+    }
+
+    if (
+      latest?.timestamp &&
+      diffFromNow(latest.timestamp) < SHOW_UPDATE_MODAL_AFTER_MS
+    ) {
+      return true;
+    }
+
+    if (
+      latest.version !== user.info.snoozedPmmVersion ||
+      !user.info.snoozedAt
+    ) {
+      return false;
+    }
+
+    return (
+      diffFromNow(user.info.snoozedAt) <=
+      parseDuration(settings.updateSnoozeDuration ?? '')
+    );
+  }, [latest, user, settings]);
 
   const snoozeUpdate = useCallback(async () => {
     if (!latest) {
