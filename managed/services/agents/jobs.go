@@ -148,8 +148,11 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error { //no
 		return ctx.Err()
 	}
 
+	// The job entry points below take no context yet, so they cannot be given this one.
+	// Threading it through the jobsService interface is a separate change.
 	switch job.Type {
 	case models.MySQLBackupJob:
+		//nolint:contextcheck
 		err := s.StartMySQLBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig, locationConfig, artifact.Folder)
 		if err != nil {
 			return err
@@ -160,6 +163,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error { //no
 			return err
 		}
 
+		//nolint:contextcheck
 		err = s.StartMongoDBBackupJob(service, job.ID, job.PMMAgentID, job.Timeout, artifact.Name,
 			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, artifact.Folder)
 		if err != nil {
@@ -434,7 +438,7 @@ func (s *JobsService) StartMySQLBackupJob(
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.channel.SendAndWaitResponse(context.TODO(), req)
 	if err != nil {
 		return err
 	}
@@ -526,7 +530,7 @@ func (s *JobsService) StartMongoDBBackupJob(
 		return err
 	}
 
-	resp, err := agentInfo.channel.SendAndWaitResponse(req)
+	resp, err := agentInfo.channel.SendAndWaitResponse(context.TODO(), req)
 	if err != nil {
 		return err
 	}
@@ -577,7 +581,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agent.channel.SendAndWaitResponse(context.TODO(), req)
 	if err != nil {
 		return err
 	}
@@ -678,7 +682,7 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		return err
 	}
 
-	resp, err := agentInfo.channel.SendAndWaitResponse(req)
+	resp, err := agentInfo.channel.SendAndWaitResponse(context.TODO(), req)
 	if err != nil {
 		return err
 	}
@@ -769,7 +773,7 @@ func (s *JobsService) restartSystemService(agentID string, service agentv1.Start
 	if err != nil {
 		return fmt.Errorf("failed to get information about PMM agent %s: %w", agentID, err)
 	}
-	_, err = agent.channel.SendAndWaitResponse(req)
+	_, err = agent.channel.SendAndWaitResponse(context.TODO(), req)
 	if err != nil {
 		return fmt.Errorf("failed to restart %s on agent %s: %w", service, agentID, err)
 	}
@@ -793,7 +797,7 @@ func (s *JobsService) StopJob(jobID string) error {
 		return err
 	}
 
-	_, err = agent.channel.SendAndWaitResponse(&agentv1.StopJobRequest{JobId: jobID})
+	_, err = agent.channel.SendAndWaitResponse(context.TODO(), &agentv1.StopJobRequest{JobId: jobID})
 
 	return err
 }
