@@ -202,11 +202,6 @@ export const NAV_MONGO: NavItem = {
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-collections-overview/mongodb-collections-overview`,
     },
     {
-      id: 'mongo-unused-indexes',
-      text: 'Unused indexes',
-      url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-unused-indexes/mongodb-unused-indexes`,
-    },
-    {
       id: 'mongo-oplog-details',
       text: 'Oplog',
       url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/mongodb-oplog-details/mongodb-oplog-details`,
