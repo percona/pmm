@@ -56,31 +56,41 @@ type probeSource struct {
 // convention every SEP app follows. Paths passed around below are relative to it.
 const probeAppPath = "api/apps/pom_discovery"
 
+// probeServicesPath is the app's estate, flat. /hosts nests the same service rows
+// under their host and carries host-level attributes besides, which this source has
+// nothing to do with: the document it feeds is keyed by service.
+const probeServicesPath = "services"
+
 func (probeSource) key() string { return sourceProbe }
 
-// probeFactsResponse is the app's GET /facts contract.
-type probeFactsResponse struct {
-	RunID      string  `json:"run_id"`
-	Status     string  `json:"status"`
-	ObservedAt *string `json:"observed_at"`
-	AgeSeconds float64 `json:"age_seconds"`
-	Stale      bool    `json:"stale"`
-	Error      string  `json:"error"`
-	Facts      []struct {
-		ServiceID  string    `json:"service_id"`
-		Field      string    `json:"field"`
-		Value      any       `json:"value"`
-		ObservedAt time.Time `json:"observed_at"`
-	} `json:"facts"`
+// probeService is one row of the app's GET /services contract.
+//
+// The app used to serve a flat fact list at GET /facts, assembled per sweep. It now
+// keeps an estate -- a row per host and a row per service, upserted -- and the facts
+// this source wants are the `observed` document on the service row. Reading the
+// estate rather than the last sweep's output is what makes a service that has not
+// been probed for a week still carry what it was running a week ago, with a timestamp
+// saying so, instead of vanishing when a sweep misses it.
+type probeService struct {
+	ServiceID string         `json:"service_id"`
+	NodeID    string         `json:"node_id"`
+	Name      string         `json:"name"`
+	Observed  map[string]any `json:"observed"`
+
+	// LastSuccessAt is the age of everything in Observed. Null means this service has
+	// never answered a probe, which is different from having answered nothing.
+	LastSuccessAt *time.Time `json:"last_success_at"`
+	// FailingSince is the *first* failure after the last success, so it says "failing
+	// for three days" rather than "failed a minute ago".
+	FailingSince        *time.Time `json:"failing_since"`
+	ConsecutiveFailures int        `json:"consecutive_failures"`
+	LastError           string     `json:"last_error"`
 }
 
-// The sweep statuses the app reports. Its own conclusion about the work, which is a
-// different question from whether this source could read it.
-const (
-	sweepSuccess = "success"
-	sweepPartial = "partial"
-	sweepFailed  = "failed"
-)
+// observedCollectedAt is the key the app stamps on every document it stores. It is
+// metadata about the document rather than a fact about the service, so it is used for
+// the timestamp and never emitted as a field.
+const observedCollectedAt = "collected_at"
 
 // probeRequestTimeout bounds the pull.
 //
@@ -109,91 +119,134 @@ func (s probeSource) collect(ctx context.Context, services []*models.Service) So
 			Source: sourceProbe,
 			Status: SourceFailed,
 			Errors: []RunError{{Scope: "source", Code: "probe_fetch_failed", Message: err.Error()}},
-			Detail: map[string]any{"endpoint": s.endpoint("facts")},
+			Detail: map[string]any{"endpoint": s.endpoint(probeServicesPath)},
 		}
 	}
 
-	covered := make(map[string]bool)
-	unknown := 0
-	for _, fact := range answer.Facts {
+	var (
+		covered  = make(map[string]bool)
+		unknown  int
+		failing  int
+		oldest   float64
+		failures []string
+	)
+	now := time.Now()
+
+	for _, service := range answer {
 		// A service the app knows and this PMM does not is not an error: the app reads
 		// its own inventory, which can be a moment ahead or behind. Counting them is
 		// enough -- merging them would put facts in the document for services it has no
 		// row for.
-		if !known[fact.ServiceID] {
+		if !known[service.ServiceID] {
 			unknown++
 			continue
 		}
-		observedAt := fact.ObservedAt
-		covered[fact.ServiceID] = true
-		result.Facts = append(result.Facts, Fact{
-			Service:    fact.ServiceID,
-			Field:      fact.Field,
-			Value:      fact.Value,
-			Source:     sourceProbe,
-			ObservedAt: &observedAt,
-		})
+
+		if service.FailingSince != nil {
+			failing++
+			if len(failures) < probeFailuresReported {
+				failures = append(failures, service.failureSummary())
+			}
+		}
+
+		observedAt := service.observedAt()
+		if observedAt == nil || len(service.Observed) == 0 {
+			// Seen but never successfully probed. Not covered, and not a fact.
+			continue
+		}
+		covered[service.ServiceID] = true
+		if age := now.Sub(*observedAt).Seconds(); age > oldest {
+			oldest = age
+		}
+
+		for field, value := range service.Observed {
+			if field == observedCollectedAt {
+				continue
+			}
+			at := *observedAt
+			result.Facts = append(result.Facts, Fact{
+				Service:    service.ServiceID,
+				Field:      field,
+				Value:      value,
+				Source:     sourceProbe,
+				ObservedAt: &at,
+			})
+		}
 	}
 
-	// The app's own conclusion is part of the answer, not a detail. A reachable app
-	// whose last sweep failed has told us something went wrong on the probe side, and
-	// reporting that as "ok, 0 facts" reads as "there is nothing to probe here" --
-	// which is the opposite of what happened.
-	switch strings.ToLower(answer.Status) {
-	case "":
-		// No sweep has ever completed. The app is installed and has not run yet, which
-		// is a normal state and not anybody's failure.
+	// The estate's own condition is part of the answer, not a detail. Every service
+	// failing its probe means something is wrong on the probe side, and reporting that
+	// as "ok, 0 facts" reads as "there is nothing to probe here" -- the opposite of
+	// what happened.
+	switch {
+	case len(services) == 0:
+		// Nothing to cover. Not this source's failure, and not a partial answer.
 		result.Status = SourceOK
-	case sweepFailed:
+	case len(covered) == 0 && failing > 0:
 		result.Status = SourceFailed
 		result.Errors = append(result.Errors, RunError{
 			Scope:   "source",
-			Code:    "probe_sweep_failed",
-			Message: sweepFailureMessage(answer),
+			Code:    "probe_all_failing",
+			Message: fmt.Sprintf("no service answered its probe: %s", strings.Join(failures, "; ")),
 		})
-	case sweepPartial:
+	case len(covered) < len(services):
+		// The usual steady state, and not an alarm: a service whose node runs no
+		// healthy executor is a fact about the estate rather than a failure here.
 		result.Status = SourcePartial
-	case sweepSuccess:
-		// The sweep is happy with itself; whether it covered this PMM's estate is a
-		// separate question, and one only this side can answer.
-		if len(covered) < len(services) {
-			result.Status = SourcePartial
-		} else {
-			result.Status = SourceOK
-		}
 	default:
-		// A status this side does not know. Not worth claiming ok over -- the app has
-		// concluded something we cannot interpret.
-		s.l.Warnf("probe source: unrecognised sweep status %q", answer.Status)
-		result.Status = SourcePartial
+		result.Status = SourceOK
 	}
 
 	result.Detail = map[string]any{
-		"endpoint":         s.endpoint("facts"),
-		"sweep_error":      answer.Error,
-		"run_id":           answer.RunID,
-		"run_status":       answer.Status,
-		"age_seconds":      int(answer.AgeSeconds),
-		"stale":            answer.Stale,
-		"services":         len(services),
-		"services_covered": len(covered),
-		"services_unknown": unknown,
-		"facts":            len(result.Facts),
+		"endpoint":           s.endpoint(probeServicesPath),
+		"services":           len(services),
+		"services_covered":   len(covered),
+		"services_unknown":   unknown,
+		"services_failing":   failing,
+		"oldest_age_seconds": int(oldest),
+		"facts":              len(result.Facts),
 	}
-	s.l.Infof("probe source: %d/%d service(s) covered by run %s (%s, %ds old)",
-		len(covered), len(services), answer.RunID, answer.Status, int(answer.AgeSeconds))
+	s.l.Infof("probe source: %d/%d service(s) covered, %d failing, oldest %ds",
+		len(covered), len(services), failing, int(oldest))
 	return result
 }
 
-// sweepFailureMessage explains a failed sweep in the run's own receipt.
+// probeFailuresReported bounds how many failures reach the run receipt.
 //
-// The app's error is included when it sent one, so a reader is told the cause here
-// rather than having to go and ask the other service what went wrong.
-func sweepFailureMessage(answer *probeFactsResponse) string {
-	if answer.Error != "" {
-		return fmt.Sprintf("sweep %s failed: %s", answer.RunID, answer.Error)
+// A whole estate failing the same way produces one message per service, and the
+// receipt is meant to be read. The count is reported in full either way.
+const probeFailuresReported = 3
+
+// observedAt is when this service's document was collected.
+//
+// last_success_at is authoritative because the app maintains it; the document's own
+// collected_at is the fallback for a row written before that column carried a value.
+func (p probeService) observedAt() *time.Time {
+	if p.LastSuccessAt != nil {
+		return p.LastSuccessAt
 	}
-	return fmt.Sprintf("sweep %s failed with no reason recorded", answer.RunID)
+	stamp, ok := p.Observed[observedCollectedAt].(string)
+	if !ok {
+		return nil
+	}
+	parsed, err := time.Parse(time.RFC3339, stamp)
+	if err != nil {
+		return nil
+	}
+	return &parsed
+}
+
+// failureSummary explains one failing service in the run's own receipt, so a reader is
+// told the cause here rather than having to go and ask the other service.
+func (p probeService) failureSummary() string {
+	name := p.Name
+	if name == "" {
+		name = p.ServiceID
+	}
+	if p.LastError == "" {
+		return fmt.Sprintf("%s failing since %s", name, p.FailingSince.Format(time.RFC3339))
+	}
+	return fmt.Sprintf("%s: %s", name, p.LastError)
 }
 
 // endpoint builds an absolute URL for a path relative to the discovery app.
@@ -201,12 +254,12 @@ func (s probeSource) endpoint(path string) string {
 	return strings.TrimSuffix(s.sepURL, "/") + "/" + probeAppPath + "/" + strings.TrimPrefix(path, "/")
 }
 
-// fetch reads the app's stored facts.
-func (s probeSource) fetch(ctx context.Context) (*probeFactsResponse, error) {
+// fetch reads the app's service estate.
+func (s probeSource) fetch(ctx context.Context) ([]probeService, error) {
 	ctx, cancel := context.WithTimeout(ctx, probeRequestTimeout)
 	defer cancel()
 
-	url := s.endpoint("facts")
+	url := s.endpoint(probeServicesPath)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build the request: %w", err)
@@ -225,8 +278,8 @@ func (s probeSource) fetch(ctx context.Context) (*probeFactsResponse, error) {
 		return nil, fmt.Errorf("GET %s: unexpected status %s", url, resp.Status)
 	}
 
-	answer := &probeFactsResponse{}
-	if err := json.NewDecoder(resp.Body).Decode(answer); err != nil { //nolint:noinlineerr
+	answer := []probeService{}
+	if err := json.NewDecoder(resp.Body).Decode(&answer); err != nil { //nolint:noinlineerr
 		return nil, fmt.Errorf("GET %s: failed to decode the response: %w", url, err)
 	}
 	return answer, nil
