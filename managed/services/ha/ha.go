@@ -52,14 +52,15 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (
 		return &hav1beta1.ListNodesResponse{Nodes: []*hav1beta1.HANode{}}, nil
 	}
 
+	// Default to 1 for single-node deployment where no peers are configured.
+	expectedNodes := max(len(s.service.params.Nodes), 1)
+
 	s.service.rw.RLock()
 	memberlist := s.service.memberlist
 	raftNode := s.service.raftNode
 	s.service.rw.RUnlock()
 
 	if memberlist == nil {
-		// Not yet initialized (e.g., during startup): fall back to the configured peer count.
-		expectedNodes := max(len(s.service.params.Nodes), 1)
 		return &hav1beta1.ListNodesResponse{
 			Nodes:         []*hav1beta1.HANode{},
 			ExpectedNodes: int32(expectedNodes), //nolint:gosec
@@ -84,11 +85,6 @@ func (s *HAServer) ListNodes(_ context.Context, _ *hav1beta1.ListNodesRequest) (
 			Status:   status,
 		})
 	}
-
-	// Reflects live cluster membership, not the static peer list captured at
-	// startup, so it stays accurate after resize operations (e.g. kubectl scale)
-	// that don't recreate every pod with an updated PMM_HA_PEERS.
-	expectedNodes := max(len(members), 1)
 
 	return &hav1beta1.ListNodesResponse{
 		Nodes:         nodes,

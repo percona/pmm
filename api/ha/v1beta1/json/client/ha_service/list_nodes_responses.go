@@ -421,7 +421,7 @@ type ListNodesOKBody struct {
 	// List of nodes in the HA cluster.
 	Nodes []*ListNodesOKBodyNodesItems0 `json:"nodes"`
 
-	// Expected number of nodes in the cluster, based on live cluster membership.
+	// Expected number of nodes in the cluster
 	ExpectedNodes int32 `json:"expected_nodes,omitempty"`
 }
 

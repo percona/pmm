@@ -5263,9 +5263,9 @@
                   "x-order": 0
                 },
                 "expected_nodes": {
-                  "description": "Expected number of nodes in the cluster, based on live cluster membership.",
                   "type": "integer",
                   "format": "int32",
+                  "title": "Expected number of nodes in the cluster",
                   "x-order": 1
                 }
               }
