@@ -68,7 +68,13 @@ export function SchemaSelector({
     | null
     | undefined;
   const parentText = typeof parent === 'string' ? parent.trim() : '';
-  const parentIsCustom = Boolean(allowCustom) && parentText !== '';
+  // A numeric-string parent (e.g. a stringified inventory id persisted in an
+  // edit form's stored body, like `"7"`) is an inventory reference, not a
+  // free-typed custom host. Treating it as an id lets the dependent options
+  // load so the child value renders as a name rather than raw digits.
+  const parentIsNumericId = /^\d+$/.test(parentText);
+  const parentIsCustom =
+    Boolean(allowCustom) && parentText !== '' && !parentIsNumericId;
   const serviceId = parentIsCustom ? null : extractId(parent);
   // A parent that resolves to no inventory id but holds a non-empty string is a
   // free-typed (custom) parent value, not an absent one. A free-solo child can

@@ -22,23 +22,8 @@ type Schemas = SepComponents['schemas'];
 // ── Category browser ─────────────────────────────────────────────────────
 
 export interface AtwSnippetSummary {
-  /** Snippet filename; use with snippets app API path helpers. */
+  /** Snippet filename; the identity the batch-execute payload sends. */
   name: string;
-  title: string;
-  description: string;
-}
-
-// ── Snippet search ───────────────────────────────────────────────────────
-
-/**
- * The subset of a snippets-app list row the picker consumes.
- *
- * The endpoint's `SnippetResponse` carries more (service type, approval state,
- * digests), but the picker needs only what it labels an option with, plus the
- * filename — which is the identity the batch-execute payload sends.
- */
-export interface AtwSnippetSearchRow {
-  filename: string;
   title: string;
   description: string;
 }

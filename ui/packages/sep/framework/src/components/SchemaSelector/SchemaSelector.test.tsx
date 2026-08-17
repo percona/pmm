@@ -275,10 +275,18 @@ describe('SchemaSelector', () => {
       );
     });
 
-    it('treats a numeric custom parent string as custom (not an inventory id)', async () => {
+    it('treats a numeric parent string as an inventory id and loads its schemas', async () => {
+      // On edit, reference ids are persisted as strings (e.g. `"42"`); the
+      // dependent selector must resolve them to inventory ids and fetch, not
+      // mistake them for a free-typed custom host.
+      mocked.get.mockResolvedValue({
+        data: [
+          { id: 10, name: 'app_prod' },
+          { id: 11, name: 'analytics' },
+        ],
+      });
       const client = makeClient();
-      const user = userEvent.setup();
-      function NumericCustomParentProbe() {
+      function NumericParentProbe() {
         const methods = useForm<{ service: unknown; schema: unknown }>({
           defaultValues: { service: '42', schema: null },
         });
@@ -298,16 +306,53 @@ describe('SchemaSelector', () => {
       }
       render(
         <Wrapper client={client}>
-          <NumericCustomParentProbe />
+          <NumericParentProbe />
         </Wrapper>
       );
-      const input = screen.getByLabelText('Schema');
-      expect(input).not.toBeDisabled();
-      expect(mocked.get).not.toHaveBeenCalled();
-      await user.type(input, 'custom_schema');
-      expect(screen.getByTestId('schema-value').textContent).toBe(
-        '"custom_schema"'
+      expect(screen.getByLabelText('Schema')).not.toBeDisabled();
+      await waitFor(() =>
+        expect(mocked.get).toHaveBeenCalledWith('/sep/services/42/schemas')
       );
+    });
+
+    it('resolves a stringified child schema id to its option name on edit', async () => {
+      // Reproduces the edit-form bug: both parent (service) and child (schema)
+      // come back as stringified ids; the child must render as the schema name,
+      // not the raw id, and must not be wiped by the parent-change reset.
+      mocked.get.mockResolvedValue({
+        data: [
+          { id: 10, name: 'app_prod' },
+          { id: 11, name: 'analytics' },
+        ],
+      });
+      const client = makeClient();
+      function EditProbe() {
+        const methods = useForm<{ service: unknown; schema: unknown }>({
+          defaultValues: { service: '7', schema: '11' },
+        });
+        return (
+          <FormProvider {...methods}>
+            <SchemaSelector
+              name="schema"
+              label="Schema"
+              dependsOn="service"
+              allowCustom
+            />
+            <output data-testid="schema-value">
+              {JSON.stringify(methods.watch('schema'))}
+            </output>
+          </FormProvider>
+        );
+      }
+      render(
+        <Wrapper client={client}>
+          <EditProbe />
+        </Wrapper>
+      );
+      await waitFor(() =>
+        expect(screen.getByLabelText('Schema')).toHaveValue('analytics')
+      );
+      expect(screen.getByTestId('schema-value').textContent).toBe('11');
     });
 
     it('clears child value when parent custom value changes', async () => {

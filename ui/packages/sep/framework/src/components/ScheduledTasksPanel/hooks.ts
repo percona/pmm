@@ -16,24 +16,10 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  apiClient,
-  usePluginTasks,
-  type TaskHistoryStatus,
-  type TasksComponents,
-} from '@sep/api';
+import { apiClient, usePluginTasks, type TasksComponents } from '@sep/api';
 
-/**
- * STUB (backend-assumed): `last_run_status` is served by the periodic-task API
- * (SEP-1607) but is not yet in PMM's committed OpenAPI spec, so it is layered
- * on here. Drop this intersection once `specs/tasks.json` is regenerated with
- * the field.
- */
 export type PeriodicTaskResponse =
-  TasksComponents['schemas']['PeriodicTaskResponse'] & {
-    /** Last-run outcome; null when never run or unresolved (see LastRunStatus). */
-    last_run_status?: TaskHistoryStatus | null;
-  };
+  TasksComponents['schemas']['PeriodicTaskResponse'];
 export type PeriodicTaskCreate =
   TasksComponents['schemas']['PeriodicTaskCreate'];
 export type PeriodicTaskUpdate =
