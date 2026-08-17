@@ -27,7 +27,7 @@ message HANode {
 message ListNodesResponse {
   // List of nodes in the HA cluster.
   repeated HANode nodes = 1;
-  // Expected number of nodes in the cluster
+  // Expected number of nodes in the cluster, based on live cluster membership.
   int32 expected_nodes = 2;
 }
 

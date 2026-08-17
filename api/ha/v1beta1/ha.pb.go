@@ -178,7 +178,7 @@ type ListNodesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// List of nodes in the HA cluster.
 	Nodes []*HANode `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
-	// Expected number of nodes in the cluster
+	// Expected number of nodes in the cluster, based on live cluster membership.
 	ExpectedNodes int32 `protobuf:"varint,2,opt,name=expected_nodes,json=expectedNodes,proto3" json:"expected_nodes,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
