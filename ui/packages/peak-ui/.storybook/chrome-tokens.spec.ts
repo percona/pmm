@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
   primitives,
@@ -9,6 +10,7 @@ import {
 } from '../src/design/themes/base/BaseTheme';
 import { CHROME } from './chrome-tokens';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const staticDir = join(__dirname, 'static');
 const read = (name: string) => readFileSync(join(staticDir, name), 'utf8');
 const colorsIn = (svg: string) =>
