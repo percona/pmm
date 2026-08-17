@@ -1,3 +1,4 @@
+# shellcheck disable=SC2034
 bin_dir=$(cd $(dirname $0); pwd -P)
 # NOTE: in most cases, `root_dir` evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
 root_dir_tmp=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
@@ -15,7 +16,7 @@ OS_VARIANT=${OS_VARIANT:-ol8}
 # * pmm_release to contain only pre-release part (can be empty): 'alpha3'.
 pmm_branch=$(git rev-parse --abbrev-ref HEAD)
 
-pmm_base_version=$(cat ${root_dir}/VERSION)
+pmm_base_version=$(< "${root_dir}/VERSION")
 full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
@@ -24,8 +25,8 @@ if [[ ${pmm_branch} =~ pmm-3.* || ${pmm_branch} == "main" ]]; then
     full_pmm_version=${pmm_base_version}
 fi
 
-new_pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
-new_pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
+new_pmm_version=$(awk -F'-' '{print $1}' < "${root_dir}/VERSION")
+new_pmm_release=$(awk -F'-' '{print $2}' < "${root_dir}/VERSION")
 
 # Failsafe during refactoring - check that we did not redefine pmm_version in some other script
 if [ -n "${pmm_version}" ] && [ "${new_pmm_version}" != "${pmm_version}" ]; then
@@ -40,10 +41,6 @@ unset new_pmm_release
 echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release}\n\n\n"
 
 rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:3}
-# Support for Hetzner-based builds
-if [ "${USE_HETZNER_BUILD:-}" = "1" ]; then
-    rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-perconalab/rpmbuild:3-hetzner}
-fi
 rpms_dir=${root_dir}/tmp/pmm-server/RPMS
 rpmbuild_dir=${root_dir}/sources/pmm/src/github.com/percona/pmm/build/packages/rpm/server
 rpmbuild_dist=${RPMBUILD_DIST:-"el9"}
