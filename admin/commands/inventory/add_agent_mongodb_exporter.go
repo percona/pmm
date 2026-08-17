@@ -76,7 +76,7 @@ type AddAgentMongodbExporterCommand struct {
 	CollectionsLimit               int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
 	EnableDiagnosticDataHistograms bool              `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
 	ConnectionTimeout              *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
-	AgentEnvVars                   []string          `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from the current environment), e.g. 'VAR1,VAR2'"`
+	AgentEnvVars                   []string          `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from pmm-agent's environment), e.g. 'VAR1,VAR2'"`
 }
 
 // RunCmd executes the AddAgentMongodbExporterCommand and returns the result.
