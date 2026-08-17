@@ -1262,13 +1262,15 @@
             {
                 "allValue": ".*",
                 "current": {
-                    "text": "All",
+                    "text": [
+                        "pdpgsql_replication_cluster"
+                    ],
                     "value": [
-                        "$__all"
+                        "pdpgsql_replication_cluster"
                     ]
                 },
                 "definition": "label_values(pg_up,cluster)",
-                "includeAll": true,
+                "includeAll": false,
                 "label": "Cluster",
                 "multi": true,
                 "name": "cluster",
