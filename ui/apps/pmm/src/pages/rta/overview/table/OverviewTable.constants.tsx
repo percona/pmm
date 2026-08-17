@@ -44,9 +44,8 @@ export const OVERVIEW_TABLE_COLUMNS: MRT_ColumnDef<QueryData>[] = [
     accessorKey: 'queryExecutionDurationMs',
     filterVariant: 'range',
     filterFn: 'timeRangeFilterFn',
-    muiFilterTextFieldProps: {
-      type: 'text',
-      inputProps: { inputMode: 'decimal' },
+    muiTableHeadCellFilterTextFieldProps: {
+      inputProps: { step: 0.25, type: 'number' },
     },
     Cell: ({ cell }) =>
       cell.getValue() ? (

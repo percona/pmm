@@ -1,16 +1,11 @@
-import React, {
-  FC, useEffect, useMemo, useRef,
-} from 'react';
+import React, { FC } from 'react';
 import { Field, Form } from 'react-final-form';
 import {
   Button, Icon, Input, useTheme,
 } from '@grafana/ui';
-import { debounce } from 'lodash';
 import { Messages } from 'pmm-qan/panel/QueryAnalytics.messages';
 import { getStyles } from './Search.styles';
-import { SearchProps, SearchValues } from './Search.types';
-
-const SEARCH_DEBOUNCE_MS = 300;
+import { SearchProps } from './Search.types';
 
 export const Search: FC<SearchProps> = ({ dataTestId, initialValue, handleSearch }) => {
   const theme = useTheme();
@@ -18,44 +13,17 @@ export const Search: FC<SearchProps> = ({ dataTestId, initialValue, handleSearch
   const {
     search: { placeholder },
   } = Messages;
-  const handleSearchRef = useRef(handleSearch);
-
-  handleSearchRef.current = handleSearch;
-
-  const debouncedSearch = useMemo(
-    () => debounce((search: string) => {
-      handleSearchRef.current({ search });
-    }, SEARCH_DEBOUNCE_MS),
-    [],
-  );
-
-  useEffect(() => () => {
-    debouncedSearch.cancel();
-  }, [debouncedSearch]);
-
-  const onSubmit = (values: SearchValues) => {
-    debouncedSearch.cancel();
-    handleSearch(values);
-  };
 
   return (
     <Form
-      onSubmit={onSubmit}
+      onSubmit={handleSearch}
       initialValues={{ search: initialValue }}
       render={({ handleSubmit }) => (
         <form onSubmit={handleSubmit} className={styles.searchWrapper} data-testid={dataTestId}>
           <Field
             name="search"
             render={({ input }) => (
-              <Input
-                {...input}
-                placeholder={placeholder}
-                className={styles.searchInput}
-                onChange={(event) => {
-                  input.onChange(event);
-                  debouncedSearch(event.currentTarget.value);
-                }}
-              />
+              <Input {...input} placeholder={placeholder} className={styles.searchInput} />
             )}
           />
           <Button type="submit" className={styles.searchButton}>

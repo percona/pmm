@@ -1,20 +1,15 @@
-import { FC } from 'react';
-import { type MRT_Row, MaterialReactTableProps } from 'material-react-table';
+import {
+  type MRT_Row,
+  type MaterialReactTableProps,
+} from 'material-react-table';
 import { Table, useNavigableRows } from '@percona/peak-ui';
-import { QueryData } from 'types/rta.types';
+import type { FC } from 'react';
+import type { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
 import { filterElapsedTime } from './OverviewTable.utils';
-import { useTableUrlState } from 'hooks/utils/useTableUrlState';
-
-const OVERVIEW_TABLE_URL_STATE_OPTIONS = {
-  paramPrefix: 'overview',
-  defaults: {
-    pagination: { pageIndex: 0, pageSize: 25 },
-  },
-};
 
 interface Props {
   queries: QueryData[];
@@ -31,19 +26,21 @@ const OverviewTable: FC<Props> = ({
   actions,
   onRowHover,
 }) => {
-  const { tableProps: navigableTableProps, refresh } =
-    useNavigableRows<QueryData>({
-      data: queries,
-      onChange: onNavigableQueriesChange,
-    });
-  const { tableProps: urlStateTableProps } = useTableUrlState(
-    OVERVIEW_TABLE_URL_STATE_OPTIONS
-  );
+  const { tableProps, refresh } = useNavigableRows<QueryData>({
+    data: queries,
+    onChange: onNavigableQueriesChange,
+  });
 
   return (
     <RealtimeTableWrapper>
       <Table
         tableName="realtime-overview-table"
+        initialState={{
+          pagination: {
+            pageSize: 25,
+            pageIndex: 0,
+          },
+        }}
         columns={OVERVIEW_TABLE_COLUMNS}
         data={queries}
         noDataMessage={Messages.noData}
@@ -57,8 +54,7 @@ const OverviewTable: FC<Props> = ({
             },
           },
         }}
-        {...navigableTableProps}
-        {...urlStateTableProps}
+        {...tableProps}
         enableStickyHeader
         enableGlobalFilter={false}
         enableHiding={false}

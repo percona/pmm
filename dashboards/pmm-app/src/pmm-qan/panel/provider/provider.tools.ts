@@ -37,7 +37,7 @@ interface GrafanaVariables {
   query_selected?: string;
   details_tab?: string;
   [key: string]: any;
-  dimensionSearchText?: string | null;
+  dimensionSearchText?: string;
   search?: string;
 }
 export const refreshGrafanaVariables = (state) => {
@@ -105,8 +105,9 @@ export const refreshGrafanaVariables = (state) => {
     variablesQuery.to = rawTime.to;
   }
 
-  // null clears the query param via locationService.partial (omitting keeps the old value)
-  variablesQuery.dimensionSearchText = dimensionSearchText || null;
+  if (dimensionSearchText) {
+    variablesQuery.dimensionSearchText = dimensionSearchText;
+  }
 
   if (pageNumber && pageSize) {
     variablesQuery.page_number = pageNumber;
