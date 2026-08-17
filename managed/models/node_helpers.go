@@ -258,7 +258,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error { //nolint:
 		return err
 	}
 
-	if n.IsPMMServerNode || id == PMMServerNodeID {
+	if id == PMMServerNodeID {
 		return status.Error(codes.PermissionDenied, "PMM Server node can't be removed.")
 	}
 
