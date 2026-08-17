@@ -210,3 +210,9 @@ export const ElectricBoltOffIcon = (props: SvgIconProps) => (
     <path d="M13 9.5L21 10.5L17.082 14.2539L9.80566 6.97754L15 2H17L13 9.5Z" />
   </SvgIcon>
 );
+
+export const SupportDiagnosticsIcon = (props: SvgIconProps) => (
+  <SvgIcon viewBox="0 0 24 24" {...props}>
+    <path d="M15 3q.825 0 1.412.588Q17 4.176 17 5v1h.7q.6 0 1.087.338.488.337.713.862l2.35 5.4q.075.2.113.4.037.2.037.4V18q0 .825-.588 1.412A1.93 1.93 0 0 1 20 20H4q-.824 0-1.412-.588A1.93 1.93 0 0 1 2 18v-4.6a2.2 2.2 0 0 1 .15-.8L4.5 7.2q.225-.525.713-.862A1.87 1.87 0 0 1 6.3 6H7V5q0-.824.588-1.412A1.93 1.93 0 0 1 9 3zM4 18h16v-4h-3v1h-2v-1H9v1H7v-1H4zm.6-6H7v-1h2v1h6v-1h2v1h2.4l-1.7-4H6.3zM9 6h6V5H9z" />
+  </SvgIcon>
+);
