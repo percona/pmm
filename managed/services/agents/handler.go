@@ -88,9 +88,10 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 	go h.state.runStateChangeHandler(ctx, agent)
 
 	// Ping from its own goroutine. The loop below is the only reader of Requests(), so a ping
-	// waiting for its pong in there stops the queue from draining, and once the queue is full
-	// channel.runReceiver blocks - the very goroutine that has to deliver that pong. Keeping the
-	// two apart also keeps a slow request from delaying a ping. See PMM-15310.
+	// waiting for its pong in there stops the queue draining, and a full queue blocks
+	// channel.runReceiver - the one goroutine that can deliver that pong. Nothing can break that
+	// cycle from inside. A slow request handler starves the pong the same way, but only while it
+	// runs, since it is not itself waiting on the pong. See PMM-15310.
 	go h.runPingHandler(ctx, agent)
 
 	h.state.RequestStateUpdate(ctx, agent.id)
