@@ -30,23 +30,43 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-// factsBody is one pom_discovery GET /facts answer, shaped as the app really sends it.
-const factsBody = `{
-  "run_id": "c97781e8-05cc-46a7-bcdc-9ff4711fcb37",
-  "status": "success",
-  "observed_at": "2026-08-11T11:32:30Z",
-  "age_seconds": 12.0,
-  "stale": false,
-  "counts": {"services_total": 2, "services_resolved": 2, "services_orphaned": 0, "services_answered": 2},
-  "facts": [
-    {"service_id": "s1", "field": "installed_version", "value": "7.0.40-22", "observed_at": "2026-08-11T11:32:30Z"},
-    {"service_id": "s1", "field": "config_path", "value": "/etc/mongod-node.conf", "observed_at": "2026-08-11T11:32:30Z"},
-    {"service_id": "s1", "field": "argv", "value": "/usr/bin/mongod --config /etc/mongod-node.conf", "observed_at": "2026-08-11T11:32:30Z"},
-    {"service_id": "s1", "field": "uptime_seconds", "value": 10295, "observed_at": "2026-08-11T11:32:30Z"},
-    {"service_id": "s1", "field": "server_running", "value": true, "observed_at": "2026-08-11T11:32:30Z"},
-    {"service_id": "gone", "field": "installed_version", "value": "6.0.1", "observed_at": "2026-08-11T11:32:30Z"}
-  ]
-}`
+// servicesBody is one pom_discovery GET /services answer, shaped as the app sends it:
+// a row per service PMM has registered, each carrying the document the last successful
+// probe stored. `gone` is a service the app knows and this PMM does not.
+const servicesBody = `[
+  {
+    "service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": null,
+    "observed": {
+      "collected_at": "2026-08-11T11:32:30+00:00",
+      "installed_version": "7.0.40-22",
+      "config_path": "/etc/mongod-node.conf",
+      "argv": "/usr/bin/mongod --config /etc/mongod-node.conf",
+      "uptime_seconds": 10295,
+      "server_running": true
+    },
+    "first_seen_at": "2026-08-11T10:00:00Z", "last_attempt_at": "2026-08-11T11:32:30Z",
+    "last_success_at": "2026-08-11T11:32:30Z", "failing_since": null,
+    "consecutive_failures": 0, "last_error": null
+  },
+  {
+    "service_id": "gone", "node_id": "n9", "name": "mongo-9", "port": 27017, "role": null,
+    "observed": {"collected_at": "2026-08-11T11:32:30+00:00", "installed_version": "6.0.1"},
+    "first_seen_at": "2026-08-11T10:00:00Z", "last_attempt_at": "2026-08-11T11:32:30Z",
+    "last_success_at": "2026-08-11T11:32:30Z", "failing_since": null,
+    "consecutive_failures": 0, "last_error": null
+  }
+]`
+
+// unprobedBody is a service the app holds a row for and has never reached: an empty
+// document and null timestamps, which is a normal state rather than an absence.
+const unprobedBody = `[
+  {
+    "service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": null,
+    "observed": {}, "first_seen_at": "2026-08-11T10:00:00Z",
+    "last_attempt_at": null, "last_success_at": null, "failing_since": null,
+    "consecutive_failures": 0, "last_error": null
+  }
+]`
 
 func probeTestServices() []*models.Service {
 	return []*models.Service{
@@ -76,15 +96,15 @@ func TestProbeSource(t *testing.T) {
 		var gotAuth, gotPath string
 		source := newProbeSource(t, func(w http.ResponseWriter, r *http.Request) {
 			gotAuth, gotPath = r.Header.Get("Authorization"), r.URL.Path
-			_, _ = w.Write([]byte(factsBody))
+			_, _ = w.Write([]byte(servicesBody))
 		})
 
 		result := source.collect(context.Background(), probeTestServices())
 
 		assert.Equal(t, "Bearer test-token", gotAuth)
-		// The caller configures where SEP is; this side appends the app path. A path
-		// of just "/facts" would mean the app name had leaked into configuration.
-		assert.Equal(t, "/"+probeAppPath+"/facts", gotPath)
+		// The caller configures where SEP is; this side appends the app path. A path of
+		// just "/services" would mean the app name had leaked into configuration.
+		assert.Equal(t, "/"+probeAppPath+"/"+probeServicesPath, gotPath)
 		assert.Equal(t, SourcePartial, result.Status, "one of two services was covered")
 
 		byField := make(map[string]any, len(result.Facts))
@@ -97,15 +117,18 @@ func TestProbeSource(t *testing.T) {
 		assert.Equal(t, "/etc/mongod-node.conf", byField[fieldConfigPath])
 		assert.InDelta(t, 10295.0, byField["uptime_seconds"], 0.001, "a JSON number decodes to float64")
 		assert.Equal(t, true, byField["server_running"])
+		// collected_at describes the document rather than the service, and the age it
+		// carries is already on every fact.
+		assert.NotContains(t, byField, observedCollectedAt)
 	})
 
 	t.Run("facts for services this PMM does not have are counted, not merged", func(t *testing.T) {
 		t.Parallel()
 
-		// The app reads its own inventory, which can be a moment ahead or behind. A
-		// fact for a service with no row here has nothing to attach to.
+		// The app reads its own inventory, which can be a moment ahead or behind. A row
+		// for a service with none here has nothing to attach to.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
-			_, _ = w.Write([]byte(factsBody))
+			_, _ = w.Write([]byte(servicesBody))
 		})
 
 		result := source.collect(context.Background(), probeTestServices())
@@ -139,78 +162,112 @@ func TestProbeSource(t *testing.T) {
 		result := source.collect(context.Background(), probeTestServices())
 
 		assert.Equal(t, SourceFailed, result.Status)
-		assert.Empty(t, result.Facts)
 		require.Len(t, result.Errors, 1)
 		assert.Equal(t, "probe_fetch_failed", result.Errors[0].Code)
-		assert.Equal(t, "source", result.Errors[0].Scope)
+		assert.Empty(t, result.Facts)
 	})
 
-	t.Run("an app that has never swept is OK and empty", func(t *testing.T) {
+	t.Run("an estate with no rows is OK and empty", func(t *testing.T) {
 		t.Parallel()
 
-		// The app answers 200 with a null run before its first sweep completes.
+		// The app is installed and has never swept. Not anybody's failure.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
-			_, _ = w.Write([]byte(`{"run_id":null,"status":null,"observed_at":null,"age_seconds":null,"stale":false,"counts":null,"facts":[]}`))
+			_, _ = w.Write([]byte(`[]`))
 		})
 
 		result := source.collect(context.Background(), probeTestServices())
 
-		assert.Equal(t, SourceOK, result.Status)
+		assert.Equal(t, SourcePartial, result.Status, "nothing covered, but nothing failing either")
 		assert.Empty(t, result.Facts)
 		assert.Empty(t, result.Errors)
 	})
 
-	t.Run("a failed sweep fails the source and says why", func(t *testing.T) {
+	t.Run("a service seen but never probed contributes no facts", func(t *testing.T) {
 		t.Parallel()
 
-		// The app is reachable and answering; its last sweep is what went wrong. Reporting
-		// that as "ok, 0 facts" reads as "there is nothing to probe here", which is the
-		// opposite of what happened.
+		// An empty document is not a fact set of size zero to merge; it is the absence
+		// of a probe, and the row exists so the estate view can say so.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
-			_, _ = w.Write([]byte(`{"run_id":"5b59a63d","status":"failed","observed_at":"2026-08-11T19:53:44Z",
-			  "age_seconds":450.0,"stale":false,"counts":null,"facts":[],
-			  "error":"Cannot connect to host localhost:8000"}`))
+			_, _ = w.Write([]byte(unprobedBody))
+		})
+
+		result := source.collect(context.Background(), probeTestServices())
+
+		assert.Empty(t, result.Facts)
+		assert.Equal(t, SourcePartial, result.Status)
+		assert.Equal(t, "0", detailStrings(result.Detail)["services_covered"])
+	})
+
+	t.Run("an estate that is entirely failing fails the source and says why", func(t *testing.T) {
+		t.Parallel()
+
+		// The app is reachable and answering; every service it holds is failing its
+		// probe. Reporting that as "ok, 0 facts" reads as "there is nothing to probe
+		// here", which is the opposite of what happened.
+		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
+			_, _ = w.Write([]byte(`[
+			  {"service_id":"s1","node_id":"n1","name":"mongo-1","observed":{},
+			   "first_seen_at":"2026-08-11T10:00:00Z","last_attempt_at":"2026-08-11T19:53:44Z",
+			   "last_success_at":null,"failing_since":"2026-08-09T19:53:44Z",
+			   "consecutive_failures":37,"last_error":"Cannot connect to host localhost:8000"},
+			  {"service_id":"s2","node_id":"n2","name":"mongo-2","observed":{},
+			   "first_seen_at":"2026-08-11T10:00:00Z","last_attempt_at":"2026-08-11T19:53:44Z",
+			   "last_success_at":null,"failing_since":"2026-08-09T19:53:44Z",
+			   "consecutive_failures":37,"last_error":"Cannot connect to host localhost:8000"}]`))
 		})
 
 		result := source.collect(context.Background(), probeTestServices())
 
 		assert.Equal(t, SourceFailed, result.Status)
 		require.Len(t, result.Errors, 1)
-		assert.Equal(t, "probe_sweep_failed", result.Errors[0].Code)
+		assert.Equal(t, "probe_all_failing", result.Errors[0].Code)
 		// The cause travels with it, so the receipt is readable without going to ask
 		// the other service.
 		assert.Contains(t, result.Errors[0].Message, "Cannot connect to host")
-		assert.Contains(t, result.Errors[0].Message, "5b59a63d")
+		assert.Contains(t, result.Errors[0].Message, "mongo-1")
+		assert.Equal(t, "2", detailStrings(result.Detail)["services_failing"])
 	})
 
-	t.Run("a failed sweep with no recorded reason still says so", func(t *testing.T) {
+	t.Run("a failure with no recorded reason still says since when", func(t *testing.T) {
 		t.Parallel()
 
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
-			_, _ = w.Write([]byte(`{"run_id":"abc","status":"failed","facts":[],"error":null}`))
+			_, _ = w.Write([]byte(`[{"service_id":"s1","node_id":"n1","name":"mongo-1","observed":{},
+			  "first_seen_at":"2026-08-11T10:00:00Z","last_attempt_at":"2026-08-11T19:53:44Z",
+			  "last_success_at":null,"failing_since":"2026-08-09T19:53:44Z",
+			  "consecutive_failures":37,"last_error":null}]`))
 		})
 
 		result := source.collect(context.Background(), probeTestServices())
+
 		assert.Equal(t, SourceFailed, result.Status)
 		require.Len(t, result.Errors, 1)
-		assert.Contains(t, result.Errors[0].Message, "no reason recorded")
+		assert.Contains(t, result.Errors[0].Message, "failing since")
 	})
 
-	t.Run("a partial sweep is partial even when it covered everything it reached", func(t *testing.T) {
+	t.Run("some covered and some failing is partial", func(t *testing.T) {
 		t.Parallel()
 
-		// The app reached fewer nodes than it wanted to. Its own verdict carries, rather
-		// than being recomputed from a coverage count that cannot see what it attempted.
+		// The steady state of a real estate: one node unreachable, the rest answering.
+		// Not a failure of this source, and not a clean run either.
 		source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
-			_, _ = w.Write([]byte(`{"run_id":"abc","status":"partial","facts":[
-			  {"service_id":"s1","field":"installed_version","value":"7.0.40-22","observed_at":"2026-08-11T11:32:30Z"},
-			  {"service_id":"s2","field":"installed_version","value":"7.0.40-22","observed_at":"2026-08-11T11:32:30Z"}]}`))
+			_, _ = w.Write([]byte(`[
+			  {"service_id":"s1","node_id":"n1","name":"mongo-1",
+			   "observed":{"collected_at":"2026-08-11T11:32:30+00:00","installed_version":"7.0.40-22"},
+			   "first_seen_at":"2026-08-11T10:00:00Z","last_attempt_at":"2026-08-11T11:32:30Z",
+			   "last_success_at":"2026-08-11T11:32:30Z","failing_since":null,
+			   "consecutive_failures":0,"last_error":null},
+			  {"service_id":"s2","node_id":"n2","name":"mongo-2","observed":{},
+			   "first_seen_at":"2026-08-11T10:00:00Z","last_attempt_at":"2026-08-11T11:32:30Z",
+			   "last_success_at":null,"failing_since":"2026-08-11T11:00:00Z",
+			   "consecutive_failures":2,"last_error":"unreachable"}]`))
 		})
 
 		result := source.collect(context.Background(), probeTestServices())
 
-		assert.Equal(t, SourcePartial, result.Status, "both services covered, but the sweep knows it fell short")
-		assert.Len(t, result.Facts, 2)
+		assert.Equal(t, SourcePartial, result.Status)
+		assert.Len(t, result.Facts, 1)
+		assert.Equal(t, "1", detailStrings(result.Detail)["services_failing"])
 	})
 
 	t.Run("garbage does not become facts", func(t *testing.T) {
@@ -232,7 +289,7 @@ func TestProbeFactsReachTheDocument(t *testing.T) {
 	// End to end through the seam: what the app serves, merged under the precedence
 	// table, projected into the document.
 	source := newProbeSource(t, func(w http.ResponseWriter, _ *http.Request) {
-		_, _ = w.Write([]byte(factsBody))
+		_, _ = w.Write([]byte(servicesBody))
 	})
 	services := probeTestServices()
 	observed := projectionNow.Add(-5 * time.Second)

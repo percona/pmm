@@ -20,9 +20,9 @@
  *
  * This is the one part of POM that does not come from pmm-managed, and it cannot:
  * the sweep runs a payload on each database host over Nomad, which is SEP's half of
- * the split. pmm-managed pulls the *facts* a sweep produced (`GET /facts`, merged
- * into the topology document as `installed_version`, `config_path` and `argv`) but
- * does not proxy the run history, so the page asks the app itself.
+ * the split. pmm-managed pulls what the sweeps *found* (`GET /services`, the app's
+ * estate, merged into the topology document as `installed_version`, `config_path`
+ * and `argv`) but does not proxy the run history, so the page asks the app itself.
  *
  * Two consequences, both of which the Discovery route is wired for:
  *
