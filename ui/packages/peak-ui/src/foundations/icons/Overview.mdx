@@ -4,7 +4,7 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # Icons
 
-Peak Design sources the artwork for icons from [Material Symbols](https://fonts.google.com/icons) so it can be used in design phases and mockups. However, in code, **icons reach consumers through two complementary sources**.
+Peak UI sources the artwork for icons from [Material Symbols](https://fonts.google.com/icons) so it can be used in design phases and mockups. However, in code, **icons reach consumers through two complementary sources**.
 
 ## Source #1: MUI icons (default)
 
@@ -33,7 +33,7 @@ Sometimes a design for a new icon may come up in two ways:
 
 When a new custom icon comes up, it gets folded into the design system so it behaves like every other icon:
 
-1. **Added to Peak Design** — the SVG becomes a React component (in `src/components/icons/`) that wraps MUI's `SvgIcon` and uses `currentColor`, so it inherits theme color and `fontSize` exactly like a MUI icon. Never hardcode colors.
+1. **Added to Peak UI** — the SVG becomes a React component (in `src/components/icons/`) that wraps MUI's `SvgIcon` and uses `currentColor`, so it inherits theme color and `fontSize` exactly like a MUI icon. Never hardcode colors.
 2. **Exported from `@percona/peak-ui`** — so any consumer can import it by name.
 3. **Listed on the Custom Icons page** — so it's discoverable and searchable alongside the rest.
 
@@ -50,6 +50,6 @@ The **Custom Icons** page is the home for everything we build this way — every
 ## Which one do I use?
 
 1. **Search MUI first** at [mui.com/material-ui/material-icons](https://mui.com/material-ui/material-icons/). If it's there, use it.
-2. **If it's missing**, it becomes a Peak Design custom icon as explained in the previous section.
+2. **If it's missing**, it becomes a Peak UI custom icon as explained in the previous section.
 
 Because MUI carries the previous-generation Material **Icons** while Figma (or other design tools) uses Material **Symbols**, an icon that exists in both spaces can look slightly different. Match the design name, accept the minor stylistic gap on shared icons, and reserve custom icons for what MUI genuinely lacks.

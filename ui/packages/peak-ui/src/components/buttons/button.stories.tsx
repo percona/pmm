@@ -185,7 +185,7 @@ export const WithIcon: Story = {
     docs: {
       description: {
         story:
-          'Use `startIcon`/`endIcon` with custom Peak Design icons or Material icons. Icon size matches Icon Button (24 / 20 / 16). Contained and outlined use a 12px layout slot so icons pull toward the pill edge; text buttons stay flush with padding. Gap to the label is 4px.',
+          'Use `startIcon`/`endIcon` with custom Peak UI icons or Material icons. Icon size matches Icon Button (24 / 20 / 16). Contained and outlined use a 12px layout slot so icons pull toward the pill edge; text buttons stay flush with padding. Gap to the label is 4px.',
       },
     },
   },

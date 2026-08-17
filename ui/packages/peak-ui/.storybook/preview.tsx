@@ -3,7 +3,7 @@ import type { Preview } from '@storybook/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { getThemeOptions } from '../src/design';
-import peakDesign from './peak-design';
+import peakUi from './peak-ui';
 import { resolveDisplayName } from './resolve-display-name';
 
 const preview: Preview = {
@@ -77,7 +77,7 @@ const preview: Preview = {
       },
     },
     docs: {
-      theme: peakDesign,
+      theme: peakUi,
       codePanel: true,
     },
     options: {

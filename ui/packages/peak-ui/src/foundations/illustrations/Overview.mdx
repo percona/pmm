@@ -5,7 +5,7 @@ import * as IllustrationsStories from './Illustrations.stories';
 
 # Illustrations
 
-Illustrations are larger, expressive pieces of artwork **unique to Peak Design**. Unlike icons, which label actions and objects at small sizes, illustrations carry a moment in the UX: an empty result, an error, a feature that is switched off, a background process at work.
+Illustrations are larger, expressive pieces of artwork **unique to Peak UI**. Unlike icons, which label actions and objects at small sizes, illustrations carry a moment in the UX: an empty result, an error, a feature that is switched off, a background process at work.
 
 ## How they behave
 
@@ -52,6 +52,6 @@ The available layer keys are listed under each illustration in the **Illustratio
 ## Adding a new illustration
 
 1. **Design in Figma** — keep the artwork on a `64px` square frame and split it [into clearly named layers here in the main Figma file](https://www.figma.com/design/08jGF3GZAUGmazlQtk0UQk/Peak-Design-Kit?node-id=4341-8314).
-2. **Add to Peak Design** — translate each layer into a `<g>` whose fill defaults to `currentColor`, inside a `SvgIcon`-based component in `src/components/illustrations/`.
+2. **Add to Peak UI** — translate each layer into a `<g>` whose fill defaults to `currentColor`, inside a `SvgIcon`-based component in `src/components/illustrations/`.
 3. **Export from `@percona/peak-ui`** — so any consumer can import it by name.
 4. **List it on the Illustrations page** — so it's discoverable and searchable alongside the rest.

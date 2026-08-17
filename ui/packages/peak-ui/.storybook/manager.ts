@@ -1,6 +1,6 @@
 import { addons } from "storybook/manager-api";
 import type { TagBadgeParameters } from "storybook-addon-tag-badges/manager-helpers";
-import peakDesign from "./peak-design";
+import peakUi from "./peak-ui";
 import { MATURITY_TAGS, badgeStyle, type BadgeContext } from "./maturity-tags";
 
 const display = {
@@ -23,6 +23,6 @@ const tagBadges: TagBadgeParameters = MATURITY_TAGS.map(({ id, label, descriptio
 }));
 
 addons.setConfig({
-  theme: peakDesign,
+  theme: peakUi,
   tagBadges,
 });
