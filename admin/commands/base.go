@@ -220,6 +220,23 @@ func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	return result, nil
 }
 
+// ParseEnvironmentVariableNames parses and validates a comma-separated list of environment
+// variable names. An empty value yields an empty list, which removes all previously set names.
+func ParseEnvironmentVariableNames(varNames string) ([]string, error) {
+	names := make([]string, 0)
+
+	for name := range strings.SplitSeq(varNames, ",") {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+
+		names = append(names, name)
+	}
+
+	return ValidateEnvironmentVariableNames(names)
+}
+
 // ReadFile reads file from filepath if filepath is not empty.
 func ReadFile(filePath string) (string, error) {
 	if filePath == "" {

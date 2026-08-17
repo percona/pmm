@@ -1107,8 +1107,9 @@ type ChangeValkeyOptions struct {
 // ChangeAgentParams contains parameters that can be changed for all Agent types.
 type ChangeAgentParams struct {
 	// Common fields for all agents
-	Enabled      *bool              // true - enable, false - disable, nil - no change
-	CustomLabels *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
+	Enabled                  *bool              // true - enable, false - disable, nil - no change
+	CustomLabels             *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
+	EnvironmentVariableNames *[]string          // empty slice - remove all environment variable names, non-empty - change, nil - no change
 
 	// Database connection fields
 	Username      *string
@@ -1202,6 +1203,14 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			if err != nil {
 				return nil, err
 			}
+		}
+	}
+
+	// An empty slice removes all environment variable names, SetEnvironmentVariableNames treats it the same as nil.
+	if params.EnvironmentVariableNames != nil {
+		err = row.SetEnvironmentVariableNames(*params.EnvironmentVariableNames)
+		if err != nil {
+			return nil, err
 		}
 	}
 

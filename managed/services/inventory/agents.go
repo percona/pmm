@@ -405,15 +405,16 @@ func (as *AgentsService) ChangeMongoDBExporter(
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:             p.Enable,
-		Username:            p.Username,
-		Password:            p.Password,
-		TLS:                 p.Tls,
-		TLSSkipVerify:       p.TlsSkipVerify,
-		AgentPassword:       p.AgentPassword,
-		CustomLabels:        convertCustomLabels(p.CustomLabels),
-		LogLevel:            convertLogLevel(p.LogLevel),
-		SkipConnectionCheck: p.GetSkipConnectionCheck(),
+		Enabled:                  p.Enable,
+		Username:                 p.Username,
+		Password:                 p.Password,
+		TLS:                      p.Tls,
+		TLSSkipVerify:            p.TlsSkipVerify,
+		AgentPassword:            p.AgentPassword,
+		CustomLabels:             convertCustomLabels(p.CustomLabels),
+		EnvironmentVariableNames: convertEnvironmentVariableNames(p.EnvironmentVariableNames),
+		LogLevel:                 convertLogLevel(p.LogLevel),
+		SkipConnectionCheck:      p.GetSkipConnectionCheck(),
 	}
 
 	// Set MongoDBOptions
@@ -1772,6 +1773,15 @@ func unexpectedAgentTypeError(agent inventoryv1.Agent) error {
 func convertCustomLabels(customLabels *common.StringMap) *map[string]string {
 	if customLabels != nil {
 		return &customLabels.Values
+	}
+
+	return nil
+}
+
+// Helper function to convert environment variable names from protobuf to model format.
+func convertEnvironmentVariableNames(envVarNames *common.StringArray) *[]string {
+	if envVarNames != nil {
+		return &envVarNames.Values
 	}
 
 	return nil

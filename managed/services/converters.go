@@ -329,6 +329,12 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
 		exporter.EnableDiagnosticDataHistograms = agent.MongoDBOptions.EnableDiagnosticDataHistograms
 
+		envVarNames, err := agent.GetEnvironmentVariableNames()
+		if err != nil {
+			return nil, err
+		}
+		exporter.EnvironmentVariableNames = envVarNames
+
 		return exporter, nil
 
 	case models.PostgresExporterType:

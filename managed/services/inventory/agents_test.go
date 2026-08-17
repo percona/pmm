@@ -1026,6 +1026,100 @@ func TestChangeRTAMongoDBAgent(t *testing.T) {
 	})
 }
 
+func TestChangeMongoDBExporterEnvironmentVariableNames(t *testing.T) {
+	// Adds a pmm-agent, a MongoDB service and a mongodb_exporter with the given environment
+	// variable names, and returns the exporter's agent ID.
+	addMongoDBExporter := func(t *testing.T, ss *ServicesService, as *AgentsService, ctx context.Context, envVarNames []string) string {
+		t.Helper()
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", mock.Anything).Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, mock.Anything)
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mongo-env-vars",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
+		})
+		require.NoError(t, err)
+
+		agent, err := as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
+			PmmAgentId:               pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:                ms.ServiceId,
+			Username:                 "username",
+			EnvironmentVariableNames: envVarNames,
+			SkipConnectionCheck:      true,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, envVarNames, agent.GetMongodbExporter().EnvironmentVariableNames)
+
+		return agent.GetMongodbExporter().AgentId
+	}
+
+	t.Run("Set", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, nil)
+
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"KRB5_KTNAME", "KRB5_CONFIG"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_KTNAME", "KRB5_CONFIG"}, resp.GetMongodbExporter().EnvironmentVariableNames)
+
+		agent, err := as.Get(ctx, agentID)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_KTNAME", "KRB5_CONFIG"}, agent.(*inventoryv1.MongoDBExporter).EnvironmentVariableNames)
+	})
+
+	t.Run("Replace", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"KRB5_CONFIG"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_CONFIG"}, resp.GetMongodbExporter().EnvironmentVariableNames)
+	})
+
+	t.Run("RemoveWithEmptyArray", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{},
+		})
+		require.NoError(t, err)
+		assert.Empty(t, resp.GetMongodbExporter().EnvironmentVariableNames)
+	})
+
+	t.Run("KeepWhenNotSet", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		// Another parameter is changed, environment variable names must be left untouched.
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			Enable: new(false),
+		})
+		require.NoError(t, err)
+		assert.True(t, resp.GetMongodbExporter().Disabled)
+		assert.Equal(t, []string{"KRB5_KTNAME"}, resp.GetMongodbExporter().EnvironmentVariableNames)
+	})
+}
+
 func TestChangeAgentConnectionCheck(t *testing.T) {
 	// Adds a pmm-agent, a PostgreSQL service and a postgres_exporter (without connection check)
 	// and returns the exporter's agent ID. Expects stateUpdates calls to RequestStateUpdate:

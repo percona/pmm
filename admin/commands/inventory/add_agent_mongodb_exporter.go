@@ -38,6 +38,7 @@ Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 Status                : {{ .Agent.Status }}
 Disabled              : {{ .Agent.Disabled }}
 Custom labels         : {{ .Agent.CustomLabels }}
+Environment variables : {{ .Agent.EnvironmentVariableNames }}
 `)
 
 type addAgentMongodbExporterResult struct {
@@ -75,11 +76,17 @@ type AddAgentMongodbExporterCommand struct {
 	CollectionsLimit               int32             `name:"max-collections-limit" placeholder:"number" help:"Disable collstats & indexstats if there are more than <n> collections"`
 	EnableDiagnosticDataHistograms bool              `help:"Enable collecting histogram bucket metrics from getDiagnosticData"`
 	ConnectionTimeout              *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
+	AgentEnvVars                   []string          `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from the current environment), e.g. 'VAR1,VAR2'"`
 }
 
 // RunCmd executes the AddAgentMongodbExporterCommand and returns the result.
 func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseKeyValuePair(&cmd.CustomLabels)
+
+	agentEnvVars, err := commands.ValidateEnvironmentVariableNames(cmd.AgentEnvVars)
+	if err != nil {
+		return nil, err
+	}
 
 	tlsCertificateKey, err := commands.ReadFile(cmd.TLSCertificateKeyFile)
 	if err != nil {
@@ -113,6 +120,7 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 				EnableDiagnosticDataHistograms: cmd.EnableDiagnosticDataHistograms,
 				LogLevel:                       cmd.LogLevel.EnumValue(),
 				ConnectionTimeout:              commands.DurationString(cmd.ConnectionTimeout),
+				EnvironmentVariableNames:       agentEnvVars,
 			},
 		},
 		Context: commands.Ctx,
