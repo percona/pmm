@@ -4599,36 +4599,13 @@
                     "value": "$__all"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_up, environment)",
-                "includeAll": true,
-                "label": "Environment",
-                "multi": true,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values(mysql_up, environment)",
-                    "refId": "Metrics-environment-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
-                "sort": 5,
-                "type": "query"
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values(mysql_up{environment=~\"$environment\"}, replication_set)",
+                "definition": "label_values(mysql_up, replication_set)",
                 "includeAll": true,
                 "label": "Replication Set",
-                "multi": true,
                 "name": "replication_set",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_up{environment=~\"$environment\"}, replication_set)",
+                    "query": "label_values(mysql_up, replication_set)",
                     "refId": "Metrics-replication_set-Variable-Query"
                 },
                 "refresh": 2,
@@ -4643,14 +4620,13 @@
                     "value": ""
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_up{environment=~\"$environment\", replication_set=~\"$replication_set\"}, service_name)",
+                "definition": "label_values(mysql_up{replication_set=~\"$replication_set\"}, service_name)",
                 "includeAll": false,
                 "label": "Service Name",
-                "multi": true,
                 "name": "service_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_up{environment=~\"$environment\", replication_set=~\"$replication_set\"}, service_name)",
+                    "query": "label_values(mysql_up{replication_set=~\"$replication_set\"}, service_name)",
                     "refId": "Metrics-service_name-Variable-Query"
                 },
                 "refresh": 2,
@@ -4696,6 +4672,31 @@
                 },
                 "refresh": 2,
                 "regex": "/(([0-9\\.]+)\\.([0-9\\.]+)\\.([0-9\\.]+)-?([0-9?]+))/",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": [
+                        "$__all"
+                    ]
+                },
+                "datasource": "Metrics",
+                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
+                "hide": 2,
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
+                    "refId": "Metrics-environment-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
                 "sort": 5,
                 "type": "query"
             },
@@ -4801,7 +4802,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=~\"$service_name\"},user)",
+                "definition": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\"},user)",
                 "hide": 2,
                 "includeAll": true,
                 "label": "Username",
@@ -4809,7 +4810,7 @@
                 "name": "username",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=~\"$service_name\"},user)",
+                    "query": "label_values(mysql_info_schema_user_statistics_connected_time_seconds_total{service_name=\"$service_name\"},user)",
                     "refId": "Metrics-username-Variable-Query"
                 },
                 "refresh": 1,
