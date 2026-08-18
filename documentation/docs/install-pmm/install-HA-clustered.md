@@ -86,7 +86,7 @@ To install PMM HA:
         --namespace pmm
       ```
 
-      `PMM_CLICKHOUSE_DATASOURCE_*` must name a **read-only** ClickHouse user, separate from `PMM_CLICKHOUSE_USER`. Create it on your ClickHouse cluster first — see [Restrict the ClickHouse data source to a read-only user](../reference/third-party/clickhouse.md#restrict-the-clickhouse-data-source-to-a-read-only-user).
+      `PMM_CLICKHOUSE_DATASOURCE_*` must use a read-only ClickHouse user, separate from `PMM_CLICKHOUSE_USER`. Create it on your ClickHouse cluster first. See [Restrict the ClickHouse data source to a read-only user](../reference/third-party/clickhouse.md#restrict-the-clickhouse-data-source-to-a-read-only-user).
 
     5. Install PMM HA:
       ```sh

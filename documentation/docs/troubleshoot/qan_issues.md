@@ -140,4 +140,4 @@ ClickHouse merges drop-ins over the profile in use, so the same files apply to b
 
 Set `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to the same password so Grafana connects with the new credentials, then restart ClickHouse. Drop-ins are not preserved when the container is recreated, so mount them from the host if you need them to persist.
 
-A drop-in is also the way to grant the data source user access to a database other than `pmm`, since the shipped grant names `pmm` explicitly. Adjust it if you set `PMM_CLICKHOUSE_DATABASE` to something else.
+If you set `PMM_CLICKHOUSE_DATABASE` to something other than `pmm`, use a drop-in to update the data source user's grant, since the shipped grant names `pmm` explicitly.
