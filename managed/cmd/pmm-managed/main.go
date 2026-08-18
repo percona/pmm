@@ -137,6 +137,9 @@ const (
 	pProfProfileDuration  = 30 * time.Second
 	pProfTraceDuration    = 10 * time.Second
 
+	// Retry interval while Grafana is still starting up.
+	anonymousAccessCheckInterval = 5 * time.Second
+
 	clickhouseMaxIdleConns = 5
 	clickhouseMaxOpenConns = 10
 
@@ -362,9 +365,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 }
 
 type http1ServerDeps struct {
-	logs               *server.Logs
-	authServer         *grafana.AuthServer
-	currentUserHandler http.Handler
+	logs       *server.Logs
+	authServer *grafana.AuthServer
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -446,8 +448,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux := http.NewServeMux()
 	addLogsHandler(mux, deps.logs)
 	mux.Handle("/auth_request", deps.authServer)
-	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
-	mux.Handle("/v1/users/current", deps.currentUserHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -533,6 +533,33 @@ func runDebugServer(ctx context.Context) {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
+}
+
+// warnOnAnonymousGrafanaAccess logs a warning once Grafana reports that anonymous access is
+// enabled. PMM's own APIs always deny anonymous callers, but Grafana still serves dashboards
+// and datasource queries without authentication, which is rarely what an operator intends.
+func warnOnAnonymousGrafanaAccess(ctx context.Context, client *grafana.Client, l *logrus.Entry) {
+	ticker := time.NewTicker(anonymousAccessCheckInterval)
+	defer ticker.Stop()
+
+	for {
+		enabled, err := client.IsAnonymousAccessEnabled(ctx)
+		if err == nil {
+			if enabled {
+				l.Warn("Grafana anonymous access is enabled ([auth.anonymous] in grafana.ini). " +
+					"Dashboards and datasource queries are served without authentication. " +
+					"PMM APIs still require credentials. Set enabled = false unless this is intentional.")
+			}
+			return
+		}
+
+		l.Debugf("Failed to check Grafana anonymous access, retrying: %s", err)
+		select {
+		case <-ticker.C:
+		case <-ctx.Done():
+			return
+		}
+	}
 }
 
 type setupDeps struct {
@@ -1138,6 +1165,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	})
 
 	wg.Go(func() {
+		warnOnAnonymousGrafanaAccess(ctx, grafanaClient, l)
+	})
+
+	wg.Go(func() {
 		vmalert.Run(ctx)
 	})
 
@@ -1211,9 +1242,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	wg.Go(func() {
 		runHTTP1Server(ctx, &http1ServerDeps{
-			logs:               logs,
-			authServer:         authServer,
-			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
+			logs:       logs,
+			authServer: authServer,
 		})
 	})
 

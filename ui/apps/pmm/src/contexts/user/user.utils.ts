@@ -19,7 +19,6 @@ export const getPerconaUser = (
 
   return {
     id: user.id,
-    isAnonymous: user.isAnonymous,
     isAuthorized,
     name: user.name,
     login: user.login,

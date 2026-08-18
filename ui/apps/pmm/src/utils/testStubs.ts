@@ -17,7 +17,6 @@ export const TEST_USER_ADMIN: User = {
   id: 1,
   login: 'admin',
   name: 'admin',
-  isAnonymous: false,
   isAuthorized: true,
   isViewer: true,
   isEditor: true,
@@ -61,19 +60,6 @@ export const TEST_USER_VIEWER: User = {
   info: {
     ...TEST_USER_ADMIN.info,
     userId: 3,
-  },
-};
-
-export const TEST_USER_ANONYMOUS: User = {
-  ...TEST_USER_VIEWER,
-  id: 0,
-  login: 'anonymous',
-  name: 'Anonymous',
-  isAnonymous: true,
-  isPMMAdmin: false,
-  info: {
-    ...TEST_USER_ADMIN.info,
-    userId: 0,
   },
 };
 

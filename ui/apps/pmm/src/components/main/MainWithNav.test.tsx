@@ -2,19 +2,17 @@ import { TestWrapper } from 'utils/testWrapper';
 import { MainWithNav } from './MainWithNav';
 import { render, screen } from '@testing-library/react';
 import { wrapWithGrafana, wrapWithQueryProvider } from 'utils/testUtils';
-import { TEST_USER_ADMIN, TEST_USER_ANONYMOUS } from 'utils/testStubs';
+import { TEST_USER_ADMIN } from 'utils/testStubs';
 import { User } from 'types/user.types';
 
 const setup = ({
   isLoading = false,
   isLoggedIn = false,
-  isAnonymous = false,
   kioskModeActive = false,
   search = '',
 }: {
   isLoading?: boolean;
   isLoggedIn?: boolean;
-  isAnonymous?: boolean;
   kioskModeActive?: boolean;
   /** URL search string (e.g. "render=1" for Grafana renderer). Prepended with "?" when setting location.search */
   search?: string;
@@ -30,9 +28,7 @@ const setup = ({
   });
 
   let user: User | undefined;
-  if (isAnonymous) {
-    user = TEST_USER_ANONYMOUS;
-  } else if (isLoggedIn) {
+  if (isLoggedIn) {
     user = TEST_USER_ADMIN;
   }
 
@@ -92,12 +88,6 @@ describe('MainWithNav', () => {
 
   it('shows sidebar when not in renderer mode', () => {
     setup({ isLoading: false, isLoggedIn: true, kioskModeActive: false });
-
-    expect(screen.getByTestId('pmm-sidebar')).toBeInTheDocument();
-  });
-
-  it('shows sidebar when user is anonymous', () => {
-    setup({ isLoading: false, isLoggedIn: false, isAnonymous: true });
 
     expect(screen.getByTestId('pmm-sidebar')).toBeInTheDocument();
   });
