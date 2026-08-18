@@ -10,14 +10,6 @@ services:
     volumes:
       - ./testdata/checks:/srv/checks
 
-  test_db:
-    image: aleksi/test_db:1.1.0
-    container_name: pmm-agent_test_db
-    platform: linux/amd64
-    volumes:
-      - test_db_mysql:/test_db/mysql/world:ro
-      - test_db_postgres:/test_db/postgresql/world:ro
-
   # It is essential to have an extra directory `/slowlogs/` between host and container;
   # and to not have a trailing slash at `./testdata/mysql`.
   # Otherwise, MySQL in Docker for Mac completely locks during/after slowlog rotation tests.
@@ -39,7 +31,6 @@ services:
       timeout: 5s
       retries: 20
     volumes:
-      - test_db_mysql:/docker-entrypoint-initdb.d/:ro
       - ./testdata/mysql:/mysql
 
   mongo:
@@ -63,8 +54,6 @@ services:
     environment:
       - POSTGRES_USER=pmm-agent
       - POSTGRES_PASSWORD=pmm-agent-password
-    volumes:
-      - test_db_postgres:/docker-entrypoint-initdb.d/
 
 
   pmm-client-mysql:
@@ -90,7 +79,3 @@ services:
   sysbench:
     image: perconalab/sysbench
     container_name: pmm-agent_sysbench
-
-volumes:
-  test_db_mysql:
-  test_db_postgres:

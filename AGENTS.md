@@ -134,6 +134,8 @@ PMM has three test layers ([`CONTRIBUTING.md`](CONTRIBUTING.md)): unit, API inte
 
 CI runs separate linters per area. `make prepare-pr` covers **Go only** — it does not lint UI or dashboards.
 
+The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it with **`make init`** — do not install golangci-lint another way, since a different build reports different findings than CI.
+
 | If you changed… | Run |
 |-----------------|-----|
 | Go backend (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `make prepare-pr` from repo root (or `make check` after `make gen` for a quicker pass) |
@@ -347,11 +349,12 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 ### Code Style
 - Format with `gofumpt -s`; run `make format`
-- Follow [Effective Go](https://golang.org/doc/effective_go.html) and [CodeReviewComments](https://github.com/golang/go/wiki/CodeReviewComments)
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
 - Use modern slice helpers (`slices.Contains`), range loops
 - Use `new(expr)` instead of `pointer.To(expr)` when a pointer to a value is needed
+- Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`
+- Don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
 - Don't use named return values
 - Don't inline comments (`code // comment`); put comments on separate lines
 - Don't add obvious/redundant comments; only comment non-obvious intent
@@ -378,6 +381,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 ### Testing
 - Use `testify/assert` and `testify/require` (not testify suites)
+- Prefer `t.Context()` over `context.Background()`; `usetesting` misses it inside helper closures
 - Mock generation via `mockery` (config in `.mockery.yaml`)
 - Unit tests: `*_test.go` next to implementation
 - Integration tests: `/api-tests/`, run against live PMM Server
@@ -428,6 +432,7 @@ All long-running daemons expose on `127.0.0.1`:
 
 | Target | Purpose |
 |--------|---------|
+| `make init` | Install pinned dev tools into `bin/` (golangci-lint at the version CI uses) |
 | `make env-up` | Start development container (PMM Server) |
 | `make env-up-rebuild` | Rebuild development container from scratch |
 | `make env TARGET=<t>` | Run `make <t>` **inside** the `pmm-server` container as the `pmm` user (bash shell if `TARGET` omitted); use `make env-root` for build/test/lint targets |

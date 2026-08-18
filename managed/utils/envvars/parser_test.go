@@ -124,6 +124,8 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_CLICKHOUSE_ADDR=127.0.0.1:9000",
 			"PMM_CLICKHOUSE_USER=default",
 			"PMM_CLICKHOUSE_PASSWORD=secret",
+			"PMM_CLICKHOUSE_DATASOURCE_USER=grafana",
+			"PMM_CLICKHOUSE_DATASOURCE_PASSWORD=secret",
 			"PMM_CLICKHOUSE_HOST=127.0.0.1",
 			"PMM_CLICKHOUSE_PORT=9000",
 			"PMM_CLICKHOUSE_IS_CLUSTER=true",
@@ -268,4 +270,29 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 	})
+}
+
+func TestRedactSecretEnvVar(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		key      string
+		value    string
+		expected string
+	}{
+		{key: "PMM_CLICKHOUSE_DATASOURCE_PASSWORD", value: "s3cret", expected: "<redacted>"},
+		{key: "PMM_CLICKHOUSE_PASSWORD", value: "s3cret", expected: "<redacted>"},
+		{key: "PMM_POSTGRES_DBPASSWORD", value: "s3cret", expected: "<redacted>"},
+		{key: "GF_SECURITY_ADMIN_PASSWORD", value: "s3cret", expected: "<redacted>"},
+		{key: "AWS_SECRET_KEY", value: "s3cret", expected: "<redacted>"},
+		{key: "PMM_CLICKHOUSE_DATASOURCE_USER", value: "grafana", expected: "grafana"},
+		{key: "PMM_DATA_RETENTION", value: "72h", expected: "72h"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.key, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.expected, redactSecretEnvVar(tt.key, tt.value))
+		})
+	}
 }
