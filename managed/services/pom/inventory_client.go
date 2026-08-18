@@ -86,6 +86,9 @@ type sepRunCounts struct {
 	ServicesResolved int32 `json:"services_resolved"`
 	ServicesOrphaned int32 `json:"services_orphaned"`
 	ServicesAnswered int32 `json:"services_answered"`
+	HostsTotal       int32 `json:"hosts_total"`
+	HostsProbeable   int32 `json:"hosts_probeable"`
+	HostsAnswered    int32 `json:"hosts_answered"`
 }
 
 // sepRun is one row of GET /runs.
@@ -97,6 +100,19 @@ type sepRun struct {
 	Counts     sepRunCounts `json:"counts"`
 	Scope      []string     `json:"scope"`
 	Error      *string      `json:"error"`
+	// Only the detail endpoint fills this; the list omits it.
+	Nodes []sepRunNode `json:"nodes"`
+}
+
+// sepRunNode is one entity a refresh attempted, from GET /runs/{id}.
+type sepRunNode struct {
+	ServiceID    *string  `json:"service_id"`
+	ServiceName  string   `json:"service_name"`
+	ExecutorHost *string  `json:"executor_host"`
+	Resolution   string   `json:"resolution"`
+	Answered     bool     `json:"answered"`
+	Duration     *float64 `json:"duration_seconds"`
+	Error        *string  `json:"error"`
 }
 
 // sepSetting is one row of GET /config.

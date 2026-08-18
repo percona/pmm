@@ -518,6 +518,80 @@ func TestInventoryRunsDefaultLimit(t *testing.T) {
 	assert.Equal(t, "limit=20", stub.query)
 }
 
+func TestInventoryRunCarriesHostCounters(t *testing.T) {
+	t.Parallel()
+
+	// A refresh attempts hosts as well as the services on them. Counting only
+	// services made a refresh of a host with no database read as "0 of 0", which is
+	// what a run that did nothing also looks like -- on the one kind of host POM most
+	// exists to describe.
+	stub := newSEPStub(t, http.StatusOK, `[{
+	  "run_id": "r1", "status": "success",
+	  "started_at": "2026-08-18T12:00:00Z", "finished_at": "2026-08-18T12:00:30Z",
+	  "counts": {"services_total": 0, "services_resolved": 0, "services_orphaned": 0,
+	             "services_answered": 0,
+	             "hosts_total": 3, "hosts_probeable": 2, "hosts_answered": 1},
+	  "scope": ["node-1"], "error": null
+	}]`)
+
+	res, err := stub.service(t).ListInventoryRuns(t.Context(), &pomv1.ListInventoryRunsRequest{})
+
+	require.NoError(t, err)
+	require.Len(t, res.GetRuns(), 1)
+	counts := res.GetRuns()[0].GetCounts()
+	assert.Equal(t, int32(3), counts.GetHostsTotal())
+	assert.Equal(t, int32(2), counts.GetHostsProbeable())
+	assert.Equal(t, int32(1), counts.GetHostsAnswered())
+	// Zero services is the honest answer for a host-only refresh, and the reason the
+	// host counters had to exist rather than the service ones being reinterpreted.
+	assert.Equal(t, int32(0), counts.GetServicesTotal())
+}
+
+func TestInventoryRunDetailCarriesOutcomesNotObservations(t *testing.T) {
+	t.Parallel()
+
+	// The receipt says what was attempted and what came of it. What the probe *found*
+	// belongs to the estate, which is upserted and stays current; carrying it here as
+	// well would be a second copy that goes stale on the next refresh.
+	stub := newSEPStub(t, http.StatusOK, `{
+	  "run_id": "r1", "status": "partial",
+	  "started_at": "2026-08-18T12:00:00Z", "finished_at": "2026-08-18T12:00:30Z",
+	  "counts": {"services_total": 2, "services_resolved": 1, "services_orphaned": 1,
+	             "services_answered": 1},
+	  "scope": [], "error": null,
+	  "nodes": [
+	    {"service_id": "s1", "service_name": "mongo-1", "executor_host": "db00",
+	     "resolution": "name", "answered": true, "duration_seconds": 12.5,
+	     "error": null},
+	    {"service_id": null, "service_name": "mongo-2", "executor_host": null,
+	     "resolution": "orphaned", "answered": false, "duration_seconds": null,
+	     "error": "no executor host"}
+	  ]
+	}`)
+
+	res, err := stub.service(t).GetInventoryRun(t.Context(), &pomv1.GetInventoryRunRequest{RunId: "r1"})
+
+	require.NoError(t, err)
+	require.Len(t, res.GetEntities(), 2)
+
+	answered := res.GetEntities()[0]
+	assert.Equal(t, "mongo-1", answered.GetServiceName())
+	assert.Equal(t, "db00", answered.GetExecutorHost().GetValue())
+	assert.True(t, answered.GetAnswered())
+	assert.InDelta(t, 12.5, answered.GetDurationSeconds().GetValue(), 0.001)
+
+	// An orphan keeps its row rather than being dropped: "1 of 2 answered" cannot say
+	// which one, and the orphan is the one worth acting on.
+	orphan := res.GetEntities()[1]
+	assert.Equal(t, "orphaned", orphan.GetResolution())
+	assert.False(t, orphan.GetAnswered())
+	// Wrappers, not optional scalars: protojson drops an unset optional entirely, so a
+	// service with no id would silently become one with an empty id.
+	assert.Nil(t, orphan.GetServiceId())
+	assert.Nil(t, orphan.GetDurationSeconds())
+	assert.Equal(t, "no executor host", orphan.GetError().GetValue())
+}
+
 func TestInventoryBearerIsSent(t *testing.T) {
 	t.Parallel()
 
