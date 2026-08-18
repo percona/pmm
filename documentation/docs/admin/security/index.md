@@ -12,7 +12,7 @@ Taking the following precautions will ensure that you are truly secure:
 
 ## Manually configure the PostgreSQL Grafana datasource
 
-Starting with PMM 3.10.0, PMM no longer provisions a PostgreSQL Grafana datasource by default. If you need to query PMM's internal PostgreSQL database directly, you can add the datasource manually.
+Starting with PMM 3.9.0, PMM no longer provisions a PostgreSQL Grafana datasource by default. If you need to query PMM's internal PostgreSQL database directly, you can add the datasource manually.
 
 To prevent unauthorized data modification, configure the datasource with a database user that has **SELECT**-only permissions.
 
