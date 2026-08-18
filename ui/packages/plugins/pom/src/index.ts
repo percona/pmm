@@ -18,7 +18,8 @@
 export { PomApp } from './PomApp';
 export { pomBase, usePomBase } from './usePomBase';
 export { OverviewPage } from './OverviewPage';
-export { TopologyPage } from './TopologyPage';
+export { ServicesPage } from './ServicesPage';
+export { HostsPage } from './HostsPage';
 export { RunsPage } from './RunsPage';
 export { StatusBadge, RunStatusBadge } from './components/HealthBadge';
 export { Duration, Percent } from './components/Metric';
@@ -49,8 +50,11 @@ export {
 } from './hooks';
 export {
   POM_ROUTE_OVERVIEW,
-  POM_ROUTE_TOPOLOGY,
-  POM_ROUTE_RUNS,
+  POM_ROUTE_SERVICES,
+  POM_ROUTE_HOSTS,
+  POM_ROUTE_DISCOVERY,
+  HOST_DATABASE_STATE_LABEL,
+  HOST_DATABASE_STATE_COLOR,
   SERVICE_STATUS_LABEL,
   SERVICE_STATUS_COLOR,
   PROCESS_ROLE_LABEL,
@@ -58,6 +62,23 @@ export {
   RUN_STATUS_LABEL,
   RUN_STATUS_COLOR,
 } from './constants';
+export {
+  usePomInventoryHosts,
+  usePomInventoryServices,
+  usePomInventoryRuns,
+  useRefreshInventory,
+  useForgetHost,
+  useForgetService,
+  isRefreshActive,
+} from './inventoryHooks';
+export {
+  ageSeconds,
+  databaseState,
+  isFailing,
+  joinServiceInventory,
+  repoReachability,
+  toHostRows,
+} from './inventory';
 export {
   formatAge,
   formatDuration,

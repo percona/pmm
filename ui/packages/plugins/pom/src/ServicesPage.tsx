@@ -15,10 +15,11 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Alert,
   Box,
+  Chip,
   LinearProgress,
   Stack,
   Tooltip,
@@ -37,7 +38,11 @@ import { SyncButton } from './components/SyncButton';
 import { Duration, Percent } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
 import { toServiceRows, usePomTopology } from './hooks';
-import type { PomServiceRow } from './types';
+import { usePomInventoryServices } from './inventoryHooks';
+import { ageSeconds, isFailing, joinServiceInventory } from './inventory';
+import { formatDuration } from './format';
+import { ProbeValue } from './components/ProbeValue';
+import type { PomInventoryService, PomServiceInventoryRow } from './types';
 
 /** A full `mongod` command line is a paragraph; the cell shows it on hover. */
 const TRUNCATED = {
@@ -62,10 +67,11 @@ const HIDDEN_BY_DEFAULT = {
   edition: false,
   config_path: false,
   argv: false,
+  node_id: false,
 };
 
 /** Columns for the flat service table. Grouping keys lead, then identity, then load. */
-function useColumns(): MRT_ColumnDef<PomServiceRow>[] {
+function useColumns(): MRT_ColumnDef<PomServiceInventoryRow>[] {
   return useMemo(
     () => [
       {
@@ -121,15 +127,54 @@ function useColumns(): MRT_ColumnDef<PomServiceRow>[] {
           original.version ?? <Unavailable reason="service_not_observed" />,
       },
       {
-        accessorKey: 'installed_version',
+        // Read off the estate rather than the snapshot: the merge that used to put it
+        // there is gone, and this is now first-hand.
+        //
+        // Deliberately beside `version` and never merged with it. That column is what
+        // the running mongod reports over the wire; this is what the package database
+        // on the host says. They disagree exactly when a package has been upgraded and
+        // the process not restarted, which is a state POM exists to find - and one
+        // column showing "whichever we have" could not express it.
+        id: 'installed_version',
+        accessorFn: (row) => row.inventory?.installed_version ?? null,
         header: 'Installed',
-        // Reads "not collected" rather than "not observed": unlike every other
-        // column this one needs an on-host probe, so its absence says the discovery
-        // app has not run here -- not that the service is unreachable.
+        Cell: ({ row: { original } }) => (
+          <ProbeValue
+            inventory={original.inventory}
+            value={original.inventory?.installed_version}
+          />
+        ),
+      },
+      {
+        id: 'probe_status',
+        accessorFn: (row) => row.inventory?.probe_status ?? null,
+        header: 'Probe',
         Cell: ({ row: { original } }) =>
-          original.installed_version ?? (
-            <Unavailable reason="metric_not_collected" />
+          original.inventory ? (
+            <ProbeStatus inventory={original.inventory} />
+          ) : (
+            <Unavailable reason="not_in_inventory" />
           ),
+      },
+      {
+        id: 'last_success_at',
+        // Sorted on the age in seconds, not the timestamp string: the column is read
+        // as "how stale", and a lexicographic sort of ISO strings puts a row that has
+        // never answered next to the oldest one rather than at the end.
+        accessorFn: (row) =>
+          ageSeconds(row.inventory?.freshness.last_success_at) ?? Infinity,
+        header: 'Collected',
+        Cell: ({ row: { original } }) => {
+          if (!original.inventory) {
+            return <Unavailable reason="not_in_inventory" />;
+          }
+          const age = ageSeconds(original.inventory.freshness.last_success_at);
+          return age == null ? (
+            <Unavailable reason="probe_never_succeeded" />
+          ) : (
+            <>{formatDuration(age)} ago</>
+          );
+        },
       },
       {
         accessorKey: 'vendor',
@@ -192,25 +237,41 @@ function useColumns(): MRT_ColumnDef<PomServiceRow>[] {
           original.edition ?? <Unavailable reason="service_not_observed" />,
       },
       {
-        accessorKey: 'config_path',
+        id: 'config_path',
+        accessorFn: (row) => row.inventory?.config_path ?? null,
         header: 'Config path',
-        // Probe-only, like `installed_version`: its absence says the discovery app
-        // has not run on this host, not that the service is unreachable.
-        Cell: ({ row: { original } }) =>
-          original.config_path ?? <Unavailable reason="metric_not_collected" />,
+        Cell: ({ row: { original } }) => (
+          <ProbeValue
+            inventory={original.inventory}
+            value={original.inventory?.config_path}
+          />
+        ),
       },
       {
-        accessorKey: 'argv',
+        id: 'node_id',
+        accessorFn: (row) => row.inventory?.node_id ?? null,
+        header: 'Node ID',
+        // The link to the Hosts page, and the key POM's estate is built on. Hidden by
+        // default like the other identifiers, but it is what makes "which host is this
+        // on" answerable without a second lookup.
+        Cell: ({ row: { original } }) =>
+          original.inventory?.node_id ?? (
+            <Unavailable reason="not_in_inventory" />
+          ),
+      },
+      {
+        id: 'argv',
+        accessorFn: (row) => row.inventory?.argv ?? null,
         header: 'Command line',
         Cell: ({ row: { original } }) =>
-          original.argv ? (
-            <Tooltip title={original.argv}>
+          original.inventory?.argv ? (
+            <Tooltip title={original.inventory.argv}>
               <Box component="span" sx={TRUNCATED}>
-                {original.argv}
+                {original.inventory.argv}
               </Box>
             </Tooltip>
           ) : (
-            <Unavailable reason="metric_not_collected" />
+            <ProbeValue inventory={original.inventory} value={null} />
           ),
       },
     ],
@@ -218,18 +279,30 @@ function useColumns(): MRT_ColumnDef<PomServiceRow>[] {
   );
 }
 
-/** Counts above the table, so the headline numbers need no reading of rows. */
+/**
+ * Counts above the table, so the headline numbers need no reading of rows.
+ *
+ * `failing` counts probes, not services: a service can be UP to PMM and failing its
+ * probe, which is the pair of facts this page exists to put side by side. It doubles
+ * as the filter, because a count nobody can act on is decoration.
+ */
 function Counts({
   total,
   up,
   down,
+  failing,
+  failingOnly,
+  onToggleFailing,
 }: {
   total: number;
   up: number;
   down: number;
+  failing: number;
+  failingOnly: boolean;
+  onToggleFailing: () => void;
 }) {
   return (
-    <Stack direction="row" spacing={3} sx={{ mb: 2 }}>
+    <Stack direction="row" spacing={3} sx={{ mb: 2, alignItems: 'center' }}>
       <Typography variant="body2">
         <strong>{total}</strong> services
       </Typography>
@@ -242,22 +315,86 @@ function Counts({
       >
         <strong>{down}</strong> down
       </Typography>
+      {failing > 0 || failingOnly ? (
+        <Chip
+          size="small"
+          color={failingOnly ? 'error' : 'default'}
+          variant={failingOnly ? 'filled' : 'outlined'}
+          label={`${failing} failing a probe`}
+          onClick={onToggleFailing}
+        />
+      ) : null}
     </Stack>
   );
 }
 
 /**
- * The estate as one table, one row per service.
+ * A service's probe outcome, as a word rather than a status string.
+ *
+ * Failing is shown with how long it has been failing, because that is the difference
+ * between a blip and something to act on: a table of fifteen rows where one has been
+ * failing for three days looks identical to a healthy one otherwise.
+ */
+function ProbeStatus({ inventory }: { inventory: PomInventoryService }) {
+  const since = ageSeconds(inventory.freshness.failing_since);
+  if (since == null) {
+    return <>{inventory.probe_status ?? 'ok'}</>;
+  }
+  return (
+    <Tooltip
+      title={
+        inventory.freshness.last_error ??
+        'The last probe against this service failed.'
+      }
+    >
+      <Box component="span" sx={{ color: 'error.main', cursor: 'help' }}>
+        failing {formatDuration(since)}
+        {inventory.freshness.consecutive_failures > 0
+          ? ` (${inventory.freshness.consecutive_failures}x)`
+          : ''}
+      </Box>
+    </Tooltip>
+  );
+}
+
+/**
+ * Every monitored service, with what PMM sees and what the probe found.
+ *
+ * Two sources joined on PMM's service id, which costs nothing: the estate is keyed on
+ * the same id, so there is no matching rule and nothing to get wrong. Rows come from
+ * the snapshot, so a service PMM registered since the last sweep still appears - with
+ * its probe columns saying why they are empty rather than the row being missing.
  *
  * The document is a nested `environments -> clusters -> services` tree, but it renders
  * flat: sorting and filtering are only useful across the whole estate, and the nesting
  * survives as the two leading columns. Grouping is available on them if a reader wants
  * the tree back, and Overview is the same snapshot already read that way.
  */
-export function TopologyPage() {
+export function ServicesPage() {
   const { data, isPending, isError, error } = usePomTopology();
+  // Deliberately not gated on the estate loading or failing. The snapshot is PMM's own
+  // and always available; the estate is a second service that may be unwell, and a
+  // page that blanked when it was would be exactly what proxying it through
+  // pmm-managed was meant to stop.
+  const { data: inventory } = usePomInventoryServices();
+  const [failingOnly, setFailingOnly] = useState(false);
   const columns = useColumns();
-  const rows = useMemo(() => toServiceRows(data), [data]);
+  const joined = useMemo(
+    () => joinServiceInventory(toServiceRows(data), inventory),
+    [data, inventory]
+  );
+  const rows = useMemo(
+    () =>
+      failingOnly
+        ? joined.filter((row) => row.inventory && isFailing(row.inventory))
+        : joined,
+    [joined, failingOnly]
+  );
+  const failingCount = useMemo(
+    () =>
+      joined.filter((row) => row.inventory && isFailing(row.inventory)).length,
+    [joined]
+  );
 
   const table = useMaterialReactTable({
     columns,
@@ -292,11 +429,11 @@ export function TopologyPage() {
   return (
     <Box>
       <PomHeader
-        title="Topology"
+        title="Services"
         subtitle={
           <Typography variant="body2" color="text.secondary">
-            Every monitored MongoDB service, and every field the snapshot stores
-            about it.
+            Every monitored MongoDB service: what PMM sees over the wire, and
+            what POM&apos;s probe found on the host.
           </Typography>
         }
         actions={<SyncButton />}
@@ -306,6 +443,9 @@ export function TopologyPage() {
         total={data.summary.services_total}
         up={data.summary.services_up}
         down={data.summary.services_down}
+        failing={failingCount}
+        failingOnly={failingOnly}
+        onToggleFailing={() => setFailingOnly((on) => !on)}
       />
       <MaterialReactTable table={table} />
     </Box>
