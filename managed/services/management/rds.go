@@ -20,9 +20,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"slices"
 	"sort"
-	"strings"
+	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -92,36 +91,35 @@ func discoverRDSRegion(ctx context.Context, cfg aws.Config, region string) ([]ty
 	return res, nil
 }
 
-// partitionServices maps an AWS partition to its per-service region lists.
-var partitionServices = map[string]map[string][]string{
-	"aws": {
-		"rds": {
-			"af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1",
-			"ap-south-2", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ap-southeast-4", "ca-central-1",
-			"ca-west-1", "eu-central-1", "eu-central-2", "eu-north-1", "eu-south-1", "eu-south-2",
-			"eu-west-1", "eu-west-2", "eu-west-3", "il-central-1", "me-central-1", "me-south-1",
-			"sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2",
-		},
-	},
-	"aws-cn": {
-		"rds": {
-			"cn-north-1", "cn-northwest-1",
-		},
-	},
-	"aws-iso": {
-		"rds": {
-			"us-iso-east-1", "us-iso-west-1", "us-isob-east-1",
-		},
-	},
-	"aws-us-gov": {
-		"rds": {
-			"us-gov-west-1", "us-gov-east-1",
-		},
-	},
-}
-
 // listRegions returns a list of AWS regions for given partitions.
 func listRegions(partitions []string) []string {
+	partitionServices := map[string]map[string][]string{
+		"aws": {
+			"rds": {
+				"af-south-1", "ap-east-1", "ap-northeast-1", "ap-northeast-2", "ap-northeast-3", "ap-south-1",
+				"ap-south-2", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", "ap-southeast-4", "ca-central-1",
+				"ca-west-1", "eu-central-1", "eu-central-2", "eu-north-1", "eu-south-1", "eu-south-2",
+				"eu-west-1", "eu-west-2", "eu-west-3", "il-central-1", "me-central-1", "me-south-1",
+				"sa-east-1", "us-east-1", "us-east-2", "us-west-1", "us-west-2",
+			},
+		},
+		"aws-cn": {
+			"rds": {
+				"cn-north-1", "cn-northwest-1",
+			},
+		},
+		"aws-iso": {
+			"rds": {
+				"us-iso-east-1", "us-iso-west-1", "us-isob-east-1",
+			},
+		},
+		"aws-us-gov": {
+			"rds": {
+				"us-gov-west-1", "us-gov-east-1",
+			},
+		},
+	}
+
 	set := make(map[string]struct{})
 	for _, p := range partitions {
 		for name, partition := range partitionServices {
@@ -189,23 +187,36 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)
 	defer cancel()
 
-	if req.AwsRoleArn != "" {
-		cfg.Credentials = assumeRoleProvider(cfg, req.AwsRoleArn)
-
-		// Assume the role eagerly: per-region errors below are only logged, so without this a
-		// bad ARN or a missing sts:AssumeRole trust entry would look like "no instances found".
-		_, err = cfg.Credentials.Retrieve(ctx)
-		if err != nil {
-			return nil, status.Errorf(codes.FailedPrecondition, "Failed to assume role %s: %s.", req.AwsRoleArn, err)
-		}
-	}
-
 	var wg errgroup.Group
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
+	// Every region fails identically when the role cannot be assumed, and the group keeps only
+	// whichever error arrived first, so the assumption failure is recorded separately.
+	var (
+		assumeOnce sync.Once
+		assumeErr  error
+	)
+
 	for _, region := range regions {
 		wg.Go(func() error {
-			regInstances, err := discoverRDSRegion(ctx, cfg, region)
+			regCfg := cfg
+			if req.AwsRoleArn != "" {
+				// STS is partition-scoped, so the role is assumed in the region being scanned.
+				regCfg.Region = region
+				regCfg.Credentials = assumeRoleProvider(regCfg, req.AwsRoleArn)
+
+				// Resolve now: once the RDS call wraps this, the outer error names RDS and the
+				// assumption failure is no longer distinguishable from any other region error.
+				_, err := regCfg.Credentials.Retrieve(ctx)
+				if err != nil {
+					l.Debugf("%s: %+v", region, err)
+					assumeOnce.Do(func() { assumeErr = err })
+
+					return err
+				}
+			}
+
+			regInstances, err := discoverRDSRegion(ctx, regCfg, region)
 			if err != nil {
 				l.Debugf("%s: %+v", region, err)
 			}
@@ -257,6 +268,12 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	// ignore error if there are some results
 	if len(res.RdsInstances) != 0 {
 		return res, nil
+	}
+
+	// A role that cannot be assumed yields nothing anywhere, so report that rather than the
+	// timeout the failing regions go on to produce.
+	if assumeErr != nil {
+		return res, status.Errorf(codes.FailedPrecondition, "Failed to assume role %s: %s.", req.AwsRoleArn, assumeErr)
 	}
 
 	// return better gRPC errors in typical cases
@@ -568,43 +585,8 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 }
 
 // assumeRoleProvider returns a credentials provider that assumes roleARN using the
-// credentials already resolved in cfg. The provider is cache-wrapped so the SDK refreshes
-// the assumed credentials before they expire.
+// credentials and region already resolved in cfg. The provider is cache-wrapped so the SDK
+// refreshes the assumed credentials before they expire.
 func assumeRoleProvider(cfg aws.Config, roleARN string) aws.CredentialsProvider { //nolint:ireturn
-	stsCfg := cfg
-	stsCfg.Region = stsRegion(cfg, roleARN)
-
-	return aws.NewCredentialsCache(stscreds.NewAssumeRoleProvider(sts.NewFromConfig(stsCfg), roleARN))
-}
-
-// stsRegion returns the region to call STS in. STS is partition-scoped, so the region must
-// belong to the partition that owns roleARN: the ambient region is used only when it does,
-// otherwise the partition's first known region is.
-func stsRegion(cfg aws.Config, roleARN string) string {
-	regions := partitionServices[arnPartition(roleARN)][rdsEndpointsID]
-	if len(regions) == 0 {
-		return cfg.Region
-	}
-
-	if slices.Contains(regions, cfg.Region) {
-		return cfg.Region
-	}
-
-	return slices.Min(regions)
-}
-
-// arnPartition returns the partition of an ARN, or an empty string if it cannot be parsed.
-// ARNs are arn:<partition>:<service>:<region>:<account>:<resource>.
-func arnPartition(arn string) string {
-	scheme, rest, ok := strings.Cut(arn, ":")
-	if !ok || scheme != "arn" {
-		return ""
-	}
-
-	partition, _, ok := strings.Cut(rest, ":")
-	if !ok {
-		return ""
-	}
-
-	return partition
+	return aws.NewCredentialsCache(stscreds.NewAssumeRoleProvider(sts.NewFromConfig(cfg), roleARN))
 }
