@@ -219,7 +219,10 @@ func (s *Service) GetInventoryRun(ctx context.Context, req *pomv1.GetInventoryRu
 	if err := probe.call(ctx, call, &run); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
-	return &pomv1.GetInventoryRunResponse{Run: inventoryRunToProto(run)}, nil
+	return &pomv1.GetInventoryRunResponse{
+		Run:      inventoryRunToProto(run),
+		Entities: inventoryRunEntitiesToProto(run.Nodes),
+	}, nil
 }
 
 // TriggerInventoryRefresh probes the estate, or the named hosts within it.
@@ -379,10 +382,35 @@ func inventoryRunToProto(run sepRun) *pomv1.InventoryRun {
 			ServicesResolved: run.Counts.ServicesResolved,
 			ServicesOrphaned: run.Counts.ServicesOrphaned,
 			ServicesAnswered: run.Counts.ServicesAnswered,
+			HostsTotal:       run.Counts.HostsTotal,
+			HostsProbeable:   run.Counts.HostsProbeable,
+			HostsAnswered:    run.Counts.HostsAnswered,
 		},
 		Scope: run.Scope,
 		Error: optionalString(run.Error),
 	}
+}
+
+// inventoryRunEntitiesToProto projects what a refresh attempted, one row per entity.
+//
+// Outcomes only: which entity, on which host, matched how, answered or not, how long,
+// and the error. What the probe found belongs to the estate, which is upserted and
+// stays current -- carrying it here as well would be a second copy that goes stale the
+// moment the next refresh runs.
+func inventoryRunEntitiesToProto(nodes []sepRunNode) []*pomv1.InventoryRunEntity {
+	entities := make([]*pomv1.InventoryRunEntity, 0, len(nodes))
+	for _, node := range nodes {
+		entities = append(entities, &pomv1.InventoryRunEntity{
+			ServiceId:       optionalString(node.ServiceID),
+			ServiceName:     node.ServiceName,
+			ExecutorHost:    optionalString(node.ExecutorHost),
+			Resolution:      node.Resolution,
+			Answered:        node.Answered,
+			DurationSeconds: optionalDouble(node.Duration),
+			Error:           optionalString(node.Error),
+		})
+	}
+	return entities
 }
 
 // inventorySettingsToProto projects the configuration rows for the wire.

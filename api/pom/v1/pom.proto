@@ -377,6 +377,47 @@ message InventoryRunCounts {
   int32 services_orphaned = 3;
   // Services that answered a probe.
   int32 services_answered = 4;
+  // Hosts in scope this run, service or no service.
+  //
+  // A refresh attempts hosts as well as the services on them, so counting only
+  // services makes a refresh of a host with no database read as "0 of 0" - which is
+  // exactly what a run that did nothing looks like, on the one kind of host POM most
+  // exists to describe.
+  int32 hosts_total = 5;
+  // ...of which had somewhere to run a probe. The gap is the estate nothing can be
+  // dispatched to, which is a fact about onboarding rather than a failed run.
+  int32 hosts_probeable = 6;
+  // Hosts that answered.
+  int32 hosts_answered = 7;
+}
+
+// InventoryRunEntity is one entity a refresh attempted, and what came of it.
+//
+// The counters on a run are this list's summary; these are the rows behind them. "5 of
+// 14 answered" cannot say which five, on which host, or which host took a minute, and
+// each of those is the first question asked of a slow or partial refresh.
+//
+// Deliberately outcomes and not observations. What the probe *found* lives on the
+// estate, where it is upserted and stays current; a receipt that also carried the
+// attributes would be a second copy of the estate that goes stale the moment the next
+// refresh runs.
+message InventoryRunEntity {
+  // PMM's service ID, when the entity is a service POM could key.
+  google.protobuf.StringValue service_id = 1;
+  // Its name, carried so a reader is not left joining UUIDs by hand.
+  string service_name = 2;
+  // The host its probe ran on. Unset when nothing could be dispatched for it.
+  google.protobuf.StringValue executor_host = 3;
+  // name, address or orphaned - how that host was matched, or that it was not.
+  string resolution = 4;
+  // Whether the host returned a usable record for it.
+  bool answered = 5;
+  // The host's wall clock, dispatch to collected output. Repeated across the services
+  // one host serves, because a single dispatch covers all of them and there is no
+  // per-service time to report.
+  google.protobuf.DoubleValue duration_seconds = 6;
+  // The host-level failure, when its probe failed.
+  google.protobuf.StringValue error = 7;
 }
 
 // InventoryRun is one refresh of the estate.
@@ -513,10 +554,16 @@ message GetInventoryRunRequest {
   string run_id = 1 [(validate.rules).string.min_len = 1];
 }
 
-// GetInventoryRunResponse returns one refresh.
+// GetInventoryRunResponse returns one refresh, with the rows behind its counters.
 message GetInventoryRunResponse {
   // The run.
   InventoryRun run = 1;
+  // What it attempted, one entry per entity.
+  //
+  // Only on the detail response, never on the list: a refresh of a real estate has a
+  // row per service, and a history of twenty-five would carry the lot to render a
+  // page that shows one at a time.
+  repeated InventoryRunEntity entities = 2;
 }
 
 // TriggerInventoryRefreshRequest is the request for TriggerInventoryRefresh.
