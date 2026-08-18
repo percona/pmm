@@ -1,1035 +1,1035 @@
 {
-    "annotations": {
-        "list": [
-            {
-                "builtIn": 1,
-                "datasource": {
-                    "type": "datasource",
-                    "uid": "grafana"
-                },
-                "enable": true,
-                "hide": true,
-                "iconColor": "rgba(0, 211, 255, 1)",
-                "name": "Annotations & Alerts",
-                "target": {
-                    "limit": 100,
-                    "matchAny": false,
-                    "tags": [],
-                    "type": "dashboard"
-                },
-                "type": "dashboard"
-            },
-            {
-                "datasource": {
-                    "type": "datasource",
-                    "uid": "grafana"
-                },
-                "enable": true,
-                "iconColor": "orange",
-                "name": "PMM Annotations",
-                "target": {
-                    "limit": 100,
-                    "matchAny": false,
-                    "tags": [
-                        "pmm_annotation"
-                    ],
-                    "type": "tags"
-                },
-                "type": "tags"
-            }
-        ]
-    },
-    "editable": false,
-    "fiscalYearStartMonth": 0,
-    "graphTooltip": 1,
-    "id": null,
-    "links": [],
-    "liveNow": false,
-    "panels": [
-        {
-            "collapsed": false,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 0
-            },
-            "id": 1,
-            "panels": [],
-            "title": "Overview",
-            "type": "row"
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
         },
-        {
-            "description": "Indexes with zero accesses since the last mongod restart are candidates for review. The indexstats collector must be enabled on the MongoDB exporter. Index usage is recorded only on the node that executes the query, so review all replica set members before dropping an index.",
-            "fieldConfig": {
-                "defaults": {},
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 5,
-                "w": 24,
-                "x": 0,
-                "y": 1
-            },
-            "id": 2,
-            "options": {
-                "code": {
-                    "language": "plaintext",
-                    "showLineNumbers": false,
-                    "showMiniMap": false
-                },
-                "content": "<p>This dashboard lists MongoDB indexes with <b>zero accesses</b> since the last <code>mongod</code> service restart. These indexes are candidates for dropping after validation with your application team.</p><p><b>Requirements:</b> enable the <code>indexstats</code> collector on the MongoDB exporter. On replica sets, check every member before dropping an index because usage is recorded only on the node that runs the query.</p>",
-                "mode": "html"
-            },
-            "pluginVersion": "11.6.4",
-            "title": "About Unused Indexes",
-            "type": "text"
-        },
-        {
-            "description": "Minimum uptime across the selected MongoDB node(s) (time since the most recent restart).",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "decimals": 1,
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "d"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 8,
-                "x": 0,
-                "y": 4
-            },
-            "id": 3,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "11.6.4",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "min(mongodb_instance_uptime_seconds{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", node_name=~\"$node_name\"}) / 86400",
-                    "instant": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Instance Uptime",
-            "type": "stat"
-        },
-        {
-            "description": "Number of indexes with zero accesses since the last mongod restart. The default _id_ index is excluded.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "yellow",
-                                "value": 1
-                            },
-                            {
-                                "color": "red",
-                                "value": 10
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 8,
-                "x": 8,
-                "y": 4
-            },
-            "id": 4,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "11.6.4",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "count(avg by (cluster, collection, database, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}) == 0)",
-                    "instant": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Unused Indexes",
-            "type": "stat"
-        },
-        {
-            "description": "Total number of indexes reported by the indexstats collector for the selected filters.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "fixedColor": "blue",
-                        "mode": "fixed"
-                    },
-                    "mappings": [
-                        {
-                            "options": {
-                                "match": "null",
-                                "result": {
-                                    "text": "N/A"
-                                }
-                            },
-                            "type": "special"
-                        }
-                    ],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 4,
-                "w": 8,
-                "x": 16,
-                "y": 4
-            },
-            "id": 5,
-            "options": {
-                "colorMode": "value",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                    "calcs": [
-                        "lastNotNull"
-                    ],
-                    "fields": "",
-                    "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "auto",
-                "wideLayout": true
-            },
-            "pluginVersion": "11.6.4",
-            "targets": [
-                {
-                    "expr": "count(avg by (cluster, collection, database, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
-                    "refId": "A"
-                }
-            ],
-            "title": "Indexes Monitored",
-            "type": "stat"
-        },
-        {
-            "collapsed": false,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 8
-            },
-            "id": 6,
-            "panels": [],
-            "title": "Unused Index Candidates",
-            "type": "row"
-        },
-        {
-            "description": "Indexes with zero accesses since the last mongod restart. Review with your application team before dropping any index.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "custom": {
-                        "align": "auto",
-                        "cellOptions": {
-                            "type": "auto"
-                        },
-                        "filterable": true,
-                        "inspect": false
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "none"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "database"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Database"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "collection"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Collection"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "key_name"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Index"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "cluster"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Cluster"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "service_name"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Service"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Value"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Unused"
-                            },
-                            {
-                                "id": "custom.hidden",
-                                "value": true
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 12,
-                "w": 24,
-                "x": 0,
-                "y": 9
-            },
-            "id": 7,
-            "options": {
-                "cellHeight": "sm",
-                "footer": {
-                    "countRows": false,
-                    "fields": "",
-                    "reducer": [
-                        "sum"
-                    ],
-                    "show": false
-                },
-                "showHeader": true,
-                "sortBy": [
-                    {
-                        "desc": false,
-                        "displayName": "Database"
-                    }
-                ]
-            },
-            "pluginVersion": "11.6.4",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "avg by (cluster, collection, database, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}) == 0",
-                    "format": "table",
-                    "instant": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Unused Indexes by Collection",
-            "transformations": [
-                {
-                    "id": "filterFieldsByName",
-                    "options": {
-                        "include": {
-                            "names": [
-                                "cluster",
-                                "database",
-                                "collection",
-                                "key_name",
-                                "service_name",
-                                "Value"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "includeByName": {},
-                        "indexByName": {
-                            "Value": 5,
-                            "cluster": 0,
-                            "collection": 2,
-                            "database": 1,
-                            "key_name": 3,
-                            "service_name": 4
-                        },
-                        "renameByName": {}
-                    }
-                }
-            ],
-            "type": "table"
-        },
-        {
-            "collapsed": false,
-            "gridPos": {
-                "h": 1,
-                "w": 24,
-                "x": 0,
-                "y": 21
-            },
-            "id": 8,
-            "panels": [],
-            "title": "Index Access Activity",
-            "type": "row"
-        },
-        {
-            "description": "Index access count since the last mongod restart. Flat lines at zero indicate unused indexes.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "palette-classic"
-                    },
-                    "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisColorMode": "text",
-                        "axisLabel": "",
-                        "axisPlacement": "auto",
-                        "barAlignment": 0,
-                        "drawStyle": "line",
-                        "fillOpacity": 10,
-                        "gradientMode": "none",
-                        "hideFrom": {
-                            "legend": false,
-                            "tooltip": false,
-                            "viz": false
-                        },
-                        "insertNulls": false,
-                        "lineInterpolation": "linear",
-                        "lineWidth": 2,
-                        "pointSize": 5,
-                        "scaleDistribution": {
-                            "type": "linear"
-                        },
-                        "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": {
-                            "group": "A",
-                            "mode": "none"
-                        },
-                        "thresholdsStyle": {
-                            "mode": "off"
-                        }
-                    },
-                    "decimals": 0,
-                    "mappings": [],
-                    "min": 0,
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 24,
-                "x": 0,
-                "y": 22
-            },
-            "id": 9,
-            "options": {
-                "legend": {
-                    "calcs": [
-                        "lastNotNull",
-                        "max"
-                    ],
-                    "displayMode": "table",
-                    "placement": "bottom",
-                    "showLegend": true,
-                    "sortBy": "Last *",
-                    "sortDesc": true
-                },
-                "tooltip": {
-                    "mode": "multi",
-                    "sort": "none"
-                }
-            },
-            "pluginVersion": "11.6.4",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "expr": "avg by (cluster, database, collection, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"})",
-                    "interval": "$interval",
-                    "legendFormat": "{{cluster}} | {{service_name}} | {{database}}.{{collection}} | {{key_name}}",
-                    "range": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Index Accesses Since Restart",
-            "type": "timeseries"
-        },
-        {
-            "description": "Indexes with the lowest access counts since restart. Useful for spotting rarely used indexes that are not yet at zero.",
-            "fieldConfig": {
-                "defaults": {
-                    "color": {
-                        "mode": "thresholds"
-                    },
-                    "custom": {
-                        "align": "auto",
-                        "cellOptions": {
-                            "type": "auto"
-                        },
-                        "filterable": true,
-                        "inspect": false
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            }
-                        ]
-                    },
-                    "unit": "short"
-                },
-                "overrides": [
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "cluster"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Cluster"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "service_name"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Service"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "database"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Database"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "collection"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Collection"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "key_name"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Index"
-                            }
-                        ]
-                    },
-                    {
-                        "matcher": {
-                            "id": "byName",
-                            "options": "Value"
-                        },
-                        "properties": [
-                            {
-                                "id": "displayName",
-                                "value": "Accesses"
-                            }
-                        ]
-                    }
-                ]
-            },
-            "gridPos": {
-                "h": 10,
-                "w": 24,
-                "x": 0,
-                "y": 30
-            },
-            "id": 10,
-            "options": {
-                "cellHeight": "sm",
-                "footer": {
-                    "countRows": false,
-                    "fields": "",
-                    "reducer": [
-                        "sum"
-                    ],
-                    "show": false
-                },
-                "showHeader": true,
-                "sortBy": [
-                    {
-                        "desc": false,
-                        "displayName": "Accesses"
-                    }
-                ]
-            },
-            "pluginVersion": "11.6.4",
-            "targets": [
-                {
-                    "datasource": "Metrics",
-                    "editorMode": "code",
-                    "exemplar": false,
-                    "expr": "bottomk(20, avg by (cluster, database, collection, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
-                    "format": "table",
-                    "instant": true,
-                    "refId": "A"
-                }
-            ],
-            "title": "Least Used Indexes",
-            "transformations": [
-                {
-                    "id": "filterFieldsByName",
-                    "options": {
-                        "include": {
-                            "names": [
-                                "cluster",
-                                "database",
-                                "collection",
-                                "key_name",
-                                "service_name",
-                                "Value"
-                            ]
-                        }
-                    }
-                },
-                {
-                    "id": "organize",
-                    "options": {
-                        "excludeByName": {},
-                        "includeByName": {},
-                        "indexByName": {
-                            "Value": 5,
-                            "cluster": 0,
-                            "collection": 2,
-                            "database": 1,
-                            "key_name": 3,
-                            "service_name": 4
-                        },
-                        "renameByName": {}
-                    }
-                }
-            ],
-            "type": "table"
-        }
-    ],
-    "refresh": false,
-    "schemaVersion": 39,
-    "tags": [
-        "Percona",
-        "MongoDB"
-    ],
-    "templating": {
-        "list": [
-            {
-                "auto": true,
-                "auto_count": 200,
-                "auto_min": "1s",
-                "current": {
-                    "selected": false,
-                    "text": "auto",
-                    "value": "$__auto_interval_interval"
-                },
-                "hide": 0,
-                "label": "Interval",
-                "name": "interval",
-                "options": [
-                    {
-                        "selected": true,
-                        "text": "auto",
-                        "value": "$__auto_interval_interval"
-                    },
-                    {
-                        "selected": false,
-                        "text": "1s",
-                        "value": "1s"
-                    },
-                    {
-                        "selected": false,
-                        "text": "5s",
-                        "value": "5s"
-                    },
-                    {
-                        "selected": false,
-                        "text": "1m",
-                        "value": "1m"
-                    },
-                    {
-                        "selected": false,
-                        "text": "5m",
-                        "value": "5m"
-                    },
-                    {
-                        "selected": false,
-                        "text": "1h",
-                        "value": "1h"
-                    },
-                    {
-                        "selected": false,
-                        "text": "6h",
-                        "value": "6h"
-                    },
-                    {
-                        "selected": false,
-                        "text": "1d",
-                        "value": "1d"
-                    }
-                ],
-                "query": "1s,5s,1m,5m,1h,6h,1d",
-                "queryValue": "",
-                "refresh": 2,
-                "skipUrlSync": false,
-                "type": "interval"
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "selected": true,
-                    "text": [
-                        "All"
-                    ],
-                    "value": [
-                        "$__all"
-                    ]
-                },
-                "definition": "label_values({__name__=~\"mongodb_up\"}, environment)",
-                "hide": 0,
-                "includeAll": true,
-                "label": "Environment",
-                "multi": false,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"mongodb_up\"}, environment)",
-                    "refId": "StandardVariableQuery"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "type": "query"
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "definition": "label_values(mongodb_up{environment=~\"$environment\"},cluster)",
-                "hide": 0,
-                "includeAll": true,
-                "label": "Cluster",
-                "multi": false,
-                "name": "cluster",
-                "options": [],
-                "query": {
-                    "query": "label_values(mongodb_up{environment=~\"$environment\"},cluster)",
-                    "refId": "StandardVariableQuery"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "type": "query"
-            },
-            {
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "definition": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
-                "hide": 0,
-                "includeAll": true,
-                "label": "Replication Set",
-                "multi": false,
-                "name": "replication_set",
-                "options": [],
-                "query": {
-                    "query": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
-                    "refId": "StandardVariableQuery"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "type": "query"
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}, node_name)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Node Name",
-                "multi": true,
-                "name": "node_name",
-                "options": [],
-                "query": {
-                    "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}, node_name)",
-                    "refId": "StandardVariableQuery"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "type": "query"
-            },
-            {
-                "current": {
-                    "selected": true,
-                    "text": [
-                        "All"
-                    ],
-                    "value": [
-                        "$__all"
-                    ]
-                },
-                "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"}, service_name)",
-                "hide": 0,
-                "includeAll": true,
-                "label": "MongoDB Node",
-                "multi": true,
-                "name": "service_name",
-                "options": [],
-                "query": {
-                    "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"}, service_name)",
-                    "refId": "StandardVariableQuery"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "type": "query"
-            },
-            {
-                "current": {
-                    "selected": true,
-                    "text": [
-                        "All"
-                    ],
-                    "value": [
-                        "$__all"
-                    ]
-                },
-                "definition": "label_values(mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\"}, database)",
-                "hide": 0,
-                "includeAll": true,
-                "label": "Database",
-                "multi": true,
-                "name": "database",
-                "options": [],
-                "query": {
-                    "query": "label_values(mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\"}, database)",
-                    "refId": "StandardVariableQuery"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "type": "query"
-            }
-        ]
-    },
-    "time": {
-        "from": "now-12h",
-        "to": "now"
-    },
-    "timepicker": {
-        "collapse": false,
         "enable": true,
-        "hidden": false,
-        "notice": false,
-        "now": true,
-        "refresh_intervals": [
-            "1s",
-            "5s",
-            "1m",
-            "5m",
-            "1h",
-            "6h",
-            "1d"
-        ],
-        "status": "Stable",
-        "time_options": [
-            "5m",
-            "15m",
-            "1h",
-            "6h",
-            "12h",
-            "24h",
-            "2d",
-            "7d",
-            "30d"
-        ],
-        "type": "timepicker"
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      },
+      {
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "iconColor": "orange",
+        "name": "PMM Annotations",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [
+            "pmm_annotation"
+          ],
+          "type": "tags"
+        },
+        "type": "tags"
+      }
+    ]
+  },
+  "editable": false,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "panels": [],
+      "title": "Overview",
+      "type": "row"
     },
-    "timezone": "",
-    "title": "MongoDB Unused Indexes",
-    "uid": "mongodb-unused-indexes",
-    "version": 1,
-    "weekStart": ""
+    {
+      "description": "Overview of how to use this dashboard and what to check before dropping indexes.",
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<p>Use this dashboard to find and safely remove MongoDB indexes that are adding write overhead and consuming memory without being used.</p><p>Before dropping any index, check every replica set member. Usage is tracked per node, so an index may appear unused on one member but be active on another.</p><p><b>Prerequisites:</b> enable the <code>indexstats</code> collector on the MongoDB exporter. To enable it, pass <code>--enable-all-collectors</code> when adding the MongoDB service, or run <code>pmm-admin inventory change agent mongodb-exporter --enable-all-collectors</code> on an existing service.</p>",
+        "mode": "html"
+      },
+      "pluginVersion": "11.6.4",
+      "title": "About Unused Indexes",
+      "type": "text"
+    },
+    {
+      "description": "Shortest uptime across the selected nodes, measured from the last mongod restart.\nA value under 1 day means index stats have not had time to reflect typical usage.\nCheck this before acting on unused index data. Low uptime makes access counts unreliable.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "d"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 4
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.4",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "min(mongodb_instance_uptime_seconds{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", node_name=~\"$node_name\"}) / 86400",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Instance Uptime",
+      "type": "stat"
+    },
+    {
+      "description": "Number of indexes with zero accesses since the last mongod restart. The _id_ index is excluded.\nAny non-zero value means indexes are adding write overhead without serving reads.\nCross-reference with Instance Uptime, then open Unused Indexes by Collection to see what to investigate.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 4
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.4",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "count(avg by (cluster, collection, database, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}) == 0)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Unused Indexes",
+      "type": "stat"
+    },
+    {
+      "description": "Total indexes the <code>indexstats</code> collector is tracking for the selected filters.\nA lower-than-expected count means the collector may not be running on all nodes.\nVerify that the `indexstats` collector is enabled on every MongoDB exporter.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.6.4",
+      "targets": [
+        {
+          "expr": "count(avg by (cluster, collection, database, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
+          "refId": "A"
+        }
+      ],
+      "title": "Indexes Monitored",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 6,
+      "panels": [],
+      "title": "Unused Index Candidates",
+      "type": "row"
+    },
+    {
+      "description": "All indexes with zero accesses since the last mongod restart, grouped by database and collection.\nAn index listed here on one node may still be active on another replica set member.\nBefore dropping, run <code>db.collection.aggregate([{$indexStats:{}}])</code> on every replica set member to confirm.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "database"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Database"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "collection"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Collection"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "key_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Index"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cluster"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cluster"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "service_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Service"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Unused"
+              },
+              {
+                "id": "custom.hidden",
+                "value": true
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 7,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Database"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.4",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "avg by (cluster, collection, database, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}) == 0",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Unused Indexes by Collection",
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "cluster",
+                "database",
+                "collection",
+                "key_name",
+                "service_name",
+                "Value"
+              ]
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {
+              "Value": 5,
+              "cluster": 0,
+              "collection": 2,
+              "database": 1,
+              "key_name": 3,
+              "service_name": 4
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 8,
+      "panels": [],
+      "title": "Index Access Activity",
+      "type": "row"
+    },
+    {
+      "description": "Cumulative access count per index since the last mongod restart.\nA flat line at zero confirms the index has not been used since restart.\nUse this to validate the **Unused Indexes by Collection** table. A rising line means the index is still active.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.6.4",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "expr": "avg by (cluster, database, collection, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"})",
+          "interval": "$interval",
+          "legendFormat": "{{cluster}} | {{service_name}} | {{database}}.{{collection}} | {{key_name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Index Accesses Since Restart",
+      "type": "timeseries"
+    },
+    {
+      "description": "The 20 indexes with the lowest access counts since the last mongod restart.\nLow but non-zero counts mean the index is rarely used, not completely idle.\nRun <code>explain()</code> on your key queries to check whether the index is referenced before removing it.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "cluster"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Cluster"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "service_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Service"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "database"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Database"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "collection"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Collection"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "key_name"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Index"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Value"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Accesses"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 30
+      },
+      "id": 10,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": false,
+            "displayName": "Accesses"
+          }
+        ]
+      },
+      "pluginVersion": "11.6.4",
+      "targets": [
+        {
+          "datasource": "Metrics",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "bottomk(20, avg by (cluster, database, collection, key_name, service_name) (mongodb_indexstats_accesses_ops{environment=~\"$environment\", cluster=~\"$cluster\", service_name=~\"$service_name\", database=~\"$database\", node_name=~\"$node_name\", key_name!=\"_id_\"}))",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Least Used Indexes",
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "cluster",
+                "database",
+                "collection",
+                "key_name",
+                "service_name",
+                "Value"
+              ]
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {
+              "Value": 5,
+              "cluster": 0,
+              "collection": 2,
+              "database": 1,
+              "key_name": 3,
+              "service_name": 4
+            },
+            "renameByName": {}
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 39,
+  "tags": [
+    "Percona",
+    "MongoDB"
+  ],
+  "templating": {
+    "list": [
+      {
+        "auto": true,
+        "auto_count": 200,
+        "auto_min": "1s",
+        "current": {
+          "selected": false,
+          "text": "auto",
+          "value": "$__auto_interval_interval"
+        },
+        "hide": 0,
+        "label": "Interval",
+        "name": "interval",
+        "options": [
+          {
+            "selected": true,
+            "text": "auto",
+            "value": "$__auto_interval_interval"
+          },
+          {
+            "selected": false,
+            "text": "1s",
+            "value": "1s"
+          },
+          {
+            "selected": false,
+            "text": "5s",
+            "value": "5s"
+          },
+          {
+            "selected": false,
+            "text": "1m",
+            "value": "1m"
+          },
+          {
+            "selected": false,
+            "text": "5m",
+            "value": "5m"
+          },
+          {
+            "selected": false,
+            "text": "1h",
+            "value": "1h"
+          },
+          {
+            "selected": false,
+            "text": "6h",
+            "value": "6h"
+          },
+          {
+            "selected": false,
+            "text": "1d",
+            "value": "1d"
+          }
+        ],
+        "query": "1s,5s,1m,5m,1h,6h,1d",
+        "queryValue": "",
+        "refresh": 2,
+        "skipUrlSync": false,
+        "type": "interval"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "definition": "label_values({__name__=~\"mongodb_up\"}, environment)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Environment",
+        "multi": false,
+        "name": "environment",
+        "options": [],
+        "query": {
+          "query": "label_values({__name__=~\"mongodb_up\"}, environment)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "definition": "label_values(mongodb_up{environment=~\"$environment\"},cluster)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Cluster",
+        "multi": false,
+        "name": "cluster",
+        "options": [],
+        "query": {
+          "query": "label_values(mongodb_up{environment=~\"$environment\"},cluster)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "definition": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Replication Set",
+        "multi": false,
+        "name": "replication_set",
+        "options": [],
+        "query": {
+          "query": "label_values(mongodb_mongod_replset_my_state{cluster=~\"$cluster\"}, set)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}, node_name)",
+        "hide": 2,
+        "includeAll": true,
+        "label": "Node Name",
+        "multi": true,
+        "name": "node_name",
+        "options": [],
+        "query": {
+          "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",set=~\"$replication_set\"}, node_name)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "definition": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"}, service_name)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "MongoDB Node",
+        "multi": true,
+        "name": "service_name",
+        "options": [],
+        "query": {
+          "query": "label_values(mongodb_mongod_replset_my_state{environment=~\"$environment\",cluster=~\"$cluster\",node_name=~\"$node_name\",set=~\"$replication_set\"}, service_name)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 5,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "definition": "label_values(mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\"}, database)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Database",
+        "multi": true,
+        "name": "database",
+        "options": [],
+        "query": {
+          "query": "label_values(mongodb_indexstats_accesses_ops{cluster=~\"$cluster\",service_name=~\"$service_name\"}, database)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 5,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-12h",
+    "to": "now"
+  },
+  "timepicker": {
+    "collapse": false,
+    "enable": true,
+    "hidden": false,
+    "notice": false,
+    "now": true,
+    "refresh_intervals": [
+      "1s",
+      "5s",
+      "1m",
+      "5m",
+      "1h",
+      "6h",
+      "1d"
+    ],
+    "status": "Stable",
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ],
+    "type": "timepicker"
+  },
+  "timezone": "",
+  "title": "MongoDB Unused Indexes",
+  "uid": "mongodb-unused-indexes",
+  "version": 1,
+  "weekStart": ""
 }
