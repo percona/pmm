@@ -218,7 +218,7 @@ func TestPrintOutputCapture(t *testing.T) { //nolint:tparallel
 			if !present {
 				releasePath = "./../../bin"
 			}
-			cmd := exec.CommandContext(t.Context(), releasePath+"/pmm-managed-starlark") //nolint:gosec
+			cmd := exec.CommandContext(t.Context(), releasePath+"/pmm-managed-starlark")
 
 			// the pipe pmm-managed wires as fd 3 for the print() output
 			printR, printW, err := os.Pipe()
