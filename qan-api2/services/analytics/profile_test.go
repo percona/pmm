@@ -806,6 +806,53 @@ func TestService_GetReport_Search(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
+	t.Run("search_fingerprint_with_embedded_whitespace", func(t *testing.T) {
+		// Clone an existing row into an isolated period so this test's row can't affect the
+		// row counts asserted by the other sub-tests here (they scan the whole 2019-01-01 range).
+		const whitespaceQueryID = "TESTWHITESPACEQID"
+		//nolint:unqueryvet // clone every column of a real row so this test survives schema changes
+		_, err := db.Exec(`
+			INSERT INTO metrics
+			SELECT * REPLACE(
+				'` + whitespaceQueryID + `' AS queryid,
+				'SELECT
+    datid, datname (...)' AS fingerprint,
+				toDateTime('2019-01-02 00:30:00') AS period_start
+			)
+			FROM metrics
+			WHERE queryid = '7DD5F6760F2D2EBB'
+			LIMIT 1`)
+		require.NoError(t, err, "failed to seed row with embedded whitespace in fingerprint")
+
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		whitespaceFrom, _ := time.Parse(time.RFC3339, "2019-01-02T00:00:00Z")
+		whitespaceTo, _ := time.Parse(time.RFC3339, "2019-01-02T01:00:00Z")
+		in := qanpb.GetReportRequest{
+			PeriodStartFrom: &timestamppb.Timestamp{Seconds: whitespaceFrom.Unix()},
+			PeriodStartTo:   &timestamppb.Timestamp{Seconds: whitespaceTo.Unix()},
+			GroupBy:         "queryid",
+			Columns: []string{
+				"query_time",
+			},
+			// Single space, as the user would type it, versus the newline actually stored.
+			Search:  "select datid",
+			OrderBy: "-query_time",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(makeContext(t), &in)
+		require.NoError(t, err, "Unexpected error in Service.GetReport()")
+		// GetReport always prepends a "TOTAL" summary row ahead of the per-group rows
+		// (see TestService_GetReport_Search_search_queryid.json for the same shape).
+		require.Len(t, got.GetRows(), 2)
+		assert.Equal(t, whitespaceQueryID, got.GetRows()[1].GetDimension())
+	})
+
 	t.Run("search_service_name", func(t *testing.T) {
 		s := &Service{
 			rm: rm,
