@@ -810,6 +810,12 @@ func TestService_GetReport_Search(t *testing.T) {
 		// Clone an existing row into an isolated period so this test's row can't affect the
 		// row counts asserted by the other sub-tests here (they scan the whole 2019-01-01 range).
 		const whitespaceQueryID = "TESTWHITESPACEQID"
+		t.Cleanup(func() {
+			// Synchronous so a shared/persistent QANAPI_DSN_TEST database doesn't accumulate
+			// rows (and skewed totals) across repeated test runs.
+			_, err := db.Exec(`ALTER TABLE metrics DELETE WHERE queryid = '` + whitespaceQueryID + `' SETTINGS mutations_sync = 1`)
+			require.NoError(t, err, "failed to clean up seeded row")
+		})
 		//nolint:unqueryvet // clone every column of a real row so this test survives schema changes
 		_, err := db.Exec(`
 			INSERT INTO metrics
@@ -817,7 +823,7 @@ func TestService_GetReport_Search(t *testing.T) {
 				'` + whitespaceQueryID + `' AS queryid,
 				'SELECT
     datid, datname (...)' AS fingerprint,
-				toDateTime('2019-01-02 00:30:00') AS period_start
+				toDateTime('2019-01-02 00:30:00', 'UTC') AS period_start
 			)
 			FROM metrics
 			WHERE queryid = '7DD5F6760F2D2EBB'
