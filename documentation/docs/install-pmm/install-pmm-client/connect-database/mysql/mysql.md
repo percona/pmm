@@ -661,6 +661,10 @@ Once the service is confirmed as active, verify that metrics are being properly 
     2. Select your cluster service from the dropdown.
     3. Verify that cluster-specific metrics are being displayed.
 
+### Running custom queries
+
+To collect metrics beyond what PMM provides by default, you can define custom SQL queries for the MySQL exporter. See [Running custom queries in MySQL](custom_queries.md).
+
 ## Related topics
 
 - [Percona Server for MySQL -- slow query log extended][ps_slow_query_ext]

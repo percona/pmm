@@ -50,7 +50,7 @@ jobs:
           ref: ${{ env.BRANCH }}
 
       - name: Login to docker.io registry
-        uses: docker/login-action@06fb636fac595d6fb4b28a5dfcb21a6f5091859c # v4.5.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -82,13 +82,6 @@ jobs:
         shell: bash
         run: |
           make docker-build-image
-
-      - name: Run compose up for test DBs
-        shell: bash
-        run: |
-          pushd api-tests
-          docker compose up test_db # no daemon mode
-          popd
 
       - name: Check connectivity to PMM Server
         shell: bash

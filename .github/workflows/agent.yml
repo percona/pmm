@@ -11,7 +11,6 @@ on:
       - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
-      - "update/**"
       - "vmproxy/**"
       - "ui/**"
 
@@ -19,8 +18,6 @@ permissions:
   contents: read
 
 env:
-  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
-  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
@@ -30,28 +27,22 @@ jobs:
     strategy:
       matrix:
         images:
+          # MySQL
           - { mysql: 'mysql:5.7', mongo: 'mongo:5.0', postgres: 'postgres:14', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'mysql:8.0', mongo: 'mongo:6.0', postgres: 'postgres:15', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'mysql:lts', mongo: 'mongo:7.0', postgres: 'postgres:16', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'mysql:latest', mongo: 'mongo:latest', postgres: 'postgres:latest', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
-          # Percona + latest PMM Server release
+          # Percona
           - { mysql: 'percona:5.7', mongo: 'percona/percona-server-mongodb:5.0', postgres: 'perconalab/percona-distribution-postgresql:15', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'percona:8.0', mongo: 'percona/percona-server-mongodb:6.0', postgres: 'perconalab/percona-distribution-postgresql:16', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'percona:8', mongo: 'percona/percona-server-mongodb:7.0', postgres: 'perconalab/percona-distribution-postgresql:17', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'percona:latest', mongo: 'percona/percona-server-mongodb:latest', postgres: 'perconalab/percona-distribution-postgresql:latest', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
-          # MariaDB (only 3 latest GA versions)
-          #   + older supported MongoDB versions
-          #   + older supported PostgreSQL versions
-          #   + 3-dev-latest PMM Server
-          # - MYSQL_IMAGE=mariadb:5.5
-          # - MYSQL_IMAGE=mariadb:10.0
-          # - MYSQL_IMAGE=mariadb:10.1
-
-          - { mysql: 'mariadb:11.2', mongo: 'percona/percona-server-mongodb:5.0', postgres: 'postgres:17', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:6.0', postgres: 'perconalab/percona-distribution-postgresql:13', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:11.5', mongo: 'percona/percona-server-mongodb:7.0', postgres: 'postgres:18', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          # MariaDB
+          - { mysql: 'mariadb:11.2', mongo: 'percona/percona-server-mongodb:6.0', postgres: 'postgres:16', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:7.0', postgres: 'postgres:17', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.5', mongo: 'percona/percona-server-mongodb:8.0', postgres: 'postgres:18', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
     continue-on-error: true
 
@@ -70,37 +61,13 @@ jobs:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
-          cache: false
-
-      - name: Enable Go build cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
-
-      - name: Download Go modules
-        run: go mod download -x
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
 
       - name: Build and install
         run: make install
 
       - name: Launch containers
-        env:
-          ENV_UP_FLAGS: "--detach"
         run: make env-up
 
       - name: Run tests
@@ -123,7 +90,6 @@ jobs:
           git status
           docker compose logs
           docker compose ps -a
-
 
   upload-coverage:
     name: Upload Coverage
@@ -166,30 +132,8 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y libkrb5-dev
 
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
-          cache: false
-
-      - name: Enable Go build cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
-
-      - name: Download Go modules
-        run: go mod download -x
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
 
       - name: Build PMM Agent
         run: make release-gssapi

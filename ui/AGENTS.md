@@ -25,7 +25,7 @@ The UI uses a **Yarn workspaces + Turborepo** monorepo with three packages:
 | **TypeScript**                   | Type-safe development                                |
 | **Vite**                         | Dev server and production build (main app)           |
 | **MUI (Material UI)**            | Component library                                    |
-| **@percona/percona-ui**          | Percona's shared UI component library and theme      |
+| **@percona/peak-ui**             | Percona's shared UI component library and theme      |
 | **TanStack Query (React Query)** | Server state management (API caching, mutations)     |
 | **React Context**                | UI/auth state (AuthProvider, SettingsProvider, etc.) |
 | **Vitest**                       | Unit testing (main app)                              |
@@ -75,7 +75,7 @@ Query keys follow the pattern: `['domain:action', params]` (e.g., `['services:li
 
 ### UI/Auth State (React Context)
 
-Providers are composed in `Providers.tsx`:
+Providers are composed in `Providers.tsx`, all wrapped by `ThemeContextProvider` (theme from `@percona/peak-ui`) in `App.tsx`:
 
 - `AuthProvider` — authentication state
 - `UserProvider` — current user info
@@ -84,11 +84,19 @@ Providers are composed in `Providers.tsx`:
 - `GrafanaProvider` — Grafana integration state
 - `NavigationProvider` — sidebar navigation
 - `TourProvider` — onboarding tour
-- `ThemeContextProvider` — theme from `@percona/percona-ui`
 
 ## API Layer
 
 API calls are organized in `src/api/` using axios. Each API module provides typed request/response functions that are consumed by custom hooks in `src/hooks/`.
+
+## UI Component Library
+
+`@percona/peak-ui` ("Peak Design") is PMM's shared component library — MUI v7-based themed components, design tokens, and `react-hook-form`-integrated inputs, exposing a `pmmThemeOptions` theme variant. **Browse the catalog before hand-rolling a component:**
+
+- **Storybook (component catalog):** https://percona.github.io/peak-ui
+- **Source & theme options:** https://github.com/percona/peak-ui
+
+The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the theme-aware `sx` prop rather than ad-hoc CSS.
 
 ## Patterns and Conventions
 
@@ -96,7 +104,7 @@ API calls are organized in `src/api/` using axios. Each API module provides type
 
 - Use TanStack Query (`useQuery`, `useMutation`) for all server state
 - Create custom hooks per API domain in `src/hooks/`
-- Use MUI and `@percona/percona-ui` components for consistent styling
+- Use MUI and `@percona/peak-ui` components for consistent styling — browse the [Storybook catalog](https://percona.github.io/peak-ui) before building a component from scratch
 - Use TypeScript strict mode — define types in `src/types/`
 - Co-locate test files next to components (`*.test.tsx`)
 - Use `CrossFrameMessenger` for communication with the Grafana iframe

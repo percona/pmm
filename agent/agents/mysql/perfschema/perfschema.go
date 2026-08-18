@@ -183,7 +183,7 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		maxQueryLength:         params.MaxQueryLength,
 		disableQueryExamples:   params.DisableQueryExamples,
 		l:                      params.LogEntry,
-		changes:                make(chan agents.Change, 10),
+		changes:                make(chan agents.Change, 10), //nolint:mnd
 		historyCache:           historyCache,
 		summaryCache:           summaryCache,
 		perfschemaRefreshRate:  params.PerfschemaRefreshRate,
@@ -193,7 +193,10 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 // Run extracts performance data and sends it to the channel until ctx is canceled.
 func (m *PerfSchema) Run(ctx context.Context) {
 	defer func() {
-		m.dbCloser.Close() //nolint:errcheck
+		err := m.dbCloser.Close()
+		if err != nil {
+			m.l.WithError(err).Error("Failed to close database connection")
+		}
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
@@ -345,7 +348,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 	}
 
 	buckets := makeBuckets(current, prev, m.l, m.maxQueryLength)
-	startS := uint32(periodStart.Unix())
+	startS := uint32(periodStart.Unix()) //nolint:gosec
 	m.l.Debugf("Made %d buckets out of %d summaries in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 

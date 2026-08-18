@@ -45,6 +45,8 @@ message UniversalAgent {
     int32 collections_limit = 6;
     // True if all collectors are enabled.
     bool enable_all_collectors = 7;
+    // True if diagnostic data histograms are enabled.
+    bool enable_diagnostic_data_histograms = 8;
   }
 
   message PostgreSQLOptions {

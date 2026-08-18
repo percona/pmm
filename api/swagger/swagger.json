@@ -4993,6 +4993,11 @@
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
                         "x-order": 20
+                      },
+                      "enable_diagnostic_data_histograms": {
+                        "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                        "type": "boolean",
+                        "x-order": 21
                       }
                     }
                   },
@@ -6959,6 +6964,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 22
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 23
                     }
                   },
                   "x-order": 3
@@ -8666,6 +8676,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 3
@@ -10746,6 +10761,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 4
@@ -12752,6 +12772,12 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 21
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 22
                     }
                   },
                   "x-order": 2
@@ -14876,6 +14902,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 20
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 21
                     }
                   },
                   "x-order": 2
@@ -20735,6 +20766,11 @@
                             "description": "True if all collectors are enabled.",
                             "type": "boolean",
                             "x-order": 6
+                          },
+                          "enable_diagnostic_data_histograms": {
+                            "description": "True if diagnostic data histograms are enabled.",
+                            "type": "boolean",
+                            "x-order": 7
                           }
                         },
                         "x-order": 16
@@ -22294,6 +22330,11 @@
                                   "description": "True if all collectors are enabled.",
                                   "type": "boolean",
                                   "x-order": 6
+                                },
+                                "enable_diagnostic_data_histograms": {
+                                  "description": "True if diagnostic data histograms are enabled.",
+                                  "type": "boolean",
+                                  "x-order": 7
                                 }
                               },
                               "x-order": 16
@@ -23091,6 +23132,11 @@
                       "description": "Connection timeout for exporter (if set).",
                       "type": "string",
                       "x-order": 35
+                    },
+                    "enable_diagnostic_data_histograms": {
+                      "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                      "type": "boolean",
+                      "x-order": 36
                     }
                   },
                   "x-order": 1
@@ -25098,6 +25144,11 @@
                           "description": "Connection timeout for exporter (if set).",
                           "type": "string",
                           "x-order": 20
+                        },
+                        "enable_diagnostic_data_histograms": {
+                          "description": "Enable collecting histogram bucket metrics from getDiagnosticData.",
+                          "type": "boolean",
+                          "x-order": 21
                         }
                       },
                       "x-order": 1
@@ -31493,7 +31544,7 @@
                   "x-order": 2
                 },
                 "data_retention": {
-                  "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
+                  "description": "A number of full days for Prometheus and QAN data retention. Must be specified in seconds in JSON, for example: 2592000s.",
                   "type": "string",
                   "x-order": 3
                 },
@@ -32506,48 +32557,63 @@
   ],
   "tags": [
     {
+      "description": "Server service provides generic PMM Server public APIs.",
       "name": "ServerService"
     },
     {
+      "description": "UserService contains rpcs related to user data",
       "name": "UserService"
     },
     {
+      "description": "Agents service provides public methods for managing Agents.",
       "name": "AgentsService"
     },
     {
+      "description": "Nodes service provides public methods for managing Nodes.",
       "name": "NodesService"
     },
     {
+      "description": "Services service provides public methods for managing Services.",
       "name": "ServicesService"
     },
     {
+      "description": "ManagementService provides public methods for managing and querying Services.",
       "name": "ManagementService"
     },
     {
+      "description": "Actions service provides public Management API methods for Actions.",
       "name": "ActionsService"
     },
     {
+      "description": "Alerting service lets to manage alerting templates and create alerting rules from them.",
       "name": "AlertingService"
     },
     {
+      "description": "AdvisorService service provides public Management API methods for Advisor Service.",
       "name": "AdvisorService"
     },
     {
+      "description": "Backups service handles backup operations to DB.",
       "name": "BackupService"
     },
     {
+      "description": "Locations service provides access to Backup Locations.",
       "name": "LocationsService"
     },
     {
+      "description": "RestoreService provides public methods for managing backup restore history.",
       "name": "RestoreService"
     },
     {
+      "description": "QANService provides an API to interact with PMM Query Analytics.",
       "name": "QANService"
     },
     {
+      "description": "RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.",
       "name": "RealtimeAnalyticsService"
     },
     {
+      "description": "HAService provides High Availability cluster status information.",
       "name": "HAService"
     }
   ],
