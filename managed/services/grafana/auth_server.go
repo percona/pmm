@@ -103,7 +103,9 @@ var rules = map[string]role{
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
 
-	// POM only reads: the trigger recomputes a document, it does not change the estate.
+	// Reading POM is a viewer's business. The writes are qualified by method in
+	// methodRules below -- /v1/pom/inventory can forget rows, change the app's
+	// configuration and run code on database hosts, none of which a viewer may do.
 	"/v1/pom": viewer,
 
 	"/prometheus":      admin,
@@ -140,6 +142,29 @@ var methodRules = map[string]role{
 	http.MethodPost + " /v1/alerting/templates":    editor,
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
+
+	// POM's inventory surface reads as viewer (see "/v1/pom" above) but writes here.
+	//
+	// Refreshing is editor rather than admin. It runs SEP's fixed probe payload on the
+	// hosts it covers -- nothing the caller supplies, no database touched -- and the
+	// per-host refresh is the button beside a row that answers "I just fixed this, is it
+	// healthy now". Requiring admin for that would put the routine question behind the
+	// rarest role.
+	http.MethodPost + " /v1/pom/inventory/runs": editor,
+
+	// Forgetting a row and changing the app's configuration are both admin. A DELETE is
+	// not suppression -- the row returns on the next refresh if PMM still knows the
+	// entity -- but it is destructive to the annotations and history on that row. A
+	// configuration change sets the sweep schedule for the whole deployment, so it is
+	// the kind of thing one person does on everyone's behalf.
+	//
+	// The trailing slash on the id-bearing paths is not load-bearing: nextPrefix strips
+	// one as its own step, so the slash-less spelling would catch the same requests.
+	// It is kept because it reads as "everything under here" rather than as a path.
+	http.MethodDelete + " /v1/pom/inventory/hosts/":    admin,
+	http.MethodDelete + " /v1/pom/inventory/services/": admin,
+	http.MethodPatch + " /v1/pom/inventory/config":     admin,
+	http.MethodDelete + " /v1/pom/inventory/config/":   admin,
 }
 
 var lbacPrefixes = []string{
