@@ -787,11 +787,10 @@ For detailed information about each panel and what to check, see the [PMM HA Hea
 
 PMM displays a visual badge on the side menu.
 
-Check this to quickly identify which server is active without needing to query the cluster directly:
 
 ![PMM HA Status badge](../images/HA-Status.png)
 
-The badge also includes a health status indicator that reflects the overall cluster state based on how many nodes are responding:
+The badge includes a health status indicator that reflects the overall cluster state based on how many nodes are responding:
 
 - **Healthy** indicates all nodes are in "alive" status and functioning normally
 - **Degraded** means approximately one-third of your nodes are not responding
