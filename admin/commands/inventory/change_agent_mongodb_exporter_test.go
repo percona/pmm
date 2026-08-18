@@ -228,7 +228,7 @@ Expose exporter       : true
 
 Disabled              : false
 Custom labels         : env=prod, team=db
-Environment variables : [KRB5_KTNAME KRB5_CONFIG]
+Environment variables : KRB5_KTNAME, KRB5_CONFIG
 Process exec path     : /usr/bin/mongodb_exporter
 Log level             : info
 Configuration changes applied:
@@ -248,7 +248,7 @@ Configuration changes applied:
   - enabled push metrics
   - changed log level to info
   - updated custom labels
-  - updated environment variable names: [KRB5_KTNAME KRB5_CONFIG]
+  - updated environment variable names: KRB5_KTNAME, KRB5_CONFIG
 `
 
 		assert.Equal(t, expectedOutput, output)
@@ -286,7 +286,7 @@ Configuration changes applied:
 				}
 			}`
 			assert.JSONEq(t, expectedJSON, capturedRequestBody)
-			assert.Contains(t, result.String(), "updated environment variable names: [KRB5_KTNAME KRB5_CONFIG]")
+			assert.Contains(t, result.String(), "updated environment variable names: KRB5_KTNAME, KRB5_CONFIG")
 		})
 
 		t.Run("RemovedWhenEmpty", func(t *testing.T) {

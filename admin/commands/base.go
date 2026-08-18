@@ -139,8 +139,9 @@ func GetError(err ErrorResponse) Error {
 // ParseTemplate parses the input text into a template.Template.
 func ParseTemplate(text string) *template.Template {
 	funcMap := template.FuncMap{
-		"formatLogLevel":     FormatLogLevel,
-		"formatCustomLabels": FormatCustomLabels,
+		"formatLogLevel":                 FormatLogLevel,
+		"formatCustomLabels":             FormatCustomLabels,
+		"formatEnvironmentVariableNames": FormatEnvironmentVariableNames,
 	}
 	t := template.New("").Funcs(funcMap).Option("missingkey=error")
 	return template.Must(t.Parse(strings.TrimSpace(text)))
@@ -221,20 +222,14 @@ func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 }
 
 // ParseEnvironmentVariableNames parses and validates a comma-separated list of environment
-// variable names. An empty value yields an empty list, which removes all previously set names.
+// variable names. A blank value yields no names, which removes all previously set names.
+// Blank names inside a non-blank list are rejected, just like for the add commands.
 func ParseEnvironmentVariableNames(varNames string) ([]string, error) {
-	names := make([]string, 0)
-
-	for name := range strings.SplitSeq(varNames, ",") {
-		name = strings.TrimSpace(name)
-		if name == "" {
-			continue
-		}
-
-		names = append(names, name)
+	if strings.TrimSpace(varNames) == "" {
+		return nil, nil
 	}
 
-	return ValidateEnvironmentVariableNames(names)
+	return ValidateEnvironmentVariableNames(strings.Split(varNames, ","))
 }
 
 // ReadFile reads file from filepath if filepath is not empty.
@@ -285,6 +280,15 @@ func FormatCustomLabels(labels any) string {
 	}
 
 	return fmt.Sprintf("%v", labels)
+}
+
+// FormatEnvironmentVariableNames formats environment variable names for display in a user-friendly way.
+func FormatEnvironmentVariableNames(names []string) string {
+	if len(names) == 0 {
+		return "(none)"
+	}
+
+	return strings.Join(names, ", ")
 }
 
 // UsageTemplate is default kingping's usage template with tweaks:

@@ -38,7 +38,7 @@ Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 Status                : {{ .Agent.Status }}
 Disabled              : {{ .Agent.Disabled }}
 Custom labels         : {{ .Agent.CustomLabels }}
-Environment variables : {{ .Agent.EnvironmentVariableNames }}
+Environment variables : {{ formatEnvironmentVariableNames .Agent.EnvironmentVariableNames }}
 `)
 
 type addAgentMongodbExporterResult struct {

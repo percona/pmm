@@ -74,6 +74,7 @@ When you change connection-affecting parameters (username, password, TLS setting
 
 - Update database credentials
 - Add or update custom labels
+- Add, replace, or remove exporter environment variables
 - Enable/disable a collector
 - Update collection limits
 - Change TLS settings
@@ -158,6 +159,18 @@ You can also use `pmm-admin list` to see agents alongside their services.
 - `--custom-labels`
 :   Custom user-assigned labels in `key=value,key=value` format
 
+- `--agent-env-vars`
+:   Comma-separated list of environment variable names to pass to the exporter, for example `KRB5_KTNAME,KRB5_CONFIG`
+
+!!! note "How `--agent-env-vars` is applied"
+    The flag **replaces** the entire list, so any name you leave out is removed. Omitting the flag
+    keeps the current list unchanged, and `--agent-env-vars=""` removes all names.
+
+    Names must match `[A-Z_][A-Z0-9_]*` — uppercase letters, digits and underscores, not starting
+    with a digit. Only the names are stored: the values are read from the `pmm-agent` environment
+    every time the exporter starts. A name that is not set in that environment is skipped and
+    logged as a warning by `pmm-agent`, so a misspelled name is accepted but has no effect.
+
 - `--enable`
 :   Re-enable a disabled agent
 
@@ -225,6 +238,20 @@ You can also use `pmm-admin list` to see agents alongside their services.
     ```bash
     pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --stats-collections=db1,db2.collection1
+    ```
+
+- Pass environment variables from `pmm-agent` to the exporter:
+
+    ```bash
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
+      --agent-env-vars=KRB5_KTNAME,KRB5_CONFIG
+    ```
+
+- Remove all environment variables from an agent:
+
+    ```bash
+    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
+      --agent-env-vars=""
     ```
 
 - Disable an agent (stops metric collection without removing it):

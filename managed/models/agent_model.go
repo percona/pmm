@@ -23,6 +23,7 @@ import (
 	"maps"
 	"net"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
@@ -31,6 +32,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
@@ -457,11 +460,20 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	return names, nil
 }
 
+// envVarNameRE matches environment variable names that can be passed to exporters.
+var envVarNameRE = regexp.MustCompile("^[A-Z_][A-Z0-9_]*$")
+
 // SetEnvironmentVariableNames encodes shared environment variable names.
 func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	if len(names) == 0 {
 		a.EnvironmentVariables = nil
 		return nil
+	}
+
+	for _, name := range names {
+		if !envVarNameRE.MatchString(name) {
+			return status.Errorf(codes.InvalidArgument, "Invalid environment variable name %q.", name)
+		}
 	}
 
 	b, err := json.Marshal(names)

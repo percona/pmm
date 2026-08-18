@@ -39,7 +39,7 @@ Expose exporter       : {{ .Agent.ExposeExporter }}
 
 Disabled              : {{ .Agent.Disabled }}
 Custom labels         : {{ formatCustomLabels .Agent.CustomLabels }}
-Environment variables : {{ .Agent.EnvironmentVariableNames }}
+Environment variables : {{ formatEnvironmentVariableNames .Agent.EnvironmentVariableNames }}
 Process exec path     : {{ .Agent.ProcessExecPath }}
 Log level             : {{ formatLogLevel .Agent.LogLevel }}
 
@@ -293,7 +293,7 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 	}
 	if cmd.AgentEnvVars != nil {
 		if len(agentEnvVars) != 0 {
-			changes = append(changes, fmt.Sprintf("updated environment variable names: %v", agentEnvVars))
+			changes = append(changes, fmt.Sprintf("updated environment variable names: %s", strings.Join(agentEnvVars, ", ")))
 		} else {
 			changes = append(changes, "environment variable names are removed")
 		}

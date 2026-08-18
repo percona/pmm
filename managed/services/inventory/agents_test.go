@@ -1118,6 +1118,27 @@ func TestChangeMongoDBExporterEnvironmentVariableNames(t *testing.T) {
 		assert.True(t, resp.GetMongodbExporter().Disabled)
 		assert.Equal(t, []string{"KRB5_KTNAME"}, resp.GetMongodbExporter().EnvironmentVariableNames)
 	})
+
+	// pmm-admin validates the names before calling the API, but the UI and direct API callers do not.
+	t.Run("RejectInvalidName", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		for _, name := range []string{"krb5_ktname", "KRB5-KTNAME", "5VAR", "KRB5_KTNAME=/tmp/keytab", ""} {
+			resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+				EnvironmentVariableNames: &common.StringArray{Values: []string{name}},
+			})
+			tests.AssertGRPCError(t, status.Newf(codes.InvalidArgument, "Invalid environment variable name %q.", name), err)
+			assert.Nil(t, resp)
+		}
+
+		// The rejected changes must not have touched the stored names.
+		agent, err := as.Get(ctx, agentID)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_KTNAME"}, agent.(*inventoryv1.MongoDBExporter).EnvironmentVariableNames)
+	})
 }
 
 func TestChangeAgentConnectionCheck(t *testing.T) {
