@@ -3,6 +3,7 @@ templates:
   - name: pmm_redis_down
     version: 1
     summary: Redis down
+    category: valkey
     expr: |
       (
         # enabled exporters we should be watching (from inventory — always present)

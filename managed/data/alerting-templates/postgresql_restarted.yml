@@ -3,6 +3,7 @@ templates:
   - name: pmm_postgresql_restarted
     version: 1
     summary: PostgreSQL restarted
+    category: postgresql
     expr: |-
       pg_postmaster_uptime_seconds
       < bool [[ .threshold ]]

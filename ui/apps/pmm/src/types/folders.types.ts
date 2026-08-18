@@ -4,3 +4,7 @@ export interface DashboardFolder {
   title: string;
 }
 export type GetFoldersResponse = DashboardFolder[];
+
+export interface CreateFolderPayload {
+  title: string;
+}
