@@ -844,18 +844,28 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		env[i] = string(b)
 	}
 	processParams.Env = append(processParams.Env, env...)
+	processParams.Env = s.resolveEnvVariableNames(agentID, agentProcess.EnvVariableNames, processParams.Env)
 
-	// Variables PMM itself sets (MONGODB_URI and friends) must win. os/exec deduplicates the
-	// environment keeping the last entry for a key, so a user-supplied name matching one of them
-	// would otherwise silently override the DSN we just computed.
-	reserved := make(map[string]struct{}, len(processParams.Env))
-	for _, e := range processParams.Env {
+	return &processParams, nil
+}
+
+// resolveEnvVariableNames looks the given names up in pmm-agent's own environment and appends the
+// resolved variables to env. Names pmm-agent already set for this agent are skipped: os/exec keeps
+// the last entry for a key, so a user-supplied name matching one of them would otherwise silently
+// override it — the computed MONGODB_URI, for example.
+func (s *Supervisor) resolveEnvVariableNames(agentID string, names, env []string) []string {
+	if len(names) == 0 {
+		return env
+	}
+
+	reserved := make(map[string]struct{}, len(env))
+	for _, e := range env {
 		if name, _, ok := strings.Cut(e, "="); ok {
 			reserved[name] = struct{}{}
 		}
 	}
 
-	for _, varName := range agentProcess.EnvVariableNames {
+	for _, varName := range names {
 		if _, ok := reserved[varName]; ok {
 			s.l.Warnf("Environment variable %s is set by pmm-agent for agent %s and cannot be overridden, skipping", varName, agentID)
 			continue
@@ -867,11 +877,11 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 			continue
 		}
 
-		processParams.Env = append(processParams.Env, fmt.Sprintf("%s=%s", varName, value))
+		env = append(env, fmt.Sprintf("%s=%s", varName, value))
 		s.l.Debugf("Resolved environment variable %s for agent %s", varName, agentID)
 	}
 
-	return &processParams, nil
+	return env
 }
 
 func (s *Supervisor) version(agentType inventoryv1.AgentType, path string) (string, error) {

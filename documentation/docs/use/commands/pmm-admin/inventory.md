@@ -176,10 +176,14 @@ You can also use `pmm-admin list` to see agents alongside their services.
     keeps the current list unchanged, and `--agent-env-vars=""` removes all names.
 
     Names must match `[A-Z_][A-Z0-9_]*` — uppercase letters, digits and underscores, not starting
-    with a digit. The same rule applies when adding an agent (`pmm-admin add mongodb` and
-    `pmm-admin inventory add agent mongodb-exporter`) and is enforced by the server, so it also
-    applies to the UI and direct API calls. Surrounding whitespace is trimmed and repeated names
-    are collapsed.
+    with a digit. `pmm-admin` checks this rule for the change command and for the add commands
+    (`pmm-admin add mongodb`, `pmm-admin inventory add agent mongodb-exporter`); it also trims
+    surrounding whitespace and collapses repeated names before sending the list.
+
+    The API itself does not enforce the rule, so a client that calls it directly instead of going
+    through `pmm-admin` can store a name that does not match. In practice that is harmless: a name
+    that is not a real environment variable simply never resolves, and `pmm-agent` skips it with a
+    warning.
 
     Only the names are stored: the values are read from the `pmm-agent` environment every time the
     exporter starts. A name that is not set in that environment is skipped and logged as a warning

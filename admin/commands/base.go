@@ -196,12 +196,12 @@ func ParseDisableCollectors(collectors []string) []string {
 	return disableCollectors
 }
 
-// envVarNamePattern is the source of the same rule the server enforces in
-// models.SetEnvironmentVariableNames. Keep both in sync.
+// envVarNamePattern is the rule pmm-admin applies to environment variable names before sending
+// them to the API. The API stores names as given, so this check is client-side only.
 var envVarNamePattern = regexp.MustCompile(`^[A-Z_][A-Z0-9_]*$`)
 
 // ValidateEnvironmentVariableNames validates environment variable names. Names are trimmed and
-// duplicates are collapsed, keeping the first occurrence, so the list matches what the server stores.
+// duplicates are collapsed, keeping the first occurrence.
 func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	if len(varNames) == 0 {
 		return nil, nil
