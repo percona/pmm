@@ -450,6 +450,10 @@ describe('AdvisorInsights', () => {
     expect(
       within(screen.getByTestId('details-field-triggered-by')).getByText('User')
     ).toBeInTheDocument();
+    // the service type is shown as Technology, with its display label
+    expect(
+      within(screen.getByTestId('details-field-technology')).getByText('MySQL')
+    ).toBeInTheDocument();
     // populated topology fields and outcome
     expect(within(pane).getByText('prod')).toBeInTheDocument();
     expect(within(pane).getByText('mysql-cluster')).toBeInTheDocument();

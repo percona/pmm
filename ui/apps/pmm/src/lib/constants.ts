@@ -4,7 +4,7 @@ import {
   AdvisorInterval,
 } from 'types/advisors.types';
 import { Severity } from 'types/severity.types';
-import { ServiceType } from 'types/services.types';
+import { ManagedServiceType, ServiceType } from 'types/services.types';
 
 export const PMM_TITLE = 'Percona Monitoring and Management';
 // todo: remove completely in a follow up to reduce current scope
@@ -31,6 +31,16 @@ export const ADVISOR_TECHNOLOGY: Record<AdvisorTechnology, string> = {
   [AdvisorTechnology.postgresql]: 'PostgreSQL',
   [AdvisorTechnology.mongodb]: 'MongoDB',
   [AdvisorTechnology.unspecified]: 'Unspecified',
+};
+
+export const MANAGED_SERVICE_TYPE: Record<ManagedServiceType, string> = {
+  [ManagedServiceType.mysql]: 'MySQL',
+  [ManagedServiceType.postgresql]: 'PostgreSQL',
+  [ManagedServiceType.mongodb]: 'MongoDB',
+  [ManagedServiceType.proxysql]: 'ProxySQL',
+  [ManagedServiceType.haproxy]: 'HAProxy',
+  [ManagedServiceType.valkey]: 'Valkey',
+  [ManagedServiceType.external]: 'External',
 };
 
 export const ADVISOR_INTERVAL: Record<AdvisorInterval, string> = {

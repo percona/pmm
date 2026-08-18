@@ -18,10 +18,12 @@ import {
 } from 'components/sidebar/drawer/Drawer.constants';
 import { useNavigation } from 'contexts/navigation/navigation.hooks';
 import { Insight } from 'types/advisors.types';
+import { ManagedServiceType } from 'types/services.types';
 import { Severity } from 'types/severity.types';
 import {
   ADVISOR_INTERVAL,
   ADVISOR_RESULT_STATUS,
+  MANAGED_SERVICE_TYPE,
   SEVERITY,
   TIME_FORMAT,
 } from 'lib/constants';
@@ -29,6 +31,12 @@ import { Messages } from '../AdvisorInsights.messages';
 import { TRIGGERED_BY_LABEL } from '../AdvisorInsights.utils';
 
 const EM_DASH = '—';
+
+// insights carry the raw service type ("mysql"), which doubles as the technology
+const technologyLabel = (serviceType: string) =>
+  MANAGED_SERVICE_TYPE[serviceType as ManagedServiceType] ||
+  serviceType ||
+  EM_DASH;
 
 const SEVERITY_CHIP_COLOR: Record<
   Severity,
@@ -253,6 +261,11 @@ export const InsightDetailsPane: FC<InsightDetailsPaneProps> = ({
                 <Typography variant="body1">{insight.serviceName}</Typography>
                 <CopyToClipboardButton textToCopy={insight.serviceName} />
               </Stack>
+            </Field>
+            <Field label={m.technology}>
+              <Typography variant="body1">
+                {technologyLabel(insight.serviceType)}
+              </Typography>
             </Field>
             <Field label={m.node}>
               <Stack direction="row" alignItems="center" gap={0.5}>

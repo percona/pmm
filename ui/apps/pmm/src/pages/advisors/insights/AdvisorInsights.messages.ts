@@ -36,6 +36,7 @@ export const Messages = {
     outcome: 'Outcome',
     readMore: 'Read more',
     service: 'Service',
+    technology: 'Technology',
     node: 'Node',
     category: 'Category',
     environment: 'Environment',
