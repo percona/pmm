@@ -41,14 +41,17 @@ import {
 import { request } from './hooks';
 import type {
   PomInventoryHost,
+  PomInventoryRun,
   PomInventoryRunAccepted,
+  PomInventoryRunDetail,
   PomInventoryService,
-  PomProbeRun,
+  PomInventorySetting,
 } from './types';
 
 const hostsKey = ['pom', 'inventory', 'hosts'] as const;
 const servicesKey = ['pom', 'inventory', 'services'] as const;
 const runsKey = ['pom', 'inventory', 'runs'] as const;
+const configKey = ['pom', 'inventory', 'config'] as const;
 
 /** Poll cadence while a refresh is in flight (ms). */
 const REFRESH_POLL_MS = 3000;
@@ -152,10 +155,10 @@ export function isRefreshActive(status: string | undefined): boolean {
  * updated on reload could not show them.
  */
 export function usePomInventoryRuns(limit = 25) {
-  return useQuery<PomProbeRun[]>({
+  return useQuery<PomInventoryRun[]>({
     queryKey: [...runsKey, limit],
     queryFn: async () => {
-      const { runs } = await request<{ runs: PomProbeRun[] }>(
+      const { runs } = await request<{ runs: PomInventoryRun[] }>(
         `/inventory/runs?limit=${limit}`
       );
       return runs ?? [];
@@ -229,6 +232,92 @@ export function useForgetService() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: hostsKey });
       queryClient.invalidateQueries({ queryKey: servicesKey });
+    },
+  });
+}
+
+/**
+ * One refresh with the rows behind its counters.
+ *
+ * Fetched per run rather than read out of the history: only the detail endpoint
+ * carries the entity list, because a real estate has a row per service and a
+ * twenty-five-run history would carry the lot to render a panel that shows one at a
+ * time. Fetched only while the panel is open, for the same reason.
+ */
+export function usePomInventoryRun(runId: string | undefined) {
+  return useQuery<PomInventoryRunDetail>({
+    queryKey: [...runsKey, 'detail', runId],
+    enabled: Boolean(runId),
+    queryFn: () => request<PomInventoryRunDetail>(`/inventory/runs/${runId}`),
+    // A run still going gains entities as its dispatches land, so the open panel
+    // follows it; a finished one never changes again.
+    refetchInterval: (query) =>
+      isRefreshActive(query.state.data?.run.status) ? REFRESH_POLL_MS : false,
+  });
+}
+
+/**
+ * The app's configuration, every field with where its value came from.
+ *
+ * Every field, not only the overridden ones: "why is it sweeping every ten minutes" is
+ * answered by the origin rather than by the number, and a form that showed only
+ * overrides could not say whether a value is the deployment's or nobody's.
+ */
+export function usePomInventoryConfig() {
+  return useQuery<PomInventorySetting[]>({
+    queryKey: configKey,
+    queryFn: async () => {
+      const { settings } = await request<{ settings: PomInventorySetting[] }>(
+        '/inventory/config'
+      );
+      return settings ?? [];
+    },
+  });
+}
+
+/**
+ * Change configuration fields, and re-read what actually took effect.
+ *
+ * The re-read is the point. Beat runs as a forked side-car process, and a form that
+ * echoed the submitted value would look identical whether or not the change reached
+ * it. Invalidating and rendering what comes back is what makes that visible instead of
+ * assumed.
+ *
+ * The batch is atomic on the app's side: one bad key rejects all of it with a per-key
+ * 422 and writes nothing, so a caller never has to work out how far a partial apply
+ * got.
+ */
+export function useUpdatePomInventoryConfig() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    { settings: PomInventorySetting[] },
+    Error,
+    Record<string, unknown>
+  >({
+    mutationFn: (values) =>
+      request<{ settings: PomInventorySetting[] }>('/inventory/config', {
+        method: 'PATCH',
+        body: JSON.stringify(values),
+      }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: configKey });
+      // The schedule drives when the next refresh runs, so the history's idea of
+      // "due" changes with it.
+      queryClient.invalidateQueries({ queryKey: runsKey });
+    },
+  });
+}
+
+/** Put one field back to whatever the deployment configured. */
+export function useResetPomInventoryConfig() {
+  const queryClient = useQueryClient();
+  return useMutation<void, Error, string>({
+    mutationFn: (key) =>
+      request<void>(`/inventory/config/${encodeURIComponent(key)}`, {
+        method: 'DELETE',
+      }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: configKey });
     },
   });
 }

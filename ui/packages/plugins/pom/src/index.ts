@@ -20,22 +20,16 @@ export { pomBase, usePomBase } from './usePomBase';
 export { OverviewPage } from './OverviewPage';
 export { ServicesPage } from './ServicesPage';
 export { HostsPage } from './HostsPage';
-export { RunsPage } from './RunsPage';
+export { DiscoveryPage } from './DiscoveryPage';
 export { StatusBadge, RunStatusBadge } from './components/HealthBadge';
 export { Duration, Percent } from './components/Metric';
-export { RunNodes } from './components/RunNodes';
+export { RunEntities } from './components/RunEntities';
+export { ProbeValue } from './components/ProbeValue';
+export { ScheduleForm } from './components/ScheduleForm';
 export { SnapshotBar } from './components/SnapshotBar';
 export { SyncButton } from './components/SyncButton';
 export { PomHeader } from './components/PomHeader';
 export { Unavailable } from './components/Unavailable';
-export {
-  isProbeConflict,
-  isProbeRunActive,
-  usePomProbeRun,
-  usePomProbeRuns,
-  useTriggerPomProbe,
-  POM_PROBE_RUNS_LIMIT,
-} from './probeHooks';
 export {
   usePomTopology,
   toClusterRows,
@@ -66,6 +60,10 @@ export {
   usePomInventoryHosts,
   usePomInventoryServices,
   usePomInventoryRuns,
+  usePomInventoryRun,
+  usePomInventoryConfig,
+  useUpdatePomInventoryConfig,
+  useResetPomInventoryConfig,
   useRefreshInventory,
   useForgetHost,
   useForgetService,

@@ -394,10 +394,6 @@ importers:
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(msw@2.15.0(@types/node@20.19.43)(typescript@6.0.3))(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
 
   packages/plugins/pom:
-    dependencies:
-      '@sep/api':
-        specifier: workspace:*
-        version: link:../../sep/api
     devDependencies:
       '@emotion/react':
         specifier: ^11.11.4

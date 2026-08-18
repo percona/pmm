@@ -358,8 +358,8 @@ export const addPom = (): NavItem[] => [
       {
         id: 'pom-discovery',
         text: 'Discovery',
-        url: `${POM_PATH}/runs`,
-        matches: [`${POM_PATH}/runs`],
+        url: `${POM_PATH}/discovery`,
+        matches: [`${POM_PATH}/discovery`],
       },
     ],
   },
