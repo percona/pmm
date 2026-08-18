@@ -76,7 +76,7 @@ When you change connection-affecting parameters (username, password, TLS setting
 
 - Update database credentials
 - Add or update custom labels
-- Add, replace, or remove exporter environment variables
+- Add, replace, or remove `mongodb-exporter` environment variables
 - Enable/disable a collector
 - Update collection limits
 - Change TLS settings
@@ -161,8 +161,15 @@ You can also use `pmm-admin list` to see agents alongside their services.
 - `--custom-labels`
 :   Custom user-assigned labels in `key=value,key=value` format
 
-- `--agent-env-vars`
+- `--agent-env-vars` (`mongodb-exporter` only)
 :   Comma-separated list of environment variable names to pass to the exporter, for example `KRB5_KTNAME,KRB5_CONFIG`
+
+!!! note "`--agent-env-vars` applies to `mongodb-exporter` only"
+    Environment variables can only be passed to agents that `pmm-agent` starts as a **separate
+    process**, and `mongodb-exporter` is the only such agent among the MongoDB types.
+    `qan-mongodb-profiler-agent`, `qan-mongodb-mongolog-agent` and `rta-mongodb-agent` are
+    *built-in* agents that run inside the `pmm-agent` process itself, so they inherit `pmm-agent`'s
+    environment as-is and the flag is not available for them.
 
 !!! note "How `--agent-env-vars` is applied"
     The flag **replaces** the entire list, so any name you leave out is removed. Omitting the flag

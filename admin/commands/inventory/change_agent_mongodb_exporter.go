@@ -297,7 +297,7 @@ func (cmd *ChangeAgentMongodbExporterCommand) RunCmd() (commands.Result, error) 
 	}
 	if cmd.AgentEnvVars != nil {
 		if len(agentEnvVars) != 0 {
-			changes = append(changes, fmt.Sprintf("updated environment variable names: %s", strings.Join(agentEnvVars, ", ")))
+			changes = append(changes, "updated environment variable names: "+strings.Join(agentEnvVars, ", "))
 		} else {
 			changes = append(changes, "environment variable names are removed")
 		}

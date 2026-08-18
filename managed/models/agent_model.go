@@ -23,7 +23,6 @@ import (
 	"maps"
 	"net"
 	"net/url"
-	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
@@ -32,8 +31,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
@@ -460,37 +457,14 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	return names, nil
 }
 
-// envVarNameRE matches environment variable names that can be passed to exporters.
-// The same rule is applied client-side by commands.ValidateEnvironmentVariableNames.
-var envVarNameRE = regexp.MustCompile("^[A-Z_][A-Z0-9_]*$")
-
-// SetEnvironmentVariableNames encodes shared environment variable names. Names are trimmed and
-// duplicates are collapsed, keeping the first occurrence. An empty list clears all stored names.
+// SetEnvironmentVariableNames encodes shared environment variable names.
 func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	if len(names) == 0 {
 		a.EnvironmentVariables = nil
 		return nil
 	}
 
-	cleaned := make([]string, 0, len(names))
-	seen := make(map[string]struct{}, len(names))
-
-	for _, name := range names {
-		name = strings.TrimSpace(name)
-		if !envVarNameRE.MatchString(name) {
-			return status.Errorf(codes.InvalidArgument,
-				"Invalid environment variable name %q. It must match [A-Z_][A-Z0-9_]*.", name)
-		}
-
-		if _, ok := seen[name]; ok {
-			continue
-		}
-		seen[name] = struct{}{}
-
-		cleaned = append(cleaned, name)
-	}
-
-	b, err := json.Marshal(cleaned)
+	b, err := json.Marshal(names)
 	if err != nil {
 		return fmt.Errorf("failed to marshal shared environment variable names: %w", err)
 	}

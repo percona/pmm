@@ -18,21 +18,17 @@ package models_test
 import (
 	"fmt"
 	"strconv"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
-	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestAgent(t *testing.T) {
@@ -694,50 +690,5 @@ func TestExporterOptionsIsEmpty(t *testing.T) {
 		require.False(t, (models.ExporterOptions{
 			ConnectionTimeout: pointer.ToDuration(time.Second),
 		}).IsEmpty())
-	})
-}
-
-func TestSetEnvironmentVariableNames(t *testing.T) {
-	t.Parallel()
-
-	for _, tt := range []struct {
-		name     string
-		input    []string
-		expected []string
-	}{
-		{"nil clears", nil, nil},
-		{"empty slice clears", []string{}, nil},
-		{"single name", []string{"KRB5_KTNAME"}, []string{"KRB5_KTNAME"}},
-		{"trims surrounding whitespace", []string{" KRB5_KTNAME ", "KRB5_CONFIG\t"}, []string{"KRB5_KTNAME", "KRB5_CONFIG"}},
-		{"collapses duplicates keeping first", []string{"KRB5_KTNAME", " KRB5_KTNAME ", "KRB5_CONFIG"}, []string{"KRB5_KTNAME", "KRB5_CONFIG"}},
-		{"digits and underscores", []string{"_VAR", "VAR2"}, []string{"_VAR", "VAR2"}},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			a := &models.Agent{}
-			require.NoError(t, a.SetEnvironmentVariableNames(tt.input))
-
-			names, err := a.GetEnvironmentVariableNames()
-			require.NoError(t, err)
-			assert.Equal(t, tt.expected, names)
-		})
-	}
-
-	t.Run("rejects invalid names without touching stored value", func(t *testing.T) {
-		t.Parallel()
-
-		for _, name := range []string{"krb5_ktname", "KRB5-KTNAME", "5VAR", "KRB5_KTNAME=/tmp/keytab", "", "   "} {
-			a := &models.Agent{}
-			require.NoError(t, a.SetEnvironmentVariableNames([]string{"KRB5_CONFIG"}))
-
-			err := a.SetEnvironmentVariableNames([]string{name})
-			tests.AssertGRPCError(t, status.Newf(codes.InvalidArgument,
-				"Invalid environment variable name %q. It must match [A-Z_][A-Z0-9_]*.", strings.TrimSpace(name)), err)
-
-			names, getErr := a.GetEnvironmentVariableNames()
-			require.NoError(t, getErr)
-			assert.Equal(t, []string{"KRB5_CONFIG"}, names)
-		}
 	})
 }
