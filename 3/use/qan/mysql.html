@@ -4895,6 +4895,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#prepared-statements-show-placeholders-instead-of-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prepared statements show placeholders instead of values
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -16430,6 +16441,17 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#prepared-statements-show-placeholders-instead-of-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prepared statements show placeholders instead of values
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -16496,6 +16518,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <h3 id="workaround">Workaround<a class="headerlink" href="#workaround" title="Permanent link">&para;</a></h3>
 <p>If you&rsquo;re still missing some query examples, consider <a href="../../install-pmm/install-pmm-client/connect-database/mysql/mysql.html#configure-data-source">using the slow query log (<code>slowlog</code>)</a> as the query source instead. 
 The <code>slowlog</code> retains actual query texts over time and can help capture examples even when Performance Schema history buffers are exhausted.</p>
+<h2 id="prepared-statements-show-placeholders-instead-of-values">Prepared statements show placeholders instead of values<a class="headerlink" href="#prepared-statements-show-placeholders-instead-of-values" title="Permanent link">&para;</a></h2>
+<p>If your application uses server-side prepared statements (common with JDBC and most ORM frameworks), query examples in QAN appear as <code>?</code> placeholders instead of literal values, and EXPLAIN is unavailable for those queries.</p>
+<p>This is how upstream MySQL exposes prepared statements to Performance Schema, not a PMM limitation.</p>
+<p>To see real values and working EXPLAIN, switch to the <a href="../../install-pmm/install-pmm-client/connect-database/mysql/mysql.html#configure-data-source">file-based slow query log</a> as your query source. The slowlog records executed statements with their actual parameter values.</p>
 
 
 
@@ -16518,7 +16544,7 @@ The <code>slowlog</code> retains actual query texts over time and can help captu
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 1, 2026 14:08:36 UTC">April 1, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 18, 2026 14:33:13 UTC">August 18, 2026</span>
   </span>
 
     
