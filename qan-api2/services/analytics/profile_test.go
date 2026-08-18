@@ -811,23 +811,29 @@ func TestService_GetReport_Search(t *testing.T) {
 		// row counts asserted by the other sub-tests here (they scan the whole 2019-01-01 range).
 		const whitespaceQueryID = "TESTWHITESPACEQID"
 		t.Cleanup(func() {
+			// t.Context() is already canceled by the time Cleanup runs, so this needs its own.
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
 			// Synchronous so a shared/persistent QANAPI_DSN_TEST database doesn't accumulate
 			// rows (and skewed totals) across repeated test runs.
-			_, err := db.Exec(`ALTER TABLE metrics DELETE WHERE queryid = '` + whitespaceQueryID + `' SETTINGS mutations_sync = 1`)
+			_, err := db.ExecContext(ctx, `ALTER TABLE metrics DELETE WHERE queryid = ? SETTINGS mutations_sync = 1`, whitespaceQueryID)
 			require.NoError(t, err, "failed to clean up seeded row")
 		})
+
+		ctx, cancel := context.WithTimeout(t.Context(), 10*time.Second)
+		defer cancel()
 		//nolint:unqueryvet // clone every column of a real row so this test survives schema changes
-		_, err := db.Exec(`
+		_, err := db.ExecContext(ctx, `
 			INSERT INTO metrics
 			SELECT * REPLACE(
-				'` + whitespaceQueryID + `' AS queryid,
+				? AS queryid,
 				'SELECT
     datid, datname (...)' AS fingerprint,
 				toDateTime('2019-01-02 00:30:00', 'UTC') AS period_start
 			)
 			FROM metrics
 			WHERE queryid = '7DD5F6760F2D2EBB'
-			LIMIT 1`)
+			LIMIT 1`, whitespaceQueryID)
 		require.NoError(t, err, "failed to seed row with embedded whitespace in fingerprint")
 
 		s := &Service{
