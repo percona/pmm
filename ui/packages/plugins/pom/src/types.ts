@@ -482,3 +482,81 @@ export interface PomInventoryRunAccepted {
   /** The hosts it will cover. Empty means the whole estate. */
   scope: string[];
 }
+
+/**
+ * What one refresh reached.
+ *
+ * Hosts and services, because a refresh attempts both. Counting only services makes a
+ * host-only refresh read as "0 of 0", which is what a run that did nothing also looks
+ * like - on the one kind of host POM most exists to describe.
+ *
+ * The `total`/`probeable` pair and the `resolved`/`answered` pair say the same kind of
+ * thing one level apart: the first of each is what enumeration found, the second is
+ * what could actually be reached. A single "failed" count would hide the difference
+ * between a broken mapping and broken executors.
+ */
+export interface PomInventoryRunCounts {
+  services_total: number;
+  services_resolved: number;
+  services_orphaned: number;
+  services_answered: number;
+  hosts_total: number;
+  hosts_probeable: number;
+  hosts_answered: number;
+}
+
+/** One refresh of the estate. */
+export interface PomInventoryRun {
+  run_id: string;
+  /** `running` / `success` / `partial` / `failed`. */
+  status: PomRunStatus;
+  started_at: string;
+  /** Null while it is still going. */
+  finished_at: string | null;
+  counts: PomInventoryRunCounts;
+  /**
+   * The hosts it was limited to. Empty means the whole estate.
+   *
+   * Without it a scoped refresh reads as a full sweep that found one host, which
+   * looks like a catastrophic failure rather than the single-host refresh it was.
+   */
+  scope: string[];
+  error: string | null;
+}
+
+/**
+ * One entity a refresh attempted, and what came of it.
+ *
+ * Outcomes, not observations. What the probe found lives on the estate, upserted and
+ * current; a receipt carrying the attributes too would be a second copy that goes
+ * stale on the next refresh.
+ */
+export interface PomInventoryRunEntity {
+  service_id: string | null;
+  service_name: string;
+  executor_host: string | null;
+  /** `name` / `address` / `orphaned` - how the host was matched, or that it was not. */
+  resolution: string;
+  answered: boolean;
+  duration_seconds: number | null;
+  error: string | null;
+}
+
+/** One refresh with the rows behind its counters, from `GET /runs/{id}`. */
+export interface PomInventoryRunDetail {
+  run: PomInventoryRun;
+  entities: PomInventoryRunEntity[];
+}
+
+/** One configuration field, and where its value came from. */
+export interface PomInventorySetting {
+  key: string;
+  value: unknown;
+  default_value: unknown;
+  type: string;
+  /** `hot` means it takes effect without a restart. Anything else needs one. */
+  reload: string;
+  has_override: boolean;
+  is_advanced: boolean;
+  description: string | null;
+}

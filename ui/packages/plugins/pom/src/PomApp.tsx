@@ -16,24 +16,30 @@
  */
 
 import { Route, Routes } from 'react-router-dom';
-import { POM_ROUTE_HOSTS, POM_ROUTE_SERVICES } from './constants';
+import {
+  POM_ROUTE_DISCOVERY,
+  POM_ROUTE_HOSTS,
+  POM_ROUTE_SERVICES,
+} from './constants';
+import { DiscoveryPage } from './DiscoveryPage';
 import { HostsPage } from './HostsPage';
 import { OverviewPage } from './OverviewPage';
 import { ServicesPage } from './ServicesPage';
 
 /**
  * POM app router. The shell mounts this at ``pom/*``; the cluster overview is the
- * index route, with the service and host tables beside it.
+ * index route, with the service, host and refresh pages beside it.
  *
- * ``discovery`` is still deliberately absent. That page reads SEP's ``pom_discovery``
- * app directly, so it needs a SEP bearer the rest of POM does not: the shell mounts
- * ``RunsPage`` on its own route inside ``SepPage``, which ranks above this splat, and
- * mounting it here as well would put an ungated copy on the same path. It joins these
- * routes once it moves onto ``/v1/pom/inventory`` and stops needing the bearer.
+ * **All four mount here now.** Discovery used to live on its own route wrapped in
+ * ``SepPage``, because it read SEP's app directly and needed a bearer minted from the
+ * PMM session that no other POM page did. Reading it through pmm-managed removes the
+ * bearer, and with it the gate: ``SepAuthGate`` fails closed, so a SEP that was down,
+ * unconfigured or refusing the exchange blanked the page entirely rather than letting
+ * it render its own error.
  *
- * There is no per-cluster or per-host route: both tables render everything they hold,
- * and the Hosts rows expand to their services in place, so a detail page would only
- * re-show rows the reader already has.
+ * There is no per-cluster, per-host or per-run route: every table renders what it
+ * holds and expands in place, so a detail page would only re-show rows the reader
+ * already has.
  */
 export function PomApp() {
   return (
@@ -41,6 +47,7 @@ export function PomApp() {
       <Route index element={<OverviewPage />} />
       <Route path={POM_ROUTE_SERVICES} element={<ServicesPage />} />
       <Route path={POM_ROUTE_HOSTS} element={<HostsPage />} />
+      <Route path={POM_ROUTE_DISCOVERY} element={<DiscoveryPage />} />
     </Routes>
   );
 }

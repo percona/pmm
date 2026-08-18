@@ -18,9 +18,10 @@
 /**
  * POM's read API, served by **pmm-managed** at `/v1/pom`.
  *
- * Previously this called SEP's `pom_api` at `/api/apps/pom_api` through `@sep/api`.
- * Nothing below the transport changed: pmm-managed derives the same document from the
- * same two sources — PMM's inventory and VictoriaMetrics — and gRPC-Gateway is
+ * Previously this called SEP's `pom_api` at `/api/apps/pom_api` through `@sep/api`,
+ * which the plugin no longer depends on at all: every POM page reads PMM's own origin
+ * now. Nothing below the transport changed: pmm-managed derives the same document from
+ * the same two sources — PMM's inventory and VictoriaMetrics — and gRPC-Gateway is
  * configured with `UseProtoNames` + `EmitUnpopulated`, so the JSON is snake_case with
  * explicit nulls, exactly as `types.ts` already describes it.
  *
@@ -72,8 +73,8 @@ const runsKey = ['pom', 'runs'] as const;
  *
  * Deliberately `fetch` rather than an axios instance: PMM's own axios client runs
  * `axios-case-converter` and would camelCase the response out from under `types.ts`,
- * and `@sep/api`'s client points at SEP. A bare same-origin fetch is both smaller and
- * the only one that leaves the wire shape alone.
+ * and an axios instance would camelCase it. A bare same-origin fetch is both smaller
+ * and the only one that leaves the wire shape alone.
  */
 export class PomApiError extends Error {
   readonly status: number;

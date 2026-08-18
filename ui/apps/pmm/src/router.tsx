@@ -21,7 +21,7 @@ import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@sep/plugins-atw';
-import { PomApp, RunsPage } from '@sep/plugins-pom';
+import { PomApp } from '@sep/plugins-pom';
 import { PomPage } from 'pom/PomPage';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import { SepPage } from './sep/SepPage';
@@ -118,27 +118,16 @@ const router = createBrowserRouter(
               ),
             },
             {
-              // POM's Discovery page is the one route that talks to SEP: the probe
-              // sweeps live in SEP's pom_discovery app, which pmm-managed pulls
-              // facts from but does not proxy the run history of. It therefore
-              // needs the SEP bearer, so it is mounted on its own route inside
-              // SepPage rather than inside PomApp's splat below -- a static
-              // segment ranks above `*`, so this is the one that matches.
-              path: `${relativeToNav(POM_PATH)}/runs`,
-              element: (
-                <SepPage>
-                  <RunsPage />
-                </SepPage>
-              ),
-            },
-            {
-              // POM (PSMDB Open Manager) is bespoke like ATW: PomApp composes
-              // its own <Routes> (the cluster overview at index, the service
-              // table at topology), so this must be a splat. Everything under it
-              // reads the topology document from pmm-managed at /v1/pom, which
-              // derives it from PMM's own inventory and VictoriaMetrics -- no SEP
-              // call on any of those browser paths, which is why it is wrapped in
-              // PomPage rather than SepPage.
+              // POM (PSMDB Open Manager) is bespoke like ATW: PomApp composes its
+              // own <Routes>, so this must be a splat.
+              //
+              // All four pages are under it now. Discovery used to be mounted
+              // separately inside SepPage, because it read SEP's app directly and
+              // needed a bearer minted from the PMM session; pmm-managed proxies the
+              // estate at /v1/pom/inventory, so no POM path in the browser talks to
+              // SEP any more. That is why PomPage rather than SepPage, and why a sick
+              // SEP now shows an error inside a page that still renders instead of
+              // blanking it -- SepAuthGate fails closed.
               path: `${relativeToNav(POM_PATH)}/*`,
               element: (
                 <PomPage>
