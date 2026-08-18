@@ -16,26 +16,31 @@
  */
 
 import { Route, Routes } from 'react-router-dom';
+import { POM_ROUTE_HOSTS, POM_ROUTE_SERVICES } from './constants';
+import { HostsPage } from './HostsPage';
 import { OverviewPage } from './OverviewPage';
-import { TopologyPage } from './TopologyPage';
+import { ServicesPage } from './ServicesPage';
 
 /**
  * POM app router. The shell mounts this at ``pom/*``; the cluster overview is the
- * index route and the full service table lives at ``topology``.
+ * index route, with the service and host tables beside it.
  *
- * ``runs`` is deliberately absent. Discovery reads SEP's ``pom_discovery`` app
- * directly, so it needs a SEP bearer that the rest of POM does not: the shell mounts
- * ``RunsPage`` on its own route inside ``SepPage``, which ranks above this splat.
- * Mounting it here as well would put an ungated copy on the same path.
+ * ``discovery`` is still deliberately absent. That page reads SEP's ``pom_discovery``
+ * app directly, so it needs a SEP bearer the rest of POM does not: the shell mounts
+ * ``RunsPage`` on its own route inside ``SepPage``, which ranks above this splat, and
+ * mounting it here as well would put an ungated copy on the same path. It joins these
+ * routes once it moves onto ``/v1/pom/inventory`` and stops needing the bearer.
  *
- * There is no per-cluster route: the snapshot is one document and the topology table
- * renders all of it, so a detail page would only re-show rows the reader already has.
+ * There is no per-cluster or per-host route: both tables render everything they hold,
+ * and the Hosts rows expand to their services in place, so a detail page would only
+ * re-show rows the reader already has.
  */
 export function PomApp() {
   return (
     <Routes>
       <Route index element={<OverviewPage />} />
-      <Route path="topology" element={<TopologyPage />} />
+      <Route path={POM_ROUTE_SERVICES} element={<ServicesPage />} />
+      <Route path={POM_ROUTE_HOSTS} element={<HostsPage />} />
     </Routes>
   );
 }

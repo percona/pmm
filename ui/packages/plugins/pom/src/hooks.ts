@@ -85,7 +85,15 @@ export class PomApiError extends Error {
   }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+/**
+ * Exported so the inventory hooks share this client rather than growing their own.
+ *
+ * That is the whole point of the proxy: before it, the estate was read from SEP
+ * directly with a bearer minted from the PMM session, which meant a second HTTP client
+ * and a page that failed closed when SEP was unwell. One origin, one client, and
+ * ``SEP is unreachable`` becomes an error inside a page that still renders.
+ */
+export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${POM_BASE}${path}`, {
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json' },
@@ -289,7 +297,9 @@ export function usePomRuns(limit: number = POM_RUNS_LIMIT) {
     // started by pmm-managed's own timer and by other readers, and a history that only
     // updates on reload cannot show them.
     refetchInterval: (query) =>
-      isRunActive(query.state.data?.[0]?.status) ? RUN_POLL_MS : SNAPSHOT_POLL_MS,
+      isRunActive(query.state.data?.[0]?.status)
+        ? RUN_POLL_MS
+        : SNAPSHOT_POLL_MS,
   });
 }
 

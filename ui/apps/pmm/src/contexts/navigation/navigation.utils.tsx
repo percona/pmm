@@ -342,10 +342,18 @@ export const addPom = (): NavItem[] => [
         url: POM_PATH,
       },
       {
-        id: 'pom-topology',
-        text: 'Topology',
-        url: `${POM_PATH}/topology`,
-        matches: [`${POM_PATH}/topology`],
+        id: 'pom-services',
+        text: 'Services',
+        url: `${POM_PATH}/services`,
+        matches: [`${POM_PATH}/services`],
+      },
+      {
+        // The page a host with no database appears on, which no other POM page can
+        // show: it has no service to be listed through.
+        id: 'pom-hosts',
+        text: 'Hosts',
+        url: `${POM_PATH}/hosts`,
+        matches: [`${POM_PATH}/hosts`],
       },
       {
         id: 'pom-discovery',

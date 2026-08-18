@@ -39,7 +39,9 @@ export type PomUnavailableReason =
   | 'service_not_observed'
   | 'metric_not_collected'
   | 'no_version_catalog'
-  | 'not_applicable';
+  | 'not_applicable'
+  | 'not_in_inventory'
+  | 'probe_never_succeeded';
 
 /**
  * One monitored MongoDB service.
@@ -304,4 +306,179 @@ export interface PomProbeFact {
 export interface PomProbeRunDetail extends PomProbeRun {
   nodes: PomProbeNode[];
   facts: PomProbeFact[];
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * The inventory: POM's estate, served by pmm-managed at /v1/pom/inventory
+ * ---------------------------------------------------------------------------
+ *
+ * A different source from everything above. The topology document is PMM's own
+ * derivation from its inventory and VictoriaMetrics, rebuilt per request in about a
+ * tenth of a second and never touching a host. The estate is what SEP's probe found by
+ * running a payload on the hosts themselves, upserted row by row, and it answers for a
+ * service or a host whether or not the last sweep reached it.
+ *
+ * Hand-kept against `api/pom/v1/pom.proto`, like the rest of this file: PMM's plugin
+ * generates no client. The gateway runs `UseProtoNames` + `EmitUnpopulated`, so the
+ * wire is snake_case with nulls spelled out.
+ */
+
+/**
+ * Why nothing can run on a host, in the three ways it can be true.
+ *
+ * A single "can I dispatch here" boolean collapses three problems that need three
+ * different people: a machine that was never onboarded, one whose agent is stopped,
+ * and one that is up with a broken driver. `registered` is what separates the first
+ * from the other two.
+ */
+export interface PomInventoryExecutor {
+  registered: boolean;
+  reachable: boolean;
+  driver_healthy: boolean;
+  /** The backend's own reason, when the driver is the problem. */
+  detail: string | null;
+}
+
+/**
+ * A mongod running on a host that PMM has no service for.
+ *
+ * Arbiters, mostly: PMM registers no service for one, so nothing else in POM reports
+ * the process at all. Also what stands in the way of installing anything over a port
+ * already in use.
+ */
+export interface PomUnregisteredMongod {
+  port: number | null;
+  config_path: string | null;
+  argv: string | null;
+  program: string | null;
+  pid: number | null;
+}
+
+/**
+ * How current a row is, and how it is failing.
+ *
+ * On hosts and services alike, because the estate is upserted rather than rebuilt: a
+ * row keeps what it last reported, so every attribute is only meaningful beside the
+ * time it was collected. `failing_since` is the *first* failure after the last
+ * success, which is what makes "failing for three days" expressible rather than only
+ * "failed a minute ago".
+ */
+export interface PomInventoryFreshness {
+  first_seen_at: string | null;
+  last_attempt_at: string | null;
+  /** Null means it has never answered, which is not the same as answering nothing. */
+  last_success_at: string | null;
+  /** Null means it is not failing. */
+  failing_since: string | null;
+  consecutive_failures: number;
+  last_error: string | null;
+}
+
+/**
+ * One MongoDB service POM has probed, or tried to.
+ *
+ * The named fields are the ones a table sorts by; `observed` carries the whole
+ * document besides. The split is deliberate and is why a new probe attribute reaches
+ * this page without a proto change: it appears in `observed` the day it is collected,
+ * and is promoted to a field of its own only when something wants to sort by it.
+ */
+export interface PomInventoryService {
+  service_id: string;
+  node_id: string;
+  name: string | null;
+  port: number | null;
+  role: string | null;
+  /**
+   * What the package database on the host says.
+   *
+   * Not the same as the snapshot's `version`, which is what the running process
+   * reports over the wire. They disagree exactly when a package has been upgraded and
+   * the process not restarted, which is a state POM exists to find - so the two are
+   * never merged into one column.
+   */
+  installed_version: string | null;
+  running_version: string | null;
+  config_path: string | null;
+  argv: string | null;
+  probe_status: string | null;
+  server_running: boolean | null;
+  uptime_seconds: number | null;
+  replication_set: string | null;
+  observed: Record<string, unknown>;
+  freshness: PomInventoryFreshness;
+}
+
+/**
+ * One host POM keeps a row for, whether or not a database runs on it.
+ *
+ * A host with no service is the point rather than an edge case: it is where a database
+ * can be installed, and it has no service to be discovered through.
+ */
+export interface PomInventoryHost {
+  node_id: string;
+  name: string;
+  address: string | null;
+  /** The executor client serving it, or null when none matched. */
+  executor_host: string | null;
+  os: string | null;
+  kernel: string | null;
+  executor: PomInventoryExecutor;
+  unregistered_mongods: PomUnregisteredMongod[];
+  observed: Record<string, unknown>;
+  freshness: PomInventoryFreshness;
+  /** The services on it. Empty is a meaningful answer, not a gap. */
+  services: PomInventoryService[];
+}
+
+/** Whether a host can fetch packages, and why not when it cannot. */
+export interface PomRepoReachability {
+  url: string | null;
+  reachable: boolean;
+  status_code: number | null;
+  latency_ms: number | null;
+  /** Null is "direct", stated rather than omitted: a failure needs the context. */
+  proxy: string | null;
+  error: string | null;
+}
+
+/** The three answers to "is there a database on this host". */
+export type PomHostDatabaseState =
+  | 'has_service'
+  | 'unregistered_only'
+  | 'installable';
+
+/**
+ * One row of the Hosts table: a host with what the page derives from it.
+ *
+ * The derived fields exist because the page's headline question - which hosts have no
+ * database - cannot be answered from `services.length` alone. PMM's inventory cannot
+ * tell a bare pmm-client host from an arbiter, so a host with no service may still be
+ * running a mongod that PMM cannot authenticate against.
+ */
+export interface PomHostRow extends PomInventoryHost {
+  database_state: PomHostDatabaseState;
+  service_count: number;
+  repo: PomRepoReachability | null;
+}
+
+/**
+ * One row of the Services table: the snapshot's view joined to the estate's.
+ *
+ * The join is free, which is the payoff of keying the estate on PMM's own service id:
+ * there is no matching function and nothing to get wrong. `inventory` is null for a
+ * service POM has no row for yet - a service PMM registered since the last sweep.
+ */
+export interface PomServiceInventoryRow extends PomServiceRow {
+  inventory: PomInventoryService | null;
+}
+
+/** A refresh accepted by the app, from `POST /v1/pom/inventory/runs`. */
+export interface PomInventoryRunAccepted {
+  run_id: string;
+  /** Always `running`: the refresh is accepted, not finished. */
+  status: string;
+  started_at: string | null;
+  /** The hosts it will cover. Empty means the whole estate. */
+  scope: string[];
 }
