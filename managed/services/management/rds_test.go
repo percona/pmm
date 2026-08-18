@@ -446,36 +446,68 @@ func TestRDSService(t *testing.T) {
 func TestAssumeRoleProvider(t *testing.T) {
 	t.Parallel()
 
-	const roleARN = "arn:aws:iam::123456789012:role/pmm-monitoring"
-
-	t.Run("uses the ambient region when set", func(t *testing.T) {
-		t.Parallel()
-
-		provider := assumeRoleProvider(aws.Config{Region: "eu-west-1"}, roleARN, []string{"us-east-1"})
-		require.NotNil(t, provider)
-		assert.IsType(t, &aws.CredentialsCache{}, provider)
-	})
-
-	t.Run("falls back to the first partition region", func(t *testing.T) {
-		t.Parallel()
-
-		provider := assumeRoleProvider(aws.Config{}, roleARN, []string{"cn-north-1", "cn-northwest-1"})
-		require.NotNil(t, provider)
-		assert.IsType(t, &aws.CredentialsCache{}, provider)
-	})
-
-	t.Run("tolerates an empty region list", func(t *testing.T) {
-		t.Parallel()
-
-		provider := assumeRoleProvider(aws.Config{}, roleARN, nil)
-		require.NotNil(t, provider)
-	})
+	provider := assumeRoleProvider(aws.Config{Region: "eu-west-1"}, "arn:aws:iam::123456789012:role/pmm-monitoring")
+	require.NotNil(t, provider)
+	assert.IsType(t, &aws.CredentialsCache{}, provider)
 }
 
 func TestStsRegion(t *testing.T) {
 	t.Parallel()
 
-	assert.Equal(t, "eu-west-1", stsRegion(aws.Config{Region: "eu-west-1"}, []string{"us-east-1"}))
-	assert.Equal(t, "cn-north-1", stsRegion(aws.Config{}, []string{"cn-north-1", "cn-northwest-1"}))
-	assert.Empty(t, stsRegion(aws.Config{}, nil))
+	for _, tc := range []struct {
+		name     string
+		region   string
+		roleARN  string
+		expected string
+	}{
+		{
+			name:     "ambient region in the role's partition is kept",
+			region:   "eu-west-1",
+			roleARN:  "arn:aws:iam::123456789012:role/pmm-monitoring",
+			expected: "eu-west-1",
+		},
+		{
+			name:     "ambient region outside the role's partition is replaced",
+			region:   "eu-west-1",
+			roleARN:  "arn:aws-cn:iam::123456789012:role/pmm-monitoring",
+			expected: "cn-north-1",
+		},
+		{
+			name:     "no ambient region falls back to the role's partition",
+			roleARN:  "arn:aws-cn:iam::123456789012:role/pmm-monitoring",
+			expected: "cn-north-1",
+		},
+		{
+			name:     "GovCloud role uses a GovCloud region",
+			region:   "us-east-1",
+			roleARN:  "arn:aws-us-gov:iam::123456789012:role/pmm-monitoring",
+			expected: "us-gov-east-1",
+		},
+		{
+			name:     "unknown partition keeps the ambient region",
+			region:   "eu-west-1",
+			roleARN:  "arn:aws-iso-b:iam::123456789012:role/pmm-monitoring",
+			expected: "eu-west-1",
+		},
+		{
+			name:    "malformed ARN with no ambient region yields nothing",
+			roleARN: "not-an-arn",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.expected, stsRegion(aws.Config{Region: tc.region}, tc.roleARN))
+		})
+	}
+}
+
+func TestArnPartition(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, "aws", arnPartition("arn:aws:iam::123456789012:role/pmm-monitoring"))
+	assert.Equal(t, "aws-cn", arnPartition("arn:aws-cn:iam::123456789012:role/pmm-monitoring"))
+	assert.Empty(t, arnPartition("not-an-arn"))
+	assert.Empty(t, arnPartition("iam::123456789012:role/pmm-monitoring"))
+	assert.Empty(t, arnPartition(""))
 }

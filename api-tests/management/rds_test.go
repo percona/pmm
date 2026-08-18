@@ -79,6 +79,21 @@ func TestRDSDiscoveryRoleARN(t *testing.T) {
 			"Both AWS role ARN and AWS access key/secret key are set; they are mutually exclusive.")
 		assert.Nil(t, discoverOK)
 	})
+
+	t.Run("UnassumableRoleARNIsReported", func(t *testing.T) {
+		t.Parallel()
+
+		params := &mservice.DiscoverRDSParams{
+			Body: mservice.DiscoverRDSBody{
+				AWSRoleArn: "arn:aws:iam::123456789012:role/pmm-monitoring",
+			},
+			Context: pmmapitests.Context,
+		}
+		discoverOK, err := client.Default.ManagementService.DiscoverRDS(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition,
+			"Failed to assume role arn:aws:iam::123456789012:role/pmm-monitoring:")
+		assert.Nil(t, discoverOK)
+	})
 }
 
 func TestAddRds(t *testing.T) {
