@@ -100,7 +100,11 @@ type ChangeAgentMongodbExporterCommand struct {
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 
-	// Environment variables
+	// Environment variables.
+	//
+	// Unlike the add commands, which take a []string, this is a *string that is split manually.
+	// A *[]string cannot express "remove all": kong turns --agent-env-vars="" into []string{""},
+	// which is indistinguishable from a blank name and gets rejected by the validator.
 	//
 	//nolint:lll
 	AgentEnvVars *string `name:"agent-env-vars" help:"Comma-separated list of environment variable names to pass to the exporter (values are read from pmm-agent's environment), e.g. 'VAR1,VAR2'. Pass an empty value to remove all of them"`

@@ -196,14 +196,19 @@ func ParseDisableCollectors(collectors []string) []string {
 	return disableCollectors
 }
 
-// ValidateEnvironmentVariableNames validates environment variable names.
+// envVarNamePattern is the source of the same rule the server enforces in
+// models.SetEnvironmentVariableNames. Keep both in sync.
+var envVarNamePattern = regexp.MustCompile(`^[A-Z_][A-Z0-9_]*$`)
+
+// ValidateEnvironmentVariableNames validates environment variable names. Names are trimmed and
+// duplicates are collapsed, keeping the first occurrence, so the list matches what the server stores.
 func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	if len(varNames) == 0 {
 		return nil, nil
 	}
 
 	result := make([]string, 0, len(varNames))
-	validNamePattern := regexp.MustCompile(`^[A-Z_][A-Z0-9_]*$`)
+	seen := make(map[string]struct{}, len(varNames))
 
 	for _, name := range varNames {
 		name = strings.TrimSpace(name)
@@ -211,9 +216,14 @@ func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 			return nil, errors.New("environment variable name cannot be empty")
 		}
 
-		if !validNamePattern.MatchString(name) {
+		if !envVarNamePattern.MatchString(name) {
 			return nil, fmt.Errorf("invalid environment variable name: %s (must match [A-Z_][A-Z0-9_]*)", name)
 		}
+
+		if _, ok := seen[name]; ok {
+			continue
+		}
+		seen[name] = struct{}{}
 
 		result = append(result, name)
 	}

@@ -845,7 +845,22 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 	}
 	processParams.Env = append(processParams.Env, env...)
 
+	// Variables PMM itself sets (MONGODB_URI and friends) must win. os/exec deduplicates the
+	// environment keeping the last entry for a key, so a user-supplied name matching one of them
+	// would otherwise silently override the DSN we just computed.
+	reserved := make(map[string]struct{}, len(processParams.Env))
+	for _, e := range processParams.Env {
+		if name, _, ok := strings.Cut(e, "="); ok {
+			reserved[name] = struct{}{}
+		}
+	}
+
 	for _, varName := range agentProcess.EnvVariableNames {
+		if _, ok := reserved[varName]; ok {
+			s.l.Warnf("Environment variable %s is set by pmm-agent for agent %s and cannot be overridden, skipping", varName, agentID)
+			continue
+		}
+
 		value, exists := os.LookupEnv(varName)
 		if !exists {
 			s.l.Warnf("Environment variable %s not found in pmm-agent environment for agent %s", varName, agentID)

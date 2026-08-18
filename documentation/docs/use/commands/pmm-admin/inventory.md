@@ -68,6 +68,8 @@ Only the flags you specify are updated — all other settings remain unchanged. 
 
 When you change connection-affecting parameters (username, password, TLS settings, etc.), PMM verifies the new settings by connecting to the database before saving them. If the connection fails (for example, wrong credentials), the command returns an error and **no changes are applied**. Use `--skip-connection-check` to bypass this verification (see [Connection and authentication](#connection-and-authentication)).
 
+`--agent-env-vars` is **not** part of this verification: the connection check runs with the environment the exporter already has, so it cannot validate names you are adding. A change to `--agent-env-vars` is always saved, and its effect only shows once the exporter restarts.
+
 ### When to use `change agent` vs `remove/add`
 
 **Use `change agent` for:**
@@ -167,9 +169,16 @@ You can also use `pmm-admin list` to see agents alongside their services.
     keeps the current list unchanged, and `--agent-env-vars=""` removes all names.
 
     Names must match `[A-Z_][A-Z0-9_]*` — uppercase letters, digits and underscores, not starting
-    with a digit. Only the names are stored: the values are read from the `pmm-agent` environment
-    every time the exporter starts. A name that is not set in that environment is skipped and
-    logged as a warning by `pmm-agent`, so a misspelled name is accepted but has no effect.
+    with a digit. The same rule applies when adding an agent (`pmm-admin add mongodb` and
+    `pmm-admin inventory add agent mongodb-exporter`) and is enforced by the server, so it also
+    applies to the UI and direct API calls. Surrounding whitespace is trimmed and repeated names
+    are collapsed.
+
+    Only the names are stored: the values are read from the `pmm-agent` environment every time the
+    exporter starts. A name that is not set in that environment is skipped and logged as a warning
+    by `pmm-agent`, so a misspelled name is accepted but has no effect. Names that `pmm-agent`
+    already sets for the exporter (such as `MONGODB_URI`) are skipped as well and cannot be
+    overridden.
 
 - `--enable`
 :   Re-enable a disabled agent

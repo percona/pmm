@@ -461,22 +461,36 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 }
 
 // envVarNameRE matches environment variable names that can be passed to exporters.
+// The same rule is applied client-side by commands.ValidateEnvironmentVariableNames.
 var envVarNameRE = regexp.MustCompile("^[A-Z_][A-Z0-9_]*$")
 
-// SetEnvironmentVariableNames encodes shared environment variable names.
+// SetEnvironmentVariableNames encodes shared environment variable names. Names are trimmed and
+// duplicates are collapsed, keeping the first occurrence. An empty list clears all stored names.
 func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	if len(names) == 0 {
 		a.EnvironmentVariables = nil
 		return nil
 	}
 
+	cleaned := make([]string, 0, len(names))
+	seen := make(map[string]struct{}, len(names))
+
 	for _, name := range names {
+		name = strings.TrimSpace(name)
 		if !envVarNameRE.MatchString(name) {
-			return status.Errorf(codes.InvalidArgument, "Invalid environment variable name %q.", name)
+			return status.Errorf(codes.InvalidArgument,
+				"Invalid environment variable name %q. It must match [A-Z_][A-Z0-9_]*.", name)
 		}
+
+		if _, ok := seen[name]; ok {
+			continue
+		}
+		seen[name] = struct{}{}
+
+		cleaned = append(cleaned, name)
 	}
 
-	b, err := json.Marshal(names)
+	b, err := json.Marshal(cleaned)
 	if err != nil {
 		return fmt.Errorf("failed to marshal shared environment variable names: %w", err)
 	}
