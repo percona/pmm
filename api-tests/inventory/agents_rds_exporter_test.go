@@ -605,7 +605,10 @@ func TestRDSExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		require.Error(t, err)
-		assert.Nil(t, res)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
+			"invalid AddRDSExporterParams.AwsRoleArn: value does not match regex pattern")
+		if !assert.Nil(t, res) {
+			pmmapitests.RemoveAgents(t, res.Payload.RDSExporter.AgentID)
+		}
 	})
 }

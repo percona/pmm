@@ -1518,12 +1518,3 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 	}
 	return nil
 }
-
-// Validate returns an error if the AWS options are mutually inconsistent.
-func (c AWSOptions) Validate() error {
-	if c.AWSRoleARN != "" && (c.AWSAccessKey != "" || c.AWSSecretKey != "") {
-		return status.Error(codes.InvalidArgument, "Both AWS role ARN and AWS access key/secret key are set; they are mutually exclusive.")
-	}
-
-	return nil
-}

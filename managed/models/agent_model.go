@@ -33,6 +33,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
@@ -191,6 +193,15 @@ func (c AWSOptions) CredentialsKey() string {
 		return "role-" + hex.EncodeToString(sum[:])[:16]
 	}
 	return ""
+}
+
+// Validate returns an error if the AWS options are mutually inconsistent.
+func (c AWSOptions) Validate() error {
+	if c.AWSRoleARN != "" && (c.AWSAccessKey != "" || c.AWSSecretKey != "") {
+		return status.Error(codes.InvalidArgument, "Both AWS role ARN and AWS access key/secret key are set; they are mutually exclusive.")
+	}
+
+	return nil
 }
 
 // AzureOptions represents structure for special Azure options.
