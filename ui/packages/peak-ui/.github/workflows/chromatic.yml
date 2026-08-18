@@ -20,7 +20,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Run Chromatic
-        uses: chromaui/action@latest
+        uses: chromaui/action@37b88badc3a1122c01861af329554d8a227d7e52 #v18.4.0
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           exitZeroOnChanges: false
