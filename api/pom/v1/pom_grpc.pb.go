@@ -20,10 +20,22 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	PomService_GetTopology_FullMethodName       = "/pom.v1.PomService/GetTopology"
-	PomService_ListDiscoveryRuns_FullMethodName = "/pom.v1.PomService/ListDiscoveryRuns"
-	PomService_GetDiscoveryRun_FullMethodName   = "/pom.v1.PomService/GetDiscoveryRun"
-	PomService_TriggerDiscovery_FullMethodName  = "/pom.v1.PomService/TriggerDiscovery"
+	PomService_GetTopology_FullMethodName                   = "/pom.v1.PomService/GetTopology"
+	PomService_ListDiscoveryRuns_FullMethodName             = "/pom.v1.PomService/ListDiscoveryRuns"
+	PomService_GetDiscoveryRun_FullMethodName               = "/pom.v1.PomService/GetDiscoveryRun"
+	PomService_TriggerDiscovery_FullMethodName              = "/pom.v1.PomService/TriggerDiscovery"
+	PomService_ListInventoryHosts_FullMethodName            = "/pom.v1.PomService/ListInventoryHosts"
+	PomService_GetInventoryHost_FullMethodName              = "/pom.v1.PomService/GetInventoryHost"
+	PomService_DeleteInventoryHost_FullMethodName           = "/pom.v1.PomService/DeleteInventoryHost"
+	PomService_ListInventoryServices_FullMethodName         = "/pom.v1.PomService/ListInventoryServices"
+	PomService_GetInventoryService_FullMethodName           = "/pom.v1.PomService/GetInventoryService"
+	PomService_DeleteInventoryService_FullMethodName        = "/pom.v1.PomService/DeleteInventoryService"
+	PomService_ListInventoryRuns_FullMethodName             = "/pom.v1.PomService/ListInventoryRuns"
+	PomService_GetInventoryRun_FullMethodName               = "/pom.v1.PomService/GetInventoryRun"
+	PomService_TriggerInventoryRefresh_FullMethodName       = "/pom.v1.PomService/TriggerInventoryRefresh"
+	PomService_GetInventoryConfig_FullMethodName            = "/pom.v1.PomService/GetInventoryConfig"
+	PomService_UpdateInventoryConfig_FullMethodName         = "/pom.v1.PomService/UpdateInventoryConfig"
+	PomService_DeleteInventoryConfigOverride_FullMethodName = "/pom.v1.PomService/DeleteInventoryConfigOverride"
 )
 
 // PomServiceClient is the client API for PomService service.
@@ -40,6 +52,30 @@ type PomServiceClient interface {
 	GetDiscoveryRun(ctx context.Context, in *GetDiscoveryRunRequest, opts ...grpc.CallOption) (*GetDiscoveryRunResponse, error)
 	// TriggerDiscovery rebuilds the topology document now.
 	TriggerDiscovery(ctx context.Context, in *TriggerDiscoveryRequest, opts ...grpc.CallOption) (*TriggerDiscoveryResponse, error)
+	// ListInventoryHosts returns every host POM knows about, with its services.
+	ListInventoryHosts(ctx context.Context, in *ListInventoryHostsRequest, opts ...grpc.CallOption) (*ListInventoryHostsResponse, error)
+	// GetInventoryHost returns one host.
+	GetInventoryHost(ctx context.Context, in *GetInventoryHostRequest, opts ...grpc.CallOption) (*GetInventoryHostResponse, error)
+	// DeleteInventoryHost forgets a host and its services.
+	DeleteInventoryHost(ctx context.Context, in *DeleteInventoryHostRequest, opts ...grpc.CallOption) (*DeleteInventoryHostResponse, error)
+	// ListInventoryServices returns every service POM knows about, flat.
+	ListInventoryServices(ctx context.Context, in *ListInventoryServicesRequest, opts ...grpc.CallOption) (*ListInventoryServicesResponse, error)
+	// GetInventoryService returns one service.
+	GetInventoryService(ctx context.Context, in *GetInventoryServiceRequest, opts ...grpc.CallOption) (*GetInventoryServiceResponse, error)
+	// DeleteInventoryService forgets one service.
+	DeleteInventoryService(ctx context.Context, in *DeleteInventoryServiceRequest, opts ...grpc.CallOption) (*DeleteInventoryServiceResponse, error)
+	// ListInventoryRuns returns the estate-refresh history, newest first.
+	ListInventoryRuns(ctx context.Context, in *ListInventoryRunsRequest, opts ...grpc.CallOption) (*ListInventoryRunsResponse, error)
+	// GetInventoryRun returns one estate refresh.
+	GetInventoryRun(ctx context.Context, in *GetInventoryRunRequest, opts ...grpc.CallOption) (*GetInventoryRunResponse, error)
+	// TriggerInventoryRefresh probes the estate, or named hosts within it.
+	TriggerInventoryRefresh(ctx context.Context, in *TriggerInventoryRefreshRequest, opts ...grpc.CallOption) (*TriggerInventoryRefreshResponse, error)
+	// GetInventoryConfig returns the discovery app's configuration.
+	GetInventoryConfig(ctx context.Context, in *GetInventoryConfigRequest, opts ...grpc.CallOption) (*GetInventoryConfigResponse, error)
+	// UpdateInventoryConfig changes the discovery app's configuration.
+	UpdateInventoryConfig(ctx context.Context, in *UpdateInventoryConfigRequest, opts ...grpc.CallOption) (*UpdateInventoryConfigResponse, error)
+	// DeleteInventoryConfigOverride reverts one field to its deployed value.
+	DeleteInventoryConfigOverride(ctx context.Context, in *DeleteInventoryConfigOverrideRequest, opts ...grpc.CallOption) (*DeleteInventoryConfigOverrideResponse, error)
 }
 
 type pomServiceClient struct {
@@ -90,6 +126,126 @@ func (c *pomServiceClient) TriggerDiscovery(ctx context.Context, in *TriggerDisc
 	return out, nil
 }
 
+func (c *pomServiceClient) ListInventoryHosts(ctx context.Context, in *ListInventoryHostsRequest, opts ...grpc.CallOption) (*ListInventoryHostsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListInventoryHostsResponse)
+	err := c.cc.Invoke(ctx, PomService_ListInventoryHosts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) GetInventoryHost(ctx context.Context, in *GetInventoryHostRequest, opts ...grpc.CallOption) (*GetInventoryHostResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetInventoryHostResponse)
+	err := c.cc.Invoke(ctx, PomService_GetInventoryHost_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) DeleteInventoryHost(ctx context.Context, in *DeleteInventoryHostRequest, opts ...grpc.CallOption) (*DeleteInventoryHostResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteInventoryHostResponse)
+	err := c.cc.Invoke(ctx, PomService_DeleteInventoryHost_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) ListInventoryServices(ctx context.Context, in *ListInventoryServicesRequest, opts ...grpc.CallOption) (*ListInventoryServicesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListInventoryServicesResponse)
+	err := c.cc.Invoke(ctx, PomService_ListInventoryServices_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) GetInventoryService(ctx context.Context, in *GetInventoryServiceRequest, opts ...grpc.CallOption) (*GetInventoryServiceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetInventoryServiceResponse)
+	err := c.cc.Invoke(ctx, PomService_GetInventoryService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) DeleteInventoryService(ctx context.Context, in *DeleteInventoryServiceRequest, opts ...grpc.CallOption) (*DeleteInventoryServiceResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteInventoryServiceResponse)
+	err := c.cc.Invoke(ctx, PomService_DeleteInventoryService_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) ListInventoryRuns(ctx context.Context, in *ListInventoryRunsRequest, opts ...grpc.CallOption) (*ListInventoryRunsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListInventoryRunsResponse)
+	err := c.cc.Invoke(ctx, PomService_ListInventoryRuns_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) GetInventoryRun(ctx context.Context, in *GetInventoryRunRequest, opts ...grpc.CallOption) (*GetInventoryRunResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetInventoryRunResponse)
+	err := c.cc.Invoke(ctx, PomService_GetInventoryRun_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) TriggerInventoryRefresh(ctx context.Context, in *TriggerInventoryRefreshRequest, opts ...grpc.CallOption) (*TriggerInventoryRefreshResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TriggerInventoryRefreshResponse)
+	err := c.cc.Invoke(ctx, PomService_TriggerInventoryRefresh_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) GetInventoryConfig(ctx context.Context, in *GetInventoryConfigRequest, opts ...grpc.CallOption) (*GetInventoryConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetInventoryConfigResponse)
+	err := c.cc.Invoke(ctx, PomService_GetInventoryConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) UpdateInventoryConfig(ctx context.Context, in *UpdateInventoryConfigRequest, opts ...grpc.CallOption) (*UpdateInventoryConfigResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateInventoryConfigResponse)
+	err := c.cc.Invoke(ctx, PomService_UpdateInventoryConfig_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *pomServiceClient) DeleteInventoryConfigOverride(ctx context.Context, in *DeleteInventoryConfigOverrideRequest, opts ...grpc.CallOption) (*DeleteInventoryConfigOverrideResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteInventoryConfigOverrideResponse)
+	err := c.cc.Invoke(ctx, PomService_DeleteInventoryConfigOverride_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PomServiceServer is the server API for PomService service.
 // All implementations must embed UnimplementedPomServiceServer
 // for forward compatibility.
@@ -104,6 +260,30 @@ type PomServiceServer interface {
 	GetDiscoveryRun(context.Context, *GetDiscoveryRunRequest) (*GetDiscoveryRunResponse, error)
 	// TriggerDiscovery rebuilds the topology document now.
 	TriggerDiscovery(context.Context, *TriggerDiscoveryRequest) (*TriggerDiscoveryResponse, error)
+	// ListInventoryHosts returns every host POM knows about, with its services.
+	ListInventoryHosts(context.Context, *ListInventoryHostsRequest) (*ListInventoryHostsResponse, error)
+	// GetInventoryHost returns one host.
+	GetInventoryHost(context.Context, *GetInventoryHostRequest) (*GetInventoryHostResponse, error)
+	// DeleteInventoryHost forgets a host and its services.
+	DeleteInventoryHost(context.Context, *DeleteInventoryHostRequest) (*DeleteInventoryHostResponse, error)
+	// ListInventoryServices returns every service POM knows about, flat.
+	ListInventoryServices(context.Context, *ListInventoryServicesRequest) (*ListInventoryServicesResponse, error)
+	// GetInventoryService returns one service.
+	GetInventoryService(context.Context, *GetInventoryServiceRequest) (*GetInventoryServiceResponse, error)
+	// DeleteInventoryService forgets one service.
+	DeleteInventoryService(context.Context, *DeleteInventoryServiceRequest) (*DeleteInventoryServiceResponse, error)
+	// ListInventoryRuns returns the estate-refresh history, newest first.
+	ListInventoryRuns(context.Context, *ListInventoryRunsRequest) (*ListInventoryRunsResponse, error)
+	// GetInventoryRun returns one estate refresh.
+	GetInventoryRun(context.Context, *GetInventoryRunRequest) (*GetInventoryRunResponse, error)
+	// TriggerInventoryRefresh probes the estate, or named hosts within it.
+	TriggerInventoryRefresh(context.Context, *TriggerInventoryRefreshRequest) (*TriggerInventoryRefreshResponse, error)
+	// GetInventoryConfig returns the discovery app's configuration.
+	GetInventoryConfig(context.Context, *GetInventoryConfigRequest) (*GetInventoryConfigResponse, error)
+	// UpdateInventoryConfig changes the discovery app's configuration.
+	UpdateInventoryConfig(context.Context, *UpdateInventoryConfigRequest) (*UpdateInventoryConfigResponse, error)
+	// DeleteInventoryConfigOverride reverts one field to its deployed value.
+	DeleteInventoryConfigOverride(context.Context, *DeleteInventoryConfigOverrideRequest) (*DeleteInventoryConfigOverrideResponse, error)
 	mustEmbedUnimplementedPomServiceServer()
 }
 
@@ -128,6 +308,54 @@ func (UnimplementedPomServiceServer) GetDiscoveryRun(context.Context, *GetDiscov
 
 func (UnimplementedPomServiceServer) TriggerDiscovery(context.Context, *TriggerDiscoveryRequest) (*TriggerDiscoveryResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TriggerDiscovery not implemented")
+}
+
+func (UnimplementedPomServiceServer) ListInventoryHosts(context.Context, *ListInventoryHostsRequest) (*ListInventoryHostsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListInventoryHosts not implemented")
+}
+
+func (UnimplementedPomServiceServer) GetInventoryHost(context.Context, *GetInventoryHostRequest) (*GetInventoryHostResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetInventoryHost not implemented")
+}
+
+func (UnimplementedPomServiceServer) DeleteInventoryHost(context.Context, *DeleteInventoryHostRequest) (*DeleteInventoryHostResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteInventoryHost not implemented")
+}
+
+func (UnimplementedPomServiceServer) ListInventoryServices(context.Context, *ListInventoryServicesRequest) (*ListInventoryServicesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListInventoryServices not implemented")
+}
+
+func (UnimplementedPomServiceServer) GetInventoryService(context.Context, *GetInventoryServiceRequest) (*GetInventoryServiceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetInventoryService not implemented")
+}
+
+func (UnimplementedPomServiceServer) DeleteInventoryService(context.Context, *DeleteInventoryServiceRequest) (*DeleteInventoryServiceResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteInventoryService not implemented")
+}
+
+func (UnimplementedPomServiceServer) ListInventoryRuns(context.Context, *ListInventoryRunsRequest) (*ListInventoryRunsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListInventoryRuns not implemented")
+}
+
+func (UnimplementedPomServiceServer) GetInventoryRun(context.Context, *GetInventoryRunRequest) (*GetInventoryRunResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetInventoryRun not implemented")
+}
+
+func (UnimplementedPomServiceServer) TriggerInventoryRefresh(context.Context, *TriggerInventoryRefreshRequest) (*TriggerInventoryRefreshResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TriggerInventoryRefresh not implemented")
+}
+
+func (UnimplementedPomServiceServer) GetInventoryConfig(context.Context, *GetInventoryConfigRequest) (*GetInventoryConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetInventoryConfig not implemented")
+}
+
+func (UnimplementedPomServiceServer) UpdateInventoryConfig(context.Context, *UpdateInventoryConfigRequest) (*UpdateInventoryConfigResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateInventoryConfig not implemented")
+}
+
+func (UnimplementedPomServiceServer) DeleteInventoryConfigOverride(context.Context, *DeleteInventoryConfigOverrideRequest) (*DeleteInventoryConfigOverrideResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeleteInventoryConfigOverride not implemented")
 }
 func (UnimplementedPomServiceServer) mustEmbedUnimplementedPomServiceServer() {}
 func (UnimplementedPomServiceServer) testEmbeddedByValue()                    {}
@@ -222,6 +450,222 @@ func _PomService_TriggerDiscovery_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PomService_ListInventoryHosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListInventoryHostsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).ListInventoryHosts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_ListInventoryHosts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).ListInventoryHosts(ctx, req.(*ListInventoryHostsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_GetInventoryHost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInventoryHostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).GetInventoryHost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_GetInventoryHost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).GetInventoryHost(ctx, req.(*GetInventoryHostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_DeleteInventoryHost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteInventoryHostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).DeleteInventoryHost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_DeleteInventoryHost_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).DeleteInventoryHost(ctx, req.(*DeleteInventoryHostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_ListInventoryServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListInventoryServicesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).ListInventoryServices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_ListInventoryServices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).ListInventoryServices(ctx, req.(*ListInventoryServicesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_GetInventoryService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInventoryServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).GetInventoryService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_GetInventoryService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).GetInventoryService(ctx, req.(*GetInventoryServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_DeleteInventoryService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteInventoryServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).DeleteInventoryService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_DeleteInventoryService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).DeleteInventoryService(ctx, req.(*DeleteInventoryServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_ListInventoryRuns_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListInventoryRunsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).ListInventoryRuns(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_ListInventoryRuns_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).ListInventoryRuns(ctx, req.(*ListInventoryRunsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_GetInventoryRun_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInventoryRunRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).GetInventoryRun(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_GetInventoryRun_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).GetInventoryRun(ctx, req.(*GetInventoryRunRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_TriggerInventoryRefresh_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TriggerInventoryRefreshRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).TriggerInventoryRefresh(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_TriggerInventoryRefresh_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).TriggerInventoryRefresh(ctx, req.(*TriggerInventoryRefreshRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_GetInventoryConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInventoryConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).GetInventoryConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_GetInventoryConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).GetInventoryConfig(ctx, req.(*GetInventoryConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_UpdateInventoryConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateInventoryConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).UpdateInventoryConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_UpdateInventoryConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).UpdateInventoryConfig(ctx, req.(*UpdateInventoryConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PomService_DeleteInventoryConfigOverride_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteInventoryConfigOverrideRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PomServiceServer).DeleteInventoryConfigOverride(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PomService_DeleteInventoryConfigOverride_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PomServiceServer).DeleteInventoryConfigOverride(ctx, req.(*DeleteInventoryConfigOverrideRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PomService_ServiceDesc is the grpc.ServiceDesc for PomService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -244,6 +688,54 @@ var PomService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TriggerDiscovery",
 			Handler:    _PomService_TriggerDiscovery_Handler,
+		},
+		{
+			MethodName: "ListInventoryHosts",
+			Handler:    _PomService_ListInventoryHosts_Handler,
+		},
+		{
+			MethodName: "GetInventoryHost",
+			Handler:    _PomService_GetInventoryHost_Handler,
+		},
+		{
+			MethodName: "DeleteInventoryHost",
+			Handler:    _PomService_DeleteInventoryHost_Handler,
+		},
+		{
+			MethodName: "ListInventoryServices",
+			Handler:    _PomService_ListInventoryServices_Handler,
+		},
+		{
+			MethodName: "GetInventoryService",
+			Handler:    _PomService_GetInventoryService_Handler,
+		},
+		{
+			MethodName: "DeleteInventoryService",
+			Handler:    _PomService_DeleteInventoryService_Handler,
+		},
+		{
+			MethodName: "ListInventoryRuns",
+			Handler:    _PomService_ListInventoryRuns_Handler,
+		},
+		{
+			MethodName: "GetInventoryRun",
+			Handler:    _PomService_GetInventoryRun_Handler,
+		},
+		{
+			MethodName: "TriggerInventoryRefresh",
+			Handler:    _PomService_TriggerInventoryRefresh_Handler,
+		},
+		{
+			MethodName: "GetInventoryConfig",
+			Handler:    _PomService_GetInventoryConfig_Handler,
+		},
+		{
+			MethodName: "UpdateInventoryConfig",
+			Handler:    _PomService_UpdateInventoryConfig_Handler,
+		},
+		{
+			MethodName: "DeleteInventoryConfigOverride",
+			Handler:    _PomService_DeleteInventoryConfigOverride_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
