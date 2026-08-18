@@ -161,7 +161,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(kube_statefulset_replicas{exported_namespace=\"$namespace\", statefulset=\"$release\"} or vector(0))",
+                    "expr": "(sum(kube_statefulset_replicas{exported_namespace=\"$namespace\", statefulset=\"$release\"}) or vector(0))",
                     "instant": true,
                     "legendFormat": "Expected",
                     "range": false,
@@ -170,7 +170,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}) == 1) or vector(0)) / clamp_min((kube_statefulset_replicas{exported_namespace=\"$namespace\", statefulset=\"$release\"} or vector(0)), 1)) * 100",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"${release}-${pmm_suffix_regex}\"}) == 1) or vector(0)) / clamp_min((sum(kube_statefulset_replicas{exported_namespace=\"$namespace\", statefulset=\"$release\"}) or vector(0)), 1)) * 100",
                     "instant": true,
                     "legendFormat": "Health",
                     "range": false,
@@ -741,7 +741,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(kube_deployment_spec_replicas{exported_namespace=\"$namespace\", deployment=~\"$haproxy_pod_regex\"} or vector(0))",
+                    "expr": "(sum(kube_deployment_spec_replicas{exported_namespace=\"$namespace\", deployment=~\"$haproxy_pod_regex\"}) or vector(0))",
                     "instant": true,
                     "legendFormat": "Expected",
                     "range": false,
@@ -750,7 +750,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1) or vector(0)) / clamp_min((kube_deployment_spec_replicas{exported_namespace=\"$namespace\", deployment=~\"$haproxy_pod_regex\"} or vector(0)), 1)) * 100",
+                    "expr": "((count(max by(exported_pod) (kube_pod_status_phase{phase=\"Running\", exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1) or vector(0)) / clamp_min((sum(kube_deployment_spec_replicas{exported_namespace=\"$namespace\", deployment=~\"$haproxy_pod_regex\"}) or vector(0)), 1)) * 100",
                     "instant": true,
                     "legendFormat": "Health",
                     "range": false,
@@ -1130,14 +1130,14 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  max by(node_id) (\n    (pmm_ha_leader_status == 1)\n    and on(node_id)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-${pmm_suffix_regex}\"\n      },\n      \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  )\n)\nor (\n  label_replace(vector(0), \"node_id\", \"No active instance\", \"\", \"\")\n  unless on() (\n    max(\n      (pmm_ha_leader_status == 1)\n      and on(node_id)\n      label_replace(\n        kube_pod_info{\n          exported_namespace=\"$namespace\",\n          exported_pod=~\"${release}-${pmm_suffix_regex}\"\n        },\n        \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n      )\n    ) == 1\n  )\n)",
+                    "expr": "topk(1,\n  pmm_ha_raft_term\n  and on(node_id) (\n    (pmm_ha_leader_status == 1)\n    and on(node_id)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-${pmm_suffix_regex}\"\n      },\n      \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  )\n)\nor (\n  label_replace(vector(0), \"node_id\", \"No active instance\", \"\", \"\")\n  unless on() (\n    max(\n      (pmm_ha_leader_status == 1)\n      and on(node_id)\n      label_replace(\n        kube_pod_info{\n          exported_namespace=\"$namespace\",\n          exported_pod=~\"${release}-${pmm_suffix_regex}\"\n        },\n        \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n      )\n    ) == 1\n  )\n)",
                     "instant": true,
                     "legendFormat": "{{node_id}}",
                     "range": false,
                     "refId": "A"
                 }
             ],
-            "title": "Active PMM Instance",
+            "title": "Leader PMM Instance",
             "type": "stat"
         },
         {
