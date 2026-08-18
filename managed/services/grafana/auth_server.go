@@ -70,7 +70,6 @@ var rules = map[string]role{
 	"/v1/alerting/rules":              editor,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
-	"/v1/advisors/failedServices":     editor,
 	"/v1/actions":                     viewer,
 	"/v1/actions:":                    viewer,
 	"/v1/backups":                     admin,
@@ -174,14 +173,18 @@ var ErrInvalidUserID = errors.New("InvalidUserID")
 // ErrCannotGetUserID is returned when we cannot retrieve user ID.
 var ErrCannotGetUserID = errors.New("CannotGetUserID")
 
+// cacheItem holds a cached authentication outcome: either the resolved user
+// or, for definitive rejections, the authentication error.
 type cacheItem struct {
 	u       authUser
+	authErr *authError // non-nil for a cached authentication failure
 	created time.Time
 }
 
 // clientInterface exist only to make fuzzing simpler.
 type clientInterface interface {
 	getAuthUser(ctx context.Context, authHeaders http.Header, l *logrus.Entry) (authUser, error)
+	rotateSessionToken(ctx context.Context, authHeaders http.Header) ([]string, error)
 }
 
 // AuthServer authenticates incoming requests via Grafana API.
@@ -258,7 +261,13 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	ctx, cancel := context.WithTimeout(req.Context(), authenticationTimeout)
 	defer cancel()
 
-	authUser, authErr := s.authenticate(ctx, req, l)
+	authUser, newCookies, authErr := s.authenticate(ctx, req, l)
+	// Propagate a rotated Grafana session cookie regardless of the outcome:
+	// rotation invalidates the old token, so the client must receive the new
+	// one even on a response nginx turns into an error.
+	for _, c := range newCookies {
+		rw.Header().Add("Set-Cookie", c)
+	}
 	if authErr != nil {
 		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
 		m := map[string]any{
@@ -322,7 +331,7 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 
 	if userID == 0 {
 		l.Debugf("Getting authenticated user info")
-		authUser, err := s.getAuthUser(ctx, req, l)
+		authUser, _, err := s.getAuthUser(ctx, req, l)
 		if err != nil {
 			return ErrCannotGetUserID
 		}
@@ -509,16 +518,18 @@ func isLocalAgentConnection(req *http.Request) bool {
 }
 
 // authenticate checks if user has access to a specific path.
-// It returns user information retrieved during authentication.
+// It returns user information retrieved during authentication, and the Set-Cookie
+// headers of a Grafana session token rotation, if one happened; they must reach
+// the client even when access is denied, since rotation invalidates the old token.
 // Paths which require no Grafana role return zero value for
 // some user fields such as authUser.userID.
-func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
+func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, []string, *authError) {
 	// Unescape the URL-encoded parts of the path.
 	p := req.URL.Path
 	cleanedPath, err := cleanPath(p)
 	if err != nil {
 		l.Warnf("Error while unescaping path %s: %q", p, err)
-		return nil, &authError{
+		return nil, nil, &authError{
 			code:    codes.Internal,
 			message: "Internal server error.",
 		}
@@ -529,7 +540,7 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 
 	if minRole == none {
 		l.Debugf("Minimal required role is %s, granting access without checking Grafana.", minRole)
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	var user *authUser
@@ -545,28 +556,31 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 				userID: 0,
 			}
 		}
-	} else {
+	}
+
+	var newCookies []string
+	if user == nil {
 		var authErr *authError
 		// Get authenticated user from Grafana
-		user, authErr = s.getAuthUser(ctx, req, l)
+		user, newCookies, authErr = s.getAuthUser(ctx, req, l)
 		if authErr != nil {
-			return nil, authErr
+			return nil, nil, authErr
 		}
 	}
 	l = l.WithField("role", user.role.String())
 
 	if user.role == grafanaAdmin {
 		l.Debugf("Grafana admin, granting access.")
-		return user, nil
+		return user, newCookies, nil
 	}
 
 	if minRole <= user.role {
 		l.Debugf("Minimal required role is %s, granting access.", minRole)
-		return user, nil
+		return user, newCookies, nil
 	}
 
 	l.Warnf("Minimal required role is %s, denying access.", minRole)
-	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
+	return nil, newCookies, &authError{code: codes.PermissionDenied, message: "Access denied"}
 }
 
 func cleanPath(p string) (string, error) {
@@ -587,13 +601,13 @@ func cleanPath(p string) (string, error) {
 	return u.String(), nil
 }
 
-func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
+func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, []string, *authError) {
 	// check Grafana with some headers from request
 	authHeaders := s.authHeaders(req)
 	j, err := json.Marshal(authHeaders)
 	if err != nil {
 		l.Warnf("%s", err)
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
+		return nil, nil, &authError{code: codes.Internal, message: "Internal server error."}
 	}
 	hash := base64.StdEncoding.EncodeToString(j)
 	s.rw.RLock()
@@ -603,7 +617,10 @@ func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logr
 	// cacheInvalidationInterval, so without this an entry could be served for almost
 	// twice that long. Re-fetch once an entry is older than the interval.
 	if ok && time.Since(item.created) < cacheInvalidationInterval {
-		return &item.u, nil
+		if item.authErr != nil {
+			return nil, nil, item.authErr
+		}
+		return &item.u, nil, nil
 	}
 
 	return s.retrieveRole(ctx, hash, authHeaders, l)
@@ -622,20 +639,46 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 	return authHeaders
 }
 
-func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, *authError) {
+func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, []string, *authError) {
 	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
+	var newCookies []string
+	if err != nil && canRetryWithRotatedSession(err, authHeaders) {
+		rotated, retryUser, retryErr := s.retryWithRotatedSession(ctx, authHeaders, l)
+		if retryErr != nil {
+			l.Debugf("Failed to rotate Grafana session token: %s.", retryErr)
+		} else {
+			authUser, err = retryUser, nil
+			newCookies = rotated
+		}
+	}
 	if err != nil {
 		l.Warnf("%s", err)
 		cErr, ok := errors.AsType[*clientError](err)
-		if ok {
-			code := codes.Internal
-			if cErr.Code == 401 || cErr.Code == 403 {
-				code = codes.Unauthenticated
-			}
-			return nil, &authError{code: code, message: cErr.ErrorMessage}
+		if !ok {
+			return nil, nil, &authError{code: codes.Internal, message: "Internal server error."}
 		}
-		return nil, &authError{code: codes.Internal, message: "Internal server error."}
+		code := codes.Internal
+		if cErr.Code == 401 || cErr.Code == 403 {
+			code = codes.Unauthenticated
+		}
+		authErr := &authError{code: code, message: cErr.ErrorMessage}
+		if code == codes.Unauthenticated {
+			// Cache definitive rejections: clients polling with a dead session would
+			// otherwise cost Grafana two failed lookups (user + rotation) per request.
+			// Internal errors are not cached so a Grafana hiccup does not lock
+			// clients out for the cache lifetime.
+			s.rw.Lock()
+			s.cache[hash] = cacheItem{
+				authErr: authErr,
+				created: time.Now(),
+			}
+			s.rw.Unlock()
+		}
+		return nil, nil, authErr
 	}
+	// Cache under the hash of the original headers even after a rotation: requests
+	// still carrying the old cookie (sent before the browser stores the new one)
+	// keep working for the cache lifetime.
 	s.rw.Lock()
 	s.cache[hash] = cacheItem{
 		u:       authUser,
@@ -643,5 +686,95 @@ func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders 
 	}
 	s.rw.Unlock()
 
-	return &authUser, nil
+	return &authUser, newCookies, nil
+}
+
+// canRetryWithRotatedSession reports whether the Grafana auth failure may be caused
+// by a session token past its rotation interval: Grafana rejects such tokens with
+// 401 and expects the client to rotate them explicitly. Only cookie-based sessions
+// rotate; Basic auth and API tokens do not.
+func canRetryWithRotatedSession(err error, authHeaders http.Header) bool {
+	cErr, ok := errors.AsType[*clientError](err)
+	if !ok || cErr.Code != http.StatusUnauthorized {
+		return false
+	}
+
+	return !hasAuthorizationHeader(authHeaders) && authHeaders.Get("Cookie") != ""
+}
+
+// retryWithRotatedSession rotates the Grafana session token from the request cookie
+// and retries the user lookup with the rotated one. It returns the Set-Cookie headers
+// that must reach the client: API-only clients such as the PMM UI never load Grafana
+// pages, so this is their only way to receive the rotated token before the old one
+// becomes invalid.
+func (s *AuthServer) retryWithRotatedSession(ctx context.Context, authHeaders http.Header, l *logrus.Entry) ([]string, authUser, error) {
+	setCookies, err := s.c.rotateSessionToken(ctx, authHeaders)
+	if err != nil {
+		return nil, emptyUser, err
+	}
+
+	headers := authHeaders
+	if len(setCookies) != 0 {
+		headers = headersWithRotatedCookies(authHeaders, setCookies)
+	}
+	u, err := s.c.getAuthUser(ctx, headers, l)
+	if err != nil {
+		return nil, emptyUser, err
+	}
+
+	return sessionCookieForClient(setCookies), u, nil
+}
+
+// sessionCookieName is the name of the Grafana session cookie
+// (login_cookie_name in grafana.ini).
+const sessionCookieName = "pmm_session"
+
+// sessionCookieForClient extracts the rotated session cookie from setCookies and
+// rewrites its path for the top level: Grafana scopes its cookies to the /graph
+// sub-path, but API clients need the session cookie on /v1 paths too (nginx does
+// the same rewrite for proxied Grafana responses via proxy_cookie_path). A single
+// Set-Cookie header is returned because nginx propagates only one from the auth
+// subrequest; the companion grafana_session_expiry cookie is dropped - it merely
+// schedules the Grafana frontend's own rotation and self-heals on the next
+// Grafana page load.
+func sessionCookieForClient(setCookies []string) []string {
+	for _, c := range (&http.Response{Header: http.Header{"Set-Cookie": setCookies}}).Cookies() {
+		if c.Name != sessionCookieName {
+			continue
+		}
+		c.Path = "/"
+		return []string{c.String()}
+	}
+
+	return nil
+}
+
+// headersWithRotatedCookies returns a copy of authHeaders whose Cookie header has
+// the cookies from setCookies applied on top of the original ones.
+func headersWithRotatedCookies(authHeaders http.Header, setCookies []string) http.Header {
+	rotated := (&http.Response{Header: http.Header{"Set-Cookie": setCookies}}).Cookies()
+	byName := make(map[string]string, len(rotated))
+	for _, c := range rotated {
+		byName[c.Name] = c.Value
+	}
+
+	pairs := make([]string, 0, len(rotated))
+	seen := make(map[string]struct{})
+	for _, c := range (&http.Request{Header: authHeaders}).Cookies() {
+		v := c.Value
+		if nv, ok := byName[c.Name]; ok {
+			v = nv
+		}
+		pairs = append(pairs, c.Name+"="+v)
+		seen[c.Name] = struct{}{}
+	}
+	for _, c := range rotated {
+		if _, ok := seen[c.Name]; !ok {
+			pairs = append(pairs, c.Name+"="+c.Value)
+		}
+	}
+
+	headers := authHeaders.Clone()
+	headers.Set("Cookie", strings.Join(pairs, "; "))
+	return headers
 }

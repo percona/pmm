@@ -4,9 +4,9 @@ checks:
     name: mongodb_bindip
     summary: MonogDB IP bindings
     description: This check returns warnings if the MongoDB network binding is not set as recommended.
-    family: MONGODB
-    #author: Divyanshu  Soni
-    advisor: security_connection
+    technology: MONGODB
+    # author: Divyanshu Soni
+    category: Security
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS
@@ -20,7 +20,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           results = []
           parsed = rows[0]["parsed"]

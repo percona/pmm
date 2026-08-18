@@ -1480,24 +1480,70 @@
             "type": "stat"
         },
         {
-            "description": "Number of advisor checks that failed in the most recent run. A non-zero count means PMM has detected conditions that need attention. Review which checks failed and why.",
-            "fieldConfig": {
-                "defaults": {},
-                "overrides": []
+          "id": 1042,
+          "type": "stat",
+          "title": "Connected Agents",
+          "description": "The current number of connected pmm-agents",
+          "gridPos": {
+            "x": 6,
+            "y": 13,
+            "h": 5,
+            "w": 6
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              },
+              "color": {
+                "mode": "thresholds"
+              }
             },
-            "gridPos": {
-                "h": 5,
-                "w": 6,
-                "x": 6,
-                "y": 13
+            "overrides": []
+          },
+          "pluginVersion": "12.4.5",
+          "targets": [
+            {
+              "datasource": "Metrics",
+              "editorMode": "code",
+              "expr": "count(pmm_managed_inventory_agents{job=\"pmm-managed\",agent_type=\"pmm-agent\"})",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "datasource": "Metrics",
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
             },
-            "id": 1042,
-            "options": {
-                "title": "Failed Checks"
-            },
-            "pluginVersion": "11.6.4",
-            "title": "Failed advisors",
-            "type": "pmm-check-panel"
+            "orientation": "auto",
+            "textMode": "auto",
+            "wideLayout": true,
+            "colorMode": "none",
+            "graphMode": "area",
+            "justifyMode": "auto",
+            "showPercentChange": false,
+            "percentChangeColorMode": "standard",
+            "text": {
+              "valueSize": 24
+            }
+          }
         },
         {
             "datasource": "Metrics",

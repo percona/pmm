@@ -14,7 +14,6 @@ import {
   addHomePage,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
-import { useAdvisors } from 'hooks/api/useAdvisors';
 import { useColorMode } from 'hooks/theme';
 import { INTERVALS_MS } from 'lib/constants';
 import { useSettings } from 'contexts/settings';
@@ -38,9 +37,6 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
   });
   const { settings } = useSettings();
-  const { data: advisors } = useAdvisors({
-    enabled: !!user?.isEditor,
-  });
   const { data: folders = [] } = useFolders();
   const { colorMode, toggleColorMode } = useColorMode();
   const { status, versionInfo } = useUpdates();
@@ -81,7 +77,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       }
 
       if (user.isEditor && settings.advisorEnabled) {
-        items.push(addAdvisors(advisors || []));
+        items.push(addAdvisors());
       }
 
       if (user.isPMMAdmin) {
@@ -115,7 +111,6 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
     folders,
     user,
     settings,
-    advisors,
     colorMode,
     haInfo,
     toggleColorMode,

@@ -4,8 +4,8 @@ checks:
     name: mongodb_cve_version
     summary: MongoDB CVE Version
     description: This check returns errors if MongoDB or Percona Server for MongoDB version is less than the latest one with CVE fixes.
-    family: MONGODB
-    advisor: security_cve
+    technology: MONGODB
+    category: Security
     interval: standard
     queries:
       - type: MONGODB_BUILDINFO
@@ -58,7 +58,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           info = rows[0]
 
@@ -82,12 +82,14 @@ checks:
                       "summary": "MongoDB CVE Version check is available for Percona Server since PMM 2.17.0",
                       "description": "",
                       "read_more_url": "https://www.percona.com/doc/percona-monitoring-and-management/2.x/release-notes/index.html",
-                      "severity": "notice",
+                      "severity": "warning",
                       "labels": {},
                   })
 
                   return results
 
+              if mm not in LATEST_VERSIONS["percona"]:
+                  return results
               latest = LATEST_VERSIONS["percona"][mm]
               if latest > numcve:
                   results.append({
@@ -104,6 +106,8 @@ checks:
               return results
 
           if True:  # MongoDB
+              if mm not in LATEST_VERSIONS["mongodb"]:
+                  return results
               latest = LATEST_VERSIONS["mongodb"][mm]
               if latest > num:
                   results.append({

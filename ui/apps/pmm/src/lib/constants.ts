@@ -1,5 +1,10 @@
-import { AdvisorFamily, AdvisorInterval } from 'types/advisors.types';
-import { ServiceType } from 'types/services.types';
+import {
+  AdvisorCheckResultStatus,
+  AdvisorTechnology,
+  AdvisorInterval,
+} from 'types/advisors.types';
+import { Severity } from 'types/severity.types';
+import { ManagedServiceType, ServiceType } from 'types/services.types';
 
 export const PMM_TITLE = 'Percona Monitoring and Management';
 // todo: remove completely in a follow up to reduce current scope
@@ -21,11 +26,21 @@ export const INTERVALS_MS = {
   SERVICE_TYPES: 300000,
 };
 
-export const ADVISOR_FAMILY: Record<AdvisorFamily, string> = {
-  [AdvisorFamily.mysql]: 'MySQL',
-  [AdvisorFamily.postgresql]: 'PostgreSQL',
-  [AdvisorFamily.mongodb]: 'MongoDB',
-  [AdvisorFamily.unspecified]: 'Unspecified',
+export const ADVISOR_TECHNOLOGY: Record<AdvisorTechnology, string> = {
+  [AdvisorTechnology.mysql]: 'MySQL',
+  [AdvisorTechnology.postgresql]: 'PostgreSQL',
+  [AdvisorTechnology.mongodb]: 'MongoDB',
+  [AdvisorTechnology.unspecified]: 'Unspecified',
+};
+
+export const MANAGED_SERVICE_TYPE: Record<ManagedServiceType, string> = {
+  [ManagedServiceType.mysql]: 'MySQL',
+  [ManagedServiceType.postgresql]: 'PostgreSQL',
+  [ManagedServiceType.mongodb]: 'MongoDB',
+  [ManagedServiceType.proxysql]: 'ProxySQL',
+  [ManagedServiceType.haproxy]: 'HAProxy',
+  [ManagedServiceType.valkey]: 'Valkey',
+  [ManagedServiceType.external]: 'External',
 };
 
 export const ADVISOR_INTERVAL: Record<AdvisorInterval, string> = {
@@ -33,6 +48,25 @@ export const ADVISOR_INTERVAL: Record<AdvisorInterval, string> = {
   [AdvisorInterval.rare]: 'Rare',
   [AdvisorInterval.frequent]: 'Frequent',
   [AdvisorInterval.unspecified]: 'Unspecified',
+};
+
+export const ADVISOR_RESULT_STATUS: Record<AdvisorCheckResultStatus, string> = {
+  [AdvisorCheckResultStatus.ok]: 'OK',
+  [AdvisorCheckResultStatus.failed]: 'Failed',
+  [AdvisorCheckResultStatus.error]: 'Error',
+  [AdvisorCheckResultStatus.unspecified]: 'Unspecified',
+};
+
+export const SEVERITY: Record<Severity, string> = {
+  [Severity.emergency]: 'Emergency',
+  [Severity.alert]: 'Alert',
+  [Severity.critical]: 'Critical',
+  [Severity.error]: 'Error',
+  [Severity.warning]: 'Warning',
+  [Severity.notice]: 'Notice',
+  [Severity.info]: 'Info',
+  [Severity.debug]: 'Debug',
+  [Severity.unspecified]: 'Unspecified',
 };
 
 export const ALL_SERVICE_TYPES = [

@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ChangeSettingsReader is a Reader for the ChangeSettings structure.
@@ -222,6 +223,19 @@ type ChangeSettingsBody struct {
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
 
+	// A number of full days for Advisor check results history retention, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
+	// Enable Advisor email notifications.
+	EnableAdvisorNotifications *bool `json:"enable_advisor_notifications,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
+	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
+
+	// advisor notification email addresses
+	AdvisorNotificationEmailAddresses *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses `json:"advisor_notification_email_addresses,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -235,6 +249,14 @@ type ChangeSettingsBody struct {
 // Validate validates this change settings body
 func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateAdvisorNotificationSeverityThreshold(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateAdvisorNotificationEmailAddresses(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateAdvisorRunIntervals(formats); err != nil {
 		res = append(res, err)
@@ -251,6 +273,92 @@ func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var changeSettingsBodyTypeAdvisorNotificationSeverityThresholdPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeSettingsBodyTypeAdvisorNotificationSeverityThresholdPropEnum = append(changeSettingsBodyTypeAdvisorNotificationSeverityThresholdPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED captures enum value "SEVERITY_UNSPECIFIED"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED string = "SEVERITY_UNSPECIFIED"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYALERT captures enum value "SEVERITY_ALERT"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYALERT string = "SEVERITY_ALERT"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYERROR captures enum value "SEVERITY_ERROR"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYERROR string = "SEVERITY_ERROR"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYINFO captures enum value "SEVERITY_INFO"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYINFO string = "SEVERITY_INFO"
+
+	// ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	ChangeSettingsBodyAdvisorNotificationSeverityThresholdSEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeSettingsBody) validateAdvisorNotificationSeverityThresholdEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeSettingsBodyTypeAdvisorNotificationSeverityThresholdPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateAdvisorNotificationSeverityThreshold(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationSeverityThreshold) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateAdvisorNotificationSeverityThresholdEnum("body"+"."+"advisor_notification_severity_threshold", "body", *o.AdvisorNotificationSeverityThreshold); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateAdvisorNotificationEmailAddresses(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationEmailAddresses) { // not required
+		return nil
+	}
+
+	if o.AdvisorNotificationEmailAddresses != nil {
+		if err := o.AdvisorNotificationEmailAddresses.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -327,6 +435,10 @@ func (o *ChangeSettingsBody) validateMetricsResolutions(formats strfmt.Registry)
 func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateAdvisorNotificationEmailAddresses(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateAdvisorRunIntervals(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -342,6 +454,30 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) contextValidateAdvisorNotificationEmailAddresses(ctx context.Context, formats strfmt.Registry) error {
+	if o.AdvisorNotificationEmailAddresses != nil {
+
+		if swag.IsZero(o.AdvisorNotificationEmailAddresses) { // not required
+			return nil
+		}
+
+		if err := o.AdvisorNotificationEmailAddresses.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "advisor_notification_email_addresses")
+			}
+
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -983,6 +1119,19 @@ type ChangeSettingsOKBodySettings struct {
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
 
+	// Advisor check results history retention.
+	AdvisorHistoryRetention string `json:"advisor_history_retention,omitempty"`
+
+	// True if Advisor email notifications are enabled.
+	AdvisorNotificationsEnabled bool `json:"advisor_notifications_enabled,omitempty"`
+
+	// Severity represents severity level of the check result or alert.
+	// Enum: ["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]
+	AdvisorNotificationSeverityThreshold *string `json:"advisor_notification_severity_threshold,omitempty"`
+
+	// Email addresses Advisor notifications are sent to.
+	AdvisorNotificationEmailAddresses []string `json:"advisor_notification_email_addresses"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -993,6 +1142,10 @@ type ChangeSettingsOKBodySettings struct {
 // Validate validates this change settings OK body settings
 func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateAdvisorNotificationSeverityThreshold(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateAdvisorRunIntervals(formats); err != nil {
 		res = append(res, err)
@@ -1005,6 +1158,69 @@ func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var changeSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum = append(changeSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED captures enum value "SEVERITY_UNSPECIFIED"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYUNSPECIFIED string = "SEVERITY_UNSPECIFIED"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYALERT captures enum value "SEVERITY_ALERT"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYALERT string = "SEVERITY_ALERT"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYCRITICAL captures enum value "SEVERITY_CRITICAL"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYCRITICAL string = "SEVERITY_CRITICAL"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYERROR captures enum value "SEVERITY_ERROR"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYERROR string = "SEVERITY_ERROR"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYWARNING captures enum value "SEVERITY_WARNING"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYWARNING string = "SEVERITY_WARNING"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYNOTICE captures enum value "SEVERITY_NOTICE"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYNOTICE string = "SEVERITY_NOTICE"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYINFO captures enum value "SEVERITY_INFO"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYINFO string = "SEVERITY_INFO"
+
+	// ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYDEBUG captures enum value "SEVERITY_DEBUG"
+	ChangeSettingsOKBodySettingsAdvisorNotificationSeverityThresholdSEVERITYDEBUG string = "SEVERITY_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeSettingsOKBodySettings) validateAdvisorNotificationSeverityThresholdEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeSettingsOkBodySettingsTypeAdvisorNotificationSeverityThresholdPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeSettingsOKBodySettings) validateAdvisorNotificationSeverityThreshold(formats strfmt.Registry) error {
+	if swag.IsZero(o.AdvisorNotificationSeverityThreshold) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateAdvisorNotificationSeverityThresholdEnum("changeSettingsOk"+"."+"settings"+"."+"advisor_notification_severity_threshold", "body", *o.AdvisorNotificationSeverityThreshold); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -1254,6 +1470,43 @@ func (o *ChangeSettingsParamsBodyAWSPartitions) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsParamsBodyAWSPartitions) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsParamsBodyAWSPartitions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses A wrapper for a string array. This type allows to distinguish between an empty array and a null value.
+swagger:model ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses
+*/
+type ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses struct {
+	// values
+	Values []string `json:"values"`
+}
+
+// Validate validates this change settings params body advisor notification email addresses
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change settings params body advisor notification email addresses based on context it is used
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsParamsBodyAdvisorNotificationEmailAddresses
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

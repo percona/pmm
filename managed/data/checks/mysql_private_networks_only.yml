@@ -3,9 +3,9 @@ checks:
   - version: 2
     name: mysql_private_networks_only
     summary: MySQL Users With Granted Public Networks Access
-    description: Notifies about MySQL accounts currently allowed to connect from public networks.
-    family: MYSQL
-    advisor: security_connection
+    description: Discovers MySQL accounts currently allowed to connect from public networks.
+    technology: MYSQL
+    category: Security
     interval: standard
     queries:
       - type: MYSQL_SELECT
@@ -13,7 +13,7 @@ checks:
     script: |
       def check_context(docs, context):
         """
-        This check returns a notice if MySQL accounts are allowed to be used from public networks
+        This check returns a warning if MySQL accounts are allowed to be used from public networks
         """
 
         func = context.get("ip_is_private", fail)
@@ -33,15 +33,11 @@ checks:
 
         count = len(users)
         if count:
-            desc = "account is"
-            if count > 1:
-                desc = "{} accounts are".format(count)
-
             return [{
-                "summary": "The following {} allowed to be connected from public networks".format(desc),
-                "description": " {}".format(users),
+                "summary": "Some accounts are allowed to be connected from public networks",
+                "description": "These accounts are allowed to connect from public networks: {}".format(", ".join(users)),
                 "read_more_url": "https://dev.mysql.com/doc/refman/8.0/en/request-access.html",
-                "severity": "notice",
+                "severity": "warning",
                 "labels": {
                     "count": str(count),
                 },
