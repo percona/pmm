@@ -79,6 +79,7 @@ func TestAddMongoDBStoresEnvVarNamesForExporterOnly(t *testing.T) {
 	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
 
 	state.On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
+	vc.On("RequestSoftwareVersionsUpdate").Once()
 
 	envVarNames := []string{"KRB5_KTNAME", "KRB5_CONFIG"}
 
