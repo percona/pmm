@@ -3,6 +3,7 @@ syntax = "proto3";
 package pom.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -226,6 +227,365 @@ message TriggerDiscoveryResponse {
   google.protobuf.Timestamp started_at = 3;
 }
 
+// InventoryExecutor reports whether SEP can run anything on a host.
+//
+// Three flags rather than one, because "orphaned" hid three different problems with
+// three different fixes: never onboarded (registered false), onboarded and down
+// (reachable false), and up with a broken raw_exec driver (driver_healthy false). This
+// is SEP's own knowledge rather than probe output, so it is filled in for every host
+// on every sweep, including hosts no probe reached.
+message InventoryExecutor {
+  // Whether the Tasks backend knows this node at all.
+  bool registered = 1;
+  // Whether it is currently up.
+  bool reachable = 2;
+  // Whether its raw_exec driver is healthy, which is what a probe actually needs.
+  bool driver_healthy = 3;
+  // Whatever detail the backend gave, when it gave any.
+  google.protobuf.StringValue detail = 4;
+}
+
+// UnregisteredMongod is a mongod found running that PMM has no service for.
+//
+// The arbiter case, mostly: PMM registers no service for an arbiter, so nothing else
+// in POM would report the process at all. Also what stands in the way of installing
+// anything over a port that is already taken.
+message UnregisteredMongod {
+  // The port it is listening on.
+  google.protobuf.Int32Value port = 1;
+  // The configuration file it read.
+  google.protobuf.StringValue config_path = 2;
+  // The command line it was started with.
+  google.protobuf.StringValue argv = 3;
+  // The process name, e.g. "mongod".
+  google.protobuf.StringValue program = 4;
+  // Its process ID at the time of the probe.
+  google.protobuf.Int32Value pid = 5;
+}
+
+// InventoryFreshness says how current the rest of a row is, and how it is failing.
+//
+// Carried on hosts and services alike because the estate is upserted rather than
+// rebuilt: a row keeps what it last reported, so every attribute is only meaningful
+// beside the time it was collected. `failing_since` is the *first* failure after the
+// last success, which is what makes "failing for three days" expressible rather than
+// only "failed a minute ago".
+message InventoryFreshness {
+  // When POM first wrote a row for this entity.
+  google.protobuf.Timestamp first_seen_at = 1;
+  // When a refresh last tried it.
+  google.protobuf.Timestamp last_attempt_at = 2;
+  // When it last answered. Unset means it never has, which is different from having
+  // answered nothing.
+  google.protobuf.Timestamp last_success_at = 3;
+  // The first failure after the last success. Unset means it is not failing.
+  google.protobuf.Timestamp failing_since = 4;
+  // Failures since the last success.
+  int32 consecutive_failures = 5;
+  // The most recent failure detail.
+  google.protobuf.StringValue last_error = 6;
+}
+
+// InventoryService is one MongoDB service POM has probed, or tried to.
+//
+// The typed fields are the ones a table sorts by; `observed` carries the whole
+// document besides. That split is deliberate: the app stores observations as JSON so
+// that collecting a new attribute is a payload change rather than a schema change, and
+// enumerating every attribute here would put that coupling straight back. A new
+// attribute appears in `observed` the day it is collected and is promoted to a field
+// of its own only when something wants to sort by it.
+message InventoryService {
+  // PMM's service ID. The join key against the topology document.
+  string service_id = 1;
+  // The node it runs on, as PMM's node ID.
+  string node_id = 2;
+  // The service name PMM registered.
+  string name = 3;
+  // The port it listens on, where POM knows it.
+  google.protobuf.Int32Value port = 4;
+  // PRIMARY, SECONDARY, ARBITER, or unset.
+  google.protobuf.StringValue role = 5;
+
+  // The MongoDB binary installed on the node, which is not necessarily the one
+  // running. Divergence from running_version is the upgraded-but-not-restarted case,
+  // and no metric anywhere carries it.
+  google.protobuf.StringValue installed_version = 6;
+  // The version the running server reports.
+  google.protobuf.StringValue running_version = 7;
+  // The configuration file the running server read.
+  google.protobuf.StringValue config_path = 8;
+  // The command line it was started with.
+  google.protobuf.StringValue argv = 9;
+  // What the last probe of this service concluded, in the payload's own words.
+  google.protobuf.StringValue probe_status = 10;
+  // Whether a server was found running. Unset where no probe has looked.
+  google.protobuf.BoolValue server_running = 11;
+  // How long it has been up, seconds.
+  google.protobuf.DoubleValue uptime_seconds = 12;
+  // The replica set it belongs to, or unset for a standalone or a router.
+  google.protobuf.StringValue replication_set = 13;
+
+  // Everything the probe recorded, including attributes with no field above.
+  google.protobuf.Struct observed = 14;
+  // How current the above is, and how it is failing.
+  InventoryFreshness freshness = 15;
+}
+
+// InventoryHost is one machine POM knows about, with the services on it.
+//
+// A host is a row whether or not any MongoDB was found on it. That is what makes
+// "which machines have no database" a query rather than an absence, and it is the only
+// way a machine that has never run one appears at all - which is the case installing a
+// database somewhere later depends on.
+message InventoryHost {
+  // PMM's node ID. Also what a scoped refresh is addressed by.
+  string node_id = 1;
+  // The node name PMM registered.
+  string name = 2;
+  // The node address PMM registered.
+  google.protobuf.StringValue address = 3;
+  // The Nomad client that serves it. Unset means nothing can be run there, which is a
+  // fact about the estate rather than a probe failure.
+  google.protobuf.StringValue executor_host = 4;
+
+  // The operating system, as the host reports it. Worth having from a probe because
+  // PMM leaves it null for some nodes.
+  google.protobuf.StringValue os = 5;
+  // The kernel release.
+  google.protobuf.StringValue kernel = 6;
+  // Whether anything can be run here, in three parts.
+  InventoryExecutor executor = 7;
+  // Mongods running that PMM has no service for.
+  repeated UnregisteredMongod unregistered_mongods = 8;
+
+  // Everything the probe recorded about the host, including attributes with no field
+  // above.
+  google.protobuf.Struct observed = 9;
+  // How current the above is, and how it is failing.
+  InventoryFreshness freshness = 10;
+  // The services on it. Empty is a meaningful answer, not a gap.
+  repeated InventoryService services = 11;
+}
+
+// InventoryRunCounts is what one refresh saw.
+message InventoryRunCounts {
+  // Services enumeration found.
+  int32 services_total = 1;
+  // ...of which matched a host something could be run on.
+  int32 services_resolved = 2;
+  // ...of which did not. Not an error.
+  int32 services_orphaned = 3;
+  // Services that answered a probe.
+  int32 services_answered = 4;
+}
+
+// InventoryRun is one refresh of the estate.
+message InventoryRun {
+  // The run's ID.
+  string run_id = 1;
+  // running, success, partial or failed.
+  string status = 2;
+  // When it began.
+  google.protobuf.Timestamp started_at = 3;
+  // When it stopped. Unset while it is still going.
+  google.protobuf.Timestamp finished_at = 4;
+  // What it saw.
+  InventoryRunCounts counts = 5;
+  // The hosts it was limited to. Empty means it refreshed the whole estate, which is
+  // what the scheduled sweep does.
+  repeated string scope = 6;
+  // What went wrong, when something did.
+  google.protobuf.StringValue error = 7;
+}
+
+// InventorySetting is one of the discovery app's configuration fields.
+message InventorySetting {
+  // The field name. Nested fields arrive `__`-delimited, e.g. SCHEDULE__every.
+  string key = 1;
+  // The value in effect.
+  google.protobuf.Value value = 2;
+  // What it would be with no override.
+  google.protobuf.Value default_value = 3;
+  // The field's type, for rendering an input.
+  string type = 4;
+  // hot when it can be changed at runtime, otherwise it is deployment-only.
+  string reload = 5;
+  // Whether an override is in effect, which is how "why is it set to this" is
+  // answerable without also reading the deployment's configuration file.
+  bool has_override = 6;
+  // Whether to hide it behind an "advanced" disclosure.
+  bool is_advanced = 7;
+  // The field's documentation, where it has any.
+  google.protobuf.StringValue description = 8;
+}
+
+// ListInventoryHostsRequest is the request for ListInventoryHosts.
+message ListInventoryHostsRequest {
+  // When set, return only hosts that do (or do not) carry a registered service.
+  // Unset returns both, which is the ordinary listing.
+  google.protobuf.BoolValue has_service = 1;
+  // When true, return only hosts currently failing.
+  google.protobuf.BoolValue failing = 2;
+  // When set, return only hosts served by this Nomad client.
+  google.protobuf.StringValue executor = 3;
+}
+
+// ListInventoryHostsResponse returns the hosts POM knows about.
+message ListInventoryHostsResponse {
+  // The hosts.
+  repeated InventoryHost hosts = 1;
+}
+
+// GetInventoryHostRequest is the request for GetInventoryHost.
+message GetInventoryHostRequest {
+  // PMM's node ID.
+  string node_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// GetInventoryHostResponse returns one host.
+message GetInventoryHostResponse {
+  // The host.
+  InventoryHost host = 1;
+}
+
+// DeleteInventoryHostRequest is the request for DeleteInventoryHost.
+message DeleteInventoryHostRequest {
+  // PMM's node ID.
+  string node_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// DeleteInventoryHostResponse acknowledges forgetting a host.
+message DeleteInventoryHostResponse {}
+
+// ListInventoryServicesRequest is the request for ListInventoryServices.
+message ListInventoryServicesRequest {
+  // When set, return only the services on this host.
+  google.protobuf.StringValue node_id = 1;
+  // When true, return only services currently failing.
+  google.protobuf.BoolValue failing = 2;
+}
+
+// ListInventoryServicesResponse returns the services POM knows about, flat.
+message ListInventoryServicesResponse {
+  // The services.
+  repeated InventoryService services = 1;
+}
+
+// GetInventoryServiceRequest is the request for GetInventoryService.
+message GetInventoryServiceRequest {
+  // PMM's service ID.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// GetInventoryServiceResponse returns one service.
+message GetInventoryServiceResponse {
+  // The service.
+  InventoryService service = 1;
+}
+
+// DeleteInventoryServiceRequest is the request for DeleteInventoryService.
+message DeleteInventoryServiceRequest {
+  // PMM's service ID.
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// DeleteInventoryServiceResponse acknowledges forgetting a service.
+message DeleteInventoryServiceResponse {}
+
+// ListInventoryRunsRequest is the request for ListInventoryRuns.
+message ListInventoryRunsRequest {
+  // How many to return, newest first. Defaults to 20, capped at 100.
+  int32 limit = 1 [(validate.rules).int32 = {
+    gte: 0
+    lte: 100
+  }];
+}
+
+// ListInventoryRunsResponse returns the refresh history, newest first.
+message ListInventoryRunsResponse {
+  // The runs.
+  repeated InventoryRun runs = 1;
+}
+
+// GetInventoryRunRequest is the request for GetInventoryRun.
+message GetInventoryRunRequest {
+  // The run's ID.
+  string run_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// GetInventoryRunResponse returns one refresh.
+message GetInventoryRunResponse {
+  // The run.
+  InventoryRun run = 1;
+}
+
+// TriggerInventoryRefreshRequest is the request for TriggerInventoryRefresh.
+message TriggerInventoryRefreshRequest {
+  // The hosts to refresh, by PMM node ID. Empty refreshes the whole estate.
+  //
+  // Plural on purpose: PMM's node ID is also POM's key, so ids pass through
+  // untranslated, and one host is a list of one. A surface taking a single id where
+  // the app takes a list would be a translation step in disguise.
+  repeated string node_ids = 1;
+}
+
+// TriggerInventoryRefreshResponse acknowledges an accepted refresh.
+//
+// Accepted, not finished. A refresh dispatches a Nomad job per host and takes tens of
+// seconds, unlike PMM's own collection pass, which never probes and completes in
+// milliseconds. Two triggers that different must not look alike to a caller.
+message TriggerInventoryRefreshResponse {
+  // The run's ID, to follow with GetInventoryRun.
+  string run_id = 1;
+  // Its status, which is `running`.
+  string status = 2;
+  // When it began.
+  google.protobuf.Timestamp started_at = 3;
+  // The hosts it will refresh. Empty means the whole estate.
+  repeated string scope = 4;
+}
+
+// GetInventoryConfigRequest is the request for GetInventoryConfig.
+message GetInventoryConfigRequest {}
+
+// GetInventoryConfigResponse returns the discovery app's configuration.
+message GetInventoryConfigResponse {
+  // Every field, whether or not it is overridden.
+  repeated InventorySetting settings = 1;
+}
+
+// UpdateInventoryConfigRequest is the request for UpdateInventoryConfig.
+message UpdateInventoryConfigRequest {
+  // The fields to change, as `{key: value}`.
+  //
+  // A map of arbitrary JSON rather than named fields, because the app owns which
+  // fields exist and what they are typed as; mirroring them here would mean a proto
+  // change and a `make gen` every time it grows a setting. The app validates and
+  // rejects the batch as a whole.
+  //
+  // Bound to the HTTP body directly (`body: "values"`, not `body: "*"`), so the request
+  // this endpoint takes is the same object it forwards. The alternative wraps it as
+  // `{"values": {...}}`, which would make the proxy's shape differ from the shape of the
+  // thing being proxied for no gain to anyone reading either.
+  google.protobuf.Struct values = 1;
+}
+
+// UpdateInventoryConfigResponse returns the fields that changed.
+message UpdateInventoryConfigResponse {
+  // One entry per applied key.
+  repeated InventorySetting settings = 1;
+}
+
+// DeleteInventoryConfigOverrideRequest is the request for
+// DeleteInventoryConfigOverride.
+message DeleteInventoryConfigOverrideRequest {
+  // The field to put back to its deployed value.
+  string key = 1 [(validate.rules).string.min_len = 1];
+}
+
+// DeleteInventoryConfigOverrideResponse acknowledges the revert.
+message DeleteInventoryConfigOverrideResponse {}
+
 // PomService provides the PSMDB Open Manager topology and health API.
 service PomService {
   // GetTopology returns the whole MongoDB estate as one document.
@@ -264,6 +624,120 @@ service PomService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Trigger a discovery run"
       description: "Rebuilds the topology document from PMM inventory and VictoriaMetrics, and records the run."
+    };
+  }
+
+  // ListInventoryHosts returns every host POM knows about, with its services.
+  rpc ListInventoryHosts(ListInventoryHostsRequest) returns (ListInventoryHostsResponse) {
+    option (google.api.http) = {get: "/v1/pom/inventory/hosts"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List inventory hosts"
+      description: "Returns every host the discovery app has a row for, whether or not a database was found on it, with the services on each and how current the observations are."
+    };
+  }
+
+  // GetInventoryHost returns one host.
+  rpc GetInventoryHost(GetInventoryHostRequest) returns (GetInventoryHostResponse) {
+    option (google.api.http) = {get: "/v1/pom/inventory/hosts/{node_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get an inventory host"
+      description: "Returns one host by PMM node ID, with the services on it."
+    };
+  }
+
+  // DeleteInventoryHost forgets a host and its services.
+  rpc DeleteInventoryHost(DeleteInventoryHostRequest) returns (DeleteInventoryHostResponse) {
+    option (google.api.http) = {delete: "/v1/pom/inventory/hosts/{node_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Forget an inventory host"
+      description: "Removes a host row and its services from the discovery app's estate. Not suppression: a host PMM still knows about comes back on the next refresh. For clearing rows left behind when a node was replaced and given a new ID."
+    };
+  }
+
+  // ListInventoryServices returns every service POM knows about, flat.
+  rpc ListInventoryServices(ListInventoryServicesRequest) returns (ListInventoryServicesResponse) {
+    option (google.api.http) = {get: "/v1/pom/inventory/services"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List inventory services"
+      description: "Returns every MongoDB service the discovery app has a row for, with what each last reported and when."
+    };
+  }
+
+  // GetInventoryService returns one service.
+  rpc GetInventoryService(GetInventoryServiceRequest) returns (GetInventoryServiceResponse) {
+    option (google.api.http) = {get: "/v1/pom/inventory/services/{service_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get an inventory service"
+      description: "Returns one service by PMM service ID."
+    };
+  }
+
+  // DeleteInventoryService forgets one service.
+  rpc DeleteInventoryService(DeleteInventoryServiceRequest) returns (DeleteInventoryServiceResponse) {
+    option (google.api.http) = {delete: "/v1/pom/inventory/services/{service_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Forget an inventory service"
+      description: "Removes one service row from the discovery app's estate. Not suppression: a service PMM still knows about comes back on the next refresh."
+    };
+  }
+
+  // ListInventoryRuns returns the estate-refresh history, newest first.
+  rpc ListInventoryRuns(ListInventoryRunsRequest) returns (ListInventoryRunsResponse) {
+    option (google.api.http) = {get: "/v1/pom/inventory/runs"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List inventory refreshes"
+      description: "Returns the discovery app's refresh history, newest first. Distinct from /v1/pom/discovery/runs, which is PMM's own collection pass and never probes a host."
+    };
+  }
+
+  // GetInventoryRun returns one estate refresh.
+  rpc GetInventoryRun(GetInventoryRunRequest) returns (GetInventoryRunResponse) {
+    option (google.api.http) = {get: "/v1/pom/inventory/runs/{run_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get an inventory refresh"
+      description: "Returns one refresh by ID, with what it saw and which hosts it covered."
+    };
+  }
+
+  // TriggerInventoryRefresh probes the estate, or named hosts within it.
+  rpc TriggerInventoryRefresh(TriggerInventoryRefreshRequest) returns (TriggerInventoryRefreshResponse) {
+    option (google.api.http) = {
+      post: "/v1/pom/inventory/runs"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Refresh the inventory"
+      description: "Dispatches an on-host probe per executor host and returns as soon as the refresh is accepted. Takes tens of seconds, unlike /v1/pom/discovery/runs. Pass node_ids to refresh only those hosts; 409 when another refresh already holds one of them."
+    };
+  }
+
+  // GetInventoryConfig returns the discovery app's configuration.
+  rpc GetInventoryConfig(GetInventoryConfigRequest) returns (GetInventoryConfigResponse) {
+    option (google.api.http) = {get: "/v1/pom/inventory/config"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get the inventory configuration"
+      description: "Returns every configuration field of the discovery app, its effective value, and whether an override is in effect."
+    };
+  }
+
+  // UpdateInventoryConfig changes the discovery app's configuration.
+  rpc UpdateInventoryConfig(UpdateInventoryConfigRequest) returns (UpdateInventoryConfigResponse) {
+    option (google.api.http) = {
+      patch: "/v1/pom/inventory/config"
+      body: "values"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change the inventory configuration"
+      description: "Applies a batch of configuration changes atomically: one invalid field rejects the whole batch and writes nothing. Only runtime-changeable fields are accepted."
+    };
+  }
+
+  // DeleteInventoryConfigOverride reverts one field to its deployed value.
+  rpc DeleteInventoryConfigOverride(DeleteInventoryConfigOverrideRequest) returns (DeleteInventoryConfigOverrideResponse) {
+    option (google.api.http) = {delete: "/v1/pom/inventory/config/{key}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Revert an inventory configuration field"
+      description: "Removes the override for one field so it returns to whatever the deployment configured. Idempotent."
     };
   }
 }

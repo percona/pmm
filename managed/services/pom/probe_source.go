@@ -187,7 +187,7 @@ func (s probeSource) collect(ctx context.Context, services []*models.Service) So
 		result.Errors = append(result.Errors, RunError{
 			Scope:   "source",
 			Code:    "probe_all_failing",
-			Message: fmt.Sprintf("no service answered its probe: %s", strings.Join(failures, "; ")),
+			Message: "no service answered its probe: " + strings.Join(failures, "; "),
 		})
 	case len(covered) < len(services):
 		// The usual steady state, and not an alarm: a service whose node runs no
@@ -219,7 +219,7 @@ const probeFailuresReported = 3
 
 // observedAt is when this service's document was collected.
 //
-// last_success_at is authoritative because the app maintains it; the document's own
+// The last_success_at column is authoritative because the app maintains it; the document's own
 // collected_at is the fallback for a row written before that column carried a value.
 func (p probeService) observedAt() *time.Time {
 	if p.LastSuccessAt != nil {

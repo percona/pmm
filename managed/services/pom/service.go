@@ -127,7 +127,7 @@ func (s *Service) WithProbeSource(sepURL, token string) *Service {
 		l:      s.l.WithField("source", sourceProbe),
 	}
 	s.probe = probe
-	s.l.Infof("pom_discovery facts at %s", probe.endpoint("facts"))
+	s.l.Infof("pom_discovery estate at %s", probe.endpoint(""))
 	return s
 }
 
