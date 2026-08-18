@@ -14,7 +14,6 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24.19.0
-          cache: 'pnpm-lock.yaml'
       - uses: pnpm/action-setup@v6
         with:
           version: 10
