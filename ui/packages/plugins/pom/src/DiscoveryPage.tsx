@@ -33,7 +33,7 @@ import {
   useRefreshInventory,
 } from './inventoryHooks';
 import { PomApiError } from './hooks';
-import { ScheduleForm } from './components/ScheduleForm';
+import { ConfigForm } from './components/ConfigForm';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
 import { PomHeader } from './components/PomHeader';
@@ -317,7 +317,7 @@ export function DiscoveryPage() {
         />
       )}
 
-      <ScheduleForm />
+      <ConfigForm />
     </Stack>
   );
 }

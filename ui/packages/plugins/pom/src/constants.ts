@@ -121,3 +121,62 @@ export const RUN_STATUS_COLOR: Record<PomRunStatus, ChipProps['color']> = {
   partial: 'warning',
   failed: 'error',
 };
+
+/**
+ * Human labels for POM's configuration fields.
+ *
+ * The raw keys are what the app calls them and what the API takes; these are what a
+ * reader should see. Anything not named here falls back to its key, so a setting added
+ * in SEP still renders rather than disappearing from the form.
+ */
+export const SETTING_LABEL: Record<string, string> = {
+  SCHEDULE__every: 'Sweep every',
+  SCHEDULE__period: 'Period',
+  PROBE_DATABASE: 'Connect to MongoDB',
+  REPO_URL: 'Repository check URL',
+  REPO_TIMEOUT: 'Repository timeout',
+  CONNECT_TIMEOUT: 'MongoDB connect timeout',
+  TASK_TIMEOUT: 'Probe job timeout',
+  POLL_INTERVAL: 'Job poll interval',
+  MAX_CONCURRENT_PROBES: 'Concurrent probes',
+  RUN_RETENTION: 'Refreshes kept',
+  STALE_RUN_AFTER: 'Consider a refresh wedged after',
+};
+
+/**
+ * The unit a number is in, spelled out in the field's label.
+ *
+ * `STALE_RUN_AFTER` is the one that most needs it: it is a `timedelta` that arrives
+ * over the wire as whole seconds, so "1800" beside a field called "wedged after" is
+ * ambiguous in a way that matters.
+ */
+export const SETTING_UNIT: Record<string, string> = {
+  REPO_TIMEOUT: 'seconds',
+  CONNECT_TIMEOUT: 'seconds',
+  TASK_TIMEOUT: 'seconds',
+  POLL_INTERVAL: 'seconds',
+  STALE_RUN_AFTER: 'seconds',
+  MAX_CONCURRENT_PROBES: 'jobs in flight',
+  RUN_RETENTION: 'rows',
+};
+
+/** What each field costs or protects, for the reader deciding whether to touch it. */
+export const SETTING_HELP: Record<string, string> = {
+  SCHEDULE__every:
+    'How often the whole estate is swept. Each sweep dispatches a job to every host.',
+  PROBE_DATABASE:
+    'Off collects process and OS facts only, which needs no credentials - and still yields the installed version.',
+  REPO_URL:
+    'The file each host fetches to prove it can install packages. Point it at a mirror on an air-gapped estate, or every host reports as broken.',
+  REPO_TIMEOUT:
+    'Short on purpose: a repository slower than this is not usable by a package manager either.',
+  CONNECT_TIMEOUT: 'Per-target connect and server-selection timeout.',
+  TASK_TIMEOUT:
+    'How long to wait for one dispatched probe job before giving up on it.',
+  POLL_INTERVAL: 'How often a dispatched job is checked for completion.',
+  MAX_CONCURRENT_PROBES:
+    'Ceiling on probe jobs at once. Every dispatch is a Nomad job, so this is cluster capacity.',
+  RUN_RETENTION: 'How many refresh rows to keep before the oldest are pruned.',
+  STALE_RUN_AFTER:
+    'How long a refresh may stay running before its worker is presumed gone. Must exceed the slowest legitimate sweep.',
+};
