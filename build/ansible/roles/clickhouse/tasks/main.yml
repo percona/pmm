@@ -103,6 +103,17 @@
     group: root
     force: yes
 
+# pmm-managed-init repoints the config.xml and users.xml symlinks at the config selected by
+# PMM_CLICKHOUSE_CONFIG, so the directory has to stay writable for the root group when the
+# container runs under an arbitrary UID. Same reasoning as /etc/supervisord.d.
+- name: Allow the root group to update the clickhouse config symlinks
+  file:
+    path: /etc/clickhouse-server
+    state: directory
+    owner: pmm
+    group: root
+    mode: 0775
+
 # We need to remove capabilities because we run PMM in an unprivileged container
 - name: Remove cap_ipc_lock from clickhouse binary
   capabilities:

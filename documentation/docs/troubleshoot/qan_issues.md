@@ -38,6 +38,13 @@ SHOW pg_stat_monitor.pgsm_enable_query_plan;
 
 After disabling query plan collection, new metrics should show realistic execution times within minutes. 
 
+### Why do I see `?` instead of real query values?
+
+Your application is likely using server-side prepared statements (common with JDBC and ORM frameworks). 
+
+Performance Schema exposes prepared statement parameters as placeholders rather than real values. See [Prepared statements show placeholders instead of values](../use/qan/mysql.md#prepared-statements-show-placeholders-instead-of-values).
+
+
 ## QAN service fails after upgrade
 
 After upgrading PMM Server, the QAN service may fail to start with `BACKOFF`, `FATAL`, or `EXITED` status, preventing the QAN dashboard from loading. You'll see the following error in `/srv/logs/qan-api2.log`, where `x` is the migration version number:
@@ -141,3 +148,4 @@ ClickHouse merges drop-ins over the profile in use, so the same files apply to b
 Set `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to the same password so Grafana connects with the new credentials, then restart ClickHouse. Drop-ins are not preserved when the container is recreated, so mount them from the host if you need them to persist.
 
 If you set `PMM_CLICKHOUSE_DATABASE` to something other than `pmm`, use a drop-in to update the data source user's grant, since the shipped grant names `pmm` explicitly.
+

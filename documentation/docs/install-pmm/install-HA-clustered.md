@@ -687,42 +687,47 @@ pmmResources:
 
 ### Customize environment variables
 
-PMM HA uses environment variables to control its behavior. The HA-specific variables are pre-configured for optimal cluster operation, while data retention and other settings can be customized to match your requirements.
+PMM HA uses environment variables to control its behavior. Some are pre-configured by the Helm chart and should stay as they are. Others, like data retention, you can adjust to match your requirements.
 
 #### Pre-configured HA variables
 
-These variables are automatically set and manage critical cluster functions like leader election, gossip communication, and database integration:
+The Helm chart sets these variables automatically. They control how the replicas find each other, elect a leader, and connect to the shared databases. 
+
+Leave these values unchanged, as modifying them can break the cluster:
 
 ```yaml
 pmmEnv:
-  PMM_ENABLE_UPDATES: "0"                   # Updates managed via Helm (not UI)
+  PMM_ENABLE_UPDATES: "0"                   # Disables UI updates, which would upgrade one replica only. Update via Helm to keep all replicas in sync
   PMM_HA_ENABLE: "1"                        # Enable HA clustering
   PMM_HA_GOSSIP_PORT: "9096"                # Gossip protocol port
   PMM_HA_RAFT_PORT: "9097"                  # Raft consensus port
   PMM_HA_GRAFANA_GOSSIP_PORT: "9094"        # Grafana gossip port
-  PMM_DISABLE_BUILTIN_CLICKHOUSE: "1"       # Use the operator-managed ClickHouse cluster
-  PMM_DISABLE_BUILTIN_POSTGRES: "1"         # Use the operator-managed PostgreSQL cluster
+  PMM_DISABLE_BUILTIN_CLICKHOUSE: "1"       # Disables the ClickHouse inside the pmm-server pod so PMM uses the HA cluster. Does not enable external databases
+  PMM_DISABLE_BUILTIN_POSTGRES: "1"         # Disables the PostgreSQL inside the pmm-server pod so PMM uses the HA cluster. Does not enable external databases
   PMM_CLICKHOUSE_IS_CLUSTER: "1"            # Enable ClickHouse clustering
 ```
 
-These variables are tested and validated for the HA architecture, so modifying them is not recommended. PMM updates are managed through Helm chart upgrades rather than the UI to ensure consistency across all replicas.
+#### External databases are not supported
 
-#### Built-in, operator-managed, and external databases
+PMM HA comes with its own ClickHouse, VictoriaMetrics, and PostgreSQL. They run as separate pods, but they belong to the PMM deployment: the Helm chart sets them up and keeps them running for you.
 
-By default, PMM sets up and manages ClickHouse, VictoriaMetrics, and PostgreSQL for you. Each runs as its own pod. These are called operator-managed clusters.
+You can't swap these databases for ones you run yourself, like an existing ClickHouse cluster or RDS. The chart controls where PMM connects, and that can't be changed.
 
-You can point PMM at your own instance instead, for example a ClickHouse cluster your database team already runs. To do this, set `PMM_DISABLE_BUILTIN_CLICKHOUSE` (or the PostgreSQL equivalent).
+If you're used to standalone PMM, note that `PMM_DISABLE_BUILTIN_CLICKHOUSE` and `PMM_DISABLE_BUILTIN_POSTGRES` work differently here. In standalone, they let you switch to your own database. In HA, they're part of the internal setup and must stay set to `1`.
 
-These variable names say "built-in", but HA doesn't have a built-in database to switch off. That naming carries over from standalone deployments, where it disables the copy bundled inside the `pmm-server` container. In HA, setting the same variable does something slightly different: it switches PMM away from the operator-managed cluster to the one you provide.
+#### Adjust data retention and other settings
 
-#### Customizable settings
+Set customizable variables in your `values.yaml` to match your monitoring requirements. 
 
-Adjust these variables in your `values.yaml` to match your monitoring requirements:
+Choose a retention period that matches your compliance requirements and storage capacity. For example, `720h` keeps 30 days of data and `4320h` keeps 180 days:
+
 ```yaml
 pmmEnv:
   PMM_DATA_RETENTION: "2160h"  # Adjust based on your retention policy (default: 90 days)
   # Add other environment variables as needed
 ```
+
+For all available variables, see [PMM environment variables](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md).
 
 #### Common customizations
 
