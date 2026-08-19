@@ -25,7 +25,7 @@ export { StatusBadge, RunStatusBadge } from './components/HealthBadge';
 export { Duration, Percent } from './components/Metric';
 export { RunEntities } from './components/RunEntities';
 export { ProbeValue } from './components/ProbeValue';
-export { ScheduleForm } from './components/ScheduleForm';
+export { ConfigForm } from './components/ConfigForm';
 export { SnapshotBar } from './components/SnapshotBar';
 export { SyncButton } from './components/SyncButton';
 export { PomHeader } from './components/PomHeader';
@@ -49,6 +49,9 @@ export {
   POM_ROUTE_DISCOVERY,
   HOST_DATABASE_STATE_LABEL,
   HOST_DATABASE_STATE_COLOR,
+  SETTING_LABEL,
+  SETTING_UNIT,
+  SETTING_HELP,
   SERVICE_STATUS_LABEL,
   SERVICE_STATUS_COLOR,
   PROCESS_ROLE_LABEL,
