@@ -3,7 +3,11 @@ import { reloadPage } from 'utils/dom.utils';
 import { GetServerVersionResponse } from 'types/server.types';
 import { VersionProvider } from './version.provider';
 import { useVersion } from './version.hooks';
-import { AUTO_RELOAD_COOLDOWN_MS, recordAutoReload } from './version.utils';
+import {
+  AUTO_RELOAD_COOLDOWN_MS,
+  canAutoReload,
+  recordAutoReload,
+} from './version.utils';
 
 const mocks = vi.hoisted(() => ({
   useServerVersion: vi.fn(),
@@ -25,11 +29,22 @@ const build = (fullVersion: string, version = '3.10.0') =>
   }) satisfies GetServerVersionResponse;
 
 const Consumer = () => {
-  const { isOutdated, serverVersion } = useVersion();
+  const { isOutdated, serverVersion, reload } = useVersion();
 
   return (
-    <div data-testid="state">{`${isOutdated ? 'outdated' : 'current'}:${serverVersion}`}</div>
+    <>
+      <div data-testid="state">{`${isOutdated ? 'outdated' : 'current'}:${serverVersion}`}</div>
+      <button data-testid="reload" onClick={reload} />
+    </>
   );
+};
+
+/** Leaving the document reports it hidden on the way out. */
+const unload = () => {
+  setVisibility('hidden');
+  act(() => {
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
 };
 
 const setVisibility = (state: DocumentVisibilityState) =>
@@ -106,10 +121,42 @@ describe('VersionProvider', () => {
     serveBuild(rerender, build('def456'));
     expect(reloadPage).not.toHaveBeenCalled();
 
-    setVisibility('hidden');
+    unload();
+
+    expect(reloadPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('leaves the allowance alone when the reload was asked for', () => {
+    const { rerender } = renderProvider(build('abc123'));
+    serveBuild(rerender, build('def456'));
+
     act(() => {
-      document.dispatchEvent(new Event('visibilitychange'));
+      screen.getByTestId('reload').click();
     });
+    // the document reports itself hidden as it goes away
+    unload();
+
+    expect(reloadPage).toHaveBeenCalledTimes(1);
+    expect(canAutoReload(Date.now())).toBe(true);
+  });
+
+  it('spends the allowance when it reloads on its own', () => {
+    const { rerender } = renderProvider(build('abc123'));
+    setVisibility('hidden');
+
+    serveBuild(rerender, build('def456'));
+
+    expect(reloadPage).toHaveBeenCalledTimes(1);
+    expect(canAutoReload(Date.now())).toBe(false);
+  });
+
+  it('reloads once even when the tab is hidden more than once', () => {
+    const { rerender } = renderProvider(build('abc123'));
+    setVisibility('hidden');
+    serveBuild(rerender, build('def456'));
+
+    unload();
+    unload();
 
     expect(reloadPage).toHaveBeenCalledTimes(1);
   });

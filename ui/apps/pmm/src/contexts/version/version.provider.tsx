@@ -1,6 +1,7 @@
 import {
   FC,
   PropsWithChildren,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -16,15 +17,6 @@ import {
   recordAutoReload,
 } from './version.utils';
 
-const autoReload = () => {
-  if (!canAutoReload(Date.now())) {
-    return;
-  }
-
-  recordAutoReload(Date.now());
-  reloadPage();
-};
-
 /**
  * Keeps the page in sync with the server build. An external upgrade (Docker, Podman,
  * Helm) swaps the backend under an open tab, which then keeps running the assets of
@@ -39,7 +31,31 @@ export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
   const { data } = useServerVersion();
   const [isOutdated, setIsOutdated] = useState(false);
   const baseline = useRef('');
+  const reloading = useRef(false);
   const buildId = getServerBuildId(data);
+
+  // Leaving the document fires `visibilitychange` on the way out, so a reload
+  // already under way would otherwise look like a tab being backgrounded and
+  // trigger a second one.
+  const reload = useCallback(() => {
+    if (reloading.current) {
+      return;
+    }
+
+    reloading.current = true;
+    reloadPage();
+  }, []);
+
+  // Reloading on our own initiative is rationed; doing it because the user asked
+  // is not, so only this path spends the allowance.
+  const autoReload = useCallback(() => {
+    if (reloading.current || !canAutoReload(Date.now())) {
+      return;
+    }
+
+    recordAutoReload(Date.now());
+    reload();
+  }, [reload]);
 
   useEffect(() => {
     if (!buildId) {
@@ -73,7 +89,7 @@ export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
     return () => {
       document.removeEventListener('visibilitychange', reloadWhenHidden);
     };
-  }, [isOutdated]);
+  }, [isOutdated, autoReload]);
 
   // Lazily imported chunks are named after their content, so an upgrade leaves the
   // ones this page knows about missing from the server. That surfaces before the
@@ -84,15 +100,15 @@ export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
     return () => {
       window.removeEventListener('vite:preloadError', autoReload);
     };
-  }, []);
+  }, [autoReload]);
 
   const value = useMemo(
     () => ({
       isOutdated,
       serverVersion: data?.version ?? '',
-      reload: reloadPage,
+      reload,
     }),
-    [isOutdated, data?.version]
+    [isOutdated, data?.version, reload]
   );
 
   return (
