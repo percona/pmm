@@ -269,8 +269,9 @@ export function ConfigForm() {
   const advanced = editable.filter((setting) => setting.is_advanced);
 
   return (
-    <Stack gap={1} sx={{ mt: 3 }}>
-      <Typography variant="h6">Configuration</Typography>
+    <Stack gap={1}>
+      {/* No heading: the tab is already labelled, and a second "Configuration"
+          under it would be the same word twice. */}
       <Typography variant="body2" color="text.secondary">
         Everything here takes effect without a restart. Values come from the
         deployment&apos;s configuration unless marked as overridden.

@@ -16,12 +16,15 @@
  */
 
 import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Alert,
   Box,
   Button,
   CircularProgress,
   Stack,
+  Tab,
+  Tabs,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -270,9 +273,37 @@ function LastRun({ run }: { run: PomInventoryRun | undefined }) {
  * render its own error when SEP is unwell instead of being blanked by a gate that
  * fails closed.
  */
+/** The tabs, and the query-parameter values that address them. */
+const TABS = ['runs', 'settings'] as const;
+type TabId = (typeof TABS)[number];
+
+/**
+ * POM's refresh history, and the schedule that drives it.
+ *
+ * These are the app's refreshes, not pmm-managed's collection pass: one runs a payload
+ * on every host over Nomad and takes tens of seconds, the other recomputes a document
+ * from data PMM already holds. They are two different things called a "run", which is
+ * why they live at two different paths and on two different pages.
+ *
+ * Read through pmm-managed rather than from SEP directly, which is what lets this page
+ * render its own error when SEP is unwell instead of being blanked by a gate that
+ * fails closed.
+ *
+ * The two halves are tabs rather than one column because they answer different
+ * questions on different clocks: "did the last refresh work" is asked often and
+ * skimmed, "how often should it run" is asked rarely and read carefully. Stacked, the
+ * second sat below a table of twenty-five rows and was found by scrolling.
+ */
 export function DiscoveryPage() {
   const { data: runs, isLoading, error } = usePomInventoryRuns();
   const rows = useMemo(() => runs ?? [], [runs]);
+  // In the query string rather than component state, so a link to the settings tab is
+  // shareable and a reload does not silently put the reader back on Runs.
+  const [params, setParams] = useSearchParams();
+  const requested = params.get('tab');
+  const tab: TabId = TABS.includes(requested as TabId)
+    ? (requested as TabId)
+    : 'runs';
 
   return (
     <Stack gap={2}>
@@ -284,40 +315,64 @@ export function DiscoveryPage() {
             stores it against the estate.
           </Typography>
         }
+        // Stays in the header rather than inside the Runs tab: it is the page's
+        // action, and hiding it while someone reads the schedule would mean going
+        // back a tab to act on what they just changed.
         actions={<RefreshButton />}
       />
 
-      {error && (
-        <Alert severity="error">
-          {/* Rendered inside the page rather than replacing it: SEP being unwell is
-              a fact about the estate, and the schedule below is still readable. */}
-          Could not load refreshes: {(error as Error).message}
-        </Alert>
-      )}
+      <Tabs
+        value={tab}
+        onChange={(_event, next: TabId) =>
+          setParams((current) => {
+            const updated = new URLSearchParams(current);
+            updated.set('tab', next);
+            return updated;
+          })
+        }
+      >
+        <Tab value="runs" label="Runs" />
+        <Tab value="settings" label="Settings" />
+      </Tabs>
 
-      <LastRun run={rows[0]} />
+      {tab === 'runs' ? (
+        <>
+          {error && (
+            <Alert severity="error">
+              {/* Rendered inside the page rather than replacing it: SEP being
+                  unwell is a fact about the estate, and the settings tab still
+                  reads. */}
+              Could not load refreshes: {(error as Error).message}
+            </Alert>
+          )}
 
-      {isLoading && !runs ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-          <CircularProgress />
-        </Box>
+          <LastRun run={rows[0]} />
+
+          {isLoading && !runs ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Table
+              tableName="pom-inventory-runs"
+              columns={RUN_COLUMNS}
+              data={rows}
+              getRowId={(row) => row.run_id}
+              enableGlobalFilter={false}
+              enableColumnFilters={false}
+              enableHiding={false}
+              enablePagination={false}
+              enableStickyHeader
+              enableExpanding
+              renderDetailPanel={({ row }) => (
+                <RunEntities run={row.original} />
+              )}
+            />
+          )}
+        </>
       ) : (
-        <Table
-          tableName="pom-inventory-runs"
-          columns={RUN_COLUMNS}
-          data={rows}
-          getRowId={(row) => row.run_id}
-          enableGlobalFilter={false}
-          enableColumnFilters={false}
-          enableHiding={false}
-          enablePagination={false}
-          enableStickyHeader
-          enableExpanding
-          renderDetailPanel={({ row }) => <RunEntities run={row.original} />}
-        />
+        <ConfigForm />
       )}
-
-      <ConfigForm />
     </Stack>
   );
 }
