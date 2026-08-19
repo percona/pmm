@@ -124,6 +124,27 @@ describe('VersionProvider', () => {
     expect(reloadPage).not.toHaveBeenCalled();
   });
 
+  it('reloads when a stale asset chunk fails to load', () => {
+    renderProvider(build('abc123'));
+
+    act(() => {
+      window.dispatchEvent(new Event('vite:preloadError'));
+    });
+
+    expect(reloadPage).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not keep reloading on a chunk that stays unavailable', () => {
+    renderProvider(build('abc123'));
+
+    act(() => {
+      window.dispatchEvent(new Event('vite:preloadError'));
+      window.dispatchEvent(new Event('vite:preloadError'));
+    });
+
+    expect(reloadPage).toHaveBeenCalledTimes(1);
+  });
+
   it('stays inert while the build is unknown', () => {
     const { rerender } = renderProvider({ version: '' });
     setVisibility('hidden');

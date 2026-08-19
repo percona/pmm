@@ -16,6 +16,15 @@ import {
   recordAutoReload,
 } from './version.utils';
 
+const autoReload = () => {
+  if (!canAutoReload(Date.now())) {
+    return;
+  }
+
+  recordAutoReload(Date.now());
+  reloadPage();
+};
+
 /**
  * Keeps the page in sync with the server build. An external upgrade (Docker, Podman,
  * Helm) swaps the backend under an open tab, which then keeps running the assets of
@@ -53,12 +62,9 @@ export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
     }
 
     const reloadWhenHidden = () => {
-      if (document.visibilityState !== 'hidden' || !canAutoReload(Date.now())) {
-        return;
+      if (document.visibilityState === 'hidden') {
+        autoReload();
       }
-
-      recordAutoReload(Date.now());
-      reloadPage();
     };
 
     reloadWhenHidden();
@@ -68,6 +74,17 @@ export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
       document.removeEventListener('visibilitychange', reloadWhenHidden);
     };
   }, [isOutdated]);
+
+  // Lazily imported chunks are named after their content, so an upgrade leaves the
+  // ones this page knows about missing from the server. That surfaces before the
+  // next poll does and has no recovery other than loading the new assets.
+  useEffect(() => {
+    window.addEventListener('vite:preloadError', autoReload);
+
+    return () => {
+      window.removeEventListener('vite:preloadError', autoReload);
+    };
+  }, []);
 
   const value = useMemo(
     () => ({
