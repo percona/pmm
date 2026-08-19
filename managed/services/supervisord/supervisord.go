@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"net"
 	"net/url"
 	"os"
 	"os/exec"
@@ -60,6 +61,10 @@ const (
 	// pausing ingestion on large legitimate fleets, so the limit is left opt-in via the
 	// VM_maxIngestionRate environment variable for deployments that need to throttle bursts.
 	defaultVMMaxIngestionRate = "0"
+	// Port of pmm-managed's own HTTP API, kept in sync with http1Addr in
+	// managed/cmd/pmm-managed/main.go. qan-api2 asks it whether this node is the leader
+	// before it applies data retention.
+	pmmManagedHTTPPort = "7772"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
@@ -331,6 +336,7 @@ priority = 13
 command =
 	/usr/sbin/percona-qan-api2
 		--data-retention={{ .DataRetentionDays }}
+		--leader-check-url={{ .LeaderCheckURL }}
 environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
@@ -495,6 +501,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
+		"LeaderCheckURL":               leaderCheckURL(),
 		"ClickhouseAddr":               clickhouseAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
 		"ClickhouseHost":               clickhouseAddrPair[0],
@@ -541,6 +548,14 @@ func (s *Service) addPostgresParams(templateParams map[string]any) {
 	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
 	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath
 	templateParams["PostgresSSLCertPath"] = s.pgParams.SSLCertPath
+}
+
+// leaderCheckURL returns the address of pmm-managed's leader health check on this node.
+// Every node of an HA cluster runs a qan-api2 against the same ClickHouse, so each one asks
+// its local pmm-managed whether it is the node that should apply data retention.
+func leaderCheckURL() string {
+	addr := net.JoinHostPort(envvars.GetInterfaceToBind(), pmmManagedHTTPPort)
+	return "http://" + addr + "/v1/server/leaderHealthCheck"
 }
 
 func (s *Service) addClusterParams(templateParams map[string]any) {

@@ -143,6 +143,8 @@ const (
 
 	distributionInfoFilePath = "/srv/pmm-distribution"
 	osInfoFilePath           = "/proc/version"
+
+	supervisordConfigRetryInterval = 30 * time.Second
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -544,6 +546,43 @@ type setupDeps struct {
 	vmalert     *vmalert.Service
 	server      *server.Server
 	l           *logrus.Entry
+}
+
+func updateSupervisordConfig(db *reform.DB, svc *supervisord.Service) error {
+	settings, err := models.GetSettings(db)
+	if err != nil {
+		return fmt.Errorf("failed to get settings: %w", err)
+	}
+	return svc.UpdateConfiguration(settings)
+}
+
+// applySupervisordConfig re-renders supervisord configuration from the stored settings,
+// retrying until it succeeds or ctx is canceled.
+//
+// It is registered as a leader service, so it runs when this node gains leadership. A settings
+// change is applied only by the node that serves it (server.UpdateConfigurations), which is the
+// leader, because HAProxy routes to whichever node passes the leader health check. Without this,
+// a node promoted later would keep running the programs it configured at start-up - and for
+// qan-api2 that means enforcing a data retention period the user has since changed.
+func applySupervisordConfig(ctx context.Context, db *reform.DB, svc *supervisord.Service) error {
+	l := logrus.WithField("component", "supervisord")
+
+	for {
+		err := updateSupervisordConfig(db, svc)
+		if err == nil {
+			l.Info("Applied stored settings to supervisord configuration after gaining leadership.")
+			return nil
+		}
+		l.Errorf("Failed to apply supervisord configuration after gaining leadership, will retry: %+v.", err)
+
+		t := time.NewTimer(supervisordConfigRetryInterval)
+		select {
+		case <-ctx.Done():
+			t.Stop()
+			return nil
+		case <-t.C:
+		}
+	}
 }
 
 // setup performs setup tasks that depend on database.
@@ -1210,6 +1249,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haService.AddLeaderService(ha.NewContextService("vmRetention", func(ctx context.Context) error {
 		vmRetention.Run(ctx)
 		return nil
+	}))
+
+	// Refreshes what this node runs the moment it becomes the node that acts on the settings.
+	haService.AddLeaderService(ha.NewContextService("supervisordConfig", func(ctx context.Context) error {
+		return applySupervisordConfig(ctx, db, supervisord)
 	}))
 
 	wg.Go(func() {
