@@ -391,23 +391,37 @@ func inventoryRunToProto(run sepRun) *pomv1.InventoryRun {
 	}
 }
 
-// inventoryRunEntitiesToProto projects what a refresh attempted, one row per entity.
+// inventoryRunEntitiesToProto projects what a refresh attempted, one row per host.
 //
-// Outcomes only: which entity, on which host, matched how, answered or not, how long,
-// and the error. What the probe found belongs to the estate, which is upserted and
-// stays current -- carrying it here as well would be a second copy that goes stale the
-// moment the next refresh runs.
+// Host-oriented, because a refresh attempts hosts: a flat service list cannot show a
+// machine carrying a PMM client and no database, which is the case POM most exists to
+// describe. Each host carries the services on it, and empty is a meaningful answer.
+//
+// Outcomes only: which host, matched how, answered or not, how long, and the error.
+// What the probe found belongs to the estate, which is upserted and stays current --
+// carrying it here as well would be a second copy that goes stale the moment the next
+// refresh runs.
 func inventoryRunEntitiesToProto(nodes []sepRunNode) []*pomv1.InventoryRunEntity {
 	entities := make([]*pomv1.InventoryRunEntity, 0, len(nodes))
 	for _, node := range nodes {
+		services := make([]*pomv1.InventoryRunEntityService, 0, len(node.Services))
+		for _, service := range node.Services {
+			services = append(services, &pomv1.InventoryRunEntityService{
+				ServiceId:   optionalString(service.ServiceID),
+				ServiceName: optionalString(service.ServiceName),
+				Answered:    service.Answered,
+				Error:       optionalString(service.Error),
+			})
+		}
 		entities = append(entities, &pomv1.InventoryRunEntity{
-			ServiceId:       optionalString(node.ServiceID),
-			ServiceName:     node.ServiceName,
+			NodeId:          node.NodeID,
+			HostName:        optionalString(node.HostName),
 			ExecutorHost:    optionalString(node.ExecutorHost),
 			Resolution:      node.Resolution,
 			Answered:        node.Answered,
 			DurationSeconds: optionalDouble(node.Duration),
 			Error:           optionalString(node.Error),
+			Services:        services,
 		})
 	}
 	return entities

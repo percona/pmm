@@ -543,15 +543,34 @@ export interface PomInventoryRun {
  * current; a receipt carrying the attributes too would be a second copy that goes
  * stale on the next refresh.
  */
-export interface PomInventoryRunEntity {
+export interface PomInventoryRunEntityService {
   service_id: string | null;
-  service_name: string;
+  service_name: string | null;
+  answered: boolean;
+  error: string | null;
+}
+
+/**
+ * One host a refresh attempted, and what came of it.
+ *
+ * Host-oriented, because a refresh attempts hosts. A flat service list - which this
+ * was - cannot show a machine carrying a PMM client and no database, however many
+ * times it is probed, and that machine is the case POM most exists to describe.
+ *
+ * One dispatch covers every service on a host, so the host owns the timing and the
+ * failure; its services carry only what is theirs.
+ */
+export interface PomInventoryRunEntity {
+  node_id: string;
+  host_name: string | null;
   executor_host: string | null;
   /** `name` / `address` / `orphaned` - how the host was matched, or that it was not. */
   resolution: string;
   answered: boolean;
   duration_seconds: number | null;
   error: string | null;
+  /** The services on it. Empty is a meaningful answer, not a gap. */
+  services: PomInventoryRunEntityService[];
 }
 
 /** One refresh with the rows behind its counters, from `GET /runs/{id}`. */

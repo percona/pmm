@@ -1961,41 +1961,120 @@ func (x *InventoryRunCounts) GetHostsAnswered() int32 {
 	return 0
 }
 
-// InventoryRunEntity is one entity a refresh attempted, and what came of it.
+// InventoryRunEntityService is one service on a host, as a refresh saw it.
+type InventoryRunEntityService struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// PMM's service ID, when POM could key one.
+	ServiceId *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Its name, so a reader is not left joining UUIDs by hand.
+	ServiceName *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// Whether the host returned a usable record for it.
+	Answered bool `protobuf:"varint,3,opt,name=answered,proto3" json:"answered,omitempty"`
+	// Why it did not, when it did not.
+	Error         *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=error,proto3" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *InventoryRunEntityService) Reset() {
+	*x = InventoryRunEntityService{}
+	mi := &file_pom_v1_pom_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *InventoryRunEntityService) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*InventoryRunEntityService) ProtoMessage() {}
+
+func (x *InventoryRunEntityService) ProtoReflect() protoreflect.Message {
+	mi := &file_pom_v1_pom_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use InventoryRunEntityService.ProtoReflect.Descriptor instead.
+func (*InventoryRunEntityService) Descriptor() ([]byte, []int) {
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *InventoryRunEntityService) GetServiceId() *wrapperspb.StringValue {
+	if x != nil {
+		return x.ServiceId
+	}
+	return nil
+}
+
+func (x *InventoryRunEntityService) GetServiceName() *wrapperspb.StringValue {
+	if x != nil {
+		return x.ServiceName
+	}
+	return nil
+}
+
+func (x *InventoryRunEntityService) GetAnswered() bool {
+	if x != nil {
+		return x.Answered
+	}
+	return false
+}
+
+func (x *InventoryRunEntityService) GetError() *wrapperspb.StringValue {
+	if x != nil {
+		return x.Error
+	}
+	return nil
+}
+
+// InventoryRunEntity is one host a refresh attempted, and what came of it.
 //
-// The counters on a run are this list's summary; these are the rows behind them. "5 of
-// 14 answered" cannot say which five, on which host, or which host took a minute, and
-// each of those is the first question asked of a slow or partial refresh.
+// Host-oriented, because a refresh attempts hosts. A flat list of services - which
+// this was - cannot show a machine carrying a PMM client and no database, however
+// many times it is probed, and that machine is the case POM most exists to describe:
+// it is where a database can be installed.
+//
+// One dispatch covers every service on a host, so the host owns the timing and the
+// failure and its services carry only what is theirs. Previously the duration was
+// copied onto each service, which read as several measurements when it was one.
 //
 // Deliberately outcomes and not observations. What the probe *found* lives on the
 // estate, where it is upserted and stays current; a receipt that also carried the
-// attributes would be a second copy of the estate that goes stale the moment the next
-// refresh runs.
+// attributes would be a second copy that goes stale the moment the next refresh runs.
 type InventoryRunEntity struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// PMM's service ID, when the entity is a service POM could key.
-	ServiceId *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// Its name, carried so a reader is not left joining UUIDs by hand.
-	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	// The host its probe ran on. Unset when nothing could be dispatched for it.
+	// PMM's node ID, the key POM holds this host under.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// The node's registered name.
+	HostName *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=host_name,json=hostName,proto3" json:"host_name,omitempty"`
+	// The client its probe ran on. Unset when none matched.
 	ExecutorHost *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=executor_host,json=executorHost,proto3" json:"executor_host,omitempty"`
-	// name, address or orphaned - how that host was matched, or that it was not.
+	// name, address or orphaned - how that client was matched, or that it was not.
+	// Orphaned is why nothing ran; it is not an error.
 	Resolution string `protobuf:"bytes,4,opt,name=resolution,proto3" json:"resolution,omitempty"`
-	// Whether the host returned a usable record for it.
+	// Whether the *host* answered. A different question from whether its services did:
+	// a host with no database answers perfectly well and has no services at all.
 	Answered bool `protobuf:"varint,5,opt,name=answered,proto3" json:"answered,omitempty"`
-	// The host's wall clock, dispatch to collected output. Repeated across the services
-	// one host serves, because a single dispatch covers all of them and there is no
-	// per-service time to report.
+	// The host's wall clock, dispatch to collected output.
 	DurationSeconds *wrapperspb.DoubleValue `protobuf:"bytes,6,opt,name=duration_seconds,json=durationSeconds,proto3" json:"duration_seconds,omitempty"`
 	// The host-level failure, when its probe failed.
-	Error         *wrapperspb.StringValue `protobuf:"bytes,7,opt,name=error,proto3" json:"error,omitempty"`
+	Error *wrapperspb.StringValue `protobuf:"bytes,7,opt,name=error,proto3" json:"error,omitempty"`
+	// The services on it. Empty is a meaningful answer, not a gap.
+	Services      []*InventoryRunEntityService `protobuf:"bytes,8,rep,name=services,proto3" json:"services,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *InventoryRunEntity) Reset() {
 	*x = InventoryRunEntity{}
-	mi := &file_pom_v1_pom_proto_msgTypes[23]
+	mi := &file_pom_v1_pom_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2007,7 +2086,7 @@ func (x *InventoryRunEntity) String() string {
 func (*InventoryRunEntity) ProtoMessage() {}
 
 func (x *InventoryRunEntity) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[23]
+	mi := &file_pom_v1_pom_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2020,21 +2099,21 @@ func (x *InventoryRunEntity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InventoryRunEntity.ProtoReflect.Descriptor instead.
 func (*InventoryRunEntity) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{23}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{24}
 }
 
-func (x *InventoryRunEntity) GetServiceId() *wrapperspb.StringValue {
+func (x *InventoryRunEntity) GetNodeId() string {
 	if x != nil {
-		return x.ServiceId
-	}
-	return nil
-}
-
-func (x *InventoryRunEntity) GetServiceName() string {
-	if x != nil {
-		return x.ServiceName
+		return x.NodeId
 	}
 	return ""
+}
+
+func (x *InventoryRunEntity) GetHostName() *wrapperspb.StringValue {
+	if x != nil {
+		return x.HostName
+	}
+	return nil
 }
 
 func (x *InventoryRunEntity) GetExecutorHost() *wrapperspb.StringValue {
@@ -2072,6 +2151,13 @@ func (x *InventoryRunEntity) GetError() *wrapperspb.StringValue {
 	return nil
 }
 
+func (x *InventoryRunEntity) GetServices() []*InventoryRunEntityService {
+	if x != nil {
+		return x.Services
+	}
+	return nil
+}
+
 // InventoryRun is one refresh of the estate.
 type InventoryRun struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -2096,7 +2182,7 @@ type InventoryRun struct {
 
 func (x *InventoryRun) Reset() {
 	*x = InventoryRun{}
-	mi := &file_pom_v1_pom_proto_msgTypes[24]
+	mi := &file_pom_v1_pom_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2108,7 +2194,7 @@ func (x *InventoryRun) String() string {
 func (*InventoryRun) ProtoMessage() {}
 
 func (x *InventoryRun) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[24]
+	mi := &file_pom_v1_pom_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2121,7 +2207,7 @@ func (x *InventoryRun) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InventoryRun.ProtoReflect.Descriptor instead.
 func (*InventoryRun) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{24}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *InventoryRun) GetRunId() string {
@@ -2199,7 +2285,7 @@ type InventorySetting struct {
 
 func (x *InventorySetting) Reset() {
 	*x = InventorySetting{}
-	mi := &file_pom_v1_pom_proto_msgTypes[25]
+	mi := &file_pom_v1_pom_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2211,7 +2297,7 @@ func (x *InventorySetting) String() string {
 func (*InventorySetting) ProtoMessage() {}
 
 func (x *InventorySetting) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[25]
+	mi := &file_pom_v1_pom_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2224,7 +2310,7 @@ func (x *InventorySetting) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InventorySetting.ProtoReflect.Descriptor instead.
 func (*InventorySetting) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{25}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *InventorySetting) GetKey() string {
@@ -2299,7 +2385,7 @@ type ListInventoryHostsRequest struct {
 
 func (x *ListInventoryHostsRequest) Reset() {
 	*x = ListInventoryHostsRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[26]
+	mi := &file_pom_v1_pom_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2311,7 +2397,7 @@ func (x *ListInventoryHostsRequest) String() string {
 func (*ListInventoryHostsRequest) ProtoMessage() {}
 
 func (x *ListInventoryHostsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[26]
+	mi := &file_pom_v1_pom_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2324,7 +2410,7 @@ func (x *ListInventoryHostsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInventoryHostsRequest.ProtoReflect.Descriptor instead.
 func (*ListInventoryHostsRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{26}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *ListInventoryHostsRequest) GetHasService() *wrapperspb.BoolValue {
@@ -2359,7 +2445,7 @@ type ListInventoryHostsResponse struct {
 
 func (x *ListInventoryHostsResponse) Reset() {
 	*x = ListInventoryHostsResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[27]
+	mi := &file_pom_v1_pom_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2371,7 +2457,7 @@ func (x *ListInventoryHostsResponse) String() string {
 func (*ListInventoryHostsResponse) ProtoMessage() {}
 
 func (x *ListInventoryHostsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[27]
+	mi := &file_pom_v1_pom_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2384,7 +2470,7 @@ func (x *ListInventoryHostsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInventoryHostsResponse.ProtoReflect.Descriptor instead.
 func (*ListInventoryHostsResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{27}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ListInventoryHostsResponse) GetHosts() []*InventoryHost {
@@ -2405,7 +2491,7 @@ type GetInventoryHostRequest struct {
 
 func (x *GetInventoryHostRequest) Reset() {
 	*x = GetInventoryHostRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[28]
+	mi := &file_pom_v1_pom_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2417,7 +2503,7 @@ func (x *GetInventoryHostRequest) String() string {
 func (*GetInventoryHostRequest) ProtoMessage() {}
 
 func (x *GetInventoryHostRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[28]
+	mi := &file_pom_v1_pom_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2430,7 +2516,7 @@ func (x *GetInventoryHostRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInventoryHostRequest.ProtoReflect.Descriptor instead.
 func (*GetInventoryHostRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{28}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *GetInventoryHostRequest) GetNodeId() string {
@@ -2451,7 +2537,7 @@ type GetInventoryHostResponse struct {
 
 func (x *GetInventoryHostResponse) Reset() {
 	*x = GetInventoryHostResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[29]
+	mi := &file_pom_v1_pom_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2463,7 +2549,7 @@ func (x *GetInventoryHostResponse) String() string {
 func (*GetInventoryHostResponse) ProtoMessage() {}
 
 func (x *GetInventoryHostResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[29]
+	mi := &file_pom_v1_pom_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2476,7 +2562,7 @@ func (x *GetInventoryHostResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInventoryHostResponse.ProtoReflect.Descriptor instead.
 func (*GetInventoryHostResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{29}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *GetInventoryHostResponse) GetHost() *InventoryHost {
@@ -2497,7 +2583,7 @@ type DeleteInventoryHostRequest struct {
 
 func (x *DeleteInventoryHostRequest) Reset() {
 	*x = DeleteInventoryHostRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[30]
+	mi := &file_pom_v1_pom_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2509,7 +2595,7 @@ func (x *DeleteInventoryHostRequest) String() string {
 func (*DeleteInventoryHostRequest) ProtoMessage() {}
 
 func (x *DeleteInventoryHostRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[30]
+	mi := &file_pom_v1_pom_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2522,7 +2608,7 @@ func (x *DeleteInventoryHostRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteInventoryHostRequest.ProtoReflect.Descriptor instead.
 func (*DeleteInventoryHostRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{30}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *DeleteInventoryHostRequest) GetNodeId() string {
@@ -2541,7 +2627,7 @@ type DeleteInventoryHostResponse struct {
 
 func (x *DeleteInventoryHostResponse) Reset() {
 	*x = DeleteInventoryHostResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[31]
+	mi := &file_pom_v1_pom_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2553,7 +2639,7 @@ func (x *DeleteInventoryHostResponse) String() string {
 func (*DeleteInventoryHostResponse) ProtoMessage() {}
 
 func (x *DeleteInventoryHostResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[31]
+	mi := &file_pom_v1_pom_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2566,7 +2652,7 @@ func (x *DeleteInventoryHostResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteInventoryHostResponse.ProtoReflect.Descriptor instead.
 func (*DeleteInventoryHostResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{31}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{32}
 }
 
 // ListInventoryServicesRequest is the request for ListInventoryServices.
@@ -2582,7 +2668,7 @@ type ListInventoryServicesRequest struct {
 
 func (x *ListInventoryServicesRequest) Reset() {
 	*x = ListInventoryServicesRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[32]
+	mi := &file_pom_v1_pom_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2594,7 +2680,7 @@ func (x *ListInventoryServicesRequest) String() string {
 func (*ListInventoryServicesRequest) ProtoMessage() {}
 
 func (x *ListInventoryServicesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[32]
+	mi := &file_pom_v1_pom_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2607,7 +2693,7 @@ func (x *ListInventoryServicesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInventoryServicesRequest.ProtoReflect.Descriptor instead.
 func (*ListInventoryServicesRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{32}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *ListInventoryServicesRequest) GetNodeId() *wrapperspb.StringValue {
@@ -2635,7 +2721,7 @@ type ListInventoryServicesResponse struct {
 
 func (x *ListInventoryServicesResponse) Reset() {
 	*x = ListInventoryServicesResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[33]
+	mi := &file_pom_v1_pom_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2647,7 +2733,7 @@ func (x *ListInventoryServicesResponse) String() string {
 func (*ListInventoryServicesResponse) ProtoMessage() {}
 
 func (x *ListInventoryServicesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[33]
+	mi := &file_pom_v1_pom_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2660,7 +2746,7 @@ func (x *ListInventoryServicesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInventoryServicesResponse.ProtoReflect.Descriptor instead.
 func (*ListInventoryServicesResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{33}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *ListInventoryServicesResponse) GetServices() []*InventoryService {
@@ -2681,7 +2767,7 @@ type GetInventoryServiceRequest struct {
 
 func (x *GetInventoryServiceRequest) Reset() {
 	*x = GetInventoryServiceRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[34]
+	mi := &file_pom_v1_pom_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2693,7 +2779,7 @@ func (x *GetInventoryServiceRequest) String() string {
 func (*GetInventoryServiceRequest) ProtoMessage() {}
 
 func (x *GetInventoryServiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[34]
+	mi := &file_pom_v1_pom_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2706,7 +2792,7 @@ func (x *GetInventoryServiceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInventoryServiceRequest.ProtoReflect.Descriptor instead.
 func (*GetInventoryServiceRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{34}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *GetInventoryServiceRequest) GetServiceId() string {
@@ -2727,7 +2813,7 @@ type GetInventoryServiceResponse struct {
 
 func (x *GetInventoryServiceResponse) Reset() {
 	*x = GetInventoryServiceResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[35]
+	mi := &file_pom_v1_pom_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2739,7 +2825,7 @@ func (x *GetInventoryServiceResponse) String() string {
 func (*GetInventoryServiceResponse) ProtoMessage() {}
 
 func (x *GetInventoryServiceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[35]
+	mi := &file_pom_v1_pom_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2752,7 +2838,7 @@ func (x *GetInventoryServiceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInventoryServiceResponse.ProtoReflect.Descriptor instead.
 func (*GetInventoryServiceResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{35}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *GetInventoryServiceResponse) GetService() *InventoryService {
@@ -2773,7 +2859,7 @@ type DeleteInventoryServiceRequest struct {
 
 func (x *DeleteInventoryServiceRequest) Reset() {
 	*x = DeleteInventoryServiceRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[36]
+	mi := &file_pom_v1_pom_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2785,7 +2871,7 @@ func (x *DeleteInventoryServiceRequest) String() string {
 func (*DeleteInventoryServiceRequest) ProtoMessage() {}
 
 func (x *DeleteInventoryServiceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[36]
+	mi := &file_pom_v1_pom_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2798,7 +2884,7 @@ func (x *DeleteInventoryServiceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteInventoryServiceRequest.ProtoReflect.Descriptor instead.
 func (*DeleteInventoryServiceRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{36}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *DeleteInventoryServiceRequest) GetServiceId() string {
@@ -2817,7 +2903,7 @@ type DeleteInventoryServiceResponse struct {
 
 func (x *DeleteInventoryServiceResponse) Reset() {
 	*x = DeleteInventoryServiceResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[37]
+	mi := &file_pom_v1_pom_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2829,7 +2915,7 @@ func (x *DeleteInventoryServiceResponse) String() string {
 func (*DeleteInventoryServiceResponse) ProtoMessage() {}
 
 func (x *DeleteInventoryServiceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[37]
+	mi := &file_pom_v1_pom_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2842,7 +2928,7 @@ func (x *DeleteInventoryServiceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteInventoryServiceResponse.ProtoReflect.Descriptor instead.
 func (*DeleteInventoryServiceResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{37}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{38}
 }
 
 // ListInventoryRunsRequest is the request for ListInventoryRuns.
@@ -2856,7 +2942,7 @@ type ListInventoryRunsRequest struct {
 
 func (x *ListInventoryRunsRequest) Reset() {
 	*x = ListInventoryRunsRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[38]
+	mi := &file_pom_v1_pom_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2868,7 +2954,7 @@ func (x *ListInventoryRunsRequest) String() string {
 func (*ListInventoryRunsRequest) ProtoMessage() {}
 
 func (x *ListInventoryRunsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[38]
+	mi := &file_pom_v1_pom_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2881,7 +2967,7 @@ func (x *ListInventoryRunsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInventoryRunsRequest.ProtoReflect.Descriptor instead.
 func (*ListInventoryRunsRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{38}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ListInventoryRunsRequest) GetLimit() int32 {
@@ -2902,7 +2988,7 @@ type ListInventoryRunsResponse struct {
 
 func (x *ListInventoryRunsResponse) Reset() {
 	*x = ListInventoryRunsResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[39]
+	mi := &file_pom_v1_pom_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2914,7 +3000,7 @@ func (x *ListInventoryRunsResponse) String() string {
 func (*ListInventoryRunsResponse) ProtoMessage() {}
 
 func (x *ListInventoryRunsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[39]
+	mi := &file_pom_v1_pom_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2927,7 +3013,7 @@ func (x *ListInventoryRunsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListInventoryRunsResponse.ProtoReflect.Descriptor instead.
 func (*ListInventoryRunsResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{39}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *ListInventoryRunsResponse) GetRuns() []*InventoryRun {
@@ -2948,7 +3034,7 @@ type GetInventoryRunRequest struct {
 
 func (x *GetInventoryRunRequest) Reset() {
 	*x = GetInventoryRunRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[40]
+	mi := &file_pom_v1_pom_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2960,7 +3046,7 @@ func (x *GetInventoryRunRequest) String() string {
 func (*GetInventoryRunRequest) ProtoMessage() {}
 
 func (x *GetInventoryRunRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[40]
+	mi := &file_pom_v1_pom_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2973,7 +3059,7 @@ func (x *GetInventoryRunRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInventoryRunRequest.ProtoReflect.Descriptor instead.
 func (*GetInventoryRunRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{40}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *GetInventoryRunRequest) GetRunId() string {
@@ -3000,7 +3086,7 @@ type GetInventoryRunResponse struct {
 
 func (x *GetInventoryRunResponse) Reset() {
 	*x = GetInventoryRunResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[41]
+	mi := &file_pom_v1_pom_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3012,7 +3098,7 @@ func (x *GetInventoryRunResponse) String() string {
 func (*GetInventoryRunResponse) ProtoMessage() {}
 
 func (x *GetInventoryRunResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[41]
+	mi := &file_pom_v1_pom_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3025,7 +3111,7 @@ func (x *GetInventoryRunResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInventoryRunResponse.ProtoReflect.Descriptor instead.
 func (*GetInventoryRunResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{41}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *GetInventoryRunResponse) GetRun() *InventoryRun {
@@ -3057,7 +3143,7 @@ type TriggerInventoryRefreshRequest struct {
 
 func (x *TriggerInventoryRefreshRequest) Reset() {
 	*x = TriggerInventoryRefreshRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[42]
+	mi := &file_pom_v1_pom_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3069,7 +3155,7 @@ func (x *TriggerInventoryRefreshRequest) String() string {
 func (*TriggerInventoryRefreshRequest) ProtoMessage() {}
 
 func (x *TriggerInventoryRefreshRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[42]
+	mi := &file_pom_v1_pom_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3082,7 +3168,7 @@ func (x *TriggerInventoryRefreshRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TriggerInventoryRefreshRequest.ProtoReflect.Descriptor instead.
 func (*TriggerInventoryRefreshRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{42}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *TriggerInventoryRefreshRequest) GetNodeIds() []string {
@@ -3113,7 +3199,7 @@ type TriggerInventoryRefreshResponse struct {
 
 func (x *TriggerInventoryRefreshResponse) Reset() {
 	*x = TriggerInventoryRefreshResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[43]
+	mi := &file_pom_v1_pom_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3125,7 +3211,7 @@ func (x *TriggerInventoryRefreshResponse) String() string {
 func (*TriggerInventoryRefreshResponse) ProtoMessage() {}
 
 func (x *TriggerInventoryRefreshResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[43]
+	mi := &file_pom_v1_pom_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3138,7 +3224,7 @@ func (x *TriggerInventoryRefreshResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TriggerInventoryRefreshResponse.ProtoReflect.Descriptor instead.
 func (*TriggerInventoryRefreshResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{43}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *TriggerInventoryRefreshResponse) GetRunId() string {
@@ -3178,7 +3264,7 @@ type GetInventoryConfigRequest struct {
 
 func (x *GetInventoryConfigRequest) Reset() {
 	*x = GetInventoryConfigRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[44]
+	mi := &file_pom_v1_pom_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3190,7 +3276,7 @@ func (x *GetInventoryConfigRequest) String() string {
 func (*GetInventoryConfigRequest) ProtoMessage() {}
 
 func (x *GetInventoryConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[44]
+	mi := &file_pom_v1_pom_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3203,7 +3289,7 @@ func (x *GetInventoryConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInventoryConfigRequest.ProtoReflect.Descriptor instead.
 func (*GetInventoryConfigRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{44}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{45}
 }
 
 // GetInventoryConfigResponse returns the discovery app's configuration.
@@ -3217,7 +3303,7 @@ type GetInventoryConfigResponse struct {
 
 func (x *GetInventoryConfigResponse) Reset() {
 	*x = GetInventoryConfigResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[45]
+	mi := &file_pom_v1_pom_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3229,7 +3315,7 @@ func (x *GetInventoryConfigResponse) String() string {
 func (*GetInventoryConfigResponse) ProtoMessage() {}
 
 func (x *GetInventoryConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[45]
+	mi := &file_pom_v1_pom_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3242,7 +3328,7 @@ func (x *GetInventoryConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetInventoryConfigResponse.ProtoReflect.Descriptor instead.
 func (*GetInventoryConfigResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{45}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *GetInventoryConfigResponse) GetSettings() []*InventorySetting {
@@ -3273,7 +3359,7 @@ type UpdateInventoryConfigRequest struct {
 
 func (x *UpdateInventoryConfigRequest) Reset() {
 	*x = UpdateInventoryConfigRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[46]
+	mi := &file_pom_v1_pom_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3285,7 +3371,7 @@ func (x *UpdateInventoryConfigRequest) String() string {
 func (*UpdateInventoryConfigRequest) ProtoMessage() {}
 
 func (x *UpdateInventoryConfigRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[46]
+	mi := &file_pom_v1_pom_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3298,7 +3384,7 @@ func (x *UpdateInventoryConfigRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateInventoryConfigRequest.ProtoReflect.Descriptor instead.
 func (*UpdateInventoryConfigRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{46}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *UpdateInventoryConfigRequest) GetValues() *structpb.Struct {
@@ -3319,7 +3405,7 @@ type UpdateInventoryConfigResponse struct {
 
 func (x *UpdateInventoryConfigResponse) Reset() {
 	*x = UpdateInventoryConfigResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[47]
+	mi := &file_pom_v1_pom_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3331,7 +3417,7 @@ func (x *UpdateInventoryConfigResponse) String() string {
 func (*UpdateInventoryConfigResponse) ProtoMessage() {}
 
 func (x *UpdateInventoryConfigResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[47]
+	mi := &file_pom_v1_pom_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3344,7 +3430,7 @@ func (x *UpdateInventoryConfigResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateInventoryConfigResponse.ProtoReflect.Descriptor instead.
 func (*UpdateInventoryConfigResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{47}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *UpdateInventoryConfigResponse) GetSettings() []*InventorySetting {
@@ -3366,7 +3452,7 @@ type DeleteInventoryConfigOverrideRequest struct {
 
 func (x *DeleteInventoryConfigOverrideRequest) Reset() {
 	*x = DeleteInventoryConfigOverrideRequest{}
-	mi := &file_pom_v1_pom_proto_msgTypes[48]
+	mi := &file_pom_v1_pom_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3378,7 +3464,7 @@ func (x *DeleteInventoryConfigOverrideRequest) String() string {
 func (*DeleteInventoryConfigOverrideRequest) ProtoMessage() {}
 
 func (x *DeleteInventoryConfigOverrideRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[48]
+	mi := &file_pom_v1_pom_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3391,7 +3477,7 @@ func (x *DeleteInventoryConfigOverrideRequest) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use DeleteInventoryConfigOverrideRequest.ProtoReflect.Descriptor instead.
 func (*DeleteInventoryConfigOverrideRequest) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{48}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *DeleteInventoryConfigOverrideRequest) GetKey() string {
@@ -3410,7 +3496,7 @@ type DeleteInventoryConfigOverrideResponse struct {
 
 func (x *DeleteInventoryConfigOverrideResponse) Reset() {
 	*x = DeleteInventoryConfigOverrideResponse{}
-	mi := &file_pom_v1_pom_proto_msgTypes[49]
+	mi := &file_pom_v1_pom_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3422,7 +3508,7 @@ func (x *DeleteInventoryConfigOverrideResponse) String() string {
 func (*DeleteInventoryConfigOverrideResponse) ProtoMessage() {}
 
 func (x *DeleteInventoryConfigOverrideResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_pom_v1_pom_proto_msgTypes[49]
+	mi := &file_pom_v1_pom_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3435,7 +3521,7 @@ func (x *DeleteInventoryConfigOverrideResponse) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use DeleteInventoryConfigOverrideResponse.ProtoReflect.Descriptor instead.
 func (*DeleteInventoryConfigOverrideResponse) Descriptor() ([]byte, []int) {
-	return file_pom_v1_pom_proto_rawDescGZIP(), []int{49}
+	return file_pom_v1_pom_proto_rawDescGZIP(), []int{50}
 }
 
 var File_pom_v1_pom_proto protoreflect.FileDescriptor
@@ -3603,18 +3689,24 @@ const file_pom_v1_pom_proto_rawDesc = "" +
 	"\vhosts_total\x18\x05 \x01(\x05R\n" +
 	"hostsTotal\x12'\n" +
 	"\x0fhosts_probeable\x18\x06 \x01(\x05R\x0ehostsProbeable\x12%\n" +
-	"\x0ehosts_answered\x18\a \x01(\x05R\rhostsAnswered\"\xf0\x02\n" +
-	"\x12InventoryRunEntity\x12;\n" +
+	"\x0ehosts_answered\x18\a \x01(\x05R\rhostsAnswered\"\xe9\x01\n" +
+	"\x19InventoryRunEntityService\x12;\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\tserviceId\x12!\n" +
-	"\fservice_name\x18\x02 \x01(\tR\vserviceName\x12A\n" +
+	"service_id\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\tserviceId\x12?\n" +
+	"\fservice_name\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\vserviceName\x12\x1a\n" +
+	"\banswered\x18\x03 \x01(\bR\banswered\x122\n" +
+	"\x05error\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\x05error\"\xa3\x03\n" +
+	"\x12InventoryRunEntity\x12\x17\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x129\n" +
+	"\thost_name\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\bhostName\x12A\n" +
 	"\rexecutor_host\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\fexecutorHost\x12\x1e\n" +
 	"\n" +
 	"resolution\x18\x04 \x01(\tR\n" +
 	"resolution\x12\x1a\n" +
 	"\banswered\x18\x05 \x01(\bR\banswered\x12G\n" +
 	"\x10duration_seconds\x18\x06 \x01(\v2\x1c.google.protobuf.DoubleValueR\x0fdurationSeconds\x122\n" +
-	"\x05error\x18\a \x01(\v2\x1c.google.protobuf.StringValueR\x05error\"\xb3\x02\n" +
+	"\x05error\x18\a \x01(\v2\x1c.google.protobuf.StringValueR\x05error\x12=\n" +
+	"\bservices\x18\b \x03(\v2!.pom.v1.InventoryRunEntityServiceR\bservices\"\xb3\x02\n" +
 	"\fInventoryRun\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x129\n" +
@@ -3724,7 +3816,7 @@ func file_pom_v1_pom_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_pom_v1_pom_proto_msgTypes = make([]protoimpl.MessageInfo, 52)
+	file_pom_v1_pom_proto_msgTypes = make([]protoimpl.MessageInfo, 53)
 	file_pom_v1_pom_proto_goTypes  = []any{
 		(*Service)(nil),                               // 0: pom.v1.Service
 		(*Cluster)(nil),                               // 1: pom.v1.Cluster
@@ -3749,177 +3841,182 @@ var (
 		(*InventoryService)(nil),                      // 20: pom.v1.InventoryService
 		(*InventoryHost)(nil),                         // 21: pom.v1.InventoryHost
 		(*InventoryRunCounts)(nil),                    // 22: pom.v1.InventoryRunCounts
-		(*InventoryRunEntity)(nil),                    // 23: pom.v1.InventoryRunEntity
-		(*InventoryRun)(nil),                          // 24: pom.v1.InventoryRun
-		(*InventorySetting)(nil),                      // 25: pom.v1.InventorySetting
-		(*ListInventoryHostsRequest)(nil),             // 26: pom.v1.ListInventoryHostsRequest
-		(*ListInventoryHostsResponse)(nil),            // 27: pom.v1.ListInventoryHostsResponse
-		(*GetInventoryHostRequest)(nil),               // 28: pom.v1.GetInventoryHostRequest
-		(*GetInventoryHostResponse)(nil),              // 29: pom.v1.GetInventoryHostResponse
-		(*DeleteInventoryHostRequest)(nil),            // 30: pom.v1.DeleteInventoryHostRequest
-		(*DeleteInventoryHostResponse)(nil),           // 31: pom.v1.DeleteInventoryHostResponse
-		(*ListInventoryServicesRequest)(nil),          // 32: pom.v1.ListInventoryServicesRequest
-		(*ListInventoryServicesResponse)(nil),         // 33: pom.v1.ListInventoryServicesResponse
-		(*GetInventoryServiceRequest)(nil),            // 34: pom.v1.GetInventoryServiceRequest
-		(*GetInventoryServiceResponse)(nil),           // 35: pom.v1.GetInventoryServiceResponse
-		(*DeleteInventoryServiceRequest)(nil),         // 36: pom.v1.DeleteInventoryServiceRequest
-		(*DeleteInventoryServiceResponse)(nil),        // 37: pom.v1.DeleteInventoryServiceResponse
-		(*ListInventoryRunsRequest)(nil),              // 38: pom.v1.ListInventoryRunsRequest
-		(*ListInventoryRunsResponse)(nil),             // 39: pom.v1.ListInventoryRunsResponse
-		(*GetInventoryRunRequest)(nil),                // 40: pom.v1.GetInventoryRunRequest
-		(*GetInventoryRunResponse)(nil),               // 41: pom.v1.GetInventoryRunResponse
-		(*TriggerInventoryRefreshRequest)(nil),        // 42: pom.v1.TriggerInventoryRefreshRequest
-		(*TriggerInventoryRefreshResponse)(nil),       // 43: pom.v1.TriggerInventoryRefreshResponse
-		(*GetInventoryConfigRequest)(nil),             // 44: pom.v1.GetInventoryConfigRequest
-		(*GetInventoryConfigResponse)(nil),            // 45: pom.v1.GetInventoryConfigResponse
-		(*UpdateInventoryConfigRequest)(nil),          // 46: pom.v1.UpdateInventoryConfigRequest
-		(*UpdateInventoryConfigResponse)(nil),         // 47: pom.v1.UpdateInventoryConfigResponse
-		(*DeleteInventoryConfigOverrideRequest)(nil),  // 48: pom.v1.DeleteInventoryConfigOverrideRequest
-		(*DeleteInventoryConfigOverrideResponse)(nil), // 49: pom.v1.DeleteInventoryConfigOverrideResponse
-		nil,                            // 50: pom.v1.Summary.ByProcessRoleEntry
-		nil,                            // 51: pom.v1.SourceReport.DetailEntry
-		(*wrapperspb.StringValue)(nil), // 52: google.protobuf.StringValue
-		(*wrapperspb.DoubleValue)(nil), // 53: google.protobuf.DoubleValue
-		(*timestamppb.Timestamp)(nil),  // 54: google.protobuf.Timestamp
-		(*wrapperspb.Int32Value)(nil),  // 55: google.protobuf.Int32Value
-		(*wrapperspb.BoolValue)(nil),   // 56: google.protobuf.BoolValue
-		(*structpb.Struct)(nil),        // 57: google.protobuf.Struct
-		(*structpb.Value)(nil),         // 58: google.protobuf.Value
+		(*InventoryRunEntityService)(nil),             // 23: pom.v1.InventoryRunEntityService
+		(*InventoryRunEntity)(nil),                    // 24: pom.v1.InventoryRunEntity
+		(*InventoryRun)(nil),                          // 25: pom.v1.InventoryRun
+		(*InventorySetting)(nil),                      // 26: pom.v1.InventorySetting
+		(*ListInventoryHostsRequest)(nil),             // 27: pom.v1.ListInventoryHostsRequest
+		(*ListInventoryHostsResponse)(nil),            // 28: pom.v1.ListInventoryHostsResponse
+		(*GetInventoryHostRequest)(nil),               // 29: pom.v1.GetInventoryHostRequest
+		(*GetInventoryHostResponse)(nil),              // 30: pom.v1.GetInventoryHostResponse
+		(*DeleteInventoryHostRequest)(nil),            // 31: pom.v1.DeleteInventoryHostRequest
+		(*DeleteInventoryHostResponse)(nil),           // 32: pom.v1.DeleteInventoryHostResponse
+		(*ListInventoryServicesRequest)(nil),          // 33: pom.v1.ListInventoryServicesRequest
+		(*ListInventoryServicesResponse)(nil),         // 34: pom.v1.ListInventoryServicesResponse
+		(*GetInventoryServiceRequest)(nil),            // 35: pom.v1.GetInventoryServiceRequest
+		(*GetInventoryServiceResponse)(nil),           // 36: pom.v1.GetInventoryServiceResponse
+		(*DeleteInventoryServiceRequest)(nil),         // 37: pom.v1.DeleteInventoryServiceRequest
+		(*DeleteInventoryServiceResponse)(nil),        // 38: pom.v1.DeleteInventoryServiceResponse
+		(*ListInventoryRunsRequest)(nil),              // 39: pom.v1.ListInventoryRunsRequest
+		(*ListInventoryRunsResponse)(nil),             // 40: pom.v1.ListInventoryRunsResponse
+		(*GetInventoryRunRequest)(nil),                // 41: pom.v1.GetInventoryRunRequest
+		(*GetInventoryRunResponse)(nil),               // 42: pom.v1.GetInventoryRunResponse
+		(*TriggerInventoryRefreshRequest)(nil),        // 43: pom.v1.TriggerInventoryRefreshRequest
+		(*TriggerInventoryRefreshResponse)(nil),       // 44: pom.v1.TriggerInventoryRefreshResponse
+		(*GetInventoryConfigRequest)(nil),             // 45: pom.v1.GetInventoryConfigRequest
+		(*GetInventoryConfigResponse)(nil),            // 46: pom.v1.GetInventoryConfigResponse
+		(*UpdateInventoryConfigRequest)(nil),          // 47: pom.v1.UpdateInventoryConfigRequest
+		(*UpdateInventoryConfigResponse)(nil),         // 48: pom.v1.UpdateInventoryConfigResponse
+		(*DeleteInventoryConfigOverrideRequest)(nil),  // 49: pom.v1.DeleteInventoryConfigOverrideRequest
+		(*DeleteInventoryConfigOverrideResponse)(nil), // 50: pom.v1.DeleteInventoryConfigOverrideResponse
+		nil,                            // 51: pom.v1.Summary.ByProcessRoleEntry
+		nil,                            // 52: pom.v1.SourceReport.DetailEntry
+		(*wrapperspb.StringValue)(nil), // 53: google.protobuf.StringValue
+		(*wrapperspb.DoubleValue)(nil), // 54: google.protobuf.DoubleValue
+		(*timestamppb.Timestamp)(nil),  // 55: google.protobuf.Timestamp
+		(*wrapperspb.Int32Value)(nil),  // 56: google.protobuf.Int32Value
+		(*wrapperspb.BoolValue)(nil),   // 57: google.protobuf.BoolValue
+		(*structpb.Struct)(nil),        // 58: google.protobuf.Struct
+		(*structpb.Value)(nil),         // 59: google.protobuf.Value
 	}
 )
 
 var file_pom_v1_pom_proto_depIdxs = []int32{
-	52,  // 0: pom.v1.Service.host:type_name -> google.protobuf.StringValue
-	52,  // 1: pom.v1.Service.endpoint:type_name -> google.protobuf.StringValue
-	52,  // 2: pom.v1.Service.service_id:type_name -> google.protobuf.StringValue
-	52,  // 3: pom.v1.Service.service_type:type_name -> google.protobuf.StringValue
-	52,  // 4: pom.v1.Service.version:type_name -> google.protobuf.StringValue
-	52,  // 5: pom.v1.Service.vendor:type_name -> google.protobuf.StringValue
-	52,  // 6: pom.v1.Service.edition:type_name -> google.protobuf.StringValue
-	52,  // 7: pom.v1.Service.replication_set:type_name -> google.protobuf.StringValue
-	52,  // 8: pom.v1.Service.state:type_name -> google.protobuf.StringValue
-	53,  // 9: pom.v1.Service.replication_lag_seconds:type_name -> google.protobuf.DoubleValue
-	53,  // 10: pom.v1.Service.oplog_window_seconds:type_name -> google.protobuf.DoubleValue
-	52,  // 11: pom.v1.Service.installed_version:type_name -> google.protobuf.StringValue
-	52,  // 12: pom.v1.Service.config_path:type_name -> google.protobuf.StringValue
-	52,  // 13: pom.v1.Service.argv:type_name -> google.protobuf.StringValue
-	52,  // 14: pom.v1.Cluster.name:type_name -> google.protobuf.StringValue
+	53,  // 0: pom.v1.Service.host:type_name -> google.protobuf.StringValue
+	53,  // 1: pom.v1.Service.endpoint:type_name -> google.protobuf.StringValue
+	53,  // 2: pom.v1.Service.service_id:type_name -> google.protobuf.StringValue
+	53,  // 3: pom.v1.Service.service_type:type_name -> google.protobuf.StringValue
+	53,  // 4: pom.v1.Service.version:type_name -> google.protobuf.StringValue
+	53,  // 5: pom.v1.Service.vendor:type_name -> google.protobuf.StringValue
+	53,  // 6: pom.v1.Service.edition:type_name -> google.protobuf.StringValue
+	53,  // 7: pom.v1.Service.replication_set:type_name -> google.protobuf.StringValue
+	53,  // 8: pom.v1.Service.state:type_name -> google.protobuf.StringValue
+	54,  // 9: pom.v1.Service.replication_lag_seconds:type_name -> google.protobuf.DoubleValue
+	54,  // 10: pom.v1.Service.oplog_window_seconds:type_name -> google.protobuf.DoubleValue
+	53,  // 11: pom.v1.Service.installed_version:type_name -> google.protobuf.StringValue
+	53,  // 12: pom.v1.Service.config_path:type_name -> google.protobuf.StringValue
+	53,  // 13: pom.v1.Service.argv:type_name -> google.protobuf.StringValue
+	53,  // 14: pom.v1.Cluster.name:type_name -> google.protobuf.StringValue
 	0,   // 15: pom.v1.Cluster.services:type_name -> pom.v1.Service
-	52,  // 16: pom.v1.Environment.env_name:type_name -> google.protobuf.StringValue
+	53,  // 16: pom.v1.Environment.env_name:type_name -> google.protobuf.StringValue
 	1,   // 17: pom.v1.Environment.clusters:type_name -> pom.v1.Cluster
-	50,  // 18: pom.v1.Summary.by_process_role:type_name -> pom.v1.Summary.ByProcessRoleEntry
-	54,  // 19: pom.v1.Snapshot.generated_at:type_name -> google.protobuf.Timestamp
-	54,  // 20: pom.v1.Snapshot.observed_at:type_name -> google.protobuf.Timestamp
+	51,  // 18: pom.v1.Summary.by_process_role:type_name -> pom.v1.Summary.ByProcessRoleEntry
+	55,  // 19: pom.v1.Snapshot.generated_at:type_name -> google.protobuf.Timestamp
+	55,  // 20: pom.v1.Snapshot.observed_at:type_name -> google.protobuf.Timestamp
 	4,   // 21: pom.v1.GetTopologyResponse.snapshot:type_name -> pom.v1.Snapshot
-	52,  // 22: pom.v1.GetTopologyResponse.origin_node:type_name -> google.protobuf.StringValue
+	53,  // 22: pom.v1.GetTopologyResponse.origin_node:type_name -> google.protobuf.StringValue
 	3,   // 23: pom.v1.GetTopologyResponse.summary:type_name -> pom.v1.Summary
 	2,   // 24: pom.v1.GetTopologyResponse.environments:type_name -> pom.v1.Environment
-	51,  // 25: pom.v1.SourceReport.detail:type_name -> pom.v1.SourceReport.DetailEntry
-	52,  // 26: pom.v1.RunError.service_name:type_name -> google.protobuf.StringValue
-	54,  // 27: pom.v1.Run.started_at:type_name -> google.protobuf.Timestamp
-	54,  // 28: pom.v1.Run.finished_at:type_name -> google.protobuf.Timestamp
+	52,  // 25: pom.v1.SourceReport.detail:type_name -> pom.v1.SourceReport.DetailEntry
+	53,  // 26: pom.v1.RunError.service_name:type_name -> google.protobuf.StringValue
+	55,  // 27: pom.v1.Run.started_at:type_name -> google.protobuf.Timestamp
+	55,  // 28: pom.v1.Run.finished_at:type_name -> google.protobuf.Timestamp
 	7,   // 29: pom.v1.Run.counts:type_name -> pom.v1.RunCounts
 	9,   // 30: pom.v1.Run.errors:type_name -> pom.v1.RunError
 	8,   // 31: pom.v1.Run.sources:type_name -> pom.v1.SourceReport
 	10,  // 32: pom.v1.GetDiscoveryRunResponse.run:type_name -> pom.v1.Run
 	10,  // 33: pom.v1.ListDiscoveryRunsResponse.runs:type_name -> pom.v1.Run
-	54,  // 34: pom.v1.TriggerDiscoveryResponse.started_at:type_name -> google.protobuf.Timestamp
-	52,  // 35: pom.v1.InventoryExecutor.detail:type_name -> google.protobuf.StringValue
-	55,  // 36: pom.v1.UnregisteredMongod.port:type_name -> google.protobuf.Int32Value
-	52,  // 37: pom.v1.UnregisteredMongod.config_path:type_name -> google.protobuf.StringValue
-	52,  // 38: pom.v1.UnregisteredMongod.argv:type_name -> google.protobuf.StringValue
-	52,  // 39: pom.v1.UnregisteredMongod.program:type_name -> google.protobuf.StringValue
-	55,  // 40: pom.v1.UnregisteredMongod.pid:type_name -> google.protobuf.Int32Value
-	54,  // 41: pom.v1.InventoryFreshness.first_seen_at:type_name -> google.protobuf.Timestamp
-	54,  // 42: pom.v1.InventoryFreshness.last_attempt_at:type_name -> google.protobuf.Timestamp
-	54,  // 43: pom.v1.InventoryFreshness.last_success_at:type_name -> google.protobuf.Timestamp
-	54,  // 44: pom.v1.InventoryFreshness.failing_since:type_name -> google.protobuf.Timestamp
-	52,  // 45: pom.v1.InventoryFreshness.last_error:type_name -> google.protobuf.StringValue
-	55,  // 46: pom.v1.InventoryService.port:type_name -> google.protobuf.Int32Value
-	52,  // 47: pom.v1.InventoryService.role:type_name -> google.protobuf.StringValue
-	52,  // 48: pom.v1.InventoryService.installed_version:type_name -> google.protobuf.StringValue
-	52,  // 49: pom.v1.InventoryService.running_version:type_name -> google.protobuf.StringValue
-	52,  // 50: pom.v1.InventoryService.config_path:type_name -> google.protobuf.StringValue
-	52,  // 51: pom.v1.InventoryService.argv:type_name -> google.protobuf.StringValue
-	52,  // 52: pom.v1.InventoryService.probe_status:type_name -> google.protobuf.StringValue
-	56,  // 53: pom.v1.InventoryService.server_running:type_name -> google.protobuf.BoolValue
-	53,  // 54: pom.v1.InventoryService.uptime_seconds:type_name -> google.protobuf.DoubleValue
-	52,  // 55: pom.v1.InventoryService.replication_set:type_name -> google.protobuf.StringValue
-	57,  // 56: pom.v1.InventoryService.observed:type_name -> google.protobuf.Struct
+	55,  // 34: pom.v1.TriggerDiscoveryResponse.started_at:type_name -> google.protobuf.Timestamp
+	53,  // 35: pom.v1.InventoryExecutor.detail:type_name -> google.protobuf.StringValue
+	56,  // 36: pom.v1.UnregisteredMongod.port:type_name -> google.protobuf.Int32Value
+	53,  // 37: pom.v1.UnregisteredMongod.config_path:type_name -> google.protobuf.StringValue
+	53,  // 38: pom.v1.UnregisteredMongod.argv:type_name -> google.protobuf.StringValue
+	53,  // 39: pom.v1.UnregisteredMongod.program:type_name -> google.protobuf.StringValue
+	56,  // 40: pom.v1.UnregisteredMongod.pid:type_name -> google.protobuf.Int32Value
+	55,  // 41: pom.v1.InventoryFreshness.first_seen_at:type_name -> google.protobuf.Timestamp
+	55,  // 42: pom.v1.InventoryFreshness.last_attempt_at:type_name -> google.protobuf.Timestamp
+	55,  // 43: pom.v1.InventoryFreshness.last_success_at:type_name -> google.protobuf.Timestamp
+	55,  // 44: pom.v1.InventoryFreshness.failing_since:type_name -> google.protobuf.Timestamp
+	53,  // 45: pom.v1.InventoryFreshness.last_error:type_name -> google.protobuf.StringValue
+	56,  // 46: pom.v1.InventoryService.port:type_name -> google.protobuf.Int32Value
+	53,  // 47: pom.v1.InventoryService.role:type_name -> google.protobuf.StringValue
+	53,  // 48: pom.v1.InventoryService.installed_version:type_name -> google.protobuf.StringValue
+	53,  // 49: pom.v1.InventoryService.running_version:type_name -> google.protobuf.StringValue
+	53,  // 50: pom.v1.InventoryService.config_path:type_name -> google.protobuf.StringValue
+	53,  // 51: pom.v1.InventoryService.argv:type_name -> google.protobuf.StringValue
+	53,  // 52: pom.v1.InventoryService.probe_status:type_name -> google.protobuf.StringValue
+	57,  // 53: pom.v1.InventoryService.server_running:type_name -> google.protobuf.BoolValue
+	54,  // 54: pom.v1.InventoryService.uptime_seconds:type_name -> google.protobuf.DoubleValue
+	53,  // 55: pom.v1.InventoryService.replication_set:type_name -> google.protobuf.StringValue
+	58,  // 56: pom.v1.InventoryService.observed:type_name -> google.protobuf.Struct
 	19,  // 57: pom.v1.InventoryService.freshness:type_name -> pom.v1.InventoryFreshness
-	52,  // 58: pom.v1.InventoryHost.address:type_name -> google.protobuf.StringValue
-	52,  // 59: pom.v1.InventoryHost.executor_host:type_name -> google.protobuf.StringValue
-	52,  // 60: pom.v1.InventoryHost.os:type_name -> google.protobuf.StringValue
-	52,  // 61: pom.v1.InventoryHost.kernel:type_name -> google.protobuf.StringValue
+	53,  // 58: pom.v1.InventoryHost.address:type_name -> google.protobuf.StringValue
+	53,  // 59: pom.v1.InventoryHost.executor_host:type_name -> google.protobuf.StringValue
+	53,  // 60: pom.v1.InventoryHost.os:type_name -> google.protobuf.StringValue
+	53,  // 61: pom.v1.InventoryHost.kernel:type_name -> google.protobuf.StringValue
 	17,  // 62: pom.v1.InventoryHost.executor:type_name -> pom.v1.InventoryExecutor
 	18,  // 63: pom.v1.InventoryHost.unregistered_mongods:type_name -> pom.v1.UnregisteredMongod
-	57,  // 64: pom.v1.InventoryHost.observed:type_name -> google.protobuf.Struct
+	58,  // 64: pom.v1.InventoryHost.observed:type_name -> google.protobuf.Struct
 	19,  // 65: pom.v1.InventoryHost.freshness:type_name -> pom.v1.InventoryFreshness
 	20,  // 66: pom.v1.InventoryHost.services:type_name -> pom.v1.InventoryService
-	52,  // 67: pom.v1.InventoryRunEntity.service_id:type_name -> google.protobuf.StringValue
-	52,  // 68: pom.v1.InventoryRunEntity.executor_host:type_name -> google.protobuf.StringValue
-	53,  // 69: pom.v1.InventoryRunEntity.duration_seconds:type_name -> google.protobuf.DoubleValue
-	52,  // 70: pom.v1.InventoryRunEntity.error:type_name -> google.protobuf.StringValue
-	54,  // 71: pom.v1.InventoryRun.started_at:type_name -> google.protobuf.Timestamp
-	54,  // 72: pom.v1.InventoryRun.finished_at:type_name -> google.protobuf.Timestamp
-	22,  // 73: pom.v1.InventoryRun.counts:type_name -> pom.v1.InventoryRunCounts
-	52,  // 74: pom.v1.InventoryRun.error:type_name -> google.protobuf.StringValue
-	58,  // 75: pom.v1.InventorySetting.value:type_name -> google.protobuf.Value
-	58,  // 76: pom.v1.InventorySetting.default_value:type_name -> google.protobuf.Value
-	52,  // 77: pom.v1.InventorySetting.description:type_name -> google.protobuf.StringValue
-	56,  // 78: pom.v1.ListInventoryHostsRequest.has_service:type_name -> google.protobuf.BoolValue
-	56,  // 79: pom.v1.ListInventoryHostsRequest.failing:type_name -> google.protobuf.BoolValue
-	52,  // 80: pom.v1.ListInventoryHostsRequest.executor:type_name -> google.protobuf.StringValue
-	21,  // 81: pom.v1.ListInventoryHostsResponse.hosts:type_name -> pom.v1.InventoryHost
-	21,  // 82: pom.v1.GetInventoryHostResponse.host:type_name -> pom.v1.InventoryHost
-	52,  // 83: pom.v1.ListInventoryServicesRequest.node_id:type_name -> google.protobuf.StringValue
-	56,  // 84: pom.v1.ListInventoryServicesRequest.failing:type_name -> google.protobuf.BoolValue
-	20,  // 85: pom.v1.ListInventoryServicesResponse.services:type_name -> pom.v1.InventoryService
-	20,  // 86: pom.v1.GetInventoryServiceResponse.service:type_name -> pom.v1.InventoryService
-	24,  // 87: pom.v1.ListInventoryRunsResponse.runs:type_name -> pom.v1.InventoryRun
-	24,  // 88: pom.v1.GetInventoryRunResponse.run:type_name -> pom.v1.InventoryRun
-	23,  // 89: pom.v1.GetInventoryRunResponse.entities:type_name -> pom.v1.InventoryRunEntity
-	54,  // 90: pom.v1.TriggerInventoryRefreshResponse.started_at:type_name -> google.protobuf.Timestamp
-	25,  // 91: pom.v1.GetInventoryConfigResponse.settings:type_name -> pom.v1.InventorySetting
-	57,  // 92: pom.v1.UpdateInventoryConfigRequest.values:type_name -> google.protobuf.Struct
-	25,  // 93: pom.v1.UpdateInventoryConfigResponse.settings:type_name -> pom.v1.InventorySetting
-	5,   // 94: pom.v1.PomService.GetTopology:input_type -> pom.v1.GetTopologyRequest
-	13,  // 95: pom.v1.PomService.ListDiscoveryRuns:input_type -> pom.v1.ListDiscoveryRunsRequest
-	11,  // 96: pom.v1.PomService.GetDiscoveryRun:input_type -> pom.v1.GetDiscoveryRunRequest
-	15,  // 97: pom.v1.PomService.TriggerDiscovery:input_type -> pom.v1.TriggerDiscoveryRequest
-	26,  // 98: pom.v1.PomService.ListInventoryHosts:input_type -> pom.v1.ListInventoryHostsRequest
-	28,  // 99: pom.v1.PomService.GetInventoryHost:input_type -> pom.v1.GetInventoryHostRequest
-	30,  // 100: pom.v1.PomService.DeleteInventoryHost:input_type -> pom.v1.DeleteInventoryHostRequest
-	32,  // 101: pom.v1.PomService.ListInventoryServices:input_type -> pom.v1.ListInventoryServicesRequest
-	34,  // 102: pom.v1.PomService.GetInventoryService:input_type -> pom.v1.GetInventoryServiceRequest
-	36,  // 103: pom.v1.PomService.DeleteInventoryService:input_type -> pom.v1.DeleteInventoryServiceRequest
-	38,  // 104: pom.v1.PomService.ListInventoryRuns:input_type -> pom.v1.ListInventoryRunsRequest
-	40,  // 105: pom.v1.PomService.GetInventoryRun:input_type -> pom.v1.GetInventoryRunRequest
-	42,  // 106: pom.v1.PomService.TriggerInventoryRefresh:input_type -> pom.v1.TriggerInventoryRefreshRequest
-	44,  // 107: pom.v1.PomService.GetInventoryConfig:input_type -> pom.v1.GetInventoryConfigRequest
-	46,  // 108: pom.v1.PomService.UpdateInventoryConfig:input_type -> pom.v1.UpdateInventoryConfigRequest
-	48,  // 109: pom.v1.PomService.DeleteInventoryConfigOverride:input_type -> pom.v1.DeleteInventoryConfigOverrideRequest
-	6,   // 110: pom.v1.PomService.GetTopology:output_type -> pom.v1.GetTopologyResponse
-	14,  // 111: pom.v1.PomService.ListDiscoveryRuns:output_type -> pom.v1.ListDiscoveryRunsResponse
-	12,  // 112: pom.v1.PomService.GetDiscoveryRun:output_type -> pom.v1.GetDiscoveryRunResponse
-	16,  // 113: pom.v1.PomService.TriggerDiscovery:output_type -> pom.v1.TriggerDiscoveryResponse
-	27,  // 114: pom.v1.PomService.ListInventoryHosts:output_type -> pom.v1.ListInventoryHostsResponse
-	29,  // 115: pom.v1.PomService.GetInventoryHost:output_type -> pom.v1.GetInventoryHostResponse
-	31,  // 116: pom.v1.PomService.DeleteInventoryHost:output_type -> pom.v1.DeleteInventoryHostResponse
-	33,  // 117: pom.v1.PomService.ListInventoryServices:output_type -> pom.v1.ListInventoryServicesResponse
-	35,  // 118: pom.v1.PomService.GetInventoryService:output_type -> pom.v1.GetInventoryServiceResponse
-	37,  // 119: pom.v1.PomService.DeleteInventoryService:output_type -> pom.v1.DeleteInventoryServiceResponse
-	39,  // 120: pom.v1.PomService.ListInventoryRuns:output_type -> pom.v1.ListInventoryRunsResponse
-	41,  // 121: pom.v1.PomService.GetInventoryRun:output_type -> pom.v1.GetInventoryRunResponse
-	43,  // 122: pom.v1.PomService.TriggerInventoryRefresh:output_type -> pom.v1.TriggerInventoryRefreshResponse
-	45,  // 123: pom.v1.PomService.GetInventoryConfig:output_type -> pom.v1.GetInventoryConfigResponse
-	47,  // 124: pom.v1.PomService.UpdateInventoryConfig:output_type -> pom.v1.UpdateInventoryConfigResponse
-	49,  // 125: pom.v1.PomService.DeleteInventoryConfigOverride:output_type -> pom.v1.DeleteInventoryConfigOverrideResponse
-	110, // [110:126] is the sub-list for method output_type
-	94,  // [94:110] is the sub-list for method input_type
-	94,  // [94:94] is the sub-list for extension type_name
-	94,  // [94:94] is the sub-list for extension extendee
-	0,   // [0:94] is the sub-list for field type_name
+	53,  // 67: pom.v1.InventoryRunEntityService.service_id:type_name -> google.protobuf.StringValue
+	53,  // 68: pom.v1.InventoryRunEntityService.service_name:type_name -> google.protobuf.StringValue
+	53,  // 69: pom.v1.InventoryRunEntityService.error:type_name -> google.protobuf.StringValue
+	53,  // 70: pom.v1.InventoryRunEntity.host_name:type_name -> google.protobuf.StringValue
+	53,  // 71: pom.v1.InventoryRunEntity.executor_host:type_name -> google.protobuf.StringValue
+	54,  // 72: pom.v1.InventoryRunEntity.duration_seconds:type_name -> google.protobuf.DoubleValue
+	53,  // 73: pom.v1.InventoryRunEntity.error:type_name -> google.protobuf.StringValue
+	23,  // 74: pom.v1.InventoryRunEntity.services:type_name -> pom.v1.InventoryRunEntityService
+	55,  // 75: pom.v1.InventoryRun.started_at:type_name -> google.protobuf.Timestamp
+	55,  // 76: pom.v1.InventoryRun.finished_at:type_name -> google.protobuf.Timestamp
+	22,  // 77: pom.v1.InventoryRun.counts:type_name -> pom.v1.InventoryRunCounts
+	53,  // 78: pom.v1.InventoryRun.error:type_name -> google.protobuf.StringValue
+	59,  // 79: pom.v1.InventorySetting.value:type_name -> google.protobuf.Value
+	59,  // 80: pom.v1.InventorySetting.default_value:type_name -> google.protobuf.Value
+	53,  // 81: pom.v1.InventorySetting.description:type_name -> google.protobuf.StringValue
+	57,  // 82: pom.v1.ListInventoryHostsRequest.has_service:type_name -> google.protobuf.BoolValue
+	57,  // 83: pom.v1.ListInventoryHostsRequest.failing:type_name -> google.protobuf.BoolValue
+	53,  // 84: pom.v1.ListInventoryHostsRequest.executor:type_name -> google.protobuf.StringValue
+	21,  // 85: pom.v1.ListInventoryHostsResponse.hosts:type_name -> pom.v1.InventoryHost
+	21,  // 86: pom.v1.GetInventoryHostResponse.host:type_name -> pom.v1.InventoryHost
+	53,  // 87: pom.v1.ListInventoryServicesRequest.node_id:type_name -> google.protobuf.StringValue
+	57,  // 88: pom.v1.ListInventoryServicesRequest.failing:type_name -> google.protobuf.BoolValue
+	20,  // 89: pom.v1.ListInventoryServicesResponse.services:type_name -> pom.v1.InventoryService
+	20,  // 90: pom.v1.GetInventoryServiceResponse.service:type_name -> pom.v1.InventoryService
+	25,  // 91: pom.v1.ListInventoryRunsResponse.runs:type_name -> pom.v1.InventoryRun
+	25,  // 92: pom.v1.GetInventoryRunResponse.run:type_name -> pom.v1.InventoryRun
+	24,  // 93: pom.v1.GetInventoryRunResponse.entities:type_name -> pom.v1.InventoryRunEntity
+	55,  // 94: pom.v1.TriggerInventoryRefreshResponse.started_at:type_name -> google.protobuf.Timestamp
+	26,  // 95: pom.v1.GetInventoryConfigResponse.settings:type_name -> pom.v1.InventorySetting
+	58,  // 96: pom.v1.UpdateInventoryConfigRequest.values:type_name -> google.protobuf.Struct
+	26,  // 97: pom.v1.UpdateInventoryConfigResponse.settings:type_name -> pom.v1.InventorySetting
+	5,   // 98: pom.v1.PomService.GetTopology:input_type -> pom.v1.GetTopologyRequest
+	13,  // 99: pom.v1.PomService.ListDiscoveryRuns:input_type -> pom.v1.ListDiscoveryRunsRequest
+	11,  // 100: pom.v1.PomService.GetDiscoveryRun:input_type -> pom.v1.GetDiscoveryRunRequest
+	15,  // 101: pom.v1.PomService.TriggerDiscovery:input_type -> pom.v1.TriggerDiscoveryRequest
+	27,  // 102: pom.v1.PomService.ListInventoryHosts:input_type -> pom.v1.ListInventoryHostsRequest
+	29,  // 103: pom.v1.PomService.GetInventoryHost:input_type -> pom.v1.GetInventoryHostRequest
+	31,  // 104: pom.v1.PomService.DeleteInventoryHost:input_type -> pom.v1.DeleteInventoryHostRequest
+	33,  // 105: pom.v1.PomService.ListInventoryServices:input_type -> pom.v1.ListInventoryServicesRequest
+	35,  // 106: pom.v1.PomService.GetInventoryService:input_type -> pom.v1.GetInventoryServiceRequest
+	37,  // 107: pom.v1.PomService.DeleteInventoryService:input_type -> pom.v1.DeleteInventoryServiceRequest
+	39,  // 108: pom.v1.PomService.ListInventoryRuns:input_type -> pom.v1.ListInventoryRunsRequest
+	41,  // 109: pom.v1.PomService.GetInventoryRun:input_type -> pom.v1.GetInventoryRunRequest
+	43,  // 110: pom.v1.PomService.TriggerInventoryRefresh:input_type -> pom.v1.TriggerInventoryRefreshRequest
+	45,  // 111: pom.v1.PomService.GetInventoryConfig:input_type -> pom.v1.GetInventoryConfigRequest
+	47,  // 112: pom.v1.PomService.UpdateInventoryConfig:input_type -> pom.v1.UpdateInventoryConfigRequest
+	49,  // 113: pom.v1.PomService.DeleteInventoryConfigOverride:input_type -> pom.v1.DeleteInventoryConfigOverrideRequest
+	6,   // 114: pom.v1.PomService.GetTopology:output_type -> pom.v1.GetTopologyResponse
+	14,  // 115: pom.v1.PomService.ListDiscoveryRuns:output_type -> pom.v1.ListDiscoveryRunsResponse
+	12,  // 116: pom.v1.PomService.GetDiscoveryRun:output_type -> pom.v1.GetDiscoveryRunResponse
+	16,  // 117: pom.v1.PomService.TriggerDiscovery:output_type -> pom.v1.TriggerDiscoveryResponse
+	28,  // 118: pom.v1.PomService.ListInventoryHosts:output_type -> pom.v1.ListInventoryHostsResponse
+	30,  // 119: pom.v1.PomService.GetInventoryHost:output_type -> pom.v1.GetInventoryHostResponse
+	32,  // 120: pom.v1.PomService.DeleteInventoryHost:output_type -> pom.v1.DeleteInventoryHostResponse
+	34,  // 121: pom.v1.PomService.ListInventoryServices:output_type -> pom.v1.ListInventoryServicesResponse
+	36,  // 122: pom.v1.PomService.GetInventoryService:output_type -> pom.v1.GetInventoryServiceResponse
+	38,  // 123: pom.v1.PomService.DeleteInventoryService:output_type -> pom.v1.DeleteInventoryServiceResponse
+	40,  // 124: pom.v1.PomService.ListInventoryRuns:output_type -> pom.v1.ListInventoryRunsResponse
+	42,  // 125: pom.v1.PomService.GetInventoryRun:output_type -> pom.v1.GetInventoryRunResponse
+	44,  // 126: pom.v1.PomService.TriggerInventoryRefresh:output_type -> pom.v1.TriggerInventoryRefreshResponse
+	46,  // 127: pom.v1.PomService.GetInventoryConfig:output_type -> pom.v1.GetInventoryConfigResponse
+	48,  // 128: pom.v1.PomService.UpdateInventoryConfig:output_type -> pom.v1.UpdateInventoryConfigResponse
+	50,  // 129: pom.v1.PomService.DeleteInventoryConfigOverride:output_type -> pom.v1.DeleteInventoryConfigOverrideResponse
+	114, // [114:130] is the sub-list for method output_type
+	98,  // [98:114] is the sub-list for method input_type
+	98,  // [98:98] is the sub-list for extension type_name
+	98,  // [98:98] is the sub-list for extension extendee
+	0,   // [0:98] is the sub-list for field type_name
 }
 
 func init() { file_pom_v1_pom_proto_init() }
@@ -3933,7 +4030,7 @@ func file_pom_v1_pom_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_pom_v1_pom_proto_rawDesc), len(file_pom_v1_pom_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   52,
+			NumMessages:   53,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

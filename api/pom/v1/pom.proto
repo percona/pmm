@@ -391,33 +391,51 @@ message InventoryRunCounts {
   int32 hosts_answered = 7;
 }
 
-// InventoryRunEntity is one entity a refresh attempted, and what came of it.
+// InventoryRunEntityService is one service on a host, as a refresh saw it.
+message InventoryRunEntityService {
+  // PMM's service ID, when POM could key one.
+  google.protobuf.StringValue service_id = 1;
+  // Its name, so a reader is not left joining UUIDs by hand.
+  google.protobuf.StringValue service_name = 2;
+  // Whether the host returned a usable record for it.
+  bool answered = 3;
+  // Why it did not, when it did not.
+  google.protobuf.StringValue error = 4;
+}
+
+// InventoryRunEntity is one host a refresh attempted, and what came of it.
 //
-// The counters on a run are this list's summary; these are the rows behind them. "5 of
-// 14 answered" cannot say which five, on which host, or which host took a minute, and
-// each of those is the first question asked of a slow or partial refresh.
+// Host-oriented, because a refresh attempts hosts. A flat list of services - which
+// this was - cannot show a machine carrying a PMM client and no database, however
+// many times it is probed, and that machine is the case POM most exists to describe:
+// it is where a database can be installed.
+//
+// One dispatch covers every service on a host, so the host owns the timing and the
+// failure and its services carry only what is theirs. Previously the duration was
+// copied onto each service, which read as several measurements when it was one.
 //
 // Deliberately outcomes and not observations. What the probe *found* lives on the
 // estate, where it is upserted and stays current; a receipt that also carried the
-// attributes would be a second copy of the estate that goes stale the moment the next
-// refresh runs.
+// attributes would be a second copy that goes stale the moment the next refresh runs.
 message InventoryRunEntity {
-  // PMM's service ID, when the entity is a service POM could key.
-  google.protobuf.StringValue service_id = 1;
-  // Its name, carried so a reader is not left joining UUIDs by hand.
-  string service_name = 2;
-  // The host its probe ran on. Unset when nothing could be dispatched for it.
+  // PMM's node ID, the key POM holds this host under.
+  string node_id = 1;
+  // The node's registered name.
+  google.protobuf.StringValue host_name = 2;
+  // The client its probe ran on. Unset when none matched.
   google.protobuf.StringValue executor_host = 3;
-  // name, address or orphaned - how that host was matched, or that it was not.
+  // name, address or orphaned - how that client was matched, or that it was not.
+  // Orphaned is why nothing ran; it is not an error.
   string resolution = 4;
-  // Whether the host returned a usable record for it.
+  // Whether the *host* answered. A different question from whether its services did:
+  // a host with no database answers perfectly well and has no services at all.
   bool answered = 5;
-  // The host's wall clock, dispatch to collected output. Repeated across the services
-  // one host serves, because a single dispatch covers all of them and there is no
-  // per-service time to report.
+  // The host's wall clock, dispatch to collected output.
   google.protobuf.DoubleValue duration_seconds = 6;
   // The host-level failure, when its probe failed.
   google.protobuf.StringValue error = 7;
+  // The services on it. Empty is a meaningful answer, not a gap.
+  repeated InventoryRunEntityService services = 8;
 }
 
 // InventoryRun is one refresh of the estate.
