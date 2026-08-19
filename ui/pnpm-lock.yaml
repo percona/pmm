@@ -170,7 +170,7 @@ importers:
         version: 6.1.1(typescript@6.0.3)(vite@8.2.0(@types/node@20.19.43)(terser@5.49.0)(yaml@2.9.0))
       vitest:
         specifier: ^4.0.0
-        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(vite@8.2.0(@types/node@20.19.43)(sass@1.63.2)(terser@5.49.0)(yaml@2.9.0))
+        version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(vite@8.2.0(@types/node@20.19.43)(terser@5.49.0)(yaml@2.9.0))
 
   apps/pmm-compat:
     dependencies:
@@ -204,6 +204,9 @@ importers:
       rxjs:
         specifier: 7.8.1
         version: 7.8.1
+      tslib:
+        specifier: 2.5.3
+        version: 2.5.3
     devDependencies:
       '@grafana/plugin-e2e':
         specifier: ^1.17.1
@@ -6615,6 +6618,9 @@ packages:
       typescript:
         optional: true
 
+  tslib@2.5.3:
+    resolution: {integrity: sha512-mSxlJJwl3BMEQCUNnxXBU9jP4JBktcEGhURcPR6VQVlnP0FdDEsIaz0C35dXNGLyRfrATNofF0F5p2KPxQgB+w==}
+
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
@@ -9250,7 +9256,7 @@ snapshots:
       '@jest/globals': 29.7.0
       '@types/jest': 29.5.14
       jest: 29.7.0(@types/node@20.19.43)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@swc/core@1.15.47(@swc/helpers@0.5.23))(@types/node@20.19.43)(typescript@5.5.4))
-      vitest: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(vite@8.2.0(@types/node@20.19.43)(sass@1.63.2)(terser@5.49.0)(yaml@2.9.0))
+      vitest: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(vite@8.2.0(@types/node@20.19.43)(terser@5.49.0)(yaml@2.9.0))
 
   '@testing-library/jest-dom@6.10.0(@testing-library/dom@9.3.4)':
     dependencies:
@@ -9554,7 +9560,7 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.1
 
-  '@vitest/mocker@4.1.10(vite@8.2.0(@types/node@20.19.43)(sass@1.63.2)(terser@5.49.0)(yaml@2.9.0))':
+  '@vitest/mocker@4.1.10(vite@8.2.0(@types/node@20.19.43)(terser@5.49.0)(yaml@2.9.0))':
     dependencies:
       '@vitest/spy': 4.1.10
       estree-walker: 3.0.3
@@ -14069,6 +14075,8 @@ snapshots:
     optionalDependencies:
       typescript: 6.0.3
 
+  tslib@2.5.3: {}
+
   tslib@2.8.1: {}
 
   turbo@2.10.8:
@@ -14245,10 +14253,10 @@ snapshots:
       terser: 5.49.0
       yaml: 2.9.0
 
-  vitest@4.1.10(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(vite@8.2.0(@types/node@20.19.43)(sass@1.63.2)(terser@5.49.0)(yaml@2.9.0)):
+  vitest@4.1.10(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(vite@8.2.0(@types/node@20.19.43)(terser@5.49.0)(yaml@2.9.0)):
     dependencies:
       '@vitest/expect': 4.1.10
-      '@vitest/mocker': 4.1.10(vite@8.2.0(@types/node@20.19.43)(sass@1.63.2)(terser@5.49.0)(yaml@2.9.0))
+      '@vitest/mocker': 4.1.10(vite@8.2.0(@types/node@20.19.43)(terser@5.49.0)(yaml@2.9.0))
       '@vitest/pretty-format': 4.1.10
       '@vitest/runner': 4.1.10
       '@vitest/snapshot': 4.1.10
