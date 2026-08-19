@@ -13,12 +13,17 @@ import { Messages } from './ReloadPrompt.messages';
  * Asks before reloading a tab the user is looking at, so an external upgrade cannot
  * discard whatever they are in the middle of. Dismissing only hides the prompt: the
  * tab still reloads on its own once it is hidden.
+ *
+ * The dismissal covers the build it was made against, so a later upgrade asks again
+ * rather than staying silent for as long as the tab lives.
  */
 const ReloadPrompt: FC = () => {
-  const { isOutdated, serverVersion, reload } = useVersion();
-  const [dismissed, setDismissed] = useState(false);
+  const { isOutdated, serverVersion, serverBuild, reload } = useVersion();
+  const [dismissedBuild, setDismissedBuild] = useState<string | null>(null);
 
-  if (!isOutdated || dismissed) {
+  const dismiss = () => setDismissedBuild(serverBuild);
+
+  if (!isOutdated || dismissedBuild === serverBuild) {
     return null;
   }
 
@@ -49,7 +54,7 @@ const ReloadPrompt: FC = () => {
             </Typography>
             <IconButton
               data-testid="reload-prompt-close-button"
-              onClick={() => setDismissed(true)}
+              onClick={dismiss}
               sx={{
                 alignSelf: 'flex-start',
               }}
@@ -66,7 +71,7 @@ const ReloadPrompt: FC = () => {
               {Messages.reload}
             </Button>
             <Button
-              onClick={() => setDismissed(true)}
+              onClick={dismiss}
               data-testid="reload-prompt-dismiss-button"
             >
               {Messages.dismiss}

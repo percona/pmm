@@ -112,9 +112,10 @@ export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
     () => ({
       isOutdated,
       serverVersion: data?.version ?? '',
+      serverBuild: buildId,
       reload,
     }),
-    [isOutdated, data?.version, reload]
+    [isOutdated, data?.version, buildId, reload]
   );
 
   return (

@@ -167,6 +167,7 @@ export const wrapWithVersion = (
     value={{
       isOutdated: false,
       serverVersion: '3.0.0',
+      serverBuild: 'build-3.0.0',
       reload: () => {},
       ...props,
     }}
