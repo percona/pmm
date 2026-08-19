@@ -1,0 +1,28 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package vmretention
+
+import "context"
+
+// Client reads and writes the retention period of the custom resource that backs an
+// externally deployed VictoriaMetrics.
+type Client interface {
+	// Get returns the retention period currently set on the resource.
+	Get(ctx context.Context) (Retention, error)
+	// Set writes the retention period back, failing with a conflict if the resource
+	// changed since it was read.
+	Set(ctx context.Context, retention Retention) error
+}

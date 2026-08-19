@@ -77,6 +77,10 @@ func TestServer(t *testing.T) {
 		nomad.Test(t)
 		nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
 
+		var vmRetention mockVmRetentionService
+		vmRetention.Test(t)
+		vmRetention.On("RequestRetentionUpdate").Return()
+
 		var ha mockHaService
 		ha.Test(t)
 		ha.On("IsLeader").Return(true)
@@ -94,6 +98,7 @@ func TestServer(t *testing.T) {
 			TelemetryService:     &ts,
 			Nomad:                &nomad,
 			HAService:            &ha,
+			VMRetention:          &vmRetention,
 		})
 		require.NoError(t, err)
 		return s

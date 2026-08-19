@@ -105,6 +105,7 @@ import (
 	"github.com/percona/pmm/managed/services/versioncache"
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
+	"github.com/percona/pmm/managed/services/vmretention"
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -685,6 +686,20 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	victoriaMetricsConfigF := kingpin.Flag("victoriametrics-config", "VictoriaMetrics scrape configuration file path").
 		Default("/etc/victoriametrics-promscrape.yml").String()
 
+	// When VictoriaMetrics is deployed separately, retention is a vmstorage start-up flag that
+	// only its operator can change, through the retentionPeriod field of this custom resource.
+	// An empty name disables that reconciliation.
+	vmClusterNameF := kingpin.Flag("vm-cluster-name", "Name of the VictoriaMetrics custom resource to apply data retention to").
+		Envar("PMM_VM_CLUSTER_NAME").String()
+	vmClusterNamespaceF := kingpin.Flag("vm-cluster-namespace", "Namespace of the VictoriaMetrics custom resource; defaults to the current namespace").
+		Envar("PMM_VM_CLUSTER_NAMESPACE").String()
+	vmClusterAPIVersionF := kingpin.Flag("vm-cluster-api-version", "API version of the VictoriaMetrics custom resource").
+		Envar("PMM_VM_CLUSTER_API_VERSION").Default("operator.victoriametrics.com/v1beta1").String()
+	vmClusterKindF := kingpin.Flag("vm-cluster-kind", "Kind of the VictoriaMetrics custom resource").
+		Envar("PMM_VM_CLUSTER_KIND").Default("VMCluster").String()
+	vmClusterResourceF := kingpin.Flag("vm-cluster-resource", "Plural resource name of the VictoriaMetrics custom resource; derived from the kind when empty").
+		Envar("PMM_VM_CLUSTER_RESOURCE").String()
+
 	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default("127.0.0.1:3000").String()
 	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
 
@@ -919,6 +934,19 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	prom.MustRegister(vmalert)
 
+	vmClusterClient, err := vmretention.NewKubeClient(vmretention.KubeParams{
+		Name:       *vmClusterNameF,
+		Namespace:  *vmClusterNamespaceF,
+		APIVersion: *vmClusterAPIVersionF,
+		Kind:       *vmClusterKindF,
+		Resource:   *vmClusterResourceF,
+	})
+	if err != nil {
+		l.Panicf("VictoriaMetrics retention service problem: %+v", err)
+	}
+	vmRetention := vmretention.New(db, vmClusterClient)
+	prom.MustRegister(vmRetention)
+
 	minioClient := minio.New()
 
 	qanClient := getQANClient(sqlDB, *postgresDBNameF, *qanAPIAddrF)
@@ -1060,6 +1088,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Dus:                  dus,
 		HAService:            haService,
 		Nomad:                nomad,
+		VMRetention:          vmRetention,
 		QANClient:            qanClient,
 	}
 
@@ -1174,6 +1203,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	haService.AddLeaderService(ha.NewContextService("versionCache", func(ctx context.Context) error {
 		versionCache.Run(ctx)
+		return nil
+	}))
+
+	// Leader-gated so that exactly one node writes to the custom resource.
+	haService.AddLeaderService(ha.NewContextService("vmRetention", func(ctx context.Context) error {
+		vmRetention.Run(ctx)
 		return nil
 	}))
 
