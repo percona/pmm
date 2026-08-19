@@ -403,7 +403,7 @@ export function OverviewPage() {
     <Stack gap={3}>
       <Stack gap={1}>
         <PomHeader
-          title="PSMDB OpenManager"
+          title="OpenManager"
           subtitle={
             <Typography variant="body2" color="text.secondary">
               Every monitored MongoDB cluster, one table per environment. Unfold

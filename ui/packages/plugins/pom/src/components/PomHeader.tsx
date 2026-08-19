@@ -21,7 +21,7 @@ import { Stack, Typography } from '@mui/material';
  * Page title, subtitle, and a slot for page-level actions.
  *
  * Navigation between Overview and Discovery lives in PMM's sidebar, under the
- * expandable PSMDB OpenManager entry — so this deliberately renders no tabs.
+ * expandable OpenManager entry — so this deliberately renders no tabs.
  */
 export function PomHeader({
   title,

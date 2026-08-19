@@ -331,7 +331,7 @@ export const addSepApps = (): NavItem[] => [
 export const addPom = (): NavItem[] => [
   {
     id: 'pom',
-    text: 'PSMDB OpenManager',
+    text: 'OpenManager',
     icon: MongoIcon,
     url: POM_PATH,
     matches: [POM_PATH],
