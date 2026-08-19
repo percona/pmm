@@ -31,9 +31,11 @@ import { useFolders } from 'hooks/api/useFolders';
 import { useUpdates } from 'contexts/updates';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useHaInfo } from 'hooks/api/useHA';
+import { useAuth } from 'contexts/auth';
 
 export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
+  const { isLoggedIn } = useAuth();
   const { data: serviceTypes } = useServiceTypes({
     enabled: !!user,
     refetchInterval: INTERVALS_MS.SERVICE_TYPES,
@@ -70,18 +72,22 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
     items.push(NAV_QAN);
 
-    if (user && settings) {
-      if (settings.frontend.exploreEnabled && user.isEditor) {
+    if (user) {
+      if (settings?.frontend.exploreEnabled && user.isEditor) {
         items.push(
           addExplore('grafana-metricsdrilldown-app' in settings.frontend.apps)
         );
       }
 
-      if (settings.frontend.unifiedAlertingEnabled) {
-        items.push(addAlerting(settings?.alertingEnabled, user));
-      }
+      items.push(
+        addAlerting(
+          settings?.alertingEnabled,
+          settings?.frontend.unifiedAlertingEnabled,
+          user
+        )
+      );
 
-      if (user.isEditor && settings.advisorEnabled) {
+      if (user.isEditor && settings?.advisorEnabled) {
         items.push(addAdvisors(advisors || []));
       }
 
@@ -94,7 +100,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         // is established; role/flag gating comes with real auth (Option B).
         items.push(...addSepApps());
 
-        if (settings.backupManagementEnabled) {
+        if (settings?.backupManagementEnabled) {
           items.push(NAV_BACKUPS);
         }
 
@@ -102,28 +108,35 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
         items.push(addConfiguration(status, versionInfo));
 
-        items.push(addUsersAndAccess(settings));
+        if (settings) {
+          items.push(addUsersAndAccess(settings));
+        }
       }
 
-      items.push(addAccount(user, colorMode, toggleColorMode));
+      if (isLoggedIn) {
+        items.push(addAccount(user, colorMode, toggleColorMode));
+      }
 
       items.push(NAV_HELP);
-    } else {
+    }
+
+    if (!isLoggedIn) {
       items.push(NAV_SIGN_IN);
     }
 
     return items;
   }, [
+    serviceTypes?.serviceTypes,
+    user,
+    haInfo,
+    folders,
+    settings,
+    colorMode,
+    toggleColorMode,
+    advisors,
     status,
     versionInfo,
-    serviceTypes,
-    folders,
-    user,
-    settings,
-    advisors,
-    colorMode,
-    haInfo,
-    toggleColorMode,
+    isLoggedIn,
   ]);
 
   return (

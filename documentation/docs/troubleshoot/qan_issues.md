@@ -114,5 +114,10 @@ To switch back to the default profile, set `PMM_CLICKHOUSE_CONFIG=default` or re
     - `default-config.xml`: default profile
     - `low-memory-config.xml`: low-memory profile
 
+### Why do I see `?` instead of real query values?
+
+Your application is likely using server-side prepared statements (common with JDBC and ORM frameworks). 
+
+Performance Schema exposes prepared statement parameters as placeholders rather than real values. See [Prepared statements show placeholders instead of values](../use/qan/mysql.md#prepared-statements-show-placeholders-instead-of-values).
 !!! warning "Deprecated: switch-config.sh"
     The `switch-config.sh` script previously used to switch profiles is deprecated as of PMM 3.9.0 and will be removed in a future release. Use `PMM_CLICKHOUSE_CONFIG` instead.
