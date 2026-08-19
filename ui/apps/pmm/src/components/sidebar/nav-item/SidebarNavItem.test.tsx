@@ -150,7 +150,7 @@ describe('SidebarNavItem', () => {
   it('shows dot on root if children has a badge and is hidden', async () => {
     const item: NavTreeItem = {
       id: 'with-badge',
-      icon: 'home',
+      icon: 'pmm-rounded',
       url: '/root',
       children: [
         {

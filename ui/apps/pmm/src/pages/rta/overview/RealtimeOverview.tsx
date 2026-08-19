@@ -11,7 +11,11 @@ import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
 import { DetailsPane } from './details-pane';
 import type { QueryData } from 'types/rta.types';
-import { Icon } from 'components/icon';
+import DynamicFeed from '@mui/icons-material/DynamicFeed';
+import FileDownloadOutlined from '@mui/icons-material/FileDownloadOutlined';
+import Pause from '@mui/icons-material/Pause';
+import PlayArrow from '@mui/icons-material/PlayArrow';
+import Refresh from '@mui/icons-material/Refresh';
 import { Messages } from './RealtimeOverview.messages';
 import { createRealtimeSessionsUrl } from 'utils/link.utils';
 import Stack from '@mui/material/Stack';
@@ -77,7 +81,12 @@ const RealtimeOverviewPage: FC = () => {
       });
     }
 
-    setSearchParams({ serviceIds: newServiceIds });
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete('serviceIds');
+      newServiceIds.forEach((id) => next.append('serviceIds', id));
+      return next;
+    });
   };
 
   if (isLoading) {
@@ -145,9 +154,7 @@ const RealtimeOverviewPage: FC = () => {
                     : 'overview-table-resume-button'
                 }
                 size="medium"
-                startIcon={
-                  fetching ? <Icon name="pause" /> : <Icon name="play-arrow" />
-                }
+                startIcon={fetching ? <Pause /> : <PlayArrow />}
                 disabled={serviceIds.length === 0}
                 color="inherit"
                 variant="text"
@@ -165,7 +172,7 @@ const RealtimeOverviewPage: FC = () => {
                 <Button
                   data-testid="overview-table-refresh-button"
                   size="medium"
-                  startIcon={<Icon name="refresh" />}
+                  startIcon={<Refresh />}
                   onClick={() => refetch()}
                   color="inherit"
                   disableElevation
@@ -178,7 +185,7 @@ const RealtimeOverviewPage: FC = () => {
                   data-testid="overview-table-export-button"
                   size="small"
                   variant="text"
-                  startIcon={<Icon name="file-download" />}
+                  startIcon={<FileDownloadOutlined />}
                   disabled={
                     serviceIds.length === 0 ||
                     table.getPrePaginationRowModel().rows.length === 0
@@ -205,7 +212,7 @@ const RealtimeOverviewPage: FC = () => {
               <Button
                 color="inherit"
                 data-testid="overview-table-all-sessions-button"
-                startIcon={<Icon name="dynamic-feed" />}
+                startIcon={<DynamicFeed />}
                 component={RouterLink}
                 size="medium"
                 to={createRealtimeSessionsUrl(serviceIds)}

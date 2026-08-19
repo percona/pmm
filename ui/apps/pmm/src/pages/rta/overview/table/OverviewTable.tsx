@@ -10,6 +10,14 @@ import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
 import { filterElapsedTime } from './OverviewTable.utils';
+import { useTableUrlState } from 'hooks/utils/useTableUrlState';
+
+const OVERVIEW_TABLE_URL_STATE_OPTIONS = {
+  paramPrefix: 'overview',
+  defaults: {
+    pagination: { pageIndex: 0, pageSize: 25 },
+  },
+};
 
 interface Props {
   queries: QueryData[];
@@ -26,21 +34,19 @@ const OverviewTable: FC<Props> = ({
   actions,
   onRowHover,
 }) => {
-  const { tableProps, refresh } = useNavigableRows<QueryData>({
-    data: queries,
-    onChange: onNavigableQueriesChange,
-  });
+  const { tableProps: navigableTableProps, refresh } =
+    useNavigableRows<QueryData>({
+      data: queries,
+      onChange: onNavigableQueriesChange,
+    });
+  const { tableProps: urlStateTableProps } = useTableUrlState(
+    OVERVIEW_TABLE_URL_STATE_OPTIONS
+  );
 
   return (
     <RealtimeTableWrapper>
       <Table
         tableName="realtime-overview-table"
-        initialState={{
-          pagination: {
-            pageSize: 25,
-            pageIndex: 0,
-          },
-        }}
         columns={OVERVIEW_TABLE_COLUMNS}
         data={queries}
         noDataMessage={Messages.noData}
@@ -54,7 +60,8 @@ const OverviewTable: FC<Props> = ({
             },
           },
         }}
-        {...tableProps}
+        {...navigableTableProps}
+        {...urlStateTableProps}
         enableStickyHeader
         enableGlobalFilter={false}
         enableHiding={false}

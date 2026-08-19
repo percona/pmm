@@ -36,7 +36,13 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-const defaultAgentPingInterval = 10 * time.Second
+const (
+	defaultAgentPingInterval = 10 * time.Second
+	// How long to wait for a pong. Without a deadline a ping on a silently dropped connection
+	// parks until the kernel gives up on the socket, roughly 15 minutes, holding a subscription
+	// and observing nothing in the meantime. See PMM-15310.
+	defaultAgentPingTimeout = 5 * time.Second
+)
 
 // Handler handles agent requests.
 type Handler struct {
@@ -81,18 +87,17 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 	// run pmm-agent state update loop for the current agent.
 	go h.state.runStateChangeHandler(ctx, agent)
 
+	// Ping from its own goroutine. The loop below is the only reader of Requests(), so a ping
+	// waiting for its pong in there stops the queue draining, and a full queue blocks
+	// channel.runReceiver - the one goroutine that can deliver that pong. Nothing can break that
+	// cycle from inside. A slow request handler starves the pong the same way, but only while it
+	// runs, since it is not itself waiting on the pong. See PMM-15310.
+	go h.runPingHandler(ctx, agent)
+
 	h.state.RequestStateUpdate(ctx, agent.id)
 
-	ticker := time.NewTicker(defaultAgentPingInterval)
-	defer ticker.Stop()
 	for {
 		select {
-		case <-ticker.C:
-			err := h.r.ping(ctx, agent)
-			if err != nil {
-				l.Errorf("agent %s ping: %v", agent.id, err)
-			}
-
 		// see unregister and Kick methods
 		case <-agent.kickChan:
 			// already unregistered, no need to call unregister method
@@ -105,7 +110,7 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 			if req == nil {
 				disconnectReason = "done"
 				err = agent.channel.Wait()
-				h.r.unregister(ctx, agent.id, disconnectReason)
+				h.r.unregister(ctx, agent.id, disconnectReason, agent)
 				if err != nil {
 					l.Error(err)
 				}
@@ -170,6 +175,47 @@ func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error { //nolin
 			case nil:
 				l.Errorf("Unexpected request: %+v.", req)
 			}
+		}
+	}
+}
+
+// runPingHandler pings the agent until the stream ends, observing round-trip time and clock drift.
+// A failed ping is reported and nothing more: it cannot tell a dead connection from an agent whose
+// own request loop is busy, so reclaiming a connection is left to the agent's next registration.
+func (h *Handler) runPingHandler(ctx context.Context, agent *pmmAgentInfo) {
+	l := logger.Get(ctx).WithField("agent_id", agent.id)
+
+	ticker := time.NewTicker(defaultAgentPingInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		// see unregister and Kick methods
+		case <-agent.kickChan:
+			return
+
+		case <-ticker.C:
+			pingCtx, cancelPing := context.WithTimeout(ctx, defaultAgentPingTimeout)
+			err := h.r.ping(pingCtx, agent)
+			cancelPing()
+			if err == nil {
+				continue
+			}
+			if ctx.Err() != nil {
+				// The stream is going away, so the failure says nothing about the agent.
+				return
+			}
+
+			// Not fatal: pmm-agent answers Ping from the same loop that runs every other
+			// request, so a long one - a connection check carrying the user's unbounded
+			// --connection-timeout, or gathering software versions - delays the pong while
+			// the connection is perfectly alive. The channel carries no other signal that
+			// tells the two apart, so a dead connection is reclaimed when the agent
+			// reconnects and takes over its own registration instead. See PMM-15310.
+			l.WithError(err).Warn("Failed to ping pmm-agent.")
 		}
 	}
 }

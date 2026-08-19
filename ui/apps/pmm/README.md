@@ -17,7 +17,7 @@ See detailed information about prerequisites and setup [here](../../README.md)
 
 In both cases:
 
-- Check out the lib from https://github.com/percona/percona-ui.
+- Check out the lib from https://github.com/percona/peak-ui.
 - After linking, **uncomment** the `exclude` block in `vite.config.ts` so Vite stops pre-bundling the linked package:
   ```ts
   // exclude: ['@percona/peak-ui'],
@@ -41,12 +41,12 @@ The host's `yarn link` global registry isn't visible inside the devcontainer, so
 
 **Bind-mount a host checkout** — keeps the lib editable from your host IDE:
 
-1. Clone `percona-ui` alongside `pmm` on the host (so it sits at `../percona-ui` relative to the repo root).
+1. Clone `peak-ui` alongside `pmm` on the host (so it sits at `../peak-ui` relative to the repo root).
 2. Uncomment the volume mapping in `docker-compose.dev.yml`
 3. Run `make env-up` then `make env` from the host.
 4. Inside the container:
    ```bash
-   cd /root/go/src/github.com/percona/percona-ui
+   cd /root/go/src/github.com/percona/peak-ui
    yarn install
    yarn link
    pnpm build:watch &       # leave the watcher running
