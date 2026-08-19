@@ -88,6 +88,33 @@ describe('IncidentListPage', () => {
     });
   });
 
+  it('withholds the create button when the list request failed', async () => {
+    mockedApi.get.mockRejectedValue(new Error('Internal Server Error'));
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Failed to load incidents: Internal Server Error/)
+      ).toBeTruthy();
+    });
+    // Creating would hit the backend that just failed, so the action is gone
+    // rather than merely disabled.
+    expect(screen.queryByRole('button', { name: /New incident/i })).toBeNull();
+  });
+
+  it('disables the create button until the list has loaded', async () => {
+    mockedApi.get.mockReturnValue(new Promise(() => {}));
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /New incident/i })
+      ).toBeDisabled();
+    });
+  });
+
   it('creates an incident from the dialog, sending the trimmed name', async () => {
     mockedApi.get.mockResolvedValue(paginated([]));
     mockedApi.post.mockResolvedValue({ data: incident });
