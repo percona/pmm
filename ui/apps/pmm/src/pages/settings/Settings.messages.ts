@@ -1,9 +1,12 @@
+import { PERCONA_SUPPORT_URL } from './Settings.constants';
+
 export const Messages = {
   title: 'Settings',
   tabs: {
     ssh: 'SSH key',
     metrics: 'Metrics resolution',
     advanced: 'Advanced settings',
+    serviceNow: 'ServiceNow connection',
   },
   advanced: {
     validation: {
@@ -100,6 +103,58 @@ export const Messages = {
     placeholder: 'ssh-rsa AAAA...',
     validation: {
       invalidFormat: 'Enter a valid SSH public key (e.g. ssh-rsa, ssh-ed25519)',
+    },
+  },
+  serviceNow: {
+    label: 'ServiceNow connection',
+    description:
+      "Connect this PMM instance to Percona's ServiceNow so features like Support diagnostics can work directly with your support cases. You'll need a Percona Support account with access to your organization's cases.",
+    scopeNote:
+      "This connection applies to the whole PMM instance. Once connected, anyone with access to Support features can send results to your organization's cases.",
+    subscriptionPrompt: "Don't have a Percona Support subscription?",
+    subscriptionLink: PERCONA_SUPPORT_URL,
+    subscriptionLinkText: 'Learn about Percona Support',
+    endpointLabel: 'Receiver endpoint',
+    endpointPlaceholder: 'https://percona.service-now.com/',
+    endpointHelper:
+      'Leave empty to use the receiver bundled with this PMM version.',
+    secretsLegend: 'Credentials',
+    secretHelper: (name: string) => `Sent to SEP as "${name}".`,
+    secretStoredHelper: (name: string) =>
+      `Sent to SEP as "${name}". A value is stored — leave it untouched to keep it.`,
+    status: {
+      configured:
+        'Connected. Support diagnostics can send results to your ServiceNow cases.',
+      notConfigured:
+        "Not configured. Support diagnostics can't send results until these details are saved.",
+      drifted:
+        "The stored details no longer match this deployment's delivery plan. Re-supply the values below.",
+    },
+    noSecrets:
+      "This PMM version's delivery plan declares no credentials, so only the receiver endpoint can be set here.",
+    unavailable:
+      'Support diagnostics delivery is not part of this PMM version, so there is nothing to connect.',
+    saveSuccess: 'ServiceNow connection saved',
+    disconnect: 'Disconnect',
+    disconnectTitle: 'Disconnect ServiceNow?',
+    disconnectBody:
+      'PMM will forget the stored endpoint and credentials, and Support diagnostics will stop sending results until they are supplied again.',
+    disconnectConfirm: 'Disconnect',
+    disconnectCancel: 'Cancel',
+    disconnectSuccess: 'ServiceNow connection removed',
+    validation: {
+      invalidUrl: 'Enter a valid URL (e.g. https://example.service-now.com/)',
+    },
+    errors: {
+      forbidden:
+        "Your account isn't allowed to change this connection. A PMM administrator has to save it.",
+      unauthenticated:
+        "Your session isn't valid for this action anymore. Reload the page and try again.",
+      unreachable:
+        "Couldn't reach the Support diagnostics service. The previous configuration is unchanged.",
+      generic:
+        "Couldn't save the connection. The previous configuration is unchanged.",
+      loadFailed: "Couldn't load the current ServiceNow connection.",
     },
   },
   service: {
