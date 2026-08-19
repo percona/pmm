@@ -19,6 +19,7 @@ const RetryButton: FC = () => (
   <Button
     color="inherit"
     size="small"
+    sx={{ mr: 1 }}
     onClick={() => {
       void retrySepAuth();
     }}
