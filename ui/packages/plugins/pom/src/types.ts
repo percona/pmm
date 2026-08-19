@@ -183,7 +183,19 @@ export interface PomEnvironmentSection {
   services_down: number;
 }
 
-export type PomRunStatus = 'running' | 'success' | 'partial' | 'failed';
+export type PomRunStatus =
+  | 'running'
+  | 'success'
+  | 'partial'
+  | 'failed'
+  /**
+   * Refused before doing any work, because another refresh already held its hosts.
+   *
+   * Not a failure and not a success: it did nothing, deliberately. Recorded rather
+   * than skipped silently so a ten-minute schedule cannot look like it fired and
+   * found nothing.
+   */
+  | 'skipped';
 
 /**
  * What one run mapped and probed.

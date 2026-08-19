@@ -113,6 +113,7 @@ export const RUN_STATUS_LABEL: Record<PomRunStatus, string> = {
   success: 'Success',
   partial: 'Partial',
   failed: 'Failed',
+  skipped: 'Skipped',
 };
 
 export const RUN_STATUS_COLOR: Record<PomRunStatus, ChipProps['color']> = {
@@ -120,6 +121,9 @@ export const RUN_STATUS_COLOR: Record<PomRunStatus, ChipProps['color']> = {
   success: 'success',
   partial: 'warning',
   failed: 'error',
+  // Neither good nor bad: nothing happened, on purpose. Colouring it as a failure
+  // would put a red row in the history every time the schedule met a manual refresh.
+  skipped: 'default',
 };
 
 /**
