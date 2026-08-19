@@ -4011,10 +4011,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#customizable-settings" class="md-nav__link">
+  <a href="#external-databases-are-not-supported" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Customizable settings
+        External databases are not supported
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adjust-data-retention-and-other-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adjust data retention and other settings
       
     </span>
   </a>
@@ -12722,6 +12733,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../release-notes/3.9.1.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.9.1 (2026-08-19)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../release-notes/3.9.0.html" class="md-nav__link">
         
   
@@ -17276,10 +17315,21 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#customizable-settings" class="md-nav__link">
+  <a href="#external-databases-are-not-supported" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Customizable settings
+        External databases are not supported
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adjust-data-retention-and-other-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adjust data retention and other settings
       
     </span>
   </a>
@@ -17827,6 +17877,8 @@ kubectl<span class="w"> </span><span class="nb">wait</span><span class="w"> </sp
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PMM_ADMIN_PASSWORD</span><span class="o">=</span><span class="s2">&quot;your-secure-password&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PMM_CLICKHOUSE_USER</span><span class="o">=</span><span class="s2">&quot;clickhouse_pmm&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PMM_CLICKHOUSE_PASSWORD</span><span class="o">=</span><span class="s2">&quot;clickhouse-password&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PMM_CLICKHOUSE_DATASOURCE_USER</span><span class="o">=</span><span class="s2">&quot;clickhouse_pmm_readonly&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PMM_CLICKHOUSE_DATASOURCE_PASSWORD</span><span class="o">=</span><span class="s2">&quot;clickhouse-readonly-password&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">VMAGENT_remoteWrite_basicAuth_username</span><span class="o">=</span><span class="s2">&quot;victoriametrics_pmm&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">VMAGENT_remoteWrite_basicAuth_password</span><span class="o">=</span><span class="s2">&quot;vm-password&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PG_PASSWORD</span><span class="o">=</span><span class="s2">&quot;postgres-password&quot;</span><span class="w"> </span><span class="se">\</span>
@@ -17834,6 +17886,9 @@ kubectl<span class="w"> </span><span class="nb">wait</span><span class="w"> </sp
 <span class="w">  </span>--namespace<span class="w"> </span>pmm
 </code></pre></div></p>
 </li>
+</ol>
+<p><code>PMM_CLICKHOUSE_DATASOURCE_*</code> must use a read-only ClickHouse user, separate from <code>PMM_CLICKHOUSE_USER</code>. Create it on your ClickHouse cluster first. See <a href="../reference/third-party/clickhouse.html#restrict-the-clickhouse-data-source-to-a-read-only-user">Restrict the ClickHouse data source to a read-only user</a>.</p>
+<ol>
 <li>
 <p>Install PMM HA:
   <div class="highlight"><pre><span></span><code>helm<span class="w"> </span>install<span class="w"> </span>pmm-ha<span class="w"> </span>percona/pmm-ha<span class="w"> </span>--namespace<span class="w"> </span>pmm
@@ -17941,6 +17996,8 @@ kubectl<span class="w"> </span><span class="nb">wait</span><span class="w"> </sp
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PMM_ADMIN_PASSWORD</span><span class="o">=</span><span class="s2">&quot;your-secure-password&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PMM_CLICKHOUSE_USER</span><span class="o">=</span><span class="s2">&quot;clickhouse_pmm&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PMM_CLICKHOUSE_PASSWORD</span><span class="o">=</span><span class="s2">&quot;your-clickhouse-password&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PMM_CLICKHOUSE_DATASOURCE_USER</span><span class="o">=</span><span class="s2">&quot;clickhouse_pmm_readonly&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PMM_CLICKHOUSE_DATASOURCE_PASSWORD</span><span class="o">=</span><span class="s2">&quot;your-clickhouse-readonly-password&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">VMAGENT_remoteWrite_basicAuth_username</span><span class="o">=</span><span class="s2">&quot;victoriametrics_pmm&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">VMAGENT_remoteWrite_basicAuth_password</span><span class="o">=</span><span class="s2">&quot;your-vm-password&quot;</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--from-literal<span class="o">=</span><span class="nv">PG_PASSWORD</span><span class="o">=</span><span class="s2">&quot;your-postgres-password&quot;</span><span class="w"> </span><span class="se">\</span>
@@ -17965,6 +18022,8 @@ kubectl<span class="w"> </span><span class="nb">wait</span><span class="w"> </sp
 <span class="w">      </span><span class="nt">PMM_ADMIN_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-secure-password&quot;</span>
 <span class="w">      </span><span class="nt">PMM_CLICKHOUSE_USER</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;clickhouse_pmm&quot;</span>
 <span class="w">      </span><span class="nt">PMM_CLICKHOUSE_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-clickhouse-password&quot;</span>
+<span class="w">      </span><span class="nt">PMM_CLICKHOUSE_DATASOURCE_USER</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;clickhouse_pmm_readonly&quot;</span>
+<span class="w">      </span><span class="nt">PMM_CLICKHOUSE_DATASOURCE_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-clickhouse-readonly-password&quot;</span>
 <span class="w">      </span><span class="nt">VMAGENT_remoteWrite_basicAuth_username</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;victoriametrics_pmm&quot;</span>
 <span class="w">      </span><span class="nt">VMAGENT_remoteWrite_basicAuth_password</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-vm-password&quot;</span>
 <span class="w">      </span><span class="nt">PG_PASSWORD</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-postgres-password&quot;</span>
@@ -18444,26 +18503,32 @@ kubectl<span class="w"> </span><span class="nb">wait</span><span class="w"> </sp
 <span class="w">    </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;8Gi&quot;</span>
 </code></pre></div>
 <h3 id="customize-environment-variables">Customize environment variables<a class="headerlink" href="#customize-environment-variables" title="Permanent link">&para;</a></h3>
-<p>PMM HA uses environment variables to control its behavior. The HA-specific variables are pre-configured for optimal cluster operation, while data retention and other settings can be customized to match your requirements.</p>
+<p>PMM HA uses environment variables to control its behavior. Some are pre-configured by the Helm chart and should stay as they are. Others, like data retention, you can adjust to match your requirements.</p>
 <h4 id="pre-configured-ha-variables">Pre-configured HA variables<a class="headerlink" href="#pre-configured-ha-variables" title="Permanent link">&para;</a></h4>
-<p>These variables are automatically set and manage critical cluster functions like leader election, gossip communication, and database integration:</p>
+<p>The Helm chart sets these variables automatically. They control how the replicas find each other, elect a leader, and connect to the shared databases. </p>
+<p>Leave these values unchanged, as modifying them can break the cluster:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">pmmEnv</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">PMM_ENABLE_UPDATES</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="w">                   </span><span class="c1"># Updates managed via Helm (not UI)</span>
+<span class="w">  </span><span class="nt">PMM_ENABLE_UPDATES</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="w">                   </span><span class="c1"># Disables UI updates, which would upgrade one replica only. Update via Helm to keep all replicas in sync</span>
 <span class="w">  </span><span class="nt">PMM_HA_ENABLE</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w">                        </span><span class="c1"># Enable HA clustering</span>
 <span class="w">  </span><span class="nt">PMM_HA_GOSSIP_PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;9096&quot;</span><span class="w">                </span><span class="c1"># Gossip protocol port</span>
 <span class="w">  </span><span class="nt">PMM_HA_RAFT_PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;9097&quot;</span><span class="w">                  </span><span class="c1"># Raft consensus port</span>
 <span class="w">  </span><span class="nt">PMM_HA_GRAFANA_GOSSIP_PORT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;9094&quot;</span><span class="w">        </span><span class="c1"># Grafana gossip port</span>
-<span class="w">  </span><span class="nt">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w">       </span><span class="c1"># Use external ClickHouse</span>
-<span class="w">  </span><span class="nt">PMM_DISABLE_BUILTIN_POSTGRES</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w">         </span><span class="c1"># Use external PostgreSQL</span>
+<span class="w">  </span><span class="nt">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w">       </span><span class="c1"># Disables the ClickHouse inside the pmm-server pod so PMM uses the HA cluster. Does not enable external databases</span>
+<span class="w">  </span><span class="nt">PMM_DISABLE_BUILTIN_POSTGRES</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w">         </span><span class="c1"># Disables the PostgreSQL inside the pmm-server pod so PMM uses the HA cluster. Does not enable external databases</span>
 <span class="w">  </span><span class="nt">PMM_CLICKHOUSE_IS_CLUSTER</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span><span class="w">            </span><span class="c1"># Enable ClickHouse clustering</span>
 </code></pre></div>
-<p>These variables are tested and validated for the HA architecture - modifying them is not recommended. PMM updates are managed through Helm chart upgrades rather than the UI to ensure consistency across all replicas.</p>
-<h4 id="customizable-settings">Customizable settings<a class="headerlink" href="#customizable-settings" title="Permanent link">&para;</a></h4>
-<p>Adjust these variables in your <code>values.yaml</code> to match your monitoring requirements:
-<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">pmmEnv</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">PMM_DATA_RETENTION</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2160h&quot;</span><span class="w">  </span><span class="c1"># Adjust based on your retention policy (default: 90 days)</span>
-<span class="w">    </span><span class="c1"># Add other environment variables as needed</span>
-</code></pre></div></p>
+<h4 id="external-databases-are-not-supported">External databases are not supported<a class="headerlink" href="#external-databases-are-not-supported" title="Permanent link">&para;</a></h4>
+<p>PMM HA comes with its own ClickHouse, VictoriaMetrics, and PostgreSQL. They run as separate pods, but they belong to the PMM deployment: the Helm chart sets them up and keeps them running for you.</p>
+<p>You can&rsquo;t swap these databases for ones you run yourself, like an existing ClickHouse cluster or RDS. The chart controls where PMM connects, and that can&rsquo;t be changed.</p>
+<p>If you&rsquo;re used to standalone PMM, note that <code>PMM_DISABLE_BUILTIN_CLICKHOUSE</code> and <code>PMM_DISABLE_BUILTIN_POSTGRES</code> work differently here. In standalone, they let you switch to your own database. In HA, they&rsquo;re part of the internal setup and must stay set to <code>1</code>.</p>
+<h4 id="adjust-data-retention-and-other-settings">Adjust data retention and other settings<a class="headerlink" href="#adjust-data-retention-and-other-settings" title="Permanent link">&para;</a></h4>
+<p>Set customizable variables in your <code>values.yaml</code> to match your monitoring requirements. </p>
+<p>Choose a retention period that matches your compliance requirements and storage capacity. For example, <code>720h</code> keeps 30 days of data and <code>4320h</code> keeps 180 days:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">pmmEnv</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">PMM_DATA_RETENTION</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2160h&quot;</span><span class="w">  </span><span class="c1"># Adjust based on your retention policy (default: 90 days)</span>
+<span class="w">  </span><span class="c1"># Add other environment variables as needed</span>
+</code></pre></div>
+<p>For all available variables, see <a href="install-pmm-server/deployment-options/docker/env_var.html">PMM environment variables</a>.</p>
 <h4 id="common-customizations">Common customizations<a class="headerlink" href="#common-customizations" title="Permanent link">&para;</a></h4>
 <ul>
 <li><strong>Data retention</strong>: Set <code>PMM_DATA_RETENTION</code> based on your compliance requirements and storage capacity (e.g., <code>720h</code> for 30 days, <code>4320h</code> for 180 days)</li>
@@ -18982,7 +19047,7 @@ kubectl<span class="w"> </span>get<span class="w"> </span>pvc<span class="w"> </
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="February 5, 2026 14:46:56 UTC">February 5, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 19, 2026 15:09:14 UTC">August 19, 2026</span>
   </span>
 
     

@@ -11860,6 +11860,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Incorrect metrics: unrealistic query execution times">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-do-i-see-instead-of-real-query-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why do I see ? instead of real query values?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -11914,10 +11931,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#why-do-i-see-instead-of-real-query-values" class="md-nav__link">
+  <a href="#override-built-in-clickhouse-settings" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why do I see ? instead of real query values?
+        Override built-in ClickHouse settings
       
     </span>
   </a>
@@ -12091,6 +12108,34 @@
     
   
     Release notes index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-notes/3.9.1.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.9.1 (2026-08-19)
   
 
     
@@ -16435,6 +16480,23 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Incorrect metrics: unrealistic query execution times">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-do-i-see-instead-of-real-query-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why do I see ? instead of real query values?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -16489,10 +16551,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 </li>
         
           <li class="md-nav__item">
-  <a href="#why-do-i-see-instead-of-real-query-values" class="md-nav__link">
+  <a href="#override-built-in-clickhouse-settings" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why do I see ? instead of real query values?
+        Override built-in ClickHouse settings
       
     </span>
   </a>
@@ -16559,6 +16621,9 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <span class="k">SHOW</span><span class="w"> </span><span class="n">pg_stat_monitor</span><span class="p">.</span><span class="n">pgsm_enable_query_plan</span><span class="p">;</span>
 </code></pre></div>
 <p>After disabling query plan collection, new metrics should show realistic execution times within minutes. </p>
+<h3 id="why-do-i-see-instead-of-real-query-values">Why do I see <code>?</code> instead of real query values?<a class="headerlink" href="#why-do-i-see-instead-of-real-query-values" title="Permanent link">&para;</a></h3>
+<p>Your application is likely using server-side prepared statements (common with JDBC and ORM frameworks). </p>
+<p>Performance Schema exposes prepared statement parameters as placeholders rather than real values. See <a href="../use/qan/mysql.html#prepared-statements-show-placeholders-instead-of-values">Prepared statements show placeholders instead of values</a>.</p>
 <h2 id="qan-service-fails-after-upgrade">QAN service fails after upgrade<a class="headerlink" href="#qan-service-fails-after-upgrade" title="Permanent link">&para;</a></h2>
 <p>After upgrading PMM Server, the QAN service may fail to start with <code>BACKOFF</code>, <code>FATAL</code>, or <code>EXITED</code> status, preventing the QAN dashboard from loading. You&rsquo;ll see the following error in <code>/srv/logs/qan-api2.log</code>, where <code>x</code> is the migration version number:
 <div class="highlight"><pre><span></span><code>stdlog: Migrations: Dirty database version x. Fix and force version.
@@ -16631,14 +16696,29 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 <li><code>default-config.xml</code>: default profile</li>
 <li><code>low-memory-config.xml</code>: low-memory profile</li>
 </ul>
+<p>PMM points ClickHouse at <code>config.xml</code> and <code>users.xml</code>, which are symlinks to the files of the selected profile.</p>
 </div>
-<h3 id="why-do-i-see-instead-of-real-query-values">Why do I see <code>?</code> instead of real query values?<a class="headerlink" href="#why-do-i-see-instead-of-real-query-values" title="Permanent link">&para;</a></h3>
-<p>Your application is likely using server-side prepared statements (common with JDBC and ORM frameworks). </p>
-<p>Performance Schema exposes prepared statement parameters as placeholders rather than real values. See <a href="../use/qan/mysql.html#prepared-statements-show-placeholders-instead-of-values">Prepared statements show placeholders instead of values</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Deprecated: switch-config.sh</p>
 <p>The <code>switch-config.sh</code> script previously used to switch profiles is deprecated as of PMM 3.9.0 and will be removed in a future release. Use <code>PMM_CLICKHOUSE_CONFIG</code> instead.</p>
 </div>
+<h3 id="override-built-in-clickhouse-settings">Override built-in ClickHouse settings<a class="headerlink" href="#override-built-in-clickhouse-settings" title="Permanent link">&para;</a></h3>
+<p>To change settings without editing the profile files, add a drop-in file inside the PMM Server container:</p>
+<ul>
+<li><code>/etc/clickhouse-server/config.d/</code> for server settings</li>
+<li><code>/etc/clickhouse-server/users.d/</code> for users, profiles and quotas</li>
+</ul>
+<p>ClickHouse merges drop-ins over the profile in use, so the same files apply to both the default and low-memory profiles. For example, to change the password of the read-only data source user, create <code>/etc/clickhouse-server/users.d/pmm-datasource.xml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;clickhouse&gt;</span>
+<span class="w">    </span><span class="nt">&lt;users&gt;</span>
+<span class="w">        </span><span class="nt">&lt;grafana&gt;</span>
+<span class="w">            </span><span class="nt">&lt;password_sha256_hex&gt;</span>your-sha256-hash<span class="nt">&lt;/password_sha256_hex&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/grafana&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/users&gt;</span>
+<span class="nt">&lt;/clickhouse&gt;</span>
+</code></pre></div>
+<p>Set <code>PMM_CLICKHOUSE_DATASOURCE_PASSWORD</code> to the same password so Grafana connects with the new credentials, then restart ClickHouse. Drop-ins are not preserved when the container is recreated, so mount them from the host if you need them to persist.</p>
+<p>If you set <code>PMM_CLICKHOUSE_DATABASE</code> to something other than <code>pmm</code>, use a drop-in to update the data source user&rsquo;s grant, since the shipped grant names <code>pmm</code> explicitly.</p>
 
 
 
@@ -16661,7 +16741,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 18, 2026 14:33:13 UTC">August 18, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 19, 2026 15:09:14 UTC">August 19, 2026</span>
   </span>
 
     

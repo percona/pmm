@@ -7,7 +7,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="You can use an external ClickHouse database instance outside the PMM Server container running on other hosts.">
+        <meta name="description" content="Use an external ClickHouse instance when you want PMM to store Query Analytics data outside the pmm-server container, on a host or cluster you manage yourself.">
       
       
         <meta name="author" content="Percona LLC">
@@ -11945,6 +11945,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../release-notes/3.9.1.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PMM 3.9.1 (2026-08-19)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../release-notes/3.9.0.html" class="md-nav__link">
         
   
@@ -12635,10 +12663,55 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
+  <a href="#environment-variables-for-external-clickhouse" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Environment variables
+        Environment variables for external ClickHouse
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment variables for external ClickHouse">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#optional-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional environment variables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional environment variables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restrict-the-clickhouse-data-source-to-a-read-only-user" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restrict the ClickHouse data source to a read-only user
       
     </span>
   </a>
@@ -16308,10 +16381,55 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
+  <a href="#environment-variables-for-external-clickhouse" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Environment variables
+        Environment variables for external ClickHouse
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Environment variables for external ClickHouse">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#optional-environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optional environment variables
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Optional environment variables">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restrict-the-clickhouse-data-source-to-a-read-only-user" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Restrict the ClickHouse data source to a read-only user
       
     </span>
   </a>
@@ -16369,35 +16487,87 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="use-external-clickhouse-with-pmm">Use external ClickHouse with PMM<a class="headerlink" href="#use-external-clickhouse-with-pmm" title="Permanent link">&para;</a></h1>
-<p>You can use an external ClickHouse database instance outside the PMM Server container running on other hosts.</p>
-<h2 id="environment-variables">Environment variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
-<p>PMM predefines certain flags that allow you to use ClickHouse parameters as environment variables.</p>
-<p>To use ClickHouse as an external database instance, provide the following environment variables: </p>
-<dl>
-<dt><code>PMM_CLICKHOUSE_ADDR</code> -&gt; hostname:port</dt>
-<dd>Name of the host and port of the external ClickHouse database instance. </dd>
-<dt><code>PMM_CLICKHOUSE_HOST</code> -&gt; hostname</dt>
-<dd>Hostname of the external ClickHouse database.</dd>
-<dt><code>PMM_CLICKHOUSE_PORT</code> -&gt; port</dt>
-<dd>Port of the external ClickHouse database.</dd>
-<dt><code>PMM_CLICKHOUSE_USER</code> -&gt; username</dt>
-<dd>Username to connect to the external ClickHouse database.</dd>
-<dt><code>PMM_CLICKHOUSE_PASSWORD</code> -&gt; password</dt>
-<dd>User password to connect to the external ClickHouse database.</dd>
-<dt><code>PMM_DISABLE_BUILTIN_CLICKHOUSE</code> -&gt; 1</dt>
-<dd>Disables the built-in ClickHouse database instance.</dd>
-</dl>
-<p><strong>Optional environment variables</strong></p>
-<dl>
-<dt><code>PMM_CLICKHOUSE_DATABASE</code> -&gt; database name</dt>
-<dd>Database name of the external ClickHouse database instance.</dd>
-</dl>
-<p><strong>Example</strong></p>
+<p>Use an external ClickHouse instance when you want PMM to store Query Analytics data outside the <code>pmm-server</code> container, on a host or cluster you manage yourself.</p>
+<p>This applies to standalone PMM deployments. If you&rsquo;re running PMM HA Cluster, PMM&rsquo;s Helm chart deploys and manages ClickHouse for you automatically, using the <a href="../../install-pmm/install-HA-clustered.html#pre-configured-ha-variables">PMM HA environment variables</a> instead of the ones on this page.</p>
+<h2 id="environment-variables-for-external-clickhouse">Environment variables for external ClickHouse<a class="headerlink" href="#environment-variables-for-external-clickhouse" title="Permanent link">&para;</a></h2>
+<p>PMM predefines certain flags that enable you to use ClickHouse parameters as environment variables.</p>
+<p>To use ClickHouse as an external database instance, provide the following environment variables:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PMM_CLICKHOUSE_ADDR</code></td>
+<td><code>hostname:port</code></td>
+<td>Host and port of the external ClickHouse database instance.</td>
+</tr>
+<tr>
+<td><code>PMM_CLICKHOUSE_HOST</code></td>
+<td><code>hostname</code></td>
+<td>Hostname of the external ClickHouse database.</td>
+</tr>
+<tr>
+<td><code>PMM_CLICKHOUSE_PORT</code></td>
+<td><code>port</code></td>
+<td>Port of the external ClickHouse database.</td>
+</tr>
+<tr>
+<td><code>PMM_CLICKHOUSE_USER</code></td>
+<td><code>username</code></td>
+<td>Username to connect to the external ClickHouse database.</td>
+</tr>
+<tr>
+<td><code>PMM_CLICKHOUSE_PASSWORD</code></td>
+<td><code>password</code></td>
+<td>User password to connect to the external ClickHouse database.</td>
+</tr>
+<tr>
+<td><code>PMM_CLICKHOUSE_DATASOURCE_USER</code></td>
+<td><code>username</code></td>
+<td>Username for the <a href="#restrict-the-clickhouse-data-source-to-a-read-only-user">read-only Grafana data source user</a>, required in PMM 3.9.1 and later.</td>
+</tr>
+<tr>
+<td><code>PMM_CLICKHOUSE_DATASOURCE_PASSWORD</code></td>
+<td><code>password</code></td>
+<td>Password for the <a href="#restrict-the-clickhouse-data-source-to-a-read-only-user">read-only Grafana data source user</a>, required in PMM 3.9.1 and later.</td>
+</tr>
+<tr>
+<td><code>PMM_DISABLE_BUILTIN_CLICKHOUSE</code></td>
+<td><code>1</code></td>
+<td>Disables the built-in ClickHouse database instance.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-environment-variables">Optional environment variables<a class="headerlink" href="#optional-environment-variables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PMM_CLICKHOUSE_DATABASE</code></td>
+<td><code>database name</code></td>
+<td>Database name of the external ClickHouse database instance.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h4>
 <p>To use ClickHouse as an external database instance, run PMM in docker or podman with the specified variables for external ClickHouse:</p>
 <div class="highlight"><pre><span></span><code>-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_ADDR</span><span class="o">=</span>&lt;hostname&gt;:&lt;port&gt;
 -e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span>&lt;database-name&gt;
 -e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_USER</span><span class="o">=</span>&lt;username&gt;
 -e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_PASSWORD</span><span class="o">=</span>&lt;password&gt;
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATASOURCE_USER</span><span class="o">=</span>&lt;datasource-username&gt;
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATASOURCE_PASSWORD</span><span class="o">=</span>&lt;datasource-password&gt;
 -e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="o">=</span><span class="m">1</span>
 </code></pre></div>
 <p>Alternatively, you can use the <code>PMM_CLICKHOUSE_HOST</code> and <code>PMM_CLICKHOUSE_PORT</code> variables instead of <code>PMM_CLICKHOUSE_ADDR</code>.</p>
@@ -16406,17 +16576,103 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 -e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATABASE</span><span class="o">=</span>&lt;database-name&gt;
 -e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_USER</span><span class="o">=</span>&lt;username&gt;
 -e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_PASSWORD</span><span class="o">=</span>&lt;password&gt;
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATASOURCE_USER</span><span class="o">=</span>&lt;datasource-username&gt;
+-e<span class="w"> </span><span class="nv">PMM_CLICKHOUSE_DATASOURCE_PASSWORD</span><span class="o">=</span>&lt;datasource-password&gt;
 -e<span class="w"> </span><span class="nv">PMM_DISABLE_BUILTIN_CLICKHOUSE</span><span class="o">=</span><span class="m">1</span>
 </code></pre></div>
+<h2 id="restrict-the-clickhouse-data-source-to-a-read-only-user">Restrict the ClickHouse data source to a read-only user<a class="headerlink" href="#restrict-the-clickhouse-data-source-to-a-read-only-user" title="Permanent link">&para;</a></h2>
+<p>As of PMM 3.9.1, the Grafana ClickHouse data source connects as a dedicated, read-only user instead of the privileged account PMM&rsquo;s Query Analytics service uses to write data into ClickHouse. </p>
+<p>This limits what a signed-in Grafana user can do through the data source, even one with the lowest-privilege <a href="../../admin/roles/index.html">Viewer role</a>.</p>
+<p>Before upgrading to PMM 3.9.1, check whether you need to create this user yourself:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Built-in ClickHouse</label><label for="__tabbed_1_2">External ClickHouse</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>PMM creates and provisions this user for you automatically. No action is required.</p>
+</div>
+<div class="tabbed-block">
+<p class="power-number">Before upgrading to PMM 3.9.1, complete the steps to keep the data source working:</p>
+<ol>
+<li>
+<p>In your ClickHouse server configuration (<code>config.xml</code> or a drop-in file under <code>config.d/</code>), confirm that both settings are enabled:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;access_control_improvements&gt;</span>
+<span class="w">    </span><span class="nt">&lt;settings_constraints_replace_previous&gt;</span>true<span class="nt">&lt;/settings_constraints_replace_previous&gt;</span>
+<span class="w">    </span><span class="nt">&lt;select_from_system_db_requires_grant&gt;</span>true<span class="nt">&lt;/select_from_system_db_requires_grant&gt;</span>
+<span class="nt">&lt;/access_control_improvements&gt;</span>
+</code></pre></div>
+<p>Both are enabled by default from ClickHouse 25.3. You only need to make changes if you are running an older version or have overridden these defaults.</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>settings_constraints_replace_previous</code></td>
+<td>Required for <code>CHANGEABLE_IN_READONLY</code> to work in step 2. Without it, <code>CREATE USER</code> fails with <code>NOT_IMPLEMENTED</code>.</td>
+</tr>
+<tr>
+<td><code>select_from_system_db_requires_grant</code></td>
+<td>Prevents the read-only user from reading <code>system.query_log</code>, which contains the SQL text of every query run on the instance.</td>
+</tr>
+</tbody>
+</table>
+<p>Restart ClickHouse after changing these settings. <code>SYSTEM RELOAD CONFIG</code> and <code>SYSTEM RELOAD USERS</code> do not reload <code>access_control_improvements</code>.</p>
+</li>
+<li>
+<p>Run the following on your external ClickHouse instance to create a dedicated read-only user for PMM. Make sure to replace <code>your-password</code> with a <a href="#enhance-clickhouse-security-for-pmm">strong, randomly generated password</a> and its SHA256 hash:</p>
+<div class="highlight"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">USER</span><span class="w"> </span><span class="n">grafana</span><span class="w"> </span><span class="n">IDENTIFIED</span><span class="w"> </span><span class="k">WITH</span><span class="w"> </span><span class="n">sha256_password</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="s1">&#39;your-password&#39;</span>
+<span class="n">SETTINGS</span><span class="w"> </span><span class="n">readonly</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">max_execution_time</span><span class="w"> </span><span class="n">CHANGEABLE_IN_READONLY</span><span class="p">;</span>
+
+<span class="k">GRANT</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">pmm</span><span class="p">.</span><span class="o">*</span><span class="w"> </span><span class="k">TO</span><span class="w"> </span><span class="n">grafana</span><span class="p">;</span>
+</code></pre></div>
+<p>If you set <code>PMM_CLICKHOUSE_DATABASE</code> to something other than <code>pmm</code>, grant <code>SELECT</code> on that database instead. Grant nothing beyond <code>SELECT</code>. If you restrict the user by network, allow the PMM Server host, since Grafana connects from there.</p>
+<p>If you manage ClickHouse users through configuration files instead, use the XML equivalent:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">&lt;clickhouse&gt;</span>
+<span class="w">    </span><span class="nt">&lt;users&gt;</span>
+<span class="w">        </span><span class="nt">&lt;grafana&gt;</span>
+<span class="w">            </span><span class="nt">&lt;password_sha256_hex&gt;</span>your-password-hash<span class="nt">&lt;/password_sha256_hex&gt;</span>
+<span class="w">            </span><span class="nt">&lt;networks&gt;</span>
+<span class="w">                </span><span class="nt">&lt;ip&gt;</span>::/0<span class="nt">&lt;/ip&gt;</span>
+<span class="w">            </span><span class="nt">&lt;/networks&gt;</span>
+<span class="w">            </span><span class="nt">&lt;profile&gt;</span>readonly<span class="nt">&lt;/profile&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/grafana&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/users&gt;</span>
+<span class="w">    </span><span class="nt">&lt;profiles&gt;</span>
+<span class="w">        </span><span class="nt">&lt;readonly&gt;</span>
+<span class="w">            </span><span class="nt">&lt;readonly&gt;</span>1<span class="nt">&lt;/readonly&gt;</span>
+<span class="w">            </span><span class="nt">&lt;constraints&gt;</span>
+<span class="w">                </span><span class="nt">&lt;max_execution_time&gt;</span>
+<span class="w">                    </span><span class="nt">&lt;changeable_in_readonly&gt;</span>1<span class="nt">&lt;/changeable_in_readonly&gt;</span>
+<span class="w">                </span><span class="nt">&lt;/max_execution_time&gt;</span>
+<span class="w">            </span><span class="nt">&lt;/constraints&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/readonly&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/profiles&gt;</span>
+<span class="nt">&lt;/clickhouse&gt;</span>
+</code></pre></div>
+<p><code>readonly = 1</code> prevents writes, DDL, and all setting changes. The only exception is <code>max_execution_time</code>: the Grafana ClickHouse plugin sets it on every query to enforce its query timeout. </p>
+<p>Without <code>CHANGEABLE_IN_READONLY</code>, every query fails with <em>Cannot modify &lsquo;max_execution_time&rsquo; setting in readonly mode`</em>. </p>
+<p>Do not use <code>readonly = 2</code>. The <a href="https://grafana.com/docs/plugins/grafana-clickhouse-datasource/latest/configure/#clickhouse-user-and-permissions">Grafana plugin documentation</a> advises against it.</p>
+</li>
+<li>
+<p>Set <code>PMM_CLICKHOUSE_DATASOURCE_USER</code> and <code>PMM_CLICKHOUSE_DATASOURCE_PASSWORD</code> to this user&rsquo;s credentials, as shown in the <a href="#example">previous example</a>. </p>
+</li>
+</ol>
+<p>This step is required. If you do not configure the new credentials, PMM cannot authenticate to ClickHouse after the upgrade.</p>
+<p>PMM will not fall back to the privileged <code>PMM_CLICKHOUSE_USER</code> account. This prevents the fallback from reopening the vulnerability that this fix addresses.</p>
+</div>
+</div>
+</div>
 <h2 id="enhance-clickhouse-security-for-pmm">Enhance ClickHouse security for PMM<a class="headerlink" href="#enhance-clickhouse-security-for-pmm" title="Permanent link">&para;</a></h2>
 <p>When configuring PMM to use an external ClickHouse instance, make sure to enforce robust security practices to protect sensitive data and prevent unauthorized access:</p>
 <ul>
-<li>Enable SSL/TLS encryption for all connections</li>
-<li>Ensure that your ClickHouse instance is properly secured and monitored</li>
-<li>Disable empty passwords and plain text passwords</li>
-<li>Define all ClickHouse users explicitly, including permissions, to prevent automatic creation of unsecured users without passwords.</li>
+<li>enable SSL/TLS encryption for all connections</li>
+<li>ensure that your ClickHouse instance is properly secured and monitored</li>
+<li>disable empty passwords and plain text passwords</li>
+<li>define all ClickHouse users explicitly, including permissions, to prevent automatic creation of unsecured users without passwords.</li>
 <li>
-<p>Generate strong, random passwords for the dedicated PMM ClickHouse user. Use the following commands to generate a password and its SHA256 hash (useful for advanced ClickHouse configurations):</p>
+<p>generate strong, random passwords for the dedicated PMM ClickHouse user. Use the following commands to generate a password and its SHA256 hash (useful for advanced ClickHouse configurations):</p>
 <div class="highlight"><pre><span></span><code><span class="nv">PASSWORD</span><span class="o">=</span><span class="k">$(</span>base64<span class="w"> </span>&lt;<span class="w"> </span>/dev/urandom<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-c12<span class="k">)</span>
 <span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PASSWORD</span><span class="s2">&quot;</span><span class="w"> </span><span class="c1"># note it down</span>
 <span class="nb">echo</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$PASSWORD</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sha256sum<span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;-&#39;</span>
@@ -16448,7 +16704,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 10, 2026 13:33:05 UTC">April 10, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 19, 2026 15:09:14 UTC">August 19, 2026</span>
   </span>
 
     
