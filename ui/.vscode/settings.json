@@ -1,5 +1,0 @@
-{
-  "typescript.preferences.autoImportSpecifierExcludeRegexes": ["^@mui/[^/]+$"],
-  "oxc.configPath": "oxlintrc.json",
-  "oxc.fmt.experimental": true
-}
