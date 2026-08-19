@@ -71,7 +71,25 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
     Before upgrading to PMM 3.9.1, complete the steps to keep the data source working:
     {.power-number}
 
-    1. Run the following on your external ClickHouse instance, replacing `your-password` with a [strong, randomly generated password](#enhance-clickhouse-security-for-pmm) and its SHA256 hash:
+    1. In your ClickHouse server configuration (`config.xml` or a drop-in file under `config.d/`), confirm that both settings are enabled:
+
+        ```xml
+        <access_control_improvements>
+            <settings_constraints_replace_previous>true</settings_constraints_replace_previous>
+            <select_from_system_db_requires_grant>true</select_from_system_db_requires_grant>
+        </access_control_improvements>
+        ```
+
+        Both are enabled by default from ClickHouse 25.3. You only need to make changes if you are running an older version or have overridden these defaults.
+
+        | Setting | Purpose |
+        |---|---|
+        | `settings_constraints_replace_previous` | Required for `CHANGEABLE_IN_READONLY` to work in step 2. Without it, `CREATE USER` fails with `NOT_IMPLEMENTED`. |
+        | `select_from_system_db_requires_grant` | Prevents the read-only user from reading `system.query_log`, which contains the SQL text of every query run on the instance. |
+
+        Restart ClickHouse after changing these settings. `SYSTEM RELOAD CONFIG` and `SYSTEM RELOAD USERS` do not reload `access_control_improvements`.
+
+    2. Run the following on your external ClickHouse instance to create a dedicated read-only user for PMM. Make sure to replace `your-password` with a [strong, randomly generated password](#enhance-clickhouse-security-for-pmm) and its SHA256 hash:
 
         ```sql
         CREATE USER grafana IDENTIFIED WITH sha256_password BY 'your-password'
@@ -79,6 +97,8 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
  
         GRANT SELECT ON pmm.* TO grafana;
         ```
+
+        If you set `PMM_CLICKHOUSE_DATABASE` to something other than `pmm`, grant `SELECT` on that database instead. Grant nothing beyond `SELECT`. If you restrict the user by network, allow the PMM Server host, since Grafana connects from there.
  
         If you manage ClickHouse users through configuration files instead, use the XML equivalent:
  
@@ -106,10 +126,18 @@ Before upgrading to PMM 3.9.1, check whether you need to create this user yourse
         </clickhouse>
         ```
 
-        Some ClickHouse versions require `settings_constraints_replace_previous` for the `max_execution_time` constraint to take effect, so check your version if the constraint does not apply.
+        `readonly = 1` prevents writes, DDL, and all setting changes. The only exception is `max_execution_time`: the Grafana ClickHouse plugin sets it on every query to enforce its query timeout. 
+        
+        Without `CHANGEABLE_IN_READONLY`, every query fails with *Cannot modify 'max_execution_time' setting in readonly mode`*. 
+        
+        Do not use `readonly = 2`. The [Grafana plugin documentation](https://grafana.com/docs/plugins/grafana-clickhouse-datasource/latest/configure/#clickhouse-user-and-permissions) advises against it.
 
-    2. Set `PMM_CLICKHOUSE_DATASOURCE_USER` and `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to this user's credentials, as shown in the [previous example](#example). If you skip this step, PMM can't authenticate to ClickHouse after upgrading. PMM won't fall back to the privileged `PMM_CLICKHOUSE_USER` account, because that fallback would reopen the vulnerability this fix closes.
+    3. Set `PMM_CLICKHOUSE_DATASOURCE_USER` and `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to this user's credentials, as shown in the [previous example](#example). 
+    
+    This step is required. If you do not configure the new credentials, PMM cannot authenticate to ClickHouse after the upgrade.
 
+    PMM will not fall back to the privileged `PMM_CLICKHOUSE_USER` account. This prevents the fallback from reopening the vulnerability that this fix addresses.
+    
 ## Enhance ClickHouse security for PMM
 
 When configuring PMM to use an external ClickHouse instance, make sure to enforce robust security practices to protect sensitive data and prevent unauthorized access:
