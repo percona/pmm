@@ -57,7 +57,7 @@ Once the rotation tool has completed, a new encryption key will be generated and
 
 ## Recovery after a corrupted rotation
 
-PMM versions before 3.9.1 contained a bug that corrupted certain credentials during key rotation. If you rotated the encryption key before upgrading to 3.9.1, see [Corrupted credentials after encryption key rotation](../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation) for recovery steps.
+PMM versions before 3.9.1 contained a bug that corrupted certain credentials during key rotation. If you rotated the encryption key before upgrading to 3.9.1, see [Corrupted credentials after encryption key rotation](../../troubleshoot/upgrade_issues.md#corrupted-credentials-after-encryption-key-rotation) for recovery steps.
 
 ## Best practices for custom key management
 
