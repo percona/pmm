@@ -13,6 +13,7 @@ import {
   VersionedService,
 } from 'types/services.types';
 import { OrgRole, User } from 'types/user.types';
+import { createAnonymousUser } from 'contexts/user/user.utils';
 
 export const TEST_USER_ADMIN: User = {
   id: 1,
@@ -62,19 +63,6 @@ export const TEST_USER_VIEWER: User = {
   info: {
     ...TEST_USER_ADMIN.info,
     userId: 3,
-  },
-};
-
-export const TEST_USER_ANONYMOUS: User = {
-  ...TEST_USER_VIEWER,
-  id: 0,
-  login: 'anonymous',
-  name: 'Anonymous',
-  isAnonymous: true,
-  isPMMAdmin: false,
-  info: {
-    ...TEST_USER_ADMIN.info,
-    userId: 0,
   },
 };
 
@@ -180,6 +168,7 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
   },
 };
 
+export const TEST_USER_ANONYMOUS: User = createAnonymousUser();
 // Shape the API returns, before useRealtimeQueries parses the duration.
 export const TEST_RAW_MONGO_DB_QUERY_DATA: RawQueryData = {
   ...TEST_MONGO_DB_QUERY_DATA,
