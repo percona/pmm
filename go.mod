@@ -1,6 +1,6 @@
 module github.com/percona/pmm
 
-go 1.26.5
+go 1.26.6
 
 replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.22.9-percona
 
@@ -61,7 +61,7 @@ require (
 	github.com/prometheus/prometheus v0.313.0
 	github.com/ramr/go-reaper v0.3.1
 	github.com/robfig/cron/v3 v3.0.2-0.20210106135023-bc59245fe10e
-	github.com/sirupsen/logrus v1.9.4
+	github.com/sirupsen/logrus v1.10.0
 	github.com/stretchr/objx v0.5.3
 	github.com/stretchr/testify v1.11.1
 	github.com/tink-crypto/tink-go v0.0.0-20230613075026-d6de17e3f164
@@ -69,11 +69,11 @@ require (
 	go.mongodb.org/mongo-driver v1.17.7
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	go.yaml.in/yaml/v3 v3.0.5
-	golang.org/x/crypto v0.54.0
+	golang.org/x/crypto v0.55.0
 	golang.org/x/sync v0.22.0
 	golang.org/x/sys v0.47.0
-	golang.org/x/text v0.40.0
-	golang.org/x/tools v0.48.0
+	golang.org/x/text v0.41.0
+	golang.org/x/tools v0.49.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260803160001-6ac0973c030d
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d
 	google.golang.org/grpc v1.83.0
@@ -330,11 +330,11 @@ require (
 	go.uber.org/zap v1.28.0 // indirect
 	golang.org/x/arch v0.11.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
-	golang.org/x/mod v0.38.0 // indirect
-	golang.org/x/net v0.57.0 // indirect
+	golang.org/x/mod v0.39.0 // indirect
+	golang.org/x/net v0.58.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/perf v0.0.0-20260409210113-8e83ce0f7b1c // indirect
-	golang.org/x/telemetry v0.0.0-20260708182218-49f421fb7959 // indirect
+	golang.org/x/telemetry v0.0.0-20260811182544-a038080d80e5 // indirect
 	golang.org/x/term v0.45.0 // indirect
 	google.golang.org/appengine v1.6.8-0.20221117013220-504804fb50de // indirect
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.0 // indirect
