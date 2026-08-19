@@ -47,13 +47,19 @@ export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
   }, []);
 
   // Reloading on our own initiative is rationed; doing it because the user asked
-  // is not, so only this path spends the allowance.
+  // is not, so only this path spends the allowance. An allowance that cannot be
+  // written down cannot be enforced either, and reloading anyway is how a build
+  // flapping between HA nodes would reload the tab on every poll, so leave it to
+  // the prompt instead.
   const autoReload = useCallback(() => {
     if (reloading.current || !canAutoReload(Date.now())) {
       return;
     }
 
-    recordAutoReload(Date.now());
+    if (!recordAutoReload(Date.now())) {
+      return;
+    }
+
     reload();
   }, [reload]);
 

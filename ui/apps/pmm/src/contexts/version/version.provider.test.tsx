@@ -171,6 +171,24 @@ describe('VersionProvider', () => {
     expect(reloadPage).not.toHaveBeenCalled();
   });
 
+  it('leaves it to the prompt when the cooldown cannot be stored', () => {
+    const setItem = vi
+      .spyOn(Storage.prototype, 'setItem')
+      .mockImplementation(() => {
+        throw new Error('storage disabled');
+      });
+    const { rerender } = renderProvider(build('abc123'));
+    setVisibility('hidden');
+
+    serveBuild(rerender, build('def456'));
+
+    // reloading without a record of it is what turns an HA build flap into a loop
+    expect(reloadPage).not.toHaveBeenCalled();
+    expect(screen.getByTestId('state')).toHaveTextContent('outdated:3.10.0');
+
+    setItem.mockRestore();
+  });
+
   it('reloads when a stale asset chunk fails to load', () => {
     renderProvider(build('abc123'));
 

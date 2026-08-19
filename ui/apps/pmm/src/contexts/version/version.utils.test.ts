@@ -74,7 +74,11 @@ describe('auto reload cooldown', () => {
     expect(canAutoReload(NOW + AUTO_RELOAD_COOLDOWN_MS)).toBe(true);
   });
 
-  it('allows a reload when storage is unavailable', () => {
+  it('reports that it recorded the reload', () => {
+    expect(recordAutoReload(NOW)).toBe(true);
+  });
+
+  it('reports a refusal instead of throwing when storage is unavailable', () => {
     const getItem = vi
       .spyOn(Storage.prototype, 'getItem')
       .mockImplementation(() => {
@@ -86,8 +90,10 @@ describe('auto reload cooldown', () => {
         throw new Error('storage disabled');
       });
 
-    expect(() => recordAutoReload(NOW)).not.toThrow();
-    expect(canAutoReload(NOW)).toBe(true);
+    // the caller has to decline the reload: with nothing written down the
+    // allowance cannot be enforced on the next poll
+    expect(recordAutoReload(NOW)).toBe(false);
+    expect(() => canAutoReload(NOW)).not.toThrow();
 
     getItem.mockRestore();
     setItem.mockRestore();

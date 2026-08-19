@@ -39,11 +39,16 @@ export const canAutoReload = (now: number) => {
   return lastAt === null || now - lastAt >= AUTO_RELOAD_COOLDOWN_MS;
 };
 
+/**
+ * Notes a reload against the allowance. Returns false when storage refused it,
+ * which browsers configured to block site data do: the record is what makes the
+ * allowance enforceable, so callers must treat a refusal as no allowance at all.
+ */
 export const recordAutoReload = (now: number) => {
   try {
     sessionStorage.setItem(AUTO_RELOAD_STORAGE_KEY, String(now));
+    return true;
   } catch {
-    // Storage can be unavailable or full. The reload still happens, only the
-    // guard against repeating it is lost.
+    return false;
   }
 };
