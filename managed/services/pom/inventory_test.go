@@ -547,47 +547,61 @@ func TestInventoryRunCarriesHostCounters(t *testing.T) {
 	assert.Equal(t, int32(0), counts.GetServicesTotal())
 }
 
-func TestInventoryRunDetailCarriesOutcomesNotObservations(t *testing.T) {
+func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	t.Parallel()
 
-	// The receipt says what was attempted and what came of it. What the probe *found*
-	// belongs to the estate, which is upserted and stays current; carrying it here as
-	// well would be a second copy that goes stale on the next refresh.
+	// A refresh attempts hosts, so the receipt lists hosts. A flat service list -- which
+	// this was -- cannot show a machine carrying a PMM client and no database, however
+	// many times it is probed, and that machine is the case POM most exists to describe.
 	stub := newSEPStub(t, http.StatusOK, `{
 	  "run_id": "r1", "status": "partial",
-	  "started_at": "2026-08-18T12:00:00Z", "finished_at": "2026-08-18T12:00:30Z",
-	  "counts": {"services_total": 2, "services_resolved": 1, "services_orphaned": 1,
-	             "services_answered": 1},
+	  "started_at": "2026-08-19T12:00:00Z", "finished_at": "2026-08-19T12:00:30Z",
+	  "counts": {"services_total": 1, "services_resolved": 1, "services_orphaned": 0,
+	             "services_answered": 1,
+	             "hosts_total": 3, "hosts_probeable": 2, "hosts_answered": 2},
 	  "scope": [], "error": null,
 	  "nodes": [
-	    {"service_id": "s1", "service_name": "mongo-1", "executor_host": "db00",
+	    {"node_id": "n1", "host_name": "db00", "executor_host": "db00",
 	     "resolution": "name", "answered": true, "duration_seconds": 12.5,
-	     "error": null},
-	    {"service_id": null, "service_name": "mongo-2", "executor_host": null,
+	     "error": null,
+	     "services": [{"service_id": "s1", "service_name": "mongo-1",
+	                   "answered": true, "error": null}]},
+	    {"node_id": "n2", "host_name": "pmm-client-node00",
+	     "executor_host": "pmm-client-node00", "resolution": "name",
+	     "answered": true, "duration_seconds": 8.0, "error": null, "services": []},
+	    {"node_id": "n3", "host_name": "stranded", "executor_host": null,
 	     "resolution": "orphaned", "answered": false, "duration_seconds": null,
-	     "error": "no executor host"}
+	     "error": "no executor host", "services": []}
 	  ]
 	}`)
 
 	res, err := stub.service(t).GetInventoryRun(t.Context(), &pomv1.GetInventoryRunRequest{RunId: "r1"})
 
 	require.NoError(t, err)
-	require.Len(t, res.GetEntities(), 2)
+	require.Len(t, res.GetEntities(), 3)
 
-	answered := res.GetEntities()[0]
-	assert.Equal(t, "mongo-1", answered.GetServiceName())
-	assert.Equal(t, "db00", answered.GetExecutorHost().GetValue())
-	assert.True(t, answered.GetAnswered())
-	assert.InDelta(t, 12.5, answered.GetDurationSeconds().GetValue(), 0.001)
+	withDatabase := res.GetEntities()[0]
+	assert.Equal(t, "db00", withDatabase.GetHostName().GetValue())
+	assert.True(t, withDatabase.GetAnswered())
+	assert.InDelta(t, 12.5, withDatabase.GetDurationSeconds().GetValue(), 0.001)
+	require.Len(t, withDatabase.GetServices(), 1)
+	assert.Equal(t, "mongo-1", withDatabase.GetServices()[0].GetServiceName().GetValue())
 
-	// An orphan keeps its row rather than being dropped: "1 of 2 answered" cannot say
-	// which one, and the orphan is the one worth acting on.
-	orphan := res.GetEntities()[1]
+	// The row a service-oriented receipt could not produce at all: probed, answered,
+	// and carrying no services because there is no database on it.
+	bare := res.GetEntities()[1]
+	assert.Equal(t, "pmm-client-node00", bare.GetHostName().GetValue())
+	assert.True(t, bare.GetAnswered())
+	assert.Empty(t, bare.GetServices())
+
+	// An orphan keeps its row rather than being dropped: "2 of 3 answered" cannot say
+	// which one was missed, and the orphan is the one worth acting on.
+	orphan := res.GetEntities()[2]
 	assert.Equal(t, "orphaned", orphan.GetResolution())
 	assert.False(t, orphan.GetAnswered())
 	// Wrappers, not optional scalars: protojson drops an unset optional entirely, so a
-	// service with no id would silently become one with an empty id.
-	assert.Nil(t, orphan.GetServiceId())
+	// host with no executor and no duration would arrive with an empty string and zero.
+	assert.Nil(t, orphan.GetExecutorHost())
 	assert.Nil(t, orphan.GetDurationSeconds())
 	assert.Equal(t, "no executor host", orphan.GetError().GetValue())
 }

@@ -4408,6 +4408,198 @@ var _ interface {
 	ErrorName() string
 } = InventoryRunCountsValidationError{}
 
+// Validate checks the field values on InventoryRunEntityService with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *InventoryRunEntityService) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on InventoryRunEntityService with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// InventoryRunEntityServiceMultiError, or nil if none found.
+func (m *InventoryRunEntityService) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *InventoryRunEntityService) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetServiceId()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InventoryRunEntityServiceValidationError{
+					field:  "ServiceId",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InventoryRunEntityServiceValidationError{
+					field:  "ServiceId",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetServiceId()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return InventoryRunEntityServiceValidationError{
+				field:  "ServiceId",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetServiceName()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InventoryRunEntityServiceValidationError{
+					field:  "ServiceName",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InventoryRunEntityServiceValidationError{
+					field:  "ServiceName",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetServiceName()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return InventoryRunEntityServiceValidationError{
+				field:  "ServiceName",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Answered
+
+	if all {
+		switch v := interface{}(m.GetError()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, InventoryRunEntityServiceValidationError{
+					field:  "Error",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, InventoryRunEntityServiceValidationError{
+					field:  "Error",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetError()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return InventoryRunEntityServiceValidationError{
+				field:  "Error",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return InventoryRunEntityServiceMultiError(errors)
+	}
+
+	return nil
+}
+
+// InventoryRunEntityServiceMultiError is an error wrapping multiple validation
+// errors returned by InventoryRunEntityService.ValidateAll() if the
+// designated constraints aren't met.
+type InventoryRunEntityServiceMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m InventoryRunEntityServiceMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m InventoryRunEntityServiceMultiError) AllErrors() []error { return m }
+
+// InventoryRunEntityServiceValidationError is the validation error returned by
+// InventoryRunEntityService.Validate if the designated constraints aren't met.
+type InventoryRunEntityServiceValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e InventoryRunEntityServiceValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e InventoryRunEntityServiceValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e InventoryRunEntityServiceValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e InventoryRunEntityServiceValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e InventoryRunEntityServiceValidationError) ErrorName() string {
+	return "InventoryRunEntityServiceValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e InventoryRunEntityServiceValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sInventoryRunEntityService.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = InventoryRunEntityServiceValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = InventoryRunEntityServiceValidationError{}
+
 // Validate checks the field values on InventoryRunEntity with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -4430,12 +4622,14 @@ func (m *InventoryRunEntity) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for NodeId
+
 	if all {
-		switch v := interface{}(m.GetServiceId()).(type) {
+		switch v := interface{}(m.GetHostName()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, InventoryRunEntityValidationError{
-					field:  "ServiceId",
+					field:  "HostName",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -4443,23 +4637,21 @@ func (m *InventoryRunEntity) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, InventoryRunEntityValidationError{
-					field:  "ServiceId",
+					field:  "HostName",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetServiceId()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetHostName()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InventoryRunEntityValidationError{
-				field:  "ServiceId",
+				field:  "HostName",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
-
-	// no validation rules for ServiceName
 
 	if all {
 		switch v := interface{}(m.GetExecutorHost()).(type) {
@@ -4550,6 +4742,40 @@ func (m *InventoryRunEntity) validate(all bool) error {
 				cause:  err,
 			}
 		}
+	}
+
+	for idx, item := range m.GetServices() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, InventoryRunEntityValidationError{
+						field:  fmt.Sprintf("Services[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, InventoryRunEntityValidationError{
+						field:  fmt.Sprintf("Services[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return InventoryRunEntityValidationError{
+					field:  fmt.Sprintf("Services[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
 	}
 
 	if len(errors) > 0 {

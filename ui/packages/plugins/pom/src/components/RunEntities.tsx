@@ -20,6 +20,7 @@ import {
   Box,
   Chip,
   CircularProgress,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -97,20 +98,19 @@ export function RunEntities({ run }: { run: PomInventoryRun }) {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell>Service</TableCell>
+            <TableCell>Host</TableCell>
             <TableCell>Executor host</TableCell>
             <TableCell>Matched</TableCell>
             <TableCell>Answered</TableCell>
             <TableCell>Host time</TableCell>
+            <TableCell>Services</TableCell>
             <TableCell>Error</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {entities.map((entity, index) => (
-            <TableRow
-              key={`${entity.service_id ?? entity.service_name}-${index}`}
-            >
-              <TableCell>{entity.service_name}</TableCell>
+          {entities.map((entity) => (
+            <TableRow key={entity.node_id}>
+              <TableCell>{entity.host_name ?? entity.node_id}</TableCell>
               <TableCell>
                 {entity.executor_host ?? (
                   <Unavailable reason="not_applicable" />
@@ -120,8 +120,8 @@ export function RunEntities({ run }: { run: PomInventoryRun }) {
                 <Tooltip
                   title={
                     entity.resolution === 'orphaned'
-                      ? 'No executor host matched this service, so nothing was dispatched for it. Not an error.'
-                      : 'How the service was matched to the host its probe ran on.'
+                      ? 'No executor client matched this host, so nothing was dispatched to it. Not an error.'
+                      : 'How the host was matched to the executor client its probe ran on.'
                   }
                 >
                   <Box component="span">
@@ -141,11 +141,49 @@ export function RunEntities({ run }: { run: PomInventoryRun }) {
                 {entity.duration_seconds == null ? (
                   <Unavailable reason="not_applicable" />
                 ) : (
-                  <Tooltip title="The host's wall clock, dispatch to collected output. Shared by every service on that host, because one dispatch covers them all.">
+                  <Tooltip title="The host's wall clock, dispatch to collected output. One dispatch covers every service on it, so this is measured once.">
                     <Box component="span">
                       {formatHostDuration(entity.duration_seconds)}
                     </Box>
                   </Tooltip>
+                )}
+              </TableCell>
+              <TableCell>
+                {/* Empty is the answer, not a gap: a host with a PMM client and no
+                    database is the case this receipt exists to be able to show. */}
+                {entity.services.length === 0 ? (
+                  <Tooltip title="No MongoDB service PMM knows about on this host.">
+                    <Box component="span" sx={{ color: 'text.disabled' }}>
+                      none
+                    </Box>
+                  </Tooltip>
+                ) : (
+                  <Stack gap={0.25}>
+                    {entity.services.map((service) => (
+                      <Tooltip
+                        key={service.service_id ?? service.service_name}
+                        title={
+                          service.error ??
+                          (service.answered
+                            ? 'Answered this refresh.'
+                            : 'Did not answer.')
+                        }
+                      >
+                        <Box
+                          component="span"
+                          sx={{
+                            color: service.answered
+                              ? 'text.primary'
+                              : 'error.main',
+                            cursor: 'help',
+                          }}
+                        >
+                          {service.service_name ?? service.service_id}
+                          {service.answered ? '' : ' (no answer)'}
+                        </Box>
+                      </Tooltip>
+                    ))}
+                  </Stack>
                 )}
               </TableCell>
               <TableCell>

@@ -104,15 +104,24 @@ type sepRun struct {
 	Nodes []sepRunNode `json:"nodes"`
 }
 
-// sepRunNode is one entity a refresh attempted, from GET /runs/{id}.
+// sepRunNode is one host a refresh attempted, from GET /runs/{id}.
 type sepRunNode struct {
-	ServiceID    *string  `json:"service_id"`
-	ServiceName  string   `json:"service_name"`
-	ExecutorHost *string  `json:"executor_host"`
-	Resolution   string   `json:"resolution"`
-	Answered     bool     `json:"answered"`
-	Duration     *float64 `json:"duration_seconds"`
-	Error        *string  `json:"error"`
+	NodeID       string              `json:"node_id"`
+	HostName     *string             `json:"host_name"`
+	ExecutorHost *string             `json:"executor_host"`
+	Resolution   string              `json:"resolution"`
+	Answered     bool                `json:"answered"`
+	Duration     *float64            `json:"duration_seconds"`
+	Error        *string             `json:"error"`
+	Services     []sepRunNodeService `json:"services"`
+}
+
+// sepRunNodeService is one service on such a host.
+type sepRunNodeService struct {
+	ServiceID   *string `json:"service_id"`
+	ServiceName *string `json:"service_name"`
+	Answered    bool    `json:"answered"`
+	Error       *string `json:"error"`
 }
 
 // sepSetting is one row of GET /config.
