@@ -65,7 +65,7 @@ var rules = map[string]role{
 	"/server.v1.":               admin,
 	"/qan.v1.CollectorService.": viewer,
 	"/qan.v1.QANService.":       viewer,
-	"/pom.":                     viewer,
+	"/om.":                      viewer,
 
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,
@@ -103,10 +103,10 @@ var rules = map[string]role{
 	"/v1/qan":  viewer,
 	"/v1/qan:": viewer,
 
-	// Reading POM is a viewer's business. The writes are qualified by method in
-	// methodRules below -- /v1/pom/inventory can forget rows, change the app's
+	// Reading OM is a viewer's business. The writes are qualified by method in
+	// methodRules below -- /v1/om/inventory can forget rows, change the app's
 	// configuration and run code on database hosts, none of which a viewer may do.
-	"/v1/pom": viewer,
+	"/v1/om": viewer,
 
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
@@ -143,14 +143,14 @@ var methodRules = map[string]role{
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
 
-	// POM's inventory surface reads as viewer (see "/v1/pom" above) but writes here.
+	// OM's inventory surface reads as viewer (see "/v1/om" above) but writes here.
 	//
 	// Refreshing is editor rather than admin. It runs SEP's fixed probe payload on the
 	// hosts it covers -- nothing the caller supplies, no database touched -- and the
 	// per-host refresh is the button beside a row that answers "I just fixed this, is it
 	// healthy now". Requiring admin for that would put the routine question behind the
 	// rarest role.
-	http.MethodPost + " /v1/pom/inventory/runs": editor,
+	http.MethodPost + " /v1/om/inventory/runs": editor,
 
 	// Forgetting a row and changing the app's configuration are both admin. A DELETE is
 	// not suppression -- the row returns on the next refresh if PMM still knows the
@@ -161,10 +161,10 @@ var methodRules = map[string]role{
 	// The trailing slash on the id-bearing paths is not load-bearing: nextPrefix strips
 	// one as its own step, so the slash-less spelling would catch the same requests.
 	// It is kept because it reads as "everything under here" rather than as a path.
-	http.MethodDelete + " /v1/pom/inventory/hosts/":    admin,
-	http.MethodDelete + " /v1/pom/inventory/services/": admin,
-	http.MethodPatch + " /v1/pom/inventory/config":     admin,
-	http.MethodDelete + " /v1/pom/inventory/config/":   admin,
+	http.MethodDelete + " /v1/om/inventory/hosts/":    admin,
+	http.MethodDelete + " /v1/om/inventory/services/": admin,
+	http.MethodPatch + " /v1/om/inventory/config":     admin,
+	http.MethodDelete + " /v1/om/inventory/config/":   admin,
 }
 
 var lbacPrefixes = []string{

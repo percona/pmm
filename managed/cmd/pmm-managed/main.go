@@ -73,7 +73,7 @@ import (
 	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
-	pomv1 "github.com/percona/pmm/api/pom/v1"
+	omv1 "github.com/percona/pmm/api/om/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -96,7 +96,7 @@ import (
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
-	"github.com/percona/pmm/managed/services/pom"
+	"github.com/percona/pmm/managed/services/om"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/realtimeanalytics"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -237,7 +237,7 @@ type gRPCServerDeps struct {
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
 
-	// Where SEP is, optional. Empty means POM builds its document from PMM's own
+	// Where SEP is, optional. Empty means OM builds its document from PMM's own
 	// inventory and metrics alone and records the probe source as disabled.
 	sepURL   string
 	sepToken string
@@ -331,13 +331,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
-	pomSvc := pom.New(deps.db, v1.NewAPI(*deps.vmClient), logrus.WithField("component", "pom"))
-	pomSvc.WithProbeSource(deps.sepURL, deps.sepToken)
-	pomv1.RegisterPomServiceServer(gRPCServer, pomSvc)
+	omSvc := om.New(deps.db, v1.NewAPI(*deps.vmClient), logrus.WithField("component", "om"))
+	omSvc.WithProbeSource(deps.sepURL, deps.sepToken)
+	omv1.RegisterOmServiceServer(gRPCServer, omSvc)
 
 	// Refresh the topology document on a timer, so the run history exists even when
 	// nobody is looking at the page.
-	go pomSvc.Run(ctx)
+	go omSvc.Run(ctx)
 
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
@@ -446,7 +446,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		dumpv1beta1.RegisterDumpServiceHandler,
 
-		pomv1.RegisterPomServiceHandler,
+		omv1.RegisterOmServiceHandler,
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
 
@@ -695,8 +695,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
 
-	// Where SEP is, not where any one of its apps is: POM's on-host facts come from
-	// the pom_discovery app today and the actions apps will come from the same SEP, so
+	// Where SEP is, not where any one of its apps is: OM's on-host facts come from
+	// the om_inventory app today and the actions apps will come from the same SEP, so
 	// each consumer appends its own /api/apps/<module> path. Optional -- with no URL
 	// the probe source reports itself disabled and the document is built from PMM's own
 	// inventory and metrics alone.

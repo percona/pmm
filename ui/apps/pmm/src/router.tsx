@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, createBrowserRouter, useLocation } from 'react-router-dom';
+import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { Settings } from 'pages/settings';
 import { Updates } from 'pages/updates';
 import { UpdateClients } from 'pages/update-clients/UpdateClients';
@@ -12,8 +12,7 @@ import {
   PMM_NEW_NAV_PATH,
   SEP_ATW_PATH,
   SEP_MYSQL_BACKUPS_PATH,
-  POM_PATH,
-  LEGACY_SEP_POM_PATH,
+  OM_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
@@ -21,8 +20,8 @@ import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@sep/plugins-atw';
-import { PomApp } from '@sep/plugins-pom';
-import { PomPage } from 'pom/PomPage';
+import { OmApp } from '@sep/plugins-om';
+import { OmPage } from 'om/OmPage';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import { SepPage } from './sep/SepPage';
 
@@ -31,17 +30,6 @@ import { SepPage } from './sep/SepPage';
 // them that way), so drop the parent prefix and its separator.
 const relativeToNav = (path: string) => path.slice(PMM_NEW_NAV_PATH.length + 1);
 
-/**
- * Send the old `/sep/pom` links to `/pom`, subpath and query intact.
- *
- * `<Navigate to={POM_PATH}>` would drop everything after the mount, landing a
- * bookmarked cluster detail on the overview instead.
- */
-const PomRedirect = () => {
-  const { pathname, search, hash } = useLocation();
-  const moved = pathname.replace(LEGACY_SEP_POM_PATH, POM_PATH);
-  return <Navigate to={`${moved}${search}${hash}`} replace />;
-};
 
 const router = createBrowserRouter(
   [
@@ -118,28 +106,22 @@ const router = createBrowserRouter(
               ),
             },
             {
-              // POM (PSMDB Open Manager) is bespoke like ATW: PomApp composes its
+              // OM (OpenManager) is bespoke like ATW: OmApp composes its
               // own <Routes>, so this must be a splat.
               //
-              // All four pages are under it now. Discovery used to be mounted
+              // All four pages are under it now. Inventory used to be mounted
               // separately inside SepPage, because it read SEP's app directly and
               // needed a bearer minted from the PMM session; pmm-managed proxies the
-              // estate at /v1/pom/inventory, so no POM path in the browser talks to
-              // SEP any more. That is why PomPage rather than SepPage, and why a sick
-              // SEP now shows an error inside a page that still renders instead of
+              // estate at /v1/om/inventory, so no OM path in the browser talks to SEP
+              // any more. That is why OmPage rather than SepPage, and why a sick SEP
+              // now shows an error inside a page that still renders instead of
               // blanking it -- SepAuthGate fails closed.
-              path: `${relativeToNav(POM_PATH)}/*`,
+              path: `${relativeToNav(OM_PATH)}/*`,
               element: (
-                <PomPage>
-                  <PomApp />
-                </PomPage>
+                <OmPage>
+                  <OmApp />
+                </OmPage>
               ),
-            },
-            {
-              // POM answered under /sep for as long as its backend was a SEP app.
-              // Kept so links and bookmarks from that era still land.
-              path: `${relativeToNav(LEGACY_SEP_POM_PATH)}/*`,
-              element: <PomRedirect />,
             },
             {
               path: `${relativeToNav(SEP_MYSQL_BACKUPS_PATH)}/*`,

@@ -23,12 +23,10 @@ export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
 export const SEP_ATW_PATH = `${PMM_NEW_NAV_PATH}/sep/atw`;
 export const SEP_MYSQL_BACKUPS_PATH = `${PMM_NEW_NAV_PATH}/sep/mysql-backups`;
 
-// POM (PSMDB Open Manager) is a PMM page, not a SEP one. Its API is pmm-managed's own
-// `/v1/pom`, authorised by the Grafana session, and no request it makes needs a SEP
-// bearer. It lived under `/sep` for as long as its backend did; `LEGACY_SEP_POM_PATH`
-// redirects the links and bookmarks from that era.
-export const POM_PATH = `${PMM_NEW_NAV_PATH}/pom`;
-export const LEGACY_SEP_POM_PATH = `${PMM_NEW_NAV_PATH}/sep/pom`;
+// OM (OpenManager) is a PMM page, not a SEP one. Its API is pmm-managed's own
+// `/v1/om`, authorised by the Grafana session, and no request it makes needs a SEP
+// bearer -- which is why it sits beside the SEP mounts above rather than under them.
+export const OM_PATH = `${PMM_NEW_NAV_PATH}/om`;
 
 export const INTERVALS_MS = {
   // 5 mins

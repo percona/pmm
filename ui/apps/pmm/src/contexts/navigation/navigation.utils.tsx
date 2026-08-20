@@ -11,7 +11,7 @@ import {
   PMM_NEW_NAV_GRAFANA_PATH,
   SEP_ATW_PATH,
   SEP_MYSQL_BACKUPS_PATH,
-  POM_PATH,
+  OM_PATH,
 } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
@@ -322,44 +322,44 @@ export const addSepApps = (): NavItem[] => [
 ];
 
 /**
- * POM's navigation, deliberately not part of `addSepApps`.
+ * OM's navigation, deliberately not part of `addSepApps`.
  *
  * Those entries are gated as a group on SEP, and the group is expected to gain a
- * flag gate with real auth. POM is served by pmm-managed and reads PMM's own data,
+ * flag gate with real auth. OM is served by pmm-managed and reads PMM's own data,
  * so hiding it when SEP is off or unreachable would hide a working page.
  */
-export const addPom = (): NavItem[] => [
+export const addOm = (): NavItem[] => [
   {
-    id: 'pom',
+    id: 'om',
     text: 'OpenManager',
     icon: MongoIcon,
-    url: POM_PATH,
-    matches: [POM_PATH],
+    url: OM_PATH,
+    matches: [OM_PATH],
     children: [
       {
-        id: 'pom-overview',
+        id: 'om-overview',
         text: 'Overview',
-        url: POM_PATH,
+        url: OM_PATH,
       },
       {
-        id: 'pom-services',
+        id: 'om-services',
         text: 'Services',
-        url: `${POM_PATH}/services`,
-        matches: [`${POM_PATH}/services`],
+        url: `${OM_PATH}/services`,
+        matches: [`${OM_PATH}/services`],
       },
       {
-        // The page a host with no database appears on, which no other POM page can
+        // The page a host with no database appears on, which no other OM page can
         // show: it has no service to be listed through.
-        id: 'pom-hosts',
+        id: 'om-hosts',
         text: 'Hosts',
-        url: `${POM_PATH}/hosts`,
-        matches: [`${POM_PATH}/hosts`],
+        url: `${OM_PATH}/hosts`,
+        matches: [`${OM_PATH}/hosts`],
       },
       {
-        id: 'pom-discovery',
-        text: 'Discovery',
-        url: `${POM_PATH}/discovery`,
-        matches: [`${POM_PATH}/discovery`],
+        id: 'om-inventory',
+        text: 'Inventory',
+        url: `${OM_PATH}/inventory`,
+        matches: [`${OM_PATH}/inventory`],
       },
     ],
   },
