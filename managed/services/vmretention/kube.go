@@ -18,6 +18,7 @@ package vmretention
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -45,7 +46,7 @@ type KubeParams struct {
 	Namespace string
 	// APIVersion of the resource, for example operator.victoriametrics.com/v1beta1.
 	APIVersion string
-	// Kind of the resource, for example VMCluster.
+	// Kind of the resource, for example VMCluster. Required unless Resource is set.
 	Kind string
 	// Resource overrides the plural resource name derived from Kind.
 	Resource string
@@ -56,15 +57,38 @@ type kubeClient struct {
 	name     string
 }
 
-// NewKubeClient returns a client for the custom resource described by params, or nil if
-// reconciliation does not apply: either the resource was not named, or pmm-managed is not
-// running inside a Kubernetes cluster. A nil client is not an error, it is how every
-// non-Kubernetes deployment opts out.
+// NewKubeClient returns a client for the custom resource described by params, or nil if the
+// resource was not named. A nil client is not an error, it is how every deployment whose
+// VictoriaMetrics is not managed by an operator opts out.
+//
+// Naming a resource is a statement of intent, so from there on anything that stops us from
+// reaching it is an error rather than a silent opt-out, pmm-managed not running inside a
+// cluster included. Failing at startup is what keeps a misconfiguration from looking exactly
+// like a deployment that never wanted reconciliation.
+//
 // The interface return is deliberate: a nil Client is how callers learn that reconciliation
-// does not apply, and a typed nil pointer would not compare equal to nil.
+// does not apply, and a nil *kubeClient stored in a Client interface would not compare equal
+// to nil.
 func NewKubeClient(params KubeParams) (Client, error) { //nolint:ireturn
-	if params.Name == "" || os.Getenv("KUBERNETES_SERVICE_HOST") == "" {
+	if params.Name == "" {
 		return nil, nil //nolint:nilnil
+	}
+
+	if params.Kind == "" && params.Resource == "" {
+		return nil, errors.New("the resource to apply data retention to is not identified, set PMM_VM_CLUSTER_KIND or PMM_VM_CLUSTER_RESOURCE")
+	}
+
+	gv, err := schema.ParseGroupVersion(params.APIVersion)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse %q as an API version: %w", params.APIVersion, err)
+	}
+
+	// ParseGroupVersion accepts both an empty string and a bare version, resolving each to
+	// the core API group. A custom resource always has a group, so neither can be right, and
+	// left unchecked they build a client that instead fails on every reconcile.
+	if gv.Group == "" || gv.Version == "" {
+		return nil, fmt.Errorf("%q is not a group-qualified API version, set PMM_VM_CLUSTER_API_VERSION "+
+			"to a group/version such as operator.victoriametrics.com/v1beta1", params.APIVersion)
 	}
 
 	namespace := params.Namespace
@@ -76,14 +100,10 @@ func NewKubeClient(params KubeParams) (Client, error) { //nolint:ireturn
 		namespace = strings.TrimSpace(string(b))
 	}
 
-	gv, err := schema.ParseGroupVersion(params.APIVersion)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse %q as an API version: %w", params.APIVersion, err)
-	}
-
 	cfg, err := rest.InClusterConfig()
 	if err != nil {
-		return nil, fmt.Errorf("failed to build the in-cluster Kubernetes configuration: %w", err)
+		return nil, fmt.Errorf("failed to build the in-cluster Kubernetes configuration; unset "+
+			"PMM_VM_CLUSTER_NAME if VictoriaMetrics is not managed by an operator here: %w", err)
 	}
 
 	client, err := dynamic.NewForConfig(cfg)

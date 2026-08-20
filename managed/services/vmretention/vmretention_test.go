@@ -187,6 +187,36 @@ func TestMetrics(t *testing.T) {
 		assert.InDelta(t, (14 * 24 * time.Hour).Seconds(), testutilGauge(t, svc.mRetention), 0)
 	})
 
+	// Losing leadership has to take the metrics with it. Otherwise a demoted node keeps
+	// exporting the result of its last term, which in a three-node cluster means two nodes
+	// reporting a retention they are no longer responsible for.
+	t.Run("SilentAfterRunReturns", func(t *testing.T) {
+		db := setup(t, 14*24*time.Hour)
+		client := NewMockClient(t)
+		// Already equal to the setting, so the loop only ever reads.
+		client.On("Get", mock.Anything).Return(Retention{Period: "14d", resourceVersion: "1"}, nil)
+
+		svc := New(db, client)
+		ctx, cancel := context.WithCancel(context.Background())
+		done := make(chan struct{})
+		go func() {
+			svc.Run(ctx)
+			close(done)
+		}()
+
+		require.Eventually(t, func() bool { return collect(svc) == 3 }, 10*time.Second, 10*time.Millisecond,
+			"the first reconcile should make the metrics appear")
+
+		cancel()
+		select {
+		case <-done:
+		case <-time.After(10 * time.Second):
+			t.Fatal("Run did not return after the context was canceled")
+		}
+
+		assert.Equal(t, 0, collect(svc), "a node that lost leadership must stop reporting")
+	})
+
 	t.Run("FailureIsReported", func(t *testing.T) {
 		db := setup(t, 14*24*time.Hour)
 		client := NewMockClient(t)
@@ -248,6 +278,46 @@ func TestRetentionPeriod(t *testing.T) {
 	} {
 		assert.Equal(t, tc.expected, retentionPeriod(tc.retention))
 	}
+}
+
+func TestNewKubeClient(t *testing.T) {
+	const (
+		name       = "pmm-vmcluster"
+		apiVersion = "operator.victoriametrics.com/v1beta1"
+	)
+
+	t.Run("NotNamedOptsOut", func(t *testing.T) {
+		client, err := NewKubeClient(KubeParams{APIVersion: apiVersion, Kind: "VMCluster"})
+		require.NoError(t, err)
+		assert.Nil(t, client, "an unnamed resource must disable reconciliation, not fail")
+	})
+
+	t.Run("NoKindOrResource", func(t *testing.T) {
+		_, err := NewKubeClient(KubeParams{Name: name, Namespace: "pmm", APIVersion: apiVersion})
+		require.Error(t, err)
+		// Without this the plural would be derived as "s".
+		assert.Contains(t, err.Error(), "PMM_VM_CLUSTER_KIND")
+	})
+
+	// ParseGroupVersion accepts both of these and resolves them to the core API group, where a
+	// custom resource can never live, so they have to be rejected here rather than a minute later.
+	t.Run("UngroupedAPIVersion", func(t *testing.T) {
+		for _, ungrouped := range []string{"", "v1beta1"} {
+			_, err := NewKubeClient(KubeParams{Name: name, Namespace: "pmm", APIVersion: ungrouped, Kind: "VMCluster"})
+			require.Error(t, err, "API version %q", ungrouped)
+			assert.Contains(t, err.Error(), "PMM_VM_CLUSTER_API_VERSION", "API version %q", ungrouped)
+		}
+	})
+
+	// Naming a resource and then not being in a cluster is a misconfiguration, not an opt-out, so
+	// it has to fail at startup instead of leaving retention silently unapplied.
+	t.Run("NamedButNotInCluster", func(t *testing.T) {
+		t.Setenv("KUBERNETES_SERVICE_HOST", "")
+
+		_, err := NewKubeClient(KubeParams{Name: name, Namespace: "pmm", APIVersion: apiVersion, Kind: "VMCluster"})
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "PMM_VM_CLUSTER_NAME")
+	})
 }
 
 func TestResourceFor(t *testing.T) {

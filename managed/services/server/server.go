@@ -679,9 +679,8 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
-	// Unlike the two reloads above, this one is only a fast path: it reaches the reconcile
-	// loop only if this node is the leader, and the loop's ticker applies the setting
-	// everywhere else.
+
+	// Runs only if this node is a leader, otherwise it's a no-op
 	s.vmRetention.RequestRetentionUpdate()
 
 	err = s.agentsState.UpdateAgentsState(ctx)

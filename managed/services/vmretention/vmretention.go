@@ -44,9 +44,9 @@ const updateBatchDelay = 3 * time.Second
 // Bound a single reconcile against the Kubernetes API.
 const reconcileTimeout = 30 * time.Second
 
-// How often the retention is re-checked. Settings changes are picked up sooner through
-// RequestRetentionUpdate, but only on the node that serves the request; on every
-// other node this ticker is what applies them.
+// How often the leader re-checks the retention. The reconcile loop runs on the leader
+// alone, so RequestRetentionUpdate is a shortcut only when the node serving the settings
+// change is also the leader; otherwise this ticker is what applies the change.
 const reconcileInterval = time.Minute
 
 const (
@@ -89,7 +89,7 @@ type Service struct {
 func New(db *reform.DB, client Client) *Service {
 	l := logrus.WithField("component", "vmretention")
 	if client == nil {
-		l.Info("VictoriaMetrics is not managed by an operator, data retention will not be applied to it.")
+		l.Info("VictoriaMetrics is not managed by an operator, data retention is applied through its supervisord configuration instead.")
 	}
 
 	return &Service{
@@ -128,10 +128,12 @@ func (svc *Service) Describe(ch chan<- *prom.Desc) {
 
 // Collect implements prometheus.Collector.
 //
-// Nothing is collected until a reconcile has actually run, so that the metrics are absent
-// rather than permanently zero where this service does not apply: on deployments whose
-// VictoriaMetrics is not managed by an operator, and on HA nodes that are not the leader and
-// therefore never reconcile. A standing zero would read as a failing reconcile on both.
+// Nothing is collected outside a reconcile loop that has actually run, so that the metrics
+// are absent rather than misleading where this service does not apply: on deployments whose
+// VictoriaMetrics is not managed by an operator, and on HA nodes that do not currently hold
+// leadership and therefore do not reconcile. A standing zero would read as a failing
+// reconcile on both, and a result left over from a past leadership term would read as the
+// cluster's current state.
 func (svc *Service) Collect(ch chan<- prom.Metric) {
 	if svc.client == nil || !svc.reconciled.Load() {
 		return
@@ -150,6 +152,11 @@ func (svc *Service) Run(ctx context.Context) {
 		<-ctx.Done()
 		return
 	}
+
+	// Stop reporting when this leadership term ends. A demoted node's last result is not the
+	// cluster's current state, and leaving the latch set would export a frozen reconcile
+	// timestamp for the rest of the process lifetime.
+	defer svc.reconciled.Store(false)
 
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
@@ -242,7 +249,6 @@ func (svc *Service) reconcile(ctx context.Context) error {
 
 		err = svc.client.Set(ctx, Retention{Period: want, resourceVersion: got.resourceVersion})
 		if err != nil {
-			// Returned unwrapped so that RetryOnConflict can recognize a conflict.
 			return err
 		}
 
@@ -252,6 +258,8 @@ func (svc *Service) reconcile(ctx context.Context) error {
 		return nil
 	})
 	if err != nil {
+		// %w matters beyond context: apierrors.IsConflict resolves through errors.As, so an
+		// exhausted conflict stays recognizable to the log throttle in reconcileWithTimeout.
 		return fmt.Errorf("failed to set retention period to %q: %w", want, err)
 	}
 
