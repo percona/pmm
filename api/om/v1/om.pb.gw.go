@@ -643,7 +643,7 @@ func RegisterOmServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/om.v1.OmService/TriggerTopologyCollection", runtime.WithHTTPPathPattern("/v1/om/topology/runs"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/om.v1.OmService/TriggerTopologyCollection", runtime.WithHTTPPathPattern("/v1/om/topology/runs:collect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -823,7 +823,7 @@ func RegisterOmServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/om.v1.OmService/TriggerInventoryRefresh", runtime.WithHTTPPathPattern("/v1/om/inventory/runs"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/om.v1.OmService/TriggerInventoryRefresh", runtime.WithHTTPPathPattern("/v1/om/inventory/runs:trigger"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -857,7 +857,7 @@ func RegisterOmServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		}
 		forward_OmService_GetInventoryConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPatch, pattern_OmService_UpdateInventoryConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_OmService_UpdateInventoryConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -883,7 +883,7 @@ func RegisterOmServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/om.v1.OmService/DeleteInventoryConfigOverride", runtime.WithHTTPPathPattern("/v1/om/inventory/config/{key}"))
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/om.v1.OmService/DeleteInventoryConfigOverride", runtime.WithHTTPPathPattern("/v1/om/inventory/config/overrides/{key}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -992,7 +992,7 @@ func RegisterOmServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/om.v1.OmService/TriggerTopologyCollection", runtime.WithHTTPPathPattern("/v1/om/topology/runs"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/om.v1.OmService/TriggerTopologyCollection", runtime.WithHTTPPathPattern("/v1/om/topology/runs:collect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1145,7 +1145,7 @@ func RegisterOmServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/om.v1.OmService/TriggerInventoryRefresh", runtime.WithHTTPPathPattern("/v1/om/inventory/runs"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/om.v1.OmService/TriggerInventoryRefresh", runtime.WithHTTPPathPattern("/v1/om/inventory/runs:trigger"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1175,7 +1175,7 @@ func RegisterOmServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		}
 		forward_OmService_GetInventoryConfig_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
-	mux.Handle(http.MethodPatch, pattern_OmService_UpdateInventoryConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle(http.MethodPut, pattern_OmService_UpdateInventoryConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -1196,7 +1196,7 @@ func RegisterOmServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/om.v1.OmService/DeleteInventoryConfigOverride", runtime.WithHTTPPathPattern("/v1/om/inventory/config/{key}"))
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/om.v1.OmService/DeleteInventoryConfigOverride", runtime.WithHTTPPathPattern("/v1/om/inventory/config/overrides/{key}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1216,7 +1216,7 @@ var (
 	pattern_OmService_GetTopology_0                   = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "om", "topology"}, ""))
 	pattern_OmService_ListTopologyRuns_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "topology", "runs"}, ""))
 	pattern_OmService_GetTopologyRun_0                = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "om", "topology", "runs", "run_id"}, ""))
-	pattern_OmService_TriggerTopologyCollection_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "topology", "runs"}, ""))
+	pattern_OmService_TriggerTopologyCollection_0     = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "topology", "runs"}, "collect"))
 	pattern_OmService_ListInventoryHosts_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "hosts"}, ""))
 	pattern_OmService_GetInventoryHost_0              = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "om", "inventory", "hosts", "node_id"}, ""))
 	pattern_OmService_DeleteInventoryHost_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "om", "inventory", "hosts", "node_id"}, ""))
@@ -1225,10 +1225,10 @@ var (
 	pattern_OmService_DeleteInventoryService_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "om", "inventory", "services", "service_id"}, ""))
 	pattern_OmService_ListInventoryRuns_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "runs"}, ""))
 	pattern_OmService_GetInventoryRun_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "om", "inventory", "runs", "run_id"}, ""))
-	pattern_OmService_TriggerInventoryRefresh_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "runs"}, ""))
+	pattern_OmService_TriggerInventoryRefresh_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "runs"}, "trigger"))
 	pattern_OmService_GetInventoryConfig_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "config"}, ""))
 	pattern_OmService_UpdateInventoryConfig_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "config"}, ""))
-	pattern_OmService_DeleteInventoryConfigOverride_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "om", "inventory", "config", "key"}, ""))
+	pattern_OmService_DeleteInventoryConfigOverride_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "om", "inventory", "config", "overrides", "key"}, ""))
 )
 
 var (

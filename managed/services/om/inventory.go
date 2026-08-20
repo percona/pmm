@@ -74,8 +74,8 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 	if req.GetFailing() != nil {
 		query.Set("failing", strconv.FormatBool(req.GetFailing().GetValue()))
 	}
-	if executor := req.GetExecutor().GetValue(); executor != "" {
-		query.Set("executor", executor)
+	if req.GetExecutor() != nil {
+		query.Set("executor", strconv.FormatBool(req.GetExecutor().GetValue()))
 	}
 
 	hosts := []sepHost{}
@@ -264,12 +264,12 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 
 	response := &omv1.TriggerInventoryRefreshResponse{
 		RunId:  accepted.RunID,
-		Status: accepted.Status,
+		Status: sepRunStatusToProto(accepted.Status),
 		Scope:  accepted.Scope,
 	}
 	if accepted.StartedAt != nil {
 		if parsed := parseSepTime(*accepted.StartedAt); parsed != nil {
-			response.StartedAt = parsed
+			response.StartTime = parsed
 		}
 	}
 	return response, nil
@@ -295,6 +295,12 @@ func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryCo
 // The batch is passed through as the app received it and the app decides what is valid,
 // which is what keeps one set of validation rules rather than two. A single bad field
 // rejects the whole batch there and nothing is written.
+//
+// PUT here, PATCH to the app below, deliberately. PMM's API guidelines require the
+// standard Update method to be PUT and every other update in this repo is one; SEP
+// reaches the same overrides through a generic settings router that PATCHes
+// `/{setting_class}` for every app, so the verb there is not this app's to pick.
+// Translating one method is what a proxy is for.
 func (s *Service) UpdateInventoryConfig(ctx context.Context, req *omv1.UpdateInventoryConfigRequest) (*omv1.UpdateInventoryConfigResponse, error) {
 	probe, err := s.inventoryProbe()
 	if err != nil {
@@ -304,12 +310,34 @@ func (s *Service) UpdateInventoryConfig(ctx context.Context, req *omv1.UpdateInv
 		return nil, status.Error(codes.InvalidArgument, "values must name at least one field to change")
 	}
 
-	settings := []sepSetting{}
+	applied := []sepSetting{}
 	call := inventoryCall{method: http.MethodPatch, path: "config", body: req.GetValues().AsMap()}
-	if err := probe.call(ctx, call, &settings); err != nil { //nolint:noinlineerr
+	if err := probe.call(ctx, call, &applied); err != nil { //nolint:noinlineerr
 		return nil, err
 	}
-	return &omv1.UpdateInventoryConfigResponse{Settings: inventorySettingsToProto(settings)}, nil
+
+	// Read the whole configuration back rather than returning the rows the app echoed.
+	//
+	// Two reasons, and the second is the one that matters. The guidelines require an
+	// Update to answer with the resource, not a diff. And the app answers with one row per
+	// key *named in the request*, which is misleading for a nested write: overriding
+	// SCHEDULE as a whole object changes what SCHEDULE__every effectively resolves to, and
+	// no row says so. A caller that trusted the echo would render a stale child beside a
+	// fresh parent.
+	//
+	// This also retires the rule the UI had to follow -- "re-read after a write, never
+	// echo the submitted value" -- by doing it once here, for every caller rather than
+	// only the ones that remembered.
+	current := []sepSetting{}
+	read := inventoryCall{method: http.MethodGet, path: "config"}
+	if err := probe.call(ctx, read, &current); err != nil {
+		// The write landed; only the read-back failed. Reporting an error here would tell
+		// a caller to retry a change that already applied, so answer with the narrower
+		// body the app gave us and log the shortfall.
+		s.l.Warnf("inventory config updated, but reading it back failed: %s", err)
+		return &omv1.UpdateInventoryConfigResponse{Settings: inventorySettingsToProto(applied)}, nil
+	}
+	return &omv1.UpdateInventoryConfigResponse{Settings: inventorySettingsToProto(current)}, nil
 }
 
 // DeleteInventoryConfigOverride reverts one field to its deployed value.
@@ -373,18 +401,18 @@ func inventoryServiceToProto(service sepService) *omv1.InventoryService {
 // inventoryRunToProto projects one refresh for the wire.
 func inventoryRunToProto(run sepRun) *omv1.InventoryRun {
 	return &omv1.InventoryRun{
-		RunId:      run.RunID,
-		Status:     run.Status,
-		StartedAt:  optionalTimestamp(run.StartedAt),
-		FinishedAt: optionalTimestamp(run.FinishedAt),
+		RunId:     run.RunID,
+		Status:    sepRunStatusToProto(run.Status),
+		StartTime: optionalTimestamp(run.StartedAt),
+		EndTime:   optionalTimestamp(run.FinishedAt),
 		Counts: &omv1.InventoryRunCounts{
-			ServicesTotal:    run.Counts.ServicesTotal,
-			ServicesResolved: run.Counts.ServicesResolved,
-			ServicesOrphaned: run.Counts.ServicesOrphaned,
-			ServicesAnswered: run.Counts.ServicesAnswered,
-			HostsTotal:       run.Counts.HostsTotal,
-			HostsProbeable:   run.Counts.HostsProbeable,
-			HostsAnswered:    run.Counts.HostsAnswered,
+			TotalServices:    run.Counts.ServicesTotal,
+			ResolvedServices: run.Counts.ServicesResolved,
+			OrphanedServices: run.Counts.ServicesOrphaned,
+			AnsweredServices: run.Counts.ServicesAnswered,
+			TotalHosts:       run.Counts.HostsTotal,
+			ProbeableHosts:   run.Counts.HostsProbeable,
+			AnsweredHosts:    run.Counts.HostsAnswered,
 		},
 		Scope: run.Scope,
 		Error: optionalString(run.Error),
@@ -417,7 +445,7 @@ func inventoryRunEntitiesToProto(nodes []sepRunNode) []*omv1.InventoryRunEntity 
 			NodeId:          node.NodeID,
 			HostName:        optionalString(node.HostName),
 			ExecutorHost:    optionalString(node.ExecutorHost),
-			Resolution:      node.Resolution,
+			Resolution:      sepResolutionToProto(node.Resolution),
 			Answered:        node.Answered,
 			DurationSeconds: optionalDouble(node.Duration),
 			Error:           optionalString(node.Error),
@@ -436,7 +464,7 @@ func inventorySettingsToProto(settings []sepSetting) []*omv1.InventorySetting {
 			Value:        anyToValue(setting.Value),
 			DefaultValue: anyToValue(setting.DefaultValue),
 			Type:         setting.Type,
-			Reload:       setting.Reload,
+			Reload:       sepReloadToProto(setting.Reload),
 			HasOverride:  setting.HasOverride,
 			IsAdvanced:   setting.IsAdvanced,
 			Description:  optionalString(setting.Description),
@@ -622,4 +650,63 @@ func parseSepTime(stamp string) *timestamppb.Timestamp {
 		return nil
 	}
 	return timestamppb.New(parsed)
+}
+
+// The app's vocabularies, mapped onto the wire enums.
+//
+// Separate from store.go's mappers even where the values coincide, because these translate
+// a *different* system's strings: the app owns them, they arrive over HTTP, and a value OM
+// has never heard of is a real possibility rather than a corrupted row. Every one of these
+// falls through to UNSPECIFIED, which is how "the app said something new" reaches a caller
+// as an unknown rather than as a plausible wrong answer.
+
+// sepRunStatusToProto maps the app's run status onto the wire enum.
+func sepRunStatusToProto(status string) omv1.RunStatus {
+	switch status {
+	case "running":
+		return omv1.RunStatus_RUN_STATUS_RUNNING
+	case "success":
+		return omv1.RunStatus_RUN_STATUS_SUCCESS
+	case "partial":
+		return omv1.RunStatus_RUN_STATUS_PARTIAL
+	case "failed":
+		return omv1.RunStatus_RUN_STATUS_FAILED
+	case "skipped":
+		return omv1.RunStatus_RUN_STATUS_SKIPPED
+	default:
+		return omv1.RunStatus_RUN_STATUS_UNSPECIFIED
+	}
+}
+
+// sepResolutionToProto maps how the app matched a host to an executor client.
+func sepResolutionToProto(resolution string) omv1.ExecutorResolution {
+	switch resolution {
+	case "name":
+		return omv1.ExecutorResolution_EXECUTOR_RESOLUTION_NAME
+	case "address":
+		return omv1.ExecutorResolution_EXECUTOR_RESOLUTION_ADDRESS
+	case "orphaned":
+		return omv1.ExecutorResolution_EXECUTOR_RESOLUTION_ORPHANED
+	default:
+		return omv1.ExecutorResolution_EXECUTOR_RESOLUTION_UNSPECIFIED
+	}
+}
+
+// sepReloadToProto maps a setting's reload class.
+//
+// Mirrors ReloadClassification in the app's settings registry one-for-one. Collapsing
+// nested_only into "not overridable" was the tempting simplification and it is wrong: a
+// nested parent rejects a whole-object write while its children accept one, so a form
+// reading the parent would refuse to edit a leaf the API accepts.
+func sepReloadToProto(reload string) omv1.SettingReload {
+	switch reload {
+	case "hot":
+		return omv1.SettingReload_SETTING_RELOAD_HOT
+	case "nested_only":
+		return omv1.SettingReload_SETTING_RELOAD_NESTED_ONLY
+	case "not_overridable":
+		return omv1.SettingReload_SETTING_RELOAD_NOT_OVERRIDABLE
+	default:
+		return omv1.SettingReload_SETTING_RELOAD_UNSPECIFIED
+	}
 }

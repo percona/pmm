@@ -45,7 +45,7 @@ var (
 // should have to handle. Failure is reported but not fatal -- the document is already
 // published in memory, and losing the record of a collection is worth less than refusing
 // to serve the collection.
-func (s *Service) persist(response *omv1.GetTopologyResponse, run *omv1.Run, originNode string) error {
+func (s *Service) persist(response *omv1.GetTopologyResponse, run *omv1.TopologyRun, originNode string) error {
 	document, err := documentJSON.Marshal(response)
 	if err != nil {
 		return fmt.Errorf("failed to marshal the topology document: %w", err)
@@ -53,24 +53,24 @@ func (s *Service) persist(response *omv1.GetTopologyResponse, run *omv1.Run, ori
 
 	row := &models.OmTopologyRun{
 		RunID:            run.RunId,
-		StartedAt:        run.StartedAt.AsTime(),
-		Status:           models.OmTopologyRunStatus(run.Status),
-		ServicesTotal:    run.Counts.ServicesTotal,
-		ServicesResolved: run.Counts.ServicesResolved,
-		ServicesOrphaned: run.Counts.ServicesOrphaned,
-		ProbesOK:         run.Counts.ProbesOk,
-		ServicesStale:    run.Counts.ServicesStale,
+		StartedAt:        run.StartTime.AsTime(),
+		Status:           runStatusFromProto(run.Status),
+		ServicesTotal:    run.Counts.TotalServices,
+		ServicesResolved: run.Counts.ResolvedServices,
+		ServicesOrphaned: run.Counts.OrphanedServices,
+		ProbesOK:         run.Counts.SuccessfulProbes,
+		ServicesStale:    run.Counts.StaleServices,
 		OriginNode:       originNode,
 		Sources:          make(models.OmTopologySourceReports, 0, len(run.Sources)),
 		Errors:           make(models.OmTopologyRunErrors, 0, len(run.Errors)),
 	}
-	if run.FinishedAt != nil {
-		finished := run.FinishedAt.AsTime()
+	if run.EndTime != nil {
+		finished := run.EndTime.AsTime()
 		row.FinishedAt = &finished
 	}
 	for _, source := range run.Sources {
 		row.Sources = append(row.Sources, models.OmTopologySourceReport{
-			Source: source.Source, Status: source.Status,
+			Source: source.Source, Status: string(sourceStatusFromProto(source.Status)),
 			Facts: source.Facts, Detail: source.Detail,
 		})
 	}
@@ -133,7 +133,7 @@ func (s *Service) restore() (*omv1.GetTopologyResponse, time.Time, error) {
 }
 
 // listRuns reads the run history back out of the database.
-func (s *Service) listRuns(limit int) ([]*omv1.Run, error) {
+func (s *Service) listRuns(limit int) ([]*omv1.TopologyRun, error) {
 	var rows []*models.OmTopologyRun
 	errTX := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -143,7 +143,7 @@ func (s *Service) listRuns(limit int) ([]*omv1.Run, error) {
 	if errTX != nil {
 		return nil, errTX
 	}
-	runs := make([]*omv1.Run, 0, len(rows))
+	runs := make([]*omv1.TopologyRun, 0, len(rows))
 	for _, row := range rows {
 		runs = append(runs, runFromModel(row))
 	}
@@ -151,7 +151,7 @@ func (s *Service) listRuns(limit int) ([]*omv1.Run, error) {
 }
 
 // getRun reads one run back out of the database.
-func (s *Service) getRun(runID string) (*omv1.Run, error) {
+func (s *Service) getRun(runID string) (*omv1.TopologyRun, error) {
 	var row *models.OmTopologyRun
 	errTX := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -164,32 +164,32 @@ func (s *Service) getRun(runID string) (*omv1.Run, error) {
 	return runFromModel(row), nil
 }
 
-func runFromModel(row *models.OmTopologyRun) *omv1.Run {
-	run := &omv1.Run{
+func runFromModel(row *models.OmTopologyRun) *omv1.TopologyRun {
+	run := &omv1.TopologyRun{
 		RunId:     row.RunID,
-		Status:    string(row.Status),
-		StartedAt: timestamppb.New(row.StartedAt),
-		Counts: &omv1.RunCounts{
-			ServicesTotal:    row.ServicesTotal,
-			ServicesResolved: row.ServicesResolved,
-			ServicesOrphaned: row.ServicesOrphaned,
-			ProbesOk:         row.ProbesOK,
-			ServicesStale:    row.ServicesStale,
+		Status:    runStatusToProto(row.Status),
+		StartTime: timestamppb.New(row.StartedAt),
+		Counts: &omv1.TopologyRunCounts{
+			TotalServices:    row.ServicesTotal,
+			ResolvedServices: row.ServicesResolved,
+			OrphanedServices: row.ServicesOrphaned,
+			SuccessfulProbes: row.ProbesOK,
+			StaleServices:    row.ServicesStale,
 		},
 		Sources: make([]*omv1.SourceReport, 0, len(row.Sources)),
-		Errors:  make([]*omv1.RunError, 0, len(row.Errors)),
+		Errors:  make([]*omv1.TopologyRunError, 0, len(row.Errors)),
 	}
 	if row.FinishedAt != nil {
-		run.FinishedAt = timestamppb.New(*row.FinishedAt)
+		run.EndTime = timestamppb.New(*row.FinishedAt)
 	}
 	for _, source := range row.Sources {
 		run.Sources = append(run.Sources, &omv1.SourceReport{
-			Source: source.Source, Status: source.Status,
+			Source: source.Source, Status: sourceStatusToProto(SourceStatus(source.Status)),
 			Facts: source.Facts, Detail: source.Detail,
 		})
 	}
 	for _, e := range row.Errors {
-		run.Errors = append(run.Errors, &omv1.RunError{
+		run.Errors = append(run.Errors, &omv1.TopologyRunError{
 			Scope: e.Scope, ServiceName: optional(e.ServiceName),
 			Code: e.Code, Message: e.Message,
 		})
@@ -203,4 +203,72 @@ func snapshotStale(observedAt *timestamppb.Timestamp) bool {
 		return false
 	}
 	return time.Since(observedAt.AsTime()) > staleAfter
+}
+
+// The enum boundary. Statuses are stored as the collector's own lowercase strings and
+// translated here, in one place, rather than persisted as enum numbers: a run row stays
+// readable in psql, and renumbering the enum cannot silently reinterpret history.
+//
+// An unrecognised stored value maps to UNSPECIFIED rather than being guessed at. That is
+// the honest answer for a row written by a newer version, and it is visible on the wire
+// instead of masquerading as a status the caller knows.
+
+// runStatusToProto maps a stored run status onto the wire enum.
+func runStatusToProto(status models.OmTopologyRunStatus) omv1.RunStatus {
+	switch string(status) {
+	case runStatusSuccess:
+		return omv1.RunStatus_RUN_STATUS_SUCCESS
+	case runStatusPartial:
+		return omv1.RunStatus_RUN_STATUS_PARTIAL
+	case runStatusFailed:
+		return omv1.RunStatus_RUN_STATUS_FAILED
+	default:
+		return omv1.RunStatus_RUN_STATUS_UNSPECIFIED
+	}
+}
+
+// runStatusFromProto maps the wire enum back onto the stored representation.
+func runStatusFromProto(status omv1.RunStatus) models.OmTopologyRunStatus {
+	switch status {
+	case omv1.RunStatus_RUN_STATUS_SUCCESS:
+		return models.OmTopologyRunStatus(runStatusSuccess)
+	case omv1.RunStatus_RUN_STATUS_PARTIAL:
+		return models.OmTopologyRunStatus(runStatusPartial)
+	case omv1.RunStatus_RUN_STATUS_FAILED:
+		return models.OmTopologyRunStatus(runStatusFailed)
+	default:
+		return ""
+	}
+}
+
+// sourceStatusToProto maps a stored source status onto the wire enum.
+func sourceStatusToProto(status SourceStatus) omv1.SourceStatus {
+	switch status {
+	case SourceOK:
+		return omv1.SourceStatus_SOURCE_STATUS_OK
+	case SourcePartial:
+		return omv1.SourceStatus_SOURCE_STATUS_PARTIAL
+	case SourceFailed:
+		return omv1.SourceStatus_SOURCE_STATUS_FAILED
+	case SourceDisabled:
+		return omv1.SourceStatus_SOURCE_STATUS_DISABLED
+	default:
+		return omv1.SourceStatus_SOURCE_STATUS_UNSPECIFIED
+	}
+}
+
+// sourceStatusFromProto maps the wire enum back onto the stored representation.
+func sourceStatusFromProto(status omv1.SourceStatus) SourceStatus {
+	switch status {
+	case omv1.SourceStatus_SOURCE_STATUS_OK:
+		return SourceOK
+	case omv1.SourceStatus_SOURCE_STATUS_PARTIAL:
+		return SourcePartial
+	case omv1.SourceStatus_SOURCE_STATUS_FAILED:
+		return SourceFailed
+	case omv1.SourceStatus_SOURCE_STATUS_DISABLED:
+		return SourceDisabled
+	default:
+		return ""
+	}
 }

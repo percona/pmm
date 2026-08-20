@@ -15,7 +15,11 @@
 
 package om
 
-import "time"
+import (
+	"time"
+
+	omv1 "github.com/percona/pmm/api/om/v1"
+)
 
 // The signal catalog: exactly the queries the topology document needs, and nothing
 // speculative. Every query aggregates or is keyed by service_id, which is the only safe
@@ -142,24 +146,14 @@ var volatileFields = map[string]bool{
 	fieldOplogTail:       true,
 }
 
-// Values the document uses for a service's status.
-const (
-	statusUp   = "UP"
-	statusDown = "DOWN"
-)
-
-// Values the document uses for a service's process role.
-const (
-	processRoleMongod    = "mongod"
-	processRoleMongos    = "mongos"
-	processRoleConfigsvr = "configsvr"
-	processRoleShardsvr  = "shardsvr"
-)
-
 // clusterRoles maps the exporter's cl_role label onto the document's process_role.
-var clusterRoles = map[string]string{
-	"configsvr": processRoleConfigsvr,
-	"shardsvr":  processRoleShardsvr,
+//
+// The label is the exporter's vocabulary and the enum is ours, so this is the only place
+// the two meet. A label we do not recognise falls through to PROCESS_ROLE_MONGOD rather
+// than UNSPECIFIED: an unlabelled mongod is the ordinary case, not a gap.
+var clusterRoles = map[string]omv1.ProcessRole{
+	"configsvr": omv1.ProcessRole_PROCESS_ROLE_CONFIGSVR,
+	"shardsvr":  omv1.ProcessRole_PROCESS_ROLE_SHARDSVR,
 }
 
 // unmeasured is the gauge sentinel: -1 rather than null so the field stays a number for

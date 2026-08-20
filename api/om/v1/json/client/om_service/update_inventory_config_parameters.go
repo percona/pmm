@@ -70,6 +70,10 @@ type UpdateInventoryConfigParams struct {
 	this endpoint takes is the same object it forwards. The alternative wraps it as
 	`{"values": {...}}`, which would make the proxy's shape differ from the shape of the
 	thing being proxied for no gain to anyone reading either.
+
+	A `Struct` carries no field rules, so "name at least one field" is enforced in the
+	handler rather than declared here -- the only precondition on this surface that a
+	generated validator does not express.
 	*/
 	Values any
 

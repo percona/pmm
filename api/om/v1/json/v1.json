@@ -51,13 +51,20 @@
                         "x-order": 2
                       },
                       "type": {
-                        "description": "The field's type, for rendering an input.",
+                        "description": "The field's type, for rendering an input. A string because the app's own schema\nnames it, so this contract does not get to enumerate the possibilities.",
                         "type": "string",
                         "x-order": 3
                       },
                       "reload": {
-                        "description": "hot when it can be changed at runtime, otherwise it is deployment-only.",
+                        "description": "SettingReload is how a configuration field may be overridden, if at all.\n\nMirrors the app's own three-valued classification rather than collapsing it to\neditable/not. NESTED_ONLY is the one that would be lost: the parent object rejects a\nwhole-object write while its children accept one, so a form that read it as\n\"not overridable\" would refuse to edit a leaf the API would have accepted.\n\nThe distinction a form has to respect: rendering a NOT_OVERRIDABLE field as editable\npromises a change the API cannot deliver.\n\n - SETTING_RELOAD_HOT: Overridable at runtime; the new value takes effect on the next snapshot refresh.\n - SETTING_RELOAD_NESTED_ONLY: A nested object whose children are overridable, but which rejects being written\nwhole.\n - SETTING_RELOAD_NOT_OVERRIDABLE: Not overridable at all: YAML and environment variables remain the only sources.",
                         "type": "string",
+                        "default": "SETTING_RELOAD_UNSPECIFIED",
+                        "enum": [
+                          "SETTING_RELOAD_UNSPECIFIED",
+                          "SETTING_RELOAD_HOT",
+                          "SETTING_RELOAD_NESTED_ONLY",
+                          "SETTING_RELOAD_NOT_OVERRIDABLE"
+                        ],
                         "x-order": 4
                       },
                       "has_override": {
@@ -115,7 +122,7 @@
           }
         }
       },
-      "patch": {
+      "put": {
         "description": "Applies a batch of configuration changes atomically: one invalid field rejects the whole batch and writes nothing. Only runtime-changeable fields are accepted.",
         "tags": [
           "OmService"
@@ -124,7 +131,7 @@
         "operationId": "UpdateInventoryConfig",
         "parameters": [
           {
-            "description": "The fields to change, as `{key: value}`.\n\nA map of arbitrary JSON rather than named fields, because the app owns which\nfields exist and what they are typed as; mirroring them here would mean a proto\nchange and a `make gen` every time it grows a setting. The app validates and\nrejects the batch as a whole.\n\nBound to the HTTP body directly (`body: \"values\"`, not `body: \"*\"`), so the request\nthis endpoint takes is the same object it forwards. The alternative wraps it as\n`{\"values\": {...}}`, which would make the proxy's shape differ from the shape of the\nthing being proxied for no gain to anyone reading either.",
+            "description": "The fields to change, as `{key: value}`.\n\nA map of arbitrary JSON rather than named fields, because the app owns which\nfields exist and what they are typed as; mirroring them here would mean a proto\nchange and a `make gen` every time it grows a setting. The app validates and\nrejects the batch as a whole.\n\nBound to the HTTP body directly (`body: \"values\"`, not `body: \"*\"`), so the request\nthis endpoint takes is the same object it forwards. The alternative wraps it as\n`{\"values\": {...}}`, which would make the proxy's shape differ from the shape of the\nthing being proxied for no gain to anyone reading either.\n\nA `Struct` carries no field rules, so \"name at least one field\" is enforced in the\nhandler rather than declared here -- the only precondition on this surface that a\ngenerated validator does not express.",
             "name": "values",
             "in": "body",
             "required": true,
@@ -137,11 +144,11 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "UpdateInventoryConfigResponse returns the fields that changed.",
+              "description": "UpdateInventoryConfigResponse returns the configuration as it now stands.",
               "type": "object",
               "properties": {
                 "settings": {
-                  "description": "One entry per applied key.",
+                  "description": "Every field, not only the ones the request named.\n\nThe whole resource, because an Update answers with the resource. It is also the only\nhonest answer for a nested write: overriding a parent object changes what its\nchildren effectively resolve to, and a response scoped to the submitted keys would\nreport the parent and leave a stale child beside it.",
                   "type": "array",
                   "items": {
                     "description": "InventorySetting is one of the inventory app's configuration fields.",
@@ -161,13 +168,20 @@
                         "x-order": 2
                       },
                       "type": {
-                        "description": "The field's type, for rendering an input.",
+                        "description": "The field's type, for rendering an input. A string because the app's own schema\nnames it, so this contract does not get to enumerate the possibilities.",
                         "type": "string",
                         "x-order": 3
                       },
                       "reload": {
-                        "description": "hot when it can be changed at runtime, otherwise it is deployment-only.",
+                        "description": "SettingReload is how a configuration field may be overridden, if at all.\n\nMirrors the app's own three-valued classification rather than collapsing it to\neditable/not. NESTED_ONLY is the one that would be lost: the parent object rejects a\nwhole-object write while its children accept one, so a form that read it as\n\"not overridable\" would refuse to edit a leaf the API would have accepted.\n\nThe distinction a form has to respect: rendering a NOT_OVERRIDABLE field as editable\npromises a change the API cannot deliver.\n\n - SETTING_RELOAD_HOT: Overridable at runtime; the new value takes effect on the next snapshot refresh.\n - SETTING_RELOAD_NESTED_ONLY: A nested object whose children are overridable, but which rejects being written\nwhole.\n - SETTING_RELOAD_NOT_OVERRIDABLE: Not overridable at all: YAML and environment variables remain the only sources.",
                         "type": "string",
+                        "default": "SETTING_RELOAD_UNSPECIFIED",
+                        "enum": [
+                          "SETTING_RELOAD_UNSPECIFIED",
+                          "SETTING_RELOAD_HOT",
+                          "SETTING_RELOAD_NESTED_ONLY",
+                          "SETTING_RELOAD_NOT_OVERRIDABLE"
+                        ],
                         "x-order": 4
                       },
                       "has_override": {
@@ -226,7 +240,7 @@
         }
       }
     },
-    "/v1/om/inventory/config/{key}": {
+    "/v1/om/inventory/config/overrides/{key}": {
       "delete": {
         "description": "Removes the override for one field so it returns to whatever the deployment configured. Idempotent.",
         "tags": [
@@ -237,7 +251,7 @@
         "parameters": [
           {
             "type": "string",
-            "description": "The field to put back to its deployed value.",
+            "description": "The field whose override to remove, putting it back to its deployed value. Also the\nresource ID within the `overrides` collection.",
             "name": "key",
             "in": "path",
             "required": true
@@ -307,8 +321,8 @@
             "in": "query"
           },
           {
-            "type": "string",
-            "description": "When set, return only hosts served by this Nomad client.",
+            "type": "boolean",
+            "description": "When set, return only hosts that do (or do not) have an executor to run a probe\non. Not a client name: the app filters on whether one is matched at all, and\n\"which machines can nothing be dispatched to\" is the question worth asking.",
             "name": "executor",
             "in": "query"
           }
@@ -1064,17 +1078,26 @@
                         "x-order": 0
                       },
                       "status": {
-                        "description": "running, success, partial or failed.",
+                        "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
                         "type": "string",
+                        "default": "RUN_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "RUN_STATUS_UNSPECIFIED",
+                          "RUN_STATUS_RUNNING",
+                          "RUN_STATUS_SUCCESS",
+                          "RUN_STATUS_PARTIAL",
+                          "RUN_STATUS_FAILED",
+                          "RUN_STATUS_SKIPPED"
+                        ],
                         "x-order": 1
                       },
-                      "started_at": {
+                      "start_time": {
                         "description": "When it began.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 2
                       },
-                      "finished_at": {
+                      "end_time": {
                         "description": "When it stopped. Unset while it is still going.",
                         "type": "string",
                         "format": "date-time",
@@ -1084,43 +1107,43 @@
                         "description": "InventoryRunCounts is what one refresh saw.",
                         "type": "object",
                         "properties": {
-                          "services_total": {
+                          "total_services": {
                             "description": "Services enumeration found.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 0
                           },
-                          "services_resolved": {
+                          "resolved_services": {
                             "description": "...of which matched a host something could be run on.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 1
                           },
-                          "services_orphaned": {
+                          "orphaned_services": {
                             "description": "...of which did not. Not an error.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 2
                           },
-                          "services_answered": {
+                          "answered_services": {
                             "description": "Services that answered a probe.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 3
                           },
-                          "hosts_total": {
+                          "total_hosts": {
                             "description": "Hosts in scope this run, service or no service.\n\nA refresh attempts hosts as well as the services on them, so counting only\nservices makes a refresh of a host with no database read as \"0 of 0\" - which is\nexactly what a run that did nothing looks like, on the one kind of host OM most\nexists to describe.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 4
                           },
-                          "hosts_probeable": {
+                          "probeable_hosts": {
                             "description": "...of which had somewhere to run a probe. The gap is the estate nothing can be\ndispatched to, which is a fact about onboarding rather than a failed run.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 5
                           },
-                          "hosts_answered": {
+                          "answered_hosts": {
                             "description": "Hosts that answered.",
                             "type": "integer",
                             "format": "int32",
@@ -1145,102 +1168,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Dispatches an on-host probe per executor host and returns as soon as the refresh is accepted. Takes tens of seconds, unlike /v1/om/topology/runs. Pass node_ids to refresh only those hosts; 409 when another refresh already holds one of them.",
-        "tags": [
-          "OmService"
-        ],
-        "summary": "Refresh the inventory",
-        "operationId": "TriggerInventoryRefresh",
-        "parameters": [
-          {
-            "description": "TriggerInventoryRefreshRequest is the request for TriggerInventoryRefresh.",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "TriggerInventoryRefreshRequest is the request for TriggerInventoryRefresh.",
-              "type": "object",
-              "properties": {
-                "node_ids": {
-                  "description": "The hosts to refresh, by PMM node ID. Empty refreshes the whole estate.\n\nPlural on purpose: PMM's node ID is also OM's key, so ids pass through\nuntranslated, and one host is a list of one. A surface taking a single id where\nthe app takes a list would be a translation step in disguise.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "description": "TriggerInventoryRefreshResponse acknowledges an accepted refresh.\n\nAccepted, not finished. A refresh dispatches a Nomad job per host and takes tens of\nseconds, unlike PMM's own collection pass, which never probes and completes in\nmilliseconds. Two triggers that different must not look alike to a caller.",
-              "type": "object",
-              "properties": {
-                "run_id": {
-                  "description": "The run's ID, to follow with GetInventoryRun.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "status": {
-                  "description": "Its status, which is `running`.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "started_at": {
-                  "description": "When it began.",
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 2
-                },
-                "scope": {
-                  "description": "The hosts it will refresh. Empty means the whole estate.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 3
                 }
               }
             }
@@ -1313,17 +1240,26 @@
                       "x-order": 0
                     },
                     "status": {
-                      "description": "running, success, partial or failed.",
+                      "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
                       "type": "string",
+                      "default": "RUN_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "RUN_STATUS_UNSPECIFIED",
+                        "RUN_STATUS_RUNNING",
+                        "RUN_STATUS_SUCCESS",
+                        "RUN_STATUS_PARTIAL",
+                        "RUN_STATUS_FAILED",
+                        "RUN_STATUS_SKIPPED"
+                      ],
                       "x-order": 1
                     },
-                    "started_at": {
+                    "start_time": {
                       "description": "When it began.",
                       "type": "string",
                       "format": "date-time",
                       "x-order": 2
                     },
-                    "finished_at": {
+                    "end_time": {
                       "description": "When it stopped. Unset while it is still going.",
                       "type": "string",
                       "format": "date-time",
@@ -1333,43 +1269,43 @@
                       "description": "InventoryRunCounts is what one refresh saw.",
                       "type": "object",
                       "properties": {
-                        "services_total": {
+                        "total_services": {
                           "description": "Services enumeration found.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 0
                         },
-                        "services_resolved": {
+                        "resolved_services": {
                           "description": "...of which matched a host something could be run on.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 1
                         },
-                        "services_orphaned": {
+                        "orphaned_services": {
                           "description": "...of which did not. Not an error.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 2
                         },
-                        "services_answered": {
+                        "answered_services": {
                           "description": "Services that answered a probe.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 3
                         },
-                        "hosts_total": {
+                        "total_hosts": {
                           "description": "Hosts in scope this run, service or no service.\n\nA refresh attempts hosts as well as the services on them, so counting only\nservices makes a refresh of a host with no database read as \"0 of 0\" - which is\nexactly what a run that did nothing looks like, on the one kind of host OM most\nexists to describe.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 4
                         },
-                        "hosts_probeable": {
+                        "probeable_hosts": {
                           "description": "...of which had somewhere to run a probe. The gap is the estate nothing can be\ndispatched to, which is a fact about onboarding rather than a failed run.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 5
                         },
-                        "hosts_answered": {
+                        "answered_hosts": {
                           "description": "Hosts that answered.",
                           "type": "integer",
                           "format": "int32",
@@ -1417,8 +1353,15 @@
                         "x-order": 2
                       },
                       "resolution": {
-                        "description": "name, address or orphaned - how that client was matched, or that it was not.\nOrphaned is why nothing ran; it is not an error.",
+                        "description": "ExecutorResolution is how a host was matched to the client its probe ran on.\n\nORPHANED is why nothing ran, and it is not an error: a host with no executor is a fact\nabout onboarding. NAME and ADDRESS record *which* of the two joins matched, because a\nhost reachable only by address is a different estate problem from one matched by name.\n\n - EXECUTOR_RESOLUTION_NAME: Matched on the node's registered name.\n - EXECUTOR_RESOLUTION_ADDRESS: Matched on the node's address.\n - EXECUTOR_RESOLUTION_ORPHANED: Not matched, so nothing was dispatched.",
                         "type": "string",
+                        "default": "EXECUTOR_RESOLUTION_UNSPECIFIED",
+                        "enum": [
+                          "EXECUTOR_RESOLUTION_UNSPECIFIED",
+                          "EXECUTOR_RESOLUTION_NAME",
+                          "EXECUTOR_RESOLUTION_ADDRESS",
+                          "EXECUTOR_RESOLUTION_ORPHANED"
+                        ],
                         "x-order": 3
                       },
                       "answered": {
@@ -1471,6 +1414,113 @@
                     }
                   },
                   "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/runs:trigger": {
+      "post": {
+        "description": "Dispatches an on-host probe per executor host and returns as soon as the refresh is accepted. Takes tens of seconds, unlike /v1/om/topology/runs. Pass node_ids to refresh only those hosts; 409 when another refresh already holds one of them.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Refresh the inventory",
+        "operationId": "TriggerInventoryRefresh",
+        "parameters": [
+          {
+            "description": "TriggerInventoryRefreshRequest is the request for TriggerInventoryRefresh.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "TriggerInventoryRefreshRequest is the request for TriggerInventoryRefresh.",
+              "type": "object",
+              "properties": {
+                "node_ids": {
+                  "description": "The hosts to refresh, by PMM node ID. Empty refreshes the whole estate.\n\nPlural on purpose: PMM's node ID is also OM's key, so ids pass through\nuntranslated, and one host is a list of one. A surface taking a single id where\nthe app takes a list would be a translation step in disguise.\n\nBounded because a refresh dispatches a Nomad job per host: the empty list already\nmeans \"the whole estate\", so a caller naming hosts individually is naming a few,\nand an unbounded list is only reachable by accident. An empty string is rejected\nrather than forwarded, where it would read as a node ID that matches nothing.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "TriggerInventoryRefreshResponse acknowledges an accepted refresh.\n\nAccepted, not finished. A refresh dispatches a Nomad job per host and takes tens of\nseconds, unlike PMM's own collection pass, which never probes and completes in\nmilliseconds. Two triggers that different must not look alike to a caller.",
+              "type": "object",
+              "properties": {
+                "run_id": {
+                  "description": "The run's ID, to follow with GetInventoryRun.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "status": {
+                  "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                  "type": "string",
+                  "default": "RUN_STATUS_UNSPECIFIED",
+                  "enum": [
+                    "RUN_STATUS_UNSPECIFIED",
+                    "RUN_STATUS_RUNNING",
+                    "RUN_STATUS_SUCCESS",
+                    "RUN_STATUS_PARTIAL",
+                    "RUN_STATUS_FAILED",
+                    "RUN_STATUS_SKIPPED"
+                  ],
+                  "x-order": 1
+                },
+                "start_time": {
+                  "description": "When it began.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 2
+                },
+                "scope": {
+                  "description": "The hosts it will refresh. Empty means the whole estate.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 3
                 }
               }
             }
@@ -2018,26 +2068,26 @@
                       "format": "int32",
                       "x-order": 1
                     },
-                    "services_total": {
+                    "total_services": {
                       "description": "Services in the document.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 2
                     },
-                    "services_up": {
+                    "up_services": {
                       "description": "Services the exporter reached.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 3
                     },
-                    "services_down": {
+                    "down_services": {
                       "description": "Services it did not.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 4
                     },
-                    "by_process_role": {
-                      "description": "Service counts per process role.",
+                    "process_role_counts": {
+                      "description": "Service counts per process role, keyed by the ProcessRole enum's name.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "integer",
@@ -2076,7 +2126,7 @@
                               "description": "Its services, ordered by name.",
                               "type": "array",
                               "items": {
-                                "description": "Service represents one monitored MongoDB service as the topology document records it.\n\nTwo sentinel conventions, and they differ on purpose. cpu_usage_percent and\nconnections_free_percent are -1 when not measured, never null and never 0, because\nzero CPU is a legitimate reading and a numeric column must keep \"idle\" and \"unknown\"\napart. replication_lag_seconds and oplog_window_seconds are null when they do not\napply -- a router and a standalone have no replica-set oplog -- which is a different\nstatement from -1's \"we could not measure it\".",
+                                "description": "TopologyService represents one monitored MongoDB service as the topology document\nrecords it.\n\nTwo sentinel conventions, and they differ on purpose. cpu_usage_percent and\nconnections_free_percent are -1 when not measured, never null and never 0, because\nzero CPU is a legitimate reading and a numeric column must keep \"idle\" and \"unknown\"\napart. replication_lag_seconds and oplog_window_seconds are null when they do not\napply -- a router and a standalone have no replica-set oplog -- which is a different\nstatement from -1's \"we could not measure it\".",
                                 "type": "object",
                                 "properties": {
                                   "service_name": {
@@ -2130,8 +2180,14 @@
                                     "x-order": 9
                                   },
                                   "status": {
-                                    "description": "UP when the exporter reached the service, DOWN when it did not.",
+                                    "description": "ServiceStatus is whether the exporter reached a service.\n\nTwo values and no third: this is the exporter's reachability, not the server's health.\n\"we did not look\" is UNSPECIFIED, which the collector never emits.\n\n - SERVICE_STATUS_UP: The exporter reached the service.\n - SERVICE_STATUS_DOWN: It did not.",
                                     "type": "string",
+                                    "default": "SERVICE_STATUS_UNSPECIFIED",
+                                    "enum": [
+                                      "SERVICE_STATUS_UNSPECIFIED",
+                                      "SERVICE_STATUS_UP",
+                                      "SERVICE_STATUS_DOWN"
+                                    ],
                                     "x-order": 10
                                   },
                                   "cpu_usage_percent": {
@@ -2147,8 +2203,16 @@
                                     "x-order": 12
                                   },
                                   "process_role": {
-                                    "description": "mongod, mongos, configsvr or shardsvr.",
+                                    "description": "ProcessRole is what a mongod or mongos is doing in the deployment.\n\nNot the same axis as replica-set state: a SHARDSVR can be PRIMARY or SECONDARY. This\nis the role the process was started in, which is a property of the deployment's shape.\n\n - PROCESS_ROLE_MONGOD: A standalone or replica-set member with no sharding role.\n - PROCESS_ROLE_MONGOS: A router.\n - PROCESS_ROLE_CONFIGSVR: A config-server member.\n - PROCESS_ROLE_SHARDSVR: A shard member.",
                                     "type": "string",
+                                    "default": "PROCESS_ROLE_UNSPECIFIED",
+                                    "enum": [
+                                      "PROCESS_ROLE_UNSPECIFIED",
+                                      "PROCESS_ROLE_MONGOD",
+                                      "PROCESS_ROLE_MONGOS",
+                                      "PROCESS_ROLE_CONFIGSVR",
+                                      "PROCESS_ROLE_SHARDSVR"
+                                    ],
                                     "x-order": 13
                                   },
                                   "replication_lag_seconds": {
@@ -2255,7 +2319,7 @@
                   "description": "The runs.",
                   "type": "array",
                   "items": {
-                    "description": "Run represents one collection run.",
+                    "description": "TopologyRun represents one collection run.",
                     "type": "object",
                     "properties": {
                       "run_id": {
@@ -2264,51 +2328,60 @@
                         "x-order": 0
                       },
                       "status": {
-                        "description": "running, success, partial or failed.",
+                        "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
                         "type": "string",
+                        "default": "RUN_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "RUN_STATUS_UNSPECIFIED",
+                          "RUN_STATUS_RUNNING",
+                          "RUN_STATUS_SUCCESS",
+                          "RUN_STATUS_PARTIAL",
+                          "RUN_STATUS_FAILED",
+                          "RUN_STATUS_SKIPPED"
+                        ],
                         "x-order": 1
                       },
-                      "started_at": {
+                      "start_time": {
                         "description": "When the run began.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 2
                       },
-                      "finished_at": {
+                      "end_time": {
                         "description": "When it reached a terminal status; unset while running.",
                         "type": "string",
                         "format": "date-time",
                         "x-order": 3
                       },
                       "counts": {
-                        "description": "RunCounts counts what one collection run saw.",
+                        "description": "TopologyRunCounts counts what one collection run saw.",
                         "type": "object",
                         "properties": {
-                          "services_total": {
+                          "total_services": {
                             "description": "MongoDB services inventory reported.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 0
                           },
-                          "services_resolved": {
+                          "resolved_services": {
                             "description": "...of which carried a service ID to join metrics on.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 1
                           },
-                          "services_orphaned": {
+                          "orphaned_services": {
                             "description": "...of which did not. Not an error.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 2
                           },
-                          "probes_ok": {
+                          "successful_probes": {
                             "description": "Services metrics actually observed as reachable.",
                             "type": "integer",
                             "format": "int32",
                             "x-order": 3
                           },
-                          "services_stale": {
+                          "stale_services": {
                             "description": "Services carrying at least one volatile fact too old to read as current.",
                             "type": "integer",
                             "format": "int32",
@@ -2321,7 +2394,7 @@
                         "description": "Query-level, service-level and run-level failures.",
                         "type": "array",
                         "items": {
-                          "description": "RunError describes one thing that went wrong during a run.",
+                          "description": "TopologyRunError describes one thing that went wrong during a collection run.",
                           "type": "object",
                           "properties": {
                             "scope": {
@@ -2356,13 +2429,21 @@
                           "type": "object",
                           "properties": {
                             "source": {
-                              "description": "The source key, e.g. \"inventory\", \"metrics\" or \"probe\".",
+                              "description": "The source key, e.g. \"inventory\", \"metrics\" or \"probe\". An open set on purpose: a\nsource is named by whatever produced it, so this stays a string where the statuses\nbeside it are enums.",
                               "type": "string",
                               "x-order": 0
                             },
                             "status": {
-                              "description": "ok, partial, failed or disabled.",
+                              "description": "SourceStatus is how completely one collection source answered.\n\nSeparate from RunStatus because it carries DISABLED, which a run cannot be: a source\nswitched off in configuration is a deliberate state, not a degraded one.\n\n - SOURCE_STATUS_OK: Answered everything asked of it.\n - SOURCE_STATUS_PARTIAL: Answered some of it.\n - SOURCE_STATUS_FAILED: Did not answer.\n - SOURCE_STATUS_DISABLED: Switched off in configuration, so it was never asked.",
                               "type": "string",
+                              "default": "SOURCE_STATUS_UNSPECIFIED",
+                              "enum": [
+                                "SOURCE_STATUS_UNSPECIFIED",
+                                "SOURCE_STATUS_OK",
+                                "SOURCE_STATUS_PARTIAL",
+                                "SOURCE_STATUS_FAILED",
+                                "SOURCE_STATUS_DISABLED"
+                              ],
                               "x-order": 1
                             },
                             "facts": {
@@ -2386,84 +2467,6 @@
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Rebuilds the topology document from PMM inventory and VictoriaMetrics, and records the run.",
-        "tags": [
-          "OmService"
-        ],
-        "summary": "Trigger a collection run",
-        "operationId": "TriggerTopologyCollection",
-        "parameters": [
-          {
-            "description": "TriggerTopologyCollectionRequest is the request for TriggerTopologyCollection.",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "TriggerTopologyCollectionRequest is the request for TriggerTopologyCollection.",
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "description": "TriggerTopologyCollectionResponse acknowledges a completed collection run.",
-              "type": "object",
-              "properties": {
-                "run_id": {
-                  "description": "The run's ID.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "status": {
-                  "description": "The run's terminal status.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "started_at": {
-                  "description": "When the run began.",
-                  "type": "string",
-                  "format": "date-time",
-                  "x-order": 2
                 }
               }
             }
@@ -2527,7 +2530,7 @@
               "type": "object",
               "properties": {
                 "run": {
-                  "description": "Run represents one collection run.",
+                  "description": "TopologyRun represents one collection run.",
                   "type": "object",
                   "properties": {
                     "run_id": {
@@ -2536,51 +2539,60 @@
                       "x-order": 0
                     },
                     "status": {
-                      "description": "running, success, partial or failed.",
+                      "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
                       "type": "string",
+                      "default": "RUN_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "RUN_STATUS_UNSPECIFIED",
+                        "RUN_STATUS_RUNNING",
+                        "RUN_STATUS_SUCCESS",
+                        "RUN_STATUS_PARTIAL",
+                        "RUN_STATUS_FAILED",
+                        "RUN_STATUS_SKIPPED"
+                      ],
                       "x-order": 1
                     },
-                    "started_at": {
+                    "start_time": {
                       "description": "When the run began.",
                       "type": "string",
                       "format": "date-time",
                       "x-order": 2
                     },
-                    "finished_at": {
+                    "end_time": {
                       "description": "When it reached a terminal status; unset while running.",
                       "type": "string",
                       "format": "date-time",
                       "x-order": 3
                     },
                     "counts": {
-                      "description": "RunCounts counts what one collection run saw.",
+                      "description": "TopologyRunCounts counts what one collection run saw.",
                       "type": "object",
                       "properties": {
-                        "services_total": {
+                        "total_services": {
                           "description": "MongoDB services inventory reported.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 0
                         },
-                        "services_resolved": {
+                        "resolved_services": {
                           "description": "...of which carried a service ID to join metrics on.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 1
                         },
-                        "services_orphaned": {
+                        "orphaned_services": {
                           "description": "...of which did not. Not an error.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 2
                         },
-                        "probes_ok": {
+                        "successful_probes": {
                           "description": "Services metrics actually observed as reachable.",
                           "type": "integer",
                           "format": "int32",
                           "x-order": 3
                         },
-                        "services_stale": {
+                        "stale_services": {
                           "description": "Services carrying at least one volatile fact too old to read as current.",
                           "type": "integer",
                           "format": "int32",
@@ -2593,7 +2605,7 @@
                       "description": "Query-level, service-level and run-level failures.",
                       "type": "array",
                       "items": {
-                        "description": "RunError describes one thing that went wrong during a run.",
+                        "description": "TopologyRunError describes one thing that went wrong during a collection run.",
                         "type": "object",
                         "properties": {
                           "scope": {
@@ -2628,13 +2640,21 @@
                         "type": "object",
                         "properties": {
                           "source": {
-                            "description": "The source key, e.g. \"inventory\", \"metrics\" or \"probe\".",
+                            "description": "The source key, e.g. \"inventory\", \"metrics\" or \"probe\". An open set on purpose: a\nsource is named by whatever produced it, so this stays a string where the statuses\nbeside it are enums.",
                             "type": "string",
                             "x-order": 0
                           },
                           "status": {
-                            "description": "ok, partial, failed or disabled.",
+                            "description": "SourceStatus is how completely one collection source answered.\n\nSeparate from RunStatus because it carries DISABLED, which a run cannot be: a source\nswitched off in configuration is a deliberate state, not a degraded one.\n\n - SOURCE_STATUS_OK: Answered everything asked of it.\n - SOURCE_STATUS_PARTIAL: Answered some of it.\n - SOURCE_STATUS_FAILED: Did not answer.\n - SOURCE_STATUS_DISABLED: Switched off in configuration, so it was never asked.",
                             "type": "string",
+                            "default": "SOURCE_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "SOURCE_STATUS_UNSPECIFIED",
+                              "SOURCE_STATUS_OK",
+                              "SOURCE_STATUS_PARTIAL",
+                              "SOURCE_STATUS_FAILED",
+                              "SOURCE_STATUS_DISABLED"
+                            ],
                             "x-order": 1
                           },
                           "facts": {
@@ -2657,6 +2677,95 @@
                     }
                   },
                   "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/topology/runs:collect": {
+      "post": {
+        "description": "Rebuilds the topology document from PMM inventory and VictoriaMetrics, and records the run.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Trigger a collection run",
+        "operationId": "TriggerTopologyCollection",
+        "parameters": [
+          {
+            "description": "TriggerTopologyCollectionRequest is the request for TriggerTopologyCollection.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "TriggerTopologyCollectionRequest is the request for TriggerTopologyCollection.",
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "TriggerTopologyCollectionResponse acknowledges a completed collection run.",
+              "type": "object",
+              "properties": {
+                "run_id": {
+                  "description": "The run's ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "status": {
+                  "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                  "type": "string",
+                  "default": "RUN_STATUS_UNSPECIFIED",
+                  "enum": [
+                    "RUN_STATUS_UNSPECIFIED",
+                    "RUN_STATUS_RUNNING",
+                    "RUN_STATUS_SUCCESS",
+                    "RUN_STATUS_PARTIAL",
+                    "RUN_STATUS_FAILED",
+                    "RUN_STATUS_SKIPPED"
+                  ],
+                  "x-order": 1
+                },
+                "start_time": {
+                  "description": "When the run began.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 2
                 }
               }
             }

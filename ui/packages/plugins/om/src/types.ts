@@ -25,11 +25,44 @@
  */
 
 /** Health verdicts the worker derives. `unknown` is the common case, not an edge. */
-/** Whether the exporter reached the service on this run. */
-export type OmServiceStatus = 'UP' | 'DOWN';
+/**
+ * Whether the exporter reached the service on this run.
+ *
+ * These are proto enum names, not prose: the gateway serialises `pom.v1.ServiceStatus`
+ * by name, so the wire carries `SERVICE_STATUS_UP`. Verbose, and the price of the
+ * server rejecting a value it does not know rather than passing a typo through.
+ */
+export type OmServiceStatus =
+  | 'SERVICE_STATUS_UNSPECIFIED'
+  | 'SERVICE_STATUS_UP'
+  | 'SERVICE_STATUS_DOWN';
 
 /** What the process is in its cluster. */
-export type OmProcessRole = 'mongod' | 'mongos' | 'configsvr' | 'shardsvr';
+export type OmProcessRole =
+  | 'PROCESS_ROLE_UNSPECIFIED'
+  | 'PROCESS_ROLE_MONGOD'
+  | 'PROCESS_ROLE_MONGOS'
+  | 'PROCESS_ROLE_CONFIGSVR'
+  | 'PROCESS_ROLE_SHARDSVR';
+
+/** How a host was matched to the executor client its probe ran on. */
+export type OmExecutorResolution =
+  | 'EXECUTOR_RESOLUTION_UNSPECIFIED'
+  | 'EXECUTOR_RESOLUTION_NAME'
+  | 'EXECUTOR_RESOLUTION_ADDRESS'
+  | 'EXECUTOR_RESOLUTION_ORPHANED';
+
+/**
+ * How a configuration field may be overridden.
+ *
+ * `NESTED_ONLY` is the one to be careful with: the parent object refuses a whole-object
+ * write while its children accept one, so a form must not read it as read-only.
+ */
+export type OmSettingReload =
+  | 'SETTING_RELOAD_UNSPECIFIED'
+  | 'SETTING_RELOAD_HOT'
+  | 'SETTING_RELOAD_NESTED_ONLY'
+  | 'SETTING_RELOAD_NOT_OVERRIDABLE';
 
 /**
  * Why a field is null. The worker exports these as constants precisely because
@@ -101,10 +134,10 @@ export interface OmEnvironment {
 export interface OmTopologySummary {
   environments: number;
   clusters: number;
-  services_total: number;
-  services_up: number;
-  services_down: number;
-  by_process_role: Partial<Record<OmProcessRole, number>>;
+  total_services: number;
+  up_services: number;
+  down_services: number;
+  process_role_counts: Partial<Record<OmProcessRole, number>>;
 }
 
 /** Provenance every snapshot-backed response repeats. */
@@ -149,9 +182,9 @@ export interface OmClusterRow {
   cluster_name: string | null;
   /** The cluster's own services, so unfolding a row needs no second lookup. */
   services: OmService[];
-  services_total: number;
-  services_up: number;
-  services_down: number;
+  total_services: number;
+  up_services: number;
+  down_services: number;
   by_process_role: Partial<Record<OmProcessRole, number>>;
   /** Replica-set member states, counted. Empty for routers and standalones. */
   by_state: Record<string, number>;
@@ -178,16 +211,17 @@ export interface OmClusterRow {
 export interface OmEnvironmentSection {
   env_name: string | null;
   clusters: OmClusterRow[];
-  services_total: number;
-  services_up: number;
-  services_down: number;
+  total_services: number;
+  up_services: number;
+  down_services: number;
 }
 
 export type OmTopologyRunStatus =
-  | 'running'
-  | 'success'
-  | 'partial'
-  | 'failed'
+  | 'RUN_STATUS_UNSPECIFIED'
+  | 'RUN_STATUS_RUNNING'
+  | 'RUN_STATUS_SUCCESS'
+  | 'RUN_STATUS_PARTIAL'
+  | 'RUN_STATUS_FAILED'
   /**
    * Refused before doing any work, because another refresh already held its hosts.
    *
@@ -195,19 +229,19 @@ export type OmTopologyRunStatus =
    * than skipped silently so a ten-minute schedule cannot look like it fired and
    * found nothing.
    */
-  | 'skipped';
+  | 'RUN_STATUS_SKIPPED';
 
 /**
  * What one run mapped and probed.
  *
- * `services_resolved` versus `probes_ok` is the diagnostic pair: resolved says
- * the executor mapping worked, probes_ok says the node answered.
+ * `resolved_services` versus `successful_probes` is the diagnostic pair: resolved says
+ * the executor mapping worked, successful says the node answered.
  */
 export interface OmTopologyRunCounts {
-  services_total: number;
-  services_resolved: number;
-  services_orphaned: number;
-  probes_ok: number;
+  total_services: number;
+  resolved_services: number;
+  orphaned_services: number;
+  successful_probes: number;
 }
 
 export interface OmTopologyRunError {
@@ -220,8 +254,8 @@ export interface OmTopologyRunError {
 export interface OmTopologyRun {
   run_id: string;
   status: OmTopologyRunStatus;
-  started_at: string;
-  finished_at: string | null;
+  start_time: string;
+  end_time: string | null;
   counts: OmTopologyRunCounts;
   errors: OmTopologyRunError[];
 }
@@ -229,7 +263,7 @@ export interface OmTopologyRun {
 export interface OmTopologyRunAccepted {
   run_id: string;
   status: OmTopologyRunStatus;
-  started_at: string;
+  start_time: string;
 }
 
 /**
@@ -242,10 +276,10 @@ export interface OmTopologyRunAccepted {
  * not an error — they are services with no executor to probe.
  */
 export interface OmProbeCounts {
-  services_total: number;
-  services_resolved: number;
-  services_orphaned: number;
-  services_answered: number;
+  total_services: number;
+  resolved_services: number;
+  orphaned_services: number;
+  answered_services: number;
 }
 
 /**
@@ -259,8 +293,8 @@ export interface OmProbeCounts {
 export interface OmProbeRun {
   run_id: string;
   status: OmTopologyRunStatus;
-  started_at: string;
-  finished_at: string | null;
+  start_time: string;
+  end_time: string | null;
   counts: OmProbeCounts;
   facts_collected: number;
   /** Why the sweep itself failed, when it did. */
@@ -270,7 +304,7 @@ export interface OmProbeRun {
 export interface OmProbeAccepted {
   run_id: string;
   status: OmTopologyRunStatus;
-  started_at: string;
+  start_time: string;
 }
 
 /**
@@ -488,9 +522,9 @@ export interface OmServiceInventoryRow extends OmServiceRow {
 /** A refresh accepted by the app, from `POST /v1/om/inventory/runs`. */
 export interface OmInventoryRunAccepted {
   run_id: string;
-  /** Always `running`: the refresh is accepted, not finished. */
-  status: string;
-  started_at: string | null;
+  /** Always `RUN_STATUS_RUNNING`: the refresh is accepted, not finished. */
+  status: OmTopologyRunStatus;
+  start_time: string | null;
   /** The hosts it will cover. Empty means the whole estate. */
   scope: string[];
 }
@@ -508,23 +542,22 @@ export interface OmInventoryRunAccepted {
  * between a broken mapping and broken executors.
  */
 export interface OmInventoryRunCounts {
-  services_total: number;
-  services_resolved: number;
-  services_orphaned: number;
-  services_answered: number;
-  hosts_total: number;
-  hosts_probeable: number;
-  hosts_answered: number;
+  total_services: number;
+  resolved_services: number;
+  orphaned_services: number;
+  answered_services: number;
+  total_hosts: number;
+  probeable_hosts: number;
+  answered_hosts: number;
 }
 
 /** One refresh of the estate. */
 export interface OmInventoryRun {
   run_id: string;
-  /** `running` / `success` / `partial` / `failed`. */
   status: OmTopologyRunStatus;
-  started_at: string;
+  start_time: string;
   /** Null while it is still going. */
-  finished_at: string | null;
+  end_time: string | null;
   counts: OmInventoryRunCounts;
   /**
    * The hosts it was limited to. Empty means the whole estate.
@@ -564,8 +597,8 @@ export interface OmInventoryRunEntity {
   node_id: string;
   host_name: string | null;
   executor_host: string | null;
-  /** `name` / `address` / `orphaned` - how the host was matched, or that it was not. */
-  resolution: string;
+  /** How the host was matched to an executor client, or that it was not. */
+  resolution: OmExecutorResolution;
   answered: boolean;
   duration_seconds: number | null;
   error: string | null;
@@ -585,8 +618,7 @@ export interface OmInventorySetting {
   value: unknown;
   default_value: unknown;
   type: string;
-  /** `hot` means it takes effect without a restart. Anything else needs one. */
-  reload: string;
+  reload: OmSettingReload;
   has_override: boolean;
   is_advanced: boolean;
   description: string | null;

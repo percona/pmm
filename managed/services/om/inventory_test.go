@@ -94,6 +94,14 @@ const configBody = `[
    "description": null}
 ]`
 
+// stubCall is one request the stub was asked to serve.
+type stubCall struct {
+	method string
+	path   string
+	query  string
+	body   string
+}
+
 // sepStub stands in for the inventory app, recording what it was asked.
 type sepStub struct {
 	server *httptest.Server
@@ -102,20 +110,39 @@ type sepStub struct {
 	path   string
 	query  string
 	body   string
+
+	// calls records every request in order. The fields above keep only the last, which
+	// is enough for a handler that makes one call and wrong for one that writes and then
+	// reads back.
+	calls []stubCall
+	// bodies, when set, is served one entry per request so a read-after-write can be
+	// given a different answer from the write itself. The last entry repeats once
+	// exhausted.
+	bodies []string
 }
 
 // newSEPStub serves one canned answer and records the request that fetched it.
 func newSEPStub(t *testing.T, code int, body string) *sepStub {
+	return newSEPStubSeq(t, code, body)
+}
+
+// newSEPStubSeq serves one canned answer per request, in order.
+func newSEPStubSeq(t *testing.T, code int, bodies ...string) *sepStub {
 	t.Helper()
 
-	stub := &sepStub{}
+	stub := &sepStub{bodies: bodies}
 	stub.server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		stub.method = r.Method
-		stub.path = r.URL.Path
-		stub.query = r.URL.RawQuery
+		call := stubCall{method: r.Method, path: r.URL.Path, query: r.URL.RawQuery}
 		if raw, err := io.ReadAll(r.Body); err == nil { //nolint:noinlineerr
-			stub.body = string(raw)
+			call.body = string(raw)
 		}
+		stub.method, stub.path, stub.query, stub.body = call.method, call.path, call.query, call.body
+		body := ""
+		if len(stub.bodies) > 0 {
+			body = stub.bodies[min(len(stub.calls), len(stub.bodies)-1)]
+		}
+		stub.calls = append(stub.calls, call)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(code)
 		_, _ = w.Write([]byte(body))
@@ -264,13 +291,16 @@ func TestListInventoryHosts(t *testing.T) {
 		_, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{
 			HasService: wrapperBool(false),
 			Failing:    wrapperBool(true),
-			Executor:   wrapperString("db00"),
+			Executor:   wrapperBool(false),
 		})
 
 		require.NoError(t, err)
 		assert.Contains(t, stub.query, "has_service=false")
 		assert.Contains(t, stub.query, "failing=true")
-		assert.Contains(t, stub.query, "executor=db00")
+		// The app types this one bool as well: it filters on whether an executor is
+		// matched at all, not on which client. A host name here is a 422 from the app,
+		// which is what this assertion used to require.
+		assert.Contains(t, stub.query, "executor=false")
 	})
 
 	t.Run("an unset filter is not sent as false", func(t *testing.T) {
@@ -451,12 +481,12 @@ func TestInventoryConfig(t *testing.T) {
 		schedule := response.GetSettings()[0]
 		assert.Equal(t, "SCHEDULE__every", schedule.GetKey())
 		assert.InDelta(t, 10.0, schedule.GetValue().GetNumberValue(), 0.001)
-		assert.Equal(t, "hot", schedule.GetReload())
+		assert.Equal(t, omv1.SettingReload_SETTING_RELOAD_HOT, schedule.GetReload())
 		assert.False(t, schedule.GetHasOverride())
 
 		// A field the deployment owns outright is listed rather than hidden, so a UI can
 		// show it greyed out instead of leaving the reader to wonder where it went.
-		assert.Equal(t, "not_overridable", response.GetSettings()[1].GetReload())
+		assert.Equal(t, omv1.SettingReload_SETTING_RELOAD_NOT_OVERRIDABLE, response.GetSettings()[1].GetReload())
 	})
 
 	t.Run("a change is passed through as the app will validate it", func(t *testing.T) {
@@ -466,15 +496,59 @@ func TestInventoryConfig(t *testing.T) {
 		values, err := structpb.NewStruct(map[string]any{"SCHEDULE__every": 25})
 		require.NoError(t, err)
 
+		_, err = stub.service(t).UpdateInventoryConfig(t.Context(),
+			&omv1.UpdateInventoryConfigRequest{Values: values})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 2, "the write, then the read-back")
+		assert.Equal(t, http.MethodPatch, stub.calls[0].method, "the app's own verb, not PMM's PUT")
+		assert.JSONEq(t, `{"SCHEDULE__every": 25}`, stub.calls[0].body)
+	})
+
+	t.Run("the answer is the whole configuration, not the submitted keys", func(t *testing.T) {
+		t.Parallel()
+
+		// The app answers a PATCH with one row per key *named in the request*. That is
+		// misleading for a nested write -- overriding a parent moves what its children
+		// resolve to, and no row says so -- so the handler reads the configuration back
+		// and answers with that. The two canned bodies differ precisely so this asserts
+		// which one was returned.
+		applied := `[{"key": "SCHEDULE__every", "value": 25, "default_value": null,
+		              "type": "int", "reload": "hot", "has_override": true,
+		              "is_advanced": false, "description": null}]`
+		stub := newSEPStubSeq(t, http.StatusOK, applied, configBody)
+		values, err := structpb.NewStruct(map[string]any{"SCHEDULE__every": 25})
+		require.NoError(t, err)
+
 		response, err := stub.service(t).UpdateInventoryConfig(t.Context(),
 			&omv1.UpdateInventoryConfigRequest{Values: values})
 
 		require.NoError(t, err)
-		assert.Equal(t, http.MethodPatch, stub.method)
-		assert.JSONEq(t, `{"SCHEDULE__every": 25}`, stub.body)
-		// The applied rows come back rather than an empty acknowledgement, so a caller
-		// can render the new value and its new origin without a second request.
-		require.NotEmpty(t, response.GetSettings())
+		require.Len(t, stub.calls, 2)
+		assert.Equal(t, http.MethodGet, stub.calls[1].method)
+		assert.Equal(t, "/api/apps/om_inventory/config", stub.calls[1].path)
+		// Two rows, from the read-back -- not the one row the write echoed.
+		require.Len(t, response.GetSettings(), 2)
+		assert.Equal(t, "CREDENTIALS_PATH", response.GetSettings()[1].GetKey())
+	})
+
+	t.Run("a failed read-back does not report the write as failed", func(t *testing.T) {
+		t.Parallel()
+
+		// The write landed. Answering with an error would tell a caller to retry a change
+		// that already applied, so the narrower body is served instead.
+		applied := `[{"key": "SCHEDULE__every", "value": 25, "default_value": null,
+		              "type": "int", "reload": "hot", "has_override": true,
+		              "is_advanced": false, "description": null}]`
+		stub := newSEPStubSeq(t, http.StatusOK, applied, `not json`)
+		values, err := structpb.NewStruct(map[string]any{"SCHEDULE__every": 25})
+		require.NoError(t, err)
+
+		response, err := stub.service(t).UpdateInventoryConfig(t.Context(),
+			&omv1.UpdateInventoryConfigRequest{Values: values})
+
+		require.NoError(t, err)
+		require.Len(t, response.GetSettings(), 1)
 		assert.Equal(t, "SCHEDULE__every", response.GetSettings()[0].GetKey())
 	})
 
@@ -539,12 +613,12 @@ func TestInventoryRunCarriesHostCounters(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, res.GetRuns(), 1)
 	counts := res.GetRuns()[0].GetCounts()
-	assert.Equal(t, int32(3), counts.GetHostsTotal())
-	assert.Equal(t, int32(2), counts.GetHostsProbeable())
-	assert.Equal(t, int32(1), counts.GetHostsAnswered())
+	assert.Equal(t, int32(3), counts.GetTotalHosts())
+	assert.Equal(t, int32(2), counts.GetProbeableHosts())
+	assert.Equal(t, int32(1), counts.GetAnsweredHosts())
 	// Zero services is the honest answer for a host-only refresh, and the reason the
 	// host counters had to exist rather than the service ones being reinterpreted.
-	assert.Equal(t, int32(0), counts.GetServicesTotal())
+	assert.Equal(t, int32(0), counts.GetTotalServices())
 }
 
 func TestInventoryRunDetailIsHostOriented(t *testing.T) {
@@ -597,7 +671,7 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	// An orphan keeps its row rather than being dropped: "2 of 3 answered" cannot say
 	// which one was missed, and the orphan is the one worth acting on.
 	orphan := res.GetEntities()[2]
-	assert.Equal(t, "orphaned", orphan.GetResolution())
+	assert.Equal(t, omv1.ExecutorResolution_EXECUTOR_RESOLUTION_ORPHANED, orphan.GetResolution())
 	assert.False(t, orphan.GetAnswered())
 	// Wrappers, not optional scalars: protojson drops an unset optional entirely, so a
 	// host with no executor and no duration would arrive with an empty string and zero.
@@ -628,10 +702,8 @@ func TestInventoryBearerIsSent(t *testing.T) {
 	assert.Equal(t, "Bearer test-token", seen)
 }
 
-// wrapperBool and wrapperString keep the filter cases above readable.
+// wrapperBool keeps the filter cases above readable.
 func wrapperBool(value bool) *wrapperspb.BoolValue { return wrapperspb.Bool(value) }
-
-func wrapperString(value string) *wrapperspb.StringValue { return wrapperspb.String(value) }
 
 // ensure the canned bodies stay valid JSON as they are edited.
 func TestInventoryFixturesAreValid(t *testing.T) {

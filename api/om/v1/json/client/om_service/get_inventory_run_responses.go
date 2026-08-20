@@ -613,9 +613,17 @@ type GetInventoryRunOKBodyEntitiesItems0 struct {
 	// The client its probe ran on. Unset when none matched.
 	ExecutorHost string `json:"executor_host,omitempty"`
 
-	// name, address or orphaned - how that client was matched, or that it was not.
-	// Orphaned is why nothing ran; it is not an error.
-	Resolution string `json:"resolution,omitempty"`
+	// ExecutorResolution is how a host was matched to the client its probe ran on.
+	//
+	// ORPHANED is why nothing ran, and it is not an error: a host with no executor is a fact
+	// about onboarding. NAME and ADDRESS record *which* of the two joins matched, because a
+	// host reachable only by address is a different estate problem from one matched by name.
+	//
+	//  - EXECUTOR_RESOLUTION_NAME: Matched on the node's registered name.
+	//  - EXECUTOR_RESOLUTION_ADDRESS: Matched on the node's address.
+	//  - EXECUTOR_RESOLUTION_ORPHANED: Not matched, so nothing was dispatched.
+	// Enum: ["EXECUTOR_RESOLUTION_UNSPECIFIED","EXECUTOR_RESOLUTION_NAME","EXECUTOR_RESOLUTION_ADDRESS","EXECUTOR_RESOLUTION_ORPHANED"]
+	Resolution *string `json:"resolution,omitempty"`
 
 	// Whether the *host* answered. A different question from whether its services did:
 	// a host with no database answers perfectly well and has no services at all.
@@ -635,6 +643,10 @@ type GetInventoryRunOKBodyEntitiesItems0 struct {
 func (o *GetInventoryRunOKBodyEntitiesItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateResolution(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateServices(formats); err != nil {
 		res = append(res, err)
 	}
@@ -642,6 +654,54 @@ func (o *GetInventoryRunOKBodyEntitiesItems0) Validate(formats strfmt.Registry) 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var getInventoryRunOkBodyEntitiesItems0TypeResolutionPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["EXECUTOR_RESOLUTION_UNSPECIFIED","EXECUTOR_RESOLUTION_NAME","EXECUTOR_RESOLUTION_ADDRESS","EXECUTOR_RESOLUTION_ORPHANED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getInventoryRunOkBodyEntitiesItems0TypeResolutionPropEnum = append(getInventoryRunOkBodyEntitiesItems0TypeResolutionPropEnum, v)
+	}
+}
+
+const (
+
+	// GetInventoryRunOKBodyEntitiesItems0ResolutionEXECUTORRESOLUTIONUNSPECIFIED captures enum value "EXECUTOR_RESOLUTION_UNSPECIFIED"
+	GetInventoryRunOKBodyEntitiesItems0ResolutionEXECUTORRESOLUTIONUNSPECIFIED string = "EXECUTOR_RESOLUTION_UNSPECIFIED"
+
+	// GetInventoryRunOKBodyEntitiesItems0ResolutionEXECUTORRESOLUTIONNAME captures enum value "EXECUTOR_RESOLUTION_NAME"
+	GetInventoryRunOKBodyEntitiesItems0ResolutionEXECUTORRESOLUTIONNAME string = "EXECUTOR_RESOLUTION_NAME"
+
+	// GetInventoryRunOKBodyEntitiesItems0ResolutionEXECUTORRESOLUTIONADDRESS captures enum value "EXECUTOR_RESOLUTION_ADDRESS"
+	GetInventoryRunOKBodyEntitiesItems0ResolutionEXECUTORRESOLUTIONADDRESS string = "EXECUTOR_RESOLUTION_ADDRESS"
+
+	// GetInventoryRunOKBodyEntitiesItems0ResolutionEXECUTORRESOLUTIONORPHANED captures enum value "EXECUTOR_RESOLUTION_ORPHANED"
+	GetInventoryRunOKBodyEntitiesItems0ResolutionEXECUTORRESOLUTIONORPHANED string = "EXECUTOR_RESOLUTION_ORPHANED"
+)
+
+// prop value enum
+func (o *GetInventoryRunOKBodyEntitiesItems0) validateResolutionEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getInventoryRunOkBodyEntitiesItems0TypeResolutionPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetInventoryRunOKBodyEntitiesItems0) validateResolution(formats strfmt.Registry) error {
+	if swag.IsZero(o.Resolution) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateResolutionEnum("resolution", "body", *o.Resolution); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -787,16 +847,34 @@ type GetInventoryRunOKBodyRun struct {
 	// The run's ID.
 	RunID string `json:"run_id,omitempty"`
 
-	// running, success, partial or failed.
-	Status string `json:"status,omitempty"`
+	// RunStatus is how a run ended, for both kinds of run.
+	//
+	// Shared by the topology collection pass and the inventory refresh deliberately: the two
+	// runs differ in what they do, not in how they finish, and two identical enums would
+	// invite them to drift apart for no reason.
+	//
+	//  - RUN_STATUS_RUNNING: Still going. Not a terminal status.
+	//  - RUN_STATUS_SUCCESS: Everything it attempted answered.
+	//  - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common
+	// steady state rather than an alarm: a row routinely outlives the executor that served
+	// it.
+	//  - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.
+	//  - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it
+	// would have covered. Neither a failure nor a success: it did nothing, deliberately,
+	// and it is recorded so a schedule cannot look like it fired and found nothing.
+	//
+	// Only an inventory refresh reaches this; the collection pass has no single-flight
+	// guard to lose against.
+	// Enum: ["RUN_STATUS_UNSPECIFIED","RUN_STATUS_RUNNING","RUN_STATUS_SUCCESS","RUN_STATUS_PARTIAL","RUN_STATUS_FAILED","RUN_STATUS_SKIPPED"]
+	Status *string `json:"status,omitempty"`
 
 	// When it began.
 	// Format: date-time
-	StartedAt strfmt.DateTime `json:"started_at,omitempty"`
+	StartTime strfmt.DateTime `json:"start_time,omitempty"`
 
 	// When it stopped. Unset while it is still going.
 	// Format: date-time
-	FinishedAt strfmt.DateTime `json:"finished_at,omitempty"`
+	EndTime strfmt.DateTime `json:"end_time,omitempty"`
 
 	// The hosts it was limited to. Empty means it refreshed the whole estate, which is
 	// what the scheduled sweep does.
@@ -813,11 +891,15 @@ type GetInventoryRunOKBodyRun struct {
 func (o *GetInventoryRunOKBodyRun) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateStartedAt(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateFinishedAt(formats); err != nil {
+	if err := o.validateStartTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateEndTime(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -831,24 +913,78 @@ func (o *GetInventoryRunOKBodyRun) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetInventoryRunOKBodyRun) validateStartedAt(formats strfmt.Registry) error {
-	if swag.IsZero(o.StartedAt) { // not required
+var getInventoryRunOkBodyRunTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["RUN_STATUS_UNSPECIFIED","RUN_STATUS_RUNNING","RUN_STATUS_SUCCESS","RUN_STATUS_PARTIAL","RUN_STATUS_FAILED","RUN_STATUS_SKIPPED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getInventoryRunOkBodyRunTypeStatusPropEnum = append(getInventoryRunOkBodyRunTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetInventoryRunOKBodyRunStatusRUNSTATUSUNSPECIFIED captures enum value "RUN_STATUS_UNSPECIFIED"
+	GetInventoryRunOKBodyRunStatusRUNSTATUSUNSPECIFIED string = "RUN_STATUS_UNSPECIFIED"
+
+	// GetInventoryRunOKBodyRunStatusRUNSTATUSRUNNING captures enum value "RUN_STATUS_RUNNING"
+	GetInventoryRunOKBodyRunStatusRUNSTATUSRUNNING string = "RUN_STATUS_RUNNING"
+
+	// GetInventoryRunOKBodyRunStatusRUNSTATUSSUCCESS captures enum value "RUN_STATUS_SUCCESS"
+	GetInventoryRunOKBodyRunStatusRUNSTATUSSUCCESS string = "RUN_STATUS_SUCCESS"
+
+	// GetInventoryRunOKBodyRunStatusRUNSTATUSPARTIAL captures enum value "RUN_STATUS_PARTIAL"
+	GetInventoryRunOKBodyRunStatusRUNSTATUSPARTIAL string = "RUN_STATUS_PARTIAL"
+
+	// GetInventoryRunOKBodyRunStatusRUNSTATUSFAILED captures enum value "RUN_STATUS_FAILED"
+	GetInventoryRunOKBodyRunStatusRUNSTATUSFAILED string = "RUN_STATUS_FAILED"
+
+	// GetInventoryRunOKBodyRunStatusRUNSTATUSSKIPPED captures enum value "RUN_STATUS_SKIPPED"
+	GetInventoryRunOKBodyRunStatusRUNSTATUSSKIPPED string = "RUN_STATUS_SKIPPED"
+)
+
+// prop value enum
+func (o *GetInventoryRunOKBodyRun) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getInventoryRunOkBodyRunTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetInventoryRunOKBodyRun) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("getInventoryRunOk"+"."+"run"+"."+"started_at", "body", "date-time", o.StartedAt.String(), formats); err != nil {
+	// value enum
+	if err := o.validateStatusEnum("getInventoryRunOk"+"."+"run"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (o *GetInventoryRunOKBodyRun) validateFinishedAt(formats strfmt.Registry) error {
-	if swag.IsZero(o.FinishedAt) { // not required
+func (o *GetInventoryRunOKBodyRun) validateStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.StartTime) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("getInventoryRunOk"+"."+"run"+"."+"finished_at", "body", "date-time", o.FinishedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("getInventoryRunOk"+"."+"run"+"."+"start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetInventoryRunOKBodyRun) validateEndTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.EndTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("getInventoryRunOk"+"."+"run"+"."+"end_time", "body", "date-time", o.EndTime.String(), formats); err != nil {
 		return err
 	}
 
@@ -940,16 +1076,16 @@ swagger:model GetInventoryRunOKBodyRunCounts
 */
 type GetInventoryRunOKBodyRunCounts struct {
 	// Services enumeration found.
-	ServicesTotal int32 `json:"services_total,omitempty"`
+	TotalServices int32 `json:"total_services,omitempty"`
 
 	// ...of which matched a host something could be run on.
-	ServicesResolved int32 `json:"services_resolved,omitempty"`
+	ResolvedServices int32 `json:"resolved_services,omitempty"`
 
 	// ...of which did not. Not an error.
-	ServicesOrphaned int32 `json:"services_orphaned,omitempty"`
+	OrphanedServices int32 `json:"orphaned_services,omitempty"`
 
 	// Services that answered a probe.
-	ServicesAnswered int32 `json:"services_answered,omitempty"`
+	AnsweredServices int32 `json:"answered_services,omitempty"`
 
 	// Hosts in scope this run, service or no service.
 	//
@@ -957,14 +1093,14 @@ type GetInventoryRunOKBodyRunCounts struct {
 	// services makes a refresh of a host with no database read as "0 of 0" - which is
 	// exactly what a run that did nothing looks like, on the one kind of host OM most
 	// exists to describe.
-	HostsTotal int32 `json:"hosts_total,omitempty"`
+	TotalHosts int32 `json:"total_hosts,omitempty"`
 
 	// ...of which had somewhere to run a probe. The gap is the estate nothing can be
 	// dispatched to, which is a fact about onboarding rather than a failed run.
-	HostsProbeable int32 `json:"hosts_probeable,omitempty"`
+	ProbeableHosts int32 `json:"probeable_hosts,omitempty"`
 
 	// Hosts that answered.
-	HostsAnswered int32 `json:"hosts_answered,omitempty"`
+	AnsweredHosts int32 `json:"answered_hosts,omitempty"`
 }
 
 // Validate validates this get inventory run OK body run counts

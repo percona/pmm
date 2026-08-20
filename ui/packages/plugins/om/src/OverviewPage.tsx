@@ -104,19 +104,19 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         Cell: ({ row: { original } }) =>
           original.cluster_name ?? <Unavailable reason="not_applicable" />,
       },
-      { accessorKey: 'services_total', header: 'Services' },
+      { accessorKey: 'total_services', header: 'Services' },
       {
-        accessorKey: 'services_up',
+        accessorKey: 'up_services',
         header: 'Up',
         Cell: ({ row: { original } }) => (
-          <Count value={original.services_up} tone="up" />
+          <Count value={original.up_services} tone="up" />
         ),
       },
       {
-        accessorKey: 'services_down',
+        accessorKey: 'down_services',
         header: 'Down',
         Cell: ({ row: { original } }) => (
-          <Count value={original.services_down} tone="down" />
+          <Count value={original.down_services} tone="down" />
         ),
       },
       {
@@ -311,16 +311,16 @@ function EnvironmentTable({ section }: { section: OmEnvironmentSection }) {
             <strong>{section.clusters.length}</strong> clusters
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            <strong>{section.services_total}</strong> services
+            <strong>{section.total_services}</strong> services
           </Typography>
           <Typography variant="body2" color="success.main">
-            <strong>{section.services_up}</strong> up
+            <strong>{section.up_services}</strong> up
           </Typography>
           <Typography
             variant="body2"
-            color={section.services_down ? 'error.main' : 'text.secondary'}
+            color={section.down_services ? 'error.main' : 'text.secondary'}
           >
-            <strong>{section.services_down}</strong> down
+            <strong>{section.down_services}</strong> down
           </Typography>
         </Stack>
       </Stack>
@@ -416,9 +416,9 @@ export function OverviewPage() {
         <Counts
           environments={data.summary.environments}
           clusters={data.summary.clusters}
-          total={data.summary.services_total}
-          up={data.summary.services_up}
-          down={data.summary.services_down}
+          total={data.summary.total_services}
+          up={data.summary.up_services}
+          down={data.summary.down_services}
         />
       </Stack>
 

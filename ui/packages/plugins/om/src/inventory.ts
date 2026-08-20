@@ -89,9 +89,7 @@ export function repoReachability(
 }
 
 /** Build the Hosts table's rows, with everything the page derives from each host. */
-export function toHostRows(
-  hosts: OmInventoryHost[] | undefined
-): OmHostRow[] {
+export function toHostRows(hosts: OmInventoryHost[] | undefined): OmHostRow[] {
   if (!hosts) {
     return [];
   }

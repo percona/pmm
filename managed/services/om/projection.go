@@ -52,7 +52,7 @@ type document struct {
 // buildDocument folds inventory and the merged facts into the topology document.
 func buildDocument(services []*models.Service, merged map[string]map[string]MergedField, now time.Time, maxAge time.Duration) document {
 	out := document{}
-	grouped := make(map[string]map[string][]*omv1.Service)
+	grouped := make(map[string]map[string][]*omv1.TopologyService)
 
 	for _, service := range services {
 		fields := fieldSet{fields: merged[service.ServiceID], now: now, maxAge: maxAge}
@@ -70,7 +70,7 @@ func buildDocument(services []*models.Service, merged map[string]map[string]Merg
 
 		env, cluster := groupingKeys(service, fields)
 		if _, ok := grouped[env]; !ok {
-			grouped[env] = make(map[string][]*omv1.Service)
+			grouped[env] = make(map[string][]*omv1.TopologyService)
 		}
 		grouped[env][cluster] = append(grouped[env][cluster], serviceDocument(service, fields))
 	}
@@ -80,7 +80,7 @@ func buildDocument(services []*models.Service, merged map[string]map[string]Merg
 		clusters := make([]*omv1.Cluster, 0, len(grouped[env]))
 		for _, cluster := range sortedKeys(grouped[env]) {
 			svcs := grouped[env][cluster]
-			slices.SortFunc(svcs, func(a, b *omv1.Service) int {
+			slices.SortFunc(svcs, func(a, b *omv1.TopologyService) int {
 				return cmp.Compare(a.ServiceName, b.ServiceName)
 			})
 			clusters = append(clusters, &omv1.Cluster{Name: named(cluster), Services: svcs})
@@ -93,7 +93,7 @@ func buildDocument(services []*models.Service, merged map[string]map[string]Merg
 }
 
 // serviceDocument builds one service entry.
-func serviceDocument(service *models.Service, fields fieldSet) *omv1.Service {
+func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologyService {
 	host := fields.str(fieldHost)
 	if host == "" {
 		host = service.ServiceName
@@ -105,7 +105,7 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.Service {
 
 	up := pointer.GetFloat64(fields.f64(fieldExporterUp)) == 1
 
-	return &omv1.Service{
+	return &omv1.TopologyService{
 		ServiceName:            service.ServiceName,
 		Host:                   optional(host),
 		Endpoint:               optional(fields.str(fieldEndpoint)),
@@ -150,14 +150,14 @@ func groupingKeys(_ *models.Service, fields fieldSet) (string, string) {
 // The mongodb_mongos_sharding_shards_total metric is emitted only by a router, so its
 // presence is the test -- no port-convention guessing. Otherwise the exporter's cl_role
 // names a config or shard server, and anything else is a plain mongod.
-func processRole(fields fieldSet) string {
+func processRole(fields fieldSet) omv1.ProcessRole {
 	if fields.truthy(fieldIsMongos) {
-		return processRoleMongos
+		return omv1.ProcessRole_PROCESS_ROLE_MONGOS
 	}
 	if role, ok := clusterRoles[fields.str(fieldClusterRole)]; ok {
 		return role
 	}
-	return processRoleMongod
+	return omv1.ProcessRole_PROCESS_ROLE_MONGOD
 }
 
 // gauge returns a reading, or the unmeasured sentinel when there is none.
@@ -188,35 +188,38 @@ func oplogWindow(fields fieldSet) *float64 {
 
 // buildSummary builds the fleet-level counts the list view shows above the table.
 //
-// The services_down count is the honest headline and is a first-class field rather than
+// The down_services count is the honest headline and is a first-class field rather than
 // something every caller re-derives.
+//
+// process_role_counts is keyed by the ProcessRole enum's name rather than its number, so
+// the map reads as itself in JSON instead of as {"1": 5}.
 func buildSummary(environments []*omv1.Environment) *omv1.Summary {
 	summary := &omv1.Summary{
-		Environments:  int32(len(environments)), //nolint:gosec
-		ByProcessRole: make(map[string]int32),
+		Environments:      int32(len(environments)), //nolint:gosec
+		ProcessRoleCounts: make(map[string]int32),
 	}
 	for _, env := range environments {
 		summary.Clusters += int32(len(env.Clusters)) //nolint:gosec
 		for _, cluster := range env.Clusters {
 			for _, service := range cluster.Services {
-				summary.ServicesTotal++
-				if service.Status == statusUp {
-					summary.ServicesUp++
+				summary.TotalServices++
+				if service.Status == omv1.ServiceStatus_SERVICE_STATUS_UP {
+					summary.UpServices++
 				} else {
-					summary.ServicesDown++
+					summary.DownServices++
 				}
-				summary.ByProcessRole[service.ProcessRole]++
+				summary.ProcessRoleCounts[service.ProcessRole.String()]++
 			}
 		}
 	}
 	return summary
 }
 
-func serviceStatus(up bool) string {
+func serviceStatus(up bool) omv1.ServiceStatus {
 	if up {
-		return statusUp
+		return omv1.ServiceStatus_SERVICE_STATUS_UP
 	}
-	return statusDown
+	return omv1.ServiceStatus_SERVICE_STATUS_DOWN
 }
 
 // named returns a grouping key as the document spells it: null for the internal

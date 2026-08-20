@@ -440,9 +440,9 @@ export function ServicesPage() {
       />
       <SnapshotBar envelope={data.snapshot} />
       <Counts
-        total={data.summary.services_total}
-        up={data.summary.services_up}
-        down={data.summary.services_down}
+        total={data.summary.total_services}
+        up={data.summary.up_services}
+        down={data.summary.down_services}
         failing={failingCount}
         failingOnly={failingOnly}
         onToggleFailing={() => setFailingOnly((on) => !on)}

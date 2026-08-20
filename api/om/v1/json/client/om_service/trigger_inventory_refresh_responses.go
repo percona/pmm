@@ -89,12 +89,12 @@ func (o *TriggerInventoryRefreshOK) Code() int {
 
 func (o *TriggerInventoryRefreshOK) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/inventory/runs][%d] triggerInventoryRefreshOk %s", 200, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/runs:trigger][%d] triggerInventoryRefreshOk %s", 200, payload)
 }
 
 func (o *TriggerInventoryRefreshOK) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/inventory/runs][%d] triggerInventoryRefreshOk %s", 200, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/runs:trigger][%d] triggerInventoryRefreshOk %s", 200, payload)
 }
 
 func (o *TriggerInventoryRefreshOK) GetPayload() *TriggerInventoryRefreshOKBody {
@@ -162,12 +162,12 @@ func (o *TriggerInventoryRefreshDefault) Code() int {
 
 func (o *TriggerInventoryRefreshDefault) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/inventory/runs][%d] TriggerInventoryRefresh default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/runs:trigger][%d] TriggerInventoryRefresh default %s", o._statusCode, payload)
 }
 
 func (o *TriggerInventoryRefreshDefault) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/inventory/runs][%d] TriggerInventoryRefresh default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/runs:trigger][%d] TriggerInventoryRefresh default %s", o._statusCode, payload)
 }
 
 func (o *TriggerInventoryRefreshDefault) GetPayload() *TriggerInventoryRefreshDefaultBody {
@@ -195,6 +195,11 @@ type TriggerInventoryRefreshBody struct {
 	// Plural on purpose: PMM's node ID is also OM's key, so ids pass through
 	// untranslated, and one host is a list of one. A surface taking a single id where
 	// the app takes a list would be a translation step in disguise.
+	//
+	// Bounded because a refresh dispatches a Nomad job per host: the empty list already
+	// means "the whole estate", so a caller naming hosts individually is naming a few,
+	// and an unbounded list is only reachable by accident. An empty string is rejected
+	// rather than forwarded, where it would read as a node ID that matches nothing.
 	NodeIds []string `json:"node_ids"`
 }
 
@@ -466,12 +471,30 @@ type TriggerInventoryRefreshOKBody struct {
 	// The run's ID, to follow with GetInventoryRun.
 	RunID string `json:"run_id,omitempty"`
 
-	// Its status, which is `running`.
-	Status string `json:"status,omitempty"`
+	// RunStatus is how a run ended, for both kinds of run.
+	//
+	// Shared by the topology collection pass and the inventory refresh deliberately: the two
+	// runs differ in what they do, not in how they finish, and two identical enums would
+	// invite them to drift apart for no reason.
+	//
+	//  - RUN_STATUS_RUNNING: Still going. Not a terminal status.
+	//  - RUN_STATUS_SUCCESS: Everything it attempted answered.
+	//  - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common
+	// steady state rather than an alarm: a row routinely outlives the executor that served
+	// it.
+	//  - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.
+	//  - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it
+	// would have covered. Neither a failure nor a success: it did nothing, deliberately,
+	// and it is recorded so a schedule cannot look like it fired and found nothing.
+	//
+	// Only an inventory refresh reaches this; the collection pass has no single-flight
+	// guard to lose against.
+	// Enum: ["RUN_STATUS_UNSPECIFIED","RUN_STATUS_RUNNING","RUN_STATUS_SUCCESS","RUN_STATUS_PARTIAL","RUN_STATUS_FAILED","RUN_STATUS_SKIPPED"]
+	Status *string `json:"status,omitempty"`
 
 	// When it began.
 	// Format: date-time
-	StartedAt strfmt.DateTime `json:"started_at,omitempty"`
+	StartTime strfmt.DateTime `json:"start_time,omitempty"`
 
 	// The hosts it will refresh. Empty means the whole estate.
 	Scope []string `json:"scope"`
@@ -481,7 +504,11 @@ type TriggerInventoryRefreshOKBody struct {
 func (o *TriggerInventoryRefreshOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateStartedAt(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStartTime(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -491,12 +518,66 @@ func (o *TriggerInventoryRefreshOKBody) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-func (o *TriggerInventoryRefreshOKBody) validateStartedAt(formats strfmt.Registry) error {
-	if swag.IsZero(o.StartedAt) { // not required
+var triggerInventoryRefreshOkBodyTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["RUN_STATUS_UNSPECIFIED","RUN_STATUS_RUNNING","RUN_STATUS_SUCCESS","RUN_STATUS_PARTIAL","RUN_STATUS_FAILED","RUN_STATUS_SKIPPED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		triggerInventoryRefreshOkBodyTypeStatusPropEnum = append(triggerInventoryRefreshOkBodyTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// TriggerInventoryRefreshOKBodyStatusRUNSTATUSUNSPECIFIED captures enum value "RUN_STATUS_UNSPECIFIED"
+	TriggerInventoryRefreshOKBodyStatusRUNSTATUSUNSPECIFIED string = "RUN_STATUS_UNSPECIFIED"
+
+	// TriggerInventoryRefreshOKBodyStatusRUNSTATUSRUNNING captures enum value "RUN_STATUS_RUNNING"
+	TriggerInventoryRefreshOKBodyStatusRUNSTATUSRUNNING string = "RUN_STATUS_RUNNING"
+
+	// TriggerInventoryRefreshOKBodyStatusRUNSTATUSSUCCESS captures enum value "RUN_STATUS_SUCCESS"
+	TriggerInventoryRefreshOKBodyStatusRUNSTATUSSUCCESS string = "RUN_STATUS_SUCCESS"
+
+	// TriggerInventoryRefreshOKBodyStatusRUNSTATUSPARTIAL captures enum value "RUN_STATUS_PARTIAL"
+	TriggerInventoryRefreshOKBodyStatusRUNSTATUSPARTIAL string = "RUN_STATUS_PARTIAL"
+
+	// TriggerInventoryRefreshOKBodyStatusRUNSTATUSFAILED captures enum value "RUN_STATUS_FAILED"
+	TriggerInventoryRefreshOKBodyStatusRUNSTATUSFAILED string = "RUN_STATUS_FAILED"
+
+	// TriggerInventoryRefreshOKBodyStatusRUNSTATUSSKIPPED captures enum value "RUN_STATUS_SKIPPED"
+	TriggerInventoryRefreshOKBodyStatusRUNSTATUSSKIPPED string = "RUN_STATUS_SKIPPED"
+)
+
+// prop value enum
+func (o *TriggerInventoryRefreshOKBody) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, triggerInventoryRefreshOkBodyTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *TriggerInventoryRefreshOKBody) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("triggerInventoryRefreshOk"+"."+"started_at", "body", "date-time", o.StartedAt.String(), formats); err != nil {
+	// value enum
+	if err := o.validateStatusEnum("triggerInventoryRefreshOk"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *TriggerInventoryRefreshOKBody) validateStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.StartTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("triggerInventoryRefreshOk"+"."+"start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
 		return err
 	}
 

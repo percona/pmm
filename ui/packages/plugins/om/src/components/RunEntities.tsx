@@ -119,7 +119,7 @@ export function RunEntities({ run }: { run: OmInventoryRun }) {
               <TableCell>
                 <Tooltip
                   title={
-                    entity.resolution === 'orphaned'
+                    entity.resolution === 'EXECUTOR_RESOLUTION_ORPHANED'
                       ? 'No executor client matched this host, so nothing was dispatched to it. Not an error.'
                       : 'How the host was matched to the executor client its probe ran on.'
                   }

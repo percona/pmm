@@ -75,6 +75,18 @@ type OmServiceClient interface {
 	// UpdateInventoryConfig changes the inventory app's configuration.
 	UpdateInventoryConfig(ctx context.Context, in *UpdateInventoryConfigRequest, opts ...grpc.CallOption) (*UpdateInventoryConfigResponse, error)
 	// DeleteInventoryConfigOverride reverts one field to its deployed value.
+	//
+	// Addressed under `config/overrides/{key}` rather than `config/{key}`, which is what
+	// this was. `config` is a singleton resource -- GetInventoryConfig returns it,
+	// UpdateInventoryConfig replaces part of it -- so using it as a collection in one
+	// method and a resource in two made it both at once, and the guidelines' resource
+	// model has no room for that.
+	//
+	// `overrides` also names what is actually removed. The setting always exists; the
+	// override on it is the thing with a lifecycle, which is why deleting one is not the
+	// same as deleting a setting. Its read side is `has_override` on each returned
+	// setting rather than a List of its own, since a caller reading the configuration
+	// already has every answer that collection would give.
 	DeleteInventoryConfigOverride(ctx context.Context, in *DeleteInventoryConfigOverrideRequest, opts ...grpc.CallOption) (*DeleteInventoryConfigOverrideResponse, error)
 }
 
@@ -283,6 +295,18 @@ type OmServiceServer interface {
 	// UpdateInventoryConfig changes the inventory app's configuration.
 	UpdateInventoryConfig(context.Context, *UpdateInventoryConfigRequest) (*UpdateInventoryConfigResponse, error)
 	// DeleteInventoryConfigOverride reverts one field to its deployed value.
+	//
+	// Addressed under `config/overrides/{key}` rather than `config/{key}`, which is what
+	// this was. `config` is a singleton resource -- GetInventoryConfig returns it,
+	// UpdateInventoryConfig replaces part of it -- so using it as a collection in one
+	// method and a resource in two made it both at once, and the guidelines' resource
+	// model has no room for that.
+	//
+	// `overrides` also names what is actually removed. The setting always exists; the
+	// override on it is the thing with a lifecycle, which is why deleting one is not the
+	// same as deleting a setting. Its read side is `has_override` on each returned
+	// setting rather than a List of its own, since a caller reading the configuration
+	// already has every answer that collection would give.
 	DeleteInventoryConfigOverride(context.Context, *DeleteInventoryConfigOverrideRequest) (*DeleteInventoryConfigOverrideResponse, error)
 	mustEmbedUnimplementedOmServiceServer()
 }

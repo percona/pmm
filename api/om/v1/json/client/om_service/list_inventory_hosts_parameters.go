@@ -60,9 +60,11 @@ ListInventoryHostsParams contains all the parameters to send to the API endpoint
 type ListInventoryHostsParams struct {
 	/* Executor.
 
-	   When set, return only hosts served by this Nomad client.
+	     When set, return only hosts that do (or do not) have an executor to run a probe
+	on. Not a client name: the app filters on whether one is matched at all, and
+	"which machines can nothing be dispatched to" is the question worth asking.
 	*/
-	Executor *string
+	Executor *bool
 
 	/* Failing.
 
@@ -131,13 +133,13 @@ func (o *ListInventoryHostsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithExecutor adds the executor to the list inventory hosts params
-func (o *ListInventoryHostsParams) WithExecutor(executor *string) *ListInventoryHostsParams {
+func (o *ListInventoryHostsParams) WithExecutor(executor *bool) *ListInventoryHostsParams {
 	o.SetExecutor(executor)
 	return o
 }
 
 // SetExecutor adds the executor to the list inventory hosts params
-func (o *ListInventoryHostsParams) SetExecutor(executor *string) {
+func (o *ListInventoryHostsParams) SetExecutor(executor *bool) {
 	o.Executor = executor
 }
 
@@ -173,12 +175,12 @@ func (o *ListInventoryHostsParams) WriteToRequest(r runtime.ClientRequest, reg s
 	if o.Executor != nil {
 
 		// query param executor
-		var qrExecutor string
+		var qrExecutor bool
 
 		if o.Executor != nil {
 			qrExecutor = *o.Executor
 		}
-		qExecutor := qrExecutor
+		qExecutor := swag.FormatBool(qrExecutor)
 		if qExecutor != "" {
 			if err := r.SetQueryParam("executor", qExecutor); err != nil {
 				return err

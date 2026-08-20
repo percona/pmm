@@ -187,7 +187,7 @@ function SettingField({
  *
  * - **Only runtime-changeable fields appear at all.** A field needing a restart would
  *   promise a change it cannot deliver, and showing one read-only beside editable ones
- *   just raises the question of why. `reload === 'hot'` is the filter, and it is what
+ *   just raises the question of why. `reload === 'SETTING_RELOAD_HOT'` is the filter, and it is what
  *   drops the two that are not: `CREDENTIALS_PATH`, deliberately not overridable
  *   because it names a file read on every database host and handed to a driver as a
  *   URI, and `FASTAPI_ENV`, which is the framework's rather than OM's.
@@ -209,7 +209,10 @@ export function ConfigForm() {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
 
   const editable = useMemo(
-    () => (settings ?? []).filter((setting) => setting.reload === 'hot'),
+    () =>
+      (settings ?? []).filter(
+        (setting) => setting.reload === 'SETTING_RELOAD_HOT'
+      ),
     [settings]
   );
 

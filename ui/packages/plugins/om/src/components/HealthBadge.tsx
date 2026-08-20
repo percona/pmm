@@ -37,7 +37,7 @@ export function StatusBadge({ status }: { status: OmServiceStatus }) {
       size="small"
       label={SERVICE_STATUS_LABEL[status] ?? status}
       color={SERVICE_STATUS_COLOR[status] ?? 'default'}
-      variant={status === 'DOWN' ? 'outlined' : 'filled'}
+      variant={status === 'SERVICE_STATUS_DOWN' ? 'outlined' : 'filled'}
     />
   );
 }
@@ -49,7 +49,7 @@ export function RunStatusBadge({ status }: { status: OmTopologyRunStatus }) {
       size="small"
       label={RUN_STATUS_LABEL[status] ?? status}
       color={RUN_STATUS_COLOR[status] ?? 'default'}
-      variant={status === 'running' ? 'outlined' : 'filled'}
+      variant={status === 'RUN_STATUS_RUNNING' ? 'outlined' : 'filled'}
     />
   );
 }

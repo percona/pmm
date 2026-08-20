@@ -90,14 +90,17 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodGet, "/v1/om/inventory/hosts/node-1", viewer},
 		{http.MethodGet, "/v1/om/inventory/services", viewer},
 		{http.MethodGet, "/v1/om/inventory/config", viewer},
-		{http.MethodPost, "/v1/om/inventory/runs", editor},
+		{http.MethodPost, "/v1/om/inventory/runs:trigger", editor},
 		{http.MethodDelete, "/v1/om/inventory/hosts/node-1", admin},
 		{http.MethodDelete, "/v1/om/inventory/services/svc-1", admin},
-		{http.MethodPatch, "/v1/om/inventory/config", admin},
-		{http.MethodDelete, "/v1/om/inventory/config/SCHEDULE__every", admin},
+		{http.MethodPut, "/v1/om/inventory/config", admin},
+		{http.MethodDelete, "/v1/om/inventory/config/overrides/SCHEDULE__every", admin},
+		// The backstop: no such route today, but a DELETE under an app's configuration
+		// must not degrade to the viewer rule at "/v1/om" if one is ever added.
+		{http.MethodDelete, "/v1/om/inventory/config/anything-else", admin},
 		// PMM's own collection pass stays viewer: it recomputes a document from data PMM
 		// already holds and never reaches a host.
-		{http.MethodPost, "/v1/om/topology/runs", viewer},
+		{http.MethodPost, "/v1/om/topology/runs:collect", viewer},
 
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},

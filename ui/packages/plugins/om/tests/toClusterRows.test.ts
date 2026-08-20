@@ -34,10 +34,10 @@ const service = (overrides: Partial<OmService>): OmService => ({
   edition: 'Community',
   replication_set: 'rs0',
   state: 'PRIMARY',
-  status: 'UP' as OmServiceStatus,
+  status: 'SERVICE_STATUS_UP' as OmServiceStatus,
   cpu_usage_percent: 1,
   connections_free_percent: 99,
-  process_role: 'mongod',
+  process_role: 'PROCESS_ROLE_MONGOD',
   replication_lag_seconds: null,
   oplog_window_seconds: null,
   installed_version: null,
@@ -61,10 +61,10 @@ const topology = (
   summary: {
     environments: environments.length,
     clusters: 0,
-    services_total: 0,
-    services_up: 0,
-    services_down: 0,
-    by_process_role: {},
+    total_services: 0,
+    up_services: 0,
+    down_services: 0,
+    process_role_counts: {},
   },
   environments,
 });
@@ -87,7 +87,7 @@ describe('toClusterRows', () => {
                 service({
                   service_name: 'b',
                   state: 'SECONDARY',
-                  status: 'DOWN',
+                  status: 'SERVICE_STATUS_DOWN',
                 }),
                 service({ service_name: 'c', state: 'SECONDARY' }),
               ],
@@ -101,10 +101,10 @@ describe('toClusterRows', () => {
     expect(rows[0]).toMatchObject({
       env_name: 'sandbox',
       cluster_name: 'rs0',
-      services_total: 3,
-      services_up: 2,
-      services_down: 1,
-      by_process_role: { mongod: 3 },
+      total_services: 3,
+      up_services: 2,
+      down_services: 1,
+      by_process_role: { PROCESS_ROLE_MONGOD: 3 },
       by_state: { PRIMARY: 1, SECONDARY: 2 },
       versions: ['7.0.39-21'],
     });
@@ -129,7 +129,7 @@ describe('toClusterRows', () => {
       ['sandbox', 'rs1'],
       [null, null],
     ]);
-    expect(rows[2].services_total).toBe(0);
+    expect(rows[2].total_services).toBe(0);
   });
 
   // The two ends are deliberate: lag is a problem at its worst member, an oplog
@@ -172,9 +172,9 @@ describe('toClusterRows', () => {
             {
               name: 'sharded',
               services: [
-                service({ process_role: 'mongos', state: null }),
+                service({ process_role: 'PROCESS_ROLE_MONGOS', state: null }),
                 service({
-                  process_role: 'shardsvr',
+                  process_role: 'PROCESS_ROLE_SHARDSVR',
                   replication_lag_seconds: 0,
                   oplog_window_seconds: 86400,
                 }),
@@ -182,7 +182,7 @@ describe('toClusterRows', () => {
             },
             {
               name: 'routers-only',
-              services: [service({ process_role: 'mongos' })],
+              services: [service({ process_role: 'PROCESS_ROLE_MONGOS' })],
             },
           ],
         },
@@ -191,7 +191,10 @@ describe('toClusterRows', () => {
 
     expect(rows[0].max_replication_lag_seconds).toBe(0);
     expect(rows[0].min_oplog_window_seconds).toBe(86400);
-    expect(rows[0].by_process_role).toEqual({ mongos: 1, shardsvr: 1 });
+    expect(rows[0].by_process_role).toEqual({
+      PROCESS_ROLE_MONGOS: 1,
+      PROCESS_ROLE_SHARDSVR: 1,
+    });
     expect(rows[1].max_replication_lag_seconds).toBeNull();
     expect(rows[1].min_oplog_window_seconds).toBeNull();
   });
@@ -256,14 +259,22 @@ describe('toEnvironmentSections', () => {
           clusters: [
             {
               name: 'rs0',
-              services: [service({}), service({ status: 'DOWN' })],
+              services: [
+                service({}),
+                service({ status: 'SERVICE_STATUS_DOWN' }),
+              ],
             },
             { name: 'rs1', services: [service({})] },
           ],
         },
         {
           env_name: 'production',
-          clusters: [{ name: 'rs2', services: [service({ status: 'DOWN' })] }],
+          clusters: [
+            {
+              name: 'rs2',
+              services: [service({ status: 'SERVICE_STATUS_DOWN' })],
+            },
+          ],
         },
       ])
     );
@@ -271,18 +282,18 @@ describe('toEnvironmentSections', () => {
     expect(sections).toHaveLength(2);
     expect(sections[0]).toMatchObject({
       env_name: 'sandbox',
-      services_total: 3,
-      services_up: 2,
-      services_down: 1,
+      total_services: 3,
+      up_services: 2,
+      down_services: 1,
     });
     expect(sections[0].clusters.map((cluster) => cluster.cluster_name)).toEqual(
       ['rs0', 'rs1']
     );
     expect(sections[1]).toMatchObject({
       env_name: 'production',
-      services_total: 1,
-      services_up: 0,
-      services_down: 1,
+      total_services: 1,
+      up_services: 0,
+      down_services: 1,
     });
   });
 
@@ -295,6 +306,6 @@ describe('toEnvironmentSections', () => {
 
     expect(sections).toHaveLength(1);
     expect(sections[0].env_name).toBeNull();
-    expect(sections[0].services_total).toBe(0);
+    expect(sections[0].total_services).toBe(0);
   });
 });

@@ -876,7 +876,8 @@ func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) UnmarshalBinary(b []
 }
 
 /*
-GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 Service represents one monitored MongoDB service as the topology document records it.
+GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 TopologyService represents one monitored MongoDB service as the topology document
+// records it.
 //
 // Two sentinel conventions, and they differ on purpose. cpu_usage_percent and
 // connections_free_percent are -1 when not measured, never null and never 0, because
@@ -917,8 +918,15 @@ type GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 struct {
 	// PRIMARY, SECONDARY or ARBITER, or unset where there is no replica-set state.
 	State string `json:"state,omitempty"`
 
-	// UP when the exporter reached the service, DOWN when it did not.
-	Status string `json:"status,omitempty"`
+	// ServiceStatus is whether the exporter reached a service.
+	//
+	// Two values and no third: this is the exporter's reachability, not the server's health.
+	// "we did not look" is UNSPECIFIED, which the collector never emits.
+	//
+	//  - SERVICE_STATUS_UP: The exporter reached the service.
+	//  - SERVICE_STATUS_DOWN: It did not.
+	// Enum: ["SERVICE_STATUS_UNSPECIFIED","SERVICE_STATUS_UP","SERVICE_STATUS_DOWN"]
+	Status *string `json:"status,omitempty"`
 
 	// CPU percentage, or -1 when not measured.
 	CPUUsagePercent float64 `json:"cpu_usage_percent,omitempty"`
@@ -926,8 +934,17 @@ type GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 struct {
 	// Percentage of free connections, or -1 when not measured.
 	ConnectionsFreePercent float64 `json:"connections_free_percent,omitempty"`
 
-	// mongod, mongos, configsvr or shardsvr.
-	ProcessRole string `json:"process_role,omitempty"`
+	// ProcessRole is what a mongod or mongos is doing in the deployment.
+	//
+	// Not the same axis as replica-set state: a SHARDSVR can be PRIMARY or SECONDARY. This
+	// is the role the process was started in, which is a property of the deployment's shape.
+	//
+	//  - PROCESS_ROLE_MONGOD: A standalone or replica-set member with no sharding role.
+	//  - PROCESS_ROLE_MONGOS: A router.
+	//  - PROCESS_ROLE_CONFIGSVR: A config-server member.
+	//  - PROCESS_ROLE_SHARDSVR: A shard member.
+	// Enum: ["PROCESS_ROLE_UNSPECIFIED","PROCESS_ROLE_MONGOD","PROCESS_ROLE_MONGOS","PROCESS_ROLE_CONFIGSVR","PROCESS_ROLE_SHARDSVR"]
+	ProcessRole *string `json:"process_role,omitempty"`
 
 	// Seconds this member trails the primary; unset where there is no primary to trail.
 	ReplicationLagSeconds float64 `json:"replication_lag_seconds,omitempty"`
@@ -949,6 +966,115 @@ type GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 struct {
 
 // Validate validates this get topology OK body environments items0 clusters items0 services items0
 func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateProcessRole(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getTopologyOkBodyEnvironmentsItems0ClustersItems0ServicesItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SERVICE_STATUS_UNSPECIFIED","SERVICE_STATUS_UP","SERVICE_STATUS_DOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getTopologyOkBodyEnvironmentsItems0ClustersItems0ServicesItems0TypeStatusPropEnum = append(getTopologyOkBodyEnvironmentsItems0ClustersItems0ServicesItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0StatusSERVICESTATUSUNSPECIFIED captures enum value "SERVICE_STATUS_UNSPECIFIED"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0StatusSERVICESTATUSUNSPECIFIED string = "SERVICE_STATUS_UNSPECIFIED"
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0StatusSERVICESTATUSUP captures enum value "SERVICE_STATUS_UP"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0StatusSERVICESTATUSUP string = "SERVICE_STATUS_UP"
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0StatusSERVICESTATUSDOWN captures enum value "SERVICE_STATUS_DOWN"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0StatusSERVICESTATUSDOWN string = "SERVICE_STATUS_DOWN"
+)
+
+// prop value enum
+func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getTopologyOkBodyEnvironmentsItems0ClustersItems0ServicesItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getTopologyOkBodyEnvironmentsItems0ClustersItems0ServicesItems0TypeProcessRolePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["PROCESS_ROLE_UNSPECIFIED","PROCESS_ROLE_MONGOD","PROCESS_ROLE_MONGOS","PROCESS_ROLE_CONFIGSVR","PROCESS_ROLE_SHARDSVR"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getTopologyOkBodyEnvironmentsItems0ClustersItems0ServicesItems0TypeProcessRolePropEnum = append(getTopologyOkBodyEnvironmentsItems0ClustersItems0ServicesItems0TypeProcessRolePropEnum, v)
+	}
+}
+
+const (
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLEUNSPECIFIED captures enum value "PROCESS_ROLE_UNSPECIFIED"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLEUNSPECIFIED string = "PROCESS_ROLE_UNSPECIFIED"
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLEMONGOD captures enum value "PROCESS_ROLE_MONGOD"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLEMONGOD string = "PROCESS_ROLE_MONGOD"
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLEMONGOS captures enum value "PROCESS_ROLE_MONGOS"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLEMONGOS string = "PROCESS_ROLE_MONGOS"
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLECONFIGSVR captures enum value "PROCESS_ROLE_CONFIGSVR"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLECONFIGSVR string = "PROCESS_ROLE_CONFIGSVR"
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLESHARDSVR captures enum value "PROCESS_ROLE_SHARDSVR"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0ProcessRolePROCESSROLESHARDSVR string = "PROCESS_ROLE_SHARDSVR"
+)
+
+// prop value enum
+func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) validateProcessRoleEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getTopologyOkBodyEnvironmentsItems0ClustersItems0ServicesItems0TypeProcessRolePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) validateProcessRole(formats strfmt.Registry) error {
+	if swag.IsZero(o.ProcessRole) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateProcessRoleEnum("process_role", "body", *o.ProcessRole); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -1075,16 +1201,16 @@ type GetTopologyOKBodySummary struct {
 	Clusters int32 `json:"clusters,omitempty"`
 
 	// Services in the document.
-	ServicesTotal int32 `json:"services_total,omitempty"`
+	TotalServices int32 `json:"total_services,omitempty"`
 
 	// Services the exporter reached.
-	ServicesUp int32 `json:"services_up,omitempty"`
+	UpServices int32 `json:"up_services,omitempty"`
 
 	// Services it did not.
-	ServicesDown int32 `json:"services_down,omitempty"`
+	DownServices int32 `json:"down_services,omitempty"`
 
-	// Service counts per process role.
-	ByProcessRole map[string]int32 `json:"by_process_role,omitempty"`
+	// Service counts per process role, keyed by the ProcessRole enum's name.
+	ProcessRoleCounts map[string]int32 `json:"process_role_counts,omitempty"`
 }
 
 // Validate validates this get topology OK body summary

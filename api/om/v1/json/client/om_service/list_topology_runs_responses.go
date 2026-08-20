@@ -525,23 +525,41 @@ func (o *ListTopologyRunsOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListTopologyRunsOKBodyRunsItems0 Run represents one collection run.
+ListTopologyRunsOKBodyRunsItems0 TopologyRun represents one collection run.
 swagger:model ListTopologyRunsOKBodyRunsItems0
 */
 type ListTopologyRunsOKBodyRunsItems0 struct {
 	// The run's ID, also the snapshot key.
 	RunID string `json:"run_id,omitempty"`
 
-	// running, success, partial or failed.
-	Status string `json:"status,omitempty"`
+	// RunStatus is how a run ended, for both kinds of run.
+	//
+	// Shared by the topology collection pass and the inventory refresh deliberately: the two
+	// runs differ in what they do, not in how they finish, and two identical enums would
+	// invite them to drift apart for no reason.
+	//
+	//  - RUN_STATUS_RUNNING: Still going. Not a terminal status.
+	//  - RUN_STATUS_SUCCESS: Everything it attempted answered.
+	//  - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common
+	// steady state rather than an alarm: a row routinely outlives the executor that served
+	// it.
+	//  - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.
+	//  - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it
+	// would have covered. Neither a failure nor a success: it did nothing, deliberately,
+	// and it is recorded so a schedule cannot look like it fired and found nothing.
+	//
+	// Only an inventory refresh reaches this; the collection pass has no single-flight
+	// guard to lose against.
+	// Enum: ["RUN_STATUS_UNSPECIFIED","RUN_STATUS_RUNNING","RUN_STATUS_SUCCESS","RUN_STATUS_PARTIAL","RUN_STATUS_FAILED","RUN_STATUS_SKIPPED"]
+	Status *string `json:"status,omitempty"`
 
 	// When the run began.
 	// Format: date-time
-	StartedAt strfmt.DateTime `json:"started_at,omitempty"`
+	StartTime strfmt.DateTime `json:"start_time,omitempty"`
 
 	// When it reached a terminal status; unset while running.
 	// Format: date-time
-	FinishedAt strfmt.DateTime `json:"finished_at,omitempty"`
+	EndTime strfmt.DateTime `json:"end_time,omitempty"`
 
 	// Query-level, service-level and run-level failures.
 	Errors []*ListTopologyRunsOKBodyRunsItems0ErrorsItems0 `json:"errors"`
@@ -557,11 +575,15 @@ type ListTopologyRunsOKBodyRunsItems0 struct {
 func (o *ListTopologyRunsOKBodyRunsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateStartedAt(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateFinishedAt(formats); err != nil {
+	if err := o.validateStartTime(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateEndTime(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -583,24 +605,78 @@ func (o *ListTopologyRunsOKBodyRunsItems0) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-func (o *ListTopologyRunsOKBodyRunsItems0) validateStartedAt(formats strfmt.Registry) error {
-	if swag.IsZero(o.StartedAt) { // not required
+var listTopologyRunsOkBodyRunsItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["RUN_STATUS_UNSPECIFIED","RUN_STATUS_RUNNING","RUN_STATUS_SUCCESS","RUN_STATUS_PARTIAL","RUN_STATUS_FAILED","RUN_STATUS_SKIPPED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listTopologyRunsOkBodyRunsItems0TypeStatusPropEnum = append(listTopologyRunsOkBodyRunsItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSUNSPECIFIED captures enum value "RUN_STATUS_UNSPECIFIED"
+	ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSUNSPECIFIED string = "RUN_STATUS_UNSPECIFIED"
+
+	// ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSRUNNING captures enum value "RUN_STATUS_RUNNING"
+	ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSRUNNING string = "RUN_STATUS_RUNNING"
+
+	// ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSSUCCESS captures enum value "RUN_STATUS_SUCCESS"
+	ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSSUCCESS string = "RUN_STATUS_SUCCESS"
+
+	// ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSPARTIAL captures enum value "RUN_STATUS_PARTIAL"
+	ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSPARTIAL string = "RUN_STATUS_PARTIAL"
+
+	// ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSFAILED captures enum value "RUN_STATUS_FAILED"
+	ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSFAILED string = "RUN_STATUS_FAILED"
+
+	// ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSSKIPPED captures enum value "RUN_STATUS_SKIPPED"
+	ListTopologyRunsOKBodyRunsItems0StatusRUNSTATUSSKIPPED string = "RUN_STATUS_SKIPPED"
+)
+
+// prop value enum
+func (o *ListTopologyRunsOKBodyRunsItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listTopologyRunsOkBodyRunsItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListTopologyRunsOKBodyRunsItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("started_at", "body", "date-time", o.StartedAt.String(), formats); err != nil {
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (o *ListTopologyRunsOKBodyRunsItems0) validateFinishedAt(formats strfmt.Registry) error {
-	if swag.IsZero(o.FinishedAt) { // not required
+func (o *ListTopologyRunsOKBodyRunsItems0) validateStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.StartTime) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("finished_at", "body", "date-time", o.FinishedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListTopologyRunsOKBodyRunsItems0) validateEndTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.EndTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("end_time", "body", "date-time", o.EndTime.String(), formats); err != nil {
 		return err
 	}
 
@@ -807,24 +883,24 @@ func (o *ListTopologyRunsOKBodyRunsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListTopologyRunsOKBodyRunsItems0Counts RunCounts counts what one collection run saw.
+ListTopologyRunsOKBodyRunsItems0Counts TopologyRunCounts counts what one collection run saw.
 swagger:model ListTopologyRunsOKBodyRunsItems0Counts
 */
 type ListTopologyRunsOKBodyRunsItems0Counts struct {
 	// MongoDB services inventory reported.
-	ServicesTotal int32 `json:"services_total,omitempty"`
+	TotalServices int32 `json:"total_services,omitempty"`
 
 	// ...of which carried a service ID to join metrics on.
-	ServicesResolved int32 `json:"services_resolved,omitempty"`
+	ResolvedServices int32 `json:"resolved_services,omitempty"`
 
 	// ...of which did not. Not an error.
-	ServicesOrphaned int32 `json:"services_orphaned,omitempty"`
+	OrphanedServices int32 `json:"orphaned_services,omitempty"`
 
 	// Services metrics actually observed as reachable.
-	ProbesOK int32 `json:"probes_ok,omitempty"`
+	SuccessfulProbes int32 `json:"successful_probes,omitempty"`
 
 	// Services carrying at least one volatile fact too old to read as current.
-	ServicesStale int32 `json:"services_stale,omitempty"`
+	StaleServices int32 `json:"stale_services,omitempty"`
 }
 
 // Validate validates this list topology runs OK body runs items0 counts
@@ -856,7 +932,7 @@ func (o *ListTopologyRunsOKBodyRunsItems0Counts) UnmarshalBinary(b []byte) error
 }
 
 /*
-ListTopologyRunsOKBodyRunsItems0ErrorsItems0 RunError describes one thing that went wrong during a run.
+ListTopologyRunsOKBodyRunsItems0ErrorsItems0 TopologyRunError describes one thing that went wrong during a collection run.
 swagger:model ListTopologyRunsOKBodyRunsItems0ErrorsItems0
 */
 type ListTopologyRunsOKBodyRunsItems0ErrorsItems0 struct {
@@ -910,11 +986,22 @@ ListTopologyRunsOKBodyRunsItems0SourcesItems0 SourceReport says how completely o
 swagger:model ListTopologyRunsOKBodyRunsItems0SourcesItems0
 */
 type ListTopologyRunsOKBodyRunsItems0SourcesItems0 struct {
-	// The source key, e.g. "inventory", "metrics" or "probe".
+	// The source key, e.g. "inventory", "metrics" or "probe". An open set on purpose: a
+	// source is named by whatever produced it, so this stays a string where the statuses
+	// beside it are enums.
 	Source string `json:"source,omitempty"`
 
-	// ok, partial, failed or disabled.
-	Status string `json:"status,omitempty"`
+	// SourceStatus is how completely one collection source answered.
+	//
+	// Separate from RunStatus because it carries DISABLED, which a run cannot be: a source
+	// switched off in configuration is a deliberate state, not a degraded one.
+	//
+	//  - SOURCE_STATUS_OK: Answered everything asked of it.
+	//  - SOURCE_STATUS_PARTIAL: Answered some of it.
+	//  - SOURCE_STATUS_FAILED: Did not answer.
+	//  - SOURCE_STATUS_DISABLED: Switched off in configuration, so it was never asked.
+	// Enum: ["SOURCE_STATUS_UNSPECIFIED","SOURCE_STATUS_OK","SOURCE_STATUS_PARTIAL","SOURCE_STATUS_FAILED","SOURCE_STATUS_DISABLED"]
+	Status *string `json:"status,omitempty"`
 
 	// How many facts it produced.
 	Facts int32 `json:"facts,omitempty"`
@@ -926,6 +1013,66 @@ type ListTopologyRunsOKBodyRunsItems0SourcesItems0 struct {
 
 // Validate validates this list topology runs OK body runs items0 sources items0
 func (o *ListTopologyRunsOKBodyRunsItems0SourcesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listTopologyRunsOkBodyRunsItems0SourcesItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SOURCE_STATUS_UNSPECIFIED","SOURCE_STATUS_OK","SOURCE_STATUS_PARTIAL","SOURCE_STATUS_FAILED","SOURCE_STATUS_DISABLED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listTopologyRunsOkBodyRunsItems0SourcesItems0TypeStatusPropEnum = append(listTopologyRunsOkBodyRunsItems0SourcesItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ListTopologyRunsOKBodyRunsItems0SourcesItems0StatusSOURCESTATUSUNSPECIFIED captures enum value "SOURCE_STATUS_UNSPECIFIED"
+	ListTopologyRunsOKBodyRunsItems0SourcesItems0StatusSOURCESTATUSUNSPECIFIED string = "SOURCE_STATUS_UNSPECIFIED"
+
+	// ListTopologyRunsOKBodyRunsItems0SourcesItems0StatusSOURCESTATUSOK captures enum value "SOURCE_STATUS_OK"
+	ListTopologyRunsOKBodyRunsItems0SourcesItems0StatusSOURCESTATUSOK string = "SOURCE_STATUS_OK"
+
+	// ListTopologyRunsOKBodyRunsItems0SourcesItems0StatusSOURCESTATUSPARTIAL captures enum value "SOURCE_STATUS_PARTIAL"
+	ListTopologyRunsOKBodyRunsItems0SourcesItems0StatusSOURCESTATUSPARTIAL string = "SOURCE_STATUS_PARTIAL"
+
+	// ListTopologyRunsOKBodyRunsItems0SourcesItems0StatusSOURCESTATUSFAILED captures enum value "SOURCE_STATUS_FAILED"
+	ListTopologyRunsOKBodyRunsItems0SourcesItems0StatusSOURCESTATUSFAILED string = "SOURCE_STATUS_FAILED"
+
+	// ListTopologyRunsOKBodyRunsItems0SourcesItems0StatusSOURCESTATUSDISABLED captures enum value "SOURCE_STATUS_DISABLED"
+	ListTopologyRunsOKBodyRunsItems0SourcesItems0StatusSOURCESTATUSDISABLED string = "SOURCE_STATUS_DISABLED"
+)
+
+// prop value enum
+func (o *ListTopologyRunsOKBodyRunsItems0SourcesItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, listTopologyRunsOkBodyRunsItems0SourcesItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListTopologyRunsOKBodyRunsItems0SourcesItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 

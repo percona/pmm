@@ -46,6 +46,7 @@ import type {
   OmInventoryRunDetail,
   OmInventoryService,
   OmInventorySetting,
+  OmTopologyRunStatus,
 } from './types';
 
 const hostsKey = ['om', 'inventory', 'hosts'] as const;
@@ -71,8 +72,13 @@ export interface OmHostFilters {
   has_service?: boolean;
   /** Whether it is currently failing its probe. */
   failing?: boolean;
-  /** Restrict to one executor host. */
-  executor?: string;
+  /**
+   * Whether an executor is matched for it at all.
+   *
+   * Not a client name: the app filters on presence, so `false` is "which machines can
+   * nothing be dispatched to" rather than "which are served by nobody in particular".
+   */
+  executor?: boolean;
 }
 
 /**
@@ -90,8 +96,8 @@ function toQuery(filters: OmHostFilters): string {
   if (filters.failing !== undefined) {
     params.set('failing', String(filters.failing));
   }
-  if (filters.executor) {
-    params.set('executor', filters.executor);
+  if (filters.executor !== undefined) {
+    params.set('executor', String(filters.executor));
   }
   const query = params.toString();
   return query ? `?${query}` : '';
@@ -142,9 +148,16 @@ export function useOmInventoryServices() {
   });
 }
 
-/** True while a refresh has not reached a terminal status. */
-export function isRefreshActive(status: string | undefined): boolean {
-  return status === 'running';
+/**
+ * True while a refresh has not reached a terminal status.
+ *
+ * Typed on the union rather than on `string`, because the compiler is the only thing
+ * that would have caught this comparison going stale when the wire values changed.
+ */
+export function isRefreshActive(
+  status: OmTopologyRunStatus | undefined
+): boolean {
+  return status === 'RUN_STATUS_RUNNING';
 }
 
 /**
@@ -187,7 +200,7 @@ export function useRefreshInventory() {
   const queryClient = useQueryClient();
   return useMutation<OmInventoryRunAccepted, Error, string[] | undefined>({
     mutationFn: (nodeIds) =>
-      request<OmInventoryRunAccepted>('/inventory/runs', {
+      request<OmInventoryRunAccepted>('/inventory/runs:trigger', {
         method: 'POST',
         body: JSON.stringify(nodeIds?.length ? { node_ids: nodeIds } : {}),
       }),
@@ -276,12 +289,18 @@ export function useOmInventoryConfig() {
 }
 
 /**
- * Change configuration fields, and re-read what actually took effect.
+ * Change configuration fields.
  *
- * The re-read is the point. Beat runs as a forked side-car process, and a form that
- * echoed the submitted value would look identical whether or not the change reached
- * it. Invalidating and rendering what comes back is what makes that visible instead of
- * assumed.
+ * The response is the whole configuration as it now stands, not the keys that were
+ * submitted: pmm-managed reads it back after the write, so a form renders what actually
+ * took effect rather than what it asked for. That matters because beat runs as a forked
+ * side-car process, and because overriding a nested parent moves what its children
+ * resolve to.
+ *
+ * The invalidation below is therefore belt-and-braces rather than the mechanism it used
+ * to be. It stays because the schedule and the run history move together, and because a
+ * cache keyed on this query should not depend on a caller remembering to read the
+ * mutation's result.
  *
  * The batch is atomic on the app's side: one bad key rejects all of it with a per-key
  * 422 and writes nothing, so a caller never has to work out how far a partial apply
@@ -296,7 +315,7 @@ export function useUpdateOmInventoryConfig() {
   >({
     mutationFn: (values) =>
       request<{ settings: OmInventorySetting[] }>('/inventory/config', {
-        method: 'PATCH',
+        method: 'PUT',
         body: JSON.stringify(values),
       }),
     onSettled: () => {
@@ -313,7 +332,7 @@ export function useResetOmInventoryConfig() {
   const queryClient = useQueryClient();
   return useMutation<void, Error, string>({
     mutationFn: (key) =>
-      request<void>(`/inventory/config/${encodeURIComponent(key)}`, {
+      request<void>(`/inventory/config/overrides/${encodeURIComponent(key)}`, {
         method: 'DELETE',
       }),
     onSettled: () => {
