@@ -8,7 +8,9 @@ describe('updateBodyClassByLocation', () => {
     };
     updateBodyClassByLocation(location as Location);
 
-    expect(document.body.classList.contains('grafana-compat-page-123')).toBe(true);
+    expect(document.body.classList.contains('grafana-compat-page-123')).toBe(
+      true
+    );
   });
 
   it('should remove the previous class from the body', () => {
@@ -17,14 +19,20 @@ describe('updateBodyClassByLocation', () => {
     };
     updateBodyClassByLocation(location as Location);
 
-    expect(document.body.classList.contains('grafana-compat-page-123')).toBe(true);
+    expect(document.body.classList.contains('grafana-compat-page-123')).toBe(
+      true
+    );
 
     const location2 = {
       pathname: '/graph/456',
     };
     updateBodyClassByLocation(location2 as Location);
 
-    expect(document.body.classList.contains('grafana-compat-page-456')).toBe(true);
-    expect(document.body.classList.contains('grafana-compat-page-123')).toBe(false);
+    expect(document.body.classList.contains('grafana-compat-page-456')).toBe(
+      true
+    );
+    expect(document.body.classList.contains('grafana-compat-page-123')).toBe(
+      false
+    );
   });
 });
