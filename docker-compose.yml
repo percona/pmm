@@ -48,8 +48,10 @@ services:
       - PMM_POSTGRES_DBPASSWORD
       - PMM_DISABLE_BUILTIN_POSTGRES
       # To expose the built-in PostgreSQL to SEP running on the same bridge network
+      # and reverse-proxy the SEP side-car under /sep/
       - PMM_ENABLE_SEP
       - PMM_SEP_POSTGRES_PASSWORD
+      - PMM_SEP_ADDRESS
       # To discover RDS databases via UI
       - AWS_ACCESS_KEY
       - AWS_SECRET_KEY

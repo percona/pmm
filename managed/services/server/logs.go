@@ -29,6 +29,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"sort"
 	"sync"
 	"time"
@@ -43,7 +44,23 @@ import (
 
 const (
 	maxLogReadLines = 50000
+
+	// The entrypoint renders the SEP nginx drop-ins here when PMM_ENABLE_SEP is
+	// set. The directory is absent on a default installation.
+	sepNginxConfigDir = "/etc/nginx/sep.d"
 )
+
+// sepConfigFiles returns the SEP nginx drop-ins under dir, and nothing when dir is
+// absent. They are globbed rather than listed because their presence depends on
+// PMM_ENABLE_SEP: absent must not mean an error in the archive.
+func sepConfigFiles(ctx context.Context, dir string) []string {
+	configs, err := filepath.Glob(filepath.Join(dir, "*.conf"))
+	if err != nil {
+		logger.Get(ctx).WithField("component", "logs").Error(err)
+	}
+
+	return configs
+}
 
 // fileContent represents logs.zip item.
 type fileContent struct {
@@ -165,7 +182,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		})
 	}
 	// add configs
-	for _, f := range []string{
+	configs := slices.Concat([]string{
 		"/etc/nginx/nginx.conf",
 		"/etc/nginx/conf.d/pmm.conf",
 		"/etc/nginx/conf.d/pmm-ssl.conf",
@@ -182,7 +199,9 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		"/etc/supervisord.d/vmproxy.ini",
 
 		models.AgentConfigFilePath,
-	} {
+	}, sepConfigFiles(ctx, sepNginxConfigDir))
+
+	for _, f := range configs {
 		b, m, err := readFile(f)
 		files = append(files, fileContent{
 			Name:     filepath.Base(f),
