@@ -13,13 +13,13 @@ See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-m
 
 This repo uses the following stack across its packages:
 
-- pnpm (https://pnpm.io/)
-- Turborepo (https://turborepo.com/)
-- Typescript (https://www.typescriptlang.org/)
-- React (https://react.dev/)
-- Rollup to bundle the different common packages (https://rollupjs.org/)
-- Vite for development (https://vitejs.dev/)
-- Vitest for unit tests (https://vitest.dev/)
+- pnpm ([https://pnpm.io/](https://pnpm.io/))
+- Turborepo ([https://turborepo.com/](https://turborepo.com/))
+- Typescript ([https://www.typescriptlang.org/](https://www.typescriptlang.org/))
+- React ([https://react.dev/](https://react.dev/))
+- Rollup to bundle the different common packages ([https://rollupjs.org/](https://rollupjs.org/))
+- Vite for development ([https://vitejs.dev/](https://vitejs.dev/))
+- Vitest for unit tests ([https://vitest.dev/](https://vitest.dev/))
 
 ## Apps
 
@@ -61,31 +61,69 @@ The devcontainer ships a prebuilt Grafana baked into the `perconalab/pmm-server`
 
 1. Clone the Grafana fork **next to** the `pmm` repo on the host, so it resolves to `../grafana` from the repo root:
 
-   ```bash
-   git clone https://github.com/percona/grafana ../grafana
-   ```
+```bash
+ git clone https://github.com/percona/grafana ../grafana
+```
 
 2. Uncomment the `grafana` volume mappings in `docker-compose.dev.yml`:
 
-   ```yaml
-   # grafana
-   - ../grafana:/root/go/src/github.com/percona/grafana
-   - ../grafana/public:/usr/share/grafana/public
-   ```
+```yaml
+# grafana
+- ../grafana:/root/go/src/github.com/percona/grafana
+- ../grafana/public:/usr/share/grafana/public
+```
 
-   The first mount provides the Grafana source for the backend build; the second serves the fork's built frontend (`public/`).
+The first mount provides the Grafana source for the backend build; the second serves the fork's built frontend (`public/`). 3. Recreate the container so the new mounts take effect — volume mappings are read at container create time (`make env-down` then `make env-up`, or recreate via your container tooling). 4. Rebuild the Grafana backend **inside the container**:
 
-3. Recreate the container so the new mounts take effect — volume mappings are read at container create time (`make env-down` then `make env-up`, or recreate via your container tooling).
+```bash
+ make grafana-be-build
+```
 
-4. Rebuild the Grafana backend **inside the container**:
-
-   ```bash
-   make grafana-be-build
-   ```
-
-   This runs `make build-go` in `/root/go/src/github.com/percona/grafana`, copies the resulting `bin/linux/amd64/grafana` binary to `/usr/sbin/grafana`, and restarts Grafana via supervisor.
+This runs `make build-go` in `/root/go/src/github.com/percona/grafana`, copies the resulting `bin/linux/amd64/grafana` binary to `/usr/sbin/grafana`, and restarts Grafana via supervisor.
 
 For frontend changes in the fork, rebuild its `public/` assets (`make build-js` inside the grafana checkout); they are served through the `../grafana/public` mount.
+
+### Link a local `@percona/peak-ui` checkout
+
+To develop against a local [peak-ui](https://github.com/percona/peak-ui) checkout instead of the published `@percona/peak-ui` version:
+
+1. Clone peak-ui to a folder of your choice
+
+```bash
+ git clone https://github.com/percona/peak-ui
+```
+
+2. Uncomment the `peak-ui` volume mapping in `docker-compose.dev.yml` and point it to the repo location (e.g. `../peak-ui`):
+
+```yaml
+# peak-ui
+- ../peak-ui:/root/go/src/github.com/percona/peak-ui
+```
+
+Don't commit this line uncommented — the path is host-specific.
+
+3. Recreate the container so the new mount takes effect (`make env-down` then `make env-up`).
+
+4. Link it from **inside the container**, from `ui/apps/pmm` (not the `ui/` workspace root):
+
+```bash
+ cd ui/apps/pmm
+ pnpm link /root/go/src/github.com/percona/peak-ui
+```
+
+pnpm implements workspace linking via a workspace-wide override: this adds an entry to `ui/pnpm-workspace.yaml`'s `overrides`, plus an anchor `dependencies` entry in the `ui/` workspace root's `package.json`, so every workspace package resolves to your local checkout, not just `apps/pmm`.
+
+5. Make sure your local lib is built (e.g. `pnpm build` or `pnpm build:watch` for live reload).
+
+6. Run `make run-ui` as usual.
+
+7. To stop using the local checkout, unlink from `ui/apps/pmm`:
+
+```bash
+ pnpm unlink @percona/peak-ui
+```
+
+`unlink` only reverses the override in `pnpm-workspace.yaml` and `apps/pmm`'s own specifier — it leaves the anchor entry behind in the root `ui/package.json`/`ui/pnpm-lock.yaml`. Check `git diff ui/package.json ui/pnpm-lock.yaml` afterwards and discard any leftover `@percona/peak-ui": "link:../../peak-ui"` entry with `git checkout -- ui/package.json ui/pnpm-lock.yaml`.
 
 ## Run locally on the host
 
