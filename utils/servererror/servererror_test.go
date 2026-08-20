@@ -19,6 +19,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -176,6 +177,7 @@ func TestAuthHint(t *testing.T) {
 		grpcInternal         = 13
 		grpcPermissionDenied = 7
 		grpcNotFound         = 5
+		grpcUnknown          = 2
 	)
 
 	for name, tc := range map[string]struct {
@@ -197,9 +199,14 @@ func TestAuthHint(t *testing.T) {
 		"permission denied":                       {403, grpcPermissionDenied, "Please check that your PMM user has sufficient permissions"},
 		"403 without a gRPC code":                 {403, 0, "Please check that your PMM user has sufficient permissions"},
 		"permission denied behind another status": {500, grpcPermissionDenied, "Please check that your PMM user has sufficient permissions"},
-		"not found":                               {404, grpcNotFound, ""},
-		"conflict":                                {409, 6, ""},
-		"success":                                 {200, 0, ""},
+		// PMM Server maps errors which are not about permissions onto 403 as well. Those
+		// must still be explained: the CLIs printed a hint for every 403 before, and
+		// requiring a specific gRPC code here silently dropped it.
+		"internal error mapped to 403": {403, grpcInternal, "Please check PMM Server logs"},
+		"unknown code behind 403":      {403, grpcUnknown, "Please check PMM Server logs"},
+		"not found":                    {404, grpcNotFound, ""},
+		"conflict":                     {409, 6, ""},
+		"success":                      {200, 0, ""},
 	} {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
@@ -207,4 +214,46 @@ func TestAuthHint(t *testing.T) {
 			assert.Equal(t, tc.expected, AuthHint(tc.httpCode, tc.grpcCode))
 		})
 	}
+}
+
+func TestNginxError(t *testing.T) {
+	t.Parallel()
+
+	err := NginxError("<html>502 Bad Gateway</html>")
+
+	assert.Equal(t, "response from nginx: <html>502 Bad Gateway</html>", err.Error())
+	assert.Equal(t, `NginxError("<html>502 Bad Gateway</html>")`, fmt.Sprintf("%#v", err))
+
+	// Both CLIs recognise the error through the wrapping the generated clients add.
+	var target NginxError
+	require.ErrorAs(t, fmt.Errorf("registration failed: %w", err), &target)
+	assert.Equal(t, err, target)
+}
+
+func TestNginxConsumer(t *testing.T) {
+	t.Parallel()
+
+	t.Run("plain body", func(t *testing.T) {
+		t.Parallel()
+
+		err := NginxConsumer().Consume(strings.NewReader("502 Bad Gateway"), nil)
+
+		var target NginxError
+		require.ErrorAs(t, err, &target)
+		assert.Equal(t, NginxError("502 Bad Gateway"), target)
+	})
+
+	t.Run("page trailing newline", func(t *testing.T) {
+		t.Parallel()
+
+		// nginx pages end with a newline, which would push whatever the caller prints
+		// after the error onto a line of its own.
+		page := "<html>\r\n<title>401 Authorization Required</title>\r\n</html>\r\n"
+		err := NginxConsumer().Consume(strings.NewReader(page), nil)
+
+		var target NginxError
+		require.ErrorAs(t, err, &target)
+		assert.Equal(t, NginxError("<html>\r\n<title>401 Authorization Required</title>\r\n</html>"), target)
+		assert.NotContains(t, err.Error(), "</html>\r\n")
+	})
 }

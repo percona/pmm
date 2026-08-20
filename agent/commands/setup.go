@@ -156,8 +156,10 @@ func registerErrorMessage(err error, host string, insecureTLS bool) string {
 		}
 	}
 
-	if _, ok := errors.AsType[nginxError](err); ok {
-		msg += ".\nPlease check pmm-managed logs."
+	// Like the hints above, this one ends without punctuation: the caller prints the
+	// message followed by a period of its own.
+	if _, ok := errors.AsType[servererror.NginxError](err); ok {
+		msg += "\n" + servererror.NginxHint
 	}
 
 	return msg

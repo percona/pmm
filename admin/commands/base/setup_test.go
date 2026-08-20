@@ -26,7 +26,26 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/pkg/flags"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 )
+
+// restoreClients puts the package-level PMM Server API clients back the way they were once the
+// test is done. SetupClients reconfigures them for the whole test binary, so without this a
+// later test would talk to whatever server this one pointed them at.
+func restoreClients(t *testing.T) {
+	t.Helper()
+
+	inventory := inventoryClient.Default.Transport
+	management := managementClient.Default.Transport
+	server := serverClient.Default.Transport
+
+	t.Cleanup(func() {
+		inventoryClient.Default.SetTransport(inventory)
+		managementClient.Default.SetTransport(management)
+		serverClient.Default.SetTransport(server)
+	})
+}
 
 func TestApplyAgentServerParams(t *testing.T) {
 	t.Parallel()
@@ -73,8 +92,44 @@ func TestApplyAgentServerParamsInvalidURL(t *testing.T) {
 	assert.Nil(t, globals.ServerURL)
 }
 
-// tlsConfigOf returns the TLS configuration the PMM Server API clients were set up with.
-func tlsConfigOf(t *testing.T) *http.Transport {
+// TestApplyAgentServerParamsUnusableURL covers the URLs url.Parse accepts but the API clients
+// cannot be built from. They must be reported here rather than turned into an opaque dial
+// failure once SetupClients has gone on to use them.
+func TestApplyAgentServerParamsUnusableURL(t *testing.T) {
+	t.Parallel()
+
+	for name, serverURL := range map[string]string{
+		"empty":          "",
+		"missing scheme": "pmm-server:8443",
+		"missing host":   "https:///v1",
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			globals := &flags.GlobalFlags{}                    //nolint:exhaustruct
+			status := &agentlocal.Status{ServerURL: serverURL} //nolint:exhaustruct
+
+			require.Error(t, applyAgentServerParams(globals, status))
+			assert.Nil(t, globals.ServerURL)
+		})
+	}
+}
+
+// TestApplyAgentServerParamsAddsTrailingPath checks that the URL reported by the local
+// pmm-agent is completed the same way a --server-url is: go-openapi requires a base path.
+func TestApplyAgentServerParamsAddsTrailingPath(t *testing.T) {
+	t.Parallel()
+
+	globals := &flags.GlobalFlags{}                                    //nolint:exhaustruct
+	status := &agentlocal.Status{ServerURL: "https://pmm-server:8443"} //nolint:exhaustruct
+
+	require.NoError(t, applyAgentServerParams(globals, status))
+	require.NotNil(t, globals.ServerURL)
+	assert.Equal(t, "/", globals.ServerURL.Path)
+}
+
+// serverTransport returns the HTTP transport the PMM Server API clients were set up with.
+func serverTransport(t *testing.T) *http.Transport {
 	t.Helper()
 
 	runtime, ok := inventoryClient.Default.Transport.(*httptransport.Runtime)
@@ -91,6 +146,8 @@ func tlsConfigOf(t *testing.T) *http.Transport {
 // must keep validating certificates without it.
 func TestSetupClientsServerURL(t *testing.T) {
 	// Not parallel: SetupClients configures the package-level API clients.
+	restoreClients(t)
+
 	for name, tc := range map[string]struct {
 		serverURL   string
 		insecureTLS bool
@@ -132,7 +189,7 @@ func TestSetupClientsServerURL(t *testing.T) {
 
 			SetupClients(globals)
 
-			transport := tlsConfigOf(t)
+			transport := serverTransport(t)
 			require.NotNil(t, transport.TLSClientConfig)
 			assert.Equal(t, tc.expectedInsecure, transport.TLSClientConfig.InsecureSkipVerify)
 			// ServerName is taken from the URL host, which is what makes the
@@ -156,8 +213,11 @@ func TestSetupClientsServerURL(t *testing.T) {
 // TestSetupClientsAddsTrailingPath documents that a --server-url without a path is usable:
 // go-openapi requires a base path.
 func TestSetupClientsAddsTrailingPath(t *testing.T) {
+	// Not parallel: SetupClients configures the package-level API clients.
 	u, err := url.Parse("https://admin:admin@pmm-server-second:8443")
 	require.NoError(t, err)
+
+	restoreClients(t)
 
 	globals := &flags.GlobalFlags{ServerURL: u, SkipTLSCertificateCheck: true} //nolint:exhaustruct
 	SetupClients(globals)
@@ -170,6 +230,8 @@ func TestSetupClientsAddsTrailingPath(t *testing.T) {
 // into every other HTTP client in the process - and, in tests, into every later test in the binary.
 func TestSetupClientsClonesTransport(t *testing.T) {
 	// Not parallel: SetupClients configures the package-level API clients.
+	restoreClients(t)
+
 	def, ok := http.DefaultTransport.(*http.Transport)
 	require.True(t, ok)
 
@@ -179,7 +241,7 @@ func TestSetupClientsClonesTransport(t *testing.T) {
 	globals := &flags.GlobalFlags{ServerURL: u, SkipTLSCertificateCheck: true} //nolint:exhaustruct
 	SetupClients(globals)
 
-	assert.NotSame(t, def, tlsConfigOf(t), "SetupClients must configure a clone of http.DefaultTransport")
+	assert.NotSame(t, def, serverTransport(t), "SetupClients must configure a clone of http.DefaultTransport")
 
 	// The HTTP/2 machinery may install an empty TLS config on the global, but none of PMM's
 	// settings may end up there.

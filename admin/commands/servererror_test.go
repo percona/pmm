@@ -24,14 +24,16 @@ import (
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
+// gRPC status codes PMM Server carries in its response payloads.
+const (
+	grpcUnauthenticated  = 16
+	grpcInternal         = 13
+	grpcPermissionDenied = 7
+	grpcNotFound         = 5
+)
+
 func TestServerErrorMessage(t *testing.T) {
 	t.Parallel()
-
-	const (
-		grpcUnauthenticated = 16
-		grpcInternal        = 13
-		grpcNotFound        = 5
-	)
 
 	for name, tc := range map[string]struct {
 		err      Error
@@ -56,8 +58,36 @@ func TestServerErrorMessage(t *testing.T) {
 			expected: "Agent with ID 722fbfc8 not found.",
 		},
 		"forbidden": {
-			err:      Error{Code: 403, Error: "Access denied", GRPCCode: 7},
+			err:      Error{Code: 403, Error: "Access denied", GRPCCode: grpcPermissionDenied},
 			expected: "Access denied. Please check that your PMM user has sufficient permissions.",
+		},
+		"internal error mapped to 403": {
+			err:      Error{Code: 403, Error: "Internal server error.", GRPCCode: grpcInternal},
+			expected: "Internal server error. Please check PMM Server logs.",
+		},
+		"message ending in an ellipsis": {
+			// Only the final period may go: trimming every trailing one truncated
+			// the message.
+			err:      Error{Code: 401, Error: "Waiting for PMM Server...", GRPCCode: grpcInternal},
+			expected: "Waiting for PMM Server... Please check PMM Server logs.",
+		},
+		"message ending in a newline": {
+			err:      Error{Code: 401, Error: "Internal server error.\n", GRPCCode: grpcInternal},
+			expected: "Internal server error. Please check PMM Server logs.",
+		},
+		"message ending in a period and a space": {
+			err:      Error{Code: 401, Error: "Internal server error. ", GRPCCode: grpcInternal},
+			expected: "Internal server error. Please check PMM Server logs.",
+		},
+		"empty message": {
+			// The generated payloads omit the message, so the hint must be able to
+			// stand on its own instead of being introduced by a stray period.
+			err:      Error{Code: 401, Error: "", GRPCCode: grpcUnauthenticated},
+			expected: "Please check username and password.",
+		},
+		"empty message without a hint": {
+			err:      Error{Code: 404, Error: "", GRPCCode: grpcNotFound},
+			expected: "",
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -78,7 +108,7 @@ func TestGetErrorFromGeneratedResponse(t *testing.T) {
 
 		resp := agents.NewChangeAgentDefault(401)
 		resp.Payload = &agents.ChangeAgentDefaultBody{ //nolint:exhaustruct
-			Code:    16, // codes.Unauthenticated
+			Code:    grpcUnauthenticated,
 			Message: "Invalid username or password",
 		}
 
@@ -95,7 +125,7 @@ func TestGetErrorFromGeneratedResponse(t *testing.T) {
 		// The exact response reported in PMM-15186.
 		resp := agents.NewChangeAgentDefault(401)
 		resp.Payload = &agents.ChangeAgentDefaultBody{ //nolint:exhaustruct
-			Code:    13, // codes.Internal
+			Code:    grpcInternal,
 			Message: "Internal server error.",
 		}
 
@@ -122,7 +152,7 @@ func TestGetErrorFromGeneratedResponse(t *testing.T) {
 func TestServerErrorJSONShapeUnchanged(t *testing.T) {
 	t.Parallel()
 
-	b, err := json.Marshal(Error{Code: 401, Error: "Invalid username or password", GRPCCode: 16})
+	b, err := json.Marshal(Error{Code: 401, Error: "Invalid username or password", GRPCCode: grpcUnauthenticated})
 	require.NoError(t, err)
 	assert.JSONEq(t, `{"code":401,"error":"Invalid username or password"}`, string(b))
 }

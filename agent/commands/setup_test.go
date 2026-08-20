@@ -122,7 +122,10 @@ func TestRegisterErrorMessage(t *testing.T) {
 	t.Run("nginx response", func(t *testing.T) {
 		t.Parallel()
 
-		msg := registerErrorMessage(nginxError("502 Bad Gateway"), "pmm-server", false)
-		assert.Equal(t, "response from nginx: 502 Bad Gateway.\nPlease check pmm-managed logs.", msg)
+		msg := registerErrorMessage(servererror.NginxError("502 Bad Gateway"), "pmm-server", false)
+		// The message must end without punctuation, otherwise the period register()
+		// prints after it lands on a second one.
+		assert.Equal(t, "response from nginx: 502 Bad Gateway\n"+servererror.NginxHint, msg)
+		assert.NotContains(t, msg, "..")
 	})
 }

@@ -16,10 +16,7 @@
 package base
 
 import (
-	"crypto/tls"
-	"fmt"
-	"io"
-	"net/http"
+	"errors"
 	"net/url"
 
 	"github.com/go-openapi/runtime"
@@ -31,24 +28,32 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
-	"github.com/percona/pmm/utils/tlsconfig"
+	"github.com/percona/pmm/utils/apitransport"
+	"github.com/percona/pmm/utils/servererror"
 )
 
-type nginxError string
+// normalizeServerURL fills in the parts of a PMM Server URL which have a default and reports
+// the ones which do not. Both the URL passed with --server-url and the one reported by the
+// local pmm-agent go through it, so that an unusable URL is diagnosed here instead of turning
+// into an opaque dial failure later.
+func normalizeServerURL(u *url.URL) error {
+	switch u.Scheme {
+	case "http", "https":
+	default:
+		return errors.New("scheme (https:// or http://) is missing")
+	}
 
-func (e nginxError) Error() string {
-	return "response from nginx: " + string(e)
+	if u.Host == "" {
+		return errors.New("host is missing")
+	}
+
+	// go-openapi requires a base path.
+	if u.Path == "" {
+		u.Path = "/"
+	}
+
+	return nil
 }
-
-func (e nginxError) GoString() string {
-	return fmt.Sprintf("nginxError(%q)", string(e))
-}
-
-// check interfaces.
-var (
-	_ error          = nginxError("")
-	_ fmt.GoStringer = nginxError("")
-)
 
 // applyAgentServerParams fills in the PMM Server connection parameters reported by the local
 // pmm-agent. An explicitly passed --server-insecure-tls is preserved: the flag is opt-in only,
@@ -56,6 +61,11 @@ var (
 // local pmm-agent is configured to validate certificates.
 func applyAgentServerParams(globalFlags *flags.GlobalFlags, status *agentlocal.Status) error {
 	u, err := url.Parse(status.ServerURL)
+	if err != nil {
+		return err
+	}
+
+	err = normalizeServerURL(u)
 	if err != nil {
 		return err
 	}
@@ -85,21 +95,13 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 		}
 		err = applyAgentServerParams(globalFlags, status)
 		if err != nil {
-			logrus.Fatalf("Failed to parse PMM Server URL %q reported by local pmm-agent: %s.\n"+
+			logrus.Fatalf("Invalid PMM Server URL %q reported by local pmm-agent: %s.\n"+
 				"Please use --server-url flag to specify PMM Server URL.", status.ServerURL, err)
 		}
 	} else {
-		if globalFlags.ServerURL.Path == "" {
-			globalFlags.ServerURL.Path = "/"
-		}
-		switch globalFlags.ServerURL.Scheme {
-		case "http", "https":
-			// nothing
-		default:
-			logrus.Fatalf("Invalid PMM Server URL %q: scheme (https:// or http://) is missing.", globalFlags.ServerURL)
-		}
-		if globalFlags.ServerURL.Host == "" {
-			logrus.Fatalf("Invalid PMM Server URL %q: host is missing.", globalFlags.ServerURL)
+		err := normalizeServerURL(globalFlags.ServerURL)
+		if err != nil {
+			logrus.Fatalf("Invalid PMM Server URL %q: %s.", globalFlags.ServerURL, err)
 		}
 	}
 
@@ -118,10 +120,7 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 	transport.SetDebug(globalFlags.EnableDebug || globalFlags.EnableTrace)
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {
-		b, _ := io.ReadAll(reader)
-		return nginxError(string(b))
-	})
+	errorConsumer := servererror.NginxConsumer()
 	transport.Consumers = map[string]runtime.Consumer{
 		runtime.JSONMime:    runtime.JSONConsumer(),
 		"application/zip":   runtime.ByteStreamConsumer(),
@@ -131,24 +130,12 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 	}
 
 	// disable HTTP/2, set TLS config
-	defaultTransport, ok := transport.Transport.(*http.Transport)
-	if !ok {
-		panic("cannot assert transport as http.Transport")
-	}
-
-	// go-openapi hands out http.DefaultTransport, so work on a clone: reconfiguring TLS on
-	// the process-wide transport would leak into every other HTTP client in the process.
-	httpTransport := defaultTransport.Clone()
-
-	// A non-nil TLSNextProto is the documented way to disable HTTP/2, and it takes
-	// precedence over the ForceAttemptHTTP2 that Clone carries over from the default.
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
-	if globalFlags.ServerURL.Scheme == "https" {
-		httpTransport.TLSClientConfig = tlsconfig.Get()
-		httpTransport.TLSClientConfig.ServerName = globalFlags.ServerURL.Hostname()
-		httpTransport.TLSClientConfig.InsecureSkipVerify = globalFlags.SkipTLSCertificateCheck
-	}
-	transport.Transport = httpTransport
+	apitransport.Configure(
+		transport,
+		globalFlags.ServerURL.Scheme,
+		globalFlags.ServerURL.Hostname(),
+		globalFlags.SkipTLSCertificateCheck,
+	)
 
 	inventoryClient.Default.SetTransport(transport)
 	managementClient.Default.SetTransport(transport)

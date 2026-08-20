@@ -17,12 +17,8 @@ package commands
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
-	"fmt"
-	"io"
 	"net"
-	"net/http"
 	"net/url"
 	"regexp"
 	"strconv"
@@ -36,7 +32,8 @@ import (
 	agentlocalClient "github.com/percona/pmm/api/agentlocal/v1/json/client"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
-	"github.com/percona/pmm/utils/tlsconfig"
+	"github.com/percona/pmm/utils/apitransport"
+	"github.com/percona/pmm/utils/servererror"
 )
 
 var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
@@ -51,9 +48,9 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 
-	// disable HTTP/2
-	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
+	// disable HTTP/2 on a transport of our own: go-openapi hands out http.DefaultTransport,
+	// and disabling it there would do so for every other HTTP client in the process
+	apitransport.ConfigureLocal(transport)
 
 	agentlocalClient.Default.SetTransport(transport)
 }
@@ -85,16 +82,6 @@ func localReload() error {
 	return err
 }
 
-type nginxError string
-
-func (e nginxError) Error() string {
-	return "response from nginx: " + string(e)
-}
-
-func (e nginxError) GoString() string {
-	return fmt.Sprintf("nginxError(%q)", string(e))
-}
-
 // setServerTransport configures transport for accessing PMM Server API.
 //
 // This method is not thread-safe.
@@ -114,10 +101,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, _ any) error {
-		b, _ := io.ReadAll(reader)
-		return nginxError(string(b))
-	})
+	errorConsumer := servererror.NginxConsumer()
 	transport.Consumers = map[string]runtime.Consumer{
 		runtime.JSONMime:    runtime.JSONConsumer(),
 		runtime.HTMLMime:    errorConsumer,
@@ -126,13 +110,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	}
 
 	// disable HTTP/2, set TLS config
-	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
-	if u.Scheme == "https" {
-		httpTransport.TLSClientConfig = tlsconfig.Get()
-		httpTransport.TLSClientConfig.ServerName = u.Hostname()
-		httpTransport.TLSClientConfig.InsecureSkipVerify = insecureTLS
-	}
+	apitransport.Configure(transport, u.Scheme, u.Hostname(), insecureTLS)
 
 	managementClient.Default.SetTransport(transport)
 }
@@ -212,9 +190,3 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	}
 	return res.Payload.PMMAgent.AgentID, res.Payload.Token, nil
 }
-
-// check interfaces.
-var (
-	_ error          = nginxError("")
-	_ fmt.GoStringer = nginxError("")
-)

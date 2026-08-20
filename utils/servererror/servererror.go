@@ -22,7 +22,11 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
+
+	"github.com/go-openapi/runtime"
 )
 
 // InsecureTLSFlag is the name of the flag which disables PMM Server TLS certificate
@@ -107,11 +111,56 @@ func AuthHint(httpCode int, grpcCode int32) string {
 		return "Please check that your PMM user has sufficient permissions"
 
 	// nginx auth_request accepts 401 and 403 only, so PMM Server maps every other
-	// authentication error - internal ones included - onto HTTP 401 as well. Those are not
-	// caused by wrong credentials and must not be reported as such.
-	case httpCode == http.StatusUnauthorized:
+	// authentication error - internal ones included - onto one of those two statuses. Those
+	// are not caused by wrong credentials and must not be reported as such, but they must
+	// still be explained: leaving 403 out here dropped the hint the CLIs used to print.
+	case httpCode == http.StatusUnauthorized, httpCode == http.StatusForbidden:
 		return "Please check PMM Server logs"
 	}
 
 	return ""
 }
+
+// NginxHint explains a NginxError. An nginx page is served both when PMM Server's API cannot
+// be reached and when its auth_request subrequest rejects the credentials, and neither the HTTP
+// status nor the gRPC code survives in the body, so the hint has to cover both. Like AuthHint
+// it carries no trailing punctuation: callers own it.
+const NginxHint = "PMM Server did not return an API response. Please check your credentials, " +
+	"that PMM Server is running, and pmm-managed logs"
+
+// NginxError is the body of a response served by the nginx which fronts PMM Server rather than
+// by the API itself. Its content type is HTML or plain text - never the JSON the generated
+// clients expect - and a caller gets one both when pmm-managed is down and when a request is
+// rejected before it reaches the API.
+type NginxError string
+
+// Error implements the error interface.
+func (e NginxError) Error() string {
+	return "response from nginx: " + string(e)
+}
+
+// GoString implements fmt.GoStringer, used by the %#v debug logging of both CLIs.
+func (e NginxError) GoString() string {
+	return fmt.Sprintf("NginxError(%q)", string(e))
+}
+
+// NginxConsumer returns a go-openapi consumer which turns a response body into a NginxError.
+// Both CLIs install it for the content types the PMM Server API never answers with, so that an
+// nginx page surfaces as an error of its own instead of as a JSON decoding failure.
+//
+// The body is trimmed: nginx pages end with a newline, which would otherwise leave a blank line
+// between the page and whatever the caller prints after it.
+func NginxConsumer() runtime.ConsumerFunc {
+	return func(reader io.Reader, _ any) error {
+		b, _ := io.ReadAll(reader)
+
+		return NginxError(strings.TrimSpace(string(b)))
+	}
+}
+
+// check interfaces.
+var (
+	_ error            = NginxError("")
+	_ fmt.GoStringer   = NginxError("")
+	_ runtime.Consumer = NginxConsumer()
+)

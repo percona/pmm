@@ -23,12 +23,23 @@ import (
 // ServerErrorMessage renders a PMM Server error response for humans, adding a hint about the
 // likely cause where one can be derived from the response.
 func ServerErrorMessage(e Error) string {
-	msg := e.Error
-	if hint := servererror.AuthHint(e.Code, e.GRPCCode); hint != "" {
-		// PMM Server messages usually already end with a period, so trim it instead of
-		// producing "Internal server error.. Please check PMM Server logs.".
-		msg = strings.TrimRight(msg, ". ") + ". " + hint + "."
+	hint := servererror.AuthHint(e.Code, e.GRPCCode)
+	if hint == "" {
+		return e.Error
 	}
 
-	return msg
+	// The hint is a sentence of its own, so exactly one period has to separate it from the
+	// message. PMM Server messages usually end with one already, and keeping it too would
+	// produce "Internal server error.. Please check PMM Server logs.". Only the final
+	// period goes, so a message which ends in an ellipsis keeps it.
+	msg := strings.TrimRight(e.Error, " \t\r\n")
+	msg = strings.TrimSuffix(msg, ".")
+
+	// PMM Server sends no message at all on some paths, and a hint must not be introduced
+	// by a period with nothing in front of it.
+	if msg == "" {
+		return hint + "."
+	}
+
+	return msg + ". " + hint + "."
 }
