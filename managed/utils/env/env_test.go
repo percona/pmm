@@ -19,7 +19,80 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func TestLookupBool(t *testing.T) {
+	tests := []struct {
+		name     string
+		envValue string
+		set      bool
+		expected *bool
+		wantErr  bool
+	}{
+		{
+			name:     "not set",
+			expected: nil,
+		},
+		{
+			name:     "true",
+			envValue: "true",
+			set:      true,
+			expected: new(true),
+		},
+		{
+			name:     "false",
+			envValue: "false",
+			set:      true,
+			expected: new(false),
+		},
+		{
+			name:     "1",
+			envValue: "1",
+			set:      true,
+			expected: new(true),
+		},
+		{
+			name:     "0",
+			envValue: "0",
+			set:      true,
+			expected: new(false),
+		},
+		{
+			// Set but empty is a misconfiguration, not the same as unset: envvars.ParseEnvVars
+			// reports it as a configuration error too.
+			name:     "set to empty string",
+			envValue: "",
+			set:      true,
+			wantErr:  true,
+		},
+		{
+			name:     "not a boolean",
+			envValue: "yes",
+			set:      true,
+			wantErr:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			const key = "TEST_LOOKUP_BOOL"
+			if tt.set {
+				t.Setenv(key, tt.envValue)
+			}
+
+			result, err := LookupBool(key)
+			if tt.wantErr {
+				require.Error(t, err)
+				assert.Nil(t, result)
+				return
+			}
+
+			require.NoError(t, err)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
 
 func TestGetBool(t *testing.T) {
 	tests := []struct {
