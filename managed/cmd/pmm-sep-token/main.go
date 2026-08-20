@@ -34,6 +34,7 @@ import (
 	"fmt"
 	"hash/crc32"
 	"os"
+	"strings"
 )
 
 const (
@@ -45,6 +46,8 @@ const (
 	hashIterations = 10000
 	hashLength     = 50
 
+	byteValues = 256
+
 	alphanumeric = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	lowerAlnum   = "abcdefghijklmnopqrstuvwxyz0123456789"
 )
@@ -52,14 +55,15 @@ const (
 // randomString returns n characters drawn uniformly from alphabet.
 //
 // Bytes at or above limit are discarded rather than folded in, because a plain
-// modulo would over-represent the first 256%len(alphabet) characters.
+// modulo would over-represent the first byteValues%len(alphabet) characters.
 func randomString(n int, alphabet string) (string, error) {
-	limit := 256 - 256%len(alphabet)
+	limit := byteValues - byteValues%len(alphabet)
 	buf := make([]byte, n)
 	out := make([]byte, 0, n)
 
 	for len(out) < n {
-		if _, err := rand.Read(buf); err != nil {
+		_, err := rand.Read(buf)
+		if err != nil {
 			return "", fmt.Errorf("cannot read random bytes: %w", err)
 		}
 		for _, b := range buf {
@@ -79,7 +83,7 @@ func randomString(n int, alphabet string) (string, error) {
 // checksumFor reproduces Grafana's apikeygenprefix checksum: the CRC32 of the
 // prefixed secret, little-endian, hex-encoded.
 func checksumFor(secret string) string {
-	sum := make([]byte, 4)
+	sum := make([]byte, crc32.Size)
 	binary.LittleEndian.PutUint32(sum, crc32.ChecksumIEEE([]byte(tokenPrefix+secret)))
 	return hex.EncodeToString(sum)
 }
@@ -124,7 +128,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	for _, line := range lines {
-		fmt.Println(line)
+	_, err = os.Stdout.WriteString(strings.Join(lines, "\n") + "\n")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "pmm-sep-token: cannot write the token material: %s\n", err)
+		os.Exit(1)
 	}
 }
