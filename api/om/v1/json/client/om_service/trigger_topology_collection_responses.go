@@ -89,12 +89,12 @@ func (o *TriggerTopologyCollectionOK) Code() int {
 
 func (o *TriggerTopologyCollectionOK) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/topology/runs][%d] triggerTopologyCollectionOk %s", 200, payload)
+	return fmt.Sprintf("[POST /v1/om/topology/runs:collect][%d] triggerTopologyCollectionOk %s", 200, payload)
 }
 
 func (o *TriggerTopologyCollectionOK) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/topology/runs][%d] triggerTopologyCollectionOk %s", 200, payload)
+	return fmt.Sprintf("[POST /v1/om/topology/runs:collect][%d] triggerTopologyCollectionOk %s", 200, payload)
 }
 
 func (o *TriggerTopologyCollectionOK) GetPayload() *TriggerTopologyCollectionOKBody {
@@ -162,12 +162,12 @@ func (o *TriggerTopologyCollectionDefault) Code() int {
 
 func (o *TriggerTopologyCollectionDefault) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/topology/runs][%d] TriggerTopologyCollection default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /v1/om/topology/runs:collect][%d] TriggerTopologyCollection default %s", o._statusCode, payload)
 }
 
 func (o *TriggerTopologyCollectionDefault) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/topology/runs][%d] TriggerTopologyCollection default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /v1/om/topology/runs:collect][%d] TriggerTopologyCollection default %s", o._statusCode, payload)
 }
 
 func (o *TriggerTopologyCollectionDefault) GetPayload() *TriggerTopologyCollectionDefaultBody {
@@ -421,19 +421,41 @@ type TriggerTopologyCollectionOKBody struct {
 	// The run's ID.
 	RunID string `json:"run_id,omitempty"`
 
-	// The run's terminal status.
-	Status string `json:"status,omitempty"`
+	// RunStatus is how a run ended, for both kinds of run.
+	//
+	// Shared by the topology collection pass and the inventory refresh deliberately: the two
+	// runs differ in what they do, not in how they finish, and two identical enums would
+	// invite them to drift apart for no reason.
+	//
+	//  - RUN_STATUS_RUNNING: Still going. Not a terminal status.
+	//  - RUN_STATUS_SUCCESS: Everything it attempted answered.
+	//  - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common
+	// steady state rather than an alarm: a row routinely outlives the executor that served
+	// it.
+	//  - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.
+	//  - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it
+	// would have covered. Neither a failure nor a success: it did nothing, deliberately,
+	// and it is recorded so a schedule cannot look like it fired and found nothing.
+	//
+	// Only an inventory refresh reaches this; the collection pass has no single-flight
+	// guard to lose against.
+	// Enum: ["RUN_STATUS_UNSPECIFIED","RUN_STATUS_RUNNING","RUN_STATUS_SUCCESS","RUN_STATUS_PARTIAL","RUN_STATUS_FAILED","RUN_STATUS_SKIPPED"]
+	Status *string `json:"status,omitempty"`
 
 	// When the run began.
 	// Format: date-time
-	StartedAt strfmt.DateTime `json:"started_at,omitempty"`
+	StartTime strfmt.DateTime `json:"start_time,omitempty"`
 }
 
 // Validate validates this trigger topology collection OK body
 func (o *TriggerTopologyCollectionOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateStartedAt(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStartTime(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -443,12 +465,66 @@ func (o *TriggerTopologyCollectionOKBody) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *TriggerTopologyCollectionOKBody) validateStartedAt(formats strfmt.Registry) error {
-	if swag.IsZero(o.StartedAt) { // not required
+var triggerTopologyCollectionOkBodyTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["RUN_STATUS_UNSPECIFIED","RUN_STATUS_RUNNING","RUN_STATUS_SUCCESS","RUN_STATUS_PARTIAL","RUN_STATUS_FAILED","RUN_STATUS_SKIPPED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		triggerTopologyCollectionOkBodyTypeStatusPropEnum = append(triggerTopologyCollectionOkBodyTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// TriggerTopologyCollectionOKBodyStatusRUNSTATUSUNSPECIFIED captures enum value "RUN_STATUS_UNSPECIFIED"
+	TriggerTopologyCollectionOKBodyStatusRUNSTATUSUNSPECIFIED string = "RUN_STATUS_UNSPECIFIED"
+
+	// TriggerTopologyCollectionOKBodyStatusRUNSTATUSRUNNING captures enum value "RUN_STATUS_RUNNING"
+	TriggerTopologyCollectionOKBodyStatusRUNSTATUSRUNNING string = "RUN_STATUS_RUNNING"
+
+	// TriggerTopologyCollectionOKBodyStatusRUNSTATUSSUCCESS captures enum value "RUN_STATUS_SUCCESS"
+	TriggerTopologyCollectionOKBodyStatusRUNSTATUSSUCCESS string = "RUN_STATUS_SUCCESS"
+
+	// TriggerTopologyCollectionOKBodyStatusRUNSTATUSPARTIAL captures enum value "RUN_STATUS_PARTIAL"
+	TriggerTopologyCollectionOKBodyStatusRUNSTATUSPARTIAL string = "RUN_STATUS_PARTIAL"
+
+	// TriggerTopologyCollectionOKBodyStatusRUNSTATUSFAILED captures enum value "RUN_STATUS_FAILED"
+	TriggerTopologyCollectionOKBodyStatusRUNSTATUSFAILED string = "RUN_STATUS_FAILED"
+
+	// TriggerTopologyCollectionOKBodyStatusRUNSTATUSSKIPPED captures enum value "RUN_STATUS_SKIPPED"
+	TriggerTopologyCollectionOKBodyStatusRUNSTATUSSKIPPED string = "RUN_STATUS_SKIPPED"
+)
+
+// prop value enum
+func (o *TriggerTopologyCollectionOKBody) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, triggerTopologyCollectionOkBodyTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *TriggerTopologyCollectionOKBody) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("triggerTopologyCollectionOk"+"."+"started_at", "body", "date-time", o.StartedAt.String(), formats); err != nil {
+	// value enum
+	if err := o.validateStatusEnum("triggerTopologyCollectionOk"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *TriggerTopologyCollectionOKBody) validateStartTime(formats strfmt.Registry) error {
+	if swag.IsZero(o.StartTime) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("triggerTopologyCollectionOk"+"."+"start_time", "body", "date-time", o.StartTime.String(), formats); err != nil {
 		return err
 	}
 

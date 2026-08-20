@@ -49,6 +49,7 @@ import type {
   OmTopologyResponse,
   OmTopologyRun,
   OmTopologyRunAccepted,
+  OmTopologyRunStatus,
 } from './types';
 
 const OM_BASE = '/v1/om';
@@ -114,9 +115,14 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-/** True while a run has not reached a terminal status. */
-export function isRunActive(status: string | undefined): boolean {
-  return status === 'running';
+/**
+ * True while a run has not reached a terminal status.
+ *
+ * Typed on the union rather than on `string`, because the compiler is the only thing
+ * that would have caught this comparison going stale when the wire values changed.
+ */
+export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
+  return status === 'RUN_STATUS_RUNNING';
 }
 
 /**
@@ -207,11 +213,12 @@ function rollUpCluster(
     env_name: envName,
     cluster_name: cluster.name,
     services: cluster.services,
-    services_total: cluster.services.length,
-    services_up: cluster.services.filter((service) => service.status === 'UP')
-      .length,
-    services_down: cluster.services.filter(
-      (service) => service.status === 'DOWN'
+    total_services: cluster.services.length,
+    up_services: cluster.services.filter(
+      (service) => service.status === 'SERVICE_STATUS_UP'
+    ).length,
+    down_services: cluster.services.filter(
+      (service) => service.status === 'SERVICE_STATUS_DOWN'
     ).length,
     by_process_role: byProcessRole,
     by_state: byState,
@@ -260,16 +267,16 @@ export function toEnvironmentSections(
     return {
       env_name: environment.env_name,
       clusters,
-      services_total: clusters.reduce(
-        (total, cluster) => total + cluster.services_total,
+      total_services: clusters.reduce(
+        (total, cluster) => total + cluster.total_services,
         0
       ),
-      services_up: clusters.reduce(
-        (total, cluster) => total + cluster.services_up,
+      up_services: clusters.reduce(
+        (total, cluster) => total + cluster.up_services,
         0
       ),
-      services_down: clusters.reduce(
-        (total, cluster) => total + cluster.services_down,
+      down_services: clusters.reduce(
+        (total, cluster) => total + cluster.down_services,
         0
       ),
     };
@@ -328,7 +335,7 @@ export function useTriggerOmTopologyRun() {
   const queryClient = useQueryClient();
   return useMutation<OmTopologyRunAccepted, Error, void>({
     mutationFn: () =>
-      request<OmTopologyRunAccepted>('/topology/runs', {
+      request<OmTopologyRunAccepted>('/topology/runs:collect', {
         method: 'POST',
         body: '{}',
       }),

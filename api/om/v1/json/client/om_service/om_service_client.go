@@ -99,7 +99,7 @@ func (a *Client) DeleteInventoryConfigOverride(params *DeleteInventoryConfigOver
 	op := &runtime.ClientOperation{
 		ID:                 "DeleteInventoryConfigOverride",
 		Method:             "DELETE",
-		PathPattern:        "/v1/om/inventory/config/{key}",
+		PathPattern:        "/v1/om/inventory/config/overrides/{key}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -671,7 +671,7 @@ func (a *Client) TriggerInventoryRefresh(params *TriggerInventoryRefreshParams, 
 	op := &runtime.ClientOperation{
 		ID:                 "TriggerInventoryRefresh",
 		Method:             "POST",
-		PathPattern:        "/v1/om/inventory/runs",
+		PathPattern:        "/v1/om/inventory/runs:trigger",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -715,7 +715,7 @@ func (a *Client) TriggerTopologyCollection(params *TriggerTopologyCollectionPara
 	op := &runtime.ClientOperation{
 		ID:                 "TriggerTopologyCollection",
 		Method:             "POST",
-		PathPattern:        "/v1/om/topology/runs",
+		PathPattern:        "/v1/om/topology/runs:collect",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -758,7 +758,7 @@ func (a *Client) UpdateInventoryConfig(params *UpdateInventoryConfigParams, opts
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "UpdateInventoryConfig",
-		Method:             "PATCH",
+		Method:             "PUT",
 		PathPattern:        "/v1/om/inventory/config",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

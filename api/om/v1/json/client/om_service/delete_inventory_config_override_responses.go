@@ -88,12 +88,12 @@ func (o *DeleteInventoryConfigOverrideOK) Code() int {
 
 func (o *DeleteInventoryConfigOverrideOK) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /v1/om/inventory/config/{key}][%d] deleteInventoryConfigOverrideOk %s", 200, payload)
+	return fmt.Sprintf("[DELETE /v1/om/inventory/config/overrides/{key}][%d] deleteInventoryConfigOverrideOk %s", 200, payload)
 }
 
 func (o *DeleteInventoryConfigOverrideOK) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /v1/om/inventory/config/{key}][%d] deleteInventoryConfigOverrideOk %s", 200, payload)
+	return fmt.Sprintf("[DELETE /v1/om/inventory/config/overrides/{key}][%d] deleteInventoryConfigOverrideOk %s", 200, payload)
 }
 
 func (o *DeleteInventoryConfigOverrideOK) GetPayload() any {
@@ -159,12 +159,12 @@ func (o *DeleteInventoryConfigOverrideDefault) Code() int {
 
 func (o *DeleteInventoryConfigOverrideDefault) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /v1/om/inventory/config/{key}][%d] DeleteInventoryConfigOverride default %s", o._statusCode, payload)
+	return fmt.Sprintf("[DELETE /v1/om/inventory/config/overrides/{key}][%d] DeleteInventoryConfigOverride default %s", o._statusCode, payload)
 }
 
 func (o *DeleteInventoryConfigOverrideDefault) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /v1/om/inventory/config/{key}][%d] DeleteInventoryConfigOverride default %s", o._statusCode, payload)
+	return fmt.Sprintf("[DELETE /v1/om/inventory/config/overrides/{key}][%d] DeleteInventoryConfigOverride default %s", o._statusCode, payload)
 }
 
 func (o *DeleteInventoryConfigOverrideDefault) GetPayload() *DeleteInventoryConfigOverrideDefaultBody {

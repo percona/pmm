@@ -35,21 +35,22 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on Service with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *Service) Validate() error {
+// Validate checks the field values on TopologyService with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *TopologyService) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on Service with the rules defined in the
-// proto definition for this message. If any rules are violated, the result is
-// a list of violation errors wrapped in ServiceMultiError, or nil if none found.
-func (m *Service) ValidateAll() error {
+// ValidateAll checks the field values on TopologyService with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TopologyServiceMultiError, or nil if none found.
+func (m *TopologyService) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *Service) validate(all bool) error {
+func (m *TopologyService) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -62,7 +63,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetHost()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Host",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -70,7 +71,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Host",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -79,7 +80,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetHost()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "Host",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -91,7 +92,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetEndpoint()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Endpoint",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -99,7 +100,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Endpoint",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -108,7 +109,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetEndpoint()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "Endpoint",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -120,7 +121,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetServiceId()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "ServiceId",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -128,7 +129,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "ServiceId",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -137,7 +138,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetServiceId()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "ServiceId",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -149,7 +150,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetServiceType()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "ServiceType",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -157,7 +158,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "ServiceType",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -166,7 +167,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetServiceType()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "ServiceType",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -178,7 +179,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetVersion()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Version",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -186,7 +187,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Version",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -195,7 +196,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetVersion()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "Version",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -207,7 +208,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetVendor()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Vendor",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -215,7 +216,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Vendor",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -224,7 +225,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetVendor()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "Vendor",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -236,7 +237,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetEdition()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Edition",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -244,7 +245,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Edition",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -253,7 +254,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetEdition()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "Edition",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -265,7 +266,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetReplicationSet()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "ReplicationSet",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -273,7 +274,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "ReplicationSet",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -282,7 +283,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetReplicationSet()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "ReplicationSet",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -294,7 +295,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetState()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "State",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -302,7 +303,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "State",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -311,7 +312,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetState()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "State",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -331,7 +332,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetReplicationLagSeconds()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "ReplicationLagSeconds",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -339,7 +340,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "ReplicationLagSeconds",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -348,7 +349,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetReplicationLagSeconds()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "ReplicationLagSeconds",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -360,7 +361,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetOplogWindowSeconds()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "OplogWindowSeconds",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -368,7 +369,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "OplogWindowSeconds",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -377,7 +378,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetOplogWindowSeconds()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "OplogWindowSeconds",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -389,7 +390,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetInstalledVersion()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "InstalledVersion",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -397,7 +398,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "InstalledVersion",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -406,7 +407,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetInstalledVersion()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "InstalledVersion",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -418,7 +419,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetConfigPath()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "ConfigPath",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -426,7 +427,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "ConfigPath",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -435,7 +436,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetConfigPath()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "ConfigPath",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -447,7 +448,7 @@ func (m *Service) validate(all bool) error {
 		switch v := interface{}(m.GetArgv()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Argv",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -455,7 +456,7 @@ func (m *Service) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, ServiceValidationError{
+				errors = append(errors, TopologyServiceValidationError{
 					field:  "Argv",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -464,7 +465,7 @@ func (m *Service) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetArgv()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return ServiceValidationError{
+			return TopologyServiceValidationError{
 				field:  "Argv",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -473,18 +474,19 @@ func (m *Service) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ServiceMultiError(errors)
+		return TopologyServiceMultiError(errors)
 	}
 
 	return nil
 }
 
-// ServiceMultiError is an error wrapping multiple validation errors returned
-// by Service.ValidateAll() if the designated constraints aren't met.
-type ServiceMultiError []error
+// TopologyServiceMultiError is an error wrapping multiple validation errors
+// returned by TopologyService.ValidateAll() if the designated constraints
+// aren't met.
+type TopologyServiceMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ServiceMultiError) Error() string {
+func (m TopologyServiceMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -493,11 +495,11 @@ func (m ServiceMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ServiceMultiError) AllErrors() []error { return m }
+func (m TopologyServiceMultiError) AllErrors() []error { return m }
 
-// ServiceValidationError is the validation error returned by Service.Validate
-// if the designated constraints aren't met.
-type ServiceValidationError struct {
+// TopologyServiceValidationError is the validation error returned by
+// TopologyService.Validate if the designated constraints aren't met.
+type TopologyServiceValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -505,22 +507,22 @@ type ServiceValidationError struct {
 }
 
 // Field function returns field value.
-func (e ServiceValidationError) Field() string { return e.field }
+func (e TopologyServiceValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ServiceValidationError) Reason() string { return e.reason }
+func (e TopologyServiceValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ServiceValidationError) Cause() error { return e.cause }
+func (e TopologyServiceValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ServiceValidationError) Key() bool { return e.key }
+func (e TopologyServiceValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ServiceValidationError) ErrorName() string { return "ServiceValidationError" }
+func (e TopologyServiceValidationError) ErrorName() string { return "TopologyServiceValidationError" }
 
 // Error satisfies the builtin error interface
-func (e ServiceValidationError) Error() string {
+func (e TopologyServiceValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -532,7 +534,7 @@ func (e ServiceValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sService.%s: %s%s",
+		"invalid %sTopologyService.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -540,7 +542,7 @@ func (e ServiceValidationError) Error() string {
 	)
 }
 
-var _ error = ServiceValidationError{}
+var _ error = TopologyServiceValidationError{}
 
 var _ interface {
 	Field() string
@@ -548,7 +550,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ServiceValidationError{}
+} = TopologyServiceValidationError{}
 
 // Validate checks the field values on Cluster with the rules defined in the
 // proto definition for this message. If any rules are violated, the first
@@ -900,13 +902,13 @@ func (m *Summary) validate(all bool) error {
 
 	// no validation rules for Clusters
 
-	// no validation rules for ServicesTotal
+	// no validation rules for TotalServices
 
-	// no validation rules for ServicesUp
+	// no validation rules for UpServices
 
-	// no validation rules for ServicesDown
+	// no validation rules for DownServices
 
-	// no validation rules for ByProcessRole
+	// no validation rules for ProcessRoleCounts
 
 	if len(errors) > 0 {
 		return SummaryMultiError(errors)
@@ -1477,51 +1479,52 @@ var _ interface {
 	ErrorName() string
 } = GetTopologyResponseValidationError{}
 
-// Validate checks the field values on RunCounts with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *RunCounts) Validate() error {
+// Validate checks the field values on TopologyRunCounts with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *TopologyRunCounts) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on RunCounts with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in RunCountsMultiError, or nil
-// if none found.
-func (m *RunCounts) ValidateAll() error {
+// ValidateAll checks the field values on TopologyRunCounts with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TopologyRunCountsMultiError, or nil if none found.
+func (m *TopologyRunCounts) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *RunCounts) validate(all bool) error {
+func (m *TopologyRunCounts) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for ServicesTotal
+	// no validation rules for TotalServices
 
-	// no validation rules for ServicesResolved
+	// no validation rules for ResolvedServices
 
-	// no validation rules for ServicesOrphaned
+	// no validation rules for OrphanedServices
 
-	// no validation rules for ProbesOk
+	// no validation rules for SuccessfulProbes
 
-	// no validation rules for ServicesStale
+	// no validation rules for StaleServices
 
 	if len(errors) > 0 {
-		return RunCountsMultiError(errors)
+		return TopologyRunCountsMultiError(errors)
 	}
 
 	return nil
 }
 
-// RunCountsMultiError is an error wrapping multiple validation errors returned
-// by RunCounts.ValidateAll() if the designated constraints aren't met.
-type RunCountsMultiError []error
+// TopologyRunCountsMultiError is an error wrapping multiple validation errors
+// returned by TopologyRunCounts.ValidateAll() if the designated constraints
+// aren't met.
+type TopologyRunCountsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RunCountsMultiError) Error() string {
+func (m TopologyRunCountsMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1530,11 +1533,11 @@ func (m RunCountsMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RunCountsMultiError) AllErrors() []error { return m }
+func (m TopologyRunCountsMultiError) AllErrors() []error { return m }
 
-// RunCountsValidationError is the validation error returned by
-// RunCounts.Validate if the designated constraints aren't met.
-type RunCountsValidationError struct {
+// TopologyRunCountsValidationError is the validation error returned by
+// TopologyRunCounts.Validate if the designated constraints aren't met.
+type TopologyRunCountsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1542,22 +1545,24 @@ type RunCountsValidationError struct {
 }
 
 // Field function returns field value.
-func (e RunCountsValidationError) Field() string { return e.field }
+func (e TopologyRunCountsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RunCountsValidationError) Reason() string { return e.reason }
+func (e TopologyRunCountsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RunCountsValidationError) Cause() error { return e.cause }
+func (e TopologyRunCountsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RunCountsValidationError) Key() bool { return e.key }
+func (e TopologyRunCountsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RunCountsValidationError) ErrorName() string { return "RunCountsValidationError" }
+func (e TopologyRunCountsValidationError) ErrorName() string {
+	return "TopologyRunCountsValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e RunCountsValidationError) Error() string {
+func (e TopologyRunCountsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1569,7 +1574,7 @@ func (e RunCountsValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRunCounts.%s: %s%s",
+		"invalid %sTopologyRunCounts.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -1577,7 +1582,7 @@ func (e RunCountsValidationError) Error() string {
 	)
 }
 
-var _ error = RunCountsValidationError{}
+var _ error = TopologyRunCountsValidationError{}
 
 var _ interface {
 	Field() string
@@ -1585,7 +1590,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RunCountsValidationError{}
+} = TopologyRunCountsValidationError{}
 
 // Validate checks the field values on SourceReport with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
@@ -1695,22 +1700,22 @@ var _ interface {
 	ErrorName() string
 } = SourceReportValidationError{}
 
-// Validate checks the field values on RunError with the rules defined in the
-// proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *RunError) Validate() error {
+// Validate checks the field values on TopologyRunError with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *TopologyRunError) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on RunError with the rules defined in
-// the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in RunErrorMultiError, or nil
-// if none found.
-func (m *RunError) ValidateAll() error {
+// ValidateAll checks the field values on TopologyRunError with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TopologyRunErrorMultiError, or nil if none found.
+func (m *TopologyRunError) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *RunError) validate(all bool) error {
+func (m *TopologyRunError) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1723,7 +1728,7 @@ func (m *RunError) validate(all bool) error {
 		switch v := interface{}(m.GetServiceName()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, RunErrorValidationError{
+				errors = append(errors, TopologyRunErrorValidationError{
 					field:  "ServiceName",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1731,7 +1736,7 @@ func (m *RunError) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, RunErrorValidationError{
+				errors = append(errors, TopologyRunErrorValidationError{
 					field:  "ServiceName",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1740,7 +1745,7 @@ func (m *RunError) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetServiceName()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RunErrorValidationError{
+			return TopologyRunErrorValidationError{
 				field:  "ServiceName",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -1753,18 +1758,19 @@ func (m *RunError) validate(all bool) error {
 	// no validation rules for Message
 
 	if len(errors) > 0 {
-		return RunErrorMultiError(errors)
+		return TopologyRunErrorMultiError(errors)
 	}
 
 	return nil
 }
 
-// RunErrorMultiError is an error wrapping multiple validation errors returned
-// by RunError.ValidateAll() if the designated constraints aren't met.
-type RunErrorMultiError []error
+// TopologyRunErrorMultiError is an error wrapping multiple validation errors
+// returned by TopologyRunError.ValidateAll() if the designated constraints
+// aren't met.
+type TopologyRunErrorMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RunErrorMultiError) Error() string {
+func (m TopologyRunErrorMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1773,11 +1779,11 @@ func (m RunErrorMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RunErrorMultiError) AllErrors() []error { return m }
+func (m TopologyRunErrorMultiError) AllErrors() []error { return m }
 
-// RunErrorValidationError is the validation error returned by
-// RunError.Validate if the designated constraints aren't met.
-type RunErrorValidationError struct {
+// TopologyRunErrorValidationError is the validation error returned by
+// TopologyRunError.Validate if the designated constraints aren't met.
+type TopologyRunErrorValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1785,22 +1791,22 @@ type RunErrorValidationError struct {
 }
 
 // Field function returns field value.
-func (e RunErrorValidationError) Field() string { return e.field }
+func (e TopologyRunErrorValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RunErrorValidationError) Reason() string { return e.reason }
+func (e TopologyRunErrorValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RunErrorValidationError) Cause() error { return e.cause }
+func (e TopologyRunErrorValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RunErrorValidationError) Key() bool { return e.key }
+func (e TopologyRunErrorValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RunErrorValidationError) ErrorName() string { return "RunErrorValidationError" }
+func (e TopologyRunErrorValidationError) ErrorName() string { return "TopologyRunErrorValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RunErrorValidationError) Error() string {
+func (e TopologyRunErrorValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1812,7 +1818,7 @@ func (e RunErrorValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRunError.%s: %s%s",
+		"invalid %sTopologyRunError.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -1820,7 +1826,7 @@ func (e RunErrorValidationError) Error() string {
 	)
 }
 
-var _ error = RunErrorValidationError{}
+var _ error = TopologyRunErrorValidationError{}
 
 var _ interface {
 	Field() string
@@ -1828,23 +1834,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RunErrorValidationError{}
+} = TopologyRunErrorValidationError{}
 
-// Validate checks the field values on Run with the rules defined in the proto
-// definition for this message. If any rules are violated, the first error
-// encountered is returned, or nil if there are no violations.
-func (m *Run) Validate() error {
+// Validate checks the field values on TopologyRun with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *TopologyRun) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on Run with the rules defined in the
-// proto definition for this message. If any rules are violated, the result is
-// a list of violation errors wrapped in RunMultiError, or nil if none found.
-func (m *Run) ValidateAll() error {
+// ValidateAll checks the field values on TopologyRun with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in TopologyRunMultiError, or
+// nil if none found.
+func (m *TopologyRun) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *Run) validate(all bool) error {
+func (m *TopologyRun) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1856,28 +1863,28 @@ func (m *Run) validate(all bool) error {
 	// no validation rules for Status
 
 	if all {
-		switch v := interface{}(m.GetStartedAt()).(type) {
+		switch v := interface{}(m.GetStartTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, RunValidationError{
-					field:  "StartedAt",
+				errors = append(errors, TopologyRunValidationError{
+					field:  "StartTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, RunValidationError{
-					field:  "StartedAt",
+				errors = append(errors, TopologyRunValidationError{
+					field:  "StartTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetStartTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RunValidationError{
-				field:  "StartedAt",
+			return TopologyRunValidationError{
+				field:  "StartTime",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -1885,28 +1892,28 @@ func (m *Run) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetFinishedAt()).(type) {
+		switch v := interface{}(m.GetEndTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, RunValidationError{
-					field:  "FinishedAt",
+				errors = append(errors, TopologyRunValidationError{
+					field:  "EndTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, RunValidationError{
-					field:  "FinishedAt",
+				errors = append(errors, TopologyRunValidationError{
+					field:  "EndTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFinishedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetEndTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RunValidationError{
-				field:  "FinishedAt",
+			return TopologyRunValidationError{
+				field:  "EndTime",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -1917,7 +1924,7 @@ func (m *Run) validate(all bool) error {
 		switch v := interface{}(m.GetCounts()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, RunValidationError{
+				errors = append(errors, TopologyRunValidationError{
 					field:  "Counts",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1925,7 +1932,7 @@ func (m *Run) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, RunValidationError{
+				errors = append(errors, TopologyRunValidationError{
 					field:  "Counts",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1934,7 +1941,7 @@ func (m *Run) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetCounts()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return RunValidationError{
+			return TopologyRunValidationError{
 				field:  "Counts",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -1949,7 +1956,7 @@ func (m *Run) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, RunValidationError{
+					errors = append(errors, TopologyRunValidationError{
 						field:  fmt.Sprintf("Errors[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1957,7 +1964,7 @@ func (m *Run) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, RunValidationError{
+					errors = append(errors, TopologyRunValidationError{
 						field:  fmt.Sprintf("Errors[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1966,7 +1973,7 @@ func (m *Run) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RunValidationError{
+				return TopologyRunValidationError{
 					field:  fmt.Sprintf("Errors[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1983,7 +1990,7 @@ func (m *Run) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, RunValidationError{
+					errors = append(errors, TopologyRunValidationError{
 						field:  fmt.Sprintf("Sources[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1991,7 +1998,7 @@ func (m *Run) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, RunValidationError{
+					errors = append(errors, TopologyRunValidationError{
 						field:  fmt.Sprintf("Sources[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -2000,7 +2007,7 @@ func (m *Run) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return RunValidationError{
+				return TopologyRunValidationError{
 					field:  fmt.Sprintf("Sources[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -2011,18 +2018,18 @@ func (m *Run) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return RunMultiError(errors)
+		return TopologyRunMultiError(errors)
 	}
 
 	return nil
 }
 
-// RunMultiError is an error wrapping multiple validation errors returned by
-// Run.ValidateAll() if the designated constraints aren't met.
-type RunMultiError []error
+// TopologyRunMultiError is an error wrapping multiple validation errors
+// returned by TopologyRun.ValidateAll() if the designated constraints aren't met.
+type TopologyRunMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m RunMultiError) Error() string {
+func (m TopologyRunMultiError) Error() string {
 	msgs := make([]string, 0, len(m))
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2031,11 +2038,11 @@ func (m RunMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m RunMultiError) AllErrors() []error { return m }
+func (m TopologyRunMultiError) AllErrors() []error { return m }
 
-// RunValidationError is the validation error returned by Run.Validate if the
-// designated constraints aren't met.
-type RunValidationError struct {
+// TopologyRunValidationError is the validation error returned by
+// TopologyRun.Validate if the designated constraints aren't met.
+type TopologyRunValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2043,22 +2050,22 @@ type RunValidationError struct {
 }
 
 // Field function returns field value.
-func (e RunValidationError) Field() string { return e.field }
+func (e TopologyRunValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e RunValidationError) Reason() string { return e.reason }
+func (e TopologyRunValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e RunValidationError) Cause() error { return e.cause }
+func (e TopologyRunValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e RunValidationError) Key() bool { return e.key }
+func (e TopologyRunValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e RunValidationError) ErrorName() string { return "RunValidationError" }
+func (e TopologyRunValidationError) ErrorName() string { return "TopologyRunValidationError" }
 
 // Error satisfies the builtin error interface
-func (e RunValidationError) Error() string {
+func (e TopologyRunValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2070,7 +2077,7 @@ func (e RunValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sRun.%s: %s%s",
+		"invalid %sTopologyRun.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
@@ -2078,7 +2085,7 @@ func (e RunValidationError) Error() string {
 	)
 }
 
-var _ error = RunValidationError{}
+var _ error = TopologyRunValidationError{}
 
 var _ interface {
 	Field() string
@@ -2086,7 +2093,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = RunValidationError{}
+} = TopologyRunValidationError{}
 
 // Validate checks the field values on GetTopologyRunRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -2719,11 +2726,11 @@ func (m *TriggerTopologyCollectionResponse) validate(all bool) error {
 	// no validation rules for Status
 
 	if all {
-		switch v := interface{}(m.GetStartedAt()).(type) {
+		switch v := interface{}(m.GetStartTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, TriggerTopologyCollectionResponseValidationError{
-					field:  "StartedAt",
+					field:  "StartTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -2731,16 +2738,16 @@ func (m *TriggerTopologyCollectionResponse) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, TriggerTopologyCollectionResponseValidationError{
-					field:  "StartedAt",
+					field:  "StartTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetStartTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TriggerTopologyCollectionResponseValidationError{
-				field:  "StartedAt",
+				field:  "StartTime",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -4319,19 +4326,19 @@ func (m *InventoryRunCounts) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ServicesTotal
+	// no validation rules for TotalServices
 
-	// no validation rules for ServicesResolved
+	// no validation rules for ResolvedServices
 
-	// no validation rules for ServicesOrphaned
+	// no validation rules for OrphanedServices
 
-	// no validation rules for ServicesAnswered
+	// no validation rules for AnsweredServices
 
-	// no validation rules for HostsTotal
+	// no validation rules for TotalHosts
 
-	// no validation rules for HostsProbeable
+	// no validation rules for ProbeableHosts
 
-	// no validation rules for HostsAnswered
+	// no validation rules for AnsweredHosts
 
 	if len(errors) > 0 {
 		return InventoryRunCountsMultiError(errors)
@@ -4892,11 +4899,11 @@ func (m *InventoryRun) validate(all bool) error {
 	// no validation rules for Status
 
 	if all {
-		switch v := interface{}(m.GetStartedAt()).(type) {
+		switch v := interface{}(m.GetStartTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, InventoryRunValidationError{
-					field:  "StartedAt",
+					field:  "StartTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -4904,16 +4911,16 @@ func (m *InventoryRun) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, InventoryRunValidationError{
-					field:  "StartedAt",
+					field:  "StartTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetStartTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InventoryRunValidationError{
-				field:  "StartedAt",
+				field:  "StartTime",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -4921,11 +4928,11 @@ func (m *InventoryRun) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetFinishedAt()).(type) {
+		switch v := interface{}(m.GetEndTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, InventoryRunValidationError{
-					field:  "FinishedAt",
+					field:  "EndTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -4933,16 +4940,16 @@ func (m *InventoryRun) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, InventoryRunValidationError{
-					field:  "FinishedAt",
+					field:  "EndTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFinishedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetEndTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return InventoryRunValidationError{
-				field:  "FinishedAt",
+				field:  "EndTime",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -7393,6 +7400,33 @@ func (m *TriggerInventoryRefreshRequest) validate(all bool) error {
 
 	var errors []error
 
+	if len(m.GetNodeIds()) > 1000 {
+		err := TriggerInventoryRefreshRequestValidationError{
+			field:  "NodeIds",
+			reason: "value must contain no more than 1000 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	for idx, item := range m.GetNodeIds() {
+		_, _ = idx, item
+
+		if utf8.RuneCountInString(item) < 1 {
+			err := TriggerInventoryRefreshRequestValidationError{
+				field:  fmt.Sprintf("NodeIds[%v]", idx),
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return TriggerInventoryRefreshRequestMultiError(errors)
 	}
@@ -7502,11 +7536,11 @@ func (m *TriggerInventoryRefreshResponse) validate(all bool) error {
 	// no validation rules for Status
 
 	if all {
-		switch v := interface{}(m.GetStartedAt()).(type) {
+		switch v := interface{}(m.GetStartTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, TriggerInventoryRefreshResponseValidationError{
-					field:  "StartedAt",
+					field:  "StartTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -7514,16 +7548,16 @@ func (m *TriggerInventoryRefreshResponse) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, TriggerInventoryRefreshResponseValidationError{
-					field:  "StartedAt",
+					field:  "StartTime",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetStartTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TriggerInventoryRefreshResponseValidationError{
-				field:  "StartedAt",
+				field:  "StartTime",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

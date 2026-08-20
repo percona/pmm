@@ -150,7 +150,11 @@ var methodRules = map[string]role{
 	// per-host refresh is the button beside a row that answers "I just fixed this, is it
 	// healthy now". Requiring admin for that would put the routine question behind the
 	// rarest role.
-	http.MethodPost + " /v1/om/inventory/runs": editor,
+	// The custom verb is part of the path, and it is the path that exists: there is no
+	// plain POST /v1/om/inventory/runs to gate. nextPrefix walks back past a colon, so a
+	// rule on the bare collection would match this too -- naming the real route instead
+	// keeps the rule readable as the thing it authorizes.
+	http.MethodPost + " /v1/om/inventory/runs:trigger": editor,
 
 	// Forgetting a row and changing the app's configuration are both admin. A DELETE is
 	// not suppression -- the row returns on the next refresh if PMM still knows the
@@ -163,8 +167,15 @@ var methodRules = map[string]role{
 	// It is kept because it reads as "everything under here" rather than as a path.
 	http.MethodDelete + " /v1/om/inventory/hosts/":    admin,
 	http.MethodDelete + " /v1/om/inventory/services/": admin,
-	http.MethodPatch + " /v1/om/inventory/config":     admin,
-	http.MethodDelete + " /v1/om/inventory/config/":   admin,
+	http.MethodPut + " /v1/om/inventory/config":       admin,
+
+	// Two rules for one route, on purpose. The first names the route that exists; the
+	// second is the backstop, because resolveRule walks longest prefix first and anything
+	// else that ever appears under config/ would otherwise fall through to the viewer rule
+	// at "/v1/om" -- which is the failure this table's test exists to catch. A DELETE
+	// anywhere under an app's configuration should default to admin, not to readable.
+	http.MethodDelete + " /v1/om/inventory/config/overrides/": admin,
+	http.MethodDelete + " /v1/om/inventory/config/":           admin,
 }
 
 var lbacPrefixes = []string{

@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // UpdateInventoryConfigReader is a Reader for the UpdateInventoryConfig structure.
@@ -88,12 +89,12 @@ func (o *UpdateInventoryConfigOK) Code() int {
 
 func (o *UpdateInventoryConfigOK) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PATCH /v1/om/inventory/config][%d] updateInventoryConfigOk %s", 200, payload)
+	return fmt.Sprintf("[PUT /v1/om/inventory/config][%d] updateInventoryConfigOk %s", 200, payload)
 }
 
 func (o *UpdateInventoryConfigOK) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PATCH /v1/om/inventory/config][%d] updateInventoryConfigOk %s", 200, payload)
+	return fmt.Sprintf("[PUT /v1/om/inventory/config][%d] updateInventoryConfigOk %s", 200, payload)
 }
 
 func (o *UpdateInventoryConfigOK) GetPayload() *UpdateInventoryConfigOKBody {
@@ -161,12 +162,12 @@ func (o *UpdateInventoryConfigDefault) Code() int {
 
 func (o *UpdateInventoryConfigDefault) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PATCH /v1/om/inventory/config][%d] UpdateInventoryConfig default %s", o._statusCode, payload)
+	return fmt.Sprintf("[PUT /v1/om/inventory/config][%d] UpdateInventoryConfig default %s", o._statusCode, payload)
 }
 
 func (o *UpdateInventoryConfigDefault) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[PATCH /v1/om/inventory/config][%d] UpdateInventoryConfig default %s", o._statusCode, payload)
+	return fmt.Sprintf("[PUT /v1/om/inventory/config][%d] UpdateInventoryConfig default %s", o._statusCode, payload)
 }
 
 func (o *UpdateInventoryConfigDefault) GetPayload() *UpdateInventoryConfigDefaultBody {
@@ -413,11 +414,16 @@ func (o *UpdateInventoryConfigDefaultBodyDetailsItems0) UnmarshalBinary(b []byte
 }
 
 /*
-UpdateInventoryConfigOKBody UpdateInventoryConfigResponse returns the fields that changed.
+UpdateInventoryConfigOKBody UpdateInventoryConfigResponse returns the configuration as it now stands.
 swagger:model UpdateInventoryConfigOKBody
 */
 type UpdateInventoryConfigOKBody struct {
-	// One entry per applied key.
+	// Every field, not only the ones the request named.
+	//
+	// The whole resource, because an Update answers with the resource. It is also the only
+	// honest answer for a nested write: overriding a parent object changes what its
+	// children effectively resolve to, and a response scoped to the submitted keys would
+	// report the parent and leave a stale child beside it.
 	Settings []*UpdateInventoryConfigOKBodySettingsItems0 `json:"settings"`
 }
 
@@ -537,11 +543,26 @@ type UpdateInventoryConfigOKBodySettingsItems0 struct {
 	// What it would be with no override.
 	DefaultValue any `json:"default_value,omitempty"`
 
-	// The field's type, for rendering an input.
+	// The field's type, for rendering an input. A string because the app's own schema
+	// names it, so this contract does not get to enumerate the possibilities.
 	Type string `json:"type,omitempty"`
 
-	// hot when it can be changed at runtime, otherwise it is deployment-only.
-	Reload string `json:"reload,omitempty"`
+	// SettingReload is how a configuration field may be overridden, if at all.
+	//
+	// Mirrors the app's own three-valued classification rather than collapsing it to
+	// editable/not. NESTED_ONLY is the one that would be lost: the parent object rejects a
+	// whole-object write while its children accept one, so a form that read it as
+	// "not overridable" would refuse to edit a leaf the API would have accepted.
+	//
+	// The distinction a form has to respect: rendering a NOT_OVERRIDABLE field as editable
+	// promises a change the API cannot deliver.
+	//
+	//  - SETTING_RELOAD_HOT: Overridable at runtime; the new value takes effect on the next snapshot refresh.
+	//  - SETTING_RELOAD_NESTED_ONLY: A nested object whose children are overridable, but which rejects being written
+	// whole.
+	//  - SETTING_RELOAD_NOT_OVERRIDABLE: Not overridable at all: YAML and environment variables remain the only sources.
+	// Enum: ["SETTING_RELOAD_UNSPECIFIED","SETTING_RELOAD_HOT","SETTING_RELOAD_NESTED_ONLY","SETTING_RELOAD_NOT_OVERRIDABLE"]
+	Reload *string `json:"reload,omitempty"`
 
 	// Whether an override is in effect, which is how "why is it set to this" is
 	// answerable without also reading the deployment's configuration file.
@@ -556,6 +577,63 @@ type UpdateInventoryConfigOKBodySettingsItems0 struct {
 
 // Validate validates this update inventory config OK body settings items0
 func (o *UpdateInventoryConfigOKBodySettingsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateReload(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var updateInventoryConfigOkBodySettingsItems0TypeReloadPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SETTING_RELOAD_UNSPECIFIED","SETTING_RELOAD_HOT","SETTING_RELOAD_NESTED_ONLY","SETTING_RELOAD_NOT_OVERRIDABLE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		updateInventoryConfigOkBodySettingsItems0TypeReloadPropEnum = append(updateInventoryConfigOkBodySettingsItems0TypeReloadPropEnum, v)
+	}
+}
+
+const (
+
+	// UpdateInventoryConfigOKBodySettingsItems0ReloadSETTINGRELOADUNSPECIFIED captures enum value "SETTING_RELOAD_UNSPECIFIED"
+	UpdateInventoryConfigOKBodySettingsItems0ReloadSETTINGRELOADUNSPECIFIED string = "SETTING_RELOAD_UNSPECIFIED"
+
+	// UpdateInventoryConfigOKBodySettingsItems0ReloadSETTINGRELOADHOT captures enum value "SETTING_RELOAD_HOT"
+	UpdateInventoryConfigOKBodySettingsItems0ReloadSETTINGRELOADHOT string = "SETTING_RELOAD_HOT"
+
+	// UpdateInventoryConfigOKBodySettingsItems0ReloadSETTINGRELOADNESTEDONLY captures enum value "SETTING_RELOAD_NESTED_ONLY"
+	UpdateInventoryConfigOKBodySettingsItems0ReloadSETTINGRELOADNESTEDONLY string = "SETTING_RELOAD_NESTED_ONLY"
+
+	// UpdateInventoryConfigOKBodySettingsItems0ReloadSETTINGRELOADNOTOVERRIDABLE captures enum value "SETTING_RELOAD_NOT_OVERRIDABLE"
+	UpdateInventoryConfigOKBodySettingsItems0ReloadSETTINGRELOADNOTOVERRIDABLE string = "SETTING_RELOAD_NOT_OVERRIDABLE"
+)
+
+// prop value enum
+func (o *UpdateInventoryConfigOKBodySettingsItems0) validateReloadEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, updateInventoryConfigOkBodySettingsItems0TypeReloadPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *UpdateInventoryConfigOKBodySettingsItems0) validateReload(formats strfmt.Registry) error {
+	if swag.IsZero(o.Reload) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateReloadEnum("reload", "body", *o.Reload); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -36,24 +36,25 @@ export const OM_ROUTE_HOSTS = 'hosts';
 export const OM_ROUTE_INVENTORY = 'inventory';
 
 export const SERVICE_STATUS_LABEL: Record<OmServiceStatus, string> = {
-  UP: 'Up',
-  DOWN: 'Down',
+  SERVICE_STATUS_UNSPECIFIED: 'Unknown',
+  SERVICE_STATUS_UP: 'Up',
+  SERVICE_STATUS_DOWN: 'Down',
 };
 
-export const SERVICE_STATUS_COLOR: Record<
-  OmServiceStatus,
-  ChipProps['color']
-> = {
-  UP: 'success',
-  DOWN: 'error',
-};
+export const SERVICE_STATUS_COLOR: Record<OmServiceStatus, ChipProps['color']> =
+  {
+    SERVICE_STATUS_UNSPECIFIED: 'default',
+    SERVICE_STATUS_UP: 'success',
+    SERVICE_STATUS_DOWN: 'error',
+  };
 
 /** Display names for the process roles, which the raw values abbreviate heavily. */
 export const PROCESS_ROLE_LABEL: Record<OmProcessRole, string> = {
-  mongod: 'mongod',
-  mongos: 'Router',
-  configsvr: 'Config server',
-  shardsvr: 'Shard',
+  PROCESS_ROLE_UNSPECIFIED: 'Unknown',
+  PROCESS_ROLE_MONGOD: 'mongod',
+  PROCESS_ROLE_MONGOS: 'Router',
+  PROCESS_ROLE_CONFIGSVR: 'Config server',
+  PROCESS_ROLE_SHARDSVR: 'Shard',
 };
 
 /**
@@ -79,14 +80,13 @@ export const HOST_DATABASE_STATE_COLOR: Record<
   installable: 'default',
 };
 
-export const HOST_DATABASE_STATE_PHRASE: Record<OmHostDatabaseState, string> =
-  {
-    has_service: 'PMM has at least one registered MongoDB service on this host',
-    unregistered_only:
-      'No service PMM knows about, but the probe found a mongod running - an arbiter, most likely, since PMM cannot authenticate against one. Not an empty host.',
-    installable:
-      'No registered service and no mongod found. This is where a database can be installed.',
-  };
+export const HOST_DATABASE_STATE_PHRASE: Record<OmHostDatabaseState, string> = {
+  has_service: 'PMM has at least one registered MongoDB service on this host',
+  unregistered_only:
+    'No service PMM knows about, but the probe found a mongod running - an arbiter, most likely, since PMM cannot authenticate against one. Not an empty host.',
+  installable:
+    'No registered service and no mongod found. This is where a database can be installed.',
+};
 
 export const UNAVAILABLE_PHRASE: Record<OmUnavailableReason, string> = {
   service_not_observed:
@@ -109,22 +109,27 @@ export const UNAVAILABLE_PHRASE: Record<OmUnavailableReason, string> = {
 export const UNAVAILABLE_FALLBACK = 'Not available';
 
 export const RUN_STATUS_LABEL: Record<OmTopologyRunStatus, string> = {
-  running: 'Running',
-  success: 'Success',
-  partial: 'Partial',
-  failed: 'Failed',
-  skipped: 'Skipped',
+  RUN_STATUS_UNSPECIFIED: 'Unknown',
+  RUN_STATUS_RUNNING: 'Running',
+  RUN_STATUS_SUCCESS: 'Success',
+  RUN_STATUS_PARTIAL: 'Partial',
+  RUN_STATUS_FAILED: 'Failed',
+  RUN_STATUS_SKIPPED: 'Skipped',
 };
 
-export const RUN_STATUS_COLOR: Record<OmTopologyRunStatus, ChipProps['color']> = {
-  running: 'info',
-  success: 'success',
-  partial: 'warning',
-  failed: 'error',
-  // Neither good nor bad: nothing happened, on purpose. Colouring it as a failure
-  // would put a red row in the history every time the schedule met a manual refresh.
-  skipped: 'default',
-};
+export const RUN_STATUS_COLOR: Record<OmTopologyRunStatus, ChipProps['color']> =
+  {
+    // A status this build has not been taught. Rendered rather than hidden: an unknown
+    // value is a real answer from a newer server, not a missing one.
+    RUN_STATUS_UNSPECIFIED: 'default',
+    RUN_STATUS_RUNNING: 'info',
+    RUN_STATUS_SUCCESS: 'success',
+    RUN_STATUS_PARTIAL: 'warning',
+    RUN_STATUS_FAILED: 'error',
+    // Neither good nor bad: nothing happened, on purpose. Colouring it as a failure
+    // would put a red row in the history every time the schedule met a manual refresh.
+    RUN_STATUS_SKIPPED: 'default',
+  };
 
 /**
  * Human labels for OM's configuration fields.

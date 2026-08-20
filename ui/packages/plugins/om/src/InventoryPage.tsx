@@ -53,16 +53,16 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
     ),
   },
   {
-    accessorKey: 'started_at',
+    accessorKey: 'start_time',
     header: 'Started',
-    Cell: ({ row: { original } }) => formatTimestamp(original.started_at),
+    Cell: ({ row: { original } }) => formatTimestamp(original.start_time),
   },
   {
-    accessorFn: (row) => formatRunDuration(row.started_at, row.finished_at),
+    accessorFn: (row) => formatRunDuration(row.start_time, row.end_time),
     id: 'duration',
     header: 'Duration',
     Cell: ({ row: { original } }) =>
-      formatRunDuration(original.started_at, original.finished_at) || '—',
+      formatRunDuration(original.start_time, original.end_time) || '—',
   },
   {
     // Empty rather than zero for a full sweep: "the whole estate" is the ordinary
@@ -88,7 +88,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
       ),
   },
   {
-    accessorFn: (row) => row.counts.hosts_answered,
+    accessorFn: (row) => row.counts.answered_hosts,
     id: 'hosts',
     header: 'Hosts',
     Cell: ({ row: { original } }) => (
@@ -96,35 +96,35 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
       // the estate nothing can be dispatched to, which is an onboarding fact rather
       // than a failed run, and the gap between the last two is what actually failed.
       <Tooltip
-        title={`${original.counts.hosts_total} in scope, ${original.counts.hosts_probeable} with somewhere to run a probe, ${original.counts.hosts_answered} answered`}
+        title={`${original.counts.total_hosts} in scope, ${original.counts.probeable_hosts} with somewhere to run a probe, ${original.counts.answered_hosts} answered`}
       >
         <Box component="span">
-          {original.counts.hosts_answered}/{original.counts.hosts_probeable}
-          {original.counts.hosts_probeable === original.counts.hosts_total
+          {original.counts.answered_hosts}/{original.counts.probeable_hosts}
+          {original.counts.probeable_hosts === original.counts.total_hosts
             ? ''
-            : ` of ${original.counts.hosts_total}`}
+            : ` of ${original.counts.total_hosts}`}
         </Box>
       </Tooltip>
     ),
   },
   {
-    accessorFn: (row) => row.counts.services_total,
+    accessorFn: (row) => row.counts.total_services,
     id: 'services',
     header: 'Services',
-    Cell: ({ row: { original } }) => original.counts.services_total,
+    Cell: ({ row: { original } }) => original.counts.total_services,
   },
   {
-    accessorFn: (row) => row.counts.services_resolved,
+    accessorFn: (row) => row.counts.resolved_services,
     id: 'resolved',
     header: 'Resolved',
     Cell: ({ row: { original } }) => (
       <Tooltip title="Services that mapped to a live executor host">
-        <Box component="span">{original.counts.services_resolved}</Box>
+        <Box component="span">{original.counts.resolved_services}</Box>
       </Tooltip>
     ),
   },
   {
-    accessorFn: (row) => row.counts.services_answered,
+    accessorFn: (row) => row.counts.answered_services,
     id: 'answered',
     header: 'Answered',
     Cell: ({ row: { original } }) => (
@@ -132,17 +132,17 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
       // node ran the payload. resolved=9 / answered=0 is a healthy mapping and
       // broken executors — a distinction a single "failed" count would hide.
       <Tooltip title="Services whose node ran the probe payload">
-        <Box component="span">{original.counts.services_answered}</Box>
+        <Box component="span">{original.counts.answered_services}</Box>
       </Tooltip>
     ),
   },
   {
-    accessorFn: (row) => row.counts.services_orphaned,
+    accessorFn: (row) => row.counts.orphaned_services,
     id: 'orphaned',
     header: 'Orphaned',
     Cell: ({ row: { original } }) => (
       <Tooltip title="Services with no live executor host — not an error">
-        <Box component="span">{original.counts.services_orphaned}</Box>
+        <Box component="span">{original.counts.orphaned_services}</Box>
       </Tooltip>
     ),
   },
@@ -219,7 +219,7 @@ function LastRun({ run }: { run: OmInventoryRun | undefined }) {
       </Alert>
     );
   }
-  const age = ageSeconds(run.started_at);
+  const age = ageSeconds(run.start_time);
   const active = isRefreshActive(run.status);
   return (
     <Stack
@@ -233,16 +233,16 @@ function LastRun({ run }: { run: OmInventoryRun | undefined }) {
         {active
           ? `started ${age == null ? 'just now' : `${formatDuration(age)} ago`}`
           : `${age == null ? '' : `${formatDuration(age)} ago`}, took ${
-              formatRunDuration(run.started_at, run.finished_at) || '—'
+              formatRunDuration(run.start_time, run.end_time) || '—'
             }`}
       </Typography>
       <Typography variant="body2">
-        <strong>{run.counts.hosts_answered}</strong> of{' '}
-        {run.counts.hosts_probeable} hosts answered
+        <strong>{run.counts.answered_hosts}</strong> of{' '}
+        {run.counts.probeable_hosts} hosts answered
       </Typography>
       <Typography variant="body2">
-        <strong>{run.counts.services_answered}</strong> of{' '}
-        {run.counts.services_resolved} services answered
+        <strong>{run.counts.answered_services}</strong> of{' '}
+        {run.counts.resolved_services} services answered
       </Typography>
       {run.scope.length > 0 && (
         <Tooltip title={run.scope.join(', ')}>

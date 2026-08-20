@@ -63,7 +63,7 @@ func liveFacts(state string, extra map[string]MergedField) map[string]MergedFiel
 	return fields
 }
 
-func onlyService(t *testing.T, doc document) *omv1.Service {
+func onlyService(t *testing.T, doc document) *omv1.TopologyService {
 	t.Helper()
 	require.Len(t, doc.environments, 1)
 	require.Len(t, doc.environments[0].Clusters, 1)
@@ -83,12 +83,12 @@ func TestBuildDocument(t *testing.T) {
 
 		svc := onlyService(t, doc)
 		assert.Equal(t, "mongo-1", svc.ServiceName)
-		assert.Equal(t, statusDown, svc.Status)
+		assert.Equal(t, omv1.ServiceStatus_SERVICE_STATUS_DOWN, svc.Status)
 		assert.InDelta(t, float64(unmeasured), svc.CpuUsagePercent, 0.001)
 		assert.InDelta(t, float64(unmeasured), svc.ConnectionsFreePercent, 0.001)
 		assert.Nil(t, svc.Version)
-		assert.Equal(t, int32(1), doc.summary.ServicesTotal)
-		assert.Equal(t, int32(1), doc.summary.ServicesDown)
+		assert.Equal(t, int32(1), doc.summary.TotalServices)
+		assert.Equal(t, int32(1), doc.summary.DownServices)
 	})
 
 	t.Run("a stopped service reads DOWN once its up flag ages out", func(t *testing.T) {
@@ -108,7 +108,7 @@ func TestBuildDocument(t *testing.T) {
 		doc := buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge)
 
 		svc := onlyService(t, doc)
-		assert.Equal(t, statusDown, svc.Status)
+		assert.Equal(t, omv1.ServiceStatus_SERVICE_STATUS_DOWN, svc.Status)
 		assert.Nil(t, svc.State, "a replica-set state from ten minutes ago is not current")
 		assert.InDelta(t, float64(unmeasured), svc.CpuUsagePercent, 0.001)
 		assert.Equal(t, "7.0.39-21", svc.Version.GetValue(), "identity is still worth reporting")
@@ -125,7 +125,7 @@ func TestBuildDocument(t *testing.T) {
 		doc := buildDocument(services, map[string]map[string]MergedField{"s1": fields}, projectionNow, projectionMaxAge)
 
 		svc := onlyService(t, doc)
-		assert.Equal(t, statusDown, svc.Status)
+		assert.Equal(t, omv1.ServiceStatus_SERVICE_STATUS_DOWN, svc.Status)
 		assert.InDelta(t, float64(unmeasured), svc.CpuUsagePercent, 0.001, "a CPU figure for a stopped process reads as current")
 	})
 
@@ -162,18 +162,18 @@ func TestBuildDocument(t *testing.T) {
 		for _, tc := range []struct {
 			name  string
 			extra map[string]MergedField
-			want  string
+			want  omv1.ProcessRole
 		}{
-			{"plain mongod", nil, processRoleMongod},
+			{"plain mongod", nil, omv1.ProcessRole_PROCESS_ROLE_MONGOD},
 			{"router", map[string]MergedField{
 				fieldIsMongos: {Value: true, Source: sourceMetrics, ObservedAt: &observed},
-			}, processRoleMongos},
+			}, omv1.ProcessRole_PROCESS_ROLE_MONGOS},
 			{"config server", map[string]MergedField{
 				fieldClusterRole: {Value: "configsvr", Source: sourceMetrics, ObservedAt: &observed},
-			}, processRoleConfigsvr},
+			}, omv1.ProcessRole_PROCESS_ROLE_CONFIGSVR},
 			{"shard server", map[string]MergedField{
 				fieldClusterRole: {Value: "shardsvr", Source: sourceMetrics, ObservedAt: &observed},
-			}, processRoleShardsvr},
+			}, omv1.ProcessRole_PROCESS_ROLE_SHARDSVR},
 		} {
 			doc := buildDocument(services,
 				map[string]map[string]MergedField{"s1": liveFacts("PRIMARY", tc.extra)},
@@ -262,10 +262,14 @@ func TestBuildDocument(t *testing.T) {
 			}),
 		}, projectionNow, projectionMaxAge)
 
-		assert.Equal(t, int32(3), doc.summary.ServicesTotal)
-		assert.Equal(t, int32(2), doc.summary.ServicesUp)
-		assert.Equal(t, int32(1), doc.summary.ServicesDown)
-		assert.Equal(t, map[string]int32{processRoleMongod: 2, processRoleMongos: 1}, doc.summary.ByProcessRole)
+		assert.Equal(t, int32(3), doc.summary.TotalServices)
+		assert.Equal(t, int32(2), doc.summary.UpServices)
+		assert.Equal(t, int32(1), doc.summary.DownServices)
+		// Keyed by the enum's name, not its number, so the map reads as itself in JSON.
+		assert.Equal(t, map[string]int32{
+			omv1.ProcessRole_PROCESS_ROLE_MONGOD.String(): 2,
+			omv1.ProcessRole_PROCESS_ROLE_MONGOS.String(): 1,
+		}, doc.summary.ProcessRoleCounts)
 	})
 
 	t.Run("observed_at is the newest observation behind the document", func(t *testing.T) {

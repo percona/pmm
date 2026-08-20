@@ -303,7 +303,7 @@ func TestProbeFactsReachTheDocument(t *testing.T) {
 	merged := mergeFacts([]SourceResult{metrics, probe}, defaultPrecedence)
 	doc := buildDocument(services, merged, projectionNow, projectionMaxAge)
 
-	var svc *omv1.Service
+	var svc *omv1.TopologyService
 	for _, cluster := range doc.environments[0].Clusters {
 		for _, candidate := range cluster.Services {
 			if candidate.ServiceName == "mongo-1" {

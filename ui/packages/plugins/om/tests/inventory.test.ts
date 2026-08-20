@@ -96,9 +96,7 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
   ...overrides,
 });
 
-const snapshotService = (
-  overrides: Partial<OmServiceRow> = {}
-): OmServiceRow =>
+const snapshotService = (overrides: Partial<OmServiceRow> = {}): OmServiceRow =>
   ({
     service_id: 'svc-1',
     service_name: 'db00',

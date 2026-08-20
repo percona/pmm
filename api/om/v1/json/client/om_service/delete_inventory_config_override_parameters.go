@@ -59,7 +59,8 @@ DeleteInventoryConfigOverrideParams contains all the parameters to send to the A
 type DeleteInventoryConfigOverrideParams struct {
 	/* Key.
 
-	   The field to put back to its deployed value.
+	     The field whose override to remove, putting it back to its deployed value. Also the
+	resource ID within the `overrides` collection.
 	*/
 	Key string
 

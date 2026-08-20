@@ -65,9 +65,13 @@ const (
 	defaultRunLimit = 25
 )
 
-// Run statuses. A run whose sources all answered is a success even if some services were
-// never seen: a service that inventory knows and metrics have not is a fact about the
-// estate, not a failure of the run.
+// Run statuses, as the run row stores them. A run whose sources all answered is a success
+// even if some services were never seen: a service that inventory knows and metrics have
+// not is a fact about the estate, not a failure of the run.
+//
+// Kept as strings because they are persisted. The wire carries omv1.RunStatus instead, and
+// runStatusToProto in store.go is the only crossing -- a stored row stays legible in psql
+// and survives a renumbering of the enum.
 const (
 	runStatusSuccess = "success"
 	runStatusPartial = "partial"
@@ -200,7 +204,7 @@ func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.Trigger
 	return &omv1.TriggerTopologyCollectionResponse{
 		RunId:     run.RunId,
 		Status:    run.Status,
-		StartedAt: run.StartedAt,
+		StartTime: run.StartTime,
 	}, nil
 }
 
@@ -246,7 +250,7 @@ func (s *Service) discover(ctx context.Context) (*omv1.GetTopologyResponse, erro
 
 // collect reads every source, merges, builds the document and records the run. The caller
 // must hold s.running.
-func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1.Run, error) {
+func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1.TopologyRun, error) {
 	startedAt := time.Now()
 	runID := uuid.New().String()
 
@@ -299,7 +303,7 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 	}
 
 	s.l.Infof("run %s: %d service(s), %d up, %d cluster(s), %d stale, %s max age, status %s",
-		runID, doc.summary.ServicesTotal, doc.summary.ServicesUp, doc.summary.Clusters,
+		runID, doc.summary.TotalServices, doc.summary.UpServices, doc.summary.Clusters,
 		doc.staleServices, maxAge, run.Status)
 
 	return response, run, nil
@@ -397,45 +401,45 @@ func (s *Service) readInventory() ([]*models.Service, map[string]*models.Node, s
 
 // buildRun records what one pass saw.
 //
-// The services_resolved versus probes_ok pair is the diagnostic split: the first says a source
-// produced facts for the service at all, the second says it was observed as reachable. A
-// run with resolved=9, probes_ok=0 is a healthy join and nine unreachable databases.
+// The resolved_services versus successful_probes pair is the diagnostic split: the first says a
+// source produced facts for the service at all, the second says it was observed as reachable.
+// A run with resolved=9, successful=0 is a healthy join and nine unreachable databases.
 func buildRun(
 	runID string, startedAt, finishedAt time.Time,
 	services []*models.Service, merged map[string]map[string]MergedField,
 	doc document, results []SourceResult,
-) *omv1.Run {
-	counts := &omv1.RunCounts{ServicesTotal: int32(len(services))} //nolint:gosec
+) *omv1.TopologyRun {
+	counts := &omv1.TopologyRunCounts{TotalServices: int32(len(services))} //nolint:gosec
 	for _, service := range services {
 		if len(merged[service.ServiceID]) == 0 {
-			counts.ServicesOrphaned++
+			counts.OrphanedServices++
 			continue
 		}
-		counts.ServicesResolved++
+		counts.ResolvedServices++
 	}
-	counts.ProbesOk = doc.summary.ServicesUp
-	counts.ServicesStale = int32(doc.staleServices) //nolint:gosec
+	counts.SuccessfulProbes = doc.summary.UpServices
+	counts.StaleServices = int32(doc.staleServices) //nolint:gosec
 
-	run := &omv1.Run{
-		RunId:      runID,
-		Status:     runStatusSuccess,
-		StartedAt:  timestamppb.New(startedAt),
-		FinishedAt: timestamppb.New(finishedAt),
-		Counts:     counts,
-		Sources:    make([]*omv1.SourceReport, 0, len(results)),
-		Errors:     []*omv1.RunError{},
+	run := &omv1.TopologyRun{
+		RunId:     runID,
+		Status:    omv1.RunStatus_RUN_STATUS_SUCCESS,
+		StartTime: timestamppb.New(startedAt),
+		EndTime:   timestamppb.New(finishedAt),
+		Counts:    counts,
+		Sources:   make([]*omv1.SourceReport, 0, len(results)),
+		Errors:    []*omv1.TopologyRunError{},
 	}
 
 	failed := 0
 	for _, result := range results {
 		run.Sources = append(run.Sources, &omv1.SourceReport{
 			Source: result.Source,
-			Status: string(result.Status),
+			Status: sourceStatusToProto(result.Status),
 			Facts:  int32(len(result.Facts)), //nolint:gosec
 			Detail: detailStrings(result.Detail),
 		})
 		for _, e := range result.Errors {
-			run.Errors = append(run.Errors, &omv1.RunError{
+			run.Errors = append(run.Errors, &omv1.TopologyRunError{
 				Scope:       e.Scope,
 				ServiceName: optional(e.ServiceName),
 				Code:        e.Code,
@@ -449,9 +453,9 @@ func buildRun(
 
 	switch {
 	case failed > 0 && failed == len(results):
-		run.Status = runStatusFailed
+		run.Status = omv1.RunStatus_RUN_STATUS_FAILED
 	case len(run.Errors) > 0 || failed > 0:
-		run.Status = runStatusPartial
+		run.Status = omv1.RunStatus_RUN_STATUS_PARTIAL
 	}
 	return run
 }
