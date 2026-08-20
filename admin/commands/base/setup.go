@@ -18,6 +18,7 @@ package base
 import (
 	"errors"
 	"net/url"
+	"regexp"
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
@@ -53,6 +54,41 @@ func normalizeServerURL(u *url.URL) error {
 	}
 
 	return nil
+}
+
+// credentialPattern matches a URL userinfo component - "user:password@" - occurring anywhere in
+// a string. It is a defensive final pass applied on top of structured parsing: url.URL.Redacted
+// only recognises userinfo in a properly structured "scheme://user:pass@host" URL. A URL typed
+// without "//" - a missing scheme being exactly the kind of mistake this code has to diagnose -
+// parses as opaque instead, with "user:password" sitting in Opaque, in cleartext, which
+// Redacted does not look at; a URL that fails to parse at all is not touched by it either.
+var credentialPattern = regexp.MustCompile(`([^/@:\s]+):([^/@\s]*)@`)
+
+// redactedServerURL returns raw with any password it carries replaced by a placeholder, so a
+// PMM Server URL can be logged without leaking its credentials - however malformed the URL
+// turns out to be. Structured parsing is tried first since it redacts a well-formed URL
+// cleanly; credentialPattern is a defensive final pass over the result.
+func redactedServerURL(raw string) string {
+	candidate := raw
+
+	u, err := url.Parse(raw)
+	if err == nil {
+		candidate = u.Redacted()
+	}
+
+	return credentialPattern.ReplaceAllString(candidate, "$1:xxxxx@")
+}
+
+// sanitizeURLError returns a safe-to-log form of err: url.Parse embeds the exact string it
+// failed on - password included - in its own error text, so a *url.Error is reduced to its
+// underlying reason instead of being logged as received.
+func sanitizeURLError(err error) string {
+	urlErr, ok := errors.AsType[*url.Error](err)
+	if ok {
+		return urlErr.Err.Error()
+	}
+
+	return err.Error()
 }
 
 // applyAgentServerParams fills in the PMM Server connection parameters reported by the local
@@ -95,13 +131,20 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 		}
 		err = applyAgentServerParams(globalFlags, status)
 		if err != nil {
+			// status.ServerURL and err may both carry a password - reported by pmm-agent
+			// in the first case, embedded by url.Parse's own error text in the second.
 			logrus.Fatalf("Invalid PMM Server URL %q reported by local pmm-agent: %s.\n"+
-				"Please use --server-url flag to specify PMM Server URL.", status.ServerURL, err)
+				"Please use --server-url flag to specify PMM Server URL.",
+				redactedServerURL(status.ServerURL), sanitizeURLError(err))
 		}
 	} else {
 		err := normalizeServerURL(globalFlags.ServerURL)
 		if err != nil {
-			logrus.Fatalf("Invalid PMM Server URL %q: %s.", globalFlags.ServerURL, err)
+			// globalFlags.ServerURL comes from kong's own url.Parse of --server-url, so a
+			// scheme-less value (exactly what triggers this branch) hits the same opaque-URL
+			// gap redactedServerURL exists for - hence going through it rather than Redacted.
+			logrus.Fatalf("Invalid PMM Server URL %q: %s.",
+				redactedServerURL(globalFlags.ServerURL.String()), sanitizeURLError(err))
 		}
 	}
 

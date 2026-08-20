@@ -15,6 +15,7 @@
 package base
 
 import (
+	"errors"
 	"net/http"
 	"net/url"
 	"testing"
@@ -126,6 +127,68 @@ func TestApplyAgentServerParamsAddsTrailingPath(t *testing.T) {
 	require.NoError(t, applyAgentServerParams(globals, status))
 	require.NotNil(t, globals.ServerURL)
 	assert.Equal(t, "/", globals.ServerURL.Path)
+}
+
+// TestRedactedServerURL checks that a password never survives into the string SetupClients
+// logs a bad PMM Server URL with, whether or not the URL could be parsed at all.
+func TestRedactedServerURL(t *testing.T) {
+	t.Parallel()
+
+	for name, tc := range map[string]struct {
+		raw           string
+		wantSubstring string
+	}{
+		"host missing, credentials present": {
+			// url.URL.Redacted handles this shape directly: a well-formed "scheme://user:pass@host".
+			raw:           "https://admin:hunter2@/v1",
+			wantSubstring: "admin:xxxxx@",
+		},
+		"scheme missing, credentials present": {
+			// No "//" means url.Parse reads this as scheme "admin" with an opaque body
+			// carrying the password in cleartext - Redacted alone would miss it.
+			raw:           "admin:hunter2@pmm-server:8443",
+			wantSubstring: "admin:xxxxx@pmm-server:8443",
+		},
+		"unparseable, credentials present": {
+			// Bad percent-encoding fails url.Parse itself, before Redacted is reachable at all.
+			raw:           "https://admin:hunter2@pmm-server:8443/%zz",
+			wantSubstring: "admin:xxxxx@pmm-server:8443",
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			got := redactedServerURL(tc.raw)
+
+			assert.NotContains(t, got, "hunter2")
+			assert.Contains(t, got, tc.wantSubstring)
+		})
+	}
+}
+
+// TestSanitizeURLError checks that the password embedded in url.Parse's own error text - it
+// quotes the exact input it failed on - never reaches the log SetupClients writes to.
+func TestSanitizeURLError(t *testing.T) {
+	t.Parallel()
+
+	t.Run("url.Error strips the raw URL", func(t *testing.T) {
+		t.Parallel()
+
+		// *url.Error.Error() embeds the exact input it failed on - built directly here,
+		// since what is under test is what sanitizeURLError does with that, not how
+		// url.Parse happens to phrase its own message.
+		err := &url.Error{Op: "parse", URL: "https://admin:hunter2@pmm-server:8443/", Err: errors.New("invalid URL escape")}
+		require.Contains(t, err.Error(), "hunter2", "url.Error is expected to quote its input")
+
+		assert.NotContains(t, sanitizeURLError(err), "hunter2")
+	})
+
+	t.Run("other errors pass through", func(t *testing.T) {
+		t.Parallel()
+
+		err := errors.New("host is missing")
+		assert.Equal(t, "host is missing", sanitizeURLError(err))
+	})
 }
 
 // serverTransport returns the HTTP transport the PMM Server API clients were set up with.

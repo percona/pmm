@@ -26,6 +26,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -255,5 +256,45 @@ func TestNginxConsumer(t *testing.T) {
 		require.ErrorAs(t, err, &target)
 		assert.Equal(t, NginxError("<html>\r\n<title>401 Authorization Required</title>\r\n</html>"), target)
 		assert.NotContains(t, err.Error(), "</html>\r\n")
+	})
+
+	t.Run("read failure is not silently swallowed", func(t *testing.T) {
+		t.Parallel()
+
+		readErr := errors.New("connection reset by peer")
+		err := NginxConsumer().Consume(iotest.ErrReader(readErr), nil)
+
+		require.Error(t, err)
+		require.ErrorIs(t, err, readErr, "the original error must stay inspectable")
+
+		// A body that could not even be fully read must not be reported as a NginxError:
+		// the caller would print it, and any hint attached to a NginxError, as if the page
+		// had been read completely.
+		var target NginxError
+		assert.NotErrorAs(t, err, &target)
+	})
+
+	t.Run("oversized body is bounded, not buffered whole", func(t *testing.T) {
+		t.Parallel()
+
+		// One byte over the limit, so the boundary itself is covered.
+		body := strings.Repeat("a", maxNginxBodySize+1)
+		err := NginxConsumer().Consume(strings.NewReader(body), nil)
+
+		var target NginxError
+		require.ErrorAs(t, err, &target)
+		assert.LessOrEqual(t, len(target), maxNginxBodySize+len(" [truncated]"))
+		assert.True(t, strings.HasSuffix(string(target), "[truncated]"))
+	})
+
+	t.Run("body at exactly the limit is not marked truncated", func(t *testing.T) {
+		t.Parallel()
+
+		body := strings.Repeat("a", maxNginxBodySize)
+		err := NginxConsumer().Consume(strings.NewReader(body), nil)
+
+		var target NginxError
+		require.ErrorAs(t, err, &target)
+		assert.Equal(t, NginxError(body), target)
 	})
 }

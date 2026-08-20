@@ -121,12 +121,13 @@ func AuthHint(httpCode int, grpcCode int32) string {
 	return ""
 }
 
-// NginxHint explains a NginxError. An nginx page is served both when PMM Server's API cannot
-// be reached and when its auth_request subrequest rejects the credentials, and neither the HTTP
-// status nor the gRPC code survives in the body, so the hint has to cover both. Like AuthHint
-// it carries no trailing punctuation: callers own it.
-const NginxHint = "PMM Server did not return an API response. Please check your credentials, " +
-	"that PMM Server is running, and pmm-managed logs"
+// NginxHint explains a NginxError: nginx answered instead of PMM Server's API, most commonly
+// because pmm-managed itself is down. nginx's auth_request also runs on this path, but PMM
+// Server's shipped configuration always has it answer in JSON, so a rejected login reaches
+// AuthHint instead - this hint is not about credentials. Like AuthHint it carries no trailing
+// punctuation: callers own it.
+const NginxHint = "PMM Server did not return an API response. Please check pmm-managed logs, " +
+	"and that PMM Server is running"
 
 // NginxError is the body of a response served by the nginx which fronts PMM Server rather than
 // by the API itself. Its content type is HTML or plain text - never the JSON the generated
@@ -144,17 +145,37 @@ func (e NginxError) GoString() string {
 	return fmt.Sprintf("NginxError(%q)", string(e))
 }
 
+// maxNginxBodySize bounds how much of a response NginxConsumer buffers. A real nginx or
+// default error page is a few hundred bytes; the limit exists so that a misconfigured proxy or
+// a hostile server answering with an unbounded body cannot be used to exhaust memory.
+const maxNginxBodySize = 64 * 1024
+
 // NginxConsumer returns a go-openapi consumer which turns a response body into a NginxError.
 // Both CLIs install it for the content types the PMM Server API never answers with, so that an
 // nginx page surfaces as an error of its own instead of as a JSON decoding failure.
 //
 // The body is trimmed: nginx pages end with a newline, which would otherwise leave a blank line
-// between the page and whatever the caller prints after it.
+// between the page and whatever the caller prints after it. A body over maxNginxBodySize is
+// truncated rather than rejected outright, since even a partial nginx page - unlike a read
+// failure - is still evidence of what happened and worth reporting.
 func NginxConsumer() runtime.ConsumerFunc {
 	return func(reader io.Reader, _ any) error {
-		b, _ := io.ReadAll(reader)
+		b, err := io.ReadAll(io.LimitReader(reader, maxNginxBodySize+1))
+		if err != nil {
+			return fmt.Errorf("reading response from nginx: %w", err)
+		}
 
-		return NginxError(strings.TrimSpace(string(b)))
+		truncated := len(b) > maxNginxBodySize
+		if truncated {
+			b = b[:maxNginxBodySize]
+		}
+
+		msg := strings.TrimSpace(string(b))
+		if truncated {
+			msg += " [truncated]"
+		}
+
+		return NginxError(msg)
 	}
 }
 

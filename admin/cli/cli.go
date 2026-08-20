@@ -156,6 +156,7 @@ func explainTransportError(opts *flags.GlobalFlags, err error) error {
 	// auth_request subrequest rejecting the credentials - with a page of its own, which the
 	// generated clients surface as a NginxError rather than as a commands.ErrorResponse.
 	// It therefore never reaches ServerErrorMessage and needs its hint here.
+	// Like the sibling TLS-hint error below, this is a Go error value: no trailing period.
 	if _, ok := errors.AsType[servererror.NginxError](err); ok {
 		return fmt.Errorf("%w\n%s", err, servererror.NginxHint)
 	}
