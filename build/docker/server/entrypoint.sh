@@ -112,6 +112,29 @@ if [ ! -d "/srv/pmm-agent/tmp" ]; then
     install -d -m 770 /srv/pmm-agent/tmp
 fi
 
+# Resolved before postgres-sep, which sets the sep role's password, and sep-secrets,
+# which publishes it - both read it from the environment and neither can generate it for
+# the other. An operator value wins and is not persisted, so unsetting it returns to the
+# generated one rather than pinning whatever was passed once.
+if is_enabled "$PMM_ENABLE_SEP" && [ -z "$PMM_SEP_POSTGRES_PASSWORD" ]; then
+    declare SEP_PG_PASSWORD_FILE="/srv/.sep_postgres_password"
+
+    if [ ! -s "$SEP_PG_PASSWORD_FILE" ]; then
+        echo "Generating the PostgreSQL password for SEP..."
+        SEP_PG_TMP=$(mktemp "$SEP_PG_PASSWORD_FILE.XXXXXX")
+        openssl rand -hex 24 > "$SEP_PG_TMP"
+        mv "$SEP_PG_TMP" "$SEP_PG_PASSWORD_FILE"
+        unset SEP_PG_TMP
+    fi
+
+    chmod 600 "$SEP_PG_PASSWORD_FILE" 2> /dev/null ||
+        echo "WARNING: could not narrow $SEP_PG_PASSWORD_FILE to mode 600." >&2
+
+    PMM_SEP_POSTGRES_PASSWORD=$(< "$SEP_PG_PASSWORD_FILE")
+    export PMM_SEP_POSTGRES_PASSWORD
+    unset SEP_PG_PASSWORD_FILE
+fi
+
 # The script owns the embedded cluster: it upgrades a PostgreSQL 14 data directory,
 # creates the cluster on a fresh installation, and repairs older ones.
 if is_enabled "$PMM_HA_ENABLE"; then
