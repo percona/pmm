@@ -33,7 +33,7 @@ export default defineConfig({
     ],
   },
   optimizeDeps: {
-    // Uncomment when using yarn link for @percona/peak-ui locally
+    // Uncomment when using pnpm link for @percona/peak-ui locally
     // exclude: ['@percona/peak-ui'],
     force: true,
   },
