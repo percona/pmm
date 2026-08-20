@@ -98,15 +98,18 @@ export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
   }, [isOutdated, autoReload]);
 
   // Lazily imported chunks are named after their content, so an upgrade leaves the
-  // ones this page knows about missing from the server. That surfaces before the
-  // next poll does and has no recovery other than loading the new assets.
+  // ones this page knows about missing from the server. That is the upgrade making
+  // itself known ahead of the poll rather than a case of its own, so it goes through
+  // the same policy: it cannot reload a tab the user is looking at.
   useEffect(() => {
-    window.addEventListener('vite:preloadError', autoReload);
+    const markOutdated = () => setIsOutdated(true);
+
+    window.addEventListener('vite:preloadError', markOutdated);
 
     return () => {
-      window.removeEventListener('vite:preloadError', autoReload);
+      window.removeEventListener('vite:preloadError', markOutdated);
     };
-  }, [autoReload]);
+  }, []);
 
   const value = useMemo(
     () => ({

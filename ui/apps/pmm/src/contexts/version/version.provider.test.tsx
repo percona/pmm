@@ -189,8 +189,20 @@ describe('VersionProvider', () => {
     setItem.mockRestore();
   });
 
-  it('reloads when a stale asset chunk fails to load', () => {
+  it('prompts rather than reloads when a stale chunk fails a visible tab', () => {
     renderProvider(build('abc123'));
+
+    act(() => {
+      window.dispatchEvent(new Event('vite:preloadError'));
+    });
+
+    expect(reloadPage).not.toHaveBeenCalled();
+    expect(screen.getByTestId('state')).toHaveTextContent('outdated:3.10.0');
+  });
+
+  it('reloads a hidden tab when a stale asset chunk fails to load', () => {
+    renderProvider(build('abc123'));
+    setVisibility('hidden');
 
     act(() => {
       window.dispatchEvent(new Event('vite:preloadError'));
@@ -201,6 +213,7 @@ describe('VersionProvider', () => {
 
   it('does not keep reloading on a chunk that stays unavailable', () => {
     renderProvider(build('abc123'));
+    setVisibility('hidden');
 
     act(() => {
       window.dispatchEvent(new Event('vite:preloadError'));
