@@ -14,7 +14,15 @@ vi.mock('./Icon.constants', async (importOriginal) => {
 });
 
 describe('Icon', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('leaves the rest of the page standing when its chunk is gone', async () => {
+    // React reports the error it caught through console.error, which is the only
+    // signal that the import has actually failed by now rather than still pending
+    const reported = vi.spyOn(console, 'error').mockImplementation(() => {});
+
     render(
       <div>
         <span data-testid="sibling">still here</span>
@@ -22,10 +30,9 @@ describe('Icon', () => {
       </div>
     );
 
-    // without a boundary React unwinds to the root and the whole tree goes with it
-    await waitFor(() =>
-      expect(screen.getByTestId('sibling')).toBeInTheDocument()
-    );
+    await waitFor(() => expect(reported).toHaveBeenCalled());
+
+    // with nothing to catch it React unwinds to the root and the sibling goes too
     expect(screen.getByTestId('sibling')).toBeInTheDocument();
   });
 });
