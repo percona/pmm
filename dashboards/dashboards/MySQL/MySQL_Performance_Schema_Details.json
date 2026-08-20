@@ -423,7 +423,7 @@
             "targets": [
                 {
                     "exemplar": true,
-                    "expr": "(increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[$interval]) or increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[5m]))\nand on (service_name, instrumentation) (max_over_time(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[$__range]) > 0)",
+                    "expr": "(increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[$interval]) or increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[5m]))\nand on (service_name, instrumentation) (increase(mysql_global_status_performance_schema_lost_total{service_name=~\"$service_name\"}[$__range]) > 0)",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,

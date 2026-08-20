@@ -19,27 +19,25 @@ checks:
           range: 168h
           step: 5m
       - type: METRICS_INSTANT
-        query: avg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~"{{.ServiceName}}"}) or avg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~"{{.ServiceName}}"} * mysql_global_variables_innodb_log_file_size{service_name=~"{{.ServiceName}}"})
+        query: avg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~"{{.ServiceName}}"}) or avg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~"{{.ServiceName}}"}) or avg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~"{{.ServiceName}}"} * mysql_global_variables_innodb_log_file_size{service_name=~"{{.ServiceName}}"}) or avg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~"{{.ServiceName}}"})
         parameters:
           lookback: 5m
-      # Checkpoint age as a percentage. The two branches do not share a
-      # denominator and the 80% threshold below therefore means a different
-      # physical condition per server generation:
-      #   * 8.0.30+ (canonical mysql_innodb_redo_log_checkpoint_age_ratio):
-      #     checkpoint age / total redo log capacity. InnoDB starts flushing
-      #     synchronously at the sync threshold, which is ~83.4% of capacity
-      #     (measured: 87,417,344 of 104,857,600 on PS 8.4.6, and a peak
-      #     checkpoint age of 87,417,734 on MySQL 9.7.0 with the same
-      #     capacity), so this ratio saturates just above the threshold and
-      #     >80% fires only when sync flushing is imminent.
-      #   * older servers (checkpoint age / Innodb_checkpoint_max_age):
-      #     the denominator already *is* that sync threshold, so the same
-      #     ratio reaches 100% and >80% fires considerably earlier.
-      # Both are correct measures of redo pressure, but do not compare the
-      # percentages across versions, and do not "fix" one to match the other
-      # without changing the threshold with it.
+      # Checkpoint age as a percentage of the synchronous flush threshold - the
+      # point at which InnoDB starts flushing synchronously, which is what this
+      # check warns about. That threshold is available on every supported server,
+      # so the 80% below means the same physical condition everywhere:
+      #   * Percona Server, MySQL 5.7, MariaDB: Innodb_checkpoint_max_age
+      #   * Oracle MySQL 8.0.30+ and 9.x: the log_max_modified_age_sync row of
+      #     INNODB_METRICS, whose "log" module is enabled by default
+      # Measured: the threshold is ~83% of the redo log capacity on both vendors
+      # (87,086,592 of 104,857,600 on MySQL 8.0.46; 87,417,344 of 104,857,600 on
+      # Percona Server 8.4.6), so dividing by the capacity instead would push the
+      # 80% trigger to ~96% of the threshold and leave almost no lead time. That
+      # is why mysql_innodb_redo_log_checkpoint_age_ratio, which divides by the
+      # capacity, is only the last resort here: without it a server exposing no
+      # threshold at all would silently disable the check.
       - type: METRICS_RANGE
-        query: " (avg by (service_name) (max_over_time(mysql_innodb_redo_log_checkpoint_age_ratio{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_innodb_redo_log_checkpoint_age_ratio{service_name=~\"{{.ServiceName}}\"}[5m])) * 100) or (avg by (service_name) (max_over_time(mysql_global_status_innodb_checkpoint_age{service_name=~\"{{.ServiceName}}\"}[1h]) or  max_over_time(mysql_global_status_innodb_checkpoint_age{service_name=~\"{{.ServiceName}}\"}[5m]) or max_over_time(mysql_info_schema_innodb_metrics_recovery_log_lsn_checkpoint_age_total{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_info_schema_innodb_metrics_recovery_log_lsn_checkpoint_age_total{service_name=~\"{{.ServiceName}}\"}[5m]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_lsn_checkpoint_age{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_lsn_checkpoint_age{service_name=~\"{{.ServiceName}}\"}[5m]))) * 100 / (avg by (service_name) (max_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"{{.ServiceName}}\"}[1h]) or  max_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"{{.ServiceName}}\"}[5m]) or  max_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"{{.ServiceName}}\"}[1h]) or  max_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"{{.ServiceName}}\"}[5m]) or  max_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"{{.ServiceName}}\"}[1h]) or  max_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"{{.ServiceName}}\"}[5m])))\""
+        query: " (avg by (service_name) (max_over_time(mysql_global_status_innodb_checkpoint_age{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_lsn_checkpoint_age{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_info_schema_innodb_metrics_recovery_log_lsn_checkpoint_age_total{service_name=~\"{{.ServiceName}}\"}[1h]))) * 100 / (avg by (service_name) (max_over_time(mysql_global_status_innodb_checkpoint_max_age{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_sync{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_sync{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_info_schema_innodb_metrics_log_log_max_modified_age_async{service_name=~\"{{.ServiceName}}\"}[1h]) or max_over_time(mysql_info_schema_innodb_metrics_recovery_log_max_modified_age_async{service_name=~\"{{.ServiceName}}\"}[1h]))) or (avg by (service_name) (max_over_time(mysql_innodb_redo_log_checkpoint_age_ratio{service_name=~\"{{.ServiceName}}\"}[1h])) * 100)"
         parameters:
           range: 168h
           step: 5m
@@ -52,12 +50,10 @@ checks:
 
           cnt = 0
           cnt_high = 0
-          sum = 0
           logs_written_tot = 0
           logs_written_max = 0
           logs_written_avg = 0
           redo_log_size = 0
-          logsWritten = []
 
           # MySQL 8.0.30 replaced innodb_log_file_size/innodb_log_files_in_group with
           # innodb_redo_log_capacity, and MySQL 9.x dropped the legacy variables
@@ -77,7 +73,6 @@ checks:
           # results, so parse them as floats. int() would reject "123.5".
           for row in docs[1][0]["values"]:
               logs_written = float(row[1])
-              logsWritten.append(logs_written)
               logs_written_tot = logs_written_tot + logs_written
               if logs_written_max < logs_written:
                 logs_written_max = logs_written
@@ -86,14 +81,12 @@ checks:
                   cnt_high = cnt_high + 1
           logs_written_avg = logs_written_tot / cnt / 1024 / 1024
 
-          checkpoint_age_usage_perc = []
           chkpt_alert = 0
           # Checkpoint age samples are optional. Without them only the
           # checkpoint age error below is skipped, the write volume warning
           # still applies since it needs docs[1] and docs[2] only.
           if len(docs[3]) > 0:
               for row in docs[3][0]["values"]:
-                  checkpoint_age_usage_perc.append(row[1])
                   if float(row[1]) > 80:
                       chkpt_alert = chkpt_alert + 1
 
