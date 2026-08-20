@@ -46,6 +46,42 @@ func TestAgent(t *testing.T) {
 		require.Equal(t, expected, actual)
 	})
 
+	t.Run("EnvironmentVariableNames", func(t *testing.T) {
+		t.Run("round-trips valid names", func(t *testing.T) {
+			agent := &models.Agent{}
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_KTNAME", "https_proxy"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"KRB5_KTNAME", "https_proxy"}, names)
+		})
+
+		t.Run("empty slice clears stored names", func(t *testing.T) {
+			agent := &models.Agent{}
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_KTNAME"}))
+			require.NoError(t, agent.SetEnvironmentVariableNames(nil))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Empty(t, names)
+		})
+
+		t.Run("rejects pmm-agent's own reserved namespace", func(t *testing.T) {
+			agent := &models.Agent{}
+			err := agent.SetEnvironmentVariableNames([]string{"PMM_AGENT_SERVER_PASSWORD"})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "reserved for pmm-agent")
+			assert.Nil(t, agent.EnvironmentVariables)
+		})
+
+		t.Run("rejects malformed names", func(t *testing.T) {
+			agent := &models.Agent{}
+			err := agent.SetEnvironmentVariableNames([]string{"KRB5-KTNAME"})
+			require.Error(t, err)
+			assert.Nil(t, agent.EnvironmentVariables)
+		})
+	})
+
 	t.Run("DSN", func(t *testing.T) {
 		agent := &models.Agent{
 			Username:          new("username"),

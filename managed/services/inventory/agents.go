@@ -354,8 +354,34 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 	return res, nil
 }
 
+// mongoDBExporterReservedEnvVars are environment variable names pmm-agent's supervisor always
+// sets itself for mongodb_exporter (see mongodbExporterConfig in managed/services/agents/mongodb.go).
+// A user-selected name here would never take effect: the supervisor skips it to avoid overriding
+// the computed value, silently, on the agent side. Rejecting it here instead gives the caller an
+// actionable error at request time.
+var mongoDBExporterReservedEnvVars = map[string]struct{}{
+	"MONGODB_URI": {},
+}
+
+// validateMongoDBExporterEnvVarNames rejects environment variable names that pmm-agent reserves
+// for mongodb_exporter itself.
+func validateMongoDBExporterEnvVarNames(names []string) error {
+	for _, name := range names {
+		if _, ok := mongoDBExporterReservedEnvVars[strings.ToUpper(name)]; ok {
+			return status.Errorf(codes.InvalidArgument,
+				"environment variable name %q is set by pmm-agent for mongodb_exporter and cannot be selected", name)
+		}
+	}
+
+	return nil
+}
+
 // AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
 func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	if err := validateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames()); err != nil {
+		return nil, err
+	}
+
 	params := &models.CreateAgentParams{
 		PMMAgentID:               p.PmmAgentId,
 		ServiceID:                p.ServiceId,
@@ -403,6 +429,10 @@ func (as *AgentsService) ChangeMongoDBExporter(
 	agentID string,
 	p *inventoryv1.ChangeMongoDBExporterParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
+	if err := validateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames().GetValues()); err != nil {
+		return nil, err
+	}
+
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
 		Enabled:                  p.Enable,

@@ -49,6 +49,7 @@ import (
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
+	"github.com/percona/pmm/utils/envvars"
 )
 
 const (
@@ -844,18 +845,21 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStat
 		env[i] = string(b)
 	}
 	processParams.Env = append(processParams.Env, env...)
-	processParams.Env = s.resolveEnvVariableNames(agentID, agentProcess.EnvVariableNames, processParams.Env)
+	processParams.Env, processParams.ResolvedEnvNames = s.resolveEnvVariableNames(agentID, agentProcess.EnvVariableNames, processParams.Env)
 
 	return &processParams, nil
 }
 
 // resolveEnvVariableNames looks the given names up in pmm-agent's own environment and appends the
-// resolved variables to env. Names pmm-agent already set for this agent are skipped: os/exec keeps
-// the last entry for a key, so a user-supplied name matching one of them would otherwise silently
-// override it — the computed MONGODB_URI, for example.
-func (s *Supervisor) resolveEnvVariableNames(agentID string, names, env []string) []string {
+// resolved variables to env, returning the names that were actually resolved alongside it so
+// callers can treat their values as untrusted pass-through data (e.g. when logging). Names
+// pmm-agent already set for this agent are skipped: os/exec keeps the last entry for a key, so a
+// user-supplied name matching one of them would otherwise silently override it — the computed
+// MONGODB_URI, for example. Names outside pmm-admin's/pmm-managed's policy (see utils/envvars) are
+// rejected too, as a last line of defense in case a mismatched pmm-managed version let one through.
+func (s *Supervisor) resolveEnvVariableNames(agentID string, names, env []string) ([]string, []string) {
 	if len(names) == 0 {
-		return env
+		return env, nil
 	}
 
 	reserved := make(map[string]struct{}, len(env))
@@ -865,7 +869,14 @@ func (s *Supervisor) resolveEnvVariableNames(agentID string, names, env []string
 		}
 	}
 
+	var resolvedNames []string
+
 	for _, varName := range names {
+		if err := envvars.ValidateName(varName); err != nil {
+			s.l.Warnf("Skipping invalid environment variable name %q for agent %s: %v", varName, agentID, err)
+			continue
+		}
+
 		if _, ok := reserved[varName]; ok {
 			s.l.Warnf("Environment variable %s is set by pmm-agent for agent %s and cannot be overridden, skipping", varName, agentID)
 			continue
@@ -878,10 +889,11 @@ func (s *Supervisor) resolveEnvVariableNames(agentID string, names, env []string
 		}
 
 		env = append(env, fmt.Sprintf("%s=%s", varName, value))
+		resolvedNames = append(resolvedNames, varName)
 		s.l.Debugf("Resolved environment variable %s for agent %s", varName, agentID)
 	}
 
-	return env
+	return env, resolvedNames
 }
 
 func (s *Supervisor) version(agentType inventoryv1.AgentType, path string) (string, error) {

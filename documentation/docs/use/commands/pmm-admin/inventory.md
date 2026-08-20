@@ -68,7 +68,7 @@ Only the flags you specify are updated — all other settings remain unchanged. 
 
 When you change connection-affecting parameters (username, password, TLS settings, etc.), PMM verifies the new settings by connecting to the database before saving them. If the connection fails (for example, wrong credentials), the command returns an error and **no changes are applied**. Use `--skip-connection-check` to bypass this verification (see [Connection and authentication](#connection-and-authentication)).
 
-`--agent-env-vars` is **not** part of this verification: the connection check runs with the environment the exporter already has, so it cannot validate names you are adding. A change to `--agent-env-vars` is always saved, and its effect only shows once the exporter restarts.
+`--agent-env-vars` is **not** part of this verification: the connection check is performed by pmm-agent itself, not by the exporter, so it does not read or depend on the names you are adding. However, the check and the rest of the change are applied together as a single operation: if you combine `--agent-env-vars` with a connection-affecting flag and the connection check fails, the whole change — including the environment variable names — is discarded, not just saved. Once a change is saved, its effect on the exporter's environment only shows after the exporter restarts.
 
 ### When to use `change agent` vs `remove/add`
 
@@ -175,21 +175,19 @@ You can also use `pmm-admin list` to see agents alongside their services.
     The flag **replaces** the entire list, so any name you leave out is removed. Omitting the flag
     keeps the current list unchanged, and `--agent-env-vars=""` removes all names.
 
-    Names must match `[A-Z_][A-Z0-9_]*` — uppercase letters, digits and underscores, not starting
-    with a digit. `pmm-admin` checks this rule for the change command and for the add commands
-    (`pmm-admin add mongodb`, `pmm-admin inventory add agent mongodb-exporter`); it also trims
-    surrounding whitespace and collapses repeated names before sending the list.
-
-    The API itself does not enforce the rule, so a client that calls it directly instead of going
-    through `pmm-admin` can store a name that does not match. In practice that is harmless: a name
-    that is not a real environment variable simply never resolves, and `pmm-agent` skips it with a
-    warning.
+    Names must match `[A-Za-z_][A-Za-z0-9_]*` — letters, digits and underscores, not starting with
+    a digit — and names starting with `PMM_AGENT_` are rejected, since that prefix is reserved for
+    `pmm-agent`'s own configuration and secrets. `pmm-admin` checks these rules for the change
+    command and for the add commands (`pmm-admin add mongodb`, `pmm-admin inventory add agent
+    mongodb-exporter`); it also trims surrounding whitespace and collapses repeated names before
+    sending the list. The API enforces the same rules server-side, so calling it directly instead
+    of going through `pmm-admin` cannot bypass them. At most 32 names are accepted per request.
 
     Only the names are stored: the values are read from the `pmm-agent` environment every time the
     exporter starts. A name that is not set in that environment is skipped and logged as a warning
     by `pmm-agent`, so a misspelled name is accepted but has no effect. Names that `pmm-agent`
-    already sets for the exporter (such as `MONGODB_URI`) are skipped as well and cannot be
-    overridden.
+    already sets for the exporter (such as `MONGODB_URI`) are rejected by the API with an error,
+    since they would be skipped and cannot be overridden anyway.
 
 - `--enable`
 :   Re-enable a disabled agent

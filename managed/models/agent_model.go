@@ -34,6 +34,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
+	"github.com/percona/pmm/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
@@ -462,6 +463,10 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	if len(names) == 0 {
 		a.EnvironmentVariables = nil
 		return nil
+	}
+
+	if err := envvars.ValidateNames(names); err != nil {
+		return err
 	}
 
 	b, err := json.Marshal(names)

@@ -186,52 +186,16 @@ func TestValidateEnvironmentVariableNames(t *testing.T) {
 		{"digits and underscores", []string{"_VAR", "VAR2"}, []string{"_VAR", "VAR2"}, ""},
 		{"duplicates are collapsed", []string{"KRB5_KTNAME", " KRB5_KTNAME ", "KRB5_CONFIG"}, []string{"KRB5_KTNAME", "KRB5_CONFIG"}, ""},
 		{"blank name", []string{"KRB5_KTNAME", "  "}, nil, "environment variable name cannot be empty"},
-		{"lowercase", []string{"krb5_ktname"}, nil, "invalid environment variable name: krb5_ktname"},
+		{"lowercase", []string{"https_proxy"}, []string{"https_proxy"}, ""},
 		{"leading digit", []string{"5VAR"}, nil, "invalid environment variable name: 5VAR"},
 		{"dash", []string{"KRB5-KTNAME"}, nil, "invalid environment variable name: KRB5-KTNAME"},
 		{"assignment", []string{"VAR=value"}, nil, "invalid environment variable name: VAR=value"},
+		{"reserved pmm-agent prefix", []string{"PMM_AGENT_SERVER_PASSWORD"}, nil, "reserved for pmm-agent"},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			names, err := ValidateEnvironmentVariableNames(tt.input)
-			if tt.expectedErr != "" {
-				require.Error(t, err)
-				assert.Contains(t, err.Error(), tt.expectedErr)
-				assert.Nil(t, names)
-
-				return
-			}
-
-			require.NoError(t, err)
-			assert.Equal(t, tt.expected, names)
-		})
-	}
-}
-
-func TestParseEnvironmentVariableNames(t *testing.T) {
-	t.Parallel()
-	for _, tt := range []struct {
-		name        string
-		input       string
-		expected    []string
-		expectedErr string
-	}{
-		{"empty removes all", "", nil, ""},
-		{"blank removes all", "   ", nil, ""},
-		{"comma only is rejected", " , ", nil, "environment variable name cannot be empty"},
-		{"single name", "KRB5_KTNAME", []string{"KRB5_KTNAME"}, ""},
-		{"multiple names", "KRB5_KTNAME,KRB5_CONFIG", []string{"KRB5_KTNAME", "KRB5_CONFIG"}, ""},
-		{"trim spaces", " KRB5_KTNAME , KRB5_CONFIG ", []string{"KRB5_KTNAME", "KRB5_CONFIG"}, ""},
-		{"duplicates are collapsed", "KRB5_KTNAME,KRB5_KTNAME", []string{"KRB5_KTNAME"}, ""},
-		{"blank name", "KRB5_KTNAME,,KRB5_CONFIG", nil, "environment variable name cannot be empty"},
-		{"trailing comma", "KRB5_KTNAME,", nil, "environment variable name cannot be empty"},
-		{"invalid name", "krb5-ktname", nil, "invalid environment variable name: krb5-ktname"},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			names, err := ParseEnvironmentVariableNames(tt.input)
 			if tt.expectedErr != "" {
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.expectedErr)

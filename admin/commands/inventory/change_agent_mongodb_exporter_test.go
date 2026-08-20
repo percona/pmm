@@ -269,7 +269,7 @@ Configuration changes applied:
 
 			cmd := &ChangeAgentMongodbExporterCommand{
 				AgentID:      "test-agent-id",
-				AgentEnvVars: new(" KRB5_KTNAME , KRB5_CONFIG "),
+				AgentEnvVars: &[]string{" KRB5_KTNAME ", " KRB5_CONFIG "},
 			}
 
 			result, err := cmd.RunCmd()
@@ -298,7 +298,7 @@ Configuration changes applied:
 
 			cmd := &ChangeAgentMongodbExporterCommand{
 				AgentID:      "test-agent-id",
-				AgentEnvVars: new(""),
+				AgentEnvVars: &[]string{},
 			}
 
 			result, err := cmd.RunCmd()
@@ -344,7 +344,7 @@ Configuration changes applied:
 
 			cmd := &ChangeAgentMongodbExporterCommand{
 				AgentID:      "test-agent-id",
-				AgentEnvVars: new("krb5-ktname"),
+				AgentEnvVars: &[]string{"krb5-ktname"},
 			}
 
 			result, err := cmd.RunCmd()

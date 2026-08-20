@@ -24,12 +24,13 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"regexp"
 	"sort"
 	"strings"
 	"text/template"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/utils/envvars"
 )
 
 var (
@@ -196,12 +197,10 @@ func ParseDisableCollectors(collectors []string) []string {
 	return disableCollectors
 }
 
-// envVarNamePattern is the rule pmm-admin applies to environment variable names before sending
-// them to the API. The API stores names as given, so this check is client-side only.
-var envVarNamePattern = regexp.MustCompile(`^[A-Z_][A-Z0-9_]*$`)
-
 // ValidateEnvironmentVariableNames validates environment variable names. Names are trimmed and
-// duplicates are collapsed, keeping the first occurrence.
+// duplicates are collapsed, keeping the first occurrence. This check is client-side only: the API
+// applies the same policy server-side (see utils/envvars), so a name rejected here would also be
+// rejected there.
 func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	if len(varNames) == 0 {
 		return nil, nil
@@ -212,12 +211,8 @@ func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 
 	for _, name := range varNames {
 		name = strings.TrimSpace(name)
-		if name == "" {
-			return nil, errors.New("environment variable name cannot be empty")
-		}
-
-		if !envVarNamePattern.MatchString(name) {
-			return nil, fmt.Errorf("invalid environment variable name: %s (must match [A-Z_][A-Z0-9_]*)", name)
+		if err := envvars.ValidateName(name); err != nil {
+			return nil, err
 		}
 
 		if _, ok := seen[name]; ok {
@@ -229,17 +224,6 @@ func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
 	}
 
 	return result, nil
-}
-
-// ParseEnvironmentVariableNames parses and validates a comma-separated list of environment
-// variable names. A blank value yields no names, which removes all previously set names.
-// Blank names inside a non-blank list are rejected, just like for the add commands.
-func ParseEnvironmentVariableNames(varNames string) ([]string, error) {
-	if strings.TrimSpace(varNames) == "" {
-		return nil, nil
-	}
-
-	return ValidateEnvironmentVariableNames(strings.Split(varNames, ","))
 }
 
 // ReadFile reads file from filepath if filepath is not empty.

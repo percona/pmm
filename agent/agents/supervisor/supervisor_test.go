@@ -730,4 +730,37 @@ func TestSupervisorProcessParamsEnvVariableNames(t *testing.T) {
 	// The name pmm-agent itself sets is skipped, so the DSN survives; the unset name is skipped
 	// too; only the remaining one is resolved from pmm-agent's environment.
 	assert.Equal(t, []string{"MONGODB_URI=mongodb://pmm/", "PMM_TEST_KRB5_KTNAME=/tmp/keytab"}, actual.Env)
+	assert.Equal(t, []string{"PMM_TEST_KRB5_KTNAME"}, actual.ResolvedEnvNames)
+}
+
+func TestSupervisorProcessParamsEnvVariableNamesRejectsReserved(t *testing.T) {
+	// Not parallel: t.Setenv cannot be used by a parallel test or by a subtest of one.
+	ctx, cancel := context.WithCancel(t.Context())
+	t.Cleanup(cancel)
+
+	cfgStorage := config.NewStorage(&config.Config{
+		Paths:         config.Paths{MongoDBExporter: "/path/to/mongodb_exporter", TempDir: t.TempDir()},
+		Ports:         config.Ports{},
+		Server:        config.Server{Address: "server:443", Username: "admin", Password: "admin"},
+		LogLinesCount: 1,
+	})
+	s := NewSupervisor(ctx, nil, cfgStorage) //nolint:varnamelen
+	go s.Run(ctx)
+
+	t.Setenv("PMM_AGENT_SERVER_PASSWORD", "s3cret")
+
+	agentProcess := &agentv1.SetStateRequest_AgentProcess{
+		Type: inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
+		EnvVariableNames: []string{
+			"PMM_AGENT_SERVER_PASSWORD",
+		},
+	}
+
+	actual, err := s.processParams("ID", agentProcess, 0)
+	require.NoError(t, err)
+
+	// pmm-agent's own configuration and secrets must never be resolved for pass-through, even if
+	// a mismatched pmm-managed version somehow requested it.
+	assert.Empty(t, actual.Env)
+	assert.Empty(t, actual.ResolvedEnvNames)
 }
