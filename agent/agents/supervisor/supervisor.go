@@ -872,25 +872,28 @@ func (s *Supervisor) resolveEnvVariableNames(agentID string, names, env []string
 	var resolvedNames []string
 
 	for _, varName := range names {
-		if err := envvars.ValidateName(varName); err != nil {
-			s.l.Warnf("Skipping invalid environment variable name %q for agent %s: %v", varName, agentID, err)
+		l := s.l.WithFields(logrus.Fields{"agent_id": agentID, "env_var": varName})
+
+		err := envvars.ValidateName(varName)
+		if err != nil {
+			l.WithField("error", err).Warn("Skipping invalid environment variable name.")
 			continue
 		}
 
 		if _, ok := reserved[varName]; ok {
-			s.l.Warnf("Environment variable %s is set by pmm-agent for agent %s and cannot be overridden, skipping", varName, agentID)
+			l.Warn("Environment variable is set by pmm-agent for this agent and cannot be overridden, skipping.")
 			continue
 		}
 
 		value, exists := os.LookupEnv(varName)
 		if !exists {
-			s.l.Warnf("Environment variable %s not found in pmm-agent environment for agent %s", varName, agentID)
+			l.Warn("Environment variable not found in pmm-agent environment.")
 			continue
 		}
 
 		env = append(env, fmt.Sprintf("%s=%s", varName, value))
 		resolvedNames = append(resolvedNames, varName)
-		s.l.Debugf("Resolved environment variable %s for agent %s", varName, agentID)
+		l.Debug("Resolved environment variable.")
 	}
 
 	return env, resolvedNames

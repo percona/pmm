@@ -465,7 +465,8 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 		return nil
 	}
 
-	if err := envvars.ValidateNames(names); err != nil {
+	names, err := envvars.NormalizeNames(names)
+	if err != nil {
 		return err
 	}
 

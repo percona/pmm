@@ -378,7 +378,8 @@ func validateMongoDBExporterEnvVarNames(names []string) error {
 
 // AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
 func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	if err := validateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames()); err != nil {
+	err := validateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames())
+	if err != nil {
 		return nil, err
 	}
 
@@ -429,7 +430,8 @@ func (as *AgentsService) ChangeMongoDBExporter(
 	agentID string,
 	p *inventoryv1.ChangeMongoDBExporterParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
-	if err := validateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames().GetValues()); err != nil {
+	err := validateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames().GetValues())
+	if err != nil {
 		return nil, err
 	}
 

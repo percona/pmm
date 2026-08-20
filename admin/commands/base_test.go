@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/admin/pkg/logger"
+	"github.com/percona/pmm/utils/envvars"
 )
 
 func init() {
@@ -208,6 +209,33 @@ func TestValidateEnvironmentVariableNames(t *testing.T) {
 			assert.Equal(t, tt.expected, names)
 		})
 	}
+
+	t.Run("more than MaxNames unique names is rejected", func(t *testing.T) {
+		t.Parallel()
+
+		names := make([]string, envvars.MaxNames+1)
+		for i := range names {
+			names[i] = fmt.Sprintf("VAR%d", i)
+		}
+
+		got, err := ValidateEnvironmentVariableNames(names)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "too many environment variable names")
+		assert.Nil(t, got)
+	})
+
+	t.Run("duplicate entries do not consume the limit", func(t *testing.T) {
+		t.Parallel()
+
+		names := make([]string, envvars.MaxNames*2)
+		for i := range names {
+			names[i] = "VAR"
+		}
+
+		got, err := ValidateEnvironmentVariableNames(names)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"VAR"}, got)
+	})
 }
 
 func TestReadFile(t *testing.T) {

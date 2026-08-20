@@ -18,6 +18,7 @@
 package envvars
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -40,7 +41,7 @@ var namePattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 // syntactically valid, within length bounds, and outside pmm-agent's own reserved namespace.
 func ValidateName(name string) error {
 	if name == "" {
-		return fmt.Errorf("environment variable name cannot be empty")
+		return errors.New("environment variable name cannot be empty")
 	}
 
 	if len(name) > MaxNameLength {
@@ -58,17 +59,37 @@ func ValidateName(name string) error {
 	return nil
 }
 
-// ValidateNames validates a full list of names, including the list's length bound.
-func ValidateNames(names []string) error {
-	if len(names) > MaxNames {
-		return fmt.Errorf("too many environment variable names: %d (max %d)", len(names), MaxNames)
+// NormalizeNames trims and validates each name, collapses duplicates keeping the first occurrence,
+// and checks the resulting list's length bound. Both pmm-admin and the API call this rather than
+// validating and deduplicating separately, so a name repeated or padded with whitespace does not
+// count twice against the limit, and stored names are always deduplicated.
+func NormalizeNames(names []string) ([]string, error) {
+	if len(names) == 0 {
+		return nil, nil
 	}
+
+	result := make([]string, 0, len(names))
+	seen := make(map[string]struct{}, len(names))
 
 	for _, name := range names {
-		if err := ValidateName(name); err != nil {
-			return err
+		name = strings.TrimSpace(name)
+
+		err := ValidateName(name)
+		if err != nil {
+			return nil, err
 		}
+
+		if _, ok := seen[name]; ok {
+			continue
+		}
+		seen[name] = struct{}{}
+
+		result = append(result, name)
 	}
 
-	return nil
+	if len(result) > MaxNames {
+		return nil, fmt.Errorf("too many environment variable names: %d (max %d)", len(result), MaxNames)
+	}
+
+	return result, nil
 }

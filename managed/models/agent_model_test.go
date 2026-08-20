@@ -80,6 +80,15 @@ func TestAgent(t *testing.T) {
 			require.Error(t, err)
 			assert.Nil(t, agent.EnvironmentVariables)
 		})
+
+		t.Run("duplicate input round-trips as one stored name", func(t *testing.T) {
+			agent := &models.Agent{}
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_KTNAME", " KRB5_KTNAME "}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"KRB5_KTNAME"}, names)
+		})
 	})
 
 	t.Run("DSN", func(t *testing.T) {

@@ -202,28 +202,7 @@ func ParseDisableCollectors(collectors []string) []string {
 // applies the same policy server-side (see utils/envvars), so a name rejected here would also be
 // rejected there.
 func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
-	if len(varNames) == 0 {
-		return nil, nil
-	}
-
-	result := make([]string, 0, len(varNames))
-	seen := make(map[string]struct{}, len(varNames))
-
-	for _, name := range varNames {
-		name = strings.TrimSpace(name)
-		if err := envvars.ValidateName(name); err != nil {
-			return nil, err
-		}
-
-		if _, ok := seen[name]; ok {
-			continue
-		}
-		seen[name] = struct{}{}
-
-		result = append(result, name)
-	}
-
-	return result, nil
+	return envvars.NormalizeNames(varNames)
 }
 
 // ReadFile reads file from filepath if filepath is not empty.

@@ -15,6 +15,7 @@
 package envvars
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -59,39 +60,79 @@ func TestValidateName(t *testing.T) {
 	}
 }
 
-func TestValidateNames(t *testing.T) {
+func TestNormalizeNames(t *testing.T) {
 	t.Parallel()
 
 	t.Run("valid list", func(t *testing.T) {
 		t.Parallel()
 
-		assert.NoError(t, ValidateNames([]string{"KRB5_KTNAME", "KRB5_CONFIG"}))
+		names, err := NormalizeNames([]string{"KRB5_KTNAME", "KRB5_CONFIG"})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_KTNAME", "KRB5_CONFIG"}, names)
 	})
 
 	t.Run("empty list", func(t *testing.T) {
 		t.Parallel()
 
-		assert.NoError(t, ValidateNames(nil))
+		names, err := NormalizeNames(nil)
+		require.NoError(t, err)
+		assert.Empty(t, names)
+	})
+
+	t.Run("trims and collapses duplicates, keeping the first occurrence", func(t *testing.T) {
+		t.Parallel()
+
+		names, err := NormalizeNames([]string{" KRB5_KTNAME ", "KRB5_KTNAME", "KRB5_CONFIG"})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_KTNAME", "KRB5_CONFIG"}, names)
 	})
 
 	t.Run("one invalid name fails the whole list", func(t *testing.T) {
 		t.Parallel()
 
-		err := ValidateNames([]string{"KRB5_KTNAME", "PMM_AGENT_SERVER_PASSWORD"})
+		names, err := NormalizeNames([]string{"KRB5_KTNAME", "PMM_AGENT_SERVER_PASSWORD"})
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "reserved for pmm-agent")
+		assert.Nil(t, names)
 	})
 
-	t.Run("too many names", func(t *testing.T) {
+	t.Run("duplicates of the same name never hit the limit", func(t *testing.T) {
 		t.Parallel()
 
-		names := make([]string, MaxNames+1)
+		names := make([]string, MaxNames*2)
 		for i := range names {
 			names[i] = "VAR"
 		}
 
-		err := ValidateNames(names)
+		got, err := NormalizeNames(names)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"VAR"}, got)
+	})
+
+	t.Run("exactly MaxNames unique names is accepted", func(t *testing.T) {
+		t.Parallel()
+
+		names := make([]string, MaxNames)
+		for i := range names {
+			names[i] = fmt.Sprintf("VAR%d", i)
+		}
+
+		got, err := NormalizeNames(names)
+		require.NoError(t, err)
+		assert.Len(t, got, MaxNames)
+	})
+
+	t.Run("more than MaxNames unique names is rejected", func(t *testing.T) {
+		t.Parallel()
+
+		names := make([]string, MaxNames+1)
+		for i := range names {
+			names[i] = fmt.Sprintf("VAR%d", i)
+		}
+
+		got, err := NormalizeNames(names)
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "too many environment variable names")
+		assert.Nil(t, got)
 	})
 }
