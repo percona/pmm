@@ -1153,12 +1153,9 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(
 		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
-	err := checkInternalPgQANDuplicate(as.db.Querier, p.PmmAgentId, p.ServiceId)
-	if err != nil {
-		return nil, err
-	}
-
-	agent, err := as.executeAgentAdd(ctx, models.QANPostgreSQLPgStatementsAgentType, params, false)
+	agent, err := as.executeAgentAdd(ctx, models.QANPostgreSQLPgStatementsAgentType, params, false, func(tx *reform.TX) error {
+		return checkInternalPgQANDuplicate(tx.Querier, p.PmmAgentId, p.ServiceId)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -1825,10 +1822,25 @@ func checkInternalPgQANRemoval(q *reform.Querier, agent *models.Agent) error {
 	)
 }
 
+// internalPgQANDuplicateLockKey is a pg_advisory_xact_lock key that serializes concurrent calls to
+// checkInternalPgQANDuplicate. See that function for why the lock, and not a database constraint,
+// is what actually closes the race it guards against.
+const internalPgQANDuplicateLockKey = "percona/pmm:internal-pg-qan-agent"
+
 // checkInternalPgQANDuplicate rejects adding a second QAN agent to PMM's internal PostgreSQL
 // Service. The fixtures create one together with PMM Server, and a second one would monitor the
 // same Service twice and make the agent that the settings API and PMM_ENABLE_INTERNAL_PG_QAN act on
 // ambiguous.
+//
+// The q argument must be the Querier of the transaction that goes on to insert the new agent: two
+// concurrent calls both reading "no existing agent" before either commits its insert would
+// otherwise both succeed. A CREATE UNIQUE INDEX can't rule that out by itself here, because what
+// makes an agent "internal" is its Service's name, and a partial index predicate can't reference
+// another table to test that; the columns that do live on the agents row, pmm_agent_id and
+// service_id, are both generated at runtime and neither has a fixed value a predicate could pin
+// (service_id always varies, and pmm_agent_id does too in HA mode); pg_advisory_xact_lock
+// serializes the two transactions on this specific check instead: the second one blocks until the
+// first commits or rolls back, and then re-reads the now-settled state.
 func checkInternalPgQANDuplicate(q *reform.Querier, pmmAgentID, serviceID string) error {
 	if pmmAgentID != models.PMMServerAgentID || serviceID == "" {
 		return nil
@@ -1840,6 +1852,11 @@ func checkInternalPgQANDuplicate(q *reform.Querier, pmmAgentID, serviceID string
 	}
 	if service.ServiceName != models.PMMServerPostgreSQLServiceName {
 		return nil
+	}
+
+	_, err = q.Exec("SELECT pg_advisory_xact_lock(hashtext($1)::bigint)", internalPgQANDuplicateLockKey)
+	if err != nil {
+		return err
 	}
 
 	existing, err := models.FindAgents(q, models.AgentFilters{
@@ -1958,10 +1975,21 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 }
 
 // executeAgentAdd creates an agent and returns the agent.
-func (as *AgentsService) executeAgentAdd(ctx context.Context, agentType models.AgentType, params *models.CreateAgentParams, getServiceInfo bool) (inventoryv1.Agent, error) { //nolint:ireturn,lll
+//
+// The prechecks argument runs first, inside the same transaction as the insert, and can reject the
+// request by returning an error. Add*Agent methods that need to enforce something CreateAgent
+// itself does not pass one; the rest pass none.
+func (as *AgentsService) executeAgentAdd(ctx context.Context, agentType models.AgentType, params *models.CreateAgentParams, getServiceInfo bool, prechecks ...func(*reform.TX) error) (inventoryv1.Agent, error) { //nolint:ireturn,lll
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		for _, precheck := range prechecks {
+			err := precheck(tx)
+			if err != nil {
+				return err
+			}
+		}
+
 		row, err := models.CreateAgent(tx.Querier, agentType, params)
 		if err != nil {
 			return err

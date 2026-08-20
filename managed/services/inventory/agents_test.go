@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"sync"
 	"testing"
 	"time"
 
@@ -1241,6 +1242,65 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists,
 			`QAN agent for the "pmm-server-postgresql" Service already exists, it is created together with PMM Server.`), err)
+
+		agents, err := models.FindAgents(as.db.Querier, models.AgentFilters{
+			ServiceID: service.ServiceID,
+			AgentType: new(models.QANPostgreSQLPgStatementsAgentType),
+		})
+		require.NoError(t, err)
+		assert.Len(t, agents, 1)
+	})
+
+	t.Run("RejectConcurrentAdditionOfASecondInternalQANAgent", func(t *testing.T) {
+		// RejectAddingASecondInternalQANAgent above only proves the check works when the two reads
+		// are not concurrent. checkInternalPgQANDuplicate reads "does one exist" before the insert,
+		// so two overlapping calls could both read "no" before either commits; this exercises that
+		// window for real, against the actual database, which a single-threaded test or a mock
+		// cannot.
+		unsetInternalPgQANEnv(t)
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		service, err := models.FindServiceByName(as.db.Querier, models.PMMServerPostgreSQLServiceName)
+		require.NoError(t, err)
+
+		// Start from no internal QAN agent at all, so every goroutine below is racing to create the
+		// first one, rather than most of them failing the trivial "one already exists" case.
+		_, err = models.RemoveAgent(as.db.Querier, internalPgQANAgent(t, as).AgentID, models.RemoveRestrict)
+		require.NoError(t, err)
+
+		const attempts = 5
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
+
+		errs := make([]error, attempts)
+		var wg sync.WaitGroup
+		for i := range errs {
+			wg.Add(1)
+			go func(i int) {
+				defer wg.Done()
+				_, errs[i] = as.AddQANPostgreSQLPgStatementsAgent(ctx, &inventoryv1.AddQANPostgreSQLPgStatementsAgentParams{
+					PmmAgentId:          models.PMMServerAgentID,
+					ServiceId:           service.ServiceID,
+					Username:            fmt.Sprintf("username-%d", i),
+					SkipConnectionCheck: true,
+				})
+			}(i)
+		}
+		wg.Wait()
+
+		var succeeded, rejected int
+		for _, err := range errs {
+			switch {
+			case err == nil:
+				succeeded++
+			case status.Code(err) == codes.AlreadyExists:
+				rejected++
+			default:
+				require.NoError(t, err) // fails the test with the unexpected error
+			}
+		}
+		assert.Equal(t, 1, succeeded, "exactly one concurrent Add must win")
+		assert.Equal(t, attempts-1, rejected, "the rest must be rejected, not silently create a duplicate")
 
 		agents, err := models.FindAgents(as.db.Querier, models.AgentFilters{
 			ServiceID: service.ServiceID,
