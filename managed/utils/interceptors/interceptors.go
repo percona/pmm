@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package interceptors contains gRPC wrappers for logging and Prometheus metrics.
 package interceptors
 
 import (
@@ -24,7 +23,6 @@ import (
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -58,7 +56,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 		}
 
 		// log gRPC errors as warning, not errors, even if they are wrapped
-		_, gRPCError := status.FromError(errors.Cause(err))
+		_, gRPCError := status.FromError(err)
 		switch {
 		case err == nil:
 			if dur < time.Second {
@@ -67,10 +65,8 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 				l.Warnf("%s done in %s (quite long).", prefix, dur)
 			}
 		case gRPCError:
-			// %+v for inner stacktraces produced by errors.WithStack(err)
 			l.Warnf("%s done in %s with gRPC error: %+v", prefix, dur, err)
 		default:
-			// %+v for inner stacktraces produced by errors.WithStack(err)
 			l.Errorf("%s done in %s with unexpected error: %+v", prefix, dur, err)
 			err = status.Error(codes.Internal, "Internal server error.")
 		}
@@ -81,13 +77,13 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 }
 
 // UnaryInterceptorType represents the type of a unary gRPC interceptor.
-type UnaryInterceptorType = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
+type UnaryInterceptorType = func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error)
 
 var dropEndpointsRE = regexp.MustCompile(`^/server.v1.ServerService/(Readiness|LeaderHealthCheck)$`)
 
-// Unary adds context logger and Prometheus metrics to unary server RPC.
+// UnaryAdd adds context logger and Prometheus metrics to unary server RPC.
 func UnaryAdd(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		// add pprof labels for more useful profiles
 		defer pprof.SetGoroutineLabels(ctx)
 		ctx = pprof.WithLabels(ctx, pprof.Labels("method", info.FullMethod))
@@ -130,8 +126,8 @@ func UnaryAdd(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 }
 
 // Stream adds context logger and Prometheus metrics to stream server RPC.
-func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func Stream(interceptor grpc.StreamServerInterceptor) func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		ctx := ss.Context()
 
 		// add pprof labels for more useful profiles

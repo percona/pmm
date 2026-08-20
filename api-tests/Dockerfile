@@ -2,12 +2,9 @@
 ARG VERSION=dev
 ARG GIT_COMMIT=unknown
 ARG BUILD_TIME=unknown
-ARG GO_VERSION
-ARG GO_BASE_IMAGE="golang:$GO_VERSION"
+ARG GO_VERSION=latest
 
-FROM $GO_BASE_IMAGE AS builder
-ENV GONOPROXY='github.com/percona,github.com/Percona-Lab'
-ENV GONOSUMDB='github.com/percona,github.com/Percona-Lab'
+FROM golang:$GO_VERSION AS builder
 ENV GOPRIVATE='github.com/percona,github.com/Percona-Lab'
 
 WORKDIR $GOPATH/pmm

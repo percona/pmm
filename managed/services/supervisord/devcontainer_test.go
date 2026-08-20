@@ -16,7 +16,6 @@
 package supervisord
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -38,16 +37,12 @@ func TestDevContainer(t *testing.T) {
 		s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
 		require.NotEmpty(t, s.supervisorctlPath)
 
-		ctx, cancel := context.WithCancel(t.Context())
-		defer cancel()
-		go s.Run(ctx)
-
 		// restore original files after test
 		originals := make(map[string][]byte)
 		matches, err := filepath.Glob("/etc/supervisord.d/*.ini")
 		require.NoError(t, err)
 		for _, m := range matches {
-			b, err := os.ReadFile(m) //nolint:gosec
+			b, err := os.ReadFile(m)
 			require.NoError(t, err)
 			originals[m] = b
 		}
@@ -57,7 +52,7 @@ func TestDevContainer(t *testing.T) {
 				require.NoError(t, err)
 			}
 			// force update supervisor config
-			_, err := s.supervisorctl("update")
+			err = s.supervisorctl("update")
 			require.NoError(t, err)
 		}()
 

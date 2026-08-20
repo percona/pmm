@@ -31,7 +31,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
@@ -119,7 +118,7 @@ type ExporterOptions struct {
 func (c ExporterOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *ExporterOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *ExporterOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all ExporterOptions fields are unset or have zero values, otherwise returns false.
 func (c ExporterOptions) IsEmpty() bool {
@@ -144,7 +143,7 @@ type QANOptions struct {
 func (c QANOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *QANOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *QANOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all QANOptions fields are unset or have zero values, otherwise returns false.
 func (c QANOptions) IsEmpty() bool {
@@ -166,7 +165,7 @@ type AWSOptions struct {
 func (c AWSOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AWSOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *AWSOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all AWSOptions fields are unset or have zero values, otherwise returns false.
 func (c AWSOptions) IsEmpty() bool {
@@ -189,7 +188,7 @@ type AzureOptions struct {
 func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *AzureOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all AzureOptions fields are unset or have zero values, otherwise returns false.
 func (c AzureOptions) IsEmpty() bool {
@@ -202,21 +201,22 @@ func (c AzureOptions) IsEmpty() bool {
 
 // MongoDBOptions represents structure for special MongoDB options.
 type MongoDBOptions struct {
-	TLSCertificateKey             string   `json:"tls_certificate_key"`
-	TLSCertificateKeyFilePassword string   `json:"tls_certificate_key_file_password"`
-	TLSCa                         string   `json:"tls_ca"`
-	AuthenticationMechanism       string   `json:"authentication_mechanism"`
-	AuthenticationDatabase        string   `json:"authentication_database"`
-	StatsCollections              []string `json:"stats_collections"`
-	CollectionsLimit              int32    `json:"collections_limit"`
-	EnableAllCollectors           bool     `json:"enable_all_collectors"`
+	TLSCertificateKey              string   `json:"tls_certificate_key"`
+	TLSCertificateKeyFilePassword  string   `json:"tls_certificate_key_file_password"`
+	TLSCa                          string   `json:"tls_ca"`
+	AuthenticationMechanism        string   `json:"authentication_mechanism"`
+	AuthenticationDatabase         string   `json:"authentication_database"`
+	StatsCollections               []string `json:"stats_collections"`
+	CollectionsLimit               int32    `json:"collections_limit"`
+	EnableAllCollectors            bool     `json:"enable_all_collectors"`
+	EnableDiagnosticDataHistograms bool     `json:"enable_diagnostic_data_histograms"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
 func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *MongoDBOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all MongoDBOptions fields are unset or have zero values, otherwise returns false.
 func (c MongoDBOptions) IsEmpty() bool {
@@ -227,7 +227,8 @@ func (c MongoDBOptions) IsEmpty() bool {
 		c.AuthenticationDatabase == "" &&
 		len(c.StatsCollections) == 0 &&
 		c.CollectionsLimit == 0 &&
-		!c.EnableAllCollectors
+		!c.EnableAllCollectors &&
+		!c.EnableDiagnosticDataHistograms
 }
 
 // MySQLOptions represents structure for special MySQL options.
@@ -253,7 +254,7 @@ type MySQLOptions struct {
 func (c MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MySQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *MySQLOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all MySQLOptions fields are unset or have zero values, otherwise returns false.
 func (c MySQLOptions) IsEmpty() bool {
@@ -279,7 +280,7 @@ type PostgreSQLOptions struct {
 func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *PostgreSQLOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // IsEmpty returns true if all PostgreSQLOptions fields are unset or have zero values, otherwise returns false.
 func (c PostgreSQLOptions) IsEmpty() bool {
@@ -449,8 +450,9 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	}
 
 	var names []string
-	if err := json.Unmarshal(a.EnvironmentVariables, &names); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal shared environment variable names")
+	err := json.Unmarshal(a.EnvironmentVariables, &names)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal shared environment variable names: %w", err)
 	}
 	return names, nil
 }
@@ -464,7 +466,7 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 
 	b, err := json.Marshal(names)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal shared environment variable names")
+		return fmt.Errorf("failed to marshal shared environment variable names: %w", err)
 	}
 	a.EnvironmentVariables = b
 	return nil
@@ -493,7 +495,8 @@ func (a *Agent) UnifiedLabels() (map[string]string, error) {
 	}
 	maps.Copy(res, custom)
 
-	if err = prepareLabels(res, true); err != nil {
+	err = prepareLabels(res, true)
+	if err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -577,9 +580,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		if a.MySQLOptions.ExtraDSNParams != nil {
 			// Add extra DSN parameters if they are set.
-			for k, v := range a.MySQLOptions.ExtraDSNParams {
-				cfg.Params[k] = v
-			}
+			maps.Copy(cfg.Params, a.MySQLOptions.ExtraDSNParams)
 		}
 
 		// MultiStatements must not be used as it enables SQL injections (in particular, in pmm-agent's Actions)
@@ -619,9 +620,7 @@ func (a *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair, p
 
 		if a.MySQLOptions.ExtraDSNParams != nil {
 			// Add extra DSN parameters if they are set.
-			for k, v := range a.MySQLOptions.ExtraDSNParams {
-				cfg.Params[k] = v
-			}
+			maps.Copy(cfg.Params, a.MySQLOptions.ExtraDSNParams)
 		}
 
 		// MultiStatements must not be used as it enables SQL injections (in particular, in pmm-agent's Actions)
@@ -847,7 +846,7 @@ func (a *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	username := pointer.GetString(a.Username)
 	password := pointer.GetString(a.Password)
 
-	host := "127.0.0.1"
+	host := LocalhostAddr
 	if !a.ExporterOptions.PushMetrics {
 		node, err := FindNodeByID(q, *a.RunsOnNodeID)
 		if err != nil {
@@ -1029,16 +1028,17 @@ func (a *Agent) BuildWebConfigFile() (string, error) {
 
 	hashedPassword, err := HashPassword(password, salt)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to hash password")
+		return "", fmt.Errorf("failed to hash password: %w", err)
 	}
 
 	var configBuffer bytes.Buffer
 	tmpl, err := template.New("webConfig").Parse(webConfigTemplate)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to parse webconfig template")
+		return "", fmt.Errorf("failed to parse webconfig template: %w", err)
 	}
-	if err = tmpl.Execute(&configBuffer, hashedPassword); err != nil {
-		return "", errors.Wrap(err, "Failed to execute webconfig template")
+	err = tmpl.Execute(&configBuffer, hashedPassword)
+	if err != nil {
+		return "", fmt.Errorf("failed to execute webconfig template: %w", err)
 	}
 
 	config := configBuffer.String()

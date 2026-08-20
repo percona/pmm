@@ -17,13 +17,14 @@ package backup
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"path"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -49,8 +50,8 @@ func NewPBMPITRService() *PBMPITRService {
 	}
 }
 
-// oplogChunk is index metadata for the oplog chunks.
-type oplogChunk struct {
+// OplogChunk is index metadata for the oplog chunks.
+type OplogChunk struct {
 	RS          string              `bson:"rs"`
 	FName       string              `bson:"fname"`
 	Compression compressionType     `bson:"compression"`
@@ -109,8 +110,8 @@ func file(ext string) compressionType {
 	}
 }
 
-func (s *PBMPITRService) getPITROplogs(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact) ([]*oplogChunk, error) {
-	var oplogChunks []*oplogChunk
+func (s *PBMPITRService) getPITROplogs(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact) ([]*OplogChunk, error) {
+	var oplogChunks []*OplogChunk
 
 	if storage == nil {
 		return oplogChunks, nil
@@ -131,7 +132,7 @@ func (s *PBMPITRService) getPITROplogs(ctx context.Context, storage Storage, loc
 	s3Config := location.S3Config
 	pitrFiles, err := storage.List(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, prefix, "")
 	if err != nil {
-		return nil, errors.Wrap(err, "get list of pitr chunks")
+		return nil, fmt.Errorf("get list of pitr chunks: %w", err)
 	}
 	if len(pitrFiles) == 0 {
 		return nil, nil
@@ -158,16 +159,13 @@ func (s *PBMPITRService) ListPITRTimeranges(ctx context.Context, storage Storage
 
 	oplogs, err := s.getPITROplogs(ctx, storage, location, artifact)
 	if err != nil {
-		return nil, errors.Wrap(err, "get slice")
+		return nil, fmt.Errorf("get slice: %w", err)
 	}
 	if len(oplogs) == 0 {
 		return nil, nil
 	}
 
-	t, err := getTimelines(oplogs), nil
-	if err != nil {
-		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifact.Name)
-	}
+	t := getTimelines(oplogs)
 	if len(t) != 0 {
 		timelines = append(timelines, t)
 	}
@@ -181,7 +179,7 @@ func (s *PBMPITRService) ListPITRTimeranges(ctx context.Context, storage Storage
 // trimTimelines adds one second to the Start value of every timeline record. Required to fit PBM values.
 func trimTimelines(timelines []Timeline) {
 	for i := range timelines {
-		timelines[i].Start += 1 //nolint:revive
+		timelines[i].Start++
 	}
 }
 
@@ -191,12 +189,12 @@ func trimTimelines(timelines []Timeline) {
 // (https://github.com/percona/percona-backup-mongodb/wiki/PITR:-storage-layout)
 //
 // !!! Should be agreed with pbm/pitr.chunkPath().
-func pitrMetaFromFileName(prefix, f string) *oplogChunk {
+func pitrMetaFromFileName(prefix, f string) *OplogChunk {
 	ppath := strings.Split(f, "/")
-	if len(ppath) < 2 {
+	if len(ppath) < 2 { //nolint:mnd
 		return nil
 	}
-	chnk := &oplogChunk{}
+	chnk := &OplogChunk{}
 	chnk.RS = ppath[0]
 	chnk.FName = path.Join(prefix, f)
 
@@ -205,7 +203,7 @@ func pitrMetaFromFileName(prefix, f string) *oplogChunk {
 	if len(fparts) < 3 || fparts[2] != "oplog" {
 		return nil
 	}
-	if len(fparts) == 4 {
+	if len(fparts) == 4 { //nolint:mnd
 		chnk.Compression = file(fparts[3])
 	} else {
 		chnk.Compression = compressionTypeNone
@@ -246,7 +244,7 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 	return &ts
 }
 
-func getTimelines(slices []*oplogChunk) []Timeline {
+func getTimelines(slices []*OplogChunk) []Timeline {
 	var tl Timeline
 	var timelines []Timeline
 	var prevEnd primitive.Timestamp
@@ -383,14 +381,14 @@ func (s *PBMPITRService) GetPITRFiles(
 	location *models.BackupLocation,
 	artifact *models.Artifact,
 	until *time.Time,
-) ([]*oplogChunk, error) {
+) ([]*OplogChunk, error) {
 	opLogs, err := s.getPITROplogs(ctx, storage, location, artifact)
 	if err != nil {
 		return nil, err
 	}
 
 	if until != nil {
-		var res []*oplogChunk
+		var res []*OplogChunk
 		for _, chunk := range opLogs {
 			chunkStartTime := time.Unix(int64(chunk.StartTS.T), 0)
 			// We're checking only start time because when pbm takes snapshot, chunk is being finalizing automatically.

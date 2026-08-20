@@ -16,9 +16,10 @@
 package models
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -37,7 +38,7 @@ func checkUniqueTemplateName(q *reform.Querier, name string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Template with name %q already exists.", name)
@@ -47,7 +48,7 @@ func checkUniqueTemplateName(q *reform.Querier, name string) error {
 func FindTemplates(q *reform.Querier) ([]*Template, error) {
 	structs, err := q.SelectAllFrom(TemplateTable, "")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select notification rule templates")
+		return nil, fmt.Errorf("failed to select notification rule templates: %w", err)
 	}
 
 	templates := make([]*Template, len(structs))
@@ -70,7 +71,7 @@ func FindTemplateByName(q *reform.Querier, name string) (*Template, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Template with name %q not found.", name)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return template, nil
@@ -85,11 +86,13 @@ type CreateTemplateParams struct {
 // CreateTemplate creates rule template.
 func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template, error) {
 	template := params.Template
-	if err := template.Validate(); err != nil {
+	err := template.Validate()
+	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
-	if err := checkUniqueTemplateName(q, template.Name); err != nil {
+	err = checkUniqueTemplateName(q, template.Name)
+	if err != nil {
 		return nil, err
 	}
 
@@ -98,8 +101,9 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 		return nil, status.Errorf(codes.InvalidArgument, "Failed to convert template: %v.", err)
 	}
 
-	if err = q.Insert(row); err != nil {
-		return nil, errors.Wrap(err, "failed to create rule template")
+	err = q.Insert(row)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create rule template: %w", err)
 	}
 
 	return row, nil
@@ -123,13 +127,14 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	}
 
 	template := params.Template
-	if err := template.Validate(); err != nil {
+	err = template.Validate()
+	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
 	yaml, err := alert.ToYAML([]alert.Template{*template})
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	p, err := ConvertParamsDefinitions(params.Template.Params)
@@ -140,22 +145,25 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	row.Name = template.Name
 	row.Version = template.Version
 	row.Summary = template.Summary
-	row.Expr = template.Expr
+	row.Expr = template.StoredExpr()
 	row.Params = p
 	row.For = time.Duration(template.For)
 	row.Severity = Severity(template.Severity)
 	row.Yaml = yaml
 
-	if err = row.SetLabels(template.Labels); err != nil {
+	err = row.SetLabels(template.Labels)
+	if err != nil {
 		return nil, err
 	}
 
-	if err = row.SetAnnotations(template.Annotations); err != nil {
+	err = row.SetAnnotations(template.Annotations)
+	if err != nil {
 		return nil, err
 	}
 
-	if err = q.Update(row); err != nil {
-		return nil, errors.Wrap(err, "failed to update rule template")
+	err = q.Update(row)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update rule template: %w", err)
 	}
 
 	return row, nil
@@ -168,8 +176,9 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 		return err
 	}
 
-	if err = q.Delete(&Template{Name: name}); err != nil {
-		return errors.Wrap(err, "failed to delete rule template")
+	err = q.Delete(&Template{Name: name})
+	if err != nil {
+		return fmt.Errorf("failed to delete rule template: %w", err)
 	}
 	return nil
 }
@@ -178,19 +187,19 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 func ConvertTemplate(template *alert.Template, source Source) (*Template, error) {
 	p, err := ConvertParamsDefinitions(template.Params)
 	if err != nil {
-		return nil, errors.Errorf("invalid rule template parameters: %v.", err) //nolint:revive
+		return nil, fmt.Errorf("invalid rule template parameters: %w", err)
 	}
 
 	yaml, err := alert.ToYAML([]alert.Template{*template})
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	res := &Template{
 		Name:     template.Name,
 		Version:  template.Version,
 		Summary:  template.Summary,
-		Expr:     template.Expr,
+		Expr:     template.StoredExpr(),
 		Params:   p,
 		For:      time.Duration(template.For),
 		Severity: Severity(template.Severity),
@@ -198,11 +207,13 @@ func ConvertTemplate(template *alert.Template, source Source) (*Template, error)
 		Yaml:     yaml,
 	}
 
-	if err := res.SetLabels(template.Labels); err != nil {
+	err = res.SetLabels(template.Labels)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := res.SetAnnotations(template.Annotations); err != nil {
+	err = res.SetAnnotations(template.Annotations)
+	if err != nil {
 		return nil, err
 	}
 
@@ -226,7 +237,7 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 			if param.Value != nil {
 				def, err := param.GetValueForFloat()
 				if err != nil {
-					return nil, errors.Wrap(err, "failed to parse param value")
+					return nil, fmt.Errorf("failed to parse param value: %w", err)
 				}
 				fp.Default = new(def)
 			}
@@ -234,14 +245,14 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 			if len(param.Range) != 0 {
 				pMin, pMax, err := param.GetRangeForFloat()
 				if err != nil {
-					return nil, errors.Wrap(err, "failed to parse param range")
+					return nil, fmt.Errorf("failed to parse param range: %w", err)
 				}
 				fp.Min, fp.Max = new(pMin), new(pMax)
 			}
 
 			p.FloatParam = &fp
 		default:
-			return nil, errors.Errorf("unknown parameter type %s", param.Type)
+			return nil, fmt.Errorf("unknown parameter type %s", param.Type)
 		}
 
 		res = append(res, p)

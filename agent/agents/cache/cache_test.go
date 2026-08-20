@@ -15,6 +15,7 @@
 package cache
 
 import (
+	"maps"
 	"reflect"
 	"testing"
 	"time"
@@ -81,9 +82,7 @@ func TestCache(t *testing.T) {
 		_ = c.Get(actual)
 
 		expected := make(map[int64]*someType)
-		for k, v := range set1 {
-			expected[k] = v
-		}
+		maps.Copy(expected, set1)
 		expected[6] = &someType{}
 		expected[7] = &someType{}
 
@@ -110,9 +109,7 @@ func TestCache(t *testing.T) {
 		_ = c.Get(actual)
 
 		expected := make(map[int64]*someType)
-		for k, v := range set2 {
-			expected[k] = v
-		}
+		maps.Copy(expected, set2)
 
 		assert.True(t, reflect.DeepEqual(actual, expected))
 		assert.Equal(t, uint(6), stats.Current)

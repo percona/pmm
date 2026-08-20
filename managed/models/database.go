@@ -13,12 +13,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-//nolint:lll
 package models
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net"
 	"net/url"
@@ -31,7 +31,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.yaml.in/yaml/v3"
 	"google.golang.org/grpc/codes"
@@ -74,16 +73,18 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "username"},
 			{Name: "password"},
 			{Name: "agent_password"},
-			{Name: "aws_options", CustomHandler: EncryptAWSOptionsHandler},
-			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
-			{Name: "mongo_options", CustomHandler: EncryptMongoDBOptionsHandler},
-			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
-			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+			{Name: "aws_options", CustomEncryptHandler: EncryptAWSOptionsHandler, CustomDecryptHandler: DecryptAWSOptionsHandler},
+			{Name: "azure_options", CustomEncryptHandler: EncryptAzureOptionsHandler, CustomDecryptHandler: DecryptAzureOptionsHandler},
+			{Name: "mongo_options", CustomEncryptHandler: EncryptMongoDBOptionsHandler, CustomDecryptHandler: DecryptMongoDBOptionsHandler},
+			{Name: "mysql_options", CustomEncryptHandler: EncryptMySQLOptionsHandler, CustomDecryptHandler: DecryptMySQLOptionsHandler},
+			{Name: "postgresql_options", CustomEncryptHandler: EncryptPostgreSQLOptionsHandler, CustomDecryptHandler: DecryptPostgreSQLOptionsHandler},
 		},
 	},
 }
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
+//
+//nolint:lll
 var databaseSchema = [][]string{
 	1: {
 		`CREATE TABLE schema_migrations (
@@ -1218,12 +1219,16 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to create a connection pool to PostgreSQL")
+		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
 
 	db.SetConnMaxLifetime(0)
-	db.SetMaxIdleConns(5)  //nolint:mnd
-	db.SetMaxOpenConns(10) //nolint:mnd
+	db.SetConnMaxIdleTime(5 * time.Minute) //nolint:mnd
+	// Sized to give DB-bound auth/role/settings paths enough headroom during
+	// a reconnect storm from a fleet of agents, while staying well within
+	// Postgres max_connections (set to 2000 by PMM Server).
+	db.SetMaxIdleConns(50) //nolint:mnd
+	db.SetMaxOpenConns(50) //nolint:mnd
 
 	return db, nil
 }
@@ -1276,7 +1281,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		if params.HANodeID != "" {
 			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
 		}
-		if err := initWithRoot(params); err != nil {
+		err := initWithRoot(params)
+		if err != nil {
 			return nil, err
 		}
 		errCV = checkVersion(ctx, db)
@@ -1286,7 +1292,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, errCV
 	}
 
-	if err := migrateDB(db, params); err != nil {
+	err := migrateDB(db, params)
+	if err != nil {
 		return nil, err
 	}
 
@@ -1444,11 +1451,12 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	var currentVersion int
 	errDB := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	// undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
-	if pErr, ok := errDB.(*pq.Error); ok && pErr.Code == "42P01" { //nolint:errorlint
+	var pErr *pq.Error
+	if errors.As(errDB, &pErr) && pErr.Code == "42P01" {
 		errDB = nil
 	}
 	if errDB != nil {
-		return errors.WithStack(errDB)
+		return errDB
 	}
 
 	latestVersion := len(databaseSchema) - 1 // skip item 0
@@ -1470,8 +1478,9 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
 			for _, q := range queries {
 				q = strings.TrimSpace(q)
-				if _, err := tx.Exec(q); err != nil {
-					return errors.Wrapf(err, "failed to execute statement:\n%s", q)
+				_, err := tx.Exec(q)
+				if err != nil {
+					return fmt.Errorf("failed to execute statement:\n%s: %w", q, err)
 				}
 			}
 		}
@@ -1490,7 +1499,8 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 		if err != nil {
 			return err
 		}
-		if err = SaveSettings(tx, s); err != nil {
+		err = SaveSettings(tx, s)
+		if err != nil {
 			return err
 		}
 
@@ -1569,7 +1579,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 
 	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
 		NodeName:        params.HANodeID,
-		Address:         "127.0.0.1",
+		Address:         LocalhostAddr,
 		CustomLabels:    labels,
 		IsPMMServerNode: true,
 	})
@@ -1583,7 +1593,8 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, agent.AgentID, labels, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
 
@@ -1600,7 +1611,7 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
 	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
 		NodeName:        "pmm-server",
-		Address:         "127.0.0.1",
+		Address:         LocalhostAddr,
 		IsPMMServerNode: true,
 	})
 	if err != nil {
@@ -1611,10 +1622,12 @@ func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 		return err
 	}
 
-	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
+	_, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil)
+	if err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
+	_, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, "")
+	if err != nil {
 		return err
 	}
 

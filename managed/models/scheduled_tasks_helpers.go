@@ -16,12 +16,12 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -38,9 +38,9 @@ func FindScheduledTaskByID(q *reform.Querier, id string) (*ScheduledTask, error)
 	err := q.Reload(res)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
-			return nil, errors.Wrapf(ErrNotFound, "couldn't get scheduled task with ID %q", id)
+			return nil, fmt.Errorf("couldn't get scheduled task with ID %q: %w", id, ErrNotFound)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return res, nil
@@ -60,7 +60,7 @@ type ScheduledTasksFilter struct {
 
 // FindScheduledTasks returns all scheduled tasks satisfying filter.
 func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*ScheduledTask, error) {
-	var args []interface{}
+	var args []any
 	var andConds []string
 	idx := 1
 	if len(filters.Types) != 0 {
@@ -172,7 +172,8 @@ func (p CreateScheduledTaskParams) Validate() error {
 // CreateScheduledTask creates scheduled task.
 // Must be performed in transaction.
 func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*ScheduledTask, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -181,12 +182,14 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		return nil, err
 	}
 
-	if err := checkUniqueScheduledTaskName(q, newName); err != nil {
-		return nil, errors.Wrapf(err, "couldn't create task with name %s", newName)
+	err = checkUniqueScheduledTaskName(q, newName)
+	if err != nil {
+		return nil, fmt.Errorf("couldn't create task with name %s: %w", newName, err)
 	}
 
 	id := uuid.New().String()
-	if err := checkUniqueScheduledTaskID(q, id); err != nil {
+	err = checkUniqueScheduledTaskID(q, id)
+	if err != nil {
 		return nil, err
 	}
 
@@ -199,8 +202,9 @@ func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*
 		Type:           params.Type,
 		Data:           params.Data,
 	}
-	if err := q.Insert(task); err != nil {
-		return nil, errors.WithStack(err)
+	err = q.Insert(task)
+	if err != nil {
+		return nil, err
 	}
 	return task, nil
 }
@@ -230,7 +234,8 @@ func (p *ChangeScheduledTaskParams) Validate() error {
 // ChangeScheduledTask updates existing scheduled task.
 // Must be performed in transaction.
 func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTaskParams) (*ScheduledTask, error) {
-	if err := params.Validate(); err != nil {
+	err := params.Validate()
+	if err != nil {
 		return nil, err
 	}
 
@@ -266,8 +271,9 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 		}
 
 		if newName != oldName {
-			if err := checkUniqueScheduledTaskName(q, newName); err != nil {
-				return nil, errors.Wrapf(err, "couldn't change task name to %s", newName)
+			err = checkUniqueScheduledTaskName(q, newName)
+			if err != nil {
+				return nil, fmt.Errorf("couldn't change task name to %s: %w", newName, err)
 			}
 		}
 
@@ -282,8 +288,9 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 		row.Error = *params.Error
 	}
 
-	if err := q.Update(row); err != nil {
-		return nil, errors.Wrap(err, "failed to update scheduled task")
+	err = q.Update(row)
+	if err != nil {
+		return nil, fmt.Errorf("failed to update scheduled task: %w", err)
 	}
 
 	return row, nil
@@ -291,11 +298,13 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 
 // RemoveScheduledTask removes task from DB.
 func RemoveScheduledTask(q *reform.Querier, id string) error {
-	if _, err := FindScheduledTaskByID(q, id); err != nil {
+	_, err := FindScheduledTaskByID(q, id)
+	if err != nil {
 		return err
 	}
-	if err := q.Delete(&ScheduledTask{ID: id}); err != nil {
-		return errors.Wrap(err, "failed to delete scheduled task")
+	err = q.Delete(&ScheduledTask{ID: id})
+	if err != nil {
+		return fmt.Errorf("failed to delete scheduled task: %w", err)
 	}
 
 	return nil
@@ -312,7 +321,7 @@ func checkUniqueScheduledTaskID(q *reform.Querier, id string) error {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil
 		}
-		return errors.WithStack(err)
+		return err
 	}
 
 	return status.Errorf(codes.AlreadyExists, "Scheduled task with ID %q already exists.", id)
@@ -396,9 +405,9 @@ func (s *ScheduledTask) CommonBackupData() (*CommonBackupTaskData, error) {
 				return &s.Data.MongoDBBackupTask.CommonBackupTaskData, nil
 			}
 		default:
-			return nil, errors.Errorf("invalid backup type %s of scheduled task %s", s.Type, s.ID)
+			return nil, fmt.Errorf("invalid backup type %s of scheduled task %s", s.Type, s.ID)
 		}
 	}
 
-	return nil, errors.Errorf("empty backup data of scheduled task %s", s.ID)
+	return nil, fmt.Errorf("empty backup data of scheduled task %s", s.ID)
 }

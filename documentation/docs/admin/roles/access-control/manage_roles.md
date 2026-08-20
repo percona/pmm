@@ -7,7 +7,7 @@ You can manage roles in PMM by editing or deleting a role.
 To edit access roles:
 {.power-number}
 
-1. From the [main menu](../../../reference/ui/ui_components.md), go to **Configuration > Settings > Advanced Settings** then enable **Access control**.
+1. From the [main menu](../../../reference/ui/ui_components.md), go to **Configuration > Settings > Advanced settings** then enable **Access control**.
 
 2. Go to **Users and access > Access roles**.
 

@@ -27,7 +27,9 @@ func TestRegistry(t *testing.T) {
 	r := newPortsRegistry(65000, 65002, []uint16{65000})
 	l1, err := net.Listen("tcp", "127.0.0.1:65001")
 	require.NoError(t, err)
-	defer l1.Close() //nolint:gosec,errcheck,nolintlint
+	t.Cleanup(func() {
+		_ = l1.Close()
+	})
 
 	p, err := r.Reserve()
 	require.NoError(t, err)
@@ -37,7 +39,9 @@ func TestRegistry(t *testing.T) {
 
 	l2, err := net.Listen("tcp", "127.0.0.1:65002")
 	require.NoError(t, err)
-	defer l2.Close() //nolint:errcheck,gosec,nolintlint
+	t.Cleanup(func() {
+		_ = l2.Close()
+	})
 
 	err = r.Release(65000)
 	require.NoError(t, err)
@@ -46,8 +50,8 @@ func TestRegistry(t *testing.T) {
 	err = r.Release(65002)
 	assert.Equal(t, errPortBusy, err)
 
-	l1.Close() //nolint:errcheck
-	l2.Close() //nolint:errcheck
+	require.NoError(t, l1.Close())
+	require.NoError(t, l2.Close())
 
 	p, err = r.Reserve()
 	require.NoError(t, err)

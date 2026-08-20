@@ -1,26 +1,16 @@
+---
 name: 'Client: pmm-agent'
 
 on:
-  push:
-    branches:
-      - main
-      - v3
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
     paths-ignore:
       - "admin/**"
       - "api-tests/**"
-      - "docs/**"
+      - "dashboards/**"
+      - "dev/docs/**"
       - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
-      - "update/**"
       - "vmproxy/**"
       - "ui/**"
 
@@ -28,39 +18,31 @@ permissions:
   contents: read
 
 env:
-  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
-  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         images:
+          # MySQL
           - { mysql: 'mysql:5.7', mongo: 'mongo:5.0', postgres: 'postgres:14', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'mysql:8.0', mongo: 'mongo:6.0', postgres: 'postgres:15', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'mysql:lts', mongo: 'mongo:7.0', postgres: 'postgres:16', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'mysql:latest', mongo: 'mongo:latest', postgres: 'postgres:latest', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
-          # Percona + latest PMM Server release
+          # Percona
           - { mysql: 'percona:5.7', mongo: 'percona/percona-server-mongodb:5.0', postgres: 'perconalab/percona-distribution-postgresql:15', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'percona:8.0', mongo: 'percona/percona-server-mongodb:6.0', postgres: 'perconalab/percona-distribution-postgresql:16', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'percona:8', mongo: 'percona/percona-server-mongodb:7.0', postgres: 'perconalab/percona-distribution-postgresql:17', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
           - { mysql: 'percona:latest', mongo: 'percona/percona-server-mongodb:latest', postgres: 'perconalab/percona-distribution-postgresql:latest', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
-          # MariaDB (only 3 latest GA versions)
-          #   + older supported MongoDB versions
-          #   + older supported PostgreSQL versions
-          #   + 3-dev-latest PMM Server
-          # - MYSQL_IMAGE=mariadb:5.5
-          # - MYSQL_IMAGE=mariadb:10.0
-          # - MYSQL_IMAGE=mariadb:10.1
-
-          - { mysql: 'mariadb:11.2', mongo: 'percona/percona-server-mongodb:5.0', postgres: 'postgres:17', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:6.0', postgres: 'perconalab/percona-distribution-postgresql:13', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
-          - { mysql: 'mariadb:11.5', mongo: 'percona/percona-server-mongodb:7.0', postgres: 'postgres:18', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          # MariaDB
+          - { mysql: 'mariadb:11.2', mongo: 'percona/percona-server-mongodb:6.0', postgres: 'postgres:16', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.4', mongo: 'percona/percona-server-mongodb:7.0', postgres: 'postgres:17', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:11.5', mongo: 'percona/percona-server-mongodb:8.0', postgres: 'postgres:18', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
     continue-on-error: true
 
@@ -77,52 +59,26 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Go
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
-          cache: false
-
-      - name: Enable Go build cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
-
-      - name: Download Go modules
-        run: go mod download -x
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
 
       - name: Build and install
         run: make install
 
       - name: Launch containers
-        env:
-          ENV_UP_FLAGS: "--detach"
         run: make env-up
 
       - name: Run tests
         run: make test-cover
 
-      - name: Upload coverage results
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      - name: Save coverage artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          files: cover.out
-          flags: agent
-          env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
+          if-no-files-found: error
+          name: coverage-agent-${{ strategy.job-index }}
+          path: ${{ github.workspace }}/agent/cover.out
 
       - name: Run debug commands on failure
         if: ${{ failure() }}
@@ -135,10 +91,33 @@ jobs:
           docker compose logs
           docker compose ps -a
 
+  upload-coverage:
+    name: Upload Coverage
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Download coverage artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: coverage-agent-*
+          path: coverage-artifacts
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          flags: agent
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build-gssapi:
     name: Build PMM Agent with GSSAPI support
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     continue-on-error: false
     defaults:
       run:
@@ -146,37 +125,15 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup Kerberos client libraries
         run: |
           sudo apt-get update -y
           sudo apt-get install -y libkrb5-dev
 
-      - name: Set up Go
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
-          cache: false
-
-      - name: Enable Go build cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
-
-      - name: Download Go modules
-        run: go mod download -x
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
 
       - name: Build PMM Agent
         run: make release-gssapi

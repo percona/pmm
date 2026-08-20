@@ -25,7 +25,7 @@ import (
 	"time"
 
 	ver "github.com/hashicorp/go-version"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -38,7 +38,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
-func setup(t *testing.T, db *reform.DB, disableCommentsParsing, disableQueryExamples bool) *PGStatMonitorQAN { //nolint:unparam
+func setup(t *testing.T, db *reform.DB, disableCommentsParsing, disableQueryExamples bool) *PGStatMonitorQAN {
 	t.Helper()
 
 	selectQuery := fmt.Sprintf("SELECT /* %s */ ", queryTag)
@@ -98,7 +98,9 @@ func TestVersion(t *testing.T) {
 func TestPGStatMonitorSchema(t *testing.T) {
 	t.Skip("Skip it until the sandbox supports pg_stat_monitor by default. The current PostgreSQL image is the official, not the one from PerconaLab")
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	majorVersion, _ := tests.PostgreSQLVersion(t, sqlDB)
@@ -343,7 +345,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
-		args := make([]interface{}, n)
+		args := make([]any, n)
 		for i := range n {
 			args[i] = i
 		}
@@ -478,7 +480,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
-		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
+		r := rand.New(rand.NewSource(time.Now().Unix()))
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
 		CREATE TABLE %s (
@@ -489,7 +491,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		)`, tableName))
 		require.NoError(t, err)
 		t.Cleanup(func() {
-			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
+			_, err := db.Exec("DROP TABLE " + tableName)
 			require.NoError(t, err)
 		})
 		m := setup(t, db, false, false)
@@ -546,7 +548,7 @@ func TestPGStatMonitorSchema(t *testing.T) {
 				MQueryTimeCnt:       float32(n),
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
 				// FIXME: Why tables is empty here? this will error.
-				Tables: []string{fmt.Sprintf("public.%s", tableName)},
+				Tables: []string{"public." + tableName},
 			},
 			Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 				MSharedBlkReadTimeCnt:       float32(n),
@@ -590,5 +592,86 @@ func TestPGStatMonitorSchema(t *testing.T) {
 		tests.AssertBucketsEqual(t, expected, actual)
 		assert.LessOrEqual(t, actual.Postgresql.MSharedBlkReadTimeSum, actual.Common.MQueryTimeSum)
 		assert.Regexp(t, `\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`, actual.Common.ClientHost)
+	})
+}
+
+func TestParseHistogramFromRespCalls(t *testing.T) {
+	t.Parallel()
+
+	vPGSM := pgStatMonitorVersion20PG12 // This version expects 22 histogram buckets
+	l := logrus.WithField("component", "pgstatmonitor-test")
+
+	t.Run("Normal", func(t *testing.T) {
+		t.Parallel()
+		current := pq.StringArray{"10", "20", "30"}
+		prev := pq.StringArray{"5", "10", "15"}
+		res, err := parseHistogramFromRespCalls(current, prev, vPGSM, l)
+		require.NoError(t, err)
+		require.NotNil(t, res)
+		assert.Equal(t, uint32(5), res[0].Frequency)
+		assert.Equal(t, uint32(10), res[1].Frequency)
+		assert.Equal(t, uint32(15), res[2].Frequency)
+	})
+
+	t.Run("MoreBucketsThanExpected", func(t *testing.T) {
+		t.Parallel()
+		// Create more items than the internal getHistogramRangesArray provides
+		largeResp := make(pq.StringArray, 50)
+		for i := range largeResp {
+			largeResp[i] = "1"
+		}
+		res, err := parseHistogramFromRespCalls(largeResp, nil, vPGSM, l)
+		require.NoError(t, err)
+		// Should not panic and should cap at the length of our static ranges
+		expectedLen := len(getHistogramRangesArray(vPGSM))
+		assert.Len(t, res, expectedLen)
+	})
+
+	t.Run("CounterReset", func(t *testing.T) {
+		t.Parallel()
+		// Previous values higher than current (e.g. pg_stat_monitor_reset called)
+		current := pq.StringArray{"10"}
+		prev := pq.StringArray{"20"}
+		res, err := parseHistogramFromRespCalls(current, prev, vPGSM, l)
+		require.NoError(t, err)
+		// Should be 0, not a huge wrapped-around uint32
+		assert.Equal(t, uint32(0), res[0].Frequency)
+	})
+
+	t.Run("InvalidData", func(t *testing.T) {
+		t.Parallel()
+		current := pq.StringArray{"not-a-number"}
+		res, err := parseHistogramFromRespCalls(current, nil, vPGSM, l)
+		require.Error(t, err)
+		assert.Nil(t, res)
+	})
+
+	t.Run("NegativeValues", func(t *testing.T) {
+		t.Parallel()
+		// ParseUint should fail on negative numbers
+		current := pq.StringArray{"-1"}
+		res, err := parseHistogramFromRespCalls(current, nil, vPGSM, l)
+		require.Error(t, err)
+		assert.Nil(t, res)
+	})
+}
+
+func TestGetHistogramRangesArray(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Version20Plus", func(t *testing.T) {
+		t.Parallel()
+		res := getHistogramRangesArray(pgStatMonitorVersion20PG12)
+		assert.Len(t, res, 22)
+		assert.Equal(t, "(0 - 1)", res[0].Range)
+		assert.Equal(t, "(100000 - ...)", res[21].Range)
+	})
+
+	t.Run("OldVersion", func(t *testing.T) {
+		t.Parallel()
+		res := getHistogramRangesArray(pgStatMonitorVersion09)
+		assert.Len(t, res, 10)
+		assert.Equal(t, "(0 - 3)", res[0].Range)
+		assert.Equal(t, "(31622 - 100000)", res[9].Range)
 	})
 }

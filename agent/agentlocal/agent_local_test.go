@@ -178,7 +178,8 @@ func TestGetZipFile(t *testing.T) {
 		for _, ex := range zipExs.File {
 			file, err := ex.Open()
 			require.NoError(t, err)
-			if contents, err := io.ReadAll(file); err == nil {
+			contents, err := io.ReadAll(file)
+			if err == nil {
 				if ex.Name == serverZipFile {
 					assert.Empty(t, contents)
 				} else {

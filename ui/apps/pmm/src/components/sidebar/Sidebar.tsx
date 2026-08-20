@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect, useState } from 'react';
 import { useNavigation } from 'contexts/navigation';
 import { NavigationHeading } from './nav-heading';
 import { Drawer } from './drawer';
-import { NavItem } from './nav-item';
+import { SidebarNavItem } from './nav-item';
 import List from '@mui/material/List';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -69,7 +69,7 @@ export const Sidebar: FC = () => {
         ]}
       >
         {navTree.map((item) => (
-          <NavItem
+          <SidebarNavItem
             key={item.id}
             item={item}
             activeItem={activeItem}

@@ -5,8 +5,8 @@ Before creating a backup, make sure to check the [MongoDB backup prerequisites](
 To schedule or create an on-demand backup, check the instructions below. If you want to create a Point-in-time-recovery (PITR) backup instead, see [Create MongoDB PITR backups](create_PITR_mongo.md).
 {.power-number}
 
-1. Go to <i class="uil uil-history"></i> **Backup > All Backups**.
-2. Click <i class="uil uil-plus-square"></i> **Create Backup**.
+1. Go to <i class="uil uil-history"></i> **Backup > All backups**.
+2. Click <i class="uil uil-plus-square"></i> **Create backup**.
 3. In the **Create Scheduled backup** window, select whether you want to create an **On Demand** or a **Schedule Backup**.
 4. Enter a unique name for the backup.
 5. Choose the service to back up from the **Service name** drop-down menu. This automatically populates the **DB Technology** field.

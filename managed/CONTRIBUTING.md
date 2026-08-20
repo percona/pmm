@@ -1,14 +1,14 @@
 # Contributing notes
 
-**pmm-managed** is a core component of PMM Server. As such, its development and testing are best done inside a PMM Server container, which we call a "devcontainer." For details, see [PMM's architecture](https://docs.percona.com/percona-monitoring-and-management/3/reference/index.html).
+**pmm-managed** is a core component of PMM Server. As such, its development and testing are best done inside a specially crafted "devcontainer", which allows the developer to provision dev tools into a regular PMM Server container. For details, see [PMM architecture](https://docs.percona.com/percona-monitoring-and-management/3/reference/index.html).
 
 # Devcontainer setup
 
 1. Install Docker and Docker Compose.
 
-2. Check out the `main` branch, which is the main branch for PMM 2.x development.
+2. Clone this repo and check out the `main` branch.
 
-3. Run `make` to see a list of targets that can be run on host:
+3. Run `make` to see a list of targets that can be run on the host:
 
 ```
 $ make
@@ -24,7 +24,7 @@ Please use `make <target>` where <target> is one of:
 
 ```
 $ make env TARGET=help
-docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-server make help
+docker exec -it --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make help
 Please use `make <target>` where <target> is one of:
   gen                       Generate files.
   install                   Install pmm-managed binary.
@@ -39,10 +39,10 @@ Alternatively, it is possible to run `make env` to get inside the devcontainer a
 
 ```
 $ make env
-docker exec -it --workdir=/root/go/src/github.com/percona/pmm-managed pmm-server make _bash
+docker exec -it --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make _bash
 /bin/bash
 [root@pmm-server pmm-managed]# make test
-make[1]: Entering directory `/root/go/src/github.com/percona/pmm-managed'
+make[1]: Entering directory `/root/go/src/github.com/percona/pmm/managed'
 go test -timeout=30s -p 1 ./...
 ...
 ```
@@ -63,7 +63,7 @@ go test -timeout=30s -p 1 ./...
 | PMM_DEV_TELEMETRY_FILE                   | Sets path for telemetry config file                                                                                 |                                          |
 | PMM_DEV_TELEMETRY_DISABLE_START_DELAY    | Disable the default telemetry execution start delay, so that telemetry gathering is run immediately upon system     | false                                    |
 | PMM_DEV_TELEMETRY_RETRY_BACKOFF          | Sets telemetry reporting retry backoff time                                                                         | 1h                                       |   
-| PMM_DEV_PERCONA_PLATFORM_ADDRESS         | Sets Percona Platform address                                                                                       | https://check.percona.com                |
+| PMM_PERCONA_PLATFORM_ADDRESS             | Sets Percona Platform address                                                                                       | https://check-dev.percona.com            |
 
 ## Add instances for monitoring
 
@@ -99,7 +99,7 @@ If need to change the logic of Advisor checks (actual logic executed in advisors
 
 Changes to Advisors will be most visible in the list of all advisors by categories, such as https://pmmdemo.percona.com/graph/advisors/configuration.
 
-![Advisors interface](../docs/assets/advisors/pmm-advisor-interface.png)
+![Advisors interface](../dev/docs/assets/advisors/pmm-advisor-interface.png)
 
 ``advisors.summary`` = https://github.com/percona/pmm/blob/b951d3c14eb1d5e4d716a61811da599af869054b/managed/data/advisors/example.yml.example#L5
 
@@ -110,7 +110,7 @@ Changes to Advisors will be most visible in the list of all advisors by categori
 Advisor checks are organized into categories by topic and can be viewed in the [Advisor Insight](https://pmmdemo.percona.com/graph/advisors/configuration). Each check provides detailed information and recommendations. To see these details, expand an Advisor to open its **Insights** section:
 
 
-![Advisors by categories](../docs/assets/advisors/pmm-configuration-advisors.png)
+![Advisors by categories](../dev/docs/assets/advisors/pmm-configuration-advisors.png)
 
 ``checks.summary`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L5
 ``checks.description`` = https://github.com/percona/checked/blob/223ae162ced83793bc00e5e6c29edfbf1bf5e27e/data/checks/exampleV2.yml.example#L6
@@ -130,9 +130,9 @@ Alert Templates are located in the `data/templates` folder. If you want to contr
 
 # Internals
 
-There are three makefiles: `Makefile` (host), `Makefile.devcontainer`, and `Makefile.include`. `Makefile.devcontainer` is mounted on top of `Makefile` inside the devcontainer (see `docker-compose.yml`) to enable `make env TARGET=target-name` usage.
+There are three makefiles: `Makefile` (host), `.devcontainer/Makefile`, and `Makefile.include`. `.devcontainer/Makefile` is mounted on top of `Makefile` inside the devcontainer (see `docker-compose.dev.yml`) to enable `make env TARGET=target-name` usage.
 
-Devcontainer initialization code is located in `.devcontainer/setup.py`. It provisions several binaries required for code development.
+Devcontainer initialization code is located in `.devcontainer/setup.sh`. It provisions several binaries required for code development.
 
 ## Code structure
 
@@ -150,7 +150,7 @@ Devcontainer initialization code is located in `.devcontainer/setup.py`. It prov
 # How to make a pull request (PR)
 
 - If the changes require multiple PRs spanning multiple repos, make sure to keep the branch names the same.
-- If the PR requires any API changes, make sure to contribute to the API docs (/docs/api).
+- If the PR requires any API changes, make sure to contribute to the API docs (/documentation/api).
 - If the PR changes any of `deps.go` files, make sure to run `make gen` to generate mock clients.
 
 Before making a PR, please run these commands locally:

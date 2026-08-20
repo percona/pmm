@@ -16,10 +16,10 @@
 package management
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -53,7 +53,7 @@ func TestStartAdvisorChecks(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 
 		resp, err := s.StartAdvisorChecks(t.Context(), &advisorsv1.StartAdvisorChecksRequest{})
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "advisor checks are disabled."), err)
 		assert.Nil(t, resp)
 	})
 }
@@ -88,7 +88,7 @@ func TestGetFailedChecks(t *testing.T) {
 		resp, err := s.GetFailedChecks(t.Context(), &advisorsv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "advisor checks are disabled."), err)
 		assert.Nil(t, resp)
 	})
 
@@ -431,8 +431,6 @@ func TestCreateComment(t *testing.T) {
 		},
 	}
 	for _, tc := range testCases {
-		tc := tc
-
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
 			assert.Equal(t, tc.Comment, createComment(tc.Checks))

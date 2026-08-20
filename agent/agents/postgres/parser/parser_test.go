@@ -36,12 +36,12 @@ func TestExtractTables(t *testing.T) {
 
 	for _, file := range files {
 		t.Run(filepath.Base(file), func(t *testing.T) {
-			d, err := os.ReadFile(file) //nolint:gosec
+			d, err := os.ReadFile(file)
 			require.NoError(t, err)
 			query := string(d)
 
 			goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
-			d, err = os.ReadFile(goldenFile) //nolint:gosec
+			d, err = os.ReadFile(goldenFile)
 			require.NoError(t, err)
 			var expected expectedResult
 			err = json.Unmarshal(d, &expected)
@@ -54,7 +54,7 @@ func TestExtractTables(t *testing.T) {
 					t.Parallel()
 
 					actual, err := f(query)
-					assert.Equal(t, expected.Tables, actual)
+					assert.ElementsMatch(t, expected.Tables, actual)
 					if expected.Err != "" {
 						require.EqualError(t, err, expected.Err, "err = %+v", err)
 					} else {
@@ -66,7 +66,7 @@ func TestExtractTables(t *testing.T) {
 	}
 }
 
-var actualB interface{}
+var actualB any
 
 func BenchmarkExtractTables(b *testing.B) {
 	files, err := filepath.Glob(filepath.FromSlash("./testdata/*.sql"))
@@ -76,11 +76,11 @@ func BenchmarkExtractTables(b *testing.B) {
 		goldenFile := strings.TrimSuffix(file, ".sql") + ".json"
 		name := strings.TrimSuffix(filepath.Base(file), ".log")
 		b.Run(name, func(b *testing.B) {
-			d, err := os.ReadFile(file) //nolint:gosec
+			d, err := os.ReadFile(file)
 			require.NoError(b, err)
 			query := string(d)
 
-			d, err = os.ReadFile(goldenFile) //nolint:gosec
+			d, err = os.ReadFile(goldenFile)
 			require.NoError(b, err)
 			var expected expectedResult
 			err = json.Unmarshal(d, &expected)

@@ -1,7 +1,6 @@
+# shellcheck disable=SC2034
 bin_dir=$(cd $(dirname $0); pwd -P)
-# TODO: refactor to pass ${WORKSPACE} as ROOT_DIR from either Jenkins or, if relevant, from GH actions
-# NOTE: in most cases, this evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
-# Example: /home/ec2-user/workspace/ol9-build-server/, see how it's used in ol9-build-server.groovy
+# NOTE: in most cases, `root_dir` evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
 root_dir_tmp=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
 root_dir=${ROOT_DIR:-$root_dir_tmp}
 tmp_dir=${root_dir}/tmp
@@ -17,21 +16,17 @@ OS_VARIANT=${OS_VARIANT:-ol8}
 # * pmm_release to contain only pre-release part (can be empty): 'alpha3'.
 pmm_branch=$(git rev-parse --abbrev-ref HEAD)
 
-pmm_base_version=$(cat ${root_dir}/VERSION)
+pmm_base_version=$(< "${root_dir}/VERSION")
 full_pmm_version=${pmm_base_version}-${pmm_branch}-$(git rev-parse --short HEAD)
 # Replace '/' with '-' to prevent sed from failing on dependabot-authored PRs
 full_pmm_version=${full_pmm_version//\//-}
 
-# TODO Maybe it makes sense to use variable from job here
-if [[ ${pmm_branch} =~ release-* || \
-      ${pmm_branch} =~ pmm-3.* || \
-      ${pmm_branch} == v3 || \
-      ${pmm_branch} == "main" ]]; then
+if [[ ${pmm_branch} =~ pmm-3.* || ${pmm_branch} == "main" ]]; then
     full_pmm_version=${pmm_base_version}
 fi
 
-new_pmm_version=$(cat ${root_dir}/VERSION | awk -F'-' '{print $1}')
-new_pmm_release=$(cat ${root_dir}/VERSION | awk -F'-' '{print $2}')
+new_pmm_version=$(awk -F'-' '{print $1}' < "${root_dir}/VERSION")
+new_pmm_release=$(awk -F'-' '{print $2}' < "${root_dir}/VERSION")
 
 # Failsafe during refactoring - check that we did not redefine pmm_version in some other script
 if [ -n "${pmm_version}" ] && [ "${new_pmm_version}" != "${pmm_version}" ]; then
@@ -46,10 +41,6 @@ unset new_pmm_release
 echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_version} pmm_release=${pmm_release}\n\n\n"
 
 rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:3}
-# Support for Hetzner-based builds
-if [ "${USE_HETZNER_BUILD:-}" = "1" ]; then
-    rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-perconalab/rpmbuild:3-hetzner}
-fi
 rpms_dir=${root_dir}/tmp/pmm-server/RPMS
 rpmbuild_dir=${root_dir}/sources/pmm/src/github.com/percona/pmm/build/packages/rpm/server
 rpmbuild_dist=${RPMBUILD_DIST:-"el9"}
@@ -64,9 +55,9 @@ source_tarball=${root_dir}/results/source_tarball/pmm-client-${pmm_version}.tar.
 binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}.tar.gz
 dynamic_binary_tarball=${root_dir}/results/tarball/pmm-client-${pmm_version}-${BUILD_TYPE}-${OS_VARIANT}.tar.gz
 
-# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.143.0
-vmagent_commit_hash=2a094963cfb06c69656364d4f8231fa7685987bd
-# https://github.com/oliver006/redis_exporter/releases/tag/v1.82.0
-redis_exporter_commit_hash=1f3d89a11af0f0fd10f4f6e56b24a1687ae85776
-# https://github.com/hashicorp/nomad/releases/tag/v2.0.1
-nomad_commit_hash=5c11f948ba7e9e709abf7f2ab7895ba5b44feb39
+# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.149.0
+vmagent_commit_hash=3432d6cd196938f93101a5d6cf38c807c1cdb1e3
+# https://github.com/oliver006/redis_exporter/releases/tag/v1.89.0
+redis_exporter_commit_hash=cd5941f16199f1f1fa9c12b3bf24b509875c955a
+# https://github.com/hashicorp/nomad/releases/tag/v2.0.5
+nomad_commit_hash=5c8612bba6eb8e44cc3fc434125cb1b13463c309

@@ -5,9 +5,9 @@
 Before starting the upgrade, complete these preparation steps to ensure you can recover your system if needed and confirm compatibility with the new version:
 {.power-number}
 
-1. [Create a backup](../install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md) before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires an backup made prior to the upgrade.
+1. [Create a backup](../install-pmm/install-pmm-server/deployment-options/podman/backup_container_podman.md) before upgrading, as downgrades are not possible. Therefore, reverting to a previous version requires a backup made prior to the upgrade.
 
-2. Verify your current PMM version: Check your current PMM version by navigating to **PMM Configuration > Updates** or by running the following command: 
+2. Verify your current PMM version: Check your current PMM version by navigating to **Configuration > Updates** or by running the following command: 
 
     ```sh
     podman exec -it pmm-server \

@@ -46,7 +46,11 @@ func TestCreateDataDir(t *testing.T) {
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			defer os.Remove(tc.path) //nolint:errcheck
+			if tc.path != "" {
+				t.Cleanup(func() {
+					assert.NoError(t, os.Remove(tc.path))
+				})
+			}
 
 			err := CreateDataDir(tc.path, tc.perm)
 			if tc.err != "" {

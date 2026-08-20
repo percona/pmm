@@ -231,6 +231,17 @@ func TestNodeHelpers(t *testing.T) {
 		err = models.RemoveNode(q, models.PMMServerNodeID, models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.PermissionDenied, `PMM Server node can't be removed.`), err)
 
+		// PMM Server node with a generated ID (HA setup) is protected by the IsPMMServerNode flag
+		haNode, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName:        "pmm-server-ha",
+			IsPMMServerNode: true,
+		})
+		require.NoError(t, err)
+		err = models.RemoveNode(q, haNode.NodeID, models.RemoveRestrict)
+		tests.AssertGRPCError(t, status.New(codes.PermissionDenied, `PMM Server node can't be removed.`), err)
+		err = models.RemoveNode(q, haNode.NodeID, models.RemoveCascade)
+		tests.AssertGRPCError(t, status.New(codes.PermissionDenied, `PMM Server node can't be removed.`), err)
+
 		err = models.RemoveNode(q, "NoSuchNode", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "NoSuchNode" not found.`), err)
 
@@ -253,10 +264,6 @@ func TestNodeHelpers(t *testing.T) {
 
 		nodes, err := models.FindNodes(q, models.NodeFilters{})
 		require.NoError(t, err)
-		require.Len(t, nodes, 1) // PMM Server
+		require.Len(t, nodes, 2) // PMM Server + HA PMM Server node
 	})
-}
-
-func pointerToNodeType(nodeType models.NodeType) *models.NodeType {
-	return &nodeType
 }

@@ -158,7 +158,6 @@ func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.pmmAgentID, func(t *testing.T) {
 			actual, err := models.IsPostgreSQLSSLSniSupported(q, tt.pmmAgentID)
 			assert.Equal(t, tt.expected, actual)

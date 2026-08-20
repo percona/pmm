@@ -39,6 +39,7 @@ var (
 	v2_42_0                    = version.MustParse("2.42.0-0")
 	v2_43_0                    = version.MustParse("2.43.0-0")
 	v2_43_2                    = version.MustParse("2.43.2-0")
+	v3_10_0                    = version.MustParse("3.10.0-0")
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
@@ -65,7 +66,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	}
 	connectionTimeout := exporter.EffectiveDialTimeout()
 	env := []string{
-		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: database}, tdp, pmmAgentVersion)),
+		"MONGODB_URI=" + exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: database}, tdp, pmmAgentVersion),
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{
@@ -82,7 +83,8 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 		res.RedactWords = redactWords(exporter)
 	}
 
-	if err := ensureAuthParams(exporter, res, pmmAgentVersion, v2_28_00, false); err != nil {
+	err = ensureAuthParams(exporter, res, pmmAgentVersion, v2_28_00, false)
+	if err != nil {
 		return nil, err
 	}
 
@@ -119,6 +121,9 @@ func getArgs(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress st
 		}
 		if !pmmAgentVersion.Less(v2_43_2) { // >= 2.43.2, enable pbm collector by default
 			args = append(args, "--collector.pbm")
+		}
+		if !pmmAgentVersion.Less(v3_10_0) && exporter.MongoDBOptions.EnableDiagnosticDataHistograms {
+			args = append(args, "--collector.diagnosticdata-histograms")
 		}
 
 		args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)

@@ -42,7 +42,9 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 
 	ctx := logger.Set(context.Background(), t.Name())
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	cc := &mockConnectionChecker{}

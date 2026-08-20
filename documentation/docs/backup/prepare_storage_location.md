@@ -50,7 +50,7 @@ A sample [IAM](https://aws.amazon.com/iam/) policy is:
 Before you can back up your databases, you need to configure where PMM will store your backup files. PMM supports S3-compatible storage and local client storage.
 {.power-number}
 
-1. Go to **Backup > Storage Locations**:
+1. Go to **Backup > Storage locations**:
 
     ![!](../images/PMM_Backup_Management.jpg)
 

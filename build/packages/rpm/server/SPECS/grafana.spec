@@ -1,15 +1,21 @@
 %global debug_package   %{nil}
-%global commit          b149f083323912e93d25fef812f73361426e26ab
+%global commit          ec2024f6718a4f490fc2ab54877d9c8720b5c5b9
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         115
-%define grafana_version 12.4.3
+%define release         117
+%define grafana_version 12.4.5
 %define full_pmm_version 3.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 %if ! 0%{?gobuild:1}
 %define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n')" -a -v -x %{?**};
+%endif
+
+%ifarch aarch64
+%define go_arch arm64
+%else
+%define go_arch amd64
 %endif
 
 Name:           percona-grafana
@@ -19,7 +25,7 @@ Summary:        Grafana is an open source, feature rich metrics dashboard and gr
 License:        AGPLv3
 URL:            https://github.com/percona/grafana
 Source0:        https://github.com/percona/grafana/archive/%{commit}.tar.gz
-ExclusiveArch:  %{ix86} x86_64 %{arm}
+ExclusiveArch:  %{ix86} x86_64 %{arm} aarch64
 
 BuildRequires: fontconfig
 
@@ -30,7 +36,6 @@ Graphite, InfluxDB & OpenTSDB.
 %prep
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
-sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
 sudo npm install -g grunt-cli
 
 %build
@@ -49,10 +54,10 @@ cp -rpav public %{buildroot}%{_datadir}/grafana
 cp -rpav tools %{buildroot}%{_datadir}/grafana
 
 install -d -p %{buildroot}%{_sbindir}
-cp bin/linux-amd64/grafana-server %{buildroot}%{_sbindir}/
-cp bin/linux-amd64/grafana %{buildroot}%{_sbindir}/
+cp bin/linux/%{go_arch}/grafana-server %{buildroot}%{_sbindir}/
+cp bin/linux/%{go_arch}/grafana %{buildroot}%{_sbindir}/
 install -d -p %{buildroot}%{_bindir}
-cp bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
+cp bin/linux/%{go_arch}/grafana-cli %{buildroot}%{_bindir}/
 
 install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
@@ -77,6 +82,12 @@ getent passwd pmm >/dev/null || echo "User pmm does not exist. Please create it 
 exit 0
 
 %changelog
+* Tue Jul 07 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 12.4.5-1
+- PMM-15190 Upgrade Grafana to v12.4.5
+
+* Tue Jun 02 2026 Matej Kubinec <matej.kubinec@ext.percona.com> - 12.4.4-1
+- PMM-14213 Upgrade Grafana to v12.4.4
+
 * Thu May 14 2026 Fábio Silva <ffjs1993@gmail.com> - 12.4.3
 - PMM-14213 Upgrade Grafana to v12.4.2
 

@@ -4,9 +4,10 @@ import { FC, useMemo, useState } from 'react';
 import { Messages } from './SessionsTable.messages';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import { Table } from '@percona/percona-ui';
+import { Table } from '@percona/peak-ui';
 import { boxClasses, Skeleton, Typography } from '@mui/material';
-import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants';
+import { SESSIONS_TABLE_URL_STATE_OPTIONS } from './SessionsTable.constants.ts';
+import { SESSIONS_TABLE_COLUMNS } from './SessionsTable.constants.tsx';
 import { useRealtimeSessions, useStopSessions } from 'hooks/api/useRealtime';
 import {
   getAllSessions,
@@ -21,6 +22,7 @@ import { enqueueSnackbar } from 'notistack';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { useUser } from 'contexts/user';
 import { Navigate } from 'react-router-dom';
+import { useTableUrlState } from 'hooks/utils/useTableUrlState';
 
 const SessionsTable: FC = () => {
   const { user } = useUser();
@@ -38,6 +40,10 @@ const SessionsTable: FC = () => {
     [rowSelection, rows]
   );
   const { mutateAsync: stopSessions } = useStopSessions();
+  const { tableProps } = useTableUrlState({
+    ...SESSIONS_TABLE_URL_STATE_OPTIONS,
+    additionalState: { rowSelection },
+  });
 
   const closeModal = () => {
     setModal(null);
@@ -129,9 +135,6 @@ const SessionsTable: FC = () => {
             ...(user?.isPMMAdmin ? ['mrt-row-actions'] : []),
           ],
         }}
-        state={{
-          rowSelection,
-        }}
         positionToolbarAlertBanner="none"
         getRowId={(row) => row.sessionId}
         noDataMessage={Messages.empty}
@@ -142,6 +145,16 @@ const SessionsTable: FC = () => {
         enableGlobalFilter={false}
         enableRowSelection
         onRowSelectionChange={setRowSelection}
+        displayColumnDefOptions={{
+          'mrt-row-select': {
+            size: 40,
+            muiTableHeadCellProps: { sx: { flex: '0 0 40px !important' } },
+            muiTableBodyCellProps: { sx: { flex: '0 0 40px !important' } },
+          },
+          'mrt-row-expand': {
+            size: 40,
+          },
+        }}
         enableStickyHeader
         enableSubRowSelection
         enableExpanding
@@ -153,7 +166,7 @@ const SessionsTable: FC = () => {
               color="inherit"
               size="small"
               data-testid="open-stop-modal"
-              onClick={() => openStopModal(row.original)}
+              onClick={() => openStopModal(row.original as SessionRow)}
             >
               {Messages.stop}
             </Button>
@@ -161,34 +174,35 @@ const SessionsTable: FC = () => {
         }
         getSubRows={(row) => row.serviceSessions}
         muiTableContainerProps={{
-          sx: (theme) => ({
-            flex: 1,
-            backgroundColor: 'inherit',
-            borderTopLeftRadius: theme.shape.borderRadius,
-            borderTopRightRadius: theme.shape.borderRadius,
-            borderBottom: 0,
-          }),
-        }}
-        muiTableHeadProps={{
           sx: {
-            backgroundColor: 'inherit',
+            flex: 1,
+            // TODO: use theme.shape.borderRadiusMd (8px) once percona-ui
+            // publishes the Shape tokens (percona-ui#37, not in 1.0.23)
+            borderRadius: '8px',
+            border: '1px solid',
+            borderColor: 'divider',
           },
         }}
         muiTopToolbarProps={{
           sx: {
-            // vertically center the buttons
             [`& > .${boxClasses.root}`]: {
-              alignItems: 'center',
+              alignItems: 'flex-start',
               flexDirection: user?.isPMMAdmin ? 'row-reverse' : undefined,
             },
           },
         }}
         renderTopToolbarCustomActions={() =>
           user?.isPMMAdmin && (
-            <Stack direction="row" alignItems="center" gap={2}>
+            <Stack
+              direction="row"
+              flexWrap="wrap"
+              rowGap={1}
+              columnGap={4}
+              pt={1}
+            >
               {selectedSessions.length > 0 && (
-                <Stack direction="row" alignItems="center" gap={2}>
-                  <Typography variant="body2">
+                <Stack direction="row" flexWrap="wrap" alignItems="center">
+                  <Typography variant="body2" sx={{ mx: 1 }}>
                     {Messages.selected(selectedSessions.length)}
                   </Typography>
                   <Button
@@ -200,25 +214,33 @@ const SessionsTable: FC = () => {
                   </Button>
                 </Stack>
               )}
-              {!!sessions.length && (
-                <Button
-                  data-testid="open-stop-all-modal"
-                  startIcon={<StopCircleOutlinedIcon />}
-                  onClick={openStopAllModal}
-                >
-                  {Messages.stopAll}
-                </Button>
-              )}
-              <Button
-                data-testid="open-new-modal"
-                startIcon={<AddOutlinedIcon />}
-                onClick={openNewSessionModal}
+              <Stack
+                direction="row"
+                flexWrap="wrap"
+                alignItems="center"
+                gap={1}
               >
-                {Messages.newSession}
-              </Button>
+                {!!sessions.length && (
+                  <Button
+                    data-testid="open-stop-all-modal"
+                    startIcon={<StopCircleOutlinedIcon />}
+                    onClick={openStopAllModal}
+                  >
+                    {Messages.stopAll}
+                  </Button>
+                )}
+                <Button
+                  data-testid="open-new-modal"
+                  startIcon={<AddOutlinedIcon />}
+                  onClick={openNewSessionModal}
+                >
+                  {Messages.newSession}
+                </Button>
+              </Stack>
             </Stack>
           )
         }
+        {...tableProps}
       />
       <StopSessionModal
         open={modal === 'stop'}

@@ -67,7 +67,9 @@ func filter(mb []*agentv1.MetricsBucket) []*agentv1.MetricsBucket {
 
 func TestPGStatStatementsQAN(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
@@ -285,7 +287,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
-		args := make([]interface{}, n)
+		args := make([]any, n)
 		for i := range n {
 			args[i] = i
 		}
@@ -382,7 +384,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 	})
 
 	t.Run("CheckMBlkReadTime", func(t *testing.T) {
-		r := rand.New(rand.NewSource(time.Now().Unix())) //nolint:gosec
+		r := rand.New(rand.NewSource(time.Now().Unix()))
 		tableName := fmt.Sprintf("customer%d", r.Int())
 		_, err := db.Exec(fmt.Sprintf(`
 		CREATE TABLE %s (
@@ -393,7 +395,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		)`, tableName))
 		require.NoError(t, err)
 		defer func() {
-			_, err := db.Exec(fmt.Sprintf(`DROP TABLE %s`, tableName))
+			_, err := db.Exec("DROP TABLE " + tableName)
 			require.NoError(t, err)
 		}()
 		m := setup(t, db)
@@ -403,16 +405,14 @@ func TestPGStatStatementsQAN(t *testing.T) {
 		errChan := make(chan error, 1)
 		for i := range n {
 			id := i
-			waitGroup.Add(1)
-			go func() {
-				defer waitGroup.Done()
+			waitGroup.Go(func() {
 				_, err := db.Exec(
 					fmt.Sprintf(`INSERT /* CheckMBlkReadTime controller='test' */ INTO %s (customer_id, first_name, last_name, active) VALUES (%d, 'John', 'Dow', TRUE)`, tableName, id),
 				)
 				if err != nil {
 					errChan <- err
 				}
-			}()
+			})
 		}
 		go func() {
 			waitGroup.Wait()
@@ -480,7 +480,9 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 func TestPGStatStatementsQPS(t *testing.T) {
 	sqlDB := tests.OpenTestPostgreSQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	_, err := db.Exec("CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public")
@@ -519,8 +521,15 @@ func TestPGStatStatementsQPS(t *testing.T) {
 
 		runTimes := 7000
 		t.Cleanup(func() {
-			for i := range runTimes {
-				_, _ = db.Exec(fmt.Sprintf("drop table if exists t%d", i))
+			// dropping all tables in a single statement would exceed max_locks_per_transaction
+			const dropBatchSize = 500
+			for i := 0; i < runTimes; i += dropBatchSize {
+				tables := make([]string, 0, dropBatchSize)
+				for j := i; j < min(i+dropBatchSize, runTimes); j++ {
+					tables = append(tables, fmt.Sprintf("t%d", j))
+				}
+				_, err := db.Exec("drop table if exists " + strings.Join(tables, ", "))
+				assert.NoError(t, err)
 			}
 		})
 

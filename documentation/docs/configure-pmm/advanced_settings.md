@@ -6,6 +6,12 @@
 
 **Data retention** specifies how long data is stored by PMM Server. By default, time-series data is stored for 30 days. You can adjust the data retention time to balance your system's available disk space with your metrics history requirements.
 
+### Set data retention via the API
+
+If you configure data retention using the [Change Settings API](https://percona-pmm.readme.io/reference/changesettings) (`PUT /v1/server/settings`), express the value in seconds. Hours and minutes formats are not supported and will return an error.
+
+For example, to set 30-day retention: `"data_retention": "2592000s"`
+
 ## Telemetry
 
 The **Telemetry** switch enables gathering and sending basic **anonymous** data to Percona, which helps us to determine where to focus the development and what is the uptake for each release of PMM. 
@@ -16,7 +22,7 @@ PMM Telemetry is based on data collected by various PMM components and stored in
 !!! note alert alert-primary ""
     When PMM is installed, telemetry is not sent immediately. Before the first telemetry report is generated, PMM provides users with a 24-hour grace period to disable telemetry.
 
-To see the metrics being collected by telemetry, from the [main menu](../reference/ui/ui_components.md#1-main-menu) navigate to **PMM Configuration** > :material-cog-outline: **Settings** > **Advanced Settings** > **Telemetry** and hover over the exclamation mark.
+To see the metrics being collected by telemetry, from the [main menu](../reference/ui/ui_components.md#1-main-menu) navigate to **Configuration > Settings > Advanced settings > Telemetry** and hover over the exclamation mark.
 
 ![!image](../images/PMM_Settings_Advanced_Settings_Telemetry.png)
 
@@ -33,7 +39,7 @@ The landing page for this service, [check.percona.com](https://check.percona.com
 
 Grafana’s [anonymous usage statistics](https://grafana.com/docs/grafana/latest/administration/configuration/#reporting-enabled) is not managed by PMM. To activate it, you must change the PMM Server container configuration after each update.
 
-As well as via the **PMM Settings** page, you can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
+You can also disable telemetry with the `-e DISABLE_TELEMETRY=1` option in your docker run statement for the PMM Server.
 
 For information on the various config parameters for telemetry, see the [config file](https://github.com/percona/pmm/blob/main/managed/services/telemetry/config.default.yml).
 
@@ -47,7 +53,7 @@ Advisors are sets of checks grouped by functionality that run a range of databas
 
 The findings are reported on the **Advisors > Advisor Insights** page, and an overview is displayed on the Home dashboard.
 
-The Advisors toggle is enabled by default and located in the **Execution intervals** section. Checks are re-fetched and rerun at the intervals configured there.
+The Advisors toggle is enabled by default. When enabled, you can configure how often checks run using the **Rare**, **Standard**, and **Frequent** interval fields in the same section.
 
 See [Working with Advisor checks](../advisors/advisors.md).
 

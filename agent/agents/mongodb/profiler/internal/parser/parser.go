@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package parser provides functionality to asynchronously process MongoDB profiling data.
+// It consumes raw system.profile documents from a channel, coordinates their
+// aggregation into performance metrics, and manages the lifecycle of the
+// background processing goroutine.
 package parser
 
 import (
@@ -50,7 +54,7 @@ type Parser struct {
 }
 
 // Start starts but doesn't wait until it exits.
-func (p *Parser) Start(context.Context) error {
+func (p *Parser) Start(ctx context.Context) error {
 	p.m.Lock()
 	defer p.m.Unlock()
 	if p.running {
@@ -66,7 +70,6 @@ func (p *Parser) Start(context.Context) error {
 	p.wg = &sync.WaitGroup{}
 	p.wg.Add(1)
 
-	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.monitor")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
 		start(
@@ -99,11 +102,19 @@ func (p *Parser) Stop() {
 	p.wg.Wait()
 }
 
+// Name returns parser name.
 func (p *Parser) Name() string {
 	return "parser"
 }
 
-func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, doneChan <-chan struct{}, logger *logrus.Entry) {
+func start(
+	ctx context.Context,
+	wg *sync.WaitGroup,
+	docsChan <-chan proto.SystemProfile,
+	aggregator *aggregator.Aggregator,
+	doneChan <-chan struct{},
+	logger *logrus.Entry,
+) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
@@ -113,6 +124,8 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 		select {
 		// PMM-13947
 		case <-doneChan:
+			return
+		case <-ctx.Done():
 			return
 		default:
 			// just continue if not
@@ -136,6 +149,8 @@ func start(ctx context.Context, wg *sync.WaitGroup, docsChan <-chan proto.System
 			// doneChan needs to be repeated in this select as docsChan can block
 			// doneChan needs to be also in separate select statement
 			// as docsChan could be always picked since select picks channels pseudo randomly
+			return
+		case <-ctx.Done():
 			return
 		}
 	}

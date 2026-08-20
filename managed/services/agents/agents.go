@@ -17,10 +17,9 @@ package agents
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
@@ -40,13 +39,13 @@ func NewAgentService(r *Registry) *AgentService {
 }
 
 // Logs by Agent ID.
-func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error) {
+func (a *AgentService) Logs(ctx context.Context, pmmAgentID, agentID string, limit uint32) ([]string, uint32, error) {
 	agent, err := a.r.get(pmmAgentID)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(&agentv1.AgentLogsRequest{
+	resp, err := agent.channel.SendAndWaitResponse(ctx, &agentv1.AgentLogsRequest{
 		AgentId: agentID,
 		Limit:   limit,
 	})
@@ -79,7 +78,7 @@ func (a *AgentService) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]st
 		Enabled: enabled,
 	}
 
-	_, err = agent.channel.SendAndWaitResponse(req)
+	_, err = agent.channel.SendAndWaitResponse(context.TODO(), req)
 	return err
 }
 
@@ -137,7 +136,7 @@ func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_Ag
 	agentVersion *version.Parsed, minAuthVersion *version.Parsed, useNewTLSConfig bool,
 ) error {
 	if agentVersion.Less(minAuthVersion) {
-		params.Env = append(params.Env, fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()))
+		params.Env = append(params.Env, "HTTP_AUTH=pmm:"+exporter.GetAgentPassword())
 		return nil
 	}
 

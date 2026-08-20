@@ -18,12 +18,12 @@ package encryption
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
@@ -71,7 +71,7 @@ func startPMMServer() error {
 		return nil
 	}
 
-	cmd := exec.Command("supervisorctl", "start pmm-managed")
+	cmd := exec.Command("supervisorctl", "start", "pmm-managed") //nolint:noctx
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, output)
@@ -90,7 +90,7 @@ func stopPMMServer() error {
 		return nil
 	}
 
-	cmd := exec.Command("supervisorctl", "stop pmm-managed")
+	cmd := exec.Command("supervisorctl", "stop", "pmm-managed") //nolint:noctx
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("%w: %s", err, output)
@@ -104,7 +104,7 @@ func stopPMMServer() error {
 }
 
 func pmmServerStatus(status string) bool {
-	cmd := exec.Command("supervisorctl", "status pmm-managed")
+	cmd := exec.Command("supervisorctl", "status", "pmm-managed") //nolint:noctx
 	output, _ := cmd.CombinedOutput()
 
 	return strings.Contains(string(output), strings.ToUpper(status))
@@ -143,8 +143,9 @@ func rotateEncryptionKey(db *reform.DB, dbName string) error {
 		logrus.Infof("DB %s is being encrypted", dbName)
 		err = models.EncryptDB(tx, dbName, models.DefaultAgentEncryptionColumnsV3)
 		if err != nil {
-			if e := encryption.RestoreOldEncryptionKey(); e != nil {
-				return errors.Wrap(err, e.Error())
+			e := encryption.RestoreOldEncryptionKey()
+			if e != nil {
+				return fmt.Errorf("%w: %w", e, err)
 			}
 			return err
 		}

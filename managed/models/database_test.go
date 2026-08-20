@@ -42,14 +42,14 @@ func assertUniqueViolation(t *testing.T, err error, constraint string) {
 	assert.Equal(t, fmt.Sprintf(`duplicate key value violates unique constraint %q`, constraint), pgErr.Message)
 }
 
-func assertCheckViolation(t *testing.T, err error, table, constraint string) { //nolint:unparam
+func assertCheckViolation(t *testing.T, err error, constraint string) {
 	t.Helper()
 
 	var targetErr *pq.Error
 	require.ErrorAs(t, err, &targetErr)
 	pgErr := err.(*pq.Error) //nolint:errorlint
 	assert.Equal(t, pqerror.Code("23514"), pgErr.Code)
-	assert.Equal(t, fmt.Sprintf(`new row for relation %q violates check constraint %q`, table, constraint), pgErr.Message)
+	assert.Equal(t, fmt.Sprintf(`new row for relation %q violates check constraint %q`, "agents", constraint), pgErr.Message)
 }
 
 func getTX(t *testing.T, db *sql.DB) (*sql.Tx, func()) {
@@ -261,7 +261,7 @@ func TestDatabaseChecks(t *testing.T) {
 						`VALUES ('4', 'mysqld_exporter', NULL, NULL, '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
+				assertCheckViolation(t, err, "runs_on_node_id_xor_pmm_agent_id")
 			})
 
 			t.Run("BothSet", func(t *testing.T) {
@@ -273,7 +273,7 @@ func TestDatabaseChecks(t *testing.T) {
 						`VALUES ('5', 'pmm-agent', '1', '1', '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_xor_pmm_agent_id")
+				assertCheckViolation(t, err, "runs_on_node_id_xor_pmm_agent_id")
 			})
 		})
 		t.Run("runs_on_node_id_only_for_pmm_agent", func(t *testing.T) {
@@ -286,7 +286,7 @@ func TestDatabaseChecks(t *testing.T) {
 						`VALUES ('6', 'mysqld_exporter', '1', NULL, '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
+				assertCheckViolation(t, err, "runs_on_node_id_only_for_pmm_agent")
 			})
 
 			t.Run("PMMAgent", func(t *testing.T) {
@@ -298,7 +298,7 @@ func TestDatabaseChecks(t *testing.T) {
 						`VALUES ('7', 'pmm-agent', NULL, '1', '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "runs_on_node_id_only_for_pmm_agent")
+				assertCheckViolation(t, err, "runs_on_node_id_only_for_pmm_agent")
 			})
 		})
 		t.Run("node_id_or_service_id_or_pmm_agent_id", func(t *testing.T) {
@@ -337,7 +337,7 @@ func TestDatabaseChecks(t *testing.T) {
 						`VALUES ('8', 'mysqld_exporter', NULL, '1', NULL, NULL, false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "node_id_or_service_id_for_non_pmm_agent")
+				assertCheckViolation(t, err, "node_id_or_service_id_for_non_pmm_agent")
 			})
 
 			t.Run("Both set", func(t *testing.T) {
@@ -349,7 +349,7 @@ func TestDatabaseChecks(t *testing.T) {
 						`VALUES ('8', 'mysqld_exporter', NULL, '1', '1', '1', false, '', $1, $2, false, false, '{"max_query_length": 0, "query_examples_disabled": false, "comments_parsing_disabled": true, "max_query_log_size": 0}', '{"table_count_tablestats_group_limit": 0}', '{"rds_basic_metrics_disabled": false, "rds_enhanced_metrics_disabled": false}', '{"push_metrics": false, "expose_exporter": false}')`,
 					now, now,
 				)
-				assertCheckViolation(t, err, "agents", "node_id_or_service_id_for_non_pmm_agent")
+				assertCheckViolation(t, err, "node_id_or_service_id_for_non_pmm_agent")
 			})
 		})
 	})
@@ -358,7 +358,9 @@ func TestDatabaseChecks(t *testing.T) {
 func TestDatabaseMigrations(t *testing.T) {
 	t.Run("push metrics field migration: from root to exporter_options", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, new(58))
-		defer sqlDB.Close() //nolint:errcheck
+		t.Cleanup(func() {
+			assert.NoError(t, sqlDB.Close())
+		})
 
 		// Insert dummy node in DB
 		_, err := sqlDB.ExecContext(

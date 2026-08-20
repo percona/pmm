@@ -17,9 +17,9 @@ package models
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -36,7 +36,7 @@ func (sn SoftwareName) Validate() error {
 		XbcloudSoftwareName,
 		QpressSoftwareName:
 	default:
-		return errors.Errorf("invalid software name %q", sn)
+		return fmt.Errorf("invalid software name %q", sn)
 	}
 
 	return nil
@@ -67,7 +67,7 @@ func (sv SoftwareVersions) Value() (driver.Value, error) {
 }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (sv *SoftwareVersions) Scan(src interface{}) error {
+func (sv *SoftwareVersions) Scan(src any) error {
 	return jsonScan(sv, src)
 }
 

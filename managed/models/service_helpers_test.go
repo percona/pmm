@@ -538,7 +538,3 @@ func TestServiceHelpers(t *testing.T) {
 		}
 	})
 }
-
-func pointerToServiceType(serviceType models.ServiceType) *models.ServiceType {
-	return &serviceType
-}
