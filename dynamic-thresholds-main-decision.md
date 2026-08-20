@@ -16,17 +16,82 @@ against `main`, not against any feature branch.
 
 Written greenfield: it assumes nothing exists beyond `main`.
 
-> **Revision note — reviewed and revised.** This document has been through review. Two direct
-> correctness contradictions were found and are now fixed in place: the "omit the threshold query when
-> there are no overrides" optimisation (§5.1), which silently defeated the write-once guarantee; and a
-> claim that node deletion cascades override rows (§4.7), which the polymorphic schema in §4.4 makes
-> impossible. Four further findings — bounded outage tolerance, cross-store failure semantics, the
-> multi-scope resolver contract, and desugaring safety — are now specified rather than implied, and the
-> estimate carries its assumptions. Items that could invalidate GA behaviour have been promoted from
-> "open questions" to **§9 Decision gates**.
->
-> Where this document states a fact as *measured*, it was measured on a live server. Where it
-> *extrapolates*, it says so. Unverified assumptions are listed in §8.
+> **On evidence.** Where this document states a fact as *measured*, it was measured on a live PMM
+> server (Grafana 12.4.5, VictoriaMetrics v1.147.0). Where it *extrapolates* from those measurements, it
+> says so. Unverified assumptions are listed in §8, and decisions still needed are in §9.
+---
+
+## Summary
+
+**Verdict.** Per-target threshold overrides are delivered as **data, not as rule edits**: the Grafana
+rule is written once at creation and never rewritten, and changing a threshold is a single Postgres row.
+Postgres is the source of truth, VictoriaMetrics is a derived transport carrying **only the overrides**,
+and the default is fanned out at query time over PMM's existing node-inventory metric. This keeps
+tuning one target from disturbing alert state on every other target of the same rule, which is the
+failure mode that rules out the obvious alternative of rendering thresholds into the query. Estimated
+3–5 weeks for the node-only increment; the schema and API are generalised for service and cluster scope
+from the start, because routes and proto fields are additive-only.
+
+### How it fits together
+
+```
+  PMM UI / API                    pmm-managed                        VictoriaMetrics          Grafana
+  ────────────                    ───────────                        ───────────────          ───────
+  set threshold  ──POST──▶  ┌─────────────────────┐
+                            │  alert_rule_        │
+                            │  threshold_overrides│◀── canonical
+                            └──────────┬──────────┘
+                                       │ read once per scrape
+                                       ▼
+                            ┌─────────────────────┐   scrape    ┌──────────────────┐
+                            │ threshold collector │────────────▶│ pmm_alert_       │
+                            │ (overrides only)    │  /debug/    │ threshold_       │
+                            └─────────────────────┘  metrics    │ override         │
+                                                                └────────┬─────────┘
+                            ┌─────────────────────┐   scrape    ┌────────┴─────────┐
+                            │ inventory collector │────────────▶│ pmm_managed_     │
+                            │ (already exists)    │             │ inventory_nodes  │
+                            └─────────────────────┘             └────────┬─────────┘
+                                                                         │
+                                                          T_<param> reads both
+                                                                         ▼
+                                                                ┌──────────────────┐
+                                                                │  alert rule      │──▶ Alertmanager
+                                                                │  A / T / C       │
+                                                                └──────────────────┘
+```
+
+The rule never changes after creation. The only write path for a threshold change is the leftmost arrow.
+
+### Where state lives, and what is authoritative
+
+```
+  ┌──────────────────────────┐   ┌──────────────────────────┐   ┌──────────────────────────┐
+  │ PostgreSQL               │   │ VictoriaMetrics          │   │ Grafana rule             │
+  ├──────────────────────────┤   ├──────────────────────────┤   ├──────────────────────────┤
+  │ AUTHORITATIVE for        │   │ DERIVED transport        │   │ AUTHORITATIVE for        │
+  │  · override values       │   │  · one series per        │   │  · which rules exist     │
+  │  · per-param snapshot    │   │    override (tens)       │   │  · title, folder, group  │
+  │    (default, join label, │   │  · rebuilt every scrape  │   │  · template_name label   │
+  │     scopes, unit, range) │   │  · never authoritative   │   │ DERIVED                  │
+  │                          │   │                          │   │  · default as a literal  │
+  │ Lose it → overrides gone │   │ Lose it → falls back to  │   │  · rule_id label         │
+  │                          │   │ defaults, keeps alerting │   │ Written once             │
+  └──────────────────────────┘   └──────────────────────────┘   └──────────────────────────┘
+```
+
+Nothing needs both stores to agree to be correct: a threshold missing from VictoriaMetrics degrades to
+the rule's default rather than to silence, and a Postgres row whose rule or target no longer exists is
+inert because the emit path resolves it away.
+
+### For implementers — the shape to build
+
+- **Metric:** `pmm_alert_threshold_override{rule_id, param, target}`, one series per override, value = effective threshold after precedence is resolved **in Go** (§4.6).
+- **Rule:** three steps — `A` observed, `T_<param>` threshold, `C` math `$A > $T_<param>`. `T_<param>` is **always emitted**, even with no overrides (§5.1).
+- **Threshold expression:** `max by (<join>) (label_replace(override…)) or (max by (<join>) (last_over_time(pmm_managed_inventory_nodes[15m])) * 0 + <default>)` — every clause justified in §4.3.
+- **Schema:** `alert_rules` (5 columns) + `alert_rule_threshold_overrides` keyed `(rule_id, param_name, scope, target)` — §4.4.
+- **Cleanup:** override rows are deleted by the node/service removal API, not a sweep (§4.8); the reconciler handles only registry rows for rules deleted in Grafana (§4.9).
+- **Ten implementation steps with file references and effort: §6.**
 
 ---
 
@@ -290,15 +355,14 @@ construction. The Grafana UID is stored **only as a handle** for cheap direct ad
 `GET/PUT/DELETE /api/v1/provisioning/alert-rules/{uid}` needs no folder or group, which is exactly what a
 future default-change or delete path wants.
 
-It must be treated as a cache — though **not** for the reason an earlier draft gave. That draft said
-"UIDs are not stable across delete-and-recreate", citing a PoC rule that changed UID during provenance
-testing. That is not a lifecycle PMM has: there is no `DeleteRule` RPC, no `DeleteAlertRule` on the
-client, and this design never rewrites a rule after creation. A plain user delete-then-create is also not
-the problem — the replacement carries no `pmm_rule_id` label, so the old rule is simply *gone* and its
-registry row is garbage, not "the same rule with a new UID".
+It must be treated as a cache. Note first what is *not* the reason: PMM has no delete-and-recreate
+lifecycle — no `DeleteRule` RPC, no `DeleteAlertRule` on the client, and this design never rewrites a rule
+after creation. Nor is a plain user delete-then-create a problem, because the replacement carries no
+`pmm_rule_id` label, so the old rule is simply *gone* and its registry row is garbage rather than "the
+same rule with a new UID".
 
-The real staleness paths are narrower, and all of them are **Grafana-side copy operations that preserve
-labels while minting a new UID**:
+The staleness paths that do exist are **Grafana-side copy operations that preserve labels while minting a
+new UID**:
 
 - duplicating a rule in the Grafana UI;
 - alert-rule export/import, including provisioning-file restore;
@@ -416,7 +480,7 @@ PromQL provides no backstop if they diverge. Proposed order: `node` → `service
 - **Node or service deleted** → **there is no cascade for the target.** The only foreign key is `rule_id → alert_rules`, so deleting a *rule* cascades its overrides; deleting a *node or service* does not. The polymorphic `target` column (§4.4) cannot carry an FK, because `cluster` targets have no referent table. Two consequences, and both matter:
   - **Immediately harmless:** ID → name resolution fails for the deleted entity, so the collector emits nothing for it. The row is inert from the next scrape onward — no phantom series, no wrong threshold.
   - **But the rows must still be cleared.** Left behind, they accumulate silently, they show up in any admin/debug listing of overrides, and they make `ListNodeThresholds`-style queries return entries for entities that no longer exist. **Removing a node or a service must clear its overrides** — see the garbage-collection spec below.
-- **pmm-managed down** → protection is **bounded by the fan-out window, and degrades in two steps**. An earlier draft said simply "alerting continues", which overstated it:
+- **pmm-managed down** → protection is **bounded by the fan-out window, and degrades in two steps**. It is not correct to say simply "alerting continues":
 
 | Elapsed | Behaviour |
 |---|---|
@@ -511,7 +575,7 @@ Deletion safety rules:
 
 - Require a **successful, complete** listing. On any error or partial response, skip the cycle — never delete on incomplete data.
 - Require absence in **K consecutive cycles** (K ≥ 2) before deleting, to survive transient inconsistency and creation races.
-- **Use a single global listing** (`GET /api/ruler/grafana/api/v1/rules` returns every folder) and match on the `pmm_rule_id` label alone. An earlier draft said to scope each check to a stored `folder_uid`; that is **wrong and would delete live data** — a user can move a rule between folders in Grafana, after which a per-folder check reports it absent and the reconciler removes the overrides of a rule that still exists. This is also the second reason `folder_uid` is not stored.
+- **Use a single global listing** (`GET /api/ruler/grafana/api/v1/rules` returns every folder) and match on the `pmm_rule_id` label alone. **Do not scope the check to a per-rule folder** — that would delete live data: a user can move a rule between folders in Grafana, after which a folder-scoped check reports it absent and the reconciler removes the overrides of a rule that still exists. This is also the second reason `folder_uid` is not stored.
 
 ### 4.10 Multi-scope resolution — the shared resolver
 
@@ -578,12 +642,12 @@ Generated rule, with one override (`node-02` → 90) and default 80:
 
 Resolves to `node-02 = 90`, every other node `= 80`.
 
-> **The `T_<param>` step is always emitted, including when no override rows exist.** An earlier draft
-> proposed omitting it so that an untuned rule stayed byte-identical to today's output. That is
-> **wrong and was removed**: a rule created without the step would need its definition changed to add
-> one when the first override arrives — which resets alert state for every instance on that rule, the
-> precise failure this design exists to avoid. With no overrides the step is still present and simply
-> resolves to the default for every target.
+> **The `T_<param>` step is always emitted, including when no override rows exist.** Omitting it for
+> untuned rules looks like a free optimisation — the rule would stay byte-identical to today's output —
+> and it is **wrong**: a rule created without the step needs its definition changed to add one when the
+> first override arrives, which resets alert state for every instance on that rule, the precise failure
+> this design exists to avoid. With no overrides the step is still present and simply resolves to the
+> default for every target.
 >
 > The honest cost: **every overridable rule pays the fan-out scan (~N × 91 samples per evaluation)
 > whether or not anyone has tuned it.** The "untuned rules cost nothing" property does not exist.
