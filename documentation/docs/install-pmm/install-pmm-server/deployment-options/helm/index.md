@@ -153,17 +153,19 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
         kubectl get svc monitoring-service -o jsonpath='{.spec.ports[0].nodePort}'
         ```
 
+        PMM Server serves HTTPS on port 443, so `port-forward` maps local port 8443 to service port 443. PMM is then available at `https://localhost:8443`.
+
     === "On OpenShift"
         OpenShift offers native routing capabilities through its Route resource, which provides external access with built-in load balancing and SSL termination:
 
         ```bash
         # Create a Route to expose PMM
-        oc expose svc/monitoring-service --port=8443
+        oc expose svc/monitoring-service --port=443
         # Get the Route URL
         oc get route monitoring-service -o jsonpath='{.spec.host}'
         
         # Or use port-forwarding for testing
-        oc port-forward svc/monitoring-service 8443:8443
+        oc port-forward svc/monitoring-service 8443:443
         ```
 
 ### Configure PMM Server
