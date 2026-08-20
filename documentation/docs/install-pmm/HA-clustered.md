@@ -150,7 +150,7 @@ PMM HA uses several mechanisms to ensure continuous operation:
 - **[PMM-14680](https://perconadev.atlassian.net/browse/PMM-14680)**: PostgreSQL database instance nodes and services display with an incorrect 'pmm-' prefix in their names.
 - **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: HA cluster status always displays as "Healthy" even when follower or leader pods are deleted or not ready.
 - **[PMM-14742](https://perconadev.atlassian.net/browse/PMM-14742)**: The Inventory page shows inconsistent numbers of PostgreSQL services (4-5 instead of the expected 6 services).
-- **[PMM-14787](https://perconadev.atlassian.net/browse/PMM-14787)**: Data retention settings are not applied correctly, allowing metrics older than the configured retention period to remain visible.
+- **[PMM-14787](https://perconadev.atlassian.net/browse/PMM-14787)**: On `pmm-ha` chart 1.6.0 and earlier, retention set in the UI does not apply to metrics, so data older than the configured retention period stays visible. Fixed in chart 1.6.1, where PMM applies the setting to VictoriaMetrics itself. See [Configure data retention](install-HA-clustered.md#configure-data-retention).
 
 ## Ready to deploy?
 

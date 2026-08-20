@@ -711,6 +711,7 @@ Adjust these variables in your `values.yaml` to match your monitoring requiremen
 #### Common customizations
 
 - **Data retention**: Set `PMM_DATA_RETENTION` based on your compliance requirements and storage capacity (e.g., `720h` for 30 days, `4320h` for 180 days)
+- **Metrics retention**: from `pmm-ha` chart 1.6.1 on, retention set in the PMM UI also applies to metrics, because PMM updates `retentionPeriod` on the `VMCluster` resource. This needs `get` and `patch` on that resource; if you set `serviceAccount.create: false` and supply your own service account, grant it the same permissions or metrics retention will not change.
 - **Additional variables**: See [PMM environment variables documentation](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md) for all available options.
 
 ### Review Helm parameters reference
@@ -1067,7 +1068,7 @@ We are aware of the following issues in this Tech Preview version and plan to fi
 | **[PMM-14706](https://perconadev.atlassian.net/browse/PMM-14706)**: Extra 'pmm-' prefix | PostgreSQL nodes show as `pmm-pmm-ha-pg-...` | Cosmetic only - no action needed |
 | **[PMM-14707](https://perconadev.atlassian.net/browse/PMM-14707)**: Wrong PostgreSQL status | Inventory shows FAILED/UNSPECIFIED despite working metrics | Check dashboards to verify metrics flow |
 | **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |                                   |
-| **[PMM-14709](https://perconadev.atlassian.net/browse/PMM-14709)**: Data retention does not work on HA | Changing data retention under **Configuration > Settings > Advanced Settings** has no effect and older metrics remain available despite the new retention value. | Technical Preview only: The UI-based data retention setting does not work in HA clusters. To implement retention, configure it directly in ClickHouse using `ALTER TABLE ... TTL` instead of relying on this UI option to remove old metrics. |
+| **[PMM-14787](https://perconadev.atlassian.net/browse/PMM-14787)**: Data retention does not apply to metrics | On `pmm-ha` chart 1.6.0 and earlier, retention set under **Configuration > Settings > Advanced Settings** has no effect on metrics, so data older than the configured period stays visible. | Upgrade to chart 1.6.1 or later, where PMM applies the setting to VictoriaMetrics. On earlier charts, set `victoriaMetrics.vmstorage.retentionPeriod`. |
 
 ### Scaling limitations
 
