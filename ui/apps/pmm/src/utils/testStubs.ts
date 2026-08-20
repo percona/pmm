@@ -3,7 +3,7 @@ import {
   type RealtimeSession,
   type RawQueryData,
   RealtimeSessionStatus,
-} from "types/rta.types";
+} from 'types/rta.types';
 import type {
   BaseService,
   ListServicesResponse,
@@ -11,14 +11,14 @@ import type {
   ManagedServicesResponse,
   MySqlService,
   VersionedService,
-} from "types/services.types";
-import { type User, OrgRole } from "types/user.types";
-import { createAnonymousUser } from "contexts/user/user.utils";
+} from 'types/services.types';
+import { type User, OrgRole } from 'types/user.types';
+import { createAnonymousUser } from 'contexts/user/user.utils';
 
 export const TEST_USER_ADMIN: User = {
   id: 1,
-  login: "admin",
-  name: "admin",
+  login: 'admin',
+  name: 'admin',
   isAnonymous: false,
   isAuthorized: true,
   isViewer: true,
@@ -34,15 +34,15 @@ export const TEST_USER_ADMIN: User = {
     alertingTourCompleted: false,
     snoozedAt: null,
     snoozeCount: 0,
-    snoozedPmmVersion: "",
+    snoozedPmmVersion: '',
   },
 };
 
 export const TEST_USER_EDITOR: User = {
   ...TEST_USER_ADMIN,
   id: 2,
-  login: "editor",
-  name: "editor",
+  login: 'editor',
+  name: 'editor',
   isPMMAdmin: false,
   orgId: 1,
   orgRole: OrgRole.Editor,
@@ -55,8 +55,8 @@ export const TEST_USER_EDITOR: User = {
 export const TEST_USER_VIEWER: User = {
   ...TEST_USER_ADMIN,
   id: 3,
-  login: "viewer",
-  name: "viewer",
+  login: 'viewer',
+  name: 'viewer',
   isEditor: false,
   isPMMAdmin: false,
   orgRole: OrgRole.Viewer,
@@ -67,12 +67,12 @@ export const TEST_USER_VIEWER: User = {
 };
 
 export const TEST_SERVICE: BaseService = {
-  serviceId: "service-1",
-  serviceName: "Service 1",
-  nodeId: "node-1",
-  environment: "production",
-  cluster: "cluster-1",
-  replicationSet: "replication-set-1",
+  serviceId: 'service-1',
+  serviceName: 'Service 1',
+  nodeId: 'node-1',
+  environment: 'production',
+  cluster: 'cluster-1',
+  replicationSet: 'replication-set-1',
   customLabels: {},
 };
 
@@ -82,35 +82,35 @@ export const TEST_MANAGED_SERVICES: ManagedServicesResponse = {
 };
 
 export const TEST_MANAGED_SERVICE: ManagedService = {
-  serviceId: "service-1",
-  serviceType: "mysql",
-  serviceName: "Service 1",
-  databaseName: "",
-  nodeId: "node-1",
-  nodeName: "Node 1",
-  environment: "production",
-  cluster: "cluster-1",
-  replicationSet: "replication-set-1",
+  serviceId: 'service-1',
+  serviceType: 'mysql',
+  serviceName: 'Service 1',
+  databaseName: '',
+  nodeId: 'node-1',
+  nodeName: 'Node 1',
+  environment: 'production',
+  cluster: 'cluster-1',
+  replicationSet: 'replication-set-1',
   customLabels: {},
-  externalGroup: "",
-  address: "127.0.0.1",
+  externalGroup: '',
+  address: '127.0.0.1',
   port: 3306,
-  socket: "",
-  version: "8.0.0",
+  socket: '',
+  version: '8.0.0',
 };
 
 export const TEST_VERSIONED_MONGO_SERVICE: VersionedService = {
-  serviceId: "service-1",
-  serviceName: "Service 1",
-  nodeId: "node-1",
-  environment: "production",
-  cluster: "cluster-1",
-  replicationSet: "replication-set-1",
+  serviceId: 'service-1',
+  serviceName: 'Service 1',
+  nodeId: 'node-1',
+  environment: 'production',
+  cluster: 'cluster-1',
+  replicationSet: 'replication-set-1',
   customLabels: {},
-  address: "127.0.0.1",
+  address: '127.0.0.1',
   port: 27017,
-  socket: "",
-  version: "8.0.0",
+  socket: '',
+  version: '8.0.0',
 };
 
 export const TEST_MANAGED_SERVICES_WITH_ONE_MYSQL: ManagedServicesResponse = {
@@ -134,37 +134,37 @@ export const TEST_SERVICES_WITH_ONE_MYSQL: ListServicesResponse = {
 };
 
 export const TEST_REAL_TIME_SESSION: RealtimeSession = {
-  serviceId: "service-1",
-  serviceName: "Service 1",
-  clusterName: "cluster-1",
-  startTime: "2021-01-01T00:00:00Z",
+  serviceId: 'service-1',
+  serviceName: 'Service 1',
+  clusterName: 'cluster-1',
+  startTime: '2021-01-01T00:00:00Z',
   status: RealtimeSessionStatus.unspecified,
 };
 
 export const TEST_REAL_TIME_SESSION_2: RealtimeSession = {
-  serviceId: "service-2",
-  serviceName: "Service 2",
-  clusterName: "cluster-2",
-  startTime: "2021-01-01T00:00:00Z",
+  serviceId: 'service-2',
+  serviceName: 'Service 2',
+  clusterName: 'cluster-2',
+  startTime: '2021-01-01T00:00:00Z',
   status: RealtimeSessionStatus.unspecified,
 };
 
 export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
-  serviceId: "service-1",
-  serviceName: "Service 1",
-  queryId: "query-1",
+  serviceId: 'service-1',
+  serviceName: 'Service 1',
+  queryId: 'query-1',
   queryText: '{ find: "mycollection", filter: { status: "active" } }',
-  queryCollectTime: "2021-01-01T00:00:00Z",
-  clientAddress: "127.0.0.1",
+  queryCollectTime: '2021-01-01T00:00:00Z',
+  clientAddress: '127.0.0.1',
   queryRawJson: '{ find: "mycollection", filter: { status: "active" } }',
   mongoDbPayload: {
-    dbInstanceAddress: "127.0.0.1",
-    clientAppName: "client-app-name",
-    databaseName: "database-name",
-    operationStartTime: "2021-01-01T00:00:00Z",
-    planSummary: "plan-summary",
-    operation: "operation",
-    username: "username",
+    dbInstanceAddress: '127.0.0.1',
+    clientAppName: 'client-app-name',
+    databaseName: 'database-name',
+    operationStartTime: '2021-01-01T00:00:00Z',
+    planSummary: 'plan-summary',
+    operation: 'operation',
+    username: 'username',
   },
 };
 
@@ -172,5 +172,5 @@ export const TEST_USER_ANONYMOUS: User = createAnonymousUser();
 // Shape the API returns, before useRealtimeQueries parses the duration.
 export const TEST_RAW_MONGO_DB_QUERY_DATA: RawQueryData = {
   ...TEST_MONGO_DB_QUERY_DATA,
-  queryExecutionDuration: "10s",
+  queryExecutionDuration: '10s',
 };

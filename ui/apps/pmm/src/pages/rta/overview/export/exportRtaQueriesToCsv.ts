@@ -1,7 +1,7 @@
-import { format } from "date-fns";
-import { download, generateCsv, mkConfig } from "export-to-csv";
-import type { QueryData } from "types/rta.types";
-import { isPlainObject } from "utils/object.utils";
+import { format } from 'date-fns';
+import { download, generateCsv, mkConfig } from 'export-to-csv';
+import type { QueryData } from 'types/rta.types';
+import { isPlainObject } from 'utils/object.utils';
 
 const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
 
@@ -9,12 +9,12 @@ const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
 // the snake_case form of its key, which round-trips back to the name the API
 // returned before axios-case-converter camelized it.
 const CSV_HEADER_OVERRIDES: Record<string, string> = {
-  queryId: "operation_id",
-  serviceName: "service",
-  queryExecutionDurationMs: "elapsed_exec_time_sec",
-  username: "user_name",
-  queryCollectTime: "data_capture_time",
-  queryRawJson: "raw_query",
+  queryId: 'operation_id',
+  serviceName: 'service',
+  queryExecutionDurationMs: 'elapsed_exec_time_sec',
+  username: 'user_name',
+  queryCollectTime: 'data_capture_time',
+  queryRawJson: 'raw_query',
 };
 
 type CsvValue = string | number | boolean;
@@ -37,20 +37,20 @@ export const toCsvHeader = (key: string): string =>
 // Fields that are not listed are appended in the order the API returns them,
 // so new backend fields show up without touching this file.
 const CSV_COLUMN_ORDER = [
-  "queryId",
-  "queryExecutionDurationMs",
-  "dbInstanceAddress",
-  "clientAddress",
-  "databaseName",
-  "serviceName",
-  "username",
-  "collection",
-  "operation",
-  "planSummary",
-  "clientAppName",
-  "operationStartTime",
-  "queryCollectTime",
-  "queryRawJson",
+  'queryId',
+  'queryExecutionDurationMs',
+  'dbInstanceAddress',
+  'clientAddress',
+  'databaseName',
+  'serviceName',
+  'username',
+  'collection',
+  'operation',
+  'planSummary',
+  'clientAppName',
+  'operationStartTime',
+  'queryCollectTime',
+  'queryRawJson',
 ].map(toCsvHeader);
 
 const columnRank = (column: string): number => {
@@ -63,18 +63,18 @@ const columnRank = (column: string): number => {
 // primitive has to be flattened or serialized before it reaches the generator.
 export const toCsvValue = (value: unknown): CsvValue => {
   if (value === null || value === undefined) {
-    return "";
+    return '';
   }
 
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return sanitizeCsvCell(value);
   }
 
-  if (typeof value === "number" || typeof value === "boolean") {
+  if (typeof value === 'number' || typeof value === 'boolean') {
     return value;
   }
 
-  return sanitizeCsvCell(JSON.stringify(value) ?? "");
+  return sanitizeCsvCell(JSON.stringify(value) ?? '');
 };
 
 // Recurses so that nested payloads are hoisted into the parent key space,
@@ -108,7 +108,7 @@ export const collectCsvColumns = (rows: CsvRow[]): string[] => {
 };
 
 export const buildRtaExportFilename = (date = new Date()): string => {
-  const timestamp = format(date, "yyyyMMdd_HHmmss");
+  const timestamp = format(date, 'yyyyMMdd_HHmmss');
 
   return `mongodb_rta_export_${timestamp}`;
 };
