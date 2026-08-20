@@ -346,7 +346,7 @@
             "type": "stat"
         },
         {
-            "description": "Checkpoint age relative to the redo log size. On MySQL 8.0.30 and newer the denominator is the total InnoDB redo log capacity. Older servers expose only the legacy status variables, so the panel falls back to the sync flush threshold (Innodb_checkpoint_max_age), which is smaller than the capacity and therefore reports a higher percentage for the same workload.",
+            "description": "Checkpoint age relative to the redo log size. On MySQL 8.0.30 and newer the denominator is the total InnoDB redo log capacity. Older servers expose only the legacy status variables, so the panel falls back to the sync flush threshold (Innodb_checkpoint_max_age), which is smaller than the capacity and therefore reports a higher percentage for the same workload. The threshold sits at roughly 83% of capacity, so this panel saturates near 83% on 8.0.30+ while the legacy fallback reaches 100% under the same redo pressure. Compare a server against itself over time rather than against a server on a different version.",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -11817,7 +11817,7 @@
                     "type": "stat"
                 },
                 {
-                    "description": "Checkpoint age relative to the redo log size. On MySQL 8.0.30 and newer the denominator is the total InnoDB redo log capacity. Older servers expose only the legacy status variables, so the panel falls back to the sync flush threshold (Innodb_checkpoint_max_age), which is smaller than the capacity and therefore reports a higher percentage for the same workload.",
+                    "description": "Checkpoint age relative to the redo log size. On MySQL 8.0.30 and newer the denominator is the total InnoDB redo log capacity. Older servers expose only the legacy status variables, so the panel falls back to the sync flush threshold (Innodb_checkpoint_max_age), which is smaller than the capacity and therefore reports a higher percentage for the same workload. The threshold sits at roughly 83% of capacity, so this panel saturates near 83% on 8.0.30+ while the legacy fallback reaches 100% under the same redo pressure. Compare a server against itself over time rather than against a server on a different version.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
@@ -12399,7 +12399,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "(mysql_version_info{innodb_version=~\"8.[0-9].[3-9][0-9]\",service_name=~\"$service_name\"} != 1 and avg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) ) or (avg by (service_name)(mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) unless (mysql_version_info{innodb_version=~\"8.[0-9].[3-9][0-9]\",service_name=~\"$service_name\"} == 1))",
+                    "expr": "avg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -13055,7 +13055,7 @@
                     "calculatedInterval": "2m",
                     "datasourceErrors": {},
                     "errors": {},
-                    "expr": "(mysql_version_info{innodb_version=~\"8.[0-9].[3-9][0-9]\",service_name=~\"$service_name\"} != 1 and avg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) ) or (avg by (service_name)(mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) unless (mysql_version_info{innodb_version=~\"8.[0-9].[3-9][0-9]\",service_name=~\"$service_name\"} == 1))/avg by (service_name) (rate(mysql_global_status_innodb_os_log_written{service_name=~\"$service_name\"}[$interval]) or irate(mysql_global_status_innodb_os_log_written{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "(avg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}))\n/\navg by (service_name) (rate(mysql_global_status_innodb_os_log_written{service_name=~\"$service_name\"}[$interval]) or irate(mysql_global_status_innodb_os_log_written{service_name=~\"$service_name\"}[5m]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -13211,7 +13211,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "(mysql_version_info{innodb_version=~\"8.[0-9].[3-9][0-9]\",service_name=~\"$service_name\"} != 1 and avg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) ) or (avg by (service_name)(mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) unless (mysql_version_info{innodb_version=~\"8.[0-9].[3-9][0-9]\",service_name=~\"$service_name\"} == 1))",
+                    "expr": "avg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -13334,7 +13334,7 @@
                     "step": 300
                 },
                 {
-                    "expr": "avg by (service_name) (max_over_time((mysql_global_status_innodb_lsn_current{service_name=~\"$service_name\"}-mysql_global_status_innodb_lsn_flushed{service_name=~\"$service_name\"})[$interval]))",
+                    "expr": "avg by (service_name) (max_over_time((mysql_innodb_redo_log_current_lsn{service_name=~\"$service_name\"} - mysql_innodb_redo_log_flushed_lsn{service_name=~\"$service_name\"})[$interval:]) or\nmax_over_time((mysql_global_status_innodb_lsn_current{service_name=~\"$service_name\"} - mysql_global_status_innodb_lsn_flushed{service_name=~\"$service_name\"})[$interval:]))",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -13795,7 +13795,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "(mysql_version_info{innodb_version=~\"8.[0-9].[3-9][0-9]\",service_name=~\"$service_name\"} != 1 and avg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) ) or (avg by (service_name)(mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"})/32 unless (mysql_version_info{innodb_version=~\"8.[0-9].[3-9][0-9]\",service_name=~\"$service_name\"} == 1))",
+                    "expr": "avg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) / 32 or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -13878,7 +13878,7 @@
                     "datasourceErrors": {},
                     "editorMode": "code",
                     "errors": {},
-                    "expr": "(mysql_version_info{innodb_version=~\"8.[0-9].[3-9][0-9]\",service_name=~\"$service_name\"} != 1 and avg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) ) or (avg by (service_name)(32) unless (mysql_version_info{innodb_version=~\"8.[0-9].[3-9][0-9]\",service_name=~\"$service_name\"} == 1))",
+                    "expr": "avg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"} * 0 + 32) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"})",
                     "format": "time_series",
                     "interval": "$interval",
                     "intervalFactor": 1,
@@ -18396,7 +18396,7 @@
                             "calculatedInterval": "10m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "avg by (service_name) (1-(rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval]))/(rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval])+rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[$interval])) or(irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m]))/(irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m])+irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[5m])))\n",
+                            "expr": "avg by (service_name) (1-((rate(mysql_innodb_metrics_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval])))/((rate(mysql_innodb_metrics_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval]))+(rate(mysql_innodb_metrics_adaptive_hash_btree_searches_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[$interval]))) or((irate(mysql_innodb_metrics_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m])))/((irate(mysql_innodb_metrics_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m]))+(irate(mysql_innodb_metrics_adaptive_hash_btree_searches_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[5m]))))\n",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -18649,7 +18649,7 @@
                             "calculatedInterval": "2m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "avg by (service_name) (rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[$interval])+\nrate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval]) or\nirate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[5m])+\nirate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "avg by (service_name) ((rate(mysql_innodb_metrics_adaptive_hash_btree_searches_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[$interval]))+\n(rate(mysql_innodb_metrics_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval])) or\n(irate(mysql_innodb_metrics_adaptive_hash_btree_searches_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[5m]))+\n(irate(mysql_innodb_metrics_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -18659,7 +18659,7 @@
                             "step": 300
                         },
                         {
-                            "expr": "avg by (service_name) (rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[$interval]) or\nirate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "avg by (service_name) ((rate(mysql_innodb_metrics_adaptive_hash_btree_searches_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[$interval])) or\n(irate(mysql_innodb_metrics_adaptive_hash_btree_searches_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
@@ -18777,7 +18777,7 @@
                     "steppedLine": true,
                     "targets": [
                         {
-                            "expr": "avg by (service_name) (1-((rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval]))/(rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval])+rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[$interval])) or(irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m]))/(irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m])+irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[5m]))))",
+                            "expr": "avg by (service_name) (1-(((rate(mysql_innodb_metrics_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval])))/((rate(mysql_innodb_metrics_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[$interval]))+(rate(mysql_innodb_metrics_adaptive_hash_btree_searches_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[$interval]))) or((irate(mysql_innodb_metrics_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m])))/((irate(mysql_innodb_metrics_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_total{service_name=~\"$service_name\"}[5m]))+(irate(mysql_innodb_metrics_adaptive_hash_btree_searches_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_searches_btree_total{service_name=~\"$service_name\"}[5m])))))",
                             "interval": "$interval",
                             "legendFormat": "AHI - Miss Ratio",
                             "refId": "A"
@@ -19042,7 +19042,7 @@
                             "step": 300
                         },
                         {
-                            "expr": "avg by (service_name) (rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_pages_removed_total{service_name=~\"$service_name\"}[$interval]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_pages_removed_total{service_name=~\"$service_name\"}[5m]))",
+                            "expr": "avg by (service_name) ((rate(mysql_innodb_metrics_adaptive_hash_pages_removed_total{service_name=~\"$service_name\"}[$interval]) or rate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_pages_removed_total{service_name=~\"$service_name\"}[$interval])) or (irate(mysql_innodb_metrics_adaptive_hash_pages_removed_total{service_name=~\"$service_name\"}[5m]) or irate(mysql_info_schema_innodb_metrics_adaptive_hash_index_adaptive_hash_pages_removed_total{service_name=~\"$service_name\"}[5m])))",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,
