@@ -47,6 +47,9 @@ const unload = () => {
   });
 };
 
+/** Vite dispatches it cancelable, and only listens for the claim if it is. */
+const preloadError = () => new Event('vite:preloadError', { cancelable: true });
+
 const setVisibility = (state: DocumentVisibilityState) =>
   Object.defineProperty(document, 'visibilityState', {
     value: state,
@@ -192,23 +195,28 @@ describe('VersionProvider', () => {
   it('prompts rather than reloads when a stale chunk fails a visible tab', () => {
     renderProvider(build('abc123'));
 
+    const event = preloadError();
     act(() => {
-      window.dispatchEvent(new Event('vite:preloadError'));
+      window.dispatchEvent(event);
     });
 
     expect(reloadPage).not.toHaveBeenCalled();
     expect(screen.getByTestId('state')).toHaveTextContent('outdated:3.10.0');
+    // unclaimed, Vite rethrows the failed import instead of leaving it to the prompt
+    expect(event.defaultPrevented).toBe(true);
   });
 
   it('reloads a hidden tab when a stale asset chunk fails to load', () => {
     renderProvider(build('abc123'));
     setVisibility('hidden');
 
+    const event = preloadError();
     act(() => {
-      window.dispatchEvent(new Event('vite:preloadError'));
+      window.dispatchEvent(event);
     });
 
     expect(reloadPage).toHaveBeenCalledTimes(1);
+    expect(event.defaultPrevented).toBe(true);
   });
 
   it('does not keep reloading on a chunk that stays unavailable', () => {
@@ -216,8 +224,8 @@ describe('VersionProvider', () => {
     setVisibility('hidden');
 
     act(() => {
-      window.dispatchEvent(new Event('vite:preloadError'));
-      window.dispatchEvent(new Event('vite:preloadError'));
+      window.dispatchEvent(preloadError());
+      window.dispatchEvent(preloadError());
     });
 
     expect(reloadPage).toHaveBeenCalledTimes(1);

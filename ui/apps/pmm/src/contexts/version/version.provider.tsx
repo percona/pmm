@@ -102,7 +102,12 @@ export const VersionProvider: FC<PropsWithChildren> = ({ children }) => {
   // itself known ahead of the poll rather than a case of its own, so it goes through
   // the same policy: it cannot reload a tab the user is looking at.
   useEffect(() => {
-    const markOutdated = () => setIsOutdated(true);
+    // Claiming the event stops Vite rethrowing the failed import, which also lets it
+    // go on to try the module itself when it was only the preload that failed.
+    const markOutdated = (event: Event) => {
+      event.preventDefault();
+      setIsOutdated(true);
+    };
 
     window.addEventListener('vite:preloadError', markOutdated);
 
