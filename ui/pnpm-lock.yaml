@@ -92,9 +92,9 @@ importers:
       '@sep/plugins-atw':
         specifier: workspace:*
         version: link:../../packages/plugins/atw
-      '@sep/plugins-pom':
+      '@sep/plugins-om':
         specifier: workspace:*
-        version: link:../../packages/plugins/pom
+        version: link:../../packages/plugins/om
       '@tanstack/react-query':
         specifier: ^5.100.7
         version: 5.101.4(react@19.2.8)
@@ -393,7 +393,7 @@ importers:
         specifier: ^4.0.0
         version: 4.1.10(@opentelemetry/api@1.9.1)(@types/node@20.19.43)(jsdom@29.1.1)(msw@2.15.0(@types/node@20.19.43)(typescript@6.0.3))(vite@8.2.0(@types/node@20.19.43)(esbuild@0.25.12)(terser@5.49.0)(tsx@4.23.12)(yaml@2.9.0))
 
-  packages/plugins/pom:
+  packages/plugins/om:
     devDependencies:
       '@emotion/react':
         specifier: ^11.11.4

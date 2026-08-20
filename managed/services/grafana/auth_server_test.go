@@ -77,27 +77,27 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
 		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
 
-		// POM: reading the estate is a viewer's, changing it is not. Asserted per path
+		// OM: reading the estate is a viewer's, changing it is not. Asserted per path
 		// rather than trusted, because whether a write rule applies depends on how
 		// resolveRule walks prefixes, and that is not obvious from the rule table. It
 		// tries methodRules then rules at each prefix, and nextPrefix strips a trailing
-		// "/" as its own step -- so "/v1/pom/inventory/hosts/" and
-		// "/v1/pom/inventory/hosts" both catch a DELETE of an id under them. What would
-		// silently fall through to the viewer rule at "/v1/pom" is a write path with no
+		// "/" as its own step -- so "/v1/om/inventory/hosts/" and
+		// "/v1/om/inventory/hosts" both catch a DELETE of an id under them. What would
+		// silently fall through to the viewer rule at "/v1/om" is a write path with no
 		// rule at all.
-		{http.MethodGet, "/v1/pom/topology", viewer},
-		{http.MethodGet, "/v1/pom/inventory/hosts", viewer},
-		{http.MethodGet, "/v1/pom/inventory/hosts/node-1", viewer},
-		{http.MethodGet, "/v1/pom/inventory/services", viewer},
-		{http.MethodGet, "/v1/pom/inventory/config", viewer},
-		{http.MethodPost, "/v1/pom/inventory/runs", editor},
-		{http.MethodDelete, "/v1/pom/inventory/hosts/node-1", admin},
-		{http.MethodDelete, "/v1/pom/inventory/services/svc-1", admin},
-		{http.MethodPatch, "/v1/pom/inventory/config", admin},
-		{http.MethodDelete, "/v1/pom/inventory/config/SCHEDULE__every", admin},
+		{http.MethodGet, "/v1/om/topology", viewer},
+		{http.MethodGet, "/v1/om/inventory/hosts", viewer},
+		{http.MethodGet, "/v1/om/inventory/hosts/node-1", viewer},
+		{http.MethodGet, "/v1/om/inventory/services", viewer},
+		{http.MethodGet, "/v1/om/inventory/config", viewer},
+		{http.MethodPost, "/v1/om/inventory/runs", editor},
+		{http.MethodDelete, "/v1/om/inventory/hosts/node-1", admin},
+		{http.MethodDelete, "/v1/om/inventory/services/svc-1", admin},
+		{http.MethodPatch, "/v1/om/inventory/config", admin},
+		{http.MethodDelete, "/v1/om/inventory/config/SCHEDULE__every", admin},
 		// PMM's own collection pass stays viewer: it recomputes a document from data PMM
 		// already holds and never reaches a host.
-		{http.MethodPost, "/v1/pom/discovery/runs", viewer},
+		{http.MethodPost, "/v1/om/topology/runs", viewer},
 
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},

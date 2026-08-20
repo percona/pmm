@@ -1186,9 +1186,9 @@ var databaseSchema = [][]string{
 		`UPDATE dumps SET encrypted = false`,
 	},
 	119: {
-		// POM (PSMDB Open Manager) discovery: one row per collection pass, and the
+		// OM (OpenManager) topology collection: one row per pass, and the
 		// topology document it produced.
-		`CREATE TABLE pom_runs (
+		`CREATE TABLE om_topology_runs (
 			run_id            VARCHAR PRIMARY KEY,
 			started_at        TIMESTAMP NOT NULL,
 			finished_at       TIMESTAMP,
@@ -1203,13 +1203,13 @@ var databaseSchema = [][]string{
 			errors            JSONB,
 			created_at        TIMESTAMP NOT NULL
 		)`,
-		`CREATE INDEX pom_runs_started_at_idx ON pom_runs (started_at DESC)`,
+		`CREATE INDEX om_topology_runs_started_at_idx ON om_topology_runs (started_at DESC)`,
 
 		// The document is JSONB rather than a relational tree because the topology model
 		// is still moving; schema_version is what a reader checks. It is deleted with its
 		// run, which is what bounds retention.
-		`CREATE TABLE pom_snapshots (
-			run_id         VARCHAR PRIMARY KEY REFERENCES pom_runs (run_id) ON DELETE CASCADE,
+		`CREATE TABLE om_topology_snapshots (
+			run_id         VARCHAR PRIMARY KEY REFERENCES om_topology_runs (run_id) ON DELETE CASCADE,
 			generated_at   TIMESTAMP NOT NULL,
 			observed_at    TIMESTAMP,
 			stale          BOOLEAN NOT NULL DEFAULT false,
@@ -1217,7 +1217,7 @@ var databaseSchema = [][]string{
 			document       JSONB NOT NULL,
 			created_at     TIMESTAMP NOT NULL
 		)`,
-		`CREATE INDEX pom_snapshots_generated_at_idx ON pom_snapshots (generated_at DESC)`,
+		`CREATE INDEX om_topology_snapshots_generated_at_idx ON om_topology_snapshots (generated_at DESC)`,
 	},
 }
 

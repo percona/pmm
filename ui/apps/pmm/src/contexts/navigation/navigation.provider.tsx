@@ -13,7 +13,7 @@ import {
   addUsersAndAccess,
   addHomePage,
   addSepApps,
-  addPom,
+  addOm,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
@@ -96,7 +96,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         items.push(...addSepApps());
 
         // Served by pmm-managed, so it is not gated with the SEP group.
-        items.push(...addPom());
+        items.push(...addOm());
 
         if (settings.backupManagementEnabled) {
           items.push(NAV_BACKUPS);
