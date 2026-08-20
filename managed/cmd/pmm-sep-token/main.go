@@ -88,6 +88,18 @@ func checksumFor(secret string) string {
 	return hex.EncodeToString(sum)
 }
 
+// hashSecret reproduces Grafana's util.EncodePassword for a service account
+// token: PBKDF2-HMAC-SHA256 over the secret, salted with the token's own
+// checksum, hex-encoded.
+func hashSecret(secret, checksum string) (string, error) {
+	hashed, err := pbkdf2.Key(sha256.New, secret, []byte(checksum), hashIterations, hashLength)
+	if err != nil {
+		return "", fmt.Errorf("cannot derive the token hash: %w", err)
+	}
+
+	return hex.EncodeToString(hashed), nil
+}
+
 func generate() ([]string, error) {
 	secret, err := randomString(secretLength, alphanumeric)
 	if err != nil {
@@ -107,14 +119,14 @@ func generate() ([]string, error) {
 	}
 
 	checksum := checksumFor(secret)
-	hashed, err := pbkdf2.Key(sha256.New, secret, []byte(checksum), hashIterations, hashLength)
+	hashed, err := hashSecret(secret, checksum)
 	if err != nil {
-		return nil, fmt.Errorf("cannot derive the token hash: %w", err)
+		return nil, err
 	}
 
 	return []string{
 		tokenPrefix + secret + "_" + checksum,
-		hex.EncodeToString(hashed),
+		hashed,
 		salt,
 		rands,
 		uid,
