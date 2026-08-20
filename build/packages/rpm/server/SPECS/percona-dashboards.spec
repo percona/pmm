@@ -9,7 +9,7 @@
 %define release         28
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
-%define clickhouse_datasource_version 4.19.0
+%define clickhouse_datasource_version 4.20.0
 %define polystat_panel_version        2.1.16
 
 %ifarch x86_64
@@ -67,6 +67,9 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 
 
 %changelog
+* Fri Aug 14 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-28
+- PMM-15335 Bump clickhouse datasource plugin to 4.20.0
+
 * Thu Jul 30 2026 Fábio Silva <fabio.dasilva@percona.com> - 3.0.0-28
 - PMM-15028 Build pmm-app from ui/apps/pmm-app (moved out of dashboards/)
 

@@ -36,3 +36,4 @@ pnpm-error.log*
 # Misc
 .DS_Store
 *.pem
+/.vscode/

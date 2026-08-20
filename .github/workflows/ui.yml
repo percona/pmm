@@ -4,15 +4,14 @@ name: UI
 on:
   pull_request:
     paths-ignore:
-      - "admin/**"
-      - "agent/**"
-      - "api-tests/**"
-      - "dev/docs/**"
-      - "documentation/**"
-      - "managed/**"
-      - "qan-api2/**"
-      - "vmproxy/**"
-      - "update/**"
+      - 'admin/**'
+      - 'agent/**'
+      - 'api-tests/**'
+      - 'dev/docs/**'
+      - 'documentation/**'
+      - 'managed/**'
+      - 'qan-api2/**'
+      - 'vmproxy/**'
 
 permissions:
   contents: read
