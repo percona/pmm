@@ -15,7 +15,7 @@ import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
 import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
-import PageviewOutlinedIcon from '@mui/icons-material/PageviewOutlined';
+import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
 import {
   CirclesExtIcon,
   Graph4Icon,
@@ -827,7 +827,7 @@ export const NAV_HIGH_AVAILABILITY: NavItem = {
 
 export const NAV_HIGH_AVAILABILITY_OVERVIEW: NavItem = {
   id: 'high-availability-overview',
-  icon: PageviewOutlinedIcon,
+  icon: PageviewOutlined,
   text: 'Overview',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
 };
