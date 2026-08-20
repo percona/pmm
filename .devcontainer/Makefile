@@ -62,7 +62,7 @@ run: run-all                         ## Aliased to "run-all"
 	echo "run is aliased to run-all"
 
 ui-setup:                            ## Install UI dependencies
-	cd ui && pnpm install
+	cd ui && pnpm install --yes
 
 run-ui: ui-setup setup-livereload    ## Start vite dev server for UI with HMR
 	mv /srv/grafana/plugins/pmm-compat-app /srv/grafana/plugins/pmm-compat-app.bak; \
