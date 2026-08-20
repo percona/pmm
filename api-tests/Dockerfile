@@ -2,7 +2,7 @@
 ARG VERSION=dev
 ARG GIT_COMMIT=unknown
 ARG BUILD_TIME=unknown
-ARG GO_VERSION
+ARG GO_VERSION=latest
 
 FROM golang:$GO_VERSION AS builder
 ENV GOPRIVATE='github.com/percona,github.com/Percona-Lab'

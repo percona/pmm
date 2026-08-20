@@ -71,7 +71,7 @@ func TestLoadFromFile(t *testing.T) {
 
 	t.Run("NotYAML", func(t *testing.T) {
 		name := writeConfig(t, nil)
-		require.NoError(t, os.WriteFile(name, []byte(`not YAML`), 0o666)) //nolint:gosec
+		require.NoError(t, os.WriteFile(name, []byte(`not YAML`), 0o666))
 
 		cfg, err := loadFromFile(name, nil)
 		var targetErr *yaml.TypeError
