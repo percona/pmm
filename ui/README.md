@@ -73,7 +73,11 @@ The devcontainer ships a prebuilt Grafana baked into the `perconalab/pmm-server`
 - ../grafana/public:/usr/share/grafana/public
 ```
 
-The first mount provides the Grafana source for the backend build; the second serves the fork's built frontend (`public/`). 3. Recreate the container so the new mounts take effect — volume mappings are read at container create time (`make env-down` then `make env-up`, or recreate via your container tooling). 4. Rebuild the Grafana backend **inside the container**:
+The first mount provides the Grafana source for the backend build; the second serves the fork's built frontend (`public/`).
+
+3. Recreate the container so the new mounts take effect — volume mappings are read at container create time (`make env-down` then `make env-up`, or recreate via your container tooling).
+
+4. Rebuild the Grafana backend **inside the container**:
 
 ```bash
  make grafana-be-build
@@ -123,7 +127,7 @@ pnpm implements workspace linking via a workspace-wide override: this adds an en
  pnpm unlink @percona/peak-ui
 ```
 
-`unlink` only reverses the override in `pnpm-workspace.yaml` and `apps/pmm`'s own specifier — it leaves the anchor entry behind in the root `ui/package.json`/`ui/pnpm-lock.yaml`. Check `git diff ui/package.json ui/pnpm-lock.yaml` afterwards and discard any leftover `@percona/peak-ui": "link:../../peak-ui"` entry with `git checkout -- ui/package.json ui/pnpm-lock.yaml`.
+`unlink` only reverses the override in `pnpm-workspace.yaml` and `apps/pmm`'s own specifier — it leaves the anchor entry behind in the root `ui/package.json`/`ui/pnpm-lock.yaml`. Check `git diff ui/package.json ui/pnpm-lock.yaml` afterward and manually remove any leftover `@percona/peak-ui": "link:../../peak-ui"` entry — don't `git checkout` those files, since that discards any other uncommitted changes they may have.
 
 ## Run locally on the host
 
