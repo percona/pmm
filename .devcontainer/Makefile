@@ -62,17 +62,17 @@ run: run-all                         ## Aliased to "run-all"
 	echo "run is aliased to run-all"
 
 ui-setup:                            ## Install UI dependencies
-	cd ui && yarn install
+	cd ui && pnpm install
 
 run-ui: ui-setup setup-livereload    ## Start vite dev server for UI with HMR
 	mv /srv/grafana/plugins/pmm-compat-app /srv/grafana/plugins/pmm-compat-app.bak; \
 	ln -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app; \
 	supervisorctl restart grafana; \
 	trap 'rm -f /srv/grafana/plugins/pmm-compat-app; mv /srv/grafana/plugins/pmm-compat-app.bak /srv/grafana/plugins/pmm-compat-app; supervisorctl restart grafana' EXIT; \
-	cd ui && yarn dev
+	cd ui && pnpm dev
 
 build-ui: ui-setup               ## Build UI and deploy to system dirs
-	cd ui && yarn build
+	cd ui && pnpm build
 	rm -rf /usr/share/pmm-ui
 	cp -r ui/apps/pmm/dist /usr/share/pmm-ui
 	rm -rf /usr/share/percona-dashboards/panels/pmm-compat-app /srv/grafana/plugins/pmm-compat-app

@@ -1,12 +1,12 @@
 import {
   Alert,
+  Card,
   CardContent,
   CardMedia,
   Link,
   Stack,
   Typography,
 } from '@mui/material';
-import { Card } from '@mui/material';
 import { FC } from 'react';
 import Welcome from 'assets/mountains.jpg';
 import { UpdateCard } from './update-card';
