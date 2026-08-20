@@ -51,6 +51,7 @@ install -p -m 0755 bin/pmm-managed %{buildroot}%{_sbindir}/pmm-managed
 install -p -m 0755 bin/pmm-encryption-rotation %{buildroot}%{_sbindir}/pmm-encryption-rotation
 install -p -m 0755 bin/pmm-managed-init %{buildroot}%{_sbindir}/pmm-managed-init
 install -p -m 0755 bin/pmm-managed-starlark %{buildroot}%{_sbindir}/pmm-managed-starlark
+install -p -m 0755 bin/pmm-sep-token %{buildroot}%{_sbindir}/pmm-sep-token
 
 cd src/github.com/percona/pmm
 cp -pa ./api/swagger %{buildroot}%{_datadir}/%{name}
@@ -65,6 +66,7 @@ cp -pa ./managed/data/alerting-templates/*.yml %{buildroot}/usr/local/percona/al
 %{_sbindir}/pmm-encryption-rotation
 %{_sbindir}/pmm-managed-init
 %{_sbindir}/pmm-managed-starlark
+%{_sbindir}/pmm-sep-token
 %{_datadir}/%{name}
 %attr(0644, pmm, root) /usr/local/percona/advisors/*.yml
 %attr(0644, pmm, root) /usr/local/percona/checks/*.yml

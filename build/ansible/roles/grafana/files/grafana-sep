@@ -19,6 +19,7 @@ set -o pipefail
 declare SECRETS_DIR="${PMM_SEP_SECRETS_DIR:-/srv/sep-secrets}"
 declare GRAFANA_URL="http://127.0.0.1:3000"
 declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:-/usr/pgsql-14/bin}"
+declare TOKEN_BIN="/usr/sbin/pmm-sep-token"
 declare SA_NAME="pmm-sep"
 declare TOKEN_NAME="pmm-sep"
 # Generous because a failed run is not retried: the one-shot cannot bound its own
@@ -91,32 +92,6 @@ WHERE u.id = ou.user_id
   AND u.login = 'sa-' || ou.org_id || '-' || :'sa_name'
   AND ou.role <> 'Admin';
 SQL
-}
-
-# Prints, one per line and in the order the caller unpacks them: the token value, its
-# api_key.key hash, and the user row's salt, rands and uid. The encoding reproduces
-# Grafana's own - crc32("glsa_" + secret) little-endian as the checksum,
-# util.EncodePassword(secret, checksum) as the stored hash.
-generate_token_material() {
-    python3 - <<'PY'
-import binascii
-import hashlib
-import secrets
-import string
-import zlib
-
-alnum = string.ascii_letters + string.digits
-secret = "".join(secrets.choice(alnum) for _ in range(32))
-checksum = binascii.hexlify(
-    zlib.crc32(("glsa_" + secret).encode()).to_bytes(4, "little")
-).decode()
-
-print(f"glsa_{secret}_{checksum}")
-print(hashlib.pbkdf2_hmac("sha256", secret.encode(), checksum.encode(), 10000, 50).hex())
-print("".join(secrets.choice(alnum) for _ in range(10)))
-print("".join(secrets.choice(alnum) for _ in range(10)))
-print("".join(secrets.choice(string.ascii_lowercase + string.digits) for _ in range(14)))
-PY
 }
 
 # Administers Grafana through the database it owns, the way postgres-sep provisions the
@@ -251,8 +226,10 @@ esac
 
 echo "Provisioning the Grafana service account for SEP..."
 
+# Five lines, in the order unpacked below: the token value, its api_key.key hash, and
+# the user row's salt, rands and uid.
 declare MATERIAL
-MATERIAL=$(generate_token_material)
+MATERIAL=$("$TOKEN_BIN")
 
 declare -a PARTS
 mapfile -t PARTS <<< "$MATERIAL"
