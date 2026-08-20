@@ -16,6 +16,13 @@ export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
 export const PMM_DOCS_UPDATE_CLIENT_URL = 'https://per.co.na/pmm-upgrade-agent';
 export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
 
+// SEP apps mounted as native PMM routes. Shared by the router (route paths and
+// each plugin's `routeBase`) and the navigation builder (`url` / `matches`), so
+// the two cannot drift: a plugin's absolute nav links resolve against
+// `routeBase`, and a mismatch silently sends them outside the mount.
+export const SEP_ATW_PATH = `${PMM_NEW_NAV_PATH}/sep/atw`;
+export const SEP_MYSQL_BACKUPS_PATH = `${PMM_NEW_NAV_PATH}/sep/mysql-backups`;
+
 export const INTERVALS_MS = {
   // 5 mins
   SERVICE_TYPES: 300000,

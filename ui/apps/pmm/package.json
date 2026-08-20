@@ -44,6 +44,10 @@
     "react-markdown": "^9.0.1",
     "react-router": "^7.14.0",
     "react-router-dom": "^7.14.0",
+    "@sep/api": "workspace:*",
+    "@sep/framework": "workspace:*",
+    "@sep/plugins-atw": "workspace:*",
+    "react-syntax-highlighter": "^16.1.0",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
     "vite-plugin-svgr": "^5.2.0",
@@ -60,6 +64,7 @@
     "typescript": "~6.0.3",
     "vite": "^8.0.16",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.0.0"
+    "vitest": "^4.0.0",
+    "@types/react-syntax-highlighter": "^15.5.13"
   }
 }
