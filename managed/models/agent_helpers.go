@@ -303,6 +303,54 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	return agents, nil
 }
 
+// IsInternalPgQANAgent reports whether the Agent is the QAN Agent of PMM Server's own PostgreSQL
+// Service.
+//
+// The Agent type and the pmm-agent it runs under are not enough to tell it apart: remote PostgreSQL
+// instances added through RDS or Azure discovery get their QAN Agent attached to PMM Server's
+// pmm-agent as well, so the Service has to be part of the check.
+func IsInternalPgQANAgent(q *reform.Querier, agent *Agent) (bool, error) {
+	if agent.AgentType != QANPostgreSQLPgStatementsAgentType || pointer.GetString(agent.PMMAgentID) != PMMServerAgentID {
+		return false, nil
+	}
+
+	serviceID := pointer.GetString(agent.ServiceID)
+	if serviceID == "" {
+		return false, nil
+	}
+
+	service, err := FindServiceByID(q, serviceID)
+	if err != nil {
+		return false, err
+	}
+
+	return service.ServiceName == PMMServerPostgreSQLServiceName, nil
+}
+
+// FindInternalPgQANAgent returns the QAN Agent of PMM Server's own PostgreSQL Service.
+//
+// It returns NotFound when PMM Server has no such Service, which is the normal state in HA mode
+// where PMM Server runs against an external PostgreSQL and the fixtures do not create it.
+func FindInternalPgQANAgent(q *reform.Querier) (*Agent, error) {
+	service, err := FindServiceByName(q, PMMServerPostgreSQLServiceName)
+	if err != nil {
+		return nil, err
+	}
+
+	agents, err := FindAgents(q, AgentFilters{
+		ServiceID: service.ServiceID,
+		AgentType: new(QANPostgreSQLPgStatementsAgentType),
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(agents) == 0 {
+		return nil, status.Errorf(codes.NotFound, "QAN Agent for the %q Service not found.", PMMServerPostgreSQLServiceName)
+	}
+
+	return agents[0], nil
+}
+
 // FindAgentByID finds Agent by ID.
 func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	if id == "" {
