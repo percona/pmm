@@ -105,7 +105,7 @@ These differ from generic Go/React advice. Match **surrounding code** in the fil
 - **Mocks (Go):** small interfaces in `deps.go` + mockery — not hand-rolled fakes for every dependency
 - **UI server state:** TanStack Query hooks in `ui/apps/pmm/src/hooks/api/` — not `useEffect` + `fetch` in components ([`ui/AGENTS.md`](ui/AGENTS.md))
 - **UI client state:** React Context for auth/settings — not Redux or another global store
-- **UI components:** MUI + `@percona/percona-ui`, theme-aware `sx` — not ad-hoc CSS
+- **UI components:** MUI + `@percona/peak-ui`, theme-aware `sx` — not ad-hoc CSS
 - **UI wire format:** camelCase in TypeScript; JSON on the wire is snake_case (`axios-case-converter` in `ui/apps/pmm/src/api/api.ts`)
 - **Generated code:** edit `.proto` / reform models / interfaces — run `make gen`; never hand-edit `*.pb.go`, `*_reform.go`, swagger clients
 
@@ -133,6 +133,8 @@ PMM has three test layers ([`CONTRIBUTING.md`](CONTRIBUTING.md)): unit, API inte
 ## Linting decision tree
 
 CI runs separate linters per area. `make prepare-pr` covers **Go only** — it does not lint UI or dashboards.
+
+The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it with **`make init`** — do not install golangci-lint another way, since a different build reports different findings than CI.
 
 | If you changed… | Run |
 |-----------------|-----|
@@ -347,10 +349,10 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 ### Code Style
 - Format with `gofumpt -s`; run `make format`
-- Follow [Effective Go](https://golang.org/doc/effective_go.html) and [CodeReviewComments](https://github.com/golang/go/wiki/CodeReviewComments)
 - Import grouping: stdlib, then external (`github.com/percona`, third-party), then internal (this repo)
 - Use `any` instead of `interface{}`
 - Use modern slice helpers (`slices.Contains`), range loops
+- Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`, and don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
 - Don't use named return values
 - Don't inline comments (`code // comment`); put comments on separate lines
 - Don't add obvious/redundant comments; only comment non-obvious intent
@@ -377,6 +379,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 ### Testing
 - Use `testify/assert` and `testify/require` (not testify suites)
+- Prefer `t.Context()` over `context.Background()`; `usetesting` misses it inside helper closures
 - Mock generation via `mockery` (config in `.mockery.yaml`)
 - Unit tests: `*_test.go` next to implementation
 - Integration tests: `/api-tests/`, run against live PMM Server
@@ -427,6 +430,7 @@ All long-running daemons expose on `127.0.0.1`:
 
 | Target | Purpose |
 |--------|---------|
+| `make init` | Install pinned dev tools into `bin/` (golangci-lint at the version CI uses) |
 | `make env-up` | Start development container (PMM Server) |
 | `make env-up-rebuild` | Rebuild development container from scratch |
 | `make env TARGET=<t>` | Run `make <t>` **inside** the `pmm-server` container as the `pmm` user (bash shell if `TARGET` omitted); use `make env-root` for build/test/lint targets |
