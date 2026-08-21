@@ -53,7 +53,8 @@ func setupAddAgentTestServer(t *testing.T, responseJSON string, capturedRequestB
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
-		if _, err := w.Write([]byte(responseJSON)); err != nil {
+		_, err := w.Write([]byte(responseJSON))
+		if err != nil {
 			t.Error(err)
 		}
 	}))
