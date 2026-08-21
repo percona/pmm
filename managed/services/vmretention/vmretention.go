@@ -154,7 +154,7 @@ func (svc *Service) reconcileWithTimeout(ctx context.Context) {
 // operator writes status rather than spec. A value overwritten by anything else is restored on
 // the next tick.
 func (svc *Service) reconcile(ctx context.Context) error {
-	settings, err := models.GetSettings(svc.db)
+	settings, err := models.GetSettings(svc.db.WithContext(ctx))
 	if err != nil {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}

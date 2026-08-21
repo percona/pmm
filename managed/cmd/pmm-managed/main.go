@@ -548,8 +548,8 @@ type setupDeps struct {
 	l           *logrus.Entry
 }
 
-func updateSupervisordConfig(db *reform.DB, svc *supervisord.Service) error {
-	settings, err := models.GetSettings(db)
+func updateSupervisordConfig(q reform.DBTX, svc *supervisord.Service) error {
+	settings, err := models.GetSettings(q)
 	if err != nil {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
@@ -567,7 +567,7 @@ func applySupervisordConfig(ctx context.Context, db *reform.DB, svc *supervisord
 	l := logrus.WithField("component", "supervisord")
 
 	for {
-		err := updateSupervisordConfig(db, svc)
+		err := updateSupervisordConfig(db.WithContext(ctx), svc)
 		if err == nil {
 			l.Info("Applied stored settings to supervisord configuration after gaining leadership.")
 			return nil
