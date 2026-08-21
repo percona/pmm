@@ -3,6 +3,7 @@ import Stack from '@mui/material/Stack';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { OrgRole } from 'types/user.types';
+import { SepAuthGate } from './SepAuthGate';
 
 /**
  * Shared container for SEP apps mounted as native PMM routes.
@@ -19,6 +20,9 @@ import { OrgRole } from 'types/user.types';
  * `isPMMAdmin` is `isGrafanaAdmin || orgRole === Admin`, and `roles` (org-role
  * only) cannot express the Grafana-admin half on its own, so it gates the
  * remaining case and Page renders its standard unauthorized card.
+ *
+ * `SepAuthGate` sits inside that check, so the SEP session exchange only runs
+ * for a user who is allowed on the page in the first place.
  */
 export const SepPage: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
@@ -29,7 +33,9 @@ export const SepPage: FC<PropsWithChildren> = ({ children }) => {
       roles={user?.isPMMAdmin ? undefined : [OrgRole.Admin]}
     >
       <Stack gap={3} sx={{ flex: 1 }}>
-        <div>{children}</div>
+        <SepAuthGate>
+          <div>{children}</div>
+        </SepAuthGate>
       </Stack>
     </Page>
   );
