@@ -331,7 +331,8 @@ func (s *Service) UpdateInventoryConfig(ctx context.Context, req *omv1.UpdateInv
 	// only the ones that remembered.
 	current := []sepSetting{}
 	read := inventoryCall{method: http.MethodGet, path: "config"}
-	if err := probe.call(ctx, read, &current); err != nil {
+	err = probe.call(ctx, read, &current)
+	if err != nil {
 		// The write landed; only the read-back failed. Reporting an error here would tell
 		// a caller to retry a change that already applied, so answer with the narrower
 		// body the app gave us and log the shortfall.

@@ -123,6 +123,8 @@ type sepStub struct {
 
 // newSEPStub serves one canned answer and records the request that fetched it.
 func newSEPStub(t *testing.T, code int, body string) *sepStub {
+	t.Helper()
+
 	return newSEPStubSeq(t, code, body)
 }
 
