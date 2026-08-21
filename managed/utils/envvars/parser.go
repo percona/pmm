@@ -45,6 +45,22 @@ const (
 	EnvVMStoragePrefix = "VMSTORAGE_"
 )
 
+// secretEnvVars are variables whose *values* must not be logged.
+//
+// PMM_SEP_TOKEN is a bearer for SEP. PMM_SEP_URL is here too because a URL can carry
+// credentials in its userinfo, and a redaction rule that depends on nobody ever writing
+// one that way is not a rule.
+//
+// This is NOT the full set of secrets this function walks. PMM_SEP_POSTGRES_PASSWORD,
+// PMM_CLICKHOUSE_PASSWORD, PMM_POSTGRES_DBPASSWORD and AWS_SECRET_KEY are all named in
+// the switch below as "not a setting, skip", and all of them reach the trace line first,
+// so their values are still logged. That predates SEP and is deliberately left alone
+// here rather than fixed in passing.
+var secretEnvVars = map[string]bool{
+	"PMM_SEP_URL":   true,
+	"PMM_SEP_TOKEN": true,
+}
+
 // InvalidDurationError invalid duration error.
 type InvalidDurationError string
 
@@ -82,6 +98,20 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		}
 
 		k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
+		if secretEnvVars[k] {
+			// Logged by name only, and this is the only place that happens: these keys
+			// have no case in the switch below, so without this branch they would reach
+			// the trace line (which carries `env`, the whole original assignment) and
+			// then fall through to the unknown-variable warning, which appends `env` too.
+			// Either one would put a bearer token, or a URL with credentials in it, into
+			// the log - the warning at a level operators actually read.
+			//
+			// So the continue is doing two jobs: it redacts, and it classifies these as
+			// "not a server setting". TestSEPSecretsAreNotLogged covers both, by
+			// asserting no warnings alongside the redaction.
+			logrus.Tracef("ParseEnvVars: %#q: value not logged", k)
+			continue
+		}
 		logrus.Tracef("ParseEnvVars: %#q: k=%#q v=%#q", env, k, v)
 
 		var err error
