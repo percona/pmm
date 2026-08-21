@@ -25,7 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/services/inventory"
+	"github.com/percona/pmm/managed/services/management/common"
 	"github.com/percona/pmm/managed/utils/duration"
 )
 
@@ -65,7 +65,7 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		}
 
 		// This is a new agent, so there is no existing agent to grandfather.
-		err = inventory.ValidateMongoDBExporterEnvVarNames(req.EnvironmentVariableNames, nil)
+		err = common.ValidateMongoDBExporterEnvVarNames(req.EnvironmentVariableNames, nil)
 		if err != nil {
 			return err
 		}

@@ -30,6 +30,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	mgmtcommon "github.com/percona/pmm/managed/services/management/common"
 	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
@@ -354,63 +355,10 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 	return res, nil
 }
 
-// mongoDBExporterReservedEnvVars are environment variable names pmm-agent's supervisor always
-// sets itself for mongodb_exporter (see mongodbExporterConfig in managed/services/agents/mongodb.go).
-// A user-selected name here would never take effect: the supervisor skips it to avoid overriding
-// the computed value, silently, on the agent side. Rejecting it here instead gives the caller an
-// actionable error at request time.
-var mongoDBExporterReservedEnvVars = map[string]struct{}{
-	"MONGODB_URI": {},
-}
-
-// ValidateMongoDBExporterEnvVarNames rejects environment variable names that pmm-agent reserves
-// for mongodb_exporter itself, except for names already present in grandfathered: this field is
-// full-replace, so an exporter that already stores a reserved name (e.g. from before this check
-// existed) must still be able to resend it while changing other, unrelated names. Pass a nil
-// grandfathered when there is no existing agent to grandfather, such as on Add.
-// Grandfathered matches case-sensitively (unlike the reserved-name check below, which is
-// case-insensitive on principle): a stored "mongodb_uri" is a different OS environment variable
-// from "MONGODB_URI" and must not grandfather a switch to the latter.
-// It is exported so every path that stores these names for a mongodb_exporter agent can apply the
-// same check, not just the inventory API.
-func ValidateMongoDBExporterEnvVarNames(names []string, grandfathered map[string]struct{}) error {
-	for _, name := range names {
-		trimmed := strings.TrimSpace(name)
-		if _, ok := grandfathered[trimmed]; ok {
-			continue
-		}
-		if _, ok := mongoDBExporterReservedEnvVars[strings.ToUpper(trimmed)]; ok {
-			return status.Errorf(codes.InvalidArgument,
-				"environment variable name %q is set by pmm-agent for mongodb_exporter and cannot be selected", name)
-		}
-	}
-
-	return nil
-}
-
-// mongoDBExporterEnvVarNamesGrandfathered returns agent's currently-stored environment variable
-// names, normalized for ValidateMongoDBExporterEnvVarNames's grandfathered set. Agent must be the
-// row the caller intends to update, read within the same transaction as that update (see
-// AgentsService.executeAgentChangeChecked), so the names it grandfathers cannot go stale before
-// the update actually applies them.
-func mongoDBExporterEnvVarNamesGrandfathered(agent *models.Agent) (map[string]struct{}, error) {
-	existing, err := agent.GetEnvironmentVariableNames()
-	if err != nil {
-		return nil, err
-	}
-
-	grandfathered := make(map[string]struct{}, len(existing))
-	for _, name := range existing {
-		grandfathered[strings.TrimSpace(name)] = struct{}{}
-	}
-
-	return grandfathered, nil
-}
-
 // AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
 func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	// No existing agent to grandfather: this is a new agent, so any reserved name is rejected outright.
-	err := ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames(), nil)
+	err := mgmtcommon.ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -468,12 +416,12 @@ func (as *AgentsService) ChangeMongoDBExporter(
 	if p.GetEnvironmentVariableNames() != nil {
 		names := p.GetEnvironmentVariableNames().GetValues()
 		checkEnvVarNames = func(current *models.Agent) error {
-			grandfathered, err := mongoDBExporterEnvVarNamesGrandfathered(current)
+			grandfathered, err := mgmtcommon.MongoDBExporterEnvVarNamesGrandfathered(current)
 			if err != nil {
 				return err
 			}
 
-			return ValidateMongoDBExporterEnvVarNames(names, grandfathered)
+			return mgmtcommon.ValidateMongoDBExporterEnvVarNames(names, grandfathered)
 		}
 	}
 
