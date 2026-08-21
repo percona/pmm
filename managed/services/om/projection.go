@@ -191,8 +191,8 @@ func oplogWindow(fields fieldSet) *float64 {
 // The down_services count is the honest headline and is a first-class field rather than
 // something every caller re-derives.
 //
-// process_role_counts is keyed by the ProcessRole enum's name rather than its number, so
-// the map reads as itself in JSON instead of as {"1": 5}.
+// The process_role_counts map is keyed by the ProcessRole enum's name rather than its
+// number, so it reads as itself in JSON instead of as {"1": 5}.
 func buildSummary(environments []*omv1.Environment) *omv1.Summary {
 	summary := &omv1.Summary{
 		Environments:      int32(len(environments)), //nolint:gosec
