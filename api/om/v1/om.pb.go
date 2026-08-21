@@ -4317,6 +4317,7 @@ var (
 		(*structpb.Value)(nil),         // 65: google.protobuf.Value
 	}
 )
+
 var file_om_v1_om_proto_depIdxs = []int32{
 	59,  // 0: om.v1.TopologyService.host:type_name -> google.protobuf.StringValue
 	59,  // 1: om.v1.TopologyService.endpoint:type_name -> google.protobuf.StringValue

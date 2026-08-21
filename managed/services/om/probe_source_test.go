@@ -167,7 +167,7 @@ func TestProbeSource(t *testing.T) {
 		assert.Empty(t, result.Facts)
 	})
 
-	t.Run("an estate with no rows is OK and empty", func(t *testing.T) {
+	t.Run("an estate with no rows is partial and empty", func(t *testing.T) {
 		t.Parallel()
 
 		// The app is installed and has never swept. Not anybody's failure.

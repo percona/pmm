@@ -65,7 +65,22 @@ var rules = map[string]role{
 	"/server.v1.":               admin,
 	"/qan.v1.CollectorService.": viewer,
 	"/qan.v1.QANService.":       viewer,
-	"/om.":                      viewer,
+	// Reading OM over gRPC is a viewer's business; the writes are named exactly below.
+	//
+	// The HTTP methodRules cannot cover these: that table is keyed "METHOD /path" and a
+	// gRPC method name carries no verb, so /om.v1.OmService/DeleteInventoryHost would walk
+	// past every write rule and land here on viewer. A gRPC method name is unambiguous on
+	// its own, which is why these sit in `rules` rather than being method-qualified, the
+	// same as the agent and RTA endpoints above.
+	//
+	// The gateway reaches pmm-managed over HTTP, so in a normal deployment nothing uses
+	// these. They exist so the gRPC surface is not a way around the HTTP roles.
+	"/om.": viewer,
+	"/om.v1.OmService/TriggerInventoryRefresh":       editor,
+	"/om.v1.OmService/DeleteInventoryHost":           admin,
+	"/om.v1.OmService/DeleteInventoryService":        admin,
+	"/om.v1.OmService/UpdateInventoryConfig":         admin,
+	"/om.v1.OmService/DeleteInventoryConfigOverride": admin,
 
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,

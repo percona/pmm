@@ -16,9 +16,25 @@
  */
 
 import { useLocation } from 'react-router-dom';
+import {
+  OM_ROUTE_HOSTS,
+  OM_ROUTE_INVENTORY,
+  OM_ROUTE_SERVICES,
+} from './constants';
 
-/** The child routes `OmApp` declares, as patterns to strip off the mount path. */
-const CHILD_PATTERNS = [/\/topology$/, /\/runs$/, /\/clusters\/[^/]+$/];
+/**
+ * The child routes `OmApp` declares, as patterns to strip off the mount path.
+ *
+ * Derived from the route constants rather than written out, because the literals this
+ * replaced -- `topology`, `runs`, `clusters/:id` -- were the routes of an earlier shape
+ * and matched nothing that ships. Deriving them means a renamed route cannot leave a
+ * pattern behind.
+ */
+const CHILD_PATTERNS = [
+  OM_ROUTE_SERVICES,
+  OM_ROUTE_HOSTS,
+  OM_ROUTE_INVENTORY,
+].map((route) => new RegExp(`/${route}$`));
 
 /**
  * Recover OM's mount path from the current location.

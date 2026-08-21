@@ -32,6 +32,7 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
 import {
   isRefreshActive,
+  useInvalidateEstateOnRefreshEnd,
   useOmInventoryRuns,
   useRefreshInventory,
 } from './inventoryHooks';
@@ -161,6 +162,9 @@ function RefreshButton() {
   const { data: runs } = useOmInventoryRuns();
   const trigger = useRefreshInventory();
   const running = isRefreshActive(runs?.[0]?.status);
+  // The rows this page's sibling tabs render change when the refresh finishes, not when
+  // it is accepted, so the estate is invalidated on that edge rather than on the mutation.
+  useInvalidateEstateOnRefreshEnd(runs?.[0]?.status);
   // A 409 is an expected answer rather than a failure, and since conflict is judged
   // per host the message names what is in flight instead of saying "a sweep is
   // already running" - which was true of anything and useful for nothing.
@@ -346,7 +350,11 @@ export function InventoryPage() {
             </Alert>
           )}
 
-          <LastRun run={rows[0]} />
+          {/* Only once the query has actually answered. LastRun reads an absent run as
+              "no refresh has run yet", which is a claim about the estate - not something
+              to assert while the first request is still in flight or has failed with no
+              cached rows to fall back on. */}
+          {(!isLoading || runs) && !error && <LastRun run={rows[0]} />}
 
           {isLoading && !runs ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>

@@ -38,6 +38,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
+import { useEffect, useRef } from 'react';
 import { request } from './hooks';
 import type {
   OmInventoryHost,
@@ -181,6 +182,35 @@ export function useOmInventoryRuns(limit = 25) {
         ? REFRESH_POLL_MS
         : ESTATE_POLL_MS,
   });
+}
+
+/**
+ * Invalidate the estate when a refresh stops running.
+ *
+ * `useRefreshInventory`'s own `onSettled` cannot do this. It fires when the app
+ * *accepts* the refresh, which is tens of seconds before any host has been probed, so
+ * the rows it would refetch are the ones from before. This watches the newest run's
+ * status and invalidates on the running -> terminal edge, which is when the estate
+ * actually changed.
+ *
+ * Without it, hosts and services stay stale for up to ESTATE_POLL_MS after a refresh
+ * the user asked for and is watching - a minute, on the page whose job is to show that
+ * something happened.
+ */
+export function useInvalidateEstateOnRefreshEnd(
+  status: OmTopologyRunStatus | undefined
+) {
+  const queryClient = useQueryClient();
+  const wasActive = useRef(false);
+
+  useEffect(() => {
+    const active = isRefreshActive(status);
+    if (wasActive.current && !active) {
+      queryClient.invalidateQueries({ queryKey: hostsKey });
+      queryClient.invalidateQueries({ queryKey: servicesKey });
+    }
+    wasActive.current = active;
+  }, [status, queryClient]);
 }
 
 /**

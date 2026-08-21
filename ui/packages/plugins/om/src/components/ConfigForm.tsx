@@ -151,7 +151,16 @@ function SettingField({
             label={unit ? `${label} (${unit})` : label}
             value={draft}
             error={!valid}
-            helperText={valid ? undefined : 'A whole number greater than zero.'}
+            helperText={
+              // This TextField serves both `int` and `text` settings, and `isValid`
+              // only requires a text one to be non-empty. Telling the reader of a
+              // REPO_URL to enter a whole number is an instruction they cannot follow.
+              valid
+                ? undefined
+                : kind === 'int'
+                  ? 'A whole number greater than zero.'
+                  : 'This field cannot be empty.'
+            }
             onChange={(event) => onChange(event.target.value)}
           />
         )}

@@ -102,6 +102,17 @@ func TestResolveRule(t *testing.T) {
 		// already holds and never reaches a host.
 		{http.MethodPost, "/v1/om/topology/runs:collect", viewer},
 
+		// The same surface over gRPC. methodRules cannot reach these -- a gRPC method
+		// name carries no HTTP verb -- so without exact entries every one of them walks
+		// past the write rules and lands on the viewer rule at "/om.".
+		{http.MethodPost, "/om.v1.OmService/GetTopology", viewer},
+		{http.MethodPost, "/om.v1.OmService/ListInventoryHosts", viewer},
+		{http.MethodPost, "/om.v1.OmService/TriggerInventoryRefresh", editor},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryHost", admin},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryService", admin},
+		{http.MethodPost, "/om.v1.OmService/UpdateInventoryConfig", admin},
+		{http.MethodPost, "/om.v1.OmService/DeleteInventoryConfigOverride", admin},
+
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {
