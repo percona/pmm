@@ -1239,6 +1239,67 @@ func TestChangeMongoDBExporterEnvironmentVariableNames(t *testing.T) {
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 	})
 
+	t.Run("ConcurrentClearInvalidatesAnInFlightGrandfatheredReplace", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, nil)
+
+		// Simulate an exporter that stored the reserved name before this check existed.
+		agent, err := models.FindAgentByID(as.db.Querier, agentID)
+		require.NoError(t, err)
+		require.NoError(t, agent.SetEnvironmentVariableNames([]string{"MONGODB_URI"}))
+		require.NoError(t, models.UpdateAgent(as.db.Querier, agent))
+
+		// Hold the agent's row locked on a separate connection, standing in for a concurrent
+		// request that is about to clear MONGODB_URI.
+		lockTx, err := as.db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() { _ = lockTx.Rollback() })
+
+		locked, err := models.FindAgentByIDForUpdate(lockTx.Querier, agentID)
+		require.NoError(t, err)
+
+		// Start a Change that resends the grandfathered MONGODB_URI; it must block on the lock
+		// above before it can read the row, not decide from a read taken before the block.
+		type result struct {
+			resp *inventoryv1.ChangeAgentResponse
+			err  error
+		}
+		done := make(chan result, 1)
+		go func() {
+			resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+				EnvironmentVariableNames: &common.StringArray{Values: []string{"MONGODB_URI"}},
+			})
+			done <- result{resp, err}
+		}()
+
+		// Wait until the Change above is actually blocked waiting for the lock, rather than
+		// racing it with a fixed sleep.
+		require.Eventually(t, func() bool {
+			var waiting int
+			err := as.db.Querier.QueryRow(
+				"SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock'",
+			).Scan(&waiting)
+			return err == nil && waiting > 0
+		}, 5*time.Second, 10*time.Millisecond, "Change never blocked on the locked row")
+
+		// Now clear MONGODB_URI, as the concurrent request holding the lock would, and release it.
+		require.NoError(t, locked.SetEnvironmentVariableNames(nil))
+		require.NoError(t, models.UpdateAgent(lockTx.Querier, locked))
+		require.NoError(t, lockTx.Commit())
+
+		// The blocked Change must see the row as it is after that commit, not as it was when it
+		// started: MONGODB_URI is no longer grandfathered, so resending it must now be rejected.
+		select {
+		case r := <-done:
+			require.Error(t, r.err)
+			assert.Equal(t, codes.InvalidArgument, status.Code(r.err))
+		case <-time.After(5 * time.Second):
+			t.Fatal("ChangeMongoDBExporter did not return after the lock was released")
+		}
+	})
+
 	t.Run("RejectsUngrandfatheredReservedNameOnReplace", func(t *testing.T) {
 		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })

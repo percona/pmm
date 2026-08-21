@@ -388,14 +388,12 @@ func ValidateMongoDBExporterEnvVarNames(names []string, grandfathered map[string
 	return nil
 }
 
-// mongoDBExporterEnvVarNamesGrandfathered returns the agent's currently-stored environment
-// variable names, normalized for ValidateMongoDBExporterEnvVarNames's grandfathered set.
-func mongoDBExporterEnvVarNamesGrandfathered(q *reform.Querier, agentID string) (map[string]struct{}, error) {
-	agent, err := models.FindAgentByID(q, agentID)
-	if err != nil {
-		return nil, err
-	}
-
+// mongoDBExporterEnvVarNamesGrandfathered returns agent's currently-stored environment variable
+// names, normalized for ValidateMongoDBExporterEnvVarNames's grandfathered set. agent must be the
+// row the caller intends to update, read within the same transaction as that update (see
+// AgentsService.executeAgentChangeChecked), so the names it grandfathers cannot go stale before
+// the update actually applies them.
+func mongoDBExporterEnvVarNamesGrandfathered(agent *models.Agent) (map[string]struct{}, error) {
 	existing, err := agent.GetEnvironmentVariableNames()
 	if err != nil {
 		return nil, err
@@ -465,19 +463,18 @@ func (as *AgentsService) ChangeMongoDBExporter(
 	p *inventoryv1.ChangeMongoDBExporterParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
 	// EnvironmentVariableNames is a full-replace field: nil means "leave unchanged", so there is
-	// nothing to validate and no need to look up the agent's currently-stored names.
-	var grandfathered map[string]struct{}
+	// nothing to validate and no need to look up (and lock) the agent's currently-stored names.
+	var checkEnvVarNames func(current *models.Agent) error
 	if p.GetEnvironmentVariableNames() != nil {
-		var err error
-		grandfathered, err = mongoDBExporterEnvVarNamesGrandfathered(as.db.Querier, agentID)
-		if err != nil {
-			return nil, err
-		}
-	}
+		names := p.GetEnvironmentVariableNames().GetValues()
+		checkEnvVarNames = func(current *models.Agent) error {
+			grandfathered, err := mongoDBExporterEnvVarNamesGrandfathered(current)
+			if err != nil {
+				return err
+			}
 
-	err := ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames().GetValues(), grandfathered)
-	if err != nil {
-		return nil, err
+			return ValidateMongoDBExporterEnvVarNames(names, grandfathered)
+		}
 	}
 
 	// Convert protobuf parameters to model parameters
@@ -516,7 +513,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChangeChecked(ctx, agentID, params, checkEnvVarNames)
 	if err != nil {
 		return nil, err
 	}
@@ -1902,9 +1899,35 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 
 // Helper function to execute agent change and build response.
 func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn
+	return as.executeAgentChangeChecked(ctx, agentID, params, nil)
+}
+
+// executeAgentChangeChecked behaves like executeAgentChange, but if check is non-nil, it is called
+// with the agent's current row, locked (SELECT ... FOR UPDATE) for the rest of the transaction,
+// before the change is applied. Use this when a check's outcome depends on the row's current state
+// and must not be decided from a read taken outside this transaction: a concurrent change could
+// otherwise commit in between that read and this write, making the decision stale by the time it
+// takes effect.
+func (as *AgentsService) executeAgentChangeChecked(
+	ctx context.Context,
+	agentID string,
+	params *models.ChangeAgentParams,
+	check func(current *models.Agent) error,
+) (inventoryv1.Agent, error) { //nolint:ireturn
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		if check != nil {
+			current, err := models.FindAgentByIDForUpdate(tx.Querier, agentID)
+			if err != nil {
+				return err
+			}
+
+			if err := check(current); err != nil {
+				return err
+			}
+		}
+
 		updatedAgent, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {
 			return err
