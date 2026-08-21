@@ -89,6 +89,29 @@ func TestAgent(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, []string{"KRB5_KTNAME"}, names)
 		})
+
+		t.Run("grandfathers an already-stored name that would now fail validation", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`["krb5-ktname"]`)}
+
+			// Resending the pre-existing (now-invalid) name alongside a new, valid one must not
+			// fail: the caller only intended to add KRB5_CONFIG, and this field is full-replace.
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"krb5-ktname", "KRB5_CONFIG"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"krb5-ktname", "KRB5_CONFIG"}, names)
+		})
+
+		t.Run("still rejects a new invalid name even with a grandfathered one present", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`["krb5-ktname"]`)}
+
+			err := agent.SetEnvironmentVariableNames([]string{"krb5-ktname", "also-bad"})
+			require.Error(t, err)
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"krb5-ktname"}, names, "a rejected update must not overwrite the stored value")
+		})
 	})
 
 	t.Run("DSN", func(t *testing.T) {

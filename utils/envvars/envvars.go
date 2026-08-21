@@ -64,6 +64,14 @@ func ValidateName(name string) error {
 // validating and deduplicating separately, so a name repeated or padded with whitespace does not
 // count twice against the limit, and stored names are always deduplicated.
 func NormalizeNames(names []string) ([]string, error) {
+	return NormalizeNamesAllowing(names, nil)
+}
+
+// NormalizeNamesAllowing behaves like NormalizeNames, but skips ValidateName for any (already
+// trimmed) name present in grandfathered. This lets a full replacement of an agent's name list
+// carry forward entries that were stored before this validation existed, or under
+// since-tightened rules, instead of rejecting an update that only touches other, valid names.
+func NormalizeNamesAllowing(names []string, grandfathered map[string]struct{}) ([]string, error) {
 	if len(names) == 0 {
 		return nil, nil
 	}
@@ -74,9 +82,10 @@ func NormalizeNames(names []string) ([]string, error) {
 	for _, name := range names {
 		name = strings.TrimSpace(name)
 
-		err := ValidateName(name)
-		if err != nil {
-			return nil, err
+		if _, ok := grandfathered[name]; !ok {
+			if err := ValidateName(name); err != nil {
+				return nil, err
+			}
 		}
 
 		if _, ok := seen[name]; ok {
