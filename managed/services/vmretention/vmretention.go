@@ -30,8 +30,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/client-go/util/retry"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -46,17 +44,6 @@ const reconcileTimeout = 30 * time.Second
 // alone, so RequestRetentionUpdate is a shortcut only when the node serving the settings
 // change is also the leader; otherwise this ticker is what applies the change.
 const reconcileInterval = time.Minute
-
-// Retention is the retention period of the custom resource, together with the version of
-// the resource it was read from.
-type Retention struct {
-	// Period in VictoriaMetrics duration format. Empty means the field is unset.
-	Period string
-	// resourceVersion is filled in by Get and echoed back by Set, where it acts as an
-	// optimistic-concurrency precondition: the write is rejected with a conflict if
-	// anything else modified the resource in between.
-	resourceVersion string
-}
 
 // Service reconciles the retention period of an external VictoriaMetrics deployment
 // with PMM's data retention setting.
@@ -151,10 +138,9 @@ func (svc *Service) reconcileWithTimeout(ctx context.Context) {
 
 	// The next tick retries, so a transient API error resolves itself. Repeating the same
 	// error every minute would bury the log, so only the first of a run is logged at error
-	// level; a conflict is exempt because it means another writer is competing for the
-	// field, which is worth seeing every time it happens.
+	// level.
 	msg := err.Error()
-	if msg == svc.lastError && !apierrors.IsConflict(err) {
+	if msg == svc.lastError {
 		svc.l.Debugf("Still failing to apply data retention to VictoriaMetrics: %+v.", err)
 		return
 	}
@@ -164,9 +150,10 @@ func (svc *Service) reconcileWithTimeout(ctx context.Context) {
 
 // reconcile applies the data retention setting to the custom resource if they differ.
 //
-// The read-compare-write runs under RetryOnConflict, which re-reads and retries when another
-// writer changed the resource in between. The VictoriaMetrics operator writes status while it
-// rolls vmstorage, so the seconds after our own write are exactly when a conflict is likely.
+// The write is last-one-wins on that single field, which is correct because PMM is its only
+// declared writer: the chart does not set it unless retention is pinned declaratively, and the
+// operator writes status rather than spec. A value overwritten by anything else is restored on
+// the next tick.
 func (svc *Service) reconcile(ctx context.Context) error {
 	settings, err := models.GetSettings(svc.db)
 	if err != nil {
@@ -175,31 +162,22 @@ func (svc *Service) reconcile(ctx context.Context) error {
 
 	want := retentionPeriod(settings.DataRetention)
 
-	err = retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		got, err := svc.client.Get(ctx)
-		if err != nil {
-			return fmt.Errorf("failed to read the current retention period: %w", err)
-		}
-		if got.Period == want {
-			return nil
-		}
-
-		err = svc.client.Set(ctx, Retention{Period: want, resourceVersion: got.resourceVersion})
-		if err != nil {
-			return err
-		}
-
-		// Logged at info on every change so that a fight with another controller over the
-		// same field is visible: it shows up as this line repeating.
-		svc.l.Infof("Data retention applied to VictoriaMetrics: %q -> %q.", got.Period, want)
-		return nil
-	})
+	got, err := svc.client.Get(ctx)
 	if err != nil {
-		// %w matters beyond context: apierrors.IsConflict resolves through errors.As, so an
-		// exhausted conflict stays recognizable to the log throttle in reconcileWithTimeout.
+		return fmt.Errorf("failed to read the current retention period: %w", err)
+	}
+	if got == want {
+		return nil
+	}
+
+	// The read is what keeps an unchanged setting from patching the resource and making the
+	// operator roll vmstorage for nothing.
+	err = svc.client.Set(ctx, want)
+	if err != nil {
 		return fmt.Errorf("failed to set retention period to %q: %w", want, err)
 	}
 
+	svc.l.Infof("Data retention applied to VictoriaMetrics: %q -> %q.", got, want)
 	return nil
 }
 

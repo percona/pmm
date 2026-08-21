@@ -53,10 +53,8 @@ type KubeParams struct {
 	Namespace string
 	// APIVersion of the resource, for example operator.victoriametrics.com/v1beta1.
 	APIVersion string
-	// Kind of the resource, for example VMCluster. Required unless Resource is set.
+	// Kind of the resource, for example VMCluster.
 	Kind string
-	// Resource overrides the plural resource name derived from Kind.
-	Resource string
 }
 
 type kubeClient struct {
@@ -81,8 +79,8 @@ func NewKubeClient(params KubeParams) (Client, error) { //nolint:ireturn
 		return nil, nil //nolint:nilnil
 	}
 
-	if params.Kind == "" && params.Resource == "" {
-		return nil, errors.New("the resource to apply data retention to is not identified, set PMM_VM_CLUSTER_KIND or PMM_VM_CLUSTER_RESOURCE")
+	if params.Kind == "" {
+		return nil, errors.New("the resource to apply data retention to is not identified, set PMM_VM_CLUSTER_KIND")
 	}
 
 	gv, err := schema.ParseGroupVersion(params.APIVersion)
@@ -127,34 +125,32 @@ func NewKubeClient(params KubeParams) (Client, error) { //nolint:ireturn
 }
 
 // Get returns the retentionPeriod currently set on the resource.
-func (c *kubeClient) Get(ctx context.Context) (Retention, error) {
+func (c *kubeClient) Get(ctx context.Context) (string, error) {
 	obj, err := c.resource.Get(ctx, c.name, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			return Retention{}, fmt.Errorf("%w; check PMM_VM_CLUSTER_NAME and PMM_VM_CLUSTER_NAMESPACE", err)
+			return "", fmt.Errorf("%w; check PMM_VM_CLUSTER_NAME and PMM_VM_CLUSTER_NAMESPACE", err)
 		}
-		return Retention{}, err
+		return "", err
 	}
 
 	// A missing field reads as an empty string, which never equals a formatted retention
 	// period, so the caller always writes it.
 	period, _, err := unstructured.NestedString(obj.Object, "spec", "retentionPeriod")
 	if err != nil {
-		return Retention{}, fmt.Errorf("failed to read spec.retentionPeriod: %w", err)
+		return "", fmt.Errorf("failed to read spec.retentionPeriod: %w", err)
 	}
 
-	return Retention{Period: period, resourceVersion: obj.GetResourceVersion()}, nil
+	return period, nil
 }
 
 // Set writes the retentionPeriod to the resource, leaving the rest of the spec alone.
 //
-// The resourceVersion read by Get travels in the patch body, where the API server treats it
-// as a precondition and answers with a conflict if anything else changed the resource in the
-// meantime. Without it a concurrent write would be silently lost.
-func (c *kubeClient) Set(ctx context.Context, retention Retention) error {
+// A JSON merge patch touches only the field it names, so this cannot disturb the replica counts
+// or resources the chart declares.
+func (c *kubeClient) Set(ctx context.Context, period string) error {
 	patch, err := json.Marshal(map[string]any{
-		"metadata": map[string]any{"resourceVersion": retention.resourceVersion},
-		"spec":     map[string]any{"retentionPeriod": retention.Period},
+		"spec": map[string]any{"retentionPeriod": period},
 	})
 	if err != nil {
 		return err
@@ -167,12 +163,9 @@ func (c *kubeClient) Set(ctx context.Context, retention Retention) error {
 }
 
 // resourceFor returns the plural, lower-case resource name for a kind, which is how the
-// VictoriaMetrics operator names its CRDs (VMCluster -> vmclusters, VMSingle -> vmsingles).
-// PMM_VM_CLUSTER_RESOURCE overrides it for any kind this does not pluralise correctly.
+// VictoriaMetrics operator names every CRD it ships (VMCluster -> vmclusters,
+// VMSingle -> vmsingles).
 func resourceFor(params KubeParams) string {
-	if params.Resource != "" {
-		return params.Resource
-	}
 	return strings.ToLower(params.Kind) + "s"
 }
 

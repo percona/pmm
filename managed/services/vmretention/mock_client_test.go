@@ -14,22 +14,22 @@ type MockClient struct {
 }
 
 // Get provides a mock function with given fields: ctx
-func (_m *MockClient) Get(ctx context.Context) (Retention, error) {
+func (_m *MockClient) Get(ctx context.Context) (string, error) {
 	ret := _m.Called(ctx)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
-	var r0 Retention
+	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (Retention, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (string, error)); ok {
 		return rf(ctx)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) Retention); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) string); ok {
 		r0 = rf(ctx)
 	} else {
-		r0 = ret.Get(0).(Retention)
+		r0 = ret.Get(0).(string)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
@@ -41,17 +41,17 @@ func (_m *MockClient) Get(ctx context.Context) (Retention, error) {
 	return r0, r1
 }
 
-// Set provides a mock function with given fields: ctx, retention
-func (_m *MockClient) Set(ctx context.Context, retention Retention) error {
-	ret := _m.Called(ctx, retention)
+// Set provides a mock function with given fields: ctx, period
+func (_m *MockClient) Set(ctx context.Context, period string) error {
+	ret := _m.Called(ctx, period)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Set")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, Retention) error); ok {
-		r0 = rf(ctx, retention)
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, period)
 	} else {
 		r0 = ret.Error(0)
 	}

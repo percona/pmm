@@ -26,8 +26,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -48,22 +46,14 @@ func setup(t *testing.T, dataRetention time.Duration) *reform.DB {
 	return db
 }
 
-func conflictErr() error {
-	return apierrors.NewConflict(
-		schema.GroupResource{Group: "operator.victoriametrics.com", Resource: "vmclusters"},
-		"pmm-vmcluster",
-		errors.New("the object has been modified"),
-	)
-}
-
 func TestReconcile(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("PatchesWhenDifferent", func(t *testing.T) {
 		db := setup(t, 7*24*time.Hour)
 		client := NewMockClient(t)
-		client.On("Get", ctx).Return(Retention{Period: "90d", resourceVersion: "42"}, nil)
-		client.On("Set", ctx, Retention{Period: "7d", resourceVersion: "42"}).Return(nil)
+		client.On("Get", ctx).Return("90d", nil)
+		client.On("Set", ctx, "7d").Return(nil)
 
 		require.NoError(t, New(db, client).reconcile(ctx))
 	})
@@ -71,8 +61,9 @@ func TestReconcile(t *testing.T) {
 	t.Run("SkipsWhenEqual", func(t *testing.T) {
 		db := setup(t, 30*24*time.Hour)
 		client := NewMockClient(t)
-		client.On("Get", ctx).Return(Retention{Period: "30d", resourceVersion: "42"}, nil)
-		// Set is deliberately not expected: mockery fails the test if it is called.
+		client.On("Get", ctx).Return("30d", nil)
+		// Set is deliberately not expected: mockery fails the test if it is called, which is
+		// what keeps an unchanged setting from making the operator roll vmstorage.
 
 		require.NoError(t, New(db, client).reconcile(ctx))
 	})
@@ -80,42 +71,10 @@ func TestReconcile(t *testing.T) {
 	t.Run("PatchesWhenUnset", func(t *testing.T) {
 		db := setup(t, 30*24*time.Hour)
 		client := NewMockClient(t)
-		client.On("Get", ctx).Return(Retention{resourceVersion: "7"}, nil)
-		client.On("Set", ctx, Retention{Period: "30d", resourceVersion: "7"}).Return(nil)
+		client.On("Get", ctx).Return("", nil)
+		client.On("Set", ctx, "30d").Return(nil)
 
 		require.NoError(t, New(db, client).reconcile(ctx))
-	})
-}
-
-// TestReconcileConflict covers the optimistic-concurrency path. The VictoriaMetrics operator
-// writes status while it rolls vmstorage, so a conflict is most likely right after our own
-// write, which makes this the path that matters in practice rather than an edge case.
-func TestReconcileConflict(t *testing.T) {
-	ctx := context.Background()
-
-	t.Run("RetriesAndSucceeds", func(t *testing.T) {
-		db := setup(t, 5*24*time.Hour)
-		client := NewMockClient(t)
-
-		// First read is stale and the write conflicts; the retry re-reads and succeeds.
-		client.On("Get", ctx).Return(Retention{Period: "90d", resourceVersion: "1"}, nil).Once()
-		client.On("Set", ctx, Retention{Period: "5d", resourceVersion: "1"}).Return(conflictErr()).Once()
-		client.On("Get", ctx).Return(Retention{Period: "90d", resourceVersion: "2"}, nil).Once()
-		client.On("Set", ctx, Retention{Period: "5d", resourceVersion: "2"}).Return(nil).Once()
-
-		require.NoError(t, New(db, client).reconcile(ctx))
-	})
-
-	t.Run("ExhaustedReturnsConflict", func(t *testing.T) {
-		db := setup(t, 5*24*time.Hour)
-		client := NewMockClient(t)
-		client.On("Get", ctx).Return(Retention{Period: "90d", resourceVersion: "1"}, nil)
-		client.On("Set", ctx, mock.Anything).Return(conflictErr())
-
-		err := New(db, client).reconcile(ctx)
-		require.Error(t, err)
-		// Still recognizable as a conflict, which is what keeps it out of the log throttle.
-		assert.True(t, apierrors.IsConflict(err), "expected a conflict, got %v", err)
 	})
 }
 
@@ -125,7 +84,7 @@ func TestReconcileErrors(t *testing.T) {
 	t.Run("ReadError", func(t *testing.T) {
 		db := setup(t, 30*24*time.Hour)
 		client := NewMockClient(t)
-		client.On("Get", ctx).Return(Retention{}, errors.New("forbidden"))
+		client.On("Get", ctx).Return("", errors.New("forbidden"))
 
 		err := New(db, client).reconcile(ctx)
 		require.Error(t, err)
@@ -135,7 +94,7 @@ func TestReconcileErrors(t *testing.T) {
 	t.Run("WriteError", func(t *testing.T) {
 		db := setup(t, 30*24*time.Hour)
 		client := NewMockClient(t)
-		client.On("Get", ctx).Return(Retention{Period: "90d", resourceVersion: "1"}, nil)
+		client.On("Get", ctx).Return("90d", nil)
 		client.On("Set", ctx, mock.Anything).Return(errors.New("forbidden"))
 
 		err := New(db, client).reconcile(ctx)
@@ -149,7 +108,7 @@ func TestReconcileErrors(t *testing.T) {
 func TestReconcileRecordsFailure(t *testing.T) {
 	db := setup(t, 14*24*time.Hour)
 	client := NewMockClient(t)
-	client.On("Get", mock.Anything).Return(Retention{}, errors.New("forbidden"))
+	client.On("Get", mock.Anything).Return("", errors.New("forbidden"))
 
 	svc := New(db, client)
 	svc.reconcileWithTimeout(context.Background())
@@ -157,7 +116,7 @@ func TestReconcileRecordsFailure(t *testing.T) {
 
 	// A success clears it again, so the next failure is announced rather than demoted.
 	client2 := NewMockClient(t)
-	client2.On("Get", mock.Anything).Return(Retention{Period: "14d", resourceVersion: "1"}, nil)
+	client2.On("Get", mock.Anything).Return("14d", nil)
 	svc2 := New(db, client2)
 	svc2.lastError = "stale"
 	svc2.reconcileWithTimeout(context.Background())
@@ -243,6 +202,5 @@ func TestNewKubeClient(t *testing.T) {
 func TestResourceFor(t *testing.T) {
 	assert.Equal(t, "vmclusters", resourceFor(KubeParams{Kind: "VMCluster"}))
 	assert.Equal(t, "vmsingles", resourceFor(KubeParams{Kind: "VMSingle"}))
-	// The override wins for any kind the derivation does not pluralise correctly.
-	assert.Equal(t, "vmauths", resourceFor(KubeParams{Kind: "Anything", Resource: "vmauths"}))
+	assert.Equal(t, "vmauths", resourceFor(KubeParams{Kind: "VMAuth"}))
 }

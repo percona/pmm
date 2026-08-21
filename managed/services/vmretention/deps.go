@@ -20,9 +20,8 @@ import "context"
 // Client reads and writes the retention period of the custom resource that backs an
 // externally deployed VictoriaMetrics.
 type Client interface {
-	// Get returns the retention period currently set on the resource.
-	Get(ctx context.Context) (Retention, error)
-	// Set writes the retention period back, failing with a conflict if the resource
-	// changed since it was read.
-	Set(ctx context.Context, retention Retention) error
+	// Get returns the retention period currently set on the resource, empty when unset.
+	Get(ctx context.Context) (string, error)
+	// Set writes the retention period, leaving the rest of the resource alone.
+	Set(ctx context.Context, period string) error
 }

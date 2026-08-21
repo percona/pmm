@@ -736,8 +736,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Envar("PMM_VM_CLUSTER_API_VERSION").Default("operator.victoriametrics.com/v1beta1").String()
 	vmClusterKindF := kingpin.Flag("vm-cluster-kind", "Kind of the VictoriaMetrics custom resource").
 		Envar("PMM_VM_CLUSTER_KIND").Default("VMCluster").String()
-	vmClusterResourceF := kingpin.Flag("vm-cluster-resource", "Plural resource name of the VictoriaMetrics custom resource; derived from the kind when empty").
-		Envar("PMM_VM_CLUSTER_RESOURCE").String()
 
 	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default("127.0.0.1:3000").String()
 	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
@@ -978,7 +976,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Namespace:  *vmClusterNamespaceF,
 		APIVersion: *vmClusterAPIVersionF,
 		Kind:       *vmClusterKindF,
-		Resource:   *vmClusterResourceF,
 	})
 	switch {
 	case errors.Is(err, vmretention.ErrNoClusterAccess):
