@@ -16,20 +16,10 @@
     "skipLibCheck": true,
     "strict": true,
     "jsx": "react-jsx",
-    "lib": [
-      "esnext",
-      "DOM",
-      "dom.Iterable"
-    ],
+    "lib": ["esnext", "DOM", "dom.Iterable"],
     "module": "ESNext",
     "target": "es6"
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "dist",
-    "build",
-    "node_modules"
-  ]
+  "include": ["src"],
+  "exclude": ["dist", "build", "node_modules"]
 }
