@@ -3,6 +3,7 @@ import { wrapWithQueryProvider } from 'utils/testUtils';
 import RealtimeOverview from './RealtimeOverview';
 import {
   TEST_MONGO_DB_QUERY_DATA,
+  TEST_RAW_MONGO_DB_QUERY_DATA,
   TEST_REAL_TIME_SESSION,
   TEST_REAL_TIME_SESSION_2,
   TEST_REAL_TIME_SESSION_MYSQL,
@@ -69,7 +70,7 @@ describe('RealtimeOverview', () => {
     vi.clearAllMocks();
 
     searchQueries.mockResolvedValue({
-      queries: [TEST_MONGO_DB_QUERY_DATA],
+      queries: [TEST_RAW_MONGO_DB_QUERY_DATA],
     });
 
     getRunningSessions.mockResolvedValue([

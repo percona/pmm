@@ -33,6 +33,9 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
 const HOST_COLUMN: MRT_ColumnDef<QueryData> = {
   header: Messages.columns.host,
   accessorKey: 'serviceName',
+  // without this the column falls back to MRT's 'fuzzy' default, which
+  // matches any host containing the typed characters in order
+  filterFn: 'contains',
   // @ts-expect-error - muiTableBodyCellProps is not typed correctly
   muiTableBodyCellProps: ({ row }) => ({
     'data-testid': `query-${row.original.queryId}-host-cell`,
@@ -92,8 +95,9 @@ const ELAPSED_TIME_COLUMN: MRT_ColumnDef<QueryData> = {
   size: 120,
   filterVariant: 'range',
   filterFn: 'timeRangeFilterFn',
-  muiTableHeadCellFilterTextFieldProps: {
-    inputProps: { step: 0.25, type: 'number' },
+  muiFilterTextFieldProps: {
+    type: 'text',
+    inputProps: { inputMode: 'decimal' },
   },
   // A statement that has just started reports 0, which is a duration like any
   // other; only a missing value is unavailable.

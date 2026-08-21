@@ -16766,12 +16766,15 @@
   },
   "tags": [
     {
+      "description": "Agents service provides public methods for managing Agents.",
       "name": "AgentsService"
     },
     {
+      "description": "Nodes service provides public methods for managing Nodes.",
       "name": "NodesService"
     },
     {
+      "description": "Services service provides public methods for managing Services.",
       "name": "ServicesService"
     }
   ]

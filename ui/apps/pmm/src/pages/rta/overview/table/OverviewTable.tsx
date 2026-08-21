@@ -4,7 +4,7 @@ import {
   type MRT_VisibilityState,
   type MaterialReactTableProps,
 } from 'material-react-table';
-import { Table, useNavigableRows } from '@percona/percona-ui';
+import { Table, useNavigableRows } from '@percona/peak-ui';
 import { useMemo, useState, type FC } from 'react';
 import type { QueryData } from 'types/rta.types';
 import { ServiceType } from 'types/services.types';
@@ -13,12 +13,20 @@ import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
 import { filterCommaSeparated, filterElapsedTime } from './OverviewTable.utils';
+import { useTableUrlState } from 'hooks/utils/useTableUrlState';
+
+const OVERVIEW_TABLE_URL_STATE_OPTIONS = {
+  paramPrefix: 'overview',
+  defaults: {
+    pagination: { pageIndex: 0, pageSize: 25 },
+  },
+};
 
 // Database and User are opt-in columns: showing them by default pushes the
 // query text and Elapsed time out of view, so they start hidden and users
 // reveal the ones they need from the Show/Hide columns menu.
 // The visibility state is held here rather than in initialState because the
-// percona-ui Table controls columnVisibility from its own localStorage state,
+// peak-ui Table controls columnVisibility from its own localStorage state,
 // which cannot express a column that is hidden by default.
 const DEFAULT_COLUMN_VISIBILITY: MRT_VisibilityState = {
   databaseName: false,
@@ -58,10 +66,14 @@ const OverviewTable: FC<Props> = ({
   actions,
   onRowHover,
 }) => {
-  const { tableProps, refresh } = useNavigableRows<QueryData>({
-    data: queries,
-    onChange: onNavigableQueriesChange,
-  });
+  const { tableProps: navigableTableProps, refresh } =
+    useNavigableRows<QueryData>({
+      data: queries,
+      onChange: onNavigableQueriesChange,
+    });
+  const { tableProps: urlStateTableProps } = useTableUrlState(
+    OVERVIEW_TABLE_URL_STATE_OPTIONS
+  );
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     DEFAULT_COLUMN_VISIBILITY
   );
@@ -74,12 +86,6 @@ const OverviewTable: FC<Props> = ({
     <RealtimeTableWrapper>
       <Table
         tableName="realtime-overview-table"
-        initialState={{
-          pagination: {
-            pageSize: 25,
-            pageIndex: 0,
-          },
-        }}
         columns={columns}
         data={queries}
         noDataMessage={Messages.noData}
@@ -93,9 +99,13 @@ const OverviewTable: FC<Props> = ({
             },
           },
         }}
-        {...tableProps}
+        {...navigableTableProps}
+        {...urlStateTableProps}
+        // Both spreads above carry a `state`, so the merge has to be explicit:
+        // the URL-driven pagination/sorting/filters would otherwise be dropped.
         state={{
-          ...tableProps.state,
+          ...navigableTableProps.state,
+          ...urlStateTableProps.state,
           columnVisibility,
           columnPinning: COLUMN_PINNING,
         }}

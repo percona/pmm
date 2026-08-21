@@ -63,7 +63,7 @@ export interface RawQueryData {
   mySqlPayload?: QueryMySQLData;
 }
 
-export type QueryData = Exclude<RawQueryData, 'queryExecutionDuration'> & {
+export type QueryData = Omit<RawQueryData, 'queryExecutionDuration'> & {
   queryExecutionDurationMs?: number | null;
 };
 

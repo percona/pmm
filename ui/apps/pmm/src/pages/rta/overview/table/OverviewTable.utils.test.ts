@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { type MRT_Row } from 'material-react-table';
-import { QueryData } from 'types/rta.types';
+import { QueryData, RawQueryData } from 'types/rta.types';
 import {
   filterCommaSeparated,
   formatElapsedTime,
@@ -14,7 +14,6 @@ import {
   TEST_MONGO_DB_QUERY_DATA,
   TEST_MYSQL_QUERY_DATA,
 } from 'utils/testStubs';
-import { RawQueryData } from 'types/rta.types';
 
 const withText = (queryText: string): RawQueryData => ({
   ...TEST_MYSQL_QUERY_DATA,

@@ -8,6 +8,7 @@ declare CURRENT_GID CURRENT_UID CURRENT_USER
 is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
 declare POSTGRES_DATA_DIR="/srv/postgres14"
 declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
+declare POSTGRES_BIN_DIR="/usr/pgsql-14/bin"
 
 # Get current user info - handle cases where user doesn't exist in passwd
 CURRENT_UID=$(id -u)
@@ -97,12 +98,12 @@ if [ ! -f "$DIST_FILE" ]; then
         chmod 600 "$POSTGRES_PASSWORD_FILE"
 
         # Initialize database with password authentication
-        /usr/pgsql-14/bin/initdb -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
+        "$POSTGRES_BIN_DIR/initdb" -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
 
         echo "Enabling pg_stat_statements extension for PostgreSQL..."
-        /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
-        PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
-        /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
+        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
+        PGPASSWORD="$POSTGRES_PASSWORD" "$POSTGRES_BIN_DIR/psql" -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
+        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR"
 
         # Clean up password from environment
         unset POSTGRES_PASSWORD
@@ -145,7 +146,17 @@ elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
 else
     mkdir -p /run/postgresql
     chmod 750 "$POSTGRES_DATA_DIR" || true
-    bash /opt/ansible/roles/postgres/files/postgres-migration
+    # Scoped to this subshell so the helper scripts inherit them without polluting
+    # the environment that supervisord and its children are started with.
+    (
+        export POSTGRES_DATA_DIR POSTGRES_PASSWORD_FILE POSTGRES_BIN_DIR
+        bash /opt/ansible/roles/postgres/files/postgres-migration
+        bash /opt/ansible/roles/postgres/files/postgres-sep
+    )
+fi
+
+if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; }; then
+    echo "WARNING: ignoring PMM_ENABLE_SEP, the embedded PostgreSQL is not in use." >&2
 fi
 
 echo "Generating self-signed certificates for nginx..."

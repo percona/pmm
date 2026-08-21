@@ -134,7 +134,9 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 			nCtx, cancel := context.WithTimeout(ctx, stateChangeTimeout)
 			err := u.sendSetStateRequest(nCtx, agent)
 			if err != nil {
-				l.Error(err)
+				// Now that the channel honours nCtx, a request loop busy for longer than
+				// stateChangeTimeout lands here, so say what timed out.
+				l.Errorf("Failed to send SetState request: %s", err)
 				u.RequestStateUpdate(ctx, agent.id)
 			}
 			cancel()
@@ -333,7 +335,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		l.Debugf("sendSetStateRequest:\n%s\n", prototext.Format(logger.RedactMessage(state)))
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(state)
+	resp, err := agent.channel.SendAndWaitResponse(ctx, state)
 	if err != nil {
 		return err
 	}

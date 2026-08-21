@@ -794,6 +794,7 @@
   },
   "tags": [
     {
+      "description": "RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.",
       "name": "RealtimeAnalyticsService"
     }
   ]

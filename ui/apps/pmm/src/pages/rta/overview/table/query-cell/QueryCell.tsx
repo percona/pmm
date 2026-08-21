@@ -1,5 +1,5 @@
 import Box from '@mui/material/Box';
-import { CodeBlock } from '@percona/percona-ui';
+import { CodeBlock } from '@percona/peak-ui';
 import { FC } from 'react';
 import { CodeLanguage } from 'types/util.types';
 import { codeBlockLanguage } from '../OverviewTable.utils';
