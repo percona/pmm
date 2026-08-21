@@ -18,32 +18,39 @@ package vmretention
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
+	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
-
-	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/testdb"
 )
 
+// setup returns a DB whose settings row reports dataRetention.
+//
+// Each sqlmock expectation is fulfilled once, so this answers exactly one settings read: a test
+// that reconciles twice needs a DB per reconcile.
 func setup(t *testing.T, dataRetention time.Duration) *reform.DB {
 	t.Helper()
 
-	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
 	t.Cleanup(func() {
-		require.NoError(t, sqlDB.Close())
+		_ = mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
 	})
 
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	_, err := models.UpdateSettings(db, &models.ChangeSettingsParams{DataRetention: dataRetention})
-	require.NoError(t, err)
+	// Settings are stored as a single JSON document, and a duration marshals as nanoseconds.
+	// GetSettings fills the rest of the fields with their defaults.
+	row := fmt.Sprintf(`{"data_retention":%d}`, dataRetention)
+	mock.ExpectQuery("SELECT settings FROM settings").
+		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow([]byte(row)))
 
-	return db
+	return reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 }
 
 func TestReconcile(t *testing.T) {
@@ -106,18 +113,17 @@ func TestReconcileErrors(t *testing.T) {
 // A failed reconcile records the error, which is what the log throttle in
 // reconcileWithTimeout keys on to demote an identical repeat to debug.
 func TestReconcileRecordsFailure(t *testing.T) {
-	db := setup(t, 14*24*time.Hour)
 	client := NewMockClient(t)
 	client.On("Get", mock.Anything).Return("", errors.New("forbidden"))
 
-	svc := New(db, client)
+	svc := New(setup(t, 14*24*time.Hour), client)
 	svc.reconcileWithTimeout(context.Background())
 	assert.NotEmpty(t, svc.lastError)
 
 	// A success clears it again, so the next failure is announced rather than demoted.
 	client2 := NewMockClient(t)
 	client2.On("Get", mock.Anything).Return("14d", nil)
-	svc2 := New(db, client2)
+	svc2 := New(setup(t, 14*24*time.Hour), client2)
 	svc2.lastError = "stale"
 	svc2.reconcileWithTimeout(context.Background())
 	assert.Empty(t, svc2.lastError)
