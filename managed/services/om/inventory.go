@@ -27,7 +27,6 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
 )
@@ -45,8 +44,14 @@ import (
 // unusable -- was decided in the app, and re-deciding any of it here would give a reader
 // two answers to the same question.
 
-// defaultInventoryRunLimit is what a caller who passes no limit gets.
-const defaultInventoryRunLimit = 20
+// defaultInventoryRunLimit is what a caller who passes no limit gets, and
+// maxInventoryRunLimit is the most one can ask for. The ceiling exists because the value
+// is forwarded to SEP verbatim: without it a caller could ask the inventory app for an
+// unbounded page and wait on it through this proxy.
+const (
+	defaultInventoryRunLimit = 20
+	maxInventoryRunLimit     = 200
+)
 
 // inventoryProbe returns the configured SEP client, or an error saying it is not.
 //
@@ -69,14 +74,14 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 	}
 
 	query := url.Values{}
-	if req.GetHasService() != nil {
-		query.Set("has_service", strconv.FormatBool(req.GetHasService().GetValue()))
+	if req.HasService != nil {
+		query.Set("has_service", strconv.FormatBool(req.GetHasService()))
 	}
-	if req.GetFailing() != nil {
-		query.Set("failing", strconv.FormatBool(req.GetFailing().GetValue()))
+	if req.Failing != nil {
+		query.Set("failing", strconv.FormatBool(req.GetFailing()))
 	}
-	if req.GetExecutor() != nil {
-		query.Set("executor", strconv.FormatBool(req.GetExecutor().GetValue()))
+	if req.Executor != nil {
+		query.Set("executor", strconv.FormatBool(req.GetExecutor()))
 	}
 
 	hosts := []sepHost{}
@@ -133,11 +138,11 @@ func (s *Service) ListInventoryServices(ctx context.Context, req *omv1.ListInven
 	}
 
 	query := url.Values{}
-	if nodeID := req.GetNodeId().GetValue(); nodeID != "" {
+	if nodeID := req.GetNodeId(); nodeID != "" {
 		query.Set("node_id", nodeID)
 	}
-	if req.GetFailing() != nil {
-		query.Set("failing", strconv.FormatBool(req.GetFailing().GetValue()))
+	if req.Failing != nil {
+		query.Set("failing", strconv.FormatBool(req.GetFailing()))
 	}
 
 	services := []sepService{}
@@ -190,8 +195,11 @@ func (s *Service) ListInventoryRuns(ctx context.Context, req *omv1.ListInventory
 	}
 
 	limit := req.GetLimit()
-	if limit <= 0 {
+	switch {
+	case limit <= 0:
 		limit = defaultInventoryRunLimit
+	case limit > maxInventoryRunLimit:
+		limit = maxInventoryRunLimit
 	}
 	query := url.Values{"limit": []string{strconv.FormatInt(int64(limit), 10)}}
 
@@ -542,7 +550,7 @@ func freshnessToProto(f sepFreshness) *omv1.InventoryFreshness {
 		LastAttemptAt:       optionalTimestamp(f.LastAttemptAt),
 		LastSuccessAt:       optionalTimestamp(f.LastSuccessAt),
 		FailingSince:        optionalTimestamp(f.FailingSince),
-		ConsecutiveFailures: int32(f.ConsecutiveFailures), //nolint:gosec
+		ConsecutiveFailures: clampInt32(f.ConsecutiveFailures),
 		LastError:           optionalString(f.LastError),
 	}
 }
@@ -568,7 +576,7 @@ func executorToProto(observed map[string]any) *omv1.InventoryExecutor {
 		out.DriverHealthy = value
 	}
 	if value, ok := nested["detail"].(string); ok && value != "" {
-		out.Detail = wrapperspb.String(value)
+		out.Detail = &value
 	}
 	return out
 }
@@ -637,34 +645,53 @@ func anyToValue(value any) *structpb.Value {
 
 // observedString reads one string attribute out of a document.
 //
-// Every reader here returns a wrapper rather than a bare value because protojson drops
-// an unset `optional` scalar entirely, even under EmitUnpopulated. A silently absent
-// nullable field is a column that reads as "not collected" when the truth may be
-// "collected, and it was empty".
-func observedString(observed map[string]any, key string) *wrapperspb.StringValue {
+// Empty and absent are deliberately merged: a missing key and a key holding "" both
+// return nil, so the field is omitted from the response either way. For what these read
+// -- a config path, an argv, an OS name -- an empty string carries no more information
+// than no string at all, and collapsing them keeps the column from showing a blank cell
+// that a reader has to interpret.
+//
+// The pointer is what makes that omission reachable at all: protojson drops an unset
+// `optional` scalar entirely, even under EmitUnpopulated.
+func observedString(observed map[string]any, key string) *string {
 	value, ok := observed[key].(string)
 	if !ok || value == "" {
 		return nil
 	}
-	return wrapperspb.String(value)
+	return &value
+}
+
+// clampInt32 narrows a count that arrived as a JSON number.
+//
+// SEP's counter is decoded into an int, which is 64-bit here, so a plain conversion could
+// wrap and report a negative number of consecutive failures. Saturating instead keeps the
+// column monotonic: a reader learns "very many", never "minus two billion".
+func clampInt32(value int) int32 {
+	switch {
+	case value > math.MaxInt32:
+		return math.MaxInt32
+	case value < math.MinInt32:
+		return math.MinInt32
+	}
+	return int32(value)
 }
 
 // observedBool reads one boolean attribute out of a document.
-func observedBool(observed map[string]any, key string) *wrapperspb.BoolValue {
+func observedBool(observed map[string]any, key string) *bool {
 	value, ok := observed[key].(bool)
 	if !ok {
 		return nil
 	}
-	return wrapperspb.Bool(value)
+	return &value
 }
 
 // observedDouble reads one numeric attribute out of a document.
-func observedDouble(observed map[string]any, key string) *wrapperspb.DoubleValue {
+func observedDouble(observed map[string]any, key string) *float64 {
 	value, ok := observed[key].(float64)
 	if !ok {
 		return nil
 	}
-	return wrapperspb.Double(value)
+	return &value
 }
 
 // observedInt32 reads one integer attribute out of a document.
@@ -673,7 +700,7 @@ func observedDouble(observed map[string]any, key string) *wrapperspb.DoubleValue
 // will not fit is dropped rather than wrapped. Both callers are a port and a PID, where a
 // wrapped result reads as a plausible one: absent says "not collected", 4295 says a port
 // something is listening on.
-func observedInt32(observed map[string]any, key string) *wrapperspb.Int32Value {
+func observedInt32(observed map[string]any, key string) *int32 {
 	value, ok := observed[key].(float64)
 	if !ok {
 		return nil
@@ -681,23 +708,24 @@ func observedInt32(observed map[string]any, key string) *wrapperspb.Int32Value {
 	if math.IsNaN(value) || value < math.MinInt32 || value > math.MaxInt32 {
 		return nil
 	}
-	return wrapperspb.Int32(int32(value))
+	narrowed := int32(value)
+	return &narrowed
 }
 
 // optionalString wraps a nullable string.
-func optionalString(value *string) *wrapperspb.StringValue {
+func optionalString(value *string) *string {
 	if value == nil || *value == "" {
 		return nil
 	}
-	return wrapperspb.String(*value)
+	return value
 }
 
 // optionalInt32 wraps a nullable integer.
-func optionalInt32(value *int32) *wrapperspb.Int32Value {
+func optionalInt32(value *int32) *int32 {
 	if value == nil {
 		return nil
 	}
-	return wrapperspb.Int32(*value)
+	return value
 }
 
 // optionalTimestamp wraps a nullable instant.

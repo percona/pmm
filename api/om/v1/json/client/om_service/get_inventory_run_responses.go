@@ -608,10 +608,10 @@ type GetInventoryRunOKBodyEntitiesItems0 struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// The node's registered name.
-	HostName string `json:"host_name,omitempty"`
+	HostName *string `json:"host_name,omitempty"`
 
 	// The client its probe ran on. Unset when none matched.
-	ExecutorHost string `json:"executor_host,omitempty"`
+	ExecutorHost *string `json:"executor_host,omitempty"`
 
 	// ExecutorResolution is how a host was matched to the client its probe ran on.
 	//
@@ -630,10 +630,10 @@ type GetInventoryRunOKBodyEntitiesItems0 struct {
 	Answered bool `json:"answered,omitempty"`
 
 	// The host's wall clock, dispatch to collected output.
-	DurationSeconds float64 `json:"duration_seconds,omitempty"`
+	DurationSeconds *float64 `json:"duration_seconds,omitempty"`
 
 	// The host-level failure, when its probe failed.
-	Error string `json:"error,omitempty"`
+	Error *string `json:"error,omitempty"`
 
 	// The services on it. Empty is a meaningful answer, not a gap.
 	Services []*GetInventoryRunOKBodyEntitiesItems0ServicesItems0 `json:"services"`
@@ -799,16 +799,16 @@ swagger:model GetInventoryRunOKBodyEntitiesItems0ServicesItems0
 */
 type GetInventoryRunOKBodyEntitiesItems0ServicesItems0 struct {
 	// PMM's service ID, when OM could key one.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID *string `json:"service_id,omitempty"`
 
 	// Its name, so a reader is not left joining UUIDs by hand.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName *string `json:"service_name,omitempty"`
 
 	// Whether the host returned a usable record for it.
 	Answered bool `json:"answered,omitempty"`
 
 	// Why it did not, when it did not.
-	Error string `json:"error,omitempty"`
+	Error *string `json:"error,omitempty"`
 }
 
 // Validate validates this get inventory run OK body entities items0 services items0
@@ -881,7 +881,7 @@ type GetInventoryRunOKBodyRun struct {
 	Scope []string `json:"scope"`
 
 	// What went wrong, when something did.
-	Error string `json:"error,omitempty"`
+	Error *string `json:"error,omitempty"`
 
 	// counts
 	Counts *GetInventoryRunOKBodyRunCounts `json:"counts,omitempty"`

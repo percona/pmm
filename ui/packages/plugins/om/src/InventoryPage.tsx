@@ -41,7 +41,12 @@ import { ConfigForm } from './components/ConfigForm';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
 import { OmHeader } from './components/OmHeader';
-import { formatDuration, formatRunDuration, formatTimestamp } from './format';
+import {
+  formatDuration,
+  formatRunDuration,
+  formatTimestamp,
+  runDurationSeconds,
+} from './format';
 import { ageSeconds } from './inventory';
 import type { OmInventoryRun } from './types';
 
@@ -59,7 +64,9 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
     Cell: ({ row: { original } }) => formatTimestamp(original.start_time),
   },
   {
-    accessorFn: (row) => formatRunDuration(row.start_time, row.end_time),
+    // Sorts on elapsed seconds, not the formatted string -- lexicographically "9s"
+    // lands after "10m". HostsPage's age column already does it this way.
+    accessorFn: (row) => runDurationSeconds(row.start_time, row.end_time),
     id: 'duration',
     header: 'Duration',
     Cell: ({ row: { original } }) =>
@@ -164,7 +171,7 @@ function RefreshButton() {
   const running = isRefreshActive(runs?.[0]?.status);
   // The rows this page's sibling tabs render change when the refresh finishes, not when
   // it is accepted, so the estate is invalidated on that edge rather than on the mutation.
-  useInvalidateEstateOnRefreshEnd(runs?.[0]?.status);
+  useInvalidateEstateOnRefreshEnd(runs);
   // A 409 is an expected answer rather than a failure, and since conflict is judged
   // per host the message names what is in flight instead of saying "a sweep is
   // already running" - which was true of anything and useful for nothing.

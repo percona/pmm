@@ -177,8 +177,11 @@ export function useOmInventoryRuns(limit = 25) {
       );
       return runs ?? [];
     },
+    // Any active run, not just the newest. Refreshes can be host-scoped, so two can
+    // overlap -- and a narrow one started later can finish first, which would leave
+    // data[0] terminal while a broader run is still probing.
     refetchInterval: (query) =>
-      isRefreshActive(query.state.data?.[0]?.status)
+      (query.state.data ?? []).some((run) => isRefreshActive(run.status))
         ? REFRESH_POLL_MS
         : ESTATE_POLL_MS,
   });
@@ -189,28 +192,34 @@ export function useOmInventoryRuns(limit = 25) {
  *
  * `useRefreshInventory`'s own `onSettled` cannot do this. It fires when the app
  * *accepts* the refresh, which is tens of seconds before any host has been probed, so
- * the rows it would refetch are the ones from before. This watches the newest run's
- * status and invalidates on the running -> terminal edge, which is when the estate
- * actually changed.
+ * the rows it would refetch are the ones from before. This watches the runs instead and
+ * invalidates on the edge where the estate actually changed.
+ *
+ * Takes the whole collection, not the newest run: refreshes are host-scoped, so two can
+ * overlap, and a narrow one started later can reach a terminal status while a broader
+ * one is still probing. Watching only `runs[0]` would invalidate on that -- refetching
+ * rows the older run has not finished writing -- and then never fire again for the run
+ * that mattered. The edge that counts is the active set going from nonempty to empty.
  *
  * Without it, hosts and services stay stale for up to ESTATE_POLL_MS after a refresh
  * the user asked for and is watching - a minute, on the page whose job is to show that
  * something happened.
  */
 export function useInvalidateEstateOnRefreshEnd(
-  status: OmTopologyRunStatus | undefined
+  runs: OmInventoryRun[] | undefined
 ) {
   const queryClient = useQueryClient();
   const wasActive = useRef(false);
 
+  const anyActive = (runs ?? []).some((run) => isRefreshActive(run.status));
+
   useEffect(() => {
-    const active = isRefreshActive(status);
-    if (wasActive.current && !active) {
+    if (wasActive.current && !anyActive) {
       queryClient.invalidateQueries({ queryKey: hostsKey });
       queryClient.invalidateQueries({ queryKey: servicesKey });
     }
-    wasActive.current = active;
-  }, [status, queryClient]);
+    wasActive.current = anyActive;
+  }, [anyActive, queryClient]);
 }
 
 /**

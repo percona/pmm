@@ -71,7 +71,9 @@ const HIDDEN_BY_DEFAULT = {
 };
 
 /** Columns for the flat service table. Grouping keys lead, then identity, then load. */
-function useColumns(): MRT_ColumnDef<OmServiceInventoryRow>[] {
+function useColumns(
+  inventoryUnavailable: boolean
+): MRT_ColumnDef<OmServiceInventoryRow>[] {
   return useMemo(
     () => [
       {
@@ -141,6 +143,7 @@ function useColumns(): MRT_ColumnDef<OmServiceInventoryRow>[] {
         Cell: ({ row: { original } }) => (
           <ProbeValue
             inventory={original.inventory}
+            inventoryUnavailable={inventoryUnavailable}
             value={original.inventory?.installed_version}
           />
         ),
@@ -243,6 +246,7 @@ function useColumns(): MRT_ColumnDef<OmServiceInventoryRow>[] {
         Cell: ({ row: { original } }) => (
           <ProbeValue
             inventory={original.inventory}
+            inventoryUnavailable={inventoryUnavailable}
             value={original.inventory?.config_path}
           />
         ),
@@ -271,11 +275,15 @@ function useColumns(): MRT_ColumnDef<OmServiceInventoryRow>[] {
               </Box>
             </Tooltip>
           ) : (
-            <ProbeValue inventory={original.inventory} value={null} />
+            <ProbeValue
+              inventory={original.inventory}
+              inventoryUnavailable={inventoryUnavailable}
+              value={null}
+            />
           ),
       },
     ],
-    []
+    [inventoryUnavailable]
   );
 }
 
@@ -297,7 +305,8 @@ function Counts({
   total: number;
   up: number;
   down: number;
-  failing: number;
+  /** null when the estate could not be read, so no count can honestly be shown. */
+  failing: number | null;
   failingOnly: boolean;
   onToggleFailing: () => void;
 }) {
@@ -315,7 +324,11 @@ function Counts({
       >
         <strong>{down}</strong> down
       </Typography>
-      {failing > 0 || failingOnly ? (
+      {failing === null ? (
+        <Typography variant="body2" color="text.secondary">
+          probe status unavailable
+        </Typography>
+      ) : failing > 0 || failingOnly ? (
         <Chip
           size="small"
           color={failingOnly ? 'error' : 'default'}
@@ -376,9 +389,13 @@ export function ServicesPage() {
   // and always available; the estate is a second service that may be unwell, and a
   // page that blanked when it was would be exactly what proxying it through
   // pmm-managed was meant to stop.
-  const { data: inventory } = useOmInventoryServices();
+  const {
+    data: inventory,
+    isError: inventoryFailed,
+    error: inventoryError,
+  } = useOmInventoryServices();
   const [failingOnly, setFailingOnly] = useState(false);
-  const columns = useColumns();
+  const columns = useColumns(inventoryFailed);
   const joined = useMemo(
     () => joinServiceInventory(toServiceRows(data), inventory),
     [data, inventory]
@@ -390,10 +407,15 @@ export function ServicesPage() {
         : joined,
     [joined, failingOnly]
   );
+  // null rather than 0 when the estate could not be read: "0 failing" is a claim, and
+  // an empty join is not evidence for it.
   const failingCount = useMemo(
     () =>
-      joined.filter((row) => row.inventory && isFailing(row.inventory)).length,
-    [joined]
+      inventoryFailed
+        ? null
+        : joined.filter((row) => row.inventory && isFailing(row.inventory))
+            .length,
+    [joined, inventoryFailed]
   );
 
   const table = useMaterialReactTable({
@@ -453,6 +475,14 @@ export function ServicesPage() {
         actions={<SyncButton />}
       />
       <SnapshotBar envelope={data.snapshot} />
+      {inventoryFailed && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          The inventory estate could not be read, so the probe columns are blank
+          and no probe count is shown. The topology columns come from PMM&apos;s
+          own data and are unaffected.
+          {inventoryError instanceof Error ? ` ${inventoryError.message}` : ''}
+        </Alert>
+      )}
       <Counts
         total={data.summary.total_services}
         up={data.summary.up_services}

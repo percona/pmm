@@ -74,37 +74,43 @@ export type OmUnavailableReason =
   | 'no_version_catalog'
   | 'not_applicable'
   | 'not_in_inventory'
-  | 'probe_never_succeeded';
+  | 'probe_never_succeeded'
+  | 'inventory_unavailable';
 
 /**
  * One monitored MongoDB service.
  *
- * Two sentinel conventions the table depends on, and they differ on purpose:
+ * Two conventions for "no value" the table depends on, and they differ on purpose:
  *
  * - `cpu_usage_percent` / `connections_free_percent` are **-1 when not measured**, never
- *   null and never 0 — zero CPU is a real reading, so the numeric sentinel is what
+ *   absent and never 0 — zero CPU is a real reading, so the numeric sentinel is what
  *   keeps "idle" and "unknown" apart in a numeric column.
- * - `replication_lag_seconds` / `oplog_window_seconds` are **null when they do not apply**
- *   — a router and a standalone have no replica-set oplog. Null means "not a thing
- *   here", which is not the same as -1's "we could not measure it".
+ * - `replication_lag_seconds` / `oplog_window_seconds` are **absent when they do not
+ *   apply** — a router and a standalone have no replica-set oplog. That is a different
+ *   statement from -1's "we could not measure it".
+ *
+ * The optional fields are `optional` scalars in `om.proto`, and protojson omits an unset
+ * one rather than emitting null, so they arrive as a missing key. They are typed
+ * `?: T | null` because `null` is still worth tolerating and every reader here already
+ * uses `== null`, which catches both.
  */
 export interface OmService {
   service_name: string;
-  host: string | null;
-  endpoint: string | null;
-  service_id: string | null;
-  service_type: string | null;
-  version: string | null;
-  vendor: string | null;
-  edition: string | null;
-  replication_set: string | null;
-  state: string | null;
+  host?: string | null;
+  endpoint?: string | null;
+  service_id?: string | null;
+  service_type?: string | null;
+  version?: string | null;
+  vendor?: string | null;
+  edition?: string | null;
+  replication_set?: string | null;
+  state?: string | null;
   status: OmServiceStatus;
   cpu_usage_percent: number;
   connections_free_percent: number;
   process_role: OmProcessRole;
-  replication_lag_seconds: number | null;
-  oplog_window_seconds: number | null;
+  replication_lag_seconds?: number | null;
+  oplog_window_seconds?: number | null;
 
   /**
    * Probe-only, and null wherever SEP's `om_inventory` app has not run.
@@ -113,20 +119,20 @@ export interface OmService {
    * that is running: divergence from `version` is the upgraded-but-not-restarted
    * case, and no metric anywhere carries it.
    */
-  installed_version: string | null;
-  config_path: string | null;
-  argv: string | null;
+  installed_version?: string | null;
+  config_path?: string | null;
+  argv?: string | null;
 }
 
 /** One cluster or replica set. `name` is null when its services carry no label. */
 export interface OmCluster {
-  name: string | null;
+  name?: string | null;
   services: OmService[];
 }
 
 /** One monitoring environment. `env_name` is null when unset. */
 export interface OmEnvironment {
-  env_name: string | null;
+  env_name?: string | null;
   clusters: OmCluster[];
 }
 
@@ -143,7 +149,7 @@ export interface OmTopologySummary {
 /** Provenance every snapshot-backed response repeats. */
 export interface OmTopologySnapshotEnvelope {
   generated_at: string;
-  observed_at: string | null;
+  observed_at?: string | null;
   stale: boolean;
   schema_version: number;
   run_id: string;
@@ -152,7 +158,7 @@ export interface OmTopologySnapshotEnvelope {
 /** The whole estate, as one document. */
 export interface OmTopologyResponse {
   snapshot: OmTopologySnapshotEnvelope;
-  origin_node: string | null;
+  origin_node?: string | null;
   source_queries: string[];
   summary: OmTopologySummary;
   environments: OmEnvironment[];
@@ -165,8 +171,8 @@ export interface OmTopologyResponse {
  * the nesting is preserved as columns rather than as rows.
  */
 export interface OmServiceRow extends OmService {
-  env_name: string | null;
-  cluster_name: string | null;
+  env_name?: string | null;
+  cluster_name?: string | null;
 }
 
 /**
@@ -178,8 +184,8 @@ export interface OmServiceRow extends OmService {
  * disagree -- there is no second endpoint and no second snapshot.
  */
 export interface OmClusterRow {
-  env_name: string | null;
-  cluster_name: string | null;
+  env_name?: string | null;
+  cluster_name?: string | null;
   /** The cluster's own services, so unfolding a row needs no second lookup. */
   services: OmService[];
   total_services: number;
@@ -196,8 +202,8 @@ export interface OmClusterRow {
    * Both are null when no service in the cluster reports one -- a sharded cluster's
    * routers have neither, and an unobserved cluster has nothing at all.
    */
-  max_replication_lag_seconds: number | null;
-  min_oplog_window_seconds: number | null;
+  max_replication_lag_seconds?: number | null;
+  min_oplog_window_seconds?: number | null;
 }
 
 /**
@@ -209,7 +215,7 @@ export interface OmClusterRow {
  * enough to scroll past.
  */
 export interface OmEnvironmentSection {
-  env_name: string | null;
+  env_name?: string | null;
   clusters: OmClusterRow[];
   total_services: number;
   up_services: number;
@@ -246,7 +252,7 @@ export interface OmTopologyRunCounts {
 
 export interface OmTopologyRunError {
   scope: string;
-  service_name: string | null;
+  service_name?: string | null;
   code: string;
   message: string;
 }
@@ -255,7 +261,7 @@ export interface OmTopologyRun {
   run_id: string;
   status: OmTopologyRunStatus;
   start_time: string;
-  end_time: string | null;
+  end_time?: string | null;
   counts: OmTopologyRunCounts;
   errors: OmTopologyRunError[];
 }
@@ -294,11 +300,11 @@ export interface OmProbeRun {
   run_id: string;
   status: OmTopologyRunStatus;
   start_time: string;
-  end_time: string | null;
+  end_time?: string | null;
   counts: OmProbeCounts;
   facts_collected: number;
   /** Why the sweep itself failed, when it did. */
-  error: string | null;
+  error?: string | null;
 }
 
 export interface OmProbeAccepted {
@@ -315,10 +321,10 @@ export interface OmProbeAccepted {
  */
 export interface OmProbeNode {
   /** PMM's service UUID, or null where SEP's inventory holds none. */
-  service_id: string | null;
+  service_id?: string | null;
   service_name: string;
   /** The host the probe ran on; null when the service is orphaned. */
-  executor_host: string | null;
+  executor_host?: string | null;
   /** `name` / `address` / `orphaned` — how that host was matched, or that it was not. */
   resolution: string;
   answered: boolean;
@@ -328,10 +334,10 @@ export interface OmProbeNode {
    * Repeated across the services one host serves, because one dispatch covers all of
    * them: there is no per-service time to report.
    */
-  duration_seconds: number | null;
+  duration_seconds?: number | null;
   facts_collected: number;
   /** The host-level failure, when its probe failed. */
-  error: string | null;
+  error?: string | null;
 }
 
 /** One fact the probe read off a host. */
@@ -383,7 +389,7 @@ export interface OmInventoryExecutor {
   reachable: boolean;
   driver_healthy: boolean;
   /** The backend's own reason, when the driver is the problem. */
-  detail: string | null;
+  detail?: string | null;
 }
 
 /**
@@ -394,11 +400,11 @@ export interface OmInventoryExecutor {
  * already in use.
  */
 export interface OmUnregisteredMongod {
-  port: number | null;
-  config_path: string | null;
-  argv: string | null;
-  program: string | null;
-  pid: number | null;
+  port?: number | null;
+  config_path?: string | null;
+  argv?: string | null;
+  program?: string | null;
+  pid?: number | null;
 }
 
 /**
@@ -411,14 +417,14 @@ export interface OmUnregisteredMongod {
  * "failed a minute ago".
  */
 export interface OmInventoryFreshness {
-  first_seen_at: string | null;
-  last_attempt_at: string | null;
+  first_seen_at?: string | null;
+  last_attempt_at?: string | null;
   /** Null means it has never answered, which is not the same as answering nothing. */
-  last_success_at: string | null;
+  last_success_at?: string | null;
   /** Null means it is not failing. */
-  failing_since: string | null;
+  failing_since?: string | null;
   consecutive_failures: number;
-  last_error: string | null;
+  last_error?: string | null;
 }
 
 /**
@@ -432,9 +438,9 @@ export interface OmInventoryFreshness {
 export interface OmInventoryService {
   service_id: string;
   node_id: string;
-  name: string | null;
-  port: number | null;
-  role: string | null;
+  name?: string | null;
+  port?: number | null;
+  role?: string | null;
   /**
    * What the package database on the host says.
    *
@@ -443,14 +449,14 @@ export interface OmInventoryService {
    * the process not restarted, which is a state OM exists to find - so the two are
    * never merged into one column.
    */
-  installed_version: string | null;
-  running_version: string | null;
-  config_path: string | null;
-  argv: string | null;
-  probe_status: string | null;
-  server_running: boolean | null;
-  uptime_seconds: number | null;
-  replication_set: string | null;
+  installed_version?: string | null;
+  running_version?: string | null;
+  config_path?: string | null;
+  argv?: string | null;
+  probe_status?: string | null;
+  server_running?: boolean | null;
+  uptime_seconds?: number | null;
+  replication_set?: string | null;
   observed: Record<string, unknown>;
   freshness: OmInventoryFreshness;
 }
@@ -464,11 +470,11 @@ export interface OmInventoryService {
 export interface OmInventoryHost {
   node_id: string;
   name: string;
-  address: string | null;
+  address?: string | null;
   /** The executor client serving it, or null when none matched. */
-  executor_host: string | null;
-  os: string | null;
-  kernel: string | null;
+  executor_host?: string | null;
+  os?: string | null;
+  kernel?: string | null;
   executor: OmInventoryExecutor;
   unregistered_mongods: OmUnregisteredMongod[];
   observed: Record<string, unknown>;
@@ -479,13 +485,13 @@ export interface OmInventoryHost {
 
 /** Whether a host can fetch packages, and why not when it cannot. */
 export interface OmRepoReachability {
-  url: string | null;
+  url?: string | null;
   reachable: boolean;
-  status_code: number | null;
-  latency_ms: number | null;
+  status_code?: number | null;
+  latency_ms?: number | null;
   /** Null is "direct", stated rather than omitted: a failure needs the context. */
-  proxy: string | null;
-  error: string | null;
+  proxy?: string | null;
+  error?: string | null;
 }
 
 /** The three answers to "is there a database on this host". */
@@ -524,7 +530,7 @@ export interface OmInventoryRunAccepted {
   run_id: string;
   /** Always `RUN_STATUS_RUNNING`: the refresh is accepted, not finished. */
   status: OmTopologyRunStatus;
-  start_time: string | null;
+  start_time?: string | null;
   /** The hosts it will cover. Empty means the whole estate. */
   scope: string[];
 }
@@ -557,7 +563,7 @@ export interface OmInventoryRun {
   status: OmTopologyRunStatus;
   start_time: string;
   /** Null while it is still going. */
-  end_time: string | null;
+  end_time?: string | null;
   counts: OmInventoryRunCounts;
   /**
    * The hosts it was limited to. Empty means the whole estate.
@@ -566,7 +572,7 @@ export interface OmInventoryRun {
    * looks like a catastrophic failure rather than the single-host refresh it was.
    */
   scope: string[];
-  error: string | null;
+  error?: string | null;
 }
 
 /**
@@ -577,10 +583,10 @@ export interface OmInventoryRun {
  * stale on the next refresh.
  */
 export interface OmInventoryRunEntityService {
-  service_id: string | null;
-  service_name: string | null;
+  service_id?: string | null;
+  service_name?: string | null;
   answered: boolean;
-  error: string | null;
+  error?: string | null;
 }
 
 /**
@@ -595,13 +601,13 @@ export interface OmInventoryRunEntityService {
  */
 export interface OmInventoryRunEntity {
   node_id: string;
-  host_name: string | null;
-  executor_host: string | null;
+  host_name?: string | null;
+  executor_host?: string | null;
   /** How the host was matched to an executor client, or that it was not. */
   resolution: OmExecutorResolution;
   answered: boolean;
-  duration_seconds: number | null;
-  error: string | null;
+  duration_seconds?: number | null;
+  error?: string | null;
   /** The services on it. Empty is a meaningful answer, not a gap. */
   services: OmInventoryRunEntityService[];
 }
@@ -621,5 +627,5 @@ export interface OmInventorySetting {
   reload: OmSettingReload;
   has_override: boolean;
   is_advanced: boolean;
-  description: string | null;
+  description?: string | null;
 }

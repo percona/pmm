@@ -231,7 +231,13 @@ export function ConfigForm() {
   useEffect(() => {
     setDrafts(
       Object.fromEntries(
-        editable.map((setting) => [setting.key, String(setting.value)])
+        // Nullish coerces to "" rather than the literal words "null"/"undefined":
+        // setting.value is unknown, and String() would put those in the box, let isValid
+        // pass them as non-empty, and save them back as text.
+        editable.map((setting) => [
+          setting.key,
+          setting.value == null ? '' : String(setting.value),
+        ])
       )
     );
   }, [editable]);
@@ -313,6 +319,7 @@ export function ConfigForm() {
       )}
 
       {update.isError && <Alert severity="error">{update.error.message}</Alert>}
+      {reset.isError && <Alert severity="error">{reset.error.message}</Alert>}
 
       <Stack direction="row" gap={2} alignItems="center" sx={{ mt: 1 }}>
         <Button

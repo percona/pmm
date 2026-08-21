@@ -245,7 +245,8 @@ func (r *metricsRun) signal(ctx context.Context, matcher string, signal metricSi
 	for serviceID, v := range values {
 		fact := Fact{Service: serviceID, Field: signal.valueField, Value: v, Source: sourceMetrics}
 		// Dated by the matching age query, so a value read over a day-long window still
-		// knows how old it is.
+		// knows how old it is -- and with the oldest of that service's series, because the
+		// winner above was chosen without reference to which series was freshest.
 		if age, ok := ages[serviceID]; ok {
 			fact.ObservedAt = r.observedAt(age)
 		}
@@ -253,8 +254,21 @@ func (r *metricsRun) signal(ctx context.Context, matcher string, signal metricSi
 	}
 }
 
-// ages runs the age query, harvesting the labels it carries, and returns the freshest age
+// ages runs the age query, harvesting the labels it carries, and returns the *oldest* age
 // per service so the value query can date its own facts.
+//
+// Oldest rather than freshest, which is the conservative pairing. The value query reduces
+// across every series for a service -- the largest sample when reduceMax is set, whichever
+// arrives last otherwise -- and it picks that winner independently of this query. So the
+// value a fact carries need not come from the series that produced the freshest age. A
+// node reporting two replication-lag series, one current and one hours stale with a larger
+// lag, would otherwise hand back the stale maximum stamped as current, and fieldSet.live
+// would read it as a statement about now. Dating the reduced value with the oldest age
+// makes such a pair read as stale, which is wrong in the direction that shows rather than
+// the direction that misleads.
+//
+// The label and presence facts below are unaffected: each is dated with its own series'
+// age inside the callback, because each comes from exactly one series.
 //
 // MetricsQL's lag() answers the seconds since the series' last raw sample and preserves
 // every label, so one query yields both the labels the catalog reads and the staleness
@@ -273,7 +287,7 @@ func (r *metricsRun) ages(ctx context.Context, matcher string, signal metricSign
 		if age > r.oldest {
 			r.oldest = age
 		}
-		if held, ok := ages[serviceID]; !ok || age < held {
+		if held, ok := ages[serviceID]; !ok || age > held {
 			ages[serviceID] = age
 		}
 		observedAt := r.observedAt(age)

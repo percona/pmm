@@ -61,8 +61,11 @@ const (
 	// How many runs the in-memory history keeps.
 	runHistory = 100
 
-	// What the UI asks for when it passes no limit.
+	// What the UI asks for when it passes no limit, and the most a caller may ask for.
+	// The ceiling is runHistory: asking for more than the history keeps cannot return
+	// more rows, so a larger number is only a larger query.
 	defaultRunLimit = 25
+	maxRunLimit     = runHistory
 )
 
 // Run statuses, as the run row stores them. A run whose sources all answered is a success
@@ -138,7 +141,7 @@ func (s *Service) WithProbeSource(sepURL, token string) *Service {
 // GetTopology returns the whole MongoDB estate as one document, rebuilding it when the
 // cached one has aged past refreshInterval.
 func (s *Service) GetTopology(ctx context.Context, _ *omv1.GetTopologyRequest) (*omv1.GetTopologyResponse, error) {
-	s.restoreOnce()
+	s.restoreOnce(ctx)
 	if cached, ok := s.cached(); ok {
 		return cached, nil
 	}
@@ -157,13 +160,16 @@ func (s *Service) GetTopology(ctx context.Context, _ *omv1.GetTopologyRequest) (
 }
 
 // ListTopologyRuns returns the recorded runs, newest first.
-func (s *Service) ListTopologyRuns(_ context.Context, req *omv1.ListTopologyRunsRequest) (*omv1.ListTopologyRunsResponse, error) {
+func (s *Service) ListTopologyRuns(ctx context.Context, req *omv1.ListTopologyRunsRequest) (*omv1.ListTopologyRunsResponse, error) {
 	limit := int(req.GetLimit())
-	if limit <= 0 {
+	switch {
+	case limit <= 0:
 		limit = defaultRunLimit
+	case limit > maxRunLimit:
+		limit = maxRunLimit
 	}
 
-	runs, err := s.listRuns(limit)
+	runs, err := s.listRuns(ctx, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -171,8 +177,8 @@ func (s *Service) ListTopologyRuns(_ context.Context, req *omv1.ListTopologyRuns
 }
 
 // GetTopologyRun returns one recorded run.
-func (s *Service) GetTopologyRun(_ context.Context, req *omv1.GetTopologyRunRequest) (*omv1.GetTopologyRunResponse, error) {
-	run, err := s.getRun(req.GetRunId())
+func (s *Service) GetTopologyRun(ctx context.Context, req *omv1.GetTopologyRunRequest) (*omv1.GetTopologyRunResponse, error) {
+	run, err := s.getRun(ctx, req.GetRunId())
 	if err != nil {
 		if errors.Is(err, models.ErrNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Run %s not found.", req.GetRunId())
@@ -254,7 +260,7 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 	startedAt := time.Now()
 	runID := uuid.New().String()
 
-	services, nodes, originNode, maxAge, err := s.readInventory()
+	services, nodes, originNode, maxAge, err := s.readInventory(ctx)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to read inventory: %w", err)
 	}
@@ -297,7 +303,7 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 	// Recorded after publishing, and never fatal: the document is already correct and
 	// already served, so losing the record of a collection is worth less than refusing to
 	// answer with it.
-	err = s.persist(response, run, originNode)
+	err = s.persist(ctx, response, run, originNode)
 	if err != nil {
 		s.l.Warnf("run %s: failed to record: %s", runID, err)
 	}
@@ -317,9 +323,9 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 // then obeys the same cache rule as anything else: young enough and it is served, too old
 // and the read that wanted it rebuilds. Either way there is now something to fall back on
 // when a rebuild fails, which is the case that made this worth storing.
-func (s *Service) restoreOnce() {
+func (s *Service) restoreOnce(ctx context.Context) {
 	s.restored.Do(func() {
-		response, generatedAt, err := s.restore()
+		response, generatedAt, err := s.restore(ctx)
 		if err != nil {
 			s.l.Warnf("failed to restore the stored topology: %s", err)
 			return
@@ -356,7 +362,7 @@ func (s *Service) snapshot() *omv1.GetTopologyResponse {
 
 // readInventory returns every MongoDB service, its nodes by ID, the PMM Server node name
 // to record as the document's vantage point, and how old a volatile observation may be.
-func (s *Service) readInventory() ([]*models.Service, map[string]*models.Node, string, time.Duration, error) {
+func (s *Service) readInventory(ctx context.Context) ([]*models.Service, map[string]*models.Node, string, time.Duration, error) {
 	var (
 		services   []*models.Service
 		nodesByID  map[string]*models.Node
@@ -365,7 +371,7 @@ func (s *Service) readInventory() ([]*models.Service, map[string]*models.Node, s
 	)
 
 	serviceType := models.MongoDBServiceType
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		services, err = models.FindServices(tx.Querier, models.ServiceFilters{ServiceType: &serviceType})
 		if err != nil {

@@ -78,18 +78,35 @@ export function formatAge(
   return `${formatDuration(seconds) || '0s'} ago`;
 }
 
-/** Wall-clock length of a run; empty while it is still going. */
-export function formatRunDuration(
+/**
+ * Wall-clock length of a run in seconds, or null while it is still going.
+ *
+ * Split out from formatRunDuration so a table can sort on the number: sorting the
+ * formatted string puts "9s" after "10m".
+ */
+export function runDurationSeconds(
   startedAt: string,
-  finishedAt: string | null
-): string {
+  finishedAt: string | null | undefined
+): number | null {
   if (!finishedAt) {
-    return '';
+    return null;
   }
   const start = new Date(startedAt).getTime();
   const end = new Date(finishedAt).getTime();
   if (Number.isNaN(start) || Number.isNaN(end) || end < start) {
+    return null;
+  }
+  return (end - start) / 1000;
+}
+
+/** Wall-clock length of a run; empty while it is still going. */
+export function formatRunDuration(
+  startedAt: string,
+  finishedAt: string | null | undefined
+): string {
+  const seconds = runDurationSeconds(startedAt, finishedAt);
+  if (seconds === null) {
     return '';
   }
-  return formatDuration((end - start) / 1000) || '0s';
+  return formatDuration(seconds) || '0s';
 }

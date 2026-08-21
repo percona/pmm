@@ -111,7 +111,7 @@ func TestBuildDocument(t *testing.T) {
 		assert.Equal(t, omv1.ServiceStatus_SERVICE_STATUS_DOWN, svc.Status)
 		assert.Nil(t, svc.State, "a replica-set state from ten minutes ago is not current")
 		assert.InDelta(t, float64(unmeasured), svc.CpuUsagePercent, 0.001)
-		assert.Equal(t, "7.0.39-21", svc.Version.GetValue(), "identity is still worth reporting")
+		assert.Equal(t, "7.0.39-21", svc.GetVersion(), "identity is still worth reporting")
 		assert.Equal(t, 1, doc.staleServices)
 	})
 
@@ -142,7 +142,7 @@ func TestBuildDocument(t *testing.T) {
 		services := []*models.Service{mongoService("s1", "mongo-1", "c1", "rs0", "prod")}
 
 		doc := buildDocument(services, map[string]map[string]MergedField{"s1": withOplog(1000, 400)}, projectionNow, projectionMaxAge)
-		assert.InDelta(t, 600.0, onlyService(t, doc).OplogWindowSeconds.GetValue(), 0.001)
+		assert.InDelta(t, 600.0, onlyService(t, doc).GetOplogWindowSeconds(), 0.001)
 
 		// head < tail is mismatched scrapes or clock skew: unknown, not a negative duration.
 		doc = buildDocument(services, map[string]map[string]MergedField{"s1": withOplog(400, 1000)}, projectionNow, projectionMaxAge)
@@ -214,14 +214,14 @@ func TestBuildDocument(t *testing.T) {
 		// sorted() orders the same way.
 		require.Len(t, doc.environments, 2)
 		assert.Nil(t, doc.environments[0].EnvName, "an unset environment is null, never invented")
-		assert.Equal(t, "prod", doc.environments[1].EnvName.GetValue())
+		assert.Equal(t, "prod", doc.environments[1].GetEnvName())
 
 		require.Len(t, doc.environments[0].Clusters, 1)
 		assert.Nil(t, doc.environments[0].Clusters[0].Name)
 
 		require.Len(t, doc.environments[1].Clusters, 2)
-		assert.Equal(t, "cl1", doc.environments[1].Clusters[0].Name.GetValue())
-		assert.Equal(t, "rs0", doc.environments[1].Clusters[1].Name.GetValue(), "cluster falls back to the replica set")
+		assert.Equal(t, "cl1", doc.environments[1].Clusters[0].GetName())
+		assert.Equal(t, "rs0", doc.environments[1].Clusters[1].GetName(), "cluster falls back to the replica set")
 	})
 
 	t.Run("services sort by name inside a cluster", func(t *testing.T) {

@@ -59,267 +59,6 @@ func (m *TopologyService) validate(all bool) error {
 
 	// no validation rules for ServiceName
 
-	if all {
-		switch v := interface{}(m.GetHost()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Host",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Host",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetHost()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "Host",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetEndpoint()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Endpoint",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Endpoint",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetEndpoint()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "Endpoint",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetServiceId()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "ServiceId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "ServiceId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetServiceId()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "ServiceId",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetServiceType()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "ServiceType",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "ServiceType",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetServiceType()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "ServiceType",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetVersion()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Version",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Version",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetVersion()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "Version",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetVendor()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Vendor",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Vendor",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetVendor()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "Vendor",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetEdition()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Edition",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Edition",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetEdition()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "Edition",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetReplicationSet()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "ReplicationSet",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "ReplicationSet",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetReplicationSet()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "ReplicationSet",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetState()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "State",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "State",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetState()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "State",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	// no validation rules for Status
 
 	// no validation rules for CpuUsagePercent
@@ -328,149 +67,60 @@ func (m *TopologyService) validate(all bool) error {
 
 	// no validation rules for ProcessRole
 
-	if all {
-		switch v := interface{}(m.GetReplicationLagSeconds()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "ReplicationLagSeconds",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "ReplicationLagSeconds",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetReplicationLagSeconds()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "ReplicationLagSeconds",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Host != nil {
+		// no validation rules for Host
 	}
 
-	if all {
-		switch v := interface{}(m.GetOplogWindowSeconds()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "OplogWindowSeconds",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "OplogWindowSeconds",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetOplogWindowSeconds()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "OplogWindowSeconds",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Endpoint != nil {
+		// no validation rules for Endpoint
 	}
 
-	if all {
-		switch v := interface{}(m.GetInstalledVersion()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "InstalledVersion",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "InstalledVersion",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetInstalledVersion()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "InstalledVersion",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.ServiceId != nil {
+		// no validation rules for ServiceId
 	}
 
-	if all {
-		switch v := interface{}(m.GetConfigPath()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "ConfigPath",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "ConfigPath",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetConfigPath()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "ConfigPath",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.ServiceType != nil {
+		// no validation rules for ServiceType
 	}
 
-	if all {
-		switch v := interface{}(m.GetArgv()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Argv",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyServiceValidationError{
-					field:  "Argv",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetArgv()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyServiceValidationError{
-				field:  "Argv",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Version != nil {
+		// no validation rules for Version
+	}
+
+	if m.Vendor != nil {
+		// no validation rules for Vendor
+	}
+
+	if m.Edition != nil {
+		// no validation rules for Edition
+	}
+
+	if m.ReplicationSet != nil {
+		// no validation rules for ReplicationSet
+	}
+
+	if m.State != nil {
+		// no validation rules for State
+	}
+
+	if m.ReplicationLagSeconds != nil {
+		// no validation rules for ReplicationLagSeconds
+	}
+
+	if m.OplogWindowSeconds != nil {
+		// no validation rules for OplogWindowSeconds
+	}
+
+	if m.InstalledVersion != nil {
+		// no validation rules for InstalledVersion
+	}
+
+	if m.ConfigPath != nil {
+		// no validation rules for ConfigPath
+	}
+
+	if m.Argv != nil {
+		// no validation rules for Argv
 	}
 
 	if len(errors) > 0 {
@@ -573,35 +223,6 @@ func (m *Cluster) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetName()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ClusterValidationError{
-					field:  "Name",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ClusterValidationError{
-					field:  "Name",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetName()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ClusterValidationError{
-				field:  "Name",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	for idx, item := range m.GetServices() {
 		_, _ = idx, item
 
@@ -634,6 +255,10 @@ func (m *Cluster) validate(all bool) error {
 			}
 		}
 
+	}
+
+	if m.Name != nil {
+		// no validation rules for Name
 	}
 
 	if len(errors) > 0 {
@@ -736,35 +361,6 @@ func (m *Environment) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetEnvName()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, EnvironmentValidationError{
-					field:  "EnvName",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, EnvironmentValidationError{
-					field:  "EnvName",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetEnvName()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return EnvironmentValidationError{
-				field:  "EnvName",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	for idx, item := range m.GetClusters() {
 		_, _ = idx, item
 
@@ -797,6 +393,10 @@ func (m *Environment) validate(all bool) error {
 			}
 		}
 
+	}
+
+	if m.EnvName != nil {
+		// no validation rules for EnvName
 	}
 
 	if len(errors) > 0 {
@@ -1307,35 +907,6 @@ func (m *GetTopologyResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetOriginNode()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, GetTopologyResponseValidationError{
-					field:  "OriginNode",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, GetTopologyResponseValidationError{
-					field:  "OriginNode",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetOriginNode()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return GetTopologyResponseValidationError{
-				field:  "OriginNode",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
 		switch v := interface{}(m.GetSummary()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
@@ -1396,6 +967,10 @@ func (m *GetTopologyResponse) validate(all bool) error {
 			}
 		}
 
+	}
+
+	if m.OriginNode != nil {
+		// no validation rules for OriginNode
 	}
 
 	if len(errors) > 0 {
@@ -1724,38 +1299,13 @@ func (m *TopologyRunError) validate(all bool) error {
 
 	// no validation rules for Scope
 
-	if all {
-		switch v := interface{}(m.GetServiceName()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, TopologyRunErrorValidationError{
-					field:  "ServiceName",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, TopologyRunErrorValidationError{
-					field:  "ServiceName",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetServiceName()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return TopologyRunErrorValidationError{
-				field:  "ServiceName",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	// no validation rules for Code
 
 	// no validation rules for Message
+
+	if m.ServiceName != nil {
+		// no validation rules for ServiceName
+	}
 
 	if len(errors) > 0 {
 		return TopologyRunErrorMultiError(errors)
@@ -2865,33 +2415,8 @@ func (m *InventoryExecutor) validate(all bool) error {
 
 	// no validation rules for DriverHealthy
 
-	if all {
-		switch v := interface{}(m.GetDetail()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryExecutorValidationError{
-					field:  "Detail",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryExecutorValidationError{
-					field:  "Detail",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetDetail()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryExecutorValidationError{
-				field:  "Detail",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Detail != nil {
+		// no validation rules for Detail
 	}
 
 	if len(errors) > 0 {
@@ -2997,149 +2522,24 @@ func (m *UnregisteredMongod) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetPort()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, UnregisteredMongodValidationError{
-					field:  "Port",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, UnregisteredMongodValidationError{
-					field:  "Port",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetPort()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return UnregisteredMongodValidationError{
-				field:  "Port",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Port != nil {
+		// no validation rules for Port
 	}
 
-	if all {
-		switch v := interface{}(m.GetConfigPath()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, UnregisteredMongodValidationError{
-					field:  "ConfigPath",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, UnregisteredMongodValidationError{
-					field:  "ConfigPath",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetConfigPath()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return UnregisteredMongodValidationError{
-				field:  "ConfigPath",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.ConfigPath != nil {
+		// no validation rules for ConfigPath
 	}
 
-	if all {
-		switch v := interface{}(m.GetArgv()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, UnregisteredMongodValidationError{
-					field:  "Argv",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, UnregisteredMongodValidationError{
-					field:  "Argv",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetArgv()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return UnregisteredMongodValidationError{
-				field:  "Argv",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Argv != nil {
+		// no validation rules for Argv
 	}
 
-	if all {
-		switch v := interface{}(m.GetProgram()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, UnregisteredMongodValidationError{
-					field:  "Program",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, UnregisteredMongodValidationError{
-					field:  "Program",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetProgram()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return UnregisteredMongodValidationError{
-				field:  "Program",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Program != nil {
+		// no validation rules for Program
 	}
 
-	if all {
-		switch v := interface{}(m.GetPid()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, UnregisteredMongodValidationError{
-					field:  "Pid",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, UnregisteredMongodValidationError{
-					field:  "Pid",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetPid()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return UnregisteredMongodValidationError{
-				field:  "Pid",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Pid != nil {
+		// no validation rules for Pid
 	}
 
 	if len(errors) > 0 {
@@ -3363,33 +2763,8 @@ func (m *InventoryFreshness) validate(all bool) error {
 
 	// no validation rules for ConsecutiveFailures
 
-	if all {
-		switch v := interface{}(m.GetLastError()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryFreshnessValidationError{
-					field:  "LastError",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryFreshnessValidationError{
-					field:  "LastError",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetLastError()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryFreshnessValidationError{
-				field:  "LastError",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.LastError != nil {
+		// no validation rules for LastError
 	}
 
 	if len(errors) > 0 {
@@ -3502,296 +2877,6 @@ func (m *InventoryService) validate(all bool) error {
 	// no validation rules for Name
 
 	if all {
-		switch v := interface{}(m.GetPort()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "Port",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "Port",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetPort()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryServiceValidationError{
-				field:  "Port",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetRole()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "Role",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "Role",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRole()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryServiceValidationError{
-				field:  "Role",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetInstalledVersion()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "InstalledVersion",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "InstalledVersion",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetInstalledVersion()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryServiceValidationError{
-				field:  "InstalledVersion",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetRunningVersion()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "RunningVersion",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "RunningVersion",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRunningVersion()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryServiceValidationError{
-				field:  "RunningVersion",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetConfigPath()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "ConfigPath",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "ConfigPath",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetConfigPath()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryServiceValidationError{
-				field:  "ConfigPath",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetArgv()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "Argv",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "Argv",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetArgv()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryServiceValidationError{
-				field:  "Argv",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetProbeStatus()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "ProbeStatus",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "ProbeStatus",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetProbeStatus()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryServiceValidationError{
-				field:  "ProbeStatus",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetServerRunning()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "ServerRunning",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "ServerRunning",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetServerRunning()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryServiceValidationError{
-				field:  "ServerRunning",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetUptimeSeconds()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "UptimeSeconds",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "UptimeSeconds",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetUptimeSeconds()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryServiceValidationError{
-				field:  "UptimeSeconds",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetReplicationSet()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "ReplicationSet",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryServiceValidationError{
-					field:  "ReplicationSet",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetReplicationSet()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryServiceValidationError{
-				field:  "ReplicationSet",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
 		switch v := interface{}(m.GetObserved()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
@@ -3847,6 +2932,46 @@ func (m *InventoryService) validate(all bool) error {
 				cause:  err,
 			}
 		}
+	}
+
+	if m.Port != nil {
+		// no validation rules for Port
+	}
+
+	if m.Role != nil {
+		// no validation rules for Role
+	}
+
+	if m.InstalledVersion != nil {
+		// no validation rules for InstalledVersion
+	}
+
+	if m.RunningVersion != nil {
+		// no validation rules for RunningVersion
+	}
+
+	if m.ConfigPath != nil {
+		// no validation rules for ConfigPath
+	}
+
+	if m.Argv != nil {
+		// no validation rules for Argv
+	}
+
+	if m.ProbeStatus != nil {
+		// no validation rules for ProbeStatus
+	}
+
+	if m.ServerRunning != nil {
+		// no validation rules for ServerRunning
+	}
+
+	if m.UptimeSeconds != nil {
+		// no validation rules for UptimeSeconds
+	}
+
+	if m.ReplicationSet != nil {
+		// no validation rules for ReplicationSet
 	}
 
 	if len(errors) > 0 {
@@ -3953,122 +3078,6 @@ func (m *InventoryHost) validate(all bool) error {
 	// no validation rules for NodeId
 
 	// no validation rules for Name
-
-	if all {
-		switch v := interface{}(m.GetAddress()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryHostValidationError{
-					field:  "Address",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryHostValidationError{
-					field:  "Address",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetAddress()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryHostValidationError{
-				field:  "Address",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetExecutorHost()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryHostValidationError{
-					field:  "ExecutorHost",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryHostValidationError{
-					field:  "ExecutorHost",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetExecutorHost()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryHostValidationError{
-				field:  "ExecutorHost",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetOs()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryHostValidationError{
-					field:  "Os",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryHostValidationError{
-					field:  "Os",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetOs()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryHostValidationError{
-				field:  "Os",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetKernel()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryHostValidationError{
-					field:  "Kernel",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryHostValidationError{
-					field:  "Kernel",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetKernel()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryHostValidationError{
-				field:  "Kernel",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
 
 	if all {
 		switch v := interface{}(m.GetExecutor()).(type) {
@@ -4223,6 +3232,22 @@ func (m *InventoryHost) validate(all bool) error {
 			}
 		}
 
+	}
+
+	if m.Address != nil {
+		// no validation rules for Address
+	}
+
+	if m.ExecutorHost != nil {
+		// no validation rules for ExecutorHost
+	}
+
+	if m.Os != nil {
+		// no validation rules for Os
+	}
+
+	if m.Kernel != nil {
+		// no validation rules for Kernel
 	}
 
 	if len(errors) > 0 {
@@ -4443,93 +3468,18 @@ func (m *InventoryRunEntityService) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetServiceId()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryRunEntityServiceValidationError{
-					field:  "ServiceId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryRunEntityServiceValidationError{
-					field:  "ServiceId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetServiceId()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryRunEntityServiceValidationError{
-				field:  "ServiceId",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetServiceName()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryRunEntityServiceValidationError{
-					field:  "ServiceName",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryRunEntityServiceValidationError{
-					field:  "ServiceName",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetServiceName()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryRunEntityServiceValidationError{
-				field:  "ServiceName",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	// no validation rules for Answered
 
-	if all {
-		switch v := interface{}(m.GetError()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryRunEntityServiceValidationError{
-					field:  "Error",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryRunEntityServiceValidationError{
-					field:  "Error",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetError()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryRunEntityServiceValidationError{
-				field:  "Error",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.ServiceId != nil {
+		// no validation rules for ServiceId
+	}
+
+	if m.ServiceName != nil {
+		// no validation rules for ServiceName
+	}
+
+	if m.Error != nil {
+		// no validation rules for Error
 	}
 
 	if len(errors) > 0 {
@@ -4637,125 +3587,9 @@ func (m *InventoryRunEntity) validate(all bool) error {
 
 	// no validation rules for NodeId
 
-	if all {
-		switch v := interface{}(m.GetHostName()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryRunEntityValidationError{
-					field:  "HostName",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryRunEntityValidationError{
-					field:  "HostName",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetHostName()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryRunEntityValidationError{
-				field:  "HostName",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetExecutorHost()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryRunEntityValidationError{
-					field:  "ExecutorHost",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryRunEntityValidationError{
-					field:  "ExecutorHost",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetExecutorHost()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryRunEntityValidationError{
-				field:  "ExecutorHost",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	// no validation rules for Resolution
 
 	// no validation rules for Answered
-
-	if all {
-		switch v := interface{}(m.GetDurationSeconds()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryRunEntityValidationError{
-					field:  "DurationSeconds",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryRunEntityValidationError{
-					field:  "DurationSeconds",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetDurationSeconds()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryRunEntityValidationError{
-				field:  "DurationSeconds",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetError()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryRunEntityValidationError{
-					field:  "Error",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryRunEntityValidationError{
-					field:  "Error",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetError()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryRunEntityValidationError{
-				field:  "Error",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
 
 	for idx, item := range m.GetServices() {
 		_, _ = idx, item
@@ -4789,6 +3623,22 @@ func (m *InventoryRunEntity) validate(all bool) error {
 			}
 		}
 
+	}
+
+	if m.HostName != nil {
+		// no validation rules for HostName
+	}
+
+	if m.ExecutorHost != nil {
+		// no validation rules for ExecutorHost
+	}
+
+	if m.DurationSeconds != nil {
+		// no validation rules for DurationSeconds
+	}
+
+	if m.Error != nil {
+		// no validation rules for Error
 	}
 
 	if len(errors) > 0 {
@@ -4985,33 +3835,8 @@ func (m *InventoryRun) validate(all bool) error {
 		}
 	}
 
-	if all {
-		switch v := interface{}(m.GetError()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventoryRunValidationError{
-					field:  "Error",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventoryRunValidationError{
-					field:  "Error",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetError()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventoryRunValidationError{
-				field:  "Error",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Error != nil {
+		// no validation rules for Error
 	}
 
 	if len(errors) > 0 {
@@ -5182,33 +4007,8 @@ func (m *InventorySetting) validate(all bool) error {
 
 	// no validation rules for IsAdvanced
 
-	if all {
-		switch v := interface{}(m.GetDescription()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, InventorySettingValidationError{
-					field:  "Description",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, InventorySettingValidationError{
-					field:  "Description",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetDescription()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return InventorySettingValidationError{
-				field:  "Description",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Description != nil {
+		// no validation rules for Description
 	}
 
 	if len(errors) > 0 {
@@ -5312,91 +4112,16 @@ func (m *ListInventoryHostsRequest) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetHasService()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ListInventoryHostsRequestValidationError{
-					field:  "HasService",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ListInventoryHostsRequestValidationError{
-					field:  "HasService",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetHasService()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ListInventoryHostsRequestValidationError{
-				field:  "HasService",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.HasService != nil {
+		// no validation rules for HasService
 	}
 
-	if all {
-		switch v := interface{}(m.GetFailing()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ListInventoryHostsRequestValidationError{
-					field:  "Failing",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ListInventoryHostsRequestValidationError{
-					field:  "Failing",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetFailing()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ListInventoryHostsRequestValidationError{
-				field:  "Failing",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Failing != nil {
+		// no validation rules for Failing
 	}
 
-	if all {
-		switch v := interface{}(m.GetExecutor()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ListInventoryHostsRequestValidationError{
-					field:  "Executor",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ListInventoryHostsRequestValidationError{
-					field:  "Executor",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetExecutor()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ListInventoryHostsRequestValidationError{
-				field:  "Executor",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Executor != nil {
+		// no validation rules for Executor
 	}
 
 	if len(errors) > 0 {
@@ -6103,62 +4828,12 @@ func (m *ListInventoryServicesRequest) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetNodeId()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ListInventoryServicesRequestValidationError{
-					field:  "NodeId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ListInventoryServicesRequestValidationError{
-					field:  "NodeId",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetNodeId()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ListInventoryServicesRequestValidationError{
-				field:  "NodeId",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.NodeId != nil {
+		// no validation rules for NodeId
 	}
 
-	if all {
-		switch v := interface{}(m.GetFailing()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ListInventoryServicesRequestValidationError{
-					field:  "Failing",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ListInventoryServicesRequestValidationError{
-					field:  "Failing",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetFailing()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ListInventoryServicesRequestValidationError{
-				field:  "Failing",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Failing != nil {
+		// no validation rules for Failing
 	}
 
 	if len(errors) > 0 {

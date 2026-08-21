@@ -37,16 +37,29 @@ import type { OmInventoryService } from '../types';
 export function ProbeValue({
   inventory,
   value,
+  inventoryUnavailable,
 }: {
   /** The estate row, or null when OM has never held one for this service. */
   inventory: OmInventoryService | null;
   /** The field being shown, read off that row by the caller. */
   value: string | number | null | undefined;
+  /**
+   * Set when the estate query itself failed. Without it a missing row is reported as
+   * "not in the inventory", which is a statement about the estate this page is in no
+   * position to make when it could not read it.
+   */
+  inventoryUnavailable?: boolean;
 }) {
   // No row at all: PMM registered this service after the last sweep, so nothing has
   // ever been dispatched for it. Different from a probe that ran and found nothing.
   if (!inventory) {
-    return <Unavailable reason="not_in_inventory" />;
+    return (
+      <Unavailable
+        reason={
+          inventoryUnavailable ? 'inventory_unavailable' : 'not_in_inventory'
+        }
+      />
+    );
   }
   if (value === null || value === undefined || value === '') {
     // A row exists. Whether it has ever answered is the useful distinction: never is
@@ -84,7 +97,21 @@ export function ProbeValue({
 
   return (
     <Tooltip title={detail}>
-      <Box component="span" sx={{ cursor: 'help' }}>
+      {/* Focusable so the detail -- which carries last_error -- is reachable without a
+          pointer. MUI opens a Tooltip on focus, but only if the anchor can take it. */}
+      <Box
+        component="span"
+        tabIndex={0}
+        sx={{
+          cursor: 'help',
+          '&:focus-visible': {
+            outline: '2px solid',
+            outlineColor: 'primary.main',
+            outlineOffset: 2,
+            borderRadius: 0.5,
+          },
+        }}
+      >
         {value}
         <Box
           component="span"

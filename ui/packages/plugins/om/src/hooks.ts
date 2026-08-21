@@ -178,7 +178,7 @@ export function toServiceRows(
  */
 function rollUpCluster(
   cluster: OmCluster,
-  envName: string | null
+  envName: string | null | undefined
 ): OmClusterRow {
   const byProcessRole: Partial<Record<OmProcessRole, number>> = {};
   const byState: Record<string, number> = {};

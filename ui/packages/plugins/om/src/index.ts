@@ -84,6 +84,7 @@ export {
   formatAge,
   formatDuration,
   formatRunDuration,
+  runDurationSeconds,
   formatTimestamp,
 } from './format';
 export type {

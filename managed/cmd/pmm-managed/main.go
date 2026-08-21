@@ -237,10 +237,9 @@ type gRPCServerDeps struct {
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
 
-	// Where SEP is, optional. Empty means OM builds its document from PMM's own
-	// inventory and metrics alone and records the probe source as disabled.
-	sepURL   string
-	sepToken string
+	// Built in main so its collection timer can be registered as an HA leader service.
+	// runGRPCServer only exposes it.
+	omService *om.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -331,13 +330,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
-	omSvc := om.New(deps.db, v1.NewAPI(*deps.vmClient), logrus.WithField("component", "om"))
-	omSvc.WithProbeSource(deps.sepURL, deps.sepToken)
-	omv1.RegisterOmServiceServer(gRPCServer, omSvc)
-
-	// Refresh the topology document on a timer, so the run history exists even when
-	// nobody is looking at the page.
-	go omSvc.Run(ctx)
+	omv1.RegisterOmServiceServer(gRPCServer, deps.omService)
 
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
@@ -1204,6 +1197,20 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
+	// Where SEP is, optional. Empty means OM builds its document from PMM's own inventory
+	// and metrics alone and records the probe source as disabled.
+	omService := om.New(db, v1.NewAPI(vmClient), logrus.WithField("component", "om"))
+	omService.WithProbeSource(*sepURLF, *sepTokenF)
+
+	// Leader-only, like every other periodic writer here. A collection persists a run and
+	// its snapshot and then prunes the shared history, so running it on every node of an
+	// HA cluster would have each node writing runs and pruning the others' -- and the
+	// pruning is what makes that destructive rather than merely wasteful.
+	haService.AddLeaderService(ha.NewContextService("om", func(ctx context.Context) error {
+		omService.Run(ctx)
+		return nil
+	}))
+
 	wg.Go(func() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
@@ -1235,8 +1242,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				templatesService:          alertingService,
 				versionCache:              versionCache,
 				vmalert:                   vmalert,
-				sepURL:                    *sepURLF,
-				sepToken:                  *sepTokenF,
+				omService:                 omService,
 				vmClient:                  &vmClient,
 				vmdb:                      vmdb,
 			})

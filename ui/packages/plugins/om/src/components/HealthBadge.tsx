@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Chip } from '@percona/percona-ui';
+import Chip from '@mui/material/Chip';
 import {
   RUN_STATUS_COLOR,
   RUN_STATUS_LABEL,

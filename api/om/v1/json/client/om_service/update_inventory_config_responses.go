@@ -572,7 +572,7 @@ type UpdateInventoryConfigOKBodySettingsItems0 struct {
 	IsAdvanced bool `json:"is_advanced,omitempty"`
 
 	// The field's documentation, where it has any.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 // Validate validates this update inventory config OK body settings items0

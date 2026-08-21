@@ -272,7 +272,9 @@ function EnvironmentTable({ section }: { section: OmEnvironmentSection }) {
     enableDensityToggle: false,
     enableExpanding: true,
     enableTopToolbar: false,
-    getRowId: (row) => row.cluster_name ?? UNNAMED_ENVIRONMENT,
+    // Indexed, not named: two unnamed clusters in one table would otherwise share a
+    // row id, and MRT uses it for expansion and selection state.
+    getRowId: (row, index) => row.cluster_name ?? `unnamed-${index}`,
     renderDetailPanel: ({ row }) => <ClusterServices cluster={row.original} />,
     initialState: {
       density: 'compact',
@@ -427,9 +429,11 @@ export function OverviewPage() {
           The snapshot has no environments. Sync to rebuild it.
         </Alert>
       ) : (
-        sections.map((section) => (
+        // Indexed fallback for the same reason as getRowId below: two sibling
+        // sections with no env_name would otherwise share a React key.
+        sections.map((section, index) => (
           <EnvironmentTable
-            key={section.env_name ?? UNNAMED_ENVIRONMENT}
+            key={section.env_name ?? `unnamed-${index}`}
             section={section}
           />
         ))

@@ -28149,6 +28149,7 @@
                       "description": {
                         "description": "The field's documentation, where it has any.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 7
                       }
                     }
@@ -28266,6 +28267,7 @@
                       "description": {
                         "description": "The field's documentation, where it has any.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 7
                       }
                     }
@@ -28423,21 +28425,25 @@
                       "address": {
                         "description": "The node address PMM registered.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 2
                       },
                       "executor_host": {
                         "description": "The Nomad client that serves it. Unset means nothing can be run there, which is a\nfact about the estate rather than a probe failure.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 3
                       },
                       "os": {
-                        "description": "The operating system, as the host reports it. Worth having from a probe because\nPMM leaves it null for some nodes.",
+                        "description": "The operating system, as the host reports it. Worth having from a probe because\nPMM does not know it for some nodes.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 4
                       },
                       "kernel": {
                         "description": "The kernel release.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 5
                       },
                       "executor": {
@@ -28462,6 +28468,7 @@
                           "detail": {
                             "description": "Whatever detail the backend gave, when it gave any.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 3
                           }
                         },
@@ -28478,27 +28485,32 @@
                               "description": "The port it is listening on.",
                               "type": "integer",
                               "format": "int32",
+                              "x-nullable": true,
                               "x-order": 0
                             },
                             "config_path": {
                               "description": "The configuration file it read.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 1
                             },
                             "argv": {
                               "description": "The command line it was started with.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 2
                             },
                             "program": {
                               "description": "The process name, e.g. \"mongod\".",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 3
                             },
                             "pid": {
                               "description": "Its process ID at the time of the probe.",
                               "type": "integer",
                               "format": "int32",
+                              "x-nullable": true,
                               "x-order": 4
                             }
                           }
@@ -28547,6 +28559,7 @@
                           "last_error": {
                             "description": "The most recent failure detail.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 5
                           }
                         },
@@ -28578,52 +28591,62 @@
                               "description": "The port it listens on, where OM knows it.",
                               "type": "integer",
                               "format": "int32",
+                              "x-nullable": true,
                               "x-order": 3
                             },
                             "role": {
                               "description": "PRIMARY, SECONDARY, ARBITER, or unset.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 4
                             },
                             "installed_version": {
                               "description": "The MongoDB binary installed on the node, which is not necessarily the one\nrunning. Divergence from running_version is the upgraded-but-not-restarted case,\nand no metric anywhere carries it.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 5
                             },
                             "running_version": {
                               "description": "The version the running server reports.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 6
                             },
                             "config_path": {
                               "description": "The configuration file the running server read.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 7
                             },
                             "argv": {
                               "description": "The command line it was started with.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 8
                             },
                             "probe_status": {
                               "description": "What the last probe of this service concluded, in the payload's own words.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 9
                             },
                             "server_running": {
                               "description": "Whether a server was found running. Unset where no probe has looked.",
                               "type": "boolean",
+                              "x-nullable": true,
                               "x-order": 10
                             },
                             "uptime_seconds": {
                               "description": "How long it has been up, seconds.",
                               "type": "number",
                               "format": "double",
+                              "x-nullable": true,
                               "x-order": 11
                             },
                             "replication_set": {
                               "description": "The replica set it belongs to, or unset for a standalone or a router.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 12
                             },
                             "observed": {
@@ -28668,6 +28691,7 @@
                                 "last_error": {
                                   "description": "The most recent failure detail.",
                                   "type": "string",
+                                  "x-nullable": true,
                                   "x-order": 5
                                 }
                               },
@@ -28759,21 +28783,25 @@
                     "address": {
                       "description": "The node address PMM registered.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 2
                     },
                     "executor_host": {
                       "description": "The Nomad client that serves it. Unset means nothing can be run there, which is a\nfact about the estate rather than a probe failure.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 3
                     },
                     "os": {
-                      "description": "The operating system, as the host reports it. Worth having from a probe because\nPMM leaves it null for some nodes.",
+                      "description": "The operating system, as the host reports it. Worth having from a probe because\nPMM does not know it for some nodes.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 4
                     },
                     "kernel": {
                       "description": "The kernel release.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 5
                     },
                     "executor": {
@@ -28798,6 +28826,7 @@
                         "detail": {
                           "description": "Whatever detail the backend gave, when it gave any.",
                           "type": "string",
+                          "x-nullable": true,
                           "x-order": 3
                         }
                       },
@@ -28814,27 +28843,32 @@
                             "description": "The port it is listening on.",
                             "type": "integer",
                             "format": "int32",
+                            "x-nullable": true,
                             "x-order": 0
                           },
                           "config_path": {
                             "description": "The configuration file it read.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 1
                           },
                           "argv": {
                             "description": "The command line it was started with.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 2
                           },
                           "program": {
                             "description": "The process name, e.g. \"mongod\".",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 3
                           },
                           "pid": {
                             "description": "Its process ID at the time of the probe.",
                             "type": "integer",
                             "format": "int32",
+                            "x-nullable": true,
                             "x-order": 4
                           }
                         }
@@ -28883,6 +28917,7 @@
                         "last_error": {
                           "description": "The most recent failure detail.",
                           "type": "string",
+                          "x-nullable": true,
                           "x-order": 5
                         }
                       },
@@ -28914,52 +28949,62 @@
                             "description": "The port it listens on, where OM knows it.",
                             "type": "integer",
                             "format": "int32",
+                            "x-nullable": true,
                             "x-order": 3
                           },
                           "role": {
                             "description": "PRIMARY, SECONDARY, ARBITER, or unset.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 4
                           },
                           "installed_version": {
                             "description": "The MongoDB binary installed on the node, which is not necessarily the one\nrunning. Divergence from running_version is the upgraded-but-not-restarted case,\nand no metric anywhere carries it.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 5
                           },
                           "running_version": {
                             "description": "The version the running server reports.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 6
                           },
                           "config_path": {
                             "description": "The configuration file the running server read.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 7
                           },
                           "argv": {
                             "description": "The command line it was started with.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 8
                           },
                           "probe_status": {
                             "description": "What the last probe of this service concluded, in the payload's own words.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 9
                           },
                           "server_running": {
                             "description": "Whether a server was found running. Unset where no probe has looked.",
                             "type": "boolean",
+                            "x-nullable": true,
                             "x-order": 10
                           },
                           "uptime_seconds": {
                             "description": "How long it has been up, seconds.",
                             "type": "number",
                             "format": "double",
+                            "x-nullable": true,
                             "x-order": 11
                           },
                           "replication_set": {
                             "description": "The replica set it belongs to, or unset for a standalone or a router.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 12
                           },
                           "observed": {
@@ -29004,6 +29049,7 @@
                               "last_error": {
                                 "description": "The most recent failure detail.",
                                 "type": "string",
+                                "x-nullable": true,
                                 "x-order": 5
                               }
                             },
@@ -29232,6 +29278,7 @@
                       "error": {
                         "description": "What went wrong, when something did.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 6
                       }
                     }
@@ -29394,6 +29441,7 @@
                     "error": {
                       "description": "What went wrong, when something did.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 6
                     }
                   },
@@ -29414,11 +29462,13 @@
                       "host_name": {
                         "description": "The node's registered name.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 1
                       },
                       "executor_host": {
                         "description": "The client its probe ran on. Unset when none matched.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 2
                       },
                       "resolution": {
@@ -29442,11 +29492,13 @@
                         "description": "The host's wall clock, dispatch to collected output.",
                         "type": "number",
                         "format": "double",
+                        "x-nullable": true,
                         "x-order": 5
                       },
                       "error": {
                         "description": "The host-level failure, when its probe failed.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 6
                       },
                       "services": {
@@ -29459,11 +29511,13 @@
                             "service_id": {
                               "description": "PMM's service ID, when OM could key one.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 0
                             },
                             "service_name": {
                               "description": "Its name, so a reader is not left joining UUIDs by hand.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 1
                             },
                             "answered": {
@@ -29474,6 +29528,7 @@
                             "error": {
                               "description": "Why it did not, when it did not.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 3
                             }
                           }
@@ -29683,52 +29738,62 @@
                         "description": "The port it listens on, where OM knows it.",
                         "type": "integer",
                         "format": "int32",
+                        "x-nullable": true,
                         "x-order": 3
                       },
                       "role": {
                         "description": "PRIMARY, SECONDARY, ARBITER, or unset.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 4
                       },
                       "installed_version": {
                         "description": "The MongoDB binary installed on the node, which is not necessarily the one\nrunning. Divergence from running_version is the upgraded-but-not-restarted case,\nand no metric anywhere carries it.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 5
                       },
                       "running_version": {
                         "description": "The version the running server reports.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 6
                       },
                       "config_path": {
                         "description": "The configuration file the running server read.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 7
                       },
                       "argv": {
                         "description": "The command line it was started with.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 8
                       },
                       "probe_status": {
                         "description": "What the last probe of this service concluded, in the payload's own words.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 9
                       },
                       "server_running": {
                         "description": "Whether a server was found running. Unset where no probe has looked.",
                         "type": "boolean",
+                        "x-nullable": true,
                         "x-order": 10
                       },
                       "uptime_seconds": {
                         "description": "How long it has been up, seconds.",
                         "type": "number",
                         "format": "double",
+                        "x-nullable": true,
                         "x-order": 11
                       },
                       "replication_set": {
                         "description": "The replica set it belongs to, or unset for a standalone or a router.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 12
                       },
                       "observed": {
@@ -29773,6 +29838,7 @@
                           "last_error": {
                             "description": "The most recent failure detail.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 5
                           }
                         },
@@ -29866,52 +29932,62 @@
                       "description": "The port it listens on, where OM knows it.",
                       "type": "integer",
                       "format": "int32",
+                      "x-nullable": true,
                       "x-order": 3
                     },
                     "role": {
                       "description": "PRIMARY, SECONDARY, ARBITER, or unset.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 4
                     },
                     "installed_version": {
                       "description": "The MongoDB binary installed on the node, which is not necessarily the one\nrunning. Divergence from running_version is the upgraded-but-not-restarted case,\nand no metric anywhere carries it.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 5
                     },
                     "running_version": {
                       "description": "The version the running server reports.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 6
                     },
                     "config_path": {
                       "description": "The configuration file the running server read.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 7
                     },
                     "argv": {
                       "description": "The command line it was started with.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 8
                     },
                     "probe_status": {
                       "description": "What the last probe of this service concluded, in the payload's own words.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 9
                     },
                     "server_running": {
                       "description": "Whether a server was found running. Unset where no probe has looked.",
                       "type": "boolean",
+                      "x-nullable": true,
                       "x-order": 10
                     },
                     "uptime_seconds": {
                       "description": "How long it has been up, seconds.",
                       "type": "number",
                       "format": "double",
+                      "x-nullable": true,
                       "x-order": 11
                     },
                     "replication_set": {
                       "description": "The replica set it belongs to, or unset for a standalone or a router.",
                       "type": "string",
+                      "x-nullable": true,
                       "x-order": 12
                     },
                     "observed": {
@@ -29956,6 +30032,7 @@
                         "last_error": {
                           "description": "The most recent failure detail.",
                           "type": "string",
+                          "x-nullable": true,
                           "x-order": 5
                         }
                       },
@@ -30111,6 +30188,7 @@
                 "origin_node": {
                   "description": "The PMM node the document was assembled on.",
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 1
                 },
                 "source_queries": {
@@ -30177,6 +30255,7 @@
                       "env_name": {
                         "description": "Environment label, unset when its services carry none.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 0
                       },
                       "clusters": {
@@ -30189,13 +30268,14 @@
                             "name": {
                               "description": "Cluster label, unset when its services carry none.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 0
                             },
                             "services": {
                               "description": "Its services, ordered by name.",
                               "type": "array",
                               "items": {
-                                "description": "TopologyService represents one monitored MongoDB service as the topology document\nrecords it.\n\nTwo sentinel conventions, and they differ on purpose. cpu_usage_percent and\nconnections_free_percent are -1 when not measured, never null and never 0, because\nzero CPU is a legitimate reading and a numeric column must keep \"idle\" and \"unknown\"\napart. replication_lag_seconds and oplog_window_seconds are null when they do not\napply -- a router and a standalone have no replica-set oplog -- which is a different\nstatement from -1's \"we could not measure it\".",
+                                "description": "TopologyService represents one monitored MongoDB service as the topology document\nrecords it.\n\nTwo conventions for \"no value\", and they differ on purpose. cpu_usage_percent and\nconnections_free_percent are -1 when not measured, never absent and never 0, because\nzero CPU is a legitimate reading and a numeric column must keep \"idle\" and \"unknown\"\napart. replication_lag_seconds and oplog_window_seconds are `optional`, so the key is\nabsent when they do not apply -- a router and a standalone have no replica-set oplog --\nwhich is a different statement from -1's \"we could not measure it\".\n\nThe optional fields were wrapper messages until the REST contract was checked:\nprotoc-gen-openapiv2 does not mark a wrapper field x-nullable, so the swagger schema\nand the generated Go client both collapsed to a value type and lost the distinction\nentirely. `optional` gives x-nullable and a pointer, at the cost of protojson omitting\nthe key rather than emitting an explicit null.",
                                 "type": "object",
                                 "properties": {
                                   "service_name": {
@@ -30206,46 +30286,55 @@
                                   "host": {
                                     "description": "Node the service runs on.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 1
                                   },
                                   "endpoint": {
                                     "description": "host:port as the replica set itself addresses the member.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 2
                                   },
                                   "service_id": {
                                     "description": "PMM's service ID. The join key against VictoriaMetrics.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 3
                                   },
                                   "service_type": {
                                     "description": "Always \"mongodb\" today.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 4
                                   },
                                   "version": {
                                     "description": "Running server version.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 5
                                   },
                                   "vendor": {
                                     "description": "MongoDB or Percona.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 6
                                   },
                                   "edition": {
                                     "description": "Community or Enterprise.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 7
                                   },
                                   "replication_set": {
                                     "description": "Replica set, or unset for a router or a standalone.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 8
                                   },
                                   "state": {
                                     "description": "PRIMARY, SECONDARY or ARBITER, or unset where there is no replica-set state.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 9
                                   },
                                   "status": {
@@ -30288,27 +30377,32 @@
                                     "description": "Seconds this member trails the primary; unset where there is no primary to trail.",
                                     "type": "number",
                                     "format": "double",
+                                    "x-nullable": true,
                                     "x-order": 14
                                   },
                                   "oplog_window_seconds": {
                                     "description": "Seconds of history the oplog holds; unset where there is no replica-set oplog.",
                                     "type": "number",
                                     "format": "double",
+                                    "x-nullable": true,
                                     "x-order": 15
                                   },
                                   "installed_version": {
                                     "description": "The MongoDB binary installed on the node, which is not necessarily the one\nrunning. Divergence from `version` is the upgraded-but-not-restarted case. Only\nan on-host probe can see it, so this is unset wherever one has not run.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 16
                                   },
                                   "config_path": {
                                     "description": "The configuration file the running server read. Probe-only.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 17
                                   },
                                   "argv": {
                                     "description": "The command line the running server was started with. Probe-only.",
                                     "type": "string",
+                                    "x-nullable": true,
                                     "x-order": 18
                                   }
                                 }
@@ -30474,6 +30568,7 @@
                             "service_name": {
                               "description": "The service it concerns, when scoped to one.",
                               "type": "string",
+                              "x-nullable": true,
                               "x-order": 1
                             },
                             "code": {
@@ -30685,6 +30780,7 @@
                           "service_name": {
                             "description": "The service it concerns, when scoped to one.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 1
                           },
                           "code": {

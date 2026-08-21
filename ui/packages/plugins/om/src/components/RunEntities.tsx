@@ -32,13 +32,17 @@ import {
 import { useOmInventoryRun } from '../inventoryHooks';
 import { formatDuration } from '../format';
 import { Unavailable } from './Unavailable';
-import type { OmInventoryRun } from '../types';
+import type { OmExecutorResolution, OmInventoryRun } from '../types';
 
 /** How a host was matched, spelled out. The raw values are terse to the point of coy. */
-const RESOLUTION_LABEL: Record<string, string> = {
-  name: 'by node name',
-  address: 'by node address',
-  orphaned: 'no executor',
+// Keyed by the wire enum, not by its suffix. These read `EXECUTOR_RESOLUTION_NAME` and
+// friends, so the short keys this once used never matched and every row fell through to
+// showing the raw enum value.
+const RESOLUTION_LABEL: Record<OmExecutorResolution, string> = {
+  EXECUTOR_RESOLUTION_UNSPECIFIED: 'not resolved',
+  EXECUTOR_RESOLUTION_NAME: 'by node name',
+  EXECUTOR_RESOLUTION_ADDRESS: 'by node address',
+  EXECUTOR_RESOLUTION_ORPHANED: 'no executor',
 };
 
 /**

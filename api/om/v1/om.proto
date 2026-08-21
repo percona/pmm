@@ -82,33 +82,39 @@ enum SourceStatus {
 // TopologyService represents one monitored MongoDB service as the topology document
 // records it.
 //
-// Two sentinel conventions, and they differ on purpose. cpu_usage_percent and
-// connections_free_percent are -1 when not measured, never null and never 0, because
+// Two conventions for "no value", and they differ on purpose. cpu_usage_percent and
+// connections_free_percent are -1 when not measured, never absent and never 0, because
 // zero CPU is a legitimate reading and a numeric column must keep "idle" and "unknown"
-// apart. replication_lag_seconds and oplog_window_seconds are null when they do not
-// apply -- a router and a standalone have no replica-set oplog -- which is a different
-// statement from -1's "we could not measure it".
+// apart. replication_lag_seconds and oplog_window_seconds are `optional`, so the key is
+// absent when they do not apply -- a router and a standalone have no replica-set oplog --
+// which is a different statement from -1's "we could not measure it".
+//
+// The optional fields were wrapper messages until the REST contract was checked:
+// protoc-gen-openapiv2 does not mark a wrapper field x-nullable, so the swagger schema
+// and the generated Go client both collapsed to a value type and lost the distinction
+// entirely. `optional` gives x-nullable and a pointer, at the cost of protojson omitting
+// the key rather than emitting an explicit null.
 message TopologyService {
   // Service name as PMM inventory registered it.
   string service_name = 1;
   // Node the service runs on.
-  google.protobuf.StringValue host = 2;
+  optional string host = 2;
   // host:port as the replica set itself addresses the member.
-  google.protobuf.StringValue endpoint = 3;
+  optional string endpoint = 3;
   // PMM's service ID. The join key against VictoriaMetrics.
-  google.protobuf.StringValue service_id = 4;
+  optional string service_id = 4;
   // Always "mongodb" today.
-  google.protobuf.StringValue service_type = 5;
+  optional string service_type = 5;
   // Running server version.
-  google.protobuf.StringValue version = 6;
+  optional string version = 6;
   // MongoDB or Percona.
-  google.protobuf.StringValue vendor = 7;
+  optional string vendor = 7;
   // Community or Enterprise.
-  google.protobuf.StringValue edition = 8;
+  optional string edition = 8;
   // Replica set, or unset for a router or a standalone.
-  google.protobuf.StringValue replication_set = 9;
+  optional string replication_set = 9;
   // PRIMARY, SECONDARY or ARBITER, or unset where there is no replica-set state.
-  google.protobuf.StringValue state = 10;
+  optional string state = 10;
   // Whether the exporter reached the service.
   ServiceStatus status = 11;
   // CPU percentage, or -1 when not measured.
@@ -118,24 +124,24 @@ message TopologyService {
   // What this process is doing in the deployment.
   ProcessRole process_role = 14;
   // Seconds this member trails the primary; unset where there is no primary to trail.
-  google.protobuf.DoubleValue replication_lag_seconds = 15;
+  optional double replication_lag_seconds = 15;
   // Seconds of history the oplog holds; unset where there is no replica-set oplog.
-  google.protobuf.DoubleValue oplog_window_seconds = 16;
+  optional double oplog_window_seconds = 16;
 
   // The MongoDB binary installed on the node, which is not necessarily the one
   // running. Divergence from `version` is the upgraded-but-not-restarted case. Only
   // an on-host probe can see it, so this is unset wherever one has not run.
-  google.protobuf.StringValue installed_version = 17;
+  optional string installed_version = 17;
   // The configuration file the running server read. Probe-only.
-  google.protobuf.StringValue config_path = 18;
+  optional string config_path = 18;
   // The command line the running server was started with. Probe-only.
-  google.protobuf.StringValue argv = 19;
+  optional string argv = 19;
 }
 
 // Cluster represents one cluster or replica set.
 message Cluster {
   // Cluster label, unset when its services carry none.
-  google.protobuf.StringValue name = 1;
+  optional string name = 1;
   // Its services, ordered by name.
   repeated TopologyService services = 2;
 }
@@ -143,7 +149,7 @@ message Cluster {
 // Environment represents one monitoring environment.
 message Environment {
   // Environment label, unset when its services carry none.
-  google.protobuf.StringValue env_name = 1;
+  optional string env_name = 1;
   // Its clusters, ordered by name.
   repeated Cluster clusters = 2;
 }
@@ -188,7 +194,7 @@ message GetTopologyResponse {
   // Which run produced this, when, and whether it is stale.
   Snapshot snapshot = 1;
   // The PMM node the document was assembled on.
-  google.protobuf.StringValue origin_node = 2;
+  optional string origin_node = 2;
   // The VictoriaMetrics queries the document was derived from.
   repeated string source_queries = 3;
   // Fleet-level counts.
@@ -235,7 +241,7 @@ message TopologyRunError {
   // What the error is about, e.g. "run" or "query".
   string scope = 1;
   // The service it concerns, when scoped to one.
-  google.protobuf.StringValue service_name = 2;
+  optional string service_name = 2;
   // A machine-readable cause.
   string code = 3;
   // The human-readable detail.
@@ -315,7 +321,7 @@ message InventoryExecutor {
   // Whether its raw_exec driver is healthy, which is what a probe actually needs.
   bool driver_healthy = 3;
   // Whatever detail the backend gave, when it gave any.
-  google.protobuf.StringValue detail = 4;
+  optional string detail = 4;
 }
 
 // UnregisteredMongod is a mongod found running that PMM has no service for.
@@ -325,15 +331,15 @@ message InventoryExecutor {
 // anything over a port that is already taken.
 message UnregisteredMongod {
   // The port it is listening on.
-  google.protobuf.Int32Value port = 1;
+  optional int32 port = 1;
   // The configuration file it read.
-  google.protobuf.StringValue config_path = 2;
+  optional string config_path = 2;
   // The command line it was started with.
-  google.protobuf.StringValue argv = 3;
+  optional string argv = 3;
   // The process name, e.g. "mongod".
-  google.protobuf.StringValue program = 4;
+  optional string program = 4;
   // Its process ID at the time of the probe.
-  google.protobuf.Int32Value pid = 5;
+  optional int32 pid = 5;
 }
 
 // ExecutorResolution is how a host was matched to the client its probe ran on.
@@ -391,7 +397,7 @@ message InventoryFreshness {
   // Failures since the last success.
   int32 consecutive_failures = 5;
   // The most recent failure detail.
-  google.protobuf.StringValue last_error = 6;
+  optional string last_error = 6;
 }
 
 // InventoryService is one MongoDB service OM has probed, or tried to.
@@ -410,28 +416,28 @@ message InventoryService {
   // The service name PMM registered.
   string name = 3;
   // The port it listens on, where OM knows it.
-  google.protobuf.Int32Value port = 4;
+  optional int32 port = 4;
   // PRIMARY, SECONDARY, ARBITER, or unset.
-  google.protobuf.StringValue role = 5;
+  optional string role = 5;
 
   // The MongoDB binary installed on the node, which is not necessarily the one
   // running. Divergence from running_version is the upgraded-but-not-restarted case,
   // and no metric anywhere carries it.
-  google.protobuf.StringValue installed_version = 6;
+  optional string installed_version = 6;
   // The version the running server reports.
-  google.protobuf.StringValue running_version = 7;
+  optional string running_version = 7;
   // The configuration file the running server read.
-  google.protobuf.StringValue config_path = 8;
+  optional string config_path = 8;
   // The command line it was started with.
-  google.protobuf.StringValue argv = 9;
+  optional string argv = 9;
   // What the last probe of this service concluded, in the payload's own words.
-  google.protobuf.StringValue probe_status = 10;
+  optional string probe_status = 10;
   // Whether a server was found running. Unset where no probe has looked.
-  google.protobuf.BoolValue server_running = 11;
+  optional bool server_running = 11;
   // How long it has been up, seconds.
-  google.protobuf.DoubleValue uptime_seconds = 12;
+  optional double uptime_seconds = 12;
   // The replica set it belongs to, or unset for a standalone or a router.
-  google.protobuf.StringValue replication_set = 13;
+  optional string replication_set = 13;
 
   // Everything the probe recorded, including attributes with no field above.
   google.protobuf.Struct observed = 14;
@@ -451,16 +457,16 @@ message InventoryHost {
   // The node name PMM registered.
   string name = 2;
   // The node address PMM registered.
-  google.protobuf.StringValue address = 3;
+  optional string address = 3;
   // The Nomad client that serves it. Unset means nothing can be run there, which is a
   // fact about the estate rather than a probe failure.
-  google.protobuf.StringValue executor_host = 4;
+  optional string executor_host = 4;
 
   // The operating system, as the host reports it. Worth having from a probe because
-  // PMM leaves it null for some nodes.
-  google.protobuf.StringValue os = 5;
+  // PMM does not know it for some nodes.
+  optional string os = 5;
   // The kernel release.
-  google.protobuf.StringValue kernel = 6;
+  optional string kernel = 6;
   // Whether anything can be run here, in three parts.
   InventoryExecutor executor = 7;
   // Mongods running that PMM has no service for.
@@ -502,13 +508,13 @@ message InventoryRunCounts {
 // InventoryRunEntityService is one service on a host, as a refresh saw it.
 message InventoryRunEntityService {
   // PMM's service ID, when OM could key one.
-  google.protobuf.StringValue service_id = 1;
+  optional string service_id = 1;
   // Its name, so a reader is not left joining UUIDs by hand.
-  google.protobuf.StringValue service_name = 2;
+  optional string service_name = 2;
   // Whether the host returned a usable record for it.
   bool answered = 3;
   // Why it did not, when it did not.
-  google.protobuf.StringValue error = 4;
+  optional string error = 4;
 }
 
 // InventoryRunEntity is one host a refresh attempted, and what came of it.
@@ -529,18 +535,18 @@ message InventoryRunEntity {
   // PMM's node ID, the key OM holds this host under.
   string node_id = 1;
   // The node's registered name.
-  google.protobuf.StringValue host_name = 2;
+  optional string host_name = 2;
   // The client its probe ran on. Unset when none matched.
-  google.protobuf.StringValue executor_host = 3;
+  optional string executor_host = 3;
   // How that client was matched, or that it was not.
   ExecutorResolution resolution = 4;
   // Whether the *host* answered. A different question from whether its services did:
   // a host with no database answers perfectly well and has no services at all.
   bool answered = 5;
   // The host's wall clock, dispatch to collected output.
-  google.protobuf.DoubleValue duration_seconds = 6;
+  optional double duration_seconds = 6;
   // The host-level failure, when its probe failed.
-  google.protobuf.StringValue error = 7;
+  optional string error = 7;
   // The services on it. Empty is a meaningful answer, not a gap.
   repeated InventoryRunEntityService services = 8;
 }
@@ -561,7 +567,7 @@ message InventoryRun {
   // what the scheduled sweep does.
   repeated string scope = 6;
   // What went wrong, when something did.
-  google.protobuf.StringValue error = 7;
+  optional string error = 7;
 }
 
 // InventorySetting is one of the inventory app's configuration fields.
@@ -583,20 +589,20 @@ message InventorySetting {
   // Whether to hide it behind an "advanced" disclosure.
   bool is_advanced = 7;
   // The field's documentation, where it has any.
-  google.protobuf.StringValue description = 8;
+  optional string description = 8;
 }
 
 // ListInventoryHostsRequest is the request for ListInventoryHosts.
 message ListInventoryHostsRequest {
   // When set, return only hosts that do (or do not) carry a registered service.
   // Unset returns both, which is the ordinary listing.
-  google.protobuf.BoolValue has_service = 1;
+  optional bool has_service = 1;
   // When true, return only hosts currently failing.
-  google.protobuf.BoolValue failing = 2;
+  optional bool failing = 2;
   // When set, return only hosts that do (or do not) have an executor to run a probe
   // on. Not a client name: the app filters on whether one is matched at all, and
   // "which machines can nothing be dispatched to" is the question worth asking.
-  google.protobuf.BoolValue executor = 3;
+  optional bool executor = 3;
 }
 
 // ListInventoryHostsResponse returns the hosts OM knows about.
@@ -629,9 +635,9 @@ message DeleteInventoryHostResponse {}
 // ListInventoryServicesRequest is the request for ListInventoryServices.
 message ListInventoryServicesRequest {
   // When set, return only the services on this host.
-  google.protobuf.StringValue node_id = 1;
+  optional string node_id = 1;
   // When true, return only services currently failing.
-  google.protobuf.BoolValue failing = 2;
+  optional bool failing = 2;
 }
 
 // ListInventoryServicesResponse returns the services OM knows about, flat.

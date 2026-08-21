@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
 	"github.com/percona/pmm/managed/models"
@@ -224,32 +223,34 @@ func serviceStatus(up bool) omv1.ServiceStatus {
 
 // named returns a grouping key as the document spells it: null for the internal
 // sentinel, the key itself otherwise.
-func named(key string) *wrapperspb.StringValue {
+func named(key string) *string {
 	if key == unspecified {
 		return nil
 	}
-	return wrapperspb.String(key)
+	return &key
 }
 
-// optional returns nil for an empty string, so the document says null rather than "".
+// optional returns nil for an empty string, so the document omits the key rather than
+// carrying "".
 //
-// The wrapper type is what makes that null reachable: protojson treats a proto3
-// `optional` scalar as a synthetic oneof and omits the key entirely when it is unset,
-// even under EmitUnpopulated, while an unset message field marshals to null. The
-// document's contract distinguishes the two, so the field has to be a message.
-func optional(value string) *wrapperspb.StringValue {
+// These fields were `google.protobuf.StringValue` originally, because protojson renders
+// an unset message field as an explicit null while it omits an unset proto3 `optional`
+// scalar entirely, even under EmitUnpopulated. The explicit null read better. It was not
+// worth what it cost: protoc-gen-openapiv2 does not mark a wrapper field `x-nullable`,
+// so the REST schema and the generated Go client both flattened to a value type and lost
+// the distinction altogether -- `{}`, null and 0 arrived as 0. An absent key is a weaker
+// signal than a null one, but it is a signal that survives the whole contract, and it is
+// what every other proto in PMM does.
+func optional(value string) *string {
 	if value == "" {
 		return nil
 	}
-	return wrapperspb.String(value)
+	return &value
 }
 
 // optionalDouble is optional's counterpart for a gauge that may not apply at all.
-func optionalDouble(value *float64) *wrapperspb.DoubleValue {
-	if value == nil {
-		return nil
-	}
-	return wrapperspb.Double(*value)
+func optionalDouble(value *float64) *float64 {
+	return value
 }
 
 func firstNonEmpty(values ...string) string {

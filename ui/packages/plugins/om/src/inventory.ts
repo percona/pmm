@@ -168,7 +168,7 @@ export function ageSeconds(
  * succeeded is failing; the count is how badly.
  */
 export function isFailing(host: {
-  freshness: { failing_since: string | null };
+  freshness: { failing_since?: string | null };
 }): boolean {
   return host.freshness.failing_since != null;
 }

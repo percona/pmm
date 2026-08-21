@@ -420,7 +420,7 @@ swagger:model GetTopologyOKBody
 */
 type GetTopologyOKBody struct {
 	// The PMM node the document was assembled on.
-	OriginNode string `json:"origin_node,omitempty"`
+	OriginNode *string `json:"origin_node,omitempty"`
 
 	// The VictoriaMetrics queries the document was derived from.
 	SourceQueries []string `json:"source_queries"`
@@ -653,7 +653,7 @@ swagger:model GetTopologyOKBodyEnvironmentsItems0
 */
 type GetTopologyOKBodyEnvironmentsItems0 struct {
 	// Environment label, unset when its services carry none.
-	EnvName string `json:"env_name,omitempty"`
+	EnvName *string `json:"env_name,omitempty"`
 
 	// Its clusters, ordered by name.
 	Clusters []*GetTopologyOKBodyEnvironmentsItems0ClustersItems0 `json:"clusters"`
@@ -767,7 +767,7 @@ swagger:model GetTopologyOKBodyEnvironmentsItems0ClustersItems0
 */
 type GetTopologyOKBodyEnvironmentsItems0ClustersItems0 struct {
 	// Cluster label, unset when its services carry none.
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// Its services, ordered by name.
 	Services []*GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 `json:"services"`
@@ -879,12 +879,18 @@ func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) UnmarshalBinary(b []
 GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 TopologyService represents one monitored MongoDB service as the topology document
 // records it.
 //
-// Two sentinel conventions, and they differ on purpose. cpu_usage_percent and
-// connections_free_percent are -1 when not measured, never null and never 0, because
+// Two conventions for "no value", and they differ on purpose. cpu_usage_percent and
+// connections_free_percent are -1 when not measured, never absent and never 0, because
 // zero CPU is a legitimate reading and a numeric column must keep "idle" and "unknown"
-// apart. replication_lag_seconds and oplog_window_seconds are null when they do not
-// apply -- a router and a standalone have no replica-set oplog -- which is a different
-// statement from -1's "we could not measure it".
+// apart. replication_lag_seconds and oplog_window_seconds are `optional`, so the key is
+// absent when they do not apply -- a router and a standalone have no replica-set oplog --
+// which is a different statement from -1's "we could not measure it".
+//
+// The optional fields were wrapper messages until the REST contract was checked:
+// protoc-gen-openapiv2 does not mark a wrapper field x-nullable, so the swagger schema
+// and the generated Go client both collapsed to a value type and lost the distinction
+// entirely. `optional` gives x-nullable and a pointer, at the cost of protojson omitting
+// the key rather than emitting an explicit null.
 swagger:model GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0
 */
 type GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 struct {
@@ -892,31 +898,31 @@ type GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 struct {
 	ServiceName string `json:"service_name,omitempty"`
 
 	// Node the service runs on.
-	Host string `json:"host,omitempty"`
+	Host *string `json:"host,omitempty"`
 
 	// host:port as the replica set itself addresses the member.
-	Endpoint string `json:"endpoint,omitempty"`
+	Endpoint *string `json:"endpoint,omitempty"`
 
 	// PMM's service ID. The join key against VictoriaMetrics.
-	ServiceID string `json:"service_id,omitempty"`
+	ServiceID *string `json:"service_id,omitempty"`
 
 	// Always "mongodb" today.
-	ServiceType string `json:"service_type,omitempty"`
+	ServiceType *string `json:"service_type,omitempty"`
 
 	// Running server version.
-	Version string `json:"version,omitempty"`
+	Version *string `json:"version,omitempty"`
 
 	// MongoDB or Percona.
-	Vendor string `json:"vendor,omitempty"`
+	Vendor *string `json:"vendor,omitempty"`
 
 	// Community or Enterprise.
-	Edition string `json:"edition,omitempty"`
+	Edition *string `json:"edition,omitempty"`
 
 	// Replica set, or unset for a router or a standalone.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet *string `json:"replication_set,omitempty"`
 
 	// PRIMARY, SECONDARY or ARBITER, or unset where there is no replica-set state.
-	State string `json:"state,omitempty"`
+	State *string `json:"state,omitempty"`
 
 	// ServiceStatus is whether the exporter reached a service.
 	//
@@ -947,21 +953,21 @@ type GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 struct {
 	ProcessRole *string `json:"process_role,omitempty"`
 
 	// Seconds this member trails the primary; unset where there is no primary to trail.
-	ReplicationLagSeconds float64 `json:"replication_lag_seconds,omitempty"`
+	ReplicationLagSeconds *float64 `json:"replication_lag_seconds,omitempty"`
 
 	// Seconds of history the oplog holds; unset where there is no replica-set oplog.
-	OplogWindowSeconds float64 `json:"oplog_window_seconds,omitempty"`
+	OplogWindowSeconds *float64 `json:"oplog_window_seconds,omitempty"`
 
 	// The MongoDB binary installed on the node, which is not necessarily the one
 	// running. Divergence from `version` is the upgraded-but-not-restarted case. Only
 	// an on-host probe can see it, so this is unset wherever one has not run.
-	InstalledVersion string `json:"installed_version,omitempty"`
+	InstalledVersion *string `json:"installed_version,omitempty"`
 
 	// The configuration file the running server read. Probe-only.
-	ConfigPath string `json:"config_path,omitempty"`
+	ConfigPath *string `json:"config_path,omitempty"`
 
 	// The command line the running server was started with. Probe-only.
-	Argv string `json:"argv,omitempty"`
+	Argv *string `json:"argv,omitempty"`
 }
 
 // Validate validates this get topology OK body environments items0 clusters items0 services items0

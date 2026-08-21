@@ -385,7 +385,7 @@ export function HostsPage() {
   // knows when its probe finished. Watching the newest run is what refetches these rows
   // when it does.
   const { data: runs } = useOmInventoryRuns();
-  useInvalidateEstateOnRefreshEnd(runs?.[0]?.status);
+  useInvalidateEstateOnRefreshEnd(runs);
   const [forgetting, setForgetting] = useState<OmHostRow | null>(null);
   const columns = useColumns();
   const rows = useMemo(() => toHostRows(data), [data]);
@@ -420,14 +420,19 @@ export function HostsPage() {
     renderDetailPanel: ({ row }) => <HostDetail row={row.original} />,
     renderRowActions: ({ row }) => (
       <Stack direction="row" spacing={1}>
+        {/* The span is load-bearing: MUI disables pointer events on a disabled
+            ButtonBase, so a Tooltip wrapping the button directly never opens while
+            a refresh is pending -- which is exactly when a reader wants to know why. */}
         <Tooltip title="Probe this host now. Dispatches a job and takes tens of seconds; the row updates when it lands.">
-          <Button
-            size="small"
-            disabled={refresh.isPending}
-            onClick={() => refresh.mutate([row.original.node_id])}
-          >
-            Refresh
-          </Button>
+          <Box component="span">
+            <Button
+              size="small"
+              disabled={refresh.isPending}
+              onClick={() => refresh.mutate([row.original.node_id])}
+            >
+              Refresh
+            </Button>
+          </Box>
         </Tooltip>
         <Button
           size="small"
@@ -472,13 +477,15 @@ export function HostsPage() {
         }
         actions={
           <Tooltip title="Probe every host. Dispatches one job per host and takes tens of seconds.">
-            <Button
-              variant="outlined"
-              disabled={refresh.isPending}
-              onClick={() => refresh.mutate(undefined)}
-            >
-              Refresh all
-            </Button>
+            <Box component="span">
+              <Button
+                variant="outlined"
+                disabled={refresh.isPending}
+                onClick={() => refresh.mutate(undefined)}
+              >
+                Refresh all
+              </Button>
+            </Box>
           </Tooltip>
         }
       />

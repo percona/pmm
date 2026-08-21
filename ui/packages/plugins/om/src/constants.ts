@@ -103,6 +103,12 @@ export const UNAVAILABLE_PHRASE: Record<OmUnavailableReason, string> = {
     'Not in the inventory yet — OM has no row for this service, so no probe has ever been dispatched for it. The next sweep will create one.',
   probe_never_succeeded:
     'Never collected — OM has a row for this service but no probe has ever succeeded against it. Its host may have no executor, or every attempt may have failed.',
+  // Distinct from not_in_inventory on purpose. That one is a statement about the
+  // estate; this one is an admission that the estate could not be read, and the two
+  // must not look the same -- reporting "not in the inventory" for every row because
+  // one request failed is a confident wrong answer.
+  inventory_unavailable:
+    'Inventory unavailable — OM could not read the estate, so nothing is known about this service either way. The topology columns are unaffected.',
 };
 
 /** Fallback for a reason code the frontend has not been taught. */

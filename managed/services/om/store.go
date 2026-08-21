@@ -16,6 +16,7 @@
 package om
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -45,7 +46,7 @@ var (
 // should have to handle. Failure is reported but not fatal -- the document is already
 // published in memory, and losing the record of a collection is worth less than refusing
 // to serve the collection.
-func (s *Service) persist(response *omv1.GetTopologyResponse, run *omv1.TopologyRun, originNode string) error {
+func (s *Service) persist(ctx context.Context, response *omv1.GetTopologyResponse, run *omv1.TopologyRun, originNode string) error {
 	document, err := documentJSON.Marshal(response)
 	if err != nil {
 		return fmt.Errorf("failed to marshal the topology document: %w", err)
@@ -76,7 +77,7 @@ func (s *Service) persist(response *omv1.GetTopologyResponse, run *omv1.Topology
 	}
 	for _, e := range run.Errors {
 		row.Errors = append(row.Errors, models.OmTopologyRunError{
-			Scope: e.Scope, ServiceName: e.ServiceName.GetValue(),
+			Scope: e.Scope, ServiceName: e.GetServiceName(),
 			Code: e.Code, Message: e.Message,
 		})
 	}
@@ -92,7 +93,10 @@ func (s *Service) persist(response *omv1.GetTopologyResponse, run *omv1.Topology
 		snapshot.ObservedAt = &observed
 	}
 
-	return s.db.InTransaction(func(tx *reform.TX) error {
+	// InTransactionContext rather than InTransaction so a shutdown or a cancelled
+	// collection aborts the write instead of finishing it. managed/AGENTS.md prescribes
+	// this form, and it is what most of managed/services uses.
+	return s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		err := models.CreateOmTopologyRun(tx.Querier, row, snapshot)
 		if err != nil {
 			return err
@@ -107,9 +111,9 @@ func (s *Service) persist(response *omv1.GetTopologyResponse, run *omv1.Topology
 // A document read back from the database is re-staled against the clock rather than
 // trusted: stale was computed when it was written, and the whole point of restoring one
 // is that time has passed since.
-func (s *Service) restore() (*omv1.GetTopologyResponse, time.Time, error) {
+func (s *Service) restore(ctx context.Context) (*omv1.GetTopologyResponse, time.Time, error) {
 	var snapshot *models.OmTopologySnapshot
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		snapshot, err = models.FindLatestOmTopologySnapshot(tx.Querier)
 		return err
@@ -133,9 +137,9 @@ func (s *Service) restore() (*omv1.GetTopologyResponse, time.Time, error) {
 }
 
 // listRuns reads the run history back out of the database.
-func (s *Service) listRuns(limit int) ([]*omv1.TopologyRun, error) {
+func (s *Service) listRuns(ctx context.Context, limit int) ([]*omv1.TopologyRun, error) {
 	var rows []*models.OmTopologyRun
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		rows, err = models.FindOmTopologyRuns(tx.Querier, limit)
 		return err
@@ -151,9 +155,9 @@ func (s *Service) listRuns(limit int) ([]*omv1.TopologyRun, error) {
 }
 
 // getRun reads one run back out of the database.
-func (s *Service) getRun(runID string) (*omv1.TopologyRun, error) {
+func (s *Service) getRun(ctx context.Context, runID string) (*omv1.TopologyRun, error) {
 	var row *models.OmTopologyRun
-	errTX := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		row, err = models.FindOmTopologyRunByID(tx.Querier, runID)
 		return err

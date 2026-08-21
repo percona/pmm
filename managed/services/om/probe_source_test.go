@@ -315,10 +315,10 @@ func TestProbeFactsReachTheDocument(t *testing.T) {
 
 	// The upgraded-but-not-restarted case, which is the whole reason the probe exists:
 	// the binary on disk is ahead of the server that is running.
-	assert.Equal(t, "7.0.40-22", svc.InstalledVersion.GetValue())
-	assert.Equal(t, "7.0.39-21", svc.Version.GetValue(), "metrics still own the running version")
-	assert.Equal(t, "/etc/mongod-node.conf", svc.ConfigPath.GetValue())
-	assert.Contains(t, svc.Argv.GetValue(), "mongod")
+	assert.Equal(t, "7.0.40-22", svc.GetInstalledVersion())
+	assert.Equal(t, "7.0.39-21", svc.GetVersion(), "metrics still own the running version")
+	assert.Equal(t, "/etc/mongod-node.conf", svc.GetConfigPath())
+	assert.Contains(t, svc.GetArgv(), "mongod")
 
 	// And the service the probe never reached carries nulls rather than another's facts.
 	for _, cluster := range doc.environments[0].Clusters {

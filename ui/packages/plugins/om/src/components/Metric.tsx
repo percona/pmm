@@ -41,7 +41,7 @@ export function Percent({ value }: { value: number }) {
  * Null here means the field does not apply to this topology — a router has no oplog —
  * which is a different statement from the percentage columns' `-1`.
  */
-export function Duration({ value }: { value: number | null }) {
+export function Duration({ value }: { value: number | null | undefined }) {
   if (value === null || value === undefined) {
     return <Unavailable reason="not_applicable" />;
   }

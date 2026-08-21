@@ -931,7 +931,7 @@ type GetTopologyRunOKBodyRunErrorsItems0 struct {
 	Scope string `json:"scope,omitempty"`
 
 	// The service it concerns, when scoped to one.
-	ServiceName string `json:"service_name,omitempty"`
+	ServiceName *string `json:"service_name,omitempty"`
 
 	// A machine-readable cause.
 	Code string `json:"code,omitempty"`

@@ -546,36 +546,36 @@ type ListInventoryServicesOKBodyServicesItems0 struct {
 	Name string `json:"name,omitempty"`
 
 	// The port it listens on, where OM knows it.
-	Port int32 `json:"port,omitempty"`
+	Port *int32 `json:"port,omitempty"`
 
 	// PRIMARY, SECONDARY, ARBITER, or unset.
-	Role string `json:"role,omitempty"`
+	Role *string `json:"role,omitempty"`
 
 	// The MongoDB binary installed on the node, which is not necessarily the one
 	// running. Divergence from running_version is the upgraded-but-not-restarted case,
 	// and no metric anywhere carries it.
-	InstalledVersion string `json:"installed_version,omitempty"`
+	InstalledVersion *string `json:"installed_version,omitempty"`
 
 	// The version the running server reports.
-	RunningVersion string `json:"running_version,omitempty"`
+	RunningVersion *string `json:"running_version,omitempty"`
 
 	// The configuration file the running server read.
-	ConfigPath string `json:"config_path,omitempty"`
+	ConfigPath *string `json:"config_path,omitempty"`
 
 	// The command line it was started with.
-	Argv string `json:"argv,omitempty"`
+	Argv *string `json:"argv,omitempty"`
 
 	// What the last probe of this service concluded, in the payload's own words.
-	ProbeStatus string `json:"probe_status,omitempty"`
+	ProbeStatus *string `json:"probe_status,omitempty"`
 
 	// Whether a server was found running. Unset where no probe has looked.
-	ServerRunning bool `json:"server_running,omitempty"`
+	ServerRunning *bool `json:"server_running,omitempty"`
 
 	// How long it has been up, seconds.
-	UptimeSeconds float64 `json:"uptime_seconds,omitempty"`
+	UptimeSeconds *float64 `json:"uptime_seconds,omitempty"`
 
 	// The replica set it belongs to, or unset for a standalone or a router.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet *string `json:"replication_set,omitempty"`
 
 	// Everything the probe recorded, including attributes with no field above.
 	Observed any `json:"observed,omitempty"`
@@ -709,7 +709,7 @@ type ListInventoryServicesOKBodyServicesItems0Freshness struct {
 	ConsecutiveFailures int32 `json:"consecutive_failures,omitempty"`
 
 	// The most recent failure detail.
-	LastError string `json:"last_error,omitempty"`
+	LastError *string `json:"last_error,omitempty"`
 }
 
 // Validate validates this list inventory services OK body services items0 freshness

@@ -532,18 +532,18 @@ type GetInventoryHostOKBodyHost struct {
 	Name string `json:"name,omitempty"`
 
 	// The node address PMM registered.
-	Address string `json:"address,omitempty"`
+	Address *string `json:"address,omitempty"`
 
 	// The Nomad client that serves it. Unset means nothing can be run there, which is a
 	// fact about the estate rather than a probe failure.
-	ExecutorHost string `json:"executor_host,omitempty"`
+	ExecutorHost *string `json:"executor_host,omitempty"`
 
 	// The operating system, as the host reports it. Worth having from a probe because
-	// PMM leaves it null for some nodes.
-	Os string `json:"os,omitempty"`
+	// PMM does not know it for some nodes.
+	Os *string `json:"os,omitempty"`
 
 	// The kernel release.
-	Kernel string `json:"kernel,omitempty"`
+	Kernel *string `json:"kernel,omitempty"`
 
 	// Mongods running that PMM has no service for.
 	UnregisteredMongods []*GetInventoryHostOKBodyHostUnregisteredMongodsItems0 `json:"unregistered_mongods"`
@@ -859,7 +859,7 @@ type GetInventoryHostOKBodyHostExecutor struct {
 	DriverHealthy bool `json:"driver_healthy,omitempty"`
 
 	// Whatever detail the backend gave, when it gave any.
-	Detail string `json:"detail,omitempty"`
+	Detail *string `json:"detail,omitempty"`
 }
 
 // Validate validates this get inventory host OK body host executor
@@ -922,7 +922,7 @@ type GetInventoryHostOKBodyHostFreshness struct {
 	ConsecutiveFailures int32 `json:"consecutive_failures,omitempty"`
 
 	// The most recent failure detail.
-	LastError string `json:"last_error,omitempty"`
+	LastError *string `json:"last_error,omitempty"`
 }
 
 // Validate validates this get inventory host OK body host freshness
@@ -1044,36 +1044,36 @@ type GetInventoryHostOKBodyHostServicesItems0 struct {
 	Name string `json:"name,omitempty"`
 
 	// The port it listens on, where OM knows it.
-	Port int32 `json:"port,omitempty"`
+	Port *int32 `json:"port,omitempty"`
 
 	// PRIMARY, SECONDARY, ARBITER, or unset.
-	Role string `json:"role,omitempty"`
+	Role *string `json:"role,omitempty"`
 
 	// The MongoDB binary installed on the node, which is not necessarily the one
 	// running. Divergence from running_version is the upgraded-but-not-restarted case,
 	// and no metric anywhere carries it.
-	InstalledVersion string `json:"installed_version,omitempty"`
+	InstalledVersion *string `json:"installed_version,omitempty"`
 
 	// The version the running server reports.
-	RunningVersion string `json:"running_version,omitempty"`
+	RunningVersion *string `json:"running_version,omitempty"`
 
 	// The configuration file the running server read.
-	ConfigPath string `json:"config_path,omitempty"`
+	ConfigPath *string `json:"config_path,omitempty"`
 
 	// The command line it was started with.
-	Argv string `json:"argv,omitempty"`
+	Argv *string `json:"argv,omitempty"`
 
 	// What the last probe of this service concluded, in the payload's own words.
-	ProbeStatus string `json:"probe_status,omitempty"`
+	ProbeStatus *string `json:"probe_status,omitempty"`
 
 	// Whether a server was found running. Unset where no probe has looked.
-	ServerRunning bool `json:"server_running,omitempty"`
+	ServerRunning *bool `json:"server_running,omitempty"`
 
 	// How long it has been up, seconds.
-	UptimeSeconds float64 `json:"uptime_seconds,omitempty"`
+	UptimeSeconds *float64 `json:"uptime_seconds,omitempty"`
 
 	// The replica set it belongs to, or unset for a standalone or a router.
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet *string `json:"replication_set,omitempty"`
 
 	// Everything the probe recorded, including attributes with no field above.
 	Observed any `json:"observed,omitempty"`
@@ -1207,7 +1207,7 @@ type GetInventoryHostOKBodyHostServicesItems0Freshness struct {
 	ConsecutiveFailures int32 `json:"consecutive_failures,omitempty"`
 
 	// The most recent failure detail.
-	LastError string `json:"last_error,omitempty"`
+	LastError *string `json:"last_error,omitempty"`
 }
 
 // Validate validates this get inventory host OK body host services items0 freshness
@@ -1317,19 +1317,19 @@ swagger:model GetInventoryHostOKBodyHostUnregisteredMongodsItems0
 */
 type GetInventoryHostOKBodyHostUnregisteredMongodsItems0 struct {
 	// The port it is listening on.
-	Port int32 `json:"port,omitempty"`
+	Port *int32 `json:"port,omitempty"`
 
 	// The configuration file it read.
-	ConfigPath string `json:"config_path,omitempty"`
+	ConfigPath *string `json:"config_path,omitempty"`
 
 	// The command line it was started with.
-	Argv string `json:"argv,omitempty"`
+	Argv *string `json:"argv,omitempty"`
 
 	// The process name, e.g. "mongod".
-	Program string `json:"program,omitempty"`
+	Program *string `json:"program,omitempty"`
 
 	// Its process ID at the time of the probe.
-	Pid int32 `json:"pid,omitempty"`
+	Pid *int32 `json:"pid,omitempty"`
 }
 
 // Validate validates this get inventory host OK body host unregistered mongods items0

@@ -566,7 +566,7 @@ type ListInventoryRunsOKBodyRunsItems0 struct {
 	Scope []string `json:"scope"`
 
 	// What went wrong, when something did.
-	Error string `json:"error,omitempty"`
+	Error *string `json:"error,omitempty"`
 
 	// counts
 	Counts *ListInventoryRunsOKBodyRunsItems0Counts `json:"counts,omitempty"`

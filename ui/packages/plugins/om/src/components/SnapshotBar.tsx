@@ -16,7 +16,7 @@
  */
 
 import { Stack, Tooltip, Typography } from '@mui/material';
-import { Chip } from '@percona/percona-ui';
+import Chip from '@mui/material/Chip';
 import { formatAge, formatTimestamp } from '../format';
 import type { OmTopologySnapshotEnvelope } from '../types';
 

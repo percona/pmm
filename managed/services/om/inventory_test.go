@@ -29,7 +29,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
 )
@@ -202,9 +201,9 @@ func TestListInventoryHosts(t *testing.T) {
 
 		host := response.GetHosts()[0]
 		assert.Equal(t, "n1", host.GetNodeId())
-		assert.Equal(t, "Ubuntu 24.04.3 LTS", host.GetOs().GetValue())
-		assert.Equal(t, "6.17.0-35-generic", host.GetKernel().GetValue())
-		assert.Equal(t, "db00", host.GetExecutorHost().GetValue())
+		assert.Equal(t, "Ubuntu 24.04.3 LTS", host.GetOs())
+		assert.Equal(t, "6.17.0-35-generic", host.GetKernel())
+		assert.Equal(t, "db00", host.GetExecutorHost())
 	})
 
 	t.Run("carries the whole document for a detail panel", func(t *testing.T) {
@@ -235,8 +234,8 @@ func TestListInventoryHosts(t *testing.T) {
 
 		strangers := response.GetHosts()[0].GetUnregisteredMongods()
 		require.Len(t, strangers, 1)
-		assert.Equal(t, int32(27018), strangers[0].GetPort().GetValue())
-		assert.Equal(t, "/etc/mongod-node.conf", strangers[0].GetConfigPath().GetValue())
+		assert.Equal(t, int32(27018), strangers[0].GetPort())
+		assert.Equal(t, "/etc/mongod-node.conf", strangers[0].GetConfigPath())
 	})
 
 	t.Run("splits the executor state three ways", func(t *testing.T) {
@@ -280,7 +279,7 @@ func TestListInventoryHosts(t *testing.T) {
 
 		freshness := response.GetHosts()[1].GetFreshness()
 		assert.Equal(t, int32(3), freshness.GetConsecutiveFailures())
-		assert.Equal(t, "no executor host", freshness.GetLastError().GetValue())
+		assert.Equal(t, "no executor host", freshness.GetLastError())
 		assert.NotNil(t, freshness.GetFailingSince())
 		assert.Nil(t, freshness.GetLastSuccessAt(),
 			"never having answered is different from having answered nothing")
@@ -291,10 +290,15 @@ func TestListInventoryHosts(t *testing.T) {
 
 		stub := newSEPStub(t, http.StatusOK, `[]`)
 
+		// Addressable locals rather than a helper: these are proto3 `optional` bools, so
+		// what the request carries is a plain *bool, and false has to be distinguishable
+		// from unset -- which is the whole point of the three assertions below.
+		hasService, failing, executor := false, true, false
+
 		_, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{
-			HasService: wrapperBool(false),
-			Failing:    wrapperBool(true),
-			Executor:   wrapperBool(false),
+			HasService: &hasService,
+			Failing:    &failing,
+			Executor:   &executor,
 		})
 
 		require.NoError(t, err)
@@ -335,14 +339,14 @@ func TestInventoryServiceProjection(t *testing.T) {
 
 	// installed_version against running version is the whole reason the probe exists:
 	// their divergence is the upgraded-but-not-restarted case, and no metric carries it.
-	assert.Equal(t, "7.0.40-22", service.GetInstalledVersion().GetValue())
-	assert.Equal(t, "7.0.39-21", service.GetRunningVersion().GetValue())
-	assert.Equal(t, "PRIMARY", service.GetRole().GetValue())
-	assert.Equal(t, int32(27017), service.GetPort().GetValue())
-	assert.Equal(t, "ok", service.GetProbeStatus().GetValue())
-	assert.True(t, service.GetServerRunning().GetValue())
-	assert.InDelta(t, 11699.0, service.GetUptimeSeconds().GetValue(), 0.001)
-	assert.Equal(t, "rs0", service.GetReplicationSet().GetValue())
+	assert.Equal(t, "7.0.40-22", service.GetInstalledVersion())
+	assert.Equal(t, "7.0.39-21", service.GetRunningVersion())
+	assert.Equal(t, "PRIMARY", service.GetRole())
+	assert.Equal(t, int32(27017), service.GetPort())
+	assert.Equal(t, "ok", service.GetProbeStatus())
+	assert.True(t, service.GetServerRunning())
+	assert.InDelta(t, 11699.0, service.GetUptimeSeconds(), 0.001)
+	assert.Equal(t, "rs0", service.GetReplicationSet())
 }
 
 func TestTriggerInventoryRefresh(t *testing.T) {
@@ -721,16 +725,16 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	require.Len(t, res.GetEntities(), 3)
 
 	withDatabase := res.GetEntities()[0]
-	assert.Equal(t, "db00", withDatabase.GetHostName().GetValue())
+	assert.Equal(t, "db00", withDatabase.GetHostName())
 	assert.True(t, withDatabase.GetAnswered())
-	assert.InDelta(t, 12.5, withDatabase.GetDurationSeconds().GetValue(), 0.001)
+	assert.InDelta(t, 12.5, withDatabase.GetDurationSeconds(), 0.001)
 	require.Len(t, withDatabase.GetServices(), 1)
-	assert.Equal(t, "mongo-1", withDatabase.GetServices()[0].GetServiceName().GetValue())
+	assert.Equal(t, "mongo-1", withDatabase.GetServices()[0].GetServiceName())
 
 	// The row a service-oriented receipt could not produce at all: probed, answered,
 	// and carrying no services because there is no database on it.
 	bare := res.GetEntities()[1]
-	assert.Equal(t, "pmm-client-node00", bare.GetHostName().GetValue())
+	assert.Equal(t, "pmm-client-node00", bare.GetHostName())
 	assert.True(t, bare.GetAnswered())
 	assert.Empty(t, bare.GetServices())
 
@@ -739,11 +743,13 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	orphan := res.GetEntities()[2]
 	assert.Equal(t, omv1.ExecutorResolution_EXECUTOR_RESOLUTION_ORPHANED, orphan.GetResolution())
 	assert.False(t, orphan.GetAnswered())
-	// Wrappers, not optional scalars: protojson drops an unset optional entirely, so a
-	// host with no executor and no duration would arrive with an empty string and zero.
-	assert.Nil(t, orphan.GetExecutorHost())
-	assert.Nil(t, orphan.GetDurationSeconds())
-	assert.Equal(t, "no executor host", orphan.GetError().GetValue())
+	// Asserted on the fields rather than the getters: these are proto3 `optional`
+	// scalars, so the getter returns the zero value for an unset field and only the
+	// pointer distinguishes "no executor host" from "an empty one". protojson omits
+	// the key altogether, which is the wire form the UI reads as absent.
+	assert.Nil(t, orphan.ExecutorHost)
+	assert.Nil(t, orphan.DurationSeconds)
+	assert.Equal(t, "no executor host", orphan.GetError())
 }
 
 func TestInventoryBearerIsSent(t *testing.T) {
@@ -767,9 +773,6 @@ func TestInventoryBearerIsSent(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "Bearer test-token", seen)
 }
-
-// wrapperBool keeps the filter cases above readable.
-func wrapperBool(value bool) *wrapperspb.BoolValue { return wrapperspb.Bool(value) }
 
 // ensure the canned bodies stay valid JSON as they are edited.
 func TestInventoryFixturesAreValid(t *testing.T) {

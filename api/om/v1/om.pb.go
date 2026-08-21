@@ -18,7 +18,7 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	structpb "google.golang.org/protobuf/types/known/structpb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
+	_ "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const (
@@ -412,34 +412,40 @@ func (SettingReload) EnumDescriptor() ([]byte, []int) {
 // TopologyService represents one monitored MongoDB service as the topology document
 // records it.
 //
-// Two sentinel conventions, and they differ on purpose. cpu_usage_percent and
-// connections_free_percent are -1 when not measured, never null and never 0, because
+// Two conventions for "no value", and they differ on purpose. cpu_usage_percent and
+// connections_free_percent are -1 when not measured, never absent and never 0, because
 // zero CPU is a legitimate reading and a numeric column must keep "idle" and "unknown"
-// apart. replication_lag_seconds and oplog_window_seconds are null when they do not
-// apply -- a router and a standalone have no replica-set oplog -- which is a different
-// statement from -1's "we could not measure it".
+// apart. replication_lag_seconds and oplog_window_seconds are `optional`, so the key is
+// absent when they do not apply -- a router and a standalone have no replica-set oplog --
+// which is a different statement from -1's "we could not measure it".
+//
+// The optional fields were wrapper messages until the REST contract was checked:
+// protoc-gen-openapiv2 does not mark a wrapper field x-nullable, so the swagger schema
+// and the generated Go client both collapsed to a value type and lost the distinction
+// entirely. `optional` gives x-nullable and a pointer, at the cost of protojson omitting
+// the key rather than emitting an explicit null.
 type TopologyService struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Service name as PMM inventory registered it.
 	ServiceName string `protobuf:"bytes,1,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	// Node the service runs on.
-	Host *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=host,proto3" json:"host,omitempty"`
+	Host *string `protobuf:"bytes,2,opt,name=host,proto3,oneof" json:"host,omitempty"`
 	// host:port as the replica set itself addresses the member.
-	Endpoint *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=endpoint,proto3" json:"endpoint,omitempty"`
+	Endpoint *string `protobuf:"bytes,3,opt,name=endpoint,proto3,oneof" json:"endpoint,omitempty"`
 	// PMM's service ID. The join key against VictoriaMetrics.
-	ServiceId *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	ServiceId *string `protobuf:"bytes,4,opt,name=service_id,json=serviceId,proto3,oneof" json:"service_id,omitempty"`
 	// Always "mongodb" today.
-	ServiceType *wrapperspb.StringValue `protobuf:"bytes,5,opt,name=service_type,json=serviceType,proto3" json:"service_type,omitempty"`
+	ServiceType *string `protobuf:"bytes,5,opt,name=service_type,json=serviceType,proto3,oneof" json:"service_type,omitempty"`
 	// Running server version.
-	Version *wrapperspb.StringValue `protobuf:"bytes,6,opt,name=version,proto3" json:"version,omitempty"`
+	Version *string `protobuf:"bytes,6,opt,name=version,proto3,oneof" json:"version,omitempty"`
 	// MongoDB or Percona.
-	Vendor *wrapperspb.StringValue `protobuf:"bytes,7,opt,name=vendor,proto3" json:"vendor,omitempty"`
+	Vendor *string `protobuf:"bytes,7,opt,name=vendor,proto3,oneof" json:"vendor,omitempty"`
 	// Community or Enterprise.
-	Edition *wrapperspb.StringValue `protobuf:"bytes,8,opt,name=edition,proto3" json:"edition,omitempty"`
+	Edition *string `protobuf:"bytes,8,opt,name=edition,proto3,oneof" json:"edition,omitempty"`
 	// Replica set, or unset for a router or a standalone.
-	ReplicationSet *wrapperspb.StringValue `protobuf:"bytes,9,opt,name=replication_set,json=replicationSet,proto3" json:"replication_set,omitempty"`
+	ReplicationSet *string `protobuf:"bytes,9,opt,name=replication_set,json=replicationSet,proto3,oneof" json:"replication_set,omitempty"`
 	// PRIMARY, SECONDARY or ARBITER, or unset where there is no replica-set state.
-	State *wrapperspb.StringValue `protobuf:"bytes,10,opt,name=state,proto3" json:"state,omitempty"`
+	State *string `protobuf:"bytes,10,opt,name=state,proto3,oneof" json:"state,omitempty"`
 	// Whether the exporter reached the service.
 	Status ServiceStatus `protobuf:"varint,11,opt,name=status,proto3,enum=om.v1.ServiceStatus" json:"status,omitempty"`
 	// CPU percentage, or -1 when not measured.
@@ -449,17 +455,17 @@ type TopologyService struct {
 	// What this process is doing in the deployment.
 	ProcessRole ProcessRole `protobuf:"varint,14,opt,name=process_role,json=processRole,proto3,enum=om.v1.ProcessRole" json:"process_role,omitempty"`
 	// Seconds this member trails the primary; unset where there is no primary to trail.
-	ReplicationLagSeconds *wrapperspb.DoubleValue `protobuf:"bytes,15,opt,name=replication_lag_seconds,json=replicationLagSeconds,proto3" json:"replication_lag_seconds,omitempty"`
+	ReplicationLagSeconds *float64 `protobuf:"fixed64,15,opt,name=replication_lag_seconds,json=replicationLagSeconds,proto3,oneof" json:"replication_lag_seconds,omitempty"`
 	// Seconds of history the oplog holds; unset where there is no replica-set oplog.
-	OplogWindowSeconds *wrapperspb.DoubleValue `protobuf:"bytes,16,opt,name=oplog_window_seconds,json=oplogWindowSeconds,proto3" json:"oplog_window_seconds,omitempty"`
+	OplogWindowSeconds *float64 `protobuf:"fixed64,16,opt,name=oplog_window_seconds,json=oplogWindowSeconds,proto3,oneof" json:"oplog_window_seconds,omitempty"`
 	// The MongoDB binary installed on the node, which is not necessarily the one
 	// running. Divergence from `version` is the upgraded-but-not-restarted case. Only
 	// an on-host probe can see it, so this is unset wherever one has not run.
-	InstalledVersion *wrapperspb.StringValue `protobuf:"bytes,17,opt,name=installed_version,json=installedVersion,proto3" json:"installed_version,omitempty"`
+	InstalledVersion *string `protobuf:"bytes,17,opt,name=installed_version,json=installedVersion,proto3,oneof" json:"installed_version,omitempty"`
 	// The configuration file the running server read. Probe-only.
-	ConfigPath *wrapperspb.StringValue `protobuf:"bytes,18,opt,name=config_path,json=configPath,proto3" json:"config_path,omitempty"`
+	ConfigPath *string `protobuf:"bytes,18,opt,name=config_path,json=configPath,proto3,oneof" json:"config_path,omitempty"`
 	// The command line the running server was started with. Probe-only.
-	Argv          *wrapperspb.StringValue `protobuf:"bytes,19,opt,name=argv,proto3" json:"argv,omitempty"`
+	Argv          *string `protobuf:"bytes,19,opt,name=argv,proto3,oneof" json:"argv,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -501,67 +507,67 @@ func (x *TopologyService) GetServiceName() string {
 	return ""
 }
 
-func (x *TopologyService) GetHost() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Host
+func (x *TopologyService) GetHost() string {
+	if x != nil && x.Host != nil {
+		return *x.Host
 	}
-	return nil
+	return ""
 }
 
-func (x *TopologyService) GetEndpoint() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Endpoint
+func (x *TopologyService) GetEndpoint() string {
+	if x != nil && x.Endpoint != nil {
+		return *x.Endpoint
 	}
-	return nil
+	return ""
 }
 
-func (x *TopologyService) GetServiceId() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ServiceId
+func (x *TopologyService) GetServiceId() string {
+	if x != nil && x.ServiceId != nil {
+		return *x.ServiceId
 	}
-	return nil
+	return ""
 }
 
-func (x *TopologyService) GetServiceType() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ServiceType
+func (x *TopologyService) GetServiceType() string {
+	if x != nil && x.ServiceType != nil {
+		return *x.ServiceType
 	}
-	return nil
+	return ""
 }
 
-func (x *TopologyService) GetVersion() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Version
+func (x *TopologyService) GetVersion() string {
+	if x != nil && x.Version != nil {
+		return *x.Version
 	}
-	return nil
+	return ""
 }
 
-func (x *TopologyService) GetVendor() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Vendor
+func (x *TopologyService) GetVendor() string {
+	if x != nil && x.Vendor != nil {
+		return *x.Vendor
 	}
-	return nil
+	return ""
 }
 
-func (x *TopologyService) GetEdition() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Edition
+func (x *TopologyService) GetEdition() string {
+	if x != nil && x.Edition != nil {
+		return *x.Edition
 	}
-	return nil
+	return ""
 }
 
-func (x *TopologyService) GetReplicationSet() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ReplicationSet
+func (x *TopologyService) GetReplicationSet() string {
+	if x != nil && x.ReplicationSet != nil {
+		return *x.ReplicationSet
 	}
-	return nil
+	return ""
 }
 
-func (x *TopologyService) GetState() *wrapperspb.StringValue {
-	if x != nil {
-		return x.State
+func (x *TopologyService) GetState() string {
+	if x != nil && x.State != nil {
+		return *x.State
 	}
-	return nil
+	return ""
 }
 
 func (x *TopologyService) GetStatus() ServiceStatus {
@@ -592,46 +598,46 @@ func (x *TopologyService) GetProcessRole() ProcessRole {
 	return ProcessRole_PROCESS_ROLE_UNSPECIFIED
 }
 
-func (x *TopologyService) GetReplicationLagSeconds() *wrapperspb.DoubleValue {
-	if x != nil {
-		return x.ReplicationLagSeconds
+func (x *TopologyService) GetReplicationLagSeconds() float64 {
+	if x != nil && x.ReplicationLagSeconds != nil {
+		return *x.ReplicationLagSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *TopologyService) GetOplogWindowSeconds() *wrapperspb.DoubleValue {
-	if x != nil {
-		return x.OplogWindowSeconds
+func (x *TopologyService) GetOplogWindowSeconds() float64 {
+	if x != nil && x.OplogWindowSeconds != nil {
+		return *x.OplogWindowSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *TopologyService) GetInstalledVersion() *wrapperspb.StringValue {
-	if x != nil {
-		return x.InstalledVersion
+func (x *TopologyService) GetInstalledVersion() string {
+	if x != nil && x.InstalledVersion != nil {
+		return *x.InstalledVersion
 	}
-	return nil
+	return ""
 }
 
-func (x *TopologyService) GetConfigPath() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ConfigPath
+func (x *TopologyService) GetConfigPath() string {
+	if x != nil && x.ConfigPath != nil {
+		return *x.ConfigPath
 	}
-	return nil
+	return ""
 }
 
-func (x *TopologyService) GetArgv() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Argv
+func (x *TopologyService) GetArgv() string {
+	if x != nil && x.Argv != nil {
+		return *x.Argv
 	}
-	return nil
+	return ""
 }
 
 // Cluster represents one cluster or replica set.
 type Cluster struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Cluster label, unset when its services carry none.
-	Name *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Name *string `protobuf:"bytes,1,opt,name=name,proto3,oneof" json:"name,omitempty"`
 	// Its services, ordered by name.
 	Services      []*TopologyService `protobuf:"bytes,2,rep,name=services,proto3" json:"services,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -668,11 +674,11 @@ func (*Cluster) Descriptor() ([]byte, []int) {
 	return file_om_v1_om_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *Cluster) GetName() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Name
+func (x *Cluster) GetName() string {
+	if x != nil && x.Name != nil {
+		return *x.Name
 	}
-	return nil
+	return ""
 }
 
 func (x *Cluster) GetServices() []*TopologyService {
@@ -686,7 +692,7 @@ func (x *Cluster) GetServices() []*TopologyService {
 type Environment struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Environment label, unset when its services carry none.
-	EnvName *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=env_name,json=envName,proto3" json:"env_name,omitempty"`
+	EnvName *string `protobuf:"bytes,1,opt,name=env_name,json=envName,proto3,oneof" json:"env_name,omitempty"`
 	// Its clusters, ordered by name.
 	Clusters      []*Cluster `protobuf:"bytes,2,rep,name=clusters,proto3" json:"clusters,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -723,11 +729,11 @@ func (*Environment) Descriptor() ([]byte, []int) {
 	return file_om_v1_om_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *Environment) GetEnvName() *wrapperspb.StringValue {
-	if x != nil {
-		return x.EnvName
+func (x *Environment) GetEnvName() string {
+	if x != nil && x.EnvName != nil {
+		return *x.EnvName
 	}
-	return nil
+	return ""
 }
 
 func (x *Environment) GetClusters() []*Cluster {
@@ -955,7 +961,7 @@ type GetTopologyResponse struct {
 	// Which run produced this, when, and whether it is stale.
 	Snapshot *Snapshot `protobuf:"bytes,1,opt,name=snapshot,proto3" json:"snapshot,omitempty"`
 	// The PMM node the document was assembled on.
-	OriginNode *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=origin_node,json=originNode,proto3" json:"origin_node,omitempty"`
+	OriginNode *string `protobuf:"bytes,2,opt,name=origin_node,json=originNode,proto3,oneof" json:"origin_node,omitempty"`
 	// The VictoriaMetrics queries the document was derived from.
 	SourceQueries []string `protobuf:"bytes,3,rep,name=source_queries,json=sourceQueries,proto3" json:"source_queries,omitempty"`
 	// Fleet-level counts.
@@ -1003,11 +1009,11 @@ func (x *GetTopologyResponse) GetSnapshot() *Snapshot {
 	return nil
 }
 
-func (x *GetTopologyResponse) GetOriginNode() *wrapperspb.StringValue {
-	if x != nil {
-		return x.OriginNode
+func (x *GetTopologyResponse) GetOriginNode() string {
+	if x != nil && x.OriginNode != nil {
+		return *x.OriginNode
 	}
-	return nil
+	return ""
 }
 
 func (x *GetTopologyResponse) GetSourceQueries() []string {
@@ -1199,7 +1205,7 @@ type TopologyRunError struct {
 	// What the error is about, e.g. "run" or "query".
 	Scope string `protobuf:"bytes,1,opt,name=scope,proto3" json:"scope,omitempty"`
 	// The service it concerns, when scoped to one.
-	ServiceName *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	ServiceName *string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3,oneof" json:"service_name,omitempty"`
 	// A machine-readable cause.
 	Code string `protobuf:"bytes,3,opt,name=code,proto3" json:"code,omitempty"`
 	// The human-readable detail.
@@ -1245,11 +1251,11 @@ func (x *TopologyRunError) GetScope() string {
 	return ""
 }
 
-func (x *TopologyRunError) GetServiceName() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ServiceName
+func (x *TopologyRunError) GetServiceName() string {
+	if x != nil && x.ServiceName != nil {
+		return *x.ServiceName
 	}
-	return nil
+	return ""
 }
 
 func (x *TopologyRunError) GetCode() string {
@@ -1667,7 +1673,7 @@ type InventoryExecutor struct {
 	// Whether its raw_exec driver is healthy, which is what a probe actually needs.
 	DriverHealthy bool `protobuf:"varint,3,opt,name=driver_healthy,json=driverHealthy,proto3" json:"driver_healthy,omitempty"`
 	// Whatever detail the backend gave, when it gave any.
-	Detail        *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=detail,proto3" json:"detail,omitempty"`
+	Detail        *string `protobuf:"bytes,4,opt,name=detail,proto3,oneof" json:"detail,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1723,11 +1729,11 @@ func (x *InventoryExecutor) GetDriverHealthy() bool {
 	return false
 }
 
-func (x *InventoryExecutor) GetDetail() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Detail
+func (x *InventoryExecutor) GetDetail() string {
+	if x != nil && x.Detail != nil {
+		return *x.Detail
 	}
-	return nil
+	return ""
 }
 
 // UnregisteredMongod is a mongod found running that PMM has no service for.
@@ -1738,15 +1744,15 @@ func (x *InventoryExecutor) GetDetail() *wrapperspb.StringValue {
 type UnregisteredMongod struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The port it is listening on.
-	Port *wrapperspb.Int32Value `protobuf:"bytes,1,opt,name=port,proto3" json:"port,omitempty"`
+	Port *int32 `protobuf:"varint,1,opt,name=port,proto3,oneof" json:"port,omitempty"`
 	// The configuration file it read.
-	ConfigPath *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=config_path,json=configPath,proto3" json:"config_path,omitempty"`
+	ConfigPath *string `protobuf:"bytes,2,opt,name=config_path,json=configPath,proto3,oneof" json:"config_path,omitempty"`
 	// The command line it was started with.
-	Argv *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=argv,proto3" json:"argv,omitempty"`
+	Argv *string `protobuf:"bytes,3,opt,name=argv,proto3,oneof" json:"argv,omitempty"`
 	// The process name, e.g. "mongod".
-	Program *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=program,proto3" json:"program,omitempty"`
+	Program *string `protobuf:"bytes,4,opt,name=program,proto3,oneof" json:"program,omitempty"`
 	// Its process ID at the time of the probe.
-	Pid           *wrapperspb.Int32Value `protobuf:"bytes,5,opt,name=pid,proto3" json:"pid,omitempty"`
+	Pid           *int32 `protobuf:"varint,5,opt,name=pid,proto3,oneof" json:"pid,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1781,39 +1787,39 @@ func (*UnregisteredMongod) Descriptor() ([]byte, []int) {
 	return file_om_v1_om_proto_rawDescGZIP(), []int{18}
 }
 
-func (x *UnregisteredMongod) GetPort() *wrapperspb.Int32Value {
-	if x != nil {
-		return x.Port
+func (x *UnregisteredMongod) GetPort() int32 {
+	if x != nil && x.Port != nil {
+		return *x.Port
 	}
-	return nil
+	return 0
 }
 
-func (x *UnregisteredMongod) GetConfigPath() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ConfigPath
+func (x *UnregisteredMongod) GetConfigPath() string {
+	if x != nil && x.ConfigPath != nil {
+		return *x.ConfigPath
 	}
-	return nil
+	return ""
 }
 
-func (x *UnregisteredMongod) GetArgv() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Argv
+func (x *UnregisteredMongod) GetArgv() string {
+	if x != nil && x.Argv != nil {
+		return *x.Argv
 	}
-	return nil
+	return ""
 }
 
-func (x *UnregisteredMongod) GetProgram() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Program
+func (x *UnregisteredMongod) GetProgram() string {
+	if x != nil && x.Program != nil {
+		return *x.Program
 	}
-	return nil
+	return ""
 }
 
-func (x *UnregisteredMongod) GetPid() *wrapperspb.Int32Value {
-	if x != nil {
-		return x.Pid
+func (x *UnregisteredMongod) GetPid() int32 {
+	if x != nil && x.Pid != nil {
+		return *x.Pid
 	}
-	return nil
+	return 0
 }
 
 // InventoryFreshness says how current the rest of a row is, and how it is failing.
@@ -1837,7 +1843,7 @@ type InventoryFreshness struct {
 	// Failures since the last success.
 	ConsecutiveFailures int32 `protobuf:"varint,5,opt,name=consecutive_failures,json=consecutiveFailures,proto3" json:"consecutive_failures,omitempty"`
 	// The most recent failure detail.
-	LastError     *wrapperspb.StringValue `protobuf:"bytes,6,opt,name=last_error,json=lastError,proto3" json:"last_error,omitempty"`
+	LastError     *string `protobuf:"bytes,6,opt,name=last_error,json=lastError,proto3,oneof" json:"last_error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1907,11 +1913,11 @@ func (x *InventoryFreshness) GetConsecutiveFailures() int32 {
 	return 0
 }
 
-func (x *InventoryFreshness) GetLastError() *wrapperspb.StringValue {
-	if x != nil {
-		return x.LastError
+func (x *InventoryFreshness) GetLastError() string {
+	if x != nil && x.LastError != nil {
+		return *x.LastError
 	}
-	return nil
+	return ""
 }
 
 // InventoryService is one MongoDB service OM has probed, or tried to.
@@ -1931,27 +1937,27 @@ type InventoryService struct {
 	// The service name PMM registered.
 	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	// The port it listens on, where OM knows it.
-	Port *wrapperspb.Int32Value `protobuf:"bytes,4,opt,name=port,proto3" json:"port,omitempty"`
+	Port *int32 `protobuf:"varint,4,opt,name=port,proto3,oneof" json:"port,omitempty"`
 	// PRIMARY, SECONDARY, ARBITER, or unset.
-	Role *wrapperspb.StringValue `protobuf:"bytes,5,opt,name=role,proto3" json:"role,omitempty"`
+	Role *string `protobuf:"bytes,5,opt,name=role,proto3,oneof" json:"role,omitempty"`
 	// The MongoDB binary installed on the node, which is not necessarily the one
 	// running. Divergence from running_version is the upgraded-but-not-restarted case,
 	// and no metric anywhere carries it.
-	InstalledVersion *wrapperspb.StringValue `protobuf:"bytes,6,opt,name=installed_version,json=installedVersion,proto3" json:"installed_version,omitempty"`
+	InstalledVersion *string `protobuf:"bytes,6,opt,name=installed_version,json=installedVersion,proto3,oneof" json:"installed_version,omitempty"`
 	// The version the running server reports.
-	RunningVersion *wrapperspb.StringValue `protobuf:"bytes,7,opt,name=running_version,json=runningVersion,proto3" json:"running_version,omitempty"`
+	RunningVersion *string `protobuf:"bytes,7,opt,name=running_version,json=runningVersion,proto3,oneof" json:"running_version,omitempty"`
 	// The configuration file the running server read.
-	ConfigPath *wrapperspb.StringValue `protobuf:"bytes,8,opt,name=config_path,json=configPath,proto3" json:"config_path,omitempty"`
+	ConfigPath *string `protobuf:"bytes,8,opt,name=config_path,json=configPath,proto3,oneof" json:"config_path,omitempty"`
 	// The command line it was started with.
-	Argv *wrapperspb.StringValue `protobuf:"bytes,9,opt,name=argv,proto3" json:"argv,omitempty"`
+	Argv *string `protobuf:"bytes,9,opt,name=argv,proto3,oneof" json:"argv,omitempty"`
 	// What the last probe of this service concluded, in the payload's own words.
-	ProbeStatus *wrapperspb.StringValue `protobuf:"bytes,10,opt,name=probe_status,json=probeStatus,proto3" json:"probe_status,omitempty"`
+	ProbeStatus *string `protobuf:"bytes,10,opt,name=probe_status,json=probeStatus,proto3,oneof" json:"probe_status,omitempty"`
 	// Whether a server was found running. Unset where no probe has looked.
-	ServerRunning *wrapperspb.BoolValue `protobuf:"bytes,11,opt,name=server_running,json=serverRunning,proto3" json:"server_running,omitempty"`
+	ServerRunning *bool `protobuf:"varint,11,opt,name=server_running,json=serverRunning,proto3,oneof" json:"server_running,omitempty"`
 	// How long it has been up, seconds.
-	UptimeSeconds *wrapperspb.DoubleValue `protobuf:"bytes,12,opt,name=uptime_seconds,json=uptimeSeconds,proto3" json:"uptime_seconds,omitempty"`
+	UptimeSeconds *float64 `protobuf:"fixed64,12,opt,name=uptime_seconds,json=uptimeSeconds,proto3,oneof" json:"uptime_seconds,omitempty"`
 	// The replica set it belongs to, or unset for a standalone or a router.
-	ReplicationSet *wrapperspb.StringValue `protobuf:"bytes,13,opt,name=replication_set,json=replicationSet,proto3" json:"replication_set,omitempty"`
+	ReplicationSet *string `protobuf:"bytes,13,opt,name=replication_set,json=replicationSet,proto3,oneof" json:"replication_set,omitempty"`
 	// Everything the probe recorded, including attributes with no field above.
 	Observed *structpb.Struct `protobuf:"bytes,14,opt,name=observed,proto3" json:"observed,omitempty"`
 	// How current the above is, and how it is failing.
@@ -2011,74 +2017,74 @@ func (x *InventoryService) GetName() string {
 	return ""
 }
 
-func (x *InventoryService) GetPort() *wrapperspb.Int32Value {
-	if x != nil {
-		return x.Port
+func (x *InventoryService) GetPort() int32 {
+	if x != nil && x.Port != nil {
+		return *x.Port
 	}
-	return nil
+	return 0
 }
 
-func (x *InventoryService) GetRole() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Role
+func (x *InventoryService) GetRole() string {
+	if x != nil && x.Role != nil {
+		return *x.Role
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryService) GetInstalledVersion() *wrapperspb.StringValue {
-	if x != nil {
-		return x.InstalledVersion
+func (x *InventoryService) GetInstalledVersion() string {
+	if x != nil && x.InstalledVersion != nil {
+		return *x.InstalledVersion
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryService) GetRunningVersion() *wrapperspb.StringValue {
-	if x != nil {
-		return x.RunningVersion
+func (x *InventoryService) GetRunningVersion() string {
+	if x != nil && x.RunningVersion != nil {
+		return *x.RunningVersion
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryService) GetConfigPath() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ConfigPath
+func (x *InventoryService) GetConfigPath() string {
+	if x != nil && x.ConfigPath != nil {
+		return *x.ConfigPath
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryService) GetArgv() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Argv
+func (x *InventoryService) GetArgv() string {
+	if x != nil && x.Argv != nil {
+		return *x.Argv
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryService) GetProbeStatus() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ProbeStatus
+func (x *InventoryService) GetProbeStatus() string {
+	if x != nil && x.ProbeStatus != nil {
+		return *x.ProbeStatus
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryService) GetServerRunning() *wrapperspb.BoolValue {
-	if x != nil {
-		return x.ServerRunning
+func (x *InventoryService) GetServerRunning() bool {
+	if x != nil && x.ServerRunning != nil {
+		return *x.ServerRunning
 	}
-	return nil
+	return false
 }
 
-func (x *InventoryService) GetUptimeSeconds() *wrapperspb.DoubleValue {
-	if x != nil {
-		return x.UptimeSeconds
+func (x *InventoryService) GetUptimeSeconds() float64 {
+	if x != nil && x.UptimeSeconds != nil {
+		return *x.UptimeSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *InventoryService) GetReplicationSet() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ReplicationSet
+func (x *InventoryService) GetReplicationSet() string {
+	if x != nil && x.ReplicationSet != nil {
+		return *x.ReplicationSet
 	}
-	return nil
+	return ""
 }
 
 func (x *InventoryService) GetObserved() *structpb.Struct {
@@ -2108,15 +2114,15 @@ type InventoryHost struct {
 	// The node name PMM registered.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// The node address PMM registered.
-	Address *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
+	Address *string `protobuf:"bytes,3,opt,name=address,proto3,oneof" json:"address,omitempty"`
 	// The Nomad client that serves it. Unset means nothing can be run there, which is a
 	// fact about the estate rather than a probe failure.
-	ExecutorHost *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=executor_host,json=executorHost,proto3" json:"executor_host,omitempty"`
+	ExecutorHost *string `protobuf:"bytes,4,opt,name=executor_host,json=executorHost,proto3,oneof" json:"executor_host,omitempty"`
 	// The operating system, as the host reports it. Worth having from a probe because
-	// PMM leaves it null for some nodes.
-	Os *wrapperspb.StringValue `protobuf:"bytes,5,opt,name=os,proto3" json:"os,omitempty"`
+	// PMM does not know it for some nodes.
+	Os *string `protobuf:"bytes,5,opt,name=os,proto3,oneof" json:"os,omitempty"`
 	// The kernel release.
-	Kernel *wrapperspb.StringValue `protobuf:"bytes,6,opt,name=kernel,proto3" json:"kernel,omitempty"`
+	Kernel *string `protobuf:"bytes,6,opt,name=kernel,proto3,oneof" json:"kernel,omitempty"`
 	// Whether anything can be run here, in three parts.
 	Executor *InventoryExecutor `protobuf:"bytes,7,opt,name=executor,proto3" json:"executor,omitempty"`
 	// Mongods running that PMM has no service for.
@@ -2176,32 +2182,32 @@ func (x *InventoryHost) GetName() string {
 	return ""
 }
 
-func (x *InventoryHost) GetAddress() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Address
+func (x *InventoryHost) GetAddress() string {
+	if x != nil && x.Address != nil {
+		return *x.Address
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryHost) GetExecutorHost() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ExecutorHost
+func (x *InventoryHost) GetExecutorHost() string {
+	if x != nil && x.ExecutorHost != nil {
+		return *x.ExecutorHost
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryHost) GetOs() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Os
+func (x *InventoryHost) GetOs() string {
+	if x != nil && x.Os != nil {
+		return *x.Os
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryHost) GetKernel() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Kernel
+func (x *InventoryHost) GetKernel() string {
+	if x != nil && x.Kernel != nil {
+		return *x.Kernel
 	}
-	return nil
+	return ""
 }
 
 func (x *InventoryHost) GetExecutor() *InventoryExecutor {
@@ -2349,13 +2355,13 @@ func (x *InventoryRunCounts) GetAnsweredHosts() int32 {
 type InventoryRunEntityService struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// PMM's service ID, when OM could key one.
-	ServiceId *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	ServiceId *string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3,oneof" json:"service_id,omitempty"`
 	// Its name, so a reader is not left joining UUIDs by hand.
-	ServiceName *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	ServiceName *string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3,oneof" json:"service_name,omitempty"`
 	// Whether the host returned a usable record for it.
 	Answered bool `protobuf:"varint,3,opt,name=answered,proto3" json:"answered,omitempty"`
 	// Why it did not, when it did not.
-	Error         *wrapperspb.StringValue `protobuf:"bytes,4,opt,name=error,proto3" json:"error,omitempty"`
+	Error         *string `protobuf:"bytes,4,opt,name=error,proto3,oneof" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2390,18 +2396,18 @@ func (*InventoryRunEntityService) Descriptor() ([]byte, []int) {
 	return file_om_v1_om_proto_rawDescGZIP(), []int{23}
 }
 
-func (x *InventoryRunEntityService) GetServiceId() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ServiceId
+func (x *InventoryRunEntityService) GetServiceId() string {
+	if x != nil && x.ServiceId != nil {
+		return *x.ServiceId
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryRunEntityService) GetServiceName() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ServiceName
+func (x *InventoryRunEntityService) GetServiceName() string {
+	if x != nil && x.ServiceName != nil {
+		return *x.ServiceName
 	}
-	return nil
+	return ""
 }
 
 func (x *InventoryRunEntityService) GetAnswered() bool {
@@ -2411,11 +2417,11 @@ func (x *InventoryRunEntityService) GetAnswered() bool {
 	return false
 }
 
-func (x *InventoryRunEntityService) GetError() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Error
+func (x *InventoryRunEntityService) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
 	}
-	return nil
+	return ""
 }
 
 // InventoryRunEntity is one host a refresh attempted, and what came of it.
@@ -2437,18 +2443,18 @@ type InventoryRunEntity struct {
 	// PMM's node ID, the key OM holds this host under.
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// The node's registered name.
-	HostName *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=host_name,json=hostName,proto3" json:"host_name,omitempty"`
+	HostName *string `protobuf:"bytes,2,opt,name=host_name,json=hostName,proto3,oneof" json:"host_name,omitempty"`
 	// The client its probe ran on. Unset when none matched.
-	ExecutorHost *wrapperspb.StringValue `protobuf:"bytes,3,opt,name=executor_host,json=executorHost,proto3" json:"executor_host,omitempty"`
+	ExecutorHost *string `protobuf:"bytes,3,opt,name=executor_host,json=executorHost,proto3,oneof" json:"executor_host,omitempty"`
 	// How that client was matched, or that it was not.
 	Resolution ExecutorResolution `protobuf:"varint,4,opt,name=resolution,proto3,enum=om.v1.ExecutorResolution" json:"resolution,omitempty"`
 	// Whether the *host* answered. A different question from whether its services did:
 	// a host with no database answers perfectly well and has no services at all.
 	Answered bool `protobuf:"varint,5,opt,name=answered,proto3" json:"answered,omitempty"`
 	// The host's wall clock, dispatch to collected output.
-	DurationSeconds *wrapperspb.DoubleValue `protobuf:"bytes,6,opt,name=duration_seconds,json=durationSeconds,proto3" json:"duration_seconds,omitempty"`
+	DurationSeconds *float64 `protobuf:"fixed64,6,opt,name=duration_seconds,json=durationSeconds,proto3,oneof" json:"duration_seconds,omitempty"`
 	// The host-level failure, when its probe failed.
-	Error *wrapperspb.StringValue `protobuf:"bytes,7,opt,name=error,proto3" json:"error,omitempty"`
+	Error *string `protobuf:"bytes,7,opt,name=error,proto3,oneof" json:"error,omitempty"`
 	// The services on it. Empty is a meaningful answer, not a gap.
 	Services      []*InventoryRunEntityService `protobuf:"bytes,8,rep,name=services,proto3" json:"services,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -2492,18 +2498,18 @@ func (x *InventoryRunEntity) GetNodeId() string {
 	return ""
 }
 
-func (x *InventoryRunEntity) GetHostName() *wrapperspb.StringValue {
-	if x != nil {
-		return x.HostName
+func (x *InventoryRunEntity) GetHostName() string {
+	if x != nil && x.HostName != nil {
+		return *x.HostName
 	}
-	return nil
+	return ""
 }
 
-func (x *InventoryRunEntity) GetExecutorHost() *wrapperspb.StringValue {
-	if x != nil {
-		return x.ExecutorHost
+func (x *InventoryRunEntity) GetExecutorHost() string {
+	if x != nil && x.ExecutorHost != nil {
+		return *x.ExecutorHost
 	}
-	return nil
+	return ""
 }
 
 func (x *InventoryRunEntity) GetResolution() ExecutorResolution {
@@ -2520,18 +2526,18 @@ func (x *InventoryRunEntity) GetAnswered() bool {
 	return false
 }
 
-func (x *InventoryRunEntity) GetDurationSeconds() *wrapperspb.DoubleValue {
-	if x != nil {
-		return x.DurationSeconds
+func (x *InventoryRunEntity) GetDurationSeconds() float64 {
+	if x != nil && x.DurationSeconds != nil {
+		return *x.DurationSeconds
 	}
-	return nil
+	return 0
 }
 
-func (x *InventoryRunEntity) GetError() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Error
+func (x *InventoryRunEntity) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
 	}
-	return nil
+	return ""
 }
 
 func (x *InventoryRunEntity) GetServices() []*InventoryRunEntityService {
@@ -2558,7 +2564,7 @@ type InventoryRun struct {
 	// what the scheduled sweep does.
 	Scope []string `protobuf:"bytes,6,rep,name=scope,proto3" json:"scope,omitempty"`
 	// What went wrong, when something did.
-	Error         *wrapperspb.StringValue `protobuf:"bytes,7,opt,name=error,proto3" json:"error,omitempty"`
+	Error         *string `protobuf:"bytes,7,opt,name=error,proto3,oneof" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2635,11 +2641,11 @@ func (x *InventoryRun) GetScope() []string {
 	return nil
 }
 
-func (x *InventoryRun) GetError() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Error
+func (x *InventoryRun) GetError() string {
+	if x != nil && x.Error != nil {
+		return *x.Error
 	}
-	return nil
+	return ""
 }
 
 // InventorySetting is one of the inventory app's configuration fields.
@@ -2662,7 +2668,7 @@ type InventorySetting struct {
 	// Whether to hide it behind an "advanced" disclosure.
 	IsAdvanced bool `protobuf:"varint,7,opt,name=is_advanced,json=isAdvanced,proto3" json:"is_advanced,omitempty"`
 	// The field's documentation, where it has any.
-	Description   *wrapperspb.StringValue `protobuf:"bytes,8,opt,name=description,proto3" json:"description,omitempty"`
+	Description   *string `protobuf:"bytes,8,opt,name=description,proto3,oneof" json:"description,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2746,11 +2752,11 @@ func (x *InventorySetting) GetIsAdvanced() bool {
 	return false
 }
 
-func (x *InventorySetting) GetDescription() *wrapperspb.StringValue {
-	if x != nil {
-		return x.Description
+func (x *InventorySetting) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
 	}
-	return nil
+	return ""
 }
 
 // ListInventoryHostsRequest is the request for ListInventoryHosts.
@@ -2758,13 +2764,13 @@ type ListInventoryHostsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// When set, return only hosts that do (or do not) carry a registered service.
 	// Unset returns both, which is the ordinary listing.
-	HasService *wrapperspb.BoolValue `protobuf:"bytes,1,opt,name=has_service,json=hasService,proto3" json:"has_service,omitempty"`
+	HasService *bool `protobuf:"varint,1,opt,name=has_service,json=hasService,proto3,oneof" json:"has_service,omitempty"`
 	// When true, return only hosts currently failing.
-	Failing *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=failing,proto3" json:"failing,omitempty"`
+	Failing *bool `protobuf:"varint,2,opt,name=failing,proto3,oneof" json:"failing,omitempty"`
 	// When set, return only hosts that do (or do not) have an executor to run a probe
 	// on. Not a client name: the app filters on whether one is matched at all, and
 	// "which machines can nothing be dispatched to" is the question worth asking.
-	Executor      *wrapperspb.BoolValue `protobuf:"bytes,3,opt,name=executor,proto3" json:"executor,omitempty"`
+	Executor      *bool `protobuf:"varint,3,opt,name=executor,proto3,oneof" json:"executor,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2799,25 +2805,25 @@ func (*ListInventoryHostsRequest) Descriptor() ([]byte, []int) {
 	return file_om_v1_om_proto_rawDescGZIP(), []int{27}
 }
 
-func (x *ListInventoryHostsRequest) GetHasService() *wrapperspb.BoolValue {
-	if x != nil {
-		return x.HasService
+func (x *ListInventoryHostsRequest) GetHasService() bool {
+	if x != nil && x.HasService != nil {
+		return *x.HasService
 	}
-	return nil
+	return false
 }
 
-func (x *ListInventoryHostsRequest) GetFailing() *wrapperspb.BoolValue {
-	if x != nil {
-		return x.Failing
+func (x *ListInventoryHostsRequest) GetFailing() bool {
+	if x != nil && x.Failing != nil {
+		return *x.Failing
 	}
-	return nil
+	return false
 }
 
-func (x *ListInventoryHostsRequest) GetExecutor() *wrapperspb.BoolValue {
-	if x != nil {
-		return x.Executor
+func (x *ListInventoryHostsRequest) GetExecutor() bool {
+	if x != nil && x.Executor != nil {
+		return *x.Executor
 	}
-	return nil
+	return false
 }
 
 // ListInventoryHostsResponse returns the hosts OM knows about.
@@ -3045,9 +3051,9 @@ func (*DeleteInventoryHostResponse) Descriptor() ([]byte, []int) {
 type ListInventoryServicesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// When set, return only the services on this host.
-	NodeId *wrapperspb.StringValue `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	NodeId *string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3,oneof" json:"node_id,omitempty"`
 	// When true, return only services currently failing.
-	Failing       *wrapperspb.BoolValue `protobuf:"bytes,2,opt,name=failing,proto3" json:"failing,omitempty"`
+	Failing       *bool `protobuf:"varint,2,opt,name=failing,proto3,oneof" json:"failing,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3082,18 +3088,18 @@ func (*ListInventoryServicesRequest) Descriptor() ([]byte, []int) {
 	return file_om_v1_om_proto_rawDescGZIP(), []int{33}
 }
 
-func (x *ListInventoryServicesRequest) GetNodeId() *wrapperspb.StringValue {
-	if x != nil {
-		return x.NodeId
+func (x *ListInventoryServicesRequest) GetNodeId() string {
+	if x != nil && x.NodeId != nil {
+		return *x.NodeId
 	}
-	return nil
+	return ""
 }
 
-func (x *ListInventoryServicesRequest) GetFailing() *wrapperspb.BoolValue {
-	if x != nil {
-		return x.Failing
+func (x *ListInventoryServicesRequest) GetFailing() bool {
+	if x != nil && x.Failing != nil {
+		return *x.Failing
 	}
-	return nil
+	return false
 }
 
 // ListInventoryServicesResponse returns the services OM knows about, flat.
@@ -3929,36 +3935,55 @@ var File_om_v1_om_proto protoreflect.FileDescriptor
 
 const file_om_v1_om_proto_rawDesc = "" +
 	"\n" +
-	"\x0eom/v1/om.proto\x12\x05om.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xec\b\n" +
+	"\x0eom/v1/om.proto\x12\x05om.v1\x1a\x1cgoogle/api/annotations.proto\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/wrappers.proto\x1a.protoc-gen-openapiv2/options/annotations.proto\x1a\x17validate/validate.proto\"\xe9\a\n" +
 	"\x0fTopologyService\x12!\n" +
-	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x120\n" +
-	"\x04host\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\x04host\x128\n" +
-	"\bendpoint\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\bendpoint\x12;\n" +
+	"\fservice_name\x18\x01 \x01(\tR\vserviceName\x12\x17\n" +
+	"\x04host\x18\x02 \x01(\tH\x00R\x04host\x88\x01\x01\x12\x1f\n" +
+	"\bendpoint\x18\x03 \x01(\tH\x01R\bendpoint\x88\x01\x01\x12\"\n" +
 	"\n" +
-	"service_id\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\tserviceId\x12?\n" +
-	"\fservice_type\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\vserviceType\x126\n" +
-	"\aversion\x18\x06 \x01(\v2\x1c.google.protobuf.StringValueR\aversion\x124\n" +
-	"\x06vendor\x18\a \x01(\v2\x1c.google.protobuf.StringValueR\x06vendor\x126\n" +
-	"\aedition\x18\b \x01(\v2\x1c.google.protobuf.StringValueR\aedition\x12E\n" +
-	"\x0freplication_set\x18\t \x01(\v2\x1c.google.protobuf.StringValueR\x0ereplicationSet\x122\n" +
+	"service_id\x18\x04 \x01(\tH\x02R\tserviceId\x88\x01\x01\x12&\n" +
+	"\fservice_type\x18\x05 \x01(\tH\x03R\vserviceType\x88\x01\x01\x12\x1d\n" +
+	"\aversion\x18\x06 \x01(\tH\x04R\aversion\x88\x01\x01\x12\x1b\n" +
+	"\x06vendor\x18\a \x01(\tH\x05R\x06vendor\x88\x01\x01\x12\x1d\n" +
+	"\aedition\x18\b \x01(\tH\x06R\aedition\x88\x01\x01\x12,\n" +
+	"\x0freplication_set\x18\t \x01(\tH\aR\x0ereplicationSet\x88\x01\x01\x12\x19\n" +
 	"\x05state\x18\n" +
-	" \x01(\v2\x1c.google.protobuf.StringValueR\x05state\x12,\n" +
+	" \x01(\tH\bR\x05state\x88\x01\x01\x12,\n" +
 	"\x06status\x18\v \x01(\x0e2\x14.om.v1.ServiceStatusR\x06status\x12*\n" +
 	"\x11cpu_usage_percent\x18\f \x01(\x01R\x0fcpuUsagePercent\x128\n" +
 	"\x18connections_free_percent\x18\r \x01(\x01R\x16connectionsFreePercent\x125\n" +
-	"\fprocess_role\x18\x0e \x01(\x0e2\x12.om.v1.ProcessRoleR\vprocessRole\x12T\n" +
-	"\x17replication_lag_seconds\x18\x0f \x01(\v2\x1c.google.protobuf.DoubleValueR\x15replicationLagSeconds\x12N\n" +
-	"\x14oplog_window_seconds\x18\x10 \x01(\v2\x1c.google.protobuf.DoubleValueR\x12oplogWindowSeconds\x12I\n" +
-	"\x11installed_version\x18\x11 \x01(\v2\x1c.google.protobuf.StringValueR\x10installedVersion\x12=\n" +
-	"\vconfig_path\x18\x12 \x01(\v2\x1c.google.protobuf.StringValueR\n" +
-	"configPath\x120\n" +
-	"\x04argv\x18\x13 \x01(\v2\x1c.google.protobuf.StringValueR\x04argv\"o\n" +
-	"\aCluster\x120\n" +
-	"\x04name\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\x04name\x122\n" +
-	"\bservices\x18\x02 \x03(\v2\x16.om.v1.TopologyServiceR\bservices\"r\n" +
-	"\vEnvironment\x127\n" +
-	"\benv_name\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\aenvName\x12*\n" +
-	"\bclusters\x18\x02 \x03(\v2\x0e.om.v1.ClusterR\bclusters\"\xd3\x02\n" +
+	"\fprocess_role\x18\x0e \x01(\x0e2\x12.om.v1.ProcessRoleR\vprocessRole\x12;\n" +
+	"\x17replication_lag_seconds\x18\x0f \x01(\x01H\tR\x15replicationLagSeconds\x88\x01\x01\x125\n" +
+	"\x14oplog_window_seconds\x18\x10 \x01(\x01H\n" +
+	"R\x12oplogWindowSeconds\x88\x01\x01\x120\n" +
+	"\x11installed_version\x18\x11 \x01(\tH\vR\x10installedVersion\x88\x01\x01\x12$\n" +
+	"\vconfig_path\x18\x12 \x01(\tH\fR\n" +
+	"configPath\x88\x01\x01\x12\x17\n" +
+	"\x04argv\x18\x13 \x01(\tH\rR\x04argv\x88\x01\x01B\a\n" +
+	"\x05_hostB\v\n" +
+	"\t_endpointB\r\n" +
+	"\v_service_idB\x0f\n" +
+	"\r_service_typeB\n" +
+	"\n" +
+	"\b_versionB\t\n" +
+	"\a_vendorB\n" +
+	"\n" +
+	"\b_editionB\x12\n" +
+	"\x10_replication_setB\b\n" +
+	"\x06_stateB\x1a\n" +
+	"\x18_replication_lag_secondsB\x17\n" +
+	"\x15_oplog_window_secondsB\x14\n" +
+	"\x12_installed_versionB\x0e\n" +
+	"\f_config_pathB\a\n" +
+	"\x05_argv\"_\n" +
+	"\aCluster\x12\x17\n" +
+	"\x04name\x18\x01 \x01(\tH\x00R\x04name\x88\x01\x01\x122\n" +
+	"\bservices\x18\x02 \x03(\v2\x16.om.v1.TopologyServiceR\bservicesB\a\n" +
+	"\x05_name\"f\n" +
+	"\vEnvironment\x12\x1e\n" +
+	"\benv_name\x18\x01 \x01(\tH\x00R\aenvName\x88\x01\x01\x12*\n" +
+	"\bclusters\x18\x02 \x03(\v2\x0e.om.v1.ClusterR\bclustersB\v\n" +
+	"\t_env_name\"\xd3\x02\n" +
 	"\aSummary\x12\"\n" +
 	"\fenvironments\x18\x01 \x01(\x05R\fenvironments\x12\x1a\n" +
 	"\bclusters\x18\x02 \x01(\x05R\bclusters\x12%\n" +
@@ -3977,14 +4002,15 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x05stale\x18\x03 \x01(\bR\x05stale\x12%\n" +
 	"\x0eschema_version\x18\x04 \x01(\x05R\rschemaVersion\x12\x15\n" +
 	"\x06run_id\x18\x05 \x01(\tR\x05runId\"\x14\n" +
-	"\x12GetTopologyRequest\"\x8a\x02\n" +
+	"\x12GetTopologyRequest\"\x81\x02\n" +
 	"\x13GetTopologyResponse\x12+\n" +
-	"\bsnapshot\x18\x01 \x01(\v2\x0f.om.v1.SnapshotR\bsnapshot\x12=\n" +
-	"\vorigin_node\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\n" +
-	"originNode\x12%\n" +
+	"\bsnapshot\x18\x01 \x01(\v2\x0f.om.v1.SnapshotR\bsnapshot\x12$\n" +
+	"\vorigin_node\x18\x02 \x01(\tH\x00R\n" +
+	"originNode\x88\x01\x01\x12%\n" +
 	"\x0esource_queries\x18\x03 \x03(\tR\rsourceQueries\x12(\n" +
 	"\asummary\x18\x04 \x01(\v2\x0e.om.v1.SummaryR\asummary\x126\n" +
-	"\fenvironments\x18\x05 \x03(\v2\x12.om.v1.EnvironmentR\fenvironments\"\xe8\x01\n" +
+	"\fenvironments\x18\x05 \x03(\v2\x12.om.v1.EnvironmentR\fenvironmentsB\x0e\n" +
+	"\f_origin_node\"\xe8\x01\n" +
 	"\x11TopologyRunCounts\x12%\n" +
 	"\x0etotal_services\x18\x01 \x01(\x05R\rtotalServices\x12+\n" +
 	"\x11resolved_services\x18\x02 \x01(\x05R\x10resolvedServices\x12+\n" +
@@ -3998,12 +4024,13 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x06detail\x18\x04 \x03(\v2\x1f.om.v1.SourceReport.DetailEntryR\x06detail\x1a9\n" +
 	"\vDetailEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x97\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8f\x01\n" +
 	"\x10TopologyRunError\x12\x14\n" +
-	"\x05scope\x18\x01 \x01(\tR\x05scope\x12?\n" +
-	"\fservice_name\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\vserviceName\x12\x12\n" +
+	"\x05scope\x18\x01 \x01(\tR\x05scope\x12&\n" +
+	"\fservice_name\x18\x02 \x01(\tH\x00R\vserviceName\x88\x01\x01\x12\x12\n" +
 	"\x04code\x18\x03 \x01(\tR\x04code\x12\x18\n" +
-	"\amessage\x18\x04 \x01(\tR\amessage\"\xd2\x02\n" +
+	"\amessage\x18\x04 \x01(\tR\amessageB\x0f\n" +
+	"\r_service_name\"\xd2\x02\n" +
 	"\vTopologyRun\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12(\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x10.om.v1.RunStatusR\x06status\x129\n" +
@@ -4026,61 +4053,84 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12(\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x10.om.v1.RunStatusR\x06status\x129\n" +
 	"\n" +
-	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\"\xae\x01\n" +
+	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\"\xa0\x01\n" +
 	"\x11InventoryExecutor\x12\x1e\n" +
 	"\n" +
 	"registered\x18\x01 \x01(\bR\n" +
 	"registered\x12\x1c\n" +
 	"\treachable\x18\x02 \x01(\bR\treachable\x12%\n" +
-	"\x0edriver_healthy\x18\x03 \x01(\bR\rdriverHealthy\x124\n" +
-	"\x06detail\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\x06detail\"\x9d\x02\n" +
-	"\x12UnregisteredMongod\x12/\n" +
-	"\x04port\x18\x01 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04port\x12=\n" +
-	"\vconfig_path\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\n" +
-	"configPath\x120\n" +
-	"\x04argv\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\x04argv\x126\n" +
-	"\aprogram\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\aprogram\x12-\n" +
-	"\x03pid\x18\x05 \x01(\v2\x1b.google.protobuf.Int32ValueR\x03pid\"\x8d\x03\n" +
+	"\x0edriver_healthy\x18\x03 \x01(\bR\rdriverHealthy\x12\x1b\n" +
+	"\x06detail\x18\x04 \x01(\tH\x00R\x06detail\x88\x01\x01B\t\n" +
+	"\a_detail\"\xd8\x01\n" +
+	"\x12UnregisteredMongod\x12\x17\n" +
+	"\x04port\x18\x01 \x01(\x05H\x00R\x04port\x88\x01\x01\x12$\n" +
+	"\vconfig_path\x18\x02 \x01(\tH\x01R\n" +
+	"configPath\x88\x01\x01\x12\x17\n" +
+	"\x04argv\x18\x03 \x01(\tH\x02R\x04argv\x88\x01\x01\x12\x1d\n" +
+	"\aprogram\x18\x04 \x01(\tH\x03R\aprogram\x88\x01\x01\x12\x15\n" +
+	"\x03pid\x18\x05 \x01(\x05H\x04R\x03pid\x88\x01\x01B\a\n" +
+	"\x05_portB\x0e\n" +
+	"\f_config_pathB\a\n" +
+	"\x05_argvB\n" +
+	"\n" +
+	"\b_programB\x06\n" +
+	"\x04_pid\"\x83\x03\n" +
 	"\x12InventoryFreshness\x12>\n" +
 	"\rfirst_seen_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vfirstSeenAt\x12B\n" +
 	"\x0flast_attempt_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\rlastAttemptAt\x12B\n" +
 	"\x0flast_success_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\rlastSuccessAt\x12?\n" +
 	"\rfailing_since\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\ffailingSince\x121\n" +
-	"\x14consecutive_failures\x18\x05 \x01(\x05R\x13consecutiveFailures\x12;\n" +
+	"\x14consecutive_failures\x18\x05 \x01(\x05R\x13consecutiveFailures\x12\"\n" +
 	"\n" +
-	"last_error\x18\x06 \x01(\v2\x1c.google.protobuf.StringValueR\tlastError\"\xc2\x06\n" +
+	"last_error\x18\x06 \x01(\tH\x00R\tlastError\x88\x01\x01B\r\n" +
+	"\v_last_error\"\xeb\x05\n" +
 	"\x10InventoryService\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12\x17\n" +
 	"\anode_id\x18\x02 \x01(\tR\x06nodeId\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12/\n" +
-	"\x04port\x18\x04 \x01(\v2\x1b.google.protobuf.Int32ValueR\x04port\x120\n" +
-	"\x04role\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\x04role\x12I\n" +
-	"\x11installed_version\x18\x06 \x01(\v2\x1c.google.protobuf.StringValueR\x10installedVersion\x12E\n" +
-	"\x0frunning_version\x18\a \x01(\v2\x1c.google.protobuf.StringValueR\x0erunningVersion\x12=\n" +
-	"\vconfig_path\x18\b \x01(\v2\x1c.google.protobuf.StringValueR\n" +
-	"configPath\x120\n" +
-	"\x04argv\x18\t \x01(\v2\x1c.google.protobuf.StringValueR\x04argv\x12?\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12\x17\n" +
+	"\x04port\x18\x04 \x01(\x05H\x00R\x04port\x88\x01\x01\x12\x17\n" +
+	"\x04role\x18\x05 \x01(\tH\x01R\x04role\x88\x01\x01\x120\n" +
+	"\x11installed_version\x18\x06 \x01(\tH\x02R\x10installedVersion\x88\x01\x01\x12,\n" +
+	"\x0frunning_version\x18\a \x01(\tH\x03R\x0erunningVersion\x88\x01\x01\x12$\n" +
+	"\vconfig_path\x18\b \x01(\tH\x04R\n" +
+	"configPath\x88\x01\x01\x12\x17\n" +
+	"\x04argv\x18\t \x01(\tH\x05R\x04argv\x88\x01\x01\x12&\n" +
 	"\fprobe_status\x18\n" +
-	" \x01(\v2\x1c.google.protobuf.StringValueR\vprobeStatus\x12A\n" +
-	"\x0eserver_running\x18\v \x01(\v2\x1a.google.protobuf.BoolValueR\rserverRunning\x12C\n" +
-	"\x0euptime_seconds\x18\f \x01(\v2\x1c.google.protobuf.DoubleValueR\ruptimeSeconds\x12E\n" +
-	"\x0freplication_set\x18\r \x01(\v2\x1c.google.protobuf.StringValueR\x0ereplicationSet\x123\n" +
+	" \x01(\tH\x06R\vprobeStatus\x88\x01\x01\x12*\n" +
+	"\x0eserver_running\x18\v \x01(\bH\aR\rserverRunning\x88\x01\x01\x12*\n" +
+	"\x0euptime_seconds\x18\f \x01(\x01H\bR\ruptimeSeconds\x88\x01\x01\x12,\n" +
+	"\x0freplication_set\x18\r \x01(\tH\tR\x0ereplicationSet\x88\x01\x01\x123\n" +
 	"\bobserved\x18\x0e \x01(\v2\x17.google.protobuf.StructR\bobserved\x127\n" +
-	"\tfreshness\x18\x0f \x01(\v2\x19.om.v1.InventoryFreshnessR\tfreshness\"\xc2\x04\n" +
+	"\tfreshness\x18\x0f \x01(\v2\x19.om.v1.InventoryFreshnessR\tfreshnessB\a\n" +
+	"\x05_portB\a\n" +
+	"\x05_roleB\x14\n" +
+	"\x12_installed_versionB\x12\n" +
+	"\x10_running_versionB\x0e\n" +
+	"\f_config_pathB\a\n" +
+	"\x05_argvB\x0f\n" +
+	"\r_probe_statusB\x11\n" +
+	"\x0f_server_runningB\x11\n" +
+	"\x0f_uptime_secondsB\x12\n" +
+	"\x10_replication_set\"\x8e\x04\n" +
 	"\rInventoryHost\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x126\n" +
-	"\aaddress\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\aaddress\x12A\n" +
-	"\rexecutor_host\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\fexecutorHost\x12,\n" +
-	"\x02os\x18\x05 \x01(\v2\x1c.google.protobuf.StringValueR\x02os\x124\n" +
-	"\x06kernel\x18\x06 \x01(\v2\x1c.google.protobuf.StringValueR\x06kernel\x124\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +
+	"\aaddress\x18\x03 \x01(\tH\x00R\aaddress\x88\x01\x01\x12(\n" +
+	"\rexecutor_host\x18\x04 \x01(\tH\x01R\fexecutorHost\x88\x01\x01\x12\x13\n" +
+	"\x02os\x18\x05 \x01(\tH\x02R\x02os\x88\x01\x01\x12\x1b\n" +
+	"\x06kernel\x18\x06 \x01(\tH\x03R\x06kernel\x88\x01\x01\x124\n" +
 	"\bexecutor\x18\a \x01(\v2\x18.om.v1.InventoryExecutorR\bexecutor\x12L\n" +
 	"\x14unregistered_mongods\x18\b \x03(\v2\x19.om.v1.UnregisteredMongodR\x13unregisteredMongods\x123\n" +
 	"\bobserved\x18\t \x01(\v2\x17.google.protobuf.StructR\bobserved\x127\n" +
 	"\tfreshness\x18\n" +
 	" \x01(\v2\x19.om.v1.InventoryFreshnessR\tfreshness\x123\n" +
-	"\bservices\x18\v \x03(\v2\x17.om.v1.InventoryServiceR\bservices\"\xb3\x02\n" +
+	"\bservices\x18\v \x03(\v2\x17.om.v1.InventoryServiceR\bservicesB\n" +
+	"\n" +
+	"\b_addressB\x10\n" +
+	"\x0e_executor_hostB\x05\n" +
+	"\x03_osB\t\n" +
+	"\a_kernel\"\xb3\x02\n" +
 	"\x12InventoryRunCounts\x12%\n" +
 	"\x0etotal_services\x18\x01 \x01(\x05R\rtotalServices\x12+\n" +
 	"\x11resolved_services\x18\x02 \x01(\x05R\x10resolvedServices\x12+\n" +
@@ -4089,24 +4139,32 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\vtotal_hosts\x18\x05 \x01(\x05R\n" +
 	"totalHosts\x12'\n" +
 	"\x0fprobeable_hosts\x18\x06 \x01(\x05R\x0eprobeableHosts\x12%\n" +
-	"\x0eanswered_hosts\x18\a \x01(\x05R\ransweredHosts\"\xe9\x01\n" +
-	"\x19InventoryRunEntityService\x12;\n" +
+	"\x0eanswered_hosts\x18\a \x01(\x05R\ransweredHosts\"\xc8\x01\n" +
+	"\x19InventoryRunEntityService\x12\"\n" +
 	"\n" +
-	"service_id\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\tserviceId\x12?\n" +
-	"\fservice_name\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\vserviceName\x12\x1a\n" +
-	"\banswered\x18\x03 \x01(\bR\banswered\x122\n" +
-	"\x05error\x18\x04 \x01(\v2\x1c.google.protobuf.StringValueR\x05error\"\xbd\x03\n" +
+	"service_id\x18\x01 \x01(\tH\x00R\tserviceId\x88\x01\x01\x12&\n" +
+	"\fservice_name\x18\x02 \x01(\tH\x01R\vserviceName\x88\x01\x01\x12\x1a\n" +
+	"\banswered\x18\x03 \x01(\bR\banswered\x12\x19\n" +
+	"\x05error\x18\x04 \x01(\tH\x02R\x05error\x88\x01\x01B\r\n" +
+	"\v_service_idB\x0f\n" +
+	"\r_service_nameB\b\n" +
+	"\x06_error\"\x98\x03\n" +
 	"\x12InventoryRunEntity\x12\x17\n" +
-	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x129\n" +
-	"\thost_name\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\bhostName\x12A\n" +
-	"\rexecutor_host\x18\x03 \x01(\v2\x1c.google.protobuf.StringValueR\fexecutorHost\x129\n" +
+	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12 \n" +
+	"\thost_name\x18\x02 \x01(\tH\x00R\bhostName\x88\x01\x01\x12(\n" +
+	"\rexecutor_host\x18\x03 \x01(\tH\x01R\fexecutorHost\x88\x01\x01\x129\n" +
 	"\n" +
 	"resolution\x18\x04 \x01(\x0e2\x19.om.v1.ExecutorResolutionR\n" +
 	"resolution\x12\x1a\n" +
-	"\banswered\x18\x05 \x01(\bR\banswered\x12G\n" +
-	"\x10duration_seconds\x18\x06 \x01(\v2\x1c.google.protobuf.DoubleValueR\x0fdurationSeconds\x122\n" +
-	"\x05error\x18\a \x01(\v2\x1c.google.protobuf.StringValueR\x05error\x12<\n" +
-	"\bservices\x18\b \x03(\v2 .om.v1.InventoryRunEntityServiceR\bservices\"\xbe\x02\n" +
+	"\banswered\x18\x05 \x01(\bR\banswered\x12.\n" +
+	"\x10duration_seconds\x18\x06 \x01(\x01H\x02R\x0fdurationSeconds\x88\x01\x01\x12\x19\n" +
+	"\x05error\x18\a \x01(\tH\x03R\x05error\x88\x01\x01\x12<\n" +
+	"\bservices\x18\b \x03(\v2 .om.v1.InventoryRunEntityServiceR\bservicesB\f\n" +
+	"\n" +
+	"_host_nameB\x10\n" +
+	"\x0e_executor_hostB\x13\n" +
+	"\x11_duration_secondsB\b\n" +
+	"\x06_error\"\xaf\x02\n" +
 	"\fInventoryRun\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12(\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x10.om.v1.RunStatusR\x06status\x129\n" +
@@ -4114,8 +4172,9 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x125\n" +
 	"\bend_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\aendTime\x121\n" +
 	"\x06counts\x18\x05 \x01(\v2\x19.om.v1.InventoryRunCountsR\x06counts\x12\x14\n" +
-	"\x05scope\x18\x06 \x03(\tR\x05scope\x122\n" +
-	"\x05error\x18\a \x01(\v2\x1c.google.protobuf.StringValueR\x05error\"\xd5\x02\n" +
+	"\x05scope\x18\x06 \x03(\tR\x05scope\x12\x19\n" +
+	"\x05error\x18\a \x01(\tH\x00R\x05error\x88\x01\x01B\b\n" +
+	"\x06_error\"\xcc\x02\n" +
 	"\x10InventorySetting\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value\x12;\n" +
@@ -4124,13 +4183,18 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x06reload\x18\x05 \x01(\x0e2\x14.om.v1.SettingReloadR\x06reload\x12!\n" +
 	"\fhas_override\x18\x06 \x01(\bR\vhasOverride\x12\x1f\n" +
 	"\vis_advanced\x18\a \x01(\bR\n" +
-	"isAdvanced\x12>\n" +
-	"\vdescription\x18\b \x01(\v2\x1c.google.protobuf.StringValueR\vdescription\"\xc6\x01\n" +
-	"\x19ListInventoryHostsRequest\x12;\n" +
-	"\vhas_service\x18\x01 \x01(\v2\x1a.google.protobuf.BoolValueR\n" +
-	"hasService\x124\n" +
-	"\afailing\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\afailing\x126\n" +
-	"\bexecutor\x18\x03 \x01(\v2\x1a.google.protobuf.BoolValueR\bexecutor\"H\n" +
+	"isAdvanced\x12%\n" +
+	"\vdescription\x18\b \x01(\tH\x00R\vdescription\x88\x01\x01B\x0e\n" +
+	"\f_description\"\xaa\x01\n" +
+	"\x19ListInventoryHostsRequest\x12$\n" +
+	"\vhas_service\x18\x01 \x01(\bH\x00R\n" +
+	"hasService\x88\x01\x01\x12\x1d\n" +
+	"\afailing\x18\x02 \x01(\bH\x01R\afailing\x88\x01\x01\x12\x1f\n" +
+	"\bexecutor\x18\x03 \x01(\bH\x02R\bexecutor\x88\x01\x01B\x0e\n" +
+	"\f_has_serviceB\n" +
+	"\n" +
+	"\b_failingB\v\n" +
+	"\t_executor\"H\n" +
 	"\x1aListInventoryHostsResponse\x12*\n" +
 	"\x05hosts\x18\x01 \x03(\v2\x14.om.v1.InventoryHostR\x05hosts\";\n" +
 	"\x17GetInventoryHostRequest\x12 \n" +
@@ -4139,10 +4203,14 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x04host\x18\x01 \x01(\v2\x14.om.v1.InventoryHostR\x04host\">\n" +
 	"\x1aDeleteInventoryHostRequest\x12 \n" +
 	"\anode_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06nodeId\"\x1d\n" +
-	"\x1bDeleteInventoryHostResponse\"\x8b\x01\n" +
-	"\x1cListInventoryServicesRequest\x125\n" +
-	"\anode_id\x18\x01 \x01(\v2\x1c.google.protobuf.StringValueR\x06nodeId\x124\n" +
-	"\afailing\x18\x02 \x01(\v2\x1a.google.protobuf.BoolValueR\afailing\"T\n" +
+	"\x1bDeleteInventoryHostResponse\"s\n" +
+	"\x1cListInventoryServicesRequest\x12\x1c\n" +
+	"\anode_id\x18\x01 \x01(\tH\x00R\x06nodeId\x88\x01\x01\x12\x1d\n" +
+	"\afailing\x18\x02 \x01(\bH\x01R\afailing\x88\x01\x01B\n" +
+	"\n" +
+	"\b_node_idB\n" +
+	"\n" +
+	"\b_failing\"T\n" +
 	"\x1dListInventoryServicesResponse\x123\n" +
 	"\bservices\x18\x01 \x03(\v2\x17.om.v1.InventoryServiceR\bservices\"D\n" +
 	"\x1aGetInventoryServiceRequest\x12&\n" +
@@ -4306,163 +4374,106 @@ var (
 		(*UpdateInventoryConfigResponse)(nil),         // 54: om.v1.UpdateInventoryConfigResponse
 		(*DeleteInventoryConfigOverrideRequest)(nil),  // 55: om.v1.DeleteInventoryConfigOverrideRequest
 		(*DeleteInventoryConfigOverrideResponse)(nil), // 56: om.v1.DeleteInventoryConfigOverrideResponse
-		nil,                            // 57: om.v1.Summary.ProcessRoleCountsEntry
-		nil,                            // 58: om.v1.SourceReport.DetailEntry
-		(*wrapperspb.StringValue)(nil), // 59: google.protobuf.StringValue
-		(*wrapperspb.DoubleValue)(nil), // 60: google.protobuf.DoubleValue
-		(*timestamppb.Timestamp)(nil),  // 61: google.protobuf.Timestamp
-		(*wrapperspb.Int32Value)(nil),  // 62: google.protobuf.Int32Value
-		(*wrapperspb.BoolValue)(nil),   // 63: google.protobuf.BoolValue
-		(*structpb.Struct)(nil),        // 64: google.protobuf.Struct
-		(*structpb.Value)(nil),         // 65: google.protobuf.Value
+		nil,                           // 57: om.v1.Summary.ProcessRoleCountsEntry
+		nil,                           // 58: om.v1.SourceReport.DetailEntry
+		(*timestamppb.Timestamp)(nil), // 59: google.protobuf.Timestamp
+		(*structpb.Struct)(nil),       // 60: google.protobuf.Struct
+		(*structpb.Value)(nil),        // 61: google.protobuf.Value
 	}
 )
 
 var file_om_v1_om_proto_depIdxs = []int32{
-	59,  // 0: om.v1.TopologyService.host:type_name -> google.protobuf.StringValue
-	59,  // 1: om.v1.TopologyService.endpoint:type_name -> google.protobuf.StringValue
-	59,  // 2: om.v1.TopologyService.service_id:type_name -> google.protobuf.StringValue
-	59,  // 3: om.v1.TopologyService.service_type:type_name -> google.protobuf.StringValue
-	59,  // 4: om.v1.TopologyService.version:type_name -> google.protobuf.StringValue
-	59,  // 5: om.v1.TopologyService.vendor:type_name -> google.protobuf.StringValue
-	59,  // 6: om.v1.TopologyService.edition:type_name -> google.protobuf.StringValue
-	59,  // 7: om.v1.TopologyService.replication_set:type_name -> google.protobuf.StringValue
-	59,  // 8: om.v1.TopologyService.state:type_name -> google.protobuf.StringValue
-	0,   // 9: om.v1.TopologyService.status:type_name -> om.v1.ServiceStatus
-	1,   // 10: om.v1.TopologyService.process_role:type_name -> om.v1.ProcessRole
-	60,  // 11: om.v1.TopologyService.replication_lag_seconds:type_name -> google.protobuf.DoubleValue
-	60,  // 12: om.v1.TopologyService.oplog_window_seconds:type_name -> google.protobuf.DoubleValue
-	59,  // 13: om.v1.TopologyService.installed_version:type_name -> google.protobuf.StringValue
-	59,  // 14: om.v1.TopologyService.config_path:type_name -> google.protobuf.StringValue
-	59,  // 15: om.v1.TopologyService.argv:type_name -> google.protobuf.StringValue
-	59,  // 16: om.v1.Cluster.name:type_name -> google.protobuf.StringValue
-	6,   // 17: om.v1.Cluster.services:type_name -> om.v1.TopologyService
-	59,  // 18: om.v1.Environment.env_name:type_name -> google.protobuf.StringValue
-	7,   // 19: om.v1.Environment.clusters:type_name -> om.v1.Cluster
-	57,  // 20: om.v1.Summary.process_role_counts:type_name -> om.v1.Summary.ProcessRoleCountsEntry
-	61,  // 21: om.v1.Snapshot.generated_at:type_name -> google.protobuf.Timestamp
-	61,  // 22: om.v1.Snapshot.observed_at:type_name -> google.protobuf.Timestamp
-	10,  // 23: om.v1.GetTopologyResponse.snapshot:type_name -> om.v1.Snapshot
-	59,  // 24: om.v1.GetTopologyResponse.origin_node:type_name -> google.protobuf.StringValue
-	9,   // 25: om.v1.GetTopologyResponse.summary:type_name -> om.v1.Summary
-	8,   // 26: om.v1.GetTopologyResponse.environments:type_name -> om.v1.Environment
-	3,   // 27: om.v1.SourceReport.status:type_name -> om.v1.SourceStatus
-	58,  // 28: om.v1.SourceReport.detail:type_name -> om.v1.SourceReport.DetailEntry
-	59,  // 29: om.v1.TopologyRunError.service_name:type_name -> google.protobuf.StringValue
-	2,   // 30: om.v1.TopologyRun.status:type_name -> om.v1.RunStatus
-	61,  // 31: om.v1.TopologyRun.start_time:type_name -> google.protobuf.Timestamp
-	61,  // 32: om.v1.TopologyRun.end_time:type_name -> google.protobuf.Timestamp
-	13,  // 33: om.v1.TopologyRun.counts:type_name -> om.v1.TopologyRunCounts
-	15,  // 34: om.v1.TopologyRun.errors:type_name -> om.v1.TopologyRunError
-	14,  // 35: om.v1.TopologyRun.sources:type_name -> om.v1.SourceReport
-	16,  // 36: om.v1.GetTopologyRunResponse.run:type_name -> om.v1.TopologyRun
-	16,  // 37: om.v1.ListTopologyRunsResponse.runs:type_name -> om.v1.TopologyRun
-	2,   // 38: om.v1.TriggerTopologyCollectionResponse.status:type_name -> om.v1.RunStatus
-	61,  // 39: om.v1.TriggerTopologyCollectionResponse.start_time:type_name -> google.protobuf.Timestamp
-	59,  // 40: om.v1.InventoryExecutor.detail:type_name -> google.protobuf.StringValue
-	62,  // 41: om.v1.UnregisteredMongod.port:type_name -> google.protobuf.Int32Value
-	59,  // 42: om.v1.UnregisteredMongod.config_path:type_name -> google.protobuf.StringValue
-	59,  // 43: om.v1.UnregisteredMongod.argv:type_name -> google.protobuf.StringValue
-	59,  // 44: om.v1.UnregisteredMongod.program:type_name -> google.protobuf.StringValue
-	62,  // 45: om.v1.UnregisteredMongod.pid:type_name -> google.protobuf.Int32Value
-	61,  // 46: om.v1.InventoryFreshness.first_seen_at:type_name -> google.protobuf.Timestamp
-	61,  // 47: om.v1.InventoryFreshness.last_attempt_at:type_name -> google.protobuf.Timestamp
-	61,  // 48: om.v1.InventoryFreshness.last_success_at:type_name -> google.protobuf.Timestamp
-	61,  // 49: om.v1.InventoryFreshness.failing_since:type_name -> google.protobuf.Timestamp
-	59,  // 50: om.v1.InventoryFreshness.last_error:type_name -> google.protobuf.StringValue
-	62,  // 51: om.v1.InventoryService.port:type_name -> google.protobuf.Int32Value
-	59,  // 52: om.v1.InventoryService.role:type_name -> google.protobuf.StringValue
-	59,  // 53: om.v1.InventoryService.installed_version:type_name -> google.protobuf.StringValue
-	59,  // 54: om.v1.InventoryService.running_version:type_name -> google.protobuf.StringValue
-	59,  // 55: om.v1.InventoryService.config_path:type_name -> google.protobuf.StringValue
-	59,  // 56: om.v1.InventoryService.argv:type_name -> google.protobuf.StringValue
-	59,  // 57: om.v1.InventoryService.probe_status:type_name -> google.protobuf.StringValue
-	63,  // 58: om.v1.InventoryService.server_running:type_name -> google.protobuf.BoolValue
-	60,  // 59: om.v1.InventoryService.uptime_seconds:type_name -> google.protobuf.DoubleValue
-	59,  // 60: om.v1.InventoryService.replication_set:type_name -> google.protobuf.StringValue
-	64,  // 61: om.v1.InventoryService.observed:type_name -> google.protobuf.Struct
-	25,  // 62: om.v1.InventoryService.freshness:type_name -> om.v1.InventoryFreshness
-	59,  // 63: om.v1.InventoryHost.address:type_name -> google.protobuf.StringValue
-	59,  // 64: om.v1.InventoryHost.executor_host:type_name -> google.protobuf.StringValue
-	59,  // 65: om.v1.InventoryHost.os:type_name -> google.protobuf.StringValue
-	59,  // 66: om.v1.InventoryHost.kernel:type_name -> google.protobuf.StringValue
-	23,  // 67: om.v1.InventoryHost.executor:type_name -> om.v1.InventoryExecutor
-	24,  // 68: om.v1.InventoryHost.unregistered_mongods:type_name -> om.v1.UnregisteredMongod
-	64,  // 69: om.v1.InventoryHost.observed:type_name -> google.protobuf.Struct
-	25,  // 70: om.v1.InventoryHost.freshness:type_name -> om.v1.InventoryFreshness
-	26,  // 71: om.v1.InventoryHost.services:type_name -> om.v1.InventoryService
-	59,  // 72: om.v1.InventoryRunEntityService.service_id:type_name -> google.protobuf.StringValue
-	59,  // 73: om.v1.InventoryRunEntityService.service_name:type_name -> google.protobuf.StringValue
-	59,  // 74: om.v1.InventoryRunEntityService.error:type_name -> google.protobuf.StringValue
-	59,  // 75: om.v1.InventoryRunEntity.host_name:type_name -> google.protobuf.StringValue
-	59,  // 76: om.v1.InventoryRunEntity.executor_host:type_name -> google.protobuf.StringValue
-	4,   // 77: om.v1.InventoryRunEntity.resolution:type_name -> om.v1.ExecutorResolution
-	60,  // 78: om.v1.InventoryRunEntity.duration_seconds:type_name -> google.protobuf.DoubleValue
-	59,  // 79: om.v1.InventoryRunEntity.error:type_name -> google.protobuf.StringValue
-	29,  // 80: om.v1.InventoryRunEntity.services:type_name -> om.v1.InventoryRunEntityService
-	2,   // 81: om.v1.InventoryRun.status:type_name -> om.v1.RunStatus
-	61,  // 82: om.v1.InventoryRun.start_time:type_name -> google.protobuf.Timestamp
-	61,  // 83: om.v1.InventoryRun.end_time:type_name -> google.protobuf.Timestamp
-	28,  // 84: om.v1.InventoryRun.counts:type_name -> om.v1.InventoryRunCounts
-	59,  // 85: om.v1.InventoryRun.error:type_name -> google.protobuf.StringValue
-	65,  // 86: om.v1.InventorySetting.value:type_name -> google.protobuf.Value
-	65,  // 87: om.v1.InventorySetting.default_value:type_name -> google.protobuf.Value
-	5,   // 88: om.v1.InventorySetting.reload:type_name -> om.v1.SettingReload
-	59,  // 89: om.v1.InventorySetting.description:type_name -> google.protobuf.StringValue
-	63,  // 90: om.v1.ListInventoryHostsRequest.has_service:type_name -> google.protobuf.BoolValue
-	63,  // 91: om.v1.ListInventoryHostsRequest.failing:type_name -> google.protobuf.BoolValue
-	63,  // 92: om.v1.ListInventoryHostsRequest.executor:type_name -> google.protobuf.BoolValue
-	27,  // 93: om.v1.ListInventoryHostsResponse.hosts:type_name -> om.v1.InventoryHost
-	27,  // 94: om.v1.GetInventoryHostResponse.host:type_name -> om.v1.InventoryHost
-	59,  // 95: om.v1.ListInventoryServicesRequest.node_id:type_name -> google.protobuf.StringValue
-	63,  // 96: om.v1.ListInventoryServicesRequest.failing:type_name -> google.protobuf.BoolValue
-	26,  // 97: om.v1.ListInventoryServicesResponse.services:type_name -> om.v1.InventoryService
-	26,  // 98: om.v1.GetInventoryServiceResponse.service:type_name -> om.v1.InventoryService
-	31,  // 99: om.v1.ListInventoryRunsResponse.runs:type_name -> om.v1.InventoryRun
-	31,  // 100: om.v1.GetInventoryRunResponse.run:type_name -> om.v1.InventoryRun
-	30,  // 101: om.v1.GetInventoryRunResponse.entities:type_name -> om.v1.InventoryRunEntity
-	2,   // 102: om.v1.TriggerInventoryRefreshResponse.status:type_name -> om.v1.RunStatus
-	61,  // 103: om.v1.TriggerInventoryRefreshResponse.start_time:type_name -> google.protobuf.Timestamp
-	32,  // 104: om.v1.GetInventoryConfigResponse.settings:type_name -> om.v1.InventorySetting
-	64,  // 105: om.v1.UpdateInventoryConfigRequest.values:type_name -> google.protobuf.Struct
-	32,  // 106: om.v1.UpdateInventoryConfigResponse.settings:type_name -> om.v1.InventorySetting
-	11,  // 107: om.v1.OmService.GetTopology:input_type -> om.v1.GetTopologyRequest
-	19,  // 108: om.v1.OmService.ListTopologyRuns:input_type -> om.v1.ListTopologyRunsRequest
-	17,  // 109: om.v1.OmService.GetTopologyRun:input_type -> om.v1.GetTopologyRunRequest
-	21,  // 110: om.v1.OmService.TriggerTopologyCollection:input_type -> om.v1.TriggerTopologyCollectionRequest
-	33,  // 111: om.v1.OmService.ListInventoryHosts:input_type -> om.v1.ListInventoryHostsRequest
-	35,  // 112: om.v1.OmService.GetInventoryHost:input_type -> om.v1.GetInventoryHostRequest
-	37,  // 113: om.v1.OmService.DeleteInventoryHost:input_type -> om.v1.DeleteInventoryHostRequest
-	39,  // 114: om.v1.OmService.ListInventoryServices:input_type -> om.v1.ListInventoryServicesRequest
-	41,  // 115: om.v1.OmService.GetInventoryService:input_type -> om.v1.GetInventoryServiceRequest
-	43,  // 116: om.v1.OmService.DeleteInventoryService:input_type -> om.v1.DeleteInventoryServiceRequest
-	45,  // 117: om.v1.OmService.ListInventoryRuns:input_type -> om.v1.ListInventoryRunsRequest
-	47,  // 118: om.v1.OmService.GetInventoryRun:input_type -> om.v1.GetInventoryRunRequest
-	49,  // 119: om.v1.OmService.TriggerInventoryRefresh:input_type -> om.v1.TriggerInventoryRefreshRequest
-	51,  // 120: om.v1.OmService.GetInventoryConfig:input_type -> om.v1.GetInventoryConfigRequest
-	53,  // 121: om.v1.OmService.UpdateInventoryConfig:input_type -> om.v1.UpdateInventoryConfigRequest
-	55,  // 122: om.v1.OmService.DeleteInventoryConfigOverride:input_type -> om.v1.DeleteInventoryConfigOverrideRequest
-	12,  // 123: om.v1.OmService.GetTopology:output_type -> om.v1.GetTopologyResponse
-	20,  // 124: om.v1.OmService.ListTopologyRuns:output_type -> om.v1.ListTopologyRunsResponse
-	18,  // 125: om.v1.OmService.GetTopologyRun:output_type -> om.v1.GetTopologyRunResponse
-	22,  // 126: om.v1.OmService.TriggerTopologyCollection:output_type -> om.v1.TriggerTopologyCollectionResponse
-	34,  // 127: om.v1.OmService.ListInventoryHosts:output_type -> om.v1.ListInventoryHostsResponse
-	36,  // 128: om.v1.OmService.GetInventoryHost:output_type -> om.v1.GetInventoryHostResponse
-	38,  // 129: om.v1.OmService.DeleteInventoryHost:output_type -> om.v1.DeleteInventoryHostResponse
-	40,  // 130: om.v1.OmService.ListInventoryServices:output_type -> om.v1.ListInventoryServicesResponse
-	42,  // 131: om.v1.OmService.GetInventoryService:output_type -> om.v1.GetInventoryServiceResponse
-	44,  // 132: om.v1.OmService.DeleteInventoryService:output_type -> om.v1.DeleteInventoryServiceResponse
-	46,  // 133: om.v1.OmService.ListInventoryRuns:output_type -> om.v1.ListInventoryRunsResponse
-	48,  // 134: om.v1.OmService.GetInventoryRun:output_type -> om.v1.GetInventoryRunResponse
-	50,  // 135: om.v1.OmService.TriggerInventoryRefresh:output_type -> om.v1.TriggerInventoryRefreshResponse
-	52,  // 136: om.v1.OmService.GetInventoryConfig:output_type -> om.v1.GetInventoryConfigResponse
-	54,  // 137: om.v1.OmService.UpdateInventoryConfig:output_type -> om.v1.UpdateInventoryConfigResponse
-	56,  // 138: om.v1.OmService.DeleteInventoryConfigOverride:output_type -> om.v1.DeleteInventoryConfigOverrideResponse
-	123, // [123:139] is the sub-list for method output_type
-	107, // [107:123] is the sub-list for method input_type
-	107, // [107:107] is the sub-list for extension type_name
-	107, // [107:107] is the sub-list for extension extendee
-	0,   // [0:107] is the sub-list for field type_name
+	0,  // 0: om.v1.TopologyService.status:type_name -> om.v1.ServiceStatus
+	1,  // 1: om.v1.TopologyService.process_role:type_name -> om.v1.ProcessRole
+	6,  // 2: om.v1.Cluster.services:type_name -> om.v1.TopologyService
+	7,  // 3: om.v1.Environment.clusters:type_name -> om.v1.Cluster
+	57, // 4: om.v1.Summary.process_role_counts:type_name -> om.v1.Summary.ProcessRoleCountsEntry
+	59, // 5: om.v1.Snapshot.generated_at:type_name -> google.protobuf.Timestamp
+	59, // 6: om.v1.Snapshot.observed_at:type_name -> google.protobuf.Timestamp
+	10, // 7: om.v1.GetTopologyResponse.snapshot:type_name -> om.v1.Snapshot
+	9,  // 8: om.v1.GetTopologyResponse.summary:type_name -> om.v1.Summary
+	8,  // 9: om.v1.GetTopologyResponse.environments:type_name -> om.v1.Environment
+	3,  // 10: om.v1.SourceReport.status:type_name -> om.v1.SourceStatus
+	58, // 11: om.v1.SourceReport.detail:type_name -> om.v1.SourceReport.DetailEntry
+	2,  // 12: om.v1.TopologyRun.status:type_name -> om.v1.RunStatus
+	59, // 13: om.v1.TopologyRun.start_time:type_name -> google.protobuf.Timestamp
+	59, // 14: om.v1.TopologyRun.end_time:type_name -> google.protobuf.Timestamp
+	13, // 15: om.v1.TopologyRun.counts:type_name -> om.v1.TopologyRunCounts
+	15, // 16: om.v1.TopologyRun.errors:type_name -> om.v1.TopologyRunError
+	14, // 17: om.v1.TopologyRun.sources:type_name -> om.v1.SourceReport
+	16, // 18: om.v1.GetTopologyRunResponse.run:type_name -> om.v1.TopologyRun
+	16, // 19: om.v1.ListTopologyRunsResponse.runs:type_name -> om.v1.TopologyRun
+	2,  // 20: om.v1.TriggerTopologyCollectionResponse.status:type_name -> om.v1.RunStatus
+	59, // 21: om.v1.TriggerTopologyCollectionResponse.start_time:type_name -> google.protobuf.Timestamp
+	59, // 22: om.v1.InventoryFreshness.first_seen_at:type_name -> google.protobuf.Timestamp
+	59, // 23: om.v1.InventoryFreshness.last_attempt_at:type_name -> google.protobuf.Timestamp
+	59, // 24: om.v1.InventoryFreshness.last_success_at:type_name -> google.protobuf.Timestamp
+	59, // 25: om.v1.InventoryFreshness.failing_since:type_name -> google.protobuf.Timestamp
+	60, // 26: om.v1.InventoryService.observed:type_name -> google.protobuf.Struct
+	25, // 27: om.v1.InventoryService.freshness:type_name -> om.v1.InventoryFreshness
+	23, // 28: om.v1.InventoryHost.executor:type_name -> om.v1.InventoryExecutor
+	24, // 29: om.v1.InventoryHost.unregistered_mongods:type_name -> om.v1.UnregisteredMongod
+	60, // 30: om.v1.InventoryHost.observed:type_name -> google.protobuf.Struct
+	25, // 31: om.v1.InventoryHost.freshness:type_name -> om.v1.InventoryFreshness
+	26, // 32: om.v1.InventoryHost.services:type_name -> om.v1.InventoryService
+	4,  // 33: om.v1.InventoryRunEntity.resolution:type_name -> om.v1.ExecutorResolution
+	29, // 34: om.v1.InventoryRunEntity.services:type_name -> om.v1.InventoryRunEntityService
+	2,  // 35: om.v1.InventoryRun.status:type_name -> om.v1.RunStatus
+	59, // 36: om.v1.InventoryRun.start_time:type_name -> google.protobuf.Timestamp
+	59, // 37: om.v1.InventoryRun.end_time:type_name -> google.protobuf.Timestamp
+	28, // 38: om.v1.InventoryRun.counts:type_name -> om.v1.InventoryRunCounts
+	61, // 39: om.v1.InventorySetting.value:type_name -> google.protobuf.Value
+	61, // 40: om.v1.InventorySetting.default_value:type_name -> google.protobuf.Value
+	5,  // 41: om.v1.InventorySetting.reload:type_name -> om.v1.SettingReload
+	27, // 42: om.v1.ListInventoryHostsResponse.hosts:type_name -> om.v1.InventoryHost
+	27, // 43: om.v1.GetInventoryHostResponse.host:type_name -> om.v1.InventoryHost
+	26, // 44: om.v1.ListInventoryServicesResponse.services:type_name -> om.v1.InventoryService
+	26, // 45: om.v1.GetInventoryServiceResponse.service:type_name -> om.v1.InventoryService
+	31, // 46: om.v1.ListInventoryRunsResponse.runs:type_name -> om.v1.InventoryRun
+	31, // 47: om.v1.GetInventoryRunResponse.run:type_name -> om.v1.InventoryRun
+	30, // 48: om.v1.GetInventoryRunResponse.entities:type_name -> om.v1.InventoryRunEntity
+	2,  // 49: om.v1.TriggerInventoryRefreshResponse.status:type_name -> om.v1.RunStatus
+	59, // 50: om.v1.TriggerInventoryRefreshResponse.start_time:type_name -> google.protobuf.Timestamp
+	32, // 51: om.v1.GetInventoryConfigResponse.settings:type_name -> om.v1.InventorySetting
+	60, // 52: om.v1.UpdateInventoryConfigRequest.values:type_name -> google.protobuf.Struct
+	32, // 53: om.v1.UpdateInventoryConfigResponse.settings:type_name -> om.v1.InventorySetting
+	11, // 54: om.v1.OmService.GetTopology:input_type -> om.v1.GetTopologyRequest
+	19, // 55: om.v1.OmService.ListTopologyRuns:input_type -> om.v1.ListTopologyRunsRequest
+	17, // 56: om.v1.OmService.GetTopologyRun:input_type -> om.v1.GetTopologyRunRequest
+	21, // 57: om.v1.OmService.TriggerTopologyCollection:input_type -> om.v1.TriggerTopologyCollectionRequest
+	33, // 58: om.v1.OmService.ListInventoryHosts:input_type -> om.v1.ListInventoryHostsRequest
+	35, // 59: om.v1.OmService.GetInventoryHost:input_type -> om.v1.GetInventoryHostRequest
+	37, // 60: om.v1.OmService.DeleteInventoryHost:input_type -> om.v1.DeleteInventoryHostRequest
+	39, // 61: om.v1.OmService.ListInventoryServices:input_type -> om.v1.ListInventoryServicesRequest
+	41, // 62: om.v1.OmService.GetInventoryService:input_type -> om.v1.GetInventoryServiceRequest
+	43, // 63: om.v1.OmService.DeleteInventoryService:input_type -> om.v1.DeleteInventoryServiceRequest
+	45, // 64: om.v1.OmService.ListInventoryRuns:input_type -> om.v1.ListInventoryRunsRequest
+	47, // 65: om.v1.OmService.GetInventoryRun:input_type -> om.v1.GetInventoryRunRequest
+	49, // 66: om.v1.OmService.TriggerInventoryRefresh:input_type -> om.v1.TriggerInventoryRefreshRequest
+	51, // 67: om.v1.OmService.GetInventoryConfig:input_type -> om.v1.GetInventoryConfigRequest
+	53, // 68: om.v1.OmService.UpdateInventoryConfig:input_type -> om.v1.UpdateInventoryConfigRequest
+	55, // 69: om.v1.OmService.DeleteInventoryConfigOverride:input_type -> om.v1.DeleteInventoryConfigOverrideRequest
+	12, // 70: om.v1.OmService.GetTopology:output_type -> om.v1.GetTopologyResponse
+	20, // 71: om.v1.OmService.ListTopologyRuns:output_type -> om.v1.ListTopologyRunsResponse
+	18, // 72: om.v1.OmService.GetTopologyRun:output_type -> om.v1.GetTopologyRunResponse
+	22, // 73: om.v1.OmService.TriggerTopologyCollection:output_type -> om.v1.TriggerTopologyCollectionResponse
+	34, // 74: om.v1.OmService.ListInventoryHosts:output_type -> om.v1.ListInventoryHostsResponse
+	36, // 75: om.v1.OmService.GetInventoryHost:output_type -> om.v1.GetInventoryHostResponse
+	38, // 76: om.v1.OmService.DeleteInventoryHost:output_type -> om.v1.DeleteInventoryHostResponse
+	40, // 77: om.v1.OmService.ListInventoryServices:output_type -> om.v1.ListInventoryServicesResponse
+	42, // 78: om.v1.OmService.GetInventoryService:output_type -> om.v1.GetInventoryServiceResponse
+	44, // 79: om.v1.OmService.DeleteInventoryService:output_type -> om.v1.DeleteInventoryServiceResponse
+	46, // 80: om.v1.OmService.ListInventoryRuns:output_type -> om.v1.ListInventoryRunsResponse
+	48, // 81: om.v1.OmService.GetInventoryRun:output_type -> om.v1.GetInventoryRunResponse
+	50, // 82: om.v1.OmService.TriggerInventoryRefresh:output_type -> om.v1.TriggerInventoryRefreshResponse
+	52, // 83: om.v1.OmService.GetInventoryConfig:output_type -> om.v1.GetInventoryConfigResponse
+	54, // 84: om.v1.OmService.UpdateInventoryConfig:output_type -> om.v1.UpdateInventoryConfigResponse
+	56, // 85: om.v1.OmService.DeleteInventoryConfigOverride:output_type -> om.v1.DeleteInventoryConfigOverrideResponse
+	70, // [70:86] is the sub-list for method output_type
+	54, // [54:70] is the sub-list for method input_type
+	54, // [54:54] is the sub-list for extension type_name
+	54, // [54:54] is the sub-list for extension extendee
+	0,  // [0:54] is the sub-list for field type_name
 }
 
 func init() { file_om_v1_om_proto_init() }
@@ -4470,6 +4481,22 @@ func file_om_v1_om_proto_init() {
 	if File_om_v1_om_proto != nil {
 		return
 	}
+	file_om_v1_om_proto_msgTypes[0].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[1].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[2].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[6].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[9].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[17].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[18].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[19].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[20].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[21].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[23].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[24].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[25].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[26].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[27].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[33].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
