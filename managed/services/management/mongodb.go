@@ -64,7 +64,9 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			return err
 		}
 
-		if err = inventory.ValidateMongoDBExporterEnvVarNames(req.EnvironmentVariableNames); err != nil {
+		// This is a new agent, so there is no existing agent to grandfather.
+		err = inventory.ValidateMongoDBExporterEnvVarNames(req.EnvironmentVariableNames, nil)
+		if err != nil {
 			return err
 		}
 

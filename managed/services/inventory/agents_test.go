@@ -1186,6 +1186,43 @@ func TestChangeMongoDBExporterEnvironmentVariableNames(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 	})
+
+	t.Run("RetainsAGrandfatheredReservedNameOnReplace", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		// Simulate an exporter that stored the reserved name before this check existed: the
+		// mongodb-specific reserved-name check lives above models.CreateAgent/ChangeAgent, so it
+		// cannot be exercised through SetEnvironmentVariableNames directly.
+		agent, err := models.FindAgentByID(as.db.Querier, agentID)
+		require.NoError(t, err)
+		require.NoError(t, agent.SetEnvironmentVariableNames([]string{"MONGODB_URI"}))
+		require.NoError(t, models.UpdateAgent(as.db.Querier, agent))
+
+		// Resending the grandfathered name alongside a new, valid one must not fail: the caller
+		// only intended to add KRB5_CONFIG, and this field is full-replace.
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"MONGODB_URI", "KRB5_CONFIG"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"MONGODB_URI", "KRB5_CONFIG"}, resp.GetMongodbExporter().EnvironmentVariableNames)
+	})
+
+	t.Run("RejectsUngrandfatheredReservedNameOnReplace", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// An exporter that never had MONGODB_URI stored must still be rejected for submitting it
+		// on a later Change: grandfathering only preserves pre-existing state, not new violations.
+		agentID := addMongoDBExporter(t, ss, as, ctx, nil)
+		_, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"MONGODB_URI"}},
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
 }
 
 func TestChangeAgentConnectionCheck(t *testing.T) {

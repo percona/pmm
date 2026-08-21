@@ -364,11 +364,19 @@ var mongoDBExporterReservedEnvVars = map[string]struct{}{
 }
 
 // ValidateMongoDBExporterEnvVarNames rejects environment variable names that pmm-agent reserves
-// for mongodb_exporter itself. It is exported so every path that stores these names for a
-// mongodb_exporter agent can apply the same check, not just the inventory API.
-func ValidateMongoDBExporterEnvVarNames(names []string) error {
+// for mongodb_exporter itself, except for names already present in grandfathered: this field is
+// full-replace, so an exporter that already stores a reserved name (e.g. from before this check
+// existed) must still be able to resend it while changing other, unrelated names. Pass a nil
+// grandfathered when there is no existing agent to grandfather, such as on Add.
+// It is exported so every path that stores these names for a mongodb_exporter agent can apply the
+// same check, not just the inventory API.
+func ValidateMongoDBExporterEnvVarNames(names []string, grandfathered map[string]struct{}) error {
 	for _, name := range names {
-		if _, ok := mongoDBExporterReservedEnvVars[strings.ToUpper(strings.TrimSpace(name))]; ok {
+		normalized := strings.ToUpper(strings.TrimSpace(name))
+		if _, ok := grandfathered[normalized]; ok {
+			continue
+		}
+		if _, ok := mongoDBExporterReservedEnvVars[normalized]; ok {
 			return status.Errorf(codes.InvalidArgument,
 				"environment variable name %q is set by pmm-agent for mongodb_exporter and cannot be selected", name)
 		}
@@ -377,9 +385,31 @@ func ValidateMongoDBExporterEnvVarNames(names []string) error {
 	return nil
 }
 
+// mongoDBExporterEnvVarNamesGrandfathered returns the agent's currently-stored environment
+// variable names, normalized for ValidateMongoDBExporterEnvVarNames's grandfathered set.
+func mongoDBExporterEnvVarNamesGrandfathered(q *reform.Querier, agentID string) (map[string]struct{}, error) {
+	agent, err := models.FindAgentByID(q, agentID)
+	if err != nil {
+		return nil, err
+	}
+
+	existing, err := agent.GetEnvironmentVariableNames()
+	if err != nil {
+		return nil, err
+	}
+
+	grandfathered := make(map[string]struct{}, len(existing))
+	for _, name := range existing {
+		grandfathered[strings.ToUpper(strings.TrimSpace(name))] = struct{}{}
+	}
+
+	return grandfathered, nil
+}
+
 // AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
 func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	err := ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames())
+	// No existing agent to grandfather: this is a new agent, so any reserved name is rejected outright.
+	err := ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -431,7 +461,18 @@ func (as *AgentsService) ChangeMongoDBExporter(
 	agentID string,
 	p *inventoryv1.ChangeMongoDBExporterParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
-	err := ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames().GetValues())
+	// EnvironmentVariableNames is a full-replace field: nil means "leave unchanged", so there is
+	// nothing to validate and no need to look up the agent's currently-stored names.
+	var grandfathered map[string]struct{}
+	if p.GetEnvironmentVariableNames() != nil {
+		var err error
+		grandfathered, err = mongoDBExporterEnvVarNamesGrandfathered(as.db.Querier, agentID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err := ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames().GetValues(), grandfathered)
 	if err != nil {
 		return nil, err
 	}
