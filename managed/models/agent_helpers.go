@@ -1268,7 +1268,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 // Callers that already had to load the row to inspect it before changing it (e.g. to check its
 // type or a precondition) can pass it here directly, instead of ChangeAgent re-fetching the same
 // row from the database.
-func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,maintidx
+func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,gocognit,maintidx
 	var err error
 
 	// Handle common fields first
