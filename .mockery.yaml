@@ -80,6 +80,7 @@ packages:
       templatesService:
       vmAlertExternalRules:
       nomadService:
+      vmRetentionService:
   github.com/percona/pmm/managed/services/versioncache:
     interfaces:
       Versioner:
@@ -88,6 +89,11 @@ packages:
   github.com/percona/pmm/managed/services/victoriametrics:
     interfaces:
       haService:
+  github.com/percona/pmm/managed/services/vmretention:
+    interfaces:
+      Client:
+        config:
+          mockname: "Mock{{ .InterfaceName | camelcase | firstUpper }}"
   github.com/percona/pmm/managed/services/telemetry:
     interfaces:
       DataSource:

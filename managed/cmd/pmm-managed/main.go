@@ -105,6 +105,7 @@ import (
 	"github.com/percona/pmm/managed/services/versioncache"
 	"github.com/percona/pmm/managed/services/victoriametrics"
 	"github.com/percona/pmm/managed/services/vmalert"
+	"github.com/percona/pmm/managed/services/vmretention"
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/distribution"
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -142,6 +143,8 @@ const (
 
 	distributionInfoFilePath = "/srv/pmm-distribution"
 	osInfoFilePath           = "/proc/version"
+
+	supervisordConfigRetryInterval = 30 * time.Second
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -545,6 +548,42 @@ type setupDeps struct {
 	l           *logrus.Entry
 }
 
+func updateSupervisordConfig(q reform.DBTX, svc *supervisord.Service) error {
+	settings, err := models.GetSettings(q)
+	if err != nil {
+		return fmt.Errorf("failed to get settings: %w", err)
+	}
+	return svc.UpdateConfiguration(settings)
+}
+
+// applySupervisordConfig re-renders supervisord configuration from the stored settings,
+// retrying until it succeeds or ctx is canceled.
+//
+// Registered as a leader service, so it runs on promotion. Without it a node promoted later
+// would keep the programs it configured at start-up, and for qan-api2 that means enforcing a
+// retention period the user has since changed. It does not cover a change served by another
+// node while this one is already leader.
+func applySupervisordConfig(ctx context.Context, db *reform.DB, svc *supervisord.Service) error {
+	l := logrus.WithField("component", "supervisord")
+
+	for {
+		err := updateSupervisordConfig(db.WithContext(ctx), svc)
+		if err == nil {
+			l.Info("Applied stored settings to supervisord configuration after gaining leadership.")
+			return nil
+		}
+		l.Errorf("Failed to apply supervisord configuration after gaining leadership, will retry: %+v.", err)
+
+		t := time.NewTimer(supervisordConfigRetryInterval)
+		select {
+		case <-ctx.Done():
+			t.Stop()
+			return nil
+		case <-t.C:
+		}
+	}
+}
+
 // setup performs setup tasks that depend on database.
 func setup(ctx context.Context, deps *setupDeps) bool {
 	l := reform.NewPrintfLogger(deps.l.Debugf)
@@ -684,6 +723,16 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Default("http://127.0.0.1:8880/").String()
 	victoriaMetricsConfigF := kingpin.Flag("victoriametrics-config", "VictoriaMetrics scrape configuration file path").
 		Default("/etc/victoriametrics-promscrape.yml").String()
+
+	// An empty name disables retention reconciliation.
+	vmClusterNameF := kingpin.Flag("vm-cluster-name", "Name of the VictoriaMetrics custom resource to apply data retention to").
+		Envar("PMM_VM_CLUSTER_NAME").String()
+	vmClusterNamespaceF := kingpin.Flag("vm-cluster-namespace", "Namespace of the VictoriaMetrics custom resource; defaults to the current namespace").
+		Envar("PMM_VM_CLUSTER_NAMESPACE").String()
+	vmClusterAPIVersionF := kingpin.Flag("vm-cluster-api-version", "API version of the VictoriaMetrics custom resource").
+		Envar("PMM_VM_CLUSTER_API_VERSION").Default("operator.victoriametrics.com/v1beta1").String()
+	vmClusterKindF := kingpin.Flag("vm-cluster-kind", "Kind of the VictoriaMetrics custom resource").
+		Envar("PMM_VM_CLUSTER_KIND").Default("VMCluster").String()
 
 	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default("127.0.0.1:3000").String()
 	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
@@ -919,6 +968,24 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	prom.MustRegister(vmalert)
 
+	vmClusterClient, err := vmretention.NewKubeClient(vmretention.KubeParams{
+		Name:       *vmClusterNameF,
+		Namespace:  *vmClusterNamespaceF,
+		APIVersion: *vmClusterAPIVersionF,
+		Kind:       *vmClusterKindF,
+	})
+	switch {
+	case errors.Is(err, vmretention.ErrNoClusterAccess):
+		// A cluster can legitimately withhold API access, and a retention reconciler must not
+		// be able to stop PMM from starting. Reconciliation is disabled and says why.
+		l.Errorf("Data retention will not be applied to VictoriaMetrics: %+v", err)
+	case err != nil:
+		// A malformed name, kind or API version is a typo, and would otherwise fail once a
+		// minute forever instead of at start-up.
+		l.Panicf("VictoriaMetrics retention service problem: %+v", err)
+	}
+	vmRetention := vmretention.New(db, vmClusterClient)
+
 	minioClient := minio.New()
 
 	qanClient := getQANClient(sqlDB, *postgresDBNameF, *qanAPIAddrF)
@@ -1060,6 +1127,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Dus:                  dus,
 		HAService:            haService,
 		Nomad:                nomad,
+		VMRetention:          vmRetention,
 		QANClient:            qanClient,
 	}
 
@@ -1171,6 +1239,17 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haService.AddLeaderService(ha.NewContextService("versionCache", func(ctx context.Context) error {
 		versionCache.Run(ctx)
 		return nil
+	}))
+
+	// Leader-gated so that exactly one node writes to the custom resource.
+	haService.AddLeaderService(ha.NewContextService("vmRetention", func(ctx context.Context) error {
+		vmRetention.Run(ctx)
+		return nil
+	}))
+
+	// Refreshes what this node runs the moment it becomes the node that acts on the settings.
+	haService.AddLeaderService(ha.NewContextService("supervisordConfig", func(ctx context.Context) error {
+		return applySupervisordConfig(ctx, db, supervisord)
 	}))
 
 	wg.Go(func() {

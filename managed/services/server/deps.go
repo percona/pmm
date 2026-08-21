@@ -117,3 +117,8 @@ type victoriaMetricsParams interface {
 type nomadService interface {
 	UpdateConfiguration(settings *models.Settings) error
 }
+
+// vmRetentionService applies the data retention setting to an externally deployed VictoriaMetrics.
+type vmRetentionService interface {
+	RequestRetentionUpdate()
+}

@@ -65,9 +65,16 @@ import (
 const (
 	shutdownTimeout                 = 3 * time.Second
 	defaultDropOldPartitionInterval = 24 * time.Hour
-	defaultDsnF                     = "clickhouse://%s:%s@%s/%s"
-	maxIdleConns                    = 5
-	maxOpenConns                    = 10
+	// How soon to look again when this node did not apply retention because it is not the
+	// leader, or because leadership could not be determined. Short, so that a node promoted
+	// mid-cycle starts enforcing retention in minutes rather than a day.
+	leaderRecheckInterval = 5 * time.Minute
+	leaderCheckTimeout    = 5 * time.Second
+	// pmm-managed serves its HTTP API on this port, see http1Addr in pmm-managed's main.go.
+	defaultLeaderCheckURL = "http://127.0.0.1:7772/v1/server/leaderHealthCheck"
+	defaultDsnF           = "clickhouse://%s:%s@%s/%s"
+	maxIdleConns          = 5
+	maxOpenConns          = 10
 )
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -257,6 +264,41 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 	cancel()
 }
 
+// runRetentionLoop drops partitions older than the retention period once a day, until ctx is
+// canceled.
+//
+// Only the leader drops (see isLeader). A node that does not looks again shortly after rather
+// than waiting out the full interval, because leadership can move at any time.
+func runRetentionLoop(ctx context.Context, db *sqlx.DB, dbName string, days uint, leaderCheckURL string) {
+	l := logrus.WithField("component", "retention")
+	client := &http.Client{Timeout: leaderCheckTimeout}
+
+	for {
+		delay := defaultDropOldPartitionInterval
+
+		leader, err := shouldApplyRetention(ctx, client, leaderCheckURL)
+		switch {
+		case err != nil:
+			// Deleting data on a guess is worse than deleting it a few minutes later.
+			l.Warnf("Not applying data retention, cannot tell whether this node is the leader: %s.", err)
+			delay = leaderRecheckInterval
+		case !leader:
+			l.Debug("Not applying data retention, this node is not the leader.")
+			delay = leaderRecheckInterval
+		default:
+			DropOldPartition(db, dbName, days)
+		}
+
+		t := time.NewTimer(delay)
+		select {
+		case <-ctx.Done():
+			t.Stop()
+			return
+		case <-t.C:
+		}
+	}
+}
+
 func main() {
 	log.SetFlags(0)
 
@@ -266,6 +308,9 @@ func main() {
 	jsonBindF := kingpin.Flag("json-bind", "JSON bind address and port").Default("127.0.0.1:9922").String()
 	debugBindF := kingpin.Flag("listen-debug-addr", "Debug server listen address").Default("127.0.0.1:9933").String()
 	dataRetentionF := kingpin.Flag("data-retention", "QAN data Retention (in days)").Default("30").Uint()
+	leaderCheckURLF := kingpin.Flag("leader-check-url",
+		"URL of the pmm-managed leader health check; data retention is applied only while it reports this node is the leader. Empty disables the check").
+		Default(defaultLeaderCheckURL).String()
 	dsnF := kingpin.Flag("dsn", "ClickHouse database DSN. Can be overridden with database/host/port options").Default(defaultDsnF).String()
 	clickhouseDatabaseF := kingpin.Flag("clickhouse-name", "ClickHouse database name").Default("pmm").Envar("PMM_CLICKHOUSE_DATABASE").String()
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "ClickHouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
@@ -351,18 +396,7 @@ func main() {
 	})
 
 	wg.Go(func() {
-		ticker := time.NewTicker(defaultDropOldPartitionInterval)
-		defer ticker.Stop()
-		for {
-			// Drop old partitions once per interval.
-			DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				// nothing
-			}
-		}
+		runRetentionLoop(ctx, db, *clickhouseDatabaseF, *dataRetentionF, *leaderCheckURLF)
 	})
 
 	wg.Wait()

@@ -39,6 +39,8 @@ import (
 func TestServer(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
+	var vmRetentionMock *mockVmRetentionService
+
 	newServer := func(t *testing.T) *Server {
 		t.Helper()
 		var r mockSupervisordService
@@ -77,6 +79,10 @@ func TestServer(t *testing.T) {
 		nomad.Test(t)
 		nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
 
+		vmRetentionMock = &mockVmRetentionService{}
+		vmRetentionMock.Test(t)
+		vmRetentionMock.On("RequestRetentionUpdate").Return()
+
 		var ha mockHaService
 		ha.Test(t)
 		ha.On("IsLeader").Return(true)
@@ -94,6 +100,7 @@ func TestServer(t *testing.T) {
 			TelemetryService:     &ts,
 			Nomad:                &nomad,
 			HAService:            &ha,
+			VMRetention:          vmRetentionMock,
 		})
 		require.NoError(t, err)
 		return s
@@ -112,6 +119,7 @@ func TestServer(t *testing.T) {
 				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
 			})
 			require.Empty(t, errs)
+			vmRetentionMock.AssertCalled(t, "RequestRetentionUpdate")
 			assert.True(t, *s.envSettings.EnableUpdates)
 			assert.True(t, *s.envSettings.EnableTelemetry)
 			assert.Equal(t, time.Second, s.envSettings.MetricsResolutions.HR)
@@ -256,6 +264,7 @@ func TestServer(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
+		vmRetentionMock.AssertCalled(t, "RequestRetentionUpdate")
 
 		settings, err := server.GetSettings(ctx, &serverv1.GetSettingsRequest{})
 
