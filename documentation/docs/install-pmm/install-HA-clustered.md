@@ -704,14 +704,14 @@ These variables are tested and validated for the HA architecture - modifying the
 Adjust these variables in your `values.yaml` to match your monitoring requirements:
 ```yaml
   pmmEnv:
-    PMM_DATA_RETENTION: "2160h"  # Adjust based on your retention policy (default: 90 days)
+    PMM_DEBUG: "1"
     # Add other environment variables as needed
 ```
 
 #### Common customizations
 
-- **Data retention**: Set `PMM_DATA_RETENTION` based on your compliance requirements and storage capacity (e.g., `720h` for 30 days, `4320h` for 180 days)
-- **Metrics retention**: from `pmm-ha` chart 1.6.1 on, retention set in the PMM UI also applies to metrics, because PMM updates `retentionPeriod` on the `VMCluster` resource. This needs `get` and `patch` on that resource; if you set `serviceAccount.create: false` and supply your own service account, grant it the same permissions or metrics retention will not change.
+- **Data retention**: change it in the PMM UI under **Configuration > Settings > Advanced settings**, or pin it declaratively with the top-level `dataRetentionDays` (whole days, for example `dataRetentionDays: 30`). Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPeriod` is rejected, because PMM manages both stores itself.
+- **Metrics retention**: retention set in the PMM UI applies to metrics as well, because PMM updates `retentionPeriod` on the `VMCluster` resource. The chart creates the required Role only when `serviceAccount.create` and `victoriaMetrics.enabled` are both true. With `serviceAccount.create: false` the PMM pods run under the namespace's `default` service account, so grant that account `get` and `patch` on the `VMCluster`, or metrics retention will not change.
 - **Additional variables**: See [PMM environment variables documentation](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md) for all available options.
 
 ### Review Helm parameters reference
@@ -1068,7 +1068,6 @@ We are aware of the following issues in this Tech Preview version and plan to fi
 | **[PMM-14706](https://perconadev.atlassian.net/browse/PMM-14706)**: Extra 'pmm-' prefix | PostgreSQL nodes show as `pmm-pmm-ha-pg-...` | Cosmetic only - no action needed |
 | **[PMM-14707](https://perconadev.atlassian.net/browse/PMM-14707)**: Wrong PostgreSQL status | Inventory shows FAILED/UNSPECIFIED despite working metrics | Check dashboards to verify metrics flow |
 | **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |                                   |
-| **[PMM-14787](https://perconadev.atlassian.net/browse/PMM-14787)**: Data retention does not apply to metrics | On `pmm-ha` chart 1.6.0 and earlier, retention set under **Configuration > Settings > Advanced Settings** has no effect on metrics, so data older than the configured period stays visible. | Upgrade to chart 1.6.1 or later, where PMM applies the setting to VictoriaMetrics. On earlier charts, set `victoriaMetrics.vmstorage.retentionPeriod`. |
 
 ### Scaling limitations
 
