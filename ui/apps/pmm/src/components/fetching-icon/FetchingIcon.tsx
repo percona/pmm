@@ -1,6 +1,6 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import CachedIcon from '@mui/icons-material/Cached';
-import { FetchingIconProps } from './FetchingIcon.types';
+import type { FetchingIconProps } from './FetchingIcon.types';
 
 export const FetchingIcon: FC<FetchingIconProps> = ({ isFetching }) => (
   <CachedIcon

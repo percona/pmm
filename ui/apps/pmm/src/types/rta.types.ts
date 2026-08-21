@@ -1,4 +1,4 @@
-import { VersionedService } from './services.types';
+import type { VersionedService } from './services.types';
 
 export enum RealtimeSessionStatus {
   unspecified = 'SESSION_STATUS_UNSPECIFIED',

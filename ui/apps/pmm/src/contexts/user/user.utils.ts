@@ -1,11 +1,11 @@
-import { AxiosError } from 'axios';
+import type { AxiosError } from 'axios';
 import {
+  type User,
+  type GetUserResponse,
+  type UserOrg,
+  type UserInfo,
+  type UserPreferences,
   OrgRole,
-  User,
-  GetUserResponse,
-  UserOrg,
-  UserInfo,
-  UserPreferences,
 } from 'types/user.types';
 
 export const ANONYMOUS_USER_INFO: UserInfo = {

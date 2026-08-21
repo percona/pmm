@@ -1,4 +1,4 @@
-import {
+import type {
   AlertmanagerAlert,
   AlertmanagerSilence,
   PrometheusAlertRulesResponse,
@@ -8,7 +8,7 @@ import {
   flattenAlertRules,
   groupAlertsByNode,
 } from './AlertsPage.utils';
-import { AlertRow } from './AlertsPage.types';
+import type { AlertRow } from './AlertsPage.types';
 
 type OptionalAlertRowKeys =
   | 'labels'

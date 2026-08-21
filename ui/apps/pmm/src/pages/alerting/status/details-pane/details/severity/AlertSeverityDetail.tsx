@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { AlertSeverity as Severity } from 'types/alerting.types';
+import type { FC } from 'react';
+import type { AlertSeverity as Severity } from 'types/alerting.types';
 import UnavailableText from 'components/unavailable-text';
 import { AlertSeverity } from 'pages/alerting/status/alert-severity';
 

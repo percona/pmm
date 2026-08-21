@@ -1,6 +1,6 @@
 import { useGrafanaRulerRule } from 'hooks/api/useGrafanaRuler';
-import { AlertDetailsPane } from './AlertDetailsPane.types';
-import { AlertRow } from '../AlertsPage.types';
+import type { AlertDetailsPane } from './AlertDetailsPane.types';
+import type { AlertRow } from '../AlertsPage.types';
 
 // Pretty-printed rule + alert JSON for the raw-data tab. Built here for the single
 // selected alert instead of in flattenAlertRules, which runs for every alert on

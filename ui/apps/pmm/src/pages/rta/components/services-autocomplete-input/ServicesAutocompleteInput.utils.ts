@@ -1,9 +1,9 @@
-import { VersionedService } from 'types/services.types';
-import {
+import type { VersionedService } from 'types/services.types';
+import type {
   ClusterSelectionState,
   ServiceOption,
 } from './ServicesAutocompleteInput.types';
-import { RealtimeSession } from 'types/rta.types';
+import type { RealtimeSession } from 'types/rta.types';
 
 /**
  * Get the selection state of a cluster

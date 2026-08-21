@@ -1,5 +1,5 @@
 import { CodeBlock as PerconaCodeBlock } from '@percona/peak-ui';
-import { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
 type Props = PropsWithChildren<{
   className?: string;

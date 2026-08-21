@@ -1,6 +1,6 @@
-import { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
-import { RealtimeSession } from 'types/rta.types';
-import { VersionedService } from 'types/services.types';
+import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete';
+import type { RealtimeSession } from 'types/rta.types';
+import type { VersionedService } from 'types/services.types';
 
 export type TagPresentation = 'label' | 'tags';
 

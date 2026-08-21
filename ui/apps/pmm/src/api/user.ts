@@ -1,4 +1,4 @@
-import {
+import type {
   GetPreferenceResponse,
   GetUserResponse,
   UpdatePreferencesBody,

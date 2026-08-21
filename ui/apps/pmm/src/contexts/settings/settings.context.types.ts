@@ -1,4 +1,4 @@
-import { FrontendSettings, Settings } from 'types/settings.types';
+import type { FrontendSettings, Settings } from 'types/settings.types';
 
 export interface CombinedSettings extends Settings {
   frontend: FrontendSettings;

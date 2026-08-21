@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
-import { QueryData } from 'types/rta.types';
+import type { QueryData } from 'types/rta.types';
 import { isPlainObject } from 'utils/object.utils';
 
 const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;

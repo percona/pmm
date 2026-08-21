@@ -1,9 +1,9 @@
 import Grid from '@mui/material/Grid';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { format, formatDuration } from 'date-fns';
 import { tz } from '@date-fns/tz';
 import { CodeBlock } from '@percona/peak-ui';
-import { QueryData } from 'types/rta.types';
+import type { QueryData } from 'types/rta.types';
 import DetailsMetric from 'components/details-pane/DataPoint';
 import BigNumberMetric from './BigNumberMetric';
 import { Messages } from './QueryAndDetails.messages';

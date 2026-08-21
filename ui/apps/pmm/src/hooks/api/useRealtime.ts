@@ -1,9 +1,9 @@
 import {
+  type UseMutationOptions,
+  type UseQueryOptions,
   useMutation,
-  UseMutationOptions,
   useQuery,
   useQueryClient,
-  UseQueryOptions,
 } from '@tanstack/react-query';
 import {
   getAvailableServices,
@@ -12,7 +12,7 @@ import {
   startSession,
   stopSession,
 } from 'api/rta';
-import {
+import type {
   RealtimeSession,
   StartSessionResponse,
   StartSessionPayload,
@@ -21,9 +21,9 @@ import {
   QueryData,
   RawQueryData,
 } from 'types/rta.types';
-import { ServiceType, VersionedService } from 'types/services.types';
+import type { ServiceType, VersionedService } from 'types/services.types';
 import { useMemo } from 'react';
-import { EmptyResponse } from 'types/util.types';
+import type { EmptyResponse } from 'types/util.types';
 import { parseDuration } from 'utils/duration.utils';
 import { useUser } from 'contexts/user';
 

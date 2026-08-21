@@ -7,7 +7,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { FC } from 'react';
+import type { FC } from 'react';
 import Welcome from 'assets/mountains.jpg';
 import { UpdateCard } from './update-card';
 import { Messages } from './Updates.messages';

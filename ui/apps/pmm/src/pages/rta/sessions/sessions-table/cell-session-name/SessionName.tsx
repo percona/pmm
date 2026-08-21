@@ -1,6 +1,6 @@
 import Link from '@mui/material/Link';
-import { FC } from 'react';
-import { SessionRow } from '../SessionsTable.types';
+import type { FC } from 'react';
+import type { SessionRow } from '../SessionsTable.types';
 import { Link as RouterLink } from 'react-router-dom';
 import { getServiceIds } from '../SessionsTable.utils';
 import { createRealtimeOverviewUrl } from 'utils/link.utils';

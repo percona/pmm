@@ -64,11 +64,13 @@ run: run-all                         ## Aliased to "run-all"
 ui-setup:                            ## Install UI dependencies
 	cd ui && pnpm install
 
-run-ui: ui-setup setup-livereload    ## Start vite dev server for UI with HMR
+run-ui: ui-setup setup-livereload    ## Start vite dev server for UI with HMR, QAN webpack watch and dashboard JSON sync
 	mv /srv/grafana/plugins/pmm-compat-app /srv/grafana/plugins/pmm-compat-app.bak; \
 	ln -sfn $(CURDIR)/ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app; \
+	rm -rf /srv/grafana/plugins/pmm-app/dist; \
+	ln -sfn $(CURDIR)/ui/apps/pmm-app/dist /srv/grafana/plugins/pmm-app/dist; \
 	supervisorctl restart grafana; \
-	trap 'rm -f /srv/grafana/plugins/pmm-compat-app; mv /srv/grafana/plugins/pmm-compat-app.bak /srv/grafana/plugins/pmm-compat-app; supervisorctl restart grafana' EXIT; \
+	trap 'rm -f /srv/grafana/plugins/pmm-compat-app; mv /srv/grafana/plugins/pmm-compat-app.bak /srv/grafana/plugins/pmm-compat-app; rm -f /srv/grafana/plugins/pmm-app/dist; supervisorctl restart grafana' EXIT; \
 	cd ui && pnpm dev
 
 build-ui: ui-setup               ## Build UI and deploy to system dirs
@@ -78,20 +80,9 @@ build-ui: ui-setup               ## Build UI and deploy to system dirs
 	rm -rf /usr/share/percona-dashboards/panels/pmm-compat-app /srv/grafana/plugins/pmm-compat-app
 	cp -r ui/apps/pmm-compat/dist /usr/share/percona-dashboards/panels/pmm-compat-app
 	cp -r ui/apps/pmm-compat/dist /srv/grafana/plugins/pmm-compat-app
+	rm -rf /srv/grafana/plugins/pmm-app/dist
+	cp -r ui/apps/pmm-app/dist /srv/grafana/plugins/pmm-app/dist
 	supervisorctl restart grafana
-
-run-qan-ui: setup-qan-ui setup-livereload ## Runs QAN UI with webpack livereload
-	rm -rf /srv/grafana/plugins/pmm-app/dist
-	ln -sfn $(CURDIR)/dashboards/pmm-app/dist/ /srv/grafana/plugins/pmm-app/dist;
-	cd dashboards/pmm-app && yarn dev
-
-build-qan-ui: setup-qan-ui       ## Build QAN UI and deploy
-	cd dashboards/pmm-app && yarn build
-	rm -rf /srv/grafana/plugins/pmm-app/dist
-	cp -r dashboards/pmm-app/dist /srv/grafana/plugins/pmm-app/dist
-
-setup-qan-ui:                    ## Installs QAN UI dependencies
-	cd dashboards/pmm-app && yarn install
 
 setup-livereload:                ## Add livereload scripts to grafana index file
 	grep -q "35729/livereload.js" /usr/share/grafana/public/views/index.html || \
@@ -107,11 +98,6 @@ grafana-be-build:
 	cd /root/go/src/github.com/percona/grafana && \
 	make build-go && \
 	cp ./bin/linux/amd64/grafana /usr/sbin/grafana && \
-	supervisorctl restart grafana
-
-reload-dashboards:
-	rm -r /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards
-	cp -r /root/go/src/github.com/percona/pmm/dashboards/dashboards /usr/share/percona-dashboards/panels/pmm-app/dist/dashboards
 	supervisorctl restart grafana
 
 # TODO https://jira.percona.com/browse/PMM-3484, see maincover_test.go

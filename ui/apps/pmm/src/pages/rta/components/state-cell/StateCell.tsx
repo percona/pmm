@@ -1,5 +1,5 @@
 import Chip from '@mui/material/Chip';
-import { FC, useMemo } from 'react';
+import { type FC, useMemo } from 'react';
 
 export interface Props {
   state: string;

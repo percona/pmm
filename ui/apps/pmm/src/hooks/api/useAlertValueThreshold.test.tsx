@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { GrafanaAlertRuleDefinition } from 'types/alerting.types';
+import type { GrafanaAlertRuleDefinition } from 'types/alerting.types';
 import { useAlertValueThreshold } from './useAlertValueThreshold';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 

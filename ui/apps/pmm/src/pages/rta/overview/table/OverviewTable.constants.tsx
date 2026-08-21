@@ -1,6 +1,6 @@
 import { type MRT_ColumnDef } from 'material-react-table';
 
-import { QueryData } from 'types/rta.types';
+import type { QueryData } from 'types/rta.types';
 import { Messages } from './OverviewTable.messages';
 import { QueryCell } from './query-cell';
 import { formatDuration } from 'date-fns';

@@ -3,7 +3,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { Dialog, DialogTitle } from '@percona/peak-ui';
 import { Messages } from './StopSessionModal.messages';
-import { FC, useState } from 'react';
+import { type FC, useState } from 'react';
 
 interface Props {
   open: boolean;

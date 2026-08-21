@@ -1,6 +1,6 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { getDashboardFolders } from 'api/folders';
-import { GetFoldersResponse } from 'types/folders.types';
+import type { GetFoldersResponse } from 'types/folders.types';
 
 export const useFolders = (
   options?: Partial<UseQueryOptions<GetFoldersResponse>>

@@ -1,4 +1,4 @@
-import { HAHealth } from 'types/ha.types';
+import type { HAHealth } from 'types/ha.types';
 
 export interface HighAvailabilityIconProps {
   health: HAHealth;

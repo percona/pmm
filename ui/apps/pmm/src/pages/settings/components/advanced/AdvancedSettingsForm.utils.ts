@@ -1,5 +1,5 @@
-import { Settings, UpdateSettingsPayload } from 'types/settings.types';
-import { AdvancedSettingsFormValues } from './AdvancedSettingsForm.schema';
+import type { Settings, UpdateSettingsPayload } from 'types/settings.types';
+import type { AdvancedSettingsFormValues } from './AdvancedSettingsForm.schema';
 import { DEFAULT_DATA_RETENTION, SECONDS_IN_DAY } from './Advanced.constants';
 import {
   convertCheckIntervalsToHours,

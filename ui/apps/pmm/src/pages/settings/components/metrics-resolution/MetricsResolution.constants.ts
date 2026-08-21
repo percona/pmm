@@ -1,6 +1,6 @@
 import type { InputHTMLAttributes } from 'react';
 import { Messages } from '../../Settings.messages';
-import { MetricsResolutions } from 'types/settings.types';
+import type { MetricsResolutions } from 'types/settings.types';
 
 export const RESOLUTION_PRESETS = [
   'rare',

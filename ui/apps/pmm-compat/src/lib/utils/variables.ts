@@ -5,7 +5,7 @@ import {
   urlUtil,
 } from '@grafana/data';
 import { config, getTemplateSrv } from '@grafana/runtime';
-import { DashboardLink } from '@grafana/schema';
+import type { DashboardLink } from '@grafana/schema';
 
 /**
  * Needs to be in sync with public/app/features/panel/panellinks/link_srv.ts LinkSrv.getLinkUrl in grafana repository

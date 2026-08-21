@@ -1,4 +1,4 @@
-import {
+import type {
   AvailableServicesResponse,
   ListRunningSessionsResponse,
   RealtimeSession,
@@ -9,8 +9,8 @@ import {
   StopSessionPayload,
 } from 'types/rta.types';
 import { api } from './api';
-import { EmptyResponse } from 'types/util.types';
-import { ServiceType } from 'types/services.types';
+import type { EmptyResponse } from 'types/util.types';
+import type { ServiceType } from 'types/services.types';
 
 export const getRunningSessions = async (): Promise<RealtimeSession[]> => {
   const res = await api.get<ListRunningSessionsResponse>(

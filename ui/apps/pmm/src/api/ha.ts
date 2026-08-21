@@ -1,4 +1,4 @@
-import { GetHANodesResponse, GetHAStatusResponse } from 'types/ha.types';
+import type { GetHANodesResponse, GetHAStatusResponse } from 'types/ha.types';
 import { api } from './api';
 
 export const getHAStatus = async (): Promise<GetHAStatusResponse> => {

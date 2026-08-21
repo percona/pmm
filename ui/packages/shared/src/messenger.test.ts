@@ -1,5 +1,5 @@
 import { CrossFrameMessenger } from './messenger';
-import { Message, MessageListener } from './types';
+import type { Message, MessageListener } from './types';
 
 const testData = {
   id: '6462b0bf-41f3-4048-a6fd-1611ba377f9c',

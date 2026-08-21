@@ -3,7 +3,7 @@ import { MainWithNav } from './MainWithNav';
 import { render, screen } from '@testing-library/react';
 import { wrapWithGrafana, wrapWithQueryProvider } from 'utils/testUtils';
 import { TEST_USER_ADMIN, TEST_USER_ANONYMOUS } from 'utils/testStubs';
-import { User } from 'types/user.types';
+import type { User } from 'types/user.types';
 
 const setup = ({
   isLoading = false,

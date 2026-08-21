@@ -52,6 +52,8 @@ services:
       - ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/
       # nginx config overrides
       - ./build/ansible/roles/nginx/files/conf.d/pmm.conf:/etc/nginx/conf.d/pmm.conf:ro
+      # faster dashboard provisioning polling for dev (default is 60s)
+      - ./dev/grafana-dashboards-provisioning.yml:/usr/share/grafana/conf/provisioning/dashboards/default.yml:ro
       # percona-ui
       # - ../percona-ui:/root/go/src/github.com/percona/percona-ui
       # grafana

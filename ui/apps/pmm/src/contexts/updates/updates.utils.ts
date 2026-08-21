@@ -1,4 +1,7 @@
-import { AgentUpdateSeverity, GetAgentVersionItem } from 'types/agent.types';
+import {
+  type GetAgentVersionItem,
+  AgentUpdateSeverity,
+} from 'types/agent.types';
 import { UpdateStatus } from 'types/updates.types';
 
 export const areClientsUpToDate = (clients?: GetAgentVersionItem[]) =>

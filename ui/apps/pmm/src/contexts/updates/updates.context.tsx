@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { UpdatesContextProps } from './updates.context.types';
+import type { UpdatesContextProps } from './updates.context.types';
 import { UpdateStatus } from 'types/updates.types';
 
 export const UpdatesContext = createContext<UpdatesContextProps>({

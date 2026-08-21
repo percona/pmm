@@ -1,4 +1,4 @@
-import {
+import type {
   AlertStatus,
   AlertmanagerAlert,
   AlertmanagerSilence,
@@ -8,7 +8,7 @@ import {
   PrometheusAlertState,
   PrometheusAlertRulesResponse,
 } from 'types/alerting.types';
-import { AlertRow, NodeGroupRow, SilenceInfo } from './AlertsPage.types';
+import type { AlertRow, NodeGroupRow, SilenceInfo } from './AlertsPage.types';
 import { formatDurationSeconds } from 'utils/duration.utils';
 import { isPrivateLabelKey } from 'utils/alerting.utils';
 

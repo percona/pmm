@@ -1,7 +1,7 @@
-import { AuthContext, AuthContextProps } from 'contexts/auth';
-import { UserContext, UserContextProps } from 'contexts/user';
-import { FC, PropsWithChildren } from 'react';
-import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
+import { type AuthContextProps, AuthContext } from 'contexts/auth';
+import { type UserContextProps, UserContext } from 'contexts/user';
+import type { FC, PropsWithChildren } from 'react';
+import { type MemoryRouterProps, MemoryRouter } from 'react-router-dom';
 import { pmmThemeOptions, ThemeContextProvider } from '@percona/peak-ui';
 import { TEST_USER_ADMIN } from './testStubs';
 

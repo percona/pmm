@@ -14,7 +14,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WarningIcon from '@mui/icons-material/Warning';
 import { TextInput, SwitchInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FC, useEffect, useState } from 'react';
+import { type FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
@@ -28,9 +28,9 @@ import {
   TECHNICAL_PREVIEW_DOC_URL,
 } from './Advanced.constants';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
-import { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
+import type { AdvancedSettingsFormProps } from './AdvancedSettingsForm.types';
 import {
-  AdvancedSettingsFormValues,
+  type AdvancedSettingsFormValues,
   advancedSettingsSchema,
 } from './AdvancedSettingsForm.schema';
 import { toFormValues, toPayload } from './AdvancedSettingsForm.utils';

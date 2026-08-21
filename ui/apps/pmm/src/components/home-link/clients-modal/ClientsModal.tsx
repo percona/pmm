@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { ClientsModalProps } from './ClientsModal.types';
+import type { FC } from 'react';
+import type { ClientsModalProps } from './ClientsModal.types';
 import {
   Button,
   Dialog,

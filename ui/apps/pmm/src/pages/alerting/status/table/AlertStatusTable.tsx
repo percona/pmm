@@ -1,11 +1,11 @@
 import { BottomPanelOpenIcon, Table, useNavigableRows } from '@percona/peak-ui';
 import { type MRT_Row } from 'material-react-table';
-import { FC, useMemo, useState } from 'react';
+import { type FC, useMemo, useState } from 'react';
 import { ALERT_STATUS_COLUMNS } from './AlertStatusTable.constants';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { AlertStatusTableProps } from './AlertStatusTable.types';
-import { AlertRow, AlertsTableRow } from '../AlertsPage.types';
+import type { AlertStatusTableProps } from './AlertStatusTable.types';
+import type { AlertRow, AlertsTableRow } from '../AlertsPage.types';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Stack,

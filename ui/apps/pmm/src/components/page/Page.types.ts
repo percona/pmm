@@ -1,5 +1,5 @@
-import { PropsWithChildren, ReactNode } from 'react';
-import { OrgRole } from 'types/user.types';
+import type { PropsWithChildren, ReactNode } from 'react';
+import type { OrgRole } from 'types/user.types';
 
 export interface PageProps extends PropsWithChildren {
   title?: string;

@@ -46,14 +46,15 @@ using VictoriaMetrics datasource.
 %build
 node -v
 npm version
-make -C dashboards release
+corepack enable pnpm 2>/dev/null || sudo corepack enable pnpm
+cd ui && pnpm install --frozen-lockfile && pnpm turbo run build --filter=pmm-app
 
 
 %install
 install -d %{buildroot}%{_datadir}/%{name}/panels/pmm-app
 
 # cp -a ./dashboards/panels %{buildroot}%{_datadir}/%{name}
-cp -a ./dashboards/pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
+cp -a ./ui/apps/pmm-app/dist %{buildroot}%{_datadir}/%{name}/panels/pmm-app
 unzip -q %{SOURCE1} -d %{buildroot}%{_datadir}/%{name}/panels
 unzip -q %{SOURCE2} -d %{buildroot}%{_datadir}/%{name}/panels
 echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
@@ -68,6 +69,9 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 %changelog
 * Fri Aug 14 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-28
 - PMM-15335 Bump clickhouse datasource plugin to 4.20.0
+
+* Thu Jul 30 2026 Fábio Silva <fabio.dasilva@percona.com> - 3.0.0-28
+- PMM-15028 Build pmm-app from ui/apps/pmm-app (moved out of dashboards/)
 
 * Wed Jul 15 2026 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-27
 - PMM-15099 Bump clickhouse datasource plugin to 4.19.0

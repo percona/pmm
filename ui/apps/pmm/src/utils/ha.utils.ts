@@ -1,5 +1,5 @@
-import { UseQueryResult } from '@tanstack/react-query';
-import {
+import type { UseQueryResult } from '@tanstack/react-query';
+import type {
   GetHANodeResponse,
   GetHANodesResponse,
   HAHealth,

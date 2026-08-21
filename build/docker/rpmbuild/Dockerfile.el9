@@ -8,12 +8,10 @@ FROM oraclelinux:9-slim
 RUN microdnf install -y dnf
 # enable nodesource repo for nodejs
 RUN curl -sL https://rpm.nodesource.com/setup_22.x | bash -
-RUN curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | tee /etc/yum.repos.d/yarn.repo
 
 RUN dnf update -y && \
     dnf install -y --setopt=skip_missing_names_on_install=False \
     nodejs \
-    yarn && \
     dnf install -y gcc gcc-c++ \
     libtool libtool-ltdl \
     make cmake \
@@ -29,8 +27,7 @@ RUN dnf update -y && \
     dnf install -y --enablerepo=ol9_codeready_builder glibc-static && \
     dnf clean all && rm -rf /var/cache/dnf
 
-# The UI workspace (ui/) builds with pnpm; the QAN Grafana plugin (dashboards/pmm-app)
-# is still on yarn 1, so both are needed. corepack ships with nodesource's nodejs 22
+# The UI workspace (ui/) builds with pnpm; corepack ships with nodesource's nodejs 22
 # and resolves pnpm from the `packageManager` field in ui/package.json, so the version
 # is pinned in exactly one place and needs no change here on a bump.
 RUN corepack enable
@@ -49,7 +46,7 @@ RUN useradd builder -u 1000 -m -G users,wheel && \
     echo "builder ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
     echo "# macros"                      >  /home/builder/.rpmmacros && \
     echo "%_topdir    /home/builder/rpm" >> /home/builder/.rpmmacros && \
-    mkdir -p /home/builder/{rpm,go/pkg/mod/cache,.cache/go-build,.cache/yarn} && \
+    mkdir -p /home/builder/{rpm,go/pkg/mod/cache,.cache/go-build,.cache/pnpm} && \
     chmod -R 755 /home/builder && \
     chown -R builder:builder /home/builder
 

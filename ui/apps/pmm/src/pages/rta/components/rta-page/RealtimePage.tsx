@@ -1,7 +1,7 @@
 import GlobalStyles from '@mui/material/GlobalStyles';
-import Stack, { StackProps } from '@mui/material/Stack';
+import Stack, { type StackProps } from '@mui/material/Stack';
 import { HEADER_HEIGHT } from 'components/main/header/Header.constants';
-import { FC } from 'react';
+import type { FC } from 'react';
 
 const RealtimePage: FC<StackProps> = ({ children }) => (
   <>

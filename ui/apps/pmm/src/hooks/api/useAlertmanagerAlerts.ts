@@ -1,6 +1,6 @@
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { getAlertmanagerAlerts } from 'api/alerting';
-import { AlertmanagerAlert } from 'types/alerting.types';
+import type { AlertmanagerAlert } from 'types/alerting.types';
 
 export const ALERTMANAGER_ALERTS_QUERY_KEY = ['alerting:alertmanagerAlerts'];
 

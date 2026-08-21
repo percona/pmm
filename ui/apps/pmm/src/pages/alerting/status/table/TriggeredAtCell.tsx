@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { formatTriggeredAt } from './AlertStatusTable.utils';
 import { useTimezone } from 'hooks/utils/useTimezone';
 
