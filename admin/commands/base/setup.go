@@ -62,7 +62,11 @@ func normalizeServerURL(u *url.URL) error {
 // without "//" - a missing scheme being exactly the kind of mistake this code has to diagnose -
 // parses as opaque instead, with "user:password" sitting in Opaque, in cleartext, which
 // Redacted does not look at; a URL that fails to parse at all is not touched by it either.
-var credentialPattern = regexp.MustCompile(`([^/@:\s]+):([^/@\s]*)@`)
+//
+// The password half deliberately allows "/": a scheme prefix such as "https:" would otherwise
+// also satisfy "name:" and swallow it into the match, but the password can legitimately contain
+// a slash, and excluding it let such a password slip through unredacted.
+var credentialPattern = regexp.MustCompile(`([^/@:\s]+):(?:[^/@\s][^@\s]*)?@`)
 
 // redactedServerURL returns raw with any password it carries replaced by a placeholder, so a
 // PMM Server URL can be logged without leaking its credentials - however malformed the URL

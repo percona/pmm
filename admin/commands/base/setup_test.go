@@ -154,6 +154,18 @@ func TestRedactedServerURL(t *testing.T) {
 			raw:           "https://admin:hunter2@pmm-server:8443/%zz",
 			wantSubstring: "admin:xxxxx@pmm-server:8443",
 		},
+		"scheme missing, password contains a slash": {
+			// A "/" in the password used to make credentialPattern's own fallback miss it too,
+			// leaving the password in cleartext even after the opaque-URL case above was handled.
+			raw:           "admin:hunter2/2@pmm-server:8443",
+			wantSubstring: "admin:xxxxx@pmm-server:8443",
+		},
+		"host invalid because of a slash in the password": {
+			// The slash makes url.Parse itself misread the URL ("hunter2" ends up looking like
+			// an invalid port), so this exercises the raw-string fallback path, not Redacted.
+			raw:           "https://admin:hunter2/2@pmm-server:8443/v1",
+			wantSubstring: "admin:xxxxx@",
+		},
 	} {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
