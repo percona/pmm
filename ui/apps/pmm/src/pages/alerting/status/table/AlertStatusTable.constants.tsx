@@ -1,4 +1,4 @@
-import { Chip, MRT_ColumnDef } from '@percona/percona-ui';
+import { Chip, MRT_ColumnDef } from '@percona/peak-ui';
 import { AlertsTableRow } from '../AlertsPage.types';
 import type { AlertSeverity as Severity } from 'types/alerting.types';
 import { Stack, Typography } from '@mui/material';
