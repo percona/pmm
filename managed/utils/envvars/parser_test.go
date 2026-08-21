@@ -20,7 +20,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -276,4 +279,64 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 	})
+}
+
+// TestSEPSecretsAreNotLogged pins the reason the SEP variables are a special case
+// rather than two more entries in the skip list: their values must not reach a log
+// at any level. The trace line that used to leak them carried the whole original
+// assignment, forty lines before the switch that meant to ignore these keys.
+//
+// Not parallel. It raises the standard logger's level and installs a global hook,
+// both of which are process-wide.
+func TestSEPSecretsAreNotLogged(t *testing.T) {
+	const (
+		token    = "bearer-value-that-must-not-be-logged"
+		password = "userinfo-password-that-must-not-be-logged"
+	)
+
+	logger := logrus.StandardLogger()
+
+	// Captured before NewGlobal, which appends to the global logger's hooks. Reset
+	// only clears the entries a hook has collected, so without restoring the set the
+	// hook would outlive this test and keep collecting for the rest of the binary.
+	// The slices are copied too, because Add appends to them.
+	previousHooks := logrus.LevelHooks{}
+	for level, hooks := range logger.Hooks {
+		previousHooks[level] = append([]logrus.Hook(nil), hooks...)
+	}
+	previousLevel := logger.GetLevel()
+
+	hook := test.NewGlobal()
+	// Tracef is where the value leaked.
+	logger.SetLevel(logrus.TraceLevel)
+
+	t.Cleanup(func() {
+		logger.SetLevel(previousLevel)
+		logger.ReplaceHooks(previousHooks)
+	})
+
+	envs := []string{
+		"PMM_SEP_TOKEN=" + token,
+		// Credentials in the userinfo are why the URL is redacted alongside the token.
+		"PMM_SEP_URL=https://sep:" + password + "@sep.example.com:8000",
+	}
+
+	gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+	assert.Equal(t, &models.ChangeSettingsParams{}, gotEnvVars)
+	assert.Nil(t, gotErrs)
+	assert.Nil(t, gotWarns)
+
+	entries := hook.AllEntries()
+	require.Len(t, entries, 2)
+
+	for _, entry := range entries {
+		line, err := entry.String()
+		require.NoError(t, err)
+		assert.NotContains(t, line, token)
+		assert.NotContains(t, line, password)
+	}
+
+	// Logged by name, which is what keeps the skip auditable at trace level.
+	assert.Contains(t, entries[0].Message, "PMM_SEP_TOKEN")
+	assert.Contains(t, entries[1].Message, "PMM_SEP_URL")
 }
