@@ -24,7 +24,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/sirupsen/logrus"
 
@@ -93,13 +92,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := servererror.NginxConsumer()
-	transport.Consumers = map[string]runtime.Consumer{
-		runtime.JSONMime:    runtime.JSONConsumer(),
-		runtime.HTMLMime:    errorConsumer,
-		runtime.TextMime:    errorConsumer,
-		runtime.DefaultMime: errorConsumer,
-	}
+	transport.Consumers = servererror.Consumers(nil)
 
 	// disable HTTP/2, set TLS config
 	apitransport.Configure(transport, u.Scheme, u.Hostname(), insecureTLS)

@@ -159,14 +159,9 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 	transport.SetDebug(globalFlags.EnableDebug || globalFlags.EnableTrace)
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := servererror.NginxConsumer()
-	transport.Consumers = map[string]runtime.Consumer{
-		runtime.JSONMime:    runtime.JSONConsumer(),
-		"application/zip":   runtime.ByteStreamConsumer(),
-		runtime.HTMLMime:    errorConsumer,
-		runtime.TextMime:    errorConsumer,
-		runtime.DefaultMime: errorConsumer,
-	}
+	transport.Consumers = servererror.Consumers(map[string]runtime.Consumer{
+		"application/zip": runtime.ByteStreamConsumer(),
+	})
 
 	// disable HTTP/2, set TLS config
 	apitransport.Configure(

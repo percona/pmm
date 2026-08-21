@@ -179,6 +179,27 @@ func NginxConsumer() runtime.ConsumerFunc {
 	}
 }
 
+// Consumers returns the go-openapi consumers pmm-admin and pmm-agent install on every transport
+// they use to reach an API: JSON for PMM Server's normal responses, and NginxConsumer for every
+// other content type nginx might answer with instead. extra is merged in on top, letting a
+// caller add a content type of its own - such as pmm-admin's binary downloads - without
+// reimplementing the shared part of the map; it may be nil.
+func Consumers(extra map[string]runtime.Consumer) map[string]runtime.Consumer {
+	errorConsumer := NginxConsumer()
+	consumers := map[string]runtime.Consumer{
+		runtime.JSONMime:    runtime.JSONConsumer(),
+		runtime.HTMLMime:    errorConsumer,
+		runtime.TextMime:    errorConsumer,
+		runtime.DefaultMime: errorConsumer,
+	}
+
+	for contentType, consumer := range extra {
+		consumers[contentType] = consumer
+	}
+
+	return consumers
+}
+
 // check interfaces.
 var (
 	_ error            = NginxError("")
