@@ -291,11 +291,70 @@ func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryCo
 	return &omv1.GetInventoryConfigResponse{Settings: inventorySettingsToProto(settings)}, nil
 }
 
+// Bounds on the shape of an update batch, not on its meaning.
+//
+// The app owns which keys exist and what values are legal, so these do not duplicate its
+// rules -- they bound how much structure may cross the hop at all. Both are orders of
+// magnitude above any real batch: the settings class this proxies has ten fields and
+// nests one level, SCHEDULE and its children.
+//
+// They are needed because neither hop bounds them. Measured against this tree:
+// protojson accepts 200k fields in a 2.3MB body, inside the 4MB default gRPC message
+// size, and nests to just under 10k before refusing. The app on the far side is Python,
+// where the default recursion limit is 1000, so forwarding either would make PMM the
+// thing that broke SEP. This endpoint is admin-only, which makes it a footgun rather
+// than an attack, but a 200k-key batch is an accident worth refusing by name.
+const (
+	maxConfigFields = 100
+	maxConfigDepth  = 10
+)
+
+// validateConfigValues refuses a batch that is empty, too wide, or too deeply nested.
+func validateConfigValues(values *structpb.Struct) error {
+	fields := values.GetFields()
+	switch {
+	case len(fields) == 0:
+		return status.Error(codes.InvalidArgument, "values must name at least one field to change")
+	case len(fields) > maxConfigFields:
+		return status.Errorf(codes.InvalidArgument,
+			"values names %d fields, at most %d may change in one call", len(fields), maxConfigFields)
+	}
+	for key, value := range fields {
+		if exceedsDepth(value, maxConfigDepth-1) {
+			return status.Errorf(codes.InvalidArgument,
+				"values.%s nests deeper than %d levels", key, maxConfigDepth)
+		}
+	}
+	return nil
+}
+
+// exceedsDepth reports whether value nests deeper than limit.
+//
+// It stops at the limit rather than measuring the true depth, so its own recursion is
+// bounded by maxConfigDepth however deep the input goes.
+func exceedsDepth(value *structpb.Value, limit int) bool {
+	if limit <= 0 {
+		return value.GetStructValue() != nil || value.GetListValue() != nil
+	}
+	for _, field := range value.GetStructValue().GetFields() {
+		if exceedsDepth(field, limit-1) {
+			return true
+		}
+	}
+	for _, element := range value.GetListValue().GetValues() {
+		if exceedsDepth(element, limit-1) {
+			return true
+		}
+	}
+	return false
+}
+
 // UpdateInventoryConfig applies a batch of configuration changes.
 //
 // The batch is passed through as the app received it and the app decides what is valid,
 // which is what keeps one set of validation rules rather than two. A single bad field
-// rejects the whole batch there and nothing is written.
+// rejects the whole batch there and nothing is written. Only the batch's shape is
+// checked here, by validateConfigValues.
 //
 // PUT here, PATCH to the app below, deliberately. PMM's API guidelines require the
 // standard Update method to be PUT and every other update in this repo is one; SEP
@@ -307,8 +366,9 @@ func (s *Service) UpdateInventoryConfig(ctx context.Context, req *omv1.UpdateInv
 	if err != nil {
 		return nil, err
 	}
-	if len(req.GetValues().GetFields()) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "values must name at least one field to change")
+	err = validateConfigValues(req.GetValues())
+	if err != nil {
+		return nil, err
 	}
 
 	applied := []sepSetting{}
