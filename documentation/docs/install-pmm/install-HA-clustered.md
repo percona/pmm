@@ -743,10 +743,14 @@ Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPerio
 ??? note "If you set `serviceAccount.create: false`, grant access to the VMCluster"
     PMM applies retention to metrics by patching `retentionPeriod` on the `VMCluster` resource. The chart creates the Role for this together with the service account, so with the default `serviceAccount.create: true` there is nothing to do.
 
-    If you supply your own service account, the PMM pods run under it instead, and you must grant that account `get` and `patch` on the `VMCluster`. Without those permissions, a retention change fails quietly: the UI accepts the new value and PMM stores it, but metrics keep their old retention. PMM retries every minute and records the failure in `/srv/logs/pmm-managed.log`, so check there if old metrics outlive the retention period you set:
+    With `serviceAccount.create: false` the chart creates neither the Role nor a `serviceAccountName` on the pods, so PMM runs under the namespace's `default` service account whatever `serviceAccount.name` says. Grant `default` the `get` and `patch` verbs on the `VMCluster`.
+
+    Without those permissions, a retention change fails quietly: the UI accepts the new value and PMM stores it, but metrics keep their old retention. Only the leader reconciles, and it logs the failure once per leadership term, so check every replica rather than just the first:
 
     ```sh
-    kubectl exec -n pmm pmm-ha-0 -- grep "data retention to VictoriaMetrics" /srv/logs/pmm-managed.log
+    for i in 0 1 2; do
+      kubectl exec -n pmm "pmm-ha-$i" -- grep component=vmretention /srv/logs/pmm-managed.log
+    done
     ```
 
 ### Review Helm parameters reference
