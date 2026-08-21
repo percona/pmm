@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"net/http"
 	"strings"
 
@@ -91,7 +92,7 @@ func WrapTLSError(err error, host string, insecureTLS bool) error {
 // API, so neither AuthHint nor a commands.ErrorResponse applies - with whichever hint fits: a
 // NginxError, when nginx answered instead of the API, gets NginxHint; anything else goes
 // through WrapTLSError, which is a no-op unless it was a certificate verification failure.
-// host is the address the certificate was checked against.
+// Host is the address the certificate was checked against.
 func Explain(err error, host string, insecureTLS bool) error {
 	if _, ok := errors.AsType[NginxError](err); ok {
 		return fmt.Errorf("%w\n%s", err, NginxHint)
@@ -194,7 +195,7 @@ func NginxConsumer() runtime.ConsumerFunc {
 
 // Consumers returns the go-openapi consumers pmm-admin and pmm-agent install on every transport
 // they use to reach an API: JSON for PMM Server's normal responses, and NginxConsumer for every
-// other content type nginx might answer with instead. extra is merged in on top, letting a
+// other content type nginx might answer with instead. Extra is merged in on top, letting a
 // caller add a content type of its own - such as pmm-admin's binary downloads - without
 // reimplementing the shared part of the map; it may be nil.
 func Consumers(extra map[string]runtime.Consumer) map[string]runtime.Consumer {
@@ -206,9 +207,7 @@ func Consumers(extra map[string]runtime.Consumer) map[string]runtime.Consumer {
 		runtime.DefaultMime: errorConsumer,
 	}
 
-	for contentType, consumer := range extra {
-		consumers[contentType] = consumer
-	}
+	maps.Copy(consumers, extra)
 
 	return consumers
 }

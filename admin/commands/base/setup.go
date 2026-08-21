@@ -71,9 +71,9 @@ var credentialPattern = regexp.MustCompile(`([^/@:\s]+):(?:[^/@\s][^@\s]*)?@`)
 
 // redactedServerURL returns raw with any password it carries replaced by a placeholder, so a
 // PMM Server URL can be logged without leaking its credentials - however malformed the URL
-// turns out to be. dsnutils.RedactDSN handles a well-formed URL cleanly; credentialPattern is a
-// defensive final pass over its result, for the opaque and unparseable cases RedactDSN leaves
-// untouched.
+// turns out to be. RedactDSN (utils/dsnutils) handles a well-formed URL cleanly; credentialPattern
+// is a defensive final pass over its result, for the opaque and unparseable cases RedactDSN
+// leaves untouched.
 func redactedServerURL(raw string) string {
 	return credentialPattern.ReplaceAllString(dsnutils.RedactDSN(raw), "$1:xxxxx@")
 }
