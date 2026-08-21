@@ -34,7 +34,9 @@ Skip TLS verification : {{ .Agent.TLSSkipVerify }}
 
 Disabled              : {{ .Agent.Disabled }}
 Custom labels         : {{ formatCustomLabels .Agent.CustomLabels }}
+{{ if .Agent.RtaOptions -}}
 Collect interval      : {{ .Agent.RtaOptions.CollectInterval }}
+{{ end -}}
 Log level             : {{ formatLogLevel .Agent.LogLevel }}
 `)
 
