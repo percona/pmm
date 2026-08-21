@@ -368,15 +368,18 @@ var mongoDBExporterReservedEnvVars = map[string]struct{}{
 // full-replace, so an exporter that already stores a reserved name (e.g. from before this check
 // existed) must still be able to resend it while changing other, unrelated names. Pass a nil
 // grandfathered when there is no existing agent to grandfather, such as on Add.
+// grandfathered matches case-sensitively (unlike the reserved-name check below, which is
+// case-insensitive on principle): a stored "mongodb_uri" is a different OS environment variable
+// from "MONGODB_URI" and must not grandfather a switch to the latter.
 // It is exported so every path that stores these names for a mongodb_exporter agent can apply the
 // same check, not just the inventory API.
 func ValidateMongoDBExporterEnvVarNames(names []string, grandfathered map[string]struct{}) error {
 	for _, name := range names {
-		normalized := strings.ToUpper(strings.TrimSpace(name))
-		if _, ok := grandfathered[normalized]; ok {
+		trimmed := strings.TrimSpace(name)
+		if _, ok := grandfathered[trimmed]; ok {
 			continue
 		}
-		if _, ok := mongoDBExporterReservedEnvVars[normalized]; ok {
+		if _, ok := mongoDBExporterReservedEnvVars[strings.ToUpper(trimmed)]; ok {
 			return status.Errorf(codes.InvalidArgument,
 				"environment variable name %q is set by pmm-agent for mongodb_exporter and cannot be selected", name)
 		}
@@ -400,7 +403,7 @@ func mongoDBExporterEnvVarNamesGrandfathered(q *reform.Querier, agentID string) 
 
 	grandfathered := make(map[string]struct{}, len(existing))
 	for _, name := range existing {
-		grandfathered[strings.ToUpper(strings.TrimSpace(name))] = struct{}{}
+		grandfathered[strings.TrimSpace(name)] = struct{}{}
 	}
 
 	return grandfathered, nil

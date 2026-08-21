@@ -1210,6 +1210,35 @@ func TestChangeMongoDBExporterEnvironmentVariableNames(t *testing.T) {
 		assert.Equal(t, []string{"MONGODB_URI", "KRB5_CONFIG"}, resp.GetMongodbExporter().EnvironmentVariableNames)
 	})
 
+	t.Run("GrandfatheringIsCaseSensitive", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		// A lowercase "mongodb_uri" is a different OS environment variable from the reserved
+		// "MONGODB_URI"; simulate an exporter that stored it before this check existed.
+		agent, err := models.FindAgentByID(as.db.Querier, agentID)
+		require.NoError(t, err)
+		require.NoError(t, agent.SetEnvironmentVariableNames([]string{"mongodb_uri"}))
+		require.NoError(t, models.UpdateAgent(as.db.Querier, agent))
+
+		// Resending the exact stored name must still succeed: it is grandfathered.
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"mongodb_uri"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"mongodb_uri"}, resp.GetMongodbExporter().EnvironmentVariableNames)
+
+		// Switching case to the actual reserved name must not be let through by grandfathering:
+		// it is a genuinely different, newly-selected name, not the one already stored.
+		_, err = as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"MONGODB_URI"}},
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+
 	t.Run("RejectsUngrandfatheredReservedNameOnReplace", func(t *testing.T) {
 		ss, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
