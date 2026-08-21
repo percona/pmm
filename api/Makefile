@@ -22,6 +22,7 @@ gen:            ## Generate PMM API
 		qan/v1 \
 		realtimeanalytics/v1 \
 		platform/v1 \
+		om/v1 \
 		ha/v1beta1"; \
 	for API in $$SPECS; do \
 		set -x ; \
@@ -40,7 +41,8 @@ gen:            ## Generate PMM API
 			--additional-initialism=realtimeanalytics \
 			--additional-initialism=rds \
 			--additional-initialism=sql \
-			--additional-initialism=ha ; \
+			--additional-initialism=ha \
+			--additional-initialism=om ; \
 	done
 
 	# generate public API spec, omit agentlocal and inventory (always private),
@@ -57,6 +59,7 @@ gen:            ## Generate PMM API
 		backup/v1/json/v1.json \
 		qan/v1/json/v1.json \
 		realtimeanalytics/v1/json/v1.json \
+		om/v1/json/v1.json \
 		ha/v1beta1/json/v1beta1.json
 	go tool swagger validate swagger/swagger.json
 
@@ -75,6 +78,7 @@ gen:            ## Generate PMM API
 		accesscontrol/v1beta1/json/v1beta1.json \
 		qan/v1/json/v1.json \
 		realtimeanalytics/v1/json/v1.json \
+		om/v1/json/v1.json \
 		ha/v1beta1/json/v1beta1.json
 
 	go tool swagger validate swagger/swagger-dev.json
@@ -119,6 +123,7 @@ clean: clean-swagger  ## Remove generated files
 		qan/v1 \
 		realtimeanalytics/v1 \
 		platform/v1 \
+		om/v1 \
 		ha/v1beta1"; \
 	for API in $$SPECS; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
