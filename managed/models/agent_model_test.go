@@ -102,6 +102,18 @@ func TestAgent(t *testing.T) {
 			assert.Equal(t, []string{"krb5-ktname", "KRB5_CONFIG"}, names)
 		})
 
+		t.Run("grandfathers a whitespace-padded legacy name stored before validation existed", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`[" krb5-ktname "]`)}
+
+			// The stored name carries whitespace from before any validation trimmed it; resending
+			// it trimmed (as any normal caller would) must still match the grandfathered value.
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"krb5-ktname", "KRB5_CONFIG"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"krb5-ktname", "KRB5_CONFIG"}, names)
+		})
+
 		t.Run("still rejects a new invalid name even with a grandfathered one present", func(t *testing.T) {
 			agent := &models.Agent{EnvironmentVariables: []byte(`["krb5-ktname"]`)}
 

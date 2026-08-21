@@ -474,7 +474,7 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	}
 	grandfathered := make(map[string]struct{}, len(existing))
 	for _, name := range existing {
-		grandfathered[name] = struct{}{}
+		grandfathered[strings.TrimSpace(name)] = struct{}{}
 	}
 
 	names, err = envvars.NormalizeNamesAllowing(names, grandfathered)
