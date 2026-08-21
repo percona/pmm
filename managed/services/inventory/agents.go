@@ -1928,7 +1928,7 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 			return err
 		}
 
-		updatedAgent, err := models.ChangeAgent(tx.Querier, agentID, params)
+		updatedAgent, err := models.ApplyAgentChange(tx.Querier, currentAgent, params)
 		if err != nil {
 			return err
 		}

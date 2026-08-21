@@ -1254,11 +1254,22 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 }
 
 // ChangeAgent changes agent parameters based on agent type.
-func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,maintidx
+func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) {
 	row, err := FindAgentByID(q, agentID)
 	if err != nil {
 		return nil, err
 	}
+
+	return ApplyAgentChange(q, row, params)
+}
+
+// ApplyAgentChange changes agent parameters on an already-loaded Agent row, based on agent type.
+//
+// Callers that already had to load the row to inspect it before changing it (e.g. to check its
+// type or a precondition) can pass it here directly, instead of ChangeAgent re-fetching the same
+// row from the database.
+func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,maintidx
+	var err error
 
 	// Handle common fields first
 	if params.Enabled != nil {
