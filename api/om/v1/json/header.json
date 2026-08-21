@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "PMM OpenManager API",
+    "title": "PMM OM API",
     "version": "v1"
   },
   "schemes": [

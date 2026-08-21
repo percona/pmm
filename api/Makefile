@@ -41,7 +41,8 @@ gen:            ## Generate PMM API
 			--additional-initialism=realtimeanalytics \
 			--additional-initialism=rds \
 			--additional-initialism=sql \
-			--additional-initialism=ha ; \
+			--additional-initialism=ha \
+			--additional-initialism=om ; \
 	done
 
 	# generate public API spec, omit agentlocal and inventory (always private),

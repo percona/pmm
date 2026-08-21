@@ -10,7 +10,7 @@ import (
 	"github.com/percona/pmm/api/om/v1/json/client/om_service"
 )
 
-// Default PMM open manager API HTTP client.
+// Default PMM OM API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -25,14 +25,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM open manager API HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMOpenManagerAPI {
+// NewHTTPClient creates a new PMM OM API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMOMAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM open manager API HTTP client,
+// NewHTTPClientWithConfig creates a new PMM OM API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMOpenManagerAPI {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMOMAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -43,16 +43,16 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM open manager API client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMOpenManagerAPI {
+// New creates a new PMM OM API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMOMAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMOpenManagerAPI)
+	cli := new(PMMOMAPI)
 	cli.Transport = transport
-	cli.OmService = om_service.New(transport, formats)
+	cli.OMService = om_service.New(transport, formats)
 	return cli
 }
 
@@ -95,15 +95,15 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMOpenManagerAPI is a client for PMM open manager API
-type PMMOpenManagerAPI struct {
-	OmService om_service.ClientService
+// PMMOMAPI is a client for PMM OM API
+type PMMOMAPI struct {
+	OMService om_service.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMOpenManagerAPI) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMOMAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.OmService.SetTransport(transport)
+	c.OMService.SetTransport(transport)
 }
