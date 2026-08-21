@@ -17,6 +17,7 @@ package realtimeanalytics
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -36,18 +37,18 @@ func createConnection(ctx context.Context, dsn string, files map[string]string, 
 	if files != nil {
 		err := tlshelpers.RegisterMySQLCerts(files, tlsSkipVerify)
 		if err != nil {
-			return nil, "", err
+			return nil, "", fmt.Errorf("failed to register MySQL TLS certificates: %w", err)
 		}
 	}
 
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("failed to parse MySQL DSN: %w", err)
 	}
 
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("failed to open MySQL connection: %w", err)
 	}
 
 	// The collector runs one query per interval, so a single long-lived connection
@@ -62,7 +63,7 @@ func createConnection(ctx context.Context, dsn string, files map[string]string, 
 	err = db.PingContext(pingCtx)
 	if err != nil {
 		_ = db.Close()
-		return nil, "", err
+		return nil, "", fmt.Errorf("failed to ping MySQL at %s: %w", cfg.Addr, err)
 	}
 
 	return db, cfg.Addr, nil

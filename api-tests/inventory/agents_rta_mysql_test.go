@@ -35,6 +35,9 @@ func TestRTAMySQLAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA MySQL Agent")).NodeID
+		t.Cleanup(func() {
+			pmmapitests.RemoveNodes(t, genericNodeID)
+		})
 
 		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
@@ -174,6 +177,9 @@ func TestRTAMySQLAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA MySQL partial update")).NodeID
+		t.Cleanup(func() {
+			pmmapitests.RemoveNodes(t, genericNodeID)
+		})
 
 		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
@@ -184,7 +190,14 @@ func TestRTAMySQLAgent(t *testing.T) {
 			},
 		})
 		serviceID := service.Mysql.ServiceID
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
+
 		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
+		t.Cleanup(func() {
+			pmmapitests.RemoveAgents(t, pmmAgentID)
+		})
 
 		res := pmmapitests.AddAgent(t, agents.AddAgentBody{
 			RtaMysqlAgent: &agents.AddAgentParamsBodyRtaMysqlAgent{
@@ -242,7 +255,14 @@ func TestRTAMySQLAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA MySQL Agent")).NodeID
+		t.Cleanup(func() {
+			pmmapitests.RemoveNodes(t, genericNodeID)
+		})
+
 		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
+		t.Cleanup(func() {
+			pmmapitests.RemoveAgents(t, pmmAgentID)
+		})
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -270,6 +290,9 @@ func TestRTAMySQLAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA MySQL Agent")).NodeID
+		t.Cleanup(func() {
+			pmmapitests.RemoveNodes(t, genericNodeID)
+		})
 
 		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
@@ -280,6 +303,9 @@ func TestRTAMySQLAgent(t *testing.T) {
 			},
 		})
 		serviceID := service.Mysql.ServiceID
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -306,7 +332,14 @@ func TestRTAMySQLAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA MySQL Agent")).NodeID
+		t.Cleanup(func() {
+			pmmapitests.RemoveNodes(t, genericNodeID)
+		})
+
 		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
+		t.Cleanup(func() {
+			pmmapitests.RemoveAgents(t, pmmAgentID)
+		})
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{
@@ -332,6 +365,9 @@ func TestRTAMySQLAgent(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for RTA MySQL Agent")).NodeID
+		t.Cleanup(func() {
+			pmmapitests.RemoveNodes(t, genericNodeID)
+		})
 
 		service := pmmapitests.AddService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
@@ -342,6 +378,9 @@ func TestRTAMySQLAgent(t *testing.T) {
 			},
 		})
 		serviceID := service.Mysql.ServiceID
+		t.Cleanup(func() {
+			pmmapitests.RemoveServices(t, serviceID)
+		})
 
 		res, err := client.Default.AgentsService.AddAgent(
 			&agents.AddAgentParams{

@@ -39,6 +39,10 @@ const AVAILABLE_SERVICE_TYPES: Record<
   mysql: ServiceType.mysql,
 };
 
+// The technologies RTA can monitor, kept in one place so every caller of
+// useAvailableServices asks for the same set and shares a single fetch.
+const RTA_SERVICE_TYPES = Object.values(AVAILABLE_SERVICE_TYPES);
+
 const KEYS = {
   LIST_SESSIONS: 'rta:list-sessions',
   START_SESSION: 'rta:start-session',
@@ -131,7 +135,9 @@ export const useStopSessions = (
 /**
  * Hook to get services (MongoDB, MySQL, ...) that don't have running RTA agents
  */
-export const useAvailableServices = (serviceTypes?: ServiceType[]) => {
+export const useAvailableServices = (
+  serviceTypes: ServiceType[] = RTA_SERVICE_TYPES
+) => {
   const { user } = useUser();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
@@ -139,7 +145,9 @@ export const useAvailableServices = (serviceTypes?: ServiceType[]) => {
     data: services = { mongodb: [], mysql: [] },
     isLoading: isLoadingServices,
   } = useQuery({
-    queryKey: [KEYS.AVAILABLE_SERVICES],
+    // The filter is part of the key: a caller asking for a narrower set of
+    // technologies must not be served another caller's wider response.
+    queryKey: [KEYS.AVAILABLE_SERVICES, serviceTypes],
     queryFn: () => getAvailableServices(serviceTypes),
     enabled: !!user,
   });
@@ -182,10 +190,10 @@ export const useRealtimeQueries = (
     queryKey: [KEYS.SEARCH_QUERIES, payload],
     queryFn: async () => (await searchQueries(payload)).queries,
     select: (data) =>
-      data.map((query) => ({
+      data.map(({ queryExecutionDuration, ...query }) => ({
         ...query,
-        queryExecutionDurationMs: query.queryExecutionDuration
-          ? parseDuration(query.queryExecutionDuration) / 1000
+        queryExecutionDurationMs: queryExecutionDuration
+          ? parseDuration(queryExecutionDuration) / 1000
           : null,
       })),
     ...options,

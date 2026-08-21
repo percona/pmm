@@ -21,16 +21,13 @@ import {
 } from 'utils/link.utils';
 import { sharedTechnology } from '../components/technology';
 import { RealtimeSelectionForm } from '../components/selection-form';
-import { ServiceType } from 'types/services.types';
 
 export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  // TODO: Add other service types when available
-  const { isLoading } = useAvailableServices([
-    ServiceType.mongodb,
-    ServiceType.mysql,
-  ]);
+  // The set of RTA technologies is the hook's default, so this shares the one
+  // fetch with the selection form below rather than issuing a second one.
+  const { isLoading } = useAvailableServices();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
 
