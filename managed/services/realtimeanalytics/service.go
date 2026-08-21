@@ -626,13 +626,21 @@ func (s *Service) convertAgentToSession(agent *models.Agent, service *models.Ser
 		sessionStatus = convertAgentStatusToSessionStatus(inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]))
 	}
 
+	// An interval is only persisted when the request carried one, so an agent
+	// left on the collector's default has none. Report its absence rather than
+	// dereferencing it or inventing a value the agent may not be using.
+	var collectInterval *durationpb.Duration
+	if agent.RTAOptions.CollectInterval != nil {
+		collectInterval = durationpb.New(*agent.RTAOptions.CollectInterval)
+	}
+
 	return &rtav1.Session{
 		ServiceId:       service.ServiceID,
 		ServiceName:     service.ServiceName,
 		ServiceType:     getProtoServiceType(service.ServiceType),
 		ClusterName:     service.Cluster,
 		StartTime:       timestamppb.New(agent.CreatedAt),
-		CollectInterval: durationpb.New(*agent.RTAOptions.CollectInterval),
+		CollectInterval: collectInterval,
 		Status:          sessionStatus,
 	}
 }
