@@ -77,6 +77,7 @@ type vmAlertExternalRules interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisordService interface {
 	UpdateConfiguration(settings *models.Settings) error
+	ProgramRunning(program string) bool
 }
 
 // telemetryService is a subset of methods of telemetry.Service used by this package.

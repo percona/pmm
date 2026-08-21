@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -321,4 +322,43 @@ func TestConvertDefaultRoleID(t *testing.T) {
 			assert.Equal(t, tt.want, convertDefaultRoleID(tt.roleID))
 		})
 	}
+}
+
+func TestUpdateStatus(t *testing.T) {
+	newServer := func(t *testing.T, initRunning bool) *Server {
+		t.Helper()
+
+		var sv mockSupervisordService
+		sv.Test(t)
+		sv.On("ProgramRunning", pmmInitProgram).Return(initRunning)
+
+		return &Server{
+			supervisord: &sv,
+			l:           logrus.WithField("component", "server-test"),
+		}
+	}
+
+	t.Run("done once pmm-init is no longer running", func(t *testing.T) {
+		res, err := newServer(t, false).UpdateStatus(t.Context(), &serverv1.UpdateStatusRequest{})
+		require.NoError(t, err)
+		assert.True(t, res.Done)
+	})
+
+	t.Run("not done while pmm-init is running", func(t *testing.T) {
+		res, err := newServer(t, true).UpdateStatus(t.Context(), &serverv1.UpdateStatusRequest{})
+		require.NoError(t, err)
+		assert.False(t, res.Done)
+	})
+
+	t.Run("deprecated fields are ignored and left at their defaults", func(t *testing.T) {
+		req := &serverv1.UpdateStatusRequest{}
+		req.AuthToken = "issued-by-the-previous-instance" //nolint:staticcheck
+		req.LogOffset = 1024                              //nolint:staticcheck
+
+		res, err := newServer(t, false).UpdateStatus(t.Context(), req)
+		require.NoError(t, err)
+		assert.True(t, res.Done, "an unverifiable auth token must still be accepted")
+		assert.Empty(t, res.LogLines, "the progress log is no longer served") //nolint:staticcheck
+		assert.Zero(t, res.LogOffset)                                         //nolint:staticcheck
+	})
 }

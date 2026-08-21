@@ -52,7 +52,7 @@ func TestDevContainer(t *testing.T) {
 				require.NoError(t, err)
 			}
 			// force update supervisor config
-			err = s.supervisorctl("update")
+			_, err = s.supervisorctl("update")
 			require.NoError(t, err)
 		}()
 
@@ -72,4 +72,17 @@ func TestDevContainer(t *testing.T) {
 		err = s.UpdateConfiguration(settings)
 		require.NoError(t, err)
 	})
+}
+
+func TestProgramRunning(t *testing.T) {
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+
+	s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
+	if s.supervisorctlPath == "" {
+		t.Skip("supervisorctl not found")
+	}
+
+	assert.True(t, s.ProgramRunning("nginx"))
+	assert.False(t, s.ProgramRunning("no-such-program"))
 }
