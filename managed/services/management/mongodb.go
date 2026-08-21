@@ -25,6 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/inventory"
 	"github.com/percona/pmm/managed/utils/duration"
 )
 
@@ -60,6 +61,10 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 
 		req.MetricsMode, err = supportedMetricsMode(req.MetricsMode, req.PmmAgentId)
 		if err != nil {
+			return err
+		}
+
+		if err = inventory.ValidateMongoDBExporterEnvVarNames(req.EnvironmentVariableNames); err != nil {
 			return err
 		}
 

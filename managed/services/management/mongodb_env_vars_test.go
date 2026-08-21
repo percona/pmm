@@ -22,6 +22,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -133,5 +135,74 @@ func TestAddMongoDBStoresEnvVarNamesForExporterOnly(t *testing.T) {
 		names, err := agent.GetEnvironmentVariableNames()
 		require.NoError(t, err)
 		assert.Equal(t, want, names, "agent type %s", agent.AgentType)
+	}
+}
+
+// AddMongoDB must apply the same reserved-name rejection as AgentsService.AddMongoDBExporter:
+// pmm-agent computes MONGODB_URI itself for mongodb_exporter, so a user-selected value here would
+// silently never take effect.
+func TestAddMongoDBRejectsReservedEnvVarName(t *testing.T) {
+	uuid.SetRand(&tests.IDReader{})
+	t.Cleanup(func() { uuid.SetRand(nil) })
+
+	ctx := logger.Set(context.Background(), t.Name())
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		assert.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	cc := &mockConnectionChecker{}
+	cc.Test(t)
+	sib := &mockServiceInfoBroker{}
+	sib.Test(t)
+	state := &mockAgentsStateUpdater{}
+	state.Test(t)
+	ar := &mockAgentsRegistry{}
+	ar.Test(t)
+	vmdb := &mockPrometheusService{}
+	vmdb.Test(t)
+	vc := &mockVersionCache{}
+	vc.Test(t)
+	grafanaClient := &mockGrafanaClient{}
+	grafanaClient.Test(t)
+	vmClient := &mockVictoriaMetricsClient{}
+	vmClient.Test(t)
+
+	t.Cleanup(func() {
+		cc.AssertExpectations(t)
+		sib.AssertExpectations(t)
+		state.AssertExpectations(t)
+		ar.AssertExpectations(t)
+		vmdb.AssertExpectations(t)
+		vc.AssertExpectations(t)
+		grafanaClient.AssertExpectations(t)
+		vmClient.AssertExpectations(t)
+	})
+
+	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+
+	_, err := s.AddService(ctx, &managementv1.AddServiceRequest{
+		Service: &managementv1.AddServiceRequest_Mongodb{
+			Mongodb: &managementv1.AddMongoDBServiceParams{
+				NodeId:                   models.PMMServerNodeID,
+				ServiceName:              "mgmt-test-mongo-env-vars-reserved",
+				Address:                  "127.0.0.1",
+				Port:                     27017,
+				PmmAgentId:               models.PMMServerAgentID,
+				Username:                 "username",
+				SkipConnectionCheck:      true,
+				MetricsMode:              managementv1.MetricsMode_METRICS_MODE_PULL,
+				EnvironmentVariableNames: []string{"MONGODB_URI"},
+			},
+		},
+	})
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+
+	agents, err := models.FindAgents(db.Querier, models.AgentFilters{})
+	require.NoError(t, err)
+	for _, agent := range agents {
+		assert.NotEqual(t, models.MongoDBExporterType, agent.AgentType, "rejected request must not persist an agent")
 	}
 }

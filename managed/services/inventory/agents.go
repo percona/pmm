@@ -363,9 +363,10 @@ var mongoDBExporterReservedEnvVars = map[string]struct{}{
 	"MONGODB_URI": {},
 }
 
-// validateMongoDBExporterEnvVarNames rejects environment variable names that pmm-agent reserves
-// for mongodb_exporter itself.
-func validateMongoDBExporterEnvVarNames(names []string) error {
+// ValidateMongoDBExporterEnvVarNames rejects environment variable names that pmm-agent reserves
+// for mongodb_exporter itself. It is exported so every path that stores these names for a
+// mongodb_exporter agent can apply the same check, not just the inventory API.
+func ValidateMongoDBExporterEnvVarNames(names []string) error {
 	for _, name := range names {
 		if _, ok := mongoDBExporterReservedEnvVars[strings.ToUpper(strings.TrimSpace(name))]; ok {
 			return status.Errorf(codes.InvalidArgument,
@@ -378,7 +379,7 @@ func validateMongoDBExporterEnvVarNames(names []string) error {
 
 // AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
 func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.AddAgentResponse, error) {
-	err := validateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames())
+	err := ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames())
 	if err != nil {
 		return nil, err
 	}
@@ -430,7 +431,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 	agentID string,
 	p *inventoryv1.ChangeMongoDBExporterParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
-	err := validateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames().GetValues())
+	err := ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames().GetValues())
 	if err != nil {
 		return nil, err
 	}
