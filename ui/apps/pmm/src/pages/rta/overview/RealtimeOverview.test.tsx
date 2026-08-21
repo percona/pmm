@@ -3,7 +3,9 @@ import { wrapWithQueryProvider } from 'utils/testUtils';
 import RealtimeOverview from './RealtimeOverview';
 import {
   TEST_MONGO_DB_QUERY_DATA,
+  TEST_MYSQL_QUERY_DATA,
   TEST_RAW_MONGO_DB_QUERY_DATA,
+  TEST_RAW_MYSQL_QUERY_DATA,
   TEST_REAL_TIME_SESSION,
   TEST_REAL_TIME_SESSION_2,
   TEST_REAL_TIME_SESSION_MYSQL,
@@ -36,6 +38,9 @@ vi.mock('api/rta', () => ({
 // technology has to line those up.
 const renderMySqlSelection = () => {
   getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+  // A MySQL selection must be fed MySQL queries, or the columns under test are
+  // resolved from the MongoDB payload and prove nothing about mySqlPayload.
+  searchQueries.mockResolvedValue({ queries: [TEST_RAW_MYSQL_QUERY_DATA] });
 
   return renderComponent({
     initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
@@ -101,26 +106,24 @@ describe('RealtimeOverview', () => {
     renderMySqlSelection();
 
     await waitFor(() =>
-      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
+      screen.getByTestId(`query-${TEST_MYSQL_QUERY_DATA.queryId}-host-cell`)
     );
 
     expect(
       screen.queryByTestId(
-        `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-database-cell`
+        `query-${TEST_MYSQL_QUERY_DATA.queryId}-database-cell`
       )
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByTestId(
-        `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-user-cell`
-      )
+      screen.queryByTestId(`query-${TEST_MYSQL_QUERY_DATA.queryId}-user-cell`)
     ).not.toBeInTheDocument();
   });
 
-  it('should render database and user columns from the payload once revealed', async () => {
+  it('should render database and user columns from the MySQL payload once revealed', async () => {
     renderMySqlSelection();
 
     await waitFor(() =>
-      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-host-cell`)
+      screen.getByTestId(`query-${TEST_MYSQL_QUERY_DATA.queryId}-host-cell`)
     );
 
     fireEvent.click(screen.getByLabelText('Show/Hide columns'));
@@ -130,13 +133,13 @@ describe('RealtimeOverview', () => {
     await waitFor(() =>
       expect(
         screen.getByTestId(
-          `query-${TEST_MONGO_DB_QUERY_DATA.queryId}-database-cell`
+          `query-${TEST_MYSQL_QUERY_DATA.queryId}-database-cell`
         )
-      ).toHaveTextContent('database-name')
+      ).toHaveTextContent('mysql-database')
     );
     expect(
-      screen.getByTestId(`query-${TEST_MONGO_DB_QUERY_DATA.queryId}-user-cell`)
-    ).toHaveTextContent('username');
+      screen.getByTestId(`query-${TEST_MYSQL_QUERY_DATA.queryId}-user-cell`)
+    ).toHaveTextContent('mysql-user');
   });
 
   it('should render elapsed time with millisecond precision, and 0 as a duration', async () => {

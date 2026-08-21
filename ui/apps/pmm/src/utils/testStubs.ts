@@ -217,3 +217,15 @@ export const TEST_RAW_MONGO_DB_QUERY_DATA: RawQueryData = {
   ...TEST_MONGO_DB_QUERY_DATA,
   queryExecutionDuration: '10s',
 };
+
+// Values here deliberately differ from the MongoDB stub's, so a test asserting
+// on them cannot be satisfied by the wrong payload.
+export const TEST_RAW_MYSQL_QUERY_DATA: RawQueryData = {
+  ...TEST_MYSQL_QUERY_DATA,
+  queryExecutionDuration: '10s',
+  mySqlPayload: {
+    ...TEST_MYSQL_QUERY_DATA.mySqlPayload!,
+    databaseName: 'mysql-database',
+    username: 'mysql-user',
+  },
+};
