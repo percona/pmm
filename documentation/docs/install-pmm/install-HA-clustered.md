@@ -740,9 +740,14 @@ Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPerio
 !!! note "Standalone PMM is unaffected"
     `PMM_DATA_RETENTION` is still the supported way to set retention on standalone PMM. Only the HA chart reserves the variable, because it derives it from `dataRetentionDays`.
 
-#### Common customizations
+??? note "If you set `serviceAccount.create: false`, grant access to the VMCluster"
+    PMM applies retention to metrics by patching `retentionPeriod` on the `VMCluster` resource. The chart creates the Role for this together with the service account, so with the default `serviceAccount.create: true` there is nothing to do.
 
-- **Metrics retention**: retention set in the PMM UI applies to metrics as well, because PMM updates `retentionPeriod` on the `VMCluster` resource. The chart creates the required Role only when `serviceAccount.create` and `victoriaMetrics.enabled` are both true. With `serviceAccount.create: false` the PMM pods run under the namespace's `default` service account, so grant that account `get` and `patch` on the `VMCluster`, or metrics retention will not change.
+    If you supply your own service account, the PMM pods run under it instead, and you must grant that account `get` and `patch` on the `VMCluster`. Without those permissions, a retention change fails quietly: the UI accepts the new value and PMM stores it, but metrics keep their old retention. PMM retries every minute and records the failure in `/srv/logs/pmm-managed.log`, so check there if old metrics outlive the retention period you set:
+
+    ```sh
+    kubectl exec -n pmm pmm-ha-0 -- grep "data retention to VictoriaMetrics" /srv/logs/pmm-managed.log
+    ```
 
 ### Review Helm parameters reference
 
@@ -752,6 +757,7 @@ Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPerio
 | `image.repository` | PMM server image repository | `percona/pmm-server` |
 | `image.tag` | PMM server image tag | `3.6.0` |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
+| `dataRetentionDays` | Data retention in whole days, applied to metrics and queries alike. Leave unset to manage retention from the PMM UI | unset |
 | `secret.create` | Create secret automatically | `false` |
 | `secret.name` | Name of the PMM secret | `pmm-secret` |
 | `storage.size` | PVC size | `10Gi` |
