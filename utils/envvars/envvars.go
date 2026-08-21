@@ -83,7 +83,8 @@ func NormalizeNamesAllowing(names []string, grandfathered map[string]struct{}) (
 		name = strings.TrimSpace(name)
 
 		if _, ok := grandfathered[name]; !ok {
-			if err := ValidateName(name); err != nil {
+			err := ValidateName(name)
+			if err != nil {
 				return nil, err
 			}
 		}
