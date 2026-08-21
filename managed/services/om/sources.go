@@ -331,7 +331,7 @@ func (r *metricsRun) observedAt(age float64) *time.Time {
 // A sample carrying no service_id label is skipped: it cannot be attributed to a service,
 // and guessing from the instance label is how generations get mixed.
 func (s metricsSource) each(ctx context.Context, result *SourceResult, query string, apply func(string, model.Metric, float64)) {
-	value, warnings, err := s.vm.Query(ctx, query, time.Now())
+	value, warnings, err := s.vm.Query(ctx, query, s.now)
 	if err != nil {
 		s.l.Warnf("query %q failed: %s", query, err)
 		result.Errors = append(result.Errors, RunError{

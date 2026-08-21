@@ -48,6 +48,8 @@ import { ageSeconds, isFailing, toHostRows } from './inventory';
 import {
   useForgetHost,
   useOmInventoryHosts,
+  useInvalidateEstateOnRefreshEnd,
+  useOmInventoryRuns,
   useRefreshInventory,
 } from './inventoryHooks';
 import { OmApiError } from './hooks';
@@ -379,6 +381,11 @@ function ForgetDialog({
 export function HostsPage() {
   const { data, isPending, isError, error } = useOmInventoryHosts();
   const refresh = useRefreshInventory();
+  // Both the per-row action and the estate-wide button below land here, and neither
+  // knows when its probe finished. Watching the newest run is what refetches these rows
+  // when it does.
+  const { data: runs } = useOmInventoryRuns();
+  useInvalidateEstateOnRefreshEnd(runs?.[0]?.status);
   const [forgetting, setForgetting] = useState<OmHostRow | null>(null);
   const columns = useColumns();
   const rows = useMemo(() => toHostRows(data), [data]);

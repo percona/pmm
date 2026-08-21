@@ -16,6 +16,11 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import {
+  OM_ROUTE_HOSTS,
+  OM_ROUTE_INVENTORY,
+  OM_ROUTE_SERVICES,
+} from '../src/constants';
 import { omBase } from '../src/useOmBase';
 
 const MOUNT = '/sep/om';
@@ -29,26 +34,24 @@ describe('omBase', () => {
     expect(omBase(`${MOUNT}/`)).toBe(MOUNT);
   });
 
-  // The regression: with a relative `to=""` the Clusters tab resolved to /runs
-  // and clicking it did nothing, so the only way back was the sidebar.
-  it('strips the runs segment so the Clusters tab can link back', () => {
-    expect(omBase(`${MOUNT}/runs`)).toBe(MOUNT);
-  });
-
-  it('strips the topology segment so the Overview link resolves to the mount', () => {
-    expect(omBase(`${MOUNT}/topology`)).toBe(MOUNT);
-  });
-
-  it('strips a cluster detail segment so the breadcrumb links back', () => {
-    expect(omBase(`${MOUNT}/clusters/cl_8087e8bb`)).toBe(MOUNT);
-  });
+  // The regression this exists for: with a relative `to=""` a tab resolved against
+  // the current child route and clicking it did nothing, so the only way back was
+  // the sidebar. These are the routes OmApp actually declares -- the cases here used
+  // to name `topology`, `runs` and `clusters/:id`, which no longer exist, so the suite
+  // passed while the patterns matched nothing that ships.
+  it.each([OM_ROUTE_SERVICES, OM_ROUTE_HOSTS, OM_ROUTE_INVENTORY])(
+    'strips the %s segment so an absolute link resolves to the mount',
+    (route) => {
+      expect(omBase(`${MOUNT}/${route}`)).toBe(MOUNT);
+    }
+  );
 
   it('does not care where the shell mounts the plugin', () => {
-    expect(omBase('/somewhere/else/runs')).toBe('/somewhere/else');
+    expect(omBase(`/somewhere/else/${OM_ROUTE_HOSTS}`)).toBe('/somewhere/else');
   });
 
-  // `clusters` alone is not a route OM declares; only `clusters/:id` is, so a
-  // bare segment must be left alone rather than half-stripped.
+  // Only the declared routes are stripped, so an unknown segment is left whole rather
+  // than half-stripped.
   it('leaves a path that matches no child route alone', () => {
     expect(omBase(`${MOUNT}/clusters`)).toBe(`${MOUNT}/clusters`);
   });

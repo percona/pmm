@@ -417,12 +417,26 @@ export function ServicesPage() {
   }
 
   if (isError) {
+    // The header stays, with its Sync action. A 503 here is the expected first-run
+    // state - the API says so when no collection has completed - and Sync is the way
+    // out, so a branch that rendered the alert alone left the reader on a page that
+    // named the fix and did not offer it.
     return (
-      <Alert severity="error">
-        {/* A 503 here is the expected first-run state, not a fault: the API says so
-            when no discovery has completed, and Sync is the way out. */}
-        {(error as Error)?.message ?? 'Could not load the topology.'}
-      </Alert>
+      <Box>
+        <OmHeader
+          title="Services"
+          subtitle={
+            <Typography variant="body2" color="text.secondary">
+              Every monitored MongoDB service: what PMM sees over the wire, and
+              what OM&apos;s probe found on the host.
+            </Typography>
+          }
+          actions={<SyncButton />}
+        />
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {(error as Error)?.message ?? 'Could not load the topology.'}
+        </Alert>
+      </Box>
     );
   }
 

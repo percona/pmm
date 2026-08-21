@@ -30,7 +30,6 @@ import { SepPage } from './sep/SepPage';
 // them that way), so drop the parent prefix and its separator.
 const relativeToNav = (path: string) => path.slice(PMM_NEW_NAV_PATH.length + 1);
 
-
 const router = createBrowserRouter(
   [
     {

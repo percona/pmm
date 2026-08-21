@@ -17,6 +17,7 @@ package om
 
 import (
 	"context"
+	"math"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -607,10 +608,16 @@ func observedDouble(observed map[string]any, key string) *wrapperspb.DoubleValue
 
 // observedInt32 reads one integer attribute out of a document.
 //
-// JSON numbers decode as float64, so this narrows rather than asserts.
+// JSON numbers decode as float64, so this narrows rather than asserts -- and a value that
+// will not fit is dropped rather than wrapped. Both callers are a port and a PID, where a
+// wrapped result reads as a plausible one: absent says "not collected", 4295 says a port
+// something is listening on.
 func observedInt32(observed map[string]any, key string) *wrapperspb.Int32Value {
 	value, ok := observed[key].(float64)
 	if !ok {
+		return nil
+	}
+	if math.IsNaN(value) || value < math.MinInt32 || value > math.MaxInt32 {
 		return nil
 	}
 	return wrapperspb.Int32(int32(value))
