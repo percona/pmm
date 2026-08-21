@@ -182,10 +182,6 @@ if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "
     echo "WARNING: ignoring PMM_ENABLE_SEP, the embedded PostgreSQL is not in use." >&2
 fi
 
-if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; }; then
-    echo "WARNING: not exposing a database to SEP, the embedded PostgreSQL is not in use." >&2
-fi
-
 # The reverse proxy is independent of which database SEP uses, so it is not nested
 # in the embedded-PostgreSQL branch above.
 declare SEP_NGINX_DIR=/etc/nginx/sep.d
