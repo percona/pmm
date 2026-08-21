@@ -138,8 +138,9 @@ func checkStatus(configFilepath string, l *logrus.Entry) (string, bool) {
 // that check was disabled.
 func registerErrorMessage(err error, host string, insecureTLS bool) string {
 	// Point the user at --server-insecure-tls when PMM Server presents a certificate we
-	// cannot verify - its shipped certificate is issued for localhost only.
-	err = servererror.WrapTLSError(err, host, insecureTLS)
+	// cannot verify - its shipped certificate is issued for localhost only - and append
+	// NginxHint if nginx answered instead of the API.
+	err = servererror.Explain(err, host, insecureTLS)
 
 	msg := err.Error()
 
@@ -154,12 +155,6 @@ func registerErrorMessage(err error, host string, insecureTLS bool) string {
 		if hint := servererror.AuthHint(e.Code(), e.Payload.Code); hint != "" {
 			msg += "\n" + hint
 		}
-	}
-
-	// Like the hints above, this one ends without punctuation: the caller prints the
-	// message followed by a period of its own.
-	if _, ok := errors.AsType[servererror.NginxError](err); ok {
-		msg += "\n" + servererror.NginxHint
 	}
 
 	return msg

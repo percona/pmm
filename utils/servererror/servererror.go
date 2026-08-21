@@ -87,6 +87,19 @@ func WrapTLSError(err error, host string, insecureTLS bool) error {
 		"or configure PMM Server with a certificate valid for that host", err, reason, InsecureTLSFlag)
 }
 
+// Explain decorates err - a failure seen while contacting PMM Server that never reached its
+// API, so neither AuthHint nor a commands.ErrorResponse applies - with whichever hint fits: a
+// NginxError, when nginx answered instead of the API, gets NginxHint; anything else goes
+// through WrapTLSError, which is a no-op unless it was a certificate verification failure.
+// host is the address the certificate was checked against.
+func Explain(err error, host string, insecureTLS bool) error {
+	if _, ok := errors.AsType[NginxError](err); ok {
+		return fmt.Errorf("%w\n%s", err, NginxHint)
+	}
+
+	return WrapTLSError(err, host, insecureTLS)
+}
+
 // AuthHint returns a sentence, without trailing punctuation, explaining an authentication
 // error reported by PMM Server. It returns an empty string when the response does not describe
 // one. The httpCode argument is the HTTP status and grpcCode the gRPC code carried in the
