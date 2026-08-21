@@ -982,7 +982,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 	err = row.SetEnvironmentVariableNames(params.EnvironmentVariableNames)
 	if err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
 	}
 
 	switch agentType {
@@ -1210,7 +1210,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	if params.EnvironmentVariableNames != nil {
 		err = row.SetEnvironmentVariableNames(*params.EnvironmentVariableNames)
 		if err != nil {
-			return nil, err
+			return nil, status.Errorf(codes.InvalidArgument, "%s", err)
 		}
 	}
 

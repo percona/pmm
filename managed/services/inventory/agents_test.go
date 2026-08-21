@@ -1151,6 +1151,41 @@ func TestChangeMongoDBExporterEnvironmentVariableNames(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 	})
+
+	t.Run("RejectsMalformedNameWithInvalidArgument", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", mock.Anything).Return(true)
+
+		// AddMongoDBExporter below fails validation before it ever calls RequestStateUpdate, so
+		// unlike the subtests above, no expectation is set up for it here.
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mongo-env-vars-malformed",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
+		})
+		require.NoError(t, err)
+
+		// Not reserved, but syntactically invalid: this fails inside models.CreateAgent, several
+		// layers below the reserved-name check, and must still surface as InvalidArgument rather
+		// than the codes.Unknown a plain, unwrapped error would produce.
+		_, err = as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
+			PmmAgentId:               pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:                ms.ServiceId,
+			Username:                 "username",
+			EnvironmentVariableNames: []string{"KRB5-KTNAME"},
+			SkipConnectionCheck:      true,
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
 }
 
 func TestChangeAgentConnectionCheck(t *testing.T) {
