@@ -1118,6 +1118,39 @@ func TestChangeMongoDBExporterEnvironmentVariableNames(t *testing.T) {
 		assert.True(t, resp.GetMongodbExporter().Disabled)
 		assert.Equal(t, []string{"KRB5_KTNAME"}, resp.GetMongodbExporter().EnvironmentVariableNames)
 	})
+
+	t.Run("RejectsReservedNameRegardlessOfCaseOrPadding", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", mock.Anything).Return(true)
+
+		// AddMongoDBExporter below fails validation before it ever calls RequestStateUpdate, so
+		// unlike the subtests above, no expectation is set up for it here.
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mongo-env-vars-reserved",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
+		})
+		require.NoError(t, err)
+
+		// Padded and mixed-case: a caller bypassing pmm-admin's own trimming must still be rejected.
+		_, err = as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
+			PmmAgentId:               pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:                ms.ServiceId,
+			Username:                 "username",
+			EnvironmentVariableNames: []string{" mongodb_uri "},
+			SkipConnectionCheck:      true,
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
 }
 
 func TestChangeAgentConnectionCheck(t *testing.T) {

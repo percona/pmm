@@ -367,7 +367,7 @@ var mongoDBExporterReservedEnvVars = map[string]struct{}{
 // for mongodb_exporter itself.
 func validateMongoDBExporterEnvVarNames(names []string) error {
 	for _, name := range names {
-		if _, ok := mongoDBExporterReservedEnvVars[strings.ToUpper(name)]; ok {
+		if _, ok := mongoDBExporterReservedEnvVars[strings.ToUpper(strings.TrimSpace(name))]; ok {
 			return status.Errorf(codes.InvalidArgument,
 				"environment variable name %q is set by pmm-agent for mongodb_exporter and cannot be selected", name)
 		}
