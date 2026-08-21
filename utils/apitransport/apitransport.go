@@ -25,6 +25,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"net/url"
 
 	httptransport "github.com/go-openapi/runtime/client"
 
@@ -51,6 +52,23 @@ func Configure(rt *httptransport.Runtime, scheme, hostname string, insecureTLS b
 // served over plain HTTP on the loopback interface and so needs no TLS configuration.
 func ConfigureLocal(rt *httptransport.Runtime) {
 	rt.Transport = clone(rt)
+}
+
+// SetAuth configures rt's authentication from u, the userinfo component of a PMM Server URL.
+// PMM Server accepts a service token or an API key as a bearer token; any other username is
+// sent as HTTP Basic Auth credentials. Does nothing if u is nil.
+func SetAuth(rt *httptransport.Runtime, u *url.Userinfo) {
+	if u == nil {
+		return
+	}
+
+	user := u.Username()
+	password, _ := u.Password()
+	if user == "service_token" || user == "api_key" {
+		rt.DefaultAuthentication = httptransport.BearerToken(password)
+	} else {
+		rt.DefaultAuthentication = httptransport.BasicAuth(user, password)
+	}
 }
 
 // clone returns a copy of rt's HTTP transport which speaks HTTP/1.1 only. Working on a copy is

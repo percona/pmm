@@ -154,15 +154,7 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(globalFlags.ServerURL.Host, globalFlags.ServerURL.Path, []string{globalFlags.ServerURL.Scheme})
-	if u := globalFlags.ServerURL.User; u != nil {
-		user := u.Username()
-		password, _ := u.Password()
-		if user == "service_token" || user == "api_key" {
-			transport.DefaultAuthentication = httptransport.BearerToken(password)
-		} else {
-			transport.DefaultAuthentication = httptransport.BasicAuth(user, password)
-		}
-	}
+	apitransport.SetAuth(transport, globalFlags.ServerURL.User)
 	transport.SetLogger(logrus.WithField("component", "server-transport"))
 	transport.SetDebug(globalFlags.EnableDebug || globalFlags.EnableTrace)
 

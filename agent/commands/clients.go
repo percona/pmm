@@ -88,15 +88,7 @@ func localReload() error {
 func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
-	if u.User != nil {
-		user := u.User.Username()
-		password, _ := u.User.Password()
-		if user == "service_token" || user == "api_key" {
-			transport.DefaultAuthentication = httptransport.BearerToken(password)
-		} else {
-			transport.DefaultAuthentication = httptransport.BasicAuth(user, password)
-		}
-	}
+	apitransport.SetAuth(transport, u.User)
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 
