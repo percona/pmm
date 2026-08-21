@@ -139,6 +139,29 @@ if [ ! -d "/srv/pmm-agent/tmp" ]; then
     install -d -m 770 /srv/pmm-agent/tmp
 fi
 
+# Resolved before postgres-sep, which sets the sep role's password, and sep-secrets,
+# which publishes it - both read it from the environment and neither can generate it for
+# the other. An operator value wins and is not persisted, so unsetting it returns to the
+# generated one rather than pinning whatever was passed once.
+if is_enabled "$PMM_ENABLE_SEP" && [ -z "$PMM_SEP_POSTGRES_PASSWORD" ]; then
+    declare SEP_PG_PASSWORD_FILE="/srv/.sep_postgres_password"
+
+    if [ ! -s "$SEP_PG_PASSWORD_FILE" ]; then
+        echo "Generating the PostgreSQL password for SEP..."
+        SEP_PG_TMP=$(mktemp "$SEP_PG_PASSWORD_FILE.XXXXXX")
+        openssl rand -hex 24 > "$SEP_PG_TMP"
+        mv "$SEP_PG_TMP" "$SEP_PG_PASSWORD_FILE"
+        unset SEP_PG_TMP
+    fi
+
+    chmod 600 "$SEP_PG_PASSWORD_FILE" 2> /dev/null ||
+        echo "WARNING: could not narrow $SEP_PG_PASSWORD_FILE to mode 600." >&2
+
+    PMM_SEP_POSTGRES_PASSWORD=$(< "$SEP_PG_PASSWORD_FILE")
+    export PMM_SEP_POSTGRES_PASSWORD
+    unset SEP_PG_PASSWORD_FILE
+fi
+
 if is_enabled "$PMM_HA_ENABLE"; then
     echo "Skipping embedded PostgreSQL migration in HA mode."
 elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
@@ -158,6 +181,15 @@ fi
 if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; }; then
     echo "WARNING: ignoring PMM_ENABLE_SEP, the embedded PostgreSQL is not in use." >&2
 fi
+
+# Unconditional: the script owns its own gates, so the files it published are still
+# removed on the start after PMM_ENABLE_SEP is cleared.
+bash /opt/ansible/roles/sep/files/sep-secrets
+
+# The last consumer has run, so drop the password before exec'ing supervisord: otherwise
+# every child inherits it, and pmm-managed-init logs each variable it is handed - name and
+# value - once PMM_TRACE is set.
+unset PMM_SEP_POSTGRES_PASSWORD
 
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1
