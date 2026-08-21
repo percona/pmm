@@ -106,6 +106,9 @@ type AlertExprParamDefinition struct {
 	Summary string    `json:"summary"`
 	Unit    ParamUnit `json:"unit"`
 	Type    ParamType `json:"type"`
+	// Overridable marks a float threshold parameter as eligible for per-node
+	// override via the dynamic-thresholds feature.
+	Overridable bool `json:"overridable,omitempty"`
 
 	FloatParam *FloatParam `json:"float_param"`
 	// BoolParam   *BoolParam   `json:"bool_param"`

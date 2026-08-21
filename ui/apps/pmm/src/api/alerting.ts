@@ -4,9 +4,11 @@ import {
   AlertmanagerSilence,
   GrafanaAlertQuery,
   GrafanaRulerRuleDTO,
+  ListNodeThresholdsResponse,
   PrometheusAlertRulesResponse,
+  SetNodeThresholdPayload,
 } from 'types/alerting.types';
-import { grafanaApi } from './api';
+import { api, grafanaApi } from './api';
 
 export const getPrometheusAlertRules = async () => {
   const response = await grafanaApi.get<PrometheusAlertRulesResponse>(
@@ -52,6 +54,38 @@ export const evalAlertQueries = async (data: GrafanaAlertQuery[]) => {
 export const getRulerRule = async (uid: string) => {
   const res = await grafanaApi.get<GrafanaRulerRuleDTO>(
     `/ruler/grafana/api/v1/rule/${uid}`
+  );
+  return res.data;
+};
+
+// Dynamic per-node thresholds — PMM backend endpoints (base URL `/v1/`).
+export const getNodeThresholds = async (nodeId: string) => {
+  const res = await api.get<ListNodeThresholdsResponse>(
+    `alerting/nodes/${encodeURIComponent(nodeId)}/thresholds`
+  );
+  return res.data;
+};
+
+export const setNodeThreshold = async (
+  nodeId: string,
+  payload: SetNodeThresholdPayload
+) => {
+  const res = await api.post(
+    `alerting/nodes/${encodeURIComponent(nodeId)}/thresholds`,
+    payload
+  );
+  return res.data;
+};
+
+export const deleteNodeThreshold = async (
+  nodeId: string,
+  ruleId: string,
+  paramName: string
+) => {
+  const res = await api.delete(
+    `alerting/nodes/${encodeURIComponent(nodeId)}/thresholds/${encodeURIComponent(
+      ruleId
+    )}/${encodeURIComponent(paramName)}`
   );
   return res.data;
 };

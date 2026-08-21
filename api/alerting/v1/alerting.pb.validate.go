@@ -416,6 +416,8 @@ func (m *ParamDefinition) validate(all bool) error {
 
 	// no validation rules for Type
 
+	// no validation rules for Overridable
+
 	switch v := m.Value.(type) {
 	case *ParamDefinition_Bool:
 		if v == nil {
@@ -2571,6 +2573,8 @@ func (m *CreateRuleResponse) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for RuleId
+
 	if len(errors) > 0 {
 		return CreateRuleResponseMultiError(errors)
 	}
@@ -2651,3 +2655,883 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateRuleResponseValidationError{}
+
+// Validate checks the field values on NodeThreshold with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *NodeThreshold) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on NodeThreshold with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in NodeThresholdMultiError, or
+// nil if none found.
+func (m *NodeThreshold) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *NodeThreshold) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for RuleId
+
+	// no validation rules for RuleTitle
+
+	// no validation rules for TemplateName
+
+	// no validation rules for ParamName
+
+	// no validation rules for Summary
+
+	// no validation rules for Unit
+
+	// no validation rules for DefaultValue
+
+	// no validation rules for EffectiveValue
+
+	// no validation rules for IsOverridden
+
+	if len(errors) > 0 {
+		return NodeThresholdMultiError(errors)
+	}
+
+	return nil
+}
+
+// NodeThresholdMultiError is an error wrapping multiple validation errors
+// returned by NodeThreshold.ValidateAll() if the designated constraints
+// aren't met.
+type NodeThresholdMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m NodeThresholdMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m NodeThresholdMultiError) AllErrors() []error { return m }
+
+// NodeThresholdValidationError is the validation error returned by
+// NodeThreshold.Validate if the designated constraints aren't met.
+type NodeThresholdValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e NodeThresholdValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e NodeThresholdValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e NodeThresholdValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e NodeThresholdValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e NodeThresholdValidationError) ErrorName() string { return "NodeThresholdValidationError" }
+
+// Error satisfies the builtin error interface
+func (e NodeThresholdValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sNodeThreshold.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = NodeThresholdValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = NodeThresholdValidationError{}
+
+// Validate checks the field values on ListNodeThresholdsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListNodeThresholdsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListNodeThresholdsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListNodeThresholdsRequestMultiError, or nil if none found.
+func (m *ListNodeThresholdsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListNodeThresholdsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+		err := ListNodeThresholdsRequestValidationError{
+			field:  "NodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return ListNodeThresholdsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListNodeThresholdsRequestMultiError is an error wrapping multiple validation
+// errors returned by ListNodeThresholdsRequest.ValidateAll() if the
+// designated constraints aren't met.
+type ListNodeThresholdsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListNodeThresholdsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListNodeThresholdsRequestMultiError) AllErrors() []error { return m }
+
+// ListNodeThresholdsRequestValidationError is the validation error returned by
+// ListNodeThresholdsRequest.Validate if the designated constraints aren't met.
+type ListNodeThresholdsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListNodeThresholdsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListNodeThresholdsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListNodeThresholdsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListNodeThresholdsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListNodeThresholdsRequestValidationError) ErrorName() string {
+	return "ListNodeThresholdsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListNodeThresholdsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListNodeThresholdsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListNodeThresholdsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListNodeThresholdsRequestValidationError{}
+
+// Validate checks the field values on ListNodeThresholdsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListNodeThresholdsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListNodeThresholdsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListNodeThresholdsResponseMultiError, or nil if none found.
+func (m *ListNodeThresholdsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListNodeThresholdsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetThresholds() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListNodeThresholdsResponseValidationError{
+						field:  fmt.Sprintf("Thresholds[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListNodeThresholdsResponseValidationError{
+						field:  fmt.Sprintf("Thresholds[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListNodeThresholdsResponseValidationError{
+					field:  fmt.Sprintf("Thresholds[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ListNodeThresholdsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListNodeThresholdsResponseMultiError is an error wrapping multiple
+// validation errors returned by ListNodeThresholdsResponse.ValidateAll() if
+// the designated constraints aren't met.
+type ListNodeThresholdsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListNodeThresholdsResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListNodeThresholdsResponseMultiError) AllErrors() []error { return m }
+
+// ListNodeThresholdsResponseValidationError is the validation error returned
+// by ListNodeThresholdsResponse.Validate if the designated constraints aren't met.
+type ListNodeThresholdsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListNodeThresholdsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListNodeThresholdsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListNodeThresholdsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListNodeThresholdsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListNodeThresholdsResponseValidationError) ErrorName() string {
+	return "ListNodeThresholdsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListNodeThresholdsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListNodeThresholdsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListNodeThresholdsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListNodeThresholdsResponseValidationError{}
+
+// Validate checks the field values on SetNodeThresholdRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetNodeThresholdRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetNodeThresholdRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetNodeThresholdRequestMultiError, or nil if none found.
+func (m *SetNodeThresholdRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetNodeThresholdRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+		err := SetNodeThresholdRequestValidationError{
+			field:  "NodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetRuleId()) < 1 {
+		err := SetNodeThresholdRequestValidationError{
+			field:  "RuleId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetParamName()) < 1 {
+		err := SetNodeThresholdRequestValidationError{
+			field:  "ParamName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Value
+
+	if len(errors) > 0 {
+		return SetNodeThresholdRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetNodeThresholdRequestMultiError is an error wrapping multiple validation
+// errors returned by SetNodeThresholdRequest.ValidateAll() if the designated
+// constraints aren't met.
+type SetNodeThresholdRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetNodeThresholdRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetNodeThresholdRequestMultiError) AllErrors() []error { return m }
+
+// SetNodeThresholdRequestValidationError is the validation error returned by
+// SetNodeThresholdRequest.Validate if the designated constraints aren't met.
+type SetNodeThresholdRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetNodeThresholdRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetNodeThresholdRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetNodeThresholdRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetNodeThresholdRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetNodeThresholdRequestValidationError) ErrorName() string {
+	return "SetNodeThresholdRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetNodeThresholdRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetNodeThresholdRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = SetNodeThresholdRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetNodeThresholdRequestValidationError{}
+
+// Validate checks the field values on SetNodeThresholdResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetNodeThresholdResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetNodeThresholdResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetNodeThresholdResponseMultiError, or nil if none found.
+func (m *SetNodeThresholdResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetNodeThresholdResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetThreshold()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SetNodeThresholdResponseValidationError{
+					field:  "Threshold",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SetNodeThresholdResponseValidationError{
+					field:  "Threshold",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetThreshold()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SetNodeThresholdResponseValidationError{
+				field:  "Threshold",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return SetNodeThresholdResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetNodeThresholdResponseMultiError is an error wrapping multiple validation
+// errors returned by SetNodeThresholdResponse.ValidateAll() if the designated
+// constraints aren't met.
+type SetNodeThresholdResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetNodeThresholdResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetNodeThresholdResponseMultiError) AllErrors() []error { return m }
+
+// SetNodeThresholdResponseValidationError is the validation error returned by
+// SetNodeThresholdResponse.Validate if the designated constraints aren't met.
+type SetNodeThresholdResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetNodeThresholdResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetNodeThresholdResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetNodeThresholdResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetNodeThresholdResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetNodeThresholdResponseValidationError) ErrorName() string {
+	return "SetNodeThresholdResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetNodeThresholdResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetNodeThresholdResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = SetNodeThresholdResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetNodeThresholdResponseValidationError{}
+
+// Validate checks the field values on DeleteNodeThresholdRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteNodeThresholdRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteNodeThresholdRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteNodeThresholdRequestMultiError, or nil if none found.
+func (m *DeleteNodeThresholdRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteNodeThresholdRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+		err := DeleteNodeThresholdRequestValidationError{
+			field:  "NodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetRuleId()) < 1 {
+		err := DeleteNodeThresholdRequestValidationError{
+			field:  "RuleId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetParamName()) < 1 {
+		err := DeleteNodeThresholdRequestValidationError{
+			field:  "ParamName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return DeleteNodeThresholdRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// DeleteNodeThresholdRequestMultiError is an error wrapping multiple
+// validation errors returned by DeleteNodeThresholdRequest.ValidateAll() if
+// the designated constraints aren't met.
+type DeleteNodeThresholdRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteNodeThresholdRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteNodeThresholdRequestMultiError) AllErrors() []error { return m }
+
+// DeleteNodeThresholdRequestValidationError is the validation error returned
+// by DeleteNodeThresholdRequest.Validate if the designated constraints aren't met.
+type DeleteNodeThresholdRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteNodeThresholdRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteNodeThresholdRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteNodeThresholdRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteNodeThresholdRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteNodeThresholdRequestValidationError) ErrorName() string {
+	return "DeleteNodeThresholdRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteNodeThresholdRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteNodeThresholdRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = DeleteNodeThresholdRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteNodeThresholdRequestValidationError{}
+
+// Validate checks the field values on DeleteNodeThresholdResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *DeleteNodeThresholdResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DeleteNodeThresholdResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// DeleteNodeThresholdResponseMultiError, or nil if none found.
+func (m *DeleteNodeThresholdResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DeleteNodeThresholdResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return DeleteNodeThresholdResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// DeleteNodeThresholdResponseMultiError is an error wrapping multiple
+// validation errors returned by DeleteNodeThresholdResponse.ValidateAll() if
+// the designated constraints aren't met.
+type DeleteNodeThresholdResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DeleteNodeThresholdResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DeleteNodeThresholdResponseMultiError) AllErrors() []error { return m }
+
+// DeleteNodeThresholdResponseValidationError is the validation error returned
+// by DeleteNodeThresholdResponse.Validate if the designated constraints
+// aren't met.
+type DeleteNodeThresholdResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e DeleteNodeThresholdResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e DeleteNodeThresholdResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e DeleteNodeThresholdResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e DeleteNodeThresholdResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e DeleteNodeThresholdResponseValidationError) ErrorName() string {
+	return "DeleteNodeThresholdResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e DeleteNodeThresholdResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sDeleteNodeThresholdResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = DeleteNodeThresholdResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = DeleteNodeThresholdResponseValidationError{}

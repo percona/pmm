@@ -1029,6 +1029,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	alertingService.CollectTemplates(ctx)
 
+	// Exposes pmm_alert_threshold, the per-node effective threshold for
+	// dynamic-threshold alert rules (scraped via /debug/metrics).
+	alertThresholdMetricsCollector := alerting.NewAlertThresholdMetricsCollector(db)
+	prom.MustRegister(alertThresholdMetricsCollector)
+
 	agentService := agents.NewAgentService(agentsRegistry)
 
 	versioner := agents.NewVersionerService(agentsRegistry)

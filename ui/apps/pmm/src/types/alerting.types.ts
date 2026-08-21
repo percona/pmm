@@ -228,3 +228,30 @@ export interface GrafanaRulerRuleDTO {
   annotations?: GrafanaRulerAnnotations;
   labels?: GrafanaRulerLabels;
 }
+
+// Dynamic per-node alert thresholds (PMM backend /v1/alerting/nodes/... API).
+// Field names are camelCase because the shared `api` client applies
+// axios-case-converter to the snake_case wire format.
+export interface NodeThreshold {
+  ruleId: string;
+  ruleTitle: string;
+  templateName: string;
+  paramName: string;
+  summary: string;
+  // ParamUnit enum string, e.g. "PARAM_UNIT_PERCENTAGE".
+  unit: string;
+  defaultValue: number;
+  // Effective value for the node: the override when set, otherwise the default.
+  effectiveValue: number;
+  isOverridden: boolean;
+}
+
+export interface ListNodeThresholdsResponse {
+  thresholds: NodeThreshold[];
+}
+
+export interface SetNodeThresholdPayload {
+  ruleId: string;
+  paramName: string;
+  value: number;
+}
