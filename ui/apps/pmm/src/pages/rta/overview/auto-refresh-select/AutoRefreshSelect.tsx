@@ -41,6 +41,7 @@ const AutoRefreshSelect: FC<Props> = ({
         isFetching ? (
           <ElectricBoltIcon
             color="inherit"
+            fontSize="inherit"
             sx={{ animation: `${fadeInOut} 1.2s infinite` }}
           />
         ) : (

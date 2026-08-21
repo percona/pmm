@@ -77,12 +77,16 @@ To install PMM HA:
         --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
         --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
+        --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
+        --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
         --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
         --from-literal=VMAGENT_remoteWrite_basicAuth_password="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
         --from-literal=GF_PASSWORD="grafana-password" \
         --namespace pmm
       ```
+
+      `PMM_CLICKHOUSE_DATASOURCE_*` must use a read-only ClickHouse user, separate from `PMM_CLICKHOUSE_USER`. Create it on your ClickHouse cluster first. See [Restrict the ClickHouse data source to a read-only user](../reference/third-party/clickhouse.md#restrict-the-clickhouse-data-source-to-a-read-only-user).
 
     5. Install PMM HA:
       ```sh
@@ -201,6 +205,8 @@ To install PMM HA:
           --from-literal=PMM_ADMIN_PASSWORD="your-secure-password" \
           --from-literal=PMM_CLICKHOUSE_USER="clickhouse_pmm" \
           --from-literal=PMM_CLICKHOUSE_PASSWORD="your-clickhouse-password" \
+          --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
+          --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="your-clickhouse-readonly-password" \
           --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
           --from-literal=VMAGENT_remoteWrite_basicAuth_password="your-vm-password" \
           --from-literal=PG_PASSWORD="your-postgres-password" \
@@ -225,6 +231,8 @@ To install PMM HA:
           PMM_ADMIN_PASSWORD: "your-secure-password"
           PMM_CLICKHOUSE_USER: "clickhouse_pmm"
           PMM_CLICKHOUSE_PASSWORD: "your-clickhouse-password"
+          PMM_CLICKHOUSE_DATASOURCE_USER: "clickhouse_pmm_readonly"
+          PMM_CLICKHOUSE_DATASOURCE_PASSWORD: "your-clickhouse-readonly-password"
           VMAGENT_remoteWrite_basicAuth_username: "victoriametrics_pmm"
           VMAGENT_remoteWrite_basicAuth_password: "your-vm-password"
           PG_PASSWORD: "your-postgres-password"
@@ -679,40 +687,62 @@ pmmResources:
 
 ### Customize environment variables
 
-PMM HA uses environment variables to control its behavior. The HA-specific variables are pre-configured for optimal cluster operation, while data retention and other settings can be customized to match your requirements.
+PMM HA uses environment variables to control its behavior. Some are pre-configured by the Helm chart and should stay as they are. Others, like data retention, you can adjust to match your requirements.
 
 #### Pre-configured HA variables
 
-These variables are automatically set and manage critical cluster functions like leader election, gossip communication, and database integration:
+The Helm chart sets these variables automatically. They control how the replicas find each other, elect a leader, and connect to the shared databases. 
+
+Leave these values unchanged, as modifying them can break the cluster:
 
 ```yaml
 pmmEnv:
-  PMM_ENABLE_UPDATES: "0"                   # Updates managed via Helm (not UI)
+  PMM_ENABLE_UPDATES: "0"                   # Disables UI updates, which would upgrade one replica only. Update via Helm to keep all replicas in sync
   PMM_HA_ENABLE: "1"                        # Enable HA clustering
   PMM_HA_GOSSIP_PORT: "9096"                # Gossip protocol port
   PMM_HA_RAFT_PORT: "9097"                  # Raft consensus port
   PMM_HA_GRAFANA_GOSSIP_PORT: "9094"        # Grafana gossip port
-  PMM_DISABLE_BUILTIN_CLICKHOUSE: "1"       # Use external ClickHouse
-  PMM_DISABLE_BUILTIN_POSTGRES: "1"         # Use external PostgreSQL
+  PMM_DISABLE_BUILTIN_CLICKHOUSE: "1"       # Disables the ClickHouse inside the pmm-server pod so PMM uses the HA cluster. Does not enable external databases
+  PMM_DISABLE_BUILTIN_POSTGRES: "1"         # Disables the PostgreSQL inside the pmm-server pod so PMM uses the HA cluster. Does not enable external databases
   PMM_CLICKHOUSE_IS_CLUSTER: "1"            # Enable ClickHouse clustering
 ```
 
-These variables are tested and validated for the HA architecture - modifying them is not recommended. PMM updates are managed through Helm chart upgrades rather than the UI to ensure consistency across all replicas.
+#### External databases are not supported
 
-#### Customizable settings
+PMM HA comes with its own ClickHouse, VictoriaMetrics, and PostgreSQL. They run as separate pods, but they belong to the PMM deployment: the Helm chart sets them up and keeps them running for you.
 
-Adjust these variables in your `values.yaml` to match your monitoring requirements:
+You can't swap these databases for ones you run yourself, like an existing ClickHouse cluster or RDS. The chart controls where PMM connects, and that can't be changed.
+
+If you're used to standalone PMM, note that `PMM_DISABLE_BUILTIN_CLICKHOUSE` and `PMM_DISABLE_BUILTIN_POSTGRES` work differently here. In standalone, they let you switch to your own database. In HA, they're part of the internal setup and must stay set to `1`.
+
+#### Adjust data retention and other settings
+
+Set customizable variables in your `values.yaml` to match your monitoring requirements:
+
 ```yaml
-  pmmEnv:
-    PMM_DEBUG: "1"
-    # Add other environment variables as needed
+pmmEnv:
+  PMM_DEBUG: "1"
+  # Add other environment variables as needed
 ```
+
+For all available variables, see [PMM environment variables](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md).
+
+Data retention is the exception: in HA it is a chart-level value rather than a `pmmEnv` entry. Change it in the PMM UI under **Configuration > Settings > Advanced settings**, or pin it declaratively with the top-level `dataRetentionDays`. Choose a period that matches your compliance requirements and storage capacity:
+
+```yaml
+dataRetentionDays: 30   # Whole days. Use 180 for six months
+```
+
+The chart renders this value into `PMM_DATA_RETENTION` on every replica, so all of them agree on one retention period. As on standalone PMM, a retention value supplied through the environment takes precedence over the UI, so while `dataRetentionDays` is set the **Advanced settings** field is rejected. Remove it and upgrade again to hand control back to the UI.
+
+Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPeriod` yourself is rejected, because either one lets the replicas disagree about retention and purge on their own schedules.
+
+!!! note "Standalone PMM is unaffected"
+    `PMM_DATA_RETENTION` is still the supported way to set retention on standalone PMM. Only the HA chart reserves the variable, because it derives it from `dataRetentionDays`.
 
 #### Common customizations
 
-- **Data retention**: change it in the PMM UI under **Configuration > Settings > Advanced settings**, or pin it declaratively with the top-level `dataRetentionDays` (whole days, for example `dataRetentionDays: 30`). Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPeriod` is rejected, because PMM manages both stores itself.
 - **Metrics retention**: retention set in the PMM UI applies to metrics as well, because PMM updates `retentionPeriod` on the `VMCluster` resource. The chart creates the required Role only when `serviceAccount.create` and `victoriaMetrics.enabled` are both true. With `serviceAccount.create: false` the PMM pods run under the namespace's `default` service account, so grant that account `get` and `patch` on the `VMCluster`, or metrics retention will not change.
-- **Additional variables**: See [PMM environment variables documentation](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md) for all available options.
 
 ### Review Helm parameters reference
 
@@ -1067,7 +1097,7 @@ We are aware of the following issues in this Tech Preview version and plan to fi
 | **[PMM-14705](https://perconadev.atlassian.net/browse/PMM-14705)**: CLI-added services show no metrics | Services from `pmm-admin` appear as UNSPECIFIED, dashboards empty (QAN works) | Add services via PMM UI instead |
 | **[PMM-14706](https://perconadev.atlassian.net/browse/PMM-14706)**: Extra 'pmm-' prefix | PostgreSQL nodes show as `pmm-pmm-ha-pg-...` | Cosmetic only - no action needed |
 | **[PMM-14707](https://perconadev.atlassian.net/browse/PMM-14707)**: Wrong PostgreSQL status | Inventory shows FAILED/UNSPECIFIED despite working metrics | Check dashboards to verify metrics flow |
-| **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |                                   |
+| **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |
 
 ### Scaling limitations
 
