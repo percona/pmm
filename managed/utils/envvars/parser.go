@@ -45,6 +45,16 @@ const (
 	EnvVMStoragePrefix = "VMSTORAGE_"
 )
 
+// secretEnvVars are the variables whose *values* must not be logged.
+//
+// PMM_SEP_TOKEN is a bearer for SEP. PMM_SEP_URL is here too because a URL can carry
+// credentials in its userinfo, and a redaction rule that depends on nobody ever writing
+// one that way is not a rule.
+var secretEnvVars = map[string]bool{
+	"PMM_SEP_URL":   true,
+	"PMM_SEP_TOKEN": true,
+}
+
 // InvalidDurationError invalid duration error.
 type InvalidDurationError string
 
@@ -82,6 +92,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		}
 
 		k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
+		if secretEnvVars[k] {
+			// Logged by name only. The trace line below carries `env`, which is the whole
+			// original assignment, so tracing one of these would put a bearer token or a
+			// URL with credentials in it into the log. The switch below skips these keys
+			// anyway; this has to come first because the logging does.
+			logrus.Tracef("ParseEnvVars: %#q: value not logged", k)
+			continue
+		}
 		logrus.Tracef("ParseEnvVars: %#q: k=%#q v=%#q", env, k, v)
 
 		var err error
@@ -122,6 +140,11 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			continue
 		case "PMM_ENABLE_SEP", "PMM_SEP_POSTGRES_PASSWORD":
 			// skip env variables consumed by the entrypoint to expose postgres to SEP
+			continue
+		case "PMM_SEP_URL", "PMM_SEP_TOKEN":
+			// Unreachable: both are skipped above, before the trace line, so their values
+			// never reach a log. Kept so the list of "not a server setting" keys stays
+			// complete in the one place a reader looks for it.
 			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable

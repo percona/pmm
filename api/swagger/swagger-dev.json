@@ -5223,7 +5223,7 @@
           "HAService"
         ],
         "summary": "List HA Nodes",
-        "operationId": "ListNodesMixin12",
+        "operationId": "ListNodesMixin13",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -29057,6 +29057,2795 @@
         }
       }
     },
+    "/v1/om/inventory/config": {
+      "get": {
+        "description": "Returns every configuration field of the inventory app, its effective value, and whether an override is in effect.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get the inventory configuration",
+        "operationId": "GetInventoryConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetInventoryConfigResponse returns the inventory app's configuration.",
+              "type": "object",
+              "properties": {
+                "settings": {
+                  "description": "Every field, whether or not it is overridden.",
+                  "type": "array",
+                  "items": {
+                    "description": "InventorySetting is one of the inventory app's configuration fields.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "description": "The field name. Nested fields arrive `__`-delimited, e.g. SCHEDULE__every.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "description": "The value in effect.",
+                        "x-order": 1
+                      },
+                      "default_value": {
+                        "description": "What it would be with no override.",
+                        "x-order": 2
+                      },
+                      "type": {
+                        "description": "The field's type, for rendering an input. A string because the app's own schema\nnames it, so this contract does not get to enumerate the possibilities.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "reload": {
+                        "description": "SettingReload is how a configuration field may be overridden, if at all.\n\nMirrors the app's own three-valued classification rather than collapsing it to\neditable/not. NESTED_ONLY is the one that would be lost: the parent object rejects a\nwhole-object write while its children accept one, so a form that read it as\n\"not overridable\" would refuse to edit a leaf the API would have accepted.\n\nThe distinction a form has to respect: rendering a NOT_OVERRIDABLE field as editable\npromises a change the API cannot deliver.\n\n - SETTING_RELOAD_HOT: Overridable at runtime; the new value takes effect on the next snapshot refresh.\n - SETTING_RELOAD_NESTED_ONLY: A nested object whose children are overridable, but which rejects being written\nwhole.\n - SETTING_RELOAD_NOT_OVERRIDABLE: Not overridable at all: YAML and environment variables remain the only sources.",
+                        "type": "string",
+                        "default": "SETTING_RELOAD_UNSPECIFIED",
+                        "enum": [
+                          "SETTING_RELOAD_UNSPECIFIED",
+                          "SETTING_RELOAD_HOT",
+                          "SETTING_RELOAD_NESTED_ONLY",
+                          "SETTING_RELOAD_NOT_OVERRIDABLE"
+                        ],
+                        "x-order": 4
+                      },
+                      "has_override": {
+                        "description": "Whether an override is in effect, which is how \"why is it set to this\" is\nanswerable without also reading the deployment's configuration file.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "is_advanced": {
+                        "description": "Whether to hide it behind an \"advanced\" disclosure.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "description": {
+                        "description": "The field's documentation, where it has any.",
+                        "type": "string",
+                        "x-order": 7
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Applies a batch of configuration changes atomically: one invalid field rejects the whole batch and writes nothing. Only runtime-changeable fields are accepted.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Change the inventory configuration",
+        "operationId": "UpdateInventoryConfig",
+        "parameters": [
+          {
+            "description": "The fields to change, as `{key: value}`.\n\nA map of arbitrary JSON rather than named fields, because the app owns which\nfields exist and what they are typed as; mirroring them here would mean a proto\nchange and a `make gen` every time it grows a setting. The app validates and\nrejects the batch as a whole.\n\nBound to the HTTP body directly (`body: \"values\"`, not `body: \"*\"`), so the request\nthis endpoint takes is the same object it forwards. The alternative wraps it as\n`{\"values\": {...}}`, which would make the proxy's shape differ from the shape of the\nthing being proxied for no gain to anyone reading either.\n\nA `Struct` carries no field rules, so \"name at least one field\" is enforced in the\nhandler rather than declared here -- the only precondition on this surface that a\ngenerated validator does not express.",
+            "name": "values",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "UpdateInventoryConfigResponse returns the configuration as it now stands.",
+              "type": "object",
+              "properties": {
+                "settings": {
+                  "description": "Every field, not only the ones the request named.\n\nThe whole resource, because an Update answers with the resource. It is also the only\nhonest answer for a nested write: overriding a parent object changes what its\nchildren effectively resolve to, and a response scoped to the submitted keys would\nreport the parent and leave a stale child beside it.",
+                  "type": "array",
+                  "items": {
+                    "description": "InventorySetting is one of the inventory app's configuration fields.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "description": "The field name. Nested fields arrive `__`-delimited, e.g. SCHEDULE__every.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "description": "The value in effect.",
+                        "x-order": 1
+                      },
+                      "default_value": {
+                        "description": "What it would be with no override.",
+                        "x-order": 2
+                      },
+                      "type": {
+                        "description": "The field's type, for rendering an input. A string because the app's own schema\nnames it, so this contract does not get to enumerate the possibilities.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "reload": {
+                        "description": "SettingReload is how a configuration field may be overridden, if at all.\n\nMirrors the app's own three-valued classification rather than collapsing it to\neditable/not. NESTED_ONLY is the one that would be lost: the parent object rejects a\nwhole-object write while its children accept one, so a form that read it as\n\"not overridable\" would refuse to edit a leaf the API would have accepted.\n\nThe distinction a form has to respect: rendering a NOT_OVERRIDABLE field as editable\npromises a change the API cannot deliver.\n\n - SETTING_RELOAD_HOT: Overridable at runtime; the new value takes effect on the next snapshot refresh.\n - SETTING_RELOAD_NESTED_ONLY: A nested object whose children are overridable, but which rejects being written\nwhole.\n - SETTING_RELOAD_NOT_OVERRIDABLE: Not overridable at all: YAML and environment variables remain the only sources.",
+                        "type": "string",
+                        "default": "SETTING_RELOAD_UNSPECIFIED",
+                        "enum": [
+                          "SETTING_RELOAD_UNSPECIFIED",
+                          "SETTING_RELOAD_HOT",
+                          "SETTING_RELOAD_NESTED_ONLY",
+                          "SETTING_RELOAD_NOT_OVERRIDABLE"
+                        ],
+                        "x-order": 4
+                      },
+                      "has_override": {
+                        "description": "Whether an override is in effect, which is how \"why is it set to this\" is\nanswerable without also reading the deployment's configuration file.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "is_advanced": {
+                        "description": "Whether to hide it behind an \"advanced\" disclosure.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "description": {
+                        "description": "The field's documentation, where it has any.",
+                        "type": "string",
+                        "x-order": 7
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/config/overrides/{key}": {
+      "delete": {
+        "description": "Removes the override for one field so it returns to whatever the deployment configured. Idempotent.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Revert an inventory configuration field",
+        "operationId": "DeleteInventoryConfigOverride",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The field whose override to remove, putting it back to its deployed value. Also the\nresource ID within the `overrides` collection.",
+            "name": "key",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "DeleteInventoryConfigOverrideResponse acknowledges the revert.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/hosts": {
+      "get": {
+        "description": "Returns every host the inventory app has a row for, whether or not a database was found on it, with the services on each and how current the observations are.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "List inventory hosts",
+        "operationId": "ListInventoryHosts",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "When set, return only hosts that do (or do not) carry a registered service.\nUnset returns both, which is the ordinary listing.",
+            "name": "has_service",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "When true, return only hosts currently failing.",
+            "name": "failing",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "When set, return only hosts that do (or do not) have an executor to run a probe\non. Not a client name: the app filters on whether one is matched at all, and\n\"which machines can nothing be dispatched to\" is the question worth asking.",
+            "name": "executor",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ListInventoryHostsResponse returns the hosts OM knows about.",
+              "type": "object",
+              "properties": {
+                "hosts": {
+                  "description": "The hosts.",
+                  "type": "array",
+                  "items": {
+                    "description": "InventoryHost is one machine OM knows about, with the services on it.\n\nA host is a row whether or not any MongoDB was found on it. That is what makes\n\"which machines have no database\" a query rather than an absence, and it is the only\nway a machine that has never run one appears at all - which is the case installing a\ndatabase somewhere later depends on.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "PMM's node ID. Also what a scoped refresh is addressed by.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "name": {
+                        "description": "The node name PMM registered.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "address": {
+                        "description": "The node address PMM registered.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "executor_host": {
+                        "description": "The Nomad client that serves it. Unset means nothing can be run there, which is a\nfact about the estate rather than a probe failure.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "os": {
+                        "description": "The operating system, as the host reports it. Worth having from a probe because\nPMM leaves it null for some nodes.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "kernel": {
+                        "description": "The kernel release.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "executor": {
+                        "description": "InventoryExecutor reports whether SEP can run anything on a host.\n\nThree flags rather than one, because \"orphaned\" hid three different problems with\nthree different fixes: never onboarded (registered false), onboarded and down\n(reachable false), and up with a broken raw_exec driver (driver_healthy false). This\nis SEP's own knowledge rather than probe output, so it is filled in for every host\non every sweep, including hosts no probe reached.",
+                        "type": "object",
+                        "properties": {
+                          "registered": {
+                            "description": "Whether the Tasks backend knows this node at all.",
+                            "type": "boolean",
+                            "x-order": 0
+                          },
+                          "reachable": {
+                            "description": "Whether it is currently up.",
+                            "type": "boolean",
+                            "x-order": 1
+                          },
+                          "driver_healthy": {
+                            "description": "Whether its raw_exec driver is healthy, which is what a probe actually needs.",
+                            "type": "boolean",
+                            "x-order": 2
+                          },
+                          "detail": {
+                            "description": "Whatever detail the backend gave, when it gave any.",
+                            "type": "string",
+                            "x-order": 3
+                          }
+                        },
+                        "x-order": 6
+                      },
+                      "unregistered_mongods": {
+                        "description": "Mongods running that PMM has no service for.",
+                        "type": "array",
+                        "items": {
+                          "description": "UnregisteredMongod is a mongod found running that PMM has no service for.\n\nThe arbiter case, mostly: PMM registers no service for an arbiter, so nothing else\nin OM would report the process at all. Also what stands in the way of installing\nanything over a port that is already taken.",
+                          "type": "object",
+                          "properties": {
+                            "port": {
+                              "description": "The port it is listening on.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 0
+                            },
+                            "config_path": {
+                              "description": "The configuration file it read.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "argv": {
+                              "description": "The command line it was started with.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "program": {
+                              "description": "The process name, e.g. \"mongod\".",
+                              "type": "string",
+                              "x-order": 3
+                            },
+                            "pid": {
+                              "description": "Its process ID at the time of the probe.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 4
+                            }
+                          }
+                        },
+                        "x-order": 7
+                      },
+                      "observed": {
+                        "description": "Everything the probe recorded about the host, including attributes with no field\nabove.",
+                        "type": "object",
+                        "x-order": 8
+                      },
+                      "freshness": {
+                        "description": "InventoryFreshness says how current the rest of a row is, and how it is failing.\n\nCarried on hosts and services alike because the estate is upserted rather than\nrebuilt: a row keeps what it last reported, so every attribute is only meaningful\nbeside the time it was collected. `failing_since` is the *first* failure after the\nlast success, which is what makes \"failing for three days\" expressible rather than\nonly \"failed a minute ago\".",
+                        "type": "object",
+                        "properties": {
+                          "first_seen_at": {
+                            "description": "When OM first wrote a row for this entity.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 0
+                          },
+                          "last_attempt_at": {
+                            "description": "When a refresh last tried it.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 1
+                          },
+                          "last_success_at": {
+                            "description": "When it last answered. Unset means it never has, which is different from having\nanswered nothing.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 2
+                          },
+                          "failing_since": {
+                            "description": "The first failure after the last success. Unset means it is not failing.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 3
+                          },
+                          "consecutive_failures": {
+                            "description": "Failures since the last success.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 4
+                          },
+                          "last_error": {
+                            "description": "The most recent failure detail.",
+                            "type": "string",
+                            "x-order": 5
+                          }
+                        },
+                        "x-order": 9
+                      },
+                      "services": {
+                        "description": "The services on it. Empty is a meaningful answer, not a gap.",
+                        "type": "array",
+                        "items": {
+                          "description": "InventoryService is one MongoDB service OM has probed, or tried to.\n\nThe typed fields are the ones a table sorts by; `observed` carries the whole\ndocument besides. That split is deliberate: the app stores observations as JSON so\nthat collecting a new attribute is a payload change rather than a schema change, and\nenumerating every attribute here would put that coupling straight back. A new\nattribute appears in `observed` the day it is collected and is promoted to a field\nof its own only when something wants to sort by it.",
+                          "type": "object",
+                          "properties": {
+                            "service_id": {
+                              "description": "PMM's service ID. The join key against the topology document.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "node_id": {
+                              "description": "The node it runs on, as PMM's node ID.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "name": {
+                              "description": "The service name PMM registered.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "port": {
+                              "description": "The port it listens on, where OM knows it.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            },
+                            "role": {
+                              "description": "PRIMARY, SECONDARY, ARBITER, or unset.",
+                              "type": "string",
+                              "x-order": 4
+                            },
+                            "installed_version": {
+                              "description": "The MongoDB binary installed on the node, which is not necessarily the one\nrunning. Divergence from running_version is the upgraded-but-not-restarted case,\nand no metric anywhere carries it.",
+                              "type": "string",
+                              "x-order": 5
+                            },
+                            "running_version": {
+                              "description": "The version the running server reports.",
+                              "type": "string",
+                              "x-order": 6
+                            },
+                            "config_path": {
+                              "description": "The configuration file the running server read.",
+                              "type": "string",
+                              "x-order": 7
+                            },
+                            "argv": {
+                              "description": "The command line it was started with.",
+                              "type": "string",
+                              "x-order": 8
+                            },
+                            "probe_status": {
+                              "description": "What the last probe of this service concluded, in the payload's own words.",
+                              "type": "string",
+                              "x-order": 9
+                            },
+                            "server_running": {
+                              "description": "Whether a server was found running. Unset where no probe has looked.",
+                              "type": "boolean",
+                              "x-order": 10
+                            },
+                            "uptime_seconds": {
+                              "description": "How long it has been up, seconds.",
+                              "type": "number",
+                              "format": "double",
+                              "x-order": 11
+                            },
+                            "replication_set": {
+                              "description": "The replica set it belongs to, or unset for a standalone or a router.",
+                              "type": "string",
+                              "x-order": 12
+                            },
+                            "observed": {
+                              "description": "Everything the probe recorded, including attributes with no field above.",
+                              "type": "object",
+                              "x-order": 13
+                            },
+                            "freshness": {
+                              "description": "InventoryFreshness says how current the rest of a row is, and how it is failing.\n\nCarried on hosts and services alike because the estate is upserted rather than\nrebuilt: a row keeps what it last reported, so every attribute is only meaningful\nbeside the time it was collected. `failing_since` is the *first* failure after the\nlast success, which is what makes \"failing for three days\" expressible rather than\nonly \"failed a minute ago\".",
+                              "type": "object",
+                              "properties": {
+                                "first_seen_at": {
+                                  "description": "When OM first wrote a row for this entity.",
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "x-order": 0
+                                },
+                                "last_attempt_at": {
+                                  "description": "When a refresh last tried it.",
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "x-order": 1
+                                },
+                                "last_success_at": {
+                                  "description": "When it last answered. Unset means it never has, which is different from having\nanswered nothing.",
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "x-order": 2
+                                },
+                                "failing_since": {
+                                  "description": "The first failure after the last success. Unset means it is not failing.",
+                                  "type": "string",
+                                  "format": "date-time",
+                                  "x-order": 3
+                                },
+                                "consecutive_failures": {
+                                  "description": "Failures since the last success.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 4
+                                },
+                                "last_error": {
+                                  "description": "The most recent failure detail.",
+                                  "type": "string",
+                                  "x-order": 5
+                                }
+                              },
+                              "x-order": 14
+                            }
+                          }
+                        },
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/hosts/{node_id}": {
+      "get": {
+        "description": "Returns one host by PMM node ID, with the services on it.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get an inventory host",
+        "operationId": "GetInventoryHost",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "PMM's node ID.",
+            "name": "node_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetInventoryHostResponse returns one host.",
+              "type": "object",
+              "properties": {
+                "host": {
+                  "description": "InventoryHost is one machine OM knows about, with the services on it.\n\nA host is a row whether or not any MongoDB was found on it. That is what makes\n\"which machines have no database\" a query rather than an absence, and it is the only\nway a machine that has never run one appears at all - which is the case installing a\ndatabase somewhere later depends on.",
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "PMM's node ID. Also what a scoped refresh is addressed by.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "name": {
+                      "description": "The node name PMM registered.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "The node address PMM registered.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "executor_host": {
+                      "description": "The Nomad client that serves it. Unset means nothing can be run there, which is a\nfact about the estate rather than a probe failure.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "os": {
+                      "description": "The operating system, as the host reports it. Worth having from a probe because\nPMM leaves it null for some nodes.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "kernel": {
+                      "description": "The kernel release.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "executor": {
+                      "description": "InventoryExecutor reports whether SEP can run anything on a host.\n\nThree flags rather than one, because \"orphaned\" hid three different problems with\nthree different fixes: never onboarded (registered false), onboarded and down\n(reachable false), and up with a broken raw_exec driver (driver_healthy false). This\nis SEP's own knowledge rather than probe output, so it is filled in for every host\non every sweep, including hosts no probe reached.",
+                      "type": "object",
+                      "properties": {
+                        "registered": {
+                          "description": "Whether the Tasks backend knows this node at all.",
+                          "type": "boolean",
+                          "x-order": 0
+                        },
+                        "reachable": {
+                          "description": "Whether it is currently up.",
+                          "type": "boolean",
+                          "x-order": 1
+                        },
+                        "driver_healthy": {
+                          "description": "Whether its raw_exec driver is healthy, which is what a probe actually needs.",
+                          "type": "boolean",
+                          "x-order": 2
+                        },
+                        "detail": {
+                          "description": "Whatever detail the backend gave, when it gave any.",
+                          "type": "string",
+                          "x-order": 3
+                        }
+                      },
+                      "x-order": 6
+                    },
+                    "unregistered_mongods": {
+                      "description": "Mongods running that PMM has no service for.",
+                      "type": "array",
+                      "items": {
+                        "description": "UnregisteredMongod is a mongod found running that PMM has no service for.\n\nThe arbiter case, mostly: PMM registers no service for an arbiter, so nothing else\nin OM would report the process at all. Also what stands in the way of installing\nanything over a port that is already taken.",
+                        "type": "object",
+                        "properties": {
+                          "port": {
+                            "description": "The port it is listening on.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "config_path": {
+                            "description": "The configuration file it read.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "argv": {
+                            "description": "The command line it was started with.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "program": {
+                            "description": "The process name, e.g. \"mongod\".",
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "pid": {
+                            "description": "Its process ID at the time of the probe.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 4
+                          }
+                        }
+                      },
+                      "x-order": 7
+                    },
+                    "observed": {
+                      "description": "Everything the probe recorded about the host, including attributes with no field\nabove.",
+                      "type": "object",
+                      "x-order": 8
+                    },
+                    "freshness": {
+                      "description": "InventoryFreshness says how current the rest of a row is, and how it is failing.\n\nCarried on hosts and services alike because the estate is upserted rather than\nrebuilt: a row keeps what it last reported, so every attribute is only meaningful\nbeside the time it was collected. `failing_since` is the *first* failure after the\nlast success, which is what makes \"failing for three days\" expressible rather than\nonly \"failed a minute ago\".",
+                      "type": "object",
+                      "properties": {
+                        "first_seen_at": {
+                          "description": "When OM first wrote a row for this entity.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 0
+                        },
+                        "last_attempt_at": {
+                          "description": "When a refresh last tried it.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 1
+                        },
+                        "last_success_at": {
+                          "description": "When it last answered. Unset means it never has, which is different from having\nanswered nothing.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 2
+                        },
+                        "failing_since": {
+                          "description": "The first failure after the last success. Unset means it is not failing.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 3
+                        },
+                        "consecutive_failures": {
+                          "description": "Failures since the last success.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 4
+                        },
+                        "last_error": {
+                          "description": "The most recent failure detail.",
+                          "type": "string",
+                          "x-order": 5
+                        }
+                      },
+                      "x-order": 9
+                    },
+                    "services": {
+                      "description": "The services on it. Empty is a meaningful answer, not a gap.",
+                      "type": "array",
+                      "items": {
+                        "description": "InventoryService is one MongoDB service OM has probed, or tried to.\n\nThe typed fields are the ones a table sorts by; `observed` carries the whole\ndocument besides. That split is deliberate: the app stores observations as JSON so\nthat collecting a new attribute is a payload change rather than a schema change, and\nenumerating every attribute here would put that coupling straight back. A new\nattribute appears in `observed` the day it is collected and is promoted to a field\nof its own only when something wants to sort by it.",
+                        "type": "object",
+                        "properties": {
+                          "service_id": {
+                            "description": "PMM's service ID. The join key against the topology document.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "node_id": {
+                            "description": "The node it runs on, as PMM's node ID.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "name": {
+                            "description": "The service name PMM registered.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "port": {
+                            "description": "The port it listens on, where OM knows it.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 3
+                          },
+                          "role": {
+                            "description": "PRIMARY, SECONDARY, ARBITER, or unset.",
+                            "type": "string",
+                            "x-order": 4
+                          },
+                          "installed_version": {
+                            "description": "The MongoDB binary installed on the node, which is not necessarily the one\nrunning. Divergence from running_version is the upgraded-but-not-restarted case,\nand no metric anywhere carries it.",
+                            "type": "string",
+                            "x-order": 5
+                          },
+                          "running_version": {
+                            "description": "The version the running server reports.",
+                            "type": "string",
+                            "x-order": 6
+                          },
+                          "config_path": {
+                            "description": "The configuration file the running server read.",
+                            "type": "string",
+                            "x-order": 7
+                          },
+                          "argv": {
+                            "description": "The command line it was started with.",
+                            "type": "string",
+                            "x-order": 8
+                          },
+                          "probe_status": {
+                            "description": "What the last probe of this service concluded, in the payload's own words.",
+                            "type": "string",
+                            "x-order": 9
+                          },
+                          "server_running": {
+                            "description": "Whether a server was found running. Unset where no probe has looked.",
+                            "type": "boolean",
+                            "x-order": 10
+                          },
+                          "uptime_seconds": {
+                            "description": "How long it has been up, seconds.",
+                            "type": "number",
+                            "format": "double",
+                            "x-order": 11
+                          },
+                          "replication_set": {
+                            "description": "The replica set it belongs to, or unset for a standalone or a router.",
+                            "type": "string",
+                            "x-order": 12
+                          },
+                          "observed": {
+                            "description": "Everything the probe recorded, including attributes with no field above.",
+                            "type": "object",
+                            "x-order": 13
+                          },
+                          "freshness": {
+                            "description": "InventoryFreshness says how current the rest of a row is, and how it is failing.\n\nCarried on hosts and services alike because the estate is upserted rather than\nrebuilt: a row keeps what it last reported, so every attribute is only meaningful\nbeside the time it was collected. `failing_since` is the *first* failure after the\nlast success, which is what makes \"failing for three days\" expressible rather than\nonly \"failed a minute ago\".",
+                            "type": "object",
+                            "properties": {
+                              "first_seen_at": {
+                                "description": "When OM first wrote a row for this entity.",
+                                "type": "string",
+                                "format": "date-time",
+                                "x-order": 0
+                              },
+                              "last_attempt_at": {
+                                "description": "When a refresh last tried it.",
+                                "type": "string",
+                                "format": "date-time",
+                                "x-order": 1
+                              },
+                              "last_success_at": {
+                                "description": "When it last answered. Unset means it never has, which is different from having\nanswered nothing.",
+                                "type": "string",
+                                "format": "date-time",
+                                "x-order": 2
+                              },
+                              "failing_since": {
+                                "description": "The first failure after the last success. Unset means it is not failing.",
+                                "type": "string",
+                                "format": "date-time",
+                                "x-order": 3
+                              },
+                              "consecutive_failures": {
+                                "description": "Failures since the last success.",
+                                "type": "integer",
+                                "format": "int32",
+                                "x-order": 4
+                              },
+                              "last_error": {
+                                "description": "The most recent failure detail.",
+                                "type": "string",
+                                "x-order": 5
+                              }
+                            },
+                            "x-order": 14
+                          }
+                        }
+                      },
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Removes a host row and its services from the inventory app's estate. Not suppression: a host PMM still knows about comes back on the next refresh. For clearing rows left behind when a node was replaced and given a new ID.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Forget an inventory host",
+        "operationId": "DeleteInventoryHost",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "PMM's node ID.",
+            "name": "node_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "DeleteInventoryHostResponse acknowledges forgetting a host.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/runs": {
+      "get": {
+        "description": "Returns the inventory app's refresh history, newest first. Distinct from /v1/om/topology/runs, which is PMM's own collection pass and never probes a host.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "List inventory refreshes",
+        "operationId": "ListInventoryRuns",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "How many to return, newest first. Defaults to 20, capped at 100.",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ListInventoryRunsResponse returns the refresh history, newest first.",
+              "type": "object",
+              "properties": {
+                "runs": {
+                  "description": "The runs.",
+                  "type": "array",
+                  "items": {
+                    "description": "InventoryRun is one refresh of the estate.",
+                    "type": "object",
+                    "properties": {
+                      "run_id": {
+                        "description": "The run's ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "status": {
+                        "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                        "type": "string",
+                        "default": "RUN_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "RUN_STATUS_UNSPECIFIED",
+                          "RUN_STATUS_RUNNING",
+                          "RUN_STATUS_SUCCESS",
+                          "RUN_STATUS_PARTIAL",
+                          "RUN_STATUS_FAILED",
+                          "RUN_STATUS_SKIPPED"
+                        ],
+                        "x-order": 1
+                      },
+                      "start_time": {
+                        "description": "When it began.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 2
+                      },
+                      "end_time": {
+                        "description": "When it stopped. Unset while it is still going.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 3
+                      },
+                      "counts": {
+                        "description": "InventoryRunCounts is what one refresh saw.",
+                        "type": "object",
+                        "properties": {
+                          "total_services": {
+                            "description": "Services enumeration found.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "resolved_services": {
+                            "description": "...of which matched a host something could be run on.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 1
+                          },
+                          "orphaned_services": {
+                            "description": "...of which did not. Not an error.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
+                          },
+                          "answered_services": {
+                            "description": "Services that answered a probe.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 3
+                          },
+                          "total_hosts": {
+                            "description": "Hosts in scope this run, service or no service.\n\nA refresh attempts hosts as well as the services on them, so counting only\nservices makes a refresh of a host with no database read as \"0 of 0\" - which is\nexactly what a run that did nothing looks like, on the one kind of host OM most\nexists to describe.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 4
+                          },
+                          "probeable_hosts": {
+                            "description": "...of which had somewhere to run a probe. The gap is the estate nothing can be\ndispatched to, which is a fact about onboarding rather than a failed run.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 5
+                          },
+                          "answered_hosts": {
+                            "description": "Hosts that answered.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 6
+                          }
+                        },
+                        "x-order": 4
+                      },
+                      "scope": {
+                        "description": "The hosts it was limited to. Empty means it refreshed the whole estate, which is\nwhat the scheduled sweep does.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 5
+                      },
+                      "error": {
+                        "description": "What went wrong, when something did.",
+                        "type": "string",
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/runs/{run_id}": {
+      "get": {
+        "description": "Returns one refresh by ID, with what it saw and which hosts it covered.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get an inventory refresh",
+        "operationId": "GetInventoryRun",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The run's ID.",
+            "name": "run_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetInventoryRunResponse returns one refresh, with the rows behind its counters.",
+              "type": "object",
+              "properties": {
+                "run": {
+                  "description": "InventoryRun is one refresh of the estate.",
+                  "type": "object",
+                  "properties": {
+                    "run_id": {
+                      "description": "The run's ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "status": {
+                      "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                      "type": "string",
+                      "default": "RUN_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "RUN_STATUS_UNSPECIFIED",
+                        "RUN_STATUS_RUNNING",
+                        "RUN_STATUS_SUCCESS",
+                        "RUN_STATUS_PARTIAL",
+                        "RUN_STATUS_FAILED",
+                        "RUN_STATUS_SKIPPED"
+                      ],
+                      "x-order": 1
+                    },
+                    "start_time": {
+                      "description": "When it began.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 2
+                    },
+                    "end_time": {
+                      "description": "When it stopped. Unset while it is still going.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 3
+                    },
+                    "counts": {
+                      "description": "InventoryRunCounts is what one refresh saw.",
+                      "type": "object",
+                      "properties": {
+                        "total_services": {
+                          "description": "Services enumeration found.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 0
+                        },
+                        "resolved_services": {
+                          "description": "...of which matched a host something could be run on.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "orphaned_services": {
+                          "description": "...of which did not. Not an error.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 2
+                        },
+                        "answered_services": {
+                          "description": "Services that answered a probe.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 3
+                        },
+                        "total_hosts": {
+                          "description": "Hosts in scope this run, service or no service.\n\nA refresh attempts hosts as well as the services on them, so counting only\nservices makes a refresh of a host with no database read as \"0 of 0\" - which is\nexactly what a run that did nothing looks like, on the one kind of host OM most\nexists to describe.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 4
+                        },
+                        "probeable_hosts": {
+                          "description": "...of which had somewhere to run a probe. The gap is the estate nothing can be\ndispatched to, which is a fact about onboarding rather than a failed run.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 5
+                        },
+                        "answered_hosts": {
+                          "description": "Hosts that answered.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 6
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "scope": {
+                      "description": "The hosts it was limited to. Empty means it refreshed the whole estate, which is\nwhat the scheduled sweep does.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "error": {
+                      "description": "What went wrong, when something did.",
+                      "type": "string",
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 0
+                },
+                "entities": {
+                  "description": "What it attempted, one entry per entity.\n\nOnly on the detail response, never on the list: a refresh of a real estate has a\nrow per service, and a history of twenty-five would carry the lot to render a\npage that shows one at a time.",
+                  "type": "array",
+                  "items": {
+                    "description": "InventoryRunEntity is one host a refresh attempted, and what came of it.\n\nHost-oriented, because a refresh attempts hosts. A flat list of services - which\nthis was - cannot show a machine carrying a PMM client and no database, however\nmany times it is probed, and that machine is the case OM most exists to describe:\nit is where a database can be installed.\n\nOne dispatch covers every service on a host, so the host owns the timing and the\nfailure and its services carry only what is theirs. Previously the duration was\ncopied onto each service, which read as several measurements when it was one.\n\nDeliberately outcomes and not observations. What the probe *found* lives on the\nestate, where it is upserted and stays current; a receipt that also carried the\nattributes would be a second copy that goes stale the moment the next refresh runs.",
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "PMM's node ID, the key OM holds this host under.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "host_name": {
+                        "description": "The node's registered name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "executor_host": {
+                        "description": "The client its probe ran on. Unset when none matched.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "resolution": {
+                        "description": "ExecutorResolution is how a host was matched to the client its probe ran on.\n\nORPHANED is why nothing ran, and it is not an error: a host with no executor is a fact\nabout onboarding. NAME and ADDRESS record *which* of the two joins matched, because a\nhost reachable only by address is a different estate problem from one matched by name.\n\n - EXECUTOR_RESOLUTION_NAME: Matched on the node's registered name.\n - EXECUTOR_RESOLUTION_ADDRESS: Matched on the node's address.\n - EXECUTOR_RESOLUTION_ORPHANED: Not matched, so nothing was dispatched.",
+                        "type": "string",
+                        "default": "EXECUTOR_RESOLUTION_UNSPECIFIED",
+                        "enum": [
+                          "EXECUTOR_RESOLUTION_UNSPECIFIED",
+                          "EXECUTOR_RESOLUTION_NAME",
+                          "EXECUTOR_RESOLUTION_ADDRESS",
+                          "EXECUTOR_RESOLUTION_ORPHANED"
+                        ],
+                        "x-order": 3
+                      },
+                      "answered": {
+                        "description": "Whether the *host* answered. A different question from whether its services did:\na host with no database answers perfectly well and has no services at all.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "duration_seconds": {
+                        "description": "The host's wall clock, dispatch to collected output.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 5
+                      },
+                      "error": {
+                        "description": "The host-level failure, when its probe failed.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "services": {
+                        "description": "The services on it. Empty is a meaningful answer, not a gap.",
+                        "type": "array",
+                        "items": {
+                          "description": "InventoryRunEntityService is one service on a host, as a refresh saw it.",
+                          "type": "object",
+                          "properties": {
+                            "service_id": {
+                              "description": "PMM's service ID, when OM could key one.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "service_name": {
+                              "description": "Its name, so a reader is not left joining UUIDs by hand.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "answered": {
+                              "description": "Whether the host returned a usable record for it.",
+                              "type": "boolean",
+                              "x-order": 2
+                            },
+                            "error": {
+                              "description": "Why it did not, when it did not.",
+                              "type": "string",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 7
+                      }
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/runs:trigger": {
+      "post": {
+        "description": "Dispatches an on-host probe per executor host and returns as soon as the refresh is accepted. Takes tens of seconds, unlike /v1/om/topology/runs. Pass node_ids to refresh only those hosts; 409 when another refresh already holds one of them.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Refresh the inventory",
+        "operationId": "TriggerInventoryRefresh",
+        "parameters": [
+          {
+            "description": "TriggerInventoryRefreshRequest is the request for TriggerInventoryRefresh.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "TriggerInventoryRefreshRequest is the request for TriggerInventoryRefresh.",
+              "type": "object",
+              "properties": {
+                "node_ids": {
+                  "description": "The hosts to refresh, by PMM node ID. Empty refreshes the whole estate.\n\nPlural on purpose: PMM's node ID is also OM's key, so ids pass through\nuntranslated, and one host is a list of one. A surface taking a single id where\nthe app takes a list would be a translation step in disguise.\n\nBounded because a refresh dispatches a Nomad job per host: the empty list already\nmeans \"the whole estate\", so a caller naming hosts individually is naming a few,\nand an unbounded list is only reachable by accident. An empty string is rejected\nrather than forwarded, where it would read as a node ID that matches nothing.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "TriggerInventoryRefreshResponse acknowledges an accepted refresh.\n\nAccepted, not finished. A refresh dispatches a Nomad job per host and takes tens of\nseconds, unlike PMM's own collection pass, which never probes and completes in\nmilliseconds. Two triggers that different must not look alike to a caller.",
+              "type": "object",
+              "properties": {
+                "run_id": {
+                  "description": "The run's ID, to follow with GetInventoryRun.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "status": {
+                  "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                  "type": "string",
+                  "default": "RUN_STATUS_UNSPECIFIED",
+                  "enum": [
+                    "RUN_STATUS_UNSPECIFIED",
+                    "RUN_STATUS_RUNNING",
+                    "RUN_STATUS_SUCCESS",
+                    "RUN_STATUS_PARTIAL",
+                    "RUN_STATUS_FAILED",
+                    "RUN_STATUS_SKIPPED"
+                  ],
+                  "x-order": 1
+                },
+                "start_time": {
+                  "description": "When it began.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 2
+                },
+                "scope": {
+                  "description": "The hosts it will refresh. Empty means the whole estate.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 3
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/services": {
+      "get": {
+        "description": "Returns every MongoDB service the inventory app has a row for, with what each last reported and when.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "List inventory services",
+        "operationId": "ListInventoryServices",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "When set, return only the services on this host.",
+            "name": "node_id",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "When true, return only services currently failing.",
+            "name": "failing",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ListInventoryServicesResponse returns the services OM knows about, flat.",
+              "type": "object",
+              "properties": {
+                "services": {
+                  "description": "The services.",
+                  "type": "array",
+                  "items": {
+                    "description": "InventoryService is one MongoDB service OM has probed, or tried to.\n\nThe typed fields are the ones a table sorts by; `observed` carries the whole\ndocument besides. That split is deliberate: the app stores observations as JSON so\nthat collecting a new attribute is a payload change rather than a schema change, and\nenumerating every attribute here would put that coupling straight back. A new\nattribute appears in `observed` the day it is collected and is promoted to a field\nof its own only when something wants to sort by it.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "PMM's service ID. The join key against the topology document.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_id": {
+                        "description": "The node it runs on, as PMM's node ID.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "name": {
+                        "description": "The service name PMM registered.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "port": {
+                        "description": "The port it listens on, where OM knows it.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 3
+                      },
+                      "role": {
+                        "description": "PRIMARY, SECONDARY, ARBITER, or unset.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "installed_version": {
+                        "description": "The MongoDB binary installed on the node, which is not necessarily the one\nrunning. Divergence from running_version is the upgraded-but-not-restarted case,\nand no metric anywhere carries it.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "running_version": {
+                        "description": "The version the running server reports.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "config_path": {
+                        "description": "The configuration file the running server read.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "argv": {
+                        "description": "The command line it was started with.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "probe_status": {
+                        "description": "What the last probe of this service concluded, in the payload's own words.",
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "server_running": {
+                        "description": "Whether a server was found running. Unset where no probe has looked.",
+                        "type": "boolean",
+                        "x-order": 10
+                      },
+                      "uptime_seconds": {
+                        "description": "How long it has been up, seconds.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 11
+                      },
+                      "replication_set": {
+                        "description": "The replica set it belongs to, or unset for a standalone or a router.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "observed": {
+                        "description": "Everything the probe recorded, including attributes with no field above.",
+                        "type": "object",
+                        "x-order": 13
+                      },
+                      "freshness": {
+                        "description": "InventoryFreshness says how current the rest of a row is, and how it is failing.\n\nCarried on hosts and services alike because the estate is upserted rather than\nrebuilt: a row keeps what it last reported, so every attribute is only meaningful\nbeside the time it was collected. `failing_since` is the *first* failure after the\nlast success, which is what makes \"failing for three days\" expressible rather than\nonly \"failed a minute ago\".",
+                        "type": "object",
+                        "properties": {
+                          "first_seen_at": {
+                            "description": "When OM first wrote a row for this entity.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 0
+                          },
+                          "last_attempt_at": {
+                            "description": "When a refresh last tried it.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 1
+                          },
+                          "last_success_at": {
+                            "description": "When it last answered. Unset means it never has, which is different from having\nanswered nothing.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 2
+                          },
+                          "failing_since": {
+                            "description": "The first failure after the last success. Unset means it is not failing.",
+                            "type": "string",
+                            "format": "date-time",
+                            "x-order": 3
+                          },
+                          "consecutive_failures": {
+                            "description": "Failures since the last success.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 4
+                          },
+                          "last_error": {
+                            "description": "The most recent failure detail.",
+                            "type": "string",
+                            "x-order": 5
+                          }
+                        },
+                        "x-order": 14
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/services/{service_id}": {
+      "get": {
+        "description": "Returns one service by PMM service ID.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get an inventory service",
+        "operationId": "GetInventoryService",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "PMM's service ID.",
+            "name": "service_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetInventoryServiceResponse returns one service.",
+              "type": "object",
+              "properties": {
+                "service": {
+                  "description": "InventoryService is one MongoDB service OM has probed, or tried to.\n\nThe typed fields are the ones a table sorts by; `observed` carries the whole\ndocument besides. That split is deliberate: the app stores observations as JSON so\nthat collecting a new attribute is a payload change rather than a schema change, and\nenumerating every attribute here would put that coupling straight back. A new\nattribute appears in `observed` the day it is collected and is promoted to a field\nof its own only when something wants to sort by it.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "PMM's service ID. The join key against the topology document.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_id": {
+                      "description": "The node it runs on, as PMM's node ID.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "name": {
+                      "description": "The service name PMM registered.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "port": {
+                      "description": "The port it listens on, where OM knows it.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 3
+                    },
+                    "role": {
+                      "description": "PRIMARY, SECONDARY, ARBITER, or unset.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "installed_version": {
+                      "description": "The MongoDB binary installed on the node, which is not necessarily the one\nrunning. Divergence from running_version is the upgraded-but-not-restarted case,\nand no metric anywhere carries it.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "running_version": {
+                      "description": "The version the running server reports.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "config_path": {
+                      "description": "The configuration file the running server read.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "argv": {
+                      "description": "The command line it was started with.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "probe_status": {
+                      "description": "What the last probe of this service concluded, in the payload's own words.",
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "server_running": {
+                      "description": "Whether a server was found running. Unset where no probe has looked.",
+                      "type": "boolean",
+                      "x-order": 10
+                    },
+                    "uptime_seconds": {
+                      "description": "How long it has been up, seconds.",
+                      "type": "number",
+                      "format": "double",
+                      "x-order": 11
+                    },
+                    "replication_set": {
+                      "description": "The replica set it belongs to, or unset for a standalone or a router.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "observed": {
+                      "description": "Everything the probe recorded, including attributes with no field above.",
+                      "type": "object",
+                      "x-order": 13
+                    },
+                    "freshness": {
+                      "description": "InventoryFreshness says how current the rest of a row is, and how it is failing.\n\nCarried on hosts and services alike because the estate is upserted rather than\nrebuilt: a row keeps what it last reported, so every attribute is only meaningful\nbeside the time it was collected. `failing_since` is the *first* failure after the\nlast success, which is what makes \"failing for three days\" expressible rather than\nonly \"failed a minute ago\".",
+                      "type": "object",
+                      "properties": {
+                        "first_seen_at": {
+                          "description": "When OM first wrote a row for this entity.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 0
+                        },
+                        "last_attempt_at": {
+                          "description": "When a refresh last tried it.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 1
+                        },
+                        "last_success_at": {
+                          "description": "When it last answered. Unset means it never has, which is different from having\nanswered nothing.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 2
+                        },
+                        "failing_since": {
+                          "description": "The first failure after the last success. Unset means it is not failing.",
+                          "type": "string",
+                          "format": "date-time",
+                          "x-order": 3
+                        },
+                        "consecutive_failures": {
+                          "description": "Failures since the last success.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 4
+                        },
+                        "last_error": {
+                          "description": "The most recent failure detail.",
+                          "type": "string",
+                          "x-order": 5
+                        }
+                      },
+                      "x-order": 14
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "description": "Removes one service row from the inventory app's estate. Not suppression: a service PMM still knows about comes back on the next refresh.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Forget an inventory service",
+        "operationId": "DeleteInventoryService",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "PMM's service ID.",
+            "name": "service_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "DeleteInventoryServiceResponse acknowledges forgetting a service.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/topology": {
+      "get": {
+        "description": "Returns every monitored MongoDB service, grouped by environment then cluster, with its identity, replica-set state, reachability and load.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get the MongoDB topology",
+        "operationId": "GetTopology",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetTopologyResponse is the whole topology document plus the provenance of the run\nbehind it.",
+              "type": "object",
+              "properties": {
+                "snapshot": {
+                  "description": "Snapshot carries the provenance every snapshot-backed response repeats.",
+                  "type": "object",
+                  "properties": {
+                    "generated_at": {
+                      "description": "When the document was assembled.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 0
+                    },
+                    "observed_at": {
+                      "description": "The newest observation in it, unset when nothing was observed at all.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 1
+                    },
+                    "stale": {
+                      "description": "Whether the document is older than the staleness grace period.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "schema_version": {
+                      "description": "The document schema version.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 3
+                    },
+                    "run_id": {
+                      "description": "The collection run that produced it.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 0
+                },
+                "origin_node": {
+                  "description": "The PMM node the document was assembled on.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "source_queries": {
+                  "description": "The VictoriaMetrics queries the document was derived from.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 2
+                },
+                "summary": {
+                  "description": "Summary carries the fleet-level counts, so a caller need not re-derive them.",
+                  "type": "object",
+                  "properties": {
+                    "environments": {
+                      "description": "Environments in the document.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 0
+                    },
+                    "clusters": {
+                      "description": "Clusters across all of them.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 1
+                    },
+                    "total_services": {
+                      "description": "Services in the document.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
+                    },
+                    "up_services": {
+                      "description": "Services the exporter reached.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 3
+                    },
+                    "down_services": {
+                      "description": "Services it did not.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 4
+                    },
+                    "process_role_counts": {
+                      "description": "Service counts per process role, keyed by the ProcessRole enum's name.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "integer",
+                        "format": "int32"
+                      },
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 3
+                },
+                "environments": {
+                  "description": "The estate, grouped environment then cluster.",
+                  "type": "array",
+                  "items": {
+                    "description": "Environment represents one monitoring environment.",
+                    "type": "object",
+                    "properties": {
+                      "env_name": {
+                        "description": "Environment label, unset when its services carry none.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "clusters": {
+                        "description": "Its clusters, ordered by name.",
+                        "type": "array",
+                        "items": {
+                          "description": "Cluster represents one cluster or replica set.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "Cluster label, unset when its services carry none.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "services": {
+                              "description": "Its services, ordered by name.",
+                              "type": "array",
+                              "items": {
+                                "description": "TopologyService represents one monitored MongoDB service as the topology document\nrecords it.\n\nTwo sentinel conventions, and they differ on purpose. cpu_usage_percent and\nconnections_free_percent are -1 when not measured, never null and never 0, because\nzero CPU is a legitimate reading and a numeric column must keep \"idle\" and \"unknown\"\napart. replication_lag_seconds and oplog_window_seconds are null when they do not\napply -- a router and a standalone have no replica-set oplog -- which is a different\nstatement from -1's \"we could not measure it\".",
+                                "type": "object",
+                                "properties": {
+                                  "service_name": {
+                                    "description": "Service name as PMM inventory registered it.",
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "host": {
+                                    "description": "Node the service runs on.",
+                                    "type": "string",
+                                    "x-order": 1
+                                  },
+                                  "endpoint": {
+                                    "description": "host:port as the replica set itself addresses the member.",
+                                    "type": "string",
+                                    "x-order": 2
+                                  },
+                                  "service_id": {
+                                    "description": "PMM's service ID. The join key against VictoriaMetrics.",
+                                    "type": "string",
+                                    "x-order": 3
+                                  },
+                                  "service_type": {
+                                    "description": "Always \"mongodb\" today.",
+                                    "type": "string",
+                                    "x-order": 4
+                                  },
+                                  "version": {
+                                    "description": "Running server version.",
+                                    "type": "string",
+                                    "x-order": 5
+                                  },
+                                  "vendor": {
+                                    "description": "MongoDB or Percona.",
+                                    "type": "string",
+                                    "x-order": 6
+                                  },
+                                  "edition": {
+                                    "description": "Community or Enterprise.",
+                                    "type": "string",
+                                    "x-order": 7
+                                  },
+                                  "replication_set": {
+                                    "description": "Replica set, or unset for a router or a standalone.",
+                                    "type": "string",
+                                    "x-order": 8
+                                  },
+                                  "state": {
+                                    "description": "PRIMARY, SECONDARY or ARBITER, or unset where there is no replica-set state.",
+                                    "type": "string",
+                                    "x-order": 9
+                                  },
+                                  "status": {
+                                    "description": "ServiceStatus is whether the exporter reached a service.\n\nTwo values and no third: this is the exporter's reachability, not the server's health.\n\"we did not look\" is UNSPECIFIED, which the collector never emits.\n\n - SERVICE_STATUS_UP: The exporter reached the service.\n - SERVICE_STATUS_DOWN: It did not.",
+                                    "type": "string",
+                                    "default": "SERVICE_STATUS_UNSPECIFIED",
+                                    "enum": [
+                                      "SERVICE_STATUS_UNSPECIFIED",
+                                      "SERVICE_STATUS_UP",
+                                      "SERVICE_STATUS_DOWN"
+                                    ],
+                                    "x-order": 10
+                                  },
+                                  "cpu_usage_percent": {
+                                    "description": "CPU percentage, or -1 when not measured.",
+                                    "type": "number",
+                                    "format": "double",
+                                    "x-order": 11
+                                  },
+                                  "connections_free_percent": {
+                                    "description": "Percentage of free connections, or -1 when not measured.",
+                                    "type": "number",
+                                    "format": "double",
+                                    "x-order": 12
+                                  },
+                                  "process_role": {
+                                    "description": "ProcessRole is what a mongod or mongos is doing in the deployment.\n\nNot the same axis as replica-set state: a SHARDSVR can be PRIMARY or SECONDARY. This\nis the role the process was started in, which is a property of the deployment's shape.\n\n - PROCESS_ROLE_MONGOD: A standalone or replica-set member with no sharding role.\n - PROCESS_ROLE_MONGOS: A router.\n - PROCESS_ROLE_CONFIGSVR: A config-server member.\n - PROCESS_ROLE_SHARDSVR: A shard member.",
+                                    "type": "string",
+                                    "default": "PROCESS_ROLE_UNSPECIFIED",
+                                    "enum": [
+                                      "PROCESS_ROLE_UNSPECIFIED",
+                                      "PROCESS_ROLE_MONGOD",
+                                      "PROCESS_ROLE_MONGOS",
+                                      "PROCESS_ROLE_CONFIGSVR",
+                                      "PROCESS_ROLE_SHARDSVR"
+                                    ],
+                                    "x-order": 13
+                                  },
+                                  "replication_lag_seconds": {
+                                    "description": "Seconds this member trails the primary; unset where there is no primary to trail.",
+                                    "type": "number",
+                                    "format": "double",
+                                    "x-order": 14
+                                  },
+                                  "oplog_window_seconds": {
+                                    "description": "Seconds of history the oplog holds; unset where there is no replica-set oplog.",
+                                    "type": "number",
+                                    "format": "double",
+                                    "x-order": 15
+                                  },
+                                  "installed_version": {
+                                    "description": "The MongoDB binary installed on the node, which is not necessarily the one\nrunning. Divergence from `version` is the upgraded-but-not-restarted case. Only\nan on-host probe can see it, so this is unset wherever one has not run.",
+                                    "type": "string",
+                                    "x-order": 16
+                                  },
+                                  "config_path": {
+                                    "description": "The configuration file the running server read. Probe-only.",
+                                    "type": "string",
+                                    "x-order": 17
+                                  },
+                                  "argv": {
+                                    "description": "The command line the running server was started with. Probe-only.",
+                                    "type": "string",
+                                    "x-order": 18
+                                  }
+                                }
+                              },
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 4
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/topology/runs": {
+      "get": {
+        "description": "Returns the recorded collection runs, newest first, with what each one saw and any errors it hit.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "List collection runs",
+        "operationId": "ListTopologyRuns",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "How many runs to return, newest first. Defaults to 25, capped at 100.",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ListTopologyRunsResponse returns the run history, newest first.",
+              "type": "object",
+              "properties": {
+                "runs": {
+                  "description": "The runs.",
+                  "type": "array",
+                  "items": {
+                    "description": "TopologyRun represents one collection run.",
+                    "type": "object",
+                    "properties": {
+                      "run_id": {
+                        "description": "The run's ID, also the snapshot key.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "status": {
+                        "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                        "type": "string",
+                        "default": "RUN_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "RUN_STATUS_UNSPECIFIED",
+                          "RUN_STATUS_RUNNING",
+                          "RUN_STATUS_SUCCESS",
+                          "RUN_STATUS_PARTIAL",
+                          "RUN_STATUS_FAILED",
+                          "RUN_STATUS_SKIPPED"
+                        ],
+                        "x-order": 1
+                      },
+                      "start_time": {
+                        "description": "When the run began.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 2
+                      },
+                      "end_time": {
+                        "description": "When it reached a terminal status; unset while running.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 3
+                      },
+                      "counts": {
+                        "description": "TopologyRunCounts counts what one collection run saw.",
+                        "type": "object",
+                        "properties": {
+                          "total_services": {
+                            "description": "MongoDB services inventory reported.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 0
+                          },
+                          "resolved_services": {
+                            "description": "...of which carried a service ID to join metrics on.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 1
+                          },
+                          "orphaned_services": {
+                            "description": "...of which did not. Not an error.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
+                          },
+                          "successful_probes": {
+                            "description": "Services metrics actually observed as reachable.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 3
+                          },
+                          "stale_services": {
+                            "description": "Services carrying at least one volatile fact too old to read as current.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 4
+                          }
+                        },
+                        "x-order": 4
+                      },
+                      "errors": {
+                        "description": "Query-level, service-level and run-level failures.",
+                        "type": "array",
+                        "items": {
+                          "description": "TopologyRunError describes one thing that went wrong during a collection run.",
+                          "type": "object",
+                          "properties": {
+                            "scope": {
+                              "description": "What the error is about, e.g. \"run\" or \"query\".",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "service_name": {
+                              "description": "The service it concerns, when scoped to one.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "code": {
+                              "description": "A machine-readable cause.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "message": {
+                              "description": "The human-readable detail.",
+                              "type": "string",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 5
+                      },
+                      "sources": {
+                        "description": "How completely each collection source answered.",
+                        "type": "array",
+                        "items": {
+                          "description": "SourceReport says how completely one collection source answered, and what it saw.\n\nRecorded per source so a thin document is legible rather than merely thin: a snapshot\nassembled with metrics=ok and probe=failed is still correct about every version and\nhonest about reachability.",
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "description": "The source key, e.g. \"inventory\", \"metrics\" or \"probe\". An open set on purpose: a\nsource is named by whatever produced it, so this stays a string where the statuses\nbeside it are enums.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "status": {
+                              "description": "SourceStatus is how completely one collection source answered.\n\nSeparate from RunStatus because it carries DISABLED, which a run cannot be: a source\nswitched off in configuration is a deliberate state, not a degraded one.\n\n - SOURCE_STATUS_OK: Answered everything asked of it.\n - SOURCE_STATUS_PARTIAL: Answered some of it.\n - SOURCE_STATUS_FAILED: Did not answer.\n - SOURCE_STATUS_DISABLED: Switched off in configuration, so it was never asked.",
+                              "type": "string",
+                              "default": "SOURCE_STATUS_UNSPECIFIED",
+                              "enum": [
+                                "SOURCE_STATUS_UNSPECIFIED",
+                                "SOURCE_STATUS_OK",
+                                "SOURCE_STATUS_PARTIAL",
+                                "SOURCE_STATUS_FAILED",
+                                "SOURCE_STATUS_DISABLED"
+                              ],
+                              "x-order": 1
+                            },
+                            "facts": {
+                              "description": "How many facts it produced.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 2
+                            },
+                            "detail": {
+                              "description": "Source-specific counters, rendered as strings so a source can report whatever it has\nwithout this contract naming every counter.",
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "string"
+                              },
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/topology/runs/{run_id}": {
+      "get": {
+        "description": "Returns one recorded collection run, with what it saw, how each source answered, and any errors it hit.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get a collection run",
+        "operationId": "GetTopologyRun",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The run to return.",
+            "name": "run_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetTopologyRunResponse returns one collection run.",
+              "type": "object",
+              "properties": {
+                "run": {
+                  "description": "TopologyRun represents one collection run.",
+                  "type": "object",
+                  "properties": {
+                    "run_id": {
+                      "description": "The run's ID, also the snapshot key.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "status": {
+                      "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                      "type": "string",
+                      "default": "RUN_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "RUN_STATUS_UNSPECIFIED",
+                        "RUN_STATUS_RUNNING",
+                        "RUN_STATUS_SUCCESS",
+                        "RUN_STATUS_PARTIAL",
+                        "RUN_STATUS_FAILED",
+                        "RUN_STATUS_SKIPPED"
+                      ],
+                      "x-order": 1
+                    },
+                    "start_time": {
+                      "description": "When the run began.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 2
+                    },
+                    "end_time": {
+                      "description": "When it reached a terminal status; unset while running.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 3
+                    },
+                    "counts": {
+                      "description": "TopologyRunCounts counts what one collection run saw.",
+                      "type": "object",
+                      "properties": {
+                        "total_services": {
+                          "description": "MongoDB services inventory reported.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 0
+                        },
+                        "resolved_services": {
+                          "description": "...of which carried a service ID to join metrics on.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 1
+                        },
+                        "orphaned_services": {
+                          "description": "...of which did not. Not an error.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 2
+                        },
+                        "successful_probes": {
+                          "description": "Services metrics actually observed as reachable.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 3
+                        },
+                        "stale_services": {
+                          "description": "Services carrying at least one volatile fact too old to read as current.",
+                          "type": "integer",
+                          "format": "int32",
+                          "x-order": 4
+                        }
+                      },
+                      "x-order": 4
+                    },
+                    "errors": {
+                      "description": "Query-level, service-level and run-level failures.",
+                      "type": "array",
+                      "items": {
+                        "description": "TopologyRunError describes one thing that went wrong during a collection run.",
+                        "type": "object",
+                        "properties": {
+                          "scope": {
+                            "description": "What the error is about, e.g. \"run\" or \"query\".",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "service_name": {
+                            "description": "The service it concerns, when scoped to one.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "code": {
+                            "description": "A machine-readable cause.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "message": {
+                            "description": "The human-readable detail.",
+                            "type": "string",
+                            "x-order": 3
+                          }
+                        }
+                      },
+                      "x-order": 5
+                    },
+                    "sources": {
+                      "description": "How completely each collection source answered.",
+                      "type": "array",
+                      "items": {
+                        "description": "SourceReport says how completely one collection source answered, and what it saw.\n\nRecorded per source so a thin document is legible rather than merely thin: a snapshot\nassembled with metrics=ok and probe=failed is still correct about every version and\nhonest about reachability.",
+                        "type": "object",
+                        "properties": {
+                          "source": {
+                            "description": "The source key, e.g. \"inventory\", \"metrics\" or \"probe\". An open set on purpose: a\nsource is named by whatever produced it, so this stays a string where the statuses\nbeside it are enums.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "SourceStatus is how completely one collection source answered.\n\nSeparate from RunStatus because it carries DISABLED, which a run cannot be: a source\nswitched off in configuration is a deliberate state, not a degraded one.\n\n - SOURCE_STATUS_OK: Answered everything asked of it.\n - SOURCE_STATUS_PARTIAL: Answered some of it.\n - SOURCE_STATUS_FAILED: Did not answer.\n - SOURCE_STATUS_DISABLED: Switched off in configuration, so it was never asked.",
+                            "type": "string",
+                            "default": "SOURCE_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "SOURCE_STATUS_UNSPECIFIED",
+                              "SOURCE_STATUS_OK",
+                              "SOURCE_STATUS_PARTIAL",
+                              "SOURCE_STATUS_FAILED",
+                              "SOURCE_STATUS_DISABLED"
+                            ],
+                            "x-order": 1
+                          },
+                          "facts": {
+                            "description": "How many facts it produced.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 2
+                          },
+                          "detail": {
+                            "description": "Source-specific counters, rendered as strings so a source can report whatever it has\nwithout this contract naming every counter.",
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            },
+                            "x-order": 3
+                          }
+                        }
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/topology/runs:collect": {
+      "post": {
+        "description": "Rebuilds the topology document from PMM inventory and VictoriaMetrics, and records the run.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Trigger a collection run",
+        "operationId": "TriggerTopologyCollection",
+        "parameters": [
+          {
+            "description": "TriggerTopologyCollectionRequest is the request for TriggerTopologyCollection.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "TriggerTopologyCollectionRequest is the request for TriggerTopologyCollection.",
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "TriggerTopologyCollectionResponse acknowledges a completed collection run.",
+              "type": "object",
+              "properties": {
+                "run_id": {
+                  "description": "The run's ID.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "status": {
+                  "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                  "type": "string",
+                  "default": "RUN_STATUS_UNSPECIFIED",
+                  "enum": [
+                    "RUN_STATUS_UNSPECIFIED",
+                    "RUN_STATUS_RUNNING",
+                    "RUN_STATUS_SUCCESS",
+                    "RUN_STATUS_PARTIAL",
+                    "RUN_STATUS_FAILED",
+                    "RUN_STATUS_SKIPPED"
+                  ],
+                  "x-order": 1
+                },
+                "start_time": {
+                  "description": "When the run began.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 2
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/qan/health": {
       "get": {
         "description": "Returns readiness of QAN API2 service.",
@@ -33591,6 +36380,10 @@
     {
       "description": "RealtimeAnalyticsService provides public API for managing Real-Time Analytics Sessions and Queries.",
       "name": "RealtimeAnalyticsService"
+    },
+    {
+      "description": "OmService provides the OpenManager topology and health API.",
+      "name": "OmService"
     },
     {
       "description": "HAService provides High Availability cluster status information.",
