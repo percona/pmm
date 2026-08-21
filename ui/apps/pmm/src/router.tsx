@@ -12,6 +12,7 @@ import {
   PMM_NEW_NAV_PATH,
   SEP_ATW_PATH,
   SEP_MYSQL_BACKUPS_PATH,
+  OM_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
@@ -19,6 +20,8 @@ import RealtimeOverviewPage from 'pages/rta/overview/RealtimeOverview';
 import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@sep/plugins-atw';
+import { OmApp } from '@sep/plugins-om';
+import { OmPage } from 'om/OmPage';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import { SepPage } from './sep/SepPage';
 
@@ -99,6 +102,24 @@ const router = createBrowserRouter(
                 <SepPage>
                   <AtwApp />
                 </SepPage>
+              ),
+            },
+            {
+              // OM (OpenManager) is bespoke like ATW: OmApp composes its
+              // own <Routes>, so this must be a splat.
+              //
+              // All four pages are under it now. Inventory used to be mounted
+              // separately inside SepPage, because it read SEP's app directly and
+              // needed a bearer minted from the PMM session; pmm-managed proxies the
+              // estate at /v1/om/inventory, so no OM path in the browser talks to SEP
+              // any more. That is why OmPage rather than SepPage, and why a sick SEP
+              // now shows an error inside a page that still renders instead of
+              // blanking it -- SepAuthGate fails closed.
+              path: `${relativeToNav(OM_PATH)}/*`,
+              element: (
+                <OmPage>
+                  <OmApp />
+                </OmPage>
               ),
             },
             {
