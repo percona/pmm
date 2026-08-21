@@ -980,7 +980,14 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Kind:       *vmClusterKindF,
 		Resource:   *vmClusterResourceF,
 	})
-	if err != nil {
+	switch {
+	case errors.Is(err, vmretention.ErrNoClusterAccess):
+		// A cluster can legitimately withhold API access, and a retention reconciler must not
+		// be able to stop PMM from starting. Reconciliation is disabled and says why.
+		l.Errorf("Data retention will not be applied to VictoriaMetrics: %+v", err)
+	case err != nil:
+		// A malformed name, kind or API version is a typo, and would otherwise fail once a
+		// minute forever instead of at start-up.
 		l.Panicf("VictoriaMetrics retention service problem: %+v", err)
 	}
 	vmRetention := vmretention.New(db, vmClusterClient)

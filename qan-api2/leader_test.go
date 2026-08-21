@@ -58,6 +58,30 @@ func TestShouldApplyRetention(t *testing.T) {
 		assert.False(t, leader)
 	})
 
+	// Only 200 and 400 are answers about leadership. Anything else read as "follower" would
+	// stop retention on every node with nothing above debug level in the log.
+	t.Run("unexpected status is undetermined", func(t *testing.T) {
+		t.Parallel()
+
+		for _, status := range []int{
+			http.StatusNotFound,            // route renamed
+			http.StatusUnauthorized,        // a proxy interposed on the port
+			http.StatusInternalServerError, // pmm-managed broken
+			http.StatusServiceUnavailable,
+		} {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				w.WriteHeader(status)
+			}))
+
+			leader, err := shouldApplyRetention(context.Background(), client, srv.URL)
+			require.Error(t, err, "status %d must not be reported as a follower verdict", status)
+			assert.False(t, leader)
+			assert.Contains(t, err.Error(), "unexpected status")
+
+			srv.Close()
+		}
+	})
+
 	t.Run("pmm-managed unreachable", func(t *testing.T) {
 		t.Parallel()
 

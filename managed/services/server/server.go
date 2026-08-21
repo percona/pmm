@@ -680,7 +680,7 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
 
-	// Runs only if this node is a leader, otherwise it's a no-op
+	// Fast path: only the leader reconciles, and its ticker applies the change otherwise.
 	s.vmRetention.RequestRetentionUpdate()
 
 	err = s.agentsState.UpdateAgentsState(ctx)

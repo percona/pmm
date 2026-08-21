@@ -28,9 +28,10 @@ import (
 // In an HA cluster every node runs its own qan-api2, all writing to the same ClickHouse,
 // so data retention has to be enforced by a single node. pmm-managed already exposes that
 // decision: the endpoint answers 200 on the leader and a gRPC FailedPrecondition, rendered
-// as 400, everywhere else. It is the same check HAProxy uses to pick a backend, and it needs
-// no credentials. When high availability is disabled the endpoint always answers 200, so a
-// single-container deployment keeps enforcing retention.
+// as 400, everywhere else. Those two are the only answers about leadership; any other status
+// is an error rather than a follower verdict. It is the same check HAProxy uses to pick a
+// backend, and it needs no credentials. When high availability is disabled the endpoint
+// always answers 200, so a single-container deployment keeps enforcing retention.
 //
 // An error means leadership could not be determined, which callers must treat as "not the
 // leader": deleting data on a stale answer is worse than deleting it a few minutes later.
@@ -49,7 +50,18 @@ func isLeader(ctx context.Context, client *http.Client, url string) (bool, error
 	// Drain the body so the connection can be reused by the next check.
 	_, _ = io.Copy(io.Discard, resp.Body)
 
-	return resp.StatusCode == http.StatusOK, nil
+	switch resp.StatusCode {
+	case http.StatusOK:
+		return true, nil
+	case http.StatusBadRequest:
+		// FailedPrecondition, the endpoint's way of saying this node is a follower.
+		return false, nil
+	default:
+		// Anything else is not an answer about leadership: a renamed route, a proxy in
+		// front of the port, a broken pmm-managed. Reading it as "follower" would stop
+		// retention everywhere with nothing in the log, so report it as undetermined.
+		return false, fmt.Errorf("unexpected status %s from %s", resp.Status, url)
+	}
 }
 
 // shouldApplyRetention reports whether this node is the one that should drop old partitions.
