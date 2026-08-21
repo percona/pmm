@@ -92,6 +92,9 @@ importers:
       '@sep/plugins-atw':
         specifier: workspace:*
         version: link:../../packages/plugins/atw
+      '@sep/plugins-om':
+        specifier: workspace:*
+        version: link:../../packages/plugins/om
       '@tanstack/react-query':
         specifier: ^5.100.7
         version: 5.101.4(react@19.2.8)

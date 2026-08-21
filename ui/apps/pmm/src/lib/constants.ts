@@ -23,6 +23,11 @@ export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
 export const SEP_ATW_PATH = `${PMM_NEW_NAV_PATH}/sep/atw`;
 export const SEP_MYSQL_BACKUPS_PATH = `${PMM_NEW_NAV_PATH}/sep/mysql-backups`;
 
+// OM (OpenManager) is a PMM page, not a SEP one. Its API is pmm-managed's own
+// `/v1/om`, authorised by the Grafana session, and no request it makes needs a SEP
+// bearer -- which is why it sits beside the SEP mounts above rather than under them.
+export const OM_PATH = `${PMM_NEW_NAV_PATH}/om`;
+
 export const INTERVALS_MS = {
   // 5 mins
   SERVICE_TYPES: 300000,
