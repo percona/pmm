@@ -21,8 +21,6 @@ import (
 	"testing"
 	"time"
 
-	prom "github.com/prometheus/client_golang/prometheus"
-	dto "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -146,102 +144,24 @@ func TestReconcileErrors(t *testing.T) {
 	})
 }
 
-// TestMetrics checks that the metrics are absent when VictoriaMetrics is not managed by an
-// operator. A permanently zero success gauge on every non-Kubernetes deployment would read
-// as a failing reconcile.
-func TestMetrics(t *testing.T) {
-	collect := func(svc *Service) int {
-		ch := make(chan prom.Metric, 10)
-		svc.Collect(ch)
-		close(ch)
+// A failed reconcile records the error, which is what the log throttle in
+// reconcileWithTimeout keys on to demote an identical repeat to debug.
+func TestReconcileRecordsFailure(t *testing.T) {
+	db := setup(t, 14*24*time.Hour)
+	client := NewMockClient(t)
+	client.On("Get", mock.Anything).Return(Retention{}, errors.New("forbidden"))
 
-		var n int
-		for range ch {
-			n++
-		}
-		return n
-	}
+	svc := New(db, client)
+	svc.reconcileWithTimeout(context.Background())
+	assert.NotEmpty(t, svc.lastError)
 
-	t.Run("SilentWhenDisabled", func(t *testing.T) {
-		assert.Equal(t, 0, collect(New(nil, nil)))
-	})
-
-	// An HA node that is not the leader never reconciles, so it must not report a standing
-	// zero either: with three nodes that would leave two permanently looking like failures.
-	t.Run("SilentBeforeFirstReconcile", func(t *testing.T) {
-		assert.Equal(t, 0, collect(New(nil, NewMockClient(t))))
-	})
-
-	t.Run("ReportedAfterReconcile", func(t *testing.T) {
-		db := setup(t, 14*24*time.Hour)
-		client := NewMockClient(t)
-		// reconcileWithTimeout wraps the context, so it cannot be matched exactly here.
-		client.On("Get", mock.Anything).Return(Retention{Period: "90d", resourceVersion: "1"}, nil)
-		client.On("Set", mock.Anything, Retention{Period: "14d", resourceVersion: "1"}).Return(nil)
-
-		svc := New(db, client)
-		svc.reconcileWithTimeout(context.Background())
-
-		assert.Equal(t, 3, collect(svc))
-		assert.InDelta(t, 1, testutilGauge(t, svc.mSuccess), 0)
-		assert.InDelta(t, (14 * 24 * time.Hour).Seconds(), testutilGauge(t, svc.mRetention), 0)
-	})
-
-	// Losing leadership has to take the metrics with it. Otherwise a demoted node keeps
-	// exporting the result of its last term, which in a three-node cluster means two nodes
-	// reporting a retention they are no longer responsible for.
-	t.Run("SilentAfterRunReturns", func(t *testing.T) {
-		db := setup(t, 14*24*time.Hour)
-		client := NewMockClient(t)
-		// Already equal to the setting, so the loop only ever reads.
-		client.On("Get", mock.Anything).Return(Retention{Period: "14d", resourceVersion: "1"}, nil)
-
-		svc := New(db, client)
-		ctx, cancel := context.WithCancel(context.Background())
-		done := make(chan struct{})
-		go func() {
-			svc.Run(ctx)
-			close(done)
-		}()
-
-		require.Eventually(t, func() bool { return collect(svc) == 3 }, 10*time.Second, 10*time.Millisecond,
-			"the first reconcile should make the metrics appear")
-
-		cancel()
-		select {
-		case <-done:
-		case <-time.After(10 * time.Second):
-			t.Fatal("Run did not return after the context was canceled")
-		}
-
-		assert.Equal(t, 0, collect(svc), "a node that lost leadership must stop reporting")
-	})
-
-	t.Run("FailureIsReported", func(t *testing.T) {
-		db := setup(t, 14*24*time.Hour)
-		client := NewMockClient(t)
-		client.On("Get", mock.Anything).Return(Retention{}, errors.New("forbidden"))
-
-		svc := New(db, client)
-		svc.reconcileWithTimeout(context.Background())
-
-		assert.InDelta(t, 0, testutilGauge(t, svc.mSuccess), 0)
-		// The first failure is recorded so that a repeat can be demoted to debug.
-		assert.NotEmpty(t, svc.lastError)
-	})
-}
-
-func testutilGauge(t *testing.T, g prom.Gauge) float64 {
-	t.Helper()
-
-	ch := make(chan prom.Metric, 1)
-	g.Collect(ch)
-	close(ch)
-
-	m := <-ch
-	var pb dto.Metric
-	require.NoError(t, m.Write(&pb))
-	return pb.GetGauge().GetValue()
+	// A success clears it again, so the next failure is announced rather than demoted.
+	client2 := NewMockClient(t)
+	client2.On("Get", mock.Anything).Return(Retention{Period: "14d", resourceVersion: "1"}, nil)
+	svc2 := New(db, client2)
+	svc2.lastError = "stale"
+	svc2.reconcileWithTimeout(context.Background())
+	assert.Empty(t, svc2.lastError)
 }
 
 func TestRunWithoutClient(t *testing.T) {

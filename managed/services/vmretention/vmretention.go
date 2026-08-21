@@ -26,10 +26,8 @@ package vmretention
 import (
 	"context"
 	"fmt"
-	"sync/atomic"
 	"time"
 
-	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -48,11 +46,6 @@ const reconcileTimeout = 30 * time.Second
 // alone, so RequestRetentionUpdate is a shortcut only when the node serving the settings
 // change is also the leader; otherwise this ticker is what applies the change.
 const reconcileInterval = time.Minute
-
-const (
-	prometheusNamespace = "pmm_managed"
-	prometheusSubsystem = "vmretention"
-)
 
 // Retention is the retention period of the custom resource, together with the version of
 // the resource it was read from.
@@ -75,13 +68,6 @@ type Service struct {
 
 	// Written and read only from the reconcile loop, which is single-goroutine.
 	lastError string
-
-	// Set by the first reconcile, read by Collect on the scrape goroutine.
-	reconciled atomic.Bool
-
-	mSuccess   prom.Gauge
-	mTimestamp prom.Gauge
-	mRetention prom.Gauge
 }
 
 // New returns a new Service. A nil client disables reconciliation, which is the case for
@@ -97,50 +83,7 @@ func New(db *reform.DB, client Client) *Service {
 		client:   client,
 		l:        l,
 		reloadCh: make(chan struct{}, 1),
-
-		mSuccess: prom.NewGauge(prom.GaugeOpts{
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "last_reconcile_success",
-			Help:      "Whether the last attempt to apply data retention to VictoriaMetrics succeeded.",
-		}),
-		mTimestamp: prom.NewGauge(prom.GaugeOpts{
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "last_reconcile_timestamp_seconds",
-			Help:      "UNIX timestamp of the last attempt to apply data retention to VictoriaMetrics.",
-		}),
-		mRetention: prom.NewGauge(prom.GaugeOpts{
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "retention_seconds",
-			Help:      "Data retention period, as last applied to VictoriaMetrics.",
-		}),
 	}
-}
-
-// Describe implements prometheus.Collector.
-func (svc *Service) Describe(ch chan<- *prom.Desc) {
-	svc.mSuccess.Describe(ch)
-	svc.mTimestamp.Describe(ch)
-	svc.mRetention.Describe(ch)
-}
-
-// Collect implements prometheus.Collector.
-//
-// Nothing is collected outside a reconcile loop that has actually run, so that the metrics
-// are absent rather than misleading where this service does not apply: on deployments whose
-// VictoriaMetrics is not managed by an operator, and on HA nodes that do not currently hold
-// leadership and therefore do not reconcile. A standing zero would read as a failing
-// reconcile on both, and a result left over from a past leadership term would read as the
-// cluster's current state.
-func (svc *Service) Collect(ch chan<- prom.Metric) {
-	if svc.client == nil || !svc.reconciled.Load() {
-		return
-	}
-	svc.mSuccess.Collect(ch)
-	svc.mTimestamp.Collect(ch)
-	svc.mRetention.Collect(ch)
 }
 
 // Run runs the reconciliation loop until ctx is canceled.
@@ -153,10 +96,9 @@ func (svc *Service) Run(ctx context.Context) {
 		return
 	}
 
-	// Stop reporting when this leadership term ends. A demoted node's last result is not the
-	// cluster's current state, and leaving the latch set would export a frozen reconcile
-	// timestamp for the rest of the process lifetime.
-	defer svc.reconciled.Store(false)
+	// Forget the last error when this leadership term ends, so a node that is promoted later
+	// re-announces a standing failure instead of demoting it to debug as a repeat.
+	defer func() { svc.lastError = "" }()
 
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")
@@ -202,15 +144,10 @@ func (svc *Service) reconcileWithTimeout(ctx context.Context) {
 	defer cancel()
 
 	err := svc.reconcile(nCtx)
-
-	svc.reconciled.Store(true)
-	svc.mTimestamp.SetToCurrentTime()
 	if err == nil {
-		svc.mSuccess.Set(1)
 		svc.lastError = ""
 		return
 	}
-	svc.mSuccess.Set(0)
 
 	// The next tick retries, so a transient API error resolves itself. Repeating the same
 	// error every minute would bury the log, so only the first of a run is logged at error
@@ -263,7 +200,6 @@ func (svc *Service) reconcile(ctx context.Context) error {
 		return fmt.Errorf("failed to set retention period to %q: %w", want, err)
 	}
 
-	svc.mRetention.Set(settings.DataRetention.Seconds())
 	return nil
 }
 
@@ -273,6 +209,3 @@ func (svc *Service) reconcile(ctx context.Context) error {
 func retentionPeriod(dataRetention time.Duration) string {
 	return fmt.Sprintf("%dd", int(dataRetention.Hours()/24)) //nolint:mnd
 }
-
-// check interfaces.
-var _ prom.Collector = (*Service)(nil)

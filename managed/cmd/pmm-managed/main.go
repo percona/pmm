@@ -984,7 +984,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Panicf("VictoriaMetrics retention service problem: %+v", err)
 	}
 	vmRetention := vmretention.New(db, vmClusterClient)
-	prom.MustRegister(vmRetention)
 
 	minioClient := minio.New()
 
