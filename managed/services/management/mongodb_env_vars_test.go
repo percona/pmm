@@ -145,7 +145,7 @@ func TestAddMongoDBRejectsReservedEnvVarName(t *testing.T) {
 	uuid.SetRand(&tests.IDReader{})
 	t.Cleanup(func() { uuid.SetRand(nil) })
 
-	ctx := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(t.Context(), t.Name())
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	t.Cleanup(func() {
 		assert.NoError(t, sqlDB.Close())
