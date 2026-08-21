@@ -32,11 +32,6 @@ export default defineConfig({
       '@mui/utils',
     ],
   },
-  optimizeDeps: {
-    // Uncomment when using pnpm link for @percona/peak-ui locally
-    // exclude: ['@percona/peak-ui'],
-    force: true,
-  },
   server: {
     https: hasNginxCerts
       ? { key: fs.readFileSync(CERT_KEY), cert: fs.readFileSync(CERT_CRT) }
