@@ -37,7 +37,6 @@ import (
 // Batch several update requests together by delaying the first one.
 const updateBatchDelay = 3 * time.Second
 
-// Bound a single reconcile against the Kubernetes API.
 const reconcileTimeout = 30 * time.Second
 
 // How often the leader re-checks the retention. The reconcile loop runs on the leader
@@ -182,8 +181,7 @@ func (svc *Service) reconcile(ctx context.Context) error {
 }
 
 // retentionPeriod formats a data retention duration the way VictoriaMetrics expects it.
-// Retention is validated as a whole number of days when it is stored, so truncation here
-// only guards against a value that predates that validation.
+// Stored retention is always a whole number of days, so the truncation is a formality.
 func retentionPeriod(dataRetention time.Duration) string {
 	return fmt.Sprintf("%dd", int(dataRetention.Hours()/24)) //nolint:mnd
 }

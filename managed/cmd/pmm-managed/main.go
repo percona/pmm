@@ -559,11 +559,10 @@ func updateSupervisordConfig(db *reform.DB, svc *supervisord.Service) error {
 // applySupervisordConfig re-renders supervisord configuration from the stored settings,
 // retrying until it succeeds or ctx is canceled.
 //
-// It is registered as a leader service, so it runs when this node gains leadership. A settings
-// change is applied only by the node that serves it (server.UpdateConfigurations), which is the
-// leader, because HAProxy routes to whichever node passes the leader health check. Without this,
-// a node promoted later would keep running the programs it configured at start-up - and for
-// qan-api2 that means enforcing a data retention period the user has since changed.
+// Registered as a leader service, so it runs on promotion. Without it a node promoted later
+// would keep the programs it configured at start-up, and for qan-api2 that means enforcing a
+// retention period the user has since changed. It does not cover a change served by another
+// node while this one is already leader.
 func applySupervisordConfig(ctx context.Context, db *reform.DB, svc *supervisord.Service) error {
 	l := logrus.WithField("component", "supervisord")
 
@@ -725,9 +724,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	victoriaMetricsConfigF := kingpin.Flag("victoriametrics-config", "VictoriaMetrics scrape configuration file path").
 		Default("/etc/victoriametrics-promscrape.yml").String()
 
-	// When VictoriaMetrics is deployed separately, retention is a vmstorage start-up flag that
-	// only its operator can change, through the retentionPeriod field of this custom resource.
-	// An empty name disables that reconciliation.
+	// An empty name disables retention reconciliation.
 	vmClusterNameF := kingpin.Flag("vm-cluster-name", "Name of the VictoriaMetrics custom resource to apply data retention to").
 		Envar("PMM_VM_CLUSTER_NAME").String()
 	vmClusterNamespaceF := kingpin.Flag("vm-cluster-namespace", "Namespace of the VictoriaMetrics custom resource; defaults to the current namespace").

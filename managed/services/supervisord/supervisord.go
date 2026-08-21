@@ -551,8 +551,7 @@ func (s *Service) addPostgresParams(templateParams map[string]any) {
 }
 
 // leaderCheckURL returns the address of pmm-managed's leader health check on this node.
-// Every node of an HA cluster runs a qan-api2 against the same ClickHouse, so each one asks
-// its local pmm-managed whether it is the node that should apply data retention.
+// Each qan-api2 asks its local pmm-managed, so the URL is always loopback.
 func leaderCheckURL() string {
 	addr := net.JoinHostPort(envvars.GetInterfaceToBind(), pmmManagedHTTPPort)
 	return "http://" + addr + "/v1/server/leaderHealthCheck"

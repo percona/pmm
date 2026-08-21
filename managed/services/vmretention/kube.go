@@ -41,8 +41,8 @@ const namespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 // a typo and is returned as a plain error instead.
 var ErrNoClusterAccess = errors.New("cannot reach the Kubernetes API")
 
-// fieldManager identifies PMM's writes in the resource's managedFields, so that ownership of
-// spec.retentionPeriod is attributable and does not depend on the binary name.
+// Names PMM in the resource's managedFields instead of letting client-go derive it from the
+// binary name.
 const fieldManager = "pmm-managed"
 
 // KubeParams identifies the VictoriaMetrics custom resource that holds the retention period.

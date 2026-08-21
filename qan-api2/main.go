@@ -267,10 +267,8 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 // runRetentionLoop drops partitions older than the retention period once a day, until ctx is
 // canceled.
 //
-// Every node of an HA cluster runs a qan-api2 against the same ClickHouse, each with its own
-// copy of the retention period, so the drop is applied only by the node whose pmm-managed holds
-// leadership. A node that does not apply it looks again shortly after instead of waiting out the
-// full interval, because leadership can move at any time.
+// Only the leader drops (see isLeader). A node that does not looks again shortly after rather
+// than waiting out the full interval, because leadership can move at any time.
 func runRetentionLoop(ctx context.Context, db *sqlx.DB, dbName string, days uint, leaderCheckURL string) {
 	l := logrus.WithField("component", "retention")
 	client := &http.Client{Timeout: leaderCheckTimeout}
