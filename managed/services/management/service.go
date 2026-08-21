@@ -49,6 +49,10 @@ type ManagementService struct { //nolint:revive
 	grafanaClient grafanaClient
 	vmClient      victoriaMetricsClient
 	l             *logrus.Entry
+
+	// internalNodePrefixes holds the Node name prefixes reserved for the internal
+	// infrastructure of this PMM deployment, e.g. its HA persistence layer.
+	internalNodePrefixes []string
 }
 
 // upMetricSelectors match the per-service-type "up" metrics that back the service status.
@@ -80,19 +84,33 @@ func NewManagementService(
 	vc versionCache,
 	grafanaClient grafanaClient,
 	vmClient victoriaMetricsClient,
+	internalNodePrefixes []string,
 ) *ManagementService {
 	return &ManagementService{
-		db:            db,
-		r:             r,
-		state:         state,
-		cc:            cc,
-		sib:           sib,
-		vmdb:          vmdb,
-		vc:            vc,
-		grafanaClient: grafanaClient,
-		vmClient:      vmClient,
-		l:             logrus.WithField("service", "management"),
+		db:                   db,
+		r:                    r,
+		state:                state,
+		cc:                   cc,
+		sib:                  sib,
+		vmdb:                 vmdb,
+		vc:                   vc,
+		grafanaClient:        grafanaClient,
+		vmClient:             vmClient,
+		l:                    logrus.WithField("service", "management"),
+		internalNodePrefixes: internalNodePrefixes,
 	}
+}
+
+// isInternalNode reports whether the Node belongs to the internal infrastructure of this
+// PMM deployment and therefore must not host user monitoring workloads.
+func (s *ManagementService) isInternalNode(nodeName string) bool {
+	for _, prefix := range s.internalNodePrefixes {
+		if strings.HasPrefix(nodeName, prefix) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // A map to check if the service is supported.
@@ -108,8 +126,74 @@ var supportedServices = map[string]inventoryv1.ServiceType{
 	string(models.HAProxyServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 }
 
+// localAddresses resolve to the Node an Agent runs on. Monitoring them delegates no work to
+// that Node beyond what it already does for itself.
+var localAddresses = map[string]struct{}{"": {}, "localhost": {}, "127.0.0.1": {}, "::1": {}}
+
+// checkNodeIsEligible rejects requests which delegate monitoring of a remote address to an
+// Agent running on a Node reserved for the internal infrastructure of this PMM deployment.
+// Those Nodes still monitor the services inside their own pod, hence the address check.
+func (s *ManagementService) checkNodeIsEligible(ctx context.Context, pmmAgentID, address string) error {
+	if len(s.internalNodePrefixes) == 0 || pmmAgentID == "" {
+		return nil
+	}
+	_, isLocal := localAddresses[address]
+	if isLocal {
+		return nil
+	}
+
+	agent, err := models.FindAgentByID(s.db.WithContext(ctx), pmmAgentID)
+	if err != nil {
+		return err
+	}
+	nodeID := pointer.GetString(agent.RunsOnNodeID)
+	if nodeID == "" {
+		return nil
+	}
+
+	node, err := models.FindNodeByID(s.db.WithContext(ctx), nodeID)
+	if err != nil {
+		return err
+	}
+	if !s.isInternalNode(node.NodeName) {
+		return nil
+	}
+
+	return status.Errorf(codes.FailedPrecondition,
+		"Node '%s' is a part of the internal infrastructure of this PMM deployment and cannot monitor other services.", node.NodeName)
+}
+
+// addServiceTarget returns the pmm-agent which is to run the Service's Agents together with the
+// address it is to monitor, for the Service types which delegate monitoring to an existing Node.
+func addServiceTarget(req *managementv1.AddServiceRequest) (string, string) {
+	switch req.Service.(type) {
+	case *managementv1.AddServiceRequest_Mysql:
+		return req.GetMysql().GetPmmAgentId(), req.GetMysql().GetAddress()
+	case *managementv1.AddServiceRequest_Mongodb:
+		return req.GetMongodb().GetPmmAgentId(), req.GetMongodb().GetAddress()
+	case *managementv1.AddServiceRequest_Postgresql:
+		return req.GetPostgresql().GetPmmAgentId(), req.GetPostgresql().GetAddress()
+	case *managementv1.AddServiceRequest_Proxysql:
+		return req.GetProxysql().GetPmmAgentId(), req.GetProxysql().GetAddress()
+	case *managementv1.AddServiceRequest_Valkey:
+		return req.GetValkey().GetPmmAgentId(), req.GetValkey().GetAddress()
+	case *managementv1.AddServiceRequest_Rds:
+		return req.GetRds().GetPmmAgentId(), req.GetRds().GetAddress()
+	default:
+		// External and HAProxy Services are scraped on the Node their exporter runs on,
+		// so they cannot offload work onto it.
+		return "", ""
+	}
+}
+
 // AddService add a Service and its Agents.
 func (s *ManagementService) AddService(ctx context.Context, req *managementv1.AddServiceRequest) (*managementv1.AddServiceResponse, error) {
+	pmmAgentID, address := addServiceTarget(req)
+	err := s.checkNodeIsEligible(ctx, pmmAgentID, address)
+	if err != nil {
+		return nil, err
+	}
+
 	switch req.Service.(type) {
 	case *managementv1.AddServiceRequest_Mysql:
 		return s.addMySQL(ctx, req.GetMysql())
