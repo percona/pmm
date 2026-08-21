@@ -1154,7 +1154,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(
 	}
 
 	agent, err := as.executeAgentAdd(ctx, models.QANPostgreSQLPgStatementsAgentType, params, false, func(tx *reform.TX) error {
-		return checkInternalPgQANDuplicate(tx.Querier, p.PmmAgentId, p.ServiceId)
+		return checkInternalPgQANDuplicate(tx.Querier, p.ServiceId)
 	})
 	if err != nil {
 		return nil, err
@@ -1830,7 +1830,9 @@ const internalPgQANDuplicateLockKey = "percona/pmm:internal-pg-qan-agent"
 // checkInternalPgQANDuplicate rejects adding a second QAN agent to PMM's internal PostgreSQL
 // Service. The fixtures create one together with PMM Server, and a second one would monitor the
 // same Service twice and make the agent that the settings API and PMM_ENABLE_INTERNAL_PG_QAN act on
-// ambiguous.
+// ambiguous, regardless of which pmm-agent the new one is attached to: CreateAgent does not require
+// a Service's agents to run under any particular pmm-agent, so gating this check on the request's
+// pmm_agent_id would let it be skipped by naming any other registered pmm-agent.
 //
 // The q argument must be the Querier of the transaction that goes on to insert the new agent: two
 // concurrent calls both reading "no existing agent" before either commits its insert would
@@ -1841,8 +1843,8 @@ const internalPgQANDuplicateLockKey = "percona/pmm:internal-pg-qan-agent"
 // (service_id always varies, and pmm_agent_id does too in HA mode); pg_advisory_xact_lock
 // serializes the two transactions on this specific check instead: the second one blocks until the
 // first commits or rolls back, and then re-reads the now-settled state.
-func checkInternalPgQANDuplicate(q *reform.Querier, pmmAgentID, serviceID string) error {
-	if pmmAgentID != models.PMMServerAgentID || serviceID == "" {
+func checkInternalPgQANDuplicate(q *reform.Querier, serviceID string) error {
+	if serviceID == "" {
 		return nil
 	}
 

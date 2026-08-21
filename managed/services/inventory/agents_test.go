@@ -1251,6 +1251,40 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		assert.Len(t, agents, 1)
 	})
 
+	t.Run("RejectAddingASecondInternalQANAgentUnderAnotherPMMAgent", func(t *testing.T) {
+		// The check must key off the Service, not the requested pmm_agent_id: nothing stops a
+		// second QAN agent for PMM's own database from being registered under any other pmm-agent.
+		unsetInternalPgQANEnv(t)
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		otherPMMAgent := &models.Agent{
+			AgentID:      "other-pmm-agent",
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: new(models.PMMServerNodeID),
+		}
+		require.NoError(t, as.db.Insert(otherPMMAgent))
+
+		service, err := models.FindServiceByName(as.db.Querier, models.PMMServerPostgreSQLServiceName)
+		require.NoError(t, err)
+
+		_, err = as.AddQANPostgreSQLPgStatementsAgent(ctx, &inventoryv1.AddQANPostgreSQLPgStatementsAgentParams{
+			PmmAgentId:          otherPMMAgent.AgentID,
+			ServiceId:           service.ServiceID,
+			Username:            "username",
+			SkipConnectionCheck: true,
+		})
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists,
+			`QAN agent for the "pmm-server-postgresql" Service already exists, it is created together with PMM Server.`), err)
+
+		agents, err := models.FindAgents(as.db.Querier, models.AgentFilters{
+			ServiceID: service.ServiceID,
+			AgentType: new(models.QANPostgreSQLPgStatementsAgentType),
+		})
+		require.NoError(t, err)
+		assert.Len(t, agents, 1)
+	})
+
 	t.Run("RejectConcurrentAdditionOfASecondInternalQANAgent", func(t *testing.T) {
 		// RejectAddingASecondInternalQANAgent above only proves the check works when the two reads
 		// are not concurrent. checkInternalPgQANDuplicate reads "does one exist" before the insert,
