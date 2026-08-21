@@ -30,6 +30,7 @@ import (
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/utils/apitransport"
+	"github.com/percona/pmm/utils/dsnutils"
 	"github.com/percona/pmm/utils/servererror"
 )
 
@@ -70,17 +71,11 @@ var credentialPattern = regexp.MustCompile(`([^/@:\s]+):(?:[^/@\s][^@\s]*)?@`)
 
 // redactedServerURL returns raw with any password it carries replaced by a placeholder, so a
 // PMM Server URL can be logged without leaking its credentials - however malformed the URL
-// turns out to be. Structured parsing is tried first since it redacts a well-formed URL
-// cleanly; credentialPattern is a defensive final pass over the result.
+// turns out to be. dsnutils.RedactDSN handles a well-formed URL cleanly; credentialPattern is a
+// defensive final pass over its result, for the opaque and unparseable cases RedactDSN leaves
+// untouched.
 func redactedServerURL(raw string) string {
-	candidate := raw
-
-	u, err := url.Parse(raw)
-	if err == nil {
-		candidate = u.Redacted()
-	}
-
-	return credentialPattern.ReplaceAllString(candidate, "$1:xxxxx@")
+	return credentialPattern.ReplaceAllString(dsnutils.RedactDSN(raw), "$1:xxxxx@")
 }
 
 // sanitizeURLError returns a safe-to-log form of err: url.Parse embeds the exact string it
