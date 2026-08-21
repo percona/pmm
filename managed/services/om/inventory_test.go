@@ -20,6 +20,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -567,6 +568,69 @@ func TestInventoryConfig(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Empty(t, stub.method, "nothing should have been sent")
+	})
+
+	t.Run("a batch wider than the settings class is refused here", func(t *testing.T) {
+		t.Parallel()
+
+		// Nothing bounds this on either hop: protojson takes 200k fields inside the 4MB
+		// gRPC default, and the app would then attempt every one of them.
+		stub := newSEPStub(t, http.StatusOK, configBody)
+		wide := map[string]any{}
+		for i := 0; i <= maxConfigFields; i++ {
+			wide["KEY_"+strconv.Itoa(i)] = i
+		}
+		values, err := structpb.NewStruct(wide)
+		require.NoError(t, err)
+
+		_, err = stub.service(t).UpdateInventoryConfig(t.Context(),
+			&omv1.UpdateInventoryConfigRequest{Values: values})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, err.Error(), "at most 100 may change in one call")
+		assert.Empty(t, stub.method, "nothing should have been sent")
+	})
+
+	t.Run("a batch nested deeper than the app can parse is refused here", func(t *testing.T) {
+		t.Parallel()
+
+		// The app is Python, where the default recursion limit is 1000, while protojson
+		// accepts nesting just short of 10k. Forwarding that would make PMM the thing
+		// that broke SEP.
+		stub := newSEPStub(t, http.StatusOK, configBody)
+		nested := map[string]any{"leaf": 1}
+		for range maxConfigDepth + 1 {
+			nested = map[string]any{"SCHEDULE": nested}
+		}
+		values, err := structpb.NewStruct(nested)
+		require.NoError(t, err)
+
+		_, err = stub.service(t).UpdateInventoryConfig(t.Context(),
+			&omv1.UpdateInventoryConfigRequest{Values: values})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, err.Error(), "nests deeper than 10 levels")
+		assert.Empty(t, stub.method, "nothing should have been sent")
+	})
+
+	t.Run("the nesting a real batch uses is not refused", func(t *testing.T) {
+		t.Parallel()
+
+		// The bounds must not touch what the settings class actually looks like: a
+		// whole-object write of SCHEDULE, which is the deepest legitimate shape.
+		stub := newSEPStub(t, http.StatusOK, configBody)
+		values, err := structpb.NewStruct(map[string]any{
+			"SCHEDULE": map[string]any{"every": 25, "period": "seconds"},
+		})
+		require.NoError(t, err)
+
+		_, err = stub.service(t).UpdateInventoryConfig(t.Context(),
+			&omv1.UpdateInventoryConfigRequest{Values: values})
+
+		require.NoError(t, err)
+		assert.JSONEq(t, `{"SCHEDULE": {"every": 25, "period": "seconds"}}`, stub.calls[0].body)
 	})
 
 	t.Run("a revert names the field in the path", func(t *testing.T) {
