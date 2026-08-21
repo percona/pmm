@@ -1727,7 +1727,7 @@ func (as *AgentsService) Remove(ctx context.Context, id string, force bool) erro
 			return err
 		}
 
-		err = checkInternalPgQANRemoval(tx.Querier, agent)
+		err = models.CheckInternalPgQANRemoval(tx.Querier, agent)
 		if err != nil {
 			return err
 		}
@@ -1796,29 +1796,6 @@ func checkInternalPgQANEnvOverride(q *reform.Querier, agent *models.Agent, enabl
 		codes.FailedPrecondition,
 		"QAN for PMM's internal PostgreSQL server is set to %t via an environment variable.",
 		*enabledByEnv,
-	)
-}
-
-// checkInternalPgQANRemoval rejects removing the QAN agent of PMM's internal PostgreSQL server while
-// PMM_ENABLE_INTERNAL_PG_QAN is set. Removing it drops the state the variable pins and leaves the
-// settings API with no agent to toggle, which is a longer-lasting change than the one
-// checkInternalPgQANEnvOverride refuses.
-func checkInternalPgQANRemoval(q *reform.Querier, agent *models.Agent) error {
-	internal, err := models.IsInternalPgQANAgent(q, agent)
-	if err != nil || !internal {
-		return err
-	}
-
-	enabledByEnv, lookupErr := env.LookupBool(env.EnableInternalPgQAN)
-	if enabledByEnv == nil && lookupErr == nil {
-		// The variable is not set, so it pins nothing.
-		return nil
-	}
-
-	return status.Errorf(
-		codes.FailedPrecondition,
-		"QAN for PMM's internal PostgreSQL server is configured via the %s environment variable, its agent can't be removed.",
-		env.EnableInternalPgQAN,
 	)
 }
 

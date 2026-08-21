@@ -30,6 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/version"
 )
 
@@ -325,6 +326,31 @@ func IsInternalPgQANAgent(q *reform.Querier, agent *Agent) (bool, error) {
 	}
 
 	return service.ServiceName == PMMServerPostgreSQLServiceName, nil
+}
+
+// CheckInternalPgQANRemoval rejects removing the QAN Agent of PMM's internal PostgreSQL server while
+// PMM_ENABLE_INTERNAL_PG_QAN is set. Removing it drops the state the variable pins and leaves the
+// settings API with no agent to toggle.
+//
+// Every code path that can delete an Agent row must call this before doing so, not just
+// AgentsService.Remove: ManagementService.RemoveService, for one, deletes Agents directly.
+func CheckInternalPgQANRemoval(q *reform.Querier, agent *Agent) error {
+	internal, err := IsInternalPgQANAgent(q, agent)
+	if err != nil || !internal {
+		return err
+	}
+
+	enabledByEnv, lookupErr := env.LookupBool(env.EnableInternalPgQAN)
+	if enabledByEnv == nil && lookupErr == nil {
+		// The variable is not set, so it pins nothing.
+		return nil
+	}
+
+	return status.Errorf(
+		codes.FailedPrecondition,
+		"QAN for PMM's internal PostgreSQL server is configured via the %s environment variable, its agent can't be removed.",
+		env.EnableInternalPgQAN,
+	)
 }
 
 // FindInternalPgQANAgent returns the QAN Agent of PMM Server's own PostgreSQL Service.

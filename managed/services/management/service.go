@@ -370,7 +370,12 @@ func (s *ManagementService) RemoveService(ctx context.Context, req *managementv1
 			return err
 		}
 		for _, agent := range agents {
-			_, err := models.RemoveAgent(tx.Querier, agent.AgentID, models.RemoveRestrict)
+			err := models.CheckInternalPgQANRemoval(tx.Querier, agent)
+			if err != nil {
+				return err
+			}
+
+			_, err = models.RemoveAgent(tx.Querier, agent.AgentID, models.RemoveRestrict)
 			if err != nil {
 				return err
 			}
