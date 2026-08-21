@@ -2076,12 +2076,15 @@
   },
   "tags": [
     {
+      "description": "Backups service handles backup operations to DB.",
       "name": "BackupService"
     },
     {
+      "description": "Locations service provides access to Backup Locations.",
       "name": "LocationsService"
     },
     {
+      "description": "RestoreService provides public methods for managing backup restore history.",
       "name": "RestoreService"
     }
   ]
