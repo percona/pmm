@@ -305,7 +305,15 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
                   tooltip={Messages.tooltips.fullScan}
                 >
                   <BigNumberMetric
-                    mainText={mySqlPayload.fullScan ? 'Yes' : 'No'}
+                    // Only report Yes/No for a value the payload actually
+                    // carried; absent is unavailable, not "no full scan".
+                    mainText={
+                      mySqlPayload.fullScan == null
+                        ? ''
+                        : mySqlPayload.fullScan
+                          ? 'Yes'
+                          : 'No'
+                    }
                     size="small"
                     dataTestId="full-scan-value"
                   />

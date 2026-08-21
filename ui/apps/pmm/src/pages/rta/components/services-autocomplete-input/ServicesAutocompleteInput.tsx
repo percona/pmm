@@ -8,6 +8,7 @@ import {
   getClusterSelectionState,
   getServiceIds,
   getServiceOptions,
+  isServiceOptionDisabled,
   toggleClusterServices,
 } from './ServicesAutocompleteInput.utils';
 import {
@@ -52,8 +53,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
     [singleTechnology, selectedServices]
   );
   const isOptionDisabled = (option: ServiceOption) =>
-    selectedTechnology !== undefined &&
-    option.serviceType !== selectedTechnology;
+    isServiceOptionDisabled(option, selectedTechnology, singleTechnology);
 
   const handleServiceChange = (
     _event: React.SyntheticEvent,

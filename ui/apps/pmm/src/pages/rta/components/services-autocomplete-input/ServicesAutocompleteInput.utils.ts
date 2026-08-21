@@ -3,6 +3,7 @@ import {
   ServiceOption,
 } from './ServicesAutocompleteInput.types';
 import { AvailableService, RealtimeSession } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
 import {
   sharedTechnology,
   technologyLabel,
@@ -199,3 +200,19 @@ export const getServiceIds = (serviceOptions: ServiceOption[]): string[] =>
   serviceOptions
     .filter((option) => option.type === 'service' && option.serviceId)
     .map((option) => option.serviceId!);
+
+/**
+ * Whether an option may not be picked while one view of live queries is being
+ * assembled. The first pick fixes the technology; a cluster whose services
+ * disagree carries none of its own, and selecting it would seed a mixed set in
+ * one click, so it stays disabled even before a technology has been fixed.
+ */
+export const isServiceOptionDisabled = (
+  option: ServiceOption,
+  selectedTechnology: ServiceType | undefined,
+  singleTechnology: boolean
+): boolean =>
+  singleTechnology &&
+  (option.serviceType === undefined ||
+    (selectedTechnology !== undefined &&
+      option.serviceType !== selectedTechnology));

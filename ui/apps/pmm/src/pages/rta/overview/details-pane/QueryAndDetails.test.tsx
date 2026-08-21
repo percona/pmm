@@ -85,4 +85,34 @@ describe('QueryAndDetails', () => {
     expect(screen.queryByText('Plan summary')).not.toBeInTheDocument();
     expect(screen.queryByText('Collection')).not.toBeInTheDocument();
   });
+
+  it.each([
+    { fullScan: true, expected: 'Yes' },
+    { fullScan: false, expected: 'No' },
+  ])(
+    'reports fullScan $fullScan as $expected',
+    ({ fullScan, expected }: { fullScan: boolean; expected: string }) => {
+      renderComponent(TEST_USER_ADMIN, {
+        ...TEST_MYSQL_QUERY_DATA,
+        mySqlPayload: { ...TEST_MYSQL_QUERY_DATA.mySqlPayload!, fullScan },
+      });
+
+      expect(screen.getByTestId('full-scan-value')).toHaveTextContent(expected);
+    }
+  );
+
+  // An absent fullScan is unknown, not a negative result.
+  it('does not claim a fullScan result the payload did not carry', () => {
+    renderComponent(TEST_USER_ADMIN, {
+      ...TEST_MYSQL_QUERY_DATA,
+      mySqlPayload: {
+        ...TEST_MYSQL_QUERY_DATA.mySqlPayload!,
+        fullScan: undefined,
+      },
+    });
+
+    expect(screen.getByText('Full scan')).toBeInTheDocument();
+    expect(screen.getByTestId('full-scan-value')).not.toHaveTextContent('No');
+    expect(screen.getByTestId('full-scan-value')).not.toHaveTextContent('Yes');
+  });
 });
