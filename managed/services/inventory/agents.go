@@ -368,7 +368,7 @@ var mongoDBExporterReservedEnvVars = map[string]struct{}{
 // full-replace, so an exporter that already stores a reserved name (e.g. from before this check
 // existed) must still be able to resend it while changing other, unrelated names. Pass a nil
 // grandfathered when there is no existing agent to grandfather, such as on Add.
-// grandfathered matches case-sensitively (unlike the reserved-name check below, which is
+// Grandfathered matches case-sensitively (unlike the reserved-name check below, which is
 // case-insensitive on principle): a stored "mongodb_uri" is a different OS environment variable
 // from "MONGODB_URI" and must not grandfather a switch to the latter.
 // It is exported so every path that stores these names for a mongodb_exporter agent can apply the
@@ -389,7 +389,7 @@ func ValidateMongoDBExporterEnvVarNames(names []string, grandfathered map[string
 }
 
 // mongoDBExporterEnvVarNamesGrandfathered returns agent's currently-stored environment variable
-// names, normalized for ValidateMongoDBExporterEnvVarNames's grandfathered set. agent must be the
+// names, normalized for ValidateMongoDBExporterEnvVarNames's grandfathered set. Agent must be the
 // row the caller intends to update, read within the same transaction as that update (see
 // AgentsService.executeAgentChangeChecked), so the names it grandfathers cannot go stale before
 // the update actually applies them.
@@ -1908,12 +1908,12 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 // and must not be decided from a read taken outside this transaction: a concurrent change could
 // otherwise commit in between that read and this write, making the decision stale by the time it
 // takes effect.
-func (as *AgentsService) executeAgentChangeChecked(
+func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 	ctx context.Context,
 	agentID string,
 	params *models.ChangeAgentParams,
 	check func(current *models.Agent) error,
-) (inventoryv1.Agent, error) { //nolint:ireturn
+) (inventoryv1.Agent, error) {
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
@@ -1923,7 +1923,8 @@ func (as *AgentsService) executeAgentChangeChecked(
 				return err
 			}
 
-			if err := check(current); err != nil {
+			err = check(current)
+			if err != nil {
 				return err
 			}
 		}
