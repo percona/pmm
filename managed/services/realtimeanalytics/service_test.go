@@ -238,7 +238,8 @@ func TestListSessions(t *testing.T) {
 		svc := NewService(db, registry, stateUpdater, store)
 
 		rtaAgent.Status = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_RUNNING)]
-		err = db.Update(rtaAgent)
+		err = models.UpdateAgent(db.Querier, rtaAgent)
+		require.NoError(t, err)
 
 		resp, err := svc.ListSessions(t.Context(), &rtav1.ListSessionsRequest{})
 		require.NoError(t, err)
