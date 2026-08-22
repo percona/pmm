@@ -48,6 +48,16 @@ vi.mock('@sep/api', () => {
     },
     RUNNING_STATUSES,
     isRunningStatus: (status: string) => RUNNING_STATUSES.has(status),
+    // Used by the shared failure-reporting primitive; no 422 detail arrays
+    // reach the stop endpoint, so an empty parse is enough here.
+    parseFieldErrors: () => [],
+    ApiError: class ApiError extends Error {
+      status?: number;
+      constructor(details: { status?: number; message: string }) {
+        super(details.message);
+        this.status = details.status;
+      }
+    },
     SEP_BASE_PATH: '/sep',
   };
 });
@@ -510,6 +520,58 @@ describe('TaskHistoryTable connected stop mutation', () => {
       expect(screen.getByText('Stopped')).toBeInTheDocument()
     );
     expect(mockedApiClient.get.mock.calls.length).toBeGreaterThan(1);
+    expect(
+      screen.queryByTestId('task-history-action-error')
+    ).not.toBeInTheDocument();
+  });
+
+  it("reports a refused stop above the rows with the server's own reason", async () => {
+    mockedApiClient.get.mockResolvedValue({
+      data: {
+        items: [makeEntry(42, 'running')],
+        total: 1,
+        offset: 0,
+        limit: 10,
+      },
+    });
+    mockedApiClient.post.mockRejectedValue(
+      new Error("You don't have permission to perform this action")
+    );
+
+    render(
+      <Wrapper client={makeQueryClient()}>
+        <TaskHistoryTable taskName="my-task" disablePolling />
+      </Wrapper>
+    );
+
+    await waitFor(() =>
+      expect(screen.getByText('Running')).toBeInTheDocument()
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Stop task' }));
+    const dialog = await screen.findByRole('dialog');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Stop' }));
+
+    // The confirmation closes on confirm, so the alert lands above the rows the
+    // user is left looking at.
+    expect(
+      await screen.findByTestId('task-history-action-error')
+    ).toHaveTextContent("You don't have permission to perform this action");
+  });
+
+  it('renders a caller-owned stop failure passed as actionError', () => {
+    render(
+      <Wrapper client={makeQueryClient()}>
+        <TaskHistoryTable
+          data={[makeEntry(42, 'running')]}
+          onStopTask={() => {}}
+          actionError={new Error('Task is no longer running')}
+        />
+      </Wrapper>
+    );
+
+    expect(screen.getByTestId('task-history-action-error')).toHaveTextContent(
+      'Task is no longer running'
+    );
   });
 });
 

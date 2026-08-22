@@ -20,6 +20,7 @@ import {
   parseFieldErrors,
   type FieldValidationError,
 } from '@sep/api';
+import { actionErrorMessage } from '../ActionErrorAlert';
 import { flattenSectionFields } from '../SchemaFormRenderer';
 import type { FormSection } from '../SchemaFormRenderer/types';
 
@@ -40,9 +41,15 @@ export const EMPTY_SUBMIT_ERROR: SubmitErrorState = {
 /**
  * Map a mutation error into the persistent banner + per-field error state.
  *
- * Only HTTP 422 responses produce a banner and per-field errors; every other
- * failure (network, timeout, 5xx, other HTTP errors) returns the empty state so
- * those paths keep their existing toast-only behavior.
+ * Every failure produces a banner, so a refused or broken submit is reported
+ * from the form's own tree rather than depending on a host-provided toast. A
+ * non-422 failure (403 refusal, 409, 5xx, network, timeout) carries the
+ * server's own reason via `ApiError.message`; only a failure with no message of
+ * its own falls back to `fallbackMessage`.
+ *
+ * HTTP 422 keeps its established path: `detail` is a per-field array that
+ * `ApiError.message` does not carry, so it is parsed into per-field errors and
+ * a banner listing them.
  *
  * The banner lists every parsed message — labelling each by its form field when
  * the path resolves to a schema field — so errors that do not map onto a
@@ -56,12 +63,21 @@ export function mapSubmitError(
   fallbackMessage: string
 ): SubmitErrorState {
   if (!(error instanceof ApiError) || error.status !== 422) {
-    return EMPTY_SUBMIT_ERROR;
+    return {
+      submitError: actionErrorMessage(error, fallbackMessage),
+      fieldErrors: [],
+    };
   }
 
   const fieldErrors = parseFieldErrors(error);
   if (fieldErrors.length === 0) {
-    return { submitError: fallbackMessage, fieldErrors: [] };
+    // A 422 whose `detail` is a string rather than the per-field array still
+    // carries a server reason; `actionErrorMessage` keeps it and falls back
+    // only for the synthesized `HTTP 422`.
+    return {
+      submitError: actionErrorMessage(error, fallbackMessage),
+      fieldErrors: [],
+    };
   }
 
   const labelByPath = new Map<string, string>();
