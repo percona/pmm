@@ -30166,7 +30166,7 @@
                         "x-order": 0
                       },
                       "status": {
-                        "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                        "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this. The collection pass has a single-flight\nguard too, but a refusal there never reaches a run row at all -- the RPC answers\nAborted (already running) or FailedPrecondition (not the HA leader) and nothing is\nrecorded, so this status never applies to it.",
                         "type": "string",
                         "default": "RUN_STATUS_UNSPECIFIED",
                         "enum": [
@@ -30329,7 +30329,7 @@
                       "x-order": 0
                     },
                     "status": {
-                      "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                      "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this. The collection pass has a single-flight\nguard too, but a refusal there never reaches a run row at all -- the RPC answers\nAborted (already running) or FailedPrecondition (not the HA leader) and nothing is\nrecorded, so this status never applies to it.",
                       "type": "string",
                       "default": "RUN_STATUS_UNSPECIFIED",
                       "enum": [
@@ -30592,7 +30592,7 @@
                   "x-order": 0
                 },
                 "status": {
-                  "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                  "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this. The collection pass has a single-flight\nguard too, but a refusal there never reaches a run row at all -- the RPC answers\nAborted (already running) or FailedPrecondition (not the HA leader) and nothing is\nrecorded, so this status never applies to it.",
                   "type": "string",
                   "default": "RUN_STATUS_UNSPECIFIED",
                   "enum": [
@@ -31140,7 +31140,7 @@
                       "x-order": 1
                     },
                     "stale": {
-                      "description": "Whether the document is older than the staleness grace period.",
+                      "description": "Whether the document is older than the staleness grace period. Also true, with\nobserved_at unset and every environment empty, on a genuinely cold estate -- no\ncollection has completed anywhere yet. That is a startup state, not a statement that\nthe estate itself is empty; a reader should render it as \"collecting\" rather than as\nan empty result.",
                       "type": "boolean",
                       "x-order": 2
                     },
@@ -31235,11 +31235,11 @@
                         "description": "Its clusters, ordered by name.",
                         "type": "array",
                         "items": {
-                          "description": "Cluster represents one cluster or replica set.",
+                          "description": "Cluster represents one grouped service inventory: every service PMM's inventory\nlabelled with the same (environment, cluster) or (environment, replication_set), not a\nreconstructed replica-set or sharded-cluster topology. A sharded cluster here is a flat\nlist of mongos, configsvr and shardsvr rows that share a label -- see ClusterType for\nthe one thing inferred about that shape, and the package comment for what is\ndeliberately not.",
                           "type": "object",
                           "properties": {
                             "name": {
-                              "description": "Cluster label, unset when its services carry none.",
+                              "description": "Cluster label, unset when its services carry none. Not a stable identity: two\nclusters can share this label (a second generation of a sandbox reusing a name), and\n`id` is what tells them apart.",
                               "type": "string",
                               "x-nullable": true,
                               "x-order": 0
@@ -31377,10 +31377,43 @@
                                     "type": "string",
                                     "x-nullable": true,
                                     "x-order": 18
+                                  },
+                                  "observed_at": {
+                                    "description": "When the newest *live* field on this row was observed, unset when every field on it\nis either absent or not time-bounded (inventory only, no metric and no probe ever\nseen). This is the row's own provenance -- Snapshot.observed_at is the newest across\nthe whole estate, which cannot tell \"this row is current\" from \"this row is the one\nthat made the snapshot look fresh\". A field's own MergedField.ObservedAt exists\ninternally; this is the first one exposed on the wire.",
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "x-nullable": true,
+                                    "x-order": 19
                                   }
                                 }
                               },
                               "x-order": 1
+                            },
+                            "id": {
+                              "description": "Opaque, server-issued, stable across a rename of `name`. Derived from\n(environment, cluster, replication_set) so the same estate group always gets the\nsame id -- clients must not parse it or assume a derivation.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "type": {
+                              "description": "ClusterType is the shape buildDocument inferred for one grouped service inventory.\n\nInferred, not reconstructed: this package groups services by label and infers a shape\nfrom what is in the group, it does not walk a replica set's own config to build a\nmember list. See the package comment.\n\n - CLUSTER_TYPE_REPLICA_SET: Exactly one replication_set label under this cluster, and no mongos.\n - CLUSTER_TYPE_SHARDED: A mongos is present, or more than one replication_set label shares this cluster\nlabel.\n - CLUSTER_TYPE_STANDALONE: Neither: services grouped under one label with no replica-set identity at all.",
+                              "type": "string",
+                              "default": "CLUSTER_TYPE_UNSPECIFIED",
+                              "enum": [
+                                "CLUSTER_TYPE_UNSPECIFIED",
+                                "CLUSTER_TYPE_REPLICA_SET",
+                                "CLUSTER_TYPE_SHARDED",
+                                "CLUSTER_TYPE_STANDALONE"
+                              ],
+                              "x-order": 3
+                            },
+                            "health": {
+                              "description": "ClusterHealth is a reserved verdict slot, not yet computed by anything.\n\nUNSPECIFIED is the only value that exists today. It is declared now, alongside the\napplyHealth seam in the collector, so a rollup status has a field to land in without a\nlater schema change -- see the om package's health-pipeline comment.",
+                              "type": "string",
+                              "default": "CLUSTER_HEALTH_UNSPECIFIED",
+                              "enum": [
+                                "CLUSTER_HEALTH_UNSPECIFIED"
+                              ],
+                              "x-order": 4
                             }
                           }
                         },
@@ -31464,7 +31497,7 @@
                         "x-order": 0
                       },
                       "status": {
-                        "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                        "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this. The collection pass has a single-flight\nguard too, but a refusal there never reaches a run row at all -- the RPC answers\nAborted (already running) or FailedPrecondition (not the HA leader) and nothing is\nrecorded, so this status never applies to it.",
                         "type": "string",
                         "default": "RUN_STATUS_UNSPECIFIED",
                         "enum": [
@@ -31676,7 +31709,7 @@
                       "x-order": 0
                     },
                     "status": {
-                      "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                      "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this. The collection pass has a single-flight\nguard too, but a refusal there never reaches a run row at all -- the RPC answers\nAborted (already running) or FailedPrecondition (not the HA leader) and nothing is\nrecorded, so this status never applies to it.",
                       "type": "string",
                       "default": "RUN_STATUS_UNSPECIFIED",
                       "enum": [
@@ -31886,7 +31919,7 @@
                   "x-order": 0
                 },
                 "status": {
-                  "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this; the collection pass has no single-flight\nguard to lose against.",
+                  "description": "RunStatus is how a run ended, for both kinds of run.\n\nShared by the topology collection pass and the inventory refresh deliberately: the two\nruns differ in what they do, not in how they finish, and two identical enums would\ninvite them to drift apart for no reason.\n\n - RUN_STATUS_RUNNING: Still going. Not a terminal status.\n - RUN_STATUS_SUCCESS: Everything it attempted answered.\n - RUN_STATUS_PARTIAL: Some of it did. The counts say which. For an inventory refresh this is the common\nsteady state rather than an alarm: a row routinely outlives the executor that served\nit.\n - RUN_STATUS_FAILED: The run itself failed, as opposed to the things it was probing.\n - RUN_STATUS_SKIPPED: Refused before doing any work, because another refresh already held the hosts it\nwould have covered. Neither a failure nor a success: it did nothing, deliberately,\nand it is recorded so a schedule cannot look like it fired and found nothing.\n\nOnly an inventory refresh reaches this. The collection pass has a single-flight\nguard too, but a refusal there never reaches a run row at all -- the RPC answers\nAborted (already running) or FailedPrecondition (not the HA leader) and nothing is\nrecorded, so this status never applies to it.",
                   "type": "string",
                   "default": "RUN_STATUS_UNSPECIFIED",
                   "enum": [

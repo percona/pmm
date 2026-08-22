@@ -762,15 +762,48 @@ func (o *GetTopologyOKBodyEnvironmentsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-GetTopologyOKBodyEnvironmentsItems0ClustersItems0 Cluster represents one cluster or replica set.
+GetTopologyOKBodyEnvironmentsItems0ClustersItems0 Cluster represents one grouped service inventory: every service PMM's inventory
+// labelled with the same (environment, cluster) or (environment, replication_set), not a
+// reconstructed replica-set or sharded-cluster topology. A sharded cluster here is a flat
+// list of mongos, configsvr and shardsvr rows that share a label -- see ClusterType for
+// the one thing inferred about that shape, and the package comment for what is
+// deliberately not.
 swagger:model GetTopologyOKBodyEnvironmentsItems0ClustersItems0
 */
 type GetTopologyOKBodyEnvironmentsItems0ClustersItems0 struct {
-	// Cluster label, unset when its services carry none.
+	// Cluster label, unset when its services carry none. Not a stable identity: two
+	// clusters can share this label (a second generation of a sandbox reusing a name), and
+	// `id` is what tells them apart.
 	Name *string `json:"name,omitempty"`
 
 	// Its services, ordered by name.
 	Services []*GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 `json:"services"`
+
+	// Opaque, server-issued, stable across a rename of `name`. Derived from
+	// (environment, cluster, replication_set) so the same estate group always gets the
+	// same id -- clients must not parse it or assume a derivation.
+	ID string `json:"id,omitempty"`
+
+	// ClusterType is the shape buildDocument inferred for one grouped service inventory.
+	//
+	// Inferred, not reconstructed: this package groups services by label and infers a shape
+	// from what is in the group, it does not walk a replica set's own config to build a
+	// member list. See the package comment.
+	//
+	//  - CLUSTER_TYPE_REPLICA_SET: Exactly one replication_set label under this cluster, and no mongos.
+	//  - CLUSTER_TYPE_SHARDED: A mongos is present, or more than one replication_set label shares this cluster
+	// label.
+	//  - CLUSTER_TYPE_STANDALONE: Neither: services grouped under one label with no replica-set identity at all.
+	// Enum: ["CLUSTER_TYPE_UNSPECIFIED","CLUSTER_TYPE_REPLICA_SET","CLUSTER_TYPE_SHARDED","CLUSTER_TYPE_STANDALONE"]
+	Type *string `json:"type,omitempty"`
+
+	// ClusterHealth is a reserved verdict slot, not yet computed by anything.
+	//
+	// UNSPECIFIED is the only value that exists today. It is declared now, alongside the
+	// applyHealth seam in the collector, so a rollup status has a field to land in without a
+	// later schema change -- see the om package's health-pipeline comment.
+	// Enum: ["CLUSTER_HEALTH_UNSPECIFIED"]
+	Health *string `json:"health,omitempty"`
 }
 
 // Validate validates this get topology OK body environments items0 clusters items0
@@ -778,6 +811,14 @@ func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) Validate(formats str
 	var res []error
 
 	if err := o.validateServices(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateHealth(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -812,6 +853,93 @@ func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) validateServices(for
 			}
 		}
 
+	}
+
+	return nil
+}
+
+var getTopologyOkBodyEnvironmentsItems0ClustersItems0TypeTypePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["CLUSTER_TYPE_UNSPECIFIED","CLUSTER_TYPE_REPLICA_SET","CLUSTER_TYPE_SHARDED","CLUSTER_TYPE_STANDALONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getTopologyOkBodyEnvironmentsItems0ClustersItems0TypeTypePropEnum = append(getTopologyOkBodyEnvironmentsItems0ClustersItems0TypeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0TypeCLUSTERTYPEUNSPECIFIED captures enum value "CLUSTER_TYPE_UNSPECIFIED"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0TypeCLUSTERTYPEUNSPECIFIED string = "CLUSTER_TYPE_UNSPECIFIED"
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0TypeCLUSTERTYPEREPLICASET captures enum value "CLUSTER_TYPE_REPLICA_SET"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0TypeCLUSTERTYPEREPLICASET string = "CLUSTER_TYPE_REPLICA_SET"
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0TypeCLUSTERTYPESHARDED captures enum value "CLUSTER_TYPE_SHARDED"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0TypeCLUSTERTYPESHARDED string = "CLUSTER_TYPE_SHARDED"
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0TypeCLUSTERTYPESTANDALONE captures enum value "CLUSTER_TYPE_STANDALONE"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0TypeCLUSTERTYPESTANDALONE string = "CLUSTER_TYPE_STANDALONE"
+)
+
+// prop value enum
+func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) validateTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getTopologyOkBodyEnvironmentsItems0ClustersItems0TypeTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) validateType(formats strfmt.Registry) error {
+	if swag.IsZero(o.Type) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateTypeEnum("type", "body", *o.Type); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var getTopologyOkBodyEnvironmentsItems0ClustersItems0TypeHealthPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["CLUSTER_HEALTH_UNSPECIFIED"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getTopologyOkBodyEnvironmentsItems0ClustersItems0TypeHealthPropEnum = append(getTopologyOkBodyEnvironmentsItems0ClustersItems0TypeHealthPropEnum, v)
+	}
+}
+
+const (
+
+	// GetTopologyOKBodyEnvironmentsItems0ClustersItems0HealthCLUSTERHEALTHUNSPECIFIED captures enum value "CLUSTER_HEALTH_UNSPECIFIED"
+	GetTopologyOKBodyEnvironmentsItems0ClustersItems0HealthCLUSTERHEALTHUNSPECIFIED string = "CLUSTER_HEALTH_UNSPECIFIED"
+)
+
+// prop value enum
+func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) validateHealthEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, getTopologyOkBodyEnvironmentsItems0ClustersItems0TypeHealthPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) validateHealth(formats strfmt.Registry) error {
+	if swag.IsZero(o.Health) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateHealthEnum("health", "body", *o.Health); err != nil {
+		return err
 	}
 
 	return nil
@@ -968,6 +1096,15 @@ type GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 struct {
 
 	// The command line the running server was started with. Probe-only.
 	Argv *string `json:"argv,omitempty"`
+
+	// When the newest *live* field on this row was observed, unset when every field on it
+	// is either absent or not time-bounded (inventory only, no metric and no probe ever
+	// seen). This is the row's own provenance -- Snapshot.observed_at is the newest across
+	// the whole estate, which cannot tell "this row is current" from "this row is the one
+	// that made the snapshot look fresh". A field's own MergedField.ObservedAt exists
+	// internally; this is the first one exposed on the wire.
+	// Format: date-time
+	ObservedAt *strfmt.DateTime `json:"observed_at,omitempty"`
 }
 
 // Validate validates this get topology OK body environments items0 clusters items0 services items0
@@ -979,6 +1116,10 @@ func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) Valida
 	}
 
 	if err := o.validateProcessRole(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateObservedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1084,6 +1225,18 @@ func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) valida
 	return nil
 }
 
+func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) validateObservedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.ObservedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("observed_at", "body", "date-time", o.ObservedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validates this get topology OK body environments items0 clusters items0 services items0 based on context it is used
 func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
@@ -1120,7 +1273,11 @@ type GetTopologyOKBodySnapshot struct {
 	// Format: date-time
 	ObservedAt strfmt.DateTime `json:"observed_at,omitempty"`
 
-	// Whether the document is older than the staleness grace period.
+	// Whether the document is older than the staleness grace period. Also true, with
+	// observed_at unset and every environment empty, on a genuinely cold estate -- no
+	// collection has completed anywhere yet. That is a startup state, not a statement that
+	// the estate itself is empty; a reader should render it as "collecting" rather than as
+	// an empty result.
 	Stale bool `json:"stale,omitempty"`
 
 	// The document schema version.

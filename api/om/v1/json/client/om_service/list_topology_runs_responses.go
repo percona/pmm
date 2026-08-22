@@ -548,8 +548,10 @@ type ListTopologyRunsOKBodyRunsItems0 struct {
 	// would have covered. Neither a failure nor a success: it did nothing, deliberately,
 	// and it is recorded so a schedule cannot look like it fired and found nothing.
 	//
-	// Only an inventory refresh reaches this; the collection pass has no single-flight
-	// guard to lose against.
+	// Only an inventory refresh reaches this. The collection pass has a single-flight
+	// guard too, but a refusal there never reaches a run row at all -- the RPC answers
+	// Aborted (already running) or FailedPrecondition (not the HA leader) and nothing is
+	// recorded, so this status never applies to it.
 	// Enum: ["RUN_STATUS_UNSPECIFIED","RUN_STATUS_RUNNING","RUN_STATUS_SUCCESS","RUN_STATUS_PARTIAL","RUN_STATUS_FAILED","RUN_STATUS_SKIPPED"]
 	Status *string `json:"status,omitempty"`
 
