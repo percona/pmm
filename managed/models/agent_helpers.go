@@ -322,26 +322,30 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 
 // FindAgentsByIDs finds Agents by IDs.
 func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
+	ids = uniqueIDs(ids)
 	if len(ids) == 0 {
 		return []*Agent{}, nil
 	}
 
-	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
-	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p)
-	args := make([]any, len(ids))
-	for i, id := range ids {
-		args[i] = id
-	}
-	structs, err := q.SelectAllFrom(AgentTable, tail, args...)
-	if err != nil {
-		return nil, err
+	res := make([]*Agent, 0, len(ids))
+	for chunk := range slices.Chunk(ids, maxQueryIDs) {
+		p := strings.Join(q.Placeholders(1, len(chunk)), ", ")
+		tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p)
+		args := make([]any, len(chunk))
+		for i, id := range chunk {
+			args[i] = id
+		}
+		structs, err := q.SelectAllFrom(AgentTable, tail, args...)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, s := range structs {
+			decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+			res = append(res, &decryptedAgent)
+		}
 	}
 
-	res := make([]*Agent, len(structs))
-	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
-	}
 	return res, nil
 }
 

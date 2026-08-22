@@ -1191,9 +1191,11 @@ var databaseSchema = [][]string{
 // Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
 // Connection pool defaults, applied when SetupDBParams leaves the corresponding field unset.
+// A zero ConnMaxLifetime is not defaulted: database/sql reads it as "never expire", which is
+// what callers that do not care about pool geometry want.
 const (
 	defaultConnMaxIdleTime = 5 * time.Minute
-	defaultMaxConns        = 50
+	defaultMaxOpenConns    = 50
 )
 
 // OpenDB returns configured connection pool for PostgreSQL.
@@ -1203,10 +1205,7 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 		params.ConnMaxIdleTime = defaultConnMaxIdleTime
 	}
 	if params.MaxOpenConns <= 0 {
-		params.MaxOpenConns = defaultMaxConns
-	}
-	if params.MaxIdleConns <= 0 {
-		params.MaxIdleConns = params.MaxOpenConns
+		params.MaxOpenConns = defaultMaxOpenConns
 	}
 
 	q := make(url.Values)
@@ -1240,8 +1239,10 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 
 	db.SetConnMaxLifetime(params.ConnMaxLifetime)
 	db.SetConnMaxIdleTime(params.ConnMaxIdleTime)
-	db.SetMaxIdleConns(int(params.MaxIdleConns))
-	db.SetMaxOpenConns(int(params.MaxOpenConns))
+	db.SetMaxOpenConns(params.MaxOpenConns)
+	// Keeping every connection idle-eligible avoids closing one just because the pool is
+	// above its idle size; ConnMaxIdleTime is what returns them to the server.
+	db.SetMaxIdleConns(params.MaxOpenConns)
 
 	return db, nil
 }
@@ -1273,8 +1274,7 @@ type SetupDBParams struct {
 	MigrationVersion *int
 	ConnMaxLifetime  time.Duration
 	ConnMaxIdleTime  time.Duration
-	MaxIdleConns     int32
-	MaxOpenConns     int32
+	MaxOpenConns     int
 }
 
 // SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.

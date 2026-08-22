@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -132,25 +133,29 @@ func FindNodeByID(q *reform.Querier, id string) (*Node, error) {
 
 // FindNodesByIDs finds Nodes by IDs.
 func FindNodesByIDs(q *reform.Querier, ids []string) ([]*Node, error) {
+	ids = uniqueIDs(ids)
 	if len(ids) == 0 {
 		return []*Node{}, nil
 	}
 
-	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
-	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p)
-	args := make([]any, len(ids))
-	for i, id := range ids {
-		args[i] = id
-	}
-	structs, err := q.SelectAllFrom(NodeTable, tail, args...)
-	if err != nil {
-		return nil, err
+	res := make([]*Node, 0, len(ids))
+	for chunk := range slices.Chunk(ids, maxQueryIDs) {
+		p := strings.Join(q.Placeholders(1, len(chunk)), ", ")
+		tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p)
+		args := make([]any, len(chunk))
+		for i, id := range chunk {
+			args[i] = id
+		}
+		structs, err := q.SelectAllFrom(NodeTable, tail, args...)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, s := range structs {
+			res = append(res, s.(*Node)) //nolint:forcetypeassert
+		}
 	}
 
-	res := make([]*Node, len(structs))
-	for i, s := range structs {
-		res[i] = s.(*Node) //nolint:forcetypeassert
-	}
 	return res, nil
 }
 

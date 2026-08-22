@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -212,26 +213,25 @@ func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 
 // FindServicesByIDs finds Services by IDs.
 func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, error) {
-	if len(ids) == 0 {
-		return make(map[string]*Service), nil
-	}
+	ids = uniqueIDs(ids)
+	services := make(map[string]*Service, len(ids))
+	for chunk := range slices.Chunk(ids, maxQueryIDs) {
+		p := strings.Join(q.Placeholders(1, len(chunk)), ", ")
+		tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p)
+		args := make([]any, len(chunk))
+		for i, id := range chunk {
+			args[i] = id
+		}
 
-	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
-	tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p)
-	args := make([]any, len(ids))
-	for i, id := range ids {
-		args[i] = id
-	}
+		all, err := q.SelectAllFrom(ServiceTable, tail, args...)
+		if err != nil {
+			return nil, err
+		}
 
-	all, err := q.SelectAllFrom(ServiceTable, tail, args...)
-	if err != nil {
-		return nil, err
-	}
-
-	services := make(map[string]*Service, len(all))
-	for _, s := range all {
-		service := s.(*Service) //nolint:forcetypeassert
-		services[service.ServiceID] = service
+		for _, s := range all {
+			service := s.(*Service) //nolint:forcetypeassert
+			services[service.ServiceID] = service
+		}
 	}
 
 	return services, nil

@@ -29,20 +29,10 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
 const nodeAddress = "1.2.3.4"
-
-// queryCounter counts the queries reform executes.
-type queryCounter struct {
-	queries int
-}
-
-func (c *queryCounter) Before(_ string, _ []any) {}
-
-func (c *queryCounter) After(_ string, _ []any, _ time.Duration, _ error) {
-	c.queries++
-}
 
 // addScrapeConfigsFixtures creates one Node with a pmm-agent running the given number of MySQL
 // services, each monitored by its own mysqld_exporter. Every service gets a distinct address and
@@ -53,7 +43,8 @@ func addScrapeConfigsFixtures(t *testing.T, q *reform.Querier, pmmAgentID string
 
 	nodeID := "/node_id/" + pmmAgentID
 	structs := make([]reform.Struct, 0, 2+2*services)
-	structs = append(structs,
+	structs = append(
+		structs,
 		&models.Node{
 			NodeID:   nodeID,
 			NodeType: models.GenericNodeType,
@@ -105,9 +96,7 @@ func exporterPort(i int) uint16 {
 }
 
 // scrapedTargets maps every emitted target to the service_name label it carries.
-func scrapedTargets(t *testing.T, cfg *config.Config) map[string]string {
-	t.Helper()
-
+func scrapedTargets(cfg *config.Config) map[string]string {
 	res := make(map[string]string)
 	for _, scfg := range cfg.ScrapeConfigs {
 		for _, group := range scfg.ServiceDiscoveryConfig.StaticConfigs {
@@ -126,10 +115,10 @@ func scrapedTargets(t *testing.T, cfg *config.Config) map[string]string {
 // connection for hundreds of round trips (PMM-15228). The target and label assertions guard the
 // lookup keys, since a cache returning the wrong row would keep the query count flat too.
 func TestAddScrapeConfigsQueryCount(t *testing.T) {
-	counter := &queryCounter{}
+	reformL := sqlmetrics.NewReform("test", "test", t.Logf)
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() { assert.NoError(t, sqlDB.Close()) })
-	db := reform.NewDB(sqlDB, postgresql.Dialect, counter)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
 	resolutions := models.MetricsResolutions{HR: 5 * time.Second, MR: 10 * time.Second, LR: time.Minute}
 	l := logrus.WithField("component", "victoriametrics-test")
@@ -144,9 +133,9 @@ func TestAddScrapeConfigsQueryCount(t *testing.T) {
 				addScrapeConfigsFixtures(t, db.Querier, pmmAgentID, services, pushMetrics)
 
 				var cfg config.Config
-				counter.queries = 0
+				reformL.Reset()
 				require.NoError(t, AddScrapeConfigs(l, &cfg, db.Querier, &resolutions, &pmmAgentID, pushMetrics, false))
-				queries[services] = counter.queries
+				queries[services] = reformL.Requests()
 
 				// Every service must appear with its own target and its own labels: a lookup
 				// keyed by the wrong column would return another row and change these.
@@ -158,7 +147,7 @@ func TestAddScrapeConfigsQueryCount(t *testing.T) {
 				for i := range services {
 					expected[fmt.Sprintf("%s:%d", host, exporterPort(i))] = serviceName(pmmAgentID, i)
 				}
-				assert.Equal(t, expected, scrapedTargets(t, &cfg))
+				assert.Equal(t, expected, scrapedTargets(&cfg))
 				assert.Len(t, cfg.ScrapeConfigs, services*3)
 			}
 

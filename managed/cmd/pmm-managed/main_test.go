@@ -229,28 +229,29 @@ func TestDBPoolBudget(t *testing.T) {
 	}
 }
 
-func TestFitDBPoolSizes(t *testing.T) {
-	preferred := dbPoolSizes{internal: 20, api: 50}
-
+func TestDBPoolSizesFor(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
+		procs    int
 		budget   int
 		expected dbPoolSizes
 	}{
-		{name: "budget to spare", budget: 1500, expected: preferred},
-		{name: "exactly enough", budget: 70, expected: preferred},
-		{name: "too small, split", budget: 40, expected: dbPoolSizes{internal: 10, api: 30}},
-		// A tighter budget must never grow a pool above what the parallelism asked for.
-		{name: "internal share above preferred", budget: 68, expected: dbPoolSizes{internal: 17, api: 50}},
-		{name: "budget just below the sum", budget: 69, expected: dbPoolSizes{internal: 17, api: 50}},
-		{name: "way too small", budget: 4, expected: dbPoolSizes{internal: 1, api: 3}},
-		{name: "never zero", budget: 1, expected: dbPoolSizes{internal: 1, api: 1}},
+		// PMM Server: 1500 of budget, so the parallelism decides.
+		{name: "4 CPUs", procs: 4, budget: 1500, expected: dbPoolSizes{internal: 20, api: 50}},
+		{name: "16 CPUs", procs: 16, budget: 1500, expected: dbPoolSizes{internal: 48, api: 192}},
+		{name: "caps bind", procs: 256, budget: 1500, expected: dbPoolSizes{internal: 100, api: 1400}},
+		// A tighter budget shrinks both pools, and must never grow either of them.
+		{name: "exactly enough", procs: 4, budget: 70, expected: dbPoolSizes{internal: 20, api: 50}},
+		{name: "too small, split", procs: 4, budget: 40, expected: dbPoolSizes{internal: 10, api: 30}},
+		{name: "internal share above preferred", procs: 4, budget: 68, expected: dbPoolSizes{internal: 17, api: 50}},
+		{name: "way too small", procs: 4, budget: 4, expected: dbPoolSizes{internal: 1, api: 3}},
+		{name: "never zero", procs: 4, budget: 1, expected: dbPoolSizes{internal: 1, api: 1}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			sizes := fitDBPoolSizes(preferred, tc.budget)
+			sizes := dbPoolSizesFor(tc.procs, tc.budget)
 			assert.Equal(t, tc.expected, sizes)
 			if tc.budget >= 2 {
-				assert.LessOrEqual(t, int(sizes.internal)+int(sizes.api), tc.budget)
+				assert.LessOrEqual(t, sizes.internal+sizes.api, tc.budget)
 			}
 		})
 	}
@@ -276,13 +277,4 @@ func TestDBPoolInstances(t *testing.T) {
 			assert.Equal(t, tc.expected, dbPoolInstances(tc.haEnabled, tc.peers))
 		})
 	}
-}
-
-func TestPreferredDBPoolSizes(t *testing.T) {
-	sizes := preferredDBPoolSizes()
-
-	assert.GreaterOrEqual(t, sizes.internal, int32(internalDBMinOpenConns))
-	assert.LessOrEqual(t, sizes.internal, int32(internalDBPoolCap))
-	assert.GreaterOrEqual(t, sizes.api, int32(apiDBMinOpenConns))
-	assert.LessOrEqual(t, sizes.api, int32(apiDBPoolCap))
 }

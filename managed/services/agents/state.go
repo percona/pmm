@@ -28,6 +28,7 @@ import (
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/stringset"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
@@ -186,25 +187,25 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	// them one row at a time, and re-read the Node the pmm-agent runs on for every row - on a
 	// host with many services that is hundreds of sequential round trips, which now have to
 	// fit into stateChangeTimeout.
-	serviceIDs := make([]string, 0, len(agents))
-	nodeIDs := make([]string, 0, len(agents)+1)
-	if id := pointer.GetString(pmmAgent.RunsOnNodeID); id != "" {
-		nodeIDs = append(nodeIDs, id)
-	}
-	for _, row := range agents {
-		if id := pointer.GetString(row.ServiceID); id != "" {
-			serviceIDs = append(serviceIDs, id)
-		}
-		if id := pointer.GetString(row.NodeID); id != "" {
-			nodeIDs = append(nodeIDs, id)
+	serviceIDs := make(map[string]struct{}, len(agents))
+	nodeIDs := make(map[string]struct{}, len(agents))
+	addID := func(ids map[string]struct{}, id string) {
+		if id != "" {
+			ids[id] = struct{}{}
 		}
 	}
 
-	services, err := models.FindServicesByIDs(q, serviceIDs)
+	addID(nodeIDs, pointer.GetString(pmmAgent.RunsOnNodeID))
+	for _, row := range agents {
+		addID(serviceIDs, pointer.GetString(row.ServiceID))
+		addID(nodeIDs, pointer.GetString(row.NodeID))
+	}
+
+	services, err := models.FindServicesByIDs(q, stringset.ToSlice(serviceIDs))
 	if err != nil {
 		return fmt.Errorf("failed to collect services: %w", err)
 	}
-	nodeRows, err := models.FindNodesByIDs(q, nodeIDs)
+	nodeRows, err := models.FindNodesByIDs(q, stringset.ToSlice(nodeIDs))
 	if err != nil {
 		return fmt.Errorf("failed to collect nodes: %w", err)
 	}
@@ -281,8 +282,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return err
 			}
-			// rdsExporters is keyed by pointer, so each row keeps its own copy even when
-			// several exporters share a Node.
+			// rdsExporters is keyed by *Node, so two exporters sharing a Node would collapse
+			// into one entry - and one exporter would be dropped - now that the lookup
+			// returns the same pointer for both.
 			rdsNode := *node
 			rdsExporters[&rdsNode] = row
 
@@ -310,30 +312,29 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return err
 			}
-			node := pmmAgentNode
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
-				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				cfg, err := mysqldExporterConfig(pmmAgentNode, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.MongoDBExporterType:
-				cfg, err := mongodbExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				cfg, err := mongodbExporterConfig(pmmAgentNode, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.PostgresExporterType:
-				cfg, err := postgresExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				cfg, err := postgresExporterConfig(pmmAgentNode, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.ProxySQLExporterType:
-				agentProcesses[row.AgentID] = proxysqlExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				agentProcesses[row.AgentID] = proxysqlExporterConfig(pmmAgentNode, service, row, redactMode, pmmAgentVersion)
 			case models.ValkeyExporterType:
-				agentProcesses[row.AgentID] = valkeyExporterConfig(node, service, row, redactMode, pmmAgentVersion)
+				agentProcesses[row.AgentID] = valkeyExporterConfig(pmmAgentNode, service, row, redactMode, pmmAgentVersion)
 			case models.QANMySQLPerfSchemaAgentType:
 				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row, pmmAgentVersion)
 			case models.QANMySQLSlowlogAgentType:

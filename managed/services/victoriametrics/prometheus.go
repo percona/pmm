@@ -17,8 +17,6 @@ package victoriametrics
 
 import (
 	"fmt"
-	"maps"
-	"slices"
 
 	"github.com/AlekSi/pointer"
 	config "github.com/percona/promconfig"
@@ -26,13 +24,9 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/stringset"
 	"github.com/percona/pmm/version"
 )
-
-// bulkLookupChunk bounds the IN list of the lookups below: the full configuration rebuild
-// resolves every Service and Node in the inventory, and one bind parameter per ID would run
-// into PostgreSQL's 65535-parameter limit.
-const bulkLookupChunk = 1000
 
 // scrapeConfigLookup resolves the Services, Nodes and pmm-agents referenced by a set of Agents.
 // They are fetched in three bulk queries up front: a node running a dozen services used to cost
@@ -48,15 +42,6 @@ type scrapeConfigLookup struct {
 }
 
 func newScrapeConfigLookup(l *logrus.Entry, q *reform.Querier, agents []*models.Agent) (*scrapeConfigLookup, error) {
-	lookup := &scrapeConfigLookup{
-		l:         l,
-		q:         q,
-		services:  make(map[string]*models.Service, len(agents)),
-		nodes:     make(map[string]*models.Node, len(agents)),
-		pmmAgents: make(map[string]*models.Agent, len(agents)),
-		versions:  make(map[string]*version.Parsed, len(agents)),
-	}
-
 	serviceIDs := make(map[string]struct{}, len(agents))
 	pmmAgentIDs := make(map[string]struct{}, len(agents))
 	nodeIDs := make(map[string]struct{}, len(agents))
@@ -67,54 +52,44 @@ func newScrapeConfigLookup(l *logrus.Entry, q *reform.Querier, agents []*models.
 	}
 
 	for _, agent := range agents {
-		if agent.AgentType == models.PMMAgentType {
-			// pmm-agents are part of the same result set, no need to read them again.
-			lookup.pmmAgents[agent.AgentID] = agent
-		}
 		addID(serviceIDs, pointer.GetString(agent.ServiceID))
 		addID(pmmAgentIDs, pointer.GetString(agent.PMMAgentID))
 		addID(nodeIDs, pointer.GetString(agent.NodeID))
 		addID(nodeIDs, pointer.GetString(agent.RunsOnNodeID))
 	}
 
-	for chunk := range slices.Chunk(slices.Collect(maps.Keys(serviceIDs)), bulkLookupChunk) {
-		services, err := models.FindServicesByIDs(q, chunk)
-		if err != nil {
-			return nil, fmt.Errorf("failed to find services for scrape config: %w", err)
-		}
-		for id, service := range services {
-			lookup.services[id] = service
-			addID(nodeIDs, service.NodeID)
-		}
+	services, err := models.FindServicesByIDs(q, stringset.ToSlice(serviceIDs))
+	if err != nil {
+		return nil, fmt.Errorf("failed to find services for scrape config: %w", err)
+	}
+	for _, service := range services {
+		addID(nodeIDs, service.NodeID)
 	}
 
-	missingAgentIDs := make([]string, 0, len(pmmAgentIDs))
-	for id := range pmmAgentIDs {
-		if _, ok := lookup.pmmAgents[id]; !ok {
-			missingAgentIDs = append(missingAgentIDs, id)
-		}
+	pmmAgents, err := models.FindAgentsByIDs(q, stringset.ToSlice(pmmAgentIDs))
+	if err != nil {
+		return nil, fmt.Errorf("failed to find pmm-agents for scrape config: %w", err)
 	}
-	for chunk := range slices.Chunk(missingAgentIDs, bulkLookupChunk) {
-		pmmAgents, err := models.FindAgentsByIDs(q, chunk)
-		if err != nil {
-			return nil, fmt.Errorf("failed to find pmm-agents for scrape config: %w", err)
-		}
-		for _, pmmAgent := range pmmAgents {
-			lookup.pmmAgents[pmmAgent.AgentID] = pmmAgent
-		}
+	lookup := &scrapeConfigLookup{
+		l:         l,
+		q:         q,
+		services:  services,
+		nodes:     make(map[string]*models.Node, len(nodeIDs)),
+		pmmAgents: make(map[string]*models.Agent, len(pmmAgents)),
+		versions:  make(map[string]*version.Parsed, len(pmmAgents)),
 	}
-	for _, pmmAgent := range lookup.pmmAgents {
+	for _, pmmAgent := range pmmAgents {
+		lookup.pmmAgents[pmmAgent.AgentID] = pmmAgent
+		// The Node a pmm-agent runs on is only known once the pmm-agent row is in hand.
 		addID(nodeIDs, pointer.GetString(pmmAgent.RunsOnNodeID))
 	}
 
-	for chunk := range slices.Chunk(slices.Collect(maps.Keys(nodeIDs)), bulkLookupChunk) {
-		nodes, err := models.FindNodesByIDs(q, chunk)
-		if err != nil {
-			return nil, fmt.Errorf("failed to find nodes for scrape config: %w", err)
-		}
-		for _, node := range nodes {
-			lookup.nodes[node.NodeID] = node
-		}
+	nodes, err := models.FindNodesByIDs(q, stringset.ToSlice(nodeIDs))
+	if err != nil {
+		return nil, fmt.Errorf("failed to find nodes for scrape config: %w", err)
+	}
+	for _, node := range nodes {
+		lookup.nodes[node.NodeID] = node
 	}
 
 	return lookup, nil

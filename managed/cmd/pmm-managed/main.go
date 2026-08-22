@@ -159,6 +159,8 @@ const (
 	internalDBOpenConnsPerP = 3
 	apiDBOpenConnsPerP      = 12
 
+	// The two caps sum to the budget PMM Server leaves (2000 max_connections less the
+	// reserve below), so on PMM Server they bind before the budget does.
 	internalDBPoolCap = 100
 	apiDBPoolCap      = 1400
 
@@ -174,7 +176,6 @@ const (
 	// Used when the server's max_connections cannot be read. PostgreSQL's own default is
 	// far below what PMM Server configures, which makes it the conservative assumption.
 	assumedMaxConnections = 100
-	maxConnectionsTimeout = 10 * time.Second
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -632,17 +633,8 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 
 // dbPoolSizes holds the maximum number of open connections per pmm-managed pool.
 type dbPoolSizes struct {
-	internal int32
-	api      int32
-}
-
-// preferredDBPoolSizes returns the pool sizes for the available parallelism,
-// disregarding how many connections the PostgreSQL server can actually serve.
-func preferredDBPoolSizes() dbPoolSizes {
-	return dbPoolSizes{
-		internal: int32(min(max(internalDBMinOpenConns, runtime.GOMAXPROCS(0)*internalDBOpenConnsPerP), internalDBPoolCap)), //nolint:gosec
-		api:      int32(min(max(apiDBMinOpenConns, runtime.GOMAXPROCS(0)*apiDBOpenConnsPerP), apiDBPoolCap)),                //nolint:gosec
-	}
+	internal int
+	api      int
 }
 
 // dbPoolInstances returns how many pmm-managed instances share one PostgreSQL server.
@@ -672,22 +664,21 @@ func dbPoolBudget(maxConns, instances int) int {
 	return max((maxConns-reserved)/max(instances, 1), 1)
 }
 
-// fitDBPoolSizes shrinks the pool sizes to fit the budget of a single pmm-managed instance.
-// PMM Server runs PostgreSQL with max_connections=2000, so the preferred sizes normally fit;
-// an external PostgreSQL, or an HA cluster sharing one server, may leave a lot less room.
-func fitDBPoolSizes(sizes dbPoolSizes, budget int) dbPoolSizes {
-	if int(sizes.internal)+int(sizes.api) <= budget {
-		return sizes
+// dbPoolSizesFor returns the size of each pool: proportional to the available parallelism,
+// then shrunk to the budget of a single pmm-managed instance. PMM Server runs PostgreSQL with
+// max_connections=2000, so the proportional sizes normally fit; an external PostgreSQL, or an
+// HA cluster sharing one server, may leave a lot less room.
+func dbPoolSizesFor(procs, budget int) dbPoolSizes {
+	internal := min(max(internalDBMinOpenConns, procs*internalDBOpenConnsPerP), internalDBPoolCap)
+	api := min(max(apiDBMinOpenConns, procs*apiDBOpenConnsPerP), apiDBPoolCap)
+
+	if internal+api > budget {
+		// Never above what the parallelism asked for: a tighter budget must not grow a pool.
+		internal = min(max(budget/internalDBBudgetShare, 1), internal)
+		api = min(max(budget-internal, 1), api)
 	}
 
-	// Never above what the parallelism asked for: a tighter budget must not grow a pool.
-	internal := min(max(budget/internalDBBudgetShare, 1), int(sizes.internal))
-	api := min(max(budget-internal, 1), int(sizes.api))
-
-	return dbPoolSizes{
-		internal: int32(internal), //nolint:gosec
-		api:      int32(api),      //nolint:gosec
-	}
+	return dbPoolSizes{internal: internal, api: api}
 }
 
 // postgresMaxConnections reads the max_connections setting of the PostgreSQL server.
@@ -726,11 +717,17 @@ func getQANClient(sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
 		logrus.Fatalf("Failed to connect QAN API %s: %s.", qanAPIAddr, err)
 	}
 
-	l := logrus.WithField("component", "reform/qan")
-	reformL := sqlmetrics.NewReform("postgres", dbName+"/qan", l.Tracef)
-	prom.MustRegister(reformL)
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, newReformLogger(dbName, "qan"))
 	return qan.NewClient(conn, db)
+}
+
+// newReformLogger returns a registered reform logger for one connection pool. The pool name
+// separates both the metrics and the trace logs of the pools sharing a database.
+func newReformLogger(dbName, pool string) *sqlmetrics.Reform {
+	reformL := sqlmetrics.NewReform("postgres", dbName+"/"+pool, logrus.WithField("component", "reform/"+pool).Tracef)
+	prom.MustRegister(reformL)
+
+	return reformL
 }
 
 func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) {
@@ -977,8 +974,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Panicf("cannot load victoriametrics params problem: %+v", err)
 	}
 
-	poolSizes := preferredDBPoolSizes()
-
 	// The internal pool serves the background services that keep the server itself alive:
 	// VictoriaMetrics scrape config rebuild, settings, cleanup, telemetry, checks, backups.
 	// It is deliberately kept away from the pmm-agent facing paths, so that a reconnect
@@ -996,8 +991,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		HAPeers:         nodes,
 		ConnMaxLifetime: dbConnMaxLifetime,
 		ConnMaxIdleTime: dbConnMaxIdleTime,
-		MaxIdleConns:    poolSizes.internal,
-		MaxOpenConns:    poolSizes.internal,
+		// The final size needs max_connections, which needs a connection. Migrations run
+		// on the default pool size, and both pools are sized right after.
 	}
 
 	sqlInternalDB, err := models.OpenDB(setupInternalDBParams)
@@ -1014,7 +1009,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	// The pools must fit what the server can serve: max_connections is not ours to assume
 	// (an external PostgreSQL is supported), and in HA every instance draws from the same server.
-	detectCtx, detectCancel := context.WithTimeout(ctx, maxConnectionsTimeout)
+	detectCtx, detectCancel := context.WithTimeout(ctx, defaultContextTimeout)
 	maxConns, err := postgresMaxConnections(detectCtx, sqlInternalDB)
 	detectCancel()
 	if err != nil {
@@ -1026,22 +1021,19 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	instances := dbPoolInstances(*haEnabled, nodes)
 	budget := dbPoolBudget(maxConns, instances)
-	poolSizes = fitDBPoolSizes(poolSizes, budget)
-	sqlInternalDB.SetMaxOpenConns(int(poolSizes.internal))
-	sqlInternalDB.SetMaxIdleConns(int(poolSizes.internal))
+	poolSizes := dbPoolSizesFor(runtime.GOMAXPROCS(0), budget)
+	sqlInternalDB.SetMaxOpenConns(poolSizes.internal)
+	sqlInternalDB.SetMaxIdleConns(poolSizes.internal)
 	l.Infof("PostgreSQL max_connections=%d shared by %d pmm-managed instance(s), connection budget %d.",
 		maxConns, instances, budget)
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF+"/internal", sqlInternalDB))
-	internalReformL := sqlmetrics.NewReform("postgres", *postgresDBNameF+"/internal", logrus.WithField("component", "reform/internal").Tracef)
-	prom.MustRegister(internalReformL)
-	internalDB := reform.NewDB(sqlInternalDB, postgresql.Dialect, internalReformL)
+	internalDB := reform.NewDB(sqlInternalDB, postgresql.Dialect, newReformLogger(*postgresDBNameF, "internal"))
 
 	// The API pool serves the pmm-agent facing paths (agent connect, state updates, QAN
 	// collection, RTA, authentication) and the gRPC/REST API handlers. Saturating it
 	// degrades those paths only; the internal services keep making progress.
 	setupAPIDBParams := setupInternalDBParams
-	setupAPIDBParams.MaxIdleConns = poolSizes.api
 	setupAPIDBParams.MaxOpenConns = poolSizes.api
 
 	sqlAPIDB, err := models.OpenDB(setupAPIDBParams)
@@ -1051,9 +1043,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	defer sqlAPIDB.Close() //nolint:errcheck
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF+"/api", sqlAPIDB))
-	apiReformL := sqlmetrics.NewReform("postgres", *postgresDBNameF+"/api", logrus.WithField("component", "reform/api").Tracef)
-	prom.MustRegister(apiReformL)
-	apiDB := reform.NewDB(sqlAPIDB, postgresql.Dialect, apiReformL)
+	apiDB := reform.NewDB(sqlAPIDB, postgresql.Dialect, newReformLogger(*postgresDBNameF, "api"))
 
 	l.Infof("Database connection pools: internal %d, API %d.", poolSizes.internal, poolSizes.api)
 
