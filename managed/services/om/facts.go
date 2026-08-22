@@ -62,12 +62,26 @@ const (
 const (
 	sourceInventory = "inventory"
 	sourceMetrics   = "metrics"
-	// Not produced here. This is the key reserved for the SEP inventory
-	// app's on-host facts -- argv, config paths, the installed binary version -- so the
-	// precedence table can already name it and the merge needs no change when it lands.
+	// The SEP inventory app's on-host facts -- argv, config paths, the installed binary
+	// version. Produced by probeSource in probe_source.go, which reads them off SEP's
+	// om_inventory app rather than probing anything itself; see that file for why.
 	sourceProbe = "probe"
 )
 
+// Fact is keyed by PMM service, deliberately, not by host.
+//
+// A host with three mongods and no service PMM has registered -- the case this product
+// exists to describe -- cannot contribute a fact the merge will keep, and neither can a
+// naturally per-host probe attribute like repo_reachable or executor_reachable. That is a
+// real gap and a decided one, not an oversight: host attributes live only on
+// /v1/om/inventory/hosts (inventory.go), reached through a separate API rather than
+// folded into this document. The alternative -- widening Fact with an optional node key
+// so the merge becomes (node|service, field) -- was considered and deferred, because
+// projection would then have to decide whether a host fact attaches to every service on
+// that node or to some new slot, which is bigger than a fact-source addition. Until that
+// lands, a naturally-per-host probe attribute must not be stuffed into every service row
+// on its node: the copies would disagree the moment one of them changed.
+//
 // Fact carries one field about one service, as one source saw it.
 type Fact struct {
 	// Service is the PMM service ID this is about.
@@ -300,6 +314,33 @@ func (f fieldSet) live(field string) (any, bool) {
 		return nil, false
 	}
 	return held.Value, true
+}
+
+// newestObservedAt returns the most recent observation among this row's live fields, or
+// nil when none of them carry one at all.
+//
+// This is the row's own provenance, as against Snapshot.observed_at which is the newest
+// across the whole estate and so cannot tell "this row is current" from "this row merely
+// did not drag the snapshot's headline age down". An inventory-only fact has no
+// ObservedAt to begin with, and a volatile fact that aged out is excluded the same way
+// live() excludes it from a read -- a fact too old to read as current should not read as
+// current here either.
+func (f fieldSet) newestObservedAt() *time.Time {
+	var newest *time.Time
+	for field, held := range f.fields {
+		if held.ObservedAt == nil {
+			continue
+		}
+		if volatileFields[field] {
+			if _, ok := f.live(field); !ok {
+				continue
+			}
+		}
+		if newest == nil || held.ObservedAt.After(*newest) {
+			newest = held.ObservedAt
+		}
+	}
+	return newest
 }
 
 // staleVolatile counts the volatile fields dropped for age, which the run receipt reports

@@ -58,12 +58,16 @@ const (
 // Reported as FailedPrecondition rather than Unimplemented or NotFound: the endpoints
 // exist and work, the deployment has simply not been told where SEP is, and that is an
 // operator's action rather than a missing feature.
-func (s *Service) inventoryProbe() (*probeSource, error) {
+//
+// Returns sepApp, not *probeSource: the inventory handlers below only ever need to call
+// against om_inventory, never any of probeSource's own factSource behaviour, and holding
+// the narrower handle is what keeps this file from knowing probeSource exists at all.
+func (s *Service) inventoryProbe() (sepApp, error) {
 	if s.probe == nil {
-		return nil, status.Error(codes.FailedPrecondition,
+		return sepApp{}, status.Error(codes.FailedPrecondition,
 			"SEP is not configured; set PMM_SEP_URL and PMM_SEP_TOKEN to reach the inventory app")
 	}
-	return s.probe, nil
+	return s.probe.app, nil
 }
 
 // ListInventoryHosts returns every host the inventory app has a row for.

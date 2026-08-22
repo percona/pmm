@@ -17,10 +17,13 @@ package om
 
 import (
 	"cmp"
+	"crypto/sha256"
+	"encoding/hex"
 	"slices"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
 	"github.com/percona/pmm/managed/models"
@@ -82,13 +85,29 @@ func buildDocument(services []*models.Service, merged map[string]map[string]Merg
 			slices.SortFunc(svcs, func(a, b *omv1.TopologyService) int {
 				return cmp.Compare(a.ServiceName, b.ServiceName)
 			})
-			clusters = append(clusters, &omv1.Cluster{Name: named(cluster), Services: svcs})
+			clusters = append(clusters, &omv1.Cluster{
+				Name:     named(cluster),
+				Services: svcs,
+				Id:       clusterID(env, cluster),
+				Type:     clusterType(svcs),
+			})
 		}
 		out.environments = append(out.environments, &omv1.Environment{EnvName: named(env), Clusters: clusters})
 	}
 
 	out.summary = buildSummary(out.environments)
 	return out
+}
+
+// applyHealth evaluates advisories and rollup statuses over the assembled document.
+//
+// A separate pipeline stage so the observational projection above stays pure: buildDocument
+// reports what was observed, and a verdict about what that means belongs downstream of it,
+// not folded into the same pass. No-op today -- there are no health rules yet -- and kept as
+// its own stage rather than an `if` bolted onto serviceDocument so the first rule has a place
+// to land without restructuring the pipeline around it.
+func applyHealth(doc document) document {
+	return doc
 }
 
 // serviceDocument builds one service entry.
@@ -129,6 +148,62 @@ func serviceDocument(service *models.Service, fields fieldSet) *omv1.TopologySer
 		InstalledVersion: optional(fields.str(fieldInstalledVersion)),
 		ConfigPath:       optional(fields.str(fieldConfigPath)),
 		Argv:             optional(fields.str(fieldArgv)),
+
+		// This row's own provenance, as against Snapshot.observed_at's estate-wide
+		// newest -- see fieldSet.newestObservedAt.
+		ObservedAt: observedAtTimestamp(fields.newestObservedAt()),
+	}
+}
+
+// observedAtTimestamp adapts fieldSet.newestObservedAt's *time.Time to the wire's
+// *timestamppb.Timestamp, nil to nil.
+func observedAtTimestamp(t *time.Time) *timestamppb.Timestamp {
+	if t == nil {
+		return nil
+	}
+	return timestamppb.New(*t)
+}
+
+// clusterID derives a stable, opaque id for one grouped service inventory.
+//
+// (environment, grouping key) is already the unique key buildDocument groups services
+// under -- groupingKeys has already folded replication_set into it as cluster's fallback
+// -- so hashing that pair is enough to give two clusters that happen to share a label
+// (two generations of a sandbox both called "sharded-cluster") two different ids.
+// Deterministic rather than random, so the same estate group derives the same id run
+// over run without needing to be stored anywhere: id is a projection of the grouping,
+// not new state.
+func clusterID(env, groupKey string) string {
+	sum := sha256.Sum256([]byte(env + "\x00" + groupKey))
+	return hex.EncodeToString(sum[:])[:16]
+}
+
+// clusterType infers a grouped service inventory's shape from what is in the group.
+//
+// Inferred, not reconstructed -- this package does not walk a replica set's own config to
+// discover its member list, it looks at what buildDocument already grouped: a mongos
+// present, or more than one replication_set label sharing this cluster label, is SHARDED;
+// exactly one replication_set and no mongos is REPLICA_SET; neither is STANDALONE. A
+// later schema_version can grow an actual shard map without this needing to change --
+// the enum names a shape, it does not commit to having discovered one.
+func clusterType(services []*omv1.TopologyService) omv1.ClusterType {
+	replicationSets := make(map[string]bool)
+	mongos := false
+	for _, svc := range services {
+		if svc.GetProcessRole() == omv1.ProcessRole_PROCESS_ROLE_MONGOS {
+			mongos = true
+		}
+		if rs := svc.GetReplicationSet(); rs != "" {
+			replicationSets[rs] = true
+		}
+	}
+	switch {
+	case mongos || len(replicationSets) > 1:
+		return omv1.ClusterType_CLUSTER_TYPE_SHARDED
+	case len(replicationSets) == 1:
+		return omv1.ClusterType_CLUSTER_TYPE_REPLICA_SET
+	default:
+		return omv1.ClusterType_CLUSTER_TYPE_STANDALONE
 	}
 }
 

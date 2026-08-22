@@ -79,11 +79,10 @@ func newProbeSource(t *testing.T, handler http.HandlerFunc) probeSource {
 	t.Helper()
 	server := httptest.NewServer(handler)
 	t.Cleanup(server.Close)
+	client := &sepClient{baseURL: server.URL, token: "test-token", http: server.Client()}
 	return probeSource{
-		sepURL: server.URL,
-		token:  "test-token",
-		client: server.Client(),
-		l:      logrus.WithField("test", t.Name()),
+		app: client.app(probeAppModule),
+		l:   logrus.WithField("test", t.Name()),
 	}
 }
 
@@ -104,7 +103,7 @@ func TestProbeSource(t *testing.T) {
 		assert.Equal(t, "Bearer test-token", gotAuth)
 		// The caller configures where SEP is; this side appends the app path. A path of
 		// just "/services" would mean the app name had leaked into configuration.
-		assert.Equal(t, "/"+probeAppPath+"/"+probeServicesPath, gotPath)
+		assert.Equal(t, "/api/apps/"+probeAppModule+"/"+probeServicesPath, gotPath)
 		assert.Equal(t, SourcePartial, result.Status, "one of two services was covered")
 
 		byField := make(map[string]any, len(result.Facts))
@@ -144,7 +143,7 @@ func TestProbeSource(t *testing.T) {
 
 		// "No probe has run here" is a normal state of a PMM that has not enabled the
 		// app, and must not read as an error on the run.
-		source := probeSource{l: logrus.WithField("test", t.Name())} // no sepURL
+		source := probeSource{l: logrus.WithField("test", t.Name())} // zero-value app, no sepURL
 		result := source.collect(context.Background(), probeTestServices())
 
 		assert.Equal(t, SourceDisabled, result.Status)

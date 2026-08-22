@@ -40,21 +40,22 @@ import (
 // read on the other side rather than a fan-out waiting to happen. That is what keeps
 // an OM run in the tenth-of-a-second range with a source attached whose own work
 // takes tens of seconds.
+//
+// This is the only job a probeSource has. Where SEP is, how PMM authenticates to it and
+// how a request against it is built are sepApp's and sepClient's, in sep_client.go --
+// shared with inventory.go's proxy handlers rather than duplicated for them, and ready
+// for the next SEP-backed source to reuse the same way.
 type probeSource struct {
-	// sepURL is where SEP is, e.g. http://127.0.0.1:8000 -- not where the app hangs
-	// off it. Which app to ask is this source's business, not the operator's, and the
-	// next source will point at a different app on the same SEP. Empty means the
-	// source is not configured, which is a normal state and reported as disabled
-	// rather than failed.
-	sepURL string
-	token  string
-	client *http.Client
-	l      *logrus.Entry
+	// app is the zero value, with a nil client, when the source is not configured -- a
+	// normal state, reported as disabled rather than failed. See Service.WithProbeSource.
+	app sepApp
+	l   *logrus.Entry
 }
 
-// probeAppPath is where SEP mounts the inventory app, under the `/api/apps/<module>`
-// convention every SEP app follows. Paths passed around below are relative to it.
-const probeAppPath = "api/apps/om_inventory"
+// probeAppModule is where SEP mounts the inventory app: the module name under the
+// `/api/apps/<module>` convention every SEP app follows, and what Service.WithProbeSource
+// hands to sepClient.app to build this source's handle.
+const probeAppModule = "om_inventory"
 
 // probeServicesPath is the app's estate, flat. /hosts nests the same service rows
 // under their host and carries host-level attributes besides, which this source has
@@ -102,7 +103,7 @@ const probeRequestTimeout = 10 * time.Second
 
 func (s probeSource) collect(ctx context.Context, services []*models.Service) SourceResult {
 	result := SourceResult{Source: sourceProbe, Status: SourceDisabled}
-	if s.sepURL == "" {
+	if s.app.client == nil {
 		result.Detail = map[string]any{"reason": "no SEP endpoint configured"}
 		return result
 	}
@@ -119,7 +120,7 @@ func (s probeSource) collect(ctx context.Context, services []*models.Service) So
 			Source: sourceProbe,
 			Status: SourceFailed,
 			Errors: []RunError{{Scope: "source", Code: "probe_fetch_failed", Message: err.Error()}},
-			Detail: map[string]any{"endpoint": s.endpoint(probeServicesPath)},
+			Detail: map[string]any{"endpoint": s.app.endpoint(probeServicesPath)},
 		}
 	}
 
@@ -198,7 +199,7 @@ func (s probeSource) collect(ctx context.Context, services []*models.Service) So
 	}
 
 	result.Detail = map[string]any{
-		"endpoint":           s.endpoint(probeServicesPath),
+		"endpoint":           s.app.endpoint(probeServicesPath),
 		"services":           len(services),
 		"services_covered":   len(covered),
 		"services_unknown":   unknown,
@@ -249,26 +250,18 @@ func (p probeService) failureSummary() string {
 	return fmt.Sprintf("%s: %s", name, p.LastError)
 }
 
-// endpoint builds an absolute URL for a path relative to the inventory app.
-func (s probeSource) endpoint(path string) string {
-	return strings.TrimSuffix(s.sepURL, "/") + "/" + probeAppPath + "/" + strings.TrimPrefix(path, "/")
-}
-
 // fetch reads the app's service estate.
 func (s probeSource) fetch(ctx context.Context) ([]probeService, error) {
 	ctx, cancel := context.WithTimeout(ctx, probeRequestTimeout)
 	defer cancel()
 
-	url := s.endpoint(probeServicesPath)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	url := s.app.endpoint(probeServicesPath)
+	req, err := s.app.request(ctx, http.MethodGet, probeServicesPath, nil, nil, false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build the request: %w", err)
 	}
-	if s.token != "" {
-		req.Header.Set("Authorization", "Bearer "+s.token)
-	}
 
-	resp, err := s.client.Do(req)
+	resp, err := s.app.client.http.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("GET %s: %w", url, err)
 	}

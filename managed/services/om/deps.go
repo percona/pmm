@@ -27,3 +27,13 @@ import (
 type victoriaMetricsClient interface {
 	Query(ctx context.Context, query string, ts time.Time, opts ...v1.Option) (model.Value, v1.Warnings, error)
 }
+
+// haChecker reports HA leadership, so a write-triggering RPC can refuse on a follower
+// rather than race the leader for the same collection.
+//
+// Optional like probe: a Service built without one (every test in this package but the
+// ones that care) treats every node as the leader, which is the single-node default too.
+type haChecker interface {
+	IsLeader() bool
+	LeaderID() string
+}

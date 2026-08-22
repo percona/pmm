@@ -186,4 +186,9 @@ const unspecified = "UNSPECIFIED"
 
 // schemaVersion is the version of the emitted document. Versioned so that a stored
 // snapshot stays readable across changes.
-const schemaVersion = 3
+//
+// Starts at 1: nothing has shipped yet, so there is no prior version's snapshot a reader
+// needs to keep distinguishing from this one. A dev database is one `./om reset data`
+// away, which is what makes 1 the honest number rather than leftover numbering from
+// development.
+const schemaVersion = 1
