@@ -58,4 +58,18 @@ export interface TaskHistoryTableProps {
   ) => void;
   /** Hide the Task Name column (useful when scoped to a single task). */
   hideTaskNameColumn?: boolean;
+  /**
+   * Failure of an action fired from this table, rendered as an alert above the
+   * rows. The stop confirmation closes as soon as it is confirmed, so the
+   * request settles with the user looking at the table — this is where the
+   * refusal has to appear.
+   *
+   * Required of any caller that owns the stop mutation, in either mode: pass
+   * its `error` here or the failure is reported nowhere. Only the connected
+   * variant *without* an `onStopTask` reports for itself, from its internal
+   * mutation, and ignores this prop.
+   */
+  actionError?: unknown;
+  /** Dismiss handler for {@link actionError} (e.g. the mutation's `reset`). */
+  onDismissActionError?: () => void;
 }

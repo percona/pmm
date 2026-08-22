@@ -47,7 +47,12 @@ export {
 export type { AuthSession, AuthState } from './auth-context';
 
 // Errors
-export { ApiError, normalizeAxiosError, parseFieldErrors } from './errors';
+export {
+  ApiError,
+  normalizeAxiosError,
+  normalizeBlobError,
+  parseFieldErrors,
+} from './errors';
 export type {
   ApiErrorDetails,
   ApiErrorKind,
