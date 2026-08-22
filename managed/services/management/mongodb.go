@@ -25,6 +25,7 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/management/common"
 	"github.com/percona/pmm/managed/utils/duration"
 )
 
@@ -63,6 +64,16 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 			return err
 		}
 
+		// This is a new agent, so there is no existing agent to grandfather.
+		err = common.ValidateMongoDBExporterEnvVarNames(req.EnvironmentVariableNames, nil)
+		if err != nil {
+			return err
+		}
+
+		// Only agents that pmm-agent starts as a separate process can receive environment
+		// variables: they are resolved from pmm-agent's environment into
+		// SetStateRequest.AgentProcess.env_variable_names. mongodb_exporter is the only such
+		// agent here, so the QAN and RTA agents below intentionally do not store the names.
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
 			PMMAgentID:               req.PmmAgentId,
 			ServiceID:                service.ServiceID,
@@ -104,14 +115,14 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		mongodb.MongodbExporter = agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
 
 		if req.QanMongodbProfiler {
+			// Built-in agent: no EnvironmentVariableNames, see the mongodb_exporter comment above.
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
-				PMMAgentID:               req.PmmAgentId,
-				ServiceID:                service.ServiceID,
-				Username:                 req.Username,
-				Password:                 req.Password,
-				EnvironmentVariableNames: req.EnvironmentVariableNames,
-				TLS:                      req.Tls,
-				TLSSkipVerify:            req.TlsSkipVerify,
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
 				QANOptions: models.QANOptions{
 					MaxQueryLength: req.MaxQueryLength,
 					// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
@@ -131,14 +142,14 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		}
 
 		if req.QanMongodbMongolog {
+			// Built-in agent: no EnvironmentVariableNames, see the mongodb_exporter comment above.
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBMongologAgentType, &models.CreateAgentParams{
-				PMMAgentID:               req.PmmAgentId,
-				ServiceID:                service.ServiceID,
-				Username:                 req.Username,
-				Password:                 req.Password,
-				EnvironmentVariableNames: req.EnvironmentVariableNames,
-				TLS:                      req.Tls,
-				TLSSkipVerify:            req.TlsSkipVerify,
+				PMMAgentID:    req.PmmAgentId,
+				ServiceID:     service.ServiceID,
+				Username:      req.Username,
+				Password:      req.Password,
+				TLS:           req.Tls,
+				TLSSkipVerify: req.TlsSkipVerify,
 				QANOptions: models.QANOptions{
 					MaxQueryLength: req.MaxQueryLength,
 					// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
@@ -158,16 +169,16 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		}
 
 		if req.RtaMongodbAgent {
+			// Built-in agent: no EnvironmentVariableNames, see the mongodb_exporter comment above.
 			row, err = models.CreateAgent(tx.Querier, models.RTAMongoDBAgentType, &models.CreateAgentParams{
-				PMMAgentID:               req.PmmAgentId,
-				ServiceID:                service.ServiceID,
-				Username:                 req.Username,
-				Password:                 req.Password,
-				EnvironmentVariableNames: req.EnvironmentVariableNames,
-				TLS:                      req.Tls,
-				TLSSkipVerify:            req.TlsSkipVerify,
-				MongoDBOptions:           models.MongoDBOptionsFromRequest(req),
-				LogLevel:                 services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+				PMMAgentID:     req.PmmAgentId,
+				ServiceID:      service.ServiceID,
+				Username:       req.Username,
+				Password:       req.Password,
+				TLS:            req.Tls,
+				TLSSkipVerify:  req.TlsSkipVerify,
+				MongoDBOptions: models.MongoDBOptionsFromRequest(req),
+				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err

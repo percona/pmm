@@ -30,6 +30,7 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	mgmtcommon "github.com/percona/pmm/managed/services/management/common"
 	"github.com/percona/pmm/managed/utils/duration"
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/utils/logger"
@@ -356,6 +357,12 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 
 // AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
 func (as *AgentsService) AddMongoDBExporter(ctx context.Context, p *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.AddAgentResponse, error) {
+	// No existing agent to grandfather: this is a new agent, so any reserved name is rejected outright.
+	err := mgmtcommon.ValidateMongoDBExporterEnvVarNames(p.GetEnvironmentVariableNames(), nil)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &models.CreateAgentParams{
 		PMMAgentID:               p.PmmAgentId,
 		ServiceID:                p.ServiceId,
@@ -403,17 +410,33 @@ func (as *AgentsService) ChangeMongoDBExporter(
 	agentID string,
 	p *inventoryv1.ChangeMongoDBExporterParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
+	// EnvironmentVariableNames is a full-replace field: nil means "leave unchanged", so there is
+	// nothing to validate and no need to look up (and lock) the agent's currently-stored names.
+	var checkEnvVarNames func(current *models.Agent) error
+	if p.GetEnvironmentVariableNames() != nil {
+		names := p.GetEnvironmentVariableNames().GetValues()
+		checkEnvVarNames = func(current *models.Agent) error {
+			grandfathered, err := mgmtcommon.MongoDBExporterEnvVarNamesGrandfathered(current)
+			if err != nil {
+				return err
+			}
+
+			return mgmtcommon.ValidateMongoDBExporterEnvVarNames(names, grandfathered)
+		}
+	}
+
 	// Convert protobuf parameters to model parameters
 	params := &models.ChangeAgentParams{
-		Enabled:             p.Enable,
-		Username:            p.Username,
-		Password:            p.Password,
-		TLS:                 p.Tls,
-		TLSSkipVerify:       p.TlsSkipVerify,
-		AgentPassword:       p.AgentPassword,
-		CustomLabels:        convertCustomLabels(p.CustomLabels),
-		LogLevel:            convertLogLevel(p.LogLevel),
-		SkipConnectionCheck: p.GetSkipConnectionCheck(),
+		Enabled:                  p.Enable,
+		Username:                 p.Username,
+		Password:                 p.Password,
+		TLS:                      p.Tls,
+		TLSSkipVerify:            p.TlsSkipVerify,
+		AgentPassword:            p.AgentPassword,
+		CustomLabels:             convertCustomLabels(p.CustomLabels),
+		EnvironmentVariableNames: convertEnvironmentVariableNames(p.EnvironmentVariableNames),
+		LogLevel:                 convertLogLevel(p.LogLevel),
+		SkipConnectionCheck:      p.GetSkipConnectionCheck(),
 	}
 
 	// Set MongoDBOptions
@@ -438,7 +461,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChangeChecked(ctx, agentID, params, checkEnvVarNames)
 	if err != nil {
 		return nil, err
 	}
@@ -1777,6 +1800,15 @@ func convertCustomLabels(customLabels *common.StringMap) *map[string]string {
 	return nil
 }
 
+// Helper function to convert environment variable names from protobuf to model format.
+func convertEnvironmentVariableNames(envVarNames *common.StringArray) *[]string {
+	if envVarNames != nil {
+		return &envVarNames.Values
+	}
+
+	return nil
+}
+
 // Helper function to convert log level from protobuf to model format.
 func convertLogLevel(logLevel *inventoryv1.LogLevel) *string {
 	if logLevel != nil {
@@ -1815,9 +1847,36 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 
 // Helper function to execute agent change and build response.
 func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn
+	return as.executeAgentChangeChecked(ctx, agentID, params, nil)
+}
+
+// executeAgentChangeChecked behaves like executeAgentChange, but if check is non-nil, it is called
+// with the agent's current row, locked (SELECT ... FOR UPDATE) for the rest of the transaction,
+// before the change is applied. Use this when a check's outcome depends on the row's current state
+// and must not be decided from a read taken outside this transaction: a concurrent change could
+// otherwise commit in between that read and this write, making the decision stale by the time it
+// takes effect.
+func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
+	ctx context.Context,
+	agentID string,
+	params *models.ChangeAgentParams,
+	check func(current *models.Agent) error,
+) (inventoryv1.Agent, error) {
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		if check != nil {
+			current, err := models.FindAgentByIDForUpdate(tx.Querier, agentID)
+			if err != nil {
+				return err
+			}
+
+			err = check(current)
+			if err != nil {
+				return err
+			}
+		}
+
 		updatedAgent, err := models.ChangeAgent(tx.Querier, agentID, params)
 		if err != nil {
 			return err

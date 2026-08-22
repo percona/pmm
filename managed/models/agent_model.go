@@ -34,6 +34,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
+	"github.com/percona/pmm/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
@@ -457,11 +458,28 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	return names, nil
 }
 
-// SetEnvironmentVariableNames encodes shared environment variable names.
+// SetEnvironmentVariableNames encodes shared environment variable names. Names already stored
+// (e.g. from before this validation existed, or under since-tightened rules) are carried forward
+// as-is: this is a full-replace field, so a caller resending an existing name alongside a new one
+// must not be rejected because of a name it did not intend to change.
 func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	if len(names) == 0 {
 		a.EnvironmentVariables = nil
 		return nil
+	}
+
+	existing, err := a.GetEnvironmentVariableNames()
+	if err != nil {
+		return err
+	}
+	grandfathered := make(map[string]struct{}, len(existing))
+	for _, name := range existing {
+		grandfathered[strings.TrimSpace(name)] = struct{}{}
+	}
+
+	names, err = envvars.NormalizeNamesAllowing(names, grandfathered)
+	if err != nil {
+		return err
 	}
 
 	b, err := json.Marshal(names)
