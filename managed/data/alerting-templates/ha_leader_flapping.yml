@@ -1,0 +1,33 @@
+---
+templates:
+  - name: pmm_ha_leader_flapping
+    version: 1
+    summary: PMM HA leader is flapping
+    queries:
+      - ref_id: A
+        expr: |-
+          max by(node_id) (changes(pmm_ha_raft_term[10m]))
+    expressions:
+      - ref_id: C
+        type: math
+        expression: "$A > [[ .threshold ]]"
+    condition: C
+    params:
+      - name: threshold
+        summary: Number of Raft term changes within 10 minutes
+        type: float
+        range: [1, 100]
+        value: 5
+    for: 5m
+    severity: warning
+    annotations:
+      summary: PMM HA leader is flapping
+      description: |-
+        The Raft term changed more than [[ .threshold ]] times in the last 10 minutes.
+        Frequent re-elections indicate an unstable network, an overloaded leader, or a leader that keeps restarting.
+
+        Remediation steps:
+          1. Check network latency and packet loss between PMM Server nodes on the configured Raft port (PMM_HA_RAFT_PORT).
+          2. Check whether pmm-managed is restarting on any node.
+          3. Check CPU, memory and disk I/O saturation on the PMM Server nodes. A starved leader misses its heartbeats.
+          4. Review the pmm-managed logs for repeated transitions between the candidate and follower states.

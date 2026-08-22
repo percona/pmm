@@ -28,6 +28,33 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
+func TestParseHAPeers(t *testing.T) {
+	t.Parallel()
+
+	for _, tt := range []struct {
+		name  string
+		peers string
+		want  []string
+	}{
+		{"empty", "", nil},
+		{"single node", "node-1", []string{"node-1"}},
+		{"three nodes", "node-1,node-2,node-3", []string{"node-1", "node-2", "node-3"}},
+		// A trailing comma used to yield an extra empty element, inflating the
+		// expected node count and firing the quorum alert on a healthy cluster.
+		{"trailing comma", "node-1,node-2,node-3,", []string{"node-1", "node-2", "node-3"}},
+		{"surrounding whitespace", " node-1 , node-2 ", []string{"node-1", "node-2"}},
+		{"only separators", ",,,", nil},
+		{"duplicates", "node-1,node-2,node-1", []string{"node-1", "node-2"}},
+		{"host and port preserved", "node-1:9761,node-2:9761", []string{"node-1:9761", "node-2:9761"}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.want, parseHAPeers(tt.peers))
+		})
+	}
+}
+
 func TestPackages(t *testing.T) {
 	cmd := exec.Command("pmm-managed", "-h")
 	b, err := cmd.CombinedOutput()

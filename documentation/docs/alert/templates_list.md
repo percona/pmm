@@ -6,6 +6,7 @@ The table below lists all the alert templates available in Percona Monitoring an
 
 - [Operating System templates](#os_alerts)
 - [PMM templates](#pmm_alerts)
+- [PMM High Availability templates](#pmm_ha_alerts)
 - [MongoDB templates](#mongodb_alerts)
 - [PBM templates](#pbm_alerts)
 - [MySQL templates](#mysql_alerts)
@@ -28,6 +29,40 @@ The table below lists all the alert templates available in Percona Monitoring an
 | :----|:------------- | :---------- | :------------------ |
 | PMM | **PMM agent down** | Monitors PMM Agent status and alerts when an agent becomes unreachable, indicating potential host or agent issues. | MySQL, MongoDB, PostgreSQL, ProxySQL |
 | PMM | **Backup failed [Technical Preview]** | Monitors backup processes and raises alerts on failures. Provides details about the failed backup artifact and affected service to ensure data safety and recovery readiness. This template is currently in [Technical Preview](../reference/glossary.md) and is intended for testing purposes only, as it is subject to change. | MySQL, MongoDB, PostgreSQL, ProxySQL |
+
+<a id="pmm_ha_alerts"></a>
+### PMM High Availability templates
+
+These templates monitor a PMM Server [High Availability cluster](../install-pmm/install-HA-clustered.md). They never raise alerts on a standalone (non-HA) PMM installation, because the underlying HA metrics are only exposed when HA mode is enabled.
+
+| Area | Template name | Description | Database technology |
+| :----|:------------- | :---------- | :------------------ |
+| PMM HA | **PMM HA cluster has no active leader** | Alerts when no node in the cluster holds the Raft leader lease, which means that leader-only work such as advisor checks, backups, telemetry and scheduled tasks has stopped. | PMM |
+| PMM HA | **PMM HA split-brain detected** | Alerts when more than one node claims Raft leadership at the same time, which means the nodes have formed separate Raft clusters instead of one. | PMM |
+| PMM HA | **PMM HA leader is flapping** | Alerts when the Raft term on a node changes more than 5 times (default threshold) within 10 minutes, which indicates an unstable network or a leader that keeps restarting. | PMM |
+| PMM HA | **PMM HA node unreachable** | Alerts when fewer nodes report HA metrics than the number configured in `PMM_HA_PEERS`, which indicates that at least one PMM Server node is down or isolated. | PMM |
+| PMM HA | **PMM HA quorum at risk** | Alerts when the number of live Raft voters has fallen to or below the smallest majority that still forms a quorum. Applies to clusters of three nodes or more. | PMM |
+
+#### Enable the HA alerts
+
+These templates are available as soon as PMM Server is installed, but like all other alert templates they do not create alert rules by themselves. To start receiving notifications:
+
+1. Go to **Alerting > Alert rule templates** and find the template you want to use.
+2. Select **New alert rule from template**.
+3. Choose a folder and an evaluation group. Percona recommends grouping the HA rules together, for example in a **PMM HA** group.
+4. Configure a [contact point](./contact_points.md) so that the alerts reach you.
+5. Repeat for each of the five templates.
+
+#### Coverage limitations
+
+Keep the following in mind when you rely on these alerts:
+
+- **A complete cluster outage cannot be detected from inside the cluster.** Each node's metrics are collected only by the monitoring agent running on that same node, so when every node is down there is nothing left to report it and all HA alerts fall silent. Monitor the load balancer endpoint from outside the cluster to cover this case.
+- **Split-brain detection requires the isolated node to still reach shared storage.** If a network partition also cuts a node off from the shared VictoriaMetrics storage, its metrics never arrive and the second leader stays invisible.
+- **An ordinary network partition does not cause a split brain.** Raft is designed to prevent two leaders: a node in a minority partition cannot win an election. If no side of the partition holds a majority, the cluster is left with no leader at all and *PMM HA no active leader* fires. If a majority survives, it elects a new leader within seconds and that alert stays silent, while *PMM HA quorum at risk* and *PMM HA node unreachable* fire instead. The split-brain alert covers the rarer case where nodes end up in separate clusters, for example when they cannot discover each other at startup and each bootstraps its own.
+- **The node unreachable alert names the node only if it reported recently.** A node that stopped within the last 6 hours is named in the alert. A node that has never reported since the cluster started, or that has been down for longer than 6 hours, is still detected but cannot be named, because no metrics remain to identify it. Use the **High Availability** page in that case.
+- **The quorum alert does not apply to one- and two-node clusters.** On those the condition would be permanently true, since with two nodes quorum is two and both nodes are always essential, so the template suppresses itself and stays silent. *PMM HA node unreachable* does cover them, so rely on it instead.
+- **Changing `PMM_HA_PEERS` raises alerts until the rollout finishes.** The expected node count is the highest value any node reports, so while some nodes carry the new peer list and others still carry the old one, the cluster looks smaller than expected. *PMM HA node unreachable* and *PMM HA quorum at risk* can both fire for the duration of a rolling restart, in either direction. Let the rollout finish before treating either as a real failure.
 
 <a id="mongodb_alerts"></a>
 ### MongoDB templates

@@ -800,10 +800,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	var nodes []string
-	if *haPeers != "" {
-		nodes = strings.Split(*haPeers, ",")
-	}
+	nodes := parseHAPeers(*haPeers)
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
 		NodeID:            *haNodeID,
@@ -1234,6 +1231,31 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	})
 
 	wg.Wait()
+}
+
+// parseHAPeers splits the PMM_HA_PEERS value into node addresses, trimming surrounding
+// whitespace and dropping empty and duplicate entries. The peer list is expected to name
+// every node in the cluster, including this one, and its length is reported as
+// pmm_ha_expected_nodes. A trailing comma or a padded list would otherwise inflate that
+// count and make the node-unreachable and quorum alerts fire on a healthy cluster.
+func parseHAPeers(peers string) []string {
+	var nodes []string
+	seen := make(map[string]struct{})
+
+	for node := range strings.SplitSeq(peers, ",") {
+		node = strings.TrimSpace(node)
+		if node == "" {
+			continue
+		}
+		if _, ok := seen[node]; ok {
+			logrus.Warnf("Ignoring duplicate entry %q in PMM_HA_PEERS.", node)
+			continue
+		}
+		seen[node] = struct{}{}
+		nodes = append(nodes, node)
+	}
+
+	return nodes
 }
 
 func parseLoggerConfig(level string, debug, trace bool) logrus.Level {
