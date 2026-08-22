@@ -170,6 +170,11 @@ const (
 	// Share of the budget kept for the internal pool when the budget cannot
 	// accommodate both pools at their preferred size.
 	internalDBBudgetShare = 4
+
+	// Used when the server's max_connections cannot be read. PostgreSQL's own default is
+	// far below what PMM Server configures, which makes it the conservative assumption.
+	assumedMaxConnections = 100
+	maxConnectionsTimeout = 10 * time.Second
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -640,6 +645,25 @@ func preferredDBPoolSizes() dbPoolSizes {
 	}
 }
 
+// dbPoolInstances returns how many pmm-managed instances share one PostgreSQL server.
+// PMM_HA_PEERS lists every node of the cluster, not only the remote ones: the Helm chart
+// pushes the same value to all pods, and services/ha/ha.go derives ExpectedNodes from its
+// length. The list is generated externally, so empty entries are not counted.
+func dbPoolInstances(haEnabled bool, peers []string) int {
+	if !haEnabled {
+		return 1
+	}
+
+	instances := 0
+	for _, peer := range peers {
+		if strings.TrimSpace(peer) != "" {
+			instances++
+		}
+	}
+
+	return max(instances, 1)
+}
+
 // dbPoolBudget returns how many connections a single pmm-managed instance may open,
 // given the server's max_connections and the number of instances sharing it.
 func dbPoolBudget(maxConns, instances int) int {
@@ -656,11 +680,13 @@ func fitDBPoolSizes(sizes dbPoolSizes, budget int) dbPoolSizes {
 		return sizes
 	}
 
-	internal := max(budget/internalDBBudgetShare, 1)
+	// Never above what the parallelism asked for: a tighter budget must not grow a pool.
+	internal := min(max(budget/internalDBBudgetShare, 1), int(sizes.internal))
+	api := min(max(budget-internal, 1), int(sizes.api))
 
 	return dbPoolSizes{
-		internal: int32(internal),                //nolint:gosec
-		api:      int32(max(budget-internal, 1)), //nolint:gosec
+		internal: int32(internal), //nolint:gosec
+		api:      int32(api),      //nolint:gosec
 	}
 }
 
@@ -988,24 +1014,26 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	// The pools must fit what the server can serve: max_connections is not ours to assume
 	// (an external PostgreSQL is supported), and in HA every instance draws from the same server.
-	maxConns, err := postgresMaxConnections(ctx, sqlInternalDB)
+	detectCtx, detectCancel := context.WithTimeout(ctx, maxConnectionsTimeout)
+	maxConns, err := postgresMaxConnections(detectCtx, sqlInternalDB)
+	detectCancel()
 	if err != nil {
-		l.Warnf("Could not read PostgreSQL max_connections, falling back to minimal pools: %s", err)
-		poolSizes = dbPoolSizes{internal: internalDBMinOpenConns, api: apiDBMinOpenConns}
-	} else {
-		// PMM_HA_PEERS lists every node of the cluster, not only the remote ones: the Helm
-		// chart pushes the same value to all pods, and services/ha/ha.go derives
-		// ExpectedNodes from its length. So len(nodes) is the number of instances sharing
-		// the server, and 0 (HA disabled) means this process is alone.
-		budget := dbPoolBudget(maxConns, len(nodes))
-		poolSizes = fitDBPoolSizes(poolSizes, budget)
-		l.Infof("PostgreSQL max_connections=%d, connection budget for this instance: %d.", maxConns, budget)
+		// Assume PostgreSQL's own default rather than what PMM Server configures: if the
+		// setting cannot be read, the smaller server is the safer guess.
+		l.Warnf("Could not read PostgreSQL max_connections, assuming %d: %s", assumedMaxConnections, err)
+		maxConns = assumedMaxConnections
 	}
+
+	instances := dbPoolInstances(*haEnabled, nodes)
+	budget := dbPoolBudget(maxConns, instances)
+	poolSizes = fitDBPoolSizes(poolSizes, budget)
 	sqlInternalDB.SetMaxOpenConns(int(poolSizes.internal))
 	sqlInternalDB.SetMaxIdleConns(int(poolSizes.internal))
+	l.Infof("PostgreSQL max_connections=%d shared by %d pmm-managed instance(s), connection budget %d.",
+		maxConns, instances, budget)
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF+"/internal", sqlInternalDB))
-	internalReformL := sqlmetrics.NewReform("postgres", *postgresDBNameF+"/internal", logrus.WithField("component", "reform").Tracef)
+	internalReformL := sqlmetrics.NewReform("postgres", *postgresDBNameF+"/internal", logrus.WithField("component", "reform/internal").Tracef)
 	prom.MustRegister(internalReformL)
 	internalDB := reform.NewDB(sqlInternalDB, postgresql.Dialect, internalReformL)
 
@@ -1023,7 +1051,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	defer sqlAPIDB.Close() //nolint:errcheck
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF+"/api", sqlAPIDB))
-	apiReformL := sqlmetrics.NewReform("postgres", *postgresDBNameF+"/api", logrus.WithField("component", "reform").Tracef)
+	apiReformL := sqlmetrics.NewReform("postgres", *postgresDBNameF+"/api", logrus.WithField("component", "reform/api").Tracef)
 	prom.MustRegister(apiReformL)
 	apiDB := reform.NewDB(sqlAPIDB, postgresql.Dialect, apiReformL)
 

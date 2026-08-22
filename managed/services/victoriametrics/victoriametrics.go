@@ -477,6 +477,10 @@ func scrapeConfigForVMAlert(interval time.Duration, pmmServerNodeName string) *c
 // The querier is supplied by the caller so that the scrape config is built on the caller's
 // connection pool. The transaction this used to open bought no isolation (READ COMMITTED
 // takes a fresh snapshot per statement) and pinned a connection for the whole build.
+//
+// PMM Server's own vmagent is the exception: it scrapes the whole fleet, so it reuses the
+// service's configuration builder, which runs on the service's own handle and transaction.
+// That is one agent per server, not a per-agent cost.
 func (svc *Service) BuildScrapeConfigForVMAgent(q *reform.Querier, pmmAgentID string) ([]byte, error) {
 	if pmmAgentID == models.PMMServerAgentID {
 		return svc.buildVMConfig()

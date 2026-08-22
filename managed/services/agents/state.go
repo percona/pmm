@@ -78,7 +78,7 @@ func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string
 
 // UpdateAgentsState sends SetStateRequest to all pmm-agents with push metrics agents.
 func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
-	pmmAgents, err := models.FindAllPMMAgentsIDs(u.db.Querier)
+	pmmAgents, err := models.FindAllPMMAgentsIDs(u.db.WithContext(ctx))
 	if err != nil {
 		return fmt.Errorf("cannot find pmmAgentsIDs for AgentsState update: %w", err)
 	}
@@ -182,6 +182,59 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		return fmt.Errorf("failed to collect agents: %w", err)
 	}
 
+	// Resolve the Services and Nodes the rows reference in two queries. The loop below read
+	// them one row at a time, and re-read the Node the pmm-agent runs on for every row - on a
+	// host with many services that is hundreds of sequential round trips, which now have to
+	// fit into stateChangeTimeout.
+	serviceIDs := make([]string, 0, len(agents))
+	nodeIDs := make([]string, 0, len(agents)+1)
+	if id := pointer.GetString(pmmAgent.RunsOnNodeID); id != "" {
+		nodeIDs = append(nodeIDs, id)
+	}
+	for _, row := range agents {
+		if id := pointer.GetString(row.ServiceID); id != "" {
+			serviceIDs = append(serviceIDs, id)
+		}
+		if id := pointer.GetString(row.NodeID); id != "" {
+			nodeIDs = append(nodeIDs, id)
+		}
+	}
+
+	services, err := models.FindServicesByIDs(q, serviceIDs)
+	if err != nil {
+		return fmt.Errorf("failed to collect services: %w", err)
+	}
+	nodeRows, err := models.FindNodesByIDs(q, nodeIDs)
+	if err != nil {
+		return fmt.Errorf("failed to collect nodes: %w", err)
+	}
+	nodes := make(map[string]*models.Node, len(nodeRows))
+	for _, node := range nodeRows {
+		nodes[node.NodeID] = node
+	}
+
+	// Rows that appear after the bulk queries are read individually, so a missing row
+	// still fails the way it did before.
+	findService := func(id string) (*models.Service, error) {
+		if service, ok := services[id]; ok {
+			return service, nil
+		}
+
+		return models.FindServiceByID(q, id)
+	}
+	findNode := func(id string) (*models.Node, error) {
+		if node, ok := nodes[id]; ok {
+			return node, nil
+		}
+
+		return models.FindNodeByID(q, id)
+	}
+
+	pmmAgentNode, err := findNode(pointer.GetString(pmmAgent.RunsOnNodeID))
+	if err != nil {
+		return fmt.Errorf("failed to get the Node the pmm-agent runs on: %w", err)
+	}
+
 	redactMode := redactSecrets
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
 		redactMode = exposeSecrets
@@ -201,7 +254,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 		case models.NomadAgentType:
-			node, err := models.FindNodeByID(q, pointer.GetString(row.NodeID))
+			node, err := findNode(pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -212,7 +265,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			agentProcesses[row.AgentID] = params
 
 		case models.NodeExporterType:
-			node, err := models.FindNodeByID(q, pointer.GetString(row.NodeID))
+			node, err := findNode(pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -224,17 +277,20 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			agentProcesses[row.AgentID] = params
 
 		case models.RDSExporterType:
-			node, err := models.FindNodeByID(q, pointer.GetString(row.NodeID))
+			node, err := findNode(pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
-			rdsExporters[node] = row
+			// rdsExporters is keyed by pointer, so each row keeps its own copy even when
+			// several exporters share a Node.
+			rdsNode := *node
+			rdsExporters[&rdsNode] = row
 
 		case models.ExternalExporterType:
 			// ignore
 
 		case models.AzureDatabaseExporterType:
-			service, err := models.FindServiceByID(q, pointer.GetString(row.ServiceID))
+			service, err := findService(pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
 			}
@@ -250,14 +306,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
 			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
 			models.RTAMongoDBAgentType:
-			service, err := models.FindServiceByID(q, pointer.GetString(row.ServiceID))
+			service, err := findService(pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
 			}
-			node, err := models.FindNodeByID(q, pointer.GetString(pmmAgent.RunsOnNodeID))
-			if err != nil {
-				return fmt.Errorf("failed to get the Node the pmm-agent runs on: %w", err)
-			}
+			node := pmmAgentNode
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
 				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)

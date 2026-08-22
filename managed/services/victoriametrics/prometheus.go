@@ -29,6 +29,11 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+// bulkLookupChunk bounds the IN list of the lookups below: the full configuration rebuild
+// resolves every Service and Node in the inventory, and one bind parameter per ID would run
+// into PostgreSQL's 65535-parameter limit.
+const bulkLookupChunk = 1000
+
 // scrapeConfigLookup resolves the Services, Nodes and pmm-agents referenced by a set of Agents.
 // They are fetched in three bulk queries up front: a node running a dozen services used to cost
 // one Service, one Node and one pmm-agent lookup per exporter, re-reading the very same pmm-agent
@@ -72,13 +77,15 @@ func newScrapeConfigLookup(l *logrus.Entry, q *reform.Querier, agents []*models.
 		addID(nodeIDs, pointer.GetString(agent.RunsOnNodeID))
 	}
 
-	services, err := models.FindServicesByIDs(q, slices.Collect(maps.Keys(serviceIDs)))
-	if err != nil {
-		return nil, fmt.Errorf("failed to find services for scrape config: %w", err)
-	}
-	for id, service := range services {
-		lookup.services[id] = service
-		addID(nodeIDs, service.NodeID)
+	for chunk := range slices.Chunk(slices.Collect(maps.Keys(serviceIDs)), bulkLookupChunk) {
+		services, err := models.FindServicesByIDs(q, chunk)
+		if err != nil {
+			return nil, fmt.Errorf("failed to find services for scrape config: %w", err)
+		}
+		for id, service := range services {
+			lookup.services[id] = service
+			addID(nodeIDs, service.NodeID)
+		}
 	}
 
 	missingAgentIDs := make([]string, 0, len(pmmAgentIDs))
@@ -87,23 +94,27 @@ func newScrapeConfigLookup(l *logrus.Entry, q *reform.Querier, agents []*models.
 			missingAgentIDs = append(missingAgentIDs, id)
 		}
 	}
-	pmmAgents, err := models.FindAgentsByIDs(q, missingAgentIDs)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find pmm-agents for scrape config: %w", err)
-	}
-	for _, pmmAgent := range pmmAgents {
-		lookup.pmmAgents[pmmAgent.AgentID] = pmmAgent
+	for chunk := range slices.Chunk(missingAgentIDs, bulkLookupChunk) {
+		pmmAgents, err := models.FindAgentsByIDs(q, chunk)
+		if err != nil {
+			return nil, fmt.Errorf("failed to find pmm-agents for scrape config: %w", err)
+		}
+		for _, pmmAgent := range pmmAgents {
+			lookup.pmmAgents[pmmAgent.AgentID] = pmmAgent
+		}
 	}
 	for _, pmmAgent := range lookup.pmmAgents {
 		addID(nodeIDs, pointer.GetString(pmmAgent.RunsOnNodeID))
 	}
 
-	nodes, err := models.FindNodesByIDs(q, slices.Collect(maps.Keys(nodeIDs)))
-	if err != nil {
-		return nil, fmt.Errorf("failed to find nodes for scrape config: %w", err)
-	}
-	for _, node := range nodes {
-		lookup.nodes[node.NodeID] = node
+	for chunk := range slices.Chunk(slices.Collect(maps.Keys(nodeIDs)), bulkLookupChunk) {
+		nodes, err := models.FindNodesByIDs(q, chunk)
+		if err != nil {
+			return nil, fmt.Errorf("failed to find nodes for scrape config: %w", err)
+		}
+		for _, node := range nodes {
+			lookup.nodes[node.NodeID] = node
+		}
 	}
 
 	return lookup, nil

@@ -31,6 +31,8 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
+const nodeAddress = "1.2.3.4"
+
 // queryCounter counts the queries reform executes.
 type queryCounter struct {
 	queries int
@@ -42,20 +44,21 @@ func (c *queryCounter) After(_ string, _ []any, _ time.Duration, _ error) {
 	c.queries++
 }
 
-// addScrapeConfigsFixtures creates one Node with a pmm-agent running the given number of
-// MySQL services, each monitored by its own mysqld_exporter.
-func addScrapeConfigsFixtures(t *testing.T, q *reform.Querier, pmmAgentID string, services int) {
+// addScrapeConfigsFixtures creates one Node with a pmm-agent running the given number of MySQL
+// services, each monitored by its own mysqld_exporter. Every service gets a distinct address and
+// every exporter a distinct listen port, so a lookup that returns the wrong row shows up in the
+// generated scrape configs.
+func addScrapeConfigsFixtures(t *testing.T, q *reform.Querier, pmmAgentID string, services int, pushMetrics bool) {
 	t.Helper()
 
 	nodeID := "/node_id/" + pmmAgentID
 	structs := make([]reform.Struct, 0, 2+2*services)
-	structs = append(
-		structs,
+	structs = append(structs,
 		&models.Node{
 			NodeID:   nodeID,
 			NodeType: models.GenericNodeType,
 			NodeName: "node-" + pmmAgentID,
-			Address:  "1.2.3.4",
+			Address:  nodeAddress,
 		},
 		&models.Agent{
 			AgentID:      pmmAgentID,
@@ -72,17 +75,18 @@ func addScrapeConfigsFixtures(t *testing.T, q *reform.Querier, pmmAgentID string
 			&models.Service{
 				ServiceID:   serviceID,
 				ServiceType: models.MySQLServiceType,
-				ServiceName: fmt.Sprintf("mysql-%s-%d", pmmAgentID, i),
+				ServiceName: serviceName(pmmAgentID, i),
 				NodeID:      nodeID,
-				Address:     new("5.6.7.8"),
-				Port:        new(uint16(3306)),
+				Address:     new(fmt.Sprintf("10.0.0.%d", i+1)),
+				Port:        new(uint16(3306 + i)),
 			},
 			&models.Agent{
-				AgentID:    fmt.Sprintf("/agent_id/%s/%d", pmmAgentID, i),
-				AgentType:  models.MySQLdExporterType,
-				PMMAgentID: &pmmAgentID,
-				ServiceID:  &serviceID,
-				ListenPort: new(uint16(12345)),
+				AgentID:         fmt.Sprintf("/agent_id/%s/%d", pmmAgentID, i),
+				AgentType:       models.MySQLdExporterType,
+				PMMAgentID:      &pmmAgentID,
+				ServiceID:       &serviceID,
+				ListenPort:      new(exporterPort(i)),
+				ExporterOptions: models.ExporterOptions{PushMetrics: pushMetrics},
 			},
 		)
 	}
@@ -92,10 +96,35 @@ func addScrapeConfigsFixtures(t *testing.T, q *reform.Querier, pmmAgentID string
 	}
 }
 
-// TestAddScrapeConfigsQueryCount pins the number of queries AddScrapeConfigs runs: it must
-// not grow with the number of monitored services. Every exporter used to cost a Service, a
-// Node and a pmm-agent lookup, which is what made a scrape config rebuild during a reconnect
-// storm hold a connection for hundreds of round trips (PMM-15228).
+func serviceName(pmmAgentID string, i int) string {
+	return fmt.Sprintf("mysql-%s-%d", pmmAgentID, i)
+}
+
+func exporterPort(i int) uint16 {
+	return uint16(12345 + i)
+}
+
+// scrapedTargets maps every emitted target to the service_name label it carries.
+func scrapedTargets(t *testing.T, cfg *config.Config) map[string]string {
+	t.Helper()
+
+	res := make(map[string]string)
+	for _, scfg := range cfg.ScrapeConfigs {
+		for _, group := range scfg.ServiceDiscoveryConfig.StaticConfigs {
+			for _, target := range group.Targets {
+				res[target] = group.Labels["service_name"]
+			}
+		}
+	}
+
+	return res
+}
+
+// TestAddScrapeConfigsQueryCount pins the number of queries AddScrapeConfigs runs: it must not
+// grow with the number of monitored services. Every exporter used to cost a Service, a Node and a
+// pmm-agent lookup, which is what made a scrape config rebuild during a reconnect storm hold a
+// connection for hundreds of round trips (PMM-15228). The target and label assertions guard the
+// lookup keys, since a cache returning the wrong row would keep the query count flat too.
 func TestAddScrapeConfigsQueryCount(t *testing.T) {
 	counter := &queryCounter{}
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -105,22 +134,38 @@ func TestAddScrapeConfigsQueryCount(t *testing.T) {
 	resolutions := models.MetricsResolutions{HR: 5 * time.Second, MR: 10 * time.Second, LR: time.Minute}
 	l := logrus.WithField("component", "victoriametrics-test")
 
-	queries := make(map[int]int)
-	for _, services := range []int{1, 10} {
-		pmmAgentID := fmt.Sprintf("/agent_id/pmm-agent-%d", services)
-		addScrapeConfigsFixtures(t, db.Querier, pmmAgentID, services)
+	// BuildScrapeConfigForVMAgent - the path a pmm-agent state update takes - passes
+	// pushMetrics=true, which resolves the host differently, so cover both.
+	for _, pushMetrics := range []bool{false, true} {
+		t.Run(fmt.Sprintf("push_metrics=%v", pushMetrics), func(t *testing.T) {
+			queries := make(map[int]int)
+			for _, services := range []int{1, 10} {
+				pmmAgentID := fmt.Sprintf("/agent_id/pmm-agent-%v-%d", pushMetrics, services)
+				addScrapeConfigsFixtures(t, db.Querier, pmmAgentID, services, pushMetrics)
 
-		var cfg config.Config
-		counter.queries = 0
-		require.NoError(t, AddScrapeConfigs(l, &cfg, db.Querier, &resolutions, &pmmAgentID, false, false))
-		queries[services] = counter.queries
+				var cfg config.Config
+				counter.queries = 0
+				require.NoError(t, AddScrapeConfigs(l, &cfg, db.Querier, &resolutions, &pmmAgentID, pushMetrics, false))
+				queries[services] = counter.queries
 
-		// sanity check: the exporters are actually in the generated config
-		assert.Len(t, cfg.ScrapeConfigs, services*3)
+				// Every service must appear with its own target and its own labels: a lookup
+				// keyed by the wrong column would return another row and change these.
+				host := nodeAddress
+				if pushMetrics {
+					host = models.LocalhostAddr
+				}
+				expected := make(map[string]string, services)
+				for i := range services {
+					expected[fmt.Sprintf("%s:%d", host, exporterPort(i))] = serviceName(pmmAgentID, i)
+				}
+				assert.Equal(t, expected, scrapedTargets(t, &cfg))
+				assert.Len(t, cfg.ScrapeConfigs, services*3)
+			}
+
+			t.Logf("queries per number of services: %v", queries)
+			assert.Equal(t, queries[1], queries[10],
+				"the number of queries must not depend on the number of monitored services: %v", queries)
+			assert.LessOrEqual(t, queries[10], 5, "expected one query per entity kind: %v", queries)
+		})
 	}
-
-	t.Logf("queries per number of services: %v", queries)
-	assert.Equal(t, queries[1], queries[10],
-		"the number of queries must not depend on the number of monitored services: %v", queries)
-	assert.LessOrEqual(t, queries[10], 5, "expected one query per entity kind: %v", queries)
 }

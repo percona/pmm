@@ -240,6 +240,9 @@ func TestFitDBPoolSizes(t *testing.T) {
 		{name: "budget to spare", budget: 1500, expected: preferred},
 		{name: "exactly enough", budget: 70, expected: preferred},
 		{name: "too small, split", budget: 40, expected: dbPoolSizes{internal: 10, api: 30}},
+		// A tighter budget must never grow a pool above what the parallelism asked for.
+		{name: "internal share above preferred", budget: 68, expected: dbPoolSizes{internal: 17, api: 50}},
+		{name: "budget just below the sum", budget: 69, expected: dbPoolSizes{internal: 17, api: 50}},
 		{name: "way too small", budget: 4, expected: dbPoolSizes{internal: 1, api: 3}},
 		{name: "never zero", budget: 1, expected: dbPoolSizes{internal: 1, api: 1}},
 	} {
@@ -249,6 +252,28 @@ func TestFitDBPoolSizes(t *testing.T) {
 			if tc.budget >= 2 {
 				assert.LessOrEqual(t, int(sizes.internal)+int(sizes.api), tc.budget)
 			}
+		})
+	}
+}
+
+func TestDBPoolInstances(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		haEnabled bool
+		peers     []string
+		expected  int
+	}{
+		{name: "HA disabled", haEnabled: false, peers: nil, expected: 1},
+		// PMM_HA_PEERS can outlive the HA setting it was configured for.
+		{name: "HA disabled with leftover peers", haEnabled: false, peers: []string{"a", "b", "c"}, expected: 1},
+		{name: "HA with 3 nodes", haEnabled: true, peers: []string{"a", "b", "c"}, expected: 3},
+		// The list is generated externally, so it can carry empty entries.
+		{name: "HA with a trailing comma", haEnabled: true, peers: []string{"a", "b", ""}, expected: 2},
+		{name: "HA with whitespace", haEnabled: true, peers: []string{"a", " "}, expected: 1},
+		{name: "HA without peers", haEnabled: true, peers: nil, expected: 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, dbPoolInstances(tc.haEnabled, tc.peers))
 		})
 	}
 }
