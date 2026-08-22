@@ -993,6 +993,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Warnf("Could not read PostgreSQL max_connections, falling back to minimal pools: %s", err)
 		poolSizes = dbPoolSizes{internal: internalDBMinOpenConns, api: apiDBMinOpenConns}
 	} else {
+		// PMM_HA_PEERS lists every node of the cluster, not only the remote ones: the Helm
+		// chart pushes the same value to all pods, and services/ha/ha.go derives
+		// ExpectedNodes from its length. So len(nodes) is the number of instances sharing
+		// the server, and 0 (HA disabled) means this process is alone.
 		budget := dbPoolBudget(maxConns, len(nodes))
 		poolSizes = fitDBPoolSizes(poolSizes, budget)
 		l.Infof("PostgreSQL max_connections=%d, connection budget for this instance: %d.", maxConns, budget)

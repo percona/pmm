@@ -254,7 +254,10 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return err
 			}
-			node, _ := models.FindNodeByID(q, pointer.GetString(pmmAgent.RunsOnNodeID))
+			node, err := models.FindNodeByID(q, pointer.GetString(pmmAgent.RunsOnNodeID))
+			if err != nil {
+				return fmt.Errorf("failed to get the Node the pmm-agent runs on: %w", err)
+			}
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
 				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)

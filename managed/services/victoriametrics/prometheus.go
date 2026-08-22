@@ -46,6 +46,7 @@ func newScrapeConfigLookup(l *logrus.Entry, q *reform.Querier, agents []*models.
 	lookup := &scrapeConfigLookup{
 		l:         l,
 		q:         q,
+		services:  make(map[string]*models.Service, len(agents)),
 		nodes:     make(map[string]*models.Node, len(agents)),
 		pmmAgents: make(map[string]*models.Agent, len(agents)),
 		versions:  make(map[string]*version.Parsed, len(agents)),
@@ -75,8 +76,8 @@ func newScrapeConfigLookup(l *logrus.Entry, q *reform.Querier, agents []*models.
 	if err != nil {
 		return nil, fmt.Errorf("failed to find services for scrape config: %w", err)
 	}
-	lookup.services = services
-	for _, service := range services {
+	for id, service := range services {
+		lookup.services[id] = service
 		addID(nodeIDs, service.NodeID)
 	}
 
