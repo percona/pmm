@@ -5,6 +5,7 @@ import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
 import { OrgRole } from 'types/user.types';
 import { SepAuthGate } from './SepAuthGate';
+import { SepAuthProvider } from './SepAuthProvider';
 
 /**
  * Shared container for SEP apps mounted as native PMM routes.
@@ -24,6 +25,12 @@ import { SepAuthGate } from './SepAuthGate';
  *
  * `SepAuthGate` sits inside that check, so the SEP session exchange only runs
  * for a user who is allowed on the page in the first place.
+ *
+ * `SepAuthProvider` wraps the whole subtree so framework and plugin components
+ * can read the session's mutation capability. It sits outside the gate: a
+ * component rendered while the exchange is still in flight must resolve the
+ * same capability it will hold once the bearer lands, not the non-admin
+ * fallback.
  */
 export const SepPage: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
@@ -34,16 +41,18 @@ export const SepPage: FC<PropsWithChildren> = ({ children }) => {
       roles={user?.isPMMAdmin ? undefined : [OrgRole.Admin]}
     >
       <Stack gap={3} sx={{ flex: 1 }}>
-        <SepAuthGate>
-          {/*
-            A flex column that grows, not a plain block: it carries the height
-            handed down from Page so a plugin (or the ServiceNow setup prompt)
-            can centre itself in the page rather than in its own content box.
-          */}
-          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            {children}
-          </Box>
-        </SepAuthGate>
+        <SepAuthProvider>
+          <SepAuthGate>
+            {/*
+              A flex column that grows, not a plain block: it carries the height
+              handed down from Page so a plugin (or the ServiceNow setup prompt)
+              can centre itself in the page rather than in its own content box.
+            */}
+            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              {children}
+            </Box>
+          </SepAuthGate>
+        </SepAuthProvider>
       </Stack>
     </Page>
   );
