@@ -18,10 +18,23 @@
 import { describe, expect, it } from 'vitest';
 import { toClusterRows, toEnvironmentSections } from '../src/hooks';
 import type {
+  OmCluster,
   OmService,
   OmServiceStatus,
   OmTopologyResponse,
 } from '../src/types';
+
+let nextClusterID = 0;
+
+// The id is opaque and server-derived in production; these tests only need it unique
+// per cluster, since nothing here asserts on its value.
+const cluster = (overrides: Partial<OmCluster>): OmCluster => ({
+  name: null,
+  services: [],
+  id: `cluster-${nextClusterID++}`,
+  type: 'CLUSTER_TYPE_REPLICA_SET',
+  ...overrides,
+});
 
 const service = (overrides: Partial<OmService>): OmService => ({
   service_name: 'svc',
@@ -80,7 +93,7 @@ describe('toClusterRows', () => {
         {
           env_name: 'sandbox',
           clusters: [
-            {
+            cluster({
               name: 'rs0',
               services: [
                 service({ service_name: 'a', state: 'PRIMARY' }),
@@ -91,7 +104,7 @@ describe('toClusterRows', () => {
                 }),
                 service({ service_name: 'c', state: 'SECONDARY' }),
               ],
-            },
+            }),
           ],
         },
       ])
@@ -116,11 +129,11 @@ describe('toClusterRows', () => {
         {
           env_name: 'sandbox',
           clusters: [
-            { name: 'rs0', services: [service({})] },
-            { name: 'rs1', services: [service({})] },
+            cluster({ name: 'rs0', services: [service({})] }),
+            cluster({ name: 'rs1', services: [service({})] }),
           ],
         },
-        { env_name: null, clusters: [{ name: null, services: [] }] },
+        { env_name: null, clusters: [cluster({ name: null, services: [] })] },
       ])
     );
 
@@ -140,7 +153,7 @@ describe('toClusterRows', () => {
         {
           env_name: 'sandbox',
           clusters: [
-            {
+            cluster({
               name: 'rs0',
               services: [
                 service({
@@ -152,7 +165,7 @@ describe('toClusterRows', () => {
                   oplog_window_seconds: 3600,
                 }),
               ],
-            },
+            }),
           ],
         },
       ])
@@ -169,7 +182,7 @@ describe('toClusterRows', () => {
         {
           env_name: 'sandbox',
           clusters: [
-            {
+            cluster({
               name: 'sharded',
               services: [
                 service({ process_role: 'PROCESS_ROLE_MONGOS', state: null }),
@@ -179,11 +192,11 @@ describe('toClusterRows', () => {
                   oplog_window_seconds: 86400,
                 }),
               ],
-            },
-            {
+            }),
+            cluster({
               name: 'routers-only',
               services: [service({ process_role: 'PROCESS_ROLE_MONGOS' })],
-            },
+            }),
           ],
         },
       ])
@@ -205,7 +218,7 @@ describe('toClusterRows', () => {
         {
           env_name: 'sandbox',
           clusters: [
-            {
+            cluster({
               name: 'rs0',
               services: [
                 service({ version: '8.0.4-1' }),
@@ -213,7 +226,7 @@ describe('toClusterRows', () => {
                 service({ version: '7.0.39-21' }),
                 service({ version: null }),
               ],
-            },
+            }),
           ],
         },
       ])
@@ -230,13 +243,13 @@ describe('toClusterRows', () => {
         {
           env_name: 'sandbox',
           clusters: [
-            {
+            cluster({
               name: 'rs0',
               services: [
                 service({ service_name: 'a' }),
                 service({ service_name: 'b' }),
               ],
-            },
+            }),
           ],
         },
       ])
@@ -257,23 +270,23 @@ describe('toEnvironmentSections', () => {
         {
           env_name: 'sandbox',
           clusters: [
-            {
+            cluster({
               name: 'rs0',
               services: [
                 service({}),
                 service({ status: 'SERVICE_STATUS_DOWN' }),
               ],
-            },
-            { name: 'rs1', services: [service({})] },
+            }),
+            cluster({ name: 'rs1', services: [service({})] }),
           ],
         },
         {
           env_name: 'production',
           clusters: [
-            {
+            cluster({
               name: 'rs2',
               services: [service({ status: 'SERVICE_STATUS_DOWN' })],
-            },
+            }),
           ],
         },
       ])
@@ -301,7 +314,9 @@ describe('toEnvironmentSections', () => {
   // rather than be folded into a neighbour.
   it('keeps an unnamed environment as its own section', () => {
     const sections = toEnvironmentSections(
-      topology([{ env_name: null, clusters: [{ name: null, services: [] }] }])
+      topology([
+        { env_name: null, clusters: [cluster({ name: null, services: [] })] },
+      ])
     );
 
     expect(sections).toHaveLength(1);

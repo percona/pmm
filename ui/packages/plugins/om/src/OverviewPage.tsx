@@ -272,9 +272,12 @@ function EnvironmentTable({ section }: { section: OmEnvironmentSection }) {
     enableDensityToggle: false,
     enableExpanding: true,
     enableTopToolbar: false,
-    // Indexed, not named: two unnamed clusters in one table would otherwise share a
-    // row id, and MRT uses it for expansion and selection state.
-    getRowId: (row, index) => row.cluster_name ?? `unnamed-${index}`,
+    // The opaque server-issued id, not the label: two clusters can share a label (a
+    // sandbox's second generation reusing a name is not hypothetical here) or carry
+    // none at all, and MRT uses this for expansion and selection state across
+    // refetches -- an index-based fallback would misattribute that state the moment
+    // the row order shifted between polls.
+    getRowId: (row) => row.id,
     renderDetailPanel: ({ row }) => <ClusterServices cluster={row.original} />,
     initialState: {
       density: 'compact',
@@ -429,8 +432,9 @@ export function OverviewPage() {
           The snapshot has no environments. Sync to rebuild it.
         </Alert>
       ) : (
-        // Indexed fallback for the same reason as getRowId below: two sibling
-        // sections with no env_name would otherwise share a React key.
+        // Indexed fallback: two sibling sections with no env_name would otherwise
+        // share a React key. Environments carry no server-issued id the way clusters
+        // now do -- see EnvironmentTable's getRowId -- so this stays index-based.
         sections.map((section, index) => (
           <EnvironmentTable
             key={section.env_name ?? `unnamed-${index}`}

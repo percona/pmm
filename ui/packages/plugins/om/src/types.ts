@@ -124,10 +124,35 @@ export interface OmService {
   argv?: string | null;
 }
 
-/** One cluster or replica set. `name` is null when its services carry no label. */
+/**
+ * What buildDocument inferred about one grouped service inventory's shape.
+ *
+ * Inferred, not reconstructed -- this reads what is already in the group (a mongos
+ * present, or more than one replication_set label sharing a cluster label) rather than
+ * walking a replica set's own config for a member list. `UNSPECIFIED` does not occur on a
+ * built document; only an empty/never-collected one omits the field.
+ */
+export type OmClusterType =
+  | 'CLUSTER_TYPE_UNSPECIFIED'
+  | 'CLUSTER_TYPE_REPLICA_SET'
+  | 'CLUSTER_TYPE_SHARDED'
+  | 'CLUSTER_TYPE_STANDALONE';
+
+/** One grouped service inventory: every service sharing one (environment, cluster) or
+ * (environment, replication_set) label, not a reconstructed replica-set or
+ * sharded-cluster topology. `name` is null when its services carry no label.
+ */
 export interface OmCluster {
   name?: string | null;
   services: OmService[];
+  /**
+   * Opaque, server-issued, stable across a rename of `name`. Use this for row identity
+   * and cache keys -- never `name`, which two clusters can share (a sandbox's second
+   * generation reusing a label is not hypothetical here) and which is null for an
+   * unlabelled group besides.
+   */
+  id: string;
+  type: OmClusterType;
 }
 
 /** One monitoring environment. `env_name` is null when unset. */
@@ -186,6 +211,9 @@ export interface OmServiceRow extends OmService {
 export interface OmClusterRow {
   env_name?: string | null;
   cluster_name?: string | null;
+  /** Opaque, server-issued row identity -- see OmCluster.id. Use this, not
+   * `cluster_name`, for table row identity and cache keys. */
+  id: string;
   /** The cluster's own services, so unfolding a row needs no second lookup. */
   services: OmService[];
   total_services: number;

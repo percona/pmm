@@ -212,6 +212,7 @@ function rollUpCluster(
   return {
     env_name: envName,
     cluster_name: cluster.name,
+    id: cluster.id,
     services: cluster.services,
     total_services: cluster.services.length,
     up_services: cluster.services.filter(
