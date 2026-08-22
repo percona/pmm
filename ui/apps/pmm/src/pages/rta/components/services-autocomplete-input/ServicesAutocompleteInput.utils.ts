@@ -1,9 +1,13 @@
-import { VersionedService } from 'types/services.types';
 import {
   ClusterSelectionState,
   ServiceOption,
 } from './ServicesAutocompleteInput.types';
-import { RealtimeSession } from 'types/rta.types';
+import { AvailableService, RealtimeSession } from 'types/rta.types';
+import { ServiceType } from 'types/services.types';
+import {
+  sharedTechnology,
+  technologyLabel,
+} from 'pages/rta/components/technology';
 
 /**
  * Get the selection state of a cluster
@@ -40,15 +44,51 @@ export const getClusterSelectionState = (
  * Build service options from available services
  */
 export const getServiceOptions = (
-  services: VersionedService[] | RealtimeSession[]
+  services: AvailableService[] | RealtimeSession[]
 ): ServiceOption[] => {
   if (services.length === 0) {
     return [];
   }
 
+  // The picker groups options by technology and MUI expects the list to arrive
+  // already sorted by group, otherwise a header repeats for every run of
+  // options. Services we cannot name sort last, so they end up in one trailing
+  // group rather than scattered.
+  const byTechnology = new Map<
+    string,
+    (AvailableService | RealtimeSession)[]
+  >();
+
+  services.forEach((service) => {
+    const label = technologyLabel(service.serviceType);
+    const group = byTechnology.get(label);
+
+    if (group) {
+      group.push(service);
+    } else {
+      byTechnology.set(label, [service]);
+    }
+  });
+
+  return Array.from(byTechnology.keys())
+    .sort((a, b) => {
+      if (!a || !b) {
+        return a ? -1 : 1;
+      }
+
+      return a.localeCompare(b);
+    })
+    .flatMap((label) => getClusterOptions(byTechnology.get(label) ?? []));
+};
+
+// getClusterOptions lays out one technology's services: standalone ones first,
+// then each cluster header followed by its services.
+const getClusterOptions = (
+  services: (AvailableService | RealtimeSession)[]
+): ServiceOption[] => {
   // Group services by cluster
-  const clusterMap = new Map<string, (VersionedService | RealtimeSession)[]>();
-  const standaloneServices: (VersionedService | RealtimeSession)[] = [];
+  const clusterMap = new Map<string, (AvailableService | RealtimeSession)[]>();
+  const standaloneServices: (AvailableService | RealtimeSession)[] = [];
 
   services.forEach((service) => {
     let clusterName = '';
@@ -82,6 +122,7 @@ export const getServiceOptions = (
       id: service.serviceId,
       label: service.serviceName,
       serviceId: service.serviceId,
+      serviceType: service.serviceType,
     });
   });
 
@@ -95,6 +136,9 @@ export const getServiceOptions = (
         id: `cluster-${clusterName}`,
         label: clusterName,
         cluster: clusterName,
+        serviceType: sharedTechnology(
+          clusterServices.map((service) => service.serviceType)
+        ),
       });
 
       // Add cluster services sorted by name
@@ -107,6 +151,7 @@ export const getServiceOptions = (
             label: service.serviceName,
             serviceId: service.serviceId,
             cluster: clusterName,
+            serviceType: service.serviceType,
           });
         });
     });
@@ -155,3 +200,19 @@ export const getServiceIds = (serviceOptions: ServiceOption[]): string[] =>
   serviceOptions
     .filter((option) => option.type === 'service' && option.serviceId)
     .map((option) => option.serviceId!);
+
+/**
+ * Whether an option may not be picked while one view of live queries is being
+ * assembled. The first pick fixes the technology; a cluster whose services
+ * disagree carries none of its own, and selecting it would seed a mixed set in
+ * one click, so it stays disabled even before a technology has been fixed.
+ */
+export const isServiceOptionDisabled = (
+  option: ServiceOption,
+  selectedTechnology: ServiceType | undefined,
+  singleTechnology: boolean
+): boolean =>
+  singleTechnology &&
+  (option.serviceType === undefined ||
+    (selectedTechnology !== undefined &&
+      option.serviceType !== selectedTechnology));

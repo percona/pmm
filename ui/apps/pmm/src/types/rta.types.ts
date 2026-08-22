@@ -1,4 +1,4 @@
-import { VersionedService } from './services.types';
+import { ServiceType, VersionedService } from './services.types';
 
 export enum RealtimeSessionStatus {
   unspecified = 'SESSION_STATUS_UNSPECIFIED',
@@ -10,10 +10,19 @@ export enum RealtimeSessionStatus {
 export interface RealtimeSession {
   serviceId: string;
   serviceName: string;
+  // Database technology of the monitored service, so MySQL and MongoDB
+  // sessions can be told apart without a second inventory lookup.
+  serviceType: ServiceType;
   clusterName: string;
   startTime: string;
   status: RealtimeSessionStatus;
 }
+
+// A service that can have an RTA session started for it, carrying the
+// technology it was listed under.
+export type AvailableService = VersionedService & {
+  serviceType: ServiceType;
+};
 
 export interface ListRunningSessionsResponse {
   sessions: RealtimeSession[];
@@ -49,7 +58,9 @@ export interface RawQueryData {
   queryCollectTime: string;
   clientAddress: string;
   queryRawJson: string;
-  mongoDbPayload: QueryMongoDBData;
+  // Exactly one of the payloads below is set depending on the database type.
+  mongoDbPayload?: QueryMongoDBData;
+  mySqlPayload?: QueryMySQLData;
 }
 
 export type QueryData = Omit<RawQueryData, 'queryExecutionDuration'> & {
@@ -67,7 +78,20 @@ export interface QueryMongoDBData {
   collection?: string;
 }
 
+export interface QueryMySQLData {
+  dbInstanceAddress: string;
+  programName: string;
+  databaseName: string;
+  command: string;
+  state: string;
+  username: string;
+  rowsExamined?: number | string;
+  rowsSent?: number | string;
+  fullScan?: boolean;
+}
+
 // TODO: Add other service types when available
 export interface AvailableServicesResponse {
-  mongodb: VersionedService[];
+  mongodb?: VersionedService[];
+  mysql?: VersionedService[];
 }

@@ -8,6 +8,7 @@ import {
   getClusterSelectionState,
   getServiceIds,
   getServiceOptions,
+  isServiceOptionDisabled,
   toggleClusterServices,
 } from './ServicesAutocompleteInput.utils';
 import {
@@ -15,6 +16,10 @@ import {
   ServicesAutocompleteInputProps,
 } from './ServicesAutocompleteInput.types';
 import ServiceTags from './components/ServiceTags';
+import {
+  sharedTechnology,
+  technologyLabel,
+} from 'pages/rta/components/technology';
 
 const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   disabled = false,
@@ -22,6 +27,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   onServiceIdsChange,
   inputProps,
   tagPresentation = 'label',
+  singleTechnology = false,
   'data-testid': testId,
   ...props
 }) => {
@@ -32,6 +38,22 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
     () => serviceOptions.filter((option) => serviceIds?.includes(option.id)),
     [serviceOptions, serviceIds]
   );
+  // With singleTechnology the picker feeds one view of live queries, which
+  // cannot mix engines, so the first pick fixes the technology and the others
+  // are disabled until the selection is cleared.
+  const selectedTechnology = useMemo(
+    () =>
+      singleTechnology
+        ? sharedTechnology(
+            selectedServices
+              .filter((option) => option.type === 'service')
+              .map((option) => option.serviceType)
+          )
+        : undefined,
+    [singleTechnology, selectedServices]
+  );
+  const isOptionDisabled = (option: ServiceOption) =>
+    isServiceOptionDisabled(option, selectedTechnology, singleTechnology);
 
   const handleServiceChange = (
     _event: React.SyntheticEvent,
@@ -61,6 +83,8 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
       value={selectedServices}
       onChange={handleServiceChange}
       getOptionLabel={(option) => option.label}
+      groupBy={(option) => technologyLabel(option.serviceType)}
+      getOptionDisabled={isOptionDisabled}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       disableCloseOnSelect
       limitTags={2}
@@ -85,6 +109,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
           key={option.id}
           option={option}
           selected={selected}
+          disabled={isOptionDisabled(option)}
           clusterSelectionState={
             option.type === 'cluster'
               ? getClusterSelectionState(

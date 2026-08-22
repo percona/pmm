@@ -49,6 +49,12 @@ const CSV_COLUMN_ORDER = [
   'planSummary',
   'clientAppName',
   'operationStartTime',
+  'command',
+  'state',
+  'programName',
+  'rowsExamined',
+  'rowsSent',
+  'fullScan',
   'queryCollectTime',
   'queryRawJson',
 ].map(toCsvHeader);
@@ -110,7 +116,7 @@ export const collectCsvColumns = (rows: CsvRow[]): string[] => {
 export const buildRtaExportFilename = (date = new Date()): string => {
   const timestamp = format(date, 'yyyyMMdd_HHmmss');
 
-  return `mongodb_rta_export_${timestamp}`;
+  return `rta_export_${timestamp}`;
 };
 
 export const exportRtaQueriesToCsv = (queries: QueryData[]): void => {

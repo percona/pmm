@@ -10,6 +10,7 @@ import {
   ManagedService,
   ManagedServicesResponse,
   MySqlService,
+  ServiceType,
   VersionedService,
 } from 'types/services.types';
 import { OrgRole, User } from 'types/user.types';
@@ -133,9 +134,19 @@ export const TEST_SERVICES_WITH_ONE_MYSQL: ListServicesResponse = {
   mysql: [TEST_SERVICE as MySqlService],
 };
 
+export const TEST_VERSIONED_MYSQL_SERVICE: VersionedService = {
+  ...TEST_VERSIONED_MONGO_SERVICE,
+  serviceId: 'service-2',
+  serviceName: 'Service 2',
+  cluster: 'cluster-2',
+  port: 3306,
+  version: '8.0.42',
+};
+
 export const TEST_REAL_TIME_SESSION: RealtimeSession = {
   serviceId: 'service-1',
   serviceName: 'Service 1',
+  serviceType: ServiceType.mongodb,
   clusterName: 'cluster-1',
   startTime: '2021-01-01T00:00:00Z',
   status: RealtimeSessionStatus.unspecified,
@@ -144,7 +155,17 @@ export const TEST_REAL_TIME_SESSION: RealtimeSession = {
 export const TEST_REAL_TIME_SESSION_2: RealtimeSession = {
   serviceId: 'service-2',
   serviceName: 'Service 2',
+  serviceType: ServiceType.mongodb,
   clusterName: 'cluster-2',
+  startTime: '2021-01-01T00:00:00Z',
+  status: RealtimeSessionStatus.unspecified,
+};
+
+export const TEST_REAL_TIME_SESSION_MYSQL: RealtimeSession = {
+  serviceId: 'service-3',
+  serviceName: 'Service 3',
+  serviceType: ServiceType.mysql,
+  clusterName: 'cluster-3',
   startTime: '2021-01-01T00:00:00Z',
   status: RealtimeSessionStatus.unspecified,
 };
@@ -168,9 +189,43 @@ export const TEST_MONGO_DB_QUERY_DATA: QueryData = {
   },
 };
 
+export const TEST_MYSQL_QUERY_DATA: QueryData = {
+  serviceId: 'service-2',
+  serviceName: 'Service 2',
+  queryId: 'query-2',
+  queryText: 'SELECT * FROM my_table WHERE status = "active"',
+  queryCollectTime: '2021-01-01T00:00:00Z',
+  clientAddress: '127.0.0.1',
+  queryRawJson: '{"current_statement": "SELECT * FROM my_table"}',
+  mySqlPayload: {
+    dbInstanceAddress: '127.0.0.1',
+    programName: 'mysql',
+    databaseName: 'database-name',
+    command: 'Query',
+    state: 'Sending data',
+    username: 'username',
+    rowsExamined: 100,
+    rowsSent: 10,
+    fullScan: true,
+  },
+};
+
 export const TEST_USER_ANONYMOUS: User = createAnonymousUser();
+
 // Shape the API returns, before useRealtimeQueries parses the duration.
 export const TEST_RAW_MONGO_DB_QUERY_DATA: RawQueryData = {
   ...TEST_MONGO_DB_QUERY_DATA,
   queryExecutionDuration: '10s',
+};
+
+// Values here deliberately differ from the MongoDB stub's, so a test asserting
+// on them cannot be satisfied by the wrong payload.
+export const TEST_RAW_MYSQL_QUERY_DATA: RawQueryData = {
+  ...TEST_MYSQL_QUERY_DATA,
+  queryExecutionDuration: '10s',
+  mySqlPayload: {
+    ...TEST_MYSQL_QUERY_DATA.mySqlPayload!,
+    databaseName: 'mysql-database',
+    username: 'mysql-user',
+  },
 };
