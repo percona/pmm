@@ -91,6 +91,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Test the cleanup script
+        run: python3 -m unittest discover -s dashboards/misc -p 'test_*.py' -v
+
       - name: Get changed dashboard files
         id: changed
         run: |

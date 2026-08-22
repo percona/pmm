@@ -170,7 +170,7 @@
                     "step": 300
                 }
             ],
-            "title": "Buffer Pool Size ",
+            "title": "Buffer Pool Size",
             "type": "stat"
         },
         {
@@ -1728,7 +1728,7 @@
                     ],
                     "thresholds": [],
                     "timeRegions": [],
-                    "title": "InnoDB Read-Only Transactions ",
+                    "title": "InnoDB Read-Only Transactions",
                     "tooltip": {
                         "msResolution": false,
                         "shared": true,
@@ -1864,7 +1864,7 @@
                     ],
                     "thresholds": [],
                     "timeRegions": [],
-                    "title": "InnoDB Read-Write Transactions ",
+                    "title": "InnoDB Read-Write Transactions",
                     "tooltip": {
                         "msResolution": false,
                         "shared": true,
@@ -2138,7 +2138,7 @@
                     ],
                     "thresholds": [],
                     "timeRegions": [],
-                    "title": "Misc InnoDB Transactions Information ",
+                    "title": "Misc InnoDB Transactions Information",
                     "tooltip": {
                         "msResolution": false,
                         "shared": true,
@@ -2808,7 +2808,7 @@
                             "step": 300
                         }
                     ],
-                    "title": "Space Used ",
+                    "title": "Space Used",
                     "type": "stat"
                 },
                 {
@@ -5513,7 +5513,7 @@
                     ],
                     "thresholds": [],
                     "timeRegions": [],
-                    "title": "InnoDB IO Targets Read ",
+                    "title": "InnoDB IO Targets Read",
                     "tooltip": {
                         "msResolution": false,
                         "shared": true,
@@ -6359,7 +6359,7 @@
                             "step": 300
                         }
                     ],
-                    "title": "Buffer Pool Size ",
+                    "title": "Buffer Pool Size",
                     "type": "stat"
                 },
                 {
@@ -6700,7 +6700,7 @@
                             "step": 300
                         }
                     ],
-                    "title": "BP Data ",
+                    "title": "BP Data",
                     "type": "stat"
                 },
                 {
@@ -7161,7 +7161,7 @@
                     ],
                     "thresholds": [],
                     "timeRegions": [],
-                    "title": "InnoDB Buffer Pool Data ",
+                    "title": "InnoDB Buffer Pool Data",
                     "tooltip": {
                         "msResolution": false,
                         "shared": true,
@@ -8485,7 +8485,7 @@
                             "step": 300
                         }
                     ],
-                    "title": "InnoDB Old Blocks ",
+                    "title": "InnoDB Old Blocks",
                     "type": "stat"
                 },
                 {
@@ -9571,7 +9571,7 @@
                             "step": 300
                         }
                     ],
-                    "title": "Pages scanned per LRU Scan ",
+                    "title": "Pages scanned per LRU Scan",
                     "type": "stat"
                 },
                 {
@@ -9655,7 +9655,7 @@
                             "step": 300
                         }
                     ],
-                    "title": "LRU Get Free Waits ",
+                    "title": "LRU Get Free Waits",
                     "type": "stat"
                 }
             ],
@@ -13345,7 +13345,7 @@
             ],
             "thresholds": [],
             "timeRegions": [],
-            "title": "InnoDB Log Buffer Usage ",
+            "title": "InnoDB Log Buffer Usage",
             "tooltip": {
                 "msResolution": false,
                 "shared": true,
@@ -14970,7 +14970,7 @@
                     ],
                     "thresholds": [],
                     "timeRegions": [],
-                    "title": "InnoDB Row Lock Wait Time ",
+                    "title": "InnoDB Row Lock Wait Time",
                     "tooltip": {
                         "msResolution": false,
                         "shared": true,
@@ -17376,7 +17376,7 @@
                             "step": 300
                         }
                     ],
-                    "title": "Purge Batch Size ",
+                    "title": "Purge Batch Size",
                     "type": "stat"
                 },
                 {
@@ -18923,7 +18923,7 @@
                     ],
                     "thresholds": [],
                     "timeRegions": [],
-                    "title": "InnoDB AHI Churn - Rows ",
+                    "title": "InnoDB AHI Churn - Rows",
                     "tooltip": {
                         "msResolution": false,
                         "shared": true,
