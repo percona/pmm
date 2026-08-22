@@ -58,8 +58,10 @@ enum RunStatus {
   // would have covered. Neither a failure nor a success: it did nothing, deliberately,
   // and it is recorded so a schedule cannot look like it fired and found nothing.
   //
-  // Only an inventory refresh reaches this; the collection pass has no single-flight
-  // guard to lose against.
+  // Only an inventory refresh reaches this. The collection pass has a single-flight
+  // guard too, but a refusal there never reaches a run row at all -- the RPC answers
+  // Aborted (already running) or FailedPrecondition (not the HA leader) and nothing is
+  // recorded, so this status never applies to it.
   RUN_STATUS_SKIPPED = 5;
 }
 
@@ -136,14 +138,62 @@ message TopologyService {
   optional string config_path = 18;
   // The command line the running server was started with. Probe-only.
   optional string argv = 19;
+
+  // When the newest *live* field on this row was observed, unset when every field on it
+  // is either absent or not time-bounded (inventory only, no metric and no probe ever
+  // seen). This is the row's own provenance -- Snapshot.observed_at is the newest across
+  // the whole estate, which cannot tell "this row is current" from "this row is the one
+  // that made the snapshot look fresh". A field's own MergedField.ObservedAt exists
+  // internally; this is the first one exposed on the wire.
+  optional google.protobuf.Timestamp observed_at = 20;
 }
 
-// Cluster represents one cluster or replica set.
+// ClusterType is the shape buildDocument inferred for one grouped service inventory.
+//
+// Inferred, not reconstructed: this package groups services by label and infers a shape
+// from what is in the group, it does not walk a replica set's own config to build a
+// member list. See the package comment.
+enum ClusterType {
+  CLUSTER_TYPE_UNSPECIFIED = 0;
+  // Exactly one replication_set label under this cluster, and no mongos.
+  CLUSTER_TYPE_REPLICA_SET = 1;
+  // A mongos is present, or more than one replication_set label shares this cluster
+  // label.
+  CLUSTER_TYPE_SHARDED = 2;
+  // Neither: services grouped under one label with no replica-set identity at all.
+  CLUSTER_TYPE_STANDALONE = 3;
+}
+
+// ClusterHealth is a reserved verdict slot, not yet computed by anything.
+//
+// UNSPECIFIED is the only value that exists today. It is declared now, alongside the
+// applyHealth seam in the collector, so a rollup status has a field to land in without a
+// later schema change -- see the om package's health-pipeline comment.
+enum ClusterHealth {
+  CLUSTER_HEALTH_UNSPECIFIED = 0;
+}
+
+// Cluster represents one grouped service inventory: every service PMM's inventory
+// labelled with the same (environment, cluster) or (environment, replication_set), not a
+// reconstructed replica-set or sharded-cluster topology. A sharded cluster here is a flat
+// list of mongos, configsvr and shardsvr rows that share a label -- see ClusterType for
+// the one thing inferred about that shape, and the package comment for what is
+// deliberately not.
 message Cluster {
-  // Cluster label, unset when its services carry none.
+  // Cluster label, unset when its services carry none. Not a stable identity: two
+  // clusters can share this label (a second generation of a sandbox reusing a name), and
+  // `id` is what tells them apart.
   optional string name = 1;
   // Its services, ordered by name.
   repeated TopologyService services = 2;
+  // Opaque, server-issued, stable across a rename of `name`. Derived from
+  // (environment, cluster, replication_set) so the same estate group always gets the
+  // same id -- clients must not parse it or assume a derivation.
+  string id = 3;
+  // What buildDocument inferred about this group's shape.
+  ClusterType type = 4;
+  // Reserved for the health pipeline. Always UNSPECIFIED today.
+  ClusterHealth health = 5;
 }
 
 // Environment represents one monitoring environment.
@@ -176,7 +226,11 @@ message Snapshot {
   google.protobuf.Timestamp generated_at = 1;
   // The newest observation in it, unset when nothing was observed at all.
   google.protobuf.Timestamp observed_at = 2;
-  // Whether the document is older than the staleness grace period.
+  // Whether the document is older than the staleness grace period. Also true, with
+  // observed_at unset and every environment empty, on a genuinely cold estate -- no
+  // collection has completed anywhere yet. That is a startup state, not a statement that
+  // the estate itself is empty; a reader should render it as "collecting" rather than as
+  // an empty result.
   bool stale = 3;
   // The document schema version.
   int32 schema_version = 4;

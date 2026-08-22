@@ -123,6 +123,37 @@ func (m *TopologyService) validate(all bool) error {
 		// no validation rules for Argv
 	}
 
+	if m.ObservedAt != nil {
+		if all {
+			switch v := interface{}(m.GetObservedAt()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, TopologyServiceValidationError{
+						field:  "ObservedAt",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, TopologyServiceValidationError{
+						field:  "ObservedAt",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetObservedAt()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return TopologyServiceValidationError{
+					field:  "ObservedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return TopologyServiceMultiError(errors)
 	}
@@ -256,6 +287,12 @@ func (m *Cluster) validate(all bool) error {
 		}
 
 	}
+
+	// no validation rules for Id
+
+	// no validation rules for Type
+
+	// no validation rules for Health
 
 	if m.Name != nil {
 		// no validation rules for Name
