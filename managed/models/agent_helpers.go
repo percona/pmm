@@ -30,6 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/version"
 )
 
@@ -301,6 +302,79 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	}
 
 	return agents, nil
+}
+
+// IsInternalPgQANAgent reports whether the Agent is the QAN Agent of PMM Server's own PostgreSQL
+// Service.
+//
+// The Agent type and the pmm-agent it runs under are not enough to tell it apart: remote PostgreSQL
+// instances added through RDS or Azure discovery get their QAN Agent attached to PMM Server's
+// pmm-agent as well, so the Service has to be part of the check.
+func IsInternalPgQANAgent(q *reform.Querier, agent *Agent) (bool, error) {
+	if agent.AgentType != QANPostgreSQLPgStatementsAgentType || pointer.GetString(agent.PMMAgentID) != PMMServerAgentID {
+		return false, nil
+	}
+
+	serviceID := pointer.GetString(agent.ServiceID)
+	if serviceID == "" {
+		return false, nil
+	}
+
+	service, err := FindServiceByID(q, serviceID)
+	if err != nil {
+		return false, err
+	}
+
+	return service.ServiceName == PMMServerPostgreSQLServiceName, nil
+}
+
+// CheckInternalPgQANRemoval rejects removing the QAN Agent of PMM's internal PostgreSQL server while
+// PMM_ENABLE_INTERNAL_PG_QAN is set. Removing it drops the state the variable pins and leaves the
+// settings API with no agent to toggle.
+//
+// Every code path that can delete an Agent row must call this before doing so, not just
+// AgentsService.Remove: ManagementService.RemoveService, for one, deletes Agents directly.
+func CheckInternalPgQANRemoval(q *reform.Querier, agent *Agent) error {
+	internal, err := IsInternalPgQANAgent(q, agent)
+	if err != nil || !internal {
+		return err
+	}
+
+	enabledByEnv, lookupErr := env.LookupBool(env.EnableInternalPgQAN)
+	if enabledByEnv == nil && lookupErr == nil {
+		// The variable is not set, so it pins nothing.
+		return nil
+	}
+
+	return status.Errorf(
+		codes.FailedPrecondition,
+		"QAN for PMM's internal PostgreSQL server is configured via the %s environment variable, its agent can't be removed.",
+		env.EnableInternalPgQAN,
+	)
+}
+
+// FindInternalPgQANAgent returns the QAN Agent of PMM Server's own PostgreSQL Service.
+//
+// It returns NotFound when PMM Server has no such Service, which is the normal state in HA mode
+// where PMM Server runs against an external PostgreSQL and the fixtures do not create it.
+func FindInternalPgQANAgent(q *reform.Querier) (*Agent, error) {
+	service, err := FindServiceByName(q, PMMServerPostgreSQLServiceName)
+	if err != nil {
+		return nil, err
+	}
+
+	agents, err := FindAgents(q, AgentFilters{
+		ServiceID: service.ServiceID,
+		AgentType: new(QANPostgreSQLPgStatementsAgentType),
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(agents) == 0 {
+		return nil, status.Errorf(codes.NotFound, "QAN Agent for the %q Service not found.", PMMServerPostgreSQLServiceName)
+	}
+
+	return agents[0], nil
 }
 
 // FindAgentByID finds Agent by ID.
@@ -1180,11 +1254,22 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 }
 
 // ChangeAgent changes agent parameters based on agent type.
-func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,maintidx
+func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) {
 	row, err := FindAgentByID(q, agentID)
 	if err != nil {
 		return nil, err
 	}
+
+	return ApplyAgentChange(q, row, params)
+}
+
+// ApplyAgentChange changes agent parameters on an already-loaded Agent row, based on agent type.
+//
+// Callers that already had to load the row to inspect it before changing it (e.g. to check its
+// type or a precondition) can pass it here directly, instead of ChangeAgent re-fetching the same
+// row from the database.
+func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,gocognit,maintidx
+	var err error
 
 	// Handle common fields first
 	if params.Enabled != nil {
