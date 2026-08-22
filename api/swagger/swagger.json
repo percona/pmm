@@ -6103,6 +6103,11 @@
                         },
                         "x-order": 5
                       },
+                      "aws_role_arn": {
+                        "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                        "type": "string",
+                        "x-order": 6
+                      },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
@@ -6117,33 +6122,33 @@
                           "AGENT_STATUS_DONE",
                           "AGENT_STATUS_UNKNOWN"
                         ],
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics (the same for several configurations).",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "basic_metrics_disabled": {
                         "description": "Basic metrics are disabled.",
                         "type": "boolean",
-                        "x-order": 8
+                        "x-order": 9
                       },
                       "enhanced_metrics_disabled": {
                         "description": "Enhanced metrics are disabled.",
                         "type": "boolean",
-                        "x-order": 9
+                        "x-order": 10
                       },
                       "push_metrics_enabled": {
                         "description": "True if exporter uses push metrics mode.",
                         "type": "boolean",
-                        "x-order": 10
+                        "x-order": 11
                       },
                       "process_exec_path": {
                         "description": "Path to exec process.",
                         "type": "string",
-                        "x-order": 11
+                        "x-order": 12
                       },
                       "log_level": {
                         "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -6158,13 +6163,13 @@
                           "LOG_LEVEL_INFO",
                           "LOG_LEVEL_DEBUG"
                         ],
-                        "x-order": 12
+                        "x-order": 13
                       },
                       "auto_discovery_limit": {
                         "description": "Limit of databases for auto-discovery.",
                         "type": "integer",
                         "format": "int32",
-                        "x-order": 13
+                        "x-order": 14
                       },
                       "metrics_resolutions": {
                         "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -6186,7 +6191,7 @@
                             "x-order": 2
                           }
                         },
-                        "x-order": 14
+                        "x-order": 15
                       }
                     }
                   },
@@ -7309,6 +7314,11 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 9
+                    },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume using the pmm-agent's ambient credentials.\nMutually exclusive with aws_access_key and aws_secret_key.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 7
@@ -9117,6 +9127,11 @@
                       },
                       "x-order": 5
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                      "type": "string",
+                      "x-order": 6
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -9131,33 +9146,33 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -9172,13 +9187,13 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -9200,7 +9215,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 7
@@ -11841,6 +11856,11 @@
                       },
                       "x-order": 5
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                      "type": "string",
+                      "x-order": 6
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -11855,33 +11875,33 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -11896,13 +11916,13 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -11924,7 +11944,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 14
@@ -13243,6 +13263,12 @@
                       ],
                       "x-nullable": true,
                       "x-order": 8
+                    },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume using the pmm-agent's ambient credentials.\nMutually exclusive with aws_access_key and aws_secret_key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
                     }
                   },
                   "x-order": 6
@@ -15343,6 +15369,11 @@
                       },
                       "x-order": 5
                     },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                      "type": "string",
+                      "x-order": 6
+                    },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
@@ -15357,33 +15388,33 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "basic_metrics_disabled": {
                       "description": "Basic metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 9
                     },
                     "enhanced_metrics_disabled": {
                       "description": "Enhanced metrics are disabled.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -15398,13 +15429,13 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "auto_discovery_limit": {
                       "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -15426,7 +15457,7 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 14
+                      "x-order": 15
                     }
                   },
                   "x-order": 6
@@ -20945,6 +20976,11 @@
                         "description": "Connection timeout for exporter (if set).",
                         "type": "string",
                         "x-order": 42
+                      },
+                      "aws_role_arn": {
+                        "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                        "type": "string",
+                        "x-order": 43
                       }
                     }
                   },
@@ -22509,6 +22545,11 @@
                               "description": "Connection timeout for exporter (if set).",
                               "type": "string",
                               "x-order": 42
+                            },
+                            "aws_role_arn": {
+                              "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                              "type": "string",
+                              "x-order": 43
                             }
                           }
                         },
@@ -24167,6 +24208,11 @@
                         "type": "string"
                       },
                       "x-order": 36
+                    },
+                    "aws_role_arn": {
+                      "description": "AWS IAM role ARN to assume using the pmm-agent's ambient credentials.\nMutually exclusive with aws_access_key and aws_secret_key.",
+                      "type": "string",
+                      "x-order": 37
                     }
                   },
                   "x-order": 6
@@ -26504,6 +26550,11 @@
                           },
                           "x-order": 5
                         },
+                        "aws_role_arn": {
+                          "description": "AWS IAM role ARN assumed using the pmm-agent's ambient credentials.",
+                          "type": "string",
+                          "x-order": 6
+                        },
                         "status": {
                           "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                           "type": "string",
@@ -26518,33 +26569,33 @@
                             "AGENT_STATUS_DONE",
                             "AGENT_STATUS_UNKNOWN"
                           ],
-                          "x-order": 6
+                          "x-order": 7
                         },
                         "listen_port": {
                           "description": "Listen port for scraping metrics (the same for several configurations).",
                           "type": "integer",
                           "format": "int64",
-                          "x-order": 7
+                          "x-order": 8
                         },
                         "basic_metrics_disabled": {
                           "description": "Basic metrics are disabled.",
                           "type": "boolean",
-                          "x-order": 8
+                          "x-order": 9
                         },
                         "enhanced_metrics_disabled": {
                           "description": "Enhanced metrics are disabled.",
                           "type": "boolean",
-                          "x-order": 9
+                          "x-order": 10
                         },
                         "push_metrics_enabled": {
                           "description": "True if exporter uses push metrics mode.",
                           "type": "boolean",
-                          "x-order": 10
+                          "x-order": 11
                         },
                         "process_exec_path": {
                           "description": "Path to exec process.",
                           "type": "string",
-                          "x-order": 11
+                          "x-order": 12
                         },
                         "log_level": {
                           "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -26559,13 +26610,13 @@
                             "LOG_LEVEL_INFO",
                             "LOG_LEVEL_DEBUG"
                           ],
-                          "x-order": 12
+                          "x-order": 13
                         },
                         "auto_discovery_limit": {
                           "description": "Limit of databases for auto-discovery.",
                           "type": "integer",
                           "format": "int32",
-                          "x-order": 13
+                          "x-order": 14
                         },
                         "metrics_resolutions": {
                           "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -26587,7 +26638,7 @@
                               "x-order": 2
                             }
                           },
-                          "x-order": 14
+                          "x-order": 15
                         }
                       },
                       "x-order": 1
@@ -27979,6 +28030,11 @@
                   "description": "AWS Secret key. Optional.",
                   "type": "string",
                   "x-order": 1
+                },
+                "aws_role_arn": {
+                  "description": "AWS IAM role ARN to assume using the server's ambient credentials. Optional.\nMutually exclusive with aws_access_key and aws_secret_key.",
+                  "type": "string",
+                  "x-order": 2
                 }
               }
             }

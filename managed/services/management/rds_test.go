@@ -442,3 +442,11 @@ func TestRDSService(t *testing.T) {
 		assert.Equal(t, prototext.Format(expected), prototext.Format(resp)) // for better diffs
 	})
 }
+
+func TestAssumeRoleProvider(t *testing.T) {
+	t.Parallel()
+
+	provider := assumeRoleProvider(aws.Config{Region: "eu-west-1"}, "arn:aws:iam::123456789012:role/pmm-monitoring")
+	require.NotNil(t, provider)
+	assert.IsType(t, &aws.CredentialsCache{}, provider)
+}

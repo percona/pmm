@@ -21,13 +21,16 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -149,6 +152,18 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		return nil, err
 	}
 
+	awsOptions := models.AWSOptions{
+		AWSAccessKey: req.AwsAccessKey,
+		AWSSecretKey: req.AwsSecretKey,
+		AWSRoleARN:   req.AwsRoleArn,
+	}
+	err = awsOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	regions := listRegions(settings.AWSPartitions)
+
 	// use given credentials, or default credential chain
 	var creds aws.CredentialsProvider
 	if req.AwsAccessKey != "" && req.AwsSecretKey != "" {
@@ -171,12 +186,37 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	// do not break our API if some AWS region is slow or down
 	ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)
 	defer cancel()
+
 	var wg errgroup.Group
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
-	for _, region := range listRegions(settings.AWSPartitions) {
+	// Every region fails identically when the role cannot be assumed, and the group keeps only
+	// whichever error arrived first, so the assumption failure is recorded separately.
+	var (
+		assumeOnce sync.Once
+		assumeErr  error
+	)
+
+	for _, region := range regions {
 		wg.Go(func() error {
-			regInstances, err := discoverRDSRegion(ctx, cfg, region)
+			regCfg := cfg
+			if req.AwsRoleArn != "" {
+				// STS is partition-scoped, so the role is assumed in the region being scanned.
+				regCfg.Region = region
+				regCfg.Credentials = assumeRoleProvider(regCfg, req.AwsRoleArn)
+
+				// Resolve now: once the RDS call wraps this, the outer error names RDS and the
+				// assumption failure is no longer distinguishable from any other region error.
+				_, err := regCfg.Credentials.Retrieve(ctx)
+				if err != nil {
+					l.Debugf("%s: %+v", region, err)
+					assumeOnce.Do(func() { assumeErr = err })
+
+					return err
+				}
+			}
+
+			regInstances, err := discoverRDSRegion(ctx, regCfg, region)
 			if err != nil {
 				l.Debugf("%s: %+v", region, err)
 			}
@@ -228,6 +268,12 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	// ignore error if there are some results
 	if len(res.RdsInstances) != 0 {
 		return res, nil
+	}
+
+	// A role that cannot be assumed yields nothing anywhere, so report that rather than the
+	// timeout the failing regions go on to produce.
+	if assumeErr != nil {
+		return res, status.Errorf(codes.FailedPrecondition, "Failed to assume role %s: %s.", req.AwsRoleArn, assumeErr)
 	}
 
 	// return better gRPC errors in typical cases
@@ -319,6 +365,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				AWSOptions: models.AWSOptions{
 					AWSAccessKey:               req.AwsAccessKey,
 					AWSSecretKey:               req.AwsSecretKey,
+					AWSRoleARN:                 req.AwsRoleArn,
 					RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
 					RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 				},
@@ -535,4 +582,11 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 		},
 	}
 	return res, nil
+}
+
+// assumeRoleProvider returns a credentials provider that assumes roleARN using the
+// credentials and region already resolved in cfg. The provider is cache-wrapped so the SDK
+// refreshes the assumed credentials before they expire.
+func assumeRoleProvider(cfg aws.Config, roleARN string) aws.CredentialsProvider { //nolint:ireturn
+	return aws.NewCredentialsCache(stscreds.NewAssumeRoleProvider(sts.NewFromConfig(cfg), roleARN))
 }
