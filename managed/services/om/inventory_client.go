@@ -16,7 +16,6 @@
 package om
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
@@ -29,7 +28,9 @@ import (
 )
 
 // This file is the client half of the inventory proxy: the shapes SEP's om_inventory
-// app serves, and one place that speaks HTTP to it.
+// app serves, and the estate-specific decoding of its answers. The transport itself --
+// where SEP is, the bearer token, the request/response mechanics -- is sep_client.go,
+// shared with every other SEP-backed source in this package.
 //
 // It exists because the browser must not hold a SEP bearer. A page that talks to SEP
 // directly needs one minted from the PMM session, which means the page is gated on SEP
@@ -161,39 +162,16 @@ type inventoryCall struct {
 // The out parameter may be nil for a DELETE, whose 204 carries none. Errors come back as gRPC status
 // errors with the code the gateway will turn back into the status SEP gave, so a 404
 // from the app reaches the browser as a 404 rather than as a 500 about a 404.
-func (s probeSource) call(ctx context.Context, c inventoryCall, out any) error {
+func (a sepApp) call(ctx context.Context, c inventoryCall, out any) error {
 	ctx, cancel := context.WithTimeout(ctx, inventoryRequestTimeout)
 	defer cancel()
 
-	endpoint := s.endpoint(c.path)
-	if len(c.query) > 0 {
-		endpoint += "?" + c.query.Encode()
-	}
-
-	var payload []byte
-	switch {
-	case c.body != nil:
-		encoded, err := json.Marshal(c.body)
-		if err != nil {
-			return status.Errorf(codes.Internal, "failed to encode the request: %s", err)
-		}
-		payload = encoded
-	case c.sendEmptyBody:
-		payload = []byte("{}")
-	}
-
-	req, err := http.NewRequestWithContext(ctx, c.method, endpoint, bytes.NewReader(payload))
+	req, err := a.request(ctx, c.method, c.path, c.query, c.body, c.sendEmptyBody)
 	if err != nil {
 		return status.Errorf(codes.Internal, "failed to build the request: %s", err)
 	}
-	if s.token != "" {
-		req.Header.Set("Authorization", "Bearer "+s.token)
-	}
-	if payload != nil {
-		req.Header.Set("Content-Type", "application/json")
-	}
 
-	resp, err := s.client.Do(req)
+	resp, err := a.client.http.Do(req)
 	if err != nil {
 		return status.Errorf(codes.Unavailable, "the inventory app is unreachable: %s", err)
 	}

@@ -1199,7 +1199,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	// Where SEP is, optional. Empty means OM builds its document from PMM's own inventory
 	// and metrics alone and records the probe source as disabled.
-	omService := om.New(db, v1.NewAPI(vmClient), logrus.WithField("component", "om"))
+	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
 	omService.WithProbeSource(*sepURLF, *sepTokenF)
 
 	// Leader-only, like every other periodic writer here. A collection persists a run and

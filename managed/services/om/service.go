@@ -15,11 +15,14 @@
 
 // Package om implements OM -- the OpenManager topology and health API.
 //
-// It reconstructs the MongoDB estate from the sources PMM already owns: the inventory in
+// It groups the MongoDB estate from the sources PMM already owns: the inventory in
 // PostgreSQL and the exporter metrics in VictoriaMetrics. PMM stores cluster and
 // replication_set as flat string columns on a service and has no topology object; this
-// service is what turns those labels back into replica sets and sharded clusters, folds
-// in reachability and load, and serves the result as one document.
+// service groups services that share a label, folds in reachability and load, and serves
+// the result as one document. That is a grouped service inventory, not a reconstructed
+// topology graph: a sharded cluster here is a flat list of mongos, configsvr and shardsvr
+// rows that happen to share a label, not a shard map with a discovered member list. See
+// ClusterType in api/om/v1/om.proto for the one thing inferred about a group's shape.
 //
 // It is the read half of a split: derivation over data PMM owns lives here, while work
 // that has to run on a database host -- collecting argv and installed binary versions,
@@ -48,9 +51,9 @@ import (
 )
 
 const (
-	// How long a document is served from cache before the next read rebuilds it. Short
-	// enough that the page is never meaningfully behind, long enough that a browser
-	// refresh does not re-query VictoriaMetrics a dozen times.
+	// How often the leader's own ticker rebuilds the document. Collection is
+	// leader-driven, not request-driven -- see Run and GetTopology -- so this paces the
+	// ticker rather than gating a read.
 	refreshInterval = 30 * time.Second
 
 	// How old the newest observation may be before the document declares itself stale. A
@@ -89,6 +92,11 @@ type Service struct {
 	vmClient victoriaMetricsClient
 	l        *logrus.Entry
 
+	// ha reports leadership, so TriggerTopologyCollection can refuse on a follower. Nil
+	// in most tests, which is read as "every node is the leader" -- the single-node
+	// default.
+	ha haChecker
+
 	// probe is the on-host fact source, or nil when SEP's om_inventory app is not
 	// configured. Held rather than constructed per run so the HTTP client is reused.
 	probe *probeSource
@@ -100,16 +108,16 @@ type Service struct {
 	// concurrent ones would issue the same queries twice and race to publish.
 	running sync.Mutex
 
-	mu      sync.Mutex
-	latest  *omv1.GetTopologyResponse
-	builtAt time.Time
+	mu     sync.Mutex
+	latest *omv1.GetTopologyResponse
 }
 
 // New returns a new OM service.
-func New(db *reform.DB, vmClient victoriaMetricsClient, l *logrus.Entry) *Service {
+func New(db *reform.DB, vmClient victoriaMetricsClient, ha haChecker, l *logrus.Entry) *Service {
 	return &Service{
 		db:       db,
 		vmClient: vmClient,
+		ha:       ha,
 		l:        l,
 	}
 }
@@ -127,36 +135,39 @@ func (s *Service) WithProbeSource(sepURL, token string) *Service {
 		s.l.Info("SEP is not configured; on-host facts will be absent")
 		return s
 	}
+	client := &sepClient{
+		baseURL: sepURL,
+		token:   token,
+		http:    &http.Client{Timeout: probeRequestTimeout},
+	}
 	probe := &probeSource{
-		sepURL: sepURL,
-		token:  token,
-		client: &http.Client{Timeout: probeRequestTimeout},
-		l:      s.l.WithField("source", sourceProbe),
+		app: client.app(probeAppModule),
+		l:   s.l.WithField("source", sourceProbe),
 	}
 	s.probe = probe
-	s.l.Infof("om_inventory estate at %s", probe.endpoint(""))
+	s.l.Infof("om_inventory estate at %s", probe.app.endpoint(""))
 	return s
 }
 
-// GetTopology returns the whole MongoDB estate as one document, rebuilding it when the
-// cached one has aged past refreshInterval.
-func (s *Service) GetTopology(ctx context.Context, _ *omv1.GetTopologyRequest) (*omv1.GetTopologyResponse, error) {
+// GetTopology returns the whole MongoDB estate as one document.
+//
+// A pure read path: memory, then the stored snapshot, never a collection. Collection is
+// leader-only (Run, TriggerTopologyCollection), and a request-triggered rebuild here
+// would make every follower behind the load balancer a writer and a pruner racing the
+// leader. Staleness is recomputed against the clock on every call rather than trusted
+// from whenever the document was built or restored, so a follower that never collects
+// still reports its document's true age.
+func (s *Service) GetTopology(ctx context.Context, _ *omv1.GetTopologyRequest) (*omv1.GetTopologyResponse, error) { //nolint:unparam
 	s.restoreOnce(ctx)
-	if cached, ok := s.cached(); ok {
-		return cached, nil
+	if cached := s.snapshot(); cached != nil {
+		return withFreshStale(cached), nil
 	}
-
-	response, err := s.discover(ctx)
-	if err != nil {
-		// Serving a stale document beats serving an error, as long as the envelope says
-		// so -- which it does, because stale is computed from observed_at.
-		if cached := s.snapshot(); cached != nil {
-			s.l.Warnf("serving the cached topology, rebuild failed: %s", err)
-			return cached, nil
-		}
-		return nil, err
-	}
-	return response, nil
+	// Genuinely cold: no in-memory document and nothing stored yet, e.g. a fresh estate
+	// whose leader has not completed its first pass. An empty document with stale=true
+	// is the honest answer -- Unavailable would read as an error for a normal startup
+	// state, and blocking for the leader's first run would reintroduce the
+	// request-triggered wait this path exists to remove.
+	return emptyTopologyResponse(), nil
 }
 
 // ListTopologyRuns returns the recorded runs, newest first.
@@ -194,7 +205,21 @@ func (s *Service) GetTopologyRun(ctx context.Context, req *omv1.GetTopologyRunRe
 // to remote executors to wait on here, so there is nothing to poll for. It refuses
 // rather than queues while one is in flight -- two collections would issue the same
 // queries twice and race to publish, and the caller wants the answer, not a second run.
+//
+// Refuses on a non-leader for the same reason: a follower that collected would persist a
+// run and prune the shared history right alongside the leader's own pass.
+//
+//nolint:unparam
 func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.TriggerTopologyCollectionRequest) (*omv1.TriggerTopologyCollectionResponse, error) {
+	if s.ha != nil && !s.ha.IsLeader() {
+		if leader := s.ha.LeaderID(); leader != "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"This node is not the HA leader; %s is. Only the leader collects.", leader)
+		}
+		return nil, status.Error(codes.FailedPrecondition,
+			"This node is not the HA leader. Only the leader collects.")
+	}
+
 	if !s.running.TryLock() {
 		// Aborted, not FailedPrecondition: the gateway maps it to 409 Conflict, which is
 		// what the UI's Sync button already treats as an expected outcome rather than a
@@ -265,13 +290,7 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 		return nil, nil, fmt.Errorf("failed to read inventory: %w", err)
 	}
 
-	sources := []factSource{
-		inventorySource{nodes: nodes},
-		metricsSource{vm: s.vmClient, l: s.l, now: startedAt},
-	}
-	if s.probe != nil {
-		sources = append(sources, *s.probe)
-	}
+	sources := s.sources(nodes, startedAt)
 	results := make([]SourceResult, 0, len(sources))
 	for _, source := range sources {
 		results = append(results, source.collect(ctx, services))
@@ -279,7 +298,7 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 
 	merged := mergeFacts(results, defaultPrecedence)
 	generatedAt := time.Now()
-	doc := buildDocument(services, merged, generatedAt, maxAge)
+	doc := applyHealth(buildDocument(services, merged, generatedAt, maxAge))
 
 	response := &omv1.GetTopologyResponse{
 		Snapshot: &omv1.Snapshot{
@@ -297,7 +316,7 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 	run := buildRun(runID, startedAt, generatedAt, services, merged, doc, results)
 
 	s.mu.Lock()
-	s.latest, s.builtAt = response, generatedAt
+	s.latest = response
 	s.mu.Unlock()
 
 	// Recorded after publishing, and never fatal: the document is already correct and
@@ -315,14 +334,30 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 	return response, run, nil
 }
 
-// restoreOnce loads the newest stored document into the cache the first time it is
-// needed, so a restarted pmm-managed answers from the last known estate rather than
-// starting from nothing.
+// sources returns the fact sources one collection reads, in the order they run.
 //
-// It is restored with the age it actually has, not as if it were just collected, so it
-// then obeys the same cache rule as anything else: young enough and it is served, too old
-// and the read that wanted it rebuilds. Either way there is now something to fall back on
-// when a rebuild fails, which is the case that made this worth storing.
+// Extracted so a test can see the set and its order without driving a whole collection:
+// which sources are wired in, and whether probe is included, is exactly what review
+// found untested. Both nodes and startedAt are per-run state the sources close over
+// rather than package globals, so two overlapping calls (the ticker and a manual
+// trigger racing, however briefly) never share one.
+func (s *Service) sources(nodes map[string]*models.Node, startedAt time.Time) []factSource {
+	sources := []factSource{
+		inventorySource{nodes: nodes},
+		metricsSource{vm: s.vmClient, l: s.l, now: startedAt},
+	}
+	if s.probe != nil {
+		sources = append(sources, *s.probe)
+	}
+	return sources
+}
+
+// restoreOnce loads the newest stored document into memory the first time it is needed,
+// so a restarted pmm-managed answers from the last known estate rather than nothing.
+//
+// Only "is there a document at all" is decided here. How fresh it is remains a question
+// the read path answers itself, every time it is asked -- see withFreshStale -- rather
+// than baking the answer in as of the moment this ran.
 func (s *Service) restoreOnce(ctx context.Context) {
 	s.restored.Do(func() {
 		response, generatedAt, err := s.restore(ctx)
@@ -335,7 +370,7 @@ func (s *Service) restoreOnce(ctx context.Context) {
 		}
 		s.mu.Lock()
 		if s.latest == nil {
-			s.latest, s.builtAt = response, generatedAt
+			s.latest = response
 		}
 		s.mu.Unlock()
 		s.l.Infof("restored the topology document generated at %s (%s ago)",
@@ -343,21 +378,59 @@ func (s *Service) restoreOnce(ctx context.Context) {
 	})
 }
 
-// cached returns the published document while it is younger than refreshInterval.
-func (s *Service) cached() (*omv1.GetTopologyResponse, bool) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.latest != nil && time.Since(s.builtAt) < refreshInterval {
-		return s.latest, true
-	}
-	return nil, false
-}
-
 // snapshot returns the published document, however old.
 func (s *Service) snapshot() *omv1.GetTopologyResponse {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	return s.latest
+}
+
+// withFreshStale returns response with Snapshot.Stale recomputed against the current
+// time, leaving the rest of the message untouched.
+//
+// A document served from memory can sit there for a long time on a node that never
+// collects -- every follower, once GetTopology stops triggering a collection of its own
+// -- so staleness has to be a property of when it is read, not frozen as of whenever it
+// was built or restored. Response is shared across concurrent readers, so this returns a
+// shallow copy rather than mutating it in place.
+func withFreshStale(response *omv1.GetTopologyResponse) *omv1.GetTopologyResponse {
+	if response == nil || response.Snapshot == nil {
+		return response
+	}
+	// Built field by field rather than copied (`clone := *response`): a proto message
+	// carries a sync.Mutex in its generated MessageState, and copying that by value is
+	// exactly the bug go vet's copylocks check exists to catch.
+	snapshot := &omv1.Snapshot{
+		GeneratedAt:   response.Snapshot.GeneratedAt,
+		ObservedAt:    response.Snapshot.ObservedAt,
+		Stale:         snapshotStale(response.Snapshot.ObservedAt),
+		SchemaVersion: response.Snapshot.SchemaVersion,
+		RunId:         response.Snapshot.RunId,
+	}
+	return &omv1.GetTopologyResponse{
+		Snapshot:      snapshot,
+		OriginNode:    response.OriginNode,
+		SourceQueries: response.SourceQueries,
+		Summary:       response.Summary,
+		Environments:  response.Environments,
+	}
+}
+
+// emptyTopologyResponse is what GetTopology answers on a genuinely cold estate: nothing
+// in memory, nothing stored yet. That is the normal state for the first moments of a
+// fresh install, not an error -- observed_at stays unset and stale is true so the UI can
+// render "collecting, no data yet" rather than a blank document that looks like an empty
+// estate.
+func emptyTopologyResponse() *omv1.GetTopologyResponse {
+	return &omv1.GetTopologyResponse{
+		Snapshot: &omv1.Snapshot{
+			Stale:         true,
+			SchemaVersion: schemaVersion,
+		},
+		SourceQueries: sourceQueries,
+		Summary:       &omv1.Summary{ProcessRoleCounts: map[string]int32{}},
+		Environments:  []*omv1.Environment{},
+	}
 }
 
 // readInventory returns every MongoDB service, its nodes by ID, the PMM Server node name
