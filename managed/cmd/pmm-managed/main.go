@@ -144,8 +144,13 @@ const (
 	distributionInfoFilePath = "/srv/pmm-distribution"
 	osInfoFilePath           = "/proc/version"
 
-	dbConnMaxLifetime = 0
-	dbConnMaxIdleTime = 5 * time.Minute
+	// A reconnect storm grows both pools to their maximum, and every connection is a
+	// PostgreSQL backend process. Idle connections are returned to the server a minute
+	// after the storm subsides instead of being kept for the whole 5 minutes that used
+	// to be the default, and every connection is recycled twice an hour, so a pool
+	// cannot pin the same backends indefinitely (also helps HA failover recover).
+	dbConnMaxLifetime = 30 * time.Minute
+	dbConnMaxIdleTime = 1 * time.Minute
 
 	internalDBMinOpenConns = 20
 	apiDBMinOpenConns      = 50
