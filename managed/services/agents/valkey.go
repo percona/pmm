@@ -40,6 +40,25 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
+	if exporter.TLS {
+		if exporter.TLSSkipVerify {
+			args = append(args, "--skip-tls-verification")
+		}
+
+		for name := range exporter.Files() {
+			switch name {
+			case "tlsCa":
+				args = append(args, "--tls-ca-cert-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+			case "tlsCert":
+				args = append(args, "--tls-client-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+			case "tlsKey":
+				args = append(args, "--tls-client-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+			default:
+				continue
+			}
+		}
+	}
+
 	dsnParams := models.DSNParams{}
 	connectionTimeout := exporter.EffectiveDialTimeout()
 
