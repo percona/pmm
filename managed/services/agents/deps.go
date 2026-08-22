@@ -23,6 +23,7 @@ import (
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/reform.v1"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	qanv1 "github.com/percona/pmm/api/qan/v1"
@@ -38,7 +39,7 @@ type prometheusService interface {
 	// ForceConfigurationUpdate triggers immediate synchronous configuration update,
 	// bypassing the batch delay. Use this for critical updates like port changes.
 	ForceConfigurationUpdate(ctx context.Context) error
-	BuildScrapeConfigForVMAgent(ctx context.Context, pmmAgentID string) ([]byte, error)
+	BuildScrapeConfigForVMAgent(q *reform.Querier, pmmAgentID string) ([]byte, error)
 }
 
 // qanClient is a subset of methods of qan.Client used by this package.

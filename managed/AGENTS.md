@@ -36,6 +36,15 @@ func New(db *reform.DB, logger *logrus.Entry, ...) *Service {
 
 All services are composed and wired in `managed/cmd/pmm-managed/main.go`.
 
+**Two connection pools.** `main.go` opens two independent pools against the same PostgreSQL database and hands each service one of them:
+
+| pool | for | give it to |
+|------|-----|-----------|
+| `apiDB` | pmm-agent traffic and request-scoped work: agent connect, state updates, QAN collection, RTA, authentication, and everything reached through `gRPCServerDeps` | services on the agent or API request path |
+| `internalDB` | background work that must keep running when the API pool is saturated: VictoriaMetrics scrape config, settings, cleanup, telemetry, checks, alerting, backups, scheduler | services driven by timers, leader election or the config rebuild |
+
+A reconnect storm from a fleet of agents must not be able to starve the internal services — that is the whole point of the split (PMM-15228). When adding a service, pick the pool by what drives it, not by what it does; if a service is driven by both, the agent-facing side decides. A wrong pick does not fail to compile: watch `go_sql_connections_in_use{db="pmm-managed/internal"}` correlating with agent activity.
+
 ### API Layer
 
 - **gRPC** (port 7771) — primary API protocol

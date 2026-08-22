@@ -1190,9 +1190,24 @@ var databaseSchema = [][]string{
 // ^^^ Avoid default values in schema definition. ^^^
 // Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
+// Connection pool defaults, applied when SetupDBParams leaves the corresponding field unset.
+// A zero ConnMaxLifetime is not defaulted: database/sql reads it as "never expire", which is
+// what callers that do not care about pool geometry want.
+const (
+	defaultConnMaxIdleTime = 5 * time.Minute
+	defaultMaxOpenConns    = 50
+)
+
 // OpenDB returns configured connection pool for PostgreSQL.
 // OpenDB just validates its arguments without creating a connection to the database.
 func OpenDB(params SetupDBParams) (*sql.DB, error) {
+	if params.ConnMaxIdleTime <= 0 {
+		params.ConnMaxIdleTime = defaultConnMaxIdleTime
+	}
+	if params.MaxOpenConns <= 0 {
+		params.MaxOpenConns = defaultMaxOpenConns
+	}
+
 	q := make(url.Values)
 	if params.SSLMode == "" {
 		params.SSLMode = DisableSSLMode
@@ -1222,13 +1237,12 @@ func OpenDB(params SetupDBParams) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to create a connection pool to PostgreSQL: %w", err)
 	}
 
-	db.SetConnMaxLifetime(0)
-	db.SetConnMaxIdleTime(5 * time.Minute) //nolint:mnd
-	// Sized to give DB-bound auth/role/settings paths enough headroom during
-	// a reconnect storm from a fleet of agents, while staying well within
-	// Postgres max_connections (set to 2000 by PMM Server).
-	db.SetMaxIdleConns(50) //nolint:mnd
-	db.SetMaxOpenConns(50) //nolint:mnd
+	db.SetConnMaxLifetime(params.ConnMaxLifetime)
+	db.SetConnMaxIdleTime(params.ConnMaxIdleTime)
+	db.SetMaxOpenConns(params.MaxOpenConns)
+	// Keeping every connection idle-eligible avoids closing one just because the pool is
+	// above its idle size; ConnMaxIdleTime is what returns them to the server.
+	db.SetMaxIdleConns(params.MaxOpenConns)
 
 	return db, nil
 }
@@ -1258,6 +1272,9 @@ type SetupDBParams struct {
 	HAPeers          []string
 	SetupFixtures    SetupFixturesMode
 	MigrationVersion *int
+	ConnMaxLifetime  time.Duration
+	ConnMaxIdleTime  time.Duration
+	MaxOpenConns     int
 }
 
 // SetupDB checks minimal required PostgreSQL version and runs database migrations. Optionally creates database and adds initial data.

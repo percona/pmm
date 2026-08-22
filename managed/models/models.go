@@ -31,6 +31,7 @@ import (
 	"fmt"
 	"maps"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 	"time"
@@ -38,6 +39,21 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
+
+// maxQueryIDs bounds the number of IDs one "IN" list carries. The Find*ByIDs helpers bind one
+// parameter per ID, and PostgreSQL accepts at most 65535 of them per statement, so callers that
+// pass the whole inventory (the VictoriaMetrics configuration rebuild does) are chunked instead
+// of failing.
+const maxQueryIDs = 1000
+
+// uniqueIDs returns the given IDs sorted and deduplicated, so that a repeated ID does not
+// become a repeated bind parameter and chunking keeps the result ordered.
+func uniqueIDs(ids []string) []string {
+	res := slices.Clone(ids)
+	slices.Sort(res)
+
+	return slices.Compact(res)
+}
 
 // Now returns current time with database precision.
 var Now = func() time.Time {

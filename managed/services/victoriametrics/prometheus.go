@@ -24,8 +24,137 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/stringset"
 	"github.com/percona/pmm/version"
 )
+
+// scrapeConfigLookup resolves the Services, Nodes and pmm-agents referenced by a set of Agents.
+// They are fetched in three bulk queries up front: a node running a dozen services used to cost
+// one Service, one Node and one pmm-agent lookup per exporter, re-reading the very same pmm-agent
+// row and its Node for every exporter of that node.
+type scrapeConfigLookup struct {
+	l         *logrus.Entry
+	q         *reform.Querier
+	services  map[string]*models.Service
+	nodes     map[string]*models.Node
+	pmmAgents map[string]*models.Agent
+	versions  map[string]*version.Parsed
+}
+
+func newScrapeConfigLookup(l *logrus.Entry, q *reform.Querier, agents []*models.Agent) (*scrapeConfigLookup, error) {
+	serviceIDs := make(map[string]struct{}, len(agents))
+	pmmAgentIDs := make(map[string]struct{}, len(agents))
+	nodeIDs := make(map[string]struct{}, len(agents))
+	addID := func(ids map[string]struct{}, id string) {
+		if id != "" {
+			ids[id] = struct{}{}
+		}
+	}
+
+	for _, agent := range agents {
+		addID(serviceIDs, pointer.GetString(agent.ServiceID))
+		addID(pmmAgentIDs, pointer.GetString(agent.PMMAgentID))
+		addID(nodeIDs, pointer.GetString(agent.NodeID))
+		addID(nodeIDs, pointer.GetString(agent.RunsOnNodeID))
+	}
+
+	services, err := models.FindServicesByIDs(q, stringset.ToSlice(serviceIDs))
+	if err != nil {
+		return nil, fmt.Errorf("failed to find services for scrape config: %w", err)
+	}
+	for _, service := range services {
+		addID(nodeIDs, service.NodeID)
+	}
+
+	pmmAgents, err := models.FindAgentsByIDs(q, stringset.ToSlice(pmmAgentIDs))
+	if err != nil {
+		return nil, fmt.Errorf("failed to find pmm-agents for scrape config: %w", err)
+	}
+	lookup := &scrapeConfigLookup{
+		l:         l,
+		q:         q,
+		services:  services,
+		nodes:     make(map[string]*models.Node, len(nodeIDs)),
+		pmmAgents: make(map[string]*models.Agent, len(pmmAgents)),
+		versions:  make(map[string]*version.Parsed, len(pmmAgents)),
+	}
+	for _, pmmAgent := range pmmAgents {
+		lookup.pmmAgents[pmmAgent.AgentID] = pmmAgent
+		// The Node a pmm-agent runs on is only known once the pmm-agent row is in hand.
+		addID(nodeIDs, pointer.GetString(pmmAgent.RunsOnNodeID))
+	}
+
+	nodes, err := models.FindNodesByIDs(q, stringset.ToSlice(nodeIDs))
+	if err != nil {
+		return nil, fmt.Errorf("failed to find nodes for scrape config: %w", err)
+	}
+	for _, node := range nodes {
+		lookup.nodes[node.NodeID] = node
+	}
+
+	return lookup, nil
+}
+
+// service returns the Service with the given ID. Rows that were not prefetched - because they
+// appeared after the bulk query - are read individually, so a missing row fails exactly as before.
+func (s *scrapeConfigLookup) service(id string) (*models.Service, error) {
+	if service, ok := s.services[id]; ok {
+		return service, nil
+	}
+
+	service, err := models.FindServiceByID(s.q, id)
+	if err != nil {
+		return nil, err
+	}
+	s.services[id] = service
+
+	return service, nil
+}
+
+// node returns the Node with the given ID.
+func (s *scrapeConfigLookup) node(id string) (*models.Node, error) {
+	if node, ok := s.nodes[id]; ok {
+		return node, nil
+	}
+
+	node, err := models.FindNodeByID(s.q, id)
+	if err != nil {
+		return nil, err
+	}
+	s.nodes[id] = node
+
+	return node, nil
+}
+
+// pmmAgent returns the pmm-agent with the given ID.
+func (s *scrapeConfigLookup) pmmAgent(id string) (*models.Agent, error) {
+	if agent, ok := s.pmmAgents[id]; ok {
+		return agent, nil
+	}
+
+	agent, err := models.FindAgentByID(s.q, id)
+	if err != nil {
+		return nil, err
+	}
+	s.pmmAgents[id] = agent
+
+	return agent, nil
+}
+
+// pmmAgentVersion returns the parsed version of the given pmm-agent, or nil if it cannot be parsed.
+func (s *scrapeConfigLookup) pmmAgentVersion(agent *models.Agent) *version.Parsed {
+	if parsed, ok := s.versions[agent.AgentID]; ok {
+		return parsed
+	}
+
+	parsed, err := version.Parse(pointer.GetString(agent.Version))
+	if err != nil {
+		s.l.Warnf("couldn't parse pmm-agent version for pmm-agent %s: %s", agent.AgentID, err)
+	}
+	s.versions[agent.AgentID] = parsed
+
+	return parsed
+}
 
 // AddScrapeConfigs - adds agents scrape configuration to given scrape config,
 // pmm_agent_id and push_metrics used for filtering.
@@ -35,6 +164,11 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 	agents, err := models.FindAgentsForScrapeConfig(q, pmmAgentID, pushMetrics)
 	if err != nil {
 		return fmt.Errorf("failed to find agent for scrape config: %w", err)
+	}
+
+	lookup, err := newScrapeConfigLookup(l, q, agents)
+	if err != nil {
+		return err
 	}
 
 	var rdsParams []*scrapeConfigParams
@@ -52,7 +186,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		// find Service for this Agent
 		var paramsService *models.Service
 		if agent.ServiceID != nil {
-			paramsService, err = models.FindServiceByID(q, pointer.GetString(agent.ServiceID))
+			paramsService, err = lookup.service(pointer.GetString(agent.ServiceID))
 			if err != nil {
 				return err
 			}
@@ -62,9 +196,9 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		var paramsNode *models.Node
 		switch {
 		case agent.NodeID != nil:
-			paramsNode, err = models.FindNodeByID(q, pointer.GetString(agent.NodeID))
+			paramsNode, err = lookup.node(pointer.GetString(agent.NodeID))
 		case paramsService != nil:
-			paramsNode, err = models.FindNodeByID(q, paramsService.NodeID)
+			paramsNode, err = lookup.node(paramsService.NodeID)
 		}
 		if err != nil {
 			return err
@@ -77,30 +211,25 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		var pmmAgentNode *models.Node
 		if agent.PMMAgentID != nil {
 			// find a related pmm-agent to get the node address (runs_on_node_id)
-			pmmAgent, err = models.FindAgentByID(q, *agent.PMMAgentID)
+			pmmAgent, err = lookup.pmmAgent(*agent.PMMAgentID)
 			if err != nil {
 				return fmt.Errorf("failed to find pmm-agent for scrape config: %w", err)
 			}
-			paramPMMAgentVersion, err = version.Parse(pointer.GetString(pmmAgent.Version))
-			if err != nil {
-				l.Warnf("couldn't parse pmm-agent version for pmm-agent %s: %q", pmmAgent.AgentID, err)
-			}
+			paramPMMAgentVersion = lookup.pmmAgentVersion(pmmAgent)
 		}
 		switch {
 		case pushMetrics:
 			paramsHost = models.LocalhostAddr
 		case agent.PMMAgentID != nil:
-			pmmAgentNode = &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
-			err = q.Reload(pmmAgentNode)
+			pmmAgentNode, err = lookup.node(pointer.GetString(pmmAgent.RunsOnNodeID))
 			if err != nil {
-				return fmt.Errorf("failed to reload Node by pmm-agent for scrape config: %w", err)
+				return fmt.Errorf("failed to find Node by pmm-agent for scrape config: %w", err)
 			}
 			paramsHost = pmmAgentNode.Address
 		case agent.RunsOnNodeID != nil:
-			externalExporterNode := &models.Node{NodeID: pointer.GetString(agent.RunsOnNodeID)}
-			err = q.Reload(externalExporterNode)
+			externalExporterNode, err := lookup.node(pointer.GetString(agent.RunsOnNodeID))
 			if err != nil {
-				return fmt.Errorf("failed to reload Node for scrape config: %w", err)
+				return fmt.Errorf("failed to find Node for scrape config: %w", err)
 			}
 			paramsHost = externalExporterNode.Address
 		default:
