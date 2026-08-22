@@ -206,3 +206,58 @@ func formatPkgName(t *testing.T, name string) string {
 
 	return name
 }
+
+func TestDBPoolBudget(t *testing.T) {
+	for _, tc := range []struct {
+		name      string
+		maxConns  int
+		instances int
+		expected  int
+	}{
+		// PMM Server runs PostgreSQL with max_connections=2000.
+		{name: "PMM Server", maxConns: 2000, instances: 0, expected: 1500},
+		{name: "PMM Server, HA with 3 nodes", maxConns: 2000, instances: 3, expected: 500},
+		// A stock managed PostgreSQL keeps a quarter of its connections.
+		{name: "external PostgreSQL", maxConns: 100, instances: 1, expected: 75},
+		{name: "external PostgreSQL, HA with 3 nodes", maxConns: 100, instances: 3, expected: 25},
+		{name: "tiny PostgreSQL", maxConns: 4, instances: 1, expected: 3},
+		{name: "never zero", maxConns: 1, instances: 8, expected: 1},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, dbPoolBudget(tc.maxConns, tc.instances))
+		})
+	}
+}
+
+func TestFitDBPoolSizes(t *testing.T) {
+	preferred := dbPoolSizes{internal: 20, api: 50}
+
+	for _, tc := range []struct {
+		name     string
+		budget   int
+		expected dbPoolSizes
+	}{
+		{name: "budget to spare", budget: 1500, expected: preferred},
+		{name: "exactly enough", budget: 70, expected: preferred},
+		{name: "too small, split", budget: 40, expected: dbPoolSizes{internal: 10, api: 30}},
+		{name: "way too small", budget: 4, expected: dbPoolSizes{internal: 1, api: 3}},
+		{name: "never zero", budget: 1, expected: dbPoolSizes{internal: 1, api: 1}},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sizes := fitDBPoolSizes(preferred, tc.budget)
+			assert.Equal(t, tc.expected, sizes)
+			if tc.budget >= 2 {
+				assert.LessOrEqual(t, int(sizes.internal)+int(sizes.api), tc.budget)
+			}
+		})
+	}
+}
+
+func TestPreferredDBPoolSizes(t *testing.T) {
+	sizes := preferredDBPoolSizes()
+
+	assert.GreaterOrEqual(t, sizes.internal, int32(internalDBMinOpenConns))
+	assert.LessOrEqual(t, sizes.internal, int32(internalDBPoolCap))
+	assert.GreaterOrEqual(t, sizes.api, int32(apiDBMinOpenConns))
+	assert.LessOrEqual(t, sizes.api, int32(apiDBPoolCap))
+}
