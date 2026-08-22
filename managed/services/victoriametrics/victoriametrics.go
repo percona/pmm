@@ -474,21 +474,25 @@ func scrapeConfigForVMAlert(interval time.Duration, pmmServerNodeName string) *c
 }
 
 // BuildScrapeConfigForVMAgent builds scrape configuration for given pmm-agent.
-func (svc *Service) BuildScrapeConfigForVMAgent(ctx context.Context, pmmAgentID string) ([]byte, error) {
+// The querier is supplied by the caller so that the scrape config is built on the caller's
+// connection pool. The transaction this used to open bought no isolation (READ COMMITTED
+// takes a fresh snapshot per statement) and pinned a connection for the whole build.
+func (svc *Service) BuildScrapeConfigForVMAgent(q *reform.Querier, pmmAgentID string) ([]byte, error) {
 	if pmmAgentID == models.PMMServerAgentID {
 		return svc.buildVMConfig()
 	}
+
+	settings, err := models.GetSettings(q)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get settings: %w", err)
+	}
+	// In HA mode, skip ExternalExporter agents if this node is not the leader
+	skipExternalExporter := !svc.haService.IsLeader()
+
 	var cfg config.Config
-	e := svc.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		settings, err := models.GetSettings(tx)
-		if err != nil {
-			return err
-		} // In HA mode, skip ExternalExporter agents if this node is not the leader
-		skipExternalExporter := !svc.haService.IsLeader()
-		return AddScrapeConfigs(svc.l, &cfg, tx.Querier, new(settings.MetricsResolutions), new(pmmAgentID), true, skipExternalExporter)
-	})
-	if e != nil {
-		return nil, e
+	err = AddScrapeConfigs(svc.l, &cfg, q, new(settings.MetricsResolutions), new(pmmAgentID), true, skipExternalExporter)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build scrape config for pmm-agent '%s': %w", pmmAgentID, err)
 	}
 
 	return yaml.Marshal(cfg)

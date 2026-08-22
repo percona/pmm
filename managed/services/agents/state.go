@@ -153,7 +153,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			l.Warnf("sendSetStateRequest took %s.", dur)
 		}
 	}()
-	pmmAgent, err := models.FindAgentByID(u.db.Querier, agent.id)
+	// Bind the queries to the request context, so that waiting for a free connection
+	// in the pool is bounded by stateChangeTimeout instead of blocking indefinitely.
+	q := u.db.WithContext(ctx)
+
+	pmmAgent, err := models.FindAgentByID(q, agent.id)
 	if err != nil {
 		return fmt.Errorf("failed to get PMM Agent: %w", err)
 	}
@@ -162,7 +166,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		return fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
 	}
 
-	settings, err := models.GetSettings(u.db.Querier)
+	settings, err := models.GetSettings(q)
 	if err != nil {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
@@ -173,7 +177,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		// fetch enabled only
 		Disabled: new(false),
 	}
-	agents, err := models.FindAgents(u.db.Querier, filters)
+	agents, err := models.FindAgents(q, filters)
 	if err != nil {
 		return fmt.Errorf("failed to collect agents: %w", err)
 	}
@@ -191,13 +195,13 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		case models.PMMAgentType:
 			continue
 		case models.VMAgentType:
-			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(ctx, agent.id)
+			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(q, agent.id)
 			if err != nil {
 				return fmt.Errorf("cannot get agent scrape config for agent %s: %w", agent.id, err)
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 		case models.NomadAgentType:
-			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			node, err := models.FindNodeByID(q, pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -208,7 +212,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			agentProcesses[row.AgentID] = params
 
 		case models.NodeExporterType:
-			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			node, err := models.FindNodeByID(q, pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -220,7 +224,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			agentProcesses[row.AgentID] = params
 
 		case models.RDSExporterType:
-			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			node, err := models.FindNodeByID(q, pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -230,7 +234,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			// ignore
 
 		case models.AzureDatabaseExporterType:
-			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
+			service, err := models.FindServiceByID(q, pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
 			}
@@ -246,11 +250,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
 			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
 			models.RTAMongoDBAgentType:
-			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
+			service, err := models.FindServiceByID(q, pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
 			}
-			node, _ := models.FindNodeByID(u.db.Querier, pointer.GetString(pmmAgent.RunsOnNodeID))
+			node, _ := models.FindNodeByID(q, pointer.GetString(pmmAgent.RunsOnNodeID))
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
 				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)

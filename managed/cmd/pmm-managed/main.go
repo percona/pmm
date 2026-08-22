@@ -30,6 +30,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -142,6 +143,36 @@ const (
 
 	distributionInfoFilePath = "/srv/pmm-distribution"
 	osInfoFilePath           = "/proc/version"
+
+	dbConnMaxLifetime = 0
+	dbConnMaxIdleTime = 5 * time.Minute
+
+	internalDBMinOpenConns = 20
+	apiDBMinOpenConns      = 50
+
+	// Pool growth is proportional to the scheduler parallelism.
+	internalDBOpenConnsPerP = 3
+	apiDBOpenConnsPerP      = 12
+
+	// Both pools together must stay below PostgreSQL max_connections (2000 in PMM Server).
+	// The remainder is reserved for Grafana, telemetry, encryption rotation and maintenance sessions.
+	postgresMaxConnections      = 2000
+	postgresConnectionsReserved = 500
+	postgresPoolBudget          = postgresMaxConnections - postgresConnectionsReserved
+
+	internalDBPoolCap = 100
+	apiDBPoolCap      = postgresPoolBudget - internalDBPoolCap
+)
+
+var (
+	// Internal pool: sized for the background services that keep the server itself alive.
+	internalDBMaxOpenConns = int32(min(max(internalDBMinOpenConns, runtime.GOMAXPROCS(0)*internalDBOpenConnsPerP), internalDBPoolCap))
+	internalDBMaxIdleConns = internalDBMaxOpenConns
+
+	// API pool: sized to give the pmm-agent facing paths enough headroom during a
+	// reconnect storm while staying within the shared PostgreSQL budget.
+	apiDBMaxOpenConns = int32(min(max(apiDBMinOpenConns, runtime.GOMAXPROCS(0)*apiDBOpenConnsPerP), apiDBPoolCap))
+	apiDBMaxIdleConns = apiDBMaxOpenConns
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -870,45 +901,73 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Panicf("cannot load victoriametrics params problem: %+v", err)
 	}
 
-	setupParams := models.SetupDBParams{
-		Address:     *postgresAddrF,
-		Name:        *postgresDBNameF,
-		Username:    *postgresDBUsernameF,
-		Password:    *postgresDBPasswordF,
-		SSLMode:     *postgresSSLModeF,
-		SSLCAPath:   *postgresSSLCAPathF,
-		SSLKeyPath:  *postgresSSLKeyPathF,
-		SSLCertPath: *postgresSSLCertPathF,
-		HANodeID:    *haNodeID,
-		HAPeers:     nodes,
+	// The internal pool serves the background services that keep the server itself alive:
+	// VictoriaMetrics scrape config rebuild, settings, cleanup, telemetry, checks, backups.
+	// It is deliberately kept away from the pmm-agent facing paths, so that a reconnect
+	// storm from a fleet of agents can no longer starve them of connections.
+	setupInternalDBParams := models.SetupDBParams{
+		Address:         *postgresAddrF,
+		Name:            *postgresDBNameF,
+		Username:        *postgresDBUsernameF,
+		Password:        *postgresDBPasswordF,
+		SSLMode:         *postgresSSLModeF,
+		SSLCAPath:       *postgresSSLCAPathF,
+		SSLKeyPath:      *postgresSSLKeyPathF,
+		SSLCertPath:     *postgresSSLCertPathF,
+		HANodeID:        *haNodeID,
+		HAPeers:         nodes,
+		ConnMaxLifetime: dbConnMaxLifetime,
+		ConnMaxIdleTime: dbConnMaxIdleTime,
+		MaxIdleConns:    internalDBMaxIdleConns,
+		MaxOpenConns:    internalDBMaxOpenConns,
 	}
 
-	sqlDB, err := models.OpenDB(setupParams)
+	sqlInternalDB, err := models.OpenDB(setupInternalDBParams)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}
-	defer sqlDB.Close() //nolint:errcheck
+	defer sqlInternalDB.Close() //nolint:errcheck
 
 	if *haEnabled {
 		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
 	}
 
-	migrateDB(ctx, sqlDB, setupParams)
+	migrateDB(ctx, sqlInternalDB, setupInternalDBParams)
 
-	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
-	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
-	prom.MustRegister(reformL)
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
+	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF+"/internal", sqlInternalDB))
+	internalReformL := sqlmetrics.NewReform("postgres", *postgresDBNameF+"/internal", logrus.WithField("component", "reform").Tracef)
+	prom.MustRegister(internalReformL)
+	internalDB := reform.NewDB(sqlInternalDB, postgresql.Dialect, internalReformL)
+
+	// The API pool serves the pmm-agent facing paths (agent connect, state updates, QAN
+	// collection, RTA, authentication) and the gRPC/REST API handlers. Saturating it
+	// degrades those paths only; the internal services keep making progress.
+	setupAPIDBParams := setupInternalDBParams
+	setupAPIDBParams.MaxIdleConns = apiDBMaxIdleConns
+	setupAPIDBParams.MaxOpenConns = apiDBMaxOpenConns
+
+	sqlAPIDB, err := models.OpenDB(setupAPIDBParams)
+	if err != nil {
+		l.Panicf("Failed to connect to database: %+v", err)
+	}
+	defer sqlAPIDB.Close() //nolint:errcheck
+
+	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF+"/api", sqlAPIDB))
+	apiReformL := sqlmetrics.NewReform("postgres", *postgresDBNameF+"/api", logrus.WithField("component", "reform").Tracef)
+	prom.MustRegister(apiReformL)
+	apiDB := reform.NewDB(sqlAPIDB, postgresql.Dialect, apiReformL)
+
+	l.Infof("Database connection pools: internal %d, API %d.", internalDBMaxOpenConns, apiDBMaxOpenConns)
 
 	// Generate unique PMM Server ID if it's not already.
-	err = models.SetPMMServerID(db)
+	err = models.SetPMMServerID(internalDB)
 	if err != nil {
 		l.Panicf("failed to set PMM Server ID")
 	}
 
-	cleaner := clean.New(db)
+	cleaner := clean.New(internalDB)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, internalDB, vmParams, chParams, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
@@ -921,9 +980,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	minioClient := minio.New()
 
-	qanClient := getQANClient(sqlDB, *postgresDBNameF, *qanAPIAddrF)
+	qanClient := getQANClient(sqlAPIDB, *postgresDBNameF, *qanAPIAddrF)
 
-	agentsRegistry := agents.NewRegistry(db, vmParams, haService)
+	agentsRegistry := agents.NewRegistry(apiDB, vmParams, haService)
 
 	// TODO remove once PMM cluster is Active-Active
 	// TODO kick non-pmm-server agents only
@@ -933,11 +992,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	// 	func() { agentsRegistry.KickAll(ctx) }))
 
 	pbmPITRService := backup.NewPBMPITRService()
-	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
-	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
+	backupRemovalService := backup.NewRemovalService(internalDB, pbmPITRService)
+	backupRetentionService := backup.NewRetentionService(internalDB, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
 
-	inventoryMetrics := inventory.NewInventoryMetrics(db, agentsRegistry)
+	inventoryMetrics := inventory.NewInventoryMetrics(internalDB, agentsRegistry)
 	inventoryMetricsCollector := inventory.NewInventoryMetricsCollector(inventoryMetrics)
 	prom.MustRegister(inventoryMetricsCollector)
 
@@ -947,7 +1006,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	updater := server.NewUpdater(db)
+	updater := server.NewUpdater(internalDB)
 
 	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 
@@ -983,7 +1042,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	platformClient := platformClient.NewClient(platformAddress)
 
 	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
-	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry)
+	telemetry, err := telemetry.NewService(internalDB, platformClient, version.Version, dus, cfg.Config.Services.Telemetry)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
@@ -998,14 +1057,14 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		GCMaxAllocs:           *nomadGCMaxAllocsF,
 		GCParallelDestroys:    *nomadGCParallelDestroysF,
 	}
-	nomad, err := nomad.New(db, nomadClientConfig)
+	nomad, err := nomad.New(internalDB, nomadClientConfig)
 	if err != nil {
 		l.Fatalf("Could not create Nomad client: %s", err)
 	}
 
-	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
-	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams, nomad)
-	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
+	jobsService := agents.NewJobsService(internalDB, agentsRegistry, backupRetentionService)
+	agentsStateUpdater := agents.NewStateUpdater(apiDB, agentsRegistry, vmdb, vmParams, nomad)
+	agentsHandler := agents.NewHandler(apiDB, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
@@ -1018,12 +1077,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	if err != nil {
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
-	externalExporterStatusSvc := agents.NewExternalExporterStatusService(db, v1.NewAPI(vmClient))
+	externalExporterStatusSvc := agents.NewExternalExporterStatusService(internalDB, v1.NewAPI(vmClient))
 
-	checksService := checks.New(db, actionsService, v1.NewAPI(vmClient), clickhouseClient)
+	checksService := checks.New(internalDB, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
 
-	alertingService, err := alerting.NewService(db, grafanaClient)
+	alertingService, err := alerting.NewService(internalDB, grafanaClient)
 	if err != nil {
 		l.Fatalf("Could not create alerting service: %s", err)
 	}
@@ -1032,21 +1091,21 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	agentService := agents.NewAgentService(agentsRegistry)
 
 	versioner := agents.NewVersionerService(agentsRegistry)
-	compatibilityService := backup.NewCompatibilityService(db, versioner)
-	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pbmPITRService)
-	backupMetricsCollector := backup.NewMetricsCollector(db)
+	compatibilityService := backup.NewCompatibilityService(internalDB, versioner)
+	backupService := backup.NewService(internalDB, jobsService, agentService, compatibilityService, pbmPITRService)
+	backupMetricsCollector := backup.NewMetricsCollector(internalDB)
 	prom.MustRegister(backupMetricsCollector)
 
-	schedulerService := scheduler.New(db, backupService)
-	versionCache := versioncache.New(db, versioner)
+	schedulerService := scheduler.New(internalDB, backupService)
+	versionCache := versioncache.New(internalDB, versioner)
 
-	dumpService := dump.New(db, &dump.URLs{
+	dumpService := dump.New(internalDB, &dump.URLs{
 		ClickhouseURL: chParams.URL().String(),
 		VMURL:         *victoriaMetricsURLF,
 	})
 
 	serverParams := &server.Params{
-		DB:                   db,
+		DB:                   internalDB,
 		VMDB:                 vmdb,
 		VMAlert:              vmalert,
 		AgentsStateUpdater:   agentsStateUpdater,
@@ -1095,7 +1154,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	// try synchronously once, then retry in the background
 	deps := &setupDeps{
-		sqlDB:       sqlDB,
+		sqlDB:       sqlInternalDB,
 		ha:          haService,
 		supervisord: supervisord,
 		vmdb:        vmdb,
@@ -1123,12 +1182,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		}()
 	}
 
-	settings, err := models.GetSettings(sqlDB)
+	settings, err := models.GetSettings(sqlInternalDB)
 	if err != nil {
 		l.Fatalf("Failed to get settings: %+v.", err)
 	}
 
-	authServer := grafana.NewAuthServer(grafanaClient, db)
+	authServer := grafana.NewAuthServer(grafanaClient, apiDB)
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
@@ -1187,7 +1246,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				compatibilityService:      compatibilityService,
 				config:                    &cfg.Config,
 				connectionCheck:           connectionCheck,
-				db:                        db,
+				db:                        apiDB,
 				dumpService:               dumpService,
 				grafanaClient:             grafanaClient,
 				handler:                   agentsHandler,
