@@ -1,17 +1,17 @@
 ---
-name: PMM Admin
+name: 'Client: pmm-admin'
 
 on:
   pull_request:
-    paths:
-      - '.github/workflows/admin.yml'
-      - '.github/actions/setup-go-release/**'
-      - "admin/**"
-      - "api/**"
-      - 'utils/**'
-      - 'version/**'
-      - 'go.*'
-      - '!**/*.md'
+    paths-ignore:
+      - "agent/**"
+      - "api-tests/**"
+      - "dev/docs/**"
+      - "documentation/**"
+      - "managed/**"
+      - "qan-api2/**"
+      - "vmproxy/**"
+      - "ui/**"
 
 permissions:
   contents: read
@@ -20,54 +20,6 @@ env:
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
-  check:
-    name: Static checks
-    runs-on: ubuntu-latest
-    continue-on-error: false
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/admin
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Setup Go release
-        uses: ./.github/actions/setup-go-release
-
-      - name: Check files formatting
-        run: |
-          make format
-          git status
-          git diff --exit-code
-
-      - name: Run debug commands on failure
-        if: ${{ failure() }}
-        run: |
-          env | sort
-          git status
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ${{ github.workspace }}/admin
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Setup Go release
-        uses: ./.github/actions/setup-go-release
-
-      - name: Build component
-        run: make release
-
-      - name: Print version
-        run: ../bin/pmm-admin version
-
   test:
     name: Tests
     runs-on: ubuntu-latest
@@ -78,13 +30,13 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup Go release
-        uses: ./.github/actions/setup-go-release
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
 
-      - name: Build component
-        run: make install-race
+      - name: Build and install
+        run: make install
 
       - name: Run tests
         run: make test-cover

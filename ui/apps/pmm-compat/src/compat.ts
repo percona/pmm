@@ -1,4 +1,9 @@
-import { locationService, getAppEvents, ThemeChangedEvent, config } from '@grafana/runtime';
+import {
+  locationService,
+  getAppEvents,
+  ThemeChangedEvent,
+  config,
+} from '@grafana/runtime';
 import {
   ChangeThemeMessage,
   CrossFrameMessenger,
@@ -21,9 +26,22 @@ import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
-import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
-import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
-import { ServiceAddedEvent, ServiceDeletedEvent, SettingsUpdatedEvent, FrontendSettingsUpdatedEvent, TimeZoneUpdatedEvent } from 'lib/events';
+import {
+  documentTitleObserver,
+  updateBodyClassByLocation,
+} from 'lib/utils/document';
+import {
+  isFirstLogin,
+  updateIsFirstLogin,
+  isUserLoggedIn,
+} from 'lib/utils/login';
+import {
+  ServiceAddedEvent,
+  ServiceDeletedEvent,
+  SettingsUpdatedEvent,
+  FrontendSettingsUpdatedEvent,
+  TimeZoneUpdatedEvent,
+} from 'lib/events';
 import { handleExternalLinks } from 'compat/links';
 
 export const initialize = () => {
@@ -33,18 +51,26 @@ export const initialize = () => {
   }
 
   // If Grafana is opened outside of iframe (or on login), redirect to PMM UI
-  if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
+  if (
+    !isWithinIframe() &&
+    !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)
+  ) {
     const isHomePath =
-      window.location.pathname === GRAFANA_SUB_PATH || window.location.pathname === `${GRAFANA_SUB_PATH}/`;
+      window.location.pathname === GRAFANA_SUB_PATH ||
+      window.location.pathname === `${GRAFANA_SUB_PATH}/`;
 
     // upon first login redirect user to the help page with welcome modal
     if (isFirstLogin() && isHomePath) {
       updateIsFirstLogin();
 
-      window.location.replace(isUserLoggedIn() ? PMM_UI_HELP_PATH : PMM_UI_PATH);
+      window.location.replace(
+        isUserLoggedIn() ? PMM_UI_HELP_PATH : PMM_UI_PATH
+      );
     } else {
       // redirect user to the new UI
-      window.location.replace(window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_GRAFANA_PATH));
+      window.location.replace(
+        window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_GRAFANA_PATH)
+      );
     }
     return;
   }
@@ -52,7 +78,9 @@ export const initialize = () => {
   // Collapse Grafana docked nav via localStorage before the shell reads it on boot. If keys were
   // missing or not "false" (e.g. after "clear site data"), Grafana may have mounted nav already;
   // reload once so the next boot sees the correct keys. When both are already "false", skip reload.
-  const prevOpen = localStorage.getItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY);
+  const prevOpen = localStorage.getItem(
+    GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY
+  );
   const prevDock = localStorage.getItem(GRAFANA_DOCKED_LOCAL_STORAGE_KEY);
   const needsNavReload = prevOpen !== 'false' || prevDock !== 'false';
   localStorage.setItem(GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY, 'false');
@@ -63,7 +91,9 @@ export const initialize = () => {
   }
 
   // Register messenger to communicate with PMM UI (top frame)
-  const messenger = new CrossFrameMessenger('GRAFANA').setTargetWindow(window.top!).register();
+  const messenger = new CrossFrameMessenger('GRAFANA')
+    .setTargetWindow(window.top!)
+    .register();
 
   // React to PMM → Grafana theme changes
   messenger.addListener({
@@ -131,25 +161,30 @@ export const initialize = () => {
 
   // Relay Grafana history changes back to PMM
   let prevLocation: Location | undefined;
-  locationService.getHistory().listen((location: Location, action: HistoryAction) => {
-    // Re-add custom toolbar buttons after exiting kiosk mode
-    if (prevLocation?.search.includes('kiosk') && !location.search.includes('kiosk')) {
-      adjustToolbar();
-    }
+  locationService
+    .getHistory()
+    .listen((location: Location, action: HistoryAction) => {
+      // Re-add custom toolbar buttons after exiting kiosk mode
+      if (
+        prevLocation?.search.includes('kiosk') &&
+        !location.search.includes('kiosk')
+      ) {
+        adjustToolbar();
+      }
 
-    messenger.sendMessage({
-      type: 'LOCATION_CHANGE',
-      payload: {
-        action,
-        ...location,
-      },
+      messenger.sendMessage({
+        type: 'LOCATION_CHANGE',
+        payload: {
+          action,
+          ...location,
+        },
+      });
+
+      prevLocation = location;
+
+      // Update body class for custom page styles
+      updateBodyClassByLocation(location);
     });
-
-    prevLocation = location;
-
-    // Update body class for custom page styles
-    updateBodyClassByLocation(location);
-  });
 
   // PMM → Grafana: expand dashboard URL with variables and echo back
   messenger.addListener({

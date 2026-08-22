@@ -3,23 +3,9 @@ name: Main
 
 on:
   pull_request:
-    paths:
-      - '.github/workflows/main.yml'
-      - '.github/actions/setup-go-release/**'
-      - "admin/**"
-      - "agent/**"
-      - "api/**"
-      - "api-tests/**"
-      - "managed/**"
-      - "qan-api2/**"
-      - "utils/**"
-      - "version/**"
-      - "vmproxy/**"
-      - "Makefile*"
-      - "go.*"
-      - "*.yaml"
-      - "*.yml"
-      - "!**/*.md"
+    paths-ignore:
+      - "documentation/**"
+      - "dashboards/**"
 
 permissions:
   contents: read
@@ -29,26 +15,43 @@ env:
 
 jobs:
   check:
-    name: Static checks
+    name: Checks
     runs-on: ubuntu-latest
 
     permissions:
       contents: read
       pull-requests: write
+    env:
+      PMM_ENCRYPTION_KEY_PATH: pmm-encryption.key
 
     steps:
       - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup Go release
-        uses: ./.github/actions/setup-go-release
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
+
+      - name: Install development tools
+        run: make init
+
+      - name: Generate files
+        run: make gen
+
+      - name: Check build
+        run: make release
 
       - name: Check files are formatted and no source code changes
         run: |
-          make format-shared
+          make format
           go mod tidy -v
           git status
           git diff --exit-code
+
+      - name: Update API compatibility descriptors
+        run: |
+          # log if descriptors changed, useful for "update descriptors" PRs
+          make -C api descriptors
+          git diff --text
 
       - name: Run check-license
         run: |
@@ -58,44 +61,38 @@ jobs:
       - name: Run go-sumtype
         run: go tool go-sumtype ./...
 
-      - name: Determine golangci-lint baseline
-        id: lint_base
+      - name: Run API linter
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          base_ref="${{ github.event.pull_request.base.ref }}"
-          git fetch --no-tags --depth=1 origin "refs/heads/${base_ref}:refs/remotes/origin/${base_ref}"
-          new_from_rev="$(git merge-base --fork-point "origin/${base_ref}" HEAD 2>/dev/null || git merge-base "origin/${base_ref}" HEAD 2>/dev/null || git rev-parse HEAD~)"
-          echo "new_from_rev=${new_from_rev}" >> "$GITHUB_OUTPUT"
+          if out=$(go tool buf lint -v api); code="$?"; test "$code" -eq 0; then
+            echo "$out"
+            exit 0
+          fi
+
+          echo "API linter exited with code: $code"
+          echo "$out"
+          ## buf uses exit code 100 for linter warnings
+          if [ "$code" -ne 100 ] || ${{ github.event.pull_request == null }}; then
+            exit $code
+          fi
+
+          # One may need to suppress passing to reviewdog because of https://github.com/reviewdog/reviewdog/issues/1696
+          echo "$out" | go tool reviewdog -f=buf -reporter=github-pr-review -fail-level=error
 
       - name: Run code linters
         uses: reviewdog/action-golangci-lint@c76cceaaab89abe74e649d2e34c6c9adc26662d2 # v2.10.0
+        if: ${{ github.event_name == 'pull_request' }}
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
           go_version_file: ${{ github.workspace }}/go.mod
           reporter: github-pr-review
           fail_level: error
           cache: false
-          golangci_lint_flags: "-c=.golangci.yml --new-from-rev=${{ steps.lint_base.outputs.new_from_rev }}"
+          golangci_lint_flags: "-c=.golangci.yml"
           golangci_lint_version: v2.12.2 # Version should match specified in Makefile
 
-      - name: Run debug commands on failure
-        if: ${{ failure() }}
-        run: |
-          env | sort
-          go env | sort
-          git status
-
-  test:
-    name: Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-
-      - name: Setup Go release
-        uses: ./.github/actions/setup-go-release
-
-      - name: Test shared packages
+      - name: Test common API
         run: make test-common
 
       - name: Run debug commands on failure
@@ -106,8 +103,7 @@ jobs:
           git status
 
   workflow_success:
-    if: github.event.pull_request.head.repo.full_name == github.repository
-    needs: [check, test]
+    needs: [ check ]
     name: Slack Notification success
     runs-on: ubuntu-latest
     env:
@@ -124,8 +120,8 @@ jobs:
         uses: rtCamp/action-slack-notify@33ca3be66c6f378fe1610fd1d5258632dbed5e58 # v2.4.0
 
   workflow_failure:
-    if: ${{ failure() && github.event.pull_request.head.repo.full_name == github.repository }}
-    needs: [check, test]
+    if: ${{ failure() }}
+    needs: [ check ]
     name: Slack Notification failure
     runs-on: ubuntu-latest
     env:

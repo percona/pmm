@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	defaultPlatformAddress    = "https://check.percona.com"
+	defaultPlatformAddress    = "https://check-dev.percona.com"
 	defaultPlatformAPITimeout = 30 * time.Second
 	// EnvVMAgentPrefix is the prefix for environment variables related to the VMAgent.
 	EnvVMAgentPrefix = "VMAGENT_"
@@ -59,14 +59,14 @@ func (e InvalidDurationError) Error() string { return string(e) }
 // Short description of environment variables:
 //   - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
 //   - PMM_ENABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
-//   - PMM_ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable Advisors if telemetry is disabled);
+//   - PMM_ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry;
 //   - PMM_ENABLE_ALERTING disables Percona Alerting;
 //   - PMM_METRICS_RESOLUTION, PMM_METRICS_RESOLUTION_MR, PMM_METRICS_RESOLUTION_HR, PMM_METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
-//   - the environment variables prefixed with GF_ passed as related to Grafana.
-//   - the environment variables relating to proxies
+//   - the environment variables prefixed with GF_ are related to Grafana.
+//   - the environment variables related to proxies
 //   - the environment variable set by podman
 func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []string) { //nolint:gocognit,cyclop,maintidx
 	envSettings := &models.ChangeSettingsParams{}
@@ -82,7 +82,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		}
 
 		k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
-		logrus.Tracef("ParseEnvVars: %#q: k=%#q v=%#q", env, k, v)
+		logrus.Tracef("ParseEnvVars: k=%#q v=%#q", k, redactSecretEnvVar(k, v))
 
 		var err error
 		switch k {
@@ -104,6 +104,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			continue
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR",
 			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
+			"PMM_CLICKHOUSE_DATASOURCE_USER", "PMM_CLICKHOUSE_DATASOURCE_PASSWORD",
 			"PMM_CLICKHOUSE_HOST", "PMM_CLICKHOUSE_PORT",
 			"PMM_CLICKHOUSE_IS_CLUSTER", "PMM_CLICKHOUSE_CLUSTER_NAME",
 			"PMM_CLICKHOUSE_NODES", "PMM_DISABLE_BUILTIN_CLICKHOUSE",
@@ -120,8 +121,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			"PMM_DISABLE_BUILTIN_POSTGRES":
 			// skip env variables for external postgres
 			continue
-		case "PMM_WATCHTOWER_TOKEN", "PMM_WATCHTOWER_HOST":
-			// skip watchtower environement variables
+		case "PMM_ENABLE_SEP", "PMM_SEP_POSTGRES_PASSWORD":
+			// skip env variables consumed by the entrypoint to expose postgres to SEP
 			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
@@ -133,12 +134,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				continue
 			}
 			envSettings.EnableUpdates = &b
-		case "PMM_UPDATE_SNOOZE_DURATION":
-			envSettings.UpdateSnoozeDuration, err = parseStringDuration(v)
-			if err != nil {
-				errs = append(errs, formatEnvVariableError(err, env, v))
-				continue
-			}
 		case "PMM_ENABLE_TELEMETRY":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
@@ -246,6 +241,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
+		case pkgenv.PlatformAddress:
+			// This variable is not part of the settings and is parsed separately.
+			continue
+
 		default:
 			// handle prefixes
 
@@ -325,6 +324,20 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 	}
 
 	return envSettings, errs, warns
+}
+
+// secretEnvVarMarkers name the environment variables whose values must never reach the logs.
+var secretEnvVarMarkers = []string{"PASSWORD", "SECRET", "TOKEN", "KEY"}
+
+// redactSecretEnvVar replaces the value of a credential-bearing environment variable.
+func redactSecretEnvVar(key, value string) string {
+	for _, marker := range secretEnvVarMarkers {
+		if strings.Contains(key, marker) {
+			return "<redacted>"
+		}
+	}
+
+	return value
 }
 
 // parseStringDuration validate duration as string value.

@@ -14,17 +14,21 @@ on:
 concurrency:
   group: auto-update-branch-${{ github.ref }}
   cancel-in-progress: true
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   auto-update-branch:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        id: generate-token
+        with:
+          client-id: ${{ secrets.PMM_PRBOT_APPID }}
+          private-key: ${{ secrets.PMM_PRBOT_KEY }}
+
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             // Extract the branch name that triggered this workflow (e.g., 'main' or 'pmm-3.9')
             const pushedBranch = context.ref.replace('refs/heads/', '');
@@ -75,7 +79,7 @@ jobs:
                     }
                     // 1. Check if GitHub is still calculating the state
                     if (pr.mergeable === null || pr.mergeable_state === "unknown") {
-                      console.log(`[INFO] PR #${pull.number}: GitHub is computing mergeability. Queuing for retry.`);
+                      console.log(`[INFO] PR #${pull.number}: GitHub is computing mergeability (Attempt ${attemptCount}). Queuing for retry.`);
                       retryList.push(pull);
                       continue;
                     }
@@ -88,7 +92,7 @@ jobs:
 
                     // 3. Check if it actually needs an update
                     if (pr.mergeable_state !== "behind") {
-                      console.log(`[INFO] PR #${pull.number}: Not behind base branch (state: ${pr.mergeable_state}).`);
+                      console.log(`[INFO] PR #${pull.number}: Update not required (state: ${pr.mergeable_state}).`);
                       continue;
                     }
 

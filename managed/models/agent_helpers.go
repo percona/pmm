@@ -130,6 +130,7 @@ type MongoDBExtendedOptionsParams interface {
 	GetStatsCollections() []string
 	GetCollectionsLimit() int32
 	GetEnableAllCollectors() bool
+	GetEnableDiagnosticDataHistograms() bool
 }
 
 // MongoDBOptionsFromRequest creates MongoDBOptionsParams object from request.
@@ -149,6 +150,7 @@ func MongoDBOptionsFromRequest(params MongoDBOptionsParams) MongoDBOptions {
 			mdbOptions.StatsCollections = extendedOptions.GetStatsCollections()
 			mdbOptions.CollectionsLimit = extendedOptions.GetCollectionsLimit()
 			mdbOptions.EnableAllCollectors = extendedOptions.GetEnableAllCollectors()
+			mdbOptions.EnableDiagnosticDataHistograms = extendedOptions.GetEnableDiagnosticDataHistograms()
 		}
 	}
 
@@ -825,6 +827,9 @@ type CreateAgentParams struct {
 	MySQLOptions             MySQLOptions
 	PostgreSQLOptions        PostgreSQLOptions
 	ValkeyOptions            ValkeyOptions
+
+	// SkipConnectionCheck is a request-scoped flag, not an agent attribute.
+	SkipConnectionCheck bool
 }
 
 func compatibleNodeAndAgent(nodeType NodeType, agentType AgentType) bool {
@@ -1064,14 +1069,15 @@ type ChangeAzureOptions struct {
 
 // ChangeMongoDBOptions contains MongoDBOptions fields that can be changed.
 type ChangeMongoDBOptions struct {
-	TLSCertificateKey             *string
-	TLSCertificateKeyFilePassword *string
-	TLSCa                         *string
-	AuthenticationMechanism       *string
-	AuthenticationDatabase        *string
-	StatsCollections              []string // nil = no change, empty = clear, populated = set
-	CollectionsLimit              *int32
-	EnableAllCollectors           *bool
+	TLSCertificateKey              *string
+	TLSCertificateKeyFilePassword  *string
+	TLSCa                          *string
+	AuthenticationMechanism        *string
+	AuthenticationDatabase         *string
+	StatsCollections               []string // nil = no change, empty = clear, populated = set
+	CollectionsLimit               *int32
+	EnableAllCollectors            *bool
+	EnableDiagnosticDataHistograms *bool
 }
 
 // ChangeMySQLOptions contains MySQLOptions fields that can be changed.
@@ -1125,6 +1131,52 @@ type ChangeAgentParams struct {
 	TLS           *bool
 	TLSSkipVerify *bool
 	ListenPort    *uint32 // for external exporter
+
+	// SkipConnectionCheck is a request-scoped flag, not an agent attribute
+	SkipConnectionCheck bool
+}
+
+// AffectsConnection returns true if the change modifies parameters used to connect
+// to the service (credentials, TLS options, endpoint), i.e. changes that should be
+// validated with a connection check before they are applied.
+func (p *ChangeAgentParams) AffectsConnection() bool {
+	if p.Username != nil || p.Password != nil || p.TLS != nil || p.TLSSkipVerify != nil || p.ListenPort != nil {
+		return true
+	}
+
+	if o := p.MySQLOptions; o != nil {
+		if o.TLSCa != nil || o.TLSCert != nil || o.TLSKey != nil {
+			return true
+		}
+	}
+
+	if o := p.PostgreSQLOptions; o != nil {
+		if o.SSLCa != nil || o.SSLCert != nil || o.SSLKey != nil {
+			return true
+		}
+	}
+
+	if o := p.MongoDBOptions; o != nil {
+		if o.TLSCertificateKey != nil || o.TLSCertificateKeyFilePassword != nil || o.TLSCa != nil ||
+			o.AuthenticationMechanism != nil || o.AuthenticationDatabase != nil {
+			return true
+		}
+	}
+
+	if o := p.ValkeyOptions; o != nil {
+		if o.SSLCa != nil || o.SSLCert != nil || o.SSLKey != nil {
+			return true
+		}
+	}
+
+	if o := p.ExporterOptions; o != nil {
+		// Scheme and path define the external exporter's metrics endpoint.
+		if o.MetricsScheme != nil || o.MetricsPath != nil {
+			return true
+		}
+	}
+
+	return false
 }
 
 // ChangeAgent changes agent parameters based on agent type.
@@ -1351,6 +1403,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.MongoDBOptions.EnableAllCollectors != nil {
 			row.MongoDBOptions.EnableAllCollectors = *params.MongoDBOptions.EnableAllCollectors
 		}
+		if params.MongoDBOptions.EnableDiagnosticDataHistograms != nil {
+			row.MongoDBOptions.EnableDiagnosticDataHistograms = *params.MongoDBOptions.EnableDiagnosticDataHistograms
+		}
 	}
 
 	// Update TLS fields
@@ -1455,9 +1510,4 @@ func updateExternalExporterParams(q *reform.Querier, row *Agent) error {
 		row.PMMAgentID = nil
 	}
 	return nil
-}
-
-// IsPushMetricsSupported return if PUSH mode is supported for pmm agent version.
-func IsPushMetricsSupported(pmmAgentVersion *string) bool {
-	return true
 }

@@ -1,5 +1,8 @@
 ---
-# This runs when a PR is closed or merged to free up cache space.
+# This GitHub Actions workflow automatically cleans up caches associated with
+# a Pull Request once it is closed. It listens for pull_request events of type closed
+# and then proceeds to delete all GitHub Actions caches that were created for
+# that specific Pull Request branch, freeing up storage and ensuring cache hygiene.
 name: Cleanup PR Cache
 
 on:
@@ -25,6 +28,6 @@ jobs:
           echo "[INFO] Deleting caches for PR #${{ github.event.pull_request.number }}"
 
           # Delete caches associated with the PR merge ref
-          gh cache delete --all --succeed-on-no-caches --ref "refs/pull/${{ github.event.pull_request.number }}/merge"
+          gh cache delete --all --succeed-on-no-caches --repo "${{ github.repository }}" --ref "refs/pull/${{ github.event.pull_request.number }}/merge"
 
           echo "[INFO] Cache cleanup complete"

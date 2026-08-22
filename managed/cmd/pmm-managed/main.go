@@ -56,6 +56,7 @@ import (
 	// GRPC will automatically negotiate and use gzip if the client supports it.
 	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/reform.v1"
@@ -125,6 +126,9 @@ var (
 const (
 	shutdownTimeout    = 3 * time.Second
 	gRPCMessageMaxSize = 100 * 1024 * 1024
+
+	// Must not exceed pmm-agent's keepalive ping interval, see PMM-15200.
+	keepaliveEnforcementMinTime = 20 * time.Second
 
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
@@ -242,6 +246,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	gRPCServer := grpc.NewServer(
 		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
+
+		// Allow pmm-agent's keepalive pings (sent every 30s on a quiet connection, see PMM-15200)
+		// instead of the default 5-minute minimum that kicks such clients with "too_many_pings".
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+			MinTime:             keepaliveEnforcementMinTime,
+			PermitWithoutStream: true,
+		}),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.UnaryAdd(grpcMetrics.UnaryServerInterceptor()),
@@ -742,7 +753,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickhouseAddrF := kingpin.Flag("clickhouse-addr", "Clickhouse database address").Default("127.0.0.1:9000").Envar("PMM_CLICKHOUSE_ADDR").String()
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
-	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
 
 	// Nomad garbage collection flags
 	nomadGCIntervalF := kingpin.Flag("nomad-gc-interval", "Interval at which Nomad attempts to garbage collect terminal allocation directories.").
@@ -931,10 +941,13 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	inventoryMetricsCollector := inventory.NewInventoryMetricsCollector(inventoryMetrics)
 	prom.MustRegister(inventoryMetricsCollector)
 
+	haMetricsCollector := ha.NewHAMetricsCollector(haService)
+	prom.MustRegister(haMetricsCollector)
+
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize, db)
+	updater := server.NewUpdater(db)
 
 	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 
@@ -1142,16 +1155,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}))
 
 	wg.Go(func() {
-		supervisord.Run(ctx)
-	})
-
-	wg.Go(func() {
 		updater.Run(ctx)
 	})
 
-	wg.Add(1)
 	haService.AddLeaderService(ha.NewContextService("telemetry", func(ctx context.Context) error {
-		defer wg.Done()
 		telemetry.Run(ctx)
 		return nil
 	}))

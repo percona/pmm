@@ -1,47 +1,35 @@
 .DEFAULT_GOAL := help
+CURDIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 BIN_DIR := $(CURDIR)/../bin
 
 # PMM Demo benchmark
 include Makefile.mk
 
-# --- Go-related variables ----------------------------------------------------------------
+.PHONY: help release install install-race test-env-up test-env-down _start-clickhouse _stop-clickhouse
+.PHONY: test run-race-cover _run env-up env-down pmm-env-up deploy _import-test-data
+
+help: ## Display this help message
+	@echo "Please use \`make <target>\`, where <target> is one of the following:"
+	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-28s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
 # `cut` is used to remove the leading `v` from the version
-PMM_RELEASE_PATH ?= $(CURDIR)/../bin
+PMM_RELEASE_PATH ?= $(BIN_DIR)
 PMM_RELEASE_VERSION ?= $(shell git describe --always --dirty | cut -b2-)
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
-LD_FLAGS = -ldflags " \
-	-X 'github.com/percona/pmm/version.ProjectName=qan-api2' \
-	-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-	-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-	-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-	-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-	-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
-	"
-# --- Docker-related variables -----------------------------------------------------------
+
 PMM_CONTAINER ?= pmm-server
-# ------------------------------------------------------------------------------------------
 
-.PHONY: help format release install install-race test-env-up test-env-down
-.PHONY: _start-clickhouse _stop-clickhouse test run-race-cover _run
-.PHONY: env-up env-down pmm-env-up deploy _import-test-data
-
-$(PMM_RELEASE_PATH):
-	mkdir -p $(PMM_RELEASE_PATH)
-
-help: 	## Display this help message
-	@echo "Please use \`make <target>\`, where <target> is one of the following:"
-	@awk 'BEGIN {FS = ":.*## "}; /^[a-zA-Z0-9-]+:.*## / {printf "  %-23s%s\n", $$1, $$2}' $(MAKEFILE_LIST)
-
-format: FILES = $(shell find . -type f -name '*.go')
-format: 	## Format source code
-	go tool gofumpt -w $(FILES)
-	go tool goimports -local github.com/percona/pmm -w $(FILES)
-	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
-
-release: $(PMM_RELEASE_PATH) 	## Build static qan-api2 release binary
-	CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/qan-api2
+release:                        ## Build qan-api2 release binary
+	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/qan-api2 -ldflags " \
+		-X 'github.com/percona/pmm/version.ProjectName=qan-api2' \
+		-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+		-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+		-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+		-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+		-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
+		"
 
 install:                        ## Install qan-api2 binary
 	go install -v ./...
@@ -123,7 +111,9 @@ env-down:                       ## Remove docker containers
 
 pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench containers
 	docker compose up -d --force-recreate --renew-anon-volumes --remove-orphans $(PMM_CONTAINER)
-	docker exec $(PMM_CONTAINER) sed -i 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
+	# --follow-symlinks keeps config.xml a symlink; replacing it with a regular file would stop
+	# PMM_CLICKHOUSE_CONFIG from selecting the ClickHouse config.
+	docker exec $(PMM_CONTAINER) sed -i --follow-symlinks 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
 	docker exec $(PMM_CONTAINER) supervisorctl restart clickhouse
 	docker exec $(PMM_CONTAINER) supervisorctl stop qan-api2
 	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --password=clickhouse --query="drop database pmm"
