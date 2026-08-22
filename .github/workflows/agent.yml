@@ -3,16 +3,15 @@ name: 'Client: pmm-agent'
 
 on:
   pull_request:
-    paths-ignore:
-      - "admin/**"
-      - "api-tests/**"
-      - "dashboards/**"
-      - "dev/docs/**"
-      - "documentation/**"
-      - "managed/**"
-      - "qan-api2/**"
-      - "vmproxy/**"
-      - "ui/**"
+    paths:
+      - ".github/workflows/agent.yml"
+      - ".github/actions/setup-go/**"
+      - "agent/**"
+      - "api/**"
+      - "utils/**"
+      - "version/**"
+      - "go.*"
+      - "!**/*.md"
 
 permissions:
   contents: read
