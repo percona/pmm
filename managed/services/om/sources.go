@@ -234,41 +234,102 @@ func (r *metricsRun) signal(ctx context.Context, matcher string, signal metricSi
 	// value is the age rather than the metric's.
 	query := fmt.Sprintf("last_over_time(%s{%s}[%s])", signal.metric, matcher, metricsLookback)
 	r.queries++
-	values := make(map[string]float64)
-	r.src.each(ctx, r.result, query, func(serviceID string, _ model.Metric, v float64) {
-		if held, ok := values[serviceID]; ok && signal.reduceMax && held >= v {
+	values := make(map[string]seriesSample)
+	r.src.each(ctx, r.result, query, func(serviceID string, m model.Metric, v float64) {
+		age, dated := ages[seriesKey(m)]
+		sample := seriesSample{value: v, age: age, dated: dated}
+		if held, ok := values[serviceID]; ok && !sample.supersedes(held, signal.reduceMax) {
 			return
 		}
-		values[serviceID] = v
+		values[serviceID] = sample
 	})
 
-	for serviceID, v := range values {
-		fact := Fact{Service: serviceID, Field: signal.valueField, Value: v, Source: sourceMetrics}
-		// Dated by the matching age query, so a value read over a day-long window still
-		// knows how old it is -- and with the oldest of that service's series, because the
-		// winner above was chosen without reference to which series was freshest.
-		if age, ok := ages[serviceID]; ok {
-			fact.ObservedAt = r.observedAt(age)
+	for serviceID, sample := range values {
+		fact := Fact{Service: serviceID, Field: signal.valueField, Value: sample.value, Source: sourceMetrics}
+		// Dated by its own series' age, so a value read over a day-long window still knows
+		// how old it is -- and the fact that survives the reduction carries the age of the
+		// series it actually came from.
+		if sample.dated {
+			fact.ObservedAt = r.observedAt(sample.age)
 		}
 		r.result.Facts = append(r.result.Facts, fact)
 	}
 }
 
-// ages runs the age query, harvesting the labels it carries, and returns the *oldest* age
-// per service so the value query can date its own facts.
+// seriesSample is one series' contribution to a valued signal: the sample the value query
+// returned, and the age of that same series' last raw sample.
+type seriesSample struct {
+	value float64
+	age   float64
+	// dated is false when the age query returned no matching series, which leaves the
+	// fact undatable rather than pretending to an age of zero.
+	dated bool
+}
+
+// supersedes reports whether this sample should displace the one already held for the
+// service.
 //
-// Oldest rather than freshest, which is the conservative pairing. The value query reduces
-// across every series for a service -- the largest sample when reduceMax is set, whichever
-// arrives last otherwise -- and it picks that winner independently of this query. So the
-// value a fact carries need not come from the series that produced the freshest age. A
-// node reporting two replication-lag series, one current and one hours stale with a larger
-// lag, would otherwise hand back the stale maximum stamped as current, and fieldSet.live
-// would read it as a statement about now. Dating the reduced value with the oldest age
-// makes such a pair read as stale, which is wrong in the direction that shows rather than
-// the direction that misleads.
+// Several series of one metric under one service_id is the ordinary case rather than a
+// pathology, and the two kinds need different reducers:
 //
-// The label and presence facts below are unaffected: each is dated with its own series'
-// age inside the callback, because each comes from exactly one series.
+// Under reduceMax the largest sample wins, which is the point of the reducer --
+// mongodb_mongod_replset_member_replication_lag emits one series per peer and the worst of
+// them is what the node saw. The winner is then dated by its own series, so a stale maximum
+// reads as stale and fieldSet.live drops it, rather than being reported as a statement about
+// now.
+//
+// Otherwise the freshest series wins, because the series are successive generations of one
+// reading rather than peers: an exporter that learns cluster_role only after startup
+// abandons its first mongodb_up series and begins another under the same service_id, and the
+// abandoned one is not evidence about the present. Dating the reduction from the oldest of
+// them -- which is what this used to do -- made every such service report DOWN with its live
+// sample seconds old.
+//
+// An undated sample never displaces a dated one, and never displaces its own kind: with no
+// age to compare, first seen stays.
+func (s seriesSample) supersedes(held seriesSample, reduceMax bool) bool {
+	if reduceMax && s.value != held.value {
+		return s.value > held.value
+	}
+	if !s.dated {
+		return false
+	}
+	if !held.dated {
+		return true
+	}
+	return s.age < held.age
+}
+
+// seriesKey identifies one series across the two queries a valued signal issues.
+//
+// Every label except __name__, because the age query wraps the metric in lag() and a
+// rollup need not carry the metric name through, while last_over_time() does. Keying on
+// the rest pairs each sample with its own series' age, which is what a service carrying
+// several series of one metric needs and what a per-service key cannot express.
+func seriesKey(m model.Metric) model.Fingerprint {
+	if _, ok := m[model.MetricNameLabel]; !ok {
+		return m.Fingerprint()
+	}
+	trimmed := make(model.Metric, len(m)-1)
+	for name, value := range m {
+		if name != model.MetricNameLabel {
+			trimmed[name] = value
+		}
+	}
+	return trimmed.Fingerprint()
+}
+
+// ages runs the age query, harvesting the labels it carries, and returns each series' age
+// so the value query can date its own facts.
+//
+// Keyed per series rather than per service, because a service can carry several series of
+// one metric and they do not share an age. Reducing them here -- to the oldest, which this
+// used to do -- loses the pairing the value query needs: the sample that survives its own
+// reduction then gets stamped with an age no series it came from ever reported. See
+// seriesSample.supersedes for what each reducer does with the pairing.
+//
+// The label and presence facts below were always unaffected: each is dated with its own
+// series' age inside the callback, because each comes from exactly one series.
 //
 // MetricsQL's lag() answers the seconds since the series' last raw sample and preserves
 // every label, so one query yields both the labels the catalog reads and the staleness
@@ -277,19 +338,17 @@ func (r *metricsRun) signal(ctx context.Context, matcher string, signal metricSi
 // Wrapping timestamp() around a last_over_time() looks like it should do the same and
 // does not: it reports the evaluation time rounded to the step, which reads as "fresh"
 // for a series last scraped days ago -- the single most dangerous way to be wrong here.
-func (r *metricsRun) ages(ctx context.Context, matcher string, signal metricSignal) map[string]float64 {
+func (r *metricsRun) ages(ctx context.Context, matcher string, signal metricSignal) map[model.Fingerprint]float64 {
 	query := fmt.Sprintf("lag(%s{%s}[%s])", signal.metric, matcher, metricsLookback)
 	r.queries++
-	ages := make(map[string]float64)
+	ages := make(map[model.Fingerprint]float64)
 
 	r.src.each(ctx, r.result, query, func(serviceID string, m model.Metric, age float64) {
 		r.covered[serviceID] = true
 		if age > r.oldest {
 			r.oldest = age
 		}
-		if held, ok := ages[serviceID]; !ok || age > held {
-			ages[serviceID] = age
-		}
+		ages[seriesKey(m)] = age
 		observedAt := r.observedAt(age)
 
 		for _, label := range signal.labels {

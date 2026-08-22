@@ -75,21 +75,21 @@ const (
 const metricsLookback = "24h"
 
 // highResolutionJob narrows every query to the high-resolution scrape job, which is what
-// makes "one series per service per metric" true and volatileMaxAge meaningful.
+// makes volatileMaxAge meaningful.
 //
 // Each exporter is scraped once per resolution, so a metric it emits on every scrape
-// regardless of collector flags arrives once per job. That is what mongodb_up is: two
-// series per service, hr and lr. Reduced across both, exporter_up is dated by the lr
-// series -- ages() takes the oldest, deliberately -- whose age swings up to its own 60s
-// interval, so the fact reads stale for most of every minute and the service reports DOWN
-// while its hr sample is seconds old. Measured against a 14-service sandbox: half of them
-// DOWN per collection, a different half each time.
+// regardless of collector flags arrives once per job. That is what mongodb_up is: an hr and
+// an lr series per service. The lr series' age swings up to its own 60s interval, so a
+// volatile fact read from it is stale for most of every minute while the hr sample is
+// seconds old -- and sizing volatileMaxAge off lr instead would blunt every volatile field
+// to minutes to accommodate one metric. The management package selects its own "up" metrics
+// the same way.
 //
-// Narrowing rather than resizing volatileMaxAge, because the ages() reduction is right for
-// the case it was written for -- one series per peer of
-// mongodb_mongod_replset_member_replication_lag, all from the hr job -- and sizing the
-// window off lr would blunt every volatile field to minutes to accommodate one metric. The
-// management package selects its own "up" metrics the same way.
+// What this does not make true is "one series per service per metric", which nothing does:
+// an exporter's label set changes over its own lifetime -- cluster_role appears once it can
+// determine the role -- so it abandons a series and begins another under the same
+// service_id. Pairing each sample with its own series' age is what handles that, not this
+// matcher; see seriesSample.supersedes.
 const highResolutionJob = `job=~".*_hr$"`
 
 // How old a volatile observation may be and still count as current.
