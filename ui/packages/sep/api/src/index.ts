@@ -36,6 +36,16 @@ export type { MintedToken } from './client';
 // Query client
 export { createQueryClient, defaultQueryClientConfig } from './queryClient';
 
+// Auth context (the provider lives in the host app; the context lives here so
+// the framework and plugin packages can read it without depending on the host)
+export {
+  AuthContext,
+  UNAUTHENTICATED_SESSION,
+  deriveCanMutate,
+  useAuth,
+} from './auth-context';
+export type { AuthSession, AuthState } from './auth-context';
+
 // Errors
 export { ApiError, normalizeAxiosError, parseFieldErrors } from './errors';
 export type {

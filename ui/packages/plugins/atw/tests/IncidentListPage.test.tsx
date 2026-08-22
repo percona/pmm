@@ -24,10 +24,18 @@ import type { ReactNode } from 'react';
 import { IncidentListPage } from '../src/IncidentListPage';
 import type { AtwIncident } from '../src/types';
 
+/** Flipped per test to cover the read-only (non-admin) rendering. */
+let mockCanMutate = true;
+
 vi.mock('@sep/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@sep/api')>()),
   apiClient: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
 }));
+
+beforeEach(() => {
+  mockCanMutate = true;
+});
 
 import { apiClient } from '@sep/api';
 const mockedApi = apiClient as unknown as {
@@ -309,5 +317,52 @@ describe('IncidentListPage', () => {
         screen.getByRole('button', { name: /Close DB slowness/i })
       ).not.toBeDisabled();
     });
+  });
+});
+
+describe('IncidentListPage — write access', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('renders create, close, rename and delete for a session that may mutate', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
+    expect(
+      screen.getByRole('button', { name: /New incident/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Close DB slowness/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Rename DB slowness/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Delete DB slowness/i })
+    ).toBeInTheDocument();
+  });
+
+  it('renders no create, close, rename or delete for a non-admin', async () => {
+    mockCanMutate = false;
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
+    expect(
+      screen.queryByRole('button', { name: /New incident/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Close DB slowness/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Rename DB slowness/i })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Delete DB slowness/i })
+    ).not.toBeInTheDocument();
   });
 });

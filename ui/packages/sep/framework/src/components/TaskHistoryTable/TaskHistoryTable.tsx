@@ -30,6 +30,7 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { MaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
+import { useAuth } from '@sep/api';
 import {
   isRunningStatus,
   useStopTaskHistory,
@@ -177,6 +178,7 @@ function TaskHistoryTableView({
   isStopping,
   canStop,
 }: ViewProps) {
+  const { canMutate } = useAuth();
   const [pendingStopEntry, setPendingStopEntry] =
     useState<TaskHistoryEntry | null>(null);
   const [pendingFilesEntry, setPendingFilesEntry] =
@@ -293,7 +295,7 @@ function TaskHistoryTableView({
                   </IconButton>
                 </span>
               </Tooltip>
-              {running && (
+              {running && canMutate && (
                 <Tooltip title="Stop task">
                   <span>
                     <IconButton
@@ -320,6 +322,7 @@ function TaskHistoryTableView({
     ];
     return cols;
   }, [
+    canMutate,
     hideTaskNameColumn,
     onChainItemClick,
     onDownloadFiles,

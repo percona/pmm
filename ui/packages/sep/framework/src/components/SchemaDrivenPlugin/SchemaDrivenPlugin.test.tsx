@@ -115,7 +115,11 @@ vi.mock('./PluginSchedulePage', () => ({
   PluginSchedulePage: () => <div>schedule</div>,
 }));
 
+/** Flipped per test to cover the read-only (non-admin) rendering. */
+let mockCanMutate = true;
+
 vi.mock('@sep/api', () => ({
+  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
   usePluginSchema: (pluginName: string) => {
     if (pluginName === 'mysql_backups/restore') {
       return { data: restoreSchema, isLoading: false, error: null };
@@ -140,6 +144,7 @@ vi.mock('@sep/api', () => ({
 
 afterEach(() => {
   activeSchema = schema;
+  mockCanMutate = true;
 });
 
 function renderEdit(renderEditForm?: RenderFormSlot) {
@@ -272,5 +277,26 @@ describe('SchemaDrivenPlugin — related_apps routing', () => {
     );
     expect(screen.getByText('list:mysql_backups/restore')).toBeInTheDocument();
     expect(screen.queryByText('list:mysql_backups')).toBeNull();
+  });
+});
+
+describe('SchemaDrivenPlugin — write access', () => {
+  it('renders the entity edit form for a session that may mutate', () => {
+    renderEdit();
+
+    expect(
+      screen.queryByTestId('plugin-entity-edit-read-only')
+    ).not.toBeInTheDocument();
+    expect(screen.getByText(/Edit Nodes #5/)).toBeInTheDocument();
+  });
+
+  it('renders the read-only guard instead of the entity edit form for a non-admin', () => {
+    mockCanMutate = false;
+    renderEdit();
+
+    expect(
+      screen.getByTestId('plugin-entity-edit-read-only')
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Edit Nodes #5/)).not.toBeInTheDocument();
   });
 });
