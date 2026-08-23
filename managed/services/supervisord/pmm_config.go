@@ -95,7 +95,7 @@ autostart = true
 startretries = 3
 startsecs = 1
 stopsignal = TERM
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/pmm-init.log
 stdout_logfile_maxbytes = 20MB
 stdout_logfile_backups = 3
@@ -119,7 +119,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = INT  ; Fast Shutdown mode
-stopwaitsecs = 300
+stopwaitsecs = 10
 ; postgresql.conf contains settings to log to stdout,
 ; so we delegate logfile management to supervisord
 stdout_logfile = /srv/logs/postgresql14.log
@@ -137,7 +137,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = TERM
-stopwaitsecs = 300
+stopwaitsecs = 10
 ; config.xml contains settings to log to stdout (console),
 ; so we delegate logfile managemenet to supervisord
 stdout_logfile = /srv/logs/clickhouse-server.log
@@ -171,7 +171,7 @@ autostart = true
 startretries = 1000
 startsecs = 1
 stopsignal = TERM
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/pmm-managed.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2

@@ -54,7 +54,7 @@ func getHandler(cfg Config) http.HandlerFunc {
 	}
 
 	return func(rw http.ResponseWriter, req *http.Request) {
-		logrus.Infof("%s: %s", req.Method, req.URL)
+		logrus.Debugf("%s: %s", req.Method, req.URL)
 
 		if failOnInvalidHeader(rw, req, cfg.HeaderName) {
 			return
