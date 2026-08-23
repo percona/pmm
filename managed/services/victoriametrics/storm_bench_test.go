@@ -441,9 +441,7 @@ func stormRun(t *testing.T, sqlDB *sql.DB, db *reform.DB, agentIDs []string, poo
 	)
 
 	for _, id := range agentIDs {
-		wg.Add(1)
-		go func(pmmAgentID string) {
-			defer wg.Done()
+		wg.Go(func() {
 			consecutive := 0
 			for ctx.Err() == nil {
 				// Batch delay, as in runStateChangeHandler.
@@ -455,7 +453,7 @@ func stormRun(t *testing.T, sqlDB *sql.DB, db *reform.DB, agentIDs []string, poo
 
 				nCtx, nCancel := context.WithTimeout(ctx, stormStateChangeTimeout)
 				start := time.Now()
-				err := stormSetStateDBWork(nCtx, db, pmmAgentID, stormFixed)
+				err := stormSetStateDBWork(nCtx, db, id, stormFixed)
 				dur := time.Since(start)
 				nCancel()
 
@@ -478,7 +476,7 @@ func stormRun(t *testing.T, sqlDB *sql.DB, db *reform.DB, agentIDs []string, poo
 				lat = append(lat, dur)
 				mu.Unlock()
 			}
-		}(id)
+		})
 	}
 	wg.Wait()
 
