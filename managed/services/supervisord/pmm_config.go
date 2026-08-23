@@ -119,7 +119,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = INT  ; Fast Shutdown mode
-stopwaitsecs = 10
+stopwaitsecs = 30
 ; postgresql.conf contains settings to log to stdout,
 ; so we delegate logfile management to supervisord
 stdout_logfile = /srv/logs/postgresql14.log
@@ -137,7 +137,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = TERM
-stopwaitsecs = 10
+stopwaitsecs = 30
 ; config.xml contains settings to log to stdout (console),
 ; so we delegate logfile managemenet to supervisord
 stdout_logfile = /srv/logs/clickhouse-server.log
