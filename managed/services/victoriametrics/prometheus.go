@@ -37,6 +37,47 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		return fmt.Errorf("failed to find agent for scrape config: %w", err)
 	}
 
+	// Every agent row in one scrape config resolves the same pmm-agent, and usually the
+	// same node, so the per-row lookups below were issuing the same queries repeatedly.
+	// Under a reconnect storm that multiplies into the dominant DB cost (PMM-15228).
+	serviceCache := make(map[string]*models.Service, len(agents))
+	nodeCache := make(map[string]*models.Node, len(agents))
+	agentCache := make(map[string]*models.Agent, len(agents))
+
+	getService := func(id string) (*models.Service, error) {
+		if s, ok := serviceCache[id]; ok {
+			return s, nil
+		}
+		s, err := models.FindServiceByID(q, id)
+		if err != nil {
+			return nil, err
+		}
+		serviceCache[id] = s
+		return s, nil
+	}
+	getNode := func(id string) (*models.Node, error) {
+		if n, ok := nodeCache[id]; ok {
+			return n, nil
+		}
+		n, err := models.FindNodeByID(q, id)
+		if err != nil {
+			return nil, err
+		}
+		nodeCache[id] = n
+		return n, nil
+	}
+	getAgent := func(id string) (*models.Agent, error) {
+		if a, ok := agentCache[id]; ok {
+			return a, nil
+		}
+		a, err := models.FindAgentByID(q, id)
+		if err != nil {
+			return nil, err
+		}
+		agentCache[id] = a
+		return a, nil
+	}
+
 	var rdsParams []*scrapeConfigParams
 	for _, agent := range agents {
 		if agent.AgentType == models.PMMAgentType {
@@ -52,7 +93,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		// find Service for this Agent
 		var paramsService *models.Service
 		if agent.ServiceID != nil {
-			paramsService, err = models.FindServiceByID(q, pointer.GetString(agent.ServiceID))
+			paramsService, err = getService(pointer.GetString(agent.ServiceID))
 			if err != nil {
 				return err
 			}
@@ -62,9 +103,9 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		var paramsNode *models.Node
 		switch {
 		case agent.NodeID != nil:
-			paramsNode, err = models.FindNodeByID(q, pointer.GetString(agent.NodeID))
+			paramsNode, err = getNode(pointer.GetString(agent.NodeID))
 		case paramsService != nil:
-			paramsNode, err = models.FindNodeByID(q, paramsService.NodeID)
+			paramsNode, err = getNode(paramsService.NodeID)
 		}
 		if err != nil {
 			return err
@@ -77,7 +118,7 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		var pmmAgentNode *models.Node
 		if agent.PMMAgentID != nil {
 			// find a related pmm-agent to get the node address (runs_on_node_id)
-			pmmAgent, err = models.FindAgentByID(q, *agent.PMMAgentID)
+			pmmAgent, err = getAgent(*agent.PMMAgentID)
 			if err != nil {
 				return fmt.Errorf("failed to find pmm-agent for scrape config: %w", err)
 			}
