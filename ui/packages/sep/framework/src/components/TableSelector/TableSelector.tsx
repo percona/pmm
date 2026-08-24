@@ -17,7 +17,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { AutoCompleteInput } from '@percona/percona-ui';
+import { AutoCompleteInput } from '@percona/peak-ui';
 import { useTables, type TableOption } from '../../hooks/useTables';
 import type { SchemaOption } from '../../hooks/useSchemas';
 import { extractId } from '../../utils/extractId';

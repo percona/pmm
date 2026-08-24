@@ -17,7 +17,7 @@
 
 import { useFormContext } from 'react-hook-form';
 import Box from '@mui/material/Box';
-import { SwitchInput } from '@percona/percona-ui';
+import { SwitchInput } from '@percona/peak-ui';
 import { FieldHelpIcon } from '../FieldLabelWithHelp';
 import type { BoolField as BoolFieldType } from '../types';
 
