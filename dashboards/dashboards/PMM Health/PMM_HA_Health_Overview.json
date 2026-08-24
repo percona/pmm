@@ -857,7 +857,7 @@
             "id": 202,
             "options": {
                 "colorMode": "value",
-                "graphMode": "area",
+                "graphMode": "none",
                 "justifyMode": "auto",
                 "orientation": "vertical",
                 "percentChangeColorMode": "standard",
