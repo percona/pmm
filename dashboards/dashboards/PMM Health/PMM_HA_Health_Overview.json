@@ -32,7 +32,7 @@
             },
             "id": 200,
             "panels": [],
-            "title": "\ud83d\udcca Overview",
+            "title": "Overview",
             "type": "row"
         },
         {
@@ -177,7 +177,7 @@
                     "refId": "C"
                 }
             ],
-            "title": "\ud83e\udded PMM",
+            "title": "PMM",
             "type": "stat"
         },
         {
@@ -322,7 +322,7 @@
                     "refId": "C"
                 }
             ],
-            "title": "\ud83d\udc18 PostgreSQL",
+            "title": "PostgreSQL",
             "type": "stat"
         },
         {
@@ -467,7 +467,7 @@
                     "refId": "C"
                 }
             ],
-            "title": "\ud83d\uddb1\ufe0f ClickHouse",
+            "title": "ClickHouse",
             "type": "stat"
         },
         {
@@ -612,7 +612,7 @@
                     "refId": "C"
                 }
             ],
-            "title": "\ud83d\udcca VictoriaMetrics",
+            "title": "VictoriaMetrics",
             "type": "stat"
         },
         {
@@ -757,7 +757,7 @@
                     "refId": "C"
                 }
             ],
-            "title": "\u2696\ufe0f HAProxy",
+            "title": "HAProxy",
             "type": "stat"
         },
         {
@@ -824,7 +824,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83c\udfaf Overall System Health",
+            "title": "Overall System Health",
             "type": "gauge"
         },
         {
@@ -895,7 +895,7 @@
                     "refId": "B"
                 }
             ],
-            "title": "\ud83d\udd22 Pod Count",
+            "title": "Pod Count",
             "type": "stat"
         },
         {
@@ -965,7 +965,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83d\udd04 Pod Restarts",
+            "title": "Pod Restarts",
             "type": "stat"
         },
         {
@@ -1055,7 +1055,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\u26a0\ufe0f Pods with Restarts",
+            "title": "Pods with Restarts",
             "transformations": [
                 {
                     "id": "organize",
@@ -1327,7 +1327,7 @@
             },
             "id": 205,
             "panels": [],
-            "title": "\ud83d\udcbb Resource Usage",
+            "title": "Resource Usage",
             "type": "row"
         },
         {
@@ -1423,7 +1423,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83e\uddee CPU Usage",
+            "title": "CPU Usage",
             "type": "timeseries"
         },
         {
@@ -1519,7 +1519,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83d\udcbe Memory Usage",
+            "title": "Memory Usage",
             "type": "timeseries"
         },
         {
@@ -1532,7 +1532,7 @@
             },
             "id": 207,
             "panels": [],
-            "title": "\ud83d\udcbf Storage Usage",
+            "title": "Storage Usage",
             "type": "row"
         },
         {
@@ -1599,7 +1599,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83d\udc18 PostgreSQL Storage",
+            "title": "PostgreSQL Storage",
             "type": "gauge"
         },
         {
@@ -1666,7 +1666,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83d\uddb1\ufe0f ClickHouse Storage",
+            "title": "ClickHouse Storage",
             "type": "gauge"
         },
         {
@@ -1733,7 +1733,7 @@
                     "refId": "A"
                 }
             ],
-            "title": "\ud83d\udcca VictoriaMetrics Storage",
+            "title": "VictoriaMetrics Storage",
             "type": "gauge"
         },
         {
@@ -1746,7 +1746,7 @@
             },
             "id": 211,
             "panels": [],
-            "title": "\ud83d\udcc8 Service Availability",
+            "title": "Service Availability",
             "type": "row"
         },
         {
@@ -1890,7 +1890,7 @@
                     "instant": false
                 }
             ],
-            "title": "\u23f1\ufe0f Service Availability by Component",
+            "title": "Service Availability by Component",
             "type": "timeseries"
         },
         {
@@ -1903,7 +1903,7 @@
             },
             "id": 105,
             "panels": [],
-            "title": "\ud83e\udded PMM Pod's Status",
+            "title": "PMM Pod's Status",
             "type": "row"
         },
         {
@@ -2102,7 +2102,7 @@
             },
             "id": 101,
             "panels": [],
-            "title": "\ud83d\udc18 PostgreSQL Pod's Status",
+            "title": "PostgreSQL Pod's Status",
             "type": "row"
         },
         {
@@ -2374,7 +2374,7 @@
             },
             "id": 102,
             "panels": [],
-            "title": "\ud83d\uddb1\ufe0f ClickHouse Pod's Status",
+            "title": "ClickHouse Pod's Status",
             "type": "row"
         },
         {
@@ -2605,7 +2605,7 @@
             },
             "id": 103,
             "panels": [],
-            "title": "\ud83d\udcca VictoriaMetrics Pod's Status",
+            "title": "VictoriaMetrics Pod's Status",
             "type": "row"
         },
         {
@@ -2786,7 +2786,7 @@
             },
             "id": 104,
             "panels": [],
-            "title": "\u2696\ufe0f HAProxy Pod's Status",
+            "title": "HAProxy Pod's Status",
             "type": "row"
         },
         {
