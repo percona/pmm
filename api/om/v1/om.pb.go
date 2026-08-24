@@ -2621,7 +2621,10 @@ type InventoryRunEntity struct {
 	// The host-level failure, when its probe failed.
 	Error *string `protobuf:"bytes,7,opt,name=error,proto3,oneof" json:"error,omitempty"`
 	// The services on it. Empty is a meaningful answer, not a gap.
-	Services      []*InventoryRunEntityService `protobuf:"bytes,8,rep,name=services,proto3" json:"services,omitempty"`
+	Services []*InventoryRunEntityService `protobuf:"bytes,8,rep,name=services,proto3" json:"services,omitempty"`
+	// The task history id of the dispatch, so a reader can open the probe's own log.
+	// Unset when the dispatch never got one.
+	TaskHistoryId *int64 `protobuf:"varint,9,opt,name=task_history_id,json=taskHistoryId,proto3,oneof" json:"task_history_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2710,6 +2713,13 @@ func (x *InventoryRunEntity) GetServices() []*InventoryRunEntityService {
 		return x.Services
 	}
 	return nil
+}
+
+func (x *InventoryRunEntity) GetTaskHistoryId() int64 {
+	if x != nil && x.TaskHistoryId != nil {
+		return *x.TaskHistoryId
+	}
+	return 0
 }
 
 // InventoryRun is one refresh of the estate.
@@ -4319,7 +4329,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x05error\x18\x04 \x01(\tH\x02R\x05error\x88\x01\x01B\r\n" +
 	"\v_service_idB\x0f\n" +
 	"\r_service_nameB\b\n" +
-	"\x06_error\"\x98\x03\n" +
+	"\x06_error\"\xd9\x03\n" +
 	"\x12InventoryRunEntity\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12 \n" +
 	"\thost_name\x18\x02 \x01(\tH\x00R\bhostName\x88\x01\x01\x12(\n" +
@@ -4330,12 +4340,14 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\banswered\x18\x05 \x01(\bR\banswered\x12.\n" +
 	"\x10duration_seconds\x18\x06 \x01(\x01H\x02R\x0fdurationSeconds\x88\x01\x01\x12\x19\n" +
 	"\x05error\x18\a \x01(\tH\x03R\x05error\x88\x01\x01\x12<\n" +
-	"\bservices\x18\b \x03(\v2 .om.v1.InventoryRunEntityServiceR\bservicesB\f\n" +
+	"\bservices\x18\b \x03(\v2 .om.v1.InventoryRunEntityServiceR\bservices\x12+\n" +
+	"\x0ftask_history_id\x18\t \x01(\x03H\x04R\rtaskHistoryId\x88\x01\x01B\f\n" +
 	"\n" +
 	"_host_nameB\x10\n" +
 	"\x0e_executor_hostB\x13\n" +
 	"\x11_duration_secondsB\b\n" +
-	"\x06_error\"\xaf\x02\n" +
+	"\x06_errorB\x12\n" +
+	"\x10_task_history_id\"\xaf\x02\n" +
 	"\fInventoryRun\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12(\n" +
 	"\x06status\x18\x02 \x01(\x0e2\x10.om.v1.RunStatusR\x06status\x129\n" +

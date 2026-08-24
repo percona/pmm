@@ -637,6 +637,10 @@ type GetInventoryRunOKBodyEntitiesItems0 struct {
 
 	// The services on it. Empty is a meaningful answer, not a gap.
 	Services []*GetInventoryRunOKBodyEntitiesItems0ServicesItems0 `json:"services"`
+
+	// The task history id of the dispatch, so a reader can open the probe's own log.
+	// Unset when the dispatch never got one.
+	TaskHistoryID *string `json:"task_history_id,omitempty"`
 }
 
 // Validate validates this get inventory run OK body entities items0
