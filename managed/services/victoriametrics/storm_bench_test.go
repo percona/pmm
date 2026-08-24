@@ -25,12 +25,17 @@ package victoriametrics
 // Run:
 //
 //	PMM_STORM_TEST=1 go test ./managed/services/victoriametrics/ -run TestSetStateStorm -v -timeout 30m
+//
+// STORM_CACHE=1 and STORM_BACKOFF=1 enable the two mitigations independently
+// (STORM_FIXED=1 enables both). -count=1 is mandatory: the test cache returns stale
+// results that look like a real run, and changing env vars does not invalidate it.
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
 	"math/rand/v2"
+	"net"
 	"os"
 	"slices"
 	"strconv"
@@ -57,9 +62,27 @@ const (
 	stormDBName           = "pmm-managed-storm"
 )
 
-// stormFixed enables the PMM-15228 mitigations in the mirrored code paths:
-// per-call lookup caches and jittered retry backoff. Set STORM_FIXED=1.
-var stormFixed = os.Getenv("STORM_FIXED") != ""
+func stormFlag(keys ...string) bool {
+	for _, k := range keys {
+		if os.Getenv(k) != "" {
+			return true
+		}
+	}
+	return false
+}
+
+// The two PMM-15228 mitigations are toggled independently so each can be measured on
+// its own; STORM_FIXED=1 remains a shorthand for both.
+//
+// Caveat: stormCache only reaches the caches mirrored in stormSetStateDBWork. It does
+// NOT reach the caches inside the real AddScrapeConfigs, which stormBuildScrapeConfig
+// always calls, so a run with stormCache=false is not a fully uncached baseline. No env
+// var can reach that half -- baseline it by checking out the pre-fix prometheus.go, as
+// TestStormScrapeConfigGolden describes.
+var (
+	stormCache   = stormFlag("STORM_CACHE", "STORM_FIXED")
+	stormBackoff = stormFlag("STORM_BACKOFF", "STORM_FIXED")
+)
 
 func stormEnv(key, def string) string {
 	if v := os.Getenv(key); v != "" {
@@ -77,13 +100,20 @@ func stormEnvInt(t *testing.T, key string, def int) int {
 
 // stormResult holds one sweep row.
 type stormResult struct {
-	pool          int
-	attempts      int64
-	failures      int64
+	pool     int
+	attempts int64
+	failures int64
+	// Percentiles over every completed attempt, failed ones included. These are the
+	// honest latency numbers: in a storm the failures ARE the slow calls, so
+	// success-only percentiles understate what an agent experiences.
 	p50, p95, p99 time.Duration
-	waitCount     int64
-	waitDuration  time.Duration
-	inUse, idle   int
+	// Percentiles over successful attempts only, kept alongside because comparing
+	// them across arms with very different failure rates compares different
+	// subpopulations -- reporting both makes that selection effect visible.
+	okP50, okP95, okP99 time.Duration
+	waitCount           int64
+	waitDuration        time.Duration
+	inUse, idle         int
 }
 
 func TestSetStateStorm(t *testing.T) {
@@ -113,16 +143,21 @@ func TestSetStateStorm(t *testing.T) {
 
 	t.Log("")
 	t.Log("=== PMM-15228 reconnect storm: pool sweep ===")
-	t.Logf("agents=%d  duration=%s  stateChangeTimeout=%s", nAgents, duration, stormStateChangeTimeout)
-	t.Logf("%-6s %9s %9s %8s %10s %10s %11s %14s", "pool", "attempts", "failures", "fail%", "p50", "p95", "poolWaits", "poolWaitTotal")
+	t.Logf("agents=%d  duration=%s  stateChangeTimeout=%s  cache=%t  backoff=%t",
+		nAgents, duration, stormStateChangeTimeout, stormCache, stormBackoff)
+	t.Log("p50/p95 cover every attempt; okP50/okP95 cover successful attempts only (okN of them).")
+	t.Logf("%-6s %9s %9s %8s %10s %10s %10s %10s %8s %11s %14s",
+		"pool", "attempts", "failures", "fail%", "p50", "p95", "okP50", "okP95", "okN", "poolWaits", "poolWaitTotal")
 	for _, r := range results {
 		failPct := 0.0
 		if r.attempts > 0 {
 			failPct = float64(r.failures) / float64(r.attempts) * 100
 		}
-		t.Logf("%-6d %9d %9d %7.1f%% %10s %10s %11d %14s",
+		t.Logf("%-6d %9d %9d %7.1f%% %10s %10s %10s %10s %8d %11d %14s",
 			r.pool, r.attempts, r.failures, failPct,
 			r.p50.Round(time.Millisecond), r.p95.Round(time.Millisecond),
+			r.okP50.Round(time.Millisecond), r.okP95.Round(time.Millisecond),
+			r.attempts-r.failures,
 			r.waitCount, r.waitDuration.Round(time.Millisecond))
 	}
 }
@@ -131,9 +166,14 @@ func TestSetStateStorm(t *testing.T) {
 // cached and uncached implementations can be diffed:
 //
 //	PMM_STORM_TEST=1 STORM_GOLDEN=/tmp/new.yaml go test ... -run TestStormScrapeConfigGolden -count=1
-//	git stash push managed/services/victoriametrics/prometheus.go
+//	cp managed/services/victoriametrics/prometheus.go /tmp/prometheus.go.keep
+//	git checkout <pre-fix-rev> -- managed/services/victoriametrics/prometheus.go
 //	PMM_STORM_TEST=1 STORM_GOLDEN=/tmp/old.yaml go test ... -run TestStormScrapeConfigGolden -count=1
-//	git stash pop && diff /tmp/old.yaml /tmp/new.yaml
+//	cp /tmp/prometheus.go.keep managed/services/victoriametrics/prometheus.go
+//	diff /tmp/old.yaml /tmp/new.yaml
+//
+// Swap the file rather than using git stash: the stash stack is shared with every other
+// worktree, so a pop can take someone else's entry.
 func TestStormScrapeConfigGolden(t *testing.T) {
 	if os.Getenv("PMM_STORM_TEST") == "" {
 		t.Skip("set PMM_STORM_TEST=1 to run the reconnect-storm harness")
@@ -195,6 +235,14 @@ func splitComma(s string) []string {
 func stormSetupDB(t *testing.T, addr string) *sql.DB {
 	t.Helper()
 	ctx := t.Context()
+
+	// This drops stormDBName outright, so refuse anything but a loopback server: a
+	// mistyped STORM_PG_ADDR must not be able to drop a database on a real host.
+	host, _, err := net.SplitHostPort(addr)
+	require.NoError(t, err)
+	if host != "127.0.0.1" && host != "::1" && host != "localhost" {
+		t.Fatalf("STORM_PG_ADDR must be loopback, got %q: this harness drops the %q database", addr, stormDBName)
+	}
 
 	admin, err := models.OpenDB(models.SetupDBParams{Address: addr, Username: "postgres"})
 	require.NoError(t, err)
@@ -315,17 +363,22 @@ func stormCountAgents(t *testing.T, db *reform.DB) int {
 }
 
 // stormSetStateDBWork mirrors the DB sequence of sendSetStateRequest for one pmm-agent.
-// When fixed is true it mirrors the per-call lookup caches added to state.go.
-func stormSetStateDBWork(ctx context.Context, db *reform.DB, pmmAgentID string, fixed bool) error {
-	pmmAgent, err := models.FindAgentByID(db.Querier, pmmAgentID)
+// When cache is true it mirrors the per-call lookup caches added to state.go.
+func stormSetStateDBWork(ctx context.Context, db *reform.DB, pmmAgentID string, cache bool) error {
+	// Bind every lookup to ctx so stormStateChangeTimeout actually bounds them. With
+	// the unbound db.Querier a slow query runs past the deadline and the attempt is
+	// still recorded as a success, well above the timeout it is meant to model.
+	q := db.WithContext(ctx)
+
+	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
 	if err != nil {
 		return err
 	}
-	_, err = models.GetSettings(db.Querier)
+	_, err = models.GetSettings(q)
 	if err != nil {
 		return err
 	}
-	agents, err := models.FindAgents(db.Querier, models.AgentFilters{PMMAgentID: pmmAgentID})
+	agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentID: pmmAgentID})
 	if err != nil {
 		return err
 	}
@@ -335,12 +388,12 @@ func stormSetStateDBWork(ctx context.Context, db *reform.DB, pmmAgentID string, 
 	// The lookups are performed for their query cost and cache population; the rows
 	// themselves are not needed here, so only the error is returned.
 	getNode := func(id string) error {
-		if fixed {
+		if cache {
 			if _, ok := nodeCache[id]; ok {
 				return nil
 			}
 		}
-		n, err := models.FindNodeByID(db.Querier, id)
+		n, err := models.FindNodeByID(q, id)
 		if err != nil {
 			return err
 		}
@@ -348,12 +401,12 @@ func stormSetStateDBWork(ctx context.Context, db *reform.DB, pmmAgentID string, 
 		return nil
 	}
 	getService := func(id string) error {
-		if fixed {
+		if cache {
 			if _, ok := serviceCache[id]; ok {
 				return nil
 			}
 		}
-		s, err := models.FindServiceByID(db.Querier, id)
+		s, err := models.FindServiceByID(q, id)
 		if err != nil {
 			return err
 		}
@@ -436,7 +489,7 @@ func stormRun(t *testing.T, sqlDB *sql.DB, db *reform.DB, agentIDs []string, poo
 	var (
 		attempts, failures atomic.Int64
 		mu                 sync.Mutex
-		lat                []time.Duration
+		lat, okLat         []time.Duration
 		wg                 sync.WaitGroup
 	)
 
@@ -453,15 +506,23 @@ func stormRun(t *testing.T, sqlDB *sql.DB, db *reform.DB, agentIDs []string, poo
 
 				nCtx, nCancel := context.WithTimeout(ctx, stormStateChangeTimeout)
 				start := time.Now()
-				err := stormSetStateDBWork(nCtx, db, id, stormFixed)
+				err := stormSetStateDBWork(nCtx, db, id, stormCache)
 				dur := time.Since(start)
 				nCancel()
 
+				// Record every attempt, not just the successful ones.
 				attempts.Add(1)
+				mu.Lock()
+				lat = append(lat, dur)
+				if err == nil {
+					okLat = append(okLat, dur)
+				}
+				mu.Unlock()
+
 				if err != nil {
 					failures.Add(1)
 					consecutive++
-					if stormFixed {
+					if stormBackoff {
 						// Jittered backoff before re-requesting.
 						select {
 						case <-ctx.Done():
@@ -472,9 +533,6 @@ func stormRun(t *testing.T, sqlDB *sql.DB, db *reform.DB, agentIDs []string, poo
 					continue // otherwise: immediate re-request, as stock state.go does
 				}
 				consecutive = 0
-				mu.Lock()
-				lat = append(lat, dur)
-				mu.Unlock()
 			}
 		})
 	}
@@ -482,31 +540,35 @@ func stormRun(t *testing.T, sqlDB *sql.DB, db *reform.DB, agentIDs []string, poo
 
 	after := sqlDB.Stats()
 	slices.Sort(lat)
-	pick := func(q float64) time.Duration {
-		if len(lat) == 0 {
+	slices.Sort(okLat)
+	pick := func(s []time.Duration, q float64) time.Duration {
+		if len(s) == 0 {
 			return 0
 		}
-		i := int(float64(len(lat)) * q)
-		if i >= len(lat) {
-			i = len(lat) - 1
+		i := int(float64(len(s)) * q)
+		if i >= len(s) {
+			i = len(s) - 1
 		}
-		return lat[i]
+		return s[i]
 	}
 
 	r := stormResult{
 		pool:         pool,
 		attempts:     attempts.Load(),
 		failures:     failures.Load(),
-		p50:          pick(0.50),
-		p95:          pick(0.95),
-		p99:          pick(0.99),
+		p50:          pick(lat, 0.50),
+		p95:          pick(lat, 0.95),
+		p99:          pick(lat, 0.99),
+		okP50:        pick(okLat, 0.50),
+		okP95:        pick(okLat, 0.95),
+		okP99:        pick(okLat, 0.99),
 		waitCount:    after.WaitCount - before.WaitCount,
 		waitDuration: after.WaitDuration - before.WaitDuration,
 		inUse:        after.InUse,
 		idle:         after.Idle,
 	}
-	t.Logf("pool=%-4d attempts=%-7d failures=%-7d p50=%-9s p95=%-9s poolWaits=%-7d poolWaitTotal=%s",
+	t.Logf("pool=%-4d attempts=%-7d failures=%-7d p50=%-9s p95=%-9s okP50=%-9s okN=%-6d poolWaits=%-7d poolWaitTotal=%s",
 		r.pool, r.attempts, r.failures, r.p50.Round(time.Millisecond), r.p95.Round(time.Millisecond),
-		r.waitCount, r.waitDuration.Round(time.Millisecond))
+		r.okP50.Round(time.Millisecond), len(okLat), r.waitCount, r.waitDuration.Round(time.Millisecond))
 	return r
 }
