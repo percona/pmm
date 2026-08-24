@@ -30507,6 +30507,13 @@
                           }
                         },
                         "x-order": 7
+                      },
+                      "task_history_id": {
+                        "description": "The task history id of the dispatch, so a reader can open the probe's own log.\nUnset when the dispatch never got one.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-nullable": true,
+                        "x-order": 8
                       }
                     }
                   },

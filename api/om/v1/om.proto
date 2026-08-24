@@ -603,6 +603,9 @@ message InventoryRunEntity {
   optional string error = 7;
   // The services on it. Empty is a meaningful answer, not a gap.
   repeated InventoryRunEntityService services = 8;
+  // The task history id of the dispatch, so a reader can open the probe's own log.
+  // Unset when the dispatch never got one.
+  optional int64 task_history_id = 9;
 }
 
 // InventoryRun is one refresh of the estate.

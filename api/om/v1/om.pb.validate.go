@@ -3678,6 +3678,10 @@ func (m *InventoryRunEntity) validate(all bool) error {
 		// no validation rules for Error
 	}
 
+	if m.TaskHistoryId != nil {
+		// no validation rules for TaskHistoryId
+	}
+
 	if len(errors) > 0 {
 		return InventoryRunEntityMultiError(errors)
 	}
