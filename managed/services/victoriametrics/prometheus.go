@@ -131,17 +131,16 @@ func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, //
 		case pushMetrics:
 			paramsHost = models.LocalhostAddr
 		case agent.PMMAgentID != nil:
-			pmmAgentNode = &models.Node{NodeID: pointer.GetString(pmmAgent.RunsOnNodeID)}
-			err = q.Reload(pmmAgentNode)
+			pmmAgentNode, err = getNode(pointer.GetString(pmmAgent.RunsOnNodeID))
 			if err != nil {
-				return fmt.Errorf("failed to reload Node by pmm-agent for scrape config: %w", err)
+				return fmt.Errorf("failed to find Node by pmm-agent for scrape config: %w", err)
 			}
 			paramsHost = pmmAgentNode.Address
 		case agent.RunsOnNodeID != nil:
-			externalExporterNode := &models.Node{NodeID: pointer.GetString(agent.RunsOnNodeID)}
-			err = q.Reload(externalExporterNode)
+			var externalExporterNode *models.Node
+			externalExporterNode, err = getNode(pointer.GetString(agent.RunsOnNodeID))
 			if err != nil {
-				return fmt.Errorf("failed to reload Node for scrape config: %w", err)
+				return fmt.Errorf("failed to find Node for scrape config: %w", err)
 			}
 			paramsHost = externalExporterNode.Address
 		default:
