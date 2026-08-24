@@ -1,3 +1,5 @@
+import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
+import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
@@ -133,26 +135,36 @@ export const addDashboardItems = (
   return children;
 };
 
-export const addAlerting = (enabled = false, user?: User): NavItem => {
-  const children: NavItem[] = [];
+export const addAlerting = (
+  alertingEnabled = false,
+  unifiedAlertingEnabled = false,
+  user?: User
+): NavItem => {
+  const children: NavItem[] = [NAV_ALERTS_RULES];
 
-  if (enabled) {
+  if (alertingEnabled) {
     children.push(NAV_ALERTS_STATUS);
+
+    if (user?.isEditor) {
+      children.push(NAV_ALERTS_TEMPLATES);
+    }
   }
 
-  children.push(NAV_ALERTS_RULES);
+  if (user) {
+    children.push(NAV_ALERTS_SILENCES);
 
-  if (enabled && user?.isEditor) {
-    children.push(NAV_ALERTS_TEMPLATES);
-  }
+    if (!user.isAnonymous) {
+      children.push(NAV_ALERTS_GROUPS);
 
-  children.push(NAV_ALERTS_CONTACT_POINTS);
-  children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
-  children.push(NAV_ALERTS_SILENCES);
-  children.push(NAV_ALERTS_GROUPS);
+      if (unifiedAlertingEnabled && user.isPMMAdmin) {
+        children.push(NAV_ALERTS_SETTINGS);
+      }
+    }
 
-  if (user?.isPMMAdmin) {
-    children.push(NAV_ALERTS_SETTINGS);
+    if (unifiedAlertingEnabled) {
+      children.push(NAV_ALERTS_CONTACT_POINTS);
+      children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
+    }
   }
 
   return { ...NAV_ALERTS, children };
@@ -204,7 +216,7 @@ export const addAccount = (
 
   children.push({
     ...NAV_THEME_TOGGLE,
-    icon: colorMode === 'light' ? 'theme-dark' : 'theme-light',
+    icon: colorMode === 'light' ? DarkModeOutlined : LightModeOutlined,
     text: `Switch to ${targetMode} mode`,
     onClick: toggleMode,
   });

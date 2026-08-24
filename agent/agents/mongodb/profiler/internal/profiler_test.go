@@ -59,6 +59,8 @@ func TestProfiler(t *testing.T) {
 }
 
 func testProfiler(t *testing.T, url string) {
+	t.Helper()
+
 	sess, err := createSession(url, "pmm-agent")
 	require.NoError(t, err)
 
@@ -92,7 +94,7 @@ func testProfiler(t *testing.T, url string) {
 		reports: []*report.Report{},
 	}
 	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id", truncate.GetMongoDBDefaultMaxQueryLength())
-	err = prof.Start()
+	err = prof.Start(t.Context())
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		assert.NoError(t, prof.Stop())

@@ -1134,6 +1134,7 @@
   },
   "tags": [
     {
+      "description": "Server service provides generic PMM Server public APIs.",
       "name": "ServerService"
     }
   ]

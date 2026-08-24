@@ -2,8 +2,9 @@
 set -o errexit
 set -o pipefail
 
-declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:-/srv/postgres14}"
-declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:-/srv/.postgres_password}"
+declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:?must be exported by the entrypoint}"
+declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:?must be exported by the entrypoint}"
+declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:?must be exported by the entrypoint}"
 
 ensure_postgres_password() {
     # This check is to verify if the data directory is empty.
@@ -20,19 +21,19 @@ ensure_postgres_password() {
     echo "Generating postgres superuser password..."
     POSTGRES_PASSWORD=$(openssl rand -hex 16)
 
-    if ! /usr/pgsql-14/bin/pg_ctl status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
-        /usr/pgsql-14/bin/pg_ctl start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
+    if ! "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
         STARTED=1
     fi
 
-    PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres \
+    PGPASSWORD="$POSTGRES_PASSWORD" "$POSTGRES_BIN_DIR/psql" -U postgres -h /run/postgresql -d postgres \
         -c "ALTER USER postgres WITH PASSWORD '${POSTGRES_PASSWORD}'"
 
     echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
     chmod 600 "$POSTGRES_PASSWORD_FILE"
 
     if [ "$STARTED" -eq 1 ]; then
-        /usr/pgsql-14/bin/pg_ctl stop -D "$POSTGRES_DATA_DIR"
+        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR"
     fi
 }
 
@@ -53,8 +54,8 @@ update_pg_hba_auth() {
     sed -E 's/^([[:space:]]*host[[:space:]].*[[:space:]])trust([[:space:]]*)$/\1scram-sha-256\2/' "$hba" > "$tmp"
     mv "$tmp" "$hba"
 
-    if /usr/pgsql-14/bin/pg_ctl status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
-        /usr/pgsql-14/bin/pg_ctl reload -D "$POSTGRES_DATA_DIR"
+    if "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        "$POSTGRES_BIN_DIR/pg_ctl" reload -D "$POSTGRES_DATA_DIR"
     fi
 }
 
