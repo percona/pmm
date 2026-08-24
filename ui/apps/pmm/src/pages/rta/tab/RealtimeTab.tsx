@@ -1,7 +1,7 @@
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import { useRealtimeSessions } from 'hooks/api/useRealtime';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Navigate } from 'react-router-dom';
 
 const RealtimeTab: FC = () => {

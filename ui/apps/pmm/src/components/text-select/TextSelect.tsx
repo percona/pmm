@@ -1,8 +1,8 @@
 import ArrowDropUp from '@mui/icons-material/ArrowDropUp';
 import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
 import Check from '@mui/icons-material/Check';
-import { MouseEvent, useState } from 'react';
-import { TextSelectOption, TextSelectProps } from './TextSelect.types';
+import { type MouseEvent, useState } from 'react';
+import type { TextSelectOption, TextSelectProps } from './TextSelect.types';
 import { Messages } from './TextSelect.messages';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';

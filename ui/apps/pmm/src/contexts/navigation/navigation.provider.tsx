@@ -1,6 +1,6 @@
-import { FC, PropsWithChildren, useMemo } from 'react';
+import { type FC, type PropsWithChildren, useMemo } from 'react';
 import { NavigationContext } from './navigation.context';
-import { NavItem } from 'types/navigation.types';
+import type { NavItem } from 'types/navigation.types';
 import { useServiceTypes } from 'hooks/api/useServices';
 import {
   addAccount,

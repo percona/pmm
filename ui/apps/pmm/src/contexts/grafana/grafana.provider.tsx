@@ -1,4 +1,10 @@
-import { FC, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import {
+  type FC,
+  type PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useLocation, useNavigate, useNavigationType } from 'react-router';
 import { GrafanaContext } from './grafana.context';
 import {
@@ -73,7 +79,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
   // Register messenger, set iframe target, and add INCOMING listeners
   useEffect(() => {
-    if (!isLoaded || !isBrowser()) return;
+    if (!isLoaded || !isBrowser()) {
+      return;
+    }
 
     const target = frameRef.current?.contentWindow;
     if (target) {
@@ -88,7 +96,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
       type: 'GRAFANA_THEME_CHANGED',
       onMessage: (message: { payload?: { theme?: ColorMode } }) => {
         // No normalization here — setFromGrafana already normalizes inside the hook.
-        if (!message.payload?.theme) return;
+        if (!message.payload?.theme) {
+          return;
+        }
         setFromGrafana(message.payload.theme).catch((err: unknown) => {
           // eslint-disable-next-line no-console
           console.warn('[GrafanaProvider] setFromGrafana failed:', err);
@@ -123,7 +133,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
     messenger.addListener({
       type: 'DOCUMENT_TITLE_CHANGE',
       onMessage: ({ payload }: DocumentTitleUpdateMessage) => {
-        if (payload?.title) updateDocumentTitle(payload.title);
+        if (payload?.title) {
+          updateDocumentTitle(payload.title);
+        }
       },
     });
 
@@ -166,7 +178,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
   // PMM -> Grafana: propagate PMM location (except if it came from Grafana)
   useEffect(() => {
-    if (!isBrowser() || !isLoaded) return;
+    if (!isBrowser() || !isLoaded) {
+      return;
+    }
 
     const isGrafanaPage = location.pathname.includes('/graph');
     const isSourceGrafana = (location.state as LocationState)?.fromGrafana;
@@ -189,7 +203,9 @@ export const GrafanaProvider: FC<PropsWithChildren> = ({ children }) => {
 
   // PMM -> Grafana: propagate theme when left-side theme changes
   useEffect(() => {
-    if (!isLoaded || !isBrowser()) return;
+    if (!isLoaded || !isBrowser()) {
+      return;
+    }
     messenger.sendMessage({
       type: 'CHANGE_THEME',
       payload: { theme: colorMode }, // no extra normalization

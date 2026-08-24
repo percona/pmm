@@ -3,9 +3,9 @@ import {
   useReadonlySettings,
   useSettings,
 } from 'hooks/api/useSettings';
-import { FC, PropsWithChildren, useMemo } from 'react';
+import { type FC, type PropsWithChildren, useMemo } from 'react';
 import { SettingsContext } from './settings.context';
-import { CombinedSettings } from './settings.context.types';
+import type { CombinedSettings } from './settings.context.types';
 import { useUser } from 'contexts/user';
 
 export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {

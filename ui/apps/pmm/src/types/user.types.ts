@@ -1,4 +1,4 @@
-import { ColorMode } from '@pmm/shared';
+import type { ColorMode } from '@pmm/shared';
 
 // comes from grafana
 export enum OrgRole {

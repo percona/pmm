@@ -1,4 +1,4 @@
-import { Advisor, ListAdvisorsResponse } from 'types/advisors.types';
+import type { Advisor, ListAdvisorsResponse } from 'types/advisors.types';
 import { api } from './api';
 
 export const listAdvisors = async (): Promise<Advisor[]> => {

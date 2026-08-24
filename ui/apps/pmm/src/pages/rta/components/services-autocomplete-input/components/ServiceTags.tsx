@@ -1,9 +1,9 @@
-import { AutocompleteRenderGetTagProps } from '@mui/material/Autocomplete';
-import {
+import type { AutocompleteRenderGetTagProps } from '@mui/material/Autocomplete';
+import type {
   ServiceOption,
   TagPresentation,
 } from '../ServicesAutocompleteInput.types';
-import { FC } from 'react';
+import type { FC } from 'react';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';

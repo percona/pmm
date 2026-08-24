@@ -32,7 +32,7 @@ import {
   QueryStatsIcon,
   SearchInsightsIcon,
 } from '@percona/peak-ui';
-import { NavItem } from 'types/navigation.types';
+import type { NavItem } from 'types/navigation.types';
 
 export const NAV_DIVIDERS: Record<'home' | 'inventory' | 'backups', NavItem> = {
   home: {

@@ -1,11 +1,11 @@
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Box, Skeleton, Stack, Typography } from '@mui/material';
 import { Messages } from '../AlertDetailsTab.messages';
 import { useAlertValueThreshold } from 'hooks/api/useAlertValueThreshold';
 import UnavailableText from 'components/unavailable-text';
 import { PERCENT_OFF_SCALE } from './ValueThreshold.constants';
 import { formatNumber, toPercent } from './ValueThreshold.utils';
-import {
+import type {
   GrafanaAlertRuleDefinition,
   GrafanaRulerLabels,
 } from 'types/alerting.types';

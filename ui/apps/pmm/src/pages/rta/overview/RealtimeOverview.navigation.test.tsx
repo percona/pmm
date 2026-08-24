@@ -10,14 +10,14 @@
  * unfiltered array. RealtimeOverview.test.tsx keeps the real table for other behavior.
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { FC, useEffect } from 'react';
+import { type FC, useEffect } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import {
   TEST_MONGO_DB_QUERY_DATA,
   TEST_REAL_TIME_SESSION,
 } from 'utils/testStubs';
-import { QueryData } from 'types/rta.types';
+import type { QueryData } from 'types/rta.types';
 import RealtimeOverview from './RealtimeOverview';
 
 const queryOne: QueryData = {

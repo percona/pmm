@@ -10,7 +10,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import CardActions from '@mui/material/CardActions';
 import Button from '@mui/material/Button';
 
-import { FC, useCallback } from 'react';
+import { type FC, useCallback } from 'react';
 import WelcomeImage from 'assets/mountains.jpg';
 import { Icon } from 'components/icon';
 import { Messages } from './WelcomeCard.messages';

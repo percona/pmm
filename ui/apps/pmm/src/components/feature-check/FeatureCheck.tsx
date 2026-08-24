@@ -4,7 +4,7 @@ import Typography from '@mui/material/Typography';
 import { Card } from '@percona/peak-ui';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
 interface Props {

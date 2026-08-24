@@ -5,7 +5,10 @@ import {
   wrapWithQueryProvider,
   wrapWithUpdatesProvider,
 } from 'utils/testUtils';
-import { AgentUpdateSeverity, GetAgentVersionItem } from 'types/agent.types';
+import {
+  type GetAgentVersionItem,
+  AgentUpdateSeverity,
+} from 'types/agent.types';
 import { Messages } from './UpdateClients.messages';
 import * as AgentsApi from 'api/agents';
 import * as UpdatesUtils from 'contexts/updates/updates.utils';

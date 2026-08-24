@@ -8,7 +8,7 @@ import {
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
 import { wrapWithQueryProvider, wrapWithUserProvider } from 'utils/testUtils';
-import { User } from 'types/user.types';
+import type { User } from 'types/user.types';
 
 const mocks = vi.hoisted(() => ({
   startTour: vi.fn(),

@@ -1,7 +1,7 @@
 import { format } from 'date-fns/format';
 import { type MRT_Row } from 'material-react-table';
 import { ALL_STATES_FILTER, SILENCED_FILTER } from '../AlertsPage.constants';
-import { AlertRow, AlertsTableRow } from '../AlertsPage.types';
+import type { AlertRow, AlertsTableRow } from '../AlertsPage.types';
 import { groupAlertsByNode } from '../AlertsPage.utils';
 import { GRAFANA_SUB_PATH, TIME_FORMAT } from 'lib/constants';
 import { tz } from '@date-fns/tz/tz';

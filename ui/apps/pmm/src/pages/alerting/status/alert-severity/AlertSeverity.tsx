@@ -1,5 +1,5 @@
 import Typography from '@mui/material/Typography';
-import { FC } from 'react';
+import type { FC } from 'react';
 import type { AlertSeverity as Severity } from 'types/alerting.types';
 import { capitalize } from 'utils/text.utils';
 import { SEVERITY_ICON_MAP } from './AlertSeverity.constants';

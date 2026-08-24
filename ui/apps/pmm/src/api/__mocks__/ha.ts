@@ -1,6 +1,6 @@
 import {
-  GetHANodesResponse,
-  GetHAStatusResponse,
+  type GetHANodesResponse,
+  type GetHAStatusResponse,
   NodeRole,
 } from 'types/ha.types';
 

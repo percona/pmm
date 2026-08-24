@@ -1,4 +1,4 @@
-import { NavItem } from 'types/navigation.types';
+import type { NavItem } from 'types/navigation.types';
 
 export interface NavItemProps {
   item: NavItem;

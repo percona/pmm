@@ -1,6 +1,6 @@
 import { Modal } from 'components/modal';
 import { useUpdates } from 'contexts/updates';
-import { FC, useEffect, useState } from 'react';
+import { type FC, useEffect, useState } from 'react';
 import { Messages } from './UpdateModal.messages';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';

@@ -1,4 +1,4 @@
-import { EmptyResponse } from 'types/util.types';
+import type { EmptyResponse } from 'types/util.types';
 import { api } from './api';
 
 export const getReadiness = async () => {

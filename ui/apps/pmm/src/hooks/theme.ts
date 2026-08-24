@@ -1,12 +1,16 @@
 import { useContext, useRef } from 'react';
 import { useUpdatePreferences } from './api/useUser';
 import messenger from 'lib/messenger';
-import { ColorMode, MessageType } from '@pmm/shared';
+import type { ColorMode, MessageType } from '@pmm/shared';
 import { ColorModeContext } from '@percona/peak-ui';
 
 function normalizeMode(v: unknown): ColorMode {
-  if (typeof v === 'string' && v.toLowerCase() === 'dark') return 'dark';
-  if (v === true) return 'dark';
+  if (typeof v === 'string' && v.toLowerCase() === 'dark') {
+    return 'dark';
+  }
+  if (v === true) {
+    return 'dark';
+  }
   return 'light';
 }
 

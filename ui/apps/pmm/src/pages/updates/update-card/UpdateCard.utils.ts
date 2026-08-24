@@ -1,4 +1,4 @@
-import { CurrentInfo, LatestInfo } from 'types/updates.types';
+import type { CurrentInfo, LatestInfo } from 'types/updates.types';
 import { formatTimestamp } from 'utils/datetime.utils';
 
 export const formatVersion = ({

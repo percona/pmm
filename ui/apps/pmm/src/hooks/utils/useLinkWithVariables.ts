@@ -1,4 +1,4 @@
-import {
+import type {
   DashboardVariablesMessage,
   DashboardVariablesResult,
 } from '@pmm/shared';

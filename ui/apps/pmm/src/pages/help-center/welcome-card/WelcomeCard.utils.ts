@@ -1,4 +1,4 @@
-import { ListServicesResponse } from 'types/services.types';
+import type { ListServicesResponse } from 'types/services.types';
 
 export const shouldShowAddService = (
   services?: ListServicesResponse

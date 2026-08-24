@@ -1,4 +1,4 @@
-import { Settings } from 'types/settings.types';
+import type { Settings } from 'types/settings.types';
 
 export interface SshKeyFormProps {
   settings: Settings;

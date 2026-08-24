@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import HighAvailabilityBadge from './HighAvailabilityBadge';
-import { HAHealth } from 'types/ha.types';
+import type { HAHealth } from 'types/ha.types';
 import { HIGH_AVAILABILITY_BADGE_HEALTH } from './HighAvailabilityBadge.constants';
 
 describe('HighAvailabilityBadge', () => {

@@ -1,10 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { wrapWithRouter } from 'utils/testUtils';
 import SidebarNavItem from './SidebarNavItem';
-import { NavItemProps } from './SidebarNavItem.types';
-import { NavItem as NavTreeItem } from 'types/navigation.types';
+import type { NavItemProps } from './SidebarNavItem.types';
+import type { NavItem as NavTreeItem } from 'types/navigation.types';
 import { collapseClasses } from '@mui/material/Collapse';
-import { MemoryRouterProps } from 'react-router-dom';
+import type { MemoryRouterProps } from 'react-router-dom';
 import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
 
 const TEST_NAV_TREE: NavTreeItem = {

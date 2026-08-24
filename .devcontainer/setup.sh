@@ -47,16 +47,15 @@ install_go() {
     go env
 }
 
-# Installs Node.js 22, pnpm (for ui/) and Yarn (for dashboards/pmm-app).
+# Installs Node.js 22 and pnpm (for ui/)
 install_node() {
     dnf module enable -y nodejs:22
     dnf install -y nodejs npm
-    npm install -g yarn@1.22.22
     # pnpm is not pinned here: corepack resolves it from the `packageManager`
     # field in ui/package.json on first use.
     corepack enable pnpm
     node --version
-    yarn --version
+    pnpm --version
 }
 
 # Tweaks the embedded PostgreSQL configuration for development. Idempotent.

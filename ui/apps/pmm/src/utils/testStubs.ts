@@ -1,10 +1,10 @@
 import {
-  QueryData,
-  RawQueryData,
-  RealtimeSession,
+  type QueryData,
+  type RealtimeSession,
+  type RawQueryData,
   RealtimeSessionStatus,
 } from 'types/rta.types';
-import {
+import type {
   BaseService,
   ListServicesResponse,
   ManagedService,
@@ -12,7 +12,7 @@ import {
   MySqlService,
   VersionedService,
 } from 'types/services.types';
-import { OrgRole, User } from 'types/user.types';
+import { type User, OrgRole } from 'types/user.types';
 import { createAnonymousUser } from 'contexts/user/user.utils';
 
 export const TEST_USER_ADMIN: User = {

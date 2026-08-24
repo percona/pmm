@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { type FC, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import CardContent from '@mui/material/CardContent';
@@ -11,7 +11,7 @@ import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDown
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import Paper from '@mui/material/Paper';
 import Slide from '@mui/material/Slide';
-import { QueryData } from 'types/rta.types';
+import type { QueryData } from 'types/rta.types';
 import { useEscapeKey } from 'utils/keys.utils';
 import { Messages } from './DetailsPane.messages';
 import QueryAndDetails from './QueryAndDetails';

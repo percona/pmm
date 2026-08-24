@@ -6,7 +6,7 @@ import { SettingsProvider } from 'contexts/settings';
 import { TourProvider } from 'contexts/tour';
 import { UpdatesProvider } from 'contexts/updates';
 import { UserProvider } from 'contexts/user';
-import { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useThemeSync } from 'hooks/useThemeSync';
 

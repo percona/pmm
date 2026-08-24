@@ -3,15 +3,14 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from 'react-router-dom';
 import router from './router';
-import { SnackbarProvider, CustomContentProps } from 'notistack';
+import { type CustomContentProps, SnackbarProvider } from 'notistack';
 import {
   ThemeContextProvider,
   pmmThemeOptions,
   NotistackMuiSnackbar,
 } from '@percona/peak-ui';
 import { ThemeClass } from 'components/theme-class';
-import { useEffect } from 'react';
-import type { ComponentType } from 'react';
+import { type ComponentType, useEffect } from 'react';
 import { addApiErrorInterceptor, removeApiErrorInterceptor } from 'api/api';
 
 const queryClient = new QueryClient({

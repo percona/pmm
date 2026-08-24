@@ -1,5 +1,5 @@
-import { GetAgentVersionItem } from 'types/agent.types';
-import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
+import type { GetAgentVersionItem } from 'types/agent.types';
+import type { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 
 export interface UpdatesContextProps {
   isLoading: boolean;

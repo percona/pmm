@@ -3,12 +3,12 @@ import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import { getStyles } from 'components/ha-icon/HighAvailabilityIcon.styles';
 import { Icon } from 'components/icon';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { RealtimeSessionStatus } from 'types/rta.types';
 import { diffFromNow, formatDuration } from 'utils/datetime.utils';
 import { Messages } from './SessionStatus.messages';
 import { getSessionStatusText } from 'utils/status.utils';
-import { SessionRow } from '../SessionsTable.types';
+import type { SessionRow } from '../SessionsTable.types';
 import { useLiveTimestamp } from 'hooks/useLiveTimestamp';
 
 interface Props {

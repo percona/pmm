@@ -1,6 +1,6 @@
 import { Icon } from 'components/icon';
-import { NavItem } from 'types/navigation.types';
-import { ComponentType, FC, isValidElement } from 'react';
+import type { NavItem } from 'types/navigation.types';
+import { type ComponentType, type FC, isValidElement } from 'react';
 
 interface Props {
   icon: NonNullable<NavItem['icon']>;

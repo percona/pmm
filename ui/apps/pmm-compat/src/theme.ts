@@ -1,6 +1,6 @@
 import { getThemeById, type GrafanaTheme2 } from '@grafana/data';
 import { config, getAppEvents, ThemeChangedEvent } from '@grafana/runtime';
-import { ColorMode } from '@pmm/shared';
+import type { ColorMode } from '@pmm/shared';
 
 /**
  * Apply Grafana theme by id and ensure the proper CSS bundle is loaded.

@@ -1,4 +1,4 @@
-import { HAHealth } from 'types/ha.types';
+import type { HAHealth } from 'types/ha.types';
 
 export const HIGH_AVAILABILITY_BADGE_HEALTH: Record<HAHealth, string> = {
   healthy: 'Healthy',

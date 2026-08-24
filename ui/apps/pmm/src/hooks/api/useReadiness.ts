@@ -1,4 +1,4 @@
-import { UseQueryOptions, useQuery } from '@tanstack/react-query';
+import { type UseQueryOptions, useQuery } from '@tanstack/react-query';
 import { getReadiness } from 'api/ready';
 
 export const useReadiness = (options?: Partial<UseQueryOptions>) =>

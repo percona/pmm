@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { type FC, useState } from 'react';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { enqueueSnackbar } from 'notistack';
@@ -6,7 +6,7 @@ import { useUser } from 'contexts/user';
 import { Messages } from './RealtimeSelectionForm.messages';
 import { useAvailableServices, useStartSessions } from 'hooks/api/useRealtime';
 import { ServicesAutocompleteInput } from 'pages/rta/components/services-autocomplete-input';
-import { RealtimeSession } from 'types/rta.types';
+import type { RealtimeSession } from 'types/rta.types';
 
 interface Props {
   onSuccess?: (sessions: RealtimeSession[]) => void;

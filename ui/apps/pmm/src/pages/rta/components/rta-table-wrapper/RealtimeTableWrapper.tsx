@@ -1,6 +1,6 @@
 import { paperClasses } from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import { FC, PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
 const RealtimeTableWrapper: FC<PropsWithChildren> = ({ children }) => (
   <Stack

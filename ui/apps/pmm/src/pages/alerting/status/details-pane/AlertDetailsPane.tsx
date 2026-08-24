@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { type FC, useState } from 'react';
 import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -10,12 +10,12 @@ import Tooltip from '@mui/material/Tooltip';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import { useEscapeKey } from 'utils/keys.utils';
-import { AlertsTableRow } from '../AlertsPage.types';
+import type { AlertsTableRow } from '../AlertsPage.types';
 import AlertDetailsTab from './details/AlertDetailsTab';
 import { Messages } from './AlertDetailsPane.messages';
 import {
+  type UseDetailsPaneNavigationResult,
   BottomPanelCloseIcon,
-  UseDetailsPaneNavigationResult,
 } from '@percona/peak-ui';
 import RawDataTab from './raw-data/RawDataTab';
 import { useAlertDetailsPane } from './AlertDetailsPane.utils';

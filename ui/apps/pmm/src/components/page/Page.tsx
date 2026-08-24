@@ -1,5 +1,5 @@
-import { FC } from 'react';
-import { PageProps } from './Page.types';
+import type { FC } from 'react';
+import type { PageProps } from './Page.types';
 import {
   Alert,
   Box,

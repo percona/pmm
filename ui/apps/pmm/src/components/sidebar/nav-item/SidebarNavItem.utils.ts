@@ -1,4 +1,4 @@
-import { NavItem } from 'types/navigation.types';
+import type { NavItem } from 'types/navigation.types';
 import { Link } from 'react-router-dom';
 
 export const getLinkProps = (item: NavItem, url?: string) => {

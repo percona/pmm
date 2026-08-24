@@ -4,9 +4,9 @@ import {
   Typography,
   IconButton,
 } from '@mui/material';
-import { FC } from 'react';
+import type { FC } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
-import { ModalProps } from './Modal.types';
+import type { ModalProps } from './Modal.types';
 
 export const Modal: FC<ModalProps> = ({
   children,

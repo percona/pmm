@@ -1,5 +1,5 @@
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
-import { HelpCard } from './help-center-card/HelpCenterCard.types';
+import type { HelpCard } from './help-center-card/HelpCenterCard.types';
 
 export const CARD_IDS = {
   pmmDocs: 'pmm-docs',

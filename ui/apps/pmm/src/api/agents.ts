@@ -1,4 +1,4 @@
-import { GetAgentVersionsResponse } from 'types/agent.types';
+import type { GetAgentVersionsResponse } from 'types/agent.types';
 import { api } from './api';
 
 export const getAgentVersions = async () => {

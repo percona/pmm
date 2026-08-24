@@ -1,7 +1,7 @@
 import Typography from '@mui/material/Typography';
 import { Modal } from 'components/modal';
-import { ModalProps } from 'components/modal/Modal.types';
-import { FC } from 'react';
+import type { ModalProps } from 'components/modal/Modal.types';
+import type { FC } from 'react';
 import { Messages } from './RunningAgentsModal.messages';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';

@@ -1,12 +1,12 @@
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
-import { NavItem } from 'types/navigation.types';
+import type { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
-import { User, UserPreferences } from 'types/user.types';
-import { Advisor } from 'types/advisors.types';
+import type { User, UserPreferences } from 'types/user.types';
+import type { Advisor } from 'types/advisors.types';
 import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
 import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
-import { ColorMode } from '@pmm/shared';
+import type { ColorMode } from '@pmm/shared';
 import {
   NAV_ACCOUNT,
   NAV_ADVISORS,
@@ -49,13 +49,13 @@ import {
   NAV_HIGH_AVAILABILITY_NODES,
   NAV_HOME_PAGE,
 } from './navigation.constants';
-import { CombinedSettings } from 'contexts/settings';
+import type { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
-import { DashboardFolder } from 'types/folders.types';
-import { GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
+import type { DashboardFolder } from 'types/folders.types';
+import { type GetUpdatesResponse, UpdateStatus } from 'types/updates.types';
 import { HighAvailabilityIcon } from 'components/ha-icon';
 import { HighAvailabilityBadge } from 'components/ha-badge';
-import { HAInfo } from 'types/ha.types';
+import type { HAInfo } from 'types/ha.types';
 
 export const addOtherDashboardsItem = (
   rootNode: NavItem,

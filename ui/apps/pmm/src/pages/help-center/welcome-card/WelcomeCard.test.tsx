@@ -11,7 +11,7 @@ import {
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
-import { User } from 'types/user.types';
+import type { User } from 'types/user.types';
 import WelcomeCard from './WelcomeCard';
 
 const mocks = vi.hoisted(() => ({

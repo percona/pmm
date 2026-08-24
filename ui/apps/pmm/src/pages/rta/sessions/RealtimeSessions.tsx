@@ -1,6 +1,6 @@
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { Messages } from './RealtimeSessions.messages';
 import SessionsTable from './sessions-table/SessionsTable';
 import Button from '@mui/material/Button';

@@ -1,4 +1,4 @@
-import { TabValue } from 'pages/settings/Settings.types';
+import type { TabValue } from 'pages/settings/Settings.types';
 import { Navigate, useParams } from 'react-router-dom';
 
 const SettingsPageRedirect = () => {

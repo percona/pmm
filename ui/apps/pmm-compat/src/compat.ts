@@ -5,12 +5,12 @@ import {
   config,
 } from '@grafana/runtime';
 import {
-  ChangeThemeMessage,
+  type ChangeThemeMessage,
+  type DashboardVariablesMessage,
+  type HistoryAction,
+  type LocationChangeMessage,
+  type ColorMode,
   CrossFrameMessenger,
-  DashboardVariablesMessage,
-  HistoryAction,
-  LocationChangeMessage,
-  ColorMode,
   isRenderingServer,
 } from '@pmm/shared';
 import {

@@ -4,7 +4,7 @@ import {
   SHOW_UPDATE_MODAL_AFTER_MS,
   UPDATE_SNOOZE_DURATION_OVERRIDE_KEY,
 } from 'lib/constants';
-import { LatestInfo } from 'types/updates.types';
+import type { LatestInfo } from 'types/updates.types';
 import {
   getUpdateSnoozeDurationMs,
   isUpdateSnoozeActive,

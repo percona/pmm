@@ -1,5 +1,5 @@
 import { type MRT_Row } from 'material-react-table';
-import { AlertsTableRow } from '../AlertsPage.types';
+import type { AlertsTableRow } from '../AlertsPage.types';
 import { filterTriggeredAt } from './AlertStatusTable.utils';
 
 const createRow = (activeAt?: string) =>

@@ -1,7 +1,7 @@
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { Messages } from 'pages/settings/Settings.messages';
-import { FC } from 'react';
+import type { FC } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 interface Props {
