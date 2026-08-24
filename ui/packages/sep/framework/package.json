@@ -41,7 +41,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/prismjs": "^1.26.5",
     "@types/react": "^19.1.0",
-    "@vitejs/plugin-react-swc": "^4.3.1",
+    "@vitejs/plugin-react": "^6.0.5",
     "jsdom": "^29.1.1",
     "notistack": "^3.0.2",
     "react": "^19.1.0",

@@ -1,8 +1,7 @@
 import fs from 'fs';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import react from '@vitejs/plugin-react-swc';
-import { loadEnv } from 'vite';
-import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import { defineConfig, loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
@@ -103,6 +102,7 @@ const sepProxy = () => ({
     });
   },
 });
+// pnpm link'd packages don't bump the lockfile hash, so Vite's dep cache can go stale for them.
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -117,6 +117,7 @@ export default defineConfig({
     dedupe: [
       'react',
       'react-dom',
+      'react-is',
       '@emotion/react',
       '@emotion/styled',
       '@mui/material',
@@ -124,11 +125,6 @@ export default defineConfig({
       '@mui/styled-engine',
       '@mui/utils',
     ],
-  },
-  optimizeDeps: {
-    // Uncomment when using pnpm link for @percona/peak-ui locally
-    // exclude: ['@percona/peak-ui'],
-    force: true,
   },
   server: {
     https: hasNginxCerts
