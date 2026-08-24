@@ -476,6 +476,7 @@
                                 "collection",
                                 "key_name",
                                 "service_name",
+                                "node_name",
                                 "Value"
                             ]
                         }
@@ -487,11 +488,12 @@
                         "excludeByName": {},
                         "includeByName": {},
                         "indexByName": {
-                            "Value": 5,
+                            "Value": 6,
                             "cluster": 0,
                             "collection": 2,
                             "database": 1,
                             "key_name": 3,
+                            "node_name": 5,
                             "service_name": 4
                         },
                         "renameByName": {}
@@ -770,6 +772,7 @@
                                 "collection",
                                 "key_name",
                                 "service_name",
+                                "node_name",
                                 "Value"
                             ]
                         }
@@ -781,11 +784,12 @@
                         "excludeByName": {},
                         "includeByName": {},
                         "indexByName": {
-                            "Value": 5,
+                            "Value": 6,
                             "cluster": 0,
                             "collection": 2,
                             "database": 1,
                             "key_name": 3,
+                            "node_name": 5,
                             "service_name": 4
                         },
                         "renameByName": {}
