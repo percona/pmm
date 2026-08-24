@@ -166,7 +166,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 			// Now that the channel honours nCtx, a request loop busy for longer than
 			// stateChangeTimeout lands here, so say what timed out.
 			failures++
-			l.Errorf("Failed to send SetState request (attempt %d): %s", failures, err)
+			l.WithError(err).WithField("attempt", failures).Error("Failed to send SetState request")
 
 			// Wait before re-requesting. Without this every failure re-queues immediately,
 			// so a fleet reconnecting at once keeps the server saturated with retries and

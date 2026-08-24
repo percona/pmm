@@ -223,7 +223,7 @@ func stormSeed(t *testing.T, db *reform.DB, nAgents int) []string {
 	t.Helper()
 	ids := make([]string, 0, nAgents)
 
-	err := db.InTransaction(func(tx *reform.TX) error {
+	err := db.InTransactionContext(t.Context(), nil, func(tx *reform.TX) error {
 		q := tx.Querier
 		for i := range nAgents {
 			node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
