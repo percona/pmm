@@ -107,14 +107,15 @@ type sepRun struct {
 
 // sepRunNode is one host a refresh attempted, from GET /runs/{id}.
 type sepRunNode struct {
-	NodeID       string              `json:"node_id"`
-	HostName     *string             `json:"host_name"`
-	ExecutorHost *string             `json:"executor_host"`
-	Resolution   string              `json:"resolution"`
-	Answered     bool                `json:"answered"`
-	Duration     *float64            `json:"duration_seconds"`
-	Error        *string             `json:"error"`
-	Services     []sepRunNodeService `json:"services"`
+	NodeID        string              `json:"node_id"`
+	HostName      *string             `json:"host_name"`
+	ExecutorHost  *string             `json:"executor_host"`
+	Resolution    string              `json:"resolution"`
+	Answered      bool                `json:"answered"`
+	Duration      *float64            `json:"duration_seconds"`
+	TaskHistoryID *int64              `json:"task_history_id"`
+	Error         *string             `json:"error"`
+	Services      []sepRunNodeService `json:"services"`
 }
 
 // sepRunNodeService is one service on such a host.

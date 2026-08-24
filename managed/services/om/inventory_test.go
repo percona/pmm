@@ -707,15 +707,16 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	  "nodes": [
 	    {"node_id": "n1", "host_name": "db00", "executor_host": "db00",
 	     "resolution": "name", "answered": true, "duration_seconds": 12.5,
-	     "error": null,
+	     "task_history_id": 4711, "error": null,
 	     "services": [{"service_id": "s1", "service_name": "mongo-1",
 	                   "answered": true, "error": null}]},
 	    {"node_id": "n2", "host_name": "pmm-client-node00",
 	     "executor_host": "pmm-client-node00", "resolution": "name",
-	     "answered": true, "duration_seconds": 8.0, "error": null, "services": []},
+	     "answered": true, "duration_seconds": 8.0, "task_history_id": null,
+	     "error": null, "services": []},
 	    {"node_id": "n3", "host_name": "stranded", "executor_host": null,
 	     "resolution": "orphaned", "answered": false, "duration_seconds": null,
-	     "error": "no executor host", "services": []}
+	     "task_history_id": null, "error": "no executor host", "services": []}
 	  ]
 	}`)
 
@@ -728,6 +729,9 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	assert.Equal(t, "db00", withDatabase.GetHostName())
 	assert.True(t, withDatabase.GetAnswered())
 	assert.InDelta(t, 12.5, withDatabase.GetDurationSeconds(), 0.001)
+	// The pointer to this attempt's raw output -- the observations deliberately not
+	// kept on the receipt itself.
+	assert.Equal(t, int64(4711), withDatabase.GetTaskHistoryId())
 	require.Len(t, withDatabase.GetServices(), 1)
 	assert.Equal(t, "mongo-1", withDatabase.GetServices()[0].GetServiceName())
 
@@ -749,6 +753,7 @@ func TestInventoryRunDetailIsHostOriented(t *testing.T) {
 	// the key altogether, which is the wire form the UI reads as absent.
 	assert.Nil(t, orphan.ExecutorHost)
 	assert.Nil(t, orphan.DurationSeconds)
+	assert.Nil(t, orphan.TaskHistoryId)
 	assert.Equal(t, "no executor host", orphan.GetError())
 }
 
