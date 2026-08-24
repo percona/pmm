@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { AuthContext } from './auth.context';
 import { useQuery } from '@tanstack/react-query';
 import { rotateToken } from 'api/auth';
@@ -25,9 +25,9 @@ import { useFrontendSettings } from 'hooks/api/useSettings';
 export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   const settings = useFrontendSettings({ retry: false });
   const clientSessionEstablished = useClientSession();
-  const navigate = useNavigate();
   const location = useLocation();
   const returnToHandledRef = useRef(false);
+  const [returnTo, setReturnTo] = useState<string | null>(null);
   const [returnToChecked, setReturnToChecked] = useState(false);
 
   useEffect(() => {
@@ -51,9 +51,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
   const isAuthenticated =
     isLoggedIn || Boolean(settings.data?.anonymousEnabled);
 
-  // Restore the URL the user asked for before being bounced to login. navigate() mutates history
-  // synchronously and batches with setReturnToChecked, so window.location is already the target by
-  // the time children — GrafanaPage included — first render.
+  // Pick up the URL the user asked for before being bounced to login.
   useEffect(() => {
     if (!isAuthenticated || returnToHandledRef.current) {
       return;
@@ -65,10 +63,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     const target = consumeReturnTo();
 
     // Grafana's OAuth flow may already have landed us on the target.
-    if (target && target !== constructUrl(location)) {
-      navigate(target, { replace: true });
-    }
-
+    setReturnTo(target && target !== constructUrl(location) ? target : null);
     setReturnToChecked(true);
     // location is deliberately not a dependency; returnToHandledRef gates re-runs
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,10 +99,18 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     return null;
   }
 
-  // Hold children back until the return-to check has run. GrafanaPage derives its iframe src from
-  // window.location once, so the restore has to land before it mounts.
+  // Hold children back until the return-to check has run, then until the restored URL has actually
+  // landed. GrafanaPage derives its iframe src from window.location once, when GrafanaProvider
+  // first reports a session, so a child render at the stale URL would pin the iframe to the wrong
+  // page. Redirect declaratively rather than via navigate(): react-router runs an imperative
+  // navigate inside a transition, which commits *after* an urgent setState, so children would
+  // render at the old location first.
   if (isAuthenticated && !returnToChecked) {
     return null;
+  }
+
+  if (returnTo !== null && constructUrl(location) !== returnTo) {
+    return <Navigate to={returnTo} replace />;
   }
 
   return (

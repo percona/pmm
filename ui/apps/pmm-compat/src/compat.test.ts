@@ -22,7 +22,10 @@ describe('compat', () => {
   const reloadMock = jest.fn();
   const originalLocation = window.location;
 
-  const setLocation = (search: string, pathname = '/graph/d/some-dashboard') => {
+  const setLocation = (
+    search: string,
+    pathname = '/graph/d/some-dashboard'
+  ) => {
     Object.defineProperty(window, 'location', {
       value: {
         ...originalLocation,
@@ -88,14 +91,16 @@ describe('compat', () => {
     expect(replaceMock).not.toHaveBeenCalled();
   });
 
-  it.each(['/graph/d/some-dashboard', '/graph/apidocs', '/graph/logins', '/graph/'])(
-    'redirects %s into the PMM UI',
-    (pathname) => {
-      setLocation('', pathname);
+  it.each([
+    '/graph/d/some-dashboard',
+    '/graph/apidocs',
+    '/graph/logins',
+    '/graph/',
+  ])('redirects %s into the PMM UI', (pathname) => {
+    setLocation('', pathname);
 
-      initialize();
+    initialize();
 
-      expect(replaceMock).toHaveBeenCalled();
-    }
-  );
+    expect(replaceMock).toHaveBeenCalled();
+  });
 });

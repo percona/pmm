@@ -8,8 +8,9 @@ import {
   vi,
 } from 'vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import { StrictMode, ReactElement } from 'react';
+import { StrictMode, type ReactElement } from 'react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
+import { useAuth } from './auth.hooks';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import { AuthProvider } from './auth.provider';
 
@@ -32,9 +33,19 @@ const RETURN_TO_KEY = 'pmm-ui.auth.returnTo';
 
 let renderedLocations: string[] = [];
 
+/**
+ * Records "<url>|<isLoggedIn>" for every render. The invariant that protects the Grafana iframe
+ * is that children never render at the stale location *while authenticated* — GrafanaPage
+ * snapshots window.location into its iframe src the moment GrafanaProvider reports a session, so
+ * a stale render after login would pin the iframe to the wrong dashboard. Renders before the
+ * session resolves are harmless: no iframe exists yet.
+ */
 const Probe = () => {
   const location = useLocation();
-  renderedLocations.push(location.pathname + location.search + location.hash);
+  const { isLoggedIn } = useAuth();
+  renderedLocations.push(
+    `${location.pathname}${location.search}${location.hash}|${isLoggedIn}`
+  );
   return <div data-testid="probe" />;
 };
 
@@ -107,9 +118,9 @@ describe('AuthProvider', () => {
     await waitFor(() => {
       expect(replaceMock).toHaveBeenCalledWith('/graph/login');
     });
-    expect(JSON.parse(sessionStorage.getItem(RETURN_TO_KEY)!).path).toBe(
-      DEEP_LINK
-    );
+    const stored = sessionStorage.getItem(RETURN_TO_KEY);
+    expect(stored).not.toBeNull();
+    expect(JSON.parse(stored ?? '{}').path).toBe(DEEP_LINK);
     expect(screen.queryByTestId('probe')).not.toBeInTheDocument();
   });
 
@@ -120,10 +131,8 @@ describe('AuthProvider', () => {
     renderProvider('/graph');
 
     await screen.findByTestId('probe');
-    // The whole point: children never see the pre-restore location, because GrafanaPage
-    // snapshots window.location once to build its iframe src.
-    expect(renderedLocations).not.toContain('/graph');
-    expect(renderedLocations).toContain(DEEP_LINK);
+    expect(renderedLocations).not.toContain('/graph|true');
+    expect(renderedLocations).toContain(`${DEEP_LINK}|true`);
     expect(sessionStorage.getItem(RETURN_TO_KEY)).toBeNull();
   });
 
@@ -134,7 +143,7 @@ describe('AuthProvider', () => {
     renderProvider(DEEP_LINK);
 
     await screen.findByTestId('probe');
-    expect(new Set(renderedLocations)).toEqual(new Set([DEEP_LINK]));
+    expect(renderedLocations).toContain(`${DEEP_LINK}|true`);
     expect(sessionStorage.getItem(RETURN_TO_KEY)).toBeNull();
   });
 
@@ -144,7 +153,7 @@ describe('AuthProvider', () => {
     renderProvider('/graph');
 
     await screen.findByTestId('probe');
-    expect(new Set(renderedLocations)).toEqual(new Set(['/graph']));
+    expect(renderedLocations).toContain('/graph|true');
     expect(replaceMock).not.toHaveBeenCalled();
   });
 
@@ -169,8 +178,10 @@ describe('AuthProvider', () => {
     renderProvider('/graph', true);
 
     await screen.findByTestId('probe');
-    expect(renderedLocations).not.toContain('/graph');
-    expect(renderedLocations[renderedLocations.length - 1]).toBe(DEEP_LINK);
+    expect(renderedLocations).not.toContain('/graph|true');
+    expect(renderedLocations[renderedLocations.length - 1]).toBe(
+      `${DEEP_LINK}|true`
+    );
     expect(sessionStorage.getItem(RETURN_TO_KEY)).toBeNull();
   });
 });

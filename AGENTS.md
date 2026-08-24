@@ -105,11 +105,11 @@ These differ from generic Go/React advice. Match **surrounding code** in the fil
 - **Mocks (Go):** small interfaces in `deps.go` + mockery — not hand-rolled fakes for every dependency
 - **UI server state:** TanStack Query hooks in `ui/apps/pmm/src/hooks/api/` — not `useEffect` + `fetch` in components ([`ui/AGENTS.md`](ui/AGENTS.md))
 - **UI client state:** React Context for auth/settings — not Redux or another global store
-- **UI components:** MUI + `@percona/percona-ui`, theme-aware `sx` — not ad-hoc CSS
+- **UI components:** MUI + `@percona/peak-ui`, theme-aware `sx` — not ad-hoc CSS
 - **UI wire format:** camelCase in TypeScript; JSON on the wire is snake_case (`axios-case-converter` in `ui/apps/pmm/src/api/api.ts`)
 - **Generated code:** edit `.proto` / reform models / interfaces — run `make gen`; never hand-edit `*.pb.go`, `*_reform.go`, swagger clients
 
-Mechanical style (imports, formatting, ESLint rules) is enforced by `make check`, `cd ui && make lint`, and CI — see [Linting decision tree](#linting-decision-tree).
+Mechanical style (imports, formatting, lint rules) is enforced by `make check` for Go, `cd ui && make lint && make format-check` for the UI, and CI — see [Linting decision tree](#linting-decision-tree).
 
 ---
 
@@ -124,7 +124,7 @@ PMM has three test layers ([`CONTRIBUTING.md`](CONTRIBUTING.md)): unit, API inte
 | `managed/models` or DB schema/migrations | Unit tests in `managed/`; use `testdb.Open` only when fixtures or migrations matter ([`managed/AGENTS.md`](managed/AGENTS.md)) |
 | `.proto` or gRPC/REST definitions | `make gen`, then `make check`; update handlers in `managed/` and UI hooks if user-facing |
 | REST behavior end-to-end | `make env-up`, then `make api-test` ([`api-tests/AGENTS.md`](api-tests/AGENTS.md)) |
-| UI (`ui/apps/pmm`) | `cd ui && make lint && make test` |
+| UI (anything under `ui/`) | `cd ui && make lint && make test` |
 | Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` (or run cleanup without `--check-only`); CI enforces this in `dashboards.yml` ([`dashboards/dashboards/AGENTS.md`](dashboards/dashboards/AGENTS.md)) |
 | User-visible feature / bugfix | Create or update a Feature Build; link it in the PR ([`CONTRIBUTING.md`](CONTRIBUTING.md#feature-build)) |
 
@@ -140,8 +140,8 @@ The Go linter is `bin/golangci-lint`, pinned to the version CI uses. Install it 
 |-----------------|-----|
 | Go backend (`managed/`, `agent/`, `admin/`, `qan-api2/`, `vmproxy/`, shared packages) | `make prepare-pr` from repo root (or `make check` after `make gen` for a quicker pass) |
 | `.proto` only | `make gen`, then `make check` (`buf lint`, `golangci-lint`, `go-sumtype`) |
-| UI (`ui/apps/pmm`, `ui/packages/shared`) | `cd ui && make lint` (ESLint; same as CI `ui.yml`) |
-| Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate ESLint) |
+| UI (anything under `ui/`) | `cd ui && make lint && make format-check` (oxlint + oxfmt across every workspace package; same as CI `ui.yml`) |
+| Grafana dashboard JSON (`dashboards/dashboards/`) | `python3 dashboards/misc/cleanup-dash.py --check-only <file>` before commit (CI `dashboards.yml`; no separate JS linter) |
 | Grafana plugin / QAN app (`dashboards/pmm-app`) | `cd dashboards/pmm-app && yarn lint:check` (and `yarn typecheck` if TypeScript changed) |
 | Before any PR | Run the row(s) that match **every** area you touched; fix errors, not just warnings, unless CI allows them |
 
@@ -411,7 +411,7 @@ PMM Server talks to pmm-agents and API clients already deployed in the field, so
 
 ### Dependencies and new files
 - Prefer the standard library and deps already in `go.mod` / `ui/package.json`; a new dependency needs justification and an AGPL-3-compatible license (CI runs a license check).
-- Go: `go get` then `go mod tidy` (both in `make prepare-pr`). UI: `yarn add` from `ui/`.
+- Go: `go get` then `go mod tidy` (both in `make prepare-pr`). UI: `pnpm add` from `ui/` (or `pnpm --filter <pkg> add` for one workspace package).
 - New Go source files need the AGPL-3 Percona license header — copy it from an existing `.go` file or run `go tool license-eye -c .licenserc.yaml header fix`. Enforced by `make check-license` (exemptions: `agent/`, `admin/`, `utils/`, mocks).
 
 ### Graceful Shutdown
@@ -446,7 +446,8 @@ All long-running daemons expose on `127.0.0.1`:
 | `make test-common` | Run common unit tests |
 | `make api-test` | Run API integration tests |
 | `make prepare-pr` | Go/API pre-PR pipeline: `gen` + `check-all` (license + linters) + `format` + `go mod tidy` |
-| `cd ui && make lint` | ESLint for PMM UI (required for UI changes; not part of `prepare-pr`) |
+| `cd ui && make lint` | oxlint for PMM UI (required for UI changes; not part of `prepare-pr`) |
+| `cd ui && make format-check` | oxfmt check for PMM UI (what CI runs; `make format` writes) |
 
 ## Key Files to Reference
 

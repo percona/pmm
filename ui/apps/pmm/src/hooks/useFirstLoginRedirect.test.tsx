@@ -3,7 +3,7 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { UserContext } from 'contexts/user';
 import { TEST_USER_ADMIN } from 'utils/testStubs';
-import { User } from 'types/user.types';
+import type { User } from 'types/user.types';
 import { useFirstLoginRedirect } from './useFirstLoginRedirect';
 
 const FIRST_LOGIN_KEY = `pmm-ui.first-login.user-${TEST_USER_ADMIN.id}`;
