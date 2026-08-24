@@ -502,7 +502,9 @@ func inventoryRunToProto(run sepRun) *omv1.InventoryRun {
 // Outcomes only: which host, matched how, answered or not, how long, and the error.
 // What the probe found belongs to the estate, which is upserted and stays current --
 // carrying it here as well would be a second copy that goes stale the moment the next
-// refresh runs.
+// refresh runs. TaskHistoryID is the one exception, and not a contradiction of that
+// rule: it carries no observation, only a pointer to where the dispatch's raw output
+// -- the observations that were deliberately *not* kept here -- can still be read.
 func inventoryRunEntitiesToProto(nodes []sepRunNode) []*omv1.InventoryRunEntity {
 	entities := make([]*omv1.InventoryRunEntity, 0, len(nodes))
 	for _, node := range nodes {
@@ -522,6 +524,7 @@ func inventoryRunEntitiesToProto(nodes []sepRunNode) []*omv1.InventoryRunEntity 
 			Resolution:      sepResolutionToProto(node.Resolution),
 			Answered:        node.Answered,
 			DurationSeconds: optionalDouble(node.Duration),
+			TaskHistoryId:   node.TaskHistoryID,
 			Error:           optionalString(node.Error),
 			Services:        services,
 		})
