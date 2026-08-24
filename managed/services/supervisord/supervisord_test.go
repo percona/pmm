@@ -122,9 +122,15 @@ func TestDevContainer(t *testing.T) {
 		require.NoError(t, err)
 
 		s := New("/etc/supervisord.d", &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}})
-		require.NotEmpty(t, s.supervisorctlPath)
 
-		// restore original files after test
+		// This test rewrites /etc/supervisord.d and reloads supervisord, so it only runs
+		// where PMM's supervisord is present: the dev container or the PMM Server image.
+		_, statErr := os.Stat("/etc/supervisord.d")
+		if s.supervisorctlPath == "" || statErr != nil {
+			t.Skip("supervisord is not installed, skipping")
+		}
+
+		// restore original files after test, and remove any the test creates
 		originals := make(map[string][]byte)
 		matches, err := filepath.Glob("/etc/supervisord.d/*.ini")
 		require.NoError(t, err)
@@ -134,6 +140,13 @@ func TestDevContainer(t *testing.T) {
 			originals[m] = b
 		}
 		defer func() {
+			current, globErr := filepath.Glob("/etc/supervisord.d/*.ini")
+			require.NoError(t, globErr)
+			for _, name := range current {
+				if _, ok := originals[name]; !ok {
+					require.NoError(t, os.Remove(name))
+				}
+			}
 			for name, b := range originals {
 				err = os.WriteFile(name, b, 0)
 				require.NoError(t, err)
