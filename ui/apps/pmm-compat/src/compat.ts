@@ -7,22 +7,19 @@ import {
   LocationChangeMessage,
   ColorMode,
   isRenderingServer,
+  GRAFANA_DIRECT_PATH_PATTERN,
 } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_LOCAL_STORAGE_KEY,
   GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY,
-  GRAFANA_LOGIN_PATH,
   GRAFANA_SUB_PATH,
   PMM_UI_GRAFANA_PATH,
-  PMM_UI_HELP_PATH,
-  PMM_UI_PATH,
 } from 'lib/constants';
 import { applyCustomStyles } from 'styles';
 import { changeTheme } from 'theme';
 import { adjustToolbar } from 'compat/toolbar';
 import { isWithinIframe, getLinkWithVariables } from 'lib/utils';
 import { documentTitleObserver, updateBodyClassByLocation } from 'lib/utils/document';
-import { isFirstLogin, updateIsFirstLogin, isUserLoggedIn } from 'lib/utils/login';
 import {
   ServiceAddedEvent,
   ServiceDeletedEvent,
@@ -38,20 +35,13 @@ export const initialize = () => {
     return;
   }
 
-  // If Grafana is opened outside of iframe (or on login), redirect to PMM UI
-  if (!isWithinIframe() && !window.location.pathname.startsWith(GRAFANA_LOGIN_PATH)) {
-    const isHomePath =
-      window.location.pathname === GRAFANA_SUB_PATH || window.location.pathname === `${GRAFANA_SUB_PATH}/`;
-
-    // upon first login redirect user to the help page with welcome modal
-    if (isFirstLogin() && isHomePath) {
-      updateIsFirstLogin();
-
-      window.location.replace(isUserLoggedIn() ? PMM_UI_HELP_PATH : PMM_UI_PATH);
-    } else {
-      // redirect user to the new UI
-      window.location.replace(window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_GRAFANA_PATH));
-    }
+  // If Grafana is opened outside of the PMM UI iframe, redirect into the shell. Routes that must
+  // keep the /graph prefix are exempt: nginx already exempts them server-side and undoing that
+  // here would break the Grafana API, the image renderer and the auth/account pages.
+  if (!isWithinIframe() && !GRAFANA_DIRECT_PATH_PATTERN.test(window.location.pathname)) {
+    // The first-login welcome redirect lives in the shell now (useFirstLoginRedirect): nginx
+    // intercepts /graph/, so Grafana no longer boots at top level on the home path.
+    window.location.replace(window.location.href.replace(GRAFANA_SUB_PATH, PMM_UI_GRAFANA_PATH));
     return;
   }
 
