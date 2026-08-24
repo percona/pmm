@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package collector provides functionality to tail the MongoDB system.profile collection.
+// It manages a tailable cursor to extract raw profiling documents and stream them
+// through a channel for parsing and aggregation.
 package collector
 
 import (
@@ -60,7 +63,7 @@ type Collector struct {
 }
 
 // Start starts but doesn't wait until it exits.
-func (c *Collector) Start(context.Context) (<-chan proto.SystemProfile, error) {
+func (c *Collector) Start(ctx context.Context) (<-chan proto.SystemProfile, error) {
 	c.m.Lock()
 	defer c.m.Unlock()
 	if c.running {
@@ -83,7 +86,6 @@ func (c *Collector) Start(context.Context) (<-chan proto.SystemProfile, error) {
 	ready.L.Lock()
 	defer ready.L.Unlock()
 
-	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.aggregator")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
 		start(
@@ -121,6 +123,7 @@ func (c *Collector) Stop() {
 	close(c.docsChan) // we can now safely close channels goroutines write to as goroutine is stopped
 }
 
+// Name returns collector name.
 func (c *Collector) Name() string {
 	return "collector"
 }
@@ -148,6 +151,15 @@ func start(ctx context.Context, wg *sync.WaitGroup, client *mongo.Client, dbName
 		)
 		lastCollectTime = time.Now()
 
+		// After first failure in connection we signal that we are ready anyway
+		// this way service starts, and will automatically connect when db is available.
+		// It has to be done before the shutdown check below, otherwise Start() would
+		// block on ready.Wait() forever if we exit on the very first iteration.
+		if firstTry {
+			signalReady(ready)
+			firstTry = false
+		}
+
 		select {
 		// check if we should shutdown
 		case <-ctx.Done():
@@ -157,13 +169,6 @@ func start(ctx context.Context, wg *sync.WaitGroup, client *mongo.Client, dbName
 		// wait some time before reconnecting
 		case <-time.After(1 * time.Second):
 		}
-
-		// After first failure in connection we signal that we are ready anyway
-		// this way service starts, and will automatically connect when db is available.
-		if firstTry {
-			signalReady(ready)
-			firstTry = false
-		}
 	}
 }
 
@@ -171,15 +176,15 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 	logger.Traceln("connect and collect is called")
 	query := createQuery(dbName, startTime)
 
-	timeoutCtx, cancel := context.WithTimeout(context.TODO(), cursorTimeout)
+	timeoutCtx, cancel := context.WithTimeout(ctx, cursorTimeout)
 	defer cancel()
 	cursor, err := createIterator(timeoutCtx, collection, query)
 	if err != nil {
 		logger.Errorf("couldn't create system.profile iterator, reason: %v", err)
 		return
 	}
-	// do not cancel cursor closing when ctx is canceled
-	defer cursor.Close(context.Background()) //nolint:errcheck
+	// Ensure cursor is closed even if parent context is canceled to prevent resource leaks.
+	defer cursor.Close(context.Background()) //nolint:errcheck,contextcheck
 
 	// we got iterator, we are ready
 	signalReady(ready)
@@ -200,7 +205,7 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 	}()
 
 	for {
-		for cursor.TryNext(context.TODO()) {
+		for cursor.TryNext(ctx) {
 			doc := proto.SystemProfile{}
 			e := cursor.Decode(&doc)
 			if e != nil {
@@ -226,6 +231,8 @@ func connectAndCollect(ctx context.Context, collection *mongo.Collection, dbName
 			// note that if we can push the doc then exiting is not guaranteed
 			// that's why we have separate `select <-doneChan` above
 			case <-doneChan:
+				return
+			case <-ctx.Done():
 				return
 			}
 		}

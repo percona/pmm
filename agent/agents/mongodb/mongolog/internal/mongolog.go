@@ -33,7 +33,7 @@ import (
 	"github.com/percona/pmm/agent/agents/mongodb/shared/aggregator"
 	"github.com/percona/pmm/agent/agents/mongodb/shared/sender"
 	"github.com/percona/pmm/agent/utils/filereader"
-	"github.com/percona/pmm/agent/utils/mongo_fix"
+	"github.com/percona/pmm/agent/utils/mongofix"
 )
 
 const (
@@ -144,11 +144,11 @@ func (l *Mongolog) Start(ctx context.Context) error {
 }
 
 // Stop stops running mongolog, waits until it stops.
-func (l *Mongolog) Stop() error {
+func (l *Mongolog) Stop() {
 	l.m.Lock()
 	defer l.m.Unlock()
 	if !l.running {
-		return nil
+		return
 	}
 
 	// notify goroutine to close
@@ -163,7 +163,6 @@ func (l *Mongolog) Stop() error {
 
 	// set state to "not running"
 	l.running = false
-	return nil
 }
 
 func start(ctx context.Context, monitor *Monitor, aggregator *aggregator.Aggregator, wg *sync.WaitGroup,
@@ -220,7 +219,7 @@ func createSession(ctx context.Context, dsn string, agentID string) (*mongo.Clie
 	ctxWithTimeout, cancel := context.WithTimeout(ctx, mgoTimeoutDialInfo)
 	defer cancel()
 
-	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	opts, err := mongofix.ClientOptionsForDSN(dsn)
 	if err != nil {
 		return nil, err
 	}

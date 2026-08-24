@@ -17,9 +17,7 @@
 package supervisord
 
 import (
-	"bufio"
 	"bytes"
-	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -28,12 +26,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
-	"slices"
 	"strconv"
 	"strings"
 	"sync"
 	"text/template"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -48,6 +44,8 @@ const (
 	defaultClickhouseAddr               = "127.0.0.1:9000"
 	defaultClickhouseUser               = "default"
 	defaultClickhousePassword           = "clickhouse"
+	defaultClickhouseDatasourceUser     = "grafana"
+	defaultClickhouseDatasourcePassword = "grafana"
 	defaultVMSearchMaxQueryLen          = "1MB"
 	defaultVMSearchLatencyOffset        = "5s"
 	defaultVMSearchMaxUniqueTimeseries  = "100000000"
@@ -56,6 +54,10 @@ const (
 	defaultVMSearchMaxQueryDuration     = "90s"
 	defaultVMSearchLogSlowQueryDuration = "30s"
 	defaultVMPromscrapeStreamParse      = "true"
+	// 0 keeps VictoriaMetrics' native default of no ingestion rate limit. A hard cap risks
+	// pausing ingestion on large legitimate fleets, so the limit is left opt-in via the
+	// VM_maxIngestionRate environment variable for deployments that need to throttle bursts.
+	defaultVMMaxIngestionRate = "0"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
@@ -64,20 +66,11 @@ type Service struct {
 	supervisorctlPath string
 	l                 *logrus.Entry
 
-	eventsM    sync.Mutex
-	subs       map[chan *event]sub
-	lastEvents map[string]eventType
-
 	supervisordConfigsM sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
 	pgParams *models.PGParams
 	haParams *models.HAParams
-}
-
-type sub struct {
-	program    string
-	eventTypes []eventType
 }
 
 // values from supervisord configuration.
@@ -92,85 +85,9 @@ func New(configDir string, params *models.Params) *Service {
 		configDir:         configDir,
 		supervisorctlPath: path,
 		l:                 logrus.WithField("component", "supervisord"),
-		subs:              make(map[chan *event]sub),
-		lastEvents:        make(map[string]eventType),
 		vmParams:          params.VMParams,
 		pgParams:          params.PGParams,
 		haParams:          params.HAParams,
-	}
-}
-
-// Run reads supervisord's log (maintail) and sends events to subscribers.
-func (s *Service) Run(ctx context.Context) { //nolint:gocognit
-	if s.supervisorctlPath == "" {
-		s.l.Errorf("supervisorctl not found, updates are disabled.")
-		return
-	}
-
-	var lastEvent *event
-	for ctx.Err() == nil {
-		cmd := exec.CommandContext(ctx, s.supervisorctlPath, "maintail", "-f") //nolint:gosec
-		cmdLine := strings.Join(cmd.Args, " ")
-		pdeathsig.Set(cmd, unix.SIGKILL)
-		stdout, err := cmd.StdoutPipe()
-		if err != nil {
-			s.l.Errorf("%s: StdoutPipe failed: %s", cmdLine, err)
-			time.Sleep(time.Second)
-			continue
-		}
-
-		err = cmd.Start()
-		if err != nil {
-			s.l.Errorf("%s: Start failed: %s", cmdLine, err)
-			time.Sleep(time.Second)
-			continue
-		}
-
-		scanner := bufio.NewScanner(stdout)
-		for scanner.Scan() {
-			e := parseEvent(scanner.Text())
-			if e == nil {
-				continue
-			}
-			s.l.Debugf("Got event: %+v", e)
-
-			// skip old events (and events with exactly the same time as old events) if maintail was restarted
-			if lastEvent != nil && !lastEvent.Time.Before(e.Time) {
-				continue
-			}
-			lastEvent = e
-
-			s.eventsM.Lock()
-
-			s.lastEvents[e.Program] = e.Type
-
-			var toDelete []chan *event
-			for ch, sub := range s.subs {
-				if e.Program == sub.program {
-					if slices.Contains(sub.eventTypes, e.Type) {
-						ch <- e
-						close(ch)
-						toDelete = append(toDelete, ch)
-					}
-				}
-			}
-
-			for _, ch := range toDelete {
-				delete(s.subs, ch)
-			}
-
-			s.eventsM.Unlock()
-		}
-
-		err = scanner.Err()
-		if err != nil {
-			s.l.Errorf("Scanner: %s", err)
-		}
-
-		err = cmd.Wait()
-		if err != nil {
-			s.l.Errorf("%s: wait failed: %s", cmdLine, err)
-		}
 	}
 }
 
@@ -258,6 +175,7 @@ command =
 		--search.logSlowQueryDuration={{ .VMSearchLogSlowQueryDuration }}
 		--search.maxQueryDuration={{ .VMSearchMaxQueryDuration }}
 		--promscrape.streamParse={{ .VMPromscrapeStreamParse }}
+		--maxIngestionRate={{ .VMMaxIngestionRate }}
 		--http.pathPrefix=/prometheus
 		--envflag.enable
 		--envflag.prefix=VM_
@@ -366,8 +284,8 @@ environment =
     PMM_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
     PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
-    PMM_CLICKHOUSE_USER="{{ .ClickhouseUser }}",
-    PMM_CLICKHOUSE_PASSWORD="{{ .ClickhousePassword }}",
+    PMM_CLICKHOUSE_DATASOURCE_USER="{{ .ClickhouseDatasourceUser }}",
+    PMM_CLICKHOUSE_DATASOURCE_PASSWORD="{{ .ClickhouseDatasourcePassword }}",
     {{- if .HAEnabled}}
     GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
     GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
@@ -419,24 +337,6 @@ func (s *Service) supervisorctl(args ...string) error {
 	return nil
 }
 
-// parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
-// false if definitely not, and nil if status can't be determined.
-func parseStatus(status string) *bool {
-	if f := strings.Fields(status); len(f) > 1 {
-		switch status := f[1]; status {
-		case "FATAL", "STOPPED": // will not be restarted
-			return new(false)
-		case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
-			return new(true)
-		case "EXITED":
-			// it might be restarted - we need to inspect last event
-		default:
-			// something else - we need to inspect last event
-		}
-	}
-	return nil
-}
-
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
 	err := s.supervisorctl("reread")
@@ -461,6 +361,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2) //nolint:mnd
 	clickhouseUser := envvars.GetEnv("PMM_CLICKHOUSE_USER", defaultClickhouseUser)
 	clickhousePassword := envvars.GetEnv("PMM_CLICKHOUSE_PASSWORD", defaultClickhousePassword)
+	clickhouseDatasourceUser := envvars.GetEnv("PMM_CLICKHOUSE_DATASOURCE_USER", defaultClickhouseDatasourceUser)
+	clickhouseDatasourcePassword := envvars.GetEnv("PMM_CLICKHOUSE_DATASOURCE_PASSWORD", defaultClickhouseDatasourcePassword)
 	vmSearchDisableCache := envvars.GetEnv("VM_search_disableCache", strconv.FormatBool(!settings.IsVictoriaMetricsCacheEnabled()))
 	vmSearchMaxQueryLen := envvars.GetEnv("VM_search_maxQueryLen", defaultVMSearchMaxQueryLen)
 	vmSearchLatencyOffset := envvars.GetEnv("VM_search_latencyOffset", defaultVMSearchLatencyOffset)
@@ -470,6 +372,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmSearchMaxQueryDuration := envvars.GetEnv("VM_search_maxQueryDuration", defaultVMSearchMaxQueryDuration)
 	vmSearchLogSlowQueryDuration := envvars.GetEnv("VM_search_logSlowQueryDuration", defaultVMSearchLogSlowQueryDuration)
 	vmPromscrapeStreamParse := envvars.GetEnv("VM_promscrape_streamParse", defaultVMPromscrapeStreamParse)
+	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
 	templateParams := map[string]any{
 		"DataRetentionHours":           int(settings.DataRetention.Hours()),
@@ -484,6 +387,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMSearchMaxQueryDuration":     vmSearchMaxQueryDuration,
 		"VMSearchLogSlowQueryDuration": vmSearchLogSlowQueryDuration,
 		"VMPromscrapeStreamParse":      vmPromscrapeStreamParse,
+		"VMMaxIngestionRate":           vmMaxIngestionRate,
 		"VMURL":                        s.vmParams.URL(),
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
@@ -494,6 +398,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhousePort":               clickhouseAddrPair[1],
 		"ClickhouseUser":               clickhouseUser,
 		"ClickhousePassword":           clickhousePassword,
+		"ClickhouseDatasourceUser":     clickhouseDatasourceUser,
+		"ClickhouseDatasourcePassword": clickhouseDatasourcePassword,
 		"PMMServerHost":                "",
 	}
 

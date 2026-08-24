@@ -58,7 +58,7 @@ func TestConfig(t *testing.T) {
 		}
 		t.Run(tmpl.Name(), func(t *testing.T) {
 			t.Parallel()
-			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
+			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini"))
 			require.NoError(t, err)
 			actual, err := s.marshalConfig(tmpl, settings)
 			require.NoError(t, err)
@@ -97,6 +97,7 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	t.Setenv("VM_search_logSlowQueryDuration", "300s")
 	t.Setenv("VM_search_maxQueryDuration", "9s")
 	t.Setenv("VM_promscrape_streamParse", "false")
+	t.Setenv("VM_maxIngestionRate", "5000000")
 
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
@@ -105,24 +106,11 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		}
 
 		t.Run(tmpl.Name(), func(t *testing.T) {
-			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini")) //nolint:gosec
+			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini"))
 			require.NoError(t, err)
 			actual, err := s.marshalConfig(tmpl, settings)
 			require.NoError(t, err)
 			assert.Equal(t, string(expected), string(actual))
 		})
-	}
-}
-
-func TestParseStatus(t *testing.T) {
-	t.Parallel()
-
-	for str, expected := range map[string]*bool{
-		`pmm-agent                        STOPPED   Sep 20 08:55 AM`:         new(false),
-		`pmm-managed                      RUNNING   pid 826, uptime 0:19:36`: new(true),
-		`pmm-init                         EXITED    Sep 20 07:42 AM`:         nil,
-		`pmm-init                         STARTING`:                          new(true), // no last column in that case
-	} {
-		assert.Equal(t, expected, parseStatus(str), "%q", str)
 	}
 }

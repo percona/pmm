@@ -67,7 +67,7 @@ func (RealExecFunctions) LookPath(file string) (string, error) {
 
 // CommandContext calls Go's implementation of the CommandContext() function.
 func (RealExecFunctions) CommandContext(ctx context.Context, name string, arg ...string) CombinedOutputer { //nolint:ireturn
-	return exec.CommandContext(ctx, name, arg...)
+	return exec.CommandContext(ctx, name, arg...) //nolint:gosec
 }
 
 // Versioner implements version retrieving functions for different software.
@@ -112,7 +112,7 @@ func (v *Versioner) binaryVersion(
 	}
 
 	matches := versionRegexp.FindStringSubmatch(string(versionBytes))
-	if len(matches) != 2 {
+	if len(matches) != 2 { //nolint:mnd
 		return "", fmt.Errorf("cannot match version from output %q", string(versionBytes))
 	}
 
@@ -136,7 +136,7 @@ func (v *Versioner) XbcloudVersion() (string, error) {
 
 // QpressVersion retrieves qpress binary version.
 func (v *Versioner) QpressVersion() (string, error) {
-	return v.binaryVersion(qpressBin, 255, qpressVersionRegexp)
+	return v.binaryVersion(qpressBin, 255, qpressVersionRegexp) //nolint:mnd
 }
 
 // MongoDBVersion retrieves mongodb binary version.

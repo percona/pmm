@@ -34,7 +34,7 @@ var (
 // the patch level (e.g., 18.2 -> "18", "2"), not a traditional minor version.
 func ParsePostgreSQLVersion(v string) (string, string) {
 	m := postgresDBRegexp.FindStringSubmatch(v)
-	if len(m) != 2 {
+	if len(m) != 2 { //nolint:mnd
 		return "", ""
 	}
 

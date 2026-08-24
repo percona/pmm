@@ -1,16 +1,7 @@
+---
 name: VMProxy
 
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
     paths-ignore:
       - "admin/**"
@@ -21,21 +12,18 @@ on:
       - "dashboards/**"
       - "managed/**"
       - "qan-api2/**"
-      - "update/**"
       - "ui/**"
 
 permissions:
   contents: read
 
 env:
-  GONOPROXY: 'github.com/percona,github.com/Percona-Lab'
-  GONOSUMDB: 'github.com/percona,github.com/Percona-Lab'
   GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
   test:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     defaults:
       run:
@@ -43,33 +31,10 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Go release
-        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6.5.0
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
-          cache: false
-
-      - name: Enable Go build cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
-
-      - name: Enable Go modules cache
-        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-modules-
-
-      - name: Download Go modules
-        run: go mod download -x
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
 
       - name: Build and install
         run: make install

@@ -114,7 +114,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 ### PMM Server
 
 * Clone [pmm repository](https://github.com/percona/pmm)
-* Run `make env-up` to start development container. This will be slow on first run, all subsequent runs will be order of magnitude faster, because development container will be reused. From time to time it is recommended to rebuild the container to pull the latest changes by running `make env-up-rebuild`.
+* Run `make env-up` to start development container. This will be slow on first run; all subsequent runs will be much faster because the container image will be reused. It is recommended to pull the most recent image from time to time (run `make env-update-image`) so things don't get stale.
 * To run pmm-managed with your code changes, just run `make run-managed`. It updates `pmm-managed` running in the container.
 
 ### PMM Client
@@ -122,21 +122,26 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 * Clone [pmm repository](https://github.com/percona/pmm).
 * Navigate to the `/agent` folder in the root of the repository.
 * Run `make setup-dev` to connect pmm-agent to PMM Server.
-  * This command will register local pmm-agent to PMM Server and generate config file `pmm-agent-dev.yaml`
+  * This command will rebuild the local pmm-agent, register it to PMM Server and generate `pmm-agent.yaml` configuration file.
 * Once it's connected just use `make run` to run pmm-agent.
 * To work correctly, pmm-agent needs vmagent and exporters installed on the system.
   * The first option is to install pmm-client using this instruction https://docs.percona.com/percona-monitoring-and-management/3/install-pmm/install-pmm-client/index.html. It will install all exporters as well.
   * Another option is to do it manually
-    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in `pmm-agent-dev.yaml` file.
-    * All paths to exporter binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually if necessary.
+    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads) and copying binaries to the exporters_base directory configured in `pmm-agent.yaml` file.
+    * All paths to exporter binaries are configured in `pmm-agent.yaml`, so they can be changed manually if necessary.
 
 ### Exporters
 
-Exporters by themselves are independent applications, so each of them contains its own README files explaining how to set up a local environment [see PMM Client](#pmm-client).
+Exporters are independent applications, so each of them contains its own README files explaining how to set up a local environment [see PMM Client](#pmm-client).
 
 ### UI
 
-See [Grafana Dashboards Contribution Guide](https://github.com/percona/pmm/tree/main/dashboards/CONTRIBUTING.md).
+The devcontainer ships NodeJS and Yarn out of the box and exposes Vite (`make run-ui`) for the main PMM UI and webpack + livereload (`make run-qan-ui`) for the QAN Grafana plugin. See:
+
+- [`ui/README.md`](https://github.com/percona/pmm/tree/main/ui/README.md) — main PMM UI (Vite, React, MUI).
+- [`dashboards/CONTRIBUTING.md`](https://github.com/percona/pmm/tree/main/dashboards/CONTRIBUTING.md) — QAN plugin and Grafana dashboards.
+
+Both docs cover the devcontainer flow and the host-local alternative.
 
 ## Tests
 

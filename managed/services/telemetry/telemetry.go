@@ -146,6 +146,9 @@ func (s *Service) Run(ctx context.Context) {
 		}
 
 		report := s.prepareReport(ctx)
+		if report == nil {
+			return
+		}
 
 		if s.l.Logger.IsLevelEnabled(logrus.DebugLevel) {
 			s.l.Debugf("\nTelemetry captured:\n%s\n", s.Format(report))
@@ -235,7 +238,11 @@ func (s *Service) processSendCh(ctx context.Context) {
 
 func (s *Service) prepareReport(ctx context.Context) *telemetryv1.GenericReport { //nolint:gocognit
 	initializedDataSources := make(map[DataSourceName]DataSource)
-	telemetryMetric, _ := s.makeMetric(ctx)
+	telemetryMetric, err := s.makeMetric(ctx)
+	if err != nil {
+		s.l.Errorf("Failed to prepare telemetry report: %s", err)
+		return nil
+	}
 	var totalTime time.Duration
 
 	// initialize datasources

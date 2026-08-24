@@ -38,7 +38,6 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_METRICS_RESOLUTION_MR=5s",
 			"PMM_METRICS_RESOLUTION_LR=1h",
 			"PMM_DATA_RETENTION=72h",
-			"PMM_UPDATE_SNOOZE_DURATION=1h",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
 			DataRetention:   72 * time.Hour,
@@ -50,7 +49,6 @@ func TestEnvVarValidator(t *testing.T) {
 				MR: 5 * time.Second,
 				LR: time.Hour,
 			},
-			UpdateSnoozeDuration: time.Hour,
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
@@ -73,6 +71,18 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Nil(t, gotErrs)
 		assert.Equal(t, expectedWarns, gotWarns)
+	})
+
+	t.Run("SEP env variables", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"PMM_ENABLE_SEP=1", "PMM_SEP_POSTGRES_PASSWORD=s3cr3t"}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
 	})
 
 	t.Run("Default env vars", func(t *testing.T) {
@@ -122,6 +132,8 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_CLICKHOUSE_ADDR=127.0.0.1:9000",
 			"PMM_CLICKHOUSE_USER=default",
 			"PMM_CLICKHOUSE_PASSWORD=secret",
+			"PMM_CLICKHOUSE_DATASOURCE_USER=grafana",
+			"PMM_CLICKHOUSE_DATASOURCE_PASSWORD=secret",
 			"PMM_CLICKHOUSE_HOST=127.0.0.1",
 			"PMM_CLICKHOUSE_PORT=9000",
 			"PMM_CLICKHOUSE_IS_CLUSTER=true",
@@ -150,7 +162,6 @@ func TestEnvVarValidator(t *testing.T) {
 			"PMM_METRICS_RESOLUTION_MR=s5",
 			"PMM_METRICS_RESOLUTION_LR=1hour",
 			"PMM_DATA_RETENTION=keep one week",
-			"PMM_UPDATE_SNOOZE_DURATION=one week",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
@@ -163,7 +174,6 @@ func TestEnvVarValidator(t *testing.T) {
 			errors.New(`environment variable "PMM_METRICS_RESOLUTION_MR=s5" has invalid duration s5`),
 			errors.New(`environment variable "PMM_METRICS_RESOLUTION_LR=1hour" has invalid duration 1hour`),
 			errors.New(`environment variable "PMM_DATA_RETENTION=keep one week" has invalid duration keep one week`),
-			errors.New(`environment variable "PMM_UPDATE_SNOOZE_DURATION=one week" has invalid duration one week`),
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
@@ -268,4 +278,29 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 	})
+}
+
+func TestRedactSecretEnvVar(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		key      string
+		value    string
+		expected string
+	}{
+		{key: "PMM_CLICKHOUSE_DATASOURCE_PASSWORD", value: "s3cret", expected: "<redacted>"},
+		{key: "PMM_CLICKHOUSE_PASSWORD", value: "s3cret", expected: "<redacted>"},
+		{key: "PMM_POSTGRES_DBPASSWORD", value: "s3cret", expected: "<redacted>"},
+		{key: "GF_SECURITY_ADMIN_PASSWORD", value: "s3cret", expected: "<redacted>"},
+		{key: "AWS_SECRET_KEY", value: "s3cret", expected: "<redacted>"},
+		{key: "PMM_CLICKHOUSE_DATASOURCE_USER", value: "grafana", expected: "grafana"},
+		{key: "PMM_DATA_RETENTION", value: "72h", expected: "72h"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.key, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.expected, redactSecretEnvVar(tt.key, tt.value))
+		})
+	}
 }
