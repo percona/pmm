@@ -16,7 +16,11 @@
  */
 
 import { Box, Tooltip } from '@mui/material';
-import { ageSeconds } from '../inventory';
+import {
+  ageSeconds,
+  missingRowReason,
+  type OmEstateStatus,
+} from '../inventory';
 import { formatDuration } from '../format';
 import { Unavailable } from './Unavailable';
 import type { OmInventoryService } from '../types';
@@ -37,29 +41,25 @@ import type { OmInventoryService } from '../types';
 export function ProbeValue({
   inventory,
   value,
-  inventoryUnavailable,
+  estate = 'ready',
 }: {
   /** The estate row, or null when OM has never held one for this service. */
   inventory: OmInventoryService | null;
   /** The field being shown, read off that row by the caller. */
   value: string | number | null | undefined;
   /**
-   * Set when the estate query itself failed. Without it a missing row is reported as
-   * "not in the inventory", which is a statement about the estate this page is in no
-   * position to make when it could not read it.
+   * What the estate query is doing, which decides what a missing row means.
+   *
+   * Without it a missing row is reported as "not in the inventory", which is a
+   * statement about the estate this page is in no position to make while it is still
+   * reading it - or when it could not read it at all.
    */
-  inventoryUnavailable?: boolean;
+  estate?: OmEstateStatus;
 }) {
   // No row at all: PMM registered this service after the last sweep, so nothing has
   // ever been dispatched for it. Different from a probe that ran and found nothing.
   if (!inventory) {
-    return (
-      <Unavailable
-        reason={
-          inventoryUnavailable ? 'inventory_unavailable' : 'not_in_inventory'
-        }
-      />
-    );
+    return <Unavailable reason={missingRowReason(estate)} />;
   }
   if (value === null || value === undefined || value === '') {
     // A row exists. Whether it has ever answered is the useful distinction: never is

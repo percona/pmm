@@ -109,6 +109,12 @@ export const UNAVAILABLE_PHRASE: Record<OmUnavailableReason, string> = {
   // one request failed is a confident wrong answer.
   inventory_unavailable:
     'Inventory unavailable — OM could not read the estate, so nothing is known about this service either way. The topology columns are unaffected.',
+  // The third of the same family, and it exists for the same reason the second does.
+  // The topology document answers in a tenth of a second while the estate is a second
+  // request that may still be in flight; reporting "not in the inventory yet" during
+  // that window states a fact about the estate before the estate has answered.
+  inventory_pending:
+    'Loading the inventory — OM has not answered yet, so whether it has a row for this service is not known. The topology columns come from PMM and are already current.',
 };
 
 /** Fallback for a reason code the frontend has not been taught. */

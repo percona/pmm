@@ -46,6 +46,7 @@ import { Unavailable } from './components/Unavailable';
 import { formatDuration } from './format';
 import { ageSeconds, isFailing, toHostRows } from './inventory';
 import {
+  isRefreshActive,
   useForgetHost,
   useOmInventoryHosts,
   useInvalidateEstateOnRefreshEnd,
@@ -386,6 +387,10 @@ export function HostsPage() {
   // when it does.
   const { data: runs } = useOmInventoryRuns();
   useInvalidateEstateOnRefreshEnd(runs);
+  // Any active run, matching InventoryPage's button: firing an estate-wide sweep into
+  // one already in flight only earns a 409, and the row actions below cannot succeed
+  // against a host that sweep already holds.
+  const refreshing = (runs ?? []).some((run) => isRefreshActive(run.status));
   const [forgetting, setForgetting] = useState<OmHostRow | null>(null);
   const columns = useColumns();
   const rows = useMemo(() => toHostRows(data), [data]);
@@ -412,6 +417,11 @@ export function HostsPage() {
   const table = useMaterialReactTable({
     columns,
     data: rows,
+    // The server-issued id, not MRT's default row index. These rows are refetched on a
+    // timer and again whenever a refresh lands, so an insertion or a reorder would move
+    // an open detail panel onto a different host. The run and cluster tables already
+    // key on their own ids for the same reason.
+    getRowId: (row) => row.node_id,
     enablePagination: false,
     enableDensityToggle: false,
     enableExpanding: true,
@@ -427,7 +437,7 @@ export function HostsPage() {
           <Box component="span">
             <Button
               size="small"
-              disabled={refresh.isPending}
+              disabled={refresh.isPending || refreshing}
               onClick={() => refresh.mutate([row.original.node_id])}
             >
               Refresh
@@ -480,10 +490,10 @@ export function HostsPage() {
             <Box component="span">
               <Button
                 variant="outlined"
-                disabled={refresh.isPending}
+                disabled={refresh.isPending || refreshing}
                 onClick={() => refresh.mutate(undefined)}
               >
-                Refresh all
+                {refreshing ? 'Refreshing…' : 'Refresh all'}
               </Button>
             </Box>
           </Tooltip>

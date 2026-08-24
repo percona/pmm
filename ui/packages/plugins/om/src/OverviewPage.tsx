@@ -395,12 +395,27 @@ export function OverviewPage() {
   }
 
   if (isError) {
+    // The header stays, with its Sync action, exactly as ServicesPage does. A 503 here
+    // is the expected first-run state - the API says so when no collection has
+    // completed - and Sync is the way out. It matters more on this page than on that
+    // one: Overview is the index route, so a fresh install lands here first, and an
+    // alert on its own named the fix without offering it.
     return (
-      <Alert severity="error">
-        {/* A 503 here is the expected first-run state, not a fault: the API says so
-            when no discovery has completed, and Sync is the way out. */}
-        {(error as Error)?.message ?? 'Could not load the topology.'}
-      </Alert>
+      <Stack gap={1}>
+        <OmHeader
+          title="OpenManager"
+          subtitle={
+            <Typography variant="body2" color="text.secondary">
+              Every monitored MongoDB cluster, one table per environment. Unfold
+              a cluster to see its services.
+            </Typography>
+          }
+          actions={<SyncButton />}
+        />
+        <Alert severity="error">
+          {(error as Error)?.message ?? 'Could not load the topology.'}
+        </Alert>
+      </Stack>
     );
   }
 

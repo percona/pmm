@@ -39,7 +39,13 @@ import { Duration, Percent } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
 import { toServiceRows, useOmTopology } from './hooks';
 import { useOmInventoryServices } from './inventoryHooks';
-import { ageSeconds, isFailing, joinServiceInventory } from './inventory';
+import {
+  ageSeconds,
+  isFailing,
+  joinServiceInventory,
+  missingRowReason,
+  type OmEstateStatus,
+} from './inventory';
 import { formatDuration } from './format';
 import { ProbeValue } from './components/ProbeValue';
 import type { OmInventoryService, OmServiceInventoryRow } from './types';
@@ -72,7 +78,7 @@ const HIDDEN_BY_DEFAULT = {
 
 /** Columns for the flat service table. Grouping keys lead, then identity, then load. */
 function useColumns(
-  inventoryUnavailable: boolean
+  estate: OmEstateStatus
 ): MRT_ColumnDef<OmServiceInventoryRow>[] {
   return useMemo(
     () => [
@@ -143,7 +149,7 @@ function useColumns(
         Cell: ({ row: { original } }) => (
           <ProbeValue
             inventory={original.inventory}
-            inventoryUnavailable={inventoryUnavailable}
+            estate={estate}
             value={original.inventory?.installed_version}
           />
         ),
@@ -156,7 +162,7 @@ function useColumns(
           original.inventory ? (
             <ProbeStatus inventory={original.inventory} />
           ) : (
-            <Unavailable reason="not_in_inventory" />
+            <Unavailable reason={missingRowReason(estate)} />
           ),
       },
       {
@@ -169,7 +175,7 @@ function useColumns(
         header: 'Collected',
         Cell: ({ row: { original } }) => {
           if (!original.inventory) {
-            return <Unavailable reason="not_in_inventory" />;
+            return <Unavailable reason={missingRowReason(estate)} />;
           }
           const age = ageSeconds(original.inventory.freshness.last_success_at);
           return age == null ? (
@@ -246,7 +252,7 @@ function useColumns(
         Cell: ({ row: { original } }) => (
           <ProbeValue
             inventory={original.inventory}
-            inventoryUnavailable={inventoryUnavailable}
+            estate={estate}
             value={original.inventory?.config_path}
           />
         ),
@@ -260,7 +266,7 @@ function useColumns(
         // on" answerable without a second lookup.
         Cell: ({ row: { original } }) =>
           original.inventory?.node_id ?? (
-            <Unavailable reason="not_in_inventory" />
+            <Unavailable reason={missingRowReason(estate)} />
           ),
       },
       {
@@ -277,13 +283,13 @@ function useColumns(
           ) : (
             <ProbeValue
               inventory={original.inventory}
-              inventoryUnavailable={inventoryUnavailable}
+              estate={estate}
               value={null}
             />
           ),
       },
     ],
-    [inventoryUnavailable]
+    [estate]
   );
 }
 
@@ -299,14 +305,17 @@ function Counts({
   up,
   down,
   failing,
+  estate,
   failingOnly,
   onToggleFailing,
 }: {
   total: number;
   up: number;
   down: number;
-  /** null when the estate could not be read, so no count can honestly be shown. */
+  /** null whenever the estate has not answered, so no count can honestly be shown. */
   failing: number | null;
+  /** Which of the two silences it is, so the placeholder says the right one. */
+  estate: OmEstateStatus;
   failingOnly: boolean;
   onToggleFailing: () => void;
 }) {
@@ -326,7 +335,9 @@ function Counts({
       </Typography>
       {failing === null ? (
         <Typography variant="body2" color="text.secondary">
-          probe status unavailable
+          {estate === 'pending'
+            ? 'reading probe status…'
+            : 'probe status unavailable'}
         </Typography>
       ) : failing > 0 || failingOnly ? (
         <Chip
@@ -391,11 +402,21 @@ export function ServicesPage() {
   // pmm-managed was meant to stop.
   const {
     data: inventory,
+    isPending: inventoryPending,
     isError: inventoryFailed,
     error: inventoryError,
   } = useOmInventoryServices();
+  // Three states, not two. The estate being *in flight* is not the estate being empty:
+  // the topology document answers in a tenth of a second, so on first paint every row
+  // would otherwise be labelled "not in the inventory" and the chip would read
+  // "0 failing" - two claims about an estate that has not answered yet.
+  const estate: OmEstateStatus = inventoryFailed
+    ? 'unavailable'
+    : inventoryPending
+      ? 'pending'
+      : 'ready';
   const [failingOnly, setFailingOnly] = useState(false);
-  const columns = useColumns(inventoryFailed);
+  const columns = useColumns(estate);
   const joined = useMemo(
     () => joinServiceInventory(toServiceRows(data), inventory),
     [data, inventory]
@@ -407,15 +428,15 @@ export function ServicesPage() {
         : joined,
     [joined, failingOnly]
   );
-  // null rather than 0 when the estate could not be read: "0 failing" is a claim, and
-  // an empty join is not evidence for it.
+  // null rather than 0 whenever the estate has not answered - failed or still in
+  // flight. "0 failing" is a claim, and an empty join is not evidence for it either way.
   const failingCount = useMemo(
     () =>
-      inventoryFailed
-        ? null
-        : joined.filter((row) => row.inventory && isFailing(row.inventory))
-            .length,
-    [joined, inventoryFailed]
+      estate === 'ready'
+        ? joined.filter((row) => row.inventory && isFailing(row.inventory))
+            .length
+        : null,
+    [joined, estate]
   );
 
   const table = useMaterialReactTable({
@@ -488,6 +509,7 @@ export function ServicesPage() {
         up={data.summary.up_services}
         down={data.summary.down_services}
         failing={failingCount}
+        estate={estate}
         failingOnly={failingOnly}
         onToggleFailing={() => setFailingOnly((on) => !on)}
       />

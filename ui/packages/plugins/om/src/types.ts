@@ -75,7 +75,8 @@ export type OmUnavailableReason =
   | 'not_applicable'
   | 'not_in_inventory'
   | 'probe_never_succeeded'
-  | 'inventory_unavailable';
+  | 'inventory_unavailable'
+  | 'inventory_pending';
 
 /**
  * One monitored MongoDB service.

@@ -32,7 +32,36 @@ import type {
   OmRepoReachability,
   OmServiceInventoryRow,
   OmServiceRow,
+  OmUnavailableReason,
 } from './types';
+
+/**
+ * What the estate query is currently doing, from a rendering page's point of view.
+ *
+ * Three states rather than the boolean this was, because a missing row means three
+ * different things and only one of them is a fact about the estate. `ready` is the
+ * only state in which "OM has no row for this service" is something the page knows.
+ */
+export type OmEstateStatus = 'ready' | 'pending' | 'unavailable';
+
+/**
+ * Why a service has no estate row, given what the estate query is doing.
+ *
+ * The `pending` answer is the one worth having. A page that reported
+ * `not_in_inventory` while the request was still in flight would state the estate's
+ * contents before reading them, and it would do so on every first paint, because the
+ * topology document comes back in a tenth of a second and the estate does not.
+ */
+export function missingRowReason(estate: OmEstateStatus): OmUnavailableReason {
+  switch (estate) {
+    case 'pending':
+      return 'inventory_pending';
+    case 'unavailable':
+      return 'inventory_unavailable';
+    default:
+      return 'not_in_inventory';
+  }
+}
 
 /**
  * Which of the three database states a host is in.
