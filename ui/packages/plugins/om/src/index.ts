@@ -36,7 +36,6 @@ export {
   toEnvironmentSections,
   toServiceRows,
   useOmTopologyRuns,
-  useOmTopologyRun,
   useTriggerOmTopologyRun,
   useInvalidateOmTopologySnapshot,
   isRunActive,
@@ -72,14 +71,17 @@ export {
   useForgetService,
   isRefreshActive,
 } from './inventoryHooks';
+export type { OmHostFilters } from './inventoryHooks';
 export {
   ageSeconds,
   databaseState,
   isFailing,
   joinServiceInventory,
+  missingRowReason,
   repoReachability,
   toHostRows,
 } from './inventory';
+export type { OmEstateStatus } from './inventory';
 export {
   formatAge,
   formatDuration,
@@ -90,6 +92,7 @@ export {
 export type {
   OmCluster,
   OmClusterRow,
+  OmClusterType,
   OmEnvironment,
   OmEnvironmentSection,
   OmProcessRole,
@@ -105,4 +108,27 @@ export type {
   OmTopologySnapshotEnvelope,
   OmTopologySummary,
   OmUnavailableReason,
+} from './types';
+// The inventory contract, alongside the hooks that return it. Without these a consumer
+// can call useOmInventoryHosts but cannot name what it hands back, which the topology
+// half of this file has never had to live with.
+export type {
+  OmExecutorResolution,
+  OmHostDatabaseState,
+  OmHostRow,
+  OmInventoryExecutor,
+  OmInventoryFreshness,
+  OmInventoryHost,
+  OmInventoryRun,
+  OmInventoryRunAccepted,
+  OmInventoryRunCounts,
+  OmInventoryRunDetail,
+  OmInventoryRunEntity,
+  OmInventoryRunEntityService,
+  OmInventoryService,
+  OmInventorySetting,
+  OmRepoReachability,
+  OmServiceInventoryRow,
+  OmSettingReload,
+  OmUnregisteredMongod,
 } from './types';

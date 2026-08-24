@@ -120,9 +120,13 @@ function SettingField({
       <Box sx={{ minWidth: 280, maxWidth: 280 }}>
         {kind === 'bool' ? (
           <Stack direction="row" alignItems="center" gap={1}>
+            {/* The Typography beside it is adjacent, not associated, so without an
+                aria-label every boolean setting is an unnamed control - a screen
+                reader announces "switch, on" and nothing about which setting. */}
             <Switch
               size="small"
               checked={draft === 'true'}
+              slotProps={{ input: { 'aria-label': label } }}
               onChange={(event) =>
                 onChange(event.target.checked ? 'true' : 'false')
               }

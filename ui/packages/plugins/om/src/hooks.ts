@@ -311,21 +311,6 @@ export function useOmTopologyRuns(limit: number = OM_TOPOLOGY_RUNS_LIMIT) {
 }
 
 /**
- * One run, with its per-service errors.
- *
- * Read out of the history rather than fetched: a run is small, the list is already in
- * the cache, and pmm-managed keeps the history in memory anyway — a per-run endpoint
- * would be a second way to say the same thing.
- */
-export function useOmTopologyRun(run_id: string | undefined) {
-  const { data, ...rest } = useOmTopologyRuns();
-  return {
-    ...rest,
-    data: run_id ? data?.find((run) => run.run_id === run_id) : undefined,
-  };
-}
-
-/**
  * Rebuild the topology document now.
  *
  * pmm-managed does this in the request — inventory is a local database read and

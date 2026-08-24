@@ -28,7 +28,7 @@
 /**
  * Whether the exporter reached the service on this run.
  *
- * These are proto enum names, not prose: the gateway serialises `pom.v1.ServiceStatus`
+ * These are proto enum names, not prose: the gateway serialises `om.v1.ServiceStatus`
  * by name, so the wire carries `SERVICE_STATUS_UP`. Verbose, and the price of the
  * server rejecting a value it does not know rather than passing a typo through.
  */
