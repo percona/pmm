@@ -107,6 +107,7 @@ export function RunEntities({ run }: { run: OmInventoryRun }) {
             <TableCell>Matched</TableCell>
             <TableCell>Answered</TableCell>
             <TableCell>Host time</TableCell>
+            <TableCell>Probe log</TableCell>
             <TableCell>Services</TableCell>
             <TableCell>Error</TableCell>
           </TableRow>
@@ -149,6 +150,20 @@ export function RunEntities({ run }: { run: OmInventoryRun }) {
                     <Box component="span">
                       {formatHostDuration(entity.duration_seconds)}
                     </Box>
+                  </Tooltip>
+                )}
+              </TableCell>
+              <TableCell>
+                {entity.task_history_id == null ? (
+                  <Unavailable reason="not_applicable" />
+                ) : (
+                  // Text, not a link: the OM plugin only reaches SEP through
+                  // pmm-managed's inventory proxy, which does not carry the task-log
+                  // surface (app/sep/routes/download_files.py). A second route
+                  // straight from the browser into SEP is a security decision, not
+                  // one to make here -- the id is still most of the value.
+                  <Tooltip title="The task history id of this attempt's own probe run. Its raw output is in SEP's task log, not reachable from this page.">
+                    <Box component="span">{entity.task_history_id}</Box>
                   </Tooltip>
                 )}
               </TableCell>

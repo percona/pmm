@@ -300,94 +300,6 @@ export interface OmTopologyRunAccepted {
   start_time: string;
 }
 
-/**
- * What one probe sweep reached.
- *
- * `resolved` versus `answered` is the diagnostic split, and it is the pair worth
- * reading first: resolved says the service mapped to a live executor host, answered
- * says that node ran the payload. `resolved=9, answered=0` is a healthy mapping and
- * broken executors, which a single failure count would hide. Orphaned services are
- * not an error — they are services with no executor to probe.
- */
-export interface OmProbeCounts {
-  total_services: number;
-  resolved_services: number;
-  orphaned_services: number;
-  answered_services: number;
-}
-
-/**
- * One sweep of SEP's `om_inventory` app.
- *
- * Distinct from `OmTopologyRun`, which is pmm-managed rebuilding the topology document in a
- * tenth of a second from inventory and VictoriaMetrics. A sweep runs a payload on
- * every database host over Nomad and takes tens of seconds; what it collects is the
- * on-host facts no metric carries.
- */
-export interface OmProbeRun {
-  run_id: string;
-  status: OmTopologyRunStatus;
-  start_time: string;
-  end_time?: string | null;
-  counts: OmProbeCounts;
-  facts_collected: number;
-  /** Why the sweep itself failed, when it did. */
-  error?: string | null;
-}
-
-export interface OmProbeAccepted {
-  run_id: string;
-  status: OmTopologyRunStatus;
-  start_time: string;
-}
-
-/**
- * One mapped service, as a sweep saw it.
- *
- * The run's counters are this list's summary: "5 of 14 answered" cannot say which
- * five, on which hosts, or which host took a minute.
- */
-export interface OmProbeNode {
-  /** PMM's service UUID, or null where SEP's inventory holds none. */
-  service_id?: string | null;
-  service_name: string;
-  /** The host the probe ran on; null when the service is orphaned. */
-  executor_host?: string | null;
-  /** `name` / `address` / `orphaned` — how that host was matched, or that it was not. */
-  resolution: string;
-  answered: boolean;
-  /**
-   * The host's wall-clock, dispatch to collected output.
-   *
-   * Repeated across the services one host serves, because one dispatch covers all of
-   * them: there is no per-service time to report.
-   */
-  duration_seconds?: number | null;
-  facts_collected: number;
-  /** The host-level failure, when its probe failed. */
-  error?: string | null;
-}
-
-/** One fact the probe read off a host. */
-export interface OmProbeFact {
-  service_id: string;
-  field: string;
-  value: unknown;
-  observed_at: string;
-}
-
-/**
- * One sweep in full, from `GET /runs/{id}`.
- *
- * The list endpoint omits `nodes` and `facts` — a sweep's facts run to a few hundred
- * records, and a 25-run history carrying all of them would be an order of magnitude
- * larger to serve a page that shows one run at a time.
- */
-export interface OmProbeRunDetail extends OmProbeRun {
-  nodes: OmProbeNode[];
-  facts: OmProbeFact[];
-}
-
 /*
  * ---------------------------------------------------------------------------
  * The inventory: OM's estate, served by pmm-managed at /v1/om/inventory
@@ -635,6 +547,14 @@ export interface OmInventoryRunEntity {
   resolution: OmExecutorResolution;
   answered: boolean;
   duration_seconds?: number | null;
+  /**
+   * The dispatch's task history id, so a reader can open the probe's own log.
+   *
+   * Unset when the dispatch never got one. The receipt otherwise carries outcomes
+   * only -- this is a pointer to the observations that were deliberately not kept
+   * here, not an observation itself.
+   */
+  task_history_id?: number | null;
   error?: string | null;
   /** The services on it. Empty is a meaningful answer, not a gap. */
   services: OmInventoryRunEntityService[];
