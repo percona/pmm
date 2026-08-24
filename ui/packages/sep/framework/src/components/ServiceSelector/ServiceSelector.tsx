@@ -17,7 +17,7 @@
 
 import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { AutoCompleteInput } from '@percona/percona-ui';
+import { AutoCompleteInput } from '@percona/peak-ui';
 import {
   useServices,
   type ServiceOption,

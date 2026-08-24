@@ -23,7 +23,7 @@ import FormHelperText from '@mui/material/FormHelperText';
 import MenuItem from '@mui/material/MenuItem';
 import MuiRadioGroup from '@mui/material/RadioGroup';
 import Radio from '@mui/material/Radio';
-import { LabeledContent, RadioGroup } from '@percona/percona-ui';
+import { LabeledContent, RadioGroup } from '@percona/peak-ui';
 import { SchemaSelectShell } from '../SchemaSelectShell';
 import type { ChoiceField as ChoiceFieldType } from '../types';
 import { buildValidationRules } from '../utils/validationMapper';
