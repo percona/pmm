@@ -900,7 +900,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Total pod restarts in the last 24 hours",
+            "description": "Total pod restarts in the selected time range",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -959,7 +959,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(increase(kube_pod_container_status_restarts_total{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"}[24h]))",
+                    "expr": "sum(increase(kube_pod_container_status_restarts_total{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"}[$__range]))",
                     "legendFormat": "Restarts",
                     "range": true,
                     "refId": "A"
@@ -970,7 +970,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Pods with restarts in the last 24 hours",
+            "description": "Pods with restarts in the selected time range",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1047,7 +1047,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by(exported_pod) (increase(kube_pod_container_status_restarts_total{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"}[24h])) > 0",
+                    "expr": "sum by(exported_pod) (increase(kube_pod_container_status_restarts_total{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"}[$__range])) > 0",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
