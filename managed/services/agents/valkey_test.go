@@ -76,4 +76,78 @@ func TestValkeyExporterConfig(t *testing.T) {
 		require.Contains(t, actual.Args, "--connection-timeout=1.5s")
 		require.Contains(t, actual.Args, "--redis.addr=redis://username:secret@1.2.3.4:6379")
 	})
+
+	t.Run("TLSFilesArePassedToExporter", func(t *testing.T) {
+		t.Parallel()
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.ValkeyExporterType,
+			Username:  new("username"),
+			Password:  new("secret"),
+			TLS:       true,
+			ValkeyOptions: models.ValkeyOptions{
+				TLS:     true,
+				SSLCa:   "ca",
+				SSLCert: "cert",
+				SSLKey:  "key",
+			},
+		}
+
+		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
+		expected := &agentv1.SetStateRequest_AgentProcess{
+			Type:               inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER,
+			TemplateLeftDelim:  "{{",
+			TemplateRightDelim: "}}",
+			Args: []string{
+				"--connection-timeout=3s",
+				"--include-config-metrics",
+				"--include-system-metrics",
+				"--redis.addr=rediss://username:secret@1.2.3.4:6379",
+				"--tls-ca-cert-file={{ .TextFiles.tlsCa }}",
+				"--tls-client-cert-file={{ .TextFiles.tlsCert }}",
+				"--tls-client-key-file={{ .TextFiles.tlsKey }}",
+				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+			},
+			TextFiles: map[string]string{
+				"tlsCa":   "ca",
+				"tlsCert": "cert",
+				"tlsKey":  "key",
+			},
+			RedactWords: []string{"secret"},
+		}
+		require.Equal(t, expected, actual)
+	})
+
+	t.Run("TLSSkipVerifyIsPassedToExporter", func(t *testing.T) {
+		t.Parallel()
+		exporter := &models.Agent{
+			AgentID:       "agent-id",
+			AgentType:     models.ValkeyExporterType,
+			Username:      new("username"),
+			Password:      new("secret"),
+			TLS:           true,
+			TLSSkipVerify: true,
+		}
+
+		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
+		require.Contains(t, actual.Args, "--skip-tls-verification")
+		require.Contains(t, actual.Args, "--redis.addr=rediss://username:secret@1.2.3.4:6379")
+	})
+
+	t.Run("NoTLSFlagsWhenTLSDisabled", func(t *testing.T) {
+		t.Parallel()
+		exporter := &models.Agent{
+			AgentID:       "agent-id",
+			AgentType:     models.ValkeyExporterType,
+			Username:      new("username"),
+			Password:      new("secret"),
+			TLSSkipVerify: true,
+		}
+
+		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
+		require.NotContains(t, actual.Args, "--skip-tls-verification")
+		for _, arg := range actual.Args {
+			require.NotContains(t, arg, "--tls-")
+		}
+	})
 }
