@@ -46,14 +46,13 @@ import { Unavailable } from './components/Unavailable';
 import { formatDuration } from './format';
 import { ageSeconds, isFailing, toHostRows } from './inventory';
 import {
-  isRefreshActive,
   useForgetHost,
   useOmInventoryHosts,
   useInvalidateEstateOnRefreshEnd,
   useOmInventoryRuns,
   useRefreshInventory,
 } from './inventoryHooks';
-import { OmApiError } from './hooks';
+import { isRunActive, OmApiError } from './hooks';
 import type { OmHostRow } from './types';
 
 /** Identifiers and long text the table carries but does not open with. */
@@ -390,7 +389,7 @@ export function HostsPage() {
   // Any active run, matching InventoryPage's button: firing an estate-wide sweep into
   // one already in flight only earns a 409, and the row actions below cannot succeed
   // against a host that sweep already holds.
-  const refreshing = (runs ?? []).some((run) => isRefreshActive(run.status));
+  const refreshing = (runs ?? []).some((run) => isRunActive(run.status));
   const [forgetting, setForgetting] = useState<OmHostRow | null>(null);
   const columns = useColumns();
   const rows = useMemo(() => toHostRows(data), [data]);

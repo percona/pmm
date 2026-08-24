@@ -64,8 +64,8 @@ const RUN_POLL_MS = 3000;
 // ever shows what it happened to load with.
 const SNAPSHOT_POLL_MS = 30000;
 
-const topologyKey = ['om', 'topology'] as const;
-const runsKey = ['om', 'runs'] as const;
+const TOPOLOGY_KEY = ['om', 'topology'] as const;
+const RUNS_KEY = ['om', 'runs'] as const;
 
 /**
  * One request against pmm-managed.
@@ -118,6 +118,12 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
 /**
  * True while a run has not reached a terminal status.
  *
+ * Covers both kinds. A collection pass and an inventory refresh are very different
+ * operations, but they report the same `RunStatus` enum, so asking "is it still going"
+ * is one question and this is the one place that answers it. `inventoryHooks.ts` used
+ * to carry a byte-identical `isRefreshActive`, which meant two functions to keep in
+ * step with one wire contract.
+ *
  * Typed on the union rather than on `string`, because the compiler is the only thing
  * that would have caught this comparison going stale when the wire values changed.
  */
@@ -126,7 +132,13 @@ export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
 }
 
 /**
- * The whole estate from the latest terminal snapshot.
+ * The whole topology document from the latest terminal snapshot.
+ *
+ * "Estate" is this package's word for the *inventory* side - what SEP's probe found by
+ * running a payload on the hosts. This is the other thing: pmm-managed's own derivation
+ * from PMM inventory and VictoriaMetrics, which touches no host and is rebuilt per
+ * request. Calling both an estate is what makes the two hook files look interchangeable
+ * when they are not.
  *
  * One request, one document: the API assembles the tree per run, so there is no
  * per-cluster fetch and nothing to paginate. Keeping the previous page in place stops
@@ -134,7 +146,7 @@ export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
  */
 export function useOmTopology() {
   return useQuery<OmTopologyResponse>({
-    queryKey: topologyKey,
+    queryKey: TOPOLOGY_KEY,
     placeholderData: keepPreviousData,
     queryFn: () => request<OmTopologyResponse>('/topology'),
     // pmm-managed rebuilds the document on its own timer, so a page left open goes
@@ -292,7 +304,7 @@ export function toEnvironmentSections(
  */
 export function useOmTopologyRuns(limit: number = OM_TOPOLOGY_RUNS_LIMIT) {
   return useQuery<OmTopologyRun[]>({
-    queryKey: [...runsKey, limit],
+    queryKey: [...RUNS_KEY, limit],
     queryFn: async () => {
       const { runs } = await request<{ runs: OmTopologyRun[] }>(
         `/topology/runs?limit=${limit}`
@@ -320,10 +332,12 @@ export function useOmTopologyRuns(limit: number = OM_TOPOLOGY_RUNS_LIMIT) {
 export function useTriggerOmTopologyRun() {
   const queryClient = useQueryClient();
   return useMutation<OmTopologyRunAccepted, Error, void>({
+    // No body. The method declares `body: "*"`, and grpc-gateway's generated decoder
+    // treats io.EOF as an empty request rather than an error, so an empty
+    // TriggerTopologyCollectionRequest is what binds either way.
     mutationFn: () =>
       request<OmTopologyRunAccepted>('/topology/runs:collect', {
         method: 'POST',
-        body: '{}',
       }),
     // onSettled, not onSuccess. A 409 means pmm-managed's own timer holds the lock, so
     // a run is in flight and the document is about to change -- the one case where a
@@ -331,8 +345,8 @@ export function useTriggerOmTopologyRun() {
     // request is cheap and the answer is idempotent, so refetching after a failure that
     // is not a conflict costs nothing either.
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: runsKey });
-      queryClient.invalidateQueries({ queryKey: topologyKey });
+      queryClient.invalidateQueries({ queryKey: RUNS_KEY });
+      queryClient.invalidateQueries({ queryKey: TOPOLOGY_KEY });
     },
   });
 }
@@ -341,7 +355,7 @@ export function useTriggerOmTopologyRun() {
 export function useInvalidateOmTopologySnapshot() {
   const queryClient = useQueryClient();
   return () => {
-    queryClient.invalidateQueries({ queryKey: topologyKey });
-    queryClient.invalidateQueries({ queryKey: runsKey });
+    queryClient.invalidateQueries({ queryKey: TOPOLOGY_KEY });
+    queryClient.invalidateQueries({ queryKey: RUNS_KEY });
   };
 }

@@ -39,7 +39,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { request } from './hooks';
+import { isRunActive, request } from './hooks';
 import type {
   OmInventoryHost,
   OmInventoryRun,
@@ -47,13 +47,12 @@ import type {
   OmInventoryRunDetail,
   OmInventoryService,
   OmInventorySetting,
-  OmTopologyRunStatus,
 } from './types';
 
-const hostsKey = ['om', 'inventory', 'hosts'] as const;
-const servicesKey = ['om', 'inventory', 'services'] as const;
-const runsKey = ['om', 'inventory', 'runs'] as const;
-const configKey = ['om', 'inventory', 'config'] as const;
+const HOSTS_KEY = ['om', 'inventory', 'hosts'] as const;
+const SERVICES_KEY = ['om', 'inventory', 'services'] as const;
+const RUNS_KEY = ['om', 'inventory', 'runs'] as const;
+const CONFIG_KEY = ['om', 'inventory', 'config'] as const;
 
 /** Poll cadence while a refresh is in flight (ms). */
 const REFRESH_POLL_MS = 3000;
@@ -113,7 +112,7 @@ function toQuery(filters: OmHostFilters): string {
 export function useOmInventoryHosts(filters: OmHostFilters = {}) {
   const query = toQuery(filters);
   return useQuery<OmInventoryHost[]>({
-    queryKey: [...hostsKey, query],
+    queryKey: [...HOSTS_KEY, query],
     placeholderData: keepPreviousData,
     queryFn: async () => {
       const { hosts } = await request<{ hosts: OmInventoryHost[] }>(
@@ -137,7 +136,7 @@ export function useOmInventoryHosts(filters: OmHostFilters = {}) {
  */
 export function useOmInventoryServices() {
   return useQuery<OmInventoryService[]>({
-    queryKey: servicesKey,
+    queryKey: SERVICES_KEY,
     placeholderData: keepPreviousData,
     queryFn: async () => {
       const { services } = await request<{ services: OmInventoryService[] }>(
@@ -150,27 +149,15 @@ export function useOmInventoryServices() {
 }
 
 /**
- * True while a refresh has not reached a terminal status.
- *
- * Typed on the union rather than on `string`, because the compiler is the only thing
- * that would have caught this comparison going stale when the wire values changed.
- */
-export function isRefreshActive(
-  status: OmTopologyRunStatus | undefined
-): boolean {
-  return status === 'RUN_STATUS_RUNNING';
-}
-
-/**
  * Refresh history, newest first.
  *
- * Polls fast while the newest refresh is in flight and slowly otherwise, rather than
- * stopping: the schedule starts sweeps nobody here asked for, and a history that only
- * updated on reload could not show them.
+ * Polls fast while any refresh is in flight and slowly otherwise, rather than stopping:
+ * the schedule starts sweeps nobody here asked for, and a history that only updated on
+ * reload could not show them.
  */
 export function useOmInventoryRuns(limit = 25) {
   return useQuery<OmInventoryRun[]>({
-    queryKey: [...runsKey, limit],
+    queryKey: [...RUNS_KEY, limit],
     queryFn: async () => {
       const { runs } = await request<{ runs: OmInventoryRun[] }>(
         `/inventory/runs?limit=${limit}`
@@ -181,7 +168,7 @@ export function useOmInventoryRuns(limit = 25) {
     // overlap -- and a narrow one started later can finish first, which would leave
     // data[0] terminal while a broader run is still probing.
     refetchInterval: (query) =>
-      (query.state.data ?? []).some((run) => isRefreshActive(run.status))
+      (query.state.data ?? []).some((run) => isRunActive(run.status))
         ? REFRESH_POLL_MS
         : ESTATE_POLL_MS,
   });
@@ -211,12 +198,12 @@ export function useInvalidateEstateOnRefreshEnd(
   const queryClient = useQueryClient();
   const wasActive = useRef(false);
 
-  const anyActive = (runs ?? []).some((run) => isRefreshActive(run.status));
+  const anyActive = (runs ?? []).some((run) => isRunActive(run.status));
 
   useEffect(() => {
     if (wasActive.current && !anyActive) {
-      queryClient.invalidateQueries({ queryKey: hostsKey });
-      queryClient.invalidateQueries({ queryKey: servicesKey });
+      queryClient.invalidateQueries({ queryKey: HOSTS_KEY });
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEY });
     }
     wasActive.current = anyActive;
   }, [anyActive, queryClient]);
@@ -238,15 +225,20 @@ export function useInvalidateEstateOnRefreshEnd(
 export function useRefreshInventory() {
   const queryClient = useQueryClient();
   return useMutation<OmInventoryRunAccepted, Error, string[] | undefined>({
+    // A body only when there is a scope to state. `body: "*"` on the method plus
+    // grpc-gateway tolerating io.EOF means an unscoped sweep needs no `{}` to say
+    // "everything"; the absent body already says it.
     mutationFn: (nodeIds) =>
       request<OmInventoryRunAccepted>('/inventory/runs:trigger', {
         method: 'POST',
-        body: JSON.stringify(nodeIds?.length ? { node_ids: nodeIds } : {}),
+        body: nodeIds?.length
+          ? JSON.stringify({ node_ids: nodeIds })
+          : undefined,
       }),
     // onSettled rather than onSuccess: a 409 means a sweep is in flight and the estate
     // is about to change, which is exactly when a refetch is most wanted.
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: runsKey });
+      queryClient.invalidateQueries({ queryKey: RUNS_KEY });
     },
   });
 }
@@ -267,8 +259,8 @@ export function useForgetHost() {
         method: 'DELETE',
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: hostsKey });
-      queryClient.invalidateQueries({ queryKey: servicesKey });
+      queryClient.invalidateQueries({ queryKey: HOSTS_KEY });
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEY });
     },
   });
 }
@@ -282,8 +274,8 @@ export function useForgetService() {
         method: 'DELETE',
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: hostsKey });
-      queryClient.invalidateQueries({ queryKey: servicesKey });
+      queryClient.invalidateQueries({ queryKey: HOSTS_KEY });
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEY });
     },
   });
 }
@@ -298,13 +290,13 @@ export function useForgetService() {
  */
 export function useOmInventoryRun(runId: string | undefined) {
   return useQuery<OmInventoryRunDetail>({
-    queryKey: [...runsKey, 'detail', runId],
+    queryKey: [...RUNS_KEY, 'detail', runId],
     enabled: Boolean(runId),
     queryFn: () => request<OmInventoryRunDetail>(`/inventory/runs/${runId}`),
     // A run still going gains entities as its dispatches land, so the open panel
     // follows it; a finished one never changes again.
     refetchInterval: (query) =>
-      isRefreshActive(query.state.data?.run.status) ? REFRESH_POLL_MS : false,
+      isRunActive(query.state.data?.run.status) ? REFRESH_POLL_MS : false,
   });
 }
 
@@ -317,7 +309,7 @@ export function useOmInventoryRun(runId: string | undefined) {
  */
 export function useOmInventoryConfig() {
   return useQuery<OmInventorySetting[]>({
-    queryKey: configKey,
+    queryKey: CONFIG_KEY,
     queryFn: async () => {
       const { settings } = await request<{ settings: OmInventorySetting[] }>(
         '/inventory/config'
@@ -358,10 +350,10 @@ export function useUpdateOmInventoryConfig() {
         body: JSON.stringify(values),
       }),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: configKey });
+      queryClient.invalidateQueries({ queryKey: CONFIG_KEY });
       // The schedule drives when the next refresh runs, so the history's idea of
       // "due" changes with it.
-      queryClient.invalidateQueries({ queryKey: runsKey });
+      queryClient.invalidateQueries({ queryKey: RUNS_KEY });
     },
   });
 }
@@ -375,7 +367,7 @@ export function useResetOmInventoryConfig() {
         method: 'DELETE',
       }),
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: configKey });
+      queryClient.invalidateQueries({ queryKey: CONFIG_KEY });
     },
   });
 }

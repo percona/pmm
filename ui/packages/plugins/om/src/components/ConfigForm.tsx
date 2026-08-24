@@ -67,7 +67,19 @@ function inputKind(setting: OmInventorySetting): InputKind {
   return 'text';
 }
 
-/** Parse an edited value back into what the app expects on the wire. */
+/**
+ * Parse an edited value back into what the app expects on the wire.
+ *
+ * `Number(draft)` is right for a `timedelta` because a `timedelta` never reaches this
+ * form as a duration string. SEP declares those fields as
+ * `Annotated[timedelta, PlainSerializer(lambda v: round(v.total_seconds()), int)]`, so
+ * the configuration API dumps `1800`, not `"PT30M"`, and the box holds `"1800"`. The
+ * write goes back as the same integer and the app coerces it.
+ *
+ * That is a load-bearing dependency on SEP's annotation rather than on its type: drop
+ * the serialiser and pydantic's ISO-8601 default takes over, `Number` yields NaN, and
+ * every duration field renders as invalid. Named here because nothing else would say so.
+ */
 function toWireValue(setting: OmInventorySetting, draft: string): unknown {
   switch (inputKind(setting)) {
     case 'bool':

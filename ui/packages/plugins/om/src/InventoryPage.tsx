@@ -31,12 +31,11 @@ import {
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
 import {
-  isRefreshActive,
   useInvalidateEstateOnRefreshEnd,
   useOmInventoryRuns,
   useRefreshInventory,
 } from './inventoryHooks';
-import { OmApiError } from './hooks';
+import { isRunActive, OmApiError } from './hooks';
 import { ConfigForm } from './components/ConfigForm';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
@@ -172,7 +171,7 @@ function RefreshButton() {
   // and a narrow one started later can reach a terminal status while a broader one is
   // still probing - `runs[0]` would re-enable this button into a sweep that must
   // conflict with it. Same reason `useOmInventoryRuns` polls on the whole collection.
-  const running = (runs ?? []).some((run) => isRefreshActive(run.status));
+  const running = (runs ?? []).some((run) => isRunActive(run.status));
   // The rows this page's sibling tabs render change when the refresh finishes, not when
   // it is accepted, so the estate is invalidated on that edge rather than on the mutation.
   useInvalidateEstateOnRefreshEnd(runs);
@@ -235,7 +234,7 @@ function LastRun({ run }: { run: OmInventoryRun | undefined }) {
     );
   }
   const age = ageSeconds(run.start_time);
-  const active = isRefreshActive(run.status);
+  const active = isRunActive(run.status);
   return (
     <Stack
       direction="row"

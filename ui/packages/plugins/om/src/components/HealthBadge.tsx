@@ -22,6 +22,7 @@ import {
   SERVICE_STATUS_COLOR,
   SERVICE_STATUS_LABEL,
 } from '../constants';
+import { isRunActive } from '../hooks';
 import type { OmTopologyRunStatus, OmServiceStatus } from '../types';
 
 /**
@@ -49,7 +50,7 @@ export function RunStatusBadge({ status }: { status: OmTopologyRunStatus }) {
       size="small"
       label={RUN_STATUS_LABEL[status] ?? status}
       color={RUN_STATUS_COLOR[status] ?? 'default'}
-      variant={status === 'RUN_STATUS_RUNNING' ? 'outlined' : 'filled'}
+      variant={isRunActive(status) ? 'outlined' : 'filled'}
     />
   );
 }
