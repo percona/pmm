@@ -858,7 +858,7 @@
             "options": {
                 "colorMode": "value",
                 "graphMode": "none",
-                "justifyMode": "auto",
+                "justifyMode": "center",
                 "orientation": "vertical",
                 "percentChangeColorMode": "standard",
                 "reduceOptions": {
@@ -2053,7 +2053,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "label_replace(\n  max by(node_id) (\n    pmm_ha_leader_status\n    and on(node_id)\n    label_replace(\n      kube_pod_info{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-${pmm_suffix_regex}\"\n      },\n      \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  ),\n  \"exported_pod\", \"$1\", \"node_id\", \"(.*)\"\n)",
+                    "expr": "label_replace(\n  max by(node_id) (\n    pmm_ha_leader_status\n    and on(node_id)\n    label_replace(\n      kube_pod_container_status_ready{\n        exported_namespace=\"$namespace\",\n        exported_pod=~\"${release}-${pmm_suffix_regex}\"\n      } == 1,\n      \"node_id\", \"$1\", \"exported_pod\", \"(.*)\"\n    )\n  ),\n  \"exported_pod\", \"$1\", \"node_id\", \"(.*)\"\n)",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
