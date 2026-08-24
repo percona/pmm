@@ -762,7 +762,7 @@
         },
         {
             "datasource": "Metrics",
-            "description": "Overall health percentage of all PMM HA pods",
+            "description": "Overall health percentage of all PMM HA pods (ready pods that restarted within the selected time range are not counted as healthy)",
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -818,7 +818,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(min by(exported_pod) (kube_pod_container_status_ready{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"}) == 1)\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
+                    "expr": "(\n  count(\n    (min by(exported_pod) (kube_pod_container_status_ready{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"}) == 1)\n    unless on(exported_pod)\n    (sum by(exported_pod) (increase(kube_pod_container_status_restarts_total{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"}[$__range])) > 0)\n  )\n  /\n  count(kube_pod_info{exported_namespace=\"$namespace\", exported_pod!~\".*($health_exclude_regex).*\"})\n) * 100",
                     "legendFormat": "Health",
                     "range": true,
                     "refId": "A"
