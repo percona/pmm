@@ -88,7 +88,8 @@ func (r *roster) get(groupID string) (string, []string, error) {
 			// aws_access_key is encrypted at rest, and FindAgents decrypts rows only
 			// after the WHERE clause, so a SQL filter on the access key never matches.
 			// Match it in Go on the decrypted value instead.
-			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: new(models.RDSExporterType)}
+			rdsExporterType := models.RDSExporterType
+			filters := models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType}
 			agents, err := models.FindAgents(r.db.Querier, filters)
 			if err != nil {
 				return "", nil, err
