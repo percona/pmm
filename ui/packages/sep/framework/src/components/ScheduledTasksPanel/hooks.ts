@@ -16,7 +16,12 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { apiClient, usePluginTasks, type TasksComponents } from '@sep/api';
+import {
+  apiClient,
+  fetchAllPluginListPages,
+  usePluginTasks,
+  type TasksComponents,
+} from '@sep/api';
 
 export type PeriodicTaskResponse =
   TasksComponents['schemas']['PeriodicTaskResponse'];
@@ -30,6 +35,7 @@ export type PeriodicTaskExecuteRequest =
   TasksComponents['schemas']['PeriodicTaskExecuteRequest'];
 
 const PERIODIC_LIST_KEY = ['periodic'] as const;
+const PERIODIC_LIST_PATH = '/sep/periodic-tasks/';
 const POLL_INTERVAL_MS = 30_000;
 
 interface PluginTask extends Record<string, unknown> {
@@ -73,12 +79,9 @@ export function useScheduledTasksForPlugin(
     PeriodicTaskResponse[]
   >({
     queryKey: PERIODIC_LIST_KEY,
-    queryFn: async () => {
-      const { data } = await apiClient.get<PeriodicTaskResponse[]>(
-        '/sep/periodic-tasks/'
-      );
-      return data;
-    },
+    queryFn: async () =>
+      (await fetchAllPluginListPages<PeriodicTaskResponse>(PERIODIC_LIST_PATH))
+        .items,
     refetchInterval: disablePolling ? false : pollingIntervalMs,
   });
 
@@ -114,7 +117,7 @@ export function useCreateScheduledTask() {
   return useMutation<PeriodicTaskResponse, Error, CreateVars>({
     mutationFn: async ({ taskName, body }) => {
       const { data } = await apiClient.post<PeriodicTaskResponse>(
-        `/sep/periodic-tasks/${encodeURIComponent(taskName)}/`,
+        `${PERIODIC_LIST_PATH}${encodeURIComponent(taskName)}/`,
         body
       );
       return data;
@@ -135,7 +138,7 @@ export function useUpdateScheduledTask() {
   return useMutation<PeriodicTaskResponse, Error, UpdateVars>({
     mutationFn: async ({ id, body }) => {
       const { data } = await apiClient.put<PeriodicTaskResponse>(
-        `/sep/periodic-tasks/${id}`,
+        `${PERIODIC_LIST_PATH}${id}`,
         body
       );
       return data;
@@ -150,7 +153,7 @@ export function useDeleteScheduledTask() {
   const queryClient = useQueryClient();
   return useMutation<void, Error, number>({
     mutationFn: async (id) => {
-      await apiClient.delete(`/sep/periodic-tasks/${id}`);
+      await apiClient.delete(`${PERIODIC_LIST_PATH}${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PERIODIC_LIST_KEY });
