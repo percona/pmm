@@ -38,7 +38,7 @@ import type { OmInventoryService } from '../types';
  * commits to - stale rows are served with their ages rather than filtered out,
  * because the consumer decides - and this is where a reader sees it.
  */
-export function ProbeValue({
+export const ProbeValue = ({
   inventory,
   value,
   estate = 'ready',
@@ -55,7 +55,7 @@ export function ProbeValue({
    * reading it - or when it could not read it at all.
    */
   estate?: OmEstateStatus;
-}) {
+}) => {
   // No row at all: PMM registered this service after the last sweep, so nothing has
   // ever been dispatched for it. Different from a probe that ran and found nothing.
   if (!inventory) {
@@ -122,4 +122,4 @@ export function ProbeValue({
       </Box>
     </Tooltip>
   );
-}
+};

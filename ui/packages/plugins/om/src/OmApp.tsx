@@ -41,7 +41,7 @@ import { ServicesPage } from './ServicesPage';
  * holds and expands in place, so a detail page would only re-show rows the reader
  * already has.
  */
-export function OmApp() {
+export const OmApp = () => {
   return (
     <Routes>
       <Route index element={<OverviewPage />} />
@@ -50,4 +50,4 @@ export function OmApp() {
       <Route path={OM_ROUTE_INVENTORY} element={<InventoryPage />} />
     </Routes>
   );
-}
+};

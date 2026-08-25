@@ -44,7 +44,8 @@ import { StatusBadge } from './components/HealthBadge';
 import { SyncButton } from './components/SyncButton';
 import { Duration, Percent } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
-import { toEnvironmentSections, useOmTopology } from './hooks';
+import { useOmTopology } from './topologyHooks';
+import { toEnvironmentSections } from './topology';
 import type {
   OmClusterRow,
   OmEnvironmentSection,
@@ -78,7 +79,7 @@ function describeStates(states: Record<string, number>): string {
  * Zero down is the good news and should read as such; zero up in a cluster that has
  * services is the whole point of the page, so it keeps the error colour.
  */
-function Count({ value, tone }: { value: number; tone: 'up' | 'down' }) {
+const Count = ({ value, tone }: { value: number; tone: 'up' | 'down' }) => {
   const colour =
     tone === 'up'
       ? value > 0
@@ -92,7 +93,7 @@ function Count({ value, tone }: { value: number; tone: 'up' | 'down' }) {
       {value}
     </Typography>
   );
-}
+};
 
 /** Columns for one environment's cluster table. */
 function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
@@ -183,7 +184,7 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
  * being shown its working, so it needs no second set of sorters and filters. The
  * fields the snapshot carries beyond these live on Topology.
  */
-function ClusterServices({ cluster }: { cluster: OmClusterRow }) {
+const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
   if (!cluster.services.length) {
     return (
       <Typography variant="body2" color="text.secondary" sx={{ p: 2 }}>
@@ -248,7 +249,7 @@ function ClusterServices({ cluster }: { cluster: OmClusterRow }) {
       </Table>
     </Box>
   );
-}
+};
 
 /**
  * One environment, as its own foldable table.
@@ -261,7 +262,7 @@ function ClusterServices({ cluster }: { cluster: OmClusterRow }) {
  * folding useful on an estate with more environments than fit on a screen, and a
  * header that hid its numbers would just be a heading.
  */
-function EnvironmentTable({ section }: { section: OmEnvironmentSection }) {
+const EnvironmentTable = ({ section }: { section: OmEnvironmentSection }) => {
   const [open, setOpen] = useState(true);
   const regionId = useId();
   const columns = useColumns();
@@ -337,10 +338,10 @@ function EnvironmentTable({ section }: { section: OmEnvironmentSection }) {
       </Collapse>
     </Stack>
   );
-}
+};
 
 /** Fleet-level counts, so the headline numbers need no reading of rows. */
-function Counts({
+const Counts = ({
   environments,
   clusters,
   total,
@@ -352,7 +353,7 @@ function Counts({
   total: number;
   up: number;
   down: number;
-}) {
+}) => {
   return (
     <Stack direction="row" spacing={3} flexWrap="wrap">
       <Typography variant="body2">
@@ -375,7 +376,7 @@ function Counts({
       </Typography>
     </Stack>
   );
-}
+};
 
 /**
  * The estate one level above the service table: a table per environment, a row per
@@ -386,7 +387,7 @@ function Counts({
  * row per service and every field it carries, for anyone who needs to sort or filter
  * across the estate rather than read it by environment.
  */
-export function OverviewPage() {
+export const OverviewPage = () => {
   const { data, isPending, isError, error } = useOmTopology();
   const sections = useMemo(() => toEnvironmentSections(data), [data]);
 
@@ -459,4 +460,4 @@ export function OverviewPage() {
       )}
     </Stack>
   );
-}
+};

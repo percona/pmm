@@ -22,7 +22,7 @@ import {
   SERVICE_STATUS_COLOR,
   SERVICE_STATUS_LABEL,
 } from '../constants';
-import { isRunActive } from '../hooks';
+import { isRunActive } from '../api';
 import type { OmTopologyRunStatus, OmServiceStatus } from '../types';
 
 /**
@@ -32,7 +32,7 @@ import type { OmTopologyRunStatus, OmServiceStatus } from '../types';
  * all" — the worker collapses them deliberately, because from the estate's point of
  * view an unreachable service and an unmonitored one are the same problem.
  */
-export function StatusBadge({ status }: { status: OmServiceStatus }) {
+export const StatusBadge = ({ status }: { status: OmServiceStatus }) => {
   return (
     <Chip
       size="small"
@@ -41,10 +41,10 @@ export function StatusBadge({ status }: { status: OmServiceStatus }) {
       variant={status === 'SERVICE_STATUS_DOWN' ? 'outlined' : 'filled'}
     />
   );
-}
+};
 
 /** Discovery-run status as a chip. */
-export function RunStatusBadge({ status }: { status: OmTopologyRunStatus }) {
+export const RunStatusBadge = ({ status }: { status: OmTopologyRunStatus }) => {
   return (
     <Chip
       size="small"
@@ -53,4 +53,4 @@ export function RunStatusBadge({ status }: { status: OmTopologyRunStatus }) {
       variant={isRunActive(status) ? 'outlined' : 'filled'}
     />
   );
-}
+};

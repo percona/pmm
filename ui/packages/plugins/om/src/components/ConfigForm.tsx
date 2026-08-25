@@ -108,7 +108,7 @@ function isValid(setting: OmInventorySetting, draft: string): boolean {
 }
 
 /** One field, rendered as whatever can edit it. */
-function SettingField({
+const SettingField = ({
   setting,
   draft,
   onChange,
@@ -120,7 +120,7 @@ function SettingField({
   onChange: (next: string) => void;
   onReset: () => void;
   resetting: boolean;
-}) {
+}) => {
   const kind = inputKind(setting);
   const unit = SETTING_UNIT[setting.key];
   const label = SETTING_LABEL[setting.key] ?? setting.key;
@@ -203,7 +203,7 @@ function SettingField({
       </Stack>
     </Stack>
   );
-}
+};
 
 /**
  * OM's configuration, as a form.
@@ -227,7 +227,7 @@ function SettingField({
  * Saved as one batch, because the app applies one: a single bad key rejects all of it
  * and writes nothing, so per-field saves would misrepresent what the API does.
  */
-export function ConfigForm() {
+export const ConfigForm = () => {
   const { data: settings, isPending, isError, error } = useOmInventoryConfig();
   const update = useUpdateOmInventoryConfig();
   const reset = useResetOmInventoryConfig();
@@ -361,4 +361,4 @@ export function ConfigForm() {
       </Stack>
     </Stack>
   );
-}
+};

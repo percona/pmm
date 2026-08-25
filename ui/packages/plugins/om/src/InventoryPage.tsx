@@ -35,7 +35,7 @@ import {
   useOmInventoryRuns,
   useRefreshInventory,
 } from './inventoryHooks';
-import { isRunActive, OmApiError } from './hooks';
+import { isRunActive, OmApiError } from './api';
 import { ConfigForm } from './components/ConfigForm';
 import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
@@ -164,7 +164,7 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
  * triggers that different must not look alike, which is most of why they live on
  * different pages.
  */
-function RefreshButton() {
+const RefreshButton = () => {
   const { data: runs } = useOmInventoryRuns();
   const trigger = useRefreshInventory();
   // Any active run, not just the newest. Refreshes are host-scoped, so two can overlap
@@ -194,7 +194,7 @@ function RefreshButton() {
               running ? <CircularProgress size={16} /> : <PlayArrowIcon />
             }
             disabled={running || trigger.isPending}
-            onClick={() => trigger.mutate(undefined)}
+            onClick={() => trigger.refreshAll()}
           >
             {running ? 'Refreshing…' : 'Refresh estate'}
           </Button>
@@ -212,7 +212,7 @@ function RefreshButton() {
       )}
     </Stack>
   );
-}
+};
 
 /**
  * What OM currently knows, from the newest run.
@@ -225,7 +225,7 @@ function RefreshButton() {
  * shown: that is what distinguishes a refresh that is working from one that is
  * wedged.
  */
-function LastRun({ run }: { run: OmInventoryRun | undefined }) {
+const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
   if (!run) {
     return (
       <Alert severity="info">
@@ -273,7 +273,7 @@ function LastRun({ run }: { run: OmInventoryRun | undefined }) {
       )}
     </Stack>
   );
-}
+};
 
 /**
  * OM's refresh history, and the schedule that drives it.
@@ -308,7 +308,7 @@ type TabId = (typeof TABS)[number];
  * skimmed, "how often should it run" is asked rarely and read carefully. Stacked, the
  * second sat below a table of twenty-five rows and was found by scrolling.
  */
-export function InventoryPage() {
+export const InventoryPage = () => {
   const { data: runs, isLoading, error } = useOmInventoryRuns();
   const rows = useMemo(() => runs ?? [], [runs]);
   // In the query string rather than component state, so a link to the settings tab is
@@ -393,4 +393,4 @@ export function InventoryPage() {
       )}
     </Stack>
   );
-}
+};

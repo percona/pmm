@@ -27,11 +27,11 @@ import type { OmTopologySnapshotEnvelope } from '../types';
  * node at all. Without the age and the stale flag in view, a page of em-dashes
  * looks like a broken UI instead of an old or failed discovery.
  */
-export function SnapshotBar({
+export const SnapshotBar = ({
   envelope,
 }: {
   envelope: OmTopologySnapshotEnvelope;
-}) {
+}) => {
   return (
     <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
       <Tooltip
@@ -61,4 +61,4 @@ export function SnapshotBar({
       )}
     </Stack>
   );
-}
+};

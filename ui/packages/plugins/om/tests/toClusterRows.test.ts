@@ -16,7 +16,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { toClusterRows, toEnvironmentSections } from '../src/hooks';
+import { toClusterRows, toEnvironmentSections } from '../src/topology';
 import type {
   OmCluster,
   OmService,

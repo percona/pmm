@@ -52,7 +52,7 @@ import {
   useOmInventoryRuns,
   useRefreshInventory,
 } from './inventoryHooks';
-import { isRunActive, OmApiError } from './hooks';
+import { isRunActive, OmApiError } from './api';
 import type { OmHostRow } from './types';
 
 /** Identifiers and long text the table carries but does not open with. */
@@ -70,7 +70,7 @@ const HIDDEN_BY_DEFAULT = {
  * conclusion is work the page should do for its reader. The distinction that matters
  * is what to go and do, so that is what the cell says.
  */
-function ExecutorCell({ row }: { row: OmHostRow }) {
+const ExecutorCell = ({ row }: { row: OmHostRow }) => {
   const { registered, reachable, driver_healthy, detail } = row.executor;
   if (!registered) {
     return (
@@ -99,10 +99,10 @@ function ExecutorCell({ row }: { row: OmHostRow }) {
     );
   }
   return <Chip size="small" color="success" variant="outlined" label="Ready" />;
-}
+};
 
 /** Whether this host can fetch packages, and what stopped it when it cannot. */
-function RepoCell({ row }: { row: OmHostRow }) {
+const RepoCell = ({ row }: { row: OmHostRow }) => {
   if (!row.repo) {
     return <Unavailable reason="probe_never_succeeded" />;
   }
@@ -132,7 +132,7 @@ function RepoCell({ row }: { row: OmHostRow }) {
       <Chip size="small" color="error" variant="outlined" label="Unreachable" />
     </Tooltip>
   );
-}
+};
 
 /**
  * Is there a database on this host, in the three answers that question has.
@@ -142,7 +142,7 @@ function RepoCell({ row }: { row: OmHostRow }) {
  * services - so "no registered service" alone would report an arbiter as an empty
  * machine and invite someone to install over a port already in use.
  */
-function DatabaseCell({ row }: { row: OmHostRow }) {
+const DatabaseCell = ({ row }: { row: OmHostRow }) => {
   const extra =
     row.database_state === 'has_service'
       ? ` (${row.service_count})`
@@ -159,7 +159,7 @@ function DatabaseCell({ row }: { row: OmHostRow }) {
       />
     </Tooltip>
   );
-}
+};
 
 function useColumns(): MRT_ColumnDef<OmHostRow>[] {
   return useMemo(
@@ -264,7 +264,7 @@ function useColumns(): MRT_ColumnDef<OmHostRow>[] {
  * are listed beside them because on a host with no registered service they are the
  * whole story.
  */
-function HostDetail({ row }: { row: OmHostRow }) {
+const HostDetail = ({ row }: { row: OmHostRow }) => {
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
       <Box>
@@ -312,7 +312,7 @@ function HostDetail({ row }: { row: OmHostRow }) {
       )}
     </Stack>
   );
-}
+};
 
 /**
  * The dialog that has to tell the truth about what deleting achieves.
@@ -323,13 +323,13 @@ function HostDetail({ row }: { row: OmHostRow }) {
  * clearing a row left behind when `pmm-agent setup --force` re-registered a node under
  * a new id, which leaves the old row with nothing to refresh it.
  */
-function ForgetDialog({
+const ForgetDialog = ({
   row,
   onClose,
 }: {
   row: OmHostRow | null;
   onClose: () => void;
-}) {
+}) => {
   const forget = useForgetHost();
   if (!row) {
     return null;
@@ -369,7 +369,7 @@ function ForgetDialog({
       </DialogActions>
     </Dialog>
   );
-}
+};
 
 /**
  * One row per host OM keeps, whether or not a database runs on it.
@@ -378,7 +378,7 @@ function ForgetDialog({
  * where a database can be installed, and it has no service to be discovered through,
  * which is why the estate keys hosts separately at all.
  */
-export function HostsPage() {
+export const HostsPage = () => {
   const { data, isPending, isError, error } = useOmInventoryHosts();
   const refresh = useRefreshInventory();
   // Both the per-row action and the estate-wide button below land here, and neither
@@ -437,7 +437,7 @@ export function HostsPage() {
             <Button
               size="small"
               disabled={refresh.isPending || refreshing}
-              onClick={() => refresh.mutate([row.original.node_id])}
+              onClick={() => refresh.refreshHosts([row.original.node_id])}
             >
               Refresh
             </Button>
@@ -490,7 +490,7 @@ export function HostsPage() {
               <Button
                 variant="outlined"
                 disabled={refresh.isPending || refreshing}
-                onClick={() => refresh.mutate(undefined)}
+                onClick={() => refresh.refreshAll()}
               >
                 {refreshing ? 'Refreshing…' : 'Refresh all'}
               </Button>
@@ -547,4 +547,4 @@ export function HostsPage() {
       <ForgetDialog row={forgetting} onClose={() => setForgetting(null)} />
     </Box>
   );
-}
+};

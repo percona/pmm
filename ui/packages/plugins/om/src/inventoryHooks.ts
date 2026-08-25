@@ -18,18 +18,21 @@
 /**
  * OM's estate, served by pmm-managed at `/v1/om/inventory`.
  *
- * A different source from `hooks.ts`, on the same client and the same origin. The
- * topology document is PMM's own derivation, rebuilt per request in about a tenth of a
- * second, and it never touches a host. The estate is what SEP's probe found by running
- * a payload on the hosts themselves.
+ * A different source from `topologyHooks.ts`, on the same client and the same origin.
+ * The topology document is PMM's own derivation, rebuilt per request in about a tenth
+ * of a second, and it never touches a host. The estate is what SEP's probe found by
+ * running a payload on the hosts themselves.
  *
  * That difference is why the two are not merged into one hook file and, more
- * importantly, why the refresh here is nothing like the sync there. `POST /topology/runs`
- * recomputes a document from data PMM already holds and answers with a terminal status.
- * `POST /inventory/runs` dispatches a Nomad job per host and takes tens of seconds, so
- * it answers `running` and has to be polled. Two buttons that different must not look
- * alike, and keeping their hooks apart is the cheapest way to keep them from being
- * written alike.
+ * importantly, why the refresh here is nothing like the sync there. `POST
+ * /topology/runs:collect` recomputes a document from data PMM already holds and answers
+ * with a terminal status. `POST /inventory/runs:trigger` dispatches a Nomad job per host
+ * and takes tens of seconds, so it answers `running` and has to be polled. Two buttons
+ * that different must not look alike, and keeping their hooks apart is the cheapest way
+ * to keep them from being written alike.
+ *
+ * The transport both share is in `api.ts`; the pure helpers this estate feeds are in
+ * `inventory.ts`.
  */
 
 import {
@@ -39,7 +42,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { isRunActive, request } from './hooks';
+import { isRunActive, request } from './api';
 import type {
   OmInventoryHost,
   OmInventoryRun,
@@ -221,17 +224,24 @@ export function useInvalidateEstateOnRefreshEnd(
  * answer rather than a failure - the schedule runs every ten minutes by default, so a
  * per-row refresh will meet it sooner or later. The caller reads `OmApiError.status`
  * and says so.
+ *
+ * The two scopes are returned as named actions rather than as one `mutate` taking an
+ * optional argument. TanStack's `mutate` is `(variables, options?)` with `variables`
+ * positional, so a `string[] | undefined` variable forces every unscoped caller to
+ * write the literal `mutate(undefined)` - which reads as an oversight and had to be
+ * explained twice. `refreshAll()` and `refreshHosts(ids)` say which sweep is being
+ * asked for; the rest of the mutation state comes back unchanged beside them.
  */
 export function useRefreshInventory() {
   const queryClient = useQueryClient();
-  return useMutation<OmInventoryRunAccepted, Error, string[] | undefined>({
+  const mutation = useMutation<OmInventoryRunAccepted, Error, string[]>({
     // A body only when there is a scope to state. `body: "*"` on the method plus
     // grpc-gateway tolerating io.EOF means an unscoped sweep needs no `{}` to say
     // "everything"; the absent body already says it.
     mutationFn: (nodeIds) =>
       request<OmInventoryRunAccepted>('/inventory/runs:trigger', {
         method: 'POST',
-        body: nodeIds?.length
+        body: nodeIds.length
           ? JSON.stringify({ node_ids: nodeIds })
           : undefined,
       }),
@@ -241,6 +251,14 @@ export function useRefreshInventory() {
       queryClient.invalidateQueries({ queryKey: RUNS_KEY });
     },
   });
+
+  return {
+    ...mutation,
+    /** Probe every host in the estate. */
+    refreshAll: () => mutation.mutate([]),
+    /** Probe only these hosts, by PMM node id. */
+    refreshHosts: (nodeIds: string[]) => mutation.mutate(nodeIds),
+  };
 }
 
 /**

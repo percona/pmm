@@ -28,12 +28,12 @@ export const UNMEASURED = -1;
  * is a real reading and must render as a number. A falsy check here would report an
  * idle server as unmonitored.
  */
-export function Percent({ value }: { value: number }) {
+export const Percent = ({ value }: { value: number }) => {
   if (value === UNMEASURED) {
     return <Unavailable reason="metric_not_collected" />;
   }
   return <>{value.toFixed(1)}%</>;
-}
+};
 
 /**
  * Render a duration, or the reason there is none.
@@ -41,9 +41,9 @@ export function Percent({ value }: { value: number }) {
  * Null here means the field does not apply to this topology — a router has no oplog —
  * which is a different statement from the percentage columns' `-1`.
  */
-export function Duration({ value }: { value: number | null | undefined }) {
+export const Duration = ({ value }: { value: number | null | undefined }) => {
   if (value === null || value === undefined) {
     return <Unavailable reason="not_applicable" />;
   }
   return <>{formatCompactDuration(value) || '0s'}</>;
-}
+};

@@ -30,17 +30,19 @@ export { SnapshotBar } from './components/SnapshotBar';
 export { SyncButton } from './components/SyncButton';
 export { OmHeader } from './components/OmHeader';
 export { Unavailable } from './components/Unavailable';
+export { OmApiError, isRunActive, request } from './api';
 export {
-  useOmTopology,
   toClusterRows,
   toEnvironmentSections,
   toServiceRows,
+} from './topology';
+export {
+  useOmTopology,
   useOmTopologyRuns,
   useTriggerOmTopologyRun,
   useInvalidateOmTopologySnapshot,
-  isRunActive,
   OM_TOPOLOGY_RUNS_LIMIT,
-} from './hooks';
+} from './topologyHooks';
 export {
   OM_ROUTE_OVERVIEW,
   OM_ROUTE_SERVICES,

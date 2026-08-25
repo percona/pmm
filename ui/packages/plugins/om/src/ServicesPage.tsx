@@ -37,7 +37,8 @@ import { StatusBadge } from './components/HealthBadge';
 import { SyncButton } from './components/SyncButton';
 import { Duration, Percent } from './components/Metric';
 import { Unavailable } from './components/Unavailable';
-import { toServiceRows, useOmTopology } from './hooks';
+import { useOmTopology } from './topologyHooks';
+import { toServiceRows } from './topology';
 import { useOmInventoryServices } from './inventoryHooks';
 import {
   ageSeconds,
@@ -300,7 +301,7 @@ function useColumns(
  * probe, which is the pair of facts this page exists to put side by side. It doubles
  * as the filter, because a count nobody can act on is decoration.
  */
-function Counts({
+const Counts = ({
   total,
   up,
   down,
@@ -318,7 +319,7 @@ function Counts({
   estate: OmEstateStatus;
   failingOnly: boolean;
   onToggleFailing: () => void;
-}) {
+}) => {
   return (
     <Stack direction="row" spacing={3} sx={{ mb: 2, alignItems: 'center' }}>
       <Typography variant="body2">
@@ -350,7 +351,7 @@ function Counts({
       ) : null}
     </Stack>
   );
-}
+};
 
 /**
  * A service's probe outcome, as a word rather than a status string.
@@ -359,7 +360,7 @@ function Counts({
  * between a blip and something to act on: a table of fifteen rows where one has been
  * failing for three days looks identical to a healthy one otherwise.
  */
-function ProbeStatus({ inventory }: { inventory: OmInventoryService }) {
+const ProbeStatus = ({ inventory }: { inventory: OmInventoryService }) => {
   const since = ageSeconds(inventory.freshness.failing_since);
   if (since == null) {
     return <>{inventory.probe_status ?? 'ok'}</>;
@@ -379,7 +380,7 @@ function ProbeStatus({ inventory }: { inventory: OmInventoryService }) {
       </Box>
     </Tooltip>
   );
-}
+};
 
 /**
  * Every monitored service, with what PMM sees and what the probe found.
@@ -394,7 +395,7 @@ function ProbeStatus({ inventory }: { inventory: OmInventoryService }) {
  * survives as the two leading columns. Grouping is available on them if a reader wants
  * the tree back, and Overview is the same snapshot already read that way.
  */
-export function ServicesPage() {
+export const ServicesPage = () => {
   const { data, isPending, isError, error } = useOmTopology();
   // Deliberately not gated on the estate loading or failing. The snapshot is PMM's own
   // and always available; the estate is a second service that may be unwell, and a
@@ -516,4 +517,4 @@ export function ServicesPage() {
       <MaterialReactTable table={table} />
     </Box>
   );
-}
+};

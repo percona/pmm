@@ -25,12 +25,11 @@ import {
 } from '@mui/material';
 import SyncIcon from '@mui/icons-material/Sync';
 import {
-  isRunActive,
-  OmApiError,
   useInvalidateOmTopologySnapshot,
   useOmTopologyRuns,
   useTriggerOmTopologyRun,
-} from '../hooks';
+} from '../topologyHooks';
+import { isRunActive, OmApiError } from '../api';
 
 /**
  * Trigger a collection run and reflect its progress.
@@ -40,7 +39,7 @@ import {
  * reaches a terminal status, then invalidate the snapshot queries so the cluster
  * list reflects the new data without a manual refresh.
  */
-export function SyncButton() {
+export const SyncButton = () => {
   const { data: runs } = useOmTopologyRuns();
   const trigger = useTriggerOmTopologyRun();
   const invalidateSnapshot = useInvalidateOmTopologySnapshot();
@@ -87,4 +86,4 @@ export function SyncButton() {
       )}
     </Stack>
   );
-}
+};

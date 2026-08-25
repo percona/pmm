@@ -23,7 +23,7 @@ import { Stack, Typography } from '@mui/material';
  * Navigation between Overview and Inventory lives in PMM's sidebar, under the
  * expandable OpenManager entry — so this deliberately renders no tabs.
  */
-export function OmHeader({
+export const OmHeader = ({
   title,
   subtitle,
   actions,
@@ -31,7 +31,7 @@ export function OmHeader({
   title: string;
   subtitle?: React.ReactNode;
   actions?: React.ReactNode;
-}) {
+}) => {
   return (
     <Stack
       direction="row"
@@ -49,4 +49,4 @@ export function OmHeader({
       {actions}
     </Stack>
   );
-}
+};

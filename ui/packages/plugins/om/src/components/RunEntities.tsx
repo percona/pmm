@@ -69,7 +69,7 @@ function formatHostDuration(seconds: number): string {
  * cannot say which five, on which host, or which host took a minute, and each of those
  * is the first question asked of a partial refresh.
  */
-export function RunEntities({ run }: { run: OmInventoryRun }) {
+export const RunEntities = ({ run }: { run: OmInventoryRun }) => {
   const { data, isPending, isError, error } = useOmInventoryRun(run.run_id);
 
   if (isPending) {
@@ -224,4 +224,4 @@ export function RunEntities({ run }: { run: OmInventoryRun }) {
       </Typography>
     </Box>
   );
-}
+};

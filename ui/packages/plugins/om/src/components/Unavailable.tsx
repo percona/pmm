@@ -32,7 +32,7 @@ interface UnavailableProps {
  * it" into "there is none of it" — which is the single easiest way to make this
  * page lie. Every unavailable value on screen goes through here.
  */
-export function Unavailable({ reason }: UnavailableProps) {
+export const Unavailable = ({ reason }: UnavailableProps) => {
   const phrase =
     (reason && UNAVAILABLE_PHRASE[reason as OmUnavailableReason]) ||
     UNAVAILABLE_FALLBACK;
@@ -47,4 +47,4 @@ export function Unavailable({ reason }: UnavailableProps) {
       </Box>
     </Tooltip>
   );
-}
+};
