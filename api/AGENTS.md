@@ -78,6 +78,11 @@ PMM follows [AIP-122](https://google.aip.dev/122) and [AIP-136](https://google.a
 - **Custom methods use `:verb` in `lowerCamelCase`** — `/v1/inventory/services:getTypes`, `/v1/realtimeanalytics/sessions:start`.
 - **Path parameters keep the proto field name**, which is `snake_case` — `/v1/management/nodes/{node_id}`.
 
+Two deliberate departures from AIP-136:
+
+- **A POST-based read keeps a `get` prefix** — `/v1/qan:getLabels`, `/v1/inventory/services:getTypes`. AIP-136 bars standard method verbs (`get`, `list`, …) from custom methods, but without the prefix `POST /v1/qan:labels` reads like a create. Marking the read intent wins over the rule here.
+- **The URI verb is chosen for HTTP readability, not to mirror the RPC name** — `ListActiveServiceTypes` is exposed as `:getTypes`. AIP-136 requires the two to match; PMM optimizes the path for REST clients instead.
+
 Nothing enforces this: `buf lint` checks proto identifiers, not the path strings inside `google.api.http` annotations. Two older paths predate the convention and are kebab-case (`/v1/backups/{artifact_id}/compatible-services` and `/v1/backups/artifacts/{artifact_id}/pitr-timeranges`). Don't copy them, and don't rename them either — a released path cannot change without breaking clients.
 
 ## Patterns and Conventions
