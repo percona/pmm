@@ -12,7 +12,7 @@ import {
   LocationChangeMessage,
   ColorMode,
   isRenderingServer,
-  GRAFANA_DIRECT_PATH_PATTERN,
+  isGrafanaDirectPath,
 } from '@pmm/shared';
 import {
   GRAFANA_DOCKED_LOCAL_STORAGE_KEY,
@@ -46,10 +46,7 @@ export const initialize = () => {
   // If Grafana is opened outside of the PMM UI iframe, redirect into the shell. Routes that must
   // keep the /graph prefix are exempt: nginx already exempts them server-side and undoing that
   // here would break the Grafana API, the image renderer and the auth/account pages.
-  if (
-    !isWithinIframe() &&
-    !GRAFANA_DIRECT_PATH_PATTERN.test(window.location.pathname)
-  ) {
+  if (!isWithinIframe() && !isGrafanaDirectPath(window.location.pathname)) {
     // The first-login welcome redirect lives in the shell now (useFirstLoginRedirect): nginx
     // intercepts /graph/, so Grafana no longer boots at top level on the home path.
     window.location.replace(

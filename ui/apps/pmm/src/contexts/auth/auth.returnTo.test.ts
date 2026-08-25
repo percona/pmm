@@ -133,12 +133,32 @@ describe('auth.returnTo', () => {
     expect(isRestorableReturnTo(target)).toBe(false);
   });
 
-  it.each(['/graph/d/node-cpu?viewPanel=22', '/settings/advanced', '/help'])(
-    'accepts %s as a restorable target',
-    (target) => {
-      expect(isRestorableReturnTo(target)).toBe(true);
-    }
-  );
+  it.each([
+    '/graph/d/node-cpu?viewPanel=22',
+    '/settings/advanced',
+    '/help',
+    // '..' is legitimate inside a Grafana template variable value
+    '/graph/d/node-cpu?var-version=1..2',
+    '/graph/d/node-cpu#panel..22',
+  ])('accepts %s as a restorable target', (target) => {
+    expect(isRestorableReturnTo(target)).toBe(true);
+  });
+
+  it('round-trips a target whose query contains ..', () => {
+    saveReturnTo(
+      at('/pmm-ui/graph/d/node-cpu', '?viewPanel=22&var-version=1..2')
+    );
+
+    expect(consumeReturnTo()).toBe(
+      '/graph/d/node-cpu?viewPanel=22&var-version=1..2'
+    );
+  });
+
+  it('does not save a percent-encoded Grafana auth route', () => {
+    saveReturnTo(at('/pmm-ui/graph/%6Cogin'));
+
+    expect(consumeReturnTo()).toBeNull();
+  });
 
   it('refuses a poisoned stored target', () => {
     sessionStorage.setItem(

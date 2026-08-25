@@ -83,6 +83,10 @@ describe('compat', () => {
     '/graph/verify',
     '/graph/user/password/send-reset-email',
     '/graph/user/password/reset',
+    // percent-encoded forms: nginx exempts these (it matches decoded $uri), so the plugin must too
+    '/graph/%6Cogin',
+    '/graph/%61pi/datasources',
+    '/graph/user/password/%72eset',
   ])('does not redirect %s into the PMM UI', (pathname) => {
     setLocation('', pathname);
 

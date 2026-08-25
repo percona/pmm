@@ -1,4 +1,4 @@
-import { GRAFANA_DIRECT_PATH_PATTERN, isRenderingServer } from '@pmm/shared';
+import { isGrafanaDirectPath, isRenderingServer } from '@pmm/shared';
 import {
   AUTH_RETURN_TO_TTL_MS,
   GRAFANA_SUB_PATH,
@@ -33,20 +33,21 @@ export const isRestorableReturnTo = (target: string) => {
     return false;
   }
 
-  if (target.includes('\\') || target.includes('..')) {
+  // Validate the path portion only: nginx matches its exclusions on $uri for the same reason, the
+  // home-path check has to agree with useFirstLoginRedirect's pathname check, and a query value may
+  // legitimately contain '..' (Grafana template variables such as ?var-version=1..2).
+  const path = target.split(/[?#]/)[0];
+
+  if (path.includes('\\') || path.includes('..')) {
     return false;
   }
-
-  // Compare the path portion, not the whole target: nginx matches its exclusions on $uri for the
-  // same reason, and the home-path check has to agree with useFirstLoginRedirect's pathname check.
-  const path = target.split(/[?#]/)[0];
 
   if (NOTHING_TO_RESTORE.includes(path)) {
     return false;
   }
 
   // Never store a target that itself bounces back out of the shell.
-  return !GRAFANA_DIRECT_PATH_PATTERN.test(path);
+  return !isGrafanaDirectPath(path);
 };
 
 const dropGrafanaReturnTo = () => {

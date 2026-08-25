@@ -1,6 +1,6 @@
-import { GRAFANA_DIRECT_PATH_PATTERN } from './constants';
+import { isGrafanaDirectPath } from './constants';
 
-describe('GRAFANA_DIRECT_PATH_PATTERN', () => {
+describe('isGrafanaDirectPath', () => {
   // Must stay identical to the nginx exclusion regex in
   // build/ansible/roles/nginx/files/conf.d/pmm.conf (location /graph).
   it.each([
@@ -16,7 +16,7 @@ describe('GRAFANA_DIRECT_PATH_PATTERN', () => {
     '/graph/user/password/send-reset-email',
     '/graph/user/password/reset',
   ])('matches %s', (path) => {
-    expect(GRAFANA_DIRECT_PATH_PATTERN.test(path)).toBe(true);
+    expect(isGrafanaDirectPath(path)).toBe(true);
   });
 
   it.each([
@@ -28,6 +28,23 @@ describe('GRAFANA_DIRECT_PATH_PATTERN', () => {
     '/graph/user/password',
     '/pmm-ui/graph/d/node-cpu',
   ])('does not match %s', (path) => {
-    expect(GRAFANA_DIRECT_PATH_PATTERN.test(path)).toBe(false);
+    expect(isGrafanaDirectPath(path)).toBe(false);
+  });
+
+  // nginx tests a percent-decoded, slash-collapsed $uri; window.location.pathname does neither, so
+  // these must be recognised here too or the shell undoes the server-side exemption.
+  it.each([
+    '/graph/%6Cogin',
+    '/graph/%61pi/datasources',
+    '/graph/user/password/%72eset',
+    '/graph//login',
+    '/graph///api/datasources',
+  ])('matches the normalised form of %s', (path) => {
+    expect(isGrafanaDirectPath(path)).toBe(true);
+  });
+
+  it('returns a verdict rather than throwing on a malformed escape', () => {
+    expect(isGrafanaDirectPath('/graph/%zz')).toBe(false);
+    expect(isGrafanaDirectPath('/graph/%')).toBe(false);
   });
 });
