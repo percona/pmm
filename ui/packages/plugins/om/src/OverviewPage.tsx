@@ -20,6 +20,7 @@ import {
   Alert,
   Box,
   ButtonBase,
+  Chip,
   Collapse,
   LinearProgress,
   Stack,
@@ -37,7 +38,12 @@ import {
   useMaterialReactTable,
   type MRT_ColumnDef,
 } from 'material-react-table';
-import { PROCESS_ROLE_LABEL } from './constants';
+import {
+  MEMBER_STATE_BADGE,
+  MONGOS_MEMBER_BADGE,
+  PROCESS_ROLE_LABEL,
+  type OmMemberBadge,
+} from './constants';
 import { OmHeader } from './components/OmHeader';
 import { SnapshotBar } from './components/SnapshotBar';
 import { StatusBadge } from './components/HealthBadge';
@@ -50,6 +56,7 @@ import type {
   OmClusterRow,
   OmEnvironmentSection,
   OmProcessRole,
+  OmService,
 } from './types';
 
 /** Label for an environment or cluster the services carry no name for. */
@@ -65,13 +72,52 @@ function describeRoles(roles: Partial<Record<OmProcessRole, number>>): string {
     .join(' · ');
 }
 
-/** `1 PRIMARY · 2 SECONDARY`, worst-known ordering left to the reader. */
-function describeStates(states: Record<string, number>): string {
-  return Object.entries(states)
-    .sort(([left], [right]) => left.localeCompare(right))
-    .map(([state, count]) => `${count} ${state}`)
-    .join(' · ');
+/**
+ * A service's badge, or none for one that carries no replica-set state and is not
+ * a router either - a standalone, or a role OM has not observed yet.
+ *
+ * mongos is checked first and does not consult `state` at all: PMM never asks a
+ * router for `replSetGetStatus`, so `state` is always absent for one regardless.
+ * An unrecognised non-null state (a MongoDB release adding an eleventh value, say)
+ * still renders - its own first letter, neutral colour - rather than silently
+ * showing nothing, with the raw value always in the tooltip either way.
+ */
+function memberBadge(service: OmService): OmMemberBadge | null {
+  if (service.process_role === 'PROCESS_ROLE_MONGOS') {
+    return MONGOS_MEMBER_BADGE;
+  }
+  if (!service.state) {
+    return null;
+  }
+  return (
+    MEMBER_STATE_BADGE[service.state] ?? {
+      letter: service.state.charAt(0).toUpperCase(),
+      color: 'default',
+    }
+  );
 }
+
+const MemberBadge = ({ service }: { service: OmService }) => {
+  const badge = memberBadge(service);
+  if (!badge) {
+    return null;
+  }
+  const title =
+    service.process_role === 'PROCESS_ROLE_MONGOS'
+      ? 'Router (mongos) - not a replica-set member'
+      : (service.state ?? '');
+  return (
+    <Tooltip title={title}>
+      <Chip
+        size="small"
+        variant="filled"
+        color={badge.color}
+        label={badge.letter}
+        sx={{ ml: 1, minWidth: 24, '& .MuiChip-label': { px: 0.75 } }}
+      />
+    </Tooltip>
+  );
+};
 
 /**
  * A count that stays legible when it is zero.
@@ -124,17 +170,6 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
         accessorFn: (row) => describeRoles(row.by_process_role),
         id: 'roles',
         header: 'Roles',
-      },
-      {
-        accessorFn: (row) => describeStates(row.by_state),
-        id: 'states',
-        header: 'Member states',
-        Cell: ({ row: { original } }) =>
-          // A cluster of routers or a standalone has no replica-set state at all,
-          // which is a different statement from "we could not see it".
-          describeStates(original.by_state) || (
-            <Unavailable reason="not_applicable" />
-          ),
       },
       {
         accessorFn: (row) => row.versions.join(', '),
@@ -201,7 +236,6 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
             <TableCell>Host</TableCell>
             <TableCell>Status</TableCell>
             <TableCell>Role</TableCell>
-            <TableCell>Member state</TableCell>
             <TableCell>Version</TableCell>
             <TableCell>CPU</TableCell>
             <TableCell>Conn. free</TableCell>
@@ -212,7 +246,10 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
         <TableBody>
           {cluster.services.map((service) => (
             <TableRow key={service.service_name}>
-              <TableCell>{service.service_name}</TableCell>
+              <TableCell>
+                {service.service_name}
+                <MemberBadge service={service} />
+              </TableCell>
               <TableCell>
                 {service.host ?? <Unavailable reason="service_not_observed" />}
               </TableCell>
@@ -222,9 +259,6 @@ const ClusterServices = ({ cluster }: { cluster: OmClusterRow }) => {
               <TableCell>
                 {PROCESS_ROLE_LABEL[service.process_role] ??
                   service.process_role}
-              </TableCell>
-              <TableCell>
-                {service.state ?? <Unavailable reason="not_applicable" />}
               </TableCell>
               <TableCell>
                 {service.version ?? (

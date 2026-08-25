@@ -57,6 +57,58 @@ export const PROCESS_ROLE_LABEL: Record<OmProcessRole, string> = {
   PROCESS_ROLE_SHARDSVR: 'Shard',
 };
 
+/** A P/S badge's letter and colour. */
+export interface OmMemberBadge {
+  letter: string;
+  color: ChipProps['color'];
+}
+
+/**
+ * The compact P/S badge Adamo asked for, beside a service's name on Overview.
+ *
+ * `state` is MongoDB's own `replSetGetStatus().stateStr`, passed through PMM
+ * unmapped (`managed/services/om/projection.go` -> `sources.go` -> upstream
+ * `mongodb_exporter`) - the full ten-value replica-set state set, not just
+ * PRIMARY/SECONDARY. The ticket asked for a third colour distinguishing a hidden or
+ * delayed secondary from an ordinary one; OM has no fact for that today -
+ * `hidden`/`slaveDelay` live on the replica-set *config* document, a different
+ * MongoDB call from the one `state` comes from, and nothing in the pipeline reads
+ * them yet. Shipped without that distinction: every `SECONDARY` renders the same
+ * blue S until a backend change adds the missing fact.
+ *
+ * The other eight values were not part of the ticket. Rather than let them fall
+ * through to a blank cell, `RECOVERING`/`STARTUP`/`STARTUP2`/`ROLLBACK`/`DOWN`/
+ * `UNKNOWN`/`REMOVED` - every state that is not a normal primary or secondary -
+ * share one amber S, deliberately a different colour from mongos's red
+ * ({@link MONGOS_MEMBER_BADGE}) so the two "S, but not a plain secondary" meanings
+ * cannot be mistaken for each other in the same row. `ARBITER` is a role, not a
+ * health state, so it gets its own letter rather than being folded into either.
+ */
+export const MEMBER_STATE_BADGE: Record<string, OmMemberBadge> = {
+  PRIMARY: { letter: 'P', color: 'success' },
+  SECONDARY: { letter: 'S', color: 'info' },
+  RECOVERING: { letter: 'S', color: 'warning' },
+  STARTUP: { letter: 'S', color: 'warning' },
+  STARTUP2: { letter: 'S', color: 'warning' },
+  ROLLBACK: { letter: 'S', color: 'warning' },
+  DOWN: { letter: 'S', color: 'warning' },
+  UNKNOWN: { letter: 'S', color: 'warning' },
+  REMOVED: { letter: 'S', color: 'warning' },
+  ARBITER: { letter: 'A', color: 'default' },
+};
+
+/**
+ * mongos carries no replica-set state at all - PMM never asks a router for
+ * `replSetGetStatus`, it is not applicable - so this is not a `state` lookup, it is
+ * `process_role === 'PROCESS_ROLE_MONGOS'` getting its own badge. Adamo's other
+ * option was a small proxy icon; this picks the badge instead, to stay one visual
+ * language rather than mixing letters and icons in the same column.
+ */
+export const MONGOS_MEMBER_BADGE: OmMemberBadge = {
+  letter: 'S',
+  color: 'error',
+};
+
 /**
  * How each of the three database states reads on the Hosts page.
  *
