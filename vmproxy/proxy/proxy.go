@@ -51,6 +51,16 @@ func RunProxy(cfg Config) error {
 func getHandler(cfg Config) http.HandlerFunc {
 	rProxy := &httputil.ReverseProxy{
 		Director: director(cfg.TargetURL, cfg.HeaderName),
+		// Without this, httputil's default handler reports upstream failures through
+		// the standard logger, so they reach the log without a level and cannot be
+		// filtered alongside everything else here. Same 502 as the default.
+		ErrorHandler: func(rw http.ResponseWriter, req *http.Request, err error) {
+			logrus.WithError(err).WithFields(logrus.Fields{
+				"method": req.Method,
+				"path":   req.URL.Path,
+			}).Warn("Failed to proxy request")
+			rw.WriteHeader(http.StatusBadGateway)
+		},
 	}
 
 	return func(rw http.ResponseWriter, req *http.Request) {
@@ -68,6 +78,13 @@ func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName s
 	if filters := req.Header.Get(headerName); filters != "" {
 		_, err := parseFilters(filters)
 		if err != nil {
+			// The header value is client-supplied and carries access filters, so log
+			// only the parse error, not the value itself.
+			logrus.WithError(err).WithFields(logrus.Fields{
+				"method": req.Method,
+				"path":   req.URL.Path,
+				"header": headerName,
+			}).Warn("Rejecting request with unparsable filter header")
 			rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			rw.WriteHeader(http.StatusPreconditionFailed)
 			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName)) //nolint:errcheck
