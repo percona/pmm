@@ -52,7 +52,7 @@ func TestDevContainer(t *testing.T) {
 				require.NoError(t, err)
 			}
 			// force update supervisor config
-			_, err = s.supervisorctl("update")
+			_, err = s.supervisorctl(t.Context(), "update")
 			require.NoError(t, err)
 		}()
 
@@ -83,6 +83,6 @@ func TestProgramRunning(t *testing.T) {
 		t.Skip("supervisorctl not found")
 	}
 
-	assert.True(t, s.ProgramRunning("nginx"))
-	assert.False(t, s.ProgramRunning("no-such-program"))
+	assert.True(t, s.ProgramRunning(t.Context(), "nginx"))
+	assert.False(t, s.ProgramRunning(t.Context(), "no-such-program"))
 }

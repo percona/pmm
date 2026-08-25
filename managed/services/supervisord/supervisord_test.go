@@ -16,11 +16,14 @@
 package supervisord
 
 import (
+	"context"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -113,4 +116,27 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 			assert.Equal(t, string(expected), string(actual))
 		})
 	}
+}
+
+func TestSupervisorctlCancellation(t *testing.T) {
+	t.Parallel()
+
+	sleep, err := exec.LookPath("sleep")
+	require.NoError(t, err)
+
+	s := &Service{
+		supervisorctlPath: sleep,
+		l:                 logrus.WithField("component", "supervisord-test"),
+	}
+
+	ctx, cancel := context.WithCancel(t.Context())
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		cancel()
+	}()
+
+	start := time.Now()
+	_, err = s.supervisorctl(ctx, "60")
+	require.Error(t, err)
+	assert.Less(t, time.Since(start), 10*time.Second, "cancellation should kill the blocked process")
 }

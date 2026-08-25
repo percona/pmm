@@ -340,9 +340,9 @@ func (s *Server) ListChangeLogs(ctx context.Context, _ *serverv1.ListChangeLogsR
 // It exists for pre-3.9 clients: after triggering an update they keep polling it to learn when the
 // freshly started PMM Server has finished initializing. Only the "done" field is meaningful. The
 // progress log fields are left empty.
-func (s *Server) UpdateStatus(_ context.Context, _ *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
+func (s *Server) UpdateStatus(ctx context.Context, _ *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
 	return &serverv1.UpdateStatusResponse{
-		Done: !s.supervisord.ProgramRunning(pmmInitProgram),
+		Done: !s.supervisord.ProgramRunning(ctx, pmmInitProgram),
 	}, nil
 }
 

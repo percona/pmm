@@ -3,6 +3,8 @@
 package server
 
 import (
+	context "context"
+
 	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/percona/pmm/managed/models"
@@ -13,17 +15,17 @@ type mockSupervisordService struct {
 	mock.Mock
 }
 
-// ProgramRunning provides a mock function with given fields: program
-func (_m *mockSupervisordService) ProgramRunning(program string) bool {
-	ret := _m.Called(program)
+// ProgramRunning provides a mock function with given fields: ctx, program
+func (_m *mockSupervisordService) ProgramRunning(ctx context.Context, program string) bool {
+	ret := _m.Called(ctx, program)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ProgramRunning")
 	}
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(string) bool); ok {
-		r0 = rf(program)
+	if rf, ok := ret.Get(0).(func(context.Context, string) bool); ok {
+		r0 = rf(ctx, program)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}

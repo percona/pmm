@@ -18,6 +18,7 @@ package supervisord
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -147,21 +148,21 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 
 // StartSupervisedService starts given service.
 func (s *Service) StartSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("start", serviceName)
+	_, err := s.supervisorctl(context.Background(), "start", serviceName)
 	return err
 }
 
 // StopSupervisedService stops given service.
 func (s *Service) StopSupervisedService(serviceName string) error {
-	_, err := s.supervisorctl("stop", serviceName)
+	_, err := s.supervisorctl(context.Background(), "stop", serviceName)
 	return err
 }
 
 // ProgramRunning returns true if the given supervisord program is running or is going to be
 // restarted, false if it is not running, has exited, or has failed for good.
-func (s *Service) ProgramRunning(program string) bool {
+func (s *Service) ProgramRunning(ctx context.Context, program string) bool {
 	// See http://supervisord.org/subprocess.html#process-states
-	b, err := s.supervisorctl("status", program)
+	b, err := s.supervisorctl(ctx, "status", program)
 	if err != nil {
 		// supervisorctl exits with a non-zero code when the program is not running,
 		// so the output is still worth parsing.
@@ -351,12 +352,12 @@ redirect_stderr = true
 {{end}}
 `))
 
-func (s *Service) supervisorctl(args ...string) ([]byte, error) {
+func (s *Service) supervisorctl(ctx context.Context, args ...string) ([]byte, error) {
 	if s.supervisorctlPath == "" {
 		return nil, errors.New("supervisorctl not found")
 	}
 
-	cmd := exec.Command(s.supervisorctlPath, args...) //nolint:gosec,noctx
+	cmd := exec.CommandContext(ctx, s.supervisorctlPath, args...) //nolint:gosec
 	cmdLine := strings.Join(cmd.Args, " ")
 	s.l.Debugf("Running %q...", cmdLine)
 	pdeathsig.Set(cmd, unix.SIGKILL)
@@ -369,7 +370,7 @@ func (s *Service) supervisorctl(args ...string) ([]byte, error) {
 
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
-	_, err := s.supervisorctl("reread")
+	_, err := s.supervisorctl(context.Background(), "reread")
 	if err != nil {
 		s.l.Warn(err)
 	}
@@ -381,7 +382,7 @@ func (s *Service) reload(name string) error {
 		return nil
 	}
 
-	_, err = s.supervisorctl("update", name)
+	_, err = s.supervisorctl(context.Background(), "update", name)
 	return err
 }
 

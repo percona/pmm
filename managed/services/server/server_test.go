@@ -330,7 +330,7 @@ func TestUpdateStatus(t *testing.T) {
 
 		var sv mockSupervisordService
 		sv.Test(t)
-		sv.On("ProgramRunning", pmmInitProgram).Return(initRunning)
+		sv.On("ProgramRunning", mock.Anything, pmmInitProgram).Return(initRunning)
 
 		return &Server{
 			supervisord: &sv,
