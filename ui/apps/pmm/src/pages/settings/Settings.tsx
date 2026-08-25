@@ -9,6 +9,7 @@ import { useSettings } from 'hooks/api/useSettings';
 import { SshKeyForm } from './components/ssh-key/SshKeyForm';
 import { MetricsResolutionForm } from './components/metrics-resolution/MetricsResolutionForm';
 import { AdvancedSettingsForm } from './components/advanced/AdvancedSettingsForm';
+import { ServiceNowConnectionTab } from './components/servicenow';
 import { Messages } from './Settings.messages';
 import { TabValue } from './Settings.types';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -40,12 +41,7 @@ export const Settings: FC = () => {
   const setTab = (value: TabValue) => navigate(`/settings/${value}`);
 
   return (
-    <Page
-      title={Messages.title}
-      fullWidth
-      surface="paper"
-      roles={[OrgRole.Admin]}
-    >
+    <Page title={Messages.title} surface="paper" roles={[OrgRole.Admin]}>
       <Stack gap={3} sx={{ flex: 1 }}>
         <Tabs
           data-testid="settings-tabs"
@@ -70,6 +66,11 @@ export const Settings: FC = () => {
             value="ssh-key"
             label={Messages.tabs.ssh}
           />
+          <Tab
+            data-testid="settings-tab-servicenow"
+            value="servicenow-connection"
+            label={Messages.tabs.serviceNow}
+          />
         </Tabs>
 
         <Box sx={{ flex: 1 }} data-testid="settings-tab-content">
@@ -80,6 +81,7 @@ export const Settings: FC = () => {
             <AdvancedSettingsForm settings={settings!} />
           )}
           {tab === 'ssh-key' && <SshKeyForm settings={settings!} />}
+          {tab === 'servicenow-connection' && <ServiceNowConnectionTab />}
         </Box>
       </Stack>
     </Page>

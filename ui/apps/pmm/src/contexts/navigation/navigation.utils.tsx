@@ -1,11 +1,17 @@
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
+import MedicalServicesOutlinedIcon from '@mui/icons-material/MedicalServicesOutlined';
+import { MySqlIcon } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
 import { Advisor } from 'types/advisors.types';
 import { groupAdvisorsIntoCategories } from 'utils/advisors.utils';
-import { PMM_NEW_NAV_GRAFANA_PATH } from 'lib/constants';
+import {
+  PMM_NEW_NAV_GRAFANA_PATH,
+  SEP_ATW_PATH,
+  SEP_MYSQL_BACKUPS_PATH,
+} from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
   NAV_ACCOUNT,
@@ -303,3 +309,24 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 
   return NAV_HOME_PAGE;
 };
+
+// SEP apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
+// is lifted from SEP's appNavConfig as data only — no SEP nav component is used.
+// Deliberately unconditional: reachability is not the gate, the per-control
+// mutation capability is (PMM-15358, and NavigationProvider for placement).
+export const addSepApps = (): NavItem[] => [
+  {
+    id: 'sep-atw',
+    text: 'Support diagnostics',
+    icon: MedicalServicesOutlinedIcon,
+    url: SEP_ATW_PATH,
+    matches: [SEP_ATW_PATH],
+  },
+  {
+    id: 'sep-mysql-backups',
+    text: 'MySQL Backups',
+    icon: MySqlIcon,
+    url: SEP_MYSQL_BACKUPS_PATH,
+    matches: [SEP_MYSQL_BACKUPS_PATH],
+  },
+];
