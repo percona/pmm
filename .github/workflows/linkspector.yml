@@ -5,6 +5,7 @@ on:
     paths:
       - "documentation/**"
       - "!documentation/api/**"
+      - ".github/workflows/linkspector.yml"
   workflow_dispatch:
     inputs:
       ref:
