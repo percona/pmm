@@ -34,13 +34,6 @@ import (
 
 const namespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 
-// ErrNoClusterAccess reports that the Kubernetes API cannot be reached from here: no service
-// account is mounted, or this process is not running inside a cluster. Naming a resource on
-// such a deployment is a reason to disable reconciliation, not to stop PMM, so callers are
-// expected to degrade rather than treat it as fatal. A malformed name, kind or API version is
-// a typo and is returned as a plain error instead.
-var ErrNoClusterAccess = errors.New("cannot reach the Kubernetes API")
-
 // Names PMM in the resource's managedFields instead of letting client-go derive it from the
 // binary name.
 const fieldManager = "pmm-managed"
@@ -67,9 +60,8 @@ type kubeClient struct {
 // VictoriaMetrics is not managed by an operator opts out.
 //
 // Naming a resource is a statement of intent, so from there on anything that stops us from
-// reaching it is an error rather than a silent opt-out, pmm-managed not running inside a
-// cluster included. Failing at startup is what keeps a misconfiguration from looking exactly
-// like a deployment that never wanted reconciliation.
+// reaching it is an error rather than a silent opt-out. None of it is fatal: the caller
+// degrades to an inert service that keeps saying why.
 //
 // The interface return is deliberate: a nil Client is how callers learn that reconciliation
 // does not apply, and a nil *kubeClient stored in a Client interface would not compare equal
@@ -100,22 +92,21 @@ func NewKubeClient(params KubeParams) (Client, error) { //nolint:ireturn
 	if namespace == "" {
 		b, err := os.ReadFile(namespaceFile)
 		if err != nil {
-			return nil, fmt.Errorf("%w: failed to detect the current namespace, "+
-				"set PMM_VM_CLUSTER_NAMESPACE to override: %w", ErrNoClusterAccess, err)
+			return nil, fmt.Errorf("failed to detect the current namespace, "+
+				"set PMM_VM_CLUSTER_NAMESPACE to override: %w", err)
 		}
 		namespace = strings.TrimSpace(string(b))
 	}
 
 	cfg, err := rest.InClusterConfig()
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to build the in-cluster configuration; unset "+
-			"PMM_VM_CLUSTER_NAME if VictoriaMetrics is not managed by an operator here: %w",
-			ErrNoClusterAccess, err)
+		return nil, fmt.Errorf("failed to build the in-cluster configuration; unset "+
+			"PMM_VM_CLUSTER_NAME if VictoriaMetrics is not managed by an operator here: %w", err)
 	}
 
 	client, err := dynamic.NewForConfig(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("%w: failed to create the Kubernetes client: %w", ErrNoClusterAccess, err)
+		return nil, fmt.Errorf("failed to create the Kubernetes client: %w", err)
 	}
 
 	return &kubeClient{

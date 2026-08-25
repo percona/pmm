@@ -52,24 +52,43 @@ type Service struct {
 	l        *logrus.Entry
 	reloadCh chan struct{}
 
+	// Why there is no client. Nil when nothing asked for reconciliation in the first place.
+	disabledReason error
+
 	// Written and read only from the reconcile loop, which is single-goroutine.
 	lastError string
+}
+
+func newService(db *reform.DB, client Client) *Service {
+	return &Service{
+		db:       db,
+		client:   client,
+		l:        logrus.WithField("component", "vmretention"),
+		reloadCh: make(chan struct{}, 1),
+	}
 }
 
 // New returns a new Service. A nil client disables reconciliation, which is the case for
 // every deployment where VictoriaMetrics is not managed by an operator.
 func New(db *reform.DB, client Client) *Service {
-	l := logrus.WithField("component", "vmretention")
+	svc := newService(db, client)
 	if client == nil {
-		l.Info("VictoriaMetrics is not managed by an operator, data retention is applied through its supervisord configuration instead.")
+		svc.l.Info("No VictoriaMetrics custom resource is named, PMM does not apply data retention to VictoriaMetrics here.")
 	}
 
-	return &Service{
-		db:       db,
-		client:   client,
-		l:        l,
-		reloadCh: make(chan struct{}, 1),
-	}
+	return svc
+}
+
+// NewDisabled returns an inert Service that reports why data retention is not being applied,
+// for when a resource was named but no client could be built for it. That is a
+// misconfiguration rather than an opt-out, so it is announced rather than assumed. No database
+// is taken because a Service in this state never reads one.
+func NewDisabled(reason error) *Service {
+	svc := newService(nil, nil)
+	svc.disabledReason = reason
+	svc.l.Errorf("Data retention will not be applied to VictoriaMetrics: %+v.", reason)
+
+	return svc
 }
 
 // Run runs the reconciliation loop until ctx is canceled.
@@ -78,6 +97,11 @@ func New(db *reform.DB, client Client) *Service {
 // custom resource, and ctx is canceled when this node loses leadership.
 func (svc *Service) Run(ctx context.Context) {
 	if svc.client == nil {
+		// Re-announced on every promotion, the way a reconcile failure is below.
+		if svc.disabledReason != nil {
+			svc.l.Errorf("Data retention is not being applied to VictoriaMetrics: %+v.", svc.disabledReason)
+		}
+
 		<-ctx.Done()
 		return
 	}

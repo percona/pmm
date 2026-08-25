@@ -23,6 +23,8 @@ import (
 	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
+	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -149,6 +151,72 @@ func TestRunWithoutClient(t *testing.T) {
 	}
 }
 
+// captureLogs collects what the package logs through the standard logger. The hook is global,
+// so callers must not run in parallel.
+func captureLogs(t *testing.T) *logrustest.Hook {
+	t.Helper()
+
+	hook := logrustest.NewLocal(logrus.StandardLogger())
+	t.Cleanup(func() { logrus.StandardLogger().ReplaceHooks(logrus.LevelHooks{}) })
+
+	return hook
+}
+
+// Only a named resource that could not be reached is a misconfiguration. Naming nothing is how
+// most deployments opt out, and saying so at error level would cry wolf on every one of them.
+func TestDisabledReasonIsAnnounced(t *testing.T) {
+	t.Run("NotNamedIsNotAnError", func(t *testing.T) {
+		hook := captureLogs(t)
+
+		New(nil, nil)
+
+		entries := hook.AllEntries()
+		require.Len(t, entries, 1)
+		assert.Equal(t, logrus.InfoLevel, entries[0].Level)
+		// The supervisord program is deleted when VictoriaMetrics is external, so claiming it
+		// applies retention would send an operator to a file that is not there.
+		assert.NotContains(t, entries[0].Message, "supervisord")
+	})
+
+	t.Run("NamedButUnusableIsAnError", func(t *testing.T) {
+		hook := captureLogs(t)
+
+		NewDisabled(errors.New("not a group-qualified API version"))
+
+		entries := hook.AllEntries()
+		require.Len(t, entries, 1)
+		assert.Equal(t, logrus.ErrorLevel, entries[0].Level)
+		assert.Contains(t, entries[0].Message, "not a group-qualified API version")
+	})
+}
+
+// A node promoted later has its own log to explain why retention is not moving, so the reason
+// is repeated per leadership term rather than only at start-up.
+func TestDisabledServiceReAnnouncesOnPromotion(t *testing.T) {
+	svc := NewDisabled(errors.New("not a group-qualified API version"))
+
+	hook := captureLogs(t)
+	ctx, cancel := context.WithCancel(t.Context())
+	done := make(chan struct{})
+	go func() {
+		svc.Run(ctx)
+		close(done)
+	}()
+
+	cancel()
+
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("Run did not return after the context was canceled")
+	}
+
+	entries := hook.AllEntries()
+	require.Len(t, entries, 1)
+	assert.Equal(t, logrus.ErrorLevel, entries[0].Level)
+	assert.Contains(t, entries[0].Message, "not a group-qualified API version")
+}
+
 func TestRetentionPeriod(t *testing.T) {
 	for _, tc := range []struct {
 		retention time.Duration
@@ -195,13 +263,15 @@ func TestNewKubeClient(t *testing.T) {
 	})
 
 	// Naming a resource and then not being in a cluster is a misconfiguration, not an opt-out, so
-	// it has to fail at startup instead of leaving retention silently unapplied.
+	// it has to be reported as an error rather than the nil client that means "not wanted here".
 	t.Run("NamedButNotInCluster", func(t *testing.T) {
 		t.Setenv("KUBERNETES_SERVICE_HOST", "")
 
 		_, err := NewKubeClient(KubeParams{Name: name, Namespace: "pmm", APIVersion: apiVersion, Kind: "VMCluster"})
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), "PMM_VM_CLUSTER_NAME")
+		// Not on PMM_VM_CLUSTER_NAME: that is also a substring of PMM_VM_CLUSTER_NAMESPACE,
+		// so it would pass on the namespace branch this subtest does not exercise.
+		assert.Contains(t, err.Error(), "in-cluster configuration")
 	})
 }
 

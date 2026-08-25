@@ -753,6 +753,18 @@ Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPerio
     done
     ```
 
+??? note "Pointing PMM at a different VictoriaMetrics resource"
+    The chart sets these variables to match the `VMCluster` it deploys. Override them only if your VictoriaMetrics resource differs:
+
+    | Variable | Description | Default |
+    |----------|-------------|---------|
+    | `PMM_VM_CLUSTER_NAME` | Name of the resource holding the retention period. Leave unset to turn metrics retention reconciliation off | unset |
+    | `PMM_VM_CLUSTER_NAMESPACE` | Namespace of the resource | the pod's own namespace |
+    | `PMM_VM_CLUSTER_API_VERSION` | Group-qualified API version of the resource | `operator.victoriametrics.com/v1beta1` |
+    | `PMM_VM_CLUSTER_KIND` | Kind of the resource | `VMCluster` |
+
+    A bad value does not stop PMM from starting: it keeps running with metrics retention unapplied, and logs the reason at error level under `component=vmretention` on every leader promotion. Use the same command as above to read it.
+
 ### Review Helm parameters reference
 
 | Parameter | Description | Default |
