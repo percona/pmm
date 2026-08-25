@@ -47,11 +47,16 @@ install_go() {
     go env
 }
 
-# Installs Node.js 22 and Yarn.
+# Installs Node.js 22, pnpm (for ui/) and Yarn (for dashboards/pmm-app).
 install_node() {
     dnf module enable -y nodejs:22
     dnf install -y nodejs npm
-    npm install -g yarn@1.22.22
+    # The dnf-packaged Node.js does not bundle corepack (unlike official Node.js tarballs).
+    npm install -g corepack
+    # corepack's own package ships yarn/yarnpkg shims too; --force lets the real yarn
+    # binary below win over those.
+    npm install -g yarn@1.22.22 --force
+    corepack enable pnpm
     node --version
     yarn --version
 }
