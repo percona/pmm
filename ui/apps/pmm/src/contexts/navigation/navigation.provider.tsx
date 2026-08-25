@@ -91,15 +91,20 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         items.push(addAdvisors(advisors || []));
       }
 
+      items.push(NAV_DIVIDERS.inventory);
+
       if (user.isPMMAdmin) {
-        items.push(NAV_DIVIDERS.inventory);
-
         items.push(NAV_INVENTORY);
+      }
 
-        // SEP apps mounted as native routes (migration). Shown once the session
-        // is established; role/flag gating comes with real auth (Option B).
-        items.push(...addSepApps());
+      // SEP apps mounted as native routes. Offered to every signed-in user, not
+      // only admins: SEP's API serves its reads to any authenticated session
+      // and holds every unsafe method to administrators, so a non-admin gets a
+      // read-only view with no write control rendered (PMM-15358). Grouping
+      // these under a "Management" section is a follow-up.
+      items.push(...addSepApps());
 
+      if (user.isPMMAdmin) {
         if (settings?.backupManagementEnabled) {
           items.push(NAV_BACKUPS);
         }
