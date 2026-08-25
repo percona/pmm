@@ -10,15 +10,11 @@ on:
       - "documentation/**"
       - "managed/**"
       - "qan-api2/**"
-      - "update/**"
       - "vmproxy/**"
       - "ui/**"
 
 permissions:
   contents: read
-
-env:
-  GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
 
 jobs:
   test:
