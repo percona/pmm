@@ -83,7 +83,7 @@ export {
 export type { OmEstateStatus } from './inventory';
 export {
   formatAge,
-  formatDuration,
+  formatCompactDuration,
   formatRunDuration,
   runDurationSeconds,
   formatTimestamp,

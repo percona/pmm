@@ -21,7 +21,7 @@ import {
   missingRowReason,
   type OmEstateStatus,
 } from '../inventory';
-import { formatDuration } from '../format';
+import { formatCompactDuration } from '../format';
 import { Unavailable } from './Unavailable';
 import type { OmInventoryService } from '../types';
 
@@ -86,10 +86,10 @@ export function ProbeValue({
   const detail = [
     age == null
       ? 'This service has never answered a probe.'
-      : `Last collected ${formatDuration(age)} ago.`,
+      : `Last collected ${formatCompactDuration(age)} ago.`,
     since == null
       ? null
-      : `Failing for ${formatDuration(since)} (${inventory.freshness.consecutive_failures} attempts).`,
+      : `Failing for ${formatCompactDuration(since)} (${inventory.freshness.consecutive_failures} attempts).`,
     inventory.freshness.last_error,
   ]
     .filter(Boolean)
@@ -117,7 +117,7 @@ export function ProbeValue({
           component="span"
           sx={{ color: 'warning.main', ml: 0.5, whiteSpace: 'nowrap' }}
         >
-          {age == null ? '(stale)' : `(${formatDuration(age)} old)`}
+          {age == null ? '(stale)' : `(${formatCompactDuration(age)} old)`}
         </Box>
       </Box>
     </Tooltip>

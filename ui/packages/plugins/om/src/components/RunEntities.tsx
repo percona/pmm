@@ -30,7 +30,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useOmInventoryRun } from '../inventoryHooks';
-import { formatDuration } from '../format';
+import { formatCompactDuration } from '../format';
 import { Unavailable } from './Unavailable';
 import type { OmExecutorResolution, OmInventoryRun } from '../types';
 
@@ -48,7 +48,7 @@ const RESOLUTION_LABEL: Record<OmExecutorResolution, string> = {
 /**
  * A sub-second host time still deserves a number.
  *
- * `formatDuration` floors to whole seconds, which is right for an oplog window of days
+ * `formatCompactDuration` floors to whole seconds, which is right for an oplog window of days
  * and wrong here: a host that failed in 0.28s would read as `0s`, hiding that it
  * failed instantly rather than after a wait.
  */
@@ -56,7 +56,7 @@ function formatHostDuration(seconds: number): string {
   if (seconds < 10) {
     return `${seconds.toFixed(2)}s`;
   }
-  return formatDuration(seconds) || `${Math.round(seconds)}s`;
+  return formatCompactDuration(seconds) || `${Math.round(seconds)}s`;
 }
 
 /**

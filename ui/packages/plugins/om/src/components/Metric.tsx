@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { formatDuration } from '../format';
+import { formatCompactDuration } from '../format';
 import { Unavailable } from './Unavailable';
 
 /** Reading that means "not measured" in the two percentage columns. */
@@ -45,5 +45,5 @@ export function Duration({ value }: { value: number | null | undefined }) {
   if (value === null || value === undefined) {
     return <Unavailable reason="not_applicable" />;
   }
-  return <>{formatDuration(value) || '0s'}</>;
+  return <>{formatCompactDuration(value) || '0s'}</>;
 }

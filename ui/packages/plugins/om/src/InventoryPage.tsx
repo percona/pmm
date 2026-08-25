@@ -41,7 +41,7 @@ import { RunStatusBadge } from './components/HealthBadge';
 import { RunEntities } from './components/RunEntities';
 import { OmHeader } from './components/OmHeader';
 import {
-  formatDuration,
+  formatCompactDuration,
   formatRunDuration,
   formatTimestamp,
   runDurationSeconds,
@@ -245,8 +245,8 @@ function LastRun({ run }: { run: OmInventoryRun | undefined }) {
       <RunStatusBadge status={run.status} />
       <Typography variant="body2" color="text.secondary">
         {active
-          ? `started ${age == null ? 'just now' : `${formatDuration(age)} ago`}`
-          : `${age == null ? '' : `${formatDuration(age)} ago`}, took ${
+          ? `started ${age == null ? 'just now' : `${formatCompactDuration(age)} ago`}`
+          : `${age == null ? '' : `${formatCompactDuration(age)} ago`}, took ${
               formatRunDuration(run.start_time, run.end_time) || '—'
             }`}
       </Typography>

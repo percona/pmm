@@ -43,7 +43,7 @@ import {
 } from './constants';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
-import { formatDuration } from './format';
+import { formatCompactDuration } from './format';
 import { ageSeconds, isFailing, toHostRows } from './inventory';
 import {
   useForgetHost,
@@ -224,10 +224,10 @@ function useColumns(): MRT_ColumnDef<OmHostRow>[] {
           }
           const since = ageSeconds(original.freshness.failing_since);
           return since == null ? (
-            <>{formatDuration(age)} ago</>
+            <>{formatCompactDuration(age)} ago</>
           ) : (
             <Tooltip
-              title={`${original.freshness.last_error ?? 'The last probe failed.'} Failing for ${formatDuration(
+              title={`${original.freshness.last_error ?? 'The last probe failed.'} Failing for ${formatCompactDuration(
                 since
               )}, ${original.freshness.consecutive_failures} attempts.`}
             >
@@ -235,7 +235,7 @@ function useColumns(): MRT_ColumnDef<OmHostRow>[] {
                 component="span"
                 sx={{ color: 'error.main', cursor: 'help' }}
               >
-                {formatDuration(age)} ago (failing)
+                {formatCompactDuration(age)} ago (failing)
               </Box>
             </Tooltip>
           );

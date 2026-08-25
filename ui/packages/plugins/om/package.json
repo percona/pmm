@@ -24,7 +24,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.1.0",
-    "@vitejs/plugin-react-swc": "^4.3.1",
+    "@vitejs/plugin-react": "^6.1.0",
     "jsdom": "^29.1.1",
     "material-react-table": "^3.2.1",
     "notistack": "^3.0.0",
@@ -45,5 +45,8 @@
     "notistack": "^3.0.0",
     "react": "^19.0.0",
     "react-router-dom": "^7.14.0"
+  },
+  "dependencies": {
+    "date-fns": "4.1.0"
   }
 }

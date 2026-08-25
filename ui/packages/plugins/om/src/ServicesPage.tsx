@@ -46,7 +46,7 @@ import {
   missingRowReason,
   type OmEstateStatus,
 } from './inventory';
-import { formatDuration } from './format';
+import { formatCompactDuration } from './format';
 import { ProbeValue } from './components/ProbeValue';
 import type { OmInventoryService, OmServiceInventoryRow } from './types';
 
@@ -181,7 +181,7 @@ function useColumns(
           return age == null ? (
             <Unavailable reason="probe_never_succeeded" />
           ) : (
-            <>{formatDuration(age)} ago</>
+            <>{formatCompactDuration(age)} ago</>
           );
         },
       },
@@ -372,7 +372,7 @@ function ProbeStatus({ inventory }: { inventory: OmInventoryService }) {
       }
     >
       <Box component="span" sx={{ color: 'error.main', cursor: 'help' }}>
-        failing {formatDuration(since)}
+        failing {formatCompactDuration(since)}
         {inventory.freshness.consecutive_failures > 0
           ? ` (${inventory.freshness.consecutive_failures}x)`
           : ''}

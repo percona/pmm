@@ -18,35 +18,35 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatAge,
-  formatDuration,
+  formatCompactDuration,
   formatRunDuration,
   formatTimestamp,
 } from '../src/format';
 
-describe('formatDuration', () => {
+describe('formatCompactDuration', () => {
   it('renders sub-minute values in seconds', () => {
-    expect(formatDuration(0)).toBe('0s');
-    expect(formatDuration(47)).toBe('47s');
+    expect(formatCompactDuration(0)).toBe('0s');
+    expect(formatCompactDuration(47)).toBe('47s');
   });
 
   it('stops at two units so a value stays glanceable', () => {
-    expect(formatDuration(47323)).toBe('13h 8m');
-    expect(formatDuration(90)).toBe('1m 30s');
-    expect(formatDuration(2 * 86400 + 3 * 3600 + 7 * 60)).toBe('2d 3h');
+    expect(formatCompactDuration(47323)).toBe('13h 8m');
+    expect(formatCompactDuration(90)).toBe('1m 30s');
+    expect(formatCompactDuration(2 * 86400 + 3 * 3600 + 7 * 60)).toBe('2d 3h');
   });
 
   it('skips units that are zero rather than padding them', () => {
-    expect(formatDuration(86400)).toBe('1d');
-    expect(formatDuration(3600)).toBe('1h');
+    expect(formatCompactDuration(86400)).toBe('1d');
+    expect(formatCompactDuration(3600)).toBe('1h');
   });
 
   // A null here means "not observed", and the caller renders <Unavailable/>.
   // Returning '0s' would turn an absent observation into a real measurement.
   it('returns empty for values that are not measurements', () => {
-    expect(formatDuration(null)).toBe('');
-    expect(formatDuration(undefined)).toBe('');
-    expect(formatDuration(-1)).toBe('');
-    expect(formatDuration(Number.NaN)).toBe('');
+    expect(formatCompactDuration(null)).toBe('');
+    expect(formatCompactDuration(undefined)).toBe('');
+    expect(formatCompactDuration(-1)).toBe('');
+    expect(formatCompactDuration(Number.NaN)).toBe('');
   });
 });
 
@@ -71,6 +71,20 @@ describe('formatTimestamp', () => {
   it('renders an em-dash for a missing or unparsable value', () => {
     expect(formatTimestamp(null)).toBe('—');
     expect(formatTimestamp('nonsense')).toBe('—');
+  });
+
+  // A fixed pattern rather than toLocaleString: run timestamps are compared against
+  // one another down a column, and a format that varies with the reader's locale is
+  // not a column you can scan. The rendering is local time, so the assertion goes
+  // through the same conversion rather than hard-coding a zone.
+  it('renders a parsable timestamp in local time', () => {
+    const iso = '2026-08-07T09:58:48Z';
+    const local = new Date(iso);
+    const pad = (value: number) => String(value).padStart(2, '0');
+    expect(formatTimestamp(iso)).toBe(
+      `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())} ` +
+        `${pad(local.getHours())}:${pad(local.getMinutes())}:${pad(local.getSeconds())}`
+    );
   });
 });
 
