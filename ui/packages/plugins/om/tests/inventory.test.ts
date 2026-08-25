@@ -19,8 +19,11 @@ import { describe, expect, it } from 'vitest';
 import {
   ageSeconds,
   databaseState,
+  isBoundedPeriod,
   isFailing,
+  isRunPeriod,
   joinServiceInventory,
+  periodSince,
   repoReachability,
   toHostRows,
 } from '../src/inventory';
@@ -321,5 +324,62 @@ describe('isFailing', () => {
     });
 
     expect(isFailing(once)).toBe(true);
+  });
+});
+
+describe('periodSince', () => {
+  const now = new Date('2026-08-25T12:34:56.000Z');
+
+  it('returns fifteen minutes back', () => {
+    expect(periodSince('15m', now)).toBe('2026-08-25T12:19:56.000Z');
+  });
+
+  it('returns thirty minutes back', () => {
+    expect(periodSince('30m', now)).toBe('2026-08-25T12:04:56.000Z');
+  });
+
+  it('returns one hour back', () => {
+    expect(periodSince('1h', now)).toBe('2026-08-25T11:34:56.000Z');
+  });
+
+  it('returns four hours back', () => {
+    expect(periodSince('4h', now)).toBe('2026-08-25T08:34:56.000Z');
+  });
+
+  it('returns eight hours back', () => {
+    expect(periodSince('8h', now)).toBe('2026-08-25T04:34:56.000Z');
+  });
+
+  it("returns today's local midnight, not a rolling twenty-four hours", () => {
+    const midnight = new Date(now);
+    midnight.setHours(0, 0, 0, 0);
+    expect(periodSince('today', now)).toBe(midnight.toISOString());
+  });
+
+  it('returns seven days back for last week', () => {
+    expect(periodSince('week', now)).toBe('2026-08-18T12:34:56.000Z');
+  });
+
+  it('returns thirty days back for last month', () => {
+    expect(periodSince('month', now)).toBe('2026-07-26T12:34:56.000Z');
+  });
+
+  it('omits the bound for all', () => {
+    expect(periodSince('all', now)).toBeUndefined();
+  });
+
+  it('recognises the configured windows and nothing else', () => {
+    expect(isRunPeriod('week')).toBe(true);
+    expect(isRunPeriod('15m')).toBe(true);
+    expect(isRunPeriod('today')).toBe(true);
+    expect(isRunPeriod('year')).toBe(false);
+    expect(isRunPeriod(null)).toBe(false);
+  });
+
+  it('is bounded for every period except all', () => {
+    expect(isBoundedPeriod('15m')).toBe(true);
+    expect(isBoundedPeriod('today')).toBe(true);
+    expect(isBoundedPeriod('week')).toBe(true);
+    expect(isBoundedPeriod('all')).toBe(false);
   });
 });

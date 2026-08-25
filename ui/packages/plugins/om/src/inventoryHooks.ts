@@ -154,18 +154,44 @@ export function useOmInventoryServices() {
 }
 
 /**
+ * Filters `GET /runs` accepts. Unset means unfiltered: newest first, default page.
+ *
+ * `since` / `until` are ISO-8601 instants on `start_time`. They are applied on the
+ * server *before* `limit`, so a week window is last week's runs rather than the
+ * newest page with older-than-a-week rows dropped.
+ */
+export interface OmRunFilters {
+  limit?: number;
+  since?: string;
+  until?: string;
+}
+
+function toRunsQuery(filters: OmRunFilters): string {
+  const params = new URLSearchParams();
+  params.set('limit', String(filters.limit ?? 25));
+  if (filters.since) {
+    params.set('since', filters.since);
+  }
+  if (filters.until) {
+    params.set('until', filters.until);
+  }
+  return `?${params.toString()}`;
+}
+
+/**
  * Refresh history, newest first.
  *
  * Polls fast while any refresh is in flight and slowly otherwise, rather than stopping:
  * the schedule starts sweeps nobody here asked for, and a history that only updated on
  * reload could not show them.
  */
-export function useOmInventoryRuns(limit = 25) {
+export function useOmInventoryRuns(filters: OmRunFilters = {}) {
+  const query = toRunsQuery(filters);
   return useQuery<OmInventoryRun[]>({
-    queryKey: [...RUNS_KEY, limit],
+    queryKey: [...RUNS_KEY, query],
     queryFn: async () => {
       const { runs } = await request<{ runs: OmInventoryRun[] }>(
-        `/inventory/runs?limit=${limit}`
+        `/inventory/runs${query}`
       );
       return runs ?? [];
     },
@@ -176,6 +202,11 @@ export function useOmInventoryRuns(limit = 25) {
       (query.state.data ?? []).some((run) => isRunActive(run.status))
         ? REFRESH_POLL_MS
         : ESTATE_POLL_MS,
+    // Switching period keeps the old page on screen instead of blanking to the
+    // spinner: the filters change the query key, and with no placeholder the table
+    // would flash empty on every chip click the way HostsPage's and ServicesPage's
+    // queries do not.
+    placeholderData: keepPreviousData,
   });
 }
 

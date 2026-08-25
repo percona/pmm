@@ -73,17 +73,23 @@ export {
   useForgetService,
   useIsEstateRefreshing,
 } from './inventoryHooks';
-export type { OmHostFilters } from './inventoryHooks';
+export type { OmHostFilters, OmRunFilters } from './inventoryHooks';
 export {
   ageSeconds,
   databaseState,
+  DEFAULT_RUN_LIMIT,
+  isBoundedPeriod,
   isFailing,
+  isRunPeriod,
   joinServiceInventory,
   missingRowReason,
+  periodSince,
   repoReachability,
+  RUN_PERIODS,
   toHostRows,
+  WINDOWED_RUN_LIMIT,
 } from './inventory';
-export type { OmEstateStatus } from './inventory';
+export type { OmEstateStatus, OmRunPeriod, OmRunPeriodDef } from './inventory';
 export {
   formatAge,
   formatCompactDuration,

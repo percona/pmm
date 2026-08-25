@@ -201,3 +201,73 @@ export function isFailing(host: {
 }): boolean {
   return host.freshness.failing_since != null;
 }
+
+/**
+ * The Inventory page's history window, as a list rather than a switch: adding a
+ * quick filter is adding a row here, nowhere else. `InventoryPage` renders one chip
+ * per entry, in this order.
+ *
+ * `minutes` is a rolling window - `now` minus that many minutes. `'today'` is not
+ * rolling: it is local midnight, which is what a reader means by the word, and
+ * that is a different calculation from every other row. `null` (only `all`) sends
+ * no `since` at all.
+ */
+export interface OmRunPeriodDef {
+  id: string;
+  label: string;
+  window: number | 'today' | null;
+}
+
+export const RUN_PERIODS: readonly OmRunPeriodDef[] = [
+  { id: '15m', label: 'Last 15 minutes', window: 15 },
+  { id: '30m', label: 'Last 30 minutes', window: 30 },
+  { id: '1h', label: 'Last hour', window: 60 },
+  { id: '4h', label: 'Last 4 hours', window: 4 * 60 },
+  { id: '8h', label: 'Last 8 hours', window: 8 * 60 },
+  { id: 'today', label: 'Today', window: 'today' },
+  { id: 'week', label: 'Last week', window: 7 * 24 * 60 },
+  { id: 'month', label: 'Last month', window: 30 * 24 * 60 },
+  { id: 'all', label: 'All', window: null },
+] as const;
+
+export type OmRunPeriod = (typeof RUN_PERIODS)[number]['id'];
+
+const RUN_PERIOD_BY_ID: Record<string, OmRunPeriodDef> = Object.fromEntries(
+  RUN_PERIODS.map((def) => [def.id, def])
+);
+
+/** How many runs to ask for when the window is unbounded (`all`). */
+export const DEFAULT_RUN_LIMIT = 25;
+
+/** How many to ask for inside a date window — the GET /runs ceiling. */
+export const WINDOWED_RUN_LIMIT = 100;
+
+/**
+ * Inclusive `since` for a named window, or undefined for `all`.
+ *
+ * `now` is injectable so the ISO string is deterministic in tests.
+ */
+export function periodSince(
+  period: OmRunPeriod,
+  now: Date = new Date()
+): string | undefined {
+  const { window } = RUN_PERIOD_BY_ID[period];
+  if (window === null) {
+    return undefined;
+  }
+  if (window === 'today') {
+    const midnight = new Date(now);
+    midnight.setHours(0, 0, 0, 0);
+    return midnight.toISOString();
+  }
+  return new Date(now.getTime() - window * 60 * 1000).toISOString();
+}
+
+/** Whether a window has a `since` bound at all — `all` is the only one that does not. */
+export function isBoundedPeriod(period: OmRunPeriod): boolean {
+  return RUN_PERIOD_BY_ID[period].window !== null;
+}
+
+export function isRunPeriod(value: string | null): value is OmRunPeriod {
+  return value != null && value in RUN_PERIOD_BY_ID;
+}

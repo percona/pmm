@@ -21,6 +21,7 @@ import {
   Alert,
   Box,
   Button,
+  Chip,
   CircularProgress,
   Stack,
   Tab,
@@ -46,7 +47,16 @@ import {
   formatTimestamp,
   runDurationSeconds,
 } from './format';
-import { ageSeconds } from './inventory';
+import {
+  ageSeconds,
+  DEFAULT_RUN_LIMIT,
+  isBoundedPeriod,
+  isRunPeriod,
+  periodSince,
+  RUN_PERIODS,
+  WINDOWED_RUN_LIMIT,
+  type OmRunPeriod,
+} from './inventory';
 import type { OmInventoryRun } from './types';
 
 const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
@@ -271,21 +281,34 @@ const LastRun = ({ run }: { run: OmInventoryRun | undefined }) => {
   );
 };
 
-/**
- * OM's refresh history, and the schedule that drives it.
- *
- * These are the app's refreshes, not pmm-managed's collection pass: one runs a payload
- * on every host over Nomad and takes tens of seconds, the other recomputes a document
- * from data PMM already holds. They are two different things called a "run", which is
- * why they live at two different paths and on two different pages.
- *
- * Read through pmm-managed rather than from SEP directly, which is what lets this page
- * render its own error when SEP is unwell instead of being blanked by a gate that
- * fails closed.
- */
 /** The tabs, and the query-parameter values that address them. */
 const TABS = ['runs', 'settings'] as const;
 type TabId = (typeof TABS)[number];
+
+/**
+ * One chip per `RUN_PERIODS` entry, in that order — adding a quick filter there is
+ * the whole change; nothing here names a period.
+ */
+const PeriodFilter = ({
+  value,
+  onChange,
+}: {
+  value: OmRunPeriod;
+  onChange: (next: OmRunPeriod) => void;
+}) => (
+  <Stack direction="row" gap={1} flexWrap="wrap">
+    {RUN_PERIODS.map((option) => (
+      <Chip
+        key={option.id}
+        size="small"
+        label={option.label}
+        color="default"
+        variant={value === option.id ? 'filled' : 'outlined'}
+        onClick={() => onChange(option.id)}
+      />
+    ))}
+  </Stack>
+);
 
 /**
  * OM's refresh history, and the schedule that drives it.
@@ -305,8 +328,6 @@ type TabId = (typeof TABS)[number];
  * second sat below a table of twenty-five rows and was found by scrolling.
  */
 export const InventoryPage = () => {
-  const { data: runs, isLoading, error } = useOmInventoryRuns();
-  const rows = useMemo(() => runs ?? [], [runs]);
   // In the query string rather than component state, so a link to the settings tab is
   // shareable and a reload does not silently put the reader back on Runs.
   const [params, setParams] = useSearchParams();
@@ -314,6 +335,38 @@ export const InventoryPage = () => {
   const tab: TabId = TABS.includes(requested as TabId)
     ? (requested as TabId)
     : 'runs';
+  // Same reason the tab lives in the URL: a link to "last month" should open last
+  // month. Default is the week window — All is still the uncapped-history view, and
+  // that is the one that becomes unreadable.
+  const requestedPeriod = params.get('period');
+  const period: OmRunPeriod = isRunPeriod(requestedPeriod)
+    ? requestedPeriod
+    : 'week';
+  // Memoized on the period, not recomputed every render: `periodSince` uses
+  // `Date.now()`, and this page re-renders every few seconds while a refresh is
+  // in flight. A new ISO string each time is a new query key, so the table
+  // would sit on the loading spinner forever.
+  const since = useMemo(() => periodSince(period), [period]);
+  // Newest overall, unfiltered: "what does OM know right now" is not a claim about
+  // the selected window, and an empty last-week table must not read as "no refresh
+  // has ever run".
+  const latest = useOmInventoryRuns();
+  const {
+    data: runs,
+    isLoading,
+    error,
+  } = useOmInventoryRuns({
+    since,
+    limit: isBoundedPeriod(period) ? WINDOWED_RUN_LIMIT : DEFAULT_RUN_LIMIT,
+  });
+  const rows = useMemo(() => runs ?? [], [runs]);
+
+  const setPeriod = (next: OmRunPeriod) =>
+    setParams((current) => {
+      const updated = new URLSearchParams(current);
+      updated.set('period', next);
+      return updated;
+    });
 
   return (
     <Stack gap={2}>
@@ -328,7 +381,14 @@ export const InventoryPage = () => {
         // Stays in the header rather than inside the Runs tab: it is the page's
         // action, and hiding it while someone reads the schedule would mean going
         // back a tab to act on what they just changed.
-        actions={<RefreshButton />}
+        actions={
+          <Stack direction="row" alignItems="center" gap={2}>
+            {tab === 'runs' && (
+              <PeriodFilter value={period} onChange={setPeriod} />
+            )}
+            <RefreshButton />
+          </Stack>
+        }
       />
 
       <Tabs
@@ -360,12 +420,16 @@ export const InventoryPage = () => {
               "no refresh has run yet", which is a claim about the estate - not something
               to assert while the first request is still in flight or has failed with no
               cached rows to fall back on. */}
-          {(!isLoading || runs) && !error && <LastRun run={rows[0]} />}
+          {(!latest.isLoading || latest.data) && !latest.error && (
+            <LastRun run={latest.data?.[0]} />
+          )}
 
           {isLoading && !runs ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
               <CircularProgress />
             </Box>
+          ) : rows.length === 0 && !error ? (
+            <Alert severity="info">No refreshes in this period.</Alert>
           ) : (
             <Table
               tableName="om-inventory-runs"
