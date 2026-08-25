@@ -69,6 +69,21 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
+  // The redirect is one-shot: drop it on the first location change it produces. Grafana rewrites
+  // the dashboard URL (timezone, var-*) once the iframe loads and GrafanaProvider relays that back
+  // into the router — leaving the target armed would yank every such rewrite back to the original
+  // URL, which Grafana then rewrites again, forever.
+  useEffect(() => {
+    if (returnTo === null) {
+      return;
+    }
+
+    setReturnTo(null);
+    // returnTo is deliberately not a dependency: this must fire on the location change, not on
+    // the render that arms the redirect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
+
   const shouldRedirectToLogin = useMemo(() => {
     if (settings.data?.anonymousEnabled) {
       return false;
@@ -109,7 +124,7 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
     return null;
   }
 
-  if (returnTo !== null && constructUrl(location) !== returnTo) {
+  if (returnTo !== null) {
     return <Navigate to={returnTo} replace />;
   }
 

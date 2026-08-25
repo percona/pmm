@@ -8,11 +8,12 @@ import {
   vi,
 } from 'vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import { StrictMode, type ReactElement } from 'react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { StrictMode, useEffect, useRef, type ReactElement } from 'react';
+import { MemoryRouter, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth.hooks';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import { AuthProvider } from './auth.provider';
+import { constructUrl } from 'utils/link.utils';
 
 const mocks = vi.hoisted(() => ({
   rotateToken: vi.fn(),
@@ -68,6 +69,26 @@ const storeReturnTo = (path: string) =>
     RETURN_TO_KEY,
     JSON.stringify({ path, at: Date.now() })
   );
+
+/**
+ * Stands in for GrafanaProvider relaying the iframe's own URL rewrite back into the shell router:
+ * Grafana appends timezone/var-* once a dashboard loads and reports it via LOCATION_CHANGE.
+ */
+const GrafanaUrlEcho = ({ from, to }: { from: string; to: string }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const echoed = useRef(false);
+
+  useEffect(() => {
+    if (echoed.current || constructUrl(location) !== from) {
+      return;
+    }
+    echoed.current = true;
+    navigate(to, { replace: true });
+  }, [from, location, navigate, to]);
+
+  return null;
+};
 
 describe('AuthProvider', () => {
   const originalLocation = window.location;
@@ -183,5 +204,32 @@ describe('AuthProvider', () => {
       `${DEEP_LINK}|true`
     );
     expect(sessionStorage.getItem(RETURN_TO_KEY)).toBeNull();
+  });
+
+  it('does not fight a later URL change once the restore has landed', async () => {
+    mocks.rotateToken.mockResolvedValue({ token: 'ok' });
+    storeReturnTo(DEEP_LINK);
+    const expanded = `${DEEP_LINK}&var-node_name=All&timezone=browser`;
+
+    render(
+      <MemoryRouter initialEntries={['/graph']}>
+        {wrapWithQueryProvider(
+          <AuthProvider>
+            <GrafanaUrlEcho from={DEEP_LINK} to={expanded} />
+            <Probe />
+          </AuthProvider>
+        )}
+      </MemoryRouter>
+    );
+
+    await screen.findByTestId('probe');
+    await waitFor(() => {
+      expect(renderedLocations).toContain(`${expanded}|true`);
+    });
+    // Must settle on Grafana's expanded URL, not snap back to the original target forever.
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(renderedLocations[renderedLocations.length - 1]).toBe(
+      `${expanded}|true`
+    );
   });
 });
