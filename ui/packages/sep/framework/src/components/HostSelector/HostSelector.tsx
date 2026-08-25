@@ -17,7 +17,7 @@
 
 import { useEffect, useRef } from 'react';
 import { get, useFormContext } from 'react-hook-form';
-import { AutoCompleteInput } from '@percona/percona-ui';
+import { AutoCompleteInput } from '@percona/peak-ui';
 import { useSnackbar } from 'notistack';
 import { useHosts, type HostOption } from '../../hooks/useHosts';
 import { useResolvedServiceField } from '../../hooks/useResolvedServiceField';

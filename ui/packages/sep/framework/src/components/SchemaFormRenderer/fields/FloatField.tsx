@@ -16,7 +16,7 @@
  */
 
 import { useFormContext } from 'react-hook-form';
-import { TextInput } from '@percona/percona-ui';
+import { TextInput } from '@percona/peak-ui';
 import { FieldLabelWithHelp } from '../FieldLabelWithHelp';
 import type { FloatField as FloatFieldType } from '../types';
 import { buildValidationRules } from '../utils/validationMapper';

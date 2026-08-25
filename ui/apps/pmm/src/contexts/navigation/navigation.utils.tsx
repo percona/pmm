@@ -141,26 +141,36 @@ export const addDashboardItems = (
   return children;
 };
 
-export const addAlerting = (enabled = false, user?: User): NavItem => {
-  const children: NavItem[] = [];
+export const addAlerting = (
+  alertingEnabled = false,
+  unifiedAlertingEnabled = false,
+  user?: User
+): NavItem => {
+  const children: NavItem[] = [NAV_ALERTS_RULES];
 
-  if (enabled) {
+  if (alertingEnabled) {
     children.push(NAV_ALERTS_STATUS);
+
+    if (user?.isEditor) {
+      children.push(NAV_ALERTS_TEMPLATES);
+    }
   }
 
-  children.push(NAV_ALERTS_RULES);
+  if (user) {
+    children.push(NAV_ALERTS_SILENCES);
 
-  if (enabled && user?.isEditor) {
-    children.push(NAV_ALERTS_TEMPLATES);
-  }
+    if (!user.isAnonymous) {
+      children.push(NAV_ALERTS_GROUPS);
 
-  children.push(NAV_ALERTS_CONTACT_POINTS);
-  children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
-  children.push(NAV_ALERTS_SILENCES);
-  children.push(NAV_ALERTS_GROUPS);
+      if (unifiedAlertingEnabled && user.isPMMAdmin) {
+        children.push(NAV_ALERTS_SETTINGS);
+      }
+    }
 
-  if (user?.isPMMAdmin) {
-    children.push(NAV_ALERTS_SETTINGS);
+    if (unifiedAlertingEnabled) {
+      children.push(NAV_ALERTS_CONTACT_POINTS);
+      children.push(NAV_ALERTS_NOTIFICATION_POLICIES);
+    }
   }
 
   return { ...NAV_ALERTS, children };
@@ -302,7 +312,8 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 
 // SEP apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
 // is lifted from SEP's appNavConfig as data only — no SEP nav component is used.
-// Role/flag gating arrives with real auth (Option B).
+// Deliberately unconditional: reachability is not the gate, the per-control
+// mutation capability is (PMM-15358, and NavigationProvider for placement).
 export const addSepApps = (): NavItem[] => [
   {
     id: 'sep-atw',
