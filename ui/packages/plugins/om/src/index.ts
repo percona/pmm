@@ -71,6 +71,7 @@ export {
   useRefreshInventory,
   useForgetHost,
   useForgetService,
+  useIsEstateRefreshing,
 } from './inventoryHooks';
 export type { OmHostFilters } from './inventoryHooks';
 export {

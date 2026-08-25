@@ -31,7 +31,7 @@ import {
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
 import {
-  useInvalidateEstateOnRefreshEnd,
+  useIsEstateRefreshing,
   useOmInventoryRuns,
   useRefreshInventory,
 } from './inventoryHooks';
@@ -165,16 +165,12 @@ const RUN_COLUMNS: MRT_ColumnDef<OmInventoryRun>[] = [
  * different pages.
  */
 const RefreshButton = () => {
-  const { data: runs } = useOmInventoryRuns();
   const trigger = useRefreshInventory();
   // Any active run, not just the newest. Refreshes are host-scoped, so two can overlap
   // and a narrow one started later can reach a terminal status while a broader one is
   // still probing - `runs[0]` would re-enable this button into a sweep that must
   // conflict with it. Same reason `useOmInventoryRuns` polls on the whole collection.
-  const running = (runs ?? []).some((run) => isRunActive(run.status));
-  // The rows this page's sibling tabs render change when the refresh finishes, not when
-  // it is accepted, so the estate is invalidated on that edge rather than on the mutation.
-  useInvalidateEstateOnRefreshEnd(runs);
+  const running = useIsEstateRefreshing();
   // A 409 is an expected answer rather than a failure, and since conflict is judged
   // per host the message names what is in flight instead of saying "a sweep is
   // already running" - which was true of anything and useful for nothing.

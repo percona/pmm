@@ -114,6 +114,7 @@ function toQuery(filters: OmHostFilters): string {
  */
 export function useOmInventoryHosts(filters: OmHostFilters = {}) {
   const query = toQuery(filters);
+  const refreshing = useEstateRefreshWatch();
   return useQuery<OmInventoryHost[]>({
     queryKey: [...HOSTS_KEY, query],
     placeholderData: keepPreviousData,
@@ -125,7 +126,7 @@ export function useOmInventoryHosts(filters: OmHostFilters = {}) {
       // empty estate arrives as an absent key rather than an empty array.
       return hosts ?? [];
     },
-    refetchInterval: ESTATE_POLL_MS,
+    refetchInterval: refreshing ? REFRESH_POLL_MS : ESTATE_POLL_MS,
   });
 }
 
@@ -138,6 +139,7 @@ export function useOmInventoryHosts(filters: OmHostFilters = {}) {
  * it.
  */
 export function useOmInventoryServices() {
+  const refreshing = useEstateRefreshWatch();
   return useQuery<OmInventoryService[]>({
     queryKey: SERVICES_KEY,
     placeholderData: keepPreviousData,
@@ -147,7 +149,7 @@ export function useOmInventoryServices() {
       );
       return services ?? [];
     },
-    refetchInterval: ESTATE_POLL_MS,
+    refetchInterval: refreshing ? REFRESH_POLL_MS : ESTATE_POLL_MS,
   });
 }
 
@@ -178,27 +180,38 @@ export function useOmInventoryRuns(limit = 25) {
 }
 
 /**
- * Invalidate the estate when a refresh stops running.
+ * Follow the refresh history from inside an estate query, and report whether one is in
+ * flight.
  *
- * `useRefreshInventory`'s own `onSettled` cannot do this. It fires when the app
- * *accepts* the refresh, which is tens of seconds before any host has been probed, so
- * the rows it would refetch are the ones from before. This watches the runs instead and
- * invalidates on the edge where the estate actually changed.
+ * Two jobs, both of which the estate queries need and neither of which a page should
+ * have to remember.
  *
- * Takes the whole collection, not the newest run: refreshes are host-scoped, so two can
+ * **Invalidating on the edge.** `useRefreshInventory`'s own `onSettled` cannot do it: it
+ * fires when the app *accepts* the refresh, tens of seconds before any host has been
+ * probed, so the rows it would refetch are the ones from before. The active set going
+ * from nonempty to empty is the edge where the estate actually changed.
+ *
+ * The whole collection, not the newest run: refreshes are host-scoped, so two can
  * overlap, and a narrow one started later can reach a terminal status while a broader
  * one is still probing. Watching only `runs[0]` would invalidate on that -- refetching
  * rows the older run has not finished writing -- and then never fire again for the run
- * that mattered. The edge that counts is the active set going from nonempty to empty.
+ * that mattered.
  *
- * Without it, hosts and services stay stale for up to ESTATE_POLL_MS after a refresh
- * the user asked for and is watching - a minute, on the page whose job is to show that
- * something happened.
+ * **Polling at the active cadence.** A refresh writes rows as its dispatches land, so
+ * an estate read at the idle minute would show a half-written sweep until the edge
+ * fires. Three seconds while one is in flight follows it instead.
+ *
+ * Called by the estate queries rather than mounted by a page, which is the correction
+ * to what this used to be. As a page-level hook it lived on Hosts and Inventory only:
+ * start a refresh on either, navigate to Services before it lands, and the component
+ * watching the edge unmounted with the page - leaving Services on pre-refresh rows for
+ * up to a minute. Inside the queries there is nothing to forget. The runs query is
+ * keyed, so a page that reads the history itself shares this one rather than adding a
+ * second.
  */
-export function useInvalidateEstateOnRefreshEnd(
-  runs: OmInventoryRun[] | undefined
-) {
+function useEstateRefreshWatch(): boolean {
   const queryClient = useQueryClient();
+  const { data: runs } = useOmInventoryRuns();
   const wasActive = useRef(false);
 
   const anyActive = (runs ?? []).some((run) => isRunActive(run.status));
@@ -210,6 +223,19 @@ export function useInvalidateEstateOnRefreshEnd(
     }
     wasActive.current = anyActive;
   }, [anyActive, queryClient]);
+
+  return anyActive;
+}
+
+/**
+ * Whether any refresh is in flight, for a page that has a button to disable.
+ *
+ * The same question `useEstateRefreshWatch` answers internally, exposed on its own so a
+ * page does not have to read the history and fold over it to ask.
+ */
+export function useIsEstateRefreshing(): boolean {
+  const { data: runs } = useOmInventoryRuns();
+  return (runs ?? []).some((run) => isRunActive(run.status));
 }
 
 /**

@@ -47,12 +47,11 @@ import { formatCompactDuration } from './format';
 import { ageSeconds, isFailing, toHostRows } from './inventory';
 import {
   useForgetHost,
+  useIsEstateRefreshing,
   useOmInventoryHosts,
-  useInvalidateEstateOnRefreshEnd,
-  useOmInventoryRuns,
   useRefreshInventory,
 } from './inventoryHooks';
-import { isRunActive, OmApiError } from './api';
+import { OmApiError } from './api';
 import type { OmHostRow } from './types';
 
 /** Identifiers and long text the table carries but does not open with. */
@@ -381,15 +380,11 @@ const ForgetDialog = ({
 export const HostsPage = () => {
   const { data, isPending, isError, error } = useOmInventoryHosts();
   const refresh = useRefreshInventory();
-  // Both the per-row action and the estate-wide button below land here, and neither
-  // knows when its probe finished. Watching the newest run is what refetches these rows
-  // when it does.
-  const { data: runs } = useOmInventoryRuns();
-  useInvalidateEstateOnRefreshEnd(runs);
   // Any active run, matching InventoryPage's button: firing an estate-wide sweep into
   // one already in flight only earns a 409, and the row actions below cannot succeed
-  // against a host that sweep already holds.
-  const refreshing = (runs ?? []).some((run) => isRunActive(run.status));
+  // against a host that sweep already holds. The refetch when a sweep lands is the
+  // estate query's own business now, so this page no longer arranges it.
+  const refreshing = useIsEstateRefreshing();
   const [forgetting, setForgetting] = useState<OmHostRow | null>(null);
   const columns = useColumns();
   const rows = useMemo(() => toHostRows(data), [data]);
