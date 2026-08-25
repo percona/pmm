@@ -62,6 +62,59 @@ const HIDDEN_BY_DEFAULT = {
 };
 
 /**
+ * The Hosts page's own filter, on top of what the estate returns.
+ *
+ * `all` is the default: a filter that hides rows by default reads as data loss the
+ * first time it hides something a reader expected to see, which is exactly what
+ * happened here in review — a host that already had a database on it vanished
+ * under the old `available`-by-default and looked like a sync bug. `unmonitored`
+ * and `monitored` are still one click away, for the two narrower questions
+ * ("where could I install something" / "what is PMM already watching") — they
+ * just no longer answer themselves on page load.
+ */
+type HostFilter = 'unmonitored' | 'monitored' | 'all';
+
+const HOST_FILTERS: { id: HostFilter; label: string }[] = [
+  { id: 'unmonitored', label: 'Not monitored' },
+  { id: 'monitored', label: 'Monitored' },
+  { id: 'all', label: 'All' },
+];
+
+/**
+ * `unregistered_only` counts as not monitored: a host with a mongod PMM cannot see
+ * is not a place a fresh install can safely target, but it is also not one PMM is
+ * monitoring — grouping it with `has_service` would hide it from both filters.
+ */
+function matchesHostFilter(row: OmHostRow, filter: HostFilter): boolean {
+  if (filter === 'all') {
+    return true;
+  }
+  const monitored = row.database_state === 'has_service';
+  return filter === 'monitored' ? monitored : !monitored;
+}
+
+const HostFilterChips = ({
+  value,
+  onChange,
+}: {
+  value: HostFilter;
+  onChange: (next: HostFilter) => void;
+}) => (
+  <Stack direction="row" gap={1} flexWrap="wrap">
+    {HOST_FILTERS.map((option) => (
+      <Chip
+        key={option.id}
+        size="small"
+        label={option.label}
+        color="default"
+        variant={value === option.id ? 'filled' : 'outlined'}
+        onClick={() => onChange(option.id)}
+      />
+    ))}
+  </Stack>
+);
+
+/**
  * Why nothing can run on a host, in the three ways it can be true.
  *
  * Kept as one cell rather than three columns because they are not independent: a host
@@ -112,11 +165,12 @@ const RepoCell = ({ row }: { row: OmHostRow }) => {
           row.repo.proxy ? ` via ${row.repo.proxy}` : ' with no proxy'
         }.`}
       >
-        <Box component="span" sx={{ cursor: 'help' }}>
-          {row.repo.latency_ms == null
-            ? 'Reachable'
-            : `${row.repo.latency_ms} ms`}
-        </Box>
+        <Chip
+          size="small"
+          color="success"
+          variant="outlined"
+          label="Reachable"
+        />
       </Tooltip>
     );
   }
@@ -314,54 +368,93 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
 };
 
 /**
- * The dialog that has to tell the truth about what deleting achieves.
+ * The dialog that has to tell the truth about what deleting achieves, for one
+ * host's row or several.
  *
  * Deleting is not suppression: an entity PMM still knows about comes straight back on
  * the next sweep. A confirm reading "delete this host?" invites the reader to believe
  * otherwise and use it as a mute exactly once, so this says what it is actually for -
  * clearing a row left behind when `pmm-agent setup --force` re-registered a node under
  * a new id, which leaves the old row with nothing to refresh it.
+ *
+ * The per-row Forget button and the bulk one share this dialog: the only real
+ * difference is how many names are in the title and how many DELETE calls go out.
+ * SEP has no batch-delete endpoint, so a bulk forget is N independent requests, not
+ * one. They are dispatched together and awaited together; a partial failure keeps
+ * the dialog open with the failures named, rather than closing over an incomplete
+ * result the reader would have to notice was incomplete.
  */
 const ForgetDialog = ({
-  row,
+  rows,
   onClose,
 }: {
-  row: OmHostRow | null;
+  rows: OmHostRow[];
   onClose: () => void;
 }) => {
   const forget = useForgetHost();
-  if (!row) {
+  const [failures, setFailures] = useState<{ name: string; message: string }[]>(
+    []
+  );
+  if (rows.length === 0) {
     return null;
   }
+  const totalServices = rows.reduce((sum, row) => sum + row.services.length, 0);
+  const handleForget = async () => {
+    setFailures([]);
+    const outcomes = await Promise.allSettled(
+      rows.map((row) => forget.mutateAsync(row.node_id))
+    );
+    const failed = outcomes.flatMap((outcome, index) =>
+      outcome.status === 'rejected'
+        ? [{ name: rows[index].name, message: outcome.reason.message }]
+        : []
+    );
+    if (failed.length === 0) {
+      onClose();
+    } else {
+      // The rows that did succeed are already gone from the estate — onSuccess on
+      // the shared mutation invalidated the query for each of them. What is left
+      // to retry is only what is named here.
+      setFailures(failed);
+    }
+  };
   return (
     <Dialog open onClose={onClose} maxWidth="sm">
-      <DialogTitle>Forget {row.name}?</DialogTitle>
+      <DialogTitle>
+        {rows.length === 1
+          ? `Forget ${rows[0].name}?`
+          : `Forget ${rows.length} hosts?`}
+      </DialogTitle>
       <DialogContent>
         <DialogContentText component="div">
           <p>
-            This clears OM&apos;s row for this host and the{' '}
-            {row.services.length} service row(s) on it, along with their probe
-            history.
+            This clears OM&apos;s row for{' '}
+            {rows.length === 1 ? 'this host' : 'these hosts'} and the{' '}
+            {totalServices} service row(s) on{' '}
+            {rows.length === 1 ? 'it' : 'them'}, along with their probe history.
           </p>
           <p>
-            <strong>It does not stop this host being monitored.</strong> If PMM
-            still has the node, the next sweep writes the row again. Use this to
-            clear a duplicate left behind when a node was re-registered under a
-            new ID.
+            <strong>
+              It does not stop {rows.length === 1 ? 'this host' : 'these hosts'}{' '}
+              being monitored.
+            </strong>{' '}
+            If PMM still has the node, the next sweep writes the row again. Use
+            this to clear a duplicate left behind when a node was re-registered
+            under a new ID.
           </p>
         </DialogContentText>
-        {forget.isError && (
-          <Alert severity="error">{forget.error.message}</Alert>
-        )}
+        {failures.map((failure) => (
+          <Alert severity="error" key={failure.name} sx={{ mt: 1 }}>
+            {failure.name}: {failure.message}
+          </Alert>
+        ))}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button
           color="error"
           disabled={forget.isPending}
-          onClick={() =>
-            forget.mutate(row.node_id, { onSuccess: () => onClose() })
-          }
+          onClick={handleForget}
         >
           Forget
         </Button>
@@ -385,9 +478,26 @@ export const HostsPage = () => {
   // against a host that sweep already holds. The refetch when a sweep lands is the
   // estate query's own business now, so this page no longer arranges it.
   const refreshing = useIsEstateRefreshing();
-  const [forgetting, setForgetting] = useState<OmHostRow | null>(null);
+  const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
+  const [hostFilter, setHostFilter] = useState<HostFilter>('all');
+  // Keyed by node_id (this table's getRowId), independent of which filter is
+  // active — switching filters does not silently drop a selection made under a
+  // different one.
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
   const columns = useColumns();
   const rows = useMemo(() => toHostRows(data), [data]);
+  // Filtered for the table only — the counts below stay whole-estate so switching
+  // filters does not make the headline numbers look like they changed too.
+  const filteredRows = useMemo(
+    () => rows.filter((row) => matchesHostFilter(row, hostFilter)),
+    [rows, hostFilter]
+  );
+  // Only the selected rows that are currently visible: a selection made under one
+  // filter should not let a bulk action reach into rows the reader cannot see.
+  const selectedRows = useMemo(
+    () => filteredRows.filter((row) => rowSelection[row.node_id]),
+    [filteredRows, rowSelection]
+  );
 
   const counts = useMemo(
     () => ({
@@ -410,7 +520,7 @@ export const HostsPage = () => {
 
   const table = useMaterialReactTable({
     columns,
-    data: rows,
+    data: filteredRows,
     // The server-issued id, not MRT's default row index. These rows are refetched on a
     // timer and again whenever a refresh lands, so an insertion or a reorder would move
     // an open detail panel onto a different host. The run and cluster tables already
@@ -420,7 +530,10 @@ export const HostsPage = () => {
     enableDensityToggle: false,
     enableExpanding: true,
     enableRowActions: true,
+    enableRowSelection: true,
     positionActionsColumn: 'last',
+    onRowSelectionChange: setRowSelection,
+    state: { rowSelection },
     renderDetailPanel: ({ row }) => <HostDetail row={row.original} />,
     renderRowActions: ({ row }) => (
       <Stack direction="row" spacing={1}>
@@ -441,7 +554,7 @@ export const HostsPage = () => {
         <Button
           size="small"
           color="error"
-          onClick={() => setForgetting(row.original)}
+          onClick={() => setForgetting([row.original])}
         >
           Forget
         </Button>
@@ -480,17 +593,20 @@ export const HostsPage = () => {
           </Typography>
         }
         actions={
-          <Tooltip title="Probe every host. Dispatches one job per host and takes tens of seconds.">
-            <Box component="span">
-              <Button
-                variant="outlined"
-                disabled={refresh.isPending || refreshing}
-                onClick={() => refresh.refreshAll()}
-              >
-                {refreshing ? 'Refreshing…' : 'Refresh all'}
-              </Button>
-            </Box>
-          </Tooltip>
+          <Stack direction="row" alignItems="center" gap={2}>
+            <HostFilterChips value={hostFilter} onChange={setHostFilter} />
+            <Tooltip title="Probe every host. Dispatches one job per host and takes tens of seconds.">
+              <Box component="span">
+                <Button
+                  variant="outlined"
+                  disabled={refresh.isPending || refreshing}
+                  onClick={() => refresh.refreshAll()}
+                >
+                  {refreshing ? 'Refreshing…' : 'Refresh all'}
+                </Button>
+              </Box>
+            </Tooltip>
+          </Stack>
         }
       />
       {refresh.isError && (
@@ -538,8 +654,44 @@ export const HostsPage = () => {
           </Typography>
         )}
       </Stack>
+      {selectedRows.length > 0 && (
+        <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
+          <Typography variant="body2">
+            <strong>{selectedRows.length}</strong> selected
+          </Typography>
+          <Tooltip title="Probe every selected host. Dispatches one job per host and takes tens of seconds.">
+            <Box component="span">
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={refresh.isPending || refreshing}
+                onClick={() => {
+                  refresh.refreshHosts(selectedRows.map((row) => row.node_id));
+                  setRowSelection({});
+                }}
+              >
+                Refresh selected
+              </Button>
+            </Box>
+          </Tooltip>
+          <Button
+            size="small"
+            variant="outlined"
+            color="error"
+            onClick={() => setForgetting(selectedRows)}
+          >
+            Forget selected
+          </Button>
+        </Stack>
+      )}
       <MaterialReactTable table={table} />
-      <ForgetDialog row={forgetting} onClose={() => setForgetting(null)} />
+      <ForgetDialog
+        rows={forgetting}
+        onClose={() => {
+          setForgetting([]);
+          setRowSelection({});
+        }}
+      />
     </Box>
   );
 };
