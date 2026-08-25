@@ -14,6 +14,7 @@
     - /srv/nginx/tmp/uwsgi/
     - /srv/nginx/tmp/scgi/
     - /etc/nginx/conf.d/
+    - /etc/nginx/sep.d/
     - /etc/nginx/ssl/
 
 - name: Enable nginx 1.26 module stream
