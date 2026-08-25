@@ -16,11 +16,13 @@
 package proxy
 
 import (
+	"context"
 	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
@@ -282,5 +284,50 @@ func TestLogsFailuresAtWarn(t *testing.T) { //nolint:paralleltest
 		t.Cleanup(func() { assert.NoError(t, resp.Body.Close()) })
 		require.Equal(t, http.StatusBadGateway, resp.StatusCode)
 		hasWarn(t, hook, "Failed to proxy request")
+	})
+
+	t.Run("client cancellation is not a warning", func(t *testing.T) { //nolint:paralleltest
+		// context.Canceled reaches ErrorHandler through the RoundTrip path. Nothing
+		// failed upstream, so it must not warn -- Grafana cancelling superseded
+		// queries would otherwise be a steady stream of them.
+		dead := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+		deadURL := dead.URL
+		dead.Close()
+
+		hook := test.NewGlobal()
+		uri, err := url.Parse(deadURL)
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithCancel(t.Context())
+		cancel()
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(ctx, http.MethodGet, deadURL, nil)
+		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() { assert.NoError(t, resp.Body.Close()) })
+		require.Equal(t, http.StatusBadGateway, resp.StatusCode)
+		for _, e := range hook.AllEntries() {
+			assert.NotEqual(t, logrus.WarnLevel, e.Level, "cancellation must not warn, got: %s", e.Message)
+		}
+	})
+
+	t.Run("deadline exceeded is a gateway timeout", func(t *testing.T) { //nolint:paralleltest
+		hook := test.NewGlobal()
+		uri, err := url.Parse("http://192.0.2.1:9")
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithTimeout(t.Context(), time.Nanosecond)
+		defer cancel()
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(ctx, http.MethodGet, "http://192.0.2.1:9", nil)
+		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() { assert.NoError(t, resp.Body.Close()) })
+		require.Equal(t, http.StatusGatewayTimeout, resp.StatusCode)
+		hasWarn(t, hook, "Timed out proxying request")
 	})
 }

@@ -17,8 +17,10 @@
 package proxy
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -53,13 +55,28 @@ func getHandler(cfg Config) http.HandlerFunc {
 		Director: director(cfg.TargetURL, cfg.HeaderName),
 		// Without this, httputil's default handler reports upstream failures through
 		// the standard logger, so they reach the log without a level and cannot be
-		// filtered alongside everything else here. Same 502 as the default.
+		// filtered alongside everything else here.
 		ErrorHandler: func(rw http.ResponseWriter, req *http.Request, err error) {
-			logrus.WithError(err).WithFields(logrus.Fields{
+			l := logrus.WithError(err).WithFields(logrus.Fields{
 				"method": req.Method,
 				"path":   req.URL.Path,
-			}).Warn("Failed to proxy request")
-			rw.WriteHeader(http.StatusBadGateway)
+			})
+			// A status is written in every branch: returning without one makes
+			// net/http send 200, which would be worse than any error code here.
+			switch {
+			case errors.Is(err, context.Canceled):
+				// The client hung up -- Grafana cancels superseded queries, and nginx
+				// drops the upstream connection when a viewer navigates away. Nothing
+				// failed upstream, so warning here would be routine noise.
+				l.Debug("Client cancelled request")
+				rw.WriteHeader(http.StatusBadGateway)
+			case errors.Is(err, context.DeadlineExceeded):
+				l.Warn("Timed out proxying request")
+				rw.WriteHeader(http.StatusGatewayTimeout)
+			default:
+				l.Warn("Failed to proxy request")
+				rw.WriteHeader(http.StatusBadGateway)
+			}
 		},
 	}
 
