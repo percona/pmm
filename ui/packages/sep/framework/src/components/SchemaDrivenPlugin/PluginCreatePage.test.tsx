@@ -264,6 +264,45 @@ describe('PluginCreatePage — failure reporting', () => {
     );
   });
 
+  it('hands the failure to a custom form slot, which is its only signal', async () => {
+    // The slot bypasses SchemaFormRenderer, and the framework raises no error
+    // toast alongside it, so dropping this state reports the failure nowhere.
+    const user = userEvent.setup();
+    const slotProps: { submitError?: string | null }[] = [];
+    const capturingSlot: RenderFormSlot = ({ onSubmit, submitError }) => {
+      slotProps.push({ submitError });
+      return (
+        <div>
+          <button type="button" onClick={() => onSubmit({ title: 'x' })}>
+            Submit slot
+          </button>
+          {submitError ? <div role="alert">{submitError}</div> : null}
+        </div>
+      );
+    };
+
+    renderPage({ renderCreateForm: capturingSlot });
+    await user.click(screen.getByRole('button', { name: 'Submit slot' }));
+    await waitFor(() => expect(mockCreateTaskMutate).toHaveBeenCalledTimes(1));
+
+    act(() =>
+      mockCreateTaskMutate.mock.calls[0][1].onError(
+        new ApiError({
+          kind: 'http',
+          status: 403,
+          message: "You don't have permission to perform this action",
+        })
+      )
+    );
+
+    await waitFor(() =>
+      expect(slotProps.at(-1)?.submitError).toBe(
+        "You don't have permission to perform this action"
+      )
+    );
+    expect(inTreeAlerts()).toHaveLength(1);
+  });
+
   it('shows no banner on a successful create', async () => {
     const user = userEvent.setup();
     renderPage({ renderCreateForm: submitSlot });

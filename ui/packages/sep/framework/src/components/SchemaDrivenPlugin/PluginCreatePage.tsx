@@ -163,6 +163,8 @@ export function PluginCreatePage({
         loading: create.isPending,
         capabilities,
         renderField,
+        submitError,
+        fieldErrors,
       }) ?? (
         <SchemaFormRenderer
           sections={sections}

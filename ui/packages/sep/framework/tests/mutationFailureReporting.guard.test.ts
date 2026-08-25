@@ -109,13 +109,18 @@ describe('mutation failure reporting', () => {
     const files = sourceFiles(PACKAGES_DIR);
 
     // A mis-resolved root would make the scan pass by finding nothing at all.
-    expect(files.length).toBeGreaterThan(100);
-    expect(
-      files.some((file) =>
-        file.endsWith(path.join('sep', 'framework', 'src', 'index.ts'))
-      ),
-      `Scan rooted at ${PACKAGES_DIR} did not reach the framework package.`
-    ).toBe(true);
+    // Assert a sentinel from each scanned package rather than a file count: the
+    // count drifts with the repo and can be satisfied by the wrong tree.
+    const sentinels = [
+      path.join('sep', 'framework', 'src', 'index.ts'),
+      path.join('plugins', 'atw', 'src', 'AtwApp.tsx'),
+    ];
+    for (const sentinel of sentinels) {
+      expect(
+        files.some((file) => file.endsWith(sentinel)),
+        `Scan rooted at ${PACKAGES_DIR} did not reach ${sentinel}.`
+      ).toBe(true);
+    }
 
     for (const file of files) {
       const source = readFileSync(file, 'utf8');
