@@ -218,12 +218,11 @@ export const Table: FC<TableProps> = ({
                   </div>
                 ) : (
                   <>
-                    {!!rows.length && rows.map(RenderRow)}
-                    {!rows.length && (
+                    {rows.length ? rows.map(RenderRow) :
                       <div data-testid="table-no-data" className={styles.empty(scroll.y)}>
                         {noData || <h1>No data</h1>}
                       </div>
-                    )}
+                    }
                   </>
                 )}
               </Scrollbar>
