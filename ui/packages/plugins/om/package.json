@@ -13,6 +13,9 @@
     "lint": "oxlint --config ../../../oxlintrc.json src",
     "format": "oxfmt --write src"
   },
+  "dependencies": {
+    "date-fns": "4.1.0"
+  },
   "devDependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -45,8 +48,5 @@
     "notistack": "^3.0.0",
     "react": "^19.0.0",
     "react-router-dom": "^7.14.0"
-  },
-  "dependencies": {
-    "date-fns": "4.1.0"
   }
 }
