@@ -625,6 +625,35 @@ certs:
       -----END DH PARAMETERS-----
 ```
 
+### Manage the encryption key
+
+PMM encrypts the credentials it stores for monitored services. All replicas share one PostgreSQL database, so they must all use the **same** encryption key: a replica holding a different key cannot decrypt credentials written by the others, and the affected services stop being monitored.
+
+The chart handles this for you. On installation it generates one key, stores it in a Kubernetes secret named `pg-encryption-key`, and mounts it into every replica at the path given by `PMM_ENCRYPTION_KEY_PATH`. Upgrades and rescaling reuse the existing key, so you do not need to configure anything.
+
+Two things follow from this:
+
+- **Back up the secret.** It is the only copy of the key. Without it, the credentials in a restored database cannot be decrypted:
+
+    ```sh
+    kubectl get secret pg-encryption-key -n pmm -o yaml > pg-encryption-key-backup.yaml
+    ```
+
+- **Keep the secret when reinstalling against existing data.** The secret is not owned by the Helm release and survives `helm uninstall`. If you delete it but keep the PostgreSQL data, a fresh installation generates a new key that cannot read the existing rows. Restore the backup before reinstalling:
+
+    ```sh
+    kubectl apply -f pg-encryption-key-backup.yaml
+    ```
+
+To supply your own key instead, create the secret before installing the chart:
+
+```sh
+kubectl create secret generic pg-encryption-key -n pmm \
+  --from-literal=key="$(pmm-encryption-rotation --generate-key)"
+```
+
+See [PMM data encryption](../admin/security/data_encryption.md) for the key format and rotation.
+
 ### Configure storage
 
 PMM HA stores data in distributed databases, not on the PMM server pods themselves. To increase storage capacity, configure the ClickHouse and VictoriaMetrics clusters.

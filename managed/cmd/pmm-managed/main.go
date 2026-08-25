@@ -107,6 +107,7 @@ import (
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/distribution"
+	"github.com/percona/pmm/managed/utils/encryption"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
@@ -145,6 +146,14 @@ const (
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
+
+// mEncryptionKeyMismatch makes the condition visible to monitoring, since standalone PMM keeps
+// running with a mismatched key.
+var mEncryptionKeyMismatch = prom.NewGauge(prom.GaugeOpts{
+	Namespace: "pmm_managed",
+	Name:      "encryption_key_mismatch",
+	Help:      "1 if the local encryption key does not match the key the database was encrypted with, 0 otherwise.",
+})
 
 func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 	l := logrus.WithField("component", "logs.zip")
@@ -652,6 +661,30 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 	}
 }
 
+// verifyEncryptionKey checks that this node holds the encryption key the database was encrypted
+// with.
+//
+// A mismatch is fatal in HA, where the node would otherwise write rows its peers cannot read. A
+// standalone node only logs it, so that an upgrade cannot turn an installation whose key went
+// missing into one that no longer boots.
+func verifyEncryptionKey(l *logrus.Entry, db *reform.DB, haEnabled bool) {
+	err := models.VerifyEncryptionKey(db)
+	if err == nil {
+		return
+	}
+	if !errors.Is(err, models.ErrEncryptionKeyMismatch) {
+		l.Panicf("Failed to verify encryption key: %+v", err)
+	}
+
+	mEncryptionKeyMismatch.Set(1)
+	if haEnabled {
+		l.Fatalf("%s. Every PMM Server node in an HA cluster must use the same encryption key: "+
+			"copy %s from a node that works and restart this one.", err, encryption.KeyPath())
+	}
+	l.Errorf("%s. Stored credentials cannot be decrypted, so monitoring will not work until the "+
+		"matching key is restored to %s.", err, encryption.KeyPath())
+}
+
 // newClickhouseDB return a new Clickhouse db.
 func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error) {
 	db, err := sql.Open("clickhouse", dsn)
@@ -899,6 +932,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
+
+	prom.MustRegister(mEncryptionKeyMismatch)
+	verifyEncryptionKey(l, db, *haEnabled)
 
 	// Generate unique PMM Server ID if it's not already.
 	err = models.SetPMMServerID(db)

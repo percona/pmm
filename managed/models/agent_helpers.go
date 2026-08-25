@@ -232,6 +232,40 @@ type AgentFilters struct {
 	Disabled *bool
 }
 
+// decryptAgents decrypts Agent rows as returned by reform.
+func decryptAgents(structs []reform.Struct) ([]*Agent, error) {
+	agents := make([]*Agent, len(structs))
+	for i, s := range structs {
+		decryptedAgent, err := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
+		if err != nil {
+			return nil, err
+		}
+		agents[i] = &decryptedAgent
+	}
+
+	return agents, nil
+}
+
+// insertAgent encrypts the Agent, inserts it and returns it decrypted again.
+func insertAgent(q *reform.Querier, agent Agent) (*Agent, error) {
+	encryptedAgent, err := EncryptAgent(agent)
+	if err != nil {
+		return nil, err
+	}
+
+	err = q.Insert(&encryptedAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	decryptedAgent, err := DecryptAgent(encryptedAgent)
+	if err != nil {
+		return nil, err
+	}
+
+	return &decryptedAgent, nil
+}
+
 // FindAgents returns Agents by filters.
 func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	var conditions []string
@@ -294,13 +328,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		return nil, err
 	}
 
-	agents := make([]*Agent, len(structs))
-	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		agents[i] = &decryptedAgent
-	}
-
-	return agents, nil
+	return decryptAgents(structs)
 }
 
 // FindAgentByID finds Agent by ID.
@@ -317,7 +345,13 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 		}
 		return nil, err
 	}
-	return new(DecryptAgent(*agent)), nil
+
+	decryptedAgent, err := DecryptAgent(*agent)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(decryptedAgent), nil
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -337,12 +371,7 @@ func FindAgentsByIDs(q *reform.Querier, ids []string) ([]*Agent, error) {
 		return nil, err
 	}
 
-	res := make([]*Agent, len(structs))
-	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
-	}
-	return res, nil
+	return decryptAgents(structs)
 }
 
 // FindDBConfigForService find DB config from agents running on service specified by serviceID.
@@ -390,10 +419,9 @@ func FindDBConfigForService(q *reform.Querier, serviceID string) (*DBConfig, err
 		return nil, err
 	}
 
-	res := make([]*Agent, len(structs))
-	for i, s := range structs {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
+	res, err := decryptAgents(structs)
+	if err != nil {
+		return nil, err
 	}
 
 	if len(res) == 0 {
@@ -418,13 +446,7 @@ func FindPMMAgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, err
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get agents by runs_on_node_id, %s", nodeID)
 	}
 
-	res := make([]*Agent, 0, len(structs))
-	for _, str := range structs {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
-		res = append(res, &decryptedAgent)
-	}
-
-	return res, nil
+	return decryptAgents(structs)
 }
 
 // FindPMMAgentsForService gets pmm-agents for service.
@@ -463,13 +485,7 @@ func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, err
 	if err != nil {
 		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get pmm-agents for service %s", serviceID)
 	}
-	res := make([]*Agent, 0, len(pmmAgentRecords))
-	for _, str := range pmmAgentRecords {
-		decryptedAgent := DecryptAgent(*str.(*Agent)) //nolint:forcetypeassert
-		res = append(res, &decryptedAgent)
-	}
-
-	return res, nil
+	return decryptAgents(pmmAgentRecords)
 }
 
 // FindPMMAgentsForServicesOnNode gets pmm-agents for Services running on Node.
@@ -545,12 +561,7 @@ func FindAgentsForScrapeConfig(q *reform.Querier, pmmAgentID *string, pushMetric
 		return nil, err
 	}
 
-	res := make([]*Agent, len(allAgents))
-	for i, s := range allAgents {
-		decryptedAgent := DecryptAgent(*s.(*Agent)) //nolint:forcetypeassert
-		res[i] = &decryptedAgent
-	}
-	return res, nil
+	return decryptAgents(allAgents)
 }
 
 // FindAllPMMAgentsIDs returns pmm-agents-ids with agents.
@@ -592,7 +603,12 @@ func FindPmmAgentIDToRunActionOrJob(pmmAgentID string, agents []*Agent) (string,
 
 // UpdateAgent updates the Agent in the database.
 func UpdateAgent(q *reform.Querier, agent *Agent) error {
-	err := q.Update(new(EncryptAgent(*agent)))
+	encryptedAgent, err := EncryptAgent(*agent)
+	if err != nil {
+		return err
+	}
+
+	err = q.Update(new(encryptedAgent))
 	if err != nil {
 		return fmt.Errorf("failed to update Agent: %w", err)
 	}
@@ -706,12 +722,7 @@ func CreateNodeExporter(q *reform.Querier,
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
-	err = q.Insert(&encryptedAgent)
-	if err != nil {
-		return nil, err
-	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return insertAgent(q, *row)
 }
 
 // CreateExternalExporterParams params for add external exporter.
@@ -796,12 +807,7 @@ func CreateExternalExporter(q *reform.Querier, params *CreateExternalExporterPar
 		return nil, err
 	}
 
-	encryptedAgent := EncryptAgent(*row)
-	err = q.Insert(&encryptedAgent)
-	if err != nil {
-		return nil, err
-	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return insertAgent(q, *row)
 }
 
 // CreateAgentParams params for add common exporter.
@@ -998,12 +1004,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// do nothing
 	}
 
-	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
-	err = q.Insert(&encryptedAgent)
-	if err != nil {
-		return nil, err
-	}
-	return new(DecryptAgent(encryptedAgent)), nil
+	return insertAgent(q, trimUnicodeNilsInCertFiles(*row))
 }
 
 func trimUnicodeNilsInCertFiles(agent Agent) Agent {
@@ -1431,13 +1432,23 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	row.RTAOptions.Merge(params.RTAOptions)
 
 	// need to encrypt Agent's sensitive data before update
-	row = new(EncryptAgent(*row))
+	encryptedAgent, err := EncryptAgent(*row)
+	if err != nil {
+		return nil, err
+	}
+
+	row = new(encryptedAgent)
 	err = q.Update(row)
 	if err != nil {
 		return nil, err
 	}
 
-	return new(DecryptAgent(*row)), nil
+	decryptedAgent, err := DecryptAgent(*row)
+	if err != nil {
+		return nil, err
+	}
+
+	return new(decryptedAgent), nil
 }
 
 // RemoveAgent removes Agent by ID.
