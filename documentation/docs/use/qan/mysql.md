@@ -42,3 +42,12 @@ PMM Agent includes a configurable **Performance Schema Refresh Rate** that can h
 
 If you're still missing some query examples, consider [using the slow query log (`slowlog`)](../../install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as the query source instead. 
 The `slowlog` retains actual query texts over time and can help capture examples even when Performance Schema history buffers are exhausted.
+
+
+## Prepared statements show placeholders instead of values
+
+If your application uses server-side prepared statements (common with JDBC and most ORM frameworks), query examples in QAN appear as `?` placeholders instead of literal values, and EXPLAIN is unavailable for those queries.
+
+This is how upstream MySQL exposes prepared statements to Performance Schema, not a PMM limitation.
+
+To see real values and working EXPLAIN, switch to the [file-based slow query log](../../install-pmm/install-pmm-client/connect-database/mysql/mysql.md#configure-data-source) as your query source. The slowlog records executed statements with their actual parameter values.

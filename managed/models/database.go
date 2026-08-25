@@ -73,11 +73,11 @@ var DefaultAgentEncryptionColumnsV3 = []encryption.Table{
 			{Name: "username"},
 			{Name: "password"},
 			{Name: "agent_password"},
-			{Name: "aws_options", CustomHandler: EncryptAWSOptionsHandler},
-			{Name: "azure_options", CustomHandler: EncryptAzureOptionsHandler},
-			{Name: "mongo_options", CustomHandler: EncryptMongoDBOptionsHandler},
-			{Name: "mysql_options", CustomHandler: EncryptMySQLOptionsHandler},
-			{Name: "postgresql_options", CustomHandler: EncryptPostgreSQLOptionsHandler},
+			{Name: "aws_options", CustomEncryptHandler: EncryptAWSOptionsHandler, CustomDecryptHandler: DecryptAWSOptionsHandler},
+			{Name: "azure_options", CustomEncryptHandler: EncryptAzureOptionsHandler, CustomDecryptHandler: DecryptAzureOptionsHandler},
+			{Name: "mongo_options", CustomEncryptHandler: EncryptMongoDBOptionsHandler, CustomDecryptHandler: DecryptMongoDBOptionsHandler},
+			{Name: "mysql_options", CustomEncryptHandler: EncryptMySQLOptionsHandler, CustomDecryptHandler: DecryptMySQLOptionsHandler},
+			{Name: "postgresql_options", CustomEncryptHandler: EncryptPostgreSQLOptionsHandler, CustomDecryptHandler: DecryptPostgreSQLOptionsHandler},
 		},
 	},
 }
@@ -1297,6 +1297,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		return nil, err
 	}
 
+	removeStaleHANodes(ctx, db, params.HANodeID, params.HAPeers)
+
 	return db, nil
 }
 
@@ -1515,6 +1517,58 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 
 		return nil
 	})
+}
+
+// removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are
+// cosmetic, so failures are only logged and never returned: tidying them up must not take a replica
+// with it.
+//
+// It runs at startup on every replica, deliberately not on the elected leader. PMM_HA_PEERS is
+// fixed into a process's environment when the pod starts and cannot be re-read, so only at startup
+// is it guaranteed to describe the current cluster - the pod was just created from the current
+// StatefulSet template. Leadership can be acquired much later: a rolling update recreates the
+// leader, forcing an election that a not-yet-updated pod can win, and that pod would then sweep
+// with a peer list older than the cluster. On a scale-up that deletes the new replica's Node and
+// Agents, which was reproduced on a 2 -> 3 scale-up. It also has to work without a leader at all,
+// since a replica scaled down to one cannot reach quorum.
+//
+// Replicas racing each other is harmless: each Node is removed in a transaction of its own, and one
+// that another replica already took is tolerated.
+//
+// The localHANodeID argument is the calling replica's own PMM_HA_NODE_ID; see FindStaleHANodes.
+func removeStaleHANodes(ctx context.Context, db *reform.DB, localHANodeID string, haPeers []string) {
+	if localHANodeID == "" {
+		return
+	}
+
+	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": localHANodeID})
+
+	nodes, err := FindStaleHANodes(db.WithContext(ctx), localHANodeID, haPeers)
+	if err != nil {
+		l.WithError(err).Warn("Failed to look for stale HA nodes.")
+		return
+	}
+
+	for _, node := range nodes {
+		nodeL := l.WithFields(logrus.Fields{"node_id": node.NodeID, "node_name": node.NodeName})
+
+		// A transaction per Node: a failure rolls that Node back whole instead of leaving it
+		// half-removed, and leaves the Nodes this sweep hasn't reached yet alone.
+		err := db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			return RemoveStaleHANode(tx.Querier, node.NodeID)
+		})
+		switch {
+		case err == nil:
+			nodeL.Info("Removed stale HA node, it is not a part of the cluster anymore.")
+		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
+			nodeL.WithError(err).Info("Stale HA node was already removed by another replica.")
+		case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
+			nodeL.WithError(err).Info("Startup was cancelled, stopping the removal of stale HA nodes.")
+			return
+		default:
+			nodeL.WithError(err).Warn("Failed to remove a stale HA node, keeping it.")
+		}
+	}
 }
 
 type agentConfig struct {
