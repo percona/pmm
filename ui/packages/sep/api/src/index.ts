@@ -151,6 +151,7 @@ export {
   usePluginEntityList,
   usePluginEntityDetail,
   normalizePluginListResponse,
+  fetchAllPluginListPages,
   DEFAULT_PLUGIN_LIST_OFFSET,
   DEFAULT_PLUGIN_LIST_LIMIT,
   useCreatePluginEntity,
