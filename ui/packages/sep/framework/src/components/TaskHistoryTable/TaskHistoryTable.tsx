@@ -45,6 +45,8 @@ import { StatusBadge } from './StatusBadge';
 import { TaskFilesDialog } from './TaskFilesDialog';
 import type {
   TaskHistoryEntry,
+  TaskHistoryStopContract,
+  TaskHistoryTableBaseProps,
   TaskHistoryTableProps,
 } from './TaskHistoryTable.types';
 
@@ -420,7 +422,10 @@ function TaskHistoryTableView({
   );
 }
 
-type ConnectedProps = Omit<TaskHistoryTableProps, 'data' | 'isLoading'>;
+// Omit from the base rather than the props union: `Omit` is not distributive,
+// so applying it to the union would collapse the stop contract's two branches.
+type ConnectedProps = Omit<TaskHistoryTableBaseProps, 'data' | 'isLoading'> &
+  TaskHistoryStopContract;
 
 function ConnectedTaskHistoryTable({
   taskName,
@@ -495,12 +500,13 @@ function ConnectedTaskHistoryTable({
   );
 }
 
-interface PresentationalProps extends Omit<
-  TaskHistoryTableProps,
-  'taskName' | 'statusFilter' | 'pollingIntervalMs' | 'disablePolling'
-> {
-  data: TaskHistoryEntry[];
-}
+type PresentationalProps = Omit<
+  TaskHistoryTableBaseProps,
+  'taskName' | 'statusFilter' | 'pollingIntervalMs' | 'disablePolling' | 'data'
+> &
+  TaskHistoryStopContract & {
+    data: TaskHistoryEntry[];
+  };
 
 function PresentationalTaskHistoryTable({
   data,

@@ -246,7 +246,12 @@ describe('TaskHistoryTable actions', () => {
     const data = [makeEntry(2, 'running')];
     render(
       <Wrapper client={client}>
-        <TaskHistoryTable data={data} disablePolling onStopTask={onStopTask} />
+        <TaskHistoryTable
+          data={data}
+          disablePolling
+          onStopTask={onStopTask}
+          actionError={null}
+        />
       </Wrapper>
     );
     await userEvent.click(screen.getByRole('button', { name: 'Stop task' }));
@@ -277,6 +282,7 @@ describe('TaskHistoryTable actions', () => {
           disablePolling
           onStopTask={onStopTask}
           isStopping
+          actionError={null}
         />
       </Wrapper>
     );
@@ -288,7 +294,12 @@ describe('TaskHistoryTable actions', () => {
     const data = [makeEntry(2, 'running')];
     render(
       <Wrapper client={client}>
-        <TaskHistoryTable data={data} disablePolling onStopTask={onStopTask} />
+        <TaskHistoryTable
+          data={data}
+          disablePolling
+          onStopTask={onStopTask}
+          actionError={null}
+        />
       </Wrapper>
     );
     expect(screen.getByRole('button', { name: 'Stop task' })).toBeEnabled();
@@ -299,7 +310,12 @@ describe('TaskHistoryTable actions', () => {
     const data = [makeEntry(2, 'running')];
     render(
       <Wrapper client={client}>
-        <TaskHistoryTable data={data} disablePolling onStopTask={onStopTask} />
+        <TaskHistoryTable
+          data={data}
+          disablePolling
+          onStopTask={onStopTask}
+          actionError={null}
+        />
       </Wrapper>
     );
     await userEvent.click(screen.getByRole('button', { name: 'Stop task' }));
@@ -558,6 +574,24 @@ describe('TaskHistoryTable connected stop mutation', () => {
     ).toHaveTextContent("You don't have permission to perform this action");
   });
 
+  it('makes a caller-owned stop without failure reporting a type error', () => {
+    // The contract that keeps a caller from wiring the stop and silently
+    // dropping its refusal. Runtime is unaffected; the guarantee is the
+    // compiler rejecting the omission, which @ts-expect-error asserts.
+    expect(() =>
+      render(
+        <Wrapper client={makeQueryClient()}>
+          {/* @ts-expect-error `onStopTask` requires `actionError`. */}
+          <TaskHistoryTable
+            data={[makeEntry(2, 'running')]}
+            disablePolling
+            onStopTask={vi.fn()}
+          />
+        </Wrapper>
+      )
+    ).not.toThrow();
+  });
+
   it('renders a caller-owned stop failure passed as actionError', () => {
     render(
       <Wrapper client={makeQueryClient()}>
@@ -660,6 +694,7 @@ describe('TaskHistoryTable — write access', () => {
           data={[makeEntry(2, 'running')]}
           disablePolling
           onStopTask={vi.fn()}
+          actionError={null}
         />
       </Wrapper>
     );
@@ -677,6 +712,7 @@ describe('TaskHistoryTable — write access', () => {
           data={[makeEntry(2, 'running')]}
           disablePolling
           onStopTask={vi.fn()}
+          actionError={null}
         />
       </Wrapper>
     );

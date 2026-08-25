@@ -97,6 +97,7 @@ export {
 } from './components/TaskHistoryTable';
 export type {
   TaskHistoryTableProps,
+  TaskHistoryStopContract,
   TaskHistoryEntry,
   TaskHistoryStatus,
   PaginatedTaskHistory,
