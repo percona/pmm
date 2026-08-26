@@ -32,6 +32,30 @@ var (
 	v2_28_00 = version.MustParse("2.28.0-0")
 )
 
+// defaultNodeExporterCollectors lists the collectors enabled below that node_exporter also enables
+// on its own. For those, dropping PMM's --collector.<name> flag leaves the collector running, so an
+// explicit --no-collector.<name> is needed as well. This is deliberately not every default-on
+// collector: only a collector nodeExporterConfig already passes --collector.<name> for may be added,
+// because that proves the flag exists in the node_exporter of every pmm-agent this code builds
+// configs for. An unknown flag stops the exporter from starting.
+var defaultNodeExporterCollectors = []string{
+	"bonding",
+	"cpu",
+	"diskstats",
+	"entropy",
+	"filefd",
+	"filesystem",
+	"hwmon",
+	"loadavg",
+	"meminfo",
+	"netdev",
+	"netstat",
+	"stat",
+	"time",
+	"uname",
+	"vmstat",
+}
+
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := models.TemplateDelimsPair(exporter.ExporterOptions.MetricsPath)
@@ -123,6 +147,14 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 	}
 
 	args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
+
+	if node.Distro != "darwin" {
+		args = append(args, collectors.DisableDefaultEnabledCollectors(
+			"--no-collector.",
+			defaultNodeExporterCollectors,
+			exporter.ExporterOptions.DisabledCollectors,
+		)...)
+	}
 
 	if exporter.ExporterOptions.MetricsPath != "" {
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
