@@ -58,6 +58,7 @@ ListInventoryRunsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListInventoryRunsParams struct {
+
 	/* Limit.
 
 	   How many to return, newest first. Defaults to 20, capped at 100.
@@ -65,6 +66,25 @@ type ListInventoryRunsParams struct {
 	   Format: int32
 	*/
 	Limit *int32
+
+	/* Since.
+
+	     Inclusive lower bound on start_time. Unset means no lower bound.
+
+	Applied before limit, so a week window is the newest runs *in that week*,
+	not the newest overall then those that happen to fall in it.
+
+	     Format: date-time
+	*/
+	Since *strfmt.DateTime
+
+	/* Until.
+
+	   Inclusive upper bound on start_time. Unset means no upper bound.
+
+	   Format: date-time
+	*/
+	Until *strfmt.DateTime
 
 	timeout    time.Duration
 	Context    context.Context
@@ -130,8 +150,31 @@ func (o *ListInventoryRunsParams) SetLimit(limit *int32) {
 	o.Limit = limit
 }
 
+// WithSince adds the since to the list inventory runs params
+func (o *ListInventoryRunsParams) WithSince(since *strfmt.DateTime) *ListInventoryRunsParams {
+	o.SetSince(since)
+	return o
+}
+
+// SetSince adds the since to the list inventory runs params
+func (o *ListInventoryRunsParams) SetSince(since *strfmt.DateTime) {
+	o.Since = since
+}
+
+// WithUntil adds the until to the list inventory runs params
+func (o *ListInventoryRunsParams) WithUntil(until *strfmt.DateTime) *ListInventoryRunsParams {
+	o.SetUntil(until)
+	return o
+}
+
+// SetUntil adds the until to the list inventory runs params
+func (o *ListInventoryRunsParams) SetUntil(until *strfmt.DateTime) {
+	o.Until = until
+}
+
 // WriteToRequest writes these params to a swagger request
 func (o *ListInventoryRunsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -147,7 +190,42 @@ func (o *ListInventoryRunsParams) WriteToRequest(r runtime.ClientRequest, reg st
 		}
 		qLimit := swag.FormatInt32(qrLimit)
 		if qLimit != "" {
+
 			if err := r.SetQueryParam("limit", qLimit); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.Since != nil {
+
+		// query param since
+		var qrSince strfmt.DateTime
+
+		if o.Since != nil {
+			qrSince = *o.Since
+		}
+		qSince := qrSince.String()
+		if qSince != "" {
+
+			if err := r.SetQueryParam("since", qSince); err != nil {
+				return err
+			}
+		}
+	}
+
+	if o.Until != nil {
+
+		// query param until
+		var qrUntil strfmt.DateTime
+
+		if o.Until != nil {
+			qrUntil = *o.Until
+		}
+		qUntil := qrUntil.String()
+		if qUntil != "" {
+
+			if err := r.SetQueryParam("until", qUntil); err != nil {
 				return err
 			}
 		}

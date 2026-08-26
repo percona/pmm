@@ -1102,6 +1102,20 @@
             "description": "How many to return, newest first. Defaults to 20, capped at 100.",
             "name": "limit",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Inclusive lower bound on start_time. Unset means no lower bound.\n\nApplied before limit, so a week window is the newest runs *in that week*,\nnot the newest overall then those that happen to fall in it.",
+            "name": "since",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "description": "Inclusive upper bound on start_time. Unset means no upper bound.",
+            "name": "until",
+            "in": "query"
           }
         ],
         "responses": {
