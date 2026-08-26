@@ -75,7 +75,7 @@ type vmAlertExternalRules interface {
 
 // supervisordService is a subset of methods of supervisord.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type supervisordService interface { //nolint:iface
+type supervisordService interface {
 	UpdateConfiguration(settings *models.Settings) error
 	ProgramRunning(ctx context.Context, program string) bool
 }
@@ -115,6 +115,6 @@ type victoriaMetricsParams interface {
 }
 
 // nomadService represents an interface for managing and updating Nomad-related configurations in a given context.
-type nomadService interface { //nolint:iface
+type nomadService interface {
 	UpdateConfiguration(settings *models.Settings) error
 }
