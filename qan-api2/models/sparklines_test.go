@@ -54,7 +54,7 @@ func unreachableDB(t *testing.T) *sqlx.DB {
 // sparklineCtx carries incoming gRPC metadata, which headersToLbacFilter requires.
 func sparklineCtx(t *testing.T) context.Context {
 	t.Helper()
-	return metadata.NewIncomingContext(context.Background(), metadata.Pairs("test", t.Name()))
+	return metadata.NewIncomingContext(t.Context(), metadata.Pairs("test", t.Name()))
 }
 
 // sparklineRanges covers every shape of period the point arithmetic has to survive,
