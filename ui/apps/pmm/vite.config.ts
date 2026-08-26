@@ -1,7 +1,7 @@
 import fs from 'fs';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import react from '@vitejs/plugin-react-swc';
-import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
@@ -10,6 +10,7 @@ const CERT_CRT = '/srv/nginx/certificate.crt';
 const hasNginxCerts = fs.existsSync(CERT_KEY) && fs.existsSync(CERT_CRT);
 const port = hasNginxCerts ? 5173 : 5174;
 const target = hasNginxCerts ? 'https://localhost:8443' : 'https://localhost';
+// pnpm link'd packages don't bump the lockfile hash, so Vite's dep cache can go stale for them.
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -24,6 +25,7 @@ export default defineConfig({
     dedupe: [
       'react',
       'react-dom',
+      'react-is',
       '@emotion/react',
       '@emotion/styled',
       '@mui/material',
@@ -32,18 +34,13 @@ export default defineConfig({
       '@mui/utils',
     ],
   },
-  optimizeDeps: {
-    // Uncomment when using yarn link for @percona/percona-ui locally
-    // exclude: ['@percona/percona-ui'],
-    force: true,
-  },
   server: {
     https: hasNginxCerts
       ? { key: fs.readFileSync(CERT_KEY), cert: fs.readFileSync(CERT_CRT) }
       : undefined,
     watch: {
       // Watch the linked package for changes (negated pattern means "don't ignore")
-      ignored: ['!**/node_modules/@percona/percona-ui/**'],
+      ignored: ['!**/node_modules/@percona/peak-ui/**'],
     },
     proxy: {
       '/v1': {

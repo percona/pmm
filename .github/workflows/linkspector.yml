@@ -28,10 +28,17 @@ jobs:
 
       - name: Install Chrome for linkspector
         id: setup-chrome
-        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2.1.2
+        uses: browser-actions/setup-chrome@48ad923757ca74d66703209fe939badbdf80f2f4 # v2.2.0
 
       - name: Configure Chrome path for puppeteer
-        run: echo "PUPPETEER_EXECUTABLE_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
+        run: |
+          CHROME_WRAPPER="${{ runner.temp }}/linkspector-chrome.sh"
+          cat > "${CHROME_WRAPPER}" <<'EOF'
+          #!/usr/bin/env bash
+          exec "${{ steps.setup-chrome.outputs.chrome-path }}" --no-sandbox "$@"
+          EOF
+          chmod +x "${CHROME_WRAPPER}"
+          echo "PUPPETEER_EXECUTABLE_PATH=${CHROME_WRAPPER}" >> "$GITHUB_ENV"
 
       - name: Run linkspector
         uses: umbrelladocs/action-linkspector@568ec8d29fa92b31fd9ea5381e155c51e922af83 # v1.5.5
