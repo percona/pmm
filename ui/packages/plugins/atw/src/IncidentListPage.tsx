@@ -40,7 +40,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   ATW_PAGE_SIZE,
   useAtwIncidentLifecycle,
@@ -57,6 +57,7 @@ import type { AtwIncident } from './types';
  * deleting, and opening one into its workspace.
  */
 export function IncidentListPage() {
+  const navigate = useNavigate();
   const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
   const { data, isLoading, error } = useAtwIncidents(page);
   const incidents = data?.items;
@@ -86,9 +87,10 @@ export function IncidentListPage() {
   const handleCreate = () => {
     const name = createName.trim();
     createMutation.mutate(name ? { name } : {}, {
-      onSuccess: () => {
+      onSuccess: (incident) => {
         setCreateOpen(false);
         setCreateName('');
+        navigate(incident.id);
       },
     });
   };
