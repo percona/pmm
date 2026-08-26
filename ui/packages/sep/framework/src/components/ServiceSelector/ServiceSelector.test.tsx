@@ -143,6 +143,35 @@ describe('ServiceSelector', () => {
     await screen.findByText('No services available');
   });
 
+  it('shows the required error message when submitted empty', async () => {
+    mocked.get.mockResolvedValueOnce(
+      makePage([{ id: 1, name: 'mysql-prod', type: 'mysql' }])
+    );
+    const client = makeClient();
+    const onSubmit = vi.fn();
+    function RequiredProbe() {
+      const methods = useForm({ defaultValues: { service: null } });
+      return (
+        <FormProvider {...methods}>
+          <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
+            <ServiceSelector name="service" label="Service" required />
+            <button type="submit">Submit</button>
+          </form>
+        </FormProvider>
+      );
+    }
+    const user = userEvent.setup();
+    render(
+      <Wrapper client={client}>
+        <RequiredProbe />
+      </Wrapper>
+    );
+    await waitFor(() => expect(mocked.get).toHaveBeenCalled());
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+    expect(await screen.findByText('Service is required')).toBeInTheDocument();
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it('hydrates a persisted scalar service id into the matching inventory option', async () => {
     mocked.get.mockResolvedValueOnce(
       makePage([{ id: 7, name: 'mysql-prod', type: 'mysql' }])
