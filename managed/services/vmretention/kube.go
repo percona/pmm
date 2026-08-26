@@ -32,7 +32,9 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-const namespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+// Where the projected service account publishes the pod's own namespace. A var so that tests
+// can point it elsewhere; only ever read.
+var namespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
 
 // Names PMM in the resource's managedFields instead of letting client-go derive it from the
 // binary name.
@@ -88,7 +90,7 @@ func NewKubeClient(params KubeParams) (Client, error) { //nolint:ireturn
 			"to a group/version such as operator.victoriametrics.com/v1beta1", params.APIVersion)
 	}
 
-	namespace := params.Namespace
+	namespace := strings.TrimSpace(params.Namespace)
 	if namespace == "" {
 		b, err := os.ReadFile(namespaceFile)
 		if err != nil {
@@ -96,6 +98,14 @@ func NewKubeClient(params KubeParams) (Client, error) { //nolint:ireturn
 				"set PMM_VM_CLUSTER_NAMESPACE to override: %w", err)
 		}
 		namespace = strings.TrimSpace(string(b))
+	}
+
+	// An empty namespace does not fail, it builds a cluster-scoped request path where a
+	// namespaced resource can never be found. Every reconcile would then 404 with a message
+	// naming the two variables that are correct.
+	if namespace == "" {
+		return nil, fmt.Errorf("the namespace to look for %q in is empty, "+
+			"set PMM_VM_CLUSTER_NAMESPACE (%s held nothing usable)", params.Name, namespaceFile)
 	}
 
 	cfg, err := rest.InClusterConfig()

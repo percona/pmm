@@ -19,6 +19,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -259,6 +261,51 @@ func TestNewKubeClient(t *testing.T) {
 			_, err := NewKubeClient(KubeParams{Name: name, Namespace: "pmm", APIVersion: ungrouped, Kind: "VMCluster"})
 			require.Error(t, err, "API version %q", ungrouped)
 			assert.Contains(t, err.Error(), "PMM_VM_CLUSTER_API_VERSION", "API version %q", ungrouped)
+		}
+	})
+
+	// An empty namespace is accepted by client-go and silently builds a cluster-scoped request
+	// path, where a namespaced resource can never be found, so it has to be rejected here.
+	t.Run("EmptyNamespaceIsRejected", func(t *testing.T) {
+		t.Run("FromTheServiceAccountFile", func(t *testing.T) {
+			path := filepath.Join(t.TempDir(), "namespace")
+			require.NoError(t, os.WriteFile(path, []byte("  \n"), 0o600))
+
+			original := namespaceFile
+			t.Cleanup(func() { namespaceFile = original })
+			namespaceFile = path
+
+			_, err := NewKubeClient(KubeParams{Name: name, APIVersion: apiVersion, Kind: "VMCluster"})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "set PMM_VM_CLUSTER_NAMESPACE")
+		})
+
+		t.Run("FromTheEnvironment", func(t *testing.T) {
+			_, err := NewKubeClient(KubeParams{Name: name, Namespace: "   ", APIVersion: apiVersion, Kind: "VMCluster"})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "set PMM_VM_CLUSTER_NAMESPACE")
+		})
+	})
+
+	// The projected file is the production path, since the chart only sets
+	// PMM_VM_CLUSTER_NAMESPACE when it deploys a VMCluster itself. A real pod carries the bare
+	// name with no trailing newline, but TrimSpace is what makes either shape work.
+	t.Run("NamespaceFromTheServiceAccountFile", func(t *testing.T) {
+		for _, content := range []string{"pmm", "pmm\n"} {
+			path := filepath.Join(t.TempDir(), "namespace")
+			require.NoError(t, os.WriteFile(path, []byte(content), 0o600))
+
+			original := namespaceFile
+			namespaceFile = path
+
+			_, err := NewKubeClient(KubeParams{Name: name, APIVersion: apiVersion, Kind: "VMCluster"})
+			namespaceFile = original
+
+			// Asserting which error arrives is the point: NewKubeClient fails either way outside
+			// a cluster, so requiring an error alone would pass even if the guard had wrongly
+			// rejected a perfectly good namespace.
+			require.Error(t, err, "namespace file %q", content)
+			assert.Contains(t, err.Error(), "in-cluster configuration", "namespace file %q", content)
 		}
 	})
 
