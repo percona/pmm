@@ -198,6 +198,11 @@ func (s *Service) ListInventoryRuns(ctx context.Context, req *omv1.ListInventory
 		return nil, err
 	}
 
+	since, until := req.GetSince(), req.GetUntil()
+	if since != nil && until != nil && until.AsTime().Before(since.AsTime()) {
+		return nil, status.Error(codes.InvalidArgument, "until must not be before since")
+	}
+
 	limit := req.GetLimit()
 	switch {
 	case limit <= 0:
@@ -206,6 +211,12 @@ func (s *Service) ListInventoryRuns(ctx context.Context, req *omv1.ListInventory
 		limit = maxInventoryRunLimit
 	}
 	query := url.Values{"limit": []string{strconv.FormatInt(int64(limit), 10)}}
+	if since != nil {
+		query.Set("since", since.AsTime().UTC().Format(time.RFC3339Nano))
+	}
+	if until != nil {
+		query.Set("until", until.AsTime().UTC().Format(time.RFC3339Nano))
+	}
 
 	runs := []sepRun{}
 	call := inventoryCall{method: http.MethodGet, path: "runs", query: query}
