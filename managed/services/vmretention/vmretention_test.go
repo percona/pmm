@@ -44,6 +44,10 @@ func setup(t *testing.T, dataRetention time.Duration) *reform.DB {
 	sqlDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	t.Cleanup(func() {
+		// Asserted before ExpectClose is queued, or that expectation is itself pending here.
+		// Without this the settings read below is optional, and a reconcile that stopped
+		// reading settings altogether would still pass.
+		assert.NoError(t, mock.ExpectationsWereMet())
 		_ = mock.ExpectClose()
 		assert.NoError(t, sqlDB.Close())
 	})
@@ -58,7 +62,7 @@ func setup(t *testing.T, dataRetention time.Duration) *reform.DB {
 }
 
 func TestReconcile(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 
 	t.Run("PatchesWhenDifferent", func(t *testing.T) {
 		db := setup(t, 7*24*time.Hour)
@@ -90,7 +94,7 @@ func TestReconcile(t *testing.T) {
 }
 
 func TestReconcileErrors(t *testing.T) {
-	ctx := context.Background()
+	ctx := t.Context()
 
 	t.Run("ReadError", func(t *testing.T) {
 		db := setup(t, 30*24*time.Hour)
@@ -121,7 +125,7 @@ func TestReconcileRecordsFailure(t *testing.T) {
 	client.On("Get", mock.Anything).Return("", errors.New("forbidden"))
 
 	svc := New(setup(t, 14*24*time.Hour), client)
-	svc.reconcileWithTimeout(context.Background())
+	svc.reconcileWithTimeout(t.Context())
 	assert.NotEmpty(t, svc.lastError)
 
 	// A success clears it again, so the next failure is announced rather than demoted.
@@ -129,12 +133,12 @@ func TestReconcileRecordsFailure(t *testing.T) {
 	client2.On("Get", mock.Anything).Return("14d", nil)
 	svc2 := New(setup(t, 14*24*time.Hour), client2)
 	svc2.lastError = "stale"
-	svc2.reconcileWithTimeout(context.Background())
+	svc2.reconcileWithTimeout(t.Context())
 	assert.Empty(t, svc2.lastError)
 }
 
 func TestRunWithoutClient(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 
 	svc := New(nil, nil)
 	done := make(chan struct{})
@@ -143,7 +147,8 @@ func TestRunWithoutClient(t *testing.T) {
 		close(done)
 	}()
 
-	svc.RequestRetentionUpdate() // must not panic on a nil db
+	// The send is non-blocking, so it must not wedge with nothing draining reloadCh.
+	svc.RequestRetentionUpdate()
 	cancel()
 
 	select {

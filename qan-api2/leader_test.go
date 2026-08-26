@@ -38,7 +38,7 @@ func TestShouldApplyRetention(t *testing.T) {
 		}))
 		t.Cleanup(srv.Close)
 
-		leader, err := shouldApplyRetention(context.Background(), client, srv.URL)
+		leader, err := shouldApplyRetention(t.Context(), client, srv.URL)
 		require.NoError(t, err)
 		assert.True(t, leader)
 	})
@@ -53,7 +53,7 @@ func TestShouldApplyRetention(t *testing.T) {
 		}))
 		t.Cleanup(srv.Close)
 
-		leader, err := shouldApplyRetention(context.Background(), client, srv.URL)
+		leader, err := shouldApplyRetention(t.Context(), client, srv.URL)
 		require.NoError(t, err)
 		assert.False(t, leader)
 	})
@@ -64,16 +64,19 @@ func TestShouldApplyRetention(t *testing.T) {
 		t.Parallel()
 
 		for _, status := range []int{
-			http.StatusNotFound,            // route renamed
-			http.StatusUnauthorized,        // a proxy interposed on the port
-			http.StatusInternalServerError, // pmm-managed broken
+			// route renamed
+			http.StatusNotFound,
+			// a proxy interposed on the port
+			http.StatusUnauthorized,
+			// pmm-managed broken
+			http.StatusInternalServerError,
 			http.StatusServiceUnavailable,
 		} {
 			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 				w.WriteHeader(status)
 			}))
 
-			leader, err := shouldApplyRetention(context.Background(), client, srv.URL)
+			leader, err := shouldApplyRetention(t.Context(), client, srv.URL)
 			require.Error(t, err, "status %d must not be reported as a follower verdict", status)
 			assert.False(t, leader)
 			assert.Contains(t, err.Error(), "unexpected status")
@@ -115,11 +118,10 @@ func TestShouldApplyRetention(t *testing.T) {
 	t.Run("pmm-managed unreachable", func(t *testing.T) {
 		t.Parallel()
 
-		srv := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
-		url := srv.URL
-		srv.Close()
-
-		leader, err := shouldApplyRetention(context.Background(), client, url)
+		// A port nothing can be listening on. Closing a test server and reusing its address
+		// would race a sibling parallel subtest, which could be handed that very port and
+		// answer 200.
+		leader, err := shouldApplyRetention(t.Context(), client, "http://127.0.0.1:1/")
 		require.Error(t, err)
 		assert.False(t, leader, "an unreachable pmm-managed must not authorize dropping data")
 	})
@@ -127,7 +129,7 @@ func TestShouldApplyRetention(t *testing.T) {
 	t.Run("check disabled", func(t *testing.T) {
 		t.Parallel()
 
-		leader, err := shouldApplyRetention(context.Background(), client, "")
+		leader, err := shouldApplyRetention(t.Context(), client, "")
 		require.NoError(t, err)
 		assert.True(t, leader)
 	})
@@ -140,7 +142,7 @@ func TestShouldApplyRetention(t *testing.T) {
 		}))
 		t.Cleanup(srv.Close)
 
-		ctx, cancel := context.WithCancel(context.Background())
+		ctx, cancel := context.WithCancel(t.Context())
 		cancel()
 
 		leader, err := shouldApplyRetention(ctx, client, srv.URL)
