@@ -37,6 +37,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/managedapi"
 )
 
 const (
@@ -92,9 +93,9 @@ var rules = map[string]role{
 	"/v1/users/current/orgs":          none,
 
 	// must be available without authentication for health checking
-	"/v1/server/readyz":            none,
-	"/v1/server/leaderHealthCheck": none,
-	"/ping":                        none, // PMM 1.x variant
+	"/v1/server/readyz":              none,
+	managedapi.LeaderHealthCheckPath: none,
+	"/ping":                          none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
 	"/v1/server/version": viewer,

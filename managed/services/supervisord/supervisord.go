@@ -37,6 +37,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/utils/managedapi"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -59,10 +60,6 @@ const (
 	// pausing ingestion on large legitimate fleets, so the limit is left opt-in via the
 	// VM_maxIngestionRate environment variable for deployments that need to throttle bursts.
 	defaultVMMaxIngestionRate = "0"
-	// Port of pmm-managed's own HTTP API, kept in sync with http1Addr in
-	// managed/cmd/pmm-managed/main.go. qan-api2 asks it whether this node is the leader
-	// before it applies data retention.
-	pmmManagedHTTPPort = "7772"
 )
 
 // Service is responsible for interactions with Supervisord via supervisorctl.
@@ -451,8 +448,8 @@ func (s *Service) addPostgresParams(templateParams map[string]any) {
 // leaderCheckURL returns the address of pmm-managed's leader health check on this node.
 // Each qan-api2 asks its local pmm-managed, so the URL is always loopback.
 func leaderCheckURL() string {
-	addr := net.JoinHostPort(envvars.GetInterfaceToBind(), pmmManagedHTTPPort)
-	return "http://" + addr + "/v1/server/leaderHealthCheck"
+	addr := net.JoinHostPort(envvars.GetInterfaceToBind(), managedapi.HTTPPort)
+	return "http://" + addr + managedapi.LeaderHealthCheckPath
 }
 
 func (s *Service) addClusterParams(templateParams map[string]any) {

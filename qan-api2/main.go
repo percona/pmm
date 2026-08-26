@@ -58,15 +58,15 @@ import (
 	"github.com/percona/pmm/utils/dsnutils"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/utils/managedapi"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 )
 
 const (
-	shutdownTimeout    = 3 * time.Second
-	leaderCheckTimeout = 5 * time.Second
-	// pmm-managed serves its HTTP API on this port, see http1Addr in pmm-managed's main.go.
-	defaultLeaderCheckURL = "http://127.0.0.1:7772/v1/server/leaderHealthCheck"
+	shutdownTimeout       = 3 * time.Second
+	leaderCheckTimeout    = 5 * time.Second
+	defaultLeaderCheckURL = "http://127.0.0.1:" + managedapi.HTTPPort + managedapi.LeaderHealthCheckPath
 	defaultDsnF           = "clickhouse://%s:%s@%s/%s"
 	maxIdleConns          = 5
 	maxOpenConns          = 10
