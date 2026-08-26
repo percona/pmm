@@ -147,7 +147,11 @@ func createDB(dsn string, clusterName string) error {
 }
 
 // DropOldPartition drops number of days old partitions of pmm.metrics in ClickHouse.
-func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
+//
+// One unusable partition does not strand the rest, so every failure is collected and returned
+// together. Errors are returned rather than logged: the caller decides how loudly to report
+// them and when to try again.
+func DropOldPartition(db *sqlx.DB, dbName string, days uint) error {
 	l := logrus.WithField("component", "db")
 	partitions := []string{}
 	const query = `
@@ -167,11 +171,24 @@ func DropOldPartition(db *sqlx.DB, dbName string, days uint) {
 		days,
 	)
 	if err != nil {
-		l.Infof("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
-		return
+		return fmt.Errorf("failed to select partitions older than %d days: %w", days, err)
 	}
+
+	var errs []error
+	dropped := 0
 	for _, part := range partitions {
-		result, err := db.Exec(fmt.Sprintf(`ALTER TABLE %s.metrics DROP PARTITION %s`, dbName, part))
-		l.Infof("Drop partition %s of %s.metrics. Result: %v, Error: %v", part, dbName, result, err)
+		_, err := db.Exec(fmt.Sprintf(`ALTER TABLE %s.metrics DROP PARTITION %s`, dbName, part))
+		if err != nil {
+			errs = append(errs, fmt.Errorf("failed to drop partition %s of %s.metrics: %w", part, dbName, err))
+			continue
+		}
+		dropped++
 	}
+
+	// Logged even when nothing was old enough, so a healthy deployment leaves evidence that
+	// retention is running at all.
+	l.Infof("Data retention applied to %s.metrics: dropped %d of %d partitions older than %d days.",
+		dbName, dropped, len(partitions), days)
+
+	return errors.Join(errs...)
 }

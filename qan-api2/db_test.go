@@ -92,7 +92,7 @@ func TestDropOldPartition(t *testing.T) {
 	t.Run("no so old partition", func(t *testing.T) {
 		partitions := []string{}
 		days := daysNewestPartition + 1
-		DropOldPartition(db, "pmm_test_parts", days)
+		require.NoError(t, DropOldPartition(db, "pmm_test_parts", days))
 		err := db.Select(
 			&partitions,
 			query,
@@ -106,7 +106,7 @@ func TestDropOldPartition(t *testing.T) {
 	t.Run("delete one day old partition", func(t *testing.T) {
 		partitions := []string{}
 		days := daysNewestPartition
-		DropOldPartition(db, "pmm_test_parts", days)
+		require.NoError(t, DropOldPartition(db, "pmm_test_parts", days))
 		err := db.Select(
 			&partitions,
 			query,

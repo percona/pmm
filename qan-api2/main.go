@@ -63,18 +63,39 @@ import (
 )
 
 const (
-	shutdownTimeout                 = 3 * time.Second
-	defaultDropOldPartitionInterval = 24 * time.Hour
-	// How soon to look again when this node did not apply retention because it is not the
-	// leader, or because leadership could not be determined. Short, so that a node promoted
-	// mid-cycle starts enforcing retention in minutes rather than a day.
-	leaderRecheckInterval = 5 * time.Minute
-	leaderCheckTimeout    = 5 * time.Second
+	shutdownTimeout    = 3 * time.Second
+	leaderCheckTimeout = 5 * time.Second
 	// pmm-managed serves its HTTP API on this port, see http1Addr in pmm-managed's main.go.
 	defaultLeaderCheckURL = "http://127.0.0.1:7772/v1/server/leaderHealthCheck"
 	defaultDsnF           = "clickhouse://%s:%s@%s/%s"
 	maxIdleConns          = 5
 	maxOpenConns          = 10
+)
+
+// Variables rather than constants so that tests can shrink them. Only ever read.
+var (
+	defaultDropOldPartitionInterval = 24 * time.Hour
+	// How soon to look again when this node did not apply retention because it is not the
+	// leader, or because leadership could not be determined. Short, so that a node promoted
+	// mid-cycle starts enforcing retention in minutes rather than a day.
+	leaderRecheckInterval = 5 * time.Minute
+)
+
+// Outcome of one pass of the retention loop. A rising undetermined or failed count is how an
+// operator learns that nothing is deleting anything, which otherwise only shows up much later
+// as a full disk.
+var mRetentionPasses = prom.NewCounterVec(prom.CounterOpts{
+	Namespace: "qan_api2",
+	Subsystem: "retention",
+	Name:      "passes_total",
+	Help:      "Total number of data retention passes by outcome.",
+}, []string{"result"})
+
+const (
+	retentionApplied      = "applied"
+	retentionFailed       = "failed"
+	retentionFollower     = "follower"
+	retentionUndetermined = "undetermined"
 )
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -264,32 +285,49 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 	cancel()
 }
 
-// runRetentionLoop drops partitions older than the retention period once a day, until ctx is
-// canceled.
+// runRetentionLoop calls drop for partitions older than the retention period once a day,
+// until ctx is canceled.
 //
 // Only the leader drops (see isLeader). A node that does not looks again shortly after rather
 // than waiting out the full interval, because leadership can move at any time.
-func runRetentionLoop(ctx context.Context, db *sqlx.DB, dbName string, days uint, leaderCheckURL string) {
+//
+// Nothing here can fail loudly on its own: a node that never applies retention shows up much
+// later as a full disk. So every pass records its outcome in mRetentionPasses, and a failed drop
+// is retried in minutes rather than waited out for a day.
+func runRetentionLoop(ctx context.Context, drop func() error, leaderCheckURL string) {
 	l := logrus.WithField("component", "retention")
 	client := &http.Client{Timeout: leaderCheckTimeout}
 
 	for {
+		// Measured from the start of the iteration, so the cadence does not slip by however
+		// long the drop took.
+		start := time.Now()
 		delay := defaultDropOldPartitionInterval
+		result := retentionApplied
 
 		leader, err := shouldApplyRetention(ctx, client, leaderCheckURL)
 		switch {
 		case err != nil:
-			// Deleting data on a guess is worse than deleting it a few minutes later.
+			// Deleting data on a guess is worse than deleting it a few minutes later. The
+			// metric is what escalates; this line is what says why.
+			result = retentionUndetermined
 			l.Warnf("Not applying data retention, cannot tell whether this node is the leader: %s.", err)
 			delay = leaderRecheckInterval
 		case !leader:
+			result = retentionFollower
 			l.Debug("Not applying data retention, this node is not the leader.")
 			delay = leaderRecheckInterval
 		default:
-			DropOldPartition(db, dbName, days)
+			err = drop()
+			if err != nil {
+				result = retentionFailed
+				l.Errorf("Failed to apply data retention, will retry: %s.", err)
+				delay = leaderRecheckInterval
+			}
 		}
+		mRetentionPasses.WithLabelValues(result).Inc()
 
-		t := time.NewTimer(delay)
+		t := time.NewTimer(time.Until(start.Add(delay)))
 		select {
 		case <-ctx.Done():
 			t.Stop()
@@ -356,6 +394,13 @@ func main() {
 	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
+	// Seeded so that every outcome is a zero series from the start: an increase() over a
+	// condition that has never happened must read as zero, not as no data.
+	for _, result := range []string{retentionApplied, retentionFailed, retentionFollower, retentionUndetermined} {
+		mRetentionPasses.WithLabelValues(result)
+	}
+	prom.MustRegister(mRetentionPasses)
+
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
@@ -396,7 +441,9 @@ func main() {
 	})
 
 	wg.Go(func() {
-		runRetentionLoop(ctx, db, *clickhouseDatabaseF, *dataRetentionF, *leaderCheckURLF)
+		runRetentionLoop(ctx, func() error {
+			return DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
+		}, *leaderCheckURLF)
 	})
 
 	wg.Wait()
