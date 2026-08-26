@@ -1746,7 +1746,7 @@
   "info": {
     "description": "Percona Services Enablement Platform — inventory (nodes, services, schemas, tables).",
     "title": "SEP Inventory API",
-    "version": "v1.0.0.dev0"
+    "version": "v3.10.0.dev0"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -1836,7 +1836,7 @@
     },
     "/admin/settings/{setting_class}/{key}": {
       "delete": {
-        "description": "Revert one override row to the field's declared default.\n\nFor a remote class the DELETE is forwarded to the owning sub-app, which\nowns the idempotency and ``NOT_OVERRIDABLE`` semantics; its status and\n``detail`` are preserved through the proxy.\n\nFor a local class the DELETE is idempotent: deleting a (class, key) pair\nthat has no override row succeeds with 204. Attempting to delete a field\nthe code declares NOT_OVERRIDABLE responds 409, since it cannot have an\noverride row in the first place and the operator's intent is\nunsatisfiable. A field only ``SETTINGS_OVERRIDE.ALLOWED_KEYS`` withheld\nmay still carry a row written before the restriction applied, so that\nrow is deleted normally and only the no-row case answers 409.\n\nAfter republishing the snapshot, fires the rebind callbacks for the\nreverted key so a HOT target rebinds to its restored value without\nwaiting for the next background refresh cycle.\n\n:param request: The incoming request; its ``app.state`` carries the\n    sub-app's rebind-callback registry.\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.\n:raises HTTPConflictException: If the field is NOT_OVERRIDABLE and has\n    no row to delete.\n:raises HTTPUnprocessableEntityException: If ``key`` names a\n    ``NESTED_ONLY`` parent (the whole parent cannot be overridden;\n    target an individual ``parent__leaf`` instead).\n:raises HTTPBadGatewayException: For a remote class, when the owning\n    sub-app returns a server error (status >= 500) or is unreachable.",
+        "description": "Revert override row(s) for one field to the field's declared default.\n\nFor a remote class the DELETE is forwarded to the owning sub-app, which\nowns the idempotency and ``NOT_OVERRIDABLE`` semantics; its status and\n``detail`` are preserved through the proxy.\n\nFor a local class the DELETE is idempotent: deleting a (class, key) pair\nthat has no override row succeeds with 204. Attempting to delete a field\nthe code declares NOT_OVERRIDABLE responds 409, since it cannot have an\noverride row in the first place and the operator's intent is\nunsatisfiable. A field only ``SETTINGS_OVERRIDE.ALLOWED_KEYS`` withheld\nmay still carry a row written before the restriction applied, so that\nrow is deleted normally (found by canonicalizing the stored key, so a\nlegacy non-canonical casing is still seen) and only the no-row case\nanswers 409. When several rows canonicalize to the same key, all of\nthem are removed.\n\nAfter republishing the snapshot, fires the rebind callbacks for the\nreverted key so a HOT target rebinds to its restored value without\nwaiting for the next background refresh cycle.\n\n:param request: The incoming request; its ``app.state`` carries the\n    sub-app's rebind-callback registry.\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param session: The sub-app's database session.\n:param remote_api: The client for remote settings classes (``None`` when\n    the router wires none).\n:raises HTTPNotFoundException: If the class isn't exposed or the key\n    doesn't exist on the class.\n:raises HTTPConflictException: If the field is NOT_OVERRIDABLE and has\n    no row to delete.\n:raises HTTPUnprocessableEntityException: If ``key`` names a\n    ``NESTED_ONLY`` parent (the whole parent cannot be overridden;\n    target an individual ``parent__leaf`` instead).\n:raises HTTPBadGatewayException: For a remote class, when the owning\n    sub-app returns a server error (status >= 500) or is unreachable.",
         "operationId": "settings_delete_setting_admin_settings__setting_class___key__delete",
         "parameters": [
           {
@@ -2560,7 +2560,14 @@
             "schema": {
               "default": "name",
               "description": "Sort key; prefix with '-' for descending order.",
-              "enum": ["created_at", "-created_at", "name", "-name"],
+              "enum": [
+                "created_at",
+                "-created_at",
+                "name",
+                "-name",
+                "service_id",
+                "-service_id"
+              ],
               "title": "Sort",
               "type": "string"
             }
@@ -2797,7 +2804,14 @@
             "schema": {
               "default": "name",
               "description": "Sort key; prefix with '-' for descending order.",
-              "enum": ["created_at", "-created_at", "name", "-name"],
+              "enum": [
+                "created_at",
+                "-created_at",
+                "name",
+                "-name",
+                "schema_id",
+                "-schema_id"
+              ],
               "title": "Sort",
               "type": "string"
             }
@@ -3211,7 +3225,14 @@
             "schema": {
               "default": "name",
               "description": "Sort key; prefix with '-' for descending order.",
-              "enum": ["created_at", "-created_at", "name", "-name"],
+              "enum": [
+                "created_at",
+                "-created_at",
+                "name",
+                "-name",
+                "service_id",
+                "-service_id"
+              ],
               "title": "Sort",
               "type": "string"
             }
@@ -3485,7 +3506,14 @@
             "schema": {
               "default": "name",
               "description": "Sort key; prefix with '-' for descending order.",
-              "enum": ["created_at", "-created_at", "name", "-name"],
+              "enum": [
+                "created_at",
+                "-created_at",
+                "name",
+                "-name",
+                "schema_id",
+                "-schema_id"
+              ],
               "title": "Sort",
               "type": "string"
             }

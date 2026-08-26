@@ -202,9 +202,15 @@ type PluginListResponse<T> =
   | PaginatedPluginList<T>
   | { items: T[] | null };
 
-async function fetchAllPluginListPages<T extends Record<string, unknown>>(
-  path: string
-): Promise<PluginListResult<T>> {
+/**
+ * Walk every page of a paginated list endpoint, stopping early for bare arrays.
+ *
+ * Caps at ``MAX_FETCH_ALL_PAGES`` × ``DEFAULT_PLUGIN_LIST_LIMIT``; when
+ * ``total`` is larger the result sets ``truncated: true`` and logs a warning.
+ */
+export async function fetchAllPluginListPages<
+  T extends Record<string, unknown>,
+>(path: string): Promise<PluginListResult<T>> {
   const out: T[] = [];
   let offset = 0;
   let lastTotal: number | null = null;
