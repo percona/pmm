@@ -44,6 +44,11 @@ func stubLeaderCheck(t *testing.T, status int) (string, func() int) {
 		hits++
 		mu.Unlock()
 		w.WriteHeader(status)
+		if status == http.StatusBadRequest {
+			// What pmm-managed actually sends on a follower. A bodyless 400 is undetermined,
+			// not a follower verdict, so the stub has to carry the gRPC code.
+			_, _ = w.Write([]byte(`{"code": 9, "message": "this PMM Server isn't the leader"}`))
+		}
 	}))
 	t.Cleanup(srv.Close)
 
@@ -53,6 +58,19 @@ func stubLeaderCheck(t *testing.T, status int) (string, func() int) {
 
 		return hits
 	}
+}
+
+// stubBody serves status with an arbitrary body, for the answers stubLeaderCheck cannot express.
+func stubBody(t *testing.T, status int, body string) string {
+	t.Helper()
+
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(status)
+		_, _ = w.Write([]byte(body))
+	}))
+	t.Cleanup(srv.Close)
+
+	return srv.URL
 }
 
 // shortenIntervals makes the loop cycle fast enough to observe. Both values are only read.
@@ -207,6 +225,24 @@ func TestRetentionLoopDropsOnlyAsLeader(t *testing.T) {
 			assert.Zero(t, passes(t, retentionApplied))
 		})
 	}
+}
+
+// A proxy on port 7772 answering 400 must not read as "follower" and quietly stop retention on
+// every node. Such an answer is rejected in leader.go, and the loop must count it as
+// undetermined.
+func TestRetentionLoopCountsAForeign400AsUndetermined(t *testing.T) {
+	shortenIntervals(t)
+	captureLogs(t)
+	resetPasses(t)
+
+	var rec dropRecorder
+	url := stubBody(t, http.StatusBadRequest, `{"code": 3, "message": "invalid argument"}`)
+	stop := runLoop(t, rec.drop, url)
+	waitFor(t, func() bool { return passes(t, retentionUndetermined) >= 2 })
+	stop()
+
+	assert.Zero(t, passes(t, retentionFollower), "a 400 without FailedPrecondition is not a follower verdict")
+	assert.Zero(t, rec.count(), "nothing may be dropped on an answer we could not read")
 }
 
 // The drop is synchronous, so without a context it could hold up shutdown for as long as

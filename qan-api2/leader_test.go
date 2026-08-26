@@ -82,6 +82,36 @@ func TestShouldApplyRetention(t *testing.T) {
 		}
 	})
 
+	// A 400 is not specific to leadership: the gateway renders several gRPC codes as one, and
+	// anything else on the port can answer 400 too. Reading those as "follower" would stop
+	// retention on every node at once.
+	t.Run("a 400 that is not FailedPrecondition is undetermined", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tc := range []struct {
+			name string
+			body string
+		}{
+			{"another code", `{"code": 3, "message": "invalid argument"}`},
+			{"no body at all", ""},
+			{"not even JSON", "Bad Request"},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+					w.WriteHeader(http.StatusBadRequest)
+					_, _ = w.Write([]byte(tc.body))
+				}))
+				t.Cleanup(srv.Close)
+
+				leader, err := shouldApplyRetention(t.Context(), client, srv.URL)
+				require.Error(t, err, "a 400 without FailedPrecondition must not be a follower verdict")
+				assert.False(t, leader)
+			})
+		}
+	})
+
 	t.Run("pmm-managed unreachable", func(t *testing.T) {
 		t.Parallel()
 
