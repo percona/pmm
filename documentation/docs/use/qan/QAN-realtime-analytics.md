@@ -104,7 +104,7 @@ A MongoDB export currently contains:
 
 ### Share your view
 
-Click the **Share** icon to copy a link to your clipboard. The link preserves your selected cluster or service filter.
+Click the **Share** icon to copy a link to your clipboard. The link preserves your selected cluster or service filter, query text filter, and page size.
 
 When someone opens your link, they see live data with your filters applied, not the exact operations you were viewing, since RTA data updates continuously.
 ### View all sessions
