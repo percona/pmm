@@ -183,7 +183,7 @@ func (svc *Service) reconcile(ctx context.Context) error {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
 
-	want := retentionPeriod(settings.DataRetention)
+	want := retentionPeriod(settings)
 
 	got, err := svc.client.Get(ctx)
 	if err != nil {
@@ -204,8 +204,9 @@ func (svc *Service) reconcile(ctx context.Context) error {
 	return nil
 }
 
-// retentionPeriod formats a data retention duration the way VictoriaMetrics expects it.
-// Stored retention is always a whole number of days, so the truncation is a formality.
-func retentionPeriod(dataRetention time.Duration) string {
-	return fmt.Sprintf("%dd", int(dataRetention.Hours()/24)) //nolint:mnd
+// retentionPeriod formats the data retention setting the way VictoriaMetrics expects it. The
+// day count comes from Settings so that this and the supervisord flag for an internal
+// VictoriaMetrics cannot disagree.
+func retentionPeriod(settings *models.Settings) string {
+	return fmt.Sprintf("%dd", settings.DataRetentionDays())
 }

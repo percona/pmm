@@ -381,8 +381,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
 	templateParams := map[string]any{
-		"DataRetentionHours":           int(settings.DataRetention.Hours()),
-		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24), //nolint:mnd
+		"DataRetentionDays":            settings.DataRetentionDays(),
 		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
 		"VMSearchDisableCache":         vmSearchDisableCache,
 		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,

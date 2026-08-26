@@ -32,6 +32,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 // setup returns a DB whose settings row reports dataRetention.
@@ -236,7 +238,7 @@ func TestRetentionPeriod(t *testing.T) {
 		// Settings validation rejects sub-day values, so this only documents the fallback.
 		{36 * time.Hour, "1d"},
 	} {
-		assert.Equal(t, tc.expected, retentionPeriod(tc.retention))
+		assert.Equal(t, tc.expected, retentionPeriod(&models.Settings{DataRetention: tc.retention}))
 	}
 }
 
