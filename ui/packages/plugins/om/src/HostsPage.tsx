@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Box,
@@ -383,39 +383,83 @@ const HostDetail = ({ row }: { row: OmHostRow }) => {
  * one. They are dispatched together and awaited together; a partial failure keeps
  * the dialog open with the failures named, rather than closing over an incomplete
  * result the reader would have to notice was incomplete.
+ *
+ * `onClose` is "the reader backed out" -- Cancel and the dialog's own dismissal
+ * (backdrop, Escape). `onForgotten` is "it worked" -- only called once every target
+ * host is actually gone. They are two different callbacks because they mean two
+ * different things to the caller: HostsPage clears the row-selection on the second,
+ * never the first. Conflating them into one `onClose` was the bug -- backing out of
+ * a destructive confirmation is not the same event as the destruction succeeding.
  */
 const ForgetDialog = ({
   rows,
   onClose,
+  onForgotten,
 }: {
   rows: OmHostRow[];
   onClose: () => void;
+  onForgotten: () => void;
 }) => {
   const forget = useForgetHost();
-  const [failures, setFailures] = useState<{ name: string; message: string }[]>(
-    []
-  );
+  const [failures, setFailures] = useState<
+    { nodeId: string; name: string; message: string }[]
+  >([]);
+  // Set while a batch is in flight. `forget.isPending` is one mutation's state, not
+  // "any of N concurrent mutateAsync calls still pending" -- it can flip false as
+  // soon as whichever call the shared observer last updated on settles, re-enabling
+  // Forget while other DELETEs in the same batch are still out.
+  const [busy, setBusy] = useState(false);
+  // `rows.length === 0` below returns null rather than unmounting the component, so
+  // `failures` would otherwise survive a close-and-reopen for an unrelated selection.
+  // Left stale, it would filter `targets` (below) against node ids that do not exist
+  // in the new `rows` at all -- an empty target list that "succeeds" without deleting
+  // anything. `rows` is a fresh array reference exactly when the parent opens the
+  // dialog for a new selection or closes it, never mid-retry, so resetting on it is
+  // the right key.
+  useEffect(() => {
+    setFailures([]);
+  }, [rows]);
   if (rows.length === 0) {
     return null;
   }
+  // After a partial failure, retry dispatches only the rows named in `failures` --
+  // the ones that already succeeded are gone from the estate, and re-sending their
+  // DELETE would 404 and show up as a fresh, false failure for a host that is, in
+  // fact, already forgotten.
+  const failedIds = new Set(failures.map((failure) => failure.nodeId));
+  const targets =
+    failures.length > 0
+      ? rows.filter((row) => failedIds.has(row.node_id))
+      : rows;
   const totalServices = rows.reduce((sum, row) => sum + row.services.length, 0);
   const handleForget = async () => {
+    setBusy(true);
     setFailures([]);
-    const outcomes = await Promise.allSettled(
-      rows.map((row) => forget.mutateAsync(row.node_id))
-    );
-    const failed = outcomes.flatMap((outcome, index) =>
-      outcome.status === 'rejected'
-        ? [{ name: rows[index].name, message: outcome.reason.message }]
-        : []
-    );
-    if (failed.length === 0) {
-      onClose();
-    } else {
-      // The rows that did succeed are already gone from the estate — onSuccess on
-      // the shared mutation invalidated the query for each of them. What is left
-      // to retry is only what is named here.
-      setFailures(failed);
+    try {
+      const outcomes = await Promise.allSettled(
+        targets.map((row) => forget.mutateAsync(row.node_id))
+      );
+      const failed = outcomes.flatMap((outcome, index) =>
+        outcome.status === 'rejected'
+          ? [
+              {
+                nodeId: targets[index].node_id,
+                name: targets[index].name,
+                message:
+                  outcome.reason instanceof Error
+                    ? outcome.reason.message
+                    : String(outcome.reason),
+              },
+            ]
+          : []
+      );
+      if (failed.length === 0) {
+        onForgotten();
+      } else {
+        setFailures(failed);
+      }
+    } finally {
+      setBusy(false);
     }
   };
   return (
@@ -444,18 +488,14 @@ const ForgetDialog = ({
           </p>
         </DialogContentText>
         {failures.map((failure) => (
-          <Alert severity="error" key={failure.name} sx={{ mt: 1 }}>
+          <Alert severity="error" key={failure.nodeId} sx={{ mt: 1 }}>
             {failure.name}: {failure.message}
           </Alert>
         ))}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button
-          color="error"
-          disabled={forget.isPending}
-          onClick={handleForget}
-        >
+        <Button color="error" disabled={busy} onClick={handleForget}>
           Forget
         </Button>
       </DialogActions>
@@ -687,7 +727,8 @@ export const HostsPage = () => {
       <MaterialReactTable table={table} />
       <ForgetDialog
         rows={forgetting}
-        onClose={() => {
+        onClose={() => setForgetting([])}
+        onForgotten={() => {
           setForgetting([]);
           setRowSelection({});
         }}
