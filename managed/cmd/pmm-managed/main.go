@@ -605,12 +605,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	}
 
 	deps.l.Infof("Updating supervisord configuration...")
-	settings, err := models.GetSettings(db.Querier)
-	if err != nil {
-		deps.l.Warnf("Failed to get settings: %s.", err)
-		return false
-	}
-	err = deps.supervisord.UpdateConfiguration(settings)
+	err := updateSupervisordConfig(db.Querier, deps.supervisord)
 	if err != nil {
 		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
