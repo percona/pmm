@@ -52,7 +52,6 @@ import {
   DEFAULT_RUN_LIMIT,
   isBoundedPeriod,
   isRunPeriod,
-  periodSince,
   RUN_PERIODS,
   WINDOWED_RUN_LIMIT,
   type OmRunPeriod,
@@ -342,21 +341,19 @@ export const InventoryPage = () => {
   const period: OmRunPeriod = isRunPeriod(requestedPeriod)
     ? requestedPeriod
     : 'week';
-  // Memoized on the period, not recomputed every render: `periodSince` uses
-  // `Date.now()`, and this page re-renders every few seconds while a refresh is
-  // in flight. A new ISO string each time is a new query key, so the table
-  // would sit on the loading spinner forever.
-  const since = useMemo(() => periodSince(period), [period]);
   // Newest overall, unfiltered: "what does OM know right now" is not a claim about
   // the selected window, and an empty last-week table must not read as "no refresh
   // has ever run".
   const latest = useOmInventoryRuns();
+  // `since` is not computed here: the hook derives it from `period` fresh on every
+  // fetch, so a chip left open keeps meaning what it says instead of the window
+  // quietly growing past its own label. See OmRunFilters in inventoryHooks.ts.
   const {
     data: runs,
     isLoading,
     error,
   } = useOmInventoryRuns({
-    since,
+    period,
     limit: isBoundedPeriod(period) ? WINDOWED_RUN_LIMIT : DEFAULT_RUN_LIMIT,
   });
   const rows = useMemo(() => runs ?? [], [runs]);

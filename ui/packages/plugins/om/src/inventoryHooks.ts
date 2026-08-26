@@ -43,6 +43,7 @@ import {
 } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
 import { isRunActive, request } from './api';
+import { periodSince, type OmRunPeriod } from './inventory';
 import type {
   OmInventoryHost,
   OmInventoryRun,
@@ -156,24 +157,25 @@ export function useOmInventoryServices() {
 /**
  * Filters `GET /runs` accepts. Unset means unfiltered: newest first, default page.
  *
- * `since` / `until` are ISO-8601 instants on `start_time`. They are applied on the
- * server *before* `limit`, so a week window is last week's runs rather than the
- * newest page with older-than-a-week rows dropped.
+ * `period` names a quick-filter window rather than carrying a computed instant: the
+ * query key is the period, and `since` is derived from it fresh on every fetch inside
+ * `queryFn`, not once up front. A caller that memoized `periodSince(period)` itself and
+ * passed the resulting string here would reproduce exactly the bug this shape exists to
+ * avoid -- `since` frozen at click time while the label keeps polling, so "Last 15
+ * minutes" quietly becomes "the last 35 minutes" the longer the tab stays open. `since`
+ * is a lower bound, so a frozen one does not go stale by excluding new rows; it goes
+ * stale by including too many.
  */
 export interface OmRunFilters {
   limit?: number;
-  since?: string;
-  until?: string;
+  period?: OmRunPeriod;
 }
 
-function toRunsQuery(filters: OmRunFilters): string {
+function toRunsQuery(limit: number, since: string | undefined): string {
   const params = new URLSearchParams();
-  params.set('limit', String(filters.limit ?? 25));
-  if (filters.since) {
-    params.set('since', filters.since);
-  }
-  if (filters.until) {
-    params.set('until', filters.until);
+  params.set('limit', String(limit));
+  if (since) {
+    params.set('since', since);
   }
   return `?${params.toString()}`;
 }
@@ -186,10 +188,15 @@ function toRunsQuery(filters: OmRunFilters): string {
  * reload could not show them.
  */
 export function useOmInventoryRuns(filters: OmRunFilters = {}) {
-  const query = toRunsQuery(filters);
+  const limit = filters.limit ?? 25;
+  const period = filters.period ?? 'all';
   return useQuery<OmInventoryRun[]>({
-    queryKey: [...RUNS_KEY, query],
+    // The period, not the computed `since` -- see OmRunFilters. A fresh `since` on
+    // every poll must not create a new query key each time, or the table would sit on
+    // the loading spinner exactly like it did before periodSince was frozen upstream.
+    queryKey: [...RUNS_KEY, period, limit],
     queryFn: async () => {
+      const query = toRunsQuery(limit, periodSince(period));
       const { runs } = await request<{ runs: OmInventoryRun[] }>(
         `/inventory/runs${query}`
       );
