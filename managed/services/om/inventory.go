@@ -47,10 +47,13 @@ import (
 // defaultInventoryRunLimit is what a caller who passes no limit gets, and
 // maxInventoryRunLimit is the most one can ask for. The ceiling exists because the value
 // is forwarded to SEP verbatim: without it a caller could ask the inventory app for an
-// unbounded page and wait on it through this proxy.
+// unbounded page and wait on it through this proxy. Matches the proto's own
+// ListInventoryRunsRequest.limit validation (lte: 100) and SEP's le=100 -- any of the
+// three drifting from the others makes one of them dead code, since the request has to
+// clear all of them to reach the database.
 const (
 	defaultInventoryRunLimit = 20
-	maxInventoryRunLimit     = 200
+	maxInventoryRunLimit     = 100
 )
 
 // inventoryProbe returns the configured SEP client, or an error saying it is not.
