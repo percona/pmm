@@ -20,8 +20,10 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -29,6 +31,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
 )
@@ -662,6 +665,41 @@ func TestInventoryRunsDefaultLimit(t *testing.T) {
 	assert.Equal(t, "limit=20", stub.query)
 }
 
+func TestInventoryRunsForwardsDateRange(t *testing.T) {
+	t.Parallel()
+
+	stub := newSEPStub(t, http.StatusOK, `[]`)
+	since := timestamppb.New(mustParseTime(t, "2026-08-18T00:00:00Z"))
+	until := timestamppb.New(mustParseTime(t, "2026-08-25T00:00:00Z"))
+
+	_, err := stub.service(t).ListInventoryRuns(t.Context(), &omv1.ListInventoryRunsRequest{
+		Since: since,
+		Until: until,
+	})
+
+	require.NoError(t, err)
+	query, err := url.ParseQuery(stub.query)
+	require.NoError(t, err)
+	assert.Equal(t, "20", query.Get("limit"))
+	assert.Equal(t, "2026-08-18T00:00:00Z", query.Get("since"))
+	assert.Equal(t, "2026-08-25T00:00:00Z", query.Get("until"))
+}
+
+func TestInventoryRunsRejectsInvertedDateRange(t *testing.T) {
+	t.Parallel()
+
+	stub := newSEPStub(t, http.StatusOK, `[]`)
+
+	_, err := stub.service(t).ListInventoryRuns(t.Context(), &omv1.ListInventoryRunsRequest{
+		Since: timestamppb.New(mustParseTime(t, "2026-08-25T00:00:00Z")),
+		Until: timestamppb.New(mustParseTime(t, "2026-08-18T00:00:00Z")),
+	})
+
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	assert.Empty(t, stub.query)
+}
+
 func TestInventoryRunCarriesHostCounters(t *testing.T) {
 	t.Parallel()
 
@@ -777,6 +815,13 @@ func TestInventoryBearerIsSent(t *testing.T) {
 
 	require.NoError(t, err)
 	assert.Equal(t, "Bearer test-token", seen)
+}
+
+func mustParseTime(t *testing.T, stamp string) time.Time {
+	t.Helper()
+	parsed, err := time.Parse(time.RFC3339, stamp)
+	require.NoError(t, err)
+	return parsed
 }
 
 // ensure the canned bodies stay valid JSON as they are edited.
