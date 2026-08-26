@@ -45,6 +45,9 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+// pmmInitProgram is the supervisord program running PMM Server initialization and upgrade tasks.
+const pmmInitProgram = "pmm-init"
+
 // Server represents service for checking PMM Server status and changing settings.
 type Server struct {
 	serverv1.UnimplementedServerServiceServer
@@ -330,6 +333,17 @@ func (s *Server) ListChangeLogs(ctx context.Context, _ *serverv1.ListChangeLogsR
 	}
 
 	return res, nil
+}
+
+// UpdateStatus returns PMM Server initialization status.
+//
+// It exists for pre-3.9 clients: after triggering an update they keep polling it to learn when the
+// freshly started PMM Server has finished initializing. Only the "done" field is meaningful. The
+// progress log fields are left empty.
+func (s *Server) UpdateStatus(ctx context.Context, _ *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
+	return &serverv1.UpdateStatusResponse{
+		Done: !s.supervisord.ProgramRunning(ctx, pmmInitProgram),
+	}, nil
 }
 
 // convertSettings merges database settings and settings from environment variables into API response.
