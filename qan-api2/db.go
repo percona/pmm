@@ -17,6 +17,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/url"
@@ -151,7 +152,10 @@ func createDB(dsn string, clusterName string) error {
 // One unusable partition does not strand the rest, so every failure is collected and returned
 // together. Errors are returned rather than logged: the caller decides how loudly to report
 // them and when to try again.
-func DropOldPartition(db *sqlx.DB, dbName string, days uint) error {
+//
+// Every statement is bound to ctx so that a ClickHouse call blocking here cannot hold up
+// shutdown.
+func DropOldPartition(ctx context.Context, db *sqlx.DB, dbName string, days uint) error {
 	l := logrus.WithField("component", "db")
 	partitions := []string{}
 	const query = `
@@ -164,7 +168,8 @@ func DropOldPartition(db *sqlx.DB, dbName string, days uint) error {
 			AND toUInt32(partition) < toYYYYMMDD(now() - toIntervalDay(?))
 		ORDER BY partition
 	`
-	err := db.Select(
+	err := db.SelectContext(
+		ctx,
 		&partitions,
 		query,
 		dbName,
@@ -177,7 +182,7 @@ func DropOldPartition(db *sqlx.DB, dbName string, days uint) error {
 	var errs []error
 	dropped := 0
 	for _, part := range partitions {
-		_, err := db.Exec(fmt.Sprintf(`ALTER TABLE %s.metrics DROP PARTITION %s`, dbName, part))
+		_, err := db.ExecContext(ctx, fmt.Sprintf(`ALTER TABLE %s.metrics DROP PARTITION %s`, dbName, part))
 		if err != nil {
 			errs = append(errs, fmt.Errorf("failed to drop partition %s of %s.metrics: %w", part, dbName, err))
 			continue

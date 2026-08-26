@@ -294,7 +294,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 // Nothing here can fail loudly on its own: a node that never applies retention shows up much
 // later as a full disk. So every pass records its outcome in mRetentionPasses, and a failed drop
 // is retried in minutes rather than waited out for a day.
-func runRetentionLoop(ctx context.Context, drop func() error, leaderCheckURL string) {
+func runRetentionLoop(ctx context.Context, drop func(context.Context) error, leaderCheckURL string) {
 	l := logrus.WithField("component", "retention")
 	client := &http.Client{Timeout: leaderCheckTimeout}
 
@@ -318,7 +318,7 @@ func runRetentionLoop(ctx context.Context, drop func() error, leaderCheckURL str
 			l.Debug("Not applying data retention, this node is not the leader.")
 			delay = leaderRecheckInterval
 		default:
-			err = drop()
+			err = drop(ctx)
 			if err != nil {
 				result = retentionFailed
 				l.Errorf("Failed to apply data retention, will retry: %s.", err)
@@ -441,8 +441,8 @@ func main() {
 	})
 
 	wg.Go(func() {
-		runRetentionLoop(ctx, func() error {
-			return DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
+		runRetentionLoop(ctx, func(ctx context.Context) error {
+			return DropOldPartition(ctx, db, *clickhouseDatabaseF, *dataRetentionF)
 		}, *leaderCheckURLF)
 	})
 
