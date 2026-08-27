@@ -1201,6 +1201,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	// and metrics alone and records the probe source as disabled.
 	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
 	omService.WithProbeSource(*sepURLF, *sepTokenF)
+	prom.MustRegister(om.NewMetricsCollector(omService))
 
 	// Leader-only, like every other periodic writer here. A collection persists a run and
 	// its snapshot and then prunes the shared history, so running it on every node of an

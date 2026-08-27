@@ -37,6 +37,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -110,6 +111,13 @@ type Service struct {
 
 	mu     sync.Mutex
 	latest *omv1.GetTopologyResponse
+
+	// Completed-run tally by status, read by MetricsCollector on every Prometheus scrape
+	// and written once per run by recordRunOutcome. Atomic because a scrape can land while
+	// a collection is in flight.
+	runsSuccess atomic.Int64
+	runsPartial atomic.Int64
+	runsFailed  atomic.Int64
 }
 
 // New returns a new OM service.
@@ -314,6 +322,7 @@ func (s *Service) collect(ctx context.Context) (*omv1.GetTopologyResponse, *omv1
 		Environments:  doc.environments,
 	}
 	run := buildRun(runID, startedAt, generatedAt, services, merged, doc, results)
+	s.recordRunOutcome(run.Status)
 
 	s.mu.Lock()
 	s.latest = response
@@ -537,6 +546,21 @@ func buildRun(
 		run.Status = omv1.RunStatus_RUN_STATUS_PARTIAL
 	}
 	return run
+}
+
+// recordRunOutcome tallies one completed run by status, for MetricsCollector's
+// pmm_managed_om_runs_total counter.
+func (s *Service) recordRunOutcome(status omv1.RunStatus) {
+	switch status {
+	case omv1.RunStatus_RUN_STATUS_SUCCESS:
+		s.runsSuccess.Add(1)
+	case omv1.RunStatus_RUN_STATUS_PARTIAL:
+		s.runsPartial.Add(1)
+	case omv1.RunStatus_RUN_STATUS_FAILED:
+		s.runsFailed.Add(1)
+	default:
+		// buildRun only ever sets one of the three above.
+	}
 }
 
 // detailStrings renders a source's counters for the wire, which carries them as strings
