@@ -26,8 +26,10 @@ import {
 } from 'react';
 import {
   FormProvider,
+  get,
   useForm,
   useFormContext,
+  type FieldErrors,
   type SubmitHandler,
 } from 'react-hook-form';
 import { FormFieldsProvider } from './formFieldsContext';
@@ -95,6 +97,26 @@ function fieldDefault(field: PluginField): unknown {
 
 function flattenFields(sections: FormSection[]): PluginField[] {
   return flattenSectionFields(sections);
+}
+
+function scrollToFirstErrorField(
+  errors: FieldErrors<Record<string, unknown>>,
+  allFields: PluginField[],
+  formEl: HTMLFormElement | null
+): void {
+  if (!formEl) {
+    return;
+  }
+  const firstInvalid = allFields.find((field) => get(errors, field.name));
+  if (!firstInvalid) {
+    return;
+  }
+  const target = formEl.querySelector(
+    `[data-field-name="${firstInvalid.name}"]`
+  );
+  if (target && typeof target.scrollIntoView === 'function') {
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 }
 
 function buildFormDefaults(
@@ -202,7 +224,7 @@ const SectionRenderer = memo(function SectionRenderer({
               {section.title}
             </Typography>
           </AccordionSummary>
-          <AccordionDetails sx={{ px: 0, pl: 2 }}>
+          <AccordionDetails sx={{ pl: 2, pr: 2 }}>
             {sectionContent}
           </AccordionDetails>
         </Accordion>
@@ -301,6 +323,7 @@ function SchemaFormBody({
 }: SchemaFormRendererProps) {
   const { handleSubmit, formState, setError, clearErrors, getFieldState } =
     useFormContext<Record<string, unknown>>();
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Apply backend per-field errors to the form. Clear the paths set by the
   // previous failure first so a resubmit that fixes some fields does not leave
@@ -383,7 +406,8 @@ function SchemaFormBody({
       clearErrors(appliedServerErrorPaths.current);
       appliedServerErrorPaths.current = [];
     }
-    void handleSubmit(handleFormSubmit, () => {
+    void handleSubmit(handleFormSubmit, (errors) => {
+      scrollToFirstErrorField(errors, allFields, formRef.current);
       // Resubmit was blocked by a client-side validation error on some field, so
       // handleFormSubmit never fired: the parent won't re-send fieldErrors and the
       // effect won't re-run. Re-apply the server errors we cleared above (skipping
@@ -409,6 +433,7 @@ function SchemaFormBody({
       {inDataRouter && <UnsavedChangesBlocker isGuarded={isGuarded} />}
       <Box
         component="form"
+        ref={formRef}
         onSubmit={handleSubmitEvent}
         noValidate
         sx={{ maxWidth: 800 }}

@@ -41,7 +41,7 @@ export const ConditionalFieldSlot = memo(function ConditionalFieldSlot({
   const renderDefault = () => <FieldRenderer field={resolvedField} />;
 
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box sx={{ mb: 2 }} data-field-name={field.name}>
       {renderField?.({ field: resolvedField, renderDefault }) ??
         renderDefault()}
     </Box>
