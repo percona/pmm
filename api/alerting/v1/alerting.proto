@@ -208,7 +208,13 @@ message CreateRuleRequest {
   google.protobuf.Duration interval = 10;
 }
 
-message CreateRuleResponse {}
+message CreateRuleResponse {
+  // Identifier PMM assigns to a rule whose thresholds can be overridden per target.
+  // Empty when the rule has no overridable parameters, since nothing can be keyed on it.
+  // This is the rule's identity for threshold purposes rather than its Grafana UID:
+  // copying or renaming the rule in Grafana preserves it.
+  string rule_id = 1;
+}
 
 // Alerting service lets to manage alerting templates and create alerting rules from them.
 service AlertingService {

@@ -397,7 +397,8 @@ func observedQueryForParam(template *alert.Template, paramName string) (alert.Te
 
 		if at < 0 {
 			return alert.TemplateQuery{}, fmt.Errorf(
-				"overridable parameter %q is not compared against any query in expression %s", paramName, expression.RefID)
+				"overridable parameter %q is not compared against any query in expression %s", paramName, expression.RefID,
+			)
 		}
 
 		return found, nil

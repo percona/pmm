@@ -2571,6 +2571,8 @@ func (m *CreateRuleResponse) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for RuleId
+
 	if len(errors) > 0 {
 		return CreateRuleResponseMultiError(errors)
 	}

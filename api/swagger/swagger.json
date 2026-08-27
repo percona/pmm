@@ -1638,7 +1638,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "rule_id": {
+                  "description": "Identifier PMM assigns to a rule whose thresholds can be overridden per target.\nEmpty when the rule has no overridable parameters, since nothing can be keyed on it.\nThis is the rule's identity for threshold purposes rather than its Grafana UID:\ncopying or renaming the rule in Grafana preserves it.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {

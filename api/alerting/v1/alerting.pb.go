@@ -1402,7 +1402,12 @@ func (x *CreateRuleRequest) GetInterval() *durationpb.Duration {
 }
 
 type CreateRuleResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Identifier PMM assigns to a rule whose thresholds can be overridden per target.
+	// Empty when the rule has no overridable parameters, since nothing can be keyed on it.
+	// This is the rule's identity for threshold purposes rather than its Grafana UID:
+	// copying or renaming the rule in Grafana preserves it.
+	RuleId        string `protobuf:"bytes,1,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1435,6 +1440,13 @@ func (x *CreateRuleResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use CreateRuleResponse.ProtoReflect.Descriptor instead.
 func (*CreateRuleResponse) Descriptor() ([]byte, []int) {
 	return file_alerting_v1_alerting_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *CreateRuleResponse) GetRuleId() string {
+	if x != nil {
+		return x.RuleId
+	}
+	return ""
 }
 
 var File_alerting_v1_alerting_proto protoreflect.FileDescriptor
@@ -1550,8 +1562,9 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	" \x01(\v2\x19.google.protobuf.DurationR\binterval\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x14\n" +
-	"\x12CreateRuleResponse*\xa6\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"-\n" +
+	"\x12CreateRuleResponse\x12\x17\n" +
+	"\arule_id\x18\x01 \x01(\tR\x06ruleId*\xa6\x01\n" +
 	"\x0eTemplateSource\x12\x1f\n" +
 	"\x1bTEMPLATE_SOURCE_UNSPECIFIED\x10\x00\x12\x1c\n" +
 	"\x18TEMPLATE_SOURCE_BUILT_IN\x10\x01\x12\x18\n" +
