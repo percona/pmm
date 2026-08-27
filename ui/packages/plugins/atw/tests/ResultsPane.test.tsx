@@ -101,8 +101,22 @@ describe('ResultsPane', () => {
     renderPane(<ResultsPane incidentId="inc-1" />);
 
     await waitFor(() => {
+      expect(
+        screen.getByText(/Run snippets from the Collect pane/i)
+      ).toBeTruthy();
+    });
+  });
+
+  it('does not point a read-only session at the withheld Collect pane', async () => {
+    mockCanMutate = false;
+    mockedApi.get.mockResolvedValue(paginated([]));
+
+    renderPane(<ResultsPane incidentId="inc-1" />);
+
+    await waitFor(() => {
       expect(screen.getByText(/No executions yet/i)).toBeTruthy();
     });
+    expect(screen.queryByText(/Collect pane/i)).not.toBeInTheDocument();
   });
 
   it('renders an Unknown chip when the task status could not be hydrated', async () => {

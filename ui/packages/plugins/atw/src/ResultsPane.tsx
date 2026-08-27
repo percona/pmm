@@ -273,8 +273,9 @@ export function ResultsPane({ incidentId }: ResultsPaneProps) {
 
       {!isLoading && !error && (!rows || rows.length === 0) && (
         <Alert severity="info">
-          No executions yet. Run snippets from the Collect pane to see results
-          here.
+          {canMutate
+            ? 'No executions yet. Run snippets from the Collect pane to see results here.'
+            : 'No executions yet.'}
         </Alert>
       )}
 
