@@ -334,6 +334,6 @@ func (s *ManagementService) AddAzureDatabase(ctx context.Context, req *managemen
 		return nil, e
 	}
 
-	s.state.RequestStateUpdate(ctx, models.PMMServerAgentID)
+	s.state.RequestStateUpdate(ctx, pmmAgentID)
 	return &managementv1.AddAzureDatabaseResponse{}, nil
 }
