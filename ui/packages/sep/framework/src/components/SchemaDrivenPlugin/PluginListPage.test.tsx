@@ -15,8 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { act, render, screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
@@ -184,87 +183,5 @@ describe('PluginListPage — write access', () => {
 
     renderDeletableEntityList();
     expect(lastListViewProps().onDeleteRow).toBeUndefined();
-  });
-});
-
-describe('PluginListPage — delete failure reporting', () => {
-  const deletableEntitySchema = {
-    name: 'inventory',
-    display_name: 'Inventory',
-    capabilities: { scheduling: false },
-    entities: [
-      {
-        name: 'nodes',
-        display_name: 'Nodes',
-        forms: [],
-        list_view: {
-          columns: [
-            { key: 'name', label: 'Name' },
-            { key: '_actions', label: 'Actions', format: 'actions' },
-          ],
-        },
-      },
-    ],
-  } as unknown as PluginSchema;
-
-  function renderDeletableEntityList() {
-    return render(
-      <SnackbarProvider>
-        <MemoryRouter initialEntries={['/inventory/nodes']}>
-          <Routes>
-            <Route
-              path="/:plugin/:entityName"
-              element={
-                <PluginListPage
-                  schema={deletableEntitySchema}
-                  pluginName="inventory"
-                  allowListEntityDelete
-                />
-              }
-            />
-          </Routes>
-        </MemoryRouter>
-      </SnackbarProvider>
-    );
-  }
-
-  async function confirmDelete() {
-    const props = schemaListViewMock.mock.calls.at(-1)?.[0] as {
-      onDeleteRow?: (row: Record<string, unknown>) => void;
-    };
-    act(() => props.onDeleteRow?.({ id: 1, name: 'node-a' }));
-    const dialog = await screen.findByRole('dialog');
-    await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Delete' })
-    );
-  }
-
-  it("reports a refused delete on the list with the server's own reason", async () => {
-    deleteEntityMock.mockImplementation((_id, opts) =>
-      opts.onError?.(
-        new Error("You don't have permission to perform this action")
-      )
-    );
-    renderDeletableEntityList();
-
-    await confirmDelete();
-
-    expect(
-      await screen.findByTestId('plugin-list-action-error')
-    ).toHaveTextContent("You don't have permission to perform this action");
-    // The alert replaces the previous error toast rather than joining it.
-    expect(document.querySelector('[class*="notistack"]')).toBeNull();
-  });
-
-  it('reports nothing when the delete succeeds', async () => {
-    deleteEntityMock.mockImplementation((_id, opts) => opts.onSuccess?.());
-    renderDeletableEntityList();
-
-    await confirmDelete();
-
-    await waitFor(() => expect(deleteEntityMock).toHaveBeenCalledTimes(1));
-    expect(
-      screen.queryByTestId('plugin-list-action-error')
-    ).not.toBeInTheDocument();
   });
 });

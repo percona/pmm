@@ -229,30 +229,29 @@ export function IncidentListPage() {
                   Created by {incident.created_by}
                 </Typography>
               </Box>
-              {canMutate &&
-                (incident.closed_at ? (
-                  <Tooltip title="Reopen">
-                    <IconButton
-                      aria-label={`Reopen ${incident.name}`}
-                      disabled={lifecycle.isPending(incident.id)}
-                      onClick={() => lifecycle.reopen(incident.id)}
-                    >
-                      <LockOpenOutlinedIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                ) : (
-                  <Tooltip title="Close">
-                    <IconButton
-                      aria-label={`Close ${incident.name}`}
-                      disabled={lifecycle.isPending(incident.id)}
-                      onClick={() => lifecycle.close(incident.id)}
-                    >
-                      <LockOutlinedIcon fontSize="small" />
-                    </IconButton>
-                  </Tooltip>
-                ))}
               {canMutate && (
                 <>
+                  {incident.closed_at ? (
+                    <Tooltip title="Reopen">
+                      <IconButton
+                        aria-label={`Reopen ${incident.name}`}
+                        disabled={lifecycle.isPending(incident.id)}
+                        onClick={() => lifecycle.reopen(incident.id)}
+                      >
+                        <LockOpenOutlinedIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Close">
+                      <IconButton
+                        aria-label={`Close ${incident.name}`}
+                        disabled={lifecycle.isPending(incident.id)}
+                        onClick={() => lifecycle.close(incident.id)}
+                      >
+                        <LockOutlinedIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
                   <Tooltip title="Rename">
                     <IconButton
                       aria-label={`Rename ${incident.name}`}
