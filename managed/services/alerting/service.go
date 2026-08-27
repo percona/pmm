@@ -729,7 +729,12 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Errorf(codes.Internal, "Invalid template %s: %v.", req.TemplateName, err)
 	}
 
-	ruleData, condition, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, paramsValues.AsStringMap(), req.Filters)
+	// A rule only carries threshold steps once it has a PMM-minted ID to key its
+	// overrides on. Minting and persisting that ID is the registry work; until then an
+	// empty ID leaves the generated rule exactly as it was before this feature.
+	var ruleID string
+
+	ruleData, condition, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, ruleID, paramsValues.AsStringMap(), req.Filters)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build alert rule data: %w", err)
 	}

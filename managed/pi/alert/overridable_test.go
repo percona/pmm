@@ -189,3 +189,23 @@ func TestValidateAcceptsNonOverridableTemplates(t *testing.T) {
 
 	require.NoError(t, template.Validate())
 }
+
+func TestValidateOverridableRejectsMixedScopeFamilies(t *testing.T) {
+	t.Parallel()
+
+	template := overridableTemplate()
+	template.Params[0].OverrideScopes = []string{OverrideScopeNode, OverrideScopeCluster}
+
+	err := template.Validate()
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "join on different labels")
+}
+
+func TestValidateOverridableAcceptsServiceAndCluster(t *testing.T) {
+	t.Parallel()
+
+	template := overridableTemplate()
+	template.Params[0].OverrideScopes = []string{OverrideScopeService, OverrideScopeCluster}
+
+	require.NoError(t, template.Validate())
+}
