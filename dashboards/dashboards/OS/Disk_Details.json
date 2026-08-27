@@ -3077,14 +3077,14 @@
                     "value": "$__all"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"node_disk_reads_completed_total|rdsosmetrics_diskIO_util\",node_name=~\"$node_name\", device!~\"dm-.+\"}, device)",
+                "definition": "label_values({__name__=~\"node_disk_reads_completed_total|rdsosmetrics_diskIO_util\",node_name=~\"$node_name\", device!~\"dm-.+|md.+\"}, device)",
                 "includeAll": true,
                 "label": "Device",
                 "multi": true,
                 "name": "device",
                 "options": [],
                 "query": {
-                    "query": "label_values({__name__=~\"node_disk_reads_completed_total|rdsosmetrics_diskIO_util\",node_name=~\"$node_name\", device!~\"dm-.+\"}, device)",
+                    "query": "label_values({__name__=~\"node_disk_reads_completed_total|rdsosmetrics_diskIO_util\",node_name=~\"$node_name\", device!~\"dm-.+|md.+\"}, device)",
                     "refId": "Metrics-device-Variable-Query"
                 },
                 "refresh": 2,
