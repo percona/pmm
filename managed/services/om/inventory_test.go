@@ -138,7 +138,8 @@ func newSEPStubSeq(t *testing.T, code int, bodies ...string) *sepStub {
 	stub := &sepStub{bodies: bodies}
 	stub.server = httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		call := stubCall{method: r.Method, path: r.URL.Path, query: r.URL.RawQuery}
-		if raw, err := io.ReadAll(r.Body); err == nil { //nolint:noinlineerr
+		raw, err := io.ReadAll(r.Body)
+		if err == nil {
 			call.body = string(raw)
 		}
 		stub.method, stub.path, stub.query, stub.body = call.method, call.path, call.query, call.body

@@ -184,7 +184,8 @@ func (a sepApp) call(ctx context.Context, c inventoryCall, out any) error {
 	if out == nil || resp.StatusCode == http.StatusNoContent {
 		return nil
 	}
-	if err := json.NewDecoder(resp.Body).Decode(out); err != nil { //nolint:noinlineerr
+	err = json.NewDecoder(resp.Body).Decode(out)
+	if err != nil {
 		return status.Errorf(codes.Internal, "failed to decode the inventory app's answer: %s", err)
 	}
 	return nil
@@ -224,7 +225,8 @@ func sepStatusError(resp *http.Response) error {
 // sepErrorDetail extracts something readable from the app's error body.
 func sepErrorDetail(resp *http.Response) string {
 	var envelope sepError
-	if err := json.NewDecoder(resp.Body).Decode(&envelope); err != nil || envelope.Detail == nil { //nolint:noinlineerr
+	err := json.NewDecoder(resp.Body).Decode(&envelope)
+	if err != nil || envelope.Detail == nil {
 		return resp.Status
 	}
 	if text, ok := envelope.Detail.(string); ok {

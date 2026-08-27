@@ -93,7 +93,8 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 
 	hosts := []sepHost{}
 	call := inventoryCall{method: http.MethodGet, path: "hosts", query: query}
-	if err := probe.call(ctx, call, &hosts); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, &hosts)
+	if err != nil {
 		return nil, err
 	}
 
@@ -113,7 +114,8 @@ func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHo
 
 	host := sepHost{}
 	call := inventoryCall{method: http.MethodGet, path: inventoryPath("hosts", req.GetNodeId())}
-	if err := probe.call(ctx, call, &host); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, &host)
+	if err != nil {
 		return nil, err
 	}
 	return &omv1.GetInventoryHostResponse{Host: inventoryHostToProto(host)}, nil
@@ -131,7 +133,8 @@ func (s *Service) DeleteInventoryHost(ctx context.Context, req *omv1.DeleteInven
 	}
 
 	call := inventoryCall{method: http.MethodDelete, path: inventoryPath("hosts", req.GetNodeId())}
-	if err := probe.call(ctx, call, nil); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, nil)
+	if err != nil {
 		return nil, err
 	}
 	return &omv1.DeleteInventoryHostResponse{}, nil
@@ -154,7 +157,8 @@ func (s *Service) ListInventoryServices(ctx context.Context, req *omv1.ListInven
 
 	services := []sepService{}
 	call := inventoryCall{method: http.MethodGet, path: "services", query: query}
-	if err := probe.call(ctx, call, &services); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, &services)
+	if err != nil {
 		return nil, err
 	}
 
@@ -174,7 +178,8 @@ func (s *Service) GetInventoryService(ctx context.Context, req *omv1.GetInventor
 
 	service := sepService{}
 	call := inventoryCall{method: http.MethodGet, path: inventoryPath("services", req.GetServiceId())}
-	if err := probe.call(ctx, call, &service); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, &service)
+	if err != nil {
 		return nil, err
 	}
 	return &omv1.GetInventoryServiceResponse{Service: inventoryServiceToProto(service)}, nil
@@ -188,7 +193,8 @@ func (s *Service) DeleteInventoryService(ctx context.Context, req *omv1.DeleteIn
 	}
 
 	call := inventoryCall{method: http.MethodDelete, path: inventoryPath("services", req.GetServiceId())}
-	if err := probe.call(ctx, call, nil); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, nil)
+	if err != nil {
 		return nil, err
 	}
 	return &omv1.DeleteInventoryServiceResponse{}, nil
@@ -223,7 +229,8 @@ func (s *Service) ListInventoryRuns(ctx context.Context, req *omv1.ListInventory
 
 	runs := []sepRun{}
 	call := inventoryCall{method: http.MethodGet, path: "runs", query: query}
-	if err := probe.call(ctx, call, &runs); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, &runs)
+	if err != nil {
 		return nil, err
 	}
 
@@ -243,7 +250,8 @@ func (s *Service) GetInventoryRun(ctx context.Context, req *omv1.GetInventoryRun
 
 	run := sepRun{}
 	call := inventoryCall{method: http.MethodGet, path: inventoryPath("runs", req.GetRunId())}
-	if err := probe.call(ctx, call, &run); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, &run)
+	if err != nil {
 		return nil, err
 	}
 	return &omv1.GetInventoryRunResponse{
@@ -285,7 +293,8 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 		Scope     []string `json:"scope"`
 	}{}
 	call := inventoryCall{method: http.MethodPost, path: "runs", body: body}
-	if err := probe.call(ctx, call, &accepted); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, &accepted)
+	if err != nil {
 		return nil, err
 	}
 
@@ -311,7 +320,8 @@ func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryCo
 
 	settings := []sepSetting{}
 	call := inventoryCall{method: http.MethodGet, path: "config"}
-	if err := probe.call(ctx, call, &settings); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, &settings)
+	if err != nil {
 		return nil, err
 	}
 	return &omv1.GetInventoryConfigResponse{Settings: inventorySettingsToProto(settings)}, nil
@@ -399,7 +409,8 @@ func (s *Service) UpdateInventoryConfig(ctx context.Context, req *omv1.UpdateInv
 
 	applied := []sepSetting{}
 	call := inventoryCall{method: http.MethodPatch, path: "config", body: req.GetValues().AsMap()}
-	if err := probe.call(ctx, call, &applied); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, &applied)
+	if err != nil {
 		return nil, err
 	}
 
@@ -438,7 +449,8 @@ func (s *Service) DeleteInventoryConfigOverride(
 	}
 
 	call := inventoryCall{method: http.MethodDelete, path: inventoryPath("config", req.GetKey())}
-	if err := probe.call(ctx, call, nil); err != nil { //nolint:noinlineerr
+	err = probe.call(ctx, call, nil)
+	if err != nil {
 		return nil, err
 	}
 	return &omv1.DeleteInventoryConfigOverrideResponse{}, nil

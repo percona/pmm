@@ -272,7 +272,8 @@ func (s probeSource) fetch(ctx context.Context) ([]probeService, error) {
 	}
 
 	answer := []probeService{}
-	if err := json.NewDecoder(resp.Body).Decode(&answer); err != nil { //nolint:noinlineerr
+	err = json.NewDecoder(resp.Body).Decode(&answer)
+	if err != nil {
 		return nil, fmt.Errorf("GET %s: failed to decode the response: %w", url, err)
 	}
 	return answer, nil
