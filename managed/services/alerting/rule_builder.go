@@ -32,8 +32,14 @@ const (
 	grafanaExprDatasourceUID = "__expr__"
 	queryRelativeFromSeconds = 600
 	expressionTypeMath       = "math"
+	expressionTypeReduce     = "reduce"
+	expressionTypeThreshold  = "threshold"
 	queryIntervalMs          = 1000
 	maxDataPoints            = 43200
+
+	clickhouseDatasourceType = "grafana-clickhouse-datasource"
+	// Relative time window in seconds over which the ClickHouse log query is evaluated.
+	clickhouseRelativeFromSeconds = 300
 )
 
 type promQueryModel struct {
@@ -53,6 +59,38 @@ type mathExpressionModel struct {
 	Hide          bool              `json:"hide"`
 	IntervalMs    int               `json:"intervalMs"`
 	MaxDataPoints int               `json:"maxDataPoints"`
+}
+
+type clickhouseQueryModel struct {
+	RefID      string            `json:"refId"`
+	Datasource map[string]string `json:"datasource"`
+	RawSQL     string            `json:"rawSql"`
+	QueryType  string            `json:"queryType"`
+}
+
+type reduceExpressionModel struct {
+	RefID      string            `json:"refId"`
+	Datasource map[string]string `json:"datasource"`
+	Type       string            `json:"type"`
+	Expression string            `json:"expression"`
+	Reducer    string            `json:"reducer"`
+}
+
+type thresholdExpressionModel struct {
+	RefID      string               `json:"refId"`
+	Datasource map[string]string    `json:"datasource"`
+	Type       string               `json:"type"`
+	Expression string               `json:"expression"`
+	Conditions []thresholdCondition `json:"conditions"`
+}
+
+type thresholdCondition struct {
+	Evaluator thresholdEvaluator `json:"evaluator"`
+}
+
+type thresholdEvaluator struct {
+	Type   string    `json:"type"`
+	Params []float64 `json:"params"`
 }
 
 func buildGrafanaRuleData(
@@ -190,6 +228,79 @@ func newMathExpressionData(refID, expression string) (services.Data, error) {
 		},
 		Model: model,
 	}, nil
+}
+
+func newClickHouseQueryData(chUID, refID, rawSQL string) (services.Data, error) {
+	model, err := json.Marshal(clickhouseQueryModel{
+		RefID: refID,
+		Datasource: map[string]string{
+			"type": clickhouseDatasourceType,
+			"uid":  chUID,
+		},
+		RawSQL:    rawSQL,
+		QueryType: "table",
+	})
+	if err != nil {
+		return services.Data{}, fmt.Errorf("failed to marshal ClickHouse query model: %w", err)
+	}
+
+	return services.Data{
+		RefID:         refID,
+		DatasourceUID: chUID,
+		RelativeTimeRange: services.RelativeTimeRange{
+			From: clickhouseRelativeFromSeconds,
+			To:   0,
+		},
+		Model: model,
+	}, nil
+}
+
+func newReduceExpressionData(refID, expression string) (services.Data, error) {
+	model, err := json.Marshal(reduceExpressionModel{
+		RefID:      refID,
+		Datasource: exprDatasourceRef(),
+		Type:       expressionTypeReduce,
+		Expression: expression,
+		Reducer:    "last",
+	})
+	if err != nil {
+		return services.Data{}, fmt.Errorf("failed to marshal reduce expression model: %w", err)
+	}
+
+	return services.Data{
+		RefID:         refID,
+		DatasourceUID: grafanaExprDatasourceUID,
+		Model:         model,
+	}, nil
+}
+
+func newThresholdExpressionData(refID, expression string, threshold float64) (services.Data, error) {
+	model, err := json.Marshal(thresholdExpressionModel{
+		RefID:      refID,
+		Datasource: exprDatasourceRef(),
+		Type:       expressionTypeThreshold,
+		Expression: expression,
+		Conditions: []thresholdCondition{
+			{Evaluator: thresholdEvaluator{Type: "gt", Params: []float64{threshold}}},
+		},
+	})
+	if err != nil {
+		return services.Data{}, fmt.Errorf("failed to marshal threshold expression model: %w", err)
+	}
+
+	return services.Data{
+		RefID:         refID,
+		DatasourceUID: grafanaExprDatasourceUID,
+		Model:         model,
+	}, nil
+}
+
+// exprDatasourceRef returns the datasource reference Grafana expects for server-side expression nodes.
+func exprDatasourceRef() map[string]string {
+	return map[string]string{
+		"type": grafanaExprDatasourceUID,
+		"uid":  grafanaExprDatasourceUID,
+	}
 }
 
 func parseAlertTemplate(yamlContent string) (*alert.Template, error) {

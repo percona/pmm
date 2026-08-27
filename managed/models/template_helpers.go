@@ -150,6 +150,7 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	row.For = time.Duration(template.For)
 	row.Severity = Severity(template.Severity)
 	row.Yaml = yaml
+	row.Datasource = template.Datasource
 
 	err = row.SetLabels(template.Labels)
 	if err != nil {
@@ -196,15 +197,16 @@ func ConvertTemplate(template *alert.Template, source Source) (*Template, error)
 	}
 
 	res := &Template{
-		Name:     template.Name,
-		Version:  template.Version,
-		Summary:  template.Summary,
-		Expr:     template.StoredExpr(),
-		Params:   p,
-		For:      time.Duration(template.For),
-		Severity: Severity(template.Severity),
-		Source:   source,
-		Yaml:     yaml,
+		Name:       template.Name,
+		Version:    template.Version,
+		Summary:    template.Summary,
+		Expr:       template.StoredExpr(),
+		Params:     p,
+		For:        time.Duration(template.For),
+		Severity:   Severity(template.Severity),
+		Source:     source,
+		Yaml:       yaml,
+		Datasource: template.Datasource,
 	}
 
 	err = res.SetLabels(template.Labels)

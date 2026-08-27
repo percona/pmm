@@ -222,6 +222,9 @@ type ChangeSettingsBody struct {
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
 
+	// A number of full days for log and trace data retention in ClickHouse. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+	LogRetention string `json:"log_retention,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -982,6 +985,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).
+	LogRetention string `json:"log_retention,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

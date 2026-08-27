@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package logship.v1;
+
+import "google/api/visibility.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/percona/pmm/api/logship/v1;logshipv1";
+
+// LogRecord is a single OTLP-shaped log line shipped from a PMM Client.
+message LogRecord {
+  // Time the line was produced.
+  google.protobuf.Timestamp time = 1;
+  // Optional severity text; usually left empty as parsing happens centrally on the server.
+  string severity_text = 2;
+  // Raw log line.
+  string body = 3;
+  // Per-record attributes (mapped to OTel LogAttributes).
+  map<string, string> attributes = 4;
+}
+
+// ShipRequest carries a batch of log records from a single logical source (pmm-agent, an exporter, or
+// a watched database) to pmm-managed.
+message ShipRequest {
+  // Logical source name, mapped to OTel ServiceName.
+  string service_name = 1;
+  // Resource-level attributes shared by all records (mapped to OTel ResourceAttributes).
+  map<string, string> resource_attributes = 2;
+  // The log records.
+  repeated LogRecord records = 3;
+}
+
+// ShipResponse is a stub for the server response.
+message ShipResponse {}
+
+// LogShipService receives client and database logs from PMM Clients over the existing agent channel.
+service LogShipService {
+  option (google.api.api_visibility).restriction = "INTERNAL";
+  // Ship is a uni-directional stream of client/database log records from pmm-agent to pmm-managed.
+  rpc Ship(stream ShipRequest) returns (ShipResponse);
+}

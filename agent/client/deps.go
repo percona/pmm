@@ -21,6 +21,7 @@ import (
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
+	logshipv1 "github.com/percona/pmm/api/logship/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
@@ -52,6 +53,7 @@ type supervisor interface {
 	Changes() <-chan *agentv1.StateChangedRequest
 	QANRequests() <-chan *agentv1.QANCollectRequest
 	RTARequests() <-chan *rtav1.CollectRequest
+	LogRequests() <-chan *logshipv1.ShipRequest
 	SetState(*agentv1.SetStateRequest)
 	RestartAgents()
 	AgentLogByID(string) ([]string, uint)

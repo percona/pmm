@@ -173,6 +173,8 @@ message Settings {
   uint32 default_role_id = 18;
   // True if Query Analytics for PMM's internal PG database is enabled.
   bool enable_internal_pg_qan = 19;
+  // A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).
+  google.protobuf.Duration log_retention = 21;
   // Field 20 (update_snooze_duration) was removed when GUI-triggered upgrades were deprecated.
   reserved 20;
   reserved "update_snooze_duration";
@@ -234,6 +236,8 @@ message ChangeSettingsRequest {
   optional bool enable_access_control = 13;
   // Enable Query Analytics for PMM's internal PG database.
   optional bool enable_internal_pg_qan = 14;
+  // A number of full days for log and trace data retention in ClickHouse. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+  google.protobuf.Duration log_retention = 16;
   // Field 15 (update_snooze_duration) was removed when GUI-triggered upgrades were deprecated.
   reserved 15;
   reserved "update_snooze_duration";

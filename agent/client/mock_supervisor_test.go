@@ -8,6 +8,7 @@ import (
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocalv1 "github.com/percona/pmm/api/agentlocal/v1"
+	logshipv1 "github.com/percona/pmm/api/logship/v1"
 	realtimeanalyticsv1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 )
 
@@ -99,6 +100,26 @@ func (_m *mockSupervisor) Collect(_a0 chan<- prometheus.Metric) {
 // Describe provides a mock function with given fields: _a0
 func (_m *mockSupervisor) Describe(_a0 chan<- *prometheus.Desc) {
 	_m.Called(_a0)
+}
+
+// LogRequests provides a mock function with no fields
+func (_m *mockSupervisor) LogRequests() <-chan *logshipv1.ShipRequest {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for LogRequests")
+	}
+
+	var r0 <-chan *logshipv1.ShipRequest
+	if rf, ok := ret.Get(0).(func() <-chan *logshipv1.ShipRequest); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(<-chan *logshipv1.ShipRequest)
+		}
+	}
+
+	return r0
 }
 
 // QANRequests provides a mock function with no fields

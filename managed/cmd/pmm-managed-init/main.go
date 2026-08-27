@@ -81,4 +81,13 @@ func main() {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
 	}
+
+	// Render the OpenTelemetry Collector config. Retention is enforced on the ClickHouse tables by
+	// pmm-managed (managed/services/clickhouse), not by the collector, so the collector config does
+	// not depend on any setting.
+	err = supervisord.SaveOtelcolConfig()
+	if err != nil {
+		logrus.Errorf("OpenTelemetry Collector configuration error: %s.", err)
+		os.Exit(1)
+	}
 }

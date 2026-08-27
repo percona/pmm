@@ -3788,7 +3788,11 @@ type SetStateRequest_BuiltinAgent struct {
 	ServiceId string `protobuf:"bytes,12,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// Service name of the service where the agent connects to.
 	// Currently used by Real-Time Analytics built-in agent only.
-	ServiceName   string `protobuf:"bytes,13,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	ServiceName string `protobuf:"bytes,13,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// Database log files to watch and ship. Used by the database log-watcher agent only.
+	WatchedLogs []*v1.WatchedLog `protobuf:"bytes,14,rep,name=watched_logs,json=watchedLogs,proto3" json:"watched_logs,omitempty"`
+	// Database engine of the watched service (mysql, postgresql, ...). Used by the log-watcher agent only.
+	DbSystem      string `protobuf:"bytes,15,opt,name=db_system,json=dbSystem,proto3" json:"db_system,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3910,6 +3914,20 @@ func (x *SetStateRequest_BuiltinAgent) GetServiceId() string {
 func (x *SetStateRequest_BuiltinAgent) GetServiceName() string {
 	if x != nil {
 		return x.ServiceName
+	}
+	return ""
+}
+
+func (x *SetStateRequest_BuiltinAgent) GetWatchedLogs() []*v1.WatchedLog {
+	if x != nil {
+		return x.WatchedLogs
+	}
+	return nil
+}
+
+func (x *SetStateRequest_BuiltinAgent) GetDbSystem() string {
+	if x != nil {
+		return x.DbSystem
 	}
 	return ""
 }
@@ -6655,7 +6673,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"listenPort\x12*\n" +
 	"\x11process_exec_path\x18\x04 \x01(\tR\x0fprocessExecPath\x12\x18\n" +
 	"\aversion\x18\x05 \x01(\tR\aversion\"\x16\n" +
-	"\x14StateChangedResponse\"\xd9\v\n" +
+	"\x14StateChangedResponse\"\xb3\f\n" +
 	"\x0fSetStateRequest\x12V\n" +
 	"\x0fagent_processes\x18\x01 \x03(\v2-.agent.v1.SetStateRequest.AgentProcessesEntryR\x0eagentProcesses\x12S\n" +
 	"\x0ebuiltin_agents\x18\x02 \x03(\v2,.agent.v1.SetStateRequest.BuiltinAgentsEntryR\rbuiltinAgents\x1a\xba\x03\n" +
@@ -6674,7 +6692,7 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ai\n" +
 	"\x13AgentProcessesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
-	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.AgentProcessR\x05value:\x028\x01\x1a\x86\x05\n" +
+	"\x05value\x18\x02 \x01(\v2&.agent.v1.SetStateRequest.AgentProcessR\x05value:\x028\x01\x1a\xe0\x05\n" +
 	"\fBuiltinAgent\x12+\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x17.inventory.v1.AgentTypeR\x04type\x12\x16\n" +
 	"\x03dsn\x18\x02 \x01(\tB\x04\x88\xb5\x18\x03R\x03dsn\x12(\n" +
@@ -6692,7 +6710,9 @@ const file_agent_v1_agent_proto_rawDesc = "" +
 	"rtaOptions\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\f \x01(\tR\tserviceId\x12!\n" +
-	"\fservice_name\x18\r \x01(\tR\vserviceName\x1a6\n" +
+	"\fservice_name\x18\r \x01(\tR\vserviceName\x12;\n" +
+	"\fwatched_logs\x18\x0e \x03(\v2\x18.inventory.v1.WatchedLogR\vwatchedLogs\x12\x1b\n" +
+	"\tdb_system\x18\x0f \x01(\tR\bdbSystem\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\x1ah\n" +
@@ -7216,9 +7236,10 @@ var (
 		(*status.Status)(nil),                                          // 99: google.rpc.Status
 		v1.AgentType(0),                                                // 100: inventory.v1.AgentType
 		(*v1.RTAOptions)(nil),                                          // 101: inventory.v1.RTAOptions
-		v11.DataModel(0),                                               // 102: backup.v1.DataModel
-		(*v11.PbmMetadata)(nil),                                        // 103: backup.v1.PbmMetadata
-		(*v11.Metadata)(nil),                                           // 104: backup.v1.Metadata
+		(*v1.WatchedLog)(nil),                                          // 102: inventory.v1.WatchedLog
+		v11.DataModel(0),                                               // 103: backup.v1.DataModel
+		(*v11.PbmMetadata)(nil),                                        // 104: backup.v1.PbmMetadata
+		(*v11.Metadata)(nil),                                           // 105: backup.v1.Metadata
 	}
 )
 
@@ -7326,52 +7347,53 @@ var file_agent_v1_agent_proto_depIdxs = []int32{
 	2,   // 100: agent.v1.SetStateRequest.BuiltinAgent.text_files:type_name -> agent.v1.TextFiles
 	50,  // 101: agent.v1.SetStateRequest.BuiltinAgent.env:type_name -> agent.v1.SetStateRequest.BuiltinAgent.EnvEntry
 	101, // 102: agent.v1.SetStateRequest.BuiltinAgent.rta_options:type_name -> inventory.v1.RTAOptions
-	47,  // 103: agent.v1.SetStateRequest.BuiltinAgentsEntry.value:type_name -> agent.v1.SetStateRequest.BuiltinAgent
-	11,  // 104: agent.v1.QueryActionMap.MapEntry.value:type_name -> agent.v1.QueryActionValue
-	0,   // 105: agent.v1.StartActionRequest.MySQLExplainParams.output_format:type_name -> agent.v1.MysqlExplainOutputFormat
-	2,   // 106: agent.v1.StartActionRequest.MySQLExplainParams.tls_files:type_name -> agent.v1.TextFiles
-	2,   // 107: agent.v1.StartActionRequest.MySQLShowCreateTableParams.tls_files:type_name -> agent.v1.TextFiles
-	2,   // 108: agent.v1.StartActionRequest.MySQLShowTableStatusParams.tls_files:type_name -> agent.v1.TextFiles
-	2,   // 109: agent.v1.StartActionRequest.MySQLShowIndexParams.tls_files:type_name -> agent.v1.TextFiles
-	2,   // 110: agent.v1.StartActionRequest.PostgreSQLShowCreateTableParams.tls_files:type_name -> agent.v1.TextFiles
-	2,   // 111: agent.v1.StartActionRequest.PostgreSQLShowIndexParams.tls_files:type_name -> agent.v1.TextFiles
-	2,   // 112: agent.v1.StartActionRequest.MongoDBExplainParams.text_files:type_name -> agent.v1.TextFiles
-	2,   // 113: agent.v1.StartActionRequest.MySQLQueryShowParams.tls_files:type_name -> agent.v1.TextFiles
-	2,   // 114: agent.v1.StartActionRequest.MySQLQuerySelectParams.tls_files:type_name -> agent.v1.TextFiles
-	2,   // 115: agent.v1.StartActionRequest.PostgreSQLQueryShowParams.tls_files:type_name -> agent.v1.TextFiles
-	2,   // 116: agent.v1.StartActionRequest.PostgreSQLQuerySelectParams.tls_files:type_name -> agent.v1.TextFiles
-	2,   // 117: agent.v1.StartActionRequest.MongoDBQueryGetParameterParams.text_files:type_name -> agent.v1.TextFiles
-	2,   // 118: agent.v1.StartActionRequest.MongoDBQueryBuildInfoParams.text_files:type_name -> agent.v1.TextFiles
-	2,   // 119: agent.v1.StartActionRequest.MongoDBQueryGetCmdLineOptsParams.text_files:type_name -> agent.v1.TextFiles
-	2,   // 120: agent.v1.StartActionRequest.MongoDBQueryReplSetGetStatusParams.text_files:type_name -> agent.v1.TextFiles
-	2,   // 121: agent.v1.StartActionRequest.MongoDBQueryGetDiagnosticDataParams.text_files:type_name -> agent.v1.TextFiles
-	1,   // 122: agent.v1.StartActionRequest.RestartSystemServiceParams.system_service:type_name -> agent.v1.StartActionRequest.RestartSystemServiceParams.SystemService
-	32,  // 123: agent.v1.StartJobRequest.MySQLBackup.s3_config:type_name -> agent.v1.S3LocationConfig
-	32,  // 124: agent.v1.StartJobRequest.MySQLRestoreBackup.s3_config:type_name -> agent.v1.S3LocationConfig
-	2,   // 125: agent.v1.StartJobRequest.MongoDBBackup.text_files:type_name -> agent.v1.TextFiles
-	102, // 126: agent.v1.StartJobRequest.MongoDBBackup.data_model:type_name -> backup.v1.DataModel
-	32,  // 127: agent.v1.StartJobRequest.MongoDBBackup.s3_config:type_name -> agent.v1.S3LocationConfig
-	33,  // 128: agent.v1.StartJobRequest.MongoDBBackup.filesystem_config:type_name -> agent.v1.FilesystemLocationConfig
-	2,   // 129: agent.v1.StartJobRequest.MongoDBRestoreBackup.text_files:type_name -> agent.v1.TextFiles
-	103, // 130: agent.v1.StartJobRequest.MongoDBRestoreBackup.pbm_metadata:type_name -> backup.v1.PbmMetadata
-	94,  // 131: agent.v1.StartJobRequest.MongoDBRestoreBackup.pitr_timestamp:type_name -> google.protobuf.Timestamp
-	32,  // 132: agent.v1.StartJobRequest.MongoDBRestoreBackup.s3_config:type_name -> agent.v1.S3LocationConfig
-	33,  // 133: agent.v1.StartJobRequest.MongoDBRestoreBackup.filesystem_config:type_name -> agent.v1.FilesystemLocationConfig
-	104, // 134: agent.v1.JobResult.MongoDBBackup.metadata:type_name -> backup.v1.Metadata
-	104, // 135: agent.v1.JobResult.MySQLBackup.metadata:type_name -> backup.v1.Metadata
-	86,  // 136: agent.v1.GetVersionsRequest.Software.mysqld:type_name -> agent.v1.GetVersionsRequest.MySQLd
-	87,  // 137: agent.v1.GetVersionsRequest.Software.xtrabackup:type_name -> agent.v1.GetVersionsRequest.Xtrabackup
-	88,  // 138: agent.v1.GetVersionsRequest.Software.xbcloud:type_name -> agent.v1.GetVersionsRequest.Xbcloud
-	89,  // 139: agent.v1.GetVersionsRequest.Software.qpress:type_name -> agent.v1.GetVersionsRequest.Qpress
-	90,  // 140: agent.v1.GetVersionsRequest.Software.mongod:type_name -> agent.v1.GetVersionsRequest.MongoDB
-	91,  // 141: agent.v1.GetVersionsRequest.Software.pbm:type_name -> agent.v1.GetVersionsRequest.PBM
-	42,  // 142: agent.v1.AgentService.Connect:input_type -> agent.v1.AgentMessage
-	43,  // 143: agent.v1.AgentService.Connect:output_type -> agent.v1.ServerMessage
-	143, // [143:144] is the sub-list for method output_type
-	142, // [142:143] is the sub-list for method input_type
-	142, // [142:142] is the sub-list for extension type_name
-	142, // [142:142] is the sub-list for extension extendee
-	0,   // [0:142] is the sub-list for field type_name
+	102, // 103: agent.v1.SetStateRequest.BuiltinAgent.watched_logs:type_name -> inventory.v1.WatchedLog
+	47,  // 104: agent.v1.SetStateRequest.BuiltinAgentsEntry.value:type_name -> agent.v1.SetStateRequest.BuiltinAgent
+	11,  // 105: agent.v1.QueryActionMap.MapEntry.value:type_name -> agent.v1.QueryActionValue
+	0,   // 106: agent.v1.StartActionRequest.MySQLExplainParams.output_format:type_name -> agent.v1.MysqlExplainOutputFormat
+	2,   // 107: agent.v1.StartActionRequest.MySQLExplainParams.tls_files:type_name -> agent.v1.TextFiles
+	2,   // 108: agent.v1.StartActionRequest.MySQLShowCreateTableParams.tls_files:type_name -> agent.v1.TextFiles
+	2,   // 109: agent.v1.StartActionRequest.MySQLShowTableStatusParams.tls_files:type_name -> agent.v1.TextFiles
+	2,   // 110: agent.v1.StartActionRequest.MySQLShowIndexParams.tls_files:type_name -> agent.v1.TextFiles
+	2,   // 111: agent.v1.StartActionRequest.PostgreSQLShowCreateTableParams.tls_files:type_name -> agent.v1.TextFiles
+	2,   // 112: agent.v1.StartActionRequest.PostgreSQLShowIndexParams.tls_files:type_name -> agent.v1.TextFiles
+	2,   // 113: agent.v1.StartActionRequest.MongoDBExplainParams.text_files:type_name -> agent.v1.TextFiles
+	2,   // 114: agent.v1.StartActionRequest.MySQLQueryShowParams.tls_files:type_name -> agent.v1.TextFiles
+	2,   // 115: agent.v1.StartActionRequest.MySQLQuerySelectParams.tls_files:type_name -> agent.v1.TextFiles
+	2,   // 116: agent.v1.StartActionRequest.PostgreSQLQueryShowParams.tls_files:type_name -> agent.v1.TextFiles
+	2,   // 117: agent.v1.StartActionRequest.PostgreSQLQuerySelectParams.tls_files:type_name -> agent.v1.TextFiles
+	2,   // 118: agent.v1.StartActionRequest.MongoDBQueryGetParameterParams.text_files:type_name -> agent.v1.TextFiles
+	2,   // 119: agent.v1.StartActionRequest.MongoDBQueryBuildInfoParams.text_files:type_name -> agent.v1.TextFiles
+	2,   // 120: agent.v1.StartActionRequest.MongoDBQueryGetCmdLineOptsParams.text_files:type_name -> agent.v1.TextFiles
+	2,   // 121: agent.v1.StartActionRequest.MongoDBQueryReplSetGetStatusParams.text_files:type_name -> agent.v1.TextFiles
+	2,   // 122: agent.v1.StartActionRequest.MongoDBQueryGetDiagnosticDataParams.text_files:type_name -> agent.v1.TextFiles
+	1,   // 123: agent.v1.StartActionRequest.RestartSystemServiceParams.system_service:type_name -> agent.v1.StartActionRequest.RestartSystemServiceParams.SystemService
+	32,  // 124: agent.v1.StartJobRequest.MySQLBackup.s3_config:type_name -> agent.v1.S3LocationConfig
+	32,  // 125: agent.v1.StartJobRequest.MySQLRestoreBackup.s3_config:type_name -> agent.v1.S3LocationConfig
+	2,   // 126: agent.v1.StartJobRequest.MongoDBBackup.text_files:type_name -> agent.v1.TextFiles
+	103, // 127: agent.v1.StartJobRequest.MongoDBBackup.data_model:type_name -> backup.v1.DataModel
+	32,  // 128: agent.v1.StartJobRequest.MongoDBBackup.s3_config:type_name -> agent.v1.S3LocationConfig
+	33,  // 129: agent.v1.StartJobRequest.MongoDBBackup.filesystem_config:type_name -> agent.v1.FilesystemLocationConfig
+	2,   // 130: agent.v1.StartJobRequest.MongoDBRestoreBackup.text_files:type_name -> agent.v1.TextFiles
+	104, // 131: agent.v1.StartJobRequest.MongoDBRestoreBackup.pbm_metadata:type_name -> backup.v1.PbmMetadata
+	94,  // 132: agent.v1.StartJobRequest.MongoDBRestoreBackup.pitr_timestamp:type_name -> google.protobuf.Timestamp
+	32,  // 133: agent.v1.StartJobRequest.MongoDBRestoreBackup.s3_config:type_name -> agent.v1.S3LocationConfig
+	33,  // 134: agent.v1.StartJobRequest.MongoDBRestoreBackup.filesystem_config:type_name -> agent.v1.FilesystemLocationConfig
+	105, // 135: agent.v1.JobResult.MongoDBBackup.metadata:type_name -> backup.v1.Metadata
+	105, // 136: agent.v1.JobResult.MySQLBackup.metadata:type_name -> backup.v1.Metadata
+	86,  // 137: agent.v1.GetVersionsRequest.Software.mysqld:type_name -> agent.v1.GetVersionsRequest.MySQLd
+	87,  // 138: agent.v1.GetVersionsRequest.Software.xtrabackup:type_name -> agent.v1.GetVersionsRequest.Xtrabackup
+	88,  // 139: agent.v1.GetVersionsRequest.Software.xbcloud:type_name -> agent.v1.GetVersionsRequest.Xbcloud
+	89,  // 140: agent.v1.GetVersionsRequest.Software.qpress:type_name -> agent.v1.GetVersionsRequest.Qpress
+	90,  // 141: agent.v1.GetVersionsRequest.Software.mongod:type_name -> agent.v1.GetVersionsRequest.MongoDB
+	91,  // 142: agent.v1.GetVersionsRequest.Software.pbm:type_name -> agent.v1.GetVersionsRequest.PBM
+	42,  // 143: agent.v1.AgentService.Connect:input_type -> agent.v1.AgentMessage
+	43,  // 144: agent.v1.AgentService.Connect:output_type -> agent.v1.ServerMessage
+	144, // [144:145] is the sub-list for method output_type
+	143, // [143:144] is the sub-list for method input_type
+	143, // [143:143] is the sub-list for extension type_name
+	143, // [143:143] is the sub-list for extension extendee
+	0,   // [0:143] is the sub-list for field type_name
 }
 
 func init() { file_agent_v1_agent_proto_init() }

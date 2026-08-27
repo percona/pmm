@@ -1,0 +1,30 @@
+---
+- name: Create otelcol config directory
+  file:
+    path: /etc/otelcol
+    state: directory
+    owner: pmm
+    group: root
+    mode: 0775
+
+- name: Download otelcol-contrib
+  get_url:
+    url: "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v{{ otelcol_version }}/otelcol-contrib_{{ otelcol_version }}_linux_{{ otelcol_arch_map[ansible_architecture] }}.tar.gz"
+    dest: /tmp/otelcol-contrib.tar.gz
+    mode: 0644
+
+- name: Extract otelcol-contrib binary
+  unarchive:
+    src: /tmp/otelcol-contrib.tar.gz
+    dest: /usr/sbin
+    remote_src: yes
+    include:
+      - otelcol-contrib
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Remove otelcol-contrib tarball
+  file:
+    path: /tmp/otelcol-contrib.tar.gz
+    state: absent

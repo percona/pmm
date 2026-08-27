@@ -39,6 +39,7 @@ func (v *templateTableType) Columns() []string {
 		"annotations",
 		"source",
 		"yaml",
+		"datasource",
 		"created_at",
 		"updated_at",
 	}
@@ -76,6 +77,7 @@ var TemplateTable = &templateTableType{
 			{Name: "Annotations", Type: "[]uint8", Column: "annotations"},
 			{Name: "Source", Type: "Source", Column: "source"},
 			{Name: "Yaml", Type: "string", Column: "yaml"},
+			{Name: "Datasource", Type: "string", Column: "datasource"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 		},
@@ -86,7 +88,7 @@ var TemplateTable = &templateTableType{
 
 // String returns a string representation of this struct or record.
 func (s Template) String() string {
-	res := make([]string, 13)
+	res := make([]string, 14)
 	res[0] = "Name: " + reform.Inspect(s.Name, true)
 	res[1] = "Version: " + reform.Inspect(s.Version, true)
 	res[2] = "Summary: " + reform.Inspect(s.Summary, true)
@@ -98,8 +100,9 @@ func (s Template) String() string {
 	res[8] = "Annotations: " + reform.Inspect(s.Annotations, true)
 	res[9] = "Source: " + reform.Inspect(s.Source, true)
 	res[10] = "Yaml: " + reform.Inspect(s.Yaml, true)
-	res[11] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[12] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[11] = "Datasource: " + reform.Inspect(s.Datasource, true)
+	res[12] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[13] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -118,6 +121,7 @@ func (s *Template) Values() []interface{} {
 		s.Annotations,
 		s.Source,
 		s.Yaml,
+		s.Datasource,
 		s.CreatedAt,
 		s.UpdatedAt,
 	}
@@ -138,6 +142,7 @@ func (s *Template) Pointers() []interface{} {
 		&s.Annotations,
 		&s.Source,
 		&s.Yaml,
+		&s.Datasource,
 		&s.CreatedAt,
 		&s.UpdatedAt,
 	}

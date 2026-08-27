@@ -729,7 +729,16 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Errorf(codes.Internal, "Invalid template %s: %v.", req.TemplateName, err)
 	}
 
-	ruleData, condition, err := buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, paramsValues.AsStringMap(), req.Filters)
+	var (
+		ruleData  []services.Data
+		condition string
+	)
+	if sourceTemplate.Datasource == alert.DatasourceClickHouse {
+		ruleData, condition, err = s.buildClickHouseRuleData(ctx, alertTemplate, paramsValues.AsStringMap())
+	} else {
+		// Label filters apply to PromQL/metrics rules only.
+		ruleData, condition, err = buildGrafanaRuleData(alertTemplate, metricsDatasourceUID, paramsValues.AsStringMap(), req.Filters)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to build alert rule data: %w", err)
 	}
@@ -797,6 +806,45 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	}
 
 	return &alerting.CreateRuleResponse{}, nil
+}
+
+const clickhouseDatasourceName = "ClickHouseLogs"
+
+// buildClickHouseRuleData builds a 3-node Grafana rule for a ClickHouse log/trace alert:
+// A = SQL query, B = reduce(last), C = threshold(B > threshold). The "threshold" template parameter,
+// if present, sets the threshold; otherwise it defaults to 0 (fire when the query returns any value).
+func (s *Service) buildClickHouseRuleData(ctx context.Context, template *alert.Template, params map[string]string) ([]services.Data, string, error) {
+	chUID, err := s.grafanaClient.GetDatasourceUIDByName(ctx, clickhouseDatasourceName)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to resolve ClickHouse datasource: %w", err)
+	}
+
+	rawSQL, err := fillExprWithParams(template.Expr, params)
+	if err != nil {
+		return nil, "", err
+	}
+
+	var threshold float64
+	if v, ok := params["threshold"]; ok {
+		threshold, _ = strconv.ParseFloat(v, 64)
+	}
+
+	queryData, err := newClickHouseQueryData(chUID, "A", rawSQL)
+	if err != nil {
+		return nil, "", err
+	}
+
+	reduceData, err := newReduceExpressionData("B", "A")
+	if err != nil {
+		return nil, "", err
+	}
+
+	thresholdData, err := newThresholdExpressionData("C", "B", threshold)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return []services.Data{queryData, reduceData, thresholdData}, "C", nil
 }
 
 func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsValues, error) {

@@ -311,6 +311,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "log_retention": {
+                      "description": "A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -488,6 +493,11 @@
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 13
+                },
+                "log_retention": {
+                  "description": "A number of full days for log and trace data retention in ClickHouse. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
+                  "type": "string",
+                  "x-order": 14
                 }
               }
             }
@@ -629,6 +639,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "log_retention": {
+                      "description": "A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).",
+                      "type": "string",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0

@@ -93,6 +93,10 @@ message SetStateRequest {
     // Service name of the service where the agent connects to.
     // Currently used by Real-Time Analytics built-in agent only.
     string service_name = 13;
+    // Database log files to watch and ship. Used by the database log-watcher agent only.
+    repeated inventory.v1.WatchedLog watched_logs = 14;
+    // Database engine of the watched service (mysql, postgresql, ...). Used by the log-watcher agent only.
+    string db_system = 15;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }
