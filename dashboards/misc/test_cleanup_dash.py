@@ -34,6 +34,24 @@ def run_cli(*args):
                           capture_output=True, text=True)
 
 
+# A systemic fault puts every dashboard in the same bucket, and listing all of
+# them buries the one sentence that explains what to do about it.
+MAX_REPORTED = 10
+
+
+def capped(entries):
+    """Trim a failure list, noting how much was left out."""
+    if len(entries) <= MAX_REPORTED:
+        return entries
+    return entries[:MAX_REPORTED] + [f'... and {len(entries) - MAX_REPORTED} more']
+
+
+def indented(path, text):
+    """One report block: the dashboard, then every line of detail, indented."""
+    return '\n'.join([f'Dashboard: {path}',
+                       *(f'  {line}' for line in text.splitlines())])
+
+
 MINIMAL = {
     'editable': True,
     'refresh': '1m',
@@ -106,10 +124,12 @@ class TestCollectTitles(unittest.TestCase):
         self.assertEqual(cd.collect_titles(d), ['root', 'a', 'b'])
         self.assertEqual(d, before, 'collect_titles must not mutate its input')
 
-    def test_counts_match_between_raw_and_trimmed(self):
-        d = {'title': ' a ', 'panels': [{'title': ' b '}, {'title': None}]}
-        trimmed = cd.trim_titles(copy.deepcopy(d))
-        self.assertEqual(len(cd.collect_titles(d)), len(cd.collect_titles(trimmed)))
+    def test_only_string_titles_are_collected(self):
+        # walk_titles fires the callback under isinstance(value, str), so every
+        # title downstream is a str. The rest of this file relies on that.
+        d = {'title': ' a ', 'panels': [{'title': ' b '}, {'title': None},
+                                        {'title': 7}]}
+        self.assertEqual(cd.collect_titles(d), [' a ', ' b '])
 
 
 class TestCheckOnlyCLI(unittest.TestCase):
@@ -150,6 +170,44 @@ class TestCheckOnlyCLI(unittest.TestCase):
             self.assertEqual(json.load(fh)['panels'][0]['title'], 'Space Used')
         self.assertEqual(run_cli('--check-only', path).returncode, 0)
 
+    def test_every_untrimmed_title_is_reported(self):
+        # The reporter pairs raw and cleaned titles positionally with zip()
+        # (cleanup-dash.py:121), which misaligns or truncates silently if the
+        # title set ever changes size. Assert the exact pairs: a misaligned
+        # report still has the right number of lines, so a count proves nothing.
+        path = self.write(self.clean_dashboard(panels=[
+            {'title': 'A ', 'panels': [{'title': ' B'}]},
+            {'title': ' C ', 'type': 'text'},
+        ]))
+        r = run_cli('--check-only', path)
+        self.assertEqual(r.returncode, 1)
+        reported = sorted(line.strip() for line in r.stdout.splitlines()
+                          if line.startswith('  title:'))
+        self.assertEqual(reported, [
+            'title: " B" -> "B"',
+            'title: " C " -> "C"',
+            'title: "A " -> "A"',
+        ], r.stdout)
+
+    def test_reporter_covers_every_normalised_field(self):
+        # Every cleanuper needs a matching case in the --check-only reporter, or
+        # the tool exits 1 without naming a field. One dirty field at a time, so
+        # a missing case cannot hide behind another field's output.
+        cases = [
+            ('editable:', {'editable': True}),
+            ('refresh:', {'refresh': '1m'}),
+            ('timezone:', {'timezone': 'browser'}),
+            ('time.from:', {'time': {'from': 'now-6h', 'to': 'now'}}),
+            ('time.to:', {'time': {'from': 'now-12h', 'to': 'now-1h'}}),
+            ('id:', {'id': 42}),
+            ('title:', {'panels': [{'title': 'Dirty '}]}),
+        ]
+        for field, dirty in cases:
+            with self.subTest(field=field):
+                r = run_cli('--check-only', self.write(self.clean_dashboard(**dirty)))
+                self.assertEqual(r.returncode, 1, r.stdout)
+                self.assertIn(field, r.stdout)
+
     def test_other_cleanupers_still_reported(self):
         # trim_titles must not mask the pre-existing checks.
         path = self.write(self.clean_dashboard(editable=True, timezone='browser'))
@@ -160,31 +218,104 @@ class TestCheckOnlyCLI(unittest.TestCase):
 
 
 class TestRepoDashboards(unittest.TestCase):
-    """Replays the dashboards.yml `check` job over every committed dashboard."""
+    """Replays the dashboards.yml `check` job over every committed dashboard.
+
+    Wider than the workflow step, which only checks the dashboards a PR touched:
+    one dirty dashboard fails every PR that runs this suite. dashboards.yml
+    therefore runs it only for PRs that change a dashboard JSON file or
+    cleanup-dash.py itself, so nothing else is gated on the state of the tree.
+    """
 
     def dashboards(self):
-        for dp, _, fns in os.walk(DASH_DIR):
+        paths = []
+        for dp, dns, fns in os.walk(DASH_DIR):
+            dns.sort()  # the failure reports below are ordered; keep them stable
             for fn in sorted(fns):
                 if fn.endswith('.json'):
-                    yield os.path.join(dp, fn)
+                    paths.append(os.path.join(dp, fn))
+        # A renamed tree or a partial checkout would otherwise let every
+        # whole-tree test in this class pass without inspecting anything.
+        self.assertTrue(paths, f'no dashboards found under {DASH_DIR}')
+        return paths
 
     def test_all_dashboards_pass_check_only(self):
-        failures = [p for p in self.dashboards()
-                    if run_cli('--check-only', p).returncode != 0]
-        self.assertEqual(failures, [], f'{len(failures)} dashboard(s) fail the gate')
+        # Keep the tool's own report: the exit code alone says nothing about
+        # which field is dirty, and this gate covers the whole tree. The three
+        # failure kinds need different remedies, so they are collected apart --
+        # telling someone to run the cleanuper when it cannot help, or to repair
+        # JSON that is not broken, is worse than saying nothing.
+        paths = self.dashboards()
+        dirty = []       # the reporter named the fields it would change
+        unreported = []  # exited non-zero having printed only its header
+        crashed = []     # exited non-zero before printing anything at all
+        for path in paths:
+            result = run_cli('--check-only', path)
+            if result.returncode == 0:
+                continue
+
+            report = result.stdout.strip()
+            if report.splitlines()[1:]:
+                # First stdout line is 'Dashboard: <path>', the rest are issues.
+                dirty.append(report)
+            elif report:
+                # A header and nothing else: some cleanuper changed the
+                # dashboard and the reporter has no case for it. Write mode
+                # still fixes the file, so do not send anyone JSON-hunting.
+                unreported.append(f'Dashboard: {path}')
+            else:
+                # Nothing on stdout: the tool died before the reporter ran, so
+                # stderr is the only evidence there is. It is never used in the
+                # branches above, where it would only be unrelated noise.
+                detail = (result.stderr.strip()
+                          or f'exited {result.returncode} but printed no reason')
+                crashed.append(indented(path, detail))
+
+        messages = []
+        if dirty:
+            messages += [
+                f'{len(dirty)} of {len(paths)} dashboard(s) need cleanup:',
+                *capped(dirty),
+                'Fix the reported fields with '
+                '`python3 dashboards/misc/cleanup-dash.py <file>`, then review '
+                'the diff: write mode re-serialises the whole file, so some '
+                'dashboards pick up unrelated reformatting.',
+            ]
+        if unreported:
+            messages += [
+                f'{len(unreported)} of {len(paths)} dashboard(s) failed the '
+                'check without naming a field:',
+                *capped(unreported),
+                'Write mode still fixes these, but --check-only cannot say what '
+                'it changed: a cleanuper in cleanup-dash.py has no matching case '
+                'in its --check-only reporter. Add one.',
+            ]
+        if crashed:
+            messages += [
+                f'{len(crashed)} of {len(paths)} dashboard(s) could not be '
+                'checked at all:',
+                *capped(crashed),
+                'The cleanuper cannot fix these -- write mode hits the same '
+                'error. Repair the dashboard JSON, or harden cleanup-dash.py.',
+            ]
+        if messages:
+            self.fail('\n'.join(messages))
 
     def test_no_untrimmed_titles_remain(self):
         offenders = []
         for path in self.dashboards():
-            with open(path, encoding='utf-8') as fh:
+            # subTest so an unparseable file names itself and the remaining
+            # dashboards are still scanned; json.load raises without the path.
+            with self.subTest(path=path), open(path, encoding='utf-8') as fh:
+                # collect_titles only ever yields strings, see
+                # test_only_string_titles_are_collected.
                 for title in cd.collect_titles(json.load(fh)):
-                    if isinstance(title, str) and title != title.strip():
+                    if title != title.strip():
                         offenders.append((path, title))
         self.assertEqual(offenders, [])
 
     def test_all_dashboards_are_valid_json(self):
         for path in self.dashboards():
-            with open(path, encoding='utf-8') as fh:
+            with self.subTest(path=path), open(path, encoding='utf-8') as fh:
                 json.load(fh)
 
 

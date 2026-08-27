@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "dashboards/**"
+      # So a PR that only fixes this workflow still exercises it.
+      - ".github/workflows/dashboards.yml"
 
 permissions:
   contents: read
@@ -91,16 +93,41 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Test the cleanup script
-        run: python3 -m unittest discover -s dashboards/misc -p 'test_*.py' -v
-
       - name: Get changed dashboard files
         id: changed
         run: |
-          git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD \
-            | grep -E '^dashboards/dashboards/.*\.json$' \
-            | sort -u > changed_dashboards.txt || true
-          echo "count=$(wc -l < changed_dashboards.txt | tr -d ' ')" >> $GITHUB_OUTPUT
+          set -o pipefail
+          if ! git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD \
+              | sort -u > changed_files.txt; then
+            echo "::error::git diff against ${{ github.event.pull_request.base.sha }} failed"
+            exit 1
+          fi
+          # A failed diff is handled above, so an empty file here means the PR
+          # has no net changes against its base (already merged, or the head
+          # branch was reset). Fail rather than silently skipping every check
+          # below and reporting success on an unchecked dashboard.
+          if [ ! -s changed_files.txt ]; then
+            echo "::error::PR has no net changes against ${{ github.event.pull_request.base.sha }}; nothing could be checked"
+            exit 1
+          fi
+
+          grep -E '^dashboards/dashboards/.*\.json$' changed_files.txt \
+            > changed_dashboards.txt || true
+          count=$(wc -l < changed_dashboards.txt | tr -d ' ')
+          echo "count=$count" >> $GITHUB_OUTPUT
+
+          # The cleanup script's tests include a whole-tree gate over every
+          # dashboard, so only run them when the PR changes a dashboard, the
+          # scripts under test, or this workflow -- whoever edits the gate needs
+          # to see it run. Nothing else may be gated on the state of the tree.
+          # The pattern must cover every module `discover -p 'test_*.py'` would
+          # pick up, or a PR adding one never runs it.
+          if [ "$count" -ne 0 ] \
+            || grep -qE '^(dashboards/misc/(cleanup-dash\.py|test_.*\.py)|\.github/workflows/dashboards\.yml)$' changed_files.txt; then
+            echo "tooling=1" >> $GITHUB_OUTPUT
+          else
+            echo "tooling=0" >> $GITHUB_OUTPUT
+          fi
 
       - name: Run cleanup check per dashboard
         if: steps.changed.outputs.count != '0'
@@ -132,6 +159,12 @@ jobs:
             echo "> Some dashboards require cleanup. See table above." >> $GITHUB_STEP_SUMMARY
             exit 1
           fi
+
+      # After the per-dashboard check, so a whole-tree failure never hides the
+      # step summary and the file annotations for the PR's own dashboards.
+      - name: Test the cleanup script
+        if: ${{ !cancelled() && steps.changed.outputs.tooling == '1' }}
+        run: python3 -m unittest discover -s dashboards/misc -p 'test_*.py' -v
 
   workflow_success:
     needs: [tests, build]
