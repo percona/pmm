@@ -7,6 +7,7 @@ import { SEP_ATW_PATH, SEP_MYSQL_BACKUPS_PATH } from 'lib/constants';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import {
   TEST_USER_ADMIN,
+  TEST_USER_ANONYMOUS,
   TEST_USER_EDITOR,
   TEST_USER_VIEWER,
 } from 'utils/testStubs';
@@ -124,6 +125,12 @@ describe('NavigationProvider', () => {
         'account',
         'help',
       ]);
+    });
+
+    it('is withheld from anonymous, which has no SEP session to exchange', () => {
+      const ids = renderNavTree(TEST_USER_ANONYMOUS).map((item) => item.id);
+
+      expect(ids).not.toContain('management');
     });
 
     it('opens the block for a viewer, who gets no Inventory of their own', () => {

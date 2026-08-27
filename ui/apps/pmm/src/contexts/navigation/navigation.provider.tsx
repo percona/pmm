@@ -103,7 +103,13 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
       // any authenticated session and holds every unsafe method to
       // administrators, so a non-admin gets a read-only view with no write
       // control rendered (PMM-15358).
-      items.push(...addSepApps());
+      //
+      // Signed-in is the rule, so anonymous is excluded: it has no Grafana
+      // session cookie to exchange for a SEP bearer, and the entry would open
+      // on SepAuthGate's failure card rather than on the app.
+      if (!user.isAnonymous) {
+        items.push(...addSepApps());
+      }
 
       if (user.isPMMAdmin) {
         if (settings?.backupManagementEnabled) {
