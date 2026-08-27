@@ -82,7 +82,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		}
 
 		k, v := strings.ToUpper(p[0]), strings.ToLower(p[1])
-		logrus.Tracef("ParseEnvVars: %#q: k=%#q v=%#q", env, k, v)
+		logrus.Tracef("ParseEnvVars: k=%#q v=%#q", k, redactSecretEnvVar(k, v))
 
 		var err error
 		switch k {
@@ -323,6 +323,20 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 	}
 
 	return envSettings, errs, warns
+}
+
+// secretEnvVarMarkers name the environment variables whose values must never reach the logs.
+var secretEnvVarMarkers = []string{"PASSWORD", "SECRET", "TOKEN", "KEY"}
+
+// redactSecretEnvVar replaces the value of a credential-bearing environment variable.
+func redactSecretEnvVar(key, value string) string {
+	for _, marker := range secretEnvVarMarkers {
+		if strings.Contains(key, marker) {
+			return "<redacted>"
+		}
+	}
+
+	return value
 }
 
 // parseStringDuration validate duration as string value.
