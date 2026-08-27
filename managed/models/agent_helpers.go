@@ -218,8 +218,13 @@ func checkUniqueAgentID(q *reform.Querier, id string) error {
 type AgentFilters struct {
 	// Return only Agents started by this pmm-agent.
 	PMMAgentID string
+	// Return only Agents started by any of these pmm-agents. An empty slice is not a filter.
+	PMMAgentIDs []string
 	// Return only Agents that provide insights for that Node.
 	NodeID string
+	// Return only Agents attached to or running on that Node: node-level exporters, the pmm-agents
+	// themselves, and external exporters in pull mode.
+	OnNodeID string
 	// Return only Agents that provide insights for that Service.
 	ServiceID string
 	// Return Agents with provided type.
@@ -233,6 +238,9 @@ type AgentFilters struct {
 }
 
 // FindAgents returns Agents by filters.
+//
+// An empty PMMAgentIDs matches every Agent, not none. An unknown PMMAgentID fails with NotFound; an
+// unknown ID in PMMAgentIDs returns an empty result.
 func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	var conditions []string
 	var args []any
@@ -246,6 +254,14 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		args = append(args, filters.PMMAgentID)
 		idx++
 	}
+	if len(filters.PMMAgentIDs) != 0 {
+		p := strings.Join(q.Placeholders(idx, len(filters.PMMAgentIDs)), ", ")
+		conditions = append(conditions, "pmm_agent_id IN ("+p+")")
+		for _, id := range filters.PMMAgentIDs {
+			args = append(args, id)
+		}
+		idx += len(filters.PMMAgentIDs)
+	}
 	if filters.NodeID != "" {
 		_, err := FindNodeByID(q, filters.NodeID)
 		if err != nil {
@@ -254,6 +270,12 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		conditions = append(conditions, "node_id = "+q.Placeholder(idx))
 		args = append(args, filters.NodeID)
 		idx++
+	}
+	if filters.OnNodeID != "" {
+		// No existence check: the callers tolerate a Node that another actor has just removed.
+		conditions = append(conditions, fmt.Sprintf("(runs_on_node_id = %s OR node_id = %s)", q.Placeholder(idx), q.Placeholder(idx+1)))
+		args = append(args, filters.OnNodeID, filters.OnNodeID)
+		idx += 2
 	}
 	if filters.ServiceID != "" {
 		_, err := FindServiceByID(q, filters.ServiceID)
@@ -290,6 +312,12 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
 	structs, err := q.SelectAllFrom(AgentTable, whereClause+" ORDER BY agent_id", args...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Decryption is not free; skip it when the caller has already gone away.
+	err = q.Context().Err()
 	if err != nil {
 		return nil, err
 	}

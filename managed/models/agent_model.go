@@ -96,8 +96,8 @@ func GetRTAAgentTypes() []AgentType {
 var v2_42 = version.MustParse("2.42.0-0")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
-// It takes the value of "pmm-server" in regular non-HA setups, while in Active/Active HA setups
-// it is set to the actual pmm-agent's Agent ID, which is a UUID.
+// It takes the value of "pmm-server" in non-HA setups, while in HA setups it is set to the actual
+// pmm-agent's Agent ID, which is a UUID.
 var PMMServerAgentID = string("pmm-server")
 
 // AgentConfigFilePath is the default path to pmm-agent config file; it changes to /srv in HA setups.
