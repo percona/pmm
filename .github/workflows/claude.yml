@@ -44,7 +44,7 @@ jobs:
         id: claude
         uses: anthropics/claude-code-action@e90deca47693f9457b72f2b53c17d7c445a87342 # v1.0.171
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           # The job's `actions: read` permission only takes effect once the
           # action requests it; without this the mcp__github_ci__* tools that
           # read CI results are not available.
