@@ -30,7 +30,11 @@ import type { RenderFormSlot } from './types';
 const mockUpdateTaskMutate = vi.fn();
 const mockUsePluginTask = vi.fn();
 
+/** Flipped per test to cover the read-only (non-admin) rendering. */
+let mockCanMutate = true;
+
 vi.mock('@sep/api', () => ({
+  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
   useUpdatePluginTask: () => ({
     mutate: mockUpdateTaskMutate,
     isPending: false,
@@ -101,6 +105,7 @@ function renderAt(
 beforeEach(() => {
   mockUpdateTaskMutate.mockReset();
   mockUsePluginTask.mockReset();
+  mockCanMutate = true;
 });
 
 describe('PluginTaskEditPage', () => {
@@ -439,5 +444,44 @@ describe('normalizeChoiceDefaults', () => {
     expect(result.source).toEqual({ mode: 'rsync', transport: 'SSH' });
     // The input is not mutated: `setAtPath` clones the intermediates it walks.
     expect(form.source.transport).toBe('ssh');
+  });
+});
+
+describe('PluginTaskEditPage — write access', () => {
+  it('renders the edit form for a session that may mutate', () => {
+    mockUsePluginTask.mockReturnValue({
+      data: {
+        name: 'check1',
+        data: { _form: { task_name: 'check1', title: 'Nightly' } },
+      },
+      isLoading: false,
+    });
+
+    renderAt();
+
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('plugin-task-edit-read-only')
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders the read-only guard instead of the edit form for a non-admin', () => {
+    mockCanMutate = false;
+    mockUsePluginTask.mockReturnValue({
+      data: {
+        name: 'check1',
+        data: { _form: { task_name: 'check1', title: 'Nightly' } },
+      },
+      isLoading: false,
+    });
+
+    renderAt();
+
+    expect(
+      screen.getByTestId('plugin-task-edit-read-only')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Save' })
+    ).not.toBeInTheDocument();
   });
 });

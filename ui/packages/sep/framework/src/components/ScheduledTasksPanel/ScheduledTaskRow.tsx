@@ -58,6 +58,11 @@ export interface ScheduledTaskRowProps {
   submitting?: boolean;
   toggling?: boolean;
   errorMessage?: string;
+  /**
+   * Hide the enable toggle and the row's edit / delete controls, leaving the
+   * schedule readable. Set for sessions that may not mutate.
+   */
+  readOnly?: boolean;
 }
 
 export function ScheduledTaskRow({
@@ -72,6 +77,7 @@ export function ScheduledTaskRow({
   submitting,
   toggling,
   errorMessage,
+  readOnly = false,
 }: ScheduledTaskRowProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const period = describePeriod(task);
@@ -134,41 +140,49 @@ export function ScheduledTaskRow({
           )}
         </TableCell>
         <TableCell>
-          <Switch
-            checked={task.enabled}
-            disabled={toggling}
-            onChange={(_, checked) => onToggleEnabled(task, checked)}
-            slotProps={{
-              input: {
-                'aria-label': `Enable ${task.task}`,
-              },
-            }}
-          />
+          {readOnly ? (
+            <Typography variant="body2">
+              {task.enabled ? 'Enabled' : 'Disabled'}
+            </Typography>
+          ) : (
+            <Switch
+              checked={task.enabled}
+              disabled={toggling}
+              onChange={(_, checked) => onToggleEnabled(task, checked)}
+              slotProps={{
+                input: {
+                  'aria-label': `Enable ${task.task}`,
+                },
+              }}
+            />
+          )}
         </TableCell>
-        <TableCell>
-          <Stack direction="row" spacing={0.5}>
-            <Tooltip title="Edit">
-              <IconButton
-                size="small"
-                onClick={onStartEdit}
-                aria-label={`Edit ${task.task}`}
-                data-testid={`scheduled-task-edit-${task.id}`}
-              >
-                <EditOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete">
-              <IconButton
-                size="small"
-                onClick={() => setConfirmOpen(true)}
-                aria-label={`Delete ${task.task}`}
-                data-testid={`scheduled-task-delete-${task.id}`}
-              >
-                <DeleteOutlineIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        </TableCell>
+        {readOnly ? null : (
+          <TableCell>
+            <Stack direction="row" spacing={0.5}>
+              <Tooltip title="Edit">
+                <IconButton
+                  size="small"
+                  onClick={onStartEdit}
+                  aria-label={`Edit ${task.task}`}
+                  data-testid={`scheduled-task-edit-${task.id}`}
+                >
+                  <EditOutlinedIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Delete">
+                <IconButton
+                  size="small"
+                  onClick={() => setConfirmOpen(true)}
+                  aria-label={`Delete ${task.task}`}
+                  data-testid={`scheduled-task-delete-${task.id}`}
+                >
+                  <DeleteOutlineIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Stack>
+          </TableCell>
+        )}
       </TableRow>
 
       <Dialog

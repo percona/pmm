@@ -28,7 +28,7 @@ import {
   SchemaFormRenderer,
   SNIPPET_FORM_RESERVED_FIELD_NAMES,
 } from '@sep/framework';
-import type { FormSection, SectionField } from '@sep/api';
+import { useAuth, type FormSection, type SectionField } from '@sep/api';
 import { CategoryBrowser } from './CategoryBrowser';
 import {
   useAtwBatchExecute,
@@ -227,6 +227,7 @@ export function CollectPane({
   incidentId,
   isClosed = false,
 }: CollectPaneProps) {
+  const { canMutate } = useAuth();
   const [available, setAvailable] = useState<AtwSnippetSummary[]>([]);
   const [selected, setSelected] = useState<AtwSnippetSummary[]>([]);
   const [itemErrors, setItemErrors] = useState<string[]>([]);
@@ -259,7 +260,12 @@ export function CollectPane({
     () => selected.map((snippet) => snippet.name),
     [selected]
   );
-  const schemaQuery = useAtwMergedSchema(isClosed ? [] : selectedNames);
+  // A read-only session never renders the execute form, so it never needs the
+  // merged schema either. Selecting snippets still works — only the fetch and
+  // the form are withheld.
+  const schemaQuery = useAtwMergedSchema(
+    isClosed || !canMutate ? [] : selectedNames
+  );
   const batchMutation = useAtwBatchExecute(incidentId);
   const searchQuery = useAtwSnippetSearch(debouncedSearch);
 
@@ -508,7 +514,7 @@ export function CollectPane({
         </Alert>
       )}
 
-      {selected.length > 0 && schemaQuery.data && !isClosed && (
+      {selected.length > 0 && schemaQuery.data && !isClosed && canMutate && (
         <Box sx={{ mt: 3 }}>
           <SchemaFormRenderer
             key={formKey}

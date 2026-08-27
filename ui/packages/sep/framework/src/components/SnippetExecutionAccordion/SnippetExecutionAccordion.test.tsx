@@ -24,8 +24,12 @@ import { SnippetExecutionAccordion } from './SnippetExecutionAccordion';
 import { apiClient, type PluginSchema } from '@sep/api';
 import type { TaskHistoryEntry } from '../TaskHistoryTable';
 
+/** Flipped per test to cover the read-only (non-admin) rendering. */
+let mockCanMutate = true;
+
 vi.mock('@sep/api', () => ({
   apiClient: { get: vi.fn(), post: vi.fn() },
+  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
 }));
 
 vi.mock('../TaskLogViewer', () => ({
@@ -128,6 +132,7 @@ function renderWithProviders(ui: ReactNode) {
 describe('SnippetExecutionAccordion', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockCanMutate = true;
   });
 
   it('renders title in collapsed state without fetching schema', () => {
@@ -563,5 +568,95 @@ describe('SnippetExecutionAccordion', () => {
       const pre = document.querySelector('pre[data-language="bash"]');
       expect(pre?.textContent).toContain('echo hello');
     });
+  });
+});
+
+describe('SnippetExecutionAccordion — write access', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockCanMutate = true;
+  });
+
+  it('renders the execute form for a session that may mutate', async () => {
+    mockedApi.get.mockResolvedValue({ data: makeSchema() });
+
+    renderWithProviders(
+      <SnippetExecutionAccordion
+        snippetFilename="check.sh"
+        executorHost="db1"
+        defaultExpanded
+      />
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Execute' })
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByTestId('snippet-execute-read-only')
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders no execute form for a non-admin even when the schema is already cached', async () => {
+    // A disabled query still serves a cached entry, and this schema is held with
+    // `staleTime: Infinity` under a key that carries no identity — so an admin's
+    // fetch must not render the form for a non-admin in the same tab.
+    mockedApi.get.mockResolvedValue({ data: makeSchema() });
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    const ui = (
+      <SnippetExecutionAccordion
+        snippetFilename="check.sh"
+        executorHost="db1"
+        defaultExpanded
+      />
+    );
+
+    // Admin populates the cache.
+    const { unmount } = render(
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Execute' })
+      ).toBeInTheDocument();
+    });
+    unmount();
+
+    // Same QueryClient, now a read-only session.
+    mockCanMutate = false;
+    render(
+      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+    );
+
+    expect(screen.getByTestId('snippet-execute-read-only')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Execute' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders no execute form for a non-admin and fetches no schema', async () => {
+    mockCanMutate = false;
+    mockedApi.get.mockResolvedValue({ data: makeSchema() });
+
+    renderWithProviders(
+      <SnippetExecutionAccordion
+        snippetFilename="check.sh"
+        executorHost="db1"
+        defaultExpanded
+      />
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('snippet-execute-read-only')
+      ).toBeInTheDocument();
+    });
+    expect(
+      screen.queryByRole('button', { name: 'Execute' })
+    ).not.toBeInTheDocument();
+    expect(mockedApi.get).not.toHaveBeenCalled();
   });
 });

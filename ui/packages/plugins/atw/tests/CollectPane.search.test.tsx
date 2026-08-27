@@ -22,10 +22,18 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { CollectPane } from '../src/CollectPane';
 
+/** Flipped per test to cover the read-only (non-admin) rendering. */
+let mockCanMutate = true;
+
 vi.mock('@sep/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@sep/api')>()),
   apiClient: { get: vi.fn(), post: vi.fn() },
+  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
 }));
+
+beforeEach(() => {
+  mockCanMutate = true;
+});
 
 import { apiClient } from '@sep/api';
 const mockedApi = apiClient as unknown as { get: ReturnType<typeof vi.fn> };
@@ -352,5 +360,72 @@ describe('CollectPane snippet search', () => {
       timeout: 3000,
     });
     expect(alert).toHaveTextContent('search backend down');
+  });
+});
+
+describe('CollectPane — write access', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  async function selectOneSnippet() {
+    mockApis();
+    renderPane(<CollectPane incidentId="inc-1" />);
+    await typeSearch('summary');
+    const option = await screen.findByRole(
+      'option',
+      { name: /PT Summary/ },
+      { timeout: 3000 }
+    );
+    await userEvent.click(option);
+  }
+
+  it('renders the batch execute form for a session that may mutate', async () => {
+    await selectOneSnippet();
+
+    expect(
+      await screen.findByRole(
+        'button',
+        { name: /Execute batch/i },
+        { timeout: 3000 }
+      )
+    ).toBeInTheDocument();
+  });
+
+  it('renders no batch execute form for a non-admin', async () => {
+    mockCanMutate = false;
+    await selectOneSnippet();
+
+    // The picker still works — only the execute form is withheld.
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('button', { name: /Execute batch/i })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it('fetches no execution schema for a non-admin', async () => {
+    // The form is the only consumer of the merged schema, so a session that
+    // cannot execute should not pay for the request.
+    mockCanMutate = false;
+    await selectOneSnippet();
+
+    const schemaCalls = () =>
+      mockedApi.get.mock.calls.filter((call) =>
+        String(call[0]).includes('/execution-schema/')
+      );
+    await waitFor(() => expect(schemaCalls()).toHaveLength(0));
+  });
+
+  it('fetches the execution schema for a session that may mutate', async () => {
+    await selectOneSnippet();
+
+    await waitFor(() =>
+      expect(
+        mockedApi.get.mock.calls.filter((call) =>
+          String(call[0]).includes('/execution-schema/')
+        ).length
+      ).toBeGreaterThan(0)
+    );
   });
 });
