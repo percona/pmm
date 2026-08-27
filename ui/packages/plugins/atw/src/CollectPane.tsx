@@ -454,7 +454,7 @@ export function CollectPane({
               component="li"
               key={key}
               {...liProps}
-              sx={{ display: 'block' }}
+              sx={{ display: 'flex', gap: 0.5 }}
             >
               <Typography variant="body2">{option.title}</Typography>
               <Typography variant="caption" color="text.secondary">

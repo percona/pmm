@@ -29,6 +29,7 @@ export {
   useDeletePluginEntity,
   useDeletePluginTask,
   normalizePluginListResponse,
+  fetchAllPluginListPages,
   DEFAULT_PLUGIN_LIST_OFFSET,
   DEFAULT_PLUGIN_LIST_LIMIT,
   RUNNING_STATUSES,
