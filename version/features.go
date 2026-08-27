@@ -25,6 +25,10 @@ var (
 	MysqlExporterPluginCollector  FeatureVersion = MustParse("2.36.0-0")
 	NomadAgentSupportVersion      FeatureVersion = MustParse("3.2.0-0")
 	MongoDBRtaAgentSupportVersion FeatureVersion = MustParse("3.7.0-0")
+	// NodeExporterV1_8 is the first pmm-agent shipping node_exporter 1.8, the oldest build that knows
+	// every collector we may have to disable explicitly. pmm-agent 2.x ships 1.4.0, where flags such as
+	// "--no-collector.watchdog" do not exist and would make the exporter exit.
+	NodeExporterV1_8 FeatureVersion = MustParse("3.0.0-0")
 )
 
 // IsFeatureSupported checks if the feature is supported by the version.

@@ -33,9 +33,10 @@ var (
 	v2_28_00 = version.MustParse("2.28.0-0")
 )
 
-// defaultEnabledNodeExporterCollectors lists node_exporter collectors that are enabled by default on Linux.
-// Dropping the "--collector.<name>" flag does not stop them, so "--no-collector.<name>" has to be passed
-// explicitly for the disabled ones.
+// defaultEnabledNodeExporterCollectors lists collectors that node_exporter enables on Linux on its own,
+// as of node_exporter 1.8.2. Dropping the "--collector.<name>" flag does not stop those, so disabling one
+// means passing "--no-collector.<name>" explicitly. 14 of them are in the "disabled" block below already,
+// which is why they are appended only when missing.
 var defaultEnabledNodeExporterCollectors = []string{
 	"arp",
 	"bcache",
@@ -177,10 +178,9 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 
 	args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
 
-	// Collectors enabled by node_exporter itself keep running after their "--collector.<name>" flag is
-	// filtered out above, so disable them explicitly. Collectors are not tweaked on macOS, where the
-	// default enabled ones differ from Linux.
-	if node.Distro != "darwin" {
+	// Collectors are not tweaked on macOS, where node_exporter enables a different set by default.
+	// Older pmm-agents ship node_exporter builds that do not know all of the flags below and would exit.
+	if node.Distro != "darwin" && agentVersion.IsFeatureSupported(version.NodeExporterV1_8) {
 		disableArgs := collectors.DisableDefaultEnabledCollectors(
 			"--no-collector.",
 			defaultEnabledNodeExporterCollectors,

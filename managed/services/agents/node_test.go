@@ -206,6 +206,8 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.Equal(t, expected, actual)
 	})
 
+	// pmm-agent 2.x ships a node_exporter that does not know all "--no-collector." flags,
+	// so disabled collectors only get their enable flag dropped there
 	t.Run("LinuxDisabledCollectors", func(t *testing.T) {
 		t.Parallel()
 		node := &models.Node{}
@@ -255,7 +257,6 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.arp",
 				"--no-collector.bcache",
 				"--no-collector.conntrack",
-				"--no-collector.cpu",
 				"--no-collector.drbd",
 				"--no-collector.edac",
 				"--no-collector.infiniband",
@@ -264,10 +265,8 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.ksmd",
 				"--no-collector.logind",
 				"--no-collector.mdadm",
-				"--no-collector.meminfo",
 				"--no-collector.mountstats",
 				"--no-collector.netclass",
-				"--no-collector.netstat",
 				"--no-collector.nfs",
 				"--no-collector.nfsd",
 				"--no-collector.ntp",
@@ -278,7 +277,6 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.systemd",
 				"--no-collector.tcpstat",
 				"--no-collector.timex",
-				"--no-collector.vmstat",
 				"--no-collector.wifi",
 				"--no-collector.xfs",
 				"--no-collector.zfs",
@@ -295,6 +293,9 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.Equal(t, expected, actual)
 	})
 
+	// Disabling a collector that node_exporter enables on its own takes "--no-collector.<name>",
+	// dropping "--collector.<name>" is not enough. pmm-agent 3.x is the oldest one shipping a
+	// node_exporter that knows all of those flags.
 	t.Run("LinuxDisabledDefaultEnabledCollectors", func(t *testing.T) {
 		t.Parallel()
 		node := &models.Node{}
@@ -302,22 +303,81 @@ func TestNodeExporterConfig(t *testing.T) {
 			AgentID:   "agent-id",
 			AgentType: models.NodeExporterType,
 			ExporterOptions: models.ExporterOptions{
-				DisabledCollectors: []string{"arp", "dmi", "processes"},
+				// arp is disabled by us already, dmi is not passed by us at all,
+				// netstat.fields is a flag of the netstat collector, not a collector
+				DisabledCollectors: []string{"cpu", "netstat", "netstat.fields", "vmstat", "meminfo", "arp", "dmi"},
 			},
 		}
-		agentVersion := version.MustParse("2.15.1")
+		agentVersion := version.MustParse("3.0.0")
 
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
+		expected := []string{
+			"--collector.bonding",
+			"--collector.buddyinfo",
+			"--collector.diskstats",
+			"--collector.entropy",
+			"--collector.filefd",
+			"--collector.filesystem",
+			"--collector.hwmon",
+			"--collector.loadavg",
+			"--collector.meminfo_numa",
+			"--collector.netdev",
+			"--collector.processes",
+			"--collector.standard.go",
+			"--collector.standard.process",
+			"--collector.stat",
+			"--collector.textfile.directory.hr=" + pathsBase(agentVersion, "{{", "}}") + "/collectors/textfile-collector/high-resolution",
+			"--collector.textfile.directory.lr=" + pathsBase(agentVersion, "{{", "}}") + "/collectors/textfile-collector/low-resolution",
+			"--collector.textfile.directory.mr=" + pathsBase(agentVersion, "{{", "}}") + "/collectors/textfile-collector/medium-resolution",
+			"--collector.textfile.hr",
+			"--collector.textfile.lr",
+			"--collector.textfile.mr",
+			"--collector.time",
+			"--collector.uname",
+			"--collector.vmstat.fields=^(pg(steal_(kswapd|direct)|refill|alloc)_(movable|normal|dma3?2?)" +
+				"|nr_(dirty.*|slab.*|vmscan.*|isolated.*|free.*|shmem.*|i?n?active.*|anon_transparent_.*|writeback.*|unstable" +
+				"|unevictable|mlock|mapped|bounce|page_table_pages|kernel_stack)|drop_slab|slabs_scanned|pgd?e?activate" +
+				"|pgpg(in|out)|pswp(in|out)|pgm?a?j?fault)$",
+			"--no-collector.arp",
+			"--no-collector.bcache",
+			"--no-collector.conntrack",
+			"--no-collector.cpu",
+			"--no-collector.dmi",
+			"--no-collector.drbd",
+			"--no-collector.edac",
+			"--no-collector.infiniband",
+			"--no-collector.interrupts",
+			"--no-collector.ipvs",
+			"--no-collector.ksmd",
+			"--no-collector.logind",
+			"--no-collector.mdadm",
+			"--no-collector.meminfo",
+			"--no-collector.mountstats",
+			"--no-collector.netclass",
+			"--no-collector.netstat",
+			"--no-collector.nfs",
+			"--no-collector.nfsd",
+			"--no-collector.ntp",
+			"--no-collector.qdisc",
+			"--no-collector.runit",
+			"--no-collector.sockstat",
+			"--no-collector.supervisord",
+			"--no-collector.systemd",
+			"--no-collector.tcpstat",
+			"--no-collector.timex",
+			"--no-collector.vmstat",
+			"--no-collector.wifi",
+			"--no-collector.xfs",
+			"--no-collector.zfs",
+			"--web.disable-exporter-metrics",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+			"--web.config.file={{ .TextFiles.webConfig }}",
+		}
+
 		requireNoDuplicateFlags(t, actual.Args)
-		// enabled by default by node_exporter, so it has to be disabled explicitly
-		require.Contains(t, actual.Args, "--no-collector.dmi")
-		// already disabled by us, so it is not passed twice
-		require.Contains(t, actual.Args, "--no-collector.arp")
-		// disabled by default by node_exporter, so dropping the flag is enough
-		require.NotContains(t, actual.Args, "--collector.processes")
-		require.NotContains(t, actual.Args, "--no-collector.processes")
+		require.Equal(t, expected, actual.Args)
 	})
 
 	t.Run("MacOSDisabledCollectors", func(t *testing.T) {
@@ -332,15 +392,22 @@ func TestNodeExporterConfig(t *testing.T) {
 				DisabledCollectors: []string{"cpu", "diskstats"},
 			},
 		}
-		agentVersion := version.MustParse("2.15.1")
+		agentVersion := version.MustParse("3.0.0")
 
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		// collectors are not tweaked on macOS, where the default enabled ones differ from Linux
-		for _, arg := range actual.Args {
-			require.NotContains(t, arg, "--no-collector.")
+		// collectors are not tweaked on macOS, where node_exporter enables a different set by default
+		expected := []string{
+			"--collector.textfile.directory.hr=" + pathsBase(agentVersion, "{{", "}}") + "/collectors/textfile-collector/high-resolution",
+			"--collector.textfile.directory.lr=" + pathsBase(agentVersion, "{{", "}}") + "/collectors/textfile-collector/low-resolution",
+			"--collector.textfile.directory.mr=" + pathsBase(agentVersion, "{{", "}}") + "/collectors/textfile-collector/medium-resolution",
+			"--web.disable-exporter-metrics",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
+			"--web.config.file={{ .TextFiles.webConfig }}",
 		}
+
+		require.Equal(t, expected, actual.Args)
 	})
 
 	t.Run("MacOS", func(t *testing.T) {
