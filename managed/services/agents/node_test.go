@@ -255,6 +255,7 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.arp",
 				"--no-collector.bcache",
 				"--no-collector.conntrack",
+				"--no-collector.cpu",
 				"--no-collector.drbd",
 				"--no-collector.edac",
 				"--no-collector.infiniband",
@@ -263,8 +264,10 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.ksmd",
 				"--no-collector.logind",
 				"--no-collector.mdadm",
+				"--no-collector.meminfo",
 				"--no-collector.mountstats",
 				"--no-collector.netclass",
+				"--no-collector.netstat",
 				"--no-collector.nfs",
 				"--no-collector.nfsd",
 				"--no-collector.ntp",
@@ -275,6 +278,7 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.systemd",
 				"--no-collector.tcpstat",
 				"--no-collector.timex",
+				"--no-collector.vmstat",
 				"--no-collector.wifi",
 				"--no-collector.xfs",
 				"--no-collector.zfs",
@@ -289,6 +293,54 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.Equal(t, expected.Args, actual.Args)
 		require.Equal(t, expected.Env, actual.Env)
 		require.Equal(t, expected, actual)
+	})
+
+	t.Run("LinuxDisabledDefaultEnabledCollectors", func(t *testing.T) {
+		t.Parallel()
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+			ExporterOptions: models.ExporterOptions{
+				DisabledCollectors: []string{"arp", "dmi", "processes"},
+			},
+		}
+		agentVersion := version.MustParse("2.15.1")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		requireNoDuplicateFlags(t, actual.Args)
+		// enabled by default by node_exporter, so it has to be disabled explicitly
+		require.Contains(t, actual.Args, "--no-collector.dmi")
+		// already disabled by us, so it is not passed twice
+		require.Contains(t, actual.Args, "--no-collector.arp")
+		// disabled by default by node_exporter, so dropping the flag is enough
+		require.NotContains(t, actual.Args, "--collector.processes")
+		require.NotContains(t, actual.Args, "--no-collector.processes")
+	})
+
+	t.Run("MacOSDisabledCollectors", func(t *testing.T) {
+		t.Parallel()
+		node := &models.Node{
+			Distro: "darwin",
+		}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+			ExporterOptions: models.ExporterOptions{
+				DisabledCollectors: []string{"cpu", "diskstats"},
+			},
+		}
+		agentVersion := version.MustParse("2.15.1")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		// collectors are not tweaked on macOS, where the default enabled ones differ from Linux
+		for _, arg := range actual.Args {
+			require.NotContains(t, arg, "--no-collector.")
+		}
 	})
 
 	t.Run("MacOS", func(t *testing.T) {

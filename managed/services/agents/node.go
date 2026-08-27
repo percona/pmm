@@ -16,6 +16,7 @@
 package agents
 
 import (
+	"slices"
 	"sort"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -31,6 +32,58 @@ import (
 var (
 	v2_28_00 = version.MustParse("2.28.0-0")
 )
+
+// defaultEnabledNodeExporterCollectors lists node_exporter collectors that are enabled by default on Linux.
+// Dropping the "--collector.<name>" flag does not stop them, so "--no-collector.<name>" has to be passed
+// explicitly for the disabled ones.
+var defaultEnabledNodeExporterCollectors = []string{
+	"arp",
+	"bcache",
+	"bonding",
+	"btrfs",
+	"conntrack",
+	"cpu",
+	"cpufreq",
+	"diskstats",
+	"dmi",
+	"edac",
+	"entropy",
+	"fibrechannel",
+	"filefd",
+	"filesystem",
+	"hwmon",
+	"infiniband",
+	"ipvs",
+	"loadavg",
+	"mdadm",
+	"meminfo",
+	"netclass",
+	"netdev",
+	"netstat",
+	"nfs",
+	"nfsd",
+	"nvme",
+	"os",
+	"powersupplyclass",
+	"pressure",
+	"rapl",
+	"schedstat",
+	"selinux",
+	"sockstat",
+	"softnet",
+	"stat",
+	"tapestats",
+	"textfile",
+	"thermal_zone",
+	"time",
+	"timex",
+	"udp_queues",
+	"uname",
+	"vmstat",
+	"watchdog",
+	"xfs",
+	"zfs",
+}
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
@@ -123,6 +176,22 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 	}
 
 	args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
+
+	// Collectors enabled by node_exporter itself keep running after their "--collector.<name>" flag is
+	// filtered out above, so disable them explicitly. Collectors are not tweaked on macOS, where the
+	// default enabled ones differ from Linux.
+	if node.Distro != "darwin" {
+		disableArgs := collectors.DisableDefaultEnabledCollectors(
+			"--no-collector.",
+			defaultEnabledNodeExporterCollectors,
+			exporter.ExporterOptions.DisabledCollectors,
+		)
+		for _, arg := range disableArgs {
+			if !slices.Contains(args, arg) { // some collectors are already disabled above
+				args = append(args, arg)
+			}
+		}
+	}
 
 	if exporter.ExporterOptions.MetricsPath != "" {
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
