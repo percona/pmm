@@ -45,3 +45,12 @@ jobs:
         uses: anthropics/claude-code-action@e90deca47693f9457b72f2b53c17d7c445a87342 # v1.0.171
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # The job's `actions: read` permission only takes effect once the
+          # action requests it; without this the mcp__github_ci__* tools that
+          # read CI results are not available.
+          additional_permissions: |
+            actions: read
+          # Pinned so review behaviour does not shift when the action changes
+          # its own default model.
+          claude_args: |
+            --model claude-opus-5
