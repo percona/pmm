@@ -24,7 +24,7 @@ The three memory panels break down server memory by Performance Schema memory in
 !!! note alert alert-primary "Server configuration required"
     Memory instruments are disabled by default in MySQL and Percona Server. Until they are enabled, these three panels show *No data* even though the rest of the dashboard is populated.
 
-    Enable them at server start-up with the [`performance-schema-instrument`][perfschema-instrument] option:
+    Enable them at server start-up with the [`performance-schema-instrument`](https://dev.mysql.com/doc/refman/8.4/en/performance-schema-options.html#option_mysqld_performance-schema-instrument) option:
 
     ```ini
     performance_schema=ON
@@ -32,5 +32,3 @@ The three memory panels break down server memory by Performance Schema memory in
     ```
 
     `performance-schema-instrument` cannot be set in a session, so a server restart is required.
-
-[perfschema-instrument]: https://dev.mysql.com/doc/refman/8.4/en/performance-schema-options.html#option_mysqld_performance-schema-instrument
