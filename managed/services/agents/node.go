@@ -37,6 +37,14 @@ var (
 // as of node_exporter 1.8.2. Dropping the "--collector.<name>" flag does not stop those, so disabling one
 // means passing "--no-collector.<name>" explicitly. 14 of them are in the "disabled" block below already,
 // which is why they are appended only when missing.
+//
+// Entries are exact node_exporter collector names, the same way DisabledCollectors is matched everywhere
+// else, so a name here never stands for a family of collectors. In particular "textfile" is the upstream
+// base collector alone: the textfile metrics PMM actually collects come from the separate, default-off
+// "textfile.hr"/"textfile.mr"/"textfile.lr" collectors, and silencing those means listing them by name so
+// that FilterOutCollectors drops their "--collector." flag. Disabling a collector must stay in sync with
+// scrapeConfigsForNodeExporter, which filters the same names out of "collect[]" - naming a disabled
+// collector there makes node_exporter answer the whole resolution endpoint with HTTP 400.
 var defaultEnabledNodeExporterCollectors = []string{
 	"arp",
 	"bcache",
@@ -74,7 +82,7 @@ var defaultEnabledNodeExporterCollectors = []string{
 	"softnet",
 	"stat",
 	"tapestats",
-	"textfile",
+	"textfile", // the upstream base collector only, not PMM's textfile.hr/textfile.mr/textfile.lr
 	"thermal_zone",
 	"time",
 	"timex",
