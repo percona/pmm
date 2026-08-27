@@ -139,7 +139,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 		Args:               args,
 	}
 
-	if err := ensureAuthParams(exporter, params, agentVersion, v2_28_00, agentVersion.IsFeatureSupported(version.NodeExporterNewTLSConfig)); err != nil {
+	err := ensureAuthParams(exporter, params, agentVersion, v2_28_00, agentVersion.IsFeatureSupported(version.NodeExporterNewTLSConfig))
+	if err != nil {
 		return nil, err
 	}
 

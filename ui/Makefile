@@ -1,32 +1,33 @@
-dev:
-	yarn dev
+.PHONY: dev ci format format-check lint test setup build release clean
 
-ci: setup lint test build
+dev:
+	pnpm dev
+
+ci: setup format-check lint test build
 
 format: setup
-	yarn format
+	pnpm format
+
+format-check: setup
+	pnpm format:check
 
 lint: setup
-	yarn lint
+	pnpm lint
 
 test: setup
-	yarn test
+	pnpm test
 
 setup:
-	yarn install
+	# corepack ships with Node 22 and resolves pnpm from the `packageManager`
+	# field in package.json, so the version is pinned in exactly one place.
+	# The sudo fallback covers images where corepack's shim dir is root-owned.
+	corepack enable pnpm 2>/dev/null || sudo corepack enable pnpm
+	pnpm install
 
 build: setup
-	yarn build
+	pnpm build
 
 release: build
 
 clean:
-	yarn clean
-
-grafana-be-build:
-	docker exec -u root $(PMM_SERVER_CONTAINER) bash -c 'cd $(GRAFANA_SRC_DIR) && go run build.go build-backend'
-
-grafana-be-swap:
-	docker exec -u root $(PMM_SERVER_CONTAINER) bash -c 'cp $(GRAFANA_SRC_DIR)/bin/linux-amd64/grafana /usr/sbin/grafana && supervisorctl restart grafana'
-
-grafana-be-refresh: grafana-be-build grafana-be-swap
+	pnpm clean

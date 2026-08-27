@@ -85,9 +85,15 @@
       - lookup('env','GF_DATABASE_HOST') == ''
       - need_initialization
 
-  - name: Upgrade/Install dashboards
-    include_role:
-      name: dashboards
+  # Bundled Grafana plugins are synced by the container entrypoint.
+  # Only the version marker is managed here; it also drives the
+  # need_initialization/need_upgrade facts above.
+  - name: Synchronize Percona Dashboards version file after upgrade
+    copy:
+      src: /usr/share/percona-dashboards/VERSION
+      dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+      mode: 0664
+      remote_src: yes
 
   - name: Create a backup directory
     file:
@@ -121,7 +127,8 @@
     state: absent
     path: /usr/share/pmm-server/maintenance/maintenance.html
 
-- name: Remove the file provisioned by 'getStatus'
+# Written by 'updates:start' up to PMM 3.8; nothing uses it now, so clean it off upgraded volumes.
+- name: Remove the update auth token file left by older PMM versions
   file:
     state: absent
     path: /srv/pmm-update.json

@@ -72,7 +72,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 			return nil, fmt.Errorf("error in quering metrics: %w", err)
 		}
 
-		if len(metricsList) < 2 {
+		if len(metricsList) < 2 { //nolint:mnd
 			logrus.Debugf("metrics not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
 			return &qanpb.GetMetricsResponse{}, nil
 		}
@@ -95,7 +95,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 	}
 
 	totalLen := len(totalsList)
-	if totalLen < 2 {
+	if totalLen < 2 { //nolint:mnd
 		logrus.Debugf("totals not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
 		return &qanpb.GetMetricsResponse{}, nil
 	}

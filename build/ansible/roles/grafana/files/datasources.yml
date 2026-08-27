@@ -4,6 +4,8 @@ deleteDatasources:
     orgId: 1
   - name: ClickHouseLogs
     orgId: 1
+  - name: PostgreSQL
+    orgId: 1
 
 datasources:
 - name: Metrics
@@ -18,23 +20,6 @@ datasources:
     keepCookies: []
     timeInterval: 1s
 
-- name: PostgreSQL
-  version: 2
-  orgId: 1
-  type: postgres
-  access: proxy
-  url: ${PMM_POSTGRES_ADDR}
-  user: ${PMM_POSTGRES_USERNAME}
-  database: ${PMM_POSTGRES_DBNAME}
-  jsonData:
-    sslRootCertFile: ${PMM_POSTGRES_SSL_CA_PATH}
-    sslKeyFile: ${PMM_POSTGRES_SSL_KEY_PATH}
-    sslCertFile: ${PMM_POSTGRES_SSL_CERT_PATH}
-    postgresVersion: "1100"
-    sslmode: ${PMM_POSTGRES_SSL_MODE}
-  secureJsonData:
-    password: ${PMM_POSTGRES_DBPASSWORD}
-
 - name: PTSummary
   version: 2
   orgId: 1
@@ -42,17 +27,21 @@ datasources:
   access: proxy
 
 # https://github.com/grafana/clickhouse-datasource?tab=readme-ov-file#with-a-configuration-file
+#
+# Use a restricted ClickHouse user (read-only, limited to the QAN database)
+# rather than the privileged one used by qan-api2. See the 'grafana' user in
+# build/ansible/roles/clickhouse/files/default-users.xml.
 - name: ClickHouse
   orgId: 1
   version: 2
   type: grafana-clickhouse-datasource
   jsonData:
-    username: ${PMM_CLICKHOUSE_USER}
+    username: ${PMM_CLICKHOUSE_DATASOURCE_USER}
     port: ${PMM_CLICKHOUSE_PORT}
     host: ${PMM_CLICKHOUSE_HOST}
     tlsSkipVerify: false
   secureJsonData:
-    password: ${PMM_CLICKHOUSE_PASSWORD}
+    password: ${PMM_CLICKHOUSE_DATASOURCE_PASSWORD}
 
 # Dedicated datasource for OpenTelemetry logs and traces (pmm.logs / pmm.traces) written by the
 # OpenTelemetry Collector. Kept separate from the ClickHouse datasource above, which stays unchanged.

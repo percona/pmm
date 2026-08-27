@@ -13,9 +13,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package clickhouse owns the lifecycle (schema + retention TTL) of the OpenTelemetry logs and traces
-// tables in ClickHouse. It is deliberately part of pmm-managed and independent of qan-api2: qan-api2
-// is the Query Analytics component and must not be aware of logging or tracing.
 package clickhouse
 
 import (
@@ -56,7 +53,9 @@ const (
 // a permanent migration error (e.g. malformed SQL) that retrying cannot fix.
 var errNotReady = errors.New("clickhouse is not ready")
 
-// Service owns the schema and TTL of the pmm.logs / pmm.traces tables.
+// Service owns the lifecycle (schema + retention TTL) of the OpenTelemetry logs and traces tables in
+// ClickHouse. It is deliberately part of pmm-managed and independent of qan-api2: qan-api2 is the Query
+// Analytics component and must not be aware of logging or tracing.
 type Service struct {
 	db         *sql.DB
 	migrateDSN string

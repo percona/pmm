@@ -1,26 +1,15 @@
+---
 name: Managed
 on:
-  push:
-    branches:
-      - main
-      - v3
-      - pmm-*
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-    paths-ignore:
-      - "documentation/**"
-      - "dashboards/**"
-
   pull_request:
     paths-ignore:
       - 'admin/**'
       - 'agent/**'
       - 'api-tests/**'
-      - 'docs/**'
+      - 'dev/docs/**'
       - "documentation/**"
       - "dashboards/**"
       - 'qan-api2/**'
-      - 'update/**'
       - 'vmproxy/**'
       - "ui/**"
 
@@ -29,27 +18,20 @@ permissions: read-all
 jobs:
   test:
     name: Unit tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 30
 
     env:
-      PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
+      PMM_SERVER_IMAGE: ghcr.io/percona/pmm:3-dev-container
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
-      PMM_CONTAINER: ghcr.io/percona/pmm:3-dev-container
 
     steps:
       - name: Check out code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Enable Go build and module cache
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
-        with:
-          path: |
-            ~/go-build-cache
-            ~/go-mod-cache
-          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
-          restore-keys: ${{ runner.os }}-go-
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
 
       - name: Launch PMM Server
         run: |
@@ -64,21 +46,18 @@ jobs:
             -e PMM_RELEASE_PATH=/root/go/bin \
             -e PMM_ENABLE_ACCESS_CONTROL=1 \
             -e PMM_ENABLE_TELEMETRY=0 \
-            -e PMM_RELEASE_VERSION=3.7.0 \
+            -e PMM_RELEASE_VERSION=3.9.0 \
             -e GOMODCACHE=/home/pmm/.cache/go/mod \
             -e GOCACHE=/home/pmm/.cache/go-build \
-            -e GONOPROXY=github.com/percona,github.com/Percona-Lab \
-            -e GONOSUMDB=github.com/percona,github.com/Percona-Lab \
-            -e GOPRIVATE=github.com/percona,github.com/Percona-Lab \
             -w /root/go/src/github.com/percona/pmm \
             -v ./:/root/go/src/github.com/percona/pmm \
-            -v ~/go-mod-cache:/home/pmm/.cache/go/mod \
-            -v ~/go-build-cache:/home/pmm/.cache/go-build \
+            -v ~/go/pkg/mod:/home/pmm/.cache/go/mod \
+            -v ~/.cache/go-build:/home/pmm/.cache/go-build \
             -v ./managed/data/advisors/:/usr/local/percona/advisors/ \
             -v ./managed/data/checks/:/usr/local/percona/checks/ \
             -v ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/ \
-            -v ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro \
-            ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
+            -v ./.devcontainer/Makefile:/root/go/src/github.com/percona/pmm/Makefile:ro \
+            ${PMM_SERVER_IMAGE}
           sleep 20
           docker exec -t pmm-server id
           docker logs pmm-server
@@ -97,7 +76,7 @@ jobs:
         run: docker exec -i -u root pmm-server make -C managed test-cover
 
       - name: Upload coverage results
-        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           files: managed/cover.out
           flags: managed

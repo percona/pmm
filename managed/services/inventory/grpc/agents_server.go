@@ -29,9 +29,9 @@ import (
 )
 
 type agentsServer struct {
-	s *inventory.AgentsService
-
 	inventoryv1.UnimplementedAgentsServiceServer
+
+	s *inventory.AgentsService
 }
 
 // NewAgentsServer returns Inventory API handler for managing Agents.
@@ -286,7 +286,8 @@ func (s *agentsServer) ChangeAgent(ctx context.Context, req *inventoryv1.ChangeA
 
 // RemoveAgent removes the Agent.
 func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventoryv1.RemoveAgentRequest) (*inventoryv1.RemoveAgentResponse, error) {
-	if err := s.s.Remove(ctx, req.GetAgentId(), req.GetForce()); err != nil {
+	err := s.s.Remove(ctx, req.GetAgentId(), req.GetForce())
+	if err != nil {
 		return nil, err
 	}
 

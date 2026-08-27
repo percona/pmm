@@ -31,7 +31,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
@@ -97,8 +96,8 @@ func GetRTAAgentTypes() []AgentType {
 var v2_42 = version.MustParse("2.42.0-0")
 
 // PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
-// It takes the value of "pmm-server" in regular non-HA setups, while in Active/Active HA setups
-// it is set to the actual pmm-agent's Agent ID, which is a UUID.
+// It takes the value of "pmm-server" in non-HA setups, while in HA setups it is set to the actual
+// pmm-agent's Agent ID, which is a UUID.
 var PMMServerAgentID = string("pmm-server")
 
 // AgentConfigFilePath is the default path to pmm-agent config file; it changes to /srv in HA setups.
@@ -223,14 +222,15 @@ func (c AzureOptions) IsEmpty() bool {
 
 // MongoDBOptions represents structure for special MongoDB options.
 type MongoDBOptions struct {
-	TLSCertificateKey             string   `json:"tls_certificate_key"`
-	TLSCertificateKeyFilePassword string   `json:"tls_certificate_key_file_password"`
-	TLSCa                         string   `json:"tls_ca"`
-	AuthenticationMechanism       string   `json:"authentication_mechanism"`
-	AuthenticationDatabase        string   `json:"authentication_database"`
-	StatsCollections              []string `json:"stats_collections"`
-	CollectionsLimit              int32    `json:"collections_limit"`
-	EnableAllCollectors           bool     `json:"enable_all_collectors"`
+	TLSCertificateKey              string   `json:"tls_certificate_key"`
+	TLSCertificateKeyFilePassword  string   `json:"tls_certificate_key_file_password"`
+	TLSCa                          string   `json:"tls_ca"`
+	AuthenticationMechanism        string   `json:"authentication_mechanism"`
+	AuthenticationDatabase         string   `json:"authentication_database"`
+	StatsCollections               []string `json:"stats_collections"`
+	CollectionsLimit               int32    `json:"collections_limit"`
+	EnableAllCollectors            bool     `json:"enable_all_collectors"`
+	EnableDiagnosticDataHistograms bool     `json:"enable_diagnostic_data_histograms"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -248,7 +248,8 @@ func (c MongoDBOptions) IsEmpty() bool {
 		c.AuthenticationDatabase == "" &&
 		len(c.StatsCollections) == 0 &&
 		c.CollectionsLimit == 0 &&
-		!c.EnableAllCollectors
+		!c.EnableAllCollectors &&
+		!c.EnableDiagnosticDataHistograms
 }
 
 // MySQLOptions represents structure for special MySQL options.
@@ -471,8 +472,9 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	}
 
 	var names []string
-	if err := json.Unmarshal(a.EnvironmentVariables, &names); err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal shared environment variable names")
+	err := json.Unmarshal(a.EnvironmentVariables, &names)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal shared environment variable names: %w", err)
 	}
 	return names, nil
 }
@@ -486,7 +488,7 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 
 	b, err := json.Marshal(names)
 	if err != nil {
-		return errors.Wrap(err, "failed to marshal shared environment variable names")
+		return fmt.Errorf("failed to marshal shared environment variable names: %w", err)
 	}
 	a.EnvironmentVariables = b
 	return nil
@@ -515,7 +517,8 @@ func (a *Agent) UnifiedLabels() (map[string]string, error) {
 	}
 	maps.Copy(res, custom)
 
-	if err = prepareLabels(res, true); err != nil {
+	err = prepareLabels(res, true)
+	if err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -865,7 +868,7 @@ func (a *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	username := pointer.GetString(a.Username)
 	password := pointer.GetString(a.Password)
 
-	host := "127.0.0.1"
+	host := LocalhostAddr
 	if !a.ExporterOptions.PushMetrics {
 		node, err := FindNodeByID(q, *a.RunsOnNodeID)
 		if err != nil {
@@ -1047,16 +1050,17 @@ func (a *Agent) BuildWebConfigFile() (string, error) {
 
 	hashedPassword, err := HashPassword(password, salt)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to hash password")
+		return "", fmt.Errorf("failed to hash password: %w", err)
 	}
 
 	var configBuffer bytes.Buffer
 	tmpl, err := template.New("webConfig").Parse(webConfigTemplate)
 	if err != nil {
-		return "", errors.Wrap(err, "Failed to parse webconfig template")
+		return "", fmt.Errorf("failed to parse webconfig template: %w", err)
 	}
-	if err = tmpl.Execute(&configBuffer, hashedPassword); err != nil {
-		return "", errors.Wrap(err, "Failed to execute webconfig template")
+	err = tmpl.Execute(&configBuffer, hashedPassword)
+	if err != nil {
+		return "", fmt.Errorf("failed to execute webconfig template: %w", err)
 	}
 
 	config := configBuffer.String()

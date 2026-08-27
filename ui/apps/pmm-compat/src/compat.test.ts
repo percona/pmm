@@ -1,5 +1,9 @@
 jest.mock('@grafana/runtime', () => ({
-  locationService: { getLocation: () => ({ pathname: '/', search: '', hash: '' }), push: jest.fn(), replace: jest.fn() },
+  locationService: {
+    getLocation: () => ({ pathname: '/', search: '', hash: '' }),
+    push: jest.fn(),
+    replace: jest.fn(),
+  },
   getAppEvents: () => ({ subscribe: jest.fn() }),
   config: { bootData: { user: {} }, theme2: { isDark: true } },
   ThemeChangedEvent: class {},
@@ -17,7 +21,10 @@ describe('compat', () => {
   const replaceMock = jest.fn();
   const originalLocation = window.location;
 
-  const setLocation = (search: string, pathname = '/graph/d/some-dashboard') => {
+  const setLocation = (
+    search: string,
+    pathname = '/graph/d/some-dashboard'
+  ) => {
     Object.defineProperty(window, 'location', {
       value: {
         ...originalLocation,

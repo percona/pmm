@@ -19,6 +19,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"errors"
 	_ "expvar" // register /debug/vars
 	"fmt"
 	"html/template"
@@ -40,7 +41,6 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_gateway "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"github.com/pkg/errors"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -56,6 +56,7 @@ import (
 	// GRPC will automatically negotiate and use gzip if the client supports it.
 	_ "google.golang.org/grpc/encoding/gzip"
 	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/reform.v1"
@@ -75,7 +76,6 @@ import (
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
-	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
@@ -104,7 +104,6 @@ import (
 	"github.com/percona/pmm/managed/services/server"
 	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/services/telemetry"
-	"github.com/percona/pmm/managed/services/telemetry/uievents"
 	"github.com/percona/pmm/managed/services/user"
 	"github.com/percona/pmm/managed/services/versioncache"
 	"github.com/percona/pmm/managed/services/victoriametrics"
@@ -130,6 +129,9 @@ var (
 const (
 	shutdownTimeout    = 3 * time.Second
 	gRPCMessageMaxSize = 100 * 1024 * 1024
+
+	// Must not exceed pmm-agent's keepalive ping interval, see PMM-15200.
+	keepaliveEnforcementMinTime = 20 * time.Second
 
 	cleanInterval  = 10 * time.Minute
 	cleanOlderThan = 30 * time.Minute
@@ -197,7 +199,8 @@ func addLogsHandler(mux *http.ServeMux, logs *server.Logs) {
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
 
 		ctx = logger.Set(ctx, "logs")
-		if err := logs.Zip(ctx, rw, pprofConfig, int(lineCount)); err != nil {
+		err = logs.Zip(ctx, rw, pprofConfig, int(lineCount))
+		if err != nil {
 			l.Errorf("%+v", err)
 		}
 	})
@@ -231,15 +234,12 @@ type gRPCServerDeps struct {
 	schedulerService          *scheduler.Service
 	supervisord               *supervisord.Service
 	server                    *server.Server
-	uieventsService           *uievents.Service
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-//
-//nolint:lll
 func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", gRPCAddr)
@@ -249,6 +249,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	gRPCServer := grpc.NewServer(
 		grpc.MaxRecvMsgSize(gRPCMessageMaxSize),
+
+		// Allow pmm-agent's keepalive pings (sent every 30s on a quiet connection, see PMM-15200)
+		// instead of the default 5-minute minimum that kicks such clients with "too_many_pings".
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+			MinTime:             keepaliveEnforcementMinTime,
+			PermitWithoutStream: true,
+		}),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.UnaryAdd(grpcMetrics.UnaryServerInterceptor()),
@@ -280,16 +287,27 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService,
 	)
 
-	mgmtBackupService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService, deps.backupRemovalService, deps.pbmPITRService)
+	mgmtBackupService := managementbackup.NewBackupsService(
+		deps.db, deps.backupService,
+		deps.compatibilityService, deps.schedulerService,
+		deps.backupRemovalService, deps.pbmPITRService,
+	)
 	mgmtRestoreService := managementbackup.NewRestoreService(deps.db, deps.backupService, deps.schedulerService)
 	mgmtServices := common.NewMgmtServices(mgmtBackupService, mgmtRestoreService)
 
-	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache, mgmtServices)
+	servicesSvc := inventory.NewServicesService(
+		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.vmdb, deps.versionCache, mgmtServices,
+	)
 	inventoryv1.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
 	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
 	inventoryv1.RegisterAgentsServiceServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	managementSvc := management.NewManagementService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb, deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient))
+	managementSvc := management.NewManagementService(
+		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
+		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
+		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
+	)
 
 	managementv1.RegisterManagementServiceServer(gRPCServer, managementSvc)
 	actionsv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
@@ -306,8 +324,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dumpv1beta1.RegisterDumpServiceServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
-
-	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
 	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
 
@@ -393,7 +409,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	}
 	go func() {
 		<-ctx.Done()
-		if err := sharedConn.Close(); err != nil {
+		err := sharedConn.Close()
+		if err != nil {
 			l.Errorf("Failed to close the shared gRPC connection: %s", err)
 		}
 	}()
@@ -422,13 +439,12 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
 
-		uieventsv1.RegisterUIEventsServiceHandler,
-
 		userv1.RegisterUserServiceHandler,
 
 		hav1beta1.RegisterHAServiceHandler,
 	} {
-		if err := r(ctx, proxyMux, sharedConn); err != nil {
+		err := r(ctx, proxyMux, sharedConn)
+		if err != nil {
 			l.Fatal(err)
 		}
 	}
@@ -446,15 +462,17 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		Handler:  mux,
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
 	}()
 
 	<-ctx.Done()
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout) //nolint:contextcheck
+	err = server.Shutdown(ctx)
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -507,7 +525,8 @@ func runDebugServer(ctx context.Context) {
 		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
 	go func() {
-		if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		err := server.ListenAndServe()
+		if !errors.Is(err, http.ErrServerClosed) {
 			l.Fatal(err)
 		}
 		l.Info("Server stopped.")
@@ -515,7 +534,8 @@ func runDebugServer(ctx context.Context) {
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
+	err = server.Shutdown(ctx) //nolint:contextcheck
+	if err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -564,14 +584,16 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	}
 
 	deps.l.Infof("Checking VictoriaMetrics...")
-	if err = deps.vmdb.IsReady(ctx); err != nil {
+	err = deps.vmdb.IsReady(ctx)
+	if err != nil {
 		deps.l.Warnf("Failed to check VictoriaMetrics readiness: %+v.", err)
 		return false
 	}
 	deps.vmdb.RequestConfigurationUpdate()
 
 	deps.l.Infof("Checking VMAlert...")
-	if err = deps.vmalert.IsReady(ctx); err != nil {
+	err = deps.vmalert.IsReady(ctx)
+	if err != nil {
 		deps.l.Warnf("VMAlert problem: %+v.", err)
 		return false
 	}
@@ -640,7 +662,7 @@ func migrateDB(ctx context.Context, sqlDB *sql.DB, params models.SetupDBParams) 
 func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error) {
 	db, err := sql.Open("clickhouse", dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
+		return nil, fmt.Errorf("failed to open connection to QAN DB: %w", err)
 	}
 
 	db.SetConnMaxLifetime(0)
@@ -738,8 +760,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	clickhouseUsernameF := kingpin.Flag("clickhouse-username", "Clickhouse database user").Default("default").Envar("PMM_CLICKHOUSE_USER").String()
 	clickhousePasswordF := kingpin.Flag("clickhouse-password", "Clickhouse database user password").Default("clickhouse").Envar("PMM_CLICKHOUSE_PASSWORD").String()
 
-	watchtowerHostF := kingpin.Flag("watchtower-host", "Watchtower host").Default("http://watchtower:8080").Envar("PMM_WATCHTOWER_HOST").URL()
-
 	// Nomad garbage collection flags
 	nomadGCIntervalF := kingpin.Flag("nomad-gc-interval", "Interval at which Nomad attempts to garbage collect terminal allocation directories.").
 		Default("1m").
@@ -802,7 +822,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haService := ha.New(haParams)
 
 	cfg := config.NewService()
-	if err := cfg.Load(); err != nil {
+	err := cfg.Load()
+	if err != nil {
 		l.Panicf("Failed to load config: %+v", err)
 	}
 	// in order to reproduce postgres behaviour.
@@ -832,15 +853,18 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	grafanadb.DSN.DB = "grafana"
 	grafanadb.DSN.Params = q.Encode()
 
-	chURI := url.URL{
-		Scheme: "tcp",
-		User:   url.UserPassword(*clickhouseUsernameF, *clickhousePasswordF),
-		Host:   *clickhouseAddrF,
-		Path:   *clickHouseDatabaseF,
+	chParams, err := models.NewClickHouseParams(
+		*clickhouseAddrF,
+		*clickHouseDatabaseF,
+		*clickhouseUsernameF,
+		*clickhousePasswordF,
+	)
+	if err != nil {
+		l.Panicf("cannot load clickhouse params: %+v", err)
 	}
 
 	qanDB := ds.QanDBSelect
-	qanDB.DSN = chURI.String()
+	qanDB.DSN = chParams.URL().String()
 
 	ds.VM.Address = *victoriaMetricsURLF
 
@@ -890,7 +914,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, haService)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams, chParams, haService)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
@@ -923,10 +947,13 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	inventoryMetricsCollector := inventory.NewInventoryMetricsCollector(inventoryMetrics)
 	prom.MustRegister(inventoryMetricsCollector)
 
+	haMetricsCollector := ha.NewHAMetricsCollector(haService)
+	prom.MustRegister(haMetricsCollector)
+
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	updater := server.NewUpdater(*watchtowerHostF, gRPCMessageMaxSize, db)
+	updater := server.NewUpdater(db)
 
 	logs := server.NewLogs(version.FullInfo(), updater, vmParams)
 
@@ -959,20 +986,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		l.Fatal(err)
 	}
 
-	platformClient, err := platformClient.NewClient(platformAddress)
-	if err != nil {
-		l.Fatalf("Could not create telemetry client: %s", err)
-	}
-
-	uieventsService := uievents.New()
-	uieventsService.ScheduleCleanup(ctx)
-
-	telemetryExtensions := map[telemetry.ExtensionType]telemetry.Extension{
-		telemetry.UIEventsExtension: uieventsService,
-	}
+	platformClient := platformClient.NewClient(platformAddress)
 
 	dus := distribution.NewService(distributionInfoFilePath, osInfoFilePath, l)
-	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry, telemetryExtensions)
+	telemetry, err := telemetry.NewService(db, platformClient, version.Version, dus, cfg.Config.Services.Telemetry)
 	if err != nil {
 		l.Fatalf("Could not create telemetry service: %s", err)
 	}
@@ -1012,7 +1029,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	logService := clickhouse.New(clickhouseClient, *clickhouseAddrF, *clickHouseDatabaseF, *clickhouseUsernameF, *clickhousePasswordF)
 	go func() {
 		// Migrations run independently of settings; only the initial TTL needs the retention setting.
-		if err := logService.Bootstrap(ctx); err != nil {
+		err := logService.Bootstrap(ctx)
+		if err != nil {
 			l.Errorf("Could not bootstrap logs/traces schema: %s", err)
 			return
 		}
@@ -1021,7 +1039,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			l.Errorf("Could not load settings for initial logs retention TTL: %s", err)
 			return
 		}
-		if err := logService.ApplyTTL(ctx, settings.LogRetention); err != nil {
+		err = logService.ApplyTTL(ctx, settings.LogRetention)
+		if err != nil {
 			l.Errorf("Could not apply initial logs retention TTL: %s", err)
 		}
 	}()
@@ -1049,7 +1068,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	versionCache := versioncache.New(db, versioner)
 
 	dumpService := dump.New(db, &dump.URLs{
-		ClickhouseURL: chURI.String(),
+		ClickhouseURL: chParams.URL().String(),
 		VMURL:         *victoriaMetricsURLF,
 	})
 
@@ -1164,16 +1183,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}))
 
 	wg.Go(func() {
-		supervisord.Run(ctx)
-	})
-
-	wg.Go(func() {
 		updater.Run(ctx)
 	})
 
-	wg.Add(1)
 	haService.AddLeaderService(ha.NewContextService("telemetry", func(ctx context.Context) error {
-		defer wg.Done()
 		telemetry.Run(ctx)
 		return nil
 	}))
@@ -1217,7 +1230,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				settings:                  settings,
 				supervisord:               supervisord,
 				templatesService:          alertingService,
-				uieventsService:           uieventsService,
 				versionCache:              versionCache,
 				vmalert:                   vmalert,
 				vmClient:                  &vmClient,

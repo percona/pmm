@@ -464,6 +464,67 @@ func TestAgentHelpers(t *testing.T) {
 		assert.Empty(t, agents)
 	})
 
+	t.Run("FindAgentsByOnNodeID", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		agents, err := models.FindAgents(q, models.AgentFilters{OnNodeID: "N1"})
+		require.NoError(t, err)
+		agentIDs := make([]string, len(agents))
+		for i, agent := range agents {
+			agentIDs[i] = agent.AgentID
+			assert.True(t,
+				pointer.GetString(agent.RunsOnNodeID) == "N1" || pointer.GetString(agent.NodeID) == "N1",
+				"%s is on neither runs_on_node_id nor node_id of N1", agent.AgentID)
+		}
+		assert.Contains(t, agentIDs, "A1")    // a pmm-agent running on the Node
+		assert.Contains(t, agentIDs, "A3")    // an exporter attached to the Node
+		assert.Contains(t, agentIDs, "A7")    // attached to the Node, but started by a pmm-agent on N2
+		assert.NotContains(t, agentIDs, "A2") // bound to a Service, not to the Node
+
+		// NodeID alone can't answer this: it never matches the pmm-agent running on the Node.
+		agents, err = models.FindAgents(q, models.AgentFilters{NodeID: "N1"})
+		require.NoError(t, err)
+		for _, agent := range agents {
+			assert.NotEqual(t, "A1", agent.AgentID)
+		}
+
+		// Unlike NodeID, OnNodeID does not probe for the Node, so an unknown one is not an error.
+		agents, err = models.FindAgents(q, models.AgentFilters{OnNodeID: "X1"})
+		require.NoError(t, err)
+		assert.Empty(t, agents)
+	})
+
+	t.Run("FindAgentsByPMMAgentIDs", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		agents, err := models.FindAgents(q, models.AgentFilters{PMMAgentIDs: []string{"A1"}})
+		require.NoError(t, err)
+		agentIDs := make([]string, len(agents))
+		for i, agent := range agents {
+			agentIDs[i] = agent.AgentID
+		}
+		assert.Equal(t, []string{"A2", "A3"}, agentIDs)
+
+		agents, err = models.FindAgents(q, models.AgentFilters{PMMAgentIDs: []string{"A1", "A4"}})
+		require.NoError(t, err)
+		agentIDs = make([]string, len(agents))
+		for i, agent := range agents {
+			agentIDs[i] = agent.AgentID
+		}
+		assert.Equal(t, []string{"A2", "A3", "A5", "A6", "A7"}, agentIDs)
+
+		// An empty slice is not a filter, so it matches everything - callers that build the list
+		// dynamically have to check for that themselves.
+		filtered, err := models.FindAgents(q, models.AgentFilters{PMMAgentIDs: nil})
+		require.NoError(t, err)
+		all, err := models.FindAgents(q, models.AgentFilters{})
+		require.NoError(t, err)
+		assert.Equal(t, all, filtered)
+		assert.NotEmpty(t, filtered)
+	})
+
 	t.Run("FindPMMAgentsForServicesOnNode", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
@@ -842,14 +903,15 @@ func TestAgentHelpers(t *testing.T) {
 			statsCollections := []string{"stats1", "stats2"}
 			agent, err := models.ChangeAgent(q, "A8", &models.ChangeAgentParams{
 				MongoDBOptions: &models.ChangeMongoDBOptions{
-					TLSCertificateKey:             new("new_cert_key"),
-					TLSCertificateKeyFilePassword: new("new_password"),
-					TLSCa:                         new("new_ca"),
-					AuthenticationMechanism:       new("SCRAM-SHA-256"),
-					AuthenticationDatabase:        new("admin"),
-					StatsCollections:              statsCollections,
-					CollectionsLimit:              new(int32(500)),
-					EnableAllCollectors:           new(false),
+					TLSCertificateKey:              new("new_cert_key"),
+					TLSCertificateKeyFilePassword:  new("new_password"),
+					TLSCa:                          new("new_ca"),
+					AuthenticationMechanism:        new("SCRAM-SHA-256"),
+					AuthenticationDatabase:         new("admin"),
+					StatsCollections:               statsCollections,
+					CollectionsLimit:               new(int32(500)),
+					EnableAllCollectors:            new(false),
+					EnableDiagnosticDataHistograms: new(true),
 				},
 			})
 			require.NoError(t, err)
@@ -861,6 +923,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, statsCollections, agent.MongoDBOptions.StatsCollections)
 			assert.Equal(t, int32(500), agent.MongoDBOptions.CollectionsLimit)
 			assert.False(t, agent.MongoDBOptions.EnableAllCollectors)
+			assert.True(t, agent.MongoDBOptions.EnableDiagnosticDataHistograms)
 
 			// Verify persistence in database
 			persistedAgent, err := models.FindAgentByID(q, "A8")
@@ -873,6 +936,7 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, statsCollections, persistedAgent.MongoDBOptions.StatsCollections)
 			assert.Equal(t, int32(500), persistedAgent.MongoDBOptions.CollectionsLimit)
 			assert.False(t, persistedAgent.MongoDBOptions.EnableAllCollectors)
+			assert.True(t, persistedAgent.MongoDBOptions.EnableDiagnosticDataHistograms)
 		})
 
 		t.Run("ChangeQANOptions", func(t *testing.T) {
@@ -1382,14 +1446,15 @@ func TestAgentHelpers(t *testing.T) {
 
 				// MongoDB options
 				MongoDBOptions: &models.ChangeMongoDBOptions{
-					TLSCertificateKey:             new("comprehensive-mongo-cert-key"),
-					TLSCertificateKeyFilePassword: new("comprehensive-mongo-password"),
-					TLSCa:                         new("comprehensive-mongo-ca"),
-					AuthenticationMechanism:       new("SCRAM-SHA-256"),
-					AuthenticationDatabase:        new("admin"),
-					StatsCollections:              mongoCollections,
-					CollectionsLimit:              new(int32(1000)),
-					EnableAllCollectors:           new(true),
+					TLSCertificateKey:              new("comprehensive-mongo-cert-key"),
+					TLSCertificateKeyFilePassword:  new("comprehensive-mongo-password"),
+					TLSCa:                          new("comprehensive-mongo-ca"),
+					AuthenticationMechanism:        new("SCRAM-SHA-256"),
+					AuthenticationDatabase:         new("admin"),
+					StatsCollections:               mongoCollections,
+					CollectionsLimit:               new(int32(1000)),
+					EnableAllCollectors:            new(true),
+					EnableDiagnosticDataHistograms: new(true),
 				},
 
 				// MySQL options
@@ -1478,14 +1543,15 @@ func TestAgentHelpers(t *testing.T) {
 				},
 
 				MongoDBOptions: models.MongoDBOptions{
-					TLSCertificateKey:             "comprehensive-mongo-cert-key",
-					TLSCertificateKeyFilePassword: "comprehensive-mongo-password",
-					TLSCa:                         "comprehensive-mongo-ca",
-					AuthenticationMechanism:       "SCRAM-SHA-256",
-					AuthenticationDatabase:        "admin",
-					StatsCollections:              mongoCollections,
-					CollectionsLimit:              1000,
-					EnableAllCollectors:           true,
+					TLSCertificateKey:              "comprehensive-mongo-cert-key",
+					TLSCertificateKeyFilePassword:  "comprehensive-mongo-password",
+					TLSCa:                          "comprehensive-mongo-ca",
+					AuthenticationMechanism:        "SCRAM-SHA-256",
+					AuthenticationDatabase:         "admin",
+					StatsCollections:               mongoCollections,
+					CollectionsLimit:               1000,
+					EnableAllCollectors:            true,
+					EnableDiagnosticDataHistograms: true,
 				},
 
 				MySQLOptions: models.MySQLOptions{
@@ -1616,4 +1682,64 @@ func TestAgentHelpers(t *testing.T) {
 			assert.Equal(t, new("N1"), updated.NodeID)
 		})
 	})
+}
+
+func TestChangeAgentParamsAffectsConnection(t *testing.T) {
+	for name, tc := range map[string]struct {
+		params   models.ChangeAgentParams
+		expected bool
+	}{
+		"empty":            {models.ChangeAgentParams{}, false},
+		"username":         {models.ChangeAgentParams{Username: new("user")}, true},
+		"password":         {models.ChangeAgentParams{Password: new("pass")}, true},
+		"tls":              {models.ChangeAgentParams{TLS: new(true)}, true},
+		"tls skip verify":  {models.ChangeAgentParams{TLSSkipVerify: new(false)}, true},
+		"listen port":      {models.ChangeAgentParams{ListenPort: new(uint32(9104))}, true},
+		"mysql tls ca":     {models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSCa: new("ca")}}, true},
+		"mysql tls cert":   {models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSCert: new("cert")}}, true},
+		"mysql tls key":    {models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TLSKey: new("key")}}, true},
+		"postgres ssl ca":  {models.ChangeAgentParams{PostgreSQLOptions: &models.ChangePostgreSQLOptions{SSLCa: new("ca")}}, true},
+		"postgres ssl key": {models.ChangeAgentParams{PostgreSQLOptions: &models.ChangePostgreSQLOptions{SSLKey: new("key")}}, true},
+		"mongodb cert key": {models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{TLSCertificateKey: new("key")}}, true},
+		"mongodb auth mechanism": {
+			models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{AuthenticationMechanism: new("SCRAM-SHA-256")}},
+			true,
+		},
+		"mongodb auth database": {
+			models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{AuthenticationDatabase: new("admin")}},
+			true,
+		},
+		"valkey ssl cert": {models.ChangeAgentParams{ValkeyOptions: &models.ChangeValkeyOptions{SSLCert: new("cert")}}, true},
+		"metrics scheme":  {models.ChangeAgentParams{ExporterOptions: &models.ChangeExporterOptions{MetricsScheme: new("https")}}, true},
+		"metrics path":    {models.ChangeAgentParams{ExporterOptions: &models.ChangeExporterOptions{MetricsPath: new("/metrics")}}, true},
+
+		"enabled":        {models.ChangeAgentParams{Enabled: new(false)}, false},
+		"custom labels":  {models.ChangeAgentParams{CustomLabels: &map[string]string{"env": "test"}}, false},
+		"log level":      {models.ChangeAgentParams{LogLevel: new("debug")}, false},
+		"agent password": {models.ChangeAgentParams{AgentPassword: new("pass")}, false},
+		"empty option structs": {
+			models.ChangeAgentParams{
+				MySQLOptions:      &models.ChangeMySQLOptions{},
+				PostgreSQLOptions: &models.ChangePostgreSQLOptions{},
+				MongoDBOptions:    &models.ChangeMongoDBOptions{},
+				ValkeyOptions:     &models.ChangeValkeyOptions{},
+				ExporterOptions:   &models.ChangeExporterOptions{},
+			},
+			false,
+		},
+		"push metrics": {models.ChangeAgentParams{ExporterOptions: &models.ChangeExporterOptions{PushMetrics: new(true)}}, false},
+		"mysql table count limit": {
+			models.ChangeAgentParams{MySQLOptions: &models.ChangeMySQLOptions{TableCountTablestatsGroupLimit: new(int32(1000))}},
+			false,
+		},
+		"mongodb collectors": {
+			models.ChangeAgentParams{MongoDBOptions: &models.ChangeMongoDBOptions{EnableAllCollectors: new(true)}},
+			false,
+		},
+		"qan options": {models.ChangeAgentParams{QANOptions: &models.ChangeQANOptions{MaxQueryLength: new(int32(1024))}}, false},
+	} {
+		t.Run(name, func(t *testing.T) {
+			assert.Equal(t, tc.expected, tc.params.AffectsConnection())
+		})
+	}
 }

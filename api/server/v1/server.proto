@@ -101,30 +101,22 @@ message ListChangeLogsResponse {
   google.protobuf.Timestamp last_check = 2;
 }
 
-message StartUpdateRequest {
-  string new_image = 1;
-}
-
-message StartUpdateResponse {
-  // Authentication token for getting update statuses.
-  string auth_token = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
-  // Progress log offset.
-  uint32 log_offset = 2;
-}
-
 message UpdateStatusRequest {
-  // Authentication token.
-  string auth_token = 1 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
-  // Progress log offset.
-  uint32 log_offset = 2;
+  // Authentication token. Accepted from pre-3.9 clients.
+  string auth_token = 1 [
+    deprecated = true,
+    (extensions.v1.sensitive) = REDACT_TYPE_FULL
+  ];
+  // Progress log offset. Accepted from pre-3.9 clients but ignored.
+  uint32 log_offset = 2 [deprecated = true];
 }
 
 message UpdateStatusResponse {
-  // Progress log lines.
-  repeated string log_lines = 1;
-  // Progress log offset for the next request.
-  uint32 log_offset = 2;
-  // True when update is done.
+  // Progress log lines. Always empty, kept so pre-3.9 clients can parse the response.
+  repeated string log_lines = 1 [deprecated = true];
+  // Progress log offset for the next request. Always zero, kept so pre-3.9 clients can parse the response.
+  uint32 log_offset = 2 [deprecated = true];
+  // True once PMM Server has finished initializing.
   bool done = 3;
 }
 
@@ -181,10 +173,11 @@ message Settings {
   uint32 default_role_id = 18;
   // True if Query Analytics for PMM's internal PG database is enabled.
   bool enable_internal_pg_qan = 19;
-  // Duration for which an update is snoozed
-  google.protobuf.Duration update_snooze_duration = 20;
   // A number of full days for log and trace data retention in ClickHouse (pmm.logs / pmm.traces).
   google.protobuf.Duration log_retention = 21;
+  // Field 20 (update_snooze_duration) was removed when GUI-triggered upgrades were deprecated.
+  reserved 20;
+  reserved "update_snooze_duration";
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
@@ -223,7 +216,7 @@ message ChangeSettingsRequest {
   optional bool enable_updates = 1;
   optional bool enable_telemetry = 2;
   MetricsResolutions metrics_resolutions = 3;
-  // A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
+  // A number of full days for Prometheus and QAN data retention. Must be specified in seconds in JSON, for example: 2592000s.
   google.protobuf.Duration data_retention = 4;
   optional string ssh_key = 5;
   optional common.StringArray aws_partitions = 6;
@@ -243,10 +236,11 @@ message ChangeSettingsRequest {
   optional bool enable_access_control = 13;
   // Enable Query Analytics for PMM's internal PG database.
   optional bool enable_internal_pg_qan = 14;
-  // A number of full days for which an update is snoozed, i.e. a multiple of 24h: 2592000s, 43200m, 720h.
-  google.protobuf.Duration update_snooze_duration = 15;
   // A number of full days for log and trace data retention in ClickHouse. Should have a suffix in JSON: 2592000s, 43200m, 720h.
   google.protobuf.Duration log_retention = 16;
+  // Field 15 (update_snooze_duration) was removed when GUI-triggered upgrades were deprecated.
+  reserved 15;
+  reserved "update_snooze_duration";
 }
 
 message ChangeSettingsResponse {
@@ -296,18 +290,10 @@ service ServerService {
       description: "Display a changelog comparing the installed version to the latest available version."
     };
   }
-  // StartUpdate starts PMM Server update.
-  rpc StartUpdate(StartUpdateRequest) returns (StartUpdateResponse) {
-    option (google.api.http) = {
-      post: "/v1/server/updates:start"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Start update"
-      description: "Starts PMM Server update."
-    };
-  }
-  // UpdateStatus returns PMM Server update status.
+  // UpdateStatus returns PMM Server initialization status.
+  //
+  // It exists for pre-3.9 clients, which poll it after triggering an update to learn when the
+  // freshly started PMM Server has finished initializing. Only the "done" field is meaningful.
   rpc UpdateStatus(UpdateStatusRequest) returns (UpdateStatusResponse) {
     option (google.api.http) = {
       post: "/v1/server/updates:getStatus"
@@ -315,7 +301,7 @@ service ServerService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Update status"
-      description: "Returns PMM Server update status."
+      description: "Returns PMM Server initialization status."
     };
   }
   // GetSettings returns current PMM Server settings.

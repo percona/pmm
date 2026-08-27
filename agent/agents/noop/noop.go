@@ -33,7 +33,7 @@ type NoOp struct {
 // New creates new NoOp.
 func New() *NoOp {
 	return &NoOp{
-		changes: make(chan agents.Change, 10),
+		changes: make(chan agents.Change, 10), //nolint:mnd
 	}
 }
 
@@ -57,12 +57,12 @@ func (n *NoOp) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (n *NoOp) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (n *NoOp) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (n *NoOp) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+func (n *NoOp) Collect(_ chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 

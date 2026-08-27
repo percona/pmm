@@ -93,15 +93,18 @@ func ToYAML(ts []Template) (string, error) {
 
 // Template represents Integrated Alerting rule template.
 type Template struct {
-	Name        string              `yaml:"name"`                  // required
-	Version     uint32              `yaml:"version"`               // required
-	Summary     string              `yaml:"summary"`               // required
-	Expr        string              `yaml:"expr"`                  // required
-	Params      []Parameter         `yaml:"params,omitempty"`      // optional
-	For         promconfig.Duration `yaml:"for"`                   // required
-	Severity    common.Severity     `yaml:"severity"`              // required
-	Labels      map[string]string   `yaml:"labels,omitempty"`      // optional
-	Annotations map[string]string   `yaml:"annotations,omitempty"` // optional
+	Name        string               `yaml:"name"`                  // required
+	Version     uint32               `yaml:"version"`               // required
+	Summary     string               `yaml:"summary"`               // required
+	Expr        string               `yaml:"expr,omitempty"`        // required for single-expression templates
+	Queries     []TemplateQuery      `yaml:"queries,omitempty"`     // optional PromQL query steps
+	Expressions []TemplateExpression `yaml:"expressions,omitempty"` // optional Grafana expression steps
+	Condition   string               `yaml:"condition,omitempty"`   // required for multi-expression templates
+	Params      []Parameter          `yaml:"params,omitempty"`      // optional
+	For         promconfig.Duration  `yaml:"for"`                   // required
+	Severity    common.Severity      `yaml:"severity"`              // required
+	Labels      map[string]string    `yaml:"labels,omitempty"`      // optional
+	Annotations map[string]string    `yaml:"annotations,omitempty"` // optional
 	// Datasource selects the backend the rule queries: empty (default) means the metrics datasource
 	// (PromQL via VictoriaMetrics); "clickhouse" means a SQL log/trace alert over the ClickHouse datasource.
 	Datasource string `yaml:"datasource,omitempty"` // optional
@@ -131,8 +134,9 @@ func (r *Template) Validate() error {
 		return errors.New("template summary is empty")
 	}
 
-	if r.Expr == "" {
-		return errors.New("template expression is empty")
+	err = r.validateSteps()
+	if err != nil {
+		return err
 	}
 
 	switch r.Datasource {

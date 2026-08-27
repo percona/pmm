@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	invalidStarlarkScriptStderr = "Error running starlark script: thread invalid starlark script: failed to execute function check_context: function check_context accepts no arguments (2 given)"
+	invalidStarlarkScriptStderr = "Error running starlark script: error running starlark env: thread invalid starlark script: failed to execute function check_context: function check_context accepts no arguments (2 given)"
 
 	// Possible errors:
 	// fatal error: runtime: out of memory
@@ -132,7 +132,7 @@ func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 			if !present {
 				releasePath = "./../../bin"
 			}
-			cmd := exec.Command(releasePath + "/pmm-managed-starlark") //nolint:gosec
+			cmd := exec.CommandContext(t.Context(), releasePath+"/pmm-managed-starlark")
 
 			var stdin, stderr bytes.Buffer
 			cmd.Stdin = &stdin

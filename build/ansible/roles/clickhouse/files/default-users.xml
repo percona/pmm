@@ -5,12 +5,33 @@
     <profiles>
         <!-- Default settings. -->
         <default>
+            <async_insert>1</async_insert>
+            <wait_for_async_insert>1</wait_for_async_insert>
         </default>
 
         <!-- Profile that allows only read queries. -->
         <readonly>
             <readonly>1</readonly>
         </readonly>
+
+        <!-- Profile for the Grafana datasource user.
+
+             readonly=1 blocks writes, DDL and any setting change. The Grafana ClickHouse plugin
+             sets max_execution_time on every query to enforce its query timeout, so that single
+             setting is explicitly marked changeable; without it every query fails with
+             "Cannot modify 'max_execution_time' setting in readonly mode".
+
+             readonly=2 would not work on public instances, which the plugin documentation advises against. See
+             https://grafana.com/docs/plugins/grafana-clickhouse-datasource/latest/configure/#clickhouse-user-and-permissions
+        -->
+        <datasource>
+            <readonly>1</readonly>
+            <constraints>
+                <max_execution_time>
+                    <changeable_in_readonly/>
+                </max_execution_time>
+            </constraints>
+        </datasource>
     </profiles>
 
     <!-- Users and ACL. -->
@@ -87,6 +108,31 @@
             <!-- User can create other users and grant rights to them. -->
             <!-- <access_management>1</access_management> -->
         </default>
+
+        <!-- Read-only user for the Grafana ClickHouse datasource.
+
+            Grafana executes datasource queries on behalf of any authenticated user, 
+            so this user must not be able to do more than read QAN data.
+
+            The <grants> section is what enforces that: it replaces ClickHouse's implicit
+            "all privileges" with an allowlist. Without the SOURCES privileges, table
+            functions are rejected, which prevents SSRF.
+        -->
+        <grafana>
+            <password_sha256_hex>cace491b69555e8d0f77747d47ae54e31ce4cc322fe51a7bdcf64402f3676ebf</password_sha256_hex>
+
+            <networks>
+                <ip>::1</ip>
+                <ip>127.0.0.1</ip>
+            </networks>
+
+            <profile>datasource</profile>
+            <quota>default</quota>
+
+            <grants>
+                <query>GRANT SELECT ON pmm.*</query>
+            </grants>
+        </grafana>
     </users>
 
     <!-- Quotas. -->

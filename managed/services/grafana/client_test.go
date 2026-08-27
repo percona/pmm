@@ -17,6 +17,7 @@ package grafana
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -24,7 +25,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -461,11 +461,11 @@ func TestCurrentUserHTTPResponse(t *testing.T) {
 		wantMsg  string
 	}{
 		{"generic", errors.New("boom"), http.StatusBadGateway, "Bad Gateway"},
-		{"401 with message", errors.WithStack(&clientError{Code: http.StatusUnauthorized, ErrorMessage: "Invalid"}), http.StatusUnauthorized, "Invalid"},
-		{"401 empty message", errors.WithStack(&clientError{Code: http.StatusUnauthorized}), http.StatusUnauthorized, "Unauthorized"},
-		{"403", errors.WithStack(&clientError{Code: http.StatusForbidden}), http.StatusForbidden, "Forbidden"},
-		{"404", errors.WithStack(&clientError{Code: http.StatusNotFound, ErrorMessage: "nf"}), http.StatusBadGateway, "Bad Gateway"},
-		{"500 upstream", errors.WithStack(&clientError{Code: http.StatusInternalServerError}), http.StatusBadGateway, "Bad Gateway"},
+		{"401 with message", &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Invalid"}, http.StatusUnauthorized, "Invalid"},
+		{"401 empty message", &clientError{Code: http.StatusUnauthorized}, http.StatusUnauthorized, "Unauthorized"},
+		{"403", &clientError{Code: http.StatusForbidden}, http.StatusForbidden, "Forbidden"},
+		{"404", &clientError{Code: http.StatusNotFound, ErrorMessage: "nf"}, http.StatusBadGateway, "Bad Gateway"},
+		{"500 upstream", &clientError{Code: http.StatusInternalServerError}, http.StatusBadGateway, "Bad Gateway"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -503,7 +503,7 @@ func TestClient(t *testing.T) {
 
 			u, err := c.getAuthUser(ctx, nil, l)
 			role := u.role
-			clientError, _ := errors.Cause(err).(*clientError) //nolint:errorlint
+			clientError, _ := errors.AsType[*clientError](err)
 			require.NotNil(t, clientError, "got role %s", role)
 			assert.Equal(t, 401, clientError.Code)
 
@@ -543,7 +543,7 @@ func TestClient(t *testing.T) {
 		})
 
 		for _, role := range []role{viewer, editor, admin} {
-			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
+			t.Run("Basic auth "+role.String(), func(t *testing.T) {
 				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
 				require.NoError(t, err)
@@ -567,7 +567,7 @@ func TestClient(t *testing.T) {
 				assert.Equal(t, role.String(), actualRole.String())
 			})
 
-			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
+			t.Run("Service token auth "+role.String(), func(t *testing.T) {
 				name, err := stringsgen.GenerateRandomString(256)
 				require.NoError(t, err)
 				nodeName := fmt.Sprintf("%s-%s", name, role)
@@ -588,7 +588,7 @@ func TestClient(t *testing.T) {
 				}()
 
 				serviceTokenAuthHeaders := http.Header{}
-				serviceTokenAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+				serviceTokenAuthHeaders.Set("Authorization", "Bearer "+serviceToken)
 				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders, l)
 				require.NoError(t, err)
 				actualRole := u.role

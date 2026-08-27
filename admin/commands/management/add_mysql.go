@@ -15,13 +15,13 @@
 package management
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/alecthomas/units"
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -92,6 +92,11 @@ func (res *addMySQLResult) TablestatStatus() string {
 //
 //nolint:lll
 type AddMySQLCommand struct {
+	AddCommonFlags
+	flags.MetricsModeFlags
+	flags.CommentsParsingFlags
+	flags.LogLevelNoFatalFlags
+
 	ServiceName   string `name:"name" arg:"" default:"${hostname}-mysql" help:"Service name (autodetected default: ${hostname}-mysql)"`
 	Address       string `arg:"" optional:"" help:"MySQL address and port (default: 127.0.0.1:3306)"`
 	Socket        string `help:"Path to MySQL socket"`
@@ -124,11 +129,6 @@ type AddMySQLCommand struct {
 	ConnectionTimeout      *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 	WatchLogs              bool              `name:"watch-logs" help:"Watch this service's database log files and ship them to PMM Server"`
 	LogFiles               []string          `name:"log-file" placeholder:"PATH" help:"Absolute path of a database log file to watch (repeatable)"`
-
-	AddCommonFlags
-	flags.MetricsModeFlags
-	flags.CommentsParsingFlags
-	flags.LogLevelNoFatalFlags
 }
 
 // GetServiceName returns the service name for AddMySQLCommand.
@@ -203,7 +203,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 	tablestatsGroupTableLimit := int32(cmd.DisableTablestatsLimit)
 	if cmd.DisableTablestats {
 		if tablestatsGroupTableLimit != 0 {
-			return nil, errors.Errorf("both --disable-tablestats and --disable-tablestats-limit are passed")
+			return nil, errors.New("both --disable-tablestats and --disable-tablestats-limit are passed")
 		}
 
 		tablestatsGroupTableLimit = -1

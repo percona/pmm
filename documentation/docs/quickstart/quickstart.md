@@ -1,6 +1,6 @@
 # Get started with PMM
 
-To get up and running with Percona Monitoring and Management (PMM) in no time, install PMM on Bare Metal/Virtual using the Easy-install script for Docker.
+To get up and running with Percona Monitoring and Management (PMM) in no time, install PMM on Bare Metal using the Easy-install script for Docker.
 
 This is the simplest and most efficient way to install PMM with Docker.
 
@@ -32,13 +32,13 @@ The Easy-install script only runs on Linux-compatible systems. To use it, run th
     === "cURL"
 
         ```sh
-        curl -fsSL https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash
+        curl -fsSL https://raw.githubusercontent.com/percona/pmm/refs/heads/main/get-pmm.sh | /bin/bash
         ```
 
     === "wget"
 
         ```sh
-        wget -qO - https://raw.githubusercontent.com/percona/pmm/refs/heads/v3/get-pmm.sh | /bin/bash    
+        wget -qO - https://raw.githubusercontent.com/percona/pmm/refs/heads/main/get-pmm.sh | /bin/bash    
         ```
 
 2. After the installation is complete, log into PMM with the default `admin:admin` credentials.
@@ -255,7 +255,7 @@ Once PMM is set up, choose the database or the application that you want it to m
                },
                {
                  "resource": { "db": "", "collection": "system.profile" },
-                 "actions": [ "dbStats", "collStats", "indexStats" ]
+                 "actions": [ "find", "dbStats", "collStats", "indexStats" ]
                }                  
             ],
             "roles": []

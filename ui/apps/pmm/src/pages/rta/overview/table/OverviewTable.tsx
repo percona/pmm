@@ -1,18 +1,23 @@
 import {
-  type MRT_ColumnFiltersState,
   type MRT_Row,
-  type MRT_SortingState,
-  type MRT_TableInstance,
-  MaterialReactTableProps,
+  type MaterialReactTableProps,
 } from 'material-react-table';
-import { Table } from '@percona/percona-ui';
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { QueryData } from 'types/rta.types';
+import { Table, useNavigableRows } from '@percona/peak-ui';
+import type { FC } from 'react';
+import type { QueryData } from 'types/rta.types';
 import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
 import { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
 import { filterElapsedTime } from './OverviewTable.utils';
+import { useTableUrlState } from 'hooks/utils/useTableUrlState';
+
+const OVERVIEW_TABLE_URL_STATE_OPTIONS = {
+  paramPrefix: 'overview',
+  defaults: {
+    pagination: { pageIndex: 0, pageSize: 25 },
+  },
+};
 
 interface Props {
   queries: QueryData[];
@@ -29,58 +34,40 @@ const OverviewTable: FC<Props> = ({
   actions,
   onRowHover,
 }) => {
-  const tableRef = useRef<MRT_TableInstance<QueryData> | null>(null);
-  // Controlled table state is required to read the filtered/sorted row model via tableInstanceRef.
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<MRT_SortingState>([]);
-
-  // Pre-pagination so navigation covers all filtered rows, not only the current page.
-  const getNavigableQueries = useCallback(
-    () =>
-      tableRef.current?.getPrePaginationRowModel().rows.map((row) => row.original) ??
-      queries,
-    [queries]
+  const { tableProps: navigableTableProps, refresh } =
+    useNavigableRows<QueryData>({
+      data: queries,
+      onChange: onNavigableQueriesChange,
+    });
+  const { tableProps: urlStateTableProps } = useTableUrlState(
+    OVERVIEW_TABLE_URL_STATE_OPTIONS
   );
-
-  const syncNavigableQueries = useCallback(() => {
-    onNavigableQueriesChange(getNavigableQueries());
-  }, [getNavigableQueries, onNavigableQueriesChange]);
-
-  useEffect(() => {
-    syncNavigableQueries();
-  }, [columnFilters, sorting, syncNavigableQueries]);
 
   return (
     <RealtimeTableWrapper>
       <Table
         tableName="realtime-overview-table"
-        initialState={{
-          pagination: {
-            pageSize: 25,
-            pageIndex: 0,
-          },
-        }}
         columns={OVERVIEW_TABLE_COLUMNS}
         data={queries}
         noDataMessage={Messages.noData}
         muiTopToolbarProps={{
           sx: {
-            // vertically center the buttons
+            mb: 0.5,
             [`& > .${boxClasses.root}`]: {
-              alignItems: 'center',
+              alignItems: 'flex-start',
+              alignContent: 'flex-start',
               flexDirection: 'row-reverse',
             },
           },
         }}
-        state={{ columnFilters, sorting }}
-        onColumnFiltersChange={setColumnFilters}
-        onSortingChange={setSorting}
+        {...navigableTableProps}
+        {...urlStateTableProps}
+        enableStickyHeader
         enableGlobalFilter={false}
         enableHiding={false}
         enableRowHoverAction
-        tableInstanceRef={tableRef}
         rowHoverAction={(row) => {
-          syncNavigableQueries();
+          refresh();
           onQuerySelected(row.original);
         }}
         renderTopToolbarCustomActions={actions}
@@ -89,10 +76,26 @@ const OverviewTable: FC<Props> = ({
           timeRangeFilterFn: (row, id, filterValue) =>
             filterElapsedTime(row as MRT_Row<QueryData>, id, filterValue),
         }}
+        muiTableContainerProps={{
+          sx: {
+            flex: 1,
+            // TODO: use theme.shape.borderRadiusMd (8px) once percona-ui
+            // publishes the Shape tokens (percona-ui#37, not in 1.0.23)
+            borderRadius: '8px',
+            border: '1px solid',
+            borderColor: 'divider',
+          },
+        }}
         muiTableBodyRowProps={({ row }) => ({
           onMouseEnter: onRowHover,
           'data-testid': `query-${row.original.queryId}-row`,
         })}
+        muiTableBodyCellProps={{
+          sx: { py: 1, px: 1 },
+        }}
+        muiTableHeadCellProps={{
+          sx: { px: 1 },
+        }}
       />
     </RealtimeTableWrapper>
   );

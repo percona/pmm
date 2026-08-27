@@ -16,12 +16,12 @@ package client
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"testing"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -40,8 +40,9 @@ import (
 )
 
 type testServer struct {
-	connectFunc func(server agentv1.AgentService_ConnectServer) error
 	agentv1.UnimplementedAgentServiceServer
+
+	connectFunc func(server agentv1.AgentService_ConnectServer) error
 }
 
 func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
@@ -58,7 +59,7 @@ func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer)
 	// start server with given connect handler
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
-	port = uint16(lis.Addr().(*net.TCPAddr).Port) //nolint:gosec // port is uint16
+	port = uint16(lis.Addr().(*net.TCPAddr).Port)
 	server := grpc.NewServer()
 	agentv1.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: connect,
@@ -264,7 +265,7 @@ func TestUnexpectedActionType(t *testing.T) {
 
 				msg, err = stream.Recv()
 				require.NoError(t, err)
-				assert.Equal(t, int32(tc.expectedCode), msg.GetStatus().GetCode()) //nolint:gosec // grpc code is int32
+				assert.Equal(t, int32(tc.expectedCode), msg.GetStatus().GetCode())
 			})
 		}
 		return nil

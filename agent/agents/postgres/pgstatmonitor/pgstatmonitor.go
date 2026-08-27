@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package pgstatmonitor runs built-in QAN Agent for PostgreSQL pg stat monitor.
+// Package pgstatmonitor runs built-in PGStatMonitorQAN Agent for PostgreSQL pg stat monitor.
 package pgstatmonitor
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -26,7 +27,6 @@ import (
 	"github.com/AlekSi/pointer"
 	ver "github.com/hashicorp/go-version"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -42,7 +42,7 @@ import (
 
 const defaultWaitTime = 60 * time.Second
 
-// PGStatMonitorQAN QAN services connects to PostgreSQL and extracts stats.
+// PGStatMonitorQAN connects to PostgreSQL and extracts stats using pg_stat_monitor.
 type PGStatMonitorQAN struct { //nolint:revive
 	q                      *reform.Querier
 	dbCloser               io.Closer
@@ -122,7 +122,7 @@ var commandTypeToText = []string{
 	commandTextNotAvailable,
 }
 
-// New creates new PGStatMonitorQAN QAN service.
+// New creates new PGStatMonitorQAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	sqlDB, err := sql.Open("postgres", params.DSN)
 	if err != nil {
@@ -152,13 +152,21 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableCommentsParsing, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
+func newPgStatMonitorQAN(
+	q *reform.Querier,
+	dbCloser io.Closer,
+	agentID string,
+	disableCommentsParsing,
+	disableQueryExamples bool,
+	maxQueryLength int32,
+	l *logrus.Entry,
+) (*PGStatMonitorQAN, error) {
 	return &PGStatMonitorQAN{
 		q:                      q,
 		dbCloser:               dbCloser,
 		agentID:                agentID,
 		l:                      l,
-		changes:                make(chan agents.Change, 10),
+		changes:                make(chan agents.Change, 10), //nolint:mnd
 		monitorCache:           newStatMonitorCache(l),
 		maxQueryLength:         maxQueryLength,
 		disableQueryExamples:   disableQueryExamples,
@@ -186,11 +194,11 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 	var result string
 	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ pg_stat_monitor_version()", queryTag)).Scan(&result)
 	if err != nil {
-		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to get pg_stat_monitor version from DB")
+		return pgStatMonitorVersion06, "", fmt.Errorf("failed to get pg_stat_monitor version from DB: %w", err)
 	}
 	vPGSM, err := ver.NewVersion(result)
 	if err != nil {
-		return pgStatMonitorVersion06, "", errors.Wrap(err, "failed to parse pg_stat_monitor version")
+		return pgStatMonitorVersion06, "", fmt.Errorf("failed to parse pg_stat_monitor version: %w", err)
 	}
 
 	vPG, err := getPGVersion(q)
@@ -276,10 +284,17 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 	return version, pgStatMonitorPrerelease(prerelease), nil
 }
 
+func (m *PGStatMonitorQAN) closeDB() {
+	err := m.dbCloser.Close()
+	if err != nil {
+		m.l.WithError(err).Error("Failed to close DB connection")
+	}
+}
+
 // Run extracts stats data and sends it to the channel until ctx is canceled.
 func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	defer func() {
-		m.dbCloser.Close() //nolint:errcheck
+		m.closeDB()
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
@@ -298,7 +313,8 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	// add current stat monitor to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
-	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength); err == nil {
+	current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength)
+	if err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
 		running = true
@@ -365,7 +381,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			m.resetWaitTime(t, waitTime)
 
 			if err != nil {
-				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
+				m.l.WithError(err).Error("getNewBuckets failed")
 				running = false
 				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				continue
@@ -387,12 +403,12 @@ func (m *PGStatMonitorQAN) Changes() <-chan agents.Change {
 }
 
 // Describe implements prometheus.Collector.
-func (m *PGStatMonitorQAN) Describe(ch chan<- *prometheus.Desc) { //nolint:revive
+func (m *PGStatMonitorQAN) Describe(_ chan<- *prometheus.Desc) {
 	// This method is needed to satisfy interface.
 }
 
 // Collect implement prometheus.Collector.
-func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) { //nolint:revive
+func (m *PGStatMonitorQAN) Collect(_ chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
@@ -519,7 +535,7 @@ func (s settings) getWaitTime() (time.Duration, error) {
 
 	valueInt, err := strconv.ParseInt(s[key].Value, 10, 64)
 	if err != nil {
-		return defaultWaitTime, errors.Wrap(err, "property pgsm_bucket_time cannot be parsed as integer, wait time set on 60 seconds")
+		return defaultWaitTime, fmt.Errorf("property pgsm_bucket_time cannot be parsed as integer, wait time set on 60 seconds: %w", err)
 	}
 
 	return time.Duration(valueInt) * time.Second, nil
@@ -558,7 +574,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	for bucketStartTime, bucket := range current {
 		vPGSM, _, err := getPGMonitorVersion(m.q)
 		if err != nil {
-			m.l.Error(errors.Wrap(err, "failed to get row and view for pg_stat_monitor version"))
+			m.l.WithError(err).Error("Failed to get row and view for pg_stat_monitor version")
 			continue
 		}
 
@@ -600,7 +616,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 					NumQueries:          count,
 					ClientHost:          currentPSM.ClientIP,
 					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
-					PeriodStartUnixSecs: uint32(currentPSM.BucketStartTime.Unix()),
+					PeriodStartUnixSecs: uint32(currentPSM.BucketStartTime.Unix()), //nolint:gosec
 				},
 				Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 			}
@@ -618,7 +634,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			mb.Postgresql.Planid = pointer.GetString(currentPSM.PlanID)
 			mb.Postgresql.QueryPlan = pointer.GetString(currentPSM.QueryPlan)
 
-			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls, vPGSM)
+			histogram, err := parseHistogramFromRespCalls(currentPSM.RespCalls, prevPSM.RespCalls, vPGSM, m.l)
 			if err != nil {
 				m.l.WithError(err).Warnf("failed to parse histogram from resp calls")
 			} else {
@@ -626,9 +642,9 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			}
 
 			if (currentPSM.TotalPlanTime - prevPSM.TotalPlanTime) != 0 {
-				mb.Postgresql.MPlanTimeSum = float32(currentPSM.TotalPlanTime-prevPSM.TotalPlanTime) / 1000
-				mb.Postgresql.MPlanTimeMin = float32(currentPSM.MinPlanTime) / 1000
-				mb.Postgresql.MPlanTimeMax = float32(currentPSM.MaxPlanTime) / 1000
+				mb.Postgresql.MPlanTimeSum = float32(currentPSM.TotalPlanTime-prevPSM.TotalPlanTime) / 1000 //nolint:mnd
+				mb.Postgresql.MPlanTimeMin = float32(currentPSM.MinPlanTime) / 1000                         //nolint:mnd
+				mb.Postgresql.MPlanTimeMax = float32(currentPSM.MaxPlanTime) / 1000                         //nolint:mnd
 				mb.Postgresql.MPlanTimeCnt = count
 			}
 
@@ -713,24 +729,39 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	return res
 }
 
-func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray, vPGSM pgStatMonitorVersion) ([]*agentv1.HistogramItem, error) {
+func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray, vPGSM pgStatMonitorVersion, l *logrus.Entry) ([]*agentv1.HistogramItem, error) {
 	histogram := getHistogramRangesArray(vPGSM)
 	for k, v := range respCalls {
-		val, err := strconv.ParseInt(v, 10, 32)
+		if k >= len(histogram) {
+			l.Debugf("pg_stat_monitor returned %d histogram buckets, expected %d; ignoring the excess.", len(respCalls), len(histogram))
+			break
+		}
+		// Use ParseUint with bitSize 32 to ensure non-negative values that fit in uint32
+		val, err := strconv.ParseUint(v, 10, 32)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse histogram")
+			return nil, fmt.Errorf("failed to parse histogram: %w", err)
 		}
 
 		histogram[k].Frequency = uint32(val)
 	}
 
 	for k, v := range prevRespCalls {
-		val, err := strconv.ParseInt(v, 10, 32)
+		if k >= len(histogram) {
+			l.Debugf("cached histogram has %d buckets, expected %d; ignoring the excess.", len(prevRespCalls), len(histogram))
+			break
+		}
+		val, err := strconv.ParseUint(v, 10, 32)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to parse histogram")
+			return nil, fmt.Errorf("failed to parse histogram: %w", err)
 		}
 
-		histogram[k].Frequency -= uint32(val)
+		uVal := uint32(val)
+		if histogram[k].Frequency >= uVal {
+			histogram[k].Frequency -= uVal
+		} else {
+			// Handle counter resets or inconsistencies by capping at 0
+			histogram[k].Frequency = 0
+		}
 	}
 
 	return histogram, nil

@@ -19,13 +19,13 @@ package encryption
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"os"
 	"slices"
 	"strings"
 	"sync"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tink-crypto/tink-go/aead"
 	"github.com/tink-crypto/tink-go/insecurecleartextkeyset"
@@ -72,10 +72,15 @@ type Table struct {
 	Columns     []Column
 }
 
-// Column represents column name and column's custom handler (if needed).
+// Column represents column name and column's custom handlers (if needed).
+// CustomEncryptHandler and CustomDecryptHandler must be set as a matching pair:
+// EncryptItems uses the encrypt handler, DecryptItems uses the decrypt one. Reusing
+// a single handler for both directions adds another encryption layer during the
+// decrypt phase instead of removing one.
 type Column struct {
-	Name          string
-	CustomHandler func(e *Encryption, val any) (any, error)
+	Name                 string
+	CustomEncryptHandler func(e *Encryption, val any) (any, error)
+	CustomDecryptHandler func(e *Encryption, val any) (any, error)
 }
 
 // QueryValues represents query to update row after encrypt/decrypt.
@@ -147,7 +152,7 @@ func RotateEncryptionKey() error {
 
 // RestoreOldEncryptionKey is a wrapper around DefaultEncryption.RestoreOldEncryptionKey.
 func RestoreOldEncryptionKey() error {
-	err := os.Rename(fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")), encryptionKeyPath())
+	err := os.Rename(strings.TrimSuffix(encryptionKeyPath(), ".key")+"_old.key", encryptionKeyPath())
 	if err != nil {
 		return fmt.Errorf("could not restore old encryption key: %w", err)
 	}
@@ -156,7 +161,7 @@ func RestoreOldEncryptionKey() error {
 }
 
 func backupOldEncryptionKey() error {
-	err := os.Rename(encryptionKeyPath(), fmt.Sprintf("%s_old.key", strings.TrimSuffix(encryptionKeyPath(), ".key")))
+	err := os.Rename(encryptionKeyPath(), strings.TrimSuffix(encryptionKeyPath(), ".key")+"_old.key")
 	if err != nil {
 		return fmt.Errorf("failed to backup old encryption key: %w", err)
 	}
@@ -190,7 +195,7 @@ func (e *Encryption) generateAndPersistKey() error {
 }
 
 func (e *Encryption) saveKeyToFile() error {
-	return os.WriteFile(e.Path, []byte(e.Key), 0o644) //nolint:gosec
+	return os.WriteFile(e.Path, []byte(e.Key), 0o644) //nolint:gosec,mnd
 }
 
 // Encrypt is a wrapper around DefaultEncryption.Encrypt.
@@ -235,11 +240,10 @@ func (e *Encryption) EncryptItems(tx *reform.TX, tables []Table) error {
 			for i, val := range v {
 				var encrypted any
 				var err error
-				switch table.Columns[i].CustomHandler {
-				case nil:
+				if handler := table.Columns[i].CustomEncryptHandler; handler != nil {
+					encrypted, err = handler(e, val)
+				} else {
 					encrypted, err = encryptColumnStringHandler(e, val)
-				default:
-					encrypted, err = table.Columns[i].CustomHandler(e, val)
 				}
 
 				if err != nil {
@@ -305,11 +309,10 @@ func (e *Encryption) DecryptItems(tx *reform.TX, tables []Table) error {
 			for i, val := range v {
 				var decrypted any
 				var err error
-				switch table.Columns[i].CustomHandler {
-				case nil:
+				if handler := table.Columns[i].CustomDecryptHandler; handler != nil {
+					decrypted, err = handler(e, val)
+				} else {
 					decrypted, err = decryptColumnStringHandler(e, val)
-				default:
-					decrypted, err = table.Columns[i].CustomHandler(e, val)
 				}
 
 				if err != nil {

@@ -2,18 +2,26 @@ coverage:
   range: "60...80"
   status:
     default_rules:
-      flag_coverage_not_uploaded_behavior: exclude
+      # Independent workflows upload their flags at different times. Pass a
+      # component's status while its flag is still pending instead of scoring
+      # it on a partial merge; carryforward fills the gap until the upload lands.
+      flag_coverage_not_uploaded_behavior: pass
 
     # disabled for now until we agree on the thresholds
     patch: off
 
     project:
       default:
-        flag_coverage_not_uploaded_behavior: pass
+        # Whole-repo aggregate spans every flag across independent workflows,
+        # so it can't be gated on a single upload and is inherently racy.
+        # Report it, but never let it block the merge.
+        informational: true
         threshold: 1%
 
       admin:
         threshold: 1%
+        flags:
+          - admin
         paths:
           - admin/
 
@@ -26,6 +34,8 @@ coverage:
 
       managed:
         threshold: 1%
+        flags:
+          - managed
         paths:
           - managed/
 
@@ -36,6 +46,8 @@ coverage:
 
       vmproxy:
         threshold: 1%
+        flags:
+          - vmproxy
         paths:
           - vmproxy/
 
@@ -45,3 +57,6 @@ ignore:
 flag_management:
   default_rules:
     carryforward: true
+
+comment:
+  layout: "condensed_header, diff, condensed_files, condensed_footer"

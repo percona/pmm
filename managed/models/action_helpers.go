@@ -16,10 +16,10 @@
 package models
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -37,7 +37,7 @@ func FindActionResultByID(q *reform.Querier, id string) (*ActionResult, error) {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "ActionResult with ID %q not found.", id)
 		}
-		return nil, errors.WithStack(err)
+		return nil, err
 	}
 
 	return res, nil
@@ -46,8 +46,9 @@ func FindActionResultByID(q *reform.Querier, id string) (*ActionResult, error) {
 // CreateActionResult stores an action result in action results storage.
 func CreateActionResult(q *reform.Querier, pmmAgentID string) (*ActionResult, error) {
 	result := &ActionResult{ID: uuid.New().String(), PMMAgentID: pmmAgentID}
-	if err := q.Insert(result); err != nil {
-		return nil, errors.WithStack(err)
+	err := q.Insert(result)
+	if err != nil {
+		return nil, err
 	}
 	return result, nil
 }
@@ -61,8 +62,9 @@ func ChangeActionResult(q *reform.Querier, actionID, pmmAgentID, aError, output 
 		Error:      aError,
 		Output:     output,
 	}
-	if err := q.Update(result); err != nil {
-		return errors.WithStack(err)
+	err := q.Update(result)
+	if err != nil {
+		return err
 	}
 	return nil
 }

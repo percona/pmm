@@ -18,11 +18,12 @@ package minio
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 
@@ -87,7 +88,7 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 		}
 		for object := range mc.ListObjects(ctx, bucketName, options) {
 			if object.Err != nil {
-				return errors.WithStack(object.Err)
+				return fmt.Errorf("failed to list objects in bucket %s: %w", bucketName, object.Err)
 			}
 
 			objectsCh <- object
@@ -103,9 +104,9 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 		}
 
 		if rerr != nil {
-			rerr = errors.Wrapf(rerr, "listing objects error: %s", err.Error())
+			rerr = errors.Join(errors.New("listing objects error"), err, rerr)
 		} else {
-			rerr = errors.WithStack(err)
+			rerr = err
 		}
 	}()
 
@@ -116,7 +117,7 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 	}
 
 	if errorsEncountered {
-		return errors.Errorf("errors encountered while removing objects from bucket %q", bucketName)
+		return fmt.Errorf("errors encountered while removing objects from bucket %q", bucketName)
 	}
 
 	return nil
@@ -151,7 +152,7 @@ func (c *Client) List(ctx context.Context, endpoint, accessKey, secretKey, bucke
 
 	for object := range mc.ListObjects(ctx, bucketName, options) {
 		if object.Err != nil {
-			return nil, errors.WithStack(object.Err)
+			return nil, fmt.Errorf("failed to list objects in bucket %s: %w", bucketName, object.Err)
 		}
 		filename := object.Key
 		filename = strings.TrimPrefix(filename, options.Prefix)

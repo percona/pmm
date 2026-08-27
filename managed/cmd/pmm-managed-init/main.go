@@ -22,7 +22,9 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/clickhouse"
 	"github.com/percona/pmm/managed/services/supervisord"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/utils/logger"
 )
@@ -36,6 +38,18 @@ func main() {
 		logrus.SetLevel(logrus.TraceLevel)
 	}
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
+	disableInternalClickhouse, _ := strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
+	clickHouseConfig, err := clickhouse.GetClickHouseConfig(os.Getenv(env.ClickHouseConfig))
+	if err != nil {
+		errs = append(errs, err)
+	}
+	// An external ClickHouse leaves the built-in server unused, so its config files are irrelevant.
+	if err == nil && !disableInternalClickhouse {
+		linkErr := clickhouse.LinkClickHouseConfig(clickHouseConfig)
+		if linkErr != nil {
+			errs = append(errs, linkErr)
+		}
+	}
 	for _, warn := range warns {
 		logrus.Warnf("Configuration warning: %s", warn)
 	}
@@ -46,7 +60,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err := models.ValidateSettings(envSettings)
+	err = models.ValidateSettings(envSettings)
 	if err != nil {
 		logrus.Errorf("Configuration error: %s.", err)
 		os.Exit(1)
@@ -54,7 +68,7 @@ func main() {
 
 	pmmConfigParams := make(map[string]any)
 	pmmConfigParams["DisableInternalDB"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_POSTGRES"))
-	pmmConfigParams["DisableInternalClickhouse"], _ = strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))
+	pmmConfigParams["DisableInternalClickhouse"] = disableInternalClickhouse
 	pmmConfigParams["AgentConfigFilePath"] = models.AgentConfigFilePath
 
 	isHAEnabled, _ := strconv.ParseBool(os.Getenv("PMM_HA_ENABLE"))
@@ -62,7 +76,8 @@ func main() {
 		pmmConfigParams["AgentConfigFilePath"] = "/srv/pmm-agent/config/pmm-agent.yaml"
 	}
 
-	if err := supervisord.SavePMMConfig(pmmConfigParams); err != nil {
+	err = supervisord.SavePMMConfig(pmmConfigParams)
+	if err != nil {
 		logrus.Errorf("PMM Server configuration error: %s.", err)
 		os.Exit(1)
 	}
@@ -70,7 +85,8 @@ func main() {
 	// Render the OpenTelemetry Collector config. Retention is enforced on the ClickHouse tables by
 	// pmm-managed (managed/services/clickhouse), not by the collector, so the collector config does
 	// not depend on any setting.
-	if err := supervisord.SaveOtelcolConfig(); err != nil {
+	err = supervisord.SaveOtelcolConfig()
+	if err != nil {
 		logrus.Errorf("OpenTelemetry Collector configuration error: %s.", err)
 		os.Exit(1)
 	}

@@ -1,19 +1,39 @@
+# IDE
 /.idea/
 /.vscode/
 *.iml
+*.sw[o,p]
+settings.json
 
-/api/nginx/*.pem
-bin/
-!/documentation/resources/bin/
-
-# System Files
+# Temporary (OS, build, config, etc)
 .DS_Store
+/tmp/
+
+.env
+.netrc
+.modules
+build.log
+build/.cache/
+packer.log
+ci.yml
+Makefile.local
+
+
+# PMM specific
+bin
+/dev/clickhouse-backups/
+encryption.key
+backoff.png
+pmm-agent-dev.yaml
+compose.yml
+/api/nginx/*.pem
+!/documentation/resources/bin/
 
 cover.out
 crosscover.out
-
+api-tests/*.txt
+api-tests/*.xml
 agent/testdata/
-
 agent/agents/mysql/slowlog/parser/corpus/
 agent/agents/mysql/slowlog/parser/crashers/
 agent/agents/mysql/slowlog/parser/suppressions/
@@ -23,36 +43,20 @@ fuzzing/
 *-fuzz.zip
 *.bench
 
-backoff.png
-pmm-agent-dev.yaml
-compose.yml
-
+# QAN
 /qan-api2/logs/
 
-# ViM temporary files
-*.sw[o,p]
+# PMM Demo backups (it would increase repository size significantly)
+dev/clickhouse-backups/
 
-.env
-.netrc
-.modules
-build.log
-build/.cache/
-packer.log
-ci.yml
-
-api-tests/*.txt
-api-tests/*.xml
-
-
-/tmp/
-settings.json
-
-# PMM specific
-/dev/clickhouse-backups/
-encryption.key
-
-# Exclude AI skills to support fast local experimentation
-.claude/
+# Local AI-tool files are gitignored for personal experimentation;
+# committed team config lives in .claude/settings.json.
+.claude/*
+!.claude/settings.json
+# Personal Claude Code memory override (the shared CLAUDE.md itself is committed)
+CLAUDE.local.md
 .cursor/
 .cursorrules/
-CLAUDE.md
+# Machine-specific agent settings — paths only, never secrets; see AGENTS.md
+AGENTS.local.md
+.pnpm-store/

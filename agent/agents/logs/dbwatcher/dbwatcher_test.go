@@ -45,7 +45,7 @@ func TestDBLogWatcherTailsAndShips(t *testing.T) {
 	go w.Run(ctx)
 
 	// The reader seeks to the end on open, so write a new line after starting.
-	f, err := os.OpenFile(logPath, os.O_APPEND|os.O_WRONLY, 0o600) //nolint:gosec
+	f, err := os.OpenFile(logPath, os.O_APPEND|os.O_WRONLY, 0o600)
 	require.NoError(t, err)
 	// Give the watcher a moment to open and seek before appending.
 	time.Sleep(500 * time.Millisecond)

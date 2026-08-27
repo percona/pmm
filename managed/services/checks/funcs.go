@@ -16,10 +16,10 @@
 package checks
 
 import (
+	"fmt"
 	"net"
 	"strconv"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/managed/pi/starlark"
@@ -31,13 +31,13 @@ var privateNetworks []*net.IPNet
 // GetFuncsForVersion returns predefined functions for specified check version.
 func GetFuncsForVersion(version uint32) (map[string]starlark.GoFunc, error) {
 	switch version {
-	case 1, 2:
+	case 1, 2: //nolint:mnd
 		return map[string]starlark.GoFunc{
 			"parse_version":      parseVersion,
 			"format_version_num": formatVersionNum,
 		}, nil
 	default:
-		return nil, errors.Errorf("unsupported check version: %d", version)
+		return nil, fmt.Errorf("unsupported check version: %d", version)
 	}
 }
 
@@ -45,12 +45,12 @@ func GetFuncsForVersion(version uint32) (map[string]starlark.GoFunc, error) {
 // with keys: major, minor, patch (int64), num (MMmmpp, int64), and rest (string).
 func parseVersion(args ...any) (any, error) {
 	if l := len(args); l != 1 {
-		return nil, errors.Errorf("expected 1 argument, got %d", l)
+		return nil, fmt.Errorf("expected 1 argument, got %d", l)
 	}
 
 	s, ok := args[0].(string)
 	if !ok {
-		return nil, errors.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
+		return nil, fmt.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
 	}
 
 	p, err := version.Parse(s)
@@ -72,30 +72,30 @@ func parseVersion(args ...any) (any, error) {
 // MM.mm.pp or MM.mm.pp-RRR as a string.
 func formatVersionNum(args ...any) (any, error) {
 	if l := len(args); l != 1 {
-		return nil, errors.Errorf("expected 1 argument, got %d", l)
+		return nil, fmt.Errorf("expected 1 argument, got %d", l)
 	}
 
 	num, ok := args[0].(int64)
 	if !ok {
-		return nil, errors.Errorf("expected int64 argument, got %[1]T (%[1]v)", args[0])
+		return nil, fmt.Errorf("expected int64 argument, got %[1]T (%[1]v)", args[0])
 	}
 	// process numbers with a rest part included
-	if num > 10000000 {
+	if num > 10000000 { //nolint:mnd
 		p := &version.Parsed{
-			Major:   int(num / 10000000),
-			Minor:   int(num / 100000 % 100),
-			Patch:   int(num / 1000 % 100),
+			Major:   int(num / 10000000),     //nolint:mnd
+			Minor:   int(num / 100000 % 100), //nolint:mnd
+			Patch:   int(num / 1000 % 100),   //nolint:mnd
 			Rest:    "-" + strconv.FormatInt(num%1000, 10),
-			NumRest: int(num % 1000),
+			NumRest: int(num % 1000), //nolint:mnd
 		}
 
 		return p.String(), nil
 	}
 
 	p := &version.Parsed{
-		Major: int(num / 10000),
-		Minor: int(num / 100 % 100),
-		Patch: int(num % 100),
+		Major: int(num / 10000),     //nolint:mnd
+		Minor: int(num / 100 % 100), //nolint:mnd
+		Patch: int(num % 100),       //nolint:mnd
 	}
 
 	return p.String(), nil
@@ -116,12 +116,12 @@ func ipIsPrivate(args ...any) (any, error) {
 	log := logrus.WithField("component", "checks")
 
 	if l := len(args); l != 1 {
-		return nil, errors.Errorf("expected 1 argument, got %d", l)
+		return nil, fmt.Errorf("expected 1 argument, got %d", l)
 	}
 
 	ip, ok := args[0].(string)
 	if !ok {
-		return nil, errors.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
+		return nil, fmt.Errorf("expected string argument, got %[1]T (%[1]v)", args[0])
 	}
 
 	ipAddress := net.ParseIP(ip)
