@@ -1185,6 +1185,46 @@ var databaseSchema = [][]string{
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
 	},
+	119: {
+		`CREATE TABLE alert_rules (
+			rule_id VARCHAR NOT NULL,
+			grafana_rule_uid VARCHAR CHECK (grafana_rule_uid <> ''),
+			params JSONB NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (rule_id),
+			UNIQUE (grafana_rule_uid)
+		)`,
+
+		// target is polymorphic - a node_id, a service_id, or a cluster label value -
+		// so it carries no foreign key: cluster is a label value with no referent table.
+		// Rows for a deleted node or service are removed by the removal API instead.
+		`CREATE TABLE alert_rule_threshold_overrides (
+			id VARCHAR NOT NULL,
+			rule_id VARCHAR NOT NULL,
+			param_name VARCHAR NOT NULL CHECK (param_name <> ''),
+			scope VARCHAR NOT NULL CHECK (scope <> ''),
+			target VARCHAR NOT NULL CHECK (target <> ''),
+			value DOUBLE PRECISION NOT NULL
+				CHECK (value = value AND value > '-Infinity'::float8 AND value < 'Infinity'::float8),
+			cleared_at TIMESTAMP,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id),
+			UNIQUE (rule_id, param_name, scope, target),
+			FOREIGN KEY (rule_id) REFERENCES alert_rules (rule_id) ON DELETE CASCADE
+		)`,
+
+		`CREATE INDEX alert_rule_threshold_overrides_target_idx
+			ON alert_rule_threshold_overrides (scope, target)`,
+
+		// The foreign key above does not imply an index in PostgreSQL, and the
+		// collector reads by rule_id on every scrape.
+		`CREATE INDEX alert_rule_threshold_overrides_rule_idx
+			ON alert_rule_threshold_overrides (rule_id)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

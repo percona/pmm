@@ -524,7 +524,7 @@ Three measurements settle this:
 Reducing to a common label set is required for `or` to mean "prefer the left", but that reduction is
 exactly what destroys the scope information needed to rank by. So the collector emits only the effective
 value per target, and **`ListNodeThresholds` and the collector must share one precedence function** —
-PromQL provides no backstop if they diverge. Proposed order: `node` → `service` → `cluster`.
+PromQL provides no backstop if they diverge. Order: `service` → `node` → `cluster` (§4.10).
 
 ### 4.7 Semantics that fall out for free
 
@@ -665,7 +665,11 @@ func ResolveEffective(rule *models.AlertRule, param string,
 Invariants to assert and table-test:
 
 - **Exactly one emitted series per `(rule, param, target)`.** This is not a tie-break preference: if the resolver ever emits two series with identical labels, the Prometheus gatherer errors and the **entire** `/metrics` response fails. `node_name` and `service_name` are both `UNIQUE` (`database.go:117`, `:139`), so live targets cannot collide — the risk is a resolver bug, so assert it.
-- **Precedence `node` → `service` → `cluster`**, most specific first. A param legal at both service and cluster scope with both present resolves to **service**.
+- **Precedence `service` → `node` → `cluster`**, most specific first. A param legal at both service and cluster scope with both present resolves to **service**.
+
+  Only the first relation is derivable: **a service runs on exactly one node and belongs to at most one cluster**, so a service override is strictly narrower than either and must win. `node` over `cluster` is a *convention*, not a containment — the two cross-cut, since a cluster spans several nodes while a node hosts services from several clusters (the same fact that constrains cluster scope in the next bullet). One machine is the narrower intent, so node wins, but nothing derives it.
+
+  In practice the two rarely meet: node scope resolves to `node_name` while service and cluster scope resolve to `service_name`, and a rule joins on one label. They collide only when a node and a service share a name string — which nothing prevents, since each is unique within its own table but not across them. The ranking decides that case, so it must be right even though it is currently unreachable through the API.
 - **Cluster scope is only legal for params whose join label is service-level.** A node can host services from several clusters, so "the cluster override for this node" has no unique answer. This is a validation rule on `override_scopes`, not a runtime tie-break.
 - **Unresolvable targets are skipped**, never defaulted to something else.
 
@@ -1056,7 +1060,7 @@ unknown; each needs a decision or a test result.
 | 3 | **Desugaring semantics verified live** — firing, pending under `for:`, recovery, NoData, annotation rendering — *before* step 6 is implemented | Eng | step 6 |
 | 4 | **Cross-store creation semantics** implemented per §4.9 (ordering, idempotency key, K-cycle absence rule) | Eng | merge |
 | 4b | **Registry-row orphan GC** — rows for rules deleted in Grafana, so emitted series do not grow without bound. Narrowed: override rows for deleted nodes/services are handled by the removal API hooks (§4.8), not here | Eng | GA |
-| 5 | **Multi-scope precedence signed off** (`node` → `service` → `cluster`; cluster legal only for service-level join labels) *before* the proto freezes | Product | API freeze |
+| 5 | **Multi-scope precedence signed off** (`service` → `node` → `cluster`; cluster legal only for service-level join labels) *before* the proto freezes | Product | API freeze |
 | 5b | **API style chosen** — node-centric vs generic routes (§10 Q1). Routes are additive-only, so deciding late means carrying both families forever | Product + Eng | API freeze |
 | 6 | **Shared resolver** (§4.10) is the single implementation of precedence, table-tested across scope combinations | Eng | service/cluster increment |
 | 7 | **Fan-out re-measured at representative scale and under HA** | Eng | GA |

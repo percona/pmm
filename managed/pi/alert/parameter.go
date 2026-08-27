@@ -21,14 +21,33 @@ import (
 	"strconv"
 )
 
+// Override scopes an overridable parameter may be tuned at.
+const (
+	OverrideScopeNode    = "node"
+	OverrideScopeService = "service"
+	OverrideScopeCluster = "cluster"
+)
+
 // Parameter represents alerting template or rule parameter.
 type Parameter struct {
-	Name    string `yaml:"name"`           // required
-	Summary string `yaml:"summary"`        // required
-	Unit    Unit   `yaml:"unit,omitempty"` // optional
-	Type    Type   `yaml:"type"`           // required
-	Range   []any  `yaml:"range,flow,omitempty"`
-	Value   any    `yaml:"value,omitempty"`
+	Name           string   `yaml:"name"`                           // required
+	Summary        string   `yaml:"summary"`                        // required
+	Unit           Unit     `yaml:"unit,omitempty"`                 // optional
+	Type           Type     `yaml:"type"`                           // required
+	Range          []any    `yaml:"range,flow,omitempty"`           // optional
+	Value          any      `yaml:"value,omitempty"`                // optional
+	Overridable    bool     `yaml:"overridable,omitempty"`          // optional
+	OverrideScopes []string `yaml:"override_scopes,flow,omitempty"` // optional
+}
+
+// GetOverrideScopes returns the scopes an override may be set at, defaulting to node
+// when the template does not declare any.
+func (p *Parameter) GetOverrideScopes() []string {
+	if len(p.OverrideScopes) == 0 {
+		return []string{OverrideScopeNode}
+	}
+
+	return p.OverrideScopes
 }
 
 // GetValueForBool casts parameter value to the bool.
@@ -132,7 +151,39 @@ func (p *Parameter) Validate() error {
 		return err
 	}
 
-	return p.validateRange()
+	err = p.validateRange()
+	if err != nil {
+		return err
+	}
+
+	return p.validateOverride()
+}
+
+// validateOverride checks the constraints an overridable parameter carries on its own.
+// Constraints that depend on the template's shape are checked in Template.Validate.
+func (p *Parameter) validateOverride() error {
+	if !p.Overridable {
+		if len(p.OverrideScopes) != 0 {
+			return errors.New("override_scopes is set but the parameter is not overridable")
+		}
+
+		return nil
+	}
+
+	// The threshold travels as a float64 gauge sample, so no other type can carry it.
+	if p.Type != Float {
+		return fmt.Errorf("an overridable parameter must be of type float, got %s", p.Type)
+	}
+
+	for _, scope := range p.OverrideScopes {
+		switch scope {
+		case OverrideScopeNode, OverrideScopeService, OverrideScopeCluster:
+		default:
+			return fmt.Errorf("unknown override scope %q", scope)
+		}
+	}
+
+	return nil
 }
 
 func (p *Parameter) validateValue() error {
