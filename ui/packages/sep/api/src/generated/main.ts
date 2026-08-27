@@ -369,7 +369,8 @@ export interface components {
      *     :param email: The email address of the user.
      *     :param first_name: The first name of the user.
      *     :param last_name: The last name of the user.
-     *     :param is_admin: Whether the user has administrative privileges. Defaults to False.
+     *     :param role: The user's access level, derived from Casdoor's admin flag when
+     *         the payload carries no role of its own.
      *     :param created_time: The datetime when the user was created. Defaults to current
      *         datetime.
      *     :param updated_time: The datetime when the user was last updated. Defaults to
@@ -416,9 +417,11 @@ export interface components {
       readonly isActive: boolean;
       /**
        * Isadmin
-       * @default false
+       * @description Indicate whether the user holds administrative privileges.
+       *
+       *     :return: True from ``ADMIN`` upwards, False below it.
        */
-      isAdmin: boolean;
+      readonly isAdmin: boolean;
       /**
        * Isdeleted
        * @default false
@@ -436,6 +439,7 @@ export interface components {
       lastName: string;
       /** Owner */
       owner: string;
+      role: components['schemas']['UserRole'];
       /** Updatedtime */
       updatedTime?: string | null;
       /** Username */
@@ -531,6 +535,21 @@ export interface components {
       /** Expires In */
       expires_in: number;
     };
+    /**
+     * UserRole
+     * @description Enumerate an identity's access level, lowest to highest.
+     *
+     *     Members and ordering mirror PMM's own authorization vocabulary so the two
+     *     products stay semantically aligned; ``SUPER_ADMIN`` is SEP's
+     *     provider-neutral name for the rank PMM calls ``grafanaAdmin``.
+     *
+     *     Members compare by declared rank rather than by name: ``EDITOR < ADMIN``
+     *     even though ``"editor" > "admin"`` lexicographically. Members are not
+     *     ``str``, so ``ADMIN == "admin"`` is False; the serialized value is
+     *     unchanged at ``"admin"``.
+     * @enum {string}
+     */
+    UserRole: 'none' | 'viewer' | 'editor' | 'admin' | 'super_admin';
     /** ValidationError */
     ValidationError: {
       /** Context */

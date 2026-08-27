@@ -250,20 +250,15 @@ export interface paths {
      *
      *     ``present_names`` is ``None`` when PMM is unconfigured or unreachable, which
      *     is the same signal used to drive ``pmm_connected`` and per-template
-     *     ``in_pmm`` flags so the UI degrades gracefully.
+     *     ``in_pmm`` flags, so the response carries no PMM data rather than failing.
      *
      *     :param alert_templates: Local alert templates grouped by service type.
-     *     :type alert_templates: AlertTemplatesDep
      *     :param present_names: Template names already present in PMM, or ``None`` when
      *         PMM is unreachable.
-     *     :type present_names: set[str] | None
      *     :param recent_backups: The most recent alert backups, newest first.
-     *     :type recent_backups: list[AlertBackup]
      *     :param pagerduty_status: PagerDuty contact-point status, or ``None`` when PMM
      *         is unreachable.
-     *     :type pagerduty_status: dict[str, Any] | None
      *     :return: The aggregated index payload.
-     *     :rtype: IndexResponse
      */
     get: operations['alerts_alerts_api_index_api_apps_alerts__get'];
     put?: never;
@@ -1572,8 +1567,9 @@ export interface paths {
      *     Forwards to the inventory sub-app's ``/nodes/{node_id}/system-observation``
      *     endpoint via ``InventoryAPI``. This three-segment literal path cannot
      *     collide with the two-segment ``/{entity}/{item_id:int}`` detail matcher. An
-     *     upstream HTTP 404 — the "not collected yet" signal — propagates unchanged
-     *     for the React panel to render as an empty state.
+     *     upstream HTTP 404 propagates unchanged, along with the ``detail`` that tells
+     *     a node whose observation has not been collected yet — which the React panel
+     *     renders as an empty state — apart from a node that does not exist.
      *
      *     :param node_id: Primary key of the node.
      *     :param inventory_api: Authenticated inventory ``RemoteAPI`` client.
@@ -1659,8 +1655,10 @@ export interface paths {
      *
      *     Forwards to the inventory sub-app's
      *     ``/services/{service_id}/system-observation`` endpoint via ``InventoryAPI``.
-     *     An upstream HTTP 404 propagates unchanged so the React panel renders its
-     *     "not collected yet" empty state.
+     *     An upstream HTTP 404 propagates unchanged, along with the ``detail`` that
+     *     tells a service whose observation has not been collected yet — which the
+     *     React panel renders as an empty state — apart from a service that does not
+     *     exist.
      *
      *     :param service_id: Primary key of the service.
      *     :param inventory_api: Authenticated inventory ``RemoteAPI`` client.
@@ -1761,6 +1759,7 @@ export interface paths {
      *     :param entity: Inventory entity type (nodes, services, schemas, tables).
      *     :param inventory_api: Async client for the Inventory sub-app.
      *     :param pagination: Validated offset/limit forwarded to the upstream call.
+     *     :param list_query: Allowlist-vetted sort/search for this entity.
      *     :return: A paginated envelope echoing the requested window.
      */
     get: operations['inventory_inventory_list_entity_api_apps_inventory__entity___get'];
@@ -2879,7 +2878,7 @@ export interface paths {
     post?: never;
     /**
      * Delete Setting
-     * @description Revert one override row to the field's declared default.
+     * @description Revert override row(s) for one field to the field's declared default.
      *
      *     For a remote class the DELETE is forwarded to the owning sub-app, which
      *     owns the idempotency and ``NOT_OVERRIDABLE`` semantics; its status and
@@ -2891,7 +2890,10 @@ export interface paths {
      *     override row in the first place and the operator's intent is
      *     unsatisfiable. A field only ``SETTINGS_OVERRIDE.ALLOWED_KEYS`` withheld
      *     may still carry a row written before the restriction applied, so that
-     *     row is deleted normally and only the no-row case answers 409.
+     *     row is deleted normally (found by canonicalizing the stored key, so a
+     *     legacy non-canonical casing is still seen) and only the no-row case
+     *     answers 409. When several rows canonicalize to the same key, all of
+     *     them are removed.
      *
      *     After republishing the snapshot, fires the rebind callbacks for the
      *     reverted key so a HOT target rebinds to its restored value without
@@ -3041,11 +3043,12 @@ export interface paths {
     };
     /**
      * List Periodic Tasks
-     * @description Return the upstream periodic-task list through the SEP gateway.
+     * @description Return the upstream periodic-task page through the SEP gateway.
      *
-     *     :param tasks_api: The Tasks API client used to fetch the upstream list.
-     *     :return: The upstream periodic-task list, or ``[]`` when the upstream
-     *         payload is not a list.
+     *     :param tasks_api: The Tasks API client used to fetch the upstream page.
+     *     :param pagination: Validated offset/limit forwarded to the upstream list.
+     *     :return: The upstream paginated envelope, or an empty envelope echoing the
+     *         requested window when the upstream payload is not a dict.
      *     :raises HTTPException: Re-raised unchanged for an upstream client error
      *         (status < 500).
      *     :raises HTTPBadGatewayException: For an upstream server error (status >= 500)
@@ -3712,16 +3715,14 @@ export interface components {
     };
     /**
      * ExecutionEvent
-     * @description A single lifecycle event from a task executor (executor-agnostic shape).
+     * @description Represent a single lifecycle event from a task executor (executor-agnostic shape).
      *
      *     :param timestamp: When the event occurred (UTC).
-     *     :type timestamp: UTCDatetime
-     *     :param event_type: Executor-specific event category (e.g. Nomad task event type).
-     *     :type event_type: str
+     *     :param event_type: Executor-specific event category (for example a Nomad
+     *         task event type).
      *     :param description: Human-readable message for the event (no step prefix).
-     *     :type description: str
-     *     :param step: Optional executor task/step name (e.g. Nomad task within the group).
-     *     :type step: str | None
+     *     :param step: Optional executor task/step name (for example a Nomad task
+     *         within the group).
      */
     ExecutionEvent: {
       /** Description */
@@ -4559,20 +4560,14 @@ export interface components {
      * @description Define status codes for task executions.
      *
      *     :cvar FAILED: Enum value for failed tasks.
-     *     :vartype FAILED: str
      *     :cvar PENDING: Enum value for pending tasks.
-     *     :vartype PENDING: str
      *     :cvar RUNNING: Enum value for running tasks.
-     *     :vartype RUNNING: str
      *     :cvar SUCCESS: Enum value for successfully completed tasks.
-     *     :vartype SUCCESS: str
      *     :cvar STOPPED: Enum value for stopped tasks.
-     *     :vartype STOPPED: str
      *     :cvar LOST: Enum value for tasks that are lost.
-     *     :vartype LOST: str
-     *     :cvar STALE: Enum value for tasks skipped because Nomad placement
-     *         exceeded the configured staleness threshold.
-     *     :vartype STALE: str
+     *     :cvar STALE: Enum value for tasks skipped because executor placement
+     *         exceeded the configured staleness threshold (for example a Nomad
+     *         allocation that never left the queue).
      * @enum {string}
      */
     TaskHistoryStatusEnum:
@@ -4600,8 +4595,9 @@ export interface components {
      *     :param run_result_recorder: The ``"module:function"`` path of a plugin
      *         callable that records this task's structured run result at terminal
      *         status, or None.
-     *     :param output_files_path: The allocation-relative path where output files
-     *         generated by the task are expected, or None.
+     *     :param output_files_path: The path, relative to the executor's working
+     *         directory, where output files generated by the task are expected, or
+     *         None.
      *     :param deleted_at: The deletion timestamp, if applicable.
      *     :param anonymize_mask: The bitmask representing PII entities to be anonymized in
      *         logs and files generated by the task. Defaults to 0 (no anonymization).
@@ -6602,6 +6598,11 @@ export interface components {
       /** Databases */
       databases?: (number | string)[];
       /**
+       * Defaults File
+       * @default
+       */
+      defaults_file: string;
+      /**
        * Dsn Table
        * @default
        */
@@ -7880,6 +7881,17 @@ export interface components {
      *         ``"-lastRun"``). The unprefixed key must match one of the declared
      *         column keys. Defaults to ``None``.
      *     :type default_sort: NonEmptyStr | None
+     *     :param server_side_query: Opt-in capability flag declaring that the list
+     *         endpoint honors whole-result-set sort and search via server query
+     *         params. When ``True`` and the list is also server-paginated, the React
+     *         list view enables manual sorting and filtering and drives them through
+     *         those params instead of sorting the loaded page; a capability-on list
+     *         rendered without pagination stays client-side.
+     *         Typed ``bool | None`` so the discovery endpoint's
+     *         ``exclude_none`` posture drops it from the wire until a plugin opts
+     *         in, keeping the addition byte-compatible with existing schemas.
+     *         Defaults to ``None``.
+     *     :type server_side_query: bool | None
      *     :param overview_hidden_fields: Additional task-level keys to suppress
      *         from the auto-rendered "extras" loop on the plugin detail Overview
      *         tab. The framework always hides a baseline set of internal fields
@@ -7895,6 +7907,8 @@ export interface components {
       default_sort?: string | null;
       /** Overview Hidden Fields */
       overview_hidden_fields?: string[];
+      /** Server Side Query */
+      server_side_query?: boolean | null;
     };
     /**
      * MultiChoiceField
@@ -9010,7 +9024,7 @@ export interface components {
       xtrabackup_extra_args?: string | null;
       /** Xtrabackup Incremental Cycle */
       xtrabackup_incremental_cycle?:
-        | ('daily' | 'weekly' | '2' | '3' | '4' | '5' | '6' | '7')
+        | ('daily' | 'weekly' | '1' | '2' | '3' | '4' | '5' | '6' | '7')
         | null;
       /** Xtrabackup Incremental Method */
       xtrabackup_incremental_method?: ('less_space' | 'fast_restore') | null;
@@ -13106,6 +13120,18 @@ export interface operations {
       query?: {
         offset?: number;
         limit?: number;
+        /** @description Sort key; prefix with '-' for descending order. */
+        sort?:
+          | 'created_at'
+          | '-created_at'
+          | 'name'
+          | '-name'
+          | 'schema_id'
+          | '-schema_id'
+          | 'service_id'
+          | '-service_id';
+        /** @description Case-insensitive search across the searchable columns. */
+        search?: string | null;
       };
       header?: never;
       path: {
@@ -14786,7 +14812,10 @@ export interface operations {
   };
   tasks_list_periodic_tasks_api_sep_periodic_tasks__get: {
     parameters: {
-      query?: never;
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -14799,9 +14828,16 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
-            [key: string]: unknown;
-          }[];
+          'application/json': components['schemas']['PaginatedResponse_ArbitraryMapping_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
       /** @description Upstream Tasks API failure. */
@@ -15192,9 +15228,7 @@ export interface operations {
   };
   tasks_list_task_execution_events_execution_events__task_history_id__get: {
     parameters: {
-      query?: {
-        owner?: string | null;
-      };
+      query?: never;
       header?: never;
       path: {
         task_history_id: number;
@@ -15225,9 +15259,7 @@ export interface operations {
   };
   tasks_list_task_history_files_files__task_history_id__get: {
     parameters: {
-      query?: {
-        owner?: string | null;
-      };
+      query?: never;
       header?: never;
       path: {
         task_history_id: number;
@@ -15260,9 +15292,7 @@ export interface operations {
   };
   tasks_download_task_history_file_files__task_history_id__download_get: {
     parameters: {
-      query?: {
-        owner?: string | null;
-      };
+      query?: never;
       header?: never;
       path: {
         task_history_id: number;
@@ -15293,9 +15323,7 @@ export interface operations {
   };
   tasks_task_logs_event_stream_stream_logs__task_history_id__get: {
     parameters: {
-      query?: {
-        owner?: string | null;
-      };
+      query?: never;
       header?: never;
       path: {
         task_history_id: number;
@@ -15326,9 +15354,7 @@ export interface operations {
   };
   tasks_task_execution_events_stream_stream_logs__task_history_id__execution_events_get: {
     parameters: {
-      query?: {
-        owner?: string | null;
-      };
+      query?: never;
       header?: never;
       path: {
         task_history_id: number;
