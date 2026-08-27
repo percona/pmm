@@ -16,17 +16,30 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import type { PluginSchema } from '@sep/api';
 import { PluginListPage } from './PluginListPage';
 
+const { schemaListViewMock, authMock } = vi.hoisted(() => ({
+  schemaListViewMock: vi.fn(),
+  /** Flipped per test to cover the read-only (non-admin) rendering. */
+  authMock: { canMutate: true },
+}));
+
 vi.mock('../SchemaListView', () => ({
-  SchemaListView: () => <div>list</div>,
+  SchemaListView: (props: Record<string, unknown>) => {
+    schemaListViewMock(props);
+    return <div>list</div>;
+  },
 }));
 
 vi.mock('@sep/api', () => ({
+  useAuth: () => ({
+    isAdmin: authMock.canMutate,
+    canMutate: authMock.canMutate,
+  }),
   DEFAULT_PLUGIN_LIST_OFFSET: 0,
   DEFAULT_PLUGIN_LIST_LIMIT: 50,
   RUNNING_STATUSES: new Set(['running', 'pending']),
@@ -44,6 +57,11 @@ vi.mock('@sep/api', () => ({
     variables: undefined,
   }),
 }));
+
+beforeEach(() => {
+  schemaListViewMock.mockClear();
+  authMock.canMutate = true;
+});
 
 const schema: PluginSchema = {
   name: 'sched',
@@ -73,5 +91,77 @@ describe('PluginListPage — generic Schedules button', () => {
     expect(
       screen.queryByTestId('plugin-schedule-link')
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('PluginListPage — write access', () => {
+  const deletableEntitySchema = {
+    name: 'inventory',
+    display_name: 'Inventory',
+    capabilities: { scheduling: false },
+    entities: [
+      {
+        name: 'nodes',
+        display_name: 'Nodes',
+        forms: [],
+        list_view: {
+          columns: [
+            { key: 'name', label: 'Name' },
+            { key: '_actions', label: 'Actions', format: 'actions' },
+          ],
+        },
+      },
+    ],
+  } as unknown as PluginSchema;
+
+  function renderDeletableEntityList() {
+    return render(
+      <SnackbarProvider>
+        <MemoryRouter initialEntries={['/inventory/nodes']}>
+          <Routes>
+            <Route
+              path="/:plugin/:entityName"
+              element={
+                <PluginListPage
+                  schema={deletableEntitySchema}
+                  pluginName="inventory"
+                  allowListEntityDelete
+                />
+              }
+            />
+          </Routes>
+        </MemoryRouter>
+      </SnackbarProvider>
+    );
+  }
+
+  function lastListViewProps() {
+    return schemaListViewMock.mock.calls.at(-1)?.[0] as {
+      onDeleteRow?: unknown;
+    };
+  }
+
+  it('renders the create button and wires row delete for a session that may mutate', () => {
+    renderPage();
+    expect(
+      screen.getByRole('button', { name: 'New Sched' })
+    ).toBeInTheDocument();
+
+    renderDeletableEntityList();
+    expect(lastListViewProps().onDeleteRow).toBeInstanceOf(Function);
+  });
+
+  it('renders no create button and no row delete for a non-admin', () => {
+    authMock.canMutate = false;
+
+    renderPage();
+    expect(
+      screen.queryByRole('button', { name: 'New Sched' })
+    ).not.toBeInTheDocument();
+    // Reads stay: the list itself and the Schedules link are unaffected.
+    expect(screen.getByTestId('plugin-schedule-link')).toBeInTheDocument();
+
+    renderDeletableEntityList();
+    expect(lastListViewProps().onDeleteRow).toBeUndefined();
   });
 });

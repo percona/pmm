@@ -2,9 +2,8 @@ import { FC, PropsWithChildren } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { Page } from 'components/page';
-import { useUser } from 'contexts/user';
-import { OrgRole } from 'types/user.types';
 import { SepAuthGate } from './SepAuthGate';
+import { SepAuthProvider } from './SepAuthProvider';
 
 /**
  * Shared container for SEP apps mounted as native PMM routes.
@@ -15,25 +14,24 @@ import { SepAuthGate } from './SepAuthGate';
  * padding, width, auth gate, and footer. No `title` is passed: the SEP
  * plugins already render their own headings.
  *
- * The PMM-admin restriction is enforced here rather than left to the sidebar:
- * NavigationProvider only *hides* the SEP entries for non-admins, while the
- * routes still match on direct navigation. It reuses the nav's own predicate:
- * `isPMMAdmin` is `isGrafanaAdmin || orgRole === Admin`, and `roles` (org-role
- * only) cannot express the Grafana-admin half on its own, so it gates the
- * remaining case and Page renders its standard unauthorized card.
+ * No `roles` restriction: every signed-in PMM user may open a SEP page, and
+ * what they can do there is decided per control rather than per route. SEP's
+ * API admits any authenticated session to its reads and holds every unsafe
+ * method to administrators, so a non-admin gets the lists, details, logs and
+ * history with no write control offered (PMM-15358). The admin-only route
+ * guard this replaced predated that per-control gating and closed the
+ * read-only view the API was always willing to serve.
  *
- * `SepAuthGate` sits inside that check, so the SEP session exchange only runs
- * for a user who is allowed on the page in the first place.
+ * `SepAuthProvider` wraps the whole subtree so framework and plugin components
+ * can read the session's mutation capability. It sits outside `SepAuthGate`: a
+ * component rendered while the exchange is still in flight must resolve the
+ * same capability it will hold once the bearer lands, not the non-admin
+ * fallback.
  */
-export const SepPage: FC<PropsWithChildren> = ({ children }) => {
-  const { user } = useUser();
-
-  return (
-    <Page
-      maxWidth="full"
-      roles={user?.isPMMAdmin ? undefined : [OrgRole.Admin]}
-    >
-      <Stack gap={3} sx={{ flex: 1 }}>
+export const SepPage: FC<PropsWithChildren> = ({ children }) => (
+  <Page maxWidth="full">
+    <Stack gap={3} sx={{ flex: 1 }}>
+      <SepAuthProvider>
         <SepAuthGate>
           {/*
             A flex column that grows, not a plain block: it carries the height
@@ -44,7 +42,7 @@ export const SepPage: FC<PropsWithChildren> = ({ children }) => {
             {children}
           </Box>
         </SepAuthGate>
-      </Stack>
-    </Page>
-  );
-};
+      </SepAuthProvider>
+    </Stack>
+  </Page>
+);

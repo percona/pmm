@@ -41,6 +41,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@sep/api';
 import {
   ATW_PAGE_SIZE,
   useAtwIncidentLifecycle,
@@ -57,6 +58,7 @@ import type { AtwIncident } from './types';
  * deleting, and opening one into its workspace.
  */
 export function IncidentListPage() {
+  const { canMutate } = useAuth();
   const navigate = useNavigate();
   const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
   const { data, isLoading, error } = useAtwIncidents(page);
@@ -132,7 +134,7 @@ export function IncidentListPage() {
           backend that just failed, so offering it only produces a second error
           on top of one the user cannot act on.
         */}
-        {!error && (
+        {!error && canMutate && (
           <Button
             variant="contained"
             startIcon={<AddIcon />}
@@ -172,7 +174,9 @@ export function IncidentListPage() {
 
       {!isLoading && !error && (!incidents || incidents.length === 0) && (
         <Alert severity="info">
-          No incidents yet. Create one to get started.
+          {canMutate
+            ? 'No incidents yet. Create one to get started.'
+            : 'No incidents yet.'}
         </Alert>
       )}
 
@@ -225,50 +229,54 @@ export function IncidentListPage() {
                   Created by {incident.created_by}
                 </Typography>
               </Box>
-              {incident.closed_at ? (
-                <Tooltip title="Reopen">
-                  <IconButton
-                    aria-label={`Reopen ${incident.name}`}
-                    disabled={lifecycle.isPending(incident.id)}
-                    onClick={() => lifecycle.reopen(incident.id)}
-                  >
-                    <LockOpenOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              ) : (
-                <Tooltip title="Close">
-                  <IconButton
-                    aria-label={`Close ${incident.name}`}
-                    disabled={lifecycle.isPending(incident.id)}
-                    onClick={() => lifecycle.close(incident.id)}
-                  >
-                    <LockOutlinedIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
+              {canMutate && (
+                <>
+                  {incident.closed_at ? (
+                    <Tooltip title="Reopen">
+                      <IconButton
+                        aria-label={`Reopen ${incident.name}`}
+                        disabled={lifecycle.isPending(incident.id)}
+                        onClick={() => lifecycle.reopen(incident.id)}
+                      >
+                        <LockOpenOutlinedIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Close">
+                      <IconButton
+                        aria-label={`Close ${incident.name}`}
+                        disabled={lifecycle.isPending(incident.id)}
+                        onClick={() => lifecycle.close(incident.id)}
+                      >
+                        <LockOutlinedIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                  <Tooltip title="Rename">
+                    <IconButton
+                      aria-label={`Rename ${incident.name}`}
+                      onClick={() => {
+                        updateMutation.reset();
+                        setRenameTarget(incident);
+                        setRenameValue(incident.name);
+                      }}
+                    >
+                      <EditOutlinedIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title="Delete">
+                    <IconButton
+                      aria-label={`Delete ${incident.name}`}
+                      onClick={() => {
+                        deleteMutation.reset();
+                        setDeleteTarget(incident);
+                      }}
+                    >
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </>
               )}
-              <Tooltip title="Rename">
-                <IconButton
-                  aria-label={`Rename ${incident.name}`}
-                  onClick={() => {
-                    updateMutation.reset();
-                    setRenameTarget(incident);
-                    setRenameValue(incident.name);
-                  }}
-                >
-                  <EditOutlinedIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Delete">
-                <IconButton
-                  aria-label={`Delete ${incident.name}`}
-                  onClick={() => {
-                    deleteMutation.reset();
-                    setDeleteTarget(incident);
-                  }}
-                >
-                  <DeleteOutlineIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
             </Box>
           ))}
         </Stack>

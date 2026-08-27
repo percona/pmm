@@ -49,6 +49,8 @@ export {
   getStoredForm,
   STORED_FORM_KEY,
 } from './components/SchemaDrivenPlugin';
+export { ReadOnlyNotice } from './components/ReadOnlyNotice';
+export type { ReadOnlyNoticeProps } from './components/ReadOnlyNotice';
 export { ServiceSelector } from './components/ServiceSelector';
 export type { ServiceSelectorProps } from './components/ServiceSelector';
 export { SchemaSelector } from './components/SchemaSelector';
