@@ -42,7 +42,7 @@ All services are composed and wired in `managed/cmd/pmm-managed/main.go`.
 - **REST/JSON** (port 7772) — gRPC-Gateway, auto-generated from proto definitions
 - **Debug** (port 7773) — `/debug/metrics`, `/debug/pprof`, `/debug/vars`
 
-gRPC server implementations live in `services/*/grpc/` subdirectories. They delegate to the parent service package for business logic.
+Some gRPC server implementations live in `services/*/grpc/` subdirectories. They delegate to the parent service package for business logic. This is legacy, and newer services must implement gRPC directly in the service package.
 
 ## Domain Model
 
@@ -149,7 +149,7 @@ PMM supports HA via **Raft consensus** (`services/ha/`):
 - Don't edit generated files (`*_reform.go`, `*.pb.go`, `*.pb.gw.go`, swagger specs)
 - Don't skip `make gen` after proto/model changes
 - Don't comment on every line — only where clarity is needed
-- Don't inline comments (`code // comment`) — put comments on separate lines
+- Don't inline comments (`code // comment`) — put comments on separate lines; `//nolint` is the only exception
 - Don't inline `err != nil` checks (`if err := f(); err != nil`) — assign on one line, check on the next
 - Don't use named return values in functions
 - Don't commit test binaries or artifacts
@@ -194,3 +194,4 @@ Always run `make gen` after modifying `.proto` files, reform models, or interfac
 - `managed/utils/envvars/parser.go` — environment variable parsing
 - `docker-compose.yml` — development environment
 - `Makefile`, `Makefile.include` — build and development targets
+- `managed/CONTRIBUTING.md` — pmm-managed contribution notes (dev setup, patterns)

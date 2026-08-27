@@ -10,7 +10,6 @@ on:
       - "documentation/**"
       - "dashboards/**"
       - 'qan-api2/**'
-      - 'update/**'
       - 'vmproxy/**'
       - "ui/**"
 
@@ -31,14 +30,8 @@ jobs:
       - name: Check out code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Enable Go build and module cache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: |
-            ~/go-build-cache
-            ~/go-mod-cache
-          key: ${{ runner.os }}-go-${{ hashFiles('go.sum') }}
-          restore-keys: ${{ runner.os }}-go-
+      - name: Setup Go
+        uses: ./.github/actions/setup-go
 
       - name: Launch PMM Server
         run: |
@@ -56,11 +49,10 @@ jobs:
             -e PMM_RELEASE_VERSION=3.9.0 \
             -e GOMODCACHE=/home/pmm/.cache/go/mod \
             -e GOCACHE=/home/pmm/.cache/go-build \
-            -e GOPRIVATE=github.com/percona,github.com/Percona-Lab \
             -w /root/go/src/github.com/percona/pmm \
             -v ./:/root/go/src/github.com/percona/pmm \
-            -v ~/go-mod-cache:/home/pmm/.cache/go/mod \
-            -v ~/go-build-cache:/home/pmm/.cache/go-build \
+            -v ~/go/pkg/mod:/home/pmm/.cache/go/mod \
+            -v ~/.cache/go-build:/home/pmm/.cache/go-build \
             -v ./managed/data/advisors/:/usr/local/percona/advisors/ \
             -v ./managed/data/checks/:/usr/local/percona/checks/ \
             -v ./managed/data/alerting-templates/:/usr/local/percona/alerting-templates/ \

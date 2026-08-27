@@ -16,11 +16,15 @@
 package supervisord
 
 import (
+	"context"
+	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -58,7 +62,7 @@ func TestConfig(t *testing.T) {
 		}
 		t.Run(tmpl.Name(), func(t *testing.T) {
 			t.Parallel()
-			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini")) //nolint:gosec
+			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+".ini"))
 			require.NoError(t, err)
 			actual, err := s.marshalConfig(tmpl, settings)
 			require.NoError(t, err)
@@ -106,7 +110,7 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 		}
 
 		t.Run(tmpl.Name(), func(t *testing.T) {
-			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini")) //nolint:gosec
+			expected, err := os.ReadFile(filepath.Join(configDir, tmpl.Name()+"_envvars.ini"))
 			require.NoError(t, err)
 			actual, err := s.marshalConfig(tmpl, settings)
 			require.NoError(t, err)
@@ -115,15 +119,75 @@ func TestConfigVictoriaMetricsEnvvars(t *testing.T) {
 	}
 }
 
-func TestParseStatus(t *testing.T) {
+func TestSupervisorctlCancellation(t *testing.T) {
 	t.Parallel()
 
-	for str, expected := range map[string]*bool{
-		`pmm-agent                        STOPPED   Sep 20 08:55 AM`:         new(false),
-		`pmm-managed                      RUNNING   pid 826, uptime 0:19:36`: new(true),
-		`pmm-init                         EXITED    Sep 20 07:42 AM`:         nil,
-		`pmm-init                         STARTING`:                          new(true), // no last column in that case
+	sleep, err := exec.LookPath("sleep")
+	require.NoError(t, err)
+
+	s := &Service{
+		supervisorctlPath: sleep,
+		l:                 logrus.WithField("component", "supervisord-test"),
+	}
+
+	ctx, cancel := context.WithCancel(t.Context())
+	go func() {
+		time.Sleep(100 * time.Millisecond)
+		cancel()
+	}()
+
+	start := time.Now()
+	_, err = s.supervisorctl(ctx, "60")
+	require.Error(t, err)
+	assert.Less(t, time.Since(start), 10*time.Second, "cancellation should kill the blocked process")
+}
+
+// fakeSupervisorctl returns the path to a script that prints the given `supervisorctl status`
+// output and exits with the given code.
+func fakeSupervisorctl(t *testing.T, output string, exitCode int) string {
+	t.Helper()
+
+	script := "#!/bin/sh\n"
+	if output != "" {
+		script += fmt.Sprintf("printf '%%s\\n' '%s'\n", output)
+	}
+	script += fmt.Sprintf("exit %d\n", exitCode)
+
+	path := filepath.Join(t.TempDir(), "supervisorctl")
+	require.NoError(t, os.WriteFile(path, []byte(script), 0o700))
+	return path
+}
+
+func TestProgramRunningStatuses(t *testing.T) {
+	t.Parallel()
+
+	// Output and exit codes below were captured from supervisorctl in a PMM Server container.
+	// UNKNOWN is the one state that cannot be induced on demand, so its line is synthetic.
+	for _, tc := range []struct {
+		name     string
+		output   string
+		exitCode int
+		running  bool
+	}{
+		{"running", "nginx                            RUNNING   pid 87, uptime 0:02:44", 0, true},
+		{"starting", "t-starting                       STARTING  ", 0, true},
+		{"backoff", "t-backoff                        BACKOFF   Exited too quickly (process log may have details)", 0, true},
+		{"stopping", "t-stopping                       STOPPING  ", 0, true},
+		{"stopped", "t-starting                       STOPPED   Aug 26 06:51 AM", 3, false},
+		{"exited", "pmm-init                         EXITED    Aug 26 06:49 AM", 3, false},
+		{"fatal", "t-fatal                          FATAL     Exited too quickly (process log may have details)", 3, false},
+		{"unknown", "t-unknown                        UNKNOWN   ", 3, false},
+		{"no such process", "no-such-program: ERROR (no such process)", 4, false},
+		{"no output", "", 4, false},
 	} {
-		assert.Equal(t, expected, parseStatus(str), "%q", str)
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			s := &Service{
+				supervisorctlPath: fakeSupervisorctl(t, tc.output, tc.exitCode),
+				l:                 logrus.WithField("component", "supervisord-test"),
+			}
+			assert.Equal(t, tc.running, s.ProgramRunning(t.Context(), "program"))
+		})
 	}
 }

@@ -14,7 +14,7 @@
 - name: Add a local YUM repository
   yum_repository:
     name: local
-    description: Local YUM repository - x86_64
+    description: Local YUM repository
     baseurl: file:///tmp/RPMS
     gpgcheck: no
     enabled: no
@@ -23,7 +23,7 @@
   dnf:
     name: "*"
     state: latest
-    disablerepo: percona-release-x86_64
+    disablerepo: percona-release-*
 
 - name: Install OS tools
   dnf:
