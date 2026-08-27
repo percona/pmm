@@ -82,7 +82,8 @@ var defaultEnabledNodeExporterCollectors = []string{
 	"softnet",
 	"stat",
 	"tapestats",
-	"textfile", // the upstream base collector only, not PMM's textfile.hr/textfile.mr/textfile.lr
+	// the upstream base collector only, not PMM's textfile.hr/textfile.mr/textfile.lr
+	"textfile",
 	"thermal_zone",
 	"time",
 	"timex",
@@ -195,7 +196,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 			exporter.ExporterOptions.DisabledCollectors,
 		)
 		for _, arg := range disableArgs {
-			if !slices.Contains(args, arg) { // some collectors are already disabled above
+			// some collectors are already disabled above
+			if !slices.Contains(args, arg) {
 				args = append(args, arg)
 			}
 		}
