@@ -117,7 +117,6 @@ export function IncidentWorkspacePage() {
             ) : (
               <Button
                 variant="outlined"
-                size="small"
                 startIcon={<LockOutlinedIcon />}
                 disabled={lifecycle.isPending(incident.id)}
                 onClick={() => lifecycle.close(incident.id)}
