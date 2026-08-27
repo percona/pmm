@@ -200,9 +200,16 @@ docker cp certificate.crt pmm-server:/srv/nginx/certificate.crt
 docker cp certificate.key pmm-server:/srv/nginx/certificate.key
 docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
 
+# Set proper ownership and permissions
+docker exec --user root pmm-server chown 1000:0 /srv/nginx/*
+docker exec --user root pmm-server chmod 644 /srv/nginx/*.crt /srv/nginx/*.pem
+docker exec --user root pmm-server chmod 600 /srv/nginx/*.key
+
 # Restart nginx
 docker exec pmm-server supervisorctl restart nginx
 ```
+
+For the full list of required certificate files and configuration details, see [SSL encryption](../admin/security/ssl_encryption.md).
 
 ## Operations
 

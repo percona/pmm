@@ -67,9 +67,9 @@ docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
 docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
 
 # Set proper ownership and permissions
-docker exec -it pmm-server chown pmm:root /srv/nginx/*
-docker exec -it pmm-server chmod 644 /srv/nginx/*.crt /srv/nginx/*.pem
-docker exec -it pmm-server chmod 600 /srv/nginx/*.key
+docker exec --user root pmm-server chown 1000:0 /srv/nginx/*
+docker exec --user root pmm-server chmod 644 /srv/nginx/*.crt /srv/nginx/*.pem
+docker exec --user root pmm-server chmod 600 /srv/nginx/*.key
 ```
 
 ### Apply certificate changes

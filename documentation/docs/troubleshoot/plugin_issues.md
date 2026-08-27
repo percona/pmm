@@ -7,4 +7,14 @@ Users have encountered issues with installing, updating and removing plugins fro
 
 ## Solution
 
-Set the ownership on the directory`/srv/grafana/plugins` to `grafana:grafana`.
+Set the ownership on the `/srv/grafana/plugins` directory to `1000:0`, which is the UID/GID that PMM Server runs as:
+
+```sh
+docker exec --user root pmm-server chown -R 1000:0 /srv/grafana/plugins
+```
+
+Then restart Grafana to pick up the change:
+
+```sh
+docker exec --user root pmm-server supervisorctl restart grafana
+```
