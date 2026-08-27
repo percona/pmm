@@ -314,7 +314,6 @@ export function ResultsPane({ incidentId }: ResultsPaneProps) {
             <span>
               <Button
                 variant="contained"
-                size="small"
                 startIcon={<SendIcon />}
                 disabled={sendDisabled}
                 onClick={() => openSend(null)}
