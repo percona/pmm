@@ -89,7 +89,38 @@ func (inv ThresholdInventory) targetNames(override *AlertRuleThresholdOverride) 
 // resolves to defaultValue - which is what makes clearing an override a value change on
 // an existing series rather than the series disappearing.
 func ResolveThresholds(overrides []*AlertRuleThresholdOverride, defaultValue float64, inv ThresholdInventory) map[string]float64 {
-	resolved := make(map[string]float64, len(overrides))
+	detailed := ResolveThresholdsDetailed(overrides, defaultValue, inv)
+
+	resolved := make(map[string]float64, len(detailed))
+	for name, threshold := range detailed {
+		resolved[name] = threshold.Value
+	}
+
+	return resolved
+}
+
+// ResolvedThreshold is the effective threshold for one target, with the override it came
+// from. Source is nil when the value is the rule's default, which happens when every
+// override covering the target has been cleared.
+type ResolvedThreshold struct {
+	Value  float64
+	Source *AlertRuleThresholdOverride
+}
+
+// IsOverridden reports whether the value comes from an override rather than the default.
+func (r ResolvedThreshold) IsOverridden() bool {
+	return r.Source != nil
+}
+
+// ResolveThresholdsDetailed applies precedence and reports which override won for each
+// target. It is the one implementation of precedence; ResolveThresholds is a thin view
+// over it, so the value the API reports and the value the collector emits cannot drift.
+func ResolveThresholdsDetailed(
+	overrides []*AlertRuleThresholdOverride,
+	defaultValue float64,
+	inv ThresholdInventory,
+) map[string]ResolvedThreshold {
+	resolved := make(map[string]ResolvedThreshold, len(overrides))
 	specificity := make(map[string]int, len(overrides))
 
 	var cleared []string
@@ -112,7 +143,7 @@ func ResolveThresholds(overrides []*AlertRuleThresholdOverride, defaultValue flo
 				continue
 			}
 
-			resolved[name] = override.Value
+			resolved[name] = ResolvedThreshold{Value: override.Value, Source: override}
 			specificity[name] = rank
 		}
 	}
@@ -122,7 +153,7 @@ func ResolveThresholds(overrides []*AlertRuleThresholdOverride, defaultValue flo
 	for _, name := range cleared {
 		_, ok := resolved[name]
 		if !ok {
-			resolved[name] = defaultValue
+			resolved[name] = ResolvedThreshold{Value: defaultValue}
 		}
 	}
 

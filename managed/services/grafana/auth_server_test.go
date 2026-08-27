@@ -71,11 +71,15 @@ func TestResolveRule(t *testing.T) {
 		wantRole role
 	}{
 		// Alerting: only listing templates is viewable; writes need editor.
-		{http.MethodGet, "/v1/alerting/templates", viewer},        // ListTemplates
-		{http.MethodPost, "/v1/alerting/templates", editor},       // CreateTemplate
-		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
-		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
-		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		{http.MethodGet, "/v1/alerting/templates", viewer},              // ListTemplates
+		{http.MethodPost, "/v1/alerting/templates", editor},             // CreateTemplate
+		{http.MethodPut, "/v1/alerting/templates/foo", editor},          // UpdateTemplate
+		{http.MethodDelete, "/v1/alerting/templates/foo", editor},       // DeleteTemplate
+		{http.MethodPost, "/v1/alerting/rules", editor},                 // CreateRule
+		{http.MethodGet, "/v1/alerting/thresholds", admin},              // ListThresholds
+		{http.MethodPost, "/v1/alerting/thresholds", admin},             // SetThreshold
+		{http.MethodDelete, "/v1/alerting/thresholds", admin},           // ClearThreshold
+		{http.MethodPost, "/v1/alerting/thresholds:batchUpdate", admin}, // BatchUpdateThresholds
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {

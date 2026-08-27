@@ -51,6 +51,10 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	BatchUpdateThresholds(params *BatchUpdateThresholdsParams, opts ...ClientOption) (*BatchUpdateThresholdsOK, error)
+
+	ClearThreshold(params *ClearThresholdParams, opts ...ClientOption) (*ClearThresholdOK, error)
+
 	CreateRule(params *CreateRuleParams, opts ...ClientOption) (*CreateRuleOK, error)
 
 	CreateTemplate(params *CreateTemplateParams, opts ...ClientOption) (*CreateTemplateOK, error)
@@ -59,9 +63,97 @@ type ClientService interface {
 
 	ListTemplates(params *ListTemplatesParams, opts ...ClientOption) (*ListTemplatesOK, error)
 
+	ListThresholds(params *ListThresholdsParams, opts ...ClientOption) (*ListThresholdsOK, error)
+
+	SetThreshold(params *SetThresholdParams, opts ...ClientOption) (*SetThresholdOK, error)
+
 	UpdateTemplate(params *UpdateTemplateParams, opts ...ClientOption) (*UpdateTemplateOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+BatchUpdateThresholds batches update thresholds applies several set and clear operations in one transaction
+*/
+func (a *Client) BatchUpdateThresholds(params *BatchUpdateThresholdsParams, opts ...ClientOption) (*BatchUpdateThresholdsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewBatchUpdateThresholdsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "BatchUpdateThresholds",
+		Method:             "POST",
+		PathPattern:        "/v1/alerting/thresholds:batchUpdate",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &BatchUpdateThresholdsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*BatchUpdateThresholdsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*BatchUpdateThresholdsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ClearThreshold clears threshold removes an override so the target falls back to the rule s default or to a broader override still covering it
+*/
+func (a *Client) ClearThreshold(params *ClearThresholdParams, opts ...ClientOption) (*ClearThresholdOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewClearThresholdParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ClearThreshold",
+		Method:             "DELETE",
+		PathPattern:        "/v1/alerting/thresholds",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ClearThresholdReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ClearThresholdOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ClearThresholdDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -228,6 +320,90 @@ func (a *Client) ListTemplates(params *ListTemplatesParams, opts ...ClientOption
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListTemplatesDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListThresholds lists thresholds returns per target threshold overrides
+*/
+func (a *Client) ListThresholds(params *ListThresholdsParams, opts ...ClientOption) (*ListThresholdsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListThresholdsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListThresholds",
+		Method:             "GET",
+		PathPattern:        "/v1/alerting/thresholds",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListThresholdsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListThresholdsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListThresholdsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+SetThreshold sets threshold overrides one rule parameter for one target
+*/
+func (a *Client) SetThreshold(params *SetThresholdParams, opts ...ClientOption) (*SetThresholdOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewSetThresholdParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "SetThreshold",
+		Method:             "POST",
+		PathPattern:        "/v1/alerting/thresholds",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &SetThresholdReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*SetThresholdOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*SetThresholdDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
