@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -196,7 +197,7 @@ func (s metricsSource) collect(ctx context.Context, services []*models.Service) 
 	}
 
 	run := &metricsRun{src: s, result: &result, covered: make(map[string]bool, len(ids))}
-	for batch := range slicesChunk(ids, queryBatch) {
+	for batch := range slices.Chunk(ids, queryBatch) {
 		matcher := fmt.Sprintf(`service_id=~%q,%s`, strings.Join(batch, "|"), highResolutionJob)
 		for _, signal := range metricSignals {
 			run.signal(ctx, matcher, signal)
@@ -428,18 +429,6 @@ func (s metricsSource) each(ctx context.Context, result *SourceResult, query str
 	for _, sample := range vector {
 		if serviceID := string(sample.Metric["service_id"]); serviceID != "" {
 			apply(serviceID, sample.Metric, float64(sample.Value))
-		}
-	}
-}
-
-// slicesChunk yields successive size-length chunks of s, the last one short.
-func slicesChunk[T any](s []T, size int) func(func([]T) bool) {
-	return func(yield func([]T) bool) {
-		for start := 0; start < len(s); start += size {
-			end := min(start+size, len(s))
-			if !yield(s[start:end]) {
-				return
-			}
 		}
 	}
 }
