@@ -319,6 +319,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
 		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
 		deps.internalNodePrefixes,
+		deps.ha.Params().Enabled,
 	)
 
 	managementv1.RegisterManagementServiceServer(gRPCServer, managementSvc)

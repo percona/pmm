@@ -61,7 +61,7 @@ func TestAddAzureDatabaseRunsOnRequestedAgent(t *testing.T) {
 		state.AssertExpectations(t)
 	})
 
-	s := NewManagementService(db, nil, state, nil, nil, nil, nil, nil, nil, nil)
+	s := NewManagementService(db, nil, state, nil, nil, nil, nil, nil, nil, nil, false)
 
 	res, err := s.AddAzureDatabase(ctx, &managementv1.AddAzureDatabaseRequest{
 		PmmAgentId:            agent.AgentID,

@@ -49,12 +49,26 @@ func TestIsInternalNode(t *testing.T) {
 		"pmm-server":                        false,
 		"":                                  false,
 	} {
-		assert.Equal(t, expected, s.isInternalNode(nodeName), nodeName)
+		assert.Equal(t, expected, s.isInternalNode(&models.Node{NodeName: nodeName}), nodeName)
 	}
 
 	t.Run("no prefixes configured", func(t *testing.T) {
 		s := &ManagementService{}
-		assert.False(t, s.isInternalNode(internalNodePrefix+"instance1-qjjl-0"))
+		assert.False(t, s.isInternalNode(&models.Node{NodeName: internalNodePrefix + "instance1-qjjl-0"}))
+	})
+
+	// The PMM Server Nodes of an HA deployment serve PMM itself. A single-node deployment has no
+	// other Node to delegate monitoring to, so its Node stays available.
+	t.Run("PMM Server Nodes", func(t *testing.T) {
+		serverNode := &models.Node{NodeName: "pmm-ha-0", IsPMMServerNode: true}
+		clientNode := &models.Node{NodeName: "pmm-pmm-ha-client-0"}
+
+		ha := &ManagementService{haEnabled: true}
+		assert.True(t, ha.isInternalNode(serverNode))
+		assert.False(t, ha.isInternalNode(clientNode))
+
+		singleNode := &ManagementService{}
+		assert.False(t, singleNode.isInternalNode(&models.Node{NodeName: "pmm-server", IsPMMServerNode: true}))
 	})
 }
 
@@ -165,7 +179,7 @@ func TestListNodesMarksInternalNodes(t *testing.T) {
 	vmClient.Test(t)
 	vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil)
 
-	s := NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, []string{internalNodePrefix})
+	s := NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, []string{internalNodePrefix}, false)
 
 	res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{})
 	require.NoError(t, err)
@@ -176,6 +190,66 @@ func TestListNodesMarksInternalNodes(t *testing.T) {
 	}
 	assert.True(t, isInternal[node.NodeName], node.NodeName)
 	assert.False(t, isInternal["pmm-server"])
+}
+
+// TestListNodesMarksPMMServerNodesInternalInHA covers the PMM Server Nodes of an HA deployment,
+// which serve PMM itself and are reported as internal so that the UI does not offer them.
+// The fixtures register the PMM Server Node the same way a deployment does.
+func TestListNodesMarksPMMServerNodesInternalInHA(t *testing.T) {
+	ctx := logger.Set(t.Context(), t.Name())
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	client, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "pmm-pmm-ha-client-0",
+		Address:  "10.1.2.4",
+	})
+	require.NoError(t, err)
+
+	newService := func(haEnabled bool) *ManagementService {
+		ar := &mockAgentsRegistry{}
+		ar.Test(t)
+		ar.On("IsConnected", mock.Anything).Return(false)
+
+		vmdb := &mockPrometheusService{}
+		vmdb.Test(t)
+
+		vmClient := &mockVictoriaMetricsClient{}
+		vmClient.Test(t)
+		vmClient.On("Query", ctx, mock.Anything, mock.Anything).Return(model.Vector{}, nil, nil)
+
+		return NewManagementService(db, ar, nil, nil, nil, vmdb, nil, nil, vmClient, nil, haEnabled)
+	}
+
+	listNodes := func(t *testing.T, haEnabled bool) map[string]bool {
+		t.Helper()
+
+		res, err := newService(haEnabled).ListNodes(ctx, &managementv1.ListNodesRequest{})
+		require.NoError(t, err)
+
+		isInternal := make(map[string]bool, len(res.Nodes))
+		for _, n := range res.Nodes {
+			isInternal[n.NodeName] = n.IsPmmInternalNode
+		}
+
+		return isInternal
+	}
+
+	t.Run("HA hides the PMM Server Node", func(t *testing.T) {
+		isInternal := listNodes(t, true)
+		assert.True(t, isInternal["pmm-server"])
+		assert.False(t, isInternal[client.NodeName], client.NodeName)
+	})
+
+	t.Run("a single-node deployment keeps it", func(t *testing.T) {
+		isInternal := listNodes(t, false)
+		assert.False(t, isInternal["pmm-server"])
+		assert.False(t, isInternal[client.NodeName], client.NodeName)
+	})
 }
 
 func TestCheckNodeIsEligible(t *testing.T) {
@@ -195,7 +269,7 @@ func TestCheckNodeIsEligible(t *testing.T) {
 	agent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
 
-	s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, []string{internalNodePrefix})
+	s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, []string{internalNodePrefix}, false)
 	expectedErr := status.New(codes.FailedPrecondition, fmt.Sprintf(
 		"Node '%s' is a part of the internal infrastructure of this PMM deployment and cannot monitor other services.", node.NodeName,
 	))
@@ -216,7 +290,7 @@ func TestCheckNodeIsEligible(t *testing.T) {
 	})
 
 	t.Run("no prefixes configured", func(t *testing.T) {
-		s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, nil)
+		s := NewManagementService(db, nil, nil, nil, nil, nil, nil, nil, nil, nil, false)
 		assert.NoError(t, s.checkNodeIsEligible(ctx, agent.AgentID, "mysql.example.com"))
 	})
 

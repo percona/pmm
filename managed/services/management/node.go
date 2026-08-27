@@ -332,7 +332,7 @@ func (s *ManagementService) ListNodes(ctx context.Context, req *managementv1.Lis
 			UpdatedAt:         timestamppb.New(node.UpdatedAt),
 			InstanceId:        node.InstanceID,
 			IsPmmServerNode:   node.IsPMMServerNode,
-			IsPmmInternalNode: s.isInternalNode(node.NodeName),
+			IsPmmInternalNode: s.isInternalNode(node),
 		}
 
 		freshUp, hasFresh := metrics[node.NodeID]
@@ -413,7 +413,7 @@ func (s *ManagementService) GetNode(ctx context.Context, req *managementv1.GetNo
 		Region:            pointer.GetString(node.Region),
 		UpdatedAt:         timestamppb.New(node.UpdatedAt),
 		IsPmmServerNode:   node.IsPMMServerNode,
-		IsPmmInternalNode: s.isInternalNode(node.NodeName),
+		IsPmmInternalNode: s.isInternalNode(node),
 	}
 
 	freshUp, hasFresh := metrics[node.NodeID]

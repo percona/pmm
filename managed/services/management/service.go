@@ -53,6 +53,8 @@ type ManagementService struct { //nolint:revive
 	// internalNodePrefixes holds the Node name prefixes reserved for the internal
 	// infrastructure of this PMM deployment, e.g. its HA persistence layer.
 	internalNodePrefixes []string
+	// haEnabled indicates whether this PMM Server is a node of an HA cluster.
+	haEnabled bool
 }
 
 // upMetricSelectors match the per-service-type "up" metrics that back the service status.
@@ -85,6 +87,7 @@ func NewManagementService(
 	grafanaClient grafanaClient,
 	vmClient victoriaMetricsClient,
 	internalNodePrefixes []string,
+	haEnabled bool,
 ) *ManagementService {
 	return &ManagementService{
 		db:                   db,
@@ -98,14 +101,23 @@ func NewManagementService(
 		vmClient:             vmClient,
 		l:                    logrus.WithField("service", "management"),
 		internalNodePrefixes: internalNodePrefixes,
+		haEnabled:            haEnabled,
 	}
 }
 
 // isInternalNode reports whether the Node belongs to the internal infrastructure of this
 // PMM deployment and therefore must not host user monitoring workloads.
-func (s *ManagementService) isInternalNode(nodeName string) bool {
+//
+// In an HA deployment that covers the PMM Server Nodes themselves: they are expected to spend
+// their resources on serving PMM, and a Client is pre-provisioned to carry the monitoring instead.
+// A single-node deployment keeps its Node available, as it is the only one there is.
+func (s *ManagementService) isInternalNode(node *models.Node) bool {
+	if s.haEnabled && node.IsPMMServerNode {
+		return true
+	}
+
 	for _, prefix := range s.internalNodePrefixes {
-		if strings.HasPrefix(nodeName, prefix) {
+		if strings.HasPrefix(node.NodeName, prefix) {
 			return true
 		}
 	}
@@ -134,7 +146,7 @@ var localAddresses = map[string]struct{}{"": {}, "localhost": {}, "127.0.0.1": {
 // Agent running on a Node reserved for the internal infrastructure of this PMM deployment.
 // Those Nodes still monitor the services inside their own pod, hence the address check.
 func (s *ManagementService) checkNodeIsEligible(ctx context.Context, pmmAgentID, address string) error {
-	if len(s.internalNodePrefixes) == 0 || pmmAgentID == "" {
+	if pmmAgentID == "" || (len(s.internalNodePrefixes) == 0 && !s.haEnabled) {
 		return nil
 	}
 	_, isLocal := localAddresses[address]
@@ -155,7 +167,7 @@ func (s *ManagementService) checkNodeIsEligible(ctx context.Context, pmmAgentID,
 	if err != nil {
 		return err
 	}
-	if !s.isInternalNode(node.NodeName) {
+	if !s.isInternalNode(node) {
 		return nil
 	}
 
