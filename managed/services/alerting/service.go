@@ -792,7 +792,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	// can still be matched back to its registry row after being copied or renamed in
 	// Grafana. The stored Grafana UID is only a cache of where it currently lives.
 	if ruleID != "" {
-		labels["pmm_rule_id"] = ruleID
+		labels[services.PMMRuleIDLabel] = ruleID
 	}
 
 	labelSourceRefID := queryRefForRuleLabels(alertTemplate)

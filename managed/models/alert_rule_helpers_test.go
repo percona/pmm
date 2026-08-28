@@ -19,6 +19,7 @@ import (
 	"math"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -349,4 +350,147 @@ func TestThresholdOverrideRejectsNonFiniteValues(t *testing.T) {
 			require.Error(t, err, "the database must reject %s", name)
 		})
 	}
+}
+
+// TestThresholdOverridesFollowTargetRemoval covers the cleanup that has no cascade to
+// rely on: the target column is polymorphic, so it carries no foreign key and rows must
+// be removed by the removal API itself.
+func TestThresholdOverridesFollowTargetRemoval(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	t.Run("removing a node removes its overrides", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		defer func() {
+			require.NoError(t, tx.Rollback())
+		}()
+		q := tx.Querier
+
+		rule := createTestAlertRule(t, q)
+		node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "doomed-node",
+			Address:  "doomed.example.com",
+		})
+		require.NoError(t, err)
+
+		_, err = models.UpsertThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, node.NodeID, 90)
+		require.NoError(t, err)
+
+		require.NoError(t, models.RemoveNode(q, node.NodeID, models.RemoveRestrict))
+
+		all, err := models.FindThresholdOverridesByRule(q, rule.RuleID)
+		require.NoError(t, err)
+		assert.Empty(t, all, "an override must not outlive the node it targets")
+	})
+
+	t.Run("removing a service removes its overrides", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		defer func() {
+			require.NoError(t, tx.Rollback())
+		}()
+		q := tx.Querier
+
+		rule := createTestAlertRule(t, q)
+		node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "svc-host",
+			Address:  "svc-host.example.com",
+		})
+		require.NoError(t, err)
+
+		service, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "doomed-service",
+			NodeID:      node.NodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
+		require.NoError(t, err)
+
+		_, err = models.UpsertThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeService, service.ServiceID, 70)
+		require.NoError(t, err)
+
+		require.NoError(t, models.RemoveService(q, service.ServiceID, models.RemoveRestrict))
+
+		all, err := models.FindThresholdOverridesByRule(q, rule.RuleID)
+		require.NoError(t, err)
+		assert.Empty(t, all)
+	})
+
+	// Removing a node cascades into its services, which is where the service-scoped
+	// rows are reached from - there is no second cleanup path for them.
+	t.Run("removing a node cascades to its services' overrides", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		defer func() {
+			require.NoError(t, tx.Rollback())
+		}()
+		q := tx.Querier
+
+		rule := createTestAlertRule(t, q)
+		node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "cascade-host",
+			Address:  "cascade-host.example.com",
+		})
+		require.NoError(t, err)
+
+		service, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "cascade-service",
+			NodeID:      node.NodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
+		require.NoError(t, err)
+
+		_, err = models.UpsertThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeNode, node.NodeID, 90)
+		require.NoError(t, err)
+		_, err = models.UpsertThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeService, service.ServiceID, 70)
+		require.NoError(t, err)
+
+		require.NoError(t, models.RemoveNode(q, node.NodeID, models.RemoveCascade))
+
+		all, err := models.FindThresholdOverridesByRule(q, rule.RuleID)
+		require.NoError(t, err)
+		assert.Empty(t, all, "the service's override must go with the node that hosted it")
+	})
+
+	// A cluster override with no matching services is dormant, not stale: services may
+	// join that cluster later, and the override should apply again when they do.
+	t.Run("a cluster override survives removal of its services", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		defer func() {
+			require.NoError(t, tx.Rollback())
+		}()
+		q := tx.Querier
+
+		rule := createTestAlertRule(t, q)
+		node, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "cluster-host",
+			Address:  "cluster-host.example.com",
+		})
+		require.NoError(t, err)
+
+		service, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "clustered-service",
+			NodeID:      node.NodeID,
+			Cluster:     "prod",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
+		require.NoError(t, err)
+
+		_, err = models.UpsertThresholdOverride(q, rule.RuleID, "threshold", models.ThresholdScopeCluster, "prod", 60)
+		require.NoError(t, err)
+
+		require.NoError(t, models.RemoveService(q, service.ServiceID, models.RemoveRestrict))
+
+		all, err := models.FindThresholdOverridesByRule(q, rule.RuleID)
+		require.NoError(t, err)
+		require.Len(t, all, 1)
+		assert.Equal(t, models.ThresholdScopeCluster, all[0].Scope)
+	})
 }
