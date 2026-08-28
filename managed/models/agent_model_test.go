@@ -286,7 +286,11 @@ func TestPostgresAgentTLS(t *testing.T) {
 }
 
 func TestValkey(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Redis DSN", func(t *testing.T) {
+		t.Parallel()
+
 		agent := &models.Agent{
 			Username:        new("username"),
 			Password:        new("s3cur3 p@$$w0r4."),
@@ -305,6 +309,8 @@ func TestValkey(t *testing.T) {
 	})
 
 	t.Run("Valkey DSN with TLS", func(t *testing.T) {
+		t.Parallel()
+
 		agent := &models.Agent{
 			Username:        new("username"),
 			Password:        new("s3cur3 p@$$w0r4."),
@@ -328,6 +334,8 @@ func TestValkey(t *testing.T) {
 	})
 
 	t.Run("Files", func(t *testing.T) {
+		t.Parallel()
+
 		for name, tc := range map[string]struct {
 			options  models.ValkeyOptions
 			expected map[string]string
@@ -338,6 +346,8 @@ func TestValkey(t *testing.T) {
 			"none": {models.ValkeyOptions{}, nil},
 		} {
 			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
 				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: tc.options}
 
 				require.Equal(t, tc.expected, agent.Files())
@@ -346,6 +356,8 @@ func TestValkey(t *testing.T) {
 	})
 
 	t.Run("TemplateDelimiters avoid certificate content", func(t *testing.T) {
+		t.Parallel()
+
 		service := &models.Service{ServiceType: models.ValkeyServiceType, Address: new("1.2.3.4")}
 
 		for name, options := range map[string]models.ValkeyOptions{
@@ -354,6 +366,8 @@ func TestValkey(t *testing.T) {
 			"key":  {SSLKey: "aa {{ bb"},
 		} {
 			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
 				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: options}
 
 				require.Equal(t, &models.DelimiterPair{Left: "[[", Right: "]]"}, agent.TemplateDelimiters(service))
