@@ -3,9 +3,16 @@
 !!! warning "Tech Preview"
     This feature is not production-ready. Use for testing and feedback only.
 
-Support Diagnostics lets you collect diagnostic data from your database hosts and send it straight to your Percona support case in ServiceNow, without having to gather it manually or upload anything.
+Support Diagnostics runs targeted diagnostic scripts directly on your database hosts and sends the results straight to your Percona support case in ServiceNow, without connecting to any server or uploading files yourself.
 
 This capability is part of the [Management framework](index.md) integration.
+
+## Support Diagnostics vs PMM Dump
+
+Support Diagnostics runs specific diagnostic scripts on your database hosts to investigate a particular issue, and ships the output to your support case. 
+
+[PMM Dump](../../get-help.md) exports PMM's own monitoring data (metrics and dashboards) compressed for Percona to analyze. 
+If Percona Support asks you for monitoring data from PMM, use PMM Dump. If they ask you to run diagnostics on your databases, use Support Diagnostics.
 
 ## Before you start
 
