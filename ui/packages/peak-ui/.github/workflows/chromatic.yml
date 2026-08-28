@@ -34,14 +34,10 @@ jobs:
           exitZeroOnChanges: false
           buildScriptName: "storybook:build"
 
-  # PRs from forks never trigger the `push` job above (push events only fire for
-  # the repo that owns the workflow), so the Chromatic check stays pending forever
-  # on fork PRs and blocks merge. pull_request_target runs in this repo's context
-  # (secrets available) instead of the fork's, so it's gated behind the
+  # pull_request_target runs in this repo's context
+  # (secrets available) instead of forks', so it's gated behind the
   # `chromatic-external` environment's required reviewers: a maintainer must
   # approve the run before untrusted fork code executes with access to secrets.
-  # One-time setup needed in GitHub: Settings > Environments > New environment
-  # named `chromatic-external`, with required reviewers added.
   chromatic-fork:
     name: Run Chromatic (fork PR)
     if: >-
