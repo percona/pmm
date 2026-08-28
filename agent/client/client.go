@@ -32,6 +32,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+
 	// Installing the gzip encoding registers it as an available compressor.
 	// GRPC will automatically negotiate and use gzip if the client supports it.
 	grpc_gzip "google.golang.org/grpc/encoding/gzip"
