@@ -35,6 +35,7 @@ import {
   ProxyIcon,
   QueryStatsIcon,
   SearchInsightsIcon,
+  SupportDiagnosticsIcon,
 } from '../../components/icons';
 
 interface CustomIconEntry {
@@ -195,6 +196,12 @@ const customIcons: CustomIconEntry[] = [
     importName: 'ElectricBoltOffIcon',
     designName: 'electric-bolt-off',
     keywords: 'electric bolt off lightning disabled no power flash off',
+  },
+  {
+    component: SupportDiagnosticsIcon,
+    importName: 'SupportDiagnosticsIcon',
+    designName: 'support-diagnostics',
+    keywords: 'support diagnostics toolbox troubleshoot service maintenance help',
   },
 ];
 
