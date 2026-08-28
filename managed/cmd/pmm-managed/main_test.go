@@ -116,7 +116,6 @@ func TestImports(t *testing.T) {
 
 	// just to add them to packages.dot
 	for _, service := range []string{
-		"github.com/percona/pmm/managed",
 		"github.com/percona/pmm/managed/cmd/pmm-managed-init",
 		"github.com/percona/pmm/managed/cmd/pmm-managed-starlark",
 		"github.com/percona/pmm/managed/services/agents/grpc",
@@ -135,6 +134,8 @@ func TestImports(t *testing.T) {
 	for path, c := range constraints {
 		pkgs, err := packages.Load(config, path)
 		require.NoError(t, err)
+		require.NotEmpty(t, pkgs, "pattern %s matched no packages", path)
+		require.Zero(t, packages.PrintErrors(pkgs), "failed to load %s", path)
 
 		for _, p := range pkgs {
 			allPkgs = append(allPkgs, p)

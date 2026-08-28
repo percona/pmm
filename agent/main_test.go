@@ -111,7 +111,8 @@ func TestImports(t *testing.T) {
 
 	// agents code should be independent
 	for _, a := range []string{
-		"github.com/percona/pmm/agent/agents/mongodb",
+		// mongodb has no package of its own, only subpackages
+		"github.com/percona/pmm/agent/agents/mongodb/...",
 		"github.com/percona/pmm/agent/agents/mysql/perfschema",
 		"github.com/percona/pmm/agent/agents/mysql/slowlog",
 		"github.com/percona/pmm/agent/agents/noop",
@@ -184,13 +185,16 @@ func TestImports(t *testing.T) {
 	for path, c := range constraints {
 		pkgs, err := packages.Load(config, path)
 		require.NoError(t, err)
+		require.NotEmpty(t, pkgs, "pattern %s matched no packages", path)
+		require.Zero(t, packages.PrintErrors(pkgs), "failed to load %s", path)
 		allPkgs = append(allPkgs, pkgs...)
 
+		own := strings.TrimSuffix(path, "/...")
 		for _, p := range pkgs {
 			for _, d := range c.denyPrefixes {
 				for i := range p.Imports {
 					// allow own subpackages
-					if strings.HasPrefix(i, path) {
+					if strings.HasPrefix(i, own) {
 						continue
 					}
 
