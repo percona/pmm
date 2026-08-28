@@ -9,16 +9,25 @@ export const Footer: FC = () => {
 
   if (!versionInfo) return null;
 
+  const { lastCheck } = versionInfo;
+  let checkStatus: string | null = null;
+
+  if (inProgress) {
+    checkStatus = Messages.inProgress;
+  } else if (lastCheck) {
+    checkStatus = Messages.checkedOn(formatCheckDate(lastCheck));
+  }
+
   return (
     <Stack direction="row" gap={2} data-testid="pmm-footer">
       <Typography variant="body2">
         {Messages.version(versionInfo.installed.version)}
       </Typography>
-      <Typography variant="body2" color="text.disabled">
-        {inProgress
-          ? Messages.inProgress
-          : Messages.checkedOn(formatCheckDate(versionInfo.lastCheck || 'N/A'))}
-      </Typography>
+      {checkStatus && (
+        <Typography variant="body2" color="text.disabled">
+          {checkStatus}
+        </Typography>
+      )}
     </Stack>
   );
 };
