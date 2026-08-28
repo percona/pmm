@@ -1,7 +1,7 @@
 {
   "name": "@percona/peak-ui",
   "type": "module",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "private": false,
   "scripts": {
     "build": "rollup -c",
