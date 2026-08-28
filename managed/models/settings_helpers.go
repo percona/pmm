@@ -97,6 +97,9 @@ type ChangeSettingsParams struct {
 	// EnableInternalPgQAN enables Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool
 
+	// EnableOM enables OpenManager.
+	EnableOM *bool
+
 	// DefaultRoleID sets a default role to be assigned to new users.
 	DefaultRoleID *int
 
@@ -233,6 +236,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableBackupManagement != nil {
 		settings.BackupManagement.Enabled = params.EnableBackupManagement
+	}
+
+	if params.EnableOM != nil {
+		settings.OM.Enabled = params.EnableOM
 	}
 
 	if params.DefaultRoleID != nil {
