@@ -8,6 +8,7 @@ export interface ReadonlySettings {
   azurediscoverEnabled: boolean;
   enableAccessControl: boolean;
   sepEnabled: boolean;
+  omEnabled: boolean;
 }
 
 export interface MetricsResolutions {
@@ -53,6 +54,7 @@ export interface UpdateSettingsPayload {
   enableAccessControl?: boolean;
   enableInternalPgQan?: boolean;
   awsPartitions?: string[];
+  enableOm?: boolean;
 }
 
 export interface FrontendSettings extends GetFrontendSettingsResponse {}
