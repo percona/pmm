@@ -66,9 +66,6 @@ format:               ## Format source code
 	go tool gofumpt -l -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
-format-fast:         ## Format only (without running gci)
-	@go tool gofumpt -l -w $(FILES)
-
 serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
 
