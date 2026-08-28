@@ -431,7 +431,11 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
                 }
                 arrow
               >
-                <IconButton size="small" data-testid="info-icon">
+                <IconButton
+                  aria-label={m.openManagerLabel}
+                  size="small"
+                  data-testid="info-icon"
+                >
                   <InfoOutlinedIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
