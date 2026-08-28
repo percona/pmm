@@ -43,6 +43,14 @@ import (
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type AgentType string
 
+// Text file names carrying TLS material to pmm-agent. Exporter arguments reference them
+// as {{ .TextFiles.<name> }}, so renaming one is a change to the agent wire protocol.
+const (
+	TLSCaFileName   = "tlsCa"
+	TLSCertFileName = "tlsCert"
+	TLSKeyFileName  = "tlsKey"
+)
+
 const (
 	certificateFilePlaceholder    = "certificateFilePlaceholder"
 	certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
@@ -955,13 +963,13 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 		files := make(map[string]string)
 
 		if a.ValkeyOptions.SSLCa != "" {
-			files["tlsCa"] = a.ValkeyOptions.SSLCa
+			files[TLSCaFileName] = a.ValkeyOptions.SSLCa
 		}
 		if a.ValkeyOptions.SSLCert != "" {
-			files["tlsCert"] = a.ValkeyOptions.SSLCert
+			files[TLSCertFileName] = a.ValkeyOptions.SSLCert
 		}
 		if a.ValkeyOptions.SSLKey != "" {
-			files["tlsKey"] = a.ValkeyOptions.SSLKey
+			files[TLSKeyFileName] = a.ValkeyOptions.SSLKey
 		}
 
 		if len(files) != 0 {

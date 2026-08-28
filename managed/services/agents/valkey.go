@@ -46,16 +46,16 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 			args = append(args, "--skip-tls-verification")
 		}
 
-		for name := range textFiles {
-			switch name {
-			case "tlsCa":
-				args = append(args, "--tls-ca-cert-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
-			case "tlsCert":
-				args = append(args, "--tls-client-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
-			case "tlsKey":
-				args = append(args, "--tls-client-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
-			default:
-				continue
+		// The flag names come from oliver006/redis_exporter, shipped as valkey_exporter;
+		// all four have been stable since v1.72.1, the build the first Valkey release used.
+		tlsFileFlags := []struct{ file, flag string }{
+			{models.TLSCaFileName, "--tls-ca-cert-file"},
+			{models.TLSCertFileName, "--tls-client-cert-file"},
+			{models.TLSKeyFileName, "--tls-client-key-file"},
+		}
+		for _, f := range tlsFileFlags {
+			if _, ok := textFiles[f.file]; ok {
+				args = append(args, f.flag+"="+tdp.Left+" .TextFiles."+f.file+" "+tdp.Right)
 			}
 		}
 	}
