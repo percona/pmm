@@ -1804,13 +1804,13 @@ func checkInternalPgQANEnvOverride(q *reform.Querier, agent *models.Agent, enabl
 // another table to test that; the columns that do live on the agents row, pmm_agent_id and
 // service_id, are both generated at runtime and neither has a fixed value a predicate could pin
 // (service_id always varies, and pmm_agent_id does too in HA mode). Locking the Service row with
-// SELECT ... FOR UPDATE serializes the two transactions on this specific check instead: the second
-// one blocks until the first commits or rolls back, and then re-reads the now-settled state.
+// SELECT ... FOR NO KEY UPDATE serializes the two transactions on this specific check instead: the
+// second one blocks until the first commits or rolls back, and then re-reads the now-settled state.
+// FOR NO KEY UPDATE rather than FOR UPDATE deliberately: it still conflicts with a concurrent call
+// taking the same lock, but not with the FOR KEY SHARE lock that an unrelated agent insert takes on
+// this row via the agents_service_id_fkey foreign key, so adding other agents to this Service is
+// not blocked by this check.
 func checkInternalPgQANDuplicate(q *reform.Querier, serviceID string) error {
-	if serviceID == "" {
-		return nil
-	}
-
 	service, err := models.FindServiceByID(q, serviceID)
 	if err != nil {
 		return err
@@ -1819,7 +1819,7 @@ func checkInternalPgQANDuplicate(q *reform.Querier, serviceID string) error {
 		return nil
 	}
 
-	if _, err := q.SelectOneFrom(models.ServiceTable, "WHERE service_id = $1 FOR UPDATE", serviceID); err != nil {
+	if _, err := q.SelectOneFrom(models.ServiceTable, "WHERE service_id = $1 FOR NO KEY UPDATE", serviceID); err != nil {
 		return err
 	}
 
