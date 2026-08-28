@@ -12,7 +12,16 @@ import {
   StartUpdateResponse,
 } from 'types/updates.types';
 import { AxiosError } from 'axios';
-import { ApiError } from 'types/api.types';
+import { ApiError, ApiErrorResponse } from 'types/api.types';
+
+// grpc-gateway maps several gRPC codes onto HTTP 400, so the status alone cannot
+// tell "updates are disabled" apart from a rejected request.
+const GRPC_FAILED_PRECONDITION = 9;
+
+const isUpdatesDisabled = (error: AxiosError) =>
+  error.response?.status === 400 &&
+  (error.response.data as ApiErrorResponse | undefined)?.code ===
+    GRPC_FAILED_PRECONDITION;
 
 export type UseCheckUpdatesOptions = Partial<
   UseQueryOptions<GetUpdatesResponse>
@@ -34,11 +43,11 @@ export const useCheckUpdates = ({
       }
 
       try {
-        // 400 is "updates are disabled", which the fallback below handles. Any
-        // other failure is real and the user needs to hear about it.
+        // the fallback below handles a disabled deployment. Any other failure
+        // is real and the user needs to hear about it.
         return await checkForUpdates(
           { force: true },
-          { disableNotifications: (error) => error.response?.status === 400 }
+          { disableNotifications: isUpdatesDisabled }
         );
       } catch (error) {
         if ((error as AxiosError).response?.status !== 401) {

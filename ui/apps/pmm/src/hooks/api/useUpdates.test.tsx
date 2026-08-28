@@ -25,9 +25,12 @@ const installedOnly = {
   updateAvailable: false,
 };
 
-const errorWithStatus = (status: number, message = 'failed') => {
+const errorWithStatus = (status: number, code?: number, message = 'failed') => {
   const error = new AxiosError(message);
-  error.response = { status } as AxiosError['response'];
+  error.response = {
+    status,
+    data: { error: message, message, code },
+  } as AxiosError['response'];
   return error;
 };
 
@@ -55,7 +58,9 @@ describe('useCheckUpdates', () => {
 
   it('suppresses the notification only for a disabled-updates response', async () => {
     checkForUpdates
-      .mockRejectedValueOnce(errorWithStatus(400, 'PMM updates are disabled'))
+      .mockRejectedValueOnce(
+        errorWithStatus(400, 9, 'PMM updates are disabled')
+      )
       .mockResolvedValueOnce(installedOnly);
 
     const { result } = renderHook(() => useCheckUpdates(), {
@@ -66,8 +71,11 @@ describe('useCheckUpdates', () => {
 
     const [params, config] = checkForUpdates.mock.calls[0];
     expect(params).toEqual({ force: true });
-    // 400 is the disabled case and stays quiet; a real failure must not
-    expect(config.disableNotifications(errorWithStatus(400))).toBe(true);
+    // only FailedPrecondition (9) is the disabled case and stays quiet
+    expect(config.disableNotifications(errorWithStatus(400, 9))).toBe(true);
+    // grpc-gateway also maps InvalidArgument (3) to 400; that must be reported
+    expect(config.disableNotifications(errorWithStatus(400, 3))).toBe(false);
+    expect(config.disableNotifications(errorWithStatus(400))).toBe(false);
     expect(config.disableNotifications(errorWithStatus(503))).toBe(false);
     expect(config.disableNotifications(errorWithStatus(500))).toBe(false);
 
