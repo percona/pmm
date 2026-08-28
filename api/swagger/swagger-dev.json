@@ -32427,6 +32427,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -32604,6 +32609,12 @@
                   "type": "boolean",
                   "x-nullable": true,
                   "x-order": 13
+                },
+                "enable_om": {
+                  "description": "Enable OpenManager.",
+                  "type": "boolean",
+                  "x-nullable": true,
+                  "x-order": 14
                 }
               }
             }
@@ -32745,6 +32756,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -32845,6 +32861,11 @@
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
                       "x-order": 7
+                    },
+                    "om_enabled": {
+                      "description": "True if OpenManager is enabled.",
+                      "type": "boolean",
+                      "x-order": 8
                     }
                   },
                   "x-order": 0
