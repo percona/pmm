@@ -69,15 +69,7 @@ CHANGED_GO_FILES = $(sort $(shell git diff --name-only --diff-filter=d $$(git me
 format:               ## Format source code; pass FILES="a.go b.go" to format only those files
 	make -C api format
 	go tool gofumpt -l -w $(GO_FILES)
-	go tool goimports -local github.com/percona/pmm -l -w $(GO_FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(GO_FILES)
-
-format-changed:       ## Format the Go files changed on this branch (much faster than `make format`)
-	@files="$(CHANGED_GO_FILES)"; \
-	if [ -z "$$files" ]; then echo "No changed Go files."; else $(MAKE) format FILES="$$files"; fi
-
-format-fast:         ## Format only (without running goimports and gci)
-	@go tool gofumpt -l -w $(GO_FILES)
 
 serve:                ## Serve API documentation with nginx
 	nginx -p . -c api/nginx/nginx.conf
