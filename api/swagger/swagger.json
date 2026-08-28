@@ -1843,6 +1843,11 @@
                                 }
                               },
                               "x-order": 6
+                            },
+                            "overridable": {
+                              "description": "Whether this parameter's threshold can be overridden per target without editing the\nrule. Only set for templates that support it; the scopes it may be set at are\nreported per rule by ListThresholds.",
+                              "type": "boolean",
+                              "x-order": 7
                             }
                           }
                         },
@@ -2209,7 +2214,7 @@
             ],
             "type": "string",
             "default": "THRESHOLD_SCOPE_UNSPECIFIED",
-            "description": "Scope of the target to report thresholds for. Must be set together with target.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Unlike the others it names no inventory entity,\nso it cannot be validated for existence and is never removed by entity deletion.",
+            "description": "Scope of the target to report thresholds for. Must be set together with target.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
             "name": "scope",
             "in": "query"
           },
@@ -2282,7 +2287,7 @@
                         "x-order": 6
                       },
                       "scope": {
-                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Unlike the others it names no inventory entity,\nso it cannot be validated for existence and is never removed by entity deletion.",
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
                         "type": "string",
                         "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                         "enum": [
@@ -2353,7 +2358,7 @@
               "type": "object",
               "properties": {
                 "scope": {
-                  "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Unlike the others it names no inventory entity,\nso it cannot be validated for existence and is never removed by entity deletion.",
+                  "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
                   "type": "string",
                   "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                   "enum": [
@@ -2440,7 +2445,7 @@
                       "x-order": 6
                     },
                     "scope": {
-                      "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Unlike the others it names no inventory entity,\nso it cannot be validated for existence and is never removed by entity deletion.",
+                      "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
                       "type": "string",
                       "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                       "enum": [
@@ -2511,7 +2516,7 @@
             ],
             "type": "string",
             "default": "THRESHOLD_SCOPE_UNSPECIFIED",
-            "description": " - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Unlike the others it names no inventory entity,\nso it cannot be validated for existence and is never removed by entity deletion.",
+            "description": " - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
             "name": "scope",
             "in": "query"
           },
@@ -2595,7 +2600,7 @@
                     "type": "object",
                     "properties": {
                       "scope": {
-                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Unlike the others it names no inventory entity,\nso it cannot be validated for existence and is never removed by entity deletion.",
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
                         "type": "string",
                         "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                         "enum": [
@@ -2690,7 +2695,7 @@
                         "x-order": 6
                       },
                       "scope": {
-                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Unlike the others it names no inventory entity,\nso it cannot be validated for existence and is never removed by entity deletion.",
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
                         "type": "string",
                         "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                         "enum": [

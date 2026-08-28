@@ -640,10 +640,11 @@ func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefin
 	res := make([]*alerting.ParamDefinition, 0, len(params))
 	for _, p := range params {
 		pd := &alerting.ParamDefinition{
-			Name:    p.Name,
-			Summary: p.Summary,
-			Unit:    convertParamUnit(p.Unit),
-			Type:    convertParamType(p.Type),
+			Name:        p.Name,
+			Summary:     p.Summary,
+			Unit:        convertParamUnit(p.Unit),
+			Type:        convertParamType(p.Type),
+			Overridable: p.Overridable,
 		}
 
 		switch p.Type {

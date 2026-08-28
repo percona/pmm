@@ -194,8 +194,7 @@ type SetThresholdBody struct {
 	//
 	//  - THRESHOLD_SCOPE_NODE: Target is a Node ID.
 	//  - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.
-	//  - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Unlike the others it names no inventory entity,
-	// so it cannot be validated for existence and is never removed by entity deletion.
+	//  - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.
 	// Enum: ["THRESHOLD_SCOPE_UNSPECIFIED","THRESHOLD_SCOPE_NODE","THRESHOLD_SCOPE_SERVICE","THRESHOLD_SCOPE_CLUSTER"]
 	Scope *string `json:"scope,omitempty"`
 
@@ -664,8 +663,7 @@ type SetThresholdOKBodyThreshold struct {
 	//
 	//  - THRESHOLD_SCOPE_NODE: Target is a Node ID.
 	//  - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.
-	//  - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Unlike the others it names no inventory entity,
-	// so it cannot be validated for existence and is never removed by entity deletion.
+	//  - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.
 	// Enum: ["THRESHOLD_SCOPE_UNSPECIFIED","THRESHOLD_SCOPE_NODE","THRESHOLD_SCOPE_SERVICE","THRESHOLD_SCOPE_CLUSTER"]
 	Scope *string `json:"scope,omitempty"`
 

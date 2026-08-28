@@ -17,6 +17,9 @@ package alerting
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 
@@ -295,4 +298,44 @@ func TestCollectOverridableParams(t *testing.T) {
 		require.NoError(t, err)
 		assert.Nil(t, params)
 	})
+}
+
+// TestBuiltInOverridableTemplates pins exactly which shipped templates expose an
+// overridable threshold. Marking one is not a free change: the injected threshold query
+// joins on a single label, so a template whose observed query does not carry that label
+// would generate a rule that silently never matches.
+func TestBuiltInOverridableTemplates(t *testing.T) {
+	t.Parallel()
+
+	// Only node scope resolves so far, so a template qualifies when it is
+	// multi-expression and aggregates by node_name.
+	want := []string{"pmm_node_high_cpu_load"}
+
+	files, err := filepath.Glob(filepath.Join("..", "..", "data", "alerting-templates", "*.yml"))
+	require.NoError(t, err)
+	require.NotEmpty(t, files)
+
+	var got []string
+
+	for _, file := range files {
+		b, err := os.ReadFile(file) //nolint:gosec
+		require.NoError(t, err)
+
+		templates, err := alert.Parse(strings.NewReader(string(b)), &alert.ParseParams{
+			DisallowUnknownFields:    true,
+			DisallowInvalidTemplates: true,
+		})
+		require.NoError(t, err, "built-in template %s must parse", filepath.Base(file))
+
+		for _, template := range templates {
+			if len(template.OverridableParams()) != 0 {
+				got = append(got, template.Name)
+			}
+		}
+	}
+
+	sort.Strings(got)
+	assert.Equal(t, want, got,
+		"adding a template here needs a join label the threshold query can match on; "+
+			"templates that aggregate by (cluster) and drop node_name must not be marked overridable")
 }

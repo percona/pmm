@@ -147,8 +147,7 @@ const (
 	ThresholdScope_THRESHOLD_SCOPE_NODE ThresholdScope = 1
 	// Target is a Service ID.
 	ThresholdScope_THRESHOLD_SCOPE_SERVICE ThresholdScope = 2
-	// Target is a cluster label value. Unlike the others it names no inventory entity,
-	// so it cannot be validated for existence and is never removed by entity deletion.
+	// Target is a cluster label value.
 	ThresholdScope_THRESHOLD_SCOPE_CLUSTER ThresholdScope = 3
 )
 
@@ -368,7 +367,11 @@ type ParamDefinition struct {
 	//	*ParamDefinition_Bool
 	//	*ParamDefinition_Float
 	//	*ParamDefinition_String_
-	Value         isParamDefinition_Value `protobuf_oneof:"value"`
+	Value isParamDefinition_Value `protobuf_oneof:"value"`
+	// Whether this parameter's threshold can be overridden per target without editing the
+	// rule. Only set for templates that support it; the scopes it may be set at are
+	// reported per rule by ListThresholds.
+	Overridable   bool `protobuf:"varint,8,opt,name=overridable,proto3" json:"overridable,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -463,6 +466,13 @@ func (x *ParamDefinition) GetString_() *StringParamDefinition {
 		}
 	}
 	return nil
+}
+
+func (x *ParamDefinition) GetOverridable() bool {
+	if x != nil {
+		return x.Overridable
+	}
+	return false
 }
 
 type isParamDefinition_Value interface {
@@ -2149,7 +2159,7 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x15StringParamDefinition\x12\x1d\n" +
 	"\adefault\x18\x01 \x01(\tH\x00R\adefault\x88\x01\x01B\n" +
 	"\n" +
-	"\b_default\"\xe3\x02\n" +
+	"\b_default\"\x85\x03\n" +
 	"\x0fParamDefinition\x12\x1b\n" +
 	"\x04name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x04name\x12!\n" +
 	"\asummary\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\asummary\x12*\n" +
@@ -2157,7 +2167,8 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x04type\x18\x04 \x01(\x0e2\x16.alerting.v1.ParamTypeR\x04type\x126\n" +
 	"\x04bool\x18\x05 \x01(\v2 .alerting.v1.BoolParamDefinitionH\x00R\x04bool\x129\n" +
 	"\x05float\x18\x06 \x01(\v2!.alerting.v1.FloatParamDefinitionH\x00R\x05float\x12<\n" +
-	"\x06string\x18\a \x01(\v2\".alerting.v1.StringParamDefinitionH\x00R\x06stringB\a\n" +
+	"\x06string\x18\a \x01(\v2\".alerting.v1.StringParamDefinitionH\x00R\x06string\x12 \n" +
+	"\voverridable\x18\b \x01(\bR\voverridableB\a\n" +
 	"\x05value\":\n" +
 	"\rTemplateQuery\x12\x15\n" +
 	"\x06ref_id\x18\x01 \x01(\tR\x05refId\x12\x12\n" +

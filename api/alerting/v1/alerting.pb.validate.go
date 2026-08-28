@@ -416,6 +416,8 @@ func (m *ParamDefinition) validate(all bool) error {
 
 	// no validation rules for Type
 
+	// no validation rules for Overridable
+
 	switch v := m.Value.(type) {
 	case *ParamDefinition_Bool:
 		if v == nil {

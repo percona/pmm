@@ -49,6 +49,10 @@ message ParamDefinition {
     // String value.
     StringParamDefinition string = 7;
   }
+  // Whether this parameter's threshold can be overridden per target without editing the
+  // rule. Only set for templates that support it; the scopes it may be set at are
+  // reported per rule by ListThresholds.
+  bool overridable = 8;
 }
 
 // TemplateSource defines template source.
