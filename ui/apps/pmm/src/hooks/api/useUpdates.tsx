@@ -34,10 +34,11 @@ export const useCheckUpdates = ({
       }
 
       try {
-        // the fallback below recovers from this, so it must not raise a notification
+        // 400 is "updates are disabled", which the fallback below handles. Any
+        // other failure is real and the user needs to hear about it.
         return await checkForUpdates(
           { force: true },
-          { disableNotifications: true }
+          { disableNotifications: (error) => error.response?.status === 400 }
         );
       } catch (error) {
         if ((error as AxiosError).response?.status !== 401) {

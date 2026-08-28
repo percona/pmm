@@ -115,13 +115,26 @@ describe('UpdatesProvider (PMM-15274)', () => {
     ]);
   });
 
-  it('still surfaces a genuine failure when updates are enabled', async () => {
-    // nothing recovers this one, so the user must be told
+  it('reports a real failure even though the fallback recovers', async () => {
+    // pmm-managed is up but cannot reach the version service. The fallback
+    // succeeds, so this is the only chance the user has to hear about it.
     api.defaults.adapter = async (config: InternalAxiosRequestConfig) => {
       if (!config.url?.includes('/server/updates')) {
         return { data: {}, status: 200, statusText: 'OK', headers: {}, config };
       }
-      seenParams.push((config.params ?? {}) as Record<string, unknown>);
+      const params = (config.params ?? {}) as Record<string, unknown>;
+      seenParams.push(params);
+
+      if (params.only_installed_version) {
+        return {
+          data: INSTALLED_ONLY_BODY,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config,
+        };
+      }
+
       throw new AxiosError('Request failed', '503', config, {}, {
         data: { message: 'failed to check for updates' },
         status: 503,
@@ -135,16 +148,28 @@ describe('UpdatesProvider (PMM-15274)', () => {
 
     await waitFor(() => expect(enqueueSnackbar).toHaveBeenCalled());
 
-    // the full check is attempted, fails quietly, then the fallback reports
-    expect(seenParams[0]).toEqual({ force: true });
-    expect(seenParams[1]).toEqual({
-      force: true,
-      only_installed_version: true,
-    });
+    expect(seenParams).toEqual([
+      { force: true },
+      { force: true, only_installed_version: true },
+    ]);
     expect(enqueueSnackbar).toHaveBeenCalledTimes(1);
     expect(enqueueSnackbar).toHaveBeenCalledWith(
       'failed to check for updates',
       expect.objectContaining({ variant: 'error' })
     );
+  });
+
+  it('stays quiet if the server reports updates are disabled', async () => {
+    // settings said enabled but the server disagrees, so the toast this ticket
+    // is about must not come back
+    renderProvider(true);
+
+    await waitFor(() => expect(seenParams.length).toBe(2));
+
+    expect(seenParams).toEqual([
+      { force: true },
+      { force: true, only_installed_version: true },
+    ]);
+    expect(enqueueSnackbar).not.toHaveBeenCalled();
   });
 });

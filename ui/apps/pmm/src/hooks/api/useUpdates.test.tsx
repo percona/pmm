@@ -25,9 +25,9 @@ const installedOnly = {
   updateAvailable: false,
 };
 
-const failedPrecondition = () => {
-  const error = new AxiosError('PMM updates are disabled');
-  error.response = { status: 400 } as AxiosError['response'];
+const errorWithStatus = (status: number, message = 'failed') => {
+  const error = new AxiosError(message);
+  error.response = { status } as AxiosError['response'];
   return error;
 };
 
@@ -53,9 +53,9 @@ describe('useCheckUpdates', () => {
     });
   });
 
-  it('does not notify on the full check it recovers from', async () => {
+  it('suppresses the notification only for a disabled-updates response', async () => {
     checkForUpdates
-      .mockRejectedValueOnce(failedPrecondition())
+      .mockRejectedValueOnce(errorWithStatus(400, 'PMM updates are disabled'))
       .mockResolvedValueOnce(installedOnly);
 
     const { result } = renderHook(() => useCheckUpdates(), {
@@ -64,11 +64,13 @@ describe('useCheckUpdates', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(checkForUpdates).toHaveBeenNthCalledWith(
-      1,
-      { force: true },
-      { disableNotifications: true }
-    );
+    const [params, config] = checkForUpdates.mock.calls[0];
+    expect(params).toEqual({ force: true });
+    // 400 is the disabled case and stays quiet; a real failure must not
+    expect(config.disableNotifications(errorWithStatus(400))).toBe(true);
+    expect(config.disableNotifications(errorWithStatus(503))).toBe(false);
+    expect(config.disableNotifications(errorWithStatus(500))).toBe(false);
+
     expect(checkForUpdates).toHaveBeenNthCalledWith(2, {
       force: true,
       onlyInstalledVersion: true,
