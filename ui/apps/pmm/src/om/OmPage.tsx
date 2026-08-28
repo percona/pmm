@@ -16,10 +16,26 @@
  */
 
 import { FC, PropsWithChildren } from 'react';
+import Alert from '@mui/material/Alert';
+import Card from '@mui/material/Card';
+import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import { Page } from 'components/page';
 import { useUser } from 'contexts/user';
+import { useReadonlySettings } from 'hooks/api/useSettings';
+import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { OrgRole } from 'types/user.types';
+
+const TECHNICAL_PREVIEW_DISMISSED_KEY = 'pmm-ui.om.technicalPreviewDismissed';
+
+const Messages = {
+  switchedOff:
+    'OpenManager is switched off. A PMM admin can turn it on in Configuration → Settings → Advanced Settings.',
+  technicalPreview: 'Technical preview',
+  technicalPreviewBody:
+    'OpenManager is a technical preview. It is still under development and may change.',
+};
 
 /**
  * Host chrome for the OM page.
@@ -37,9 +53,31 @@ import { OrgRole } from 'types/user.types';
  * `isGrafanaAdmin || orgRole === Admin`, and `roles` (org-role only) cannot express the
  * Grafana-admin half on its own, so it gates the remaining case and `Page` renders its
  * standard unauthorized card.
+ *
+ * The settings gate is enforced here for the same reason: a saved or shared link to
+ * this page has to answer "switched off", not the API's raw FailedPrecondition, and
+ * not the unauthorized card above, which would misreport a disabled feature as a
+ * permissions problem to an admin who has every right to be here (PMM-15360 AC1/AC2/AC7).
+ *
+ * The technical-preview banner is dismissible, and remembered per browser rather than
+ * per PMM account or installation -- it is a "you've seen this" acknowledgement, not a
+ * setting with a right answer for every viewer, so localStorage is enough and needs no
+ * round trip to pmm-managed.
+ *
+ * The close button's `sx` override exists because `@percona/peak-ui`'s MuiAlert theme
+ * (`styleOverrides.icon`/`.message`) sets `color: theme.palette[severity].contrastText`
+ * on the icon and message slots, but not on `.MuiAlert-action` -- so the close button
+ * MUI renders for `onClose` falls back to the alert root's own `color`, which this
+ * theme leaves close to the warning background itself. Nothing else in this app uses a
+ * dismissible Alert, which is presumably why that gap was never hit before.
  */
 export const OmPage: FC<PropsWithChildren> = ({ children }) => {
   const { user } = useUser();
+  const { data: settings, isLoading } = useReadonlySettings();
+  const [previewDismissed, setPreviewDismissed] = useLocalStorage<boolean>(
+    TECHNICAL_PREVIEW_DISMISSED_KEY,
+    false
+  );
 
   return (
     <Page
@@ -47,7 +85,38 @@ export const OmPage: FC<PropsWithChildren> = ({ children }) => {
       roles={user?.isPMMAdmin ? undefined : [OrgRole.Admin]}
     >
       <Stack gap={3} sx={{ flex: 1 }}>
-        <div>{children}</div>
+        {isLoading ? (
+          <Stack alignItems="center" py={4}>
+            <CircularProgress data-testid="om-loading" />
+          </Stack>
+        ) : settings?.omEnabled ? (
+          <>
+            {!previewDismissed && (
+              <Alert
+                severity="warning"
+                onClose={() => setPreviewDismissed(true)}
+                data-testid="om-technical-preview"
+                sx={{
+                  '& .MuiAlert-action': {
+                    color: (theme) => theme.palette.warning.contrastText,
+                  },
+                }}
+              >
+                <Typography variant="body2">
+                  <strong>{Messages.technicalPreview}</strong>{' '}
+                  {Messages.technicalPreviewBody}
+                </Typography>
+              </Alert>
+            )}
+            <div>{children}</div>
+          </>
+        ) : (
+          <Card variant="outlined" sx={{ p: 2 }}>
+            <Alert severity="info" data-testid="om-switched-off">
+              {Messages.switchedOff}
+            </Alert>
+          </Card>
+        )}
       </Stack>
     </Page>
   );
