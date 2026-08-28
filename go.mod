@@ -334,7 +334,6 @@ require (
 	golang.org/x/net v0.58.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/perf v0.0.0-20260409210113-8e83ce0f7b1c // indirect
-	golang.org/x/telemetry v0.0.0-20260811182544-a038080d80e5 // indirect
 	golang.org/x/term v0.45.0 // indirect
 	google.golang.org/appengine v1.6.8-0.20221117013220-504804fb50de // indirect
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.0 // indirect
@@ -360,7 +359,6 @@ tool (
 	github.com/reviewdog/reviewdog/cmd/reviewdog
 	github.com/vektra/mockery/v2
 	golang.org/x/perf/cmd/benchstat
-	golang.org/x/tools/cmd/goimports
 	golang.org/x/tools/cmd/stringer
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	google.golang.org/protobuf/cmd/protoc-gen-go

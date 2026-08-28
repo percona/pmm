@@ -133,16 +133,12 @@ formatters:
     - gci
     - gofmt
     - gofumpt
-    - goimports
   settings:
     gci:
       sections:
         - standard
         - default
         - prefix(github.com/percona/pmm)
-    goimports:
-      local-prefixes:
-        - github.com/percona/pmm
   exclusions:
     generated: lax
     paths:

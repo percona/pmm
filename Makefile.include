@@ -64,10 +64,9 @@ FILES = $(shell find . -type f -name '*.go')
 format:               ## Format source code
 	make -C api format
 	go tool gofumpt -l -w $(FILES)
-	go tool goimports -local github.com/percona/pmm -l -w $(FILES)
 	go tool gci write --section Standard --section Default --section "Prefix(github.com/percona/pmm)" $(FILES)
 
-format-fast:         ## Format only (without running goimports and gci)
+format-fast:         ## Format only (without running gci)
 	@go tool gofumpt -l -w $(FILES)
 
 serve:                ## Serve API documentation with nginx
