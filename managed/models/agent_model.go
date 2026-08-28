@@ -996,6 +996,14 @@ func (a Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 		if a.PostgreSQLOptions.SSLKey != "" {
 			templateParams = append(templateParams, a.PostgreSQLOptions.SSLKey)
 		}
+	case ValkeyServiceType:
+		// pmm-agent renders every text file's content as a template, so all three
+		// certificates have to be considered, not just the private key.
+		for _, s := range []string{a.ValkeyOptions.SSLCa, a.ValkeyOptions.SSLCert, a.ValkeyOptions.SSLKey} {
+			if s != "" {
+				templateParams = append(templateParams, s)
+			}
+		}
 	case ProxySQLServiceType:
 	case HAProxyServiceType:
 	case ExternalServiceType:

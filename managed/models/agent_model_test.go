@@ -326,6 +326,40 @@ func TestValkey(t *testing.T) {
 
 		require.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
 	})
+
+	t.Run("Files", func(t *testing.T) {
+		for name, tc := range map[string]struct {
+			options  models.ValkeyOptions
+			expected map[string]string
+		}{
+			"all":  {models.ValkeyOptions{SSLCa: "aa", SSLCert: "bb", SSLKey: "cc"}, map[string]string{"tlsCa": "aa", "tlsCert": "bb", "tlsKey": "cc"}},
+			"ca":   {models.ValkeyOptions{SSLCa: "aa"}, map[string]string{"tlsCa": "aa"}},
+			"pair": {models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, map[string]string{"tlsCert": "bb", "tlsKey": "cc"}},
+			"none": {models.ValkeyOptions{}, nil},
+		} {
+			t.Run(name, func(t *testing.T) {
+				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: tc.options}
+
+				require.Equal(t, tc.expected, agent.Files())
+			})
+		}
+	})
+
+	t.Run("TemplateDelimiters avoid certificate content", func(t *testing.T) {
+		service := &models.Service{ServiceType: models.ValkeyServiceType, Address: new("1.2.3.4")}
+
+		for name, options := range map[string]models.ValkeyOptions{
+			"ca":   {SSLCa: "aa {{ bb"},
+			"cert": {SSLCert: "aa {{ bb"},
+			"key":  {SSLKey: "aa {{ bb"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: options}
+
+				require.Equal(t, &models.DelimiterPair{Left: "[[", Right: "]]"}, agent.TemplateDelimiters(service))
+			})
+		}
+	})
 }
 
 func TestPostgresWithSocket(t *testing.T) {

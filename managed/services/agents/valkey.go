@@ -40,13 +40,33 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
+	textFiles := exporter.Files()
+	if exporter.TLS {
+		if exporter.TLSSkipVerify {
+			args = append(args, "--skip-tls-verification")
+		}
+
+		for name := range textFiles {
+			switch name {
+			case "tlsCa":
+				args = append(args, "--tls-ca-cert-file="+tdp.Left+" .TextFiles.tlsCa "+tdp.Right)
+			case "tlsCert":
+				args = append(args, "--tls-client-cert-file="+tdp.Left+" .TextFiles.tlsCert "+tdp.Right)
+			case "tlsKey":
+				args = append(args, "--tls-client-key-file="+tdp.Left+" .TextFiles.tlsKey "+tdp.Right)
+			default:
+				continue
+			}
+		}
+	}
+
 	dsnParams := models.DSNParams{}
 	connectionTimeout := exporter.EffectiveDialTimeout()
 
-	args = append(args, "--redis.addr="+exporter.DSN(service, dsnParams, nil, pmmAgentVersion))
+	args = append(args, "--redis.addr="+exporter.DSN(service, dsnParams, tdp, pmmAgentVersion))
 	args = append(args, "--connection-timeout="+connectionTimeout.String())
 	// valkey_exporter parses flags with the stdlib flag package, which rejects --log.level
-	// and has no fatal level (PMM-15201).
+	// and has no fatal level.
 	args = withLogLevelFlag(args, "--log-level", exporter.LogLevel, pmmAgentVersion, false)
 	sort.Strings(args)
 
@@ -55,7 +75,7 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		TextFiles:          exporter.Files(),
+		TextFiles:          textFiles,
 	}
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
