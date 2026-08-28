@@ -360,8 +360,11 @@ func IsInternalPgQANAgent(q *reform.Querier, agent *Agent) (bool, error) {
 // PMM_ENABLE_INTERNAL_PG_QAN is set. Removing it drops the state the variable pins and leaves the
 // settings API with no agent to toggle.
 //
-// Every code path that can delete an Agent row must call this before doing so, not just
-// AgentsService.Remove: ManagementService.RemoveService, for one, deletes Agents directly.
+// Called from RemoveAgent itself, the one choke point every deletion path funnels through
+// (AgentsService.Remove, ManagementService.RemoveService, ServicesService.Remove, node/service
+// cascades), rather than from each caller: a guard placed at individual call sites is only as good
+// as the list of call sites, and missed one (ServicesService.Remove's force=true cascade never
+// went through AgentsService.Remove).
 func CheckInternalPgQANRemoval(q *reform.Querier, agent *Agent) error {
 	internal, err := IsInternalPgQANAgent(q, agent)
 	if err != nil || !internal {
@@ -1562,6 +1565,10 @@ func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) 
 
 	if id == PMMServerAgentID {
 		return nil, status.Error(codes.PermissionDenied, "pmm-agent on PMM Server can't be removed.")
+	}
+
+	if err := CheckInternalPgQANRemoval(q, a); err != nil {
+		return nil, err
 	}
 
 	structs, err := q.SelectAllFrom(AgentTable, "WHERE pmm_agent_id = $1", id)

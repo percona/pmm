@@ -1722,20 +1722,11 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		agent, err := models.FindAgentByID(tx.Querier, id)
-		if err != nil {
-			return err
-		}
-
-		err = models.CheckInternalPgQANRemoval(tx.Querier, agent)
-		if err != nil {
-			return err
-		}
-
 		mode := models.RemoveRestrict
 		if force {
 			mode = models.RemoveCascade
 		}
+		var err error
 		removedAgent, err = models.RemoveAgent(tx.Querier, id, mode)
 		return err
 	})
