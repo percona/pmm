@@ -335,11 +335,16 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 // IsInternalPgQANAgent reports whether the Agent is the QAN Agent of PMM Server's own PostgreSQL
 // Service.
 //
-// The Agent type and the pmm-agent it runs under are not enough to tell it apart: remote PostgreSQL
-// instances added through RDS or Azure discovery get their QAN Agent attached to PMM Server's
-// pmm-agent as well, so the Service has to be part of the check.
+// Deliberately keyed on the Service alone, not the pmm-agent it runs under: Service names are
+// unique, so that's already enough to exclude a remote PostgreSQL instance's QAN Agent (RDS/Azure
+// discovery attaches those to PMM Server's own pmm-agent too, but never under this Service's name).
+// Adding pmm_agent_id == PMMServerAgentID on top would be redundant at best, and actively wrong at
+// worst: PMMServerAgentID is a mutable process global (reassigned in HA setup and from the
+// pmm-agent config file), so requiring it to match would let this Service's QAN Agent evade the
+// check the moment it runs under a different, still perfectly valid, pmm-agent -- while
+// FindInternalPgQANAgent below, which the settings API actually acts on, would still find it.
 func IsInternalPgQANAgent(q *reform.Querier, agent *Agent) (bool, error) {
-	if agent.AgentType != QANPostgreSQLPgStatementsAgentType || pointer.GetString(agent.PMMAgentID) != PMMServerAgentID {
+	if agent.AgentType != QANPostgreSQLPgStatementsAgentType {
 		return false, nil
 	}
 

@@ -1285,6 +1285,51 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		assert.Len(t, agents, 1)
 	})
 
+	t.Run("RejectRemovingTheInternalAgentEvenUnderAnotherPMMAgent", func(t *testing.T) {
+		// Exercises the exploit ademidoff described against the old IsInternalPgQANAgent
+		// pmm_agent_id conjunct: with the variable unset, remove the fixture's internal agent,
+		// register a second pmm-agent, and re-add the QAN agent for pmm-server-postgresql under
+		// that pmm-agent -- then pin the variable. The Service alone must still identify the new
+		// agent as internal, or every guard treats it as foreign from then on.
+		unsetInternalPgQANEnv(t)
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		original := internalPgQANAgent(t, as)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, models.PMMServerAgentID)
+		require.NoError(t, as.Remove(ctx, original.AgentID, false))
+
+		otherPMMAgent := &models.Agent{
+			AgentID:      "other-pmm-agent",
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: new(models.PMMServerNodeID),
+		}
+		require.NoError(t, as.db.Insert(otherPMMAgent))
+
+		service, err := models.FindServiceByName(as.db.Querier, models.PMMServerPostgreSQLServiceName)
+		require.NoError(t, err)
+
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, otherPMMAgent.AgentID)
+		added, err := as.AddQANPostgreSQLPgStatementsAgent(ctx, &inventoryv1.AddQANPostgreSQLPgStatementsAgentParams{
+			PmmAgentId:          otherPMMAgent.AgentID,
+			ServiceId:           service.ServiceID,
+			Username:            "username",
+			SkipConnectionCheck: true,
+		})
+		require.NoError(t, err)
+		newAgentID := added.GetQanPostgresqlPgstatementsAgent().AgentId
+
+		t.Setenv(env.EnableInternalPgQAN, "true")
+
+		err = as.Remove(ctx, newAgentID, false)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
+			"QAN for PMM's internal PostgreSQL server is configured via the PMM_ENABLE_INTERNAL_PG_QAN "+
+				"environment variable, its agent can't be removed."), err)
+
+		_, err = models.FindAgentByID(as.db.Querier, newAgentID)
+		require.NoError(t, err)
+	})
+
 	t.Run("RejectConcurrentAdditionOfASecondInternalQANAgent", func(t *testing.T) {
 		// RejectAddingASecondInternalQANAgent above only proves the check works when the two reads
 		// are not concurrent. checkInternalPgQANDuplicate reads "does one exist" before the insert,
