@@ -98,8 +98,12 @@ Two parallel layers, intentionally distinct — don't collapse them:
 
 PMM and SEP extend BaseTheme with `mergeThemeOptions` (see MUI Conventions). Child themes may override any `styleOverrides` slot and add `variants` — both compose with Base, so baseline styles are always respected and the child wins only on genuine conflicts. Shared behavior belongs in BaseTheme; brand-specific tweaks belong in PMM/SEP.
 
-## Code Comments (CRITICAL)
+## Code Comments (CRITICAL — default to none)
 
-- Prefer no comment; code should be self-explanatory. One short line where a comment is genuinely needed — never paragraph-style docblocks for obvious logic.
-- If a comment needs more than ~150 characters, refactor or move the explanation to the PR/commit — not source.
-- Comment only non-obvious caveats worth flagging. Applies to `//` and `/* */` in TypeScript/TSX.
+Applies to `//` and `/* */` in TypeScript/TSX.
+
+- Default to zero comments. Well-named identifiers and small functions should make code self-explanatory without one.
+- When a comment is genuinely needed, it must be **a single line, one short sentence, under ~80 characters**. Never a multi-line block, never multiple sentences, never a JSDoc-style docblock — not even for exported functions/components.
+- A comment may only state a non-obvious *why*: a hidden constraint, a workaround for a specific bug, an invariant the reader could break by "cleaning up" the code. It must never restate *what* the code does, narrate a step, or reference the current task/PR/ticket/caller.
+- If the reasoning doesn't fit in one short line, it doesn't belong in source — put it in the PR description or commit message instead.
+- Before finishing a change, reread every comment you added: if deleting it would leave a future reader no more confused, delete it.
