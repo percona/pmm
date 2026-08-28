@@ -417,6 +417,10 @@ nav:
               - backup/mysql-backup/restore_mysql_backup.md
           - backup/edit_scheduled.md
           - backup/delete_a_backup.md
+      - Manage:
+          - manage/index.md
+          - manage/mysql-backup.md
+          - manage/support-diagnostics.md
   - Configure:
       - configure-pmm/configure.md
       - configure-pmm/metrics_res.md
