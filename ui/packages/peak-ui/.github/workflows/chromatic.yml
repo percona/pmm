@@ -1,16 +1,61 @@
 name: "Chromatic"
 
-on: push
+on:
+  push:
+  pull_request_target:
+
+permissions:
+  contents: read
+  statuses: write
 
 jobs:
   chromatic:
     name: Run Chromatic
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6
         with:
           fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.19.0
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 10
+      - name: Install dependencies
+        run: pnpm install
+      - name: Run Chromatic
+        uses: chromaui/action@37b88badc3a1122c01861af329554d8a227d7e52 #v18.4.0
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          exitZeroOnChanges: false
+          buildScriptName: "storybook:build"
+
+  # PRs from forks never trigger the `push` job above (push events only fire for
+  # the repo that owns the workflow), so the Chromatic check stays pending forever
+  # on fork PRs and blocks merge. pull_request_target runs in this repo's context
+  # (secrets available) instead of the fork's, so it's gated behind the
+  # `chromatic-external` environment's required reviewers: a maintainer must
+  # approve the run before untrusted fork code executes with access to secrets.
+  # One-time setup needed in GitHub: Settings > Environments > New environment
+  # named `chromatic-external`, with required reviewers added.
+  chromatic-fork:
+    name: Run Chromatic (fork PR)
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    environment: chromatic-external
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd #v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v7
         with:
           node-version: 24.19.0
