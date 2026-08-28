@@ -131,7 +131,6 @@ linters:
 formatters:
   enable:
     - gci
-    - gofmt
     - gofumpt
   settings:
     gci:
