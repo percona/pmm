@@ -12,7 +12,11 @@ export const UpdatesProvider: FC<PropsWithChildren> = ({ children }) => {
   const [status, setStatus] = useState(UpdateStatus.Pending);
   const { user } = useUser();
   const { isLoading, data, error, isRefetching, refetch } = useCheckUpdates({
-    enabled: !settings?.frontend?.anonymousEnabled && !!user?.isPMMAdmin,
+    // hold until settings load, otherwise a full check can fire before we know
+    // whether this deployment allows one
+    enabled:
+      !!settings && !settings.frontend?.anonymousEnabled && !!user?.isPMMAdmin,
+    onlyInstalledVersion: settings?.updatesEnabled === false,
   });
   const { data: clients } = useAgentVersions({
     enabled: !settings?.frontend?.anonymousEnabled && !!user?.isPMMAdmin,

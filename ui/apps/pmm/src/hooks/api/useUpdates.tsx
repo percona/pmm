@@ -14,14 +14,31 @@ import {
 import { AxiosError } from 'axios';
 import { ApiError } from 'types/api.types';
 
-export const useCheckUpdates = (
-  options?: Partial<UseQueryOptions<GetUpdatesResponse>>
-) =>
+export type UseCheckUpdatesOptions = Partial<
+  UseQueryOptions<GetUpdatesResponse>
+> & {
+  // deployments with PMM_ENABLE_UPDATES=0 reject a full check, so ask only for
+  // what the server always answers
+  onlyInstalledVersion?: boolean;
+};
+
+export const useCheckUpdates = ({
+  onlyInstalledVersion = false,
+  ...options
+}: UseCheckUpdatesOptions = {}) =>
   useQuery({
-    queryKey: ['checkUpdates'],
+    queryKey: ['checkUpdates', onlyInstalledVersion],
     queryFn: async () => {
+      if (onlyInstalledVersion) {
+        return checkForUpdates({ force: false, onlyInstalledVersion: true });
+      }
+
       try {
-        return await checkForUpdates({ force: true });
+        // the fallback below recovers from this, so it must not raise a notification
+        return await checkForUpdates(
+          { force: true },
+          { disableNotifications: true }
+        );
       } catch (error) {
         if ((error as AxiosError).response?.status !== 401) {
           return await checkForUpdates({
