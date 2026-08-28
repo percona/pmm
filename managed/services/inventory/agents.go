@@ -1799,11 +1799,6 @@ func checkInternalPgQANEnvOverride(q *reform.Querier, agent *models.Agent, enabl
 	)
 }
 
-// internalPgQANDuplicateLockKey is a pg_advisory_xact_lock key that serializes concurrent calls to
-// checkInternalPgQANDuplicate. See that function for why the lock, and not a database constraint,
-// is what actually closes the race it guards against.
-const internalPgQANDuplicateLockKey = "percona/pmm:internal-pg-qan-agent"
-
 // checkInternalPgQANDuplicate rejects adding a second QAN agent to PMM's internal PostgreSQL
 // Service. The fixtures create one together with PMM Server, and a second one would monitor the
 // same Service twice and make the agent that the settings API and PMM_ENABLE_INTERNAL_PG_QAN act on
@@ -1817,9 +1812,9 @@ const internalPgQANDuplicateLockKey = "percona/pmm:internal-pg-qan-agent"
 // makes an agent "internal" is its Service's name, and a partial index predicate can't reference
 // another table to test that; the columns that do live on the agents row, pmm_agent_id and
 // service_id, are both generated at runtime and neither has a fixed value a predicate could pin
-// (service_id always varies, and pmm_agent_id does too in HA mode); pg_advisory_xact_lock
-// serializes the two transactions on this specific check instead: the second one blocks until the
-// first commits or rolls back, and then re-reads the now-settled state.
+// (service_id always varies, and pmm_agent_id does too in HA mode). Locking the Service row with
+// SELECT ... FOR UPDATE serializes the two transactions on this specific check instead: the second
+// one blocks until the first commits or rolls back, and then re-reads the now-settled state.
 func checkInternalPgQANDuplicate(q *reform.Querier, serviceID string) error {
 	if serviceID == "" {
 		return nil
@@ -1833,8 +1828,7 @@ func checkInternalPgQANDuplicate(q *reform.Querier, serviceID string) error {
 		return nil
 	}
 
-	_, err = q.Exec("SELECT pg_advisory_xact_lock(hashtext($1)::bigint)", internalPgQANDuplicateLockKey)
-	if err != nil {
+	if _, err := q.SelectOneFrom(models.ServiceTable, "WHERE service_id = $1 FOR UPDATE", serviceID); err != nil {
 		return err
 	}
 
