@@ -146,17 +146,17 @@ You can add your Valkey or Redis service to PMM either through the user interfac
         Add an instance that requires client certificate authentication:
         ```sh
         pmm-admin add valkey \
-          --address=valkey-server.example.com:6379 \
+          Valkey-mTLS \
+          valkey-server.example.com:6379 \
           --username=pmm \
           --password=StrongPassword123! \
           --tls \
           --tls-ca=/path/to/ca.pem \
           --tls-cert=/path/to/client-cert.pem \
-          --tls-key=/path/to/client-key.pem \
-          Valkey-mTLS
+          --tls-key=/path/to/client-key.pem
         ```
 
-        Add `--tls-skip-verify` if the server presents a self-signed certificate or one whose SAN does not match the address you connect to. Only do this in development or testing environments.
+        `--tls-ca` already supplies the trust anchor, so a self-signed certificate does not need `--tls-skip-verify`. Add that flag only when a validation failure cannot be corrected — a SAN mismatch, for example — and only in development or testing: it disables server authentication entirely.
 
 === ":material-cog: Via inventory commands (Advanced)"
     PMM also provides inventory commands for more granular control:

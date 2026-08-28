@@ -113,15 +113,21 @@ func TestValkeyExporterConfig(t *testing.T) {
 
 		// ValkeyOptions.TLS is deliberately left unset: the exporter arguments and the DSN scheme
 		// both key off Agent.TLS, and the two flags must not drift apart.
-		newExporter := func(tls, tlsSkipVerify bool, options models.ValkeyOptions) *models.Agent {
+		type exporterFixture struct {
+			tls        bool
+			skipVerify bool
+			valkey     models.ValkeyOptions
+		}
+
+		newExporter := func(f exporterFixture) *models.Agent {
 			return &models.Agent{
 				AgentID:       "agent-id",
 				AgentType:     models.ValkeyExporterType,
 				Username:      new("username"),
 				Password:      new("secret"),
-				TLS:           tls,
-				TLSSkipVerify: tlsSkipVerify,
-				ValkeyOptions: options,
+				TLS:           f.tls,
+				TLSSkipVerify: f.skipVerify,
+				ValkeyOptions: f.valkey,
 			}
 		}
 
@@ -143,7 +149,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("MutualTLS", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(true, false, allCertificates), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: allCertificates}), redactSecrets, pmmAgentVersion)
 			expected := &agentv1.SetStateRequest_AgentProcess{
 				Type:               inventoryv1.AgentType_AGENT_TYPE_VALKEY_EXPORTER,
 				TemplateLeftDelim:  "{{",
@@ -172,7 +178,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("SkipVerifyWithoutCertificates", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(true, true, models.ValkeyOptions{}), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, skipVerify: true}), redactSecrets, pmmAgentVersion)
 			require.Contains(t, actual.Args, "--skip-tls-verification")
 			require.Contains(t, actual.Args, "--redis.addr=rediss://username:secret@1.2.3.4:6379")
 			require.Nil(t, actual.TextFiles)
@@ -182,7 +188,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("SkipVerifyWithCertificates", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(true, true, allCertificates), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, skipVerify: true, valkey: allCertificates}), redactSecrets, pmmAgentVersion)
 			require.Contains(t, actual.Args, "--skip-tls-verification")
 			require.Contains(t, actual.Args, "--tls-ca-cert-file={{ .TextFiles.tlsCa }}")
 			require.Contains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
@@ -192,7 +198,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("CertificateAuthorityOnly", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(true, false, models.ValkeyOptions{SSLCa: "ca-pem"}), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: models.ValkeyOptions{SSLCa: "ca-pem"}}), redactSecrets, pmmAgentVersion)
 			require.Contains(t, actual.Args, "--tls-ca-cert-file={{ .TextFiles.tlsCa }}")
 			require.NotContains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
 			require.NotContains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
@@ -203,7 +209,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 			t.Parallel()
 
 			options := models.ValkeyOptions{SSLCert: "cert-pem", SSLKey: "key-pem"}
-			actual := valkeyExporterConfig(node, service, newExporter(true, false, options), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: options}), redactSecrets, pmmAgentVersion)
 			require.NotContains(t, actual.Args, "--tls-ca-cert-file={{ .TextFiles.tlsCa }}")
 			require.Contains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
 			require.Contains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
@@ -213,7 +219,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("ClientCertificateWithoutKey", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(true, false, models.ValkeyOptions{SSLCert: "cert-pem"}), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: models.ValkeyOptions{SSLCert: "cert-pem"}}), redactSecrets, pmmAgentVersion)
 			require.Contains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
 			require.NotContains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
 			require.Equal(t, map[string]string{"tlsCert": "cert-pem"}, actual.TextFiles)
@@ -222,7 +228,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("PrivateKeyWithoutCertificate", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(true, false, models.ValkeyOptions{SSLKey: "key-pem"}), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: models.ValkeyOptions{SSLKey: "key-pem"}}), redactSecrets, pmmAgentVersion)
 			require.Contains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
 			require.NotContains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
 			require.Equal(t, map[string]string{"tlsKey": "key-pem"}, actual.TextFiles)
@@ -232,7 +238,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("CertificatesIgnoredWhenTLSDisabled", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(false, false, allCertificates), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{valkey: allCertificates}), redactSecrets, pmmAgentVersion)
 			requireNoTLSArgs(t, actual.Args)
 			require.Contains(t, actual.Args, "--redis.addr=redis://username:secret@1.2.3.4:6379")
 			require.Equal(t, map[string]string{"tlsCa": "ca-pem", "tlsCert": "cert-pem", "tlsKey": "key-pem"}, actual.TextFiles)
@@ -241,7 +247,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("SkipVerifyIgnoredWhenTLSDisabled", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(false, true, allCertificates), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{skipVerify: true, valkey: allCertificates}), redactSecrets, pmmAgentVersion)
 			requireNoTLSArgs(t, actual.Args)
 			require.Contains(t, actual.Args, "--redis.addr=redis://username:secret@1.2.3.4:6379")
 		})
@@ -249,7 +255,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("NoTLSArgumentsByDefault", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(false, false, models.ValkeyOptions{}), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{}), redactSecrets, pmmAgentVersion)
 			requireNoTLSArgs(t, actual.Args)
 			require.Nil(t, actual.TextFiles)
 		})
@@ -262,7 +268,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 				Socket:      new("/tmp/valkey.sock"),
 			}
 
-			actual := valkeyExporterConfig(node, socketService, newExporter(true, false, allCertificates), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, socketService, newExporter(exporterFixture{tls: true, valkey: allCertificates}), redactSecrets, pmmAgentVersion)
 			require.Contains(t, actual.Args, "--tls-ca-cert-file={{ .TextFiles.tlsCa }}")
 			require.Contains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
 			require.Contains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
@@ -273,7 +279,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("UnknownAgentVersion", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(true, true, allCertificates), redactSecrets, nil)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, skipVerify: true, valkey: allCertificates}), redactSecrets, nil)
 			require.Contains(t, actual.Args, "--skip-tls-verification")
 			require.Contains(t, actual.Args, "--tls-ca-cert-file={{ .TextFiles.tlsCa }}")
 			require.Contains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
@@ -283,7 +289,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("PrivateKeyIsRedacted", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(true, false, allCertificates), redactSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: allCertificates}), redactSecrets, pmmAgentVersion)
 			require.Contains(t, actual.RedactWords, "key-pem")
 			require.NotContains(t, actual.RedactWords, "ca-pem")
 			require.NotContains(t, actual.RedactWords, "cert-pem")
@@ -293,7 +299,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("SecretsExposedOnRequest", func(t *testing.T) {
 			t.Parallel()
 
-			actual := valkeyExporterConfig(node, service, newExporter(true, false, allCertificates), exposeSecrets, pmmAgentVersion)
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: allCertificates}), exposeSecrets, pmmAgentVersion)
 			require.Nil(t, actual.RedactWords)
 			require.Equal(t, "key-pem", actual.TextFiles["tlsKey"])
 			require.Contains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
@@ -315,7 +321,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 				t.Run(name, func(t *testing.T) {
 					t.Parallel()
 
-					actual := valkeyExporterConfig(node, service, newExporter(true, false, tc.options), redactSecrets, pmmAgentVersion)
+					actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: tc.options}), redactSecrets, pmmAgentVersion)
 					require.Equal(t, "[[", actual.TemplateLeftDelim)
 					require.Equal(t, "]]", actual.TemplateRightDelim)
 					require.Contains(t, actual.Args, tc.expected)
@@ -328,9 +334,11 @@ func TestValkeyExporterConfig(t *testing.T) {
 		t.Run("ArgumentsAreDeterministic", func(t *testing.T) {
 			t.Parallel()
 
-			first := valkeyExporterConfig(node, service, newExporter(true, true, allCertificates), redactSecrets, pmmAgentVersion)
+			fixture := exporterFixture{tls: true, skipVerify: true, valkey: allCertificates}
+
+			first := valkeyExporterConfig(node, service, newExporter(fixture), redactSecrets, pmmAgentVersion)
 			for range 10 {
-				require.Equal(t, first.Args, valkeyExporterConfig(node, service, newExporter(true, true, allCertificates), redactSecrets, pmmAgentVersion).Args)
+				require.Equal(t, first.Args, valkeyExporterConfig(node, service, newExporter(fixture), redactSecrets, pmmAgentVersion).Args)
 			}
 		})
 	})
