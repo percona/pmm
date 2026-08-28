@@ -740,11 +740,11 @@ For all available variables, see [PMM environment variables](../install-pmm/inst
 |-----------|-------------|---------|
 | `replicas` | Number of PMM server replicas | `3` |
 | `image.repository` | PMM server image repository | `percona/pmm-server` |
-| `image.tag` | PMM server image tag | matches the chart's `appVersion` |
+| `image.tag` | PMM server image tag | `3.9.1` (pinned in `values.yaml`, bumped with each chart release) |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
 | `secret.create` | Create secret automatically | `false` |
 | `secret.name` | Name of the PMM secret | `pmm-secret` |
-| `storage.size` | PVC size | `10Gi` |
+| `storage.size` | PVC size | `40Gi` |
 | `storage.storageClassName` | Storage class name | `""` |
 | `maxReplicas` | HAProxy `server-template` slots; caps how far `replicas` can grow | `10` |
 | `haproxy.replicaCount` | Number of HAProxy replicas | `3` |
@@ -860,7 +860,7 @@ View detailed role and health information for all PMM nodes in one place.
     Two changes affect existing deployments:
 
     - An even `replicas` (`2` or `4`) was previously accepted and now fails the render. Set an odd value in the same `helm upgrade`. That changes `PMM_HA_PEERS`, so it recreates every PMM pod.
-    - `PMM_HA_PEERS` now addresses pods by the StatefulSet's name instead of the release name. These differ only when the release name does not already contain `pmm-ha` and neither `nameOverride` nor `fullnameOverride` is set. For those releases Raft never formed a quorum and every HAProxy backend stayed DOWN — this upgrade repairs it, recreating the pods in the process. A release named `pmm-ha` renders byte identically and nothing restarts.
+    - `PMM_HA_PEERS` now addresses pods by the StatefulSet's name instead of the release name. These differ only when the release name does not already contain `pmm-ha` and neither `nameOverride` nor `fullnameOverride` is set. For those releases Raft never formed a quorum and every HAProxy backend stayed DOWN — this upgrade repairs it, recreating the pods in the process. A release named `pmm-ha` renders `PMM_HA_PEERS` byte identically, so the peer list itself triggers no restart. The upgrade still recreates the PMM pods, because the pod template carries a `helm.sh/chart` annotation that changes with every chart version.
 
 Each constraint in the table is described under [Limitations](#limitations).
 
@@ -1136,17 +1136,17 @@ Constraints to plan around when running PMM HA. Unlike the entries under [Known 
 
 #### Scaling down to single replica
 
-*Current gap.* When scaling down to a single PMM replica (from 3 to 1), ensure the **Raft leader is on pmm-0** before scaling. Kubernetes StatefulSets remove pods in reverse ordinal order (highest first).
+*Current gap.* When scaling down to a single PMM replica (from 3 to 1), ensure the **Raft leader is on `pmm-ha-0`** before scaling. Kubernetes StatefulSets remove pods in reverse ordinal order (highest first).
     
-  - Scaling 3→1 removes pmm-2 and pmm-1, keeping only pmm-0
-  - **If the Raft leader is on pmm-1 or pmm-2 when you scale down, PMM will become unreachable**
+  - Scaling 3→1 removes `pmm-ha-2` and `pmm-ha-1`, keeping only `pmm-ha-0`
+  - **If the Raft leader is on `pmm-ha-1` or `pmm-ha-2` when you scale down, PMM will become unreachable**
     
 **Workaround**: Check leader status before scaling:
 ```sh
 kubectl exec -it pmm-ha-0 -n pmm -- pmm-admin status
 ```
     
-Only scale down after confirming `pmm-0` is the leader.
+Only scale down after confirming `pmm-ha-0` is the leader. Pod names follow the StatefulSet, so they are `pmm-ha-N` for a release installed as `pmm-ha`.
 
 #### HAProxy cannot exceed the worker node count
 
@@ -1162,9 +1162,17 @@ The chart rejects even values with an error rather than deploying them. `clickho
 
 *Intended behaviour.* `replicas` cannot exceed `maxReplicas` (default `10`), because HAProxy renders only `maxReplicas` `server-template` slots and fills them from a headless-service DNS answer in arbitrary order. HAProxy also marks a backend UP only when that pod answers `/v1/server/leaderHealthCheck`. A pod left without a slot is therefore invisible to HAProxy, and if the Raft leader lands on it, **every backend is DOWN and PMM returns 503** — not merely one pod missing traffic. The chart rejects this combination.
 
-`maxReplicas` is rendered into the `pmm-ha-haproxy` ConfigMap, and the chart does not roll the HAProxy pods when that ConfigMap changes. (Changing `replicas` likewise rewrites `pmm-ha-haproxy-init-script`, the startup readiness gate, but routing is DNS-based and needs no restart.) Bump the `config-version` annotation in the same upgrade so HAProxy restarts and picks up the new `server-template`:
+`maxReplicas` is rendered into the `pmm-ha-haproxy` ConfigMap, and the chart does not roll the HAProxy pods when that ConfigMap changes. (Changing `replicas` likewise rewrites `pmm-ha-haproxy-init-script`, the startup readiness gate, but routing is DNS-based and needs no restart.) Raise the `config-version` annotation in the same upgrade so HAProxy restarts and picks up the new `server-template`. The annotation only rolls the pods when its value actually changes, so read the current one first — the chart ships `3`, but a cluster that has been through this before is already past it:
 
 ```sh
+kubectl get deployment pmm-ha-haproxy -n pmm \
+  -o jsonpath='{.spec.template.metadata.annotations.pmm\.percona\.com/config-version}'
+```
+
+Then set a higher value:
+
+```sh
+# replace 4 with a number above the one printed above
 helm upgrade pmm-ha percona/pmm-ha --namespace pmm \
   --set maxReplicas=20 \
   --set-string 'haproxy.podAnnotations.pmm\.percona\.com/config-version=4'
