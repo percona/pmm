@@ -1,6 +1,7 @@
 import { render, waitFor } from '@testing-library/react';
 import { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { UpdatesProvider } from './updates.provider';
+import { SettingsContext, type SettingsContextProps } from 'contexts/settings';
 import {
   api,
   addApiErrorInterceptor,
@@ -85,6 +86,19 @@ const renderProvider = (updatesEnabled: boolean) =>
     )
   );
 
+const renderWithSettingsContext = (value: SettingsContextProps) =>
+  render(
+    wrapWithQueryProvider(
+      wrapWithUserProvider(
+        <SettingsContext.Provider value={value}>
+          <UpdatesProvider>
+            <div>content</div>
+          </UpdatesProvider>
+        </SettingsContext.Provider>
+      )
+    )
+  );
+
 describe('UpdatesProvider (PMM-15274)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -163,6 +177,28 @@ describe('UpdatesProvider (PMM-15274)', () => {
     // settings said enabled but the server disagrees, so the toast this ticket
     // is about must not come back
     renderProvider(true);
+
+    await waitFor(() => expect(seenParams.length).toBe(2));
+
+    expect(seenParams).toEqual([
+      { force: true },
+      { force: true, only_installed_version: true },
+    ]);
+    expect(enqueueSnackbar).not.toHaveBeenCalled();
+  });
+
+  it('waits for settings before checking', async () => {
+    renderWithSettingsContext({ isLoading: true, settings: null });
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(seenParams).toEqual([]);
+  });
+
+  it('still checks for updates when settings fail to load', async () => {
+    // settings errored, and there is no retry. Blocking here would cost the
+    // footer its version for the rest of the session.
+    renderWithSettingsContext({ isLoading: false, settings: null });
 
     await waitFor(() => expect(seenParams.length).toBe(2));
 
