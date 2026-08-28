@@ -59,7 +59,7 @@ jobs:
         with:
           version: 10
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
       - name: Run Chromatic
         uses: chromaui/action@37b88badc3a1122c01861af329554d8a227d7e52 #v18.4.0
         with:
