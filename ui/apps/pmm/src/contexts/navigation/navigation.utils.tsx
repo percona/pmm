@@ -1,7 +1,7 @@
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
-import { MySqlIcon } from '@percona/peak-ui';
+import { MongoIcon, MySqlIcon } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
 import { User, UserPreferences } from 'types/user.types';
@@ -11,6 +11,7 @@ import {
   PMM_NEW_NAV_GRAFANA_PATH,
   SEP_ATW_PATH,
   SEP_MYSQL_BACKUPS_PATH,
+  OM_PATH,
 } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
@@ -317,5 +318,49 @@ export const addSepApps = (): NavItem[] => [
     icon: MySqlIcon,
     url: SEP_MYSQL_BACKUPS_PATH,
     matches: [SEP_MYSQL_BACKUPS_PATH],
+  },
+];
+
+/**
+ * OM's navigation, deliberately not part of `addSepApps`.
+ *
+ * Those entries are gated as a group on SEP, and the group is expected to gain a
+ * flag gate with real auth. OM is served by pmm-managed and reads PMM's own data,
+ * so hiding it when SEP is off or unreachable would hide a working page.
+ */
+export const addOm = (): NavItem[] => [
+  {
+    id: 'om',
+    text: 'OpenManager',
+    icon: MongoIcon,
+    url: OM_PATH,
+    matches: [OM_PATH],
+    children: [
+      {
+        id: 'om-overview',
+        text: 'Overview',
+        url: OM_PATH,
+      },
+      {
+        id: 'om-services',
+        text: 'Services',
+        url: `${OM_PATH}/services`,
+        matches: [`${OM_PATH}/services`],
+      },
+      {
+        // The page a host with no database appears on, which no other OM page can
+        // show: it has no service to be listed through.
+        id: 'om-hosts',
+        text: 'Hosts',
+        url: `${OM_PATH}/hosts`,
+        matches: [`${OM_PATH}/hosts`],
+      },
+      {
+        id: 'om-inventory',
+        text: 'Inventory',
+        url: `${OM_PATH}/inventory`,
+        matches: [`${OM_PATH}/inventory`],
+      },
+    ],
   },
 ];

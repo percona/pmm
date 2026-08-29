@@ -73,6 +73,7 @@ import (
 	hav1beta1 "github.com/percona/pmm/api/ha/v1beta1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
+	omv1 "github.com/percona/pmm/api/om/v1"
 	rtav1 "github.com/percona/pmm/api/realtimeanalytics/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	userv1 "github.com/percona/pmm/api/user/v1"
@@ -95,6 +96,7 @@ import (
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
+	"github.com/percona/pmm/managed/services/om"
 	"github.com/percona/pmm/managed/services/qan"
 	"github.com/percona/pmm/managed/services/realtimeanalytics"
 	"github.com/percona/pmm/managed/services/scheduler"
@@ -234,6 +236,10 @@ type gRPCServerDeps struct {
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
+
+	// Built in main so its collection timer can be registered as an HA leader service.
+	// runGRPCServer only exposes it.
+	omService *om.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -323,6 +329,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
 	hav1beta1.RegisterHAServiceServer(gRPCServer, ha.NewHAServer(deps.ha))
+
+	omv1.RegisterOmServiceServer(gRPCServer, deps.omService)
 
 	// Register RTA service with in-memory store
 	rtaStore := realtimeanalytics.NewStore()
@@ -430,6 +438,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backupv1.RegisterRestoreServiceHandler,
 
 		dumpv1beta1.RegisterDumpServiceHandler,
+
+		omv1.RegisterOmServiceHandler,
 
 		rtav1.RegisterRealtimeAnalyticsServiceHandler,
 
@@ -677,6 +687,16 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
+
+	// Where SEP is, not where any one of its apps is: OM's on-host facts come from
+	// the om_inventory app today and the actions apps will come from the same SEP, so
+	// each consumer appends its own /api/apps/<module> path. Optional -- with no URL
+	// the probe source reports itself disabled and the document is built from PMM's own
+	// inventory and metrics alone.
+	sepURLF := kingpin.Flag("sep-url", "Base URL of SEP, e.g. http://127.0.0.1:8000").
+		Envar("PMM_SEP_URL").String()
+	sepTokenF := kingpin.Flag("sep-token", "Bearer token for SEP's API").
+		Envar("PMM_SEP_TOKEN").String()
 
 	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").Envar("PMM_VM_URL").
 		Default(models.VMBaseURL).String()
@@ -1177,6 +1197,20 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
+	// Where SEP is, optional. Empty means OM builds its document from PMM's own inventory
+	// and metrics alone and records the probe source as disabled.
+	omService := om.New(db, v1.NewAPI(vmClient), logrus.WithField("component", "om"))
+	omService.WithProbeSource(*sepURLF, *sepTokenF)
+
+	// Leader-only, like every other periodic writer here. A collection persists a run and
+	// its snapshot and then prunes the shared history, so running it on every node of an
+	// HA cluster would have each node writing runs and pruning the others' -- and the
+	// pruning is what makes that destructive rather than merely wasteful.
+	haService.AddLeaderService(ha.NewContextService("om", func(ctx context.Context) error {
+		omService.Run(ctx)
+		return nil
+	}))
+
 	wg.Go(func() {
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
@@ -1208,6 +1242,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				templatesService:          alertingService,
 				versionCache:              versionCache,
 				vmalert:                   vmalert,
+				omService:                 omService,
 				vmClient:                  &vmClient,
 				vmdb:                      vmdb,
 			})
