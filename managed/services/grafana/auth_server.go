@@ -645,52 +645,56 @@ func (s *AuthServer) authHeaders(req *http.Request) http.Header {
 
 func (s *AuthServer) retrieveRole(ctx context.Context, hash string, authHeaders http.Header, l *logrus.Entry) (*authUser, []string, *authError) {
 	authUser, err := s.c.getAuthUser(ctx, authHeaders, l)
-	var newCookies []string
-	if err != nil && canRetryWithRotatedSession(err, authHeaders) {
-		rotated, retryUser, retryErr := s.retryWithRotatedSession(ctx, authHeaders, l)
-		if retryErr != nil {
-			l.Debugf("Failed to rotate Grafana session token: %s.", retryErr)
-		} else {
-			authUser, err = retryUser, nil
-			newCookies = rotated
-		}
+	if err == nil {
+		s.cacheAuthUser(hash, authUser)
+		return &authUser, nil, nil
 	}
-	if err != nil {
-		l.Warnf("%s", err)
-		cErr, ok := errors.AsType[*clientError](err)
-		if !ok {
-			return nil, nil, &authError{code: codes.Internal, message: "Internal server error."}
+
+	if canRetryWithRotatedSession(err, authHeaders) {
+		newCookies, retryUser, retryErr := s.retryWithRotatedSession(ctx, authHeaders, l)
+		if retryErr == nil {
+			// Cache under the hash of the original headers even after a rotation: requests
+			// still carrying the old cookie (sent before the browser stores the new one)
+			// keep working for the cache lifetime.
+			s.cacheAuthUser(hash, retryUser)
+			return &retryUser, newCookies, nil
 		}
-		code := codes.Internal
-		if cErr.Code == 401 || cErr.Code == 403 {
-			code = codes.Unauthenticated
-		}
-		authErr := &authError{code: code, message: cErr.ErrorMessage}
-		if code == codes.Unauthenticated {
-			// Cache definitive rejections: clients polling with a dead session would
-			// otherwise cost Grafana two failed lookups (user + rotation) per request.
-			// Internal errors are not cached so a Grafana hiccup does not lock
-			// clients out for the cache lifetime.
-			s.rw.Lock()
-			s.cache[hash] = cacheItem{
-				authErr: authErr,
-				created: time.Now(),
-			}
-			s.rw.Unlock()
-		}
-		return nil, nil, authErr
+		l.Debugf("Failed to rotate Grafana session token: %s.", retryErr)
 	}
-	// Cache under the hash of the original headers even after a rotation: requests
-	// still carrying the old cookie (sent before the browser stores the new one)
-	// keep working for the cache lifetime.
+
+	l.Warnf("%s", err)
+	cErr, ok := errors.AsType[*clientError](err)
+	if !ok {
+		return nil, nil, &authError{code: codes.Internal, message: "Internal server error."}
+	}
+	code := codes.Internal
+	if cErr.Code == 401 || cErr.Code == 403 {
+		code = codes.Unauthenticated
+	}
+	authErr := &authError{code: code, message: cErr.ErrorMessage}
+	if code == codes.Unauthenticated {
+		// Cache definitive rejections: clients polling with a dead session would
+		// otherwise cost Grafana two failed lookups (user + rotation) per request.
+		// Internal errors are not cached so a Grafana hiccup does not lock
+		// clients out for the cache lifetime.
+		s.rw.Lock()
+		s.cache[hash] = cacheItem{
+			authErr: authErr,
+			created: time.Now(),
+		}
+		s.rw.Unlock()
+	}
+
+	return nil, nil, authErr
+}
+
+func (s *AuthServer) cacheAuthUser(hash string, u authUser) {
 	s.rw.Lock()
 	s.cache[hash] = cacheItem{
-		u:       authUser,
+		u:       u,
 		created: time.Now(),
 	}
 	s.rw.Unlock()
-
-	return &authUser, newCookies, nil
 }
 
 // canRetryWithRotatedSession reports whether the Grafana auth failure may be caused
