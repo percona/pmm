@@ -4,14 +4,19 @@ templates:
     version: 1
     summary: PMM HA node unreachable
     # A node that goes down stops emitting pmm_ha_up entirely, so it cannot be named from a
-    # live series. The first term names nodes seen in the last 6h but not the last 2m. The
-    # second is the count-versus-expected check, guarded by absent() so it only reports when
-    # no node can be named: one that never reported, or has been gone longer than 6h.
+    # live series. The first half names a node seen in the last 6h but not the last 2m, and
+    # absent() supplies an unnamed instance when nobody can be named: a node that never
+    # reported, or that has been gone longer than 6h.
+    #
+    # The 'and on()' gate makes both conditional on the cluster actually being short of
+    # nodes, so removing a node on purpose and updating PMM_HA_PEERS clears the alert
+    # instead of leaving it stuck for the rest of the 6h window. That gate must stay a bare
+    # comparison: with '< bool' it would always produce a series, and 'and' filters on a
+    # series existing rather than on its value, so it would never gate anything.
     expr: |-
-      (max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m])))
-      or
-      ((count(max by(node_id) (last_over_time(pmm_ha_up[2m]))) < bool max(last_over_time(pmm_ha_expected_nodes[2m])))
-      and absent(max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m]))))
+      ((max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m])))
+      or absent(max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m]))))
+      and on() (count(max by(node_id) (last_over_time(pmm_ha_up[2m]))) < max(last_over_time(pmm_ha_expected_nodes[2m])))
     for: 5m
     severity: warning
     annotations:
