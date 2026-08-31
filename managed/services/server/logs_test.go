@@ -47,7 +47,7 @@ var commonExpectedFiles = []string{
 	"pmm-version.txt",
 	"pmm.conf",
 	"pmm.ini",
-	"postgresql14.log",
+	"postgresql.log",
 	"qan-api2.ini",
 	"qan-api2.log",
 	"supervisorctl_status.log",
