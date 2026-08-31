@@ -36,6 +36,24 @@ vi.mock('@sep/api', () => ({
   }),
   useCreatePluginEntity: () => ({ mutate: vi.fn(), isPending: false }),
   useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
+  ApiError: class ApiError extends Error {
+    status?: number;
+    data?: unknown;
+    constructor(details: { status?: number; message: string; data?: unknown }) {
+      super(details.message);
+      this.status = details.status;
+      this.data = details.data;
+    }
+  },
+  parseFieldErrors: (error: { data?: { detail?: unknown } }) =>
+    Array.isArray(error?.data?.detail)
+      ? (error.data.detail as { loc?: string[]; msg?: string }[]).map(
+          (entry) => ({
+            path: (entry.loc ?? []).filter((seg) => seg !== 'body').join('.'),
+            message: entry.msg ?? 'Invalid value',
+          })
+        )
+      : [],
 }));
 
 vi.mock('react-router-dom', async (importOriginal) => {
@@ -171,6 +189,132 @@ describe('PluginCreatePage — post-create navigation', () => {
     act(() => onSuccess({ name: 'my task' }));
 
     expect(mockNavigate).toHaveBeenCalledWith('..', { relative: 'path' });
+  });
+});
+
+/** Alerts rendered by the page itself, excluding notistack's toast region. */
+function inTreeAlerts(): HTMLElement[] {
+  return screen
+    .queryAllByRole('alert')
+    .filter((el) => !el.className.includes('notistack'));
+}
+
+describe('PluginCreatePage — failure reporting', () => {
+  const submitSlot: RenderFormSlot = ({ onSubmit }) => (
+    <button type="button" onClick={() => onSubmit({ title: 'x' })}>
+      Submit slot
+    </button>
+  );
+
+  async function submitAndGetOnError() {
+    const user = userEvent.setup();
+    renderPage();
+    await user.click(screen.getByRole('button', { name: 'Create Checksum' }));
+    await waitFor(() => expect(mockCreateTaskMutate).toHaveBeenCalledTimes(1));
+    return mockCreateTaskMutate.mock.calls[0][1].onError as (
+      error: unknown
+    ) => void;
+  }
+
+  it("banners a refusal with the server's own reason, with no toast alongside it", async () => {
+    const onError = await submitAndGetOnError();
+
+    act(() =>
+      onError(
+        new ApiError({
+          kind: 'http',
+          status: 403,
+          message: "You don't have permission to perform this action",
+        })
+      )
+    );
+
+    await waitFor(() => expect(inTreeAlerts()).toHaveLength(1));
+    expect(inTreeAlerts()[0]).toHaveTextContent(
+      "You don't have permission to perform this action"
+    );
+    // The banner is the only signal: no error toast is raised alongside it.
+    expect(screen.queryAllByRole('alert')).toHaveLength(1);
+  });
+
+  it('keeps the per-field path for a 422', async () => {
+    const onError = await submitAndGetOnError();
+
+    act(() =>
+      onError(
+        new ApiError({
+          kind: 'http',
+          status: 422,
+          message: 'HTTP 422',
+          data: {
+            detail: [
+              {
+                loc: ['body', 'count'],
+                msg: 'ensure this value is greater than 0',
+              },
+            ],
+          },
+        })
+      )
+    );
+
+    await waitFor(() => expect(inTreeAlerts()).toHaveLength(1));
+    expect(inTreeAlerts()[0]).toHaveTextContent(
+      'ensure this value is greater than 0'
+    );
+  });
+
+  it('hands the failure to a custom form slot, which is its only signal', async () => {
+    // The slot bypasses SchemaFormRenderer, and the framework raises no error
+    // toast alongside it, so dropping this state reports the failure nowhere.
+    const user = userEvent.setup();
+    const slotProps: { submitError?: string | null }[] = [];
+    const capturingSlot: RenderFormSlot = ({ onSubmit, submitError }) => {
+      slotProps.push({ submitError });
+      return (
+        <div>
+          <button type="button" onClick={() => onSubmit({ title: 'x' })}>
+            Submit slot
+          </button>
+          {submitError ? <div role="alert">{submitError}</div> : null}
+        </div>
+      );
+    };
+
+    renderPage({ renderCreateForm: capturingSlot });
+    await user.click(screen.getByRole('button', { name: 'Submit slot' }));
+    await waitFor(() => expect(mockCreateTaskMutate).toHaveBeenCalledTimes(1));
+
+    act(() =>
+      mockCreateTaskMutate.mock.calls[0][1].onError(
+        new ApiError({
+          kind: 'http',
+          status: 403,
+          message: "You don't have permission to perform this action",
+        })
+      )
+    );
+
+    await waitFor(() =>
+      expect(slotProps.at(-1)?.submitError).toBe(
+        "You don't have permission to perform this action"
+      )
+    );
+    expect(inTreeAlerts()).toHaveLength(1);
+  });
+
+  it('shows no banner on a successful create', async () => {
+    const user = userEvent.setup();
+    renderPage({ renderCreateForm: submitSlot });
+
+    await user.click(screen.getByRole('button', { name: 'Submit slot' }));
+    await waitFor(() => expect(mockCreateTaskMutate).toHaveBeenCalledTimes(1));
+    act(() =>
+      mockCreateTaskMutate.mock.calls[0][1].onSuccess({ name: 'my task' })
+    );
+
+    expect(mockNavigate).toHaveBeenCalledWith('..', { relative: 'path' });
+    expect(inTreeAlerts()).toEqual([]);
   });
 });
 

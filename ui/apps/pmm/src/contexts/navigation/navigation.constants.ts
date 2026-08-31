@@ -1,12 +1,19 @@
-import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  PMM_NEW_NAV_GRAFANA_PATH,
+  PMM_NEW_NAV_PATH,
+  SEP_ATW_PATH,
+  SEP_MYSQL_BACKUPS_PATH,
+} from 'lib/constants';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import AppsRounded from '@mui/icons-material/AppsRounded';
 import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
 import ExploreOutlined from '@mui/icons-material/ExploreOutlined';
 import Groups from '@mui/icons-material/Groups';
+import HandymanOutlined from '@mui/icons-material/HandymanOutlined';
 import HelpOutline from '@mui/icons-material/HelpOutline';
 import Logout from '@mui/icons-material/Logout';
+import MedicalServicesOutlined from '@mui/icons-material/MedicalServicesOutlined';
 import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
@@ -22,6 +29,7 @@ import {
   Graph5Icon,
   HaproxyIcon,
   HomeIcon,
+  MySqlIcon,
   NetworkIntelligenceIcon,
   NetworkNodeIcon,
   PerconaMoIcon,
@@ -836,4 +844,32 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
   icon: NorthEast,
   text: 'Identify Nodes',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes?isPmmServerNode=true`,
+};
+
+//
+// Management
+//
+// Section grouping the SEP apps. It has no page of its own: a collapsible nav
+// item takes its link from its first child, so the header opens whichever app
+// leads the group.
+export const NAV_MANAGEMENT: NavItem = {
+  id: 'management',
+  icon: HandymanOutlined,
+  text: 'Management',
+};
+
+export const NAV_SEP_ATW: NavItem = {
+  id: 'sep-atw',
+  icon: MedicalServicesOutlined,
+  text: 'Support diagnostics',
+  url: SEP_ATW_PATH,
+  matches: [SEP_ATW_PATH],
+};
+
+export const NAV_SEP_MYSQL_BACKUPS: NavItem = {
+  id: 'sep-mysql-backups',
+  icon: MySqlIcon,
+  text: 'MySQL Backups',
+  url: SEP_MYSQL_BACKUPS_PATH,
+  matches: [SEP_MYSQL_BACKUPS_PATH],
 };
