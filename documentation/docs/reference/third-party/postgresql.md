@@ -15,7 +15,7 @@ To configure PMM Server to connect to an external PostgreSQL database running on
 If you're running PMM HA Cluster instead, PMM's Helm chart deploys and manages PostgreSQL for you automatically. Configure it using the [PMM HA environment variables](../../install-pmm/install-HA-clustered.md#pre-configured-ha-variables).
 
 ## Prerequisites
-Before configuring PMM with an external PostgreSQL database, ensure you have a PostgreSQL 18+ server accessible from your PMM Server.
+Before configuring PMM with an external PostgreSQL database, ensure you have a PostgreSQL 14+ server accessible from your PMM Server.
 
 ## Configuration overview
 To configure PMM Server to connect to an external PostgreSQL database:
