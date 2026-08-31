@@ -549,6 +549,9 @@ type setupDeps struct {
 	l           *logrus.Entry
 }
 
+// updateSupervisordConfig renders supervisord's configuration from the stored settings. It takes
+// no context: supervisorctl runs to completion, so a canceled request cannot leave a half-applied
+// configuration behind.
 func updateSupervisordConfig(q reform.DBTX, svc *supervisord.Service) error {
 	settings, err := models.GetSettings(q)
 	if err != nil {
@@ -568,7 +571,7 @@ func applySupervisordConfig(ctx context.Context, db *reform.DB, svc *supervisord
 	l := logrus.WithField("component", "supervisord")
 
 	for {
-		err := updateSupervisordConfig(db.WithContext(ctx), svc)
+		err := updateSupervisordConfig(db.WithContext(ctx), svc) //nolint:contextcheck // supervisorctl runs to completion
 		if err == nil {
 			l.Info("Applied stored settings to supervisord configuration after gaining leadership.")
 			return nil
@@ -606,7 +609,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	}
 
 	deps.l.Infof("Updating supervisord configuration...")
-	err := updateSupervisordConfig(db.Querier, deps.supervisord)
+	err := updateSupervisordConfig(db.Querier, deps.supervisord) //nolint:contextcheck // supervisorctl runs to completion
 	if err != nil {
 		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
