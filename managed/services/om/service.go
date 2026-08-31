@@ -157,6 +157,33 @@ func (s *Service) WithProbeSource(sepURL, token string) *Service {
 	return s
 }
 
+// Enabled returns true if OpenManager is enabled, so every /v1/om/* RPC and the
+// scheduled collection in Run refuse while it is off, via the same generic
+// gRPC-service-enabled interceptor BackupService and the other preview features use.
+func (s *Service) Enabled() bool {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		s.l.WithError(err).Error("can't get settings")
+		return false
+	}
+	return settings.IsOMEnabled()
+}
+
+// IsAvailable reports whether SEP's om_inventory app is configured and reachable.
+//
+// Used to gate turning OpenManager on: an admin flipping the switch with no inventory
+// app to talk to would enable a UI backed by a source that can never answer, with no
+// way to tell "off" from "broken" apart from reading logs. It does not drive anything
+// on SEP's side -- this is the same read every scheduled collection already performs
+// via probeSource.collect, just run once up front rather than waited out.
+func (s *Service) IsAvailable(ctx context.Context) bool {
+	if s.probe == nil || s.probe.app.client == nil {
+		return false
+	}
+	_, err := s.probe.fetch(ctx)
+	return err == nil
+}
+
 // GetTopology returns the whole MongoDB estate as one document.
 //
 // A pure read path: memory, then the stored snapshot, never a collection. Collection is
@@ -261,6 +288,9 @@ func (s *Service) Run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
+			if !s.Enabled() {
+				continue
+			}
 			_, err := s.discover(ctx)
 			if err != nil && ctx.Err() == nil {
 				s.l.Warnf("scheduled collection failed: %s", err)
