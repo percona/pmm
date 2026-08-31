@@ -85,8 +85,8 @@ Remember to pass the data volume to the instance so it can bootstrap the databas
 ```
   # Read the postgres password from the secure file
   PGPASSWORD=$(cat /srv/.postgres_password)
-  PGPASSWORD="$PGPASSWORD" /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/pmm-managed.sql -S postgres
-  PGPASSWORD="$PGPASSWORD" /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/grafana.sql -S postgres
+  PGPASSWORD="$PGPASSWORD" /usr/pgsql-14/bin/psql --host=/run/postgresql --username=postgres --dbname=pmm-managed --file=/srv/backup/pmm-managed.sql
+  PGPASSWORD="$PGPASSWORD" /usr/pgsql-14/bin/psql --host=/run/postgresql --username=postgres --dbname=grafana --file=/srv/backup/grafana.sql
   unset PGPASSWORD
 ```
 
