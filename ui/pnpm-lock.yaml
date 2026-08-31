@@ -86,6 +86,9 @@ importers:
       '@pmm-extensions/plugins-atw':
         specifier: workspace:*
         version: link:../../packages/plugins/atw
+      '@pmm-extensions/plugins-om':
+        specifier: workspace:*
+        version: link:../../packages/plugins/om
       '@pmm/shared':
         specifier: workspace:*
         version: link:../../packages/shared
