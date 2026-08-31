@@ -1098,6 +1098,15 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		VMURL:         *victoriaMetricsURLF,
 	})
 
+	// Where PMM Extensions is, optional. Empty means OM builds its document from PMM's own inventory
+	// and metrics alone and records the probe source as disabled.
+	//
+	// Constructed here, ahead of serverParams below, so server.Server can hold it for the
+	// OpenManager enable/disable switch (Enabled gate, IsAvailable check).
+	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
+	omService.WithProbeSource(*extensionsURLF, *extensionsTokenF)
+	prom.MustRegister(om.NewMetricsCollector(omService))
+
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
@@ -1114,6 +1123,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		HAService:            haService,
 		Nomad:                nomad,
 		QANClient:            qanClient,
+		OmService:            omService,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1225,12 +1235,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		versionCache.Run(ctx)
 		return nil
 	}))
-
-	// Where PMM Extensions is, optional. Empty means OM builds its document from PMM's own inventory
-	// and metrics alone and records the probe source as disabled.
-	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
-	omService.WithProbeSource(*extensionsURLF, *extensionsTokenF)
-	prom.MustRegister(om.NewMetricsCollector(omService))
 
 	// Leader-only, like every other periodic writer here. A collection persists a run and
 	// its snapshot and then prunes the shared history, so running it on every node of an
