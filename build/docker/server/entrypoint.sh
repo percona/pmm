@@ -134,6 +134,8 @@ if is_enabled "$PMM_ENABLE_SEP" && [ -z "$PMM_SEP_POSTGRES_PASSWORD" ]; then
     unset SEP_PG_PASSWORD_FILE
 fi
 
+# The script owns the embedded cluster: it upgrades a PostgreSQL 14 data directory,
+# creates the cluster on a fresh installation, and repairs older ones.
 if is_enabled "$PMM_HA_ENABLE"; then
     echo "Skipping embedded PostgreSQL setup in HA mode."
 elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
