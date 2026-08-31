@@ -1,0 +1,122 @@
+#!/bin/bash
+#
+# Makes the embedded PostgreSQL reachable by SEP running in a side container on a
+# shared Docker network, and provisions a dedicated low-privilege role/database for it.
+#
+# Everything below is a no-op unless PMM_ENABLE_SEP is set. When it is unset again,
+# the configuration this script added is reverted on the next start; the sep role and
+# database are left untouched.
+
+set -o errexit
+set -o pipefail
+
+declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:?must be exported by the entrypoint}"
+declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:?must be exported by the entrypoint}"
+declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:?must be exported by the entrypoint}"
+declare PG_CONF="$POSTGRES_DATA_DIR/postgresql.conf"
+declare PG_HBA="$POSTGRES_DATA_DIR/pg_hba.conf"
+declare BEGIN_MARKER="# BEGIN PMM SEP"
+declare END_MARKER="# END PMM SEP"
+
+is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
+
+# Replaces the marker-delimited block of $1 with $2, appending it at the end of the
+# file so it takes precedence over anything set earlier. An empty $2 drops the block.
+write_block() {
+    local file="$1" body="$2" tmp
+
+    if [ ! -f "$file" ]; then
+        echo "FATAL: $file not found." >&2
+        exit 1
+    fi
+
+    if [ -z "$body" ] && ! grep -q "^${BEGIN_MARKER}$" "$file"; then
+        return
+    fi
+
+    tmp=$(mktemp "$POSTGRES_DATA_DIR/.pmm-sep.XXXXXX")
+    sed "/^${BEGIN_MARKER}$/,/^${END_MARKER}$/d" "$file" > "$tmp"
+    if [ -n "$body" ]; then
+        {
+            echo "$BEGIN_MARKER"
+            echo "$body"
+            echo "$END_MARKER"
+        } >> "$tmp"
+    fi
+    mv "$tmp" "$file"
+}
+
+# Prints the IPv4 CIDR of every Docker network this container is attached to.
+container_subnets() {
+    ip -o -4 route show scope link | awk '$1 ~ /\// && $1 !~ /^127\./ { print $1 }'
+}
+
+psql_postgres() {
+    "$POSTGRES_BIN_DIR/psql" -X -q -v ON_ERROR_STOP=1 -U postgres -h /run/postgresql -d postgres "$@"
+}
+
+provision_sep_role() {
+    local started=0 role_exists db_exists
+
+    if ! "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off -c listen_addresses="
+        started=1
+    fi
+
+    PGPASSWORD=$(< "$POSTGRES_PASSWORD_FILE")
+    export PGPASSWORD
+
+    role_exists=$(psql_postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname = 'sep'")
+    if [ -z "$role_exists" ]; then
+        psql_postgres -c "CREATE ROLE sep"
+    fi
+
+    # Re-applied on every start so rotating PMM_SEP_POSTGRES_PASSWORD takes effect.
+    # Fed via stdin, not -c: psql only interpolates :'sep_password' when reading a script.
+    psql_postgres -v sep_password="$PMM_SEP_POSTGRES_PASSWORD" <<'SQL'
+ALTER ROLE sep WITH LOGIN NOSUPERUSER NOCREATEROLE NOCREATEDB PASSWORD :'sep_password';
+SQL
+
+    db_exists=$(psql_postgres -tAc "SELECT 1 FROM pg_database WHERE datname = 'sep'")
+    if [ -z "$db_exists" ]; then
+        psql_postgres -c "CREATE DATABASE sep OWNER sep"
+    fi
+
+    unset PGPASSWORD
+
+    if [ "$started" -eq 1 ]; then
+        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR"
+    fi
+}
+
+if ! is_enabled "$PMM_ENABLE_SEP"; then
+    write_block "$PG_CONF" ""
+    write_block "$PG_HBA" ""
+    exit 0
+fi
+
+if [ -z "$PMM_SEP_POSTGRES_PASSWORD" ]; then
+    echo "FATAL: PMM_ENABLE_SEP is set but PMM_SEP_POSTGRES_PASSWORD is empty." >&2
+    echo "Please set PMM_SEP_POSTGRES_PASSWORD to the password SEP will connect with and try again." >&2
+    exit 1
+fi
+
+declare -a SUBNETS
+mapfile -t SUBNETS < <(container_subnets)
+if [ ${#SUBNETS[@]} -eq 0 ]; then
+    echo "FATAL: PMM_ENABLE_SEP is set but this container is not attached to any network." >&2
+    echo "Please attach pmm-server to the bridge network shared with SEP and try again." >&2
+    exit 1
+fi
+
+echo "Exposing PostgreSQL to SEP on ${SUBNETS[*]}..."
+
+write_block "$PG_CONF" "listen_addresses = '*'"
+
+declare HBA_BODY=""
+for subnet in "${SUBNETS[@]}"; do
+    HBA_BODY+="host    sep    sep    ${subnet}    scram-sha-256"$'\n'
+done
+write_block "$PG_HBA" "${HBA_BODY%$'\n'}"
+
+provision_sep_role

@@ -16,12 +16,16 @@
 package proxy
 
 import (
+	"context"
 	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 
+	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -222,5 +226,108 @@ func TestProxy(t *testing.T) {
 		prepareRequest(req, uri, headerName)
 
 		require.Equal(t, "Basic dXNlcjpwYXNzd29yZA==", req.Header.Get("Authorization"))
+	})
+}
+
+// Failures used to be invisible: the invalid-header path logged nothing at all, and
+// upstream errors went through httputil's default handler to the standard logger,
+// arriving without a level. Both now log at warn (PR 5822 review).
+//
+// Deliberately not parallel: the hook attaches to the standard logger, which the
+// parallel tests above also write to. Entries are matched by message so unrelated
+// concurrent output cannot break the assertions.
+func TestLogsFailuresAtWarn(t *testing.T) { //nolint:paralleltest
+	hasWarn := func(t *testing.T, hook *test.Hook, msg string) {
+		t.Helper()
+		for _, e := range hook.AllEntries() {
+			if e.Message == msg && e.Level == logrus.WarnLevel {
+				assert.NotNil(t, e.Data[logrus.ErrorKey], "expected the cause to be attached")
+				return
+			}
+		}
+		t.Fatalf("no warn entry %s among %d entries", msg, len(hook.AllEntries()))
+	}
+
+	t.Run("unparsable filter header", func(t *testing.T) { //nolint:paralleltest
+		hook := test.NewGlobal()
+		uri, err := url.Parse(targetURL)
+		require.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, targetURL, nil)
+		req.Header.Set(headerName, "not-base64")
+
+		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() { assert.NoError(t, resp.Body.Close()) })
+		require.Equal(t, http.StatusPreconditionFailed, resp.StatusCode)
+		hasWarn(t, hook, "Rejecting request with unparsable filter header")
+	})
+
+	t.Run("upstream unreachable", func(t *testing.T) { //nolint:paralleltest
+		// A closed server gives an address that is guaranteed to refuse connections.
+		dead := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+		deadURL := dead.URL
+		dead.Close()
+
+		hook := test.NewGlobal()
+		uri, err := url.Parse(deadURL)
+		require.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, deadURL, nil)
+
+		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() { assert.NoError(t, resp.Body.Close()) })
+		require.Equal(t, http.StatusBadGateway, resp.StatusCode)
+		hasWarn(t, hook, "Failed to proxy request")
+	})
+
+	t.Run("client cancellation is not a warning", func(t *testing.T) { //nolint:paralleltest
+		// context.Canceled reaches ErrorHandler through the RoundTrip path. Nothing
+		// failed upstream, so it must not warn -- Grafana cancelling superseded
+		// queries would otherwise be a steady stream of them.
+		dead := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
+		deadURL := dead.URL
+		dead.Close()
+
+		hook := test.NewGlobal()
+		uri, err := url.Parse(deadURL)
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithCancel(t.Context())
+		cancel()
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(ctx, http.MethodGet, deadURL, nil)
+		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() { assert.NoError(t, resp.Body.Close()) })
+		require.Equal(t, http.StatusBadGateway, resp.StatusCode)
+		for _, e := range hook.AllEntries() {
+			assert.NotEqual(t, logrus.WarnLevel, e.Level, "cancellation must not warn, got: %s", e.Message)
+		}
+	})
+
+	t.Run("deadline exceeded is a gateway timeout", func(t *testing.T) { //nolint:paralleltest
+		hook := test.NewGlobal()
+		uri, err := url.Parse("http://192.0.2.1:9")
+		require.NoError(t, err)
+
+		ctx, cancel := context.WithTimeout(t.Context(), time.Nanosecond)
+		defer cancel()
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(ctx, http.MethodGet, "http://192.0.2.1:9", nil)
+		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() { assert.NoError(t, resp.Body.Close()) })
+		require.Equal(t, http.StatusGatewayTimeout, resp.StatusCode)
+		hasWarn(t, hook, "Timed out proxying request")
 	})
 }
