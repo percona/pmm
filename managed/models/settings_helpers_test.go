@@ -299,6 +299,16 @@ func TestSettings(t *testing.T) {
 			assert.True(t, *ns.Alerting.Enabled)
 		})
 
+		t.Run("enable OpenManager", func(t *testing.T) {
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableOM: new(false)})
+			require.NoError(t, err)
+			assert.False(t, s.IsOMEnabled())
+
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableOM: new(true)})
+			require.NoError(t, err)
+			assert.True(t, ns.IsOMEnabled())
+		})
+
 		t.Run("Set PMM server ID", func(t *testing.T) {
 			t.Run("not set", func(t *testing.T) {
 				settings, err := models.GetSettings(sqlDB)
