@@ -7,6 +7,7 @@ The table below lists all the alert templates available in Percona Monitoring an
 - [Operating System templates](#os_alerts)
 - [PMM templates](#pmm_alerts)
 - [PMM High Availability templates](#pmm_ha_alerts)
+- [PMM internal component templates](#pmm_component_alerts)
 - [MongoDB templates](#mongodb_alerts)
 - [PBM templates](#pbm_alerts)
 - [MySQL templates](#mysql_alerts)
@@ -63,6 +64,28 @@ Keep the following in mind when you rely on these alerts:
 - **The node unreachable alert names one node at a time.** A node that stopped within the last 6 hours is named in the alert. A node that has never reported since the cluster started, or that has been down for longer than 6 hours, cannot be named, because no metrics remain to identify it; the alert then fires without a node name. These two cases do not combine: if any node can be named, the alert names it and does not separately report the ones it cannot. Use the **High Availability** page to see the full picture whenever more than one node is missing.
 - **The quorum alert does not apply to one- and two-node clusters.** On those the condition would be permanently true, since with two nodes quorum is two and both nodes are always essential, so the template suppresses itself and stays silent. *PMM HA node unreachable* does cover them, so rely on it instead.
 - **Changing `PMM_HA_PEERS` raises alerts until the rollout finishes.** The expected node count is the highest value any node reports, so while some nodes carry the new peer list and others still carry the old one, the cluster looks smaller than expected. *PMM HA node unreachable* and *PMM HA quorum at risk* can both fire for the duration of a rolling restart, in either direction. Let the rollout finish before treating either as a real failure.
+
+<a id="pmm_component_alerts"></a>
+### PMM internal component templates
+
+These templates monitor the components that make up PMM Server itself, rather than the databases PMM monitors. They alert when a component stops responding to the health check that PMM already collects, so no extra configuration is needed.
+
+| Area | Template name | Description | Database technology |
+| :----|:------------- | :---------- | :------------------ |
+| PMM | **PMM VictoriaMetrics is down** | Alerts when a VictoriaMetrics component stops responding. Covers the single instance used by a standalone PMM Server and the vmselect, vminsert, vmstorage and vmagent components used by a clustered deployment. | PMM |
+| PMM | **PMM ClickHouse is down** | Alerts when the ClickHouse instance that stores Query Analytics data stops responding. Query Analytics stops collecting while this lasts; metrics are unaffected. | PMM |
+| PMM | **PMM Grafana is down** | Alerts when a Grafana instance stops responding. The user interface, dashboards and alert rule evaluation all depend on it. | PMM |
+| PMM | **PMM Query Analytics API is down** | Alerts when the qan-api2 component stops responding. Query Analytics stops accepting new query data and its page cannot load. | PMM |
+
+#### Coverage limitations
+
+These alerts are evaluated by Grafana querying VictoriaMetrics, which means two of them cannot observe their own total failure. Keep the following in mind:
+
+- **VictoriaMetrics being down completely cannot be detected by this alert.** The rule has to query VictoriaMetrics to run, so when VictoriaMetrics is gone the query cannot execute and the expression never evaluates. What the alert does cover is a single component failing while the rest still answers queries, which is the common case in a clustered deployment. A complete outage instead shows up as *every* alert rule reporting a datasource error at once. Monitor PMM Server from outside to cover this case.
+- **Grafana being down everywhere cannot be detected either**, because Grafana is what evaluates the alert rules. In a clustered deployment the alert still catches Grafana failing on one node while another node keeps evaluating.
+- **ClickHouse and Query Analytics are fully covered.** VictoriaMetrics stays up to record their failure, so a total outage of either is detected normally.
+- **In a clustered deployment, coverage depends on the Helm chart.** A standalone PMM Server scrapes these components itself. In a cluster, VictoriaMetrics and ClickHouse run as separate workloads scraped by the chart, so these alerts only see them if the chart uses the same job names. Where a component is not scraped at all, the alert stays silent rather than firing falsely.
+- **These alerts cover PMM Server only.** For a PMM Client that has stopped reporting, use *PMM agent down* instead.
 
 <a id="mongodb_alerts"></a>
 ### MongoDB templates

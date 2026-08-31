@@ -1,0 +1,23 @@
+---
+templates:
+  - name: pmm_qan_api2_down
+    version: 1
+    summary: PMM Query Analytics API is down
+    # qan-api2 is scraped by PMM in every topology, and the metrics database stays up to
+    # record the failure, so this alert observes a total outage of the component correctly.
+    expr: 'last_over_time(up{job="qan-api2"}[2m]) == bool 0'
+    for: 5m
+    severity: warning
+    annotations:
+      summary: PMM Query Analytics API is down on '{{ $labels.instance }}'
+      description: |-
+        The Query Analytics API (qan-api2) on '{{ $labels.instance }}' is not responding.
+        Query Analytics stops accepting new query data from PMM Clients and the Query Analytics page
+        cannot load. Metric collection and dashboards are unaffected.
+
+        Remediation steps:
+          1. Check the qan-api2 process or pod on that node and restart it if it has stopped.
+          2. Check whether ClickHouse is reachable. qan-api2 fails to start when it cannot connect to its data store.
+          3. Review the qan-api2 logs for startup failures and database migration errors.
+          4. Check free disk space and memory on the node.
+          5. Once it is back, confirm new data is arriving on the Query Analytics page.
