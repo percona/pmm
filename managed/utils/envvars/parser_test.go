@@ -283,7 +283,8 @@ func TestEnvVarValidator(t *testing.T) {
 func TestNomadWithoutPublicAddress(t *testing.T) {
 	t.Parallel()
 
-	const warning = "PMM_ENABLE_NOMAD is set but PMM_PUBLIC_ADDRESS is not; Nomad will not start"
+	const warning = "PMM_ENABLE_NOMAD is set but PMM_PUBLIC_ADDRESS is not; " +
+		"Nomad will not start unless a public address is configured in PMM settings"
 
 	for _, tt := range []struct {
 		name     string
