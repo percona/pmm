@@ -707,9 +707,6 @@ type GetReadOnlySettingsOKBodySettings struct {
 
 	// True if Access Control is enabled.
 	EnableAccessControl bool `json:"enable_access_control,omitempty"`
-
-	// True if OpenManager is enabled.
-	OmEnabled bool `json:"om_enabled,omitempty"`
 }
 
 // Validate validates this get read only settings OK body settings
