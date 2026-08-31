@@ -1406,14 +1406,20 @@ func initWithRoot(params SetupDBParams) error {
 	}
 	defer db.Close() //nolint:errcheck
 
+	return provisionDBAndRole(db, params)
+}
+
+// provisionDBAndRole creates the database and the role unless they already exist, and makes sure
+// the role has privileges on the database. db must be a connection with superuser rights.
+func provisionDBAndRole(db *sql.DB, params SetupDBParams) error {
 	var countDatabases int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
+	err := db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
 	if err != nil {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
 	if countDatabases == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
+		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE %s`, pq.QuoteIdentifier(params.Name)))
 		if err != nil {
 			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
 		}
@@ -1426,24 +1432,30 @@ func initWithRoot(params SetupDBParams) error {
 	}
 
 	if countRoles == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.Exec(fmt.Sprintf(`CREATE USER %s LOGIN PASSWORD %s`,
+			pq.QuoteIdentifier(params.Username), pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
-		}
-
-		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
-		if err != nil {
-			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}
 	} else {
 		// Role exists but authentication failed (e.g. pg_hba.conf switched from trust to
 		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
 		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
 		// password to the currently configured value is OK.
-		_, err = db.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.Exec(fmt.Sprintf(`ALTER USER %s WITH PASSWORD %s`,
+			pq.QuoteIdentifier(params.Username), pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
+	}
+
+	// GRANT is idempotent, so it runs on both paths: a role that already exists but was
+	// provisioned without privileges gets them too. Identifiers cannot be passed as bind
+	// parameters, they have to be quoted into the statement.
+	_, err = db.Exec(fmt.Sprintf(`GRANT ALL PRIVILEGES ON DATABASE %s TO %s`,
+		pq.QuoteIdentifier(params.Name), pq.QuoteIdentifier(params.Username)))
+	if err != nil {
+		return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 	}
 	return nil
 }
