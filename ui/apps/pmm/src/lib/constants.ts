@@ -32,6 +32,11 @@ export const PERCONA_SUPPORT_URL = 'https://www.percona.com/services/support';
 // Short link Support hands out for subscription and credential requests.
 export const PERCONA_SUPPORT_CONTACT_URL = 'https://per.co.na/support';
 
+// OM (OpenManager) is a PMM page, not a SEP one. Its API is pmm-managed's own
+// `/v1/om`, authorised by the Grafana session, and no request it makes needs a SEP
+// bearer -- which is why it sits beside the SEP mounts above rather than under them.
+export const OM_PATH = `${PMM_NEW_NAV_PATH}/om`;
+
 export const INTERVALS_MS = {
   // 5 mins
   SERVICE_TYPES: 300000,
