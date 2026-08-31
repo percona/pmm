@@ -6,9 +6,9 @@ declare CURRENT_GID CURRENT_UID CURRENT_USER
 
 # Returns 0 (true) if the given variable is set to "1" or "true".
 is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
-declare POSTGRES_DATA_DIR="/srv/postgres14"
+declare POSTGRES_DATA_DIR="/srv/postgres18"
 declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
-declare POSTGRES_BIN_DIR="/usr/pgsql-14/bin"
+declare POSTGRES_BIN_DIR="/usr/pgsql-18/bin"
 
 # Get current user info - handle cases where user doesn't exist in passwd
 CURRENT_UID=$(id -u)
@@ -80,34 +80,6 @@ if [ ! -f "$DIST_FILE" ]; then
     echo -n "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
     echo "Initializing /srv..."
     mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,prometheus/rules,victoriametrics}
-
-    if is_enabled "$PMM_HA_ENABLE"; then
-        echo "Skipping embedded PostgreSQL initialization in HA mode."
-    elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
-        echo "Skipping embedded PostgreSQL initialization (builtin PostgreSQL is disabled)."
-    else
-        echo "Initializing Postgres..."
-        install -d -m 750 "$POSTGRES_DATA_DIR"
-
-        # Generate a random password for postgres superuser
-        declare POSTGRES_PASSWORD
-        POSTGRES_PASSWORD=$(openssl rand -hex 16)
-
-        # Store the password securely with restricted permissions
-        echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
-        chmod 600 "$POSTGRES_PASSWORD_FILE"
-
-        # Initialize database with password authentication
-        "$POSTGRES_BIN_DIR/initdb" -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
-
-        echo "Enabling pg_stat_statements extension for PostgreSQL..."
-        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
-        PGPASSWORD="$POSTGRES_PASSWORD" "$POSTGRES_BIN_DIR/psql" -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
-        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR"
-
-        # Clean up password from environment
-        unset POSTGRES_PASSWORD
-    fi
 fi
 
 # Sync bundled Grafana plugins into /srv when the bundled set changes. 
@@ -139,10 +111,35 @@ if [ ! -d "/srv/pmm-agent/tmp" ]; then
     install -d -m 770 /srv/pmm-agent/tmp
 fi
 
+# Resolved before postgres-sep, which sets the sep role's password, and sep-secrets,
+# which publishes it - both read it from the environment and neither can generate it for
+# the other. An operator value wins and is not persisted, so unsetting it returns to the
+# generated one rather than pinning whatever was passed once.
+if is_enabled "$PMM_ENABLE_SEP" && [ -z "$PMM_SEP_POSTGRES_PASSWORD" ]; then
+    declare SEP_PG_PASSWORD_FILE="/srv/.sep_postgres_password"
+
+    if [ ! -s "$SEP_PG_PASSWORD_FILE" ]; then
+        echo "Generating the PostgreSQL password for SEP..."
+        SEP_PG_TMP=$(mktemp "$SEP_PG_PASSWORD_FILE.XXXXXX")
+        openssl rand -hex 24 > "$SEP_PG_TMP"
+        mv "$SEP_PG_TMP" "$SEP_PG_PASSWORD_FILE"
+        unset SEP_PG_TMP
+    fi
+
+    chmod 600 "$SEP_PG_PASSWORD_FILE" 2> /dev/null ||
+        echo "WARNING: could not narrow $SEP_PG_PASSWORD_FILE to mode 600." >&2
+
+    PMM_SEP_POSTGRES_PASSWORD=$(< "$SEP_PG_PASSWORD_FILE")
+    export PMM_SEP_POSTGRES_PASSWORD
+    unset SEP_PG_PASSWORD_FILE
+fi
+
+# The script owns the embedded cluster: it upgrades a PostgreSQL 14 data directory,
+# creates the cluster on a fresh installation, and repairs older ones.
 if is_enabled "$PMM_HA_ENABLE"; then
-    echo "Skipping embedded PostgreSQL migration in HA mode."
+    echo "Skipping embedded PostgreSQL setup in HA mode."
 elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
-    echo "Skipping embedded PostgreSQL migration (builtin PostgreSQL is disabled)."
+    echo "Skipping embedded PostgreSQL setup (builtin PostgreSQL is disabled)."
 else
     mkdir -p /run/postgresql
     chmod 750 "$POSTGRES_DATA_DIR" || true
@@ -156,8 +153,79 @@ else
 fi
 
 if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; }; then
-    echo "WARNING: ignoring PMM_ENABLE_SEP, the embedded PostgreSQL is not in use." >&2
+    echo "WARNING: not exposing a database to SEP, the embedded PostgreSQL is not in use." >&2
 fi
+
+# The reverse proxy is independent of which database SEP uses, so it is not nested
+# in the embedded-PostgreSQL branch above.
+declare SEP_NGINX_DIR=/etc/nginx/sep.d
+declare SEP_NGINX_TEMPLATE=/opt/ansible/roles/nginx/files/sep/sep.conf.template
+if is_enabled "$PMM_ENABLE_SEP"; then
+    declare SEP_ADDRESS="${PMM_SEP_ADDRESS:-sep:9000}"
+    # The address is interpolated into an nginx config, so an unvalidated value
+    # is a config-injection vector. The digit count is capped so the range test
+    # below cannot be handed a value that overflows the shell's integer parsing
+    # and fails open.
+    if ! [[ "$SEP_ADDRESS" =~ ^[A-Za-z0-9._-]+:[0-9]{1,5}$ ]]; then
+        echo "FATAL: PMM_SEP_ADDRESS must be <host>:<port>, got '${SEP_ADDRESS}'." >&2
+        exit 1
+    fi
+    # A variable proxy_pass resolves per request, so an out-of-range port would
+    # pass nginx -t and only surface as a 502 at runtime.
+    if [ "${SEP_ADDRESS##*:}" -lt 1 ] || [ "${SEP_ADDRESS##*:}" -gt 65535 ]; then
+        echo "FATAL: PMM_SEP_ADDRESS port must be 1-65535, got '${SEP_ADDRESS##*:}'." >&2
+        exit 1
+    fi
+
+    # Container DNS: 127.0.0.11 under Docker, an aardvark address under Podman.
+    # IPv4 first, then an unscoped IPv6 in brackets -- nginx requires the brackets
+    # and rejects a bare address, which fails nginx -t and so blocks the whole
+    # server from starting.
+    declare SEP_RESOLVER
+    SEP_RESOLVER=$(awk '/^nameserver/ && $2 !~ /:/ { print $2; exit }' /etc/resolv.conf 2>/dev/null || true)
+    if [ -z "$SEP_RESOLVER" ]; then
+        # Scoped addresses are skipped rather than stripped of their zone: nginx has
+        # no syntax for the interface scope, so a stripped fe80:: address yields a
+        # config that passes nginx -t and can never route DNS -- trading a startup
+        # failure for every /sep/ request timing out into the 503.
+        SEP_RESOLVER=$(awk '/^nameserver/ && $2 !~ /%/ { print "[" $2 "]"; exit }' /etc/resolv.conf 2>/dev/null || true)
+    fi
+    if [ -z "$SEP_RESOLVER" ]; then
+        if awk '/^nameserver/ && $2 ~ /%/ { found = 1 } END { exit !found }' /etc/resolv.conf 2>/dev/null; then
+            echo "FATAL: /etc/resolv.conf lists only scoped IPv6 nameservers, such as fe80::1%eth0." >&2
+            echo "nginx cannot express the interface scope, so such an address cannot be used." >&2
+            echo "Please attach the container to a network with an IPv4 or unscoped IPv6 nameserver, or unset PMM_ENABLE_SEP." >&2
+        else
+            echo "FATAL: PMM_ENABLE_SEP is set but no nameserver found in /etc/resolv.conf." >&2
+            echo "Please attach the container to a network with working DNS, or unset PMM_ENABLE_SEP." >&2
+        fi
+        exit 1
+    fi
+
+    if [ ! -f "$SEP_NGINX_TEMPLATE" ]; then
+        echo "FATAL: missing ${SEP_NGINX_TEMPLATE}, cannot configure the SEP reverse proxy." >&2
+        exit 1
+    fi
+
+    echo "Installing nginx reverse-proxy configuration for SEP at ${SEP_ADDRESS}..."
+    mkdir -p "$SEP_NGINX_DIR"
+    sed -e "s|__SEP_ADDRESS__|${SEP_ADDRESS}|" \
+        -e "s|__SEP_RESOLVER__|${SEP_RESOLVER}|" \
+        "$SEP_NGINX_TEMPLATE" > "$SEP_NGINX_DIR/sep.conf"
+else
+    # Clears the whole directory, not just the file this version writes: an older
+    # build or an operator may have left others behind in the writable layer.
+    rm -f "$SEP_NGINX_DIR"/*.conf
+fi
+
+# Unconditional: the script owns its own gates, so the files it published are still
+# removed on the start after PMM_ENABLE_SEP is cleared.
+bash /opt/ansible/roles/sep/files/sep-secrets
+
+# The last consumer has run, so drop the password before exec'ing supervisord: otherwise
+# every child inherits it, and pmm-managed-init logs each variable it is handed - name and
+# value - once PMM_TRACE is set.
+unset PMM_SEP_POSTGRES_PASSWORD
 
 echo "Generating self-signed certificates for nginx..."
 bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate > /dev/null 2>&1

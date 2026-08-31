@@ -47,7 +47,7 @@ var commonExpectedFiles = []string{
 	"pmm-version.txt",
 	"pmm.conf",
 	"pmm.ini",
-	"postgresql14.log",
+	"postgresql.log",
 	"qan-api2.ini",
 	"qan-api2.log",
 	"supervisorctl_status.log",
@@ -181,6 +181,13 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
+		// Present only when the container was started with PMM_ENABLE_SEP,
+		// so it cannot belong to a fixed expectation either way.
+		if f.Name == "sep.conf" {
+			require.NoError(t, f.Err, "name = %q", f.Name)
+			continue
+		}
+
 		if f.Name == "supervisorctl_status.log" {
 			require.EqualError(t, f.Err, "exit status 3")
 			// NOTE: this fails in supervisorctl v4+ if there are stopped services; it is not critical because the call succeeds
@@ -195,6 +202,38 @@ func TestFiles(t *testing.T) {
 
 	sort.Strings(actual)
 	assert.Equal(t, commonExpectedFiles, actual)
+}
+
+func TestSepConfigFiles(t *testing.T) {
+	t.Parallel()
+
+	t.Run("collects the drop-ins and ignores everything else", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		sep := filepath.Join(dir, "sep.conf")
+		extra := filepath.Join(dir, "extra.conf")
+		require.NoError(t, os.WriteFile(sep, []byte("location /sep/ {}\n"), 0o600))
+		require.NoError(t, os.WriteFile(extra, []byte("# left by an older build\n"), 0o600))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "sep.conf.template"), []byte("# not a drop-in\n"), 0o600))
+
+		ctx := logger.Set(t.Context(), t.Name())
+		assert.ElementsMatch(t, []string{sep, extra}, sepConfigFiles(ctx, dir))
+	})
+
+	t.Run("absent directory is not an error", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := logger.Set(t.Context(), t.Name())
+		assert.Empty(t, sepConfigFiles(ctx, filepath.Join(t.TempDir(), "sep.d")))
+	})
+
+	t.Run("empty directory is not an error", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := logger.Set(t.Context(), t.Name())
+		assert.Empty(t, sepConfigFiles(ctx, t.TempDir()))
+	})
 }
 
 func TestZip(t *testing.T) {
