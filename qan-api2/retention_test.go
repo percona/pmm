@@ -278,6 +278,45 @@ func TestRetentionLoopCancelsAnInFlightDrop(t *testing.T) {
 	case <-time.After(5 * time.Second):
 		t.Fatal("a drop in flight kept the loop from returning, which would hold up shutdown")
 	}
+
+	assert.Zero(t, passes(t, retentionFailed), "our own shutdown is not a retention failure")
+}
+
+// Cancellation reaches the leader check as readily as it reaches the drop, and there it surfaces
+// as an unreadable answer. Counting that as undetermined would have every shutdown look like a
+// node that could not tell whether it was the leader.
+func TestRetentionLoopDoesNotCountShutdownAsUndetermined(t *testing.T) {
+	shortenIntervals(t)
+	captureLogs(t)
+	resetPasses(t)
+
+	started := make(chan struct{})
+	var once sync.Once
+	// Holds the leader check open until the loop's context is canceled, so cancellation lands
+	// while the request is in flight rather than between passes.
+	srv := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+		once.Do(func() { close(started) })
+		<-r.Context().Done()
+	}))
+	t.Cleanup(srv.Close)
+
+	ctx, cancel := context.WithCancel(t.Context())
+	done := make(chan struct{})
+	go func() {
+		runRetentionLoop(ctx, func(context.Context) error { return nil }, srv.URL)
+		close(done)
+	}()
+
+	<-started
+	cancel()
+
+	select {
+	case <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("a leader check in flight kept the loop from returning, which would hold up shutdown")
+	}
+
+	assert.Zero(t, passes(t, retentionUndetermined), "our own shutdown is not an undetermined verdict")
 }
 
 // The metric is what makes a standing failure noticeable: an operator picks the threshold in an

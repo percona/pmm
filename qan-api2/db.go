@@ -182,7 +182,15 @@ func DropOldPartition(ctx context.Context, db *sqlx.DB, dbName string, days uint
 	var errs []error
 	dropped := 0
 	for _, part := range partitions {
-		_, err := db.ExecContext(ctx, fmt.Sprintf(`ALTER TABLE %s.metrics DROP PARTITION %s`, dbName, part))
+		// A canceled ctx fails every remaining statement anyway, so carrying on would only
+		// turn one shutdown into one cancellation error per partition left.
+		err := ctx.Err()
+		if err != nil {
+			errs = append(errs, err)
+			break
+		}
+
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER TABLE %s.metrics DROP PARTITION %s`, dbName, part))
 		if err != nil {
 			errs = append(errs, fmt.Errorf("failed to drop partition %s of %s.metrics: %w", part, dbName, err))
 			continue

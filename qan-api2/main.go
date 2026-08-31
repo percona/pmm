@@ -306,6 +306,13 @@ func runRetentionLoop(ctx context.Context, drop func(context.Context) error, lea
 		result := retentionApplied
 
 		leader, err := shouldApplyRetention(ctx, client, leaderCheckURL)
+		if ctx.Err() != nil {
+			// Our own shutdown cut the pass short. Reporting that as a retention problem
+			// would send an operator looking for a fault that is not there, and "will
+			// retry" would be a lie: the loop is about to return.
+			return
+		}
+
 		switch {
 		case err != nil:
 			// Deleting data on a guess is worse than deleting it a few minutes later. The
@@ -319,6 +326,9 @@ func runRetentionLoop(ctx context.Context, drop func(context.Context) error, lea
 			delay = leaderRecheckInterval
 		default:
 			err = drop(ctx)
+			if ctx.Err() != nil {
+				return
+			}
 			if err != nil {
 				result = retentionFailed
 				l.Errorf("Failed to apply data retention, will retry: %s.", err)
