@@ -1,13 +1,18 @@
 # Configure PMM with external PostgreSQL
 
-Percona Monitoring and Management (PMM) can be configured to use an external PostgreSQL database instead of its built-in instance. This provides several advantages, including:
+Use an external PostgreSQL instance when you want PMM to store its metadata outside the `pmm-server` container, on a host or cluster you manage yourself.
 
-- enhanced high availability (HA) capabilities
-- improved performance with dedicated database servers
-- integration with existing database infrastructure
-- better control over data retention and backups
+This lets you:
+
+- scale PostgreSQL independently of PMM Server
+- reuse a database your team already runs
+- set your own backup and retention schedule
+
+This applies to standalone PMM deployments, where PostgreSQL is either bundled in the `pmm-server` container (built-in) or a separate instance you provide (external), as described on this page.
 
 To configure PMM Server to connect to an external PostgreSQL database running on the same host or a remote server, set up the required environment variables, configure SSL for secure connections, and ensure proper permissions for both PMM components and Grafana.
+
+If you're running PMM HA Cluster instead, PMM's Helm chart deploys and manages PostgreSQL for you automatically. Configure it using the [PMM HA environment variables](../../install-pmm/install-HA-clustered.md#pre-configured-ha-variables).
 
 ## Prerequisites
 Before configuring PMM with an external PostgreSQL database, ensure you have a PostgreSQL 18+ server accessible from your PMM Server.
@@ -37,7 +42,7 @@ To use PostgreSQL as an external database instance, use the following environmen
 | PMM_POSTGRES_SSL_CA_PATH         | [postgres-ssl-ca-path](https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-SSLROOTCERT) | This parameter specifies the name of a file containing SSL certificate authority (CA) certificate(s).                                                                                            |
 | PMM_POSTGRES_SSL_KEY_PATH        | [postgres-ssl-key-path](https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-SSLKEY)     | This parameter specifies the location for the secret key used for the client certificate.                                                                                                        |
 | PMM_POSTGRES_SSL_CERT_PATH       | [postgres-ssl-cert-path](https://www.postgresql.org/docs/14/libpq-connect.html#LIBPQ-CONNECT-SSLCERT)   | This parameter specifies the file name of the client SSL certificate.                                                                                                                            |
-| PMM_DISABLE_BUILTIN_POSTGRES |                                                                                                         | Environment variable to disable built-in PMM Server database. Note that Grafana depends on built-in PostgreSQL. And if the value of this variable is "true", then it is necessary to pass all the parameters associated with Grafana to use external PostgreSQL.                                                                                                                                    |
+| PMM_DISABLE_BUILTIN_POSTGRES |                                                                                                        |Environment variable to disable built-in PMM Server database. Note that Grafana depends on built-in PostgreSQL. And if the value of this variable is TRUE, pass all the parameters associated with Grafana to use external PostgreSQL. |
 
 By default, communication between the PMM Server and the database is not encrypted. To secure a connection, follow [PostgreSQL SSL instructions](https://www.postgresql.org/docs/14/ssl-tcp.html) and provide `POSTGRES_SSL_*` variables.
 

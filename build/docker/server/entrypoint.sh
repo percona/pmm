@@ -7,6 +7,8 @@ declare CURRENT_GID CURRENT_UID CURRENT_USER
 # Returns 0 (true) if the given variable is set to "1" or "true".
 is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
 declare POSTGRES_DATA_DIR="/srv/postgres18"
+declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
+declare POSTGRES_BIN_DIR="/usr/pgsql-18/bin"
 
 # Get current user info - handle cases where user doesn't exist in passwd
 CURRENT_UID=$(id -u)
@@ -118,7 +120,17 @@ elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
 else
     mkdir -p /run/postgresql
     chmod 750 "$POSTGRES_DATA_DIR" || true
-    bash /opt/ansible/roles/postgres/files/postgres-migration
+    # Scoped to this subshell so the helper scripts inherit them without polluting
+    # the environment that supervisord and its children are started with.
+    (
+        export POSTGRES_DATA_DIR POSTGRES_PASSWORD_FILE POSTGRES_BIN_DIR
+        bash /opt/ansible/roles/postgres/files/postgres-migration
+        bash /opt/ansible/roles/postgres/files/postgres-sep
+    )
+fi
+
+if is_enabled "$PMM_ENABLE_SEP" && { is_enabled "$PMM_HA_ENABLE" || is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; }; then
+    echo "WARNING: ignoring PMM_ENABLE_SEP, the embedded PostgreSQL is not in use." >&2
 fi
 
 echo "Generating self-signed certificates for nginx..."

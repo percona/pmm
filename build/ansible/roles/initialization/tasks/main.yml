@@ -128,7 +128,8 @@
     state: absent
     path: /usr/share/pmm-server/maintenance/maintenance.html
 
-- name: Remove the file provisioned by 'getStatus'
+# Written by 'updates:start' up to PMM 3.8; nothing uses it now, so clean it off upgraded volumes.
+- name: Remove the update auth token file left by older PMM versions
   file:
     state: absent
     path: /srv/pmm-update.json

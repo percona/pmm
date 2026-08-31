@@ -16,6 +16,7 @@
 package agents
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -75,5 +76,34 @@ func TestValkeyExporterConfig(t *testing.T) {
 		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
 		require.Contains(t, actual.Args, "--connection-timeout=1.5s")
 		require.Contains(t, actual.Args, "--redis.addr=redis://username:secret@1.2.3.4:6379")
+	})
+
+	// PMM-15201: valkey_exporter only knows --log-level. Passing --log.level made it print
+	// its usage, exit with code 2 and land the agent in the DONE state.
+	t.Run("LogLevel", func(t *testing.T) {
+		t.Parallel()
+
+		for name, tc := range map[string]struct {
+			logLevel string
+			expected string
+		}{
+			"info": {"info", "--log-level=info"},
+			// valkey_exporter has no fatal level and silently falls back to info.
+			"fatal": {"fatal", "--log-level=error"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				exporter := &models.Agent{
+					AgentID:   "agent-id",
+					AgentType: models.ValkeyExporterType,
+					LogLevel:  new(tc.logLevel),
+				}
+
+				actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
+				require.Contains(t, actual.Args, tc.expected)
+				require.NotContains(t, strings.Join(actual.Args, " "), "--log.level")
+			})
+		}
 	})
 }

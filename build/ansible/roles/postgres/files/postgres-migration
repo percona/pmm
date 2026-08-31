@@ -2,9 +2,9 @@
 set -o errexit
 set -o pipefail
 
-declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:-/srv/postgres18}"
-declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:-/srv/.postgres_password}"
-declare PG_BIN="/usr/pgsql-18/bin"
+declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:?must be exported by the entrypoint}"
+declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:?must be exported by the entrypoint}"
+declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:?must be exported by the entrypoint}"
 
 # ── shared cluster primitives ─────────────────────────────────────────────────
 # Stores the postgres superuser password with restricted permissions.
@@ -20,7 +20,7 @@ initdb_cluster() {
 
     echo "Initialising PostgreSQL at $data_dir..."
     install -d -m 750 "$data_dir"
-    "$PG_BIN/initdb" -D "$data_dir" \
+    "$POSTGRES_BIN_DIR/initdb" -D "$data_dir" \
         --auth-host=scram-sha-256 \
         --auth-local=trust \
         --username=postgres \
@@ -41,7 +41,7 @@ publish_cluster() {
 # pg_stat_statements is registered per cluster, so every new one needs it.
 create_pg_stat_statements() {
     echo "Ensuring pg_stat_statements extension..."
-    "$PG_BIN/psql" -h /run/postgresql -U postgres -d postgres \
+    "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
         -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public"
 }
 
@@ -106,7 +106,7 @@ upgrade_pg14_to_pg18() {
 
     # Start pg18 and restore
     echo "Starting PostgreSQL 18..."
-    "$PG_BIN/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
+    "$POSTGRES_BIN_DIR/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
 
     # Each role owns its database: since PostgreSQL 15 the public schema belongs to
     # pg_database_owner, so ownership is what lets the role create tables in it.
@@ -118,17 +118,17 @@ upgrade_pg14_to_pg18() {
             continue
         fi
         echo "Creating $db role and database..."
-        "$PG_BIN/psql" -h /run/postgresql -U postgres -d postgres \
+        "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
             -c "CREATE ROLE \"$db\" LOGIN PASSWORD '$db'" \
             -c "CREATE DATABASE \"$db\" OWNER \"$db\""
         echo "Restoring $db database..."
-        "$PG_BIN/psql" -h /run/postgresql -U postgres -d "$db" -f "$dump"
+        "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d "$db" -f "$dump"
     done
 
     create_pg_stat_statements
 
     echo "Stopping PostgreSQL 18..."
-    "$PG_BIN/pg_ctl" stop -D "$STAGE_DIR" -w
+    "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$STAGE_DIR" -w
 
     unset PGPASSWORD
 
@@ -166,9 +166,9 @@ init_postgres_cluster() {
     initdb_cluster "$STAGE_DIR"
 
     export PGPASSWORD="$POSTGRES_PASSWORD"
-    "$PG_BIN/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
+    "$POSTGRES_BIN_DIR/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
     create_pg_stat_statements
-    "$PG_BIN/pg_ctl" stop -D "$STAGE_DIR" -w
+    "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$STAGE_DIR" -w
     unset PGPASSWORD
 
     publish_cluster "$STAGE_DIR"
@@ -189,18 +189,18 @@ ensure_postgres_password() {
     echo "Generating postgres superuser password..."
     POSTGRES_PASSWORD=$(openssl rand -hex 16)
 
-    if ! "$PG_BIN/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
-        "$PG_BIN/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
+    if ! "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
         STARTED=1
     fi
 
-    PGPASSWORD="$POSTGRES_PASSWORD" /usr/bin/psql -U postgres -h /run/postgresql -d postgres \
+    PGPASSWORD="$POSTGRES_PASSWORD" "$POSTGRES_BIN_DIR/psql" -U postgres -h /run/postgresql -d postgres \
         -c "ALTER USER postgres WITH PASSWORD '${POSTGRES_PASSWORD}'"
 
     store_postgres_password "$POSTGRES_PASSWORD"
 
     if [ "$STARTED" -eq 1 ]; then
-        "$PG_BIN/pg_ctl" stop -D "$POSTGRES_DATA_DIR"
+        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR"
     fi
 }
 
