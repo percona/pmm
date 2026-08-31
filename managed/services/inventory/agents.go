@@ -250,7 +250,8 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 	// immediate synchronous config update so that VictoriaMetrics never scrapes the restarted
 	// exporter with the stale collector list, the same way port changes are handled in
 	// agents.Handler.stateChanged (PMM-14267).
-	if err := as.vmdb.ForceConfigurationUpdate(ctx); err != nil {
+	err = as.vmdb.ForceConfigurationUpdate(ctx)
+	if err != nil {
 		return nil, fmt.Errorf("failed to force configuration update: %w", err)
 	}
 
