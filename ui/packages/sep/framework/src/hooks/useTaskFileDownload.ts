@@ -16,7 +16,7 @@
  */
 
 import { useMutation } from '@tanstack/react-query';
-import { apiClient, SEP_BASE_PATH } from '@sep/api';
+import { apiClient, normalizeBlobError, SEP_BASE_PATH } from '@sep/api';
 import { downloadBlob } from '../utils/downloadBlob';
 
 export interface TaskFileDownloadParams {
@@ -29,14 +29,22 @@ export interface TaskFileDownloadParams {
 export function useTaskFileDownload() {
   return useMutation<void, Error, TaskFileDownloadParams>({
     mutationFn: async ({ taskHistoryId, path, isDir }) => {
-      const { data } = await apiClient.get<Blob>(
-        `/files/${taskHistoryId}/download`,
-        {
-          baseURL: SEP_BASE_PATH,
-          params: { path },
-          responseType: 'blob',
-        }
-      );
+      let data: Blob;
+      try {
+        ({ data } = await apiClient.get<Blob>(
+          `/files/${taskHistoryId}/download`,
+          {
+            baseURL: SEP_BASE_PATH,
+            params: { path },
+            responseType: 'blob',
+          }
+        ));
+      } catch (error) {
+        // The response type applies to the error body too, so a refusal's JSON
+        // reason arrives as a blob. Parse it, or the caller can only report the
+        // bare status code.
+        throw await normalizeBlobError(error);
+      }
       const name = path.split('/').filter(Boolean).pop() ?? path;
       const suggestedName = isDir ? `${name}.tar.gz` : name;
       downloadBlob(data, suggestedName);

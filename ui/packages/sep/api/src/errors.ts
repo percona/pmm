@@ -129,6 +129,52 @@ export function parseFieldErrors(error: unknown): FieldValidationError[] {
   return result;
 }
 
+/**
+ * Recover the server's reason from a request made with `responseType: 'blob'`.
+ *
+ * Axios hands back the error body in the response type it was asked for, so a
+ * download's 403 arrives as a `Blob` rather than parsed JSON and
+ * `messageFromPayload` cannot see its `detail` — leaving the synthesized
+ * `HTTP 403`. Read the blob, parse it, and return an `ApiError` carrying the
+ * reason (and the parsed payload, so a 422's `detail` array is still reachable
+ * through {@link parseFieldErrors}).
+ *
+ * Async by necessity — `Blob.text()` is a promise — so callers await it in
+ * their own catch rather than getting it from an interceptor.
+ *
+ * Falls back to the unmodified error whenever the body is not a readable JSON
+ * blob: an HTML error page, an opaque binary body, or a network failure with no
+ * response at all.
+ */
+export async function normalizeBlobError(error: unknown): Promise<ApiError> {
+  const apiError = normalizeAxiosError(error);
+  const body = apiError.data;
+  if (typeof Blob === 'undefined' || !(body instanceof Blob)) {
+    return apiError;
+  }
+
+  let payload: unknown;
+  try {
+    payload = JSON.parse(await body.text());
+  } catch {
+    return apiError;
+  }
+
+  const message = messageFromPayload(payload, apiError.message);
+  return new ApiError(
+    {
+      kind: apiError.kind,
+      status: apiError.status,
+      code: apiError.code,
+      message,
+      url: apiError.url,
+      method: apiError.method,
+      data: payload,
+    },
+    apiError.original
+  );
+}
+
 export function normalizeAxiosError(error: unknown): ApiError {
   if (error instanceof ApiError) {
     return error;

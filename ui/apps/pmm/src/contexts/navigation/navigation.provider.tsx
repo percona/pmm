@@ -97,11 +97,12 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         items.push(NAV_INVENTORY);
       }
 
-      // SEP apps mounted as native routes. Offered to every signed-in user, not
-      // only admins: SEP's API serves its reads to any authenticated session
-      // and holds every unsafe method to administrators, so a non-admin gets a
-      // read-only view with no write control rendered (PMM-15358). Grouping
-      // these under a "Management" section is a follow-up.
+      // SEP apps mounted as native routes, grouped under "Management" and
+      // placed right below Inventory so no pre-existing entry moves. Offered to
+      // every signed-in user, not only admins: SEP's API serves its reads to
+      // any authenticated session and holds every unsafe method to
+      // administrators, so a non-admin gets a read-only view with no write
+      // control rendered (PMM-15358).
       //
       // Signed-in is the rule, so anonymous is excluded: it has no Grafana
       // session cookie to exchange for a SEP bearer, and the entry would open

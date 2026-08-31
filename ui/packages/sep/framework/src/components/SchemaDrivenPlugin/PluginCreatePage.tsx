@@ -114,12 +114,12 @@ export function PluginCreatePage({
         navigate('..', { relative: 'path' });
       },
       onError: (error: unknown) => {
-        const message =
-          error instanceof Error ? error.message : 'Failed to create';
-        // Transient toast is unchanged; 422s additionally map to a persistent
-        // banner plus inline per-field errors.
-        enqueueSnackbar(message, { variant: 'error' });
-        setSubmitErrorState(mapSubmitError(error, sections, message));
+        // Reported by the form's own persistent banner (plus inline per-field
+        // errors for a 422) and by nothing else: one signal per failure, and one
+        // that does not depend on the host mounting a snackbar provider.
+        setSubmitErrorState(
+          mapSubmitError(error, sections, 'Failed to create')
+        );
       },
     });
   };
@@ -163,6 +163,8 @@ export function PluginCreatePage({
         loading: create.isPending,
         capabilities,
         renderField,
+        submitError,
+        fieldErrors,
       }) ?? (
         <SchemaFormRenderer
           sections={sections}
