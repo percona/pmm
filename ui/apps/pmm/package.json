@@ -31,6 +31,7 @@
     "@pmm-extensions/api": "workspace:*",
     "@pmm-extensions/framework": "workspace:*",
     "@pmm-extensions/plugins-atw": "workspace:*",
+    "@pmm-extensions/plugins-om": "workspace:*",
     "@pmm/shared": "workspace:*",
     "@reactour/tour": "^3.8.0",
     "@tanstack/react-query": "^5.100.7",
