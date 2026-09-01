@@ -6,9 +6,9 @@ declare CURRENT_GID CURRENT_UID CURRENT_USER
 
 # Returns 0 (true) if the given variable is set to "1" or "true".
 is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
-declare POSTGRES_DATA_DIR="/srv/postgres14"
+declare POSTGRES_DATA_DIR="/srv/postgres18"
 declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
-declare POSTGRES_BIN_DIR="/usr/pgsql-14/bin"
+declare POSTGRES_BIN_DIR="/usr/pgsql-18/bin"
 
 # Get current user info - handle cases where user doesn't exist in passwd
 CURRENT_UID=$(id -u)
@@ -80,34 +80,6 @@ if [ ! -f "$DIST_FILE" ]; then
     echo -n "$PMM_DISTRIBUTION_METHOD" > "$DIST_FILE"
     echo "Initializing /srv..."
     mkdir -p /srv/{backup,clickhouse,grafana/plugins,logs,nginx,prometheus/rules,victoriametrics}
-
-    if is_enabled "$PMM_HA_ENABLE"; then
-        echo "Skipping embedded PostgreSQL initialization in HA mode."
-    elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
-        echo "Skipping embedded PostgreSQL initialization (builtin PostgreSQL is disabled)."
-    else
-        echo "Initializing Postgres..."
-        install -d -m 750 "$POSTGRES_DATA_DIR"
-
-        # Generate a random password for postgres superuser
-        declare POSTGRES_PASSWORD
-        POSTGRES_PASSWORD=$(openssl rand -hex 16)
-
-        # Store the password securely with restricted permissions
-        echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
-        chmod 600 "$POSTGRES_PASSWORD_FILE"
-
-        # Initialize database with password authentication
-        "$POSTGRES_BIN_DIR/initdb" -D "$POSTGRES_DATA_DIR" --auth-host=scram-sha-256 --auth-local=trust --username=postgres --pwfile="$POSTGRES_PASSWORD_FILE"
-
-        echo "Enabling pg_stat_statements extension for PostgreSQL..."
-        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off"
-        PGPASSWORD="$POSTGRES_PASSWORD" "$POSTGRES_BIN_DIR/psql" -U postgres -h /run/postgresql -d postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
-        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR"
-
-        # Clean up password from environment
-        unset POSTGRES_PASSWORD
-    fi
 fi
 
 # Sync bundled Grafana plugins into /srv when the bundled set changes. 
@@ -139,10 +111,12 @@ if [ ! -d "/srv/pmm-agent/tmp" ]; then
     install -d -m 770 /srv/pmm-agent/tmp
 fi
 
+# The script owns the embedded cluster: it upgrades a PostgreSQL 14 data directory,
+# creates the cluster on a fresh installation, and repairs older ones.
 if is_enabled "$PMM_HA_ENABLE"; then
-    echo "Skipping embedded PostgreSQL migration in HA mode."
+    echo "Skipping embedded PostgreSQL setup in HA mode."
 elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
-    echo "Skipping embedded PostgreSQL migration (builtin PostgreSQL is disabled)."
+    echo "Skipping embedded PostgreSQL setup (builtin PostgreSQL is disabled)."
 else
     mkdir -p /run/postgresql
     chmod 750 "$POSTGRES_DATA_DIR" || true
