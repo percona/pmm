@@ -18,9 +18,20 @@ package nodeinfo
 import (
 	"net"
 	"os"
+	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 )
+
+// containerMarkerFiles are files that container runtimes create inside the container:
+// Docker creates /.dockerenv, Podman creates /run/.containerenv.
+var containerMarkerFiles = []string{".dockerenv", "run/.containerenv"}
+
+// containerCgroupMarkers are substrings of the /proc/1/cgroup paths under cgroup v1, where those
+// paths carry the runtime name and the container ID. Under cgroup v2 the file usually holds just
+// "0::/", so it can confirm a container but never rule one out.
+var containerCgroupMarkers = []string{"/docker/", "/lxc/", "/kubepods", "containerd", "crio-", "libpod"}
 
 // NodeInfo contains node information.
 type NodeInfo struct {
@@ -35,17 +46,34 @@ type NodeInfo struct {
 // Get returns node information for current node.
 func Get() *NodeInfo {
 	return &NodeInfo{
-		Container:     checkContainer(),
+		Container:     checkContainer("/"),
 		Distro:        readDistro(),
 		MachineID:     readMachineID(),
 		PublicAddress: readPublicAddress(),
 	}
 }
 
-func checkContainer() bool {
-	// https://stackoverflow.com/a/20012536
-	b, _ := os.ReadFile("/proc/1/cgroup")
-	return strings.Contains(string(b), "/docker/") || strings.Contains(string(b), "/lxc/")
+// checkContainer reports whether the current process runs inside a container.
+// The root argument is the filesystem root to probe; it is "/" outside of tests.
+func checkContainer(root string) bool {
+	for _, name := range containerMarkerFiles {
+		_, err := os.Stat(filepath.Join(root, name))
+		if err == nil {
+			return true
+		}
+	}
+
+	// LXC, Podman and systemd-nspawn set "container"; Kubernetes injects its service host into every Pod.
+	if os.Getenv("container") != "" || os.Getenv("KUBERNETES_SERVICE_HOST") != "" {
+		return true
+	}
+
+	b, _ := os.ReadFile(filepath.Join(root, "proc/1/cgroup")) //nolint:gosec
+	cgroup := string(b)
+
+	return slices.ContainsFunc(containerCgroupMarkers, func(marker string) bool {
+		return strings.Contains(cgroup, marker)
+	})
 }
 
 func readDistro() string {
