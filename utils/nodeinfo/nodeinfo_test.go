@@ -67,9 +67,19 @@ func TestCheckContainer(t *testing.T) {
 			files:    map[string]string{"run/.containerenv": "engine=\"podman-5.4.0\"\n", "proc/1/cgroup": "0::/\n"},
 			expected: true,
 		}, {
+			name:     "docker with the systemd cgroup driver",
+			files:    map[string]string{"proc/1/cgroup": "1:name=systemd:/system.slice/docker-dc4b1a5cb7fd.scope\n"},
+			expected: true,
+		}, {
 			name:     "lxc",
 			files:    map[string]string{"proc/1/cgroup": "0::/\n"},
 			env:      map[string]string{"container": "lxc"},
+			expected: true,
+		}, {
+			// systemd strips its own "container" variable from the services it starts, so an agent
+			// running as a unit only has the file to go by
+			name:     "lxc with an agent started by systemd",
+			files:    map[string]string{"run/systemd/container": "lxc\n", "proc/1/cgroup": "0::/\n"},
 			expected: true,
 		}, {
 			name:     "kubernetes pod with cgroup v2",

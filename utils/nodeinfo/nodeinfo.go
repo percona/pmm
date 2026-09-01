@@ -24,14 +24,18 @@ import (
 	"strings"
 )
 
-// containerMarkerFiles are files that container runtimes create inside the container:
-// Docker creates /.dockerenv, Podman creates /run/.containerenv.
-var containerMarkerFiles = []string{".dockerenv", "run/.containerenv"}
+// containerMarkerFiles are files created inside the container: Docker creates /.dockerenv, Podman
+// creates /run/.containerenv, and systemd running as PID 1 in a container (LXC, LXD,
+// systemd-nspawn) writes the runtime name to /run/systemd/container. The last one matters because
+// systemd does not pass its own "container" variable on to the services it starts, so an agent
+// running as a unit cannot see it.
+var containerMarkerFiles = []string{".dockerenv", "run/.containerenv", "run/systemd/container"}
 
 // containerCgroupMarkers are substrings of the /proc/1/cgroup paths under cgroup v1, where those
-// paths carry the runtime name and the container ID. Under cgroup v2 the file usually holds just
-// "0::/", so it can confirm a container but never rule one out.
-var containerCgroupMarkers = []string{"/docker/", "/lxc/", "/kubepods", "containerd", "crio-", "libpod"}
+// paths carry the runtime name and the container ID; "docker-" catches the systemd cgroup driver,
+// which nests containers as /system.slice/docker-<id>.scope. Under cgroup v2 the file usually
+// holds just "0::/", so it can confirm a container but never rule one out.
+var containerCgroupMarkers = []string{"/docker/", "docker-", "/lxc/", "/kubepods", "containerd", "crio-", "libpod"}
 
 // NodeInfo contains node information.
 type NodeInfo struct {
@@ -63,7 +67,8 @@ func checkContainer(root string) bool {
 		}
 	}
 
-	// LXC, Podman and systemd-nspawn set "container"; Kubernetes injects its service host into every Pod.
+	// Podman and LXC set "container" for the processes they start; Kubernetes injects its service
+	// host into every Pod.
 	if os.Getenv("container") != "" || os.Getenv("KUBERNETES_SERVICE_HOST") != "" {
 		return true
 	}
