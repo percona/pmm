@@ -6,6 +6,174 @@ declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:?must be exported by the entrypoi
 declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:?must be exported by the entrypoint}"
 declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:?must be exported by the entrypoint}"
 
+# ── shared cluster primitives ─────────────────────────────────────────────────
+# Stores the postgres superuser password with restricted permissions.
+store_postgres_password() {
+    echo -n "$1" > "$POSTGRES_PASSWORD_FILE"
+    chmod 600 "$POSTGRES_PASSWORD_FILE"
+}
+
+# Creates a cluster in the given directory with the authentication settings PMM expects.
+# The password file must already exist: initdb seeds the postgres superuser from it.
+initdb_cluster() {
+    local data_dir=$1
+
+    echo "Initialising PostgreSQL at $data_dir..."
+    install -d -m 750 "$data_dir"
+    "$POSTGRES_BIN_DIR/initdb" -D "$data_dir" \
+        --auth-host=scram-sha-256 \
+        --auth-local=trust \
+        --username=postgres \
+        --pwfile="$POSTGRES_PASSWORD_FILE"
+}
+
+# Moves a finished cluster into place. Until this runs, POSTGRES_DATA_DIR does not exist, so
+# an interrupted attempt is retried on the next start rather than leaving a half-built cluster
+# that both the upgrade and the fresh install would skip. The rename is within /srv, so it is
+# atomic.
+publish_cluster() {
+    local staged=$1
+
+    echo "Moving $staged into place at $POSTGRES_DATA_DIR..."
+    mv "$staged" "$POSTGRES_DATA_DIR"
+}
+
+# pg_stat_statements is registered per cluster, so every new one needs it.
+create_pg_stat_statements() {
+    echo "Ensuring pg_stat_statements extension..."
+    "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
+        -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public"
+}
+
+# ── pg14 → pg18 upgrade ───────────────────────────────────────────────────────
+# Runs once when /srv/postgres14 exists and /srv/postgres18 does not.
+# Requires both pg14 and pg18 binaries in the image (shipped through PMM 3.12.x).
+upgrade_pg14_to_pg18() {
+    local PG14_DATA="/srv/postgres14"
+    local PG14_BIN="/usr/pgsql-14/bin"
+    local BACKUP_DIR="/srv/backup"
+    local STAGE_DIR="${POSTGRES_DATA_DIR}.new"
+
+    if [ ! -d "$PG14_DATA" ] || [ -d "$POSTGRES_DATA_DIR" ]; then
+        return
+    fi
+
+    echo "PostgreSQL 14 data found at $PG14_DATA. Migrating to PostgreSQL 18..."
+
+    # PMM 2 data directories predate the superuser password file, so generate one when it is
+    # missing: initdb seeds the new cluster's postgres role from it. The dump below does not
+    # need it, since it connects over the socket, which pg_hba matches with a local trust rule.
+    if [ ! -f "$POSTGRES_PASSWORD_FILE" ]; then
+        echo "No superuser password file at $POSTGRES_PASSWORD_FILE. Generating one..."
+        store_postgres_password "$(openssl rand -hex 16)"
+    fi
+
+    local PGPASSWORD
+    PGPASSWORD=$(cat "$POSTGRES_PASSWORD_FILE")
+    export PGPASSWORD
+
+    # Start pg14 and dump databases
+    echo "Starting PostgreSQL 14 for dump..."
+    "$PG14_BIN/pg_ctl" start -D "$PG14_DATA" -o "-c logging_collector=off" -w
+
+    mkdir -p "$BACKUP_DIR"
+
+    # Dump whichever databases the old cluster actually has: a PMM 2 installation may never
+    # have kept Grafana in PostgreSQL, and dumping a database that is not there would abort
+    # the upgrade and leave the container restarting.
+    local db dump
+    for db in pmm-managed grafana; do
+        if [ "$db" = "grafana" ] && { [ -n "${GF_DATABASE_URL}" ] || [ -n "${GF_DATABASE_HOST}" ]; }; then
+            echo "Grafana is configured to use an external database, skipping its dump."
+            continue
+        fi
+        if [ -z "$("$PG14_BIN/psql" -h /run/postgresql -U postgres -tAc \
+            "SELECT 1 FROM pg_database WHERE datname = '$db'")" ]; then
+            echo "No $db database in $PG14_DATA, skipping its dump."
+            continue
+        fi
+        echo "Dumping $db database..."
+        "$PG14_BIN/pg_dump" -h /run/postgresql -U postgres -F p \
+            -f "${BACKUP_DIR}/pg18-upgrade-${db}.sql" "$db"
+    done
+
+    echo "Stopping PostgreSQL 14..."
+    "$PG14_BIN/pg_ctl" stop -D "$PG14_DATA" -w
+
+    # Build the new cluster off to the side; a leftover from an interrupted attempt is discarded.
+    rm -rf "${STAGE_DIR:?}"
+    initdb_cluster "$STAGE_DIR"
+
+    # Start pg18 and restore
+    echo "Starting PostgreSQL 18..."
+    "$POSTGRES_BIN_DIR/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
+
+    # Each role owns its database: since PostgreSQL 15 the public schema belongs to
+    # pg_database_owner, so ownership is what lets the role create tables in it.
+    # Both roles use their own name as the password, same as the ansible tasks that
+    # provision them on a fresh installation.
+    for db in pmm-managed grafana; do
+        dump="${BACKUP_DIR}/pg18-upgrade-${db}.sql"
+        if [ ! -f "$dump" ]; then
+            continue
+        fi
+        echo "Creating $db role and database..."
+        "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
+            -c "CREATE ROLE \"$db\" LOGIN PASSWORD '$db'" \
+            -c "CREATE DATABASE \"$db\" OWNER \"$db\""
+        echo "Restoring $db database..."
+        "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d "$db" -f "$dump"
+    done
+
+    create_pg_stat_statements
+
+    echo "Stopping PostgreSQL 18..."
+    "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$STAGE_DIR" -w
+
+    unset PGPASSWORD
+
+    publish_cluster "$STAGE_DIR"
+
+    echo "Renaming $PG14_DATA to ${PG14_DATA}.old for rollback safety..."
+    mv "$PG14_DATA" "${PG14_DATA}.old"
+
+    # The renamed directory is the rollback artifact, so the dumps have served their purpose.
+    # Only the files written above are removed: /srv/backup also holds user backups. This is
+    # reached only on success, so a failed upgrade leaves the dumps behind to inspect.
+    echo "Removing the upgrade dumps from $BACKUP_DIR..."
+    rm -f "${BACKUP_DIR}"/pg18-upgrade-*.sql
+
+    echo "PostgreSQL 14 to 18 migration completed successfully."
+}
+
+# ── fresh installation ────────────────────────────────────────────────────────
+# Creates the cluster when there is no data directory to reuse. Runs after the pg14
+# upgrade so that an upgradable cluster is never replaced by an empty one.
+init_postgres_cluster() {
+    local STAGE_DIR="${POSTGRES_DATA_DIR}.new"
+
+    if [ -d "$POSTGRES_DATA_DIR" ]; then
+        return
+    fi
+
+    echo "No PostgreSQL data found at $POSTGRES_DATA_DIR. Initialising a new cluster..."
+
+    local POSTGRES_PASSWORD
+    POSTGRES_PASSWORD=$(openssl rand -hex 16)
+    store_postgres_password "$POSTGRES_PASSWORD"
+
+    rm -rf "${STAGE_DIR:?}"
+    initdb_cluster "$STAGE_DIR"
+
+    export PGPASSWORD="$POSTGRES_PASSWORD"
+    "$POSTGRES_BIN_DIR/pg_ctl" start -D "$STAGE_DIR" -o "-c logging_collector=off" -w
+    create_pg_stat_statements
+    "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$STAGE_DIR" -w
+    unset PGPASSWORD
+
+    publish_cluster "$STAGE_DIR"
+}
+
 ensure_postgres_password() {
     # This check is to verify if the data directory is empty.
     if [ ! -f "$POSTGRES_DATA_DIR/PG_VERSION" ]; then
@@ -29,35 +197,13 @@ ensure_postgres_password() {
     PGPASSWORD="$POSTGRES_PASSWORD" "$POSTGRES_BIN_DIR/psql" -U postgres -h /run/postgresql -d postgres \
         -c "ALTER USER postgres WITH PASSWORD '${POSTGRES_PASSWORD}'"
 
-    echo -n "$POSTGRES_PASSWORD" > "$POSTGRES_PASSWORD_FILE"
-    chmod 600 "$POSTGRES_PASSWORD_FILE"
+    store_postgres_password "$POSTGRES_PASSWORD"
 
     if [ "$STARTED" -eq 1 ]; then
         "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR"
     fi
 }
 
-update_pg_hba_auth() {
-    local hba="$POSTGRES_DATA_DIR/pg_hba.conf"
- 
-    if [ ! -f "$hba" ]; then
-        return 1
-    fi
-
-    if ! grep -Eq '^[[:space:]]*host[[:space:]].*[[:space:]]trust[[:space:]]*$' "$hba"; then
-        return 1
-    fi
-
-    echo "Updating $hba to require scram-sha-256 for host connections..."
-    local tmp
-    tmp=$(mktemp)
-    sed -E 's/^([[:space:]]*host[[:space:]].*[[:space:]])trust([[:space:]]*)$/\1scram-sha-256\2/' "$hba" > "$tmp"
-    mv "$tmp" "$hba"
-
-    if "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
-        "$POSTGRES_BIN_DIR/pg_ctl" reload -D "$POSTGRES_DATA_DIR"
-    fi
-}
-
+upgrade_pg14_to_pg18
+init_postgres_cluster
 ensure_postgres_password
-update_pg_hba_auth || true
