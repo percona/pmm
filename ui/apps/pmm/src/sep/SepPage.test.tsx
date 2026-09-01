@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { TestWrapper } from 'utils/testWrapper';
+import { wrapWithSettings } from 'utils/testUtils';
 import { TEST_USER_ADMIN, TEST_USER_VIEWER } from 'utils/testStubs';
 import { User } from 'types/user.types';
 import { SepPage } from './SepPage';
@@ -10,7 +11,10 @@ vi.mock('./SepAuthGate', () => ({
   SepAuthGate: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
-const renderPage = (user: User) =>
+const renderPage = (
+  user: User,
+  settings: { sepEnabled?: boolean } = { sepEnabled: true }
+) =>
   render(
     <SepPage>
       <div data-testid="sep-plugin" />
@@ -18,7 +22,7 @@ const renderPage = (user: User) =>
     {
       wrapper: ({ children }) => (
         <TestWrapper userContext={{ isLoading: false, user }}>
-          {children}
+          {wrapWithSettings(children, { settings })}
         </TestWrapper>
       ),
     }
@@ -38,5 +42,16 @@ describe('SepPage', () => {
     renderPage(TEST_USER_VIEWER);
 
     expect(screen.getByTestId('sep-plugin')).toBeInTheDocument();
+  });
+
+  it('renders an unavailable message when SEP is disabled', () => {
+    renderPage(TEST_USER_ADMIN, { sepEnabled: false });
+
+    expect(
+      screen.getByText(
+        'This feature is not enabled. Contact your administrator.'
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId('sep-plugin')).not.toBeInTheDocument();
   });
 });
