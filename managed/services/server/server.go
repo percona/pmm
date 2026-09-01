@@ -634,11 +634,8 @@ func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error)
 	// The Service is part of the lookup on purpose: remote PostgreSQL instances added through RDS or
 	// Azure discovery get their QAN agent attached to PMM Server's pmm-agent too, so filtering by
 	// agent type and pmm-agent alone can return one of those instead of PMM's own database.
-	agent, err := models.FindInternalPgQANAgent(q)
-	if err != nil {
-		return nil, fmt.Errorf("failed to find internal pgQAN agent: %w", err)
-	}
-	return agent, nil
+	// Both callers add their own context to the error, so it is returned unwrapped here.
+	return models.FindInternalPgQANAgent(q)
 }
 
 func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier, enableInternalPgQan *bool) (bool, error) {
@@ -655,11 +652,9 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 	if err != nil {
 		return false, fmt.Errorf("failed to get QAN agent: %w", err)
 	}
-	if internalQanAgent == nil {
-		return false, errors.New("internal QAN agent not found")
-	}
 
-	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeAgentParams{
+	// The row is already loaded, so change it in place instead of having ChangeAgent re-fetch it.
+	newAgent, err := models.ApplyAgentChange(q, internalQanAgent, &models.ChangeAgentParams{
 		Enabled: enableInternalPgQan,
 	})
 	if err != nil {

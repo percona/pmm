@@ -1852,7 +1852,7 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 		}
 
 		if currentAgent.AgentType != expectedType {
-			return status.Errorf(codes.InvalidArgument, "Agent with ID %q has type %q, expected %q.", agentID, currentAgent.AgentType, expectedType)
+			return status.Errorf(codes.InvalidArgument, "Agent with ID %s has type %s, expected %s.", agentID, currentAgent.AgentType, expectedType)
 		}
 
 		err = checkInternalPgQANEnvOverride(tx.Querier, currentAgent, params.Enabled)

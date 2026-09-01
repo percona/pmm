@@ -1079,7 +1079,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 			Enable:   new(false),
 			LogLevel: inventoryv1.LogLevel_LOG_LEVEL_DEBUG.Enum(),
 		})
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, fmt.Sprintf("Agent with ID %q has type %q, expected %q.",
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, fmt.Sprintf("Agent with ID %s has type %s, expected %s.",
 			agent.AgentID, models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType)), err)
 
 		stored, err := models.FindAgentByID(as.db.Querier, agent.AgentID)
@@ -1163,7 +1163,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
 			`QAN for PMM's internal PostgreSQL server is configured via an environment variable: `+
-				`invalid value "not-a-bool" for environment variable "PMM_ENABLE_INTERNAL_PG_QAN".`), err)
+				`invalid value "not-a-bool" for environment variable PMM_ENABLE_INTERNAL_PG_QAN.`), err)
 
 		stored, err := models.FindAgentByID(as.db.Querier, agent.AgentID)
 		require.NoError(t, err)
@@ -1211,7 +1211,7 @@ func TestChangeAgentRejectsAgentOfAnotherType(t *testing.T) {
 		_, err = as.ChangeNodeExporter(ctx, pgExporters[0].AgentID, &inventoryv1.ChangeNodeExporterParams{
 			Enable: new(false),
 		})
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, fmt.Sprintf("Agent with ID %q has type %q, expected %q.",
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, fmt.Sprintf("Agent with ID %s has type %s, expected %s.",
 			pgExporters[0].AgentID, models.PostgresExporterType, models.NodeExporterType)), err)
 
 		stored, err := models.FindAgentByID(as.db.Querier, pgExporters[0].AgentID)

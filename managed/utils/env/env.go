@@ -65,7 +65,7 @@ func LookupBool(key string) (*bool, error) {
 	}
 	b, err := strconv.ParseBool(v)
 	if err != nil {
-		return nil, fmt.Errorf("invalid value %q for environment variable %q", v, key)
+		return nil, fmt.Errorf("invalid value %q for environment variable %s", v, key)
 	}
 	return &b, nil
 }
