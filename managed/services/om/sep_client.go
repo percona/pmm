@@ -102,3 +102,50 @@ func (a sepApp) request(ctx context.Context, method, path string, query url.Valu
 	}
 	return req, nil
 }
+
+// patchConfig sends fields to the app's PATCH /config endpoint and discards the
+// response body -- callers that only want to write settings, not read the
+// SettingResponse rows PATCH returns, use this instead of building the request
+// themselves.
+func (a sepApp) patchConfig(ctx context.Context, fields map[string]any) error {
+	req, err := a.request(ctx, http.MethodPatch, "config", nil, fields, false)
+	if err != nil {
+		return fmt.Errorf("failed to build the request: %w", err)
+	}
+
+	resp, err := a.client.http.Do(req)
+	if err != nil {
+		return fmt.Errorf("PATCH %s: %w", a.endpoint("config"), err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("PATCH %s: unexpected status %s", a.endpoint("config"), resp.Status)
+	}
+	return nil
+}
+
+// triggerRun queues a full-estate probe sweep via the app's POST /runs endpoint and
+// discards the accepted run's body. Body is sent empty rather than omitted -- the
+// endpoint takes an optional scope object, and FastAPI rejects a bodyless POST
+// against a typed body.
+//
+// A 409 (a sweep already in flight) is not treated as a failure to log: the estate
+// is about to be swept either way, which is exactly the outcome a caller here wants.
+func (a sepApp) triggerRun(ctx context.Context) error {
+	req, err := a.request(ctx, http.MethodPost, "runs", nil, nil, true)
+	if err != nil {
+		return fmt.Errorf("failed to build the request: %w", err)
+	}
+
+	resp, err := a.client.http.Do(req)
+	if err != nil {
+		return fmt.Errorf("POST %s: %w", a.endpoint("runs"), err)
+	}
+	defer resp.Body.Close() //nolint:errcheck
+
+	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusConflict {
+		return fmt.Errorf("POST %s: unexpected status %s", a.endpoint("runs"), resp.Status)
+	}
+	return nil
+}
