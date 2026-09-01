@@ -127,4 +127,6 @@ type omService interface {
 	// reachable, gating whether OpenManager may be enabled.
 	IsAvailable(ctx context.Context) bool
 	TriggerTopologyCollection(ctx context.Context, req *omv1.TriggerTopologyCollectionRequest) (*omv1.TriggerTopologyCollectionResponse, error)
+	// SyncInventoryEnabled tells SEP's om_inventory app whether OpenManager is on.
+	SyncInventoryEnabled(ctx context.Context, enabled bool)
 }
