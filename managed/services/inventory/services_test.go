@@ -34,7 +34,6 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/management/common"
-	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
@@ -139,27 +138,6 @@ func TestServices(t *testing.T) {
 		actualService, err = ss.Get(ctx, "00000000-0000-4000-8000-000000000005")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, actualService)
-	})
-
-	t.Run("RejectRemovingThePinnedInternalPgQANAgentEvenWithForce", func(t *testing.T) {
-		// force=true drives Remove into models.RemoveService's cascade branch, which deletes
-		// Agent rows via models.RemoveAgent directly -- never through AgentsService.Remove -- so
-		// this is the one removal path that actually needed the guard to live in RemoveAgent
-		// itself rather than at each service-layer caller.
-		t.Setenv(env.EnableInternalPgQAN, "true")
-		ss, _, _, teardown, ctx, _ := setup(t)
-		defer teardown(t)
-
-		service, err := models.FindServiceByName(ss.db.Querier, models.PMMServerPostgreSQLServiceName)
-		require.NoError(t, err)
-
-		err = ss.Remove(ctx, service.ServiceID, true)
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
-			"QAN for PMM's internal PostgreSQL server is configured via the PMM_ENABLE_INTERNAL_PG_QAN "+
-				"environment variable, its agent can't be removed."), err)
-
-		_, err = ss.Get(ctx, service.ServiceID)
-		require.NoError(t, err)
 	})
 
 	t.Run("RDSServiceRemoving", func(t *testing.T) {

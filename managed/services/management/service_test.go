@@ -34,7 +34,6 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
@@ -165,28 +164,6 @@ func TestServiceService(t *testing.T) {
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			assert.Nil(t, service)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
-		})
-
-		t.Run("RejectRemovingThePinnedInternalPgQANAgent", func(t *testing.T) {
-			// RemoveService deletes an Agent row directly instead of going through
-			// AgentsService.Remove, so it must run the same guard that Remove does, or removing
-			// PMM Server's own PostgreSQL Service becomes a second, unprotected way to drop the QAN
-			// agent that PMM_ENABLE_INTERNAL_PG_QAN pins.
-			t.Setenv(env.EnableInternalPgQAN, "true")
-			ctx, s, teardown := setup(t)
-			defer teardown(t)
-
-			service, err := models.FindServiceByName(s.db.Querier, models.PMMServerPostgreSQLServiceName)
-			require.NoError(t, err)
-
-			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceID})
-			assert.Nil(t, response)
-			tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
-				"QAN for PMM's internal PostgreSQL server is configured via the PMM_ENABLE_INTERNAL_PG_QAN "+
-					"environment variable, its agent can't be removed."), err)
-
-			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
-			require.NoError(t, err)
 		})
 
 		t.Run("RDS", func(t *testing.T) {

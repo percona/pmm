@@ -1153,9 +1153,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(
 		SkipConnectionCheck: p.SkipConnectionCheck,
 	}
 
-	agent, err := as.executeAgentAdd(ctx, models.QANPostgreSQLPgStatementsAgentType, params, false, func(tx *reform.TX) error {
-		return checkInternalPgQANDuplicate(tx.Querier, p.ServiceId)
-	})
+	agent, err := as.executeAgentAdd(ctx, models.QANPostgreSQLPgStatementsAgentType, params, false)
 	if err != nil {
 		return nil, err
 	}
@@ -1790,57 +1788,6 @@ func checkInternalPgQANEnvOverride(q *reform.Querier, agent *models.Agent, enabl
 	)
 }
 
-// checkInternalPgQANDuplicate rejects adding a second QAN agent to PMM's internal PostgreSQL
-// Service. The fixtures create one together with PMM Server, and a second one would monitor the
-// same Service twice and make the agent that the settings API and PMM_ENABLE_INTERNAL_PG_QAN act on
-// ambiguous, regardless of which pmm-agent the new one is attached to: CreateAgent does not require
-// a Service's agents to run under any particular pmm-agent, so gating this check on the request's
-// pmm_agent_id would let it be skipped by naming any other registered pmm-agent.
-//
-// The q argument must be the Querier of the transaction that goes on to insert the new agent: two
-// concurrent calls both reading "no existing agent" before either commits its insert would
-// otherwise both succeed. A CREATE UNIQUE INDEX can't rule that out by itself here, because what
-// makes an agent "internal" is its Service's name, and a partial index predicate can't reference
-// another table to test that; the columns that do live on the agents row, pmm_agent_id and
-// service_id, are both generated at runtime and neither has a fixed value a predicate could pin
-// (service_id always varies, and pmm_agent_id does too in HA mode). Locking the Service row with
-// SELECT ... FOR NO KEY UPDATE serializes the two transactions on this specific check instead: the
-// second one blocks until the first commits or rolls back, and then re-reads the now-settled state.
-// FOR NO KEY UPDATE rather than FOR UPDATE deliberately: it still conflicts with a concurrent call
-// taking the same lock, but not with the FOR KEY SHARE lock that an unrelated agent insert takes on
-// this row via the agents_service_id_fkey foreign key, so adding other agents to this Service is
-// not blocked by this check.
-func checkInternalPgQANDuplicate(q *reform.Querier, serviceID string) error {
-	service, err := models.FindServiceByID(q, serviceID)
-	if err != nil {
-		return err
-	}
-	if service.ServiceName != models.PMMServerPostgreSQLServiceName {
-		return nil
-	}
-
-	if _, err := q.SelectOneFrom(models.ServiceTable, "WHERE service_id = $1 FOR NO KEY UPDATE", serviceID); err != nil {
-		return err
-	}
-
-	existing, err := models.FindAgents(q, models.AgentFilters{
-		ServiceID: serviceID,
-		AgentType: new(models.QANPostgreSQLPgStatementsAgentType),
-	})
-	if err != nil {
-		return err
-	}
-	if len(existing) == 0 {
-		return nil
-	}
-
-	return status.Errorf(
-		codes.AlreadyExists,
-		"QAN agent for the %q Service already exists, it is created together with PMM Server.",
-		models.PMMServerPostgreSQLServiceName,
-	)
-}
-
 // Helper function to convert custom labels from protobuf to model format.
 func convertCustomLabels(customLabels *common.StringMap) *map[string]string {
 	if customLabels != nil {
@@ -1939,21 +1886,10 @@ func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string,
 }
 
 // executeAgentAdd creates an agent and returns the agent.
-//
-// The prechecks argument runs first, inside the same transaction as the insert, and can reject the
-// request by returning an error. Add*Agent methods that need to enforce something CreateAgent
-// itself does not pass one; the rest pass none.
-func (as *AgentsService) executeAgentAdd(ctx context.Context, agentType models.AgentType, params *models.CreateAgentParams, getServiceInfo bool, prechecks ...func(*reform.TX) error) (inventoryv1.Agent, error) { //nolint:ireturn,lll
+func (as *AgentsService) executeAgentAdd(ctx context.Context, agentType models.AgentType, params *models.CreateAgentParams, getServiceInfo bool) (inventoryv1.Agent, error) { //nolint:ireturn,lll
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		for _, precheck := range prechecks {
-			err := precheck(tx)
-			if err != nil {
-				return err
-			}
-		}
-
 		row, err := models.CreateAgent(tx.Querier, agentType, params)
 		if err != nil {
 			return err
