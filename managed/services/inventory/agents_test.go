@@ -1190,7 +1190,6 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, changed.GetQanPostgresqlPgstatementsAgent().Disabled)
 	})
-
 }
 
 func TestChangeAgentRejectsAgentOfAnotherType(t *testing.T) {
