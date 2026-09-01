@@ -1189,6 +1189,14 @@ const baseThemeOptions = (mode: PaletteMode): ThemeOptions => {
           },
         },
       },
+      MuiDrawer: {
+        styleOverrides: {
+          paper: ({ theme }) => ({
+            scrollbarWidth: 'thin',
+            scrollbarColor: `${theme.palette.text.secondary} ${theme.palette.background.paper}`,
+          }),
+        },
+      },
       MuiDialogTitle: {
         defaultProps: {
           component: 'h5',
