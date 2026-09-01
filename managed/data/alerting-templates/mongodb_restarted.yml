@@ -3,6 +3,7 @@ templates:
   - name: pmm_mongodb_restarted
     version: 1
     summary: MongoDB restarted
+    category: mongodb
     expr: |-
       mongodb_instance_uptime_seconds
       < bool [[ .threshold ]]

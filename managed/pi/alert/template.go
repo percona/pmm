@@ -96,6 +96,7 @@ type Template struct {
 	Name        string               `yaml:"name"`                  // required
 	Version     uint32               `yaml:"version"`               // required
 	Summary     string               `yaml:"summary"`               // required
+	Category    Category             `yaml:"category,omitempty"`    // optional, defaults to CategoryUnknown
 	Expr        string               `yaml:"expr,omitempty"`        // required for single-expression templates
 	Queries     []TemplateQuery      `yaml:"queries,omitempty"`     // optional PromQL query steps
 	Expressions []TemplateExpression `yaml:"expressions,omitempty"` // optional Grafana expression steps
@@ -142,6 +143,15 @@ func (r *Template) Validate() error {
 	}
 
 	err = r.validateParams()
+	if err != nil {
+		return err
+	}
+
+	// Deliberately not normalized to CategoryUnknown here: Validate has a pointer
+	// receiver on the value Parse appends, so a mutation would leak into the YAML
+	// stored in the database and shown in the UI. The default is applied once, at
+	// the models boundary, via Category.OrDefault.
+	err = r.Category.Validate()
 	if err != nil {
 		return err
 	}

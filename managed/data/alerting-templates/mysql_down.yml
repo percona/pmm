@@ -3,6 +3,7 @@ templates:
   - name: pmm_mysql_down
     version: 1
     summary: MySQL down
+    category: mysql
     expr: |
       (
         # enabled exporters we should be watching (from inventory — always present)

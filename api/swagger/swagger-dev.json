@@ -2471,6 +2471,23 @@
                         "description": "Reference ID of the step used as the alert condition (e.g. \"C\"). Empty for single-expression templates.",
                         "type": "string",
                         "x-order": 13
+                      },
+                      "category": {
+                        "description": "TemplateCategory defines the technology an alert template applies to.\n\n - TEMPLATE_CATEGORY_UNSPECIFIED: Invalid, unknown or absent.\n - TEMPLATE_CATEGORY_PMM: PMM's own components, such as agents and backups.",
+                        "type": "string",
+                        "default": "TEMPLATE_CATEGORY_UNSPECIFIED",
+                        "enum": [
+                          "TEMPLATE_CATEGORY_UNSPECIFIED",
+                          "TEMPLATE_CATEGORY_PMM",
+                          "TEMPLATE_CATEGORY_MONGODB",
+                          "TEMPLATE_CATEGORY_MYSQL",
+                          "TEMPLATE_CATEGORY_NODE",
+                          "TEMPLATE_CATEGORY_POSTGRESQL",
+                          "TEMPLATE_CATEGORY_PROXYSQL",
+                          "TEMPLATE_CATEGORY_VALKEY",
+                          "TEMPLATE_CATEGORY_HAPROXY"
+                        ],
+                        "x-order": 14
                       }
                     }
                   },
