@@ -103,7 +103,7 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
 
         // Served by pmm-managed, so it is not gated with the SEP group -- gated
         // on the settings flag alone.
-        if (settings.omEnabled) {
+        if (settings?.omEnabled) {
           items.push(...addOm());
         }
 
