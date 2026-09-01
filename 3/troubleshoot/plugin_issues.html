@@ -11841,10 +11841,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pmm-does-not-allow-to-install-upgrade-or-remove-plugins" class="md-nav__link">
+  <a href="#pmm-cannot-install-upgrade-or-remove-plugins" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PMM does not allow to install, upgrade or remove plugins
+        PMM cannot install, upgrade, or remove plugins
       
     </span>
   </a>
@@ -16321,10 +16321,10 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pmm-does-not-allow-to-install-upgrade-or-remove-plugins" class="md-nav__link">
+  <a href="#pmm-cannot-install-upgrade-or-remove-plugins" class="md-nav__link">
     <span class="md-ellipsis">
       
-        PMM does not allow to install, upgrade or remove plugins
+        PMM cannot install, upgrade, or remove plugins
       
     </span>
   </a>
@@ -16371,10 +16371,23 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 
 
 <h1 id="plugin-issues">Plugin issues<a class="headerlink" href="#plugin-issues" title="Permanent link">&para;</a></h1>
-<h2 id="pmm-does-not-allow-to-install-upgrade-or-remove-plugins">PMM does not allow to install, upgrade or remove plugins<a class="headerlink" href="#pmm-does-not-allow-to-install-upgrade-or-remove-plugins" title="Permanent link">&para;</a></h2>
-<p>Users have encountered issues with installing, updating and removing plugins from PMM. The cause of this issue is the incorrect permissions assigned to the <code>/srv/grafana/plugins</code> directory. These permissions are preventing the grafana component from writing to the directory.</p>
+<h2 id="pmm-cannot-install-upgrade-or-remove-plugins">PMM cannot install, upgrade, or remove plugins<a class="headerlink" href="#pmm-cannot-install-upgrade-or-remove-plugins" title="Permanent link">&para;</a></h2>
+<p>If you cannot install, upgrade, or remove plugins in PMM, check the permissions on the <code>/srv/grafana/plugins</code> directory. </p>
+<p>When permissions are wrong, Grafana cannot write to the directory, which blocks all plugin operations.</p>
 <h2 id="solution">Solution<a class="headerlink" href="#solution" title="Permanent link">&para;</a></h2>
-<p>Set the ownership on the directory<code>/srv/grafana/plugins</code> to <code>grafana:grafana</code>.</p>
+<p class="power-number">To fix the permissions and restart Grafana, run the following commands:</p>
+<ol>
+<li>
+<p>Set ownership on the <code>/srv/grafana/plugins</code> directory to <code>1000:0</code>, which is the UID/GID that PMM Server runs as:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--user<span class="w"> </span>root<span class="w"> </span>pmm-server<span class="w"> </span>chown<span class="w"> </span>-R<span class="w"> </span><span class="m">1000</span>:0<span class="w"> </span>/srv/grafana/plugins
+</code></pre></div>
+</li>
+<li>
+<p>Restart Grafana to pick up the change:</p>
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>--user<span class="w"> </span>root<span class="w"> </span>pmm-server<span class="w"> </span>supervisorctl<span class="w"> </span>restart<span class="w"> </span>grafana
+</code></pre></div>
+</li>
+</ol>
 
 
 
@@ -16397,7 +16410,7 @@ box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 18, 2024 14:22:49 UTC">December 18, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 1, 2026 13:49:07 UTC">September 1, 2026</span>
   </span>
 
     
