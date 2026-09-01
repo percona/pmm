@@ -1720,11 +1720,11 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent
 	e := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		var err error
 		mode := models.RemoveRestrict
 		if force {
 			mode = models.RemoveCascade
 		}
-		var err error
 		removedAgent, err = models.RemoveAgent(tx.Querier, id, mode)
 		return err
 	})
@@ -1756,12 +1756,22 @@ func unexpectedAgentTypeError(agent inventoryv1.Agent) error {
 // of PMM's internal PostgreSQL server away from the state pinned by the PMM_ENABLE_INTERNAL_PG_QAN
 // environment variable.
 //
-// The agent argument is the stored row, before the requested change is applied. Everything the
-// variable does not pin stays changeable: parameters unrelated to the enabled state, a request that
-// asks for the state the agent is already in, and one that moves the agent towards the pinned state.
+// The agent argument is the stored row, before the requested change is applied.
+//
+// Unlike CheckInternalPgQANRemoval, this guard deliberately stays in the service layer rather than
+// moving into models.ApplyAgentChange: Server.handleInternalQANToggle is the legitimate actor for
+// this exact state and calls ApplyAgentChange directly, so a guard down there would make the
+// settings API trip over its own pin.
 func checkInternalPgQANEnvOverride(q *reform.Querier, agent *models.Agent, enable *bool) error {
 	// Only a request that actually flips the enabled state can contradict the variable.
 	if enable == nil || *enable == !agent.Disabled {
+		return nil
+	}
+
+	// Read before IsInternalPgQANAgent, which costs a query: with the variable unset -- the default
+	// -- nothing is pinned and there is nothing to check.
+	enabledByEnv, lookupErr := env.LookupBool(env.EnableInternalPgQAN)
+	if enabledByEnv == nil && lookupErr == nil {
 		return nil
 	}
 
@@ -1770,14 +1780,13 @@ func checkInternalPgQANEnvOverride(q *reform.Querier, agent *models.Agent, enabl
 		return err
 	}
 
-	enabledByEnv, err := env.LookupBool(env.EnableInternalPgQAN)
-	if err != nil {
-		// pmm-managed-init rejects an unparsable value before PMM Server starts, so getting here
-		// means that validation was bypassed. The intent to pin the state is clear even though the
-		// value is not, so refuse the change and name the variable instead of ignoring the pin.
-		return status.Errorf(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is configured via an environment variable: %s.", err)
+	if lookupErr != nil {
+		// pmm-managed-init rejects an unparsable value before PMM Server starts, so reaching here
+		// means that validation was bypassed. The intent to pin is clear even though the value is
+		// not, so refuse rather than silently unpin.
+		return status.Errorf(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is configured via an environment variable: %s.", lookupErr)
 	}
-	if enabledByEnv == nil || *enable == *enabledByEnv {
+	if *enable == *enabledByEnv {
 		return nil
 	}
 
@@ -1841,6 +1850,9 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 // the transaction, turns that into a rejected request; without it the change is committed and only
 // then fails the type assertion in the caller, leaving the agent modified, pmm-agent not notified
 // and the client with an internal error.
+//
+// The expectedType argument restates what the caller's own type assertion on the result already says, and the
+// compiler cannot tie the two together: keep them in sync, or a valid request becomes InvalidArgument.
 func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, expectedType models.AgentType, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn,lll
 	var agent inventoryv1.Agent
 

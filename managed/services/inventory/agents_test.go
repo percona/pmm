@@ -18,7 +18,6 @@ package inventory
 import (
 	"context"
 	"fmt"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -923,24 +922,6 @@ func TestAgents(t *testing.T) {
 	})
 }
 
-// unsetInternalPgQANEnv removes PMM_ENABLE_INTERNAL_PG_QAN for the duration of the test.
-//
-// There is no counterpart to t.Setenv for unsetting a variable, and setting it to an empty string is
-// not the same thing: envvars.ParseEnvVars rejects an empty PMM_ENABLE_INTERNAL_PG_QAN as an invalid
-// boolean and pmm-managed-init refuses to start, so the guard has to see a truly unset variable.
-func unsetInternalPgQANEnv(t *testing.T) {
-	t.Helper()
-
-	value, ok := os.LookupEnv(env.EnableInternalPgQAN)
-	if !ok {
-		return
-	}
-
-	// Registers the cleanup that puts the original value back, then drops it for this test.
-	t.Setenv(env.EnableInternalPgQAN, value)
-	require.NoError(t, os.Unsetenv(env.EnableInternalPgQAN))
-}
-
 // internalPgQANAgent returns the QAN agent of PMM's internal PostgreSQL created by the fixtures.
 // It is looked up instead of named by a predicted ID, because the fixture IDs shift as soon as an
 // agent is added to models.setupPMMServerAgents ahead of it.
@@ -1009,7 +990,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		// a disabled agent and a variable that says enabled. A request echoing the current state
 		// back, as a UI PATCH does, changes nothing and must not take unrelated parameters down
 		// with it.
-		unsetInternalPgQANEnv(t)
+		tests.UnsetEnv(t, env.EnableInternalPgQAN)
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -1029,7 +1010,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 	})
 
 	t.Run("AllowMovingTowardsThePinnedState", func(t *testing.T) {
-		unsetInternalPgQANEnv(t)
+		tests.UnsetEnv(t, env.EnableInternalPgQAN)
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -1171,7 +1152,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 	})
 
 	t.Run("AllowAnyChangeWhenVariableNotSet", func(t *testing.T) {
-		unsetInternalPgQANEnv(t)
+		tests.UnsetEnv(t, env.EnableInternalPgQAN)
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 

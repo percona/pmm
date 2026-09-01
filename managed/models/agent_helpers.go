@@ -334,14 +334,11 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 // IsInternalPgQANAgent reports whether the Agent is the QAN Agent of PMM Server's own PostgreSQL
 // Service.
 //
-// Deliberately keyed on the Service alone, not the pmm-agent it runs under: Service names are
-// unique, so that's already enough to exclude a remote PostgreSQL instance's QAN Agent (RDS/Azure
-// discovery attaches those to PMM Server's own pmm-agent too, but never under this Service's name).
-// Adding pmm_agent_id == PMMServerAgentID on top would be redundant at best, and actively wrong at
-// worst: PMMServerAgentID is a mutable process global (reassigned in HA setup and from the
-// pmm-agent config file), so requiring it to match would let this Service's QAN Agent evade the
-// check the moment it runs under a different, still perfectly valid, pmm-agent -- while
-// FindInternalPgQANAgent below, which the settings API actually acts on, would still find it.
+// Keyed on the Service alone, not the pmm-agent: Service names are unique, so the name already
+// excludes a remote instance's QAN Agent (RDS/Azure discovery attaches those to PMM Server's own
+// pmm-agent too). Adding pmm_agent_id == PMMServerAgentID would also be wrong, because
+// PMMServerAgentID is a mutable process global, reassigned in HA setup and from the pmm-agent
+// config file.
 func IsInternalPgQANAgent(q *reform.Querier, agent *Agent) (bool, error) {
 	if agent.AgentType != QANPostgreSQLPgStatementsAgentType {
 		return false, nil
@@ -370,18 +367,20 @@ func FindInternalPgQANAgent(q *reform.Querier) (*Agent, error) {
 		return nil, err
 	}
 
-	agents, err := FindAgents(q, AgentFilters{
-		ServiceID: service.ServiceID,
-		AgentType: new(QANPostgreSQLPgStatementsAgentType),
-	})
+	// Queried directly rather than through FindAgents, which re-validates a ServiceID filter with
+	// FindServiceByID -- a third round trip for the Service row just loaded above.
+	structs, err := q.SelectAllFrom(AgentTable, "WHERE service_id = $1 AND agent_type = $2 ORDER BY agent_id",
+		service.ServiceID, QANPostgreSQLPgStatementsAgentType)
 	if err != nil {
 		return nil, err
 	}
-	if len(agents) == 0 {
+	if len(structs) == 0 {
 		return nil, status.Errorf(codes.NotFound, "QAN Agent for the %q Service not found.", PMMServerPostgreSQLServiceName)
 	}
 
-	return agents[0], nil
+	agent := DecryptAgent(*structs[0].(*Agent)) //nolint:forcetypeassert
+
+	return &agent, nil
 }
 
 // FindAgentByID finds Agent by ID.

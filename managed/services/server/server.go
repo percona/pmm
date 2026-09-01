@@ -421,7 +421,7 @@ func (s *Server) GetSettings(ctx context.Context, _ *serverv1.GetSettingsRequest
 		// In HA mode, internal QAN is always disabled as PostgreSQL is external
 		disabledInternalPgQan = true
 	} else {
-		internalPgQanAgent, err := s.getInternalPgQANAgent(dbCtx)
+		internalPgQanAgent, err := models.FindInternalPgQANAgent(dbCtx)
 		if err != nil {
 			// if we can't get the agent, log the error and set it to disabled.
 			s.l.Errorf("failed to get internal pgQAN agent: %v", err)
@@ -630,14 +630,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}, nil
 }
 
-func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error) {
-	// The Service is part of the lookup on purpose: remote PostgreSQL instances added through RDS or
-	// Azure discovery get their QAN agent attached to PMM Server's pmm-agent too, so filtering by
-	// agent type and pmm-agent alone can return one of those instead of PMM's own database.
-	// Both callers add their own context to the error, so it is returned unwrapped here.
-	return models.FindInternalPgQANAgent(q)
-}
-
 func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier, enableInternalPgQan *bool) (bool, error) {
 	if s.haService.Params().Enabled {
 		if *enableInternalPgQan {
@@ -648,12 +640,11 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 		return true, nil
 	}
 
-	internalQanAgent, err := s.getInternalPgQANAgent(q)
+	internalQanAgent, err := models.FindInternalPgQANAgent(q)
 	if err != nil {
 		return false, fmt.Errorf("failed to get QAN agent: %w", err)
 	}
 
-	// The row is already loaded, so change it in place instead of having ChangeAgent re-fetch it.
 	newAgent, err := models.ApplyAgentChange(q, internalQanAgent, &models.ChangeAgentParams{
 		Enabled: enableInternalPgQan,
 	})

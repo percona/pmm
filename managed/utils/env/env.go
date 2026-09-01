@@ -74,7 +74,6 @@ func LookupBool(key string) (*bool, error) {
 // Returns false if the variable is not set or cannot be parsed as boolean.
 // It does not return errors since it assumes that validation has already been done during startup.
 func GetBool(key string) bool {
-	// An unparsable value is reported as a configuration error during startup.
 	b, _ := LookupBool(key)
 	if b == nil {
 		return false
