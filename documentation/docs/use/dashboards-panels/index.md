@@ -183,4 +183,4 @@ Performance Monitoring and Management (PMM) offers a range of dashboards you can
 [PXC/Galera Node Summary]: ../../reference/dashboards/dashboard-pxc-galera-node-summary.md
 [PXC/Galera Nodes Compare]: ../../reference/dashboards/dashboard-pxc-galera-nodes-compare.md
 [HAProxy Instance Summary]: ../../reference/dashboards/dashboard-haproxy-instance-summary.md
-[PXC/Galera Cluster Summary]: ../../reference/dashboards/dashboard-mongodb-cluster-summary.md
+[PXC/Galera Cluster Summary]: ../../reference/dashboards/dashboard-pxc-galera-cluster-summary.md
