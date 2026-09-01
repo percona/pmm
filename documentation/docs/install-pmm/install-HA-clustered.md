@@ -849,6 +849,20 @@ When you scale PMM HA up or down, **all PMM pods will be recreated**. This happe
   - HAProxy continues routing to available pods during rollout
   - No data loss (distributed storage)
   - Rolling update strategy minimizes downtime
+  - The Nodes of removed replicas get removed from **Inventory > Nodes** once the remaining pods restart, unless one of the conditions in the note below applies
+
+!!! info "When PMM keeps a stale Node"
+    The cleanup runs on each replica at startup, so its log messages appear on whichever pod restarted first. PMM logs a warning (`component=ha`) and keeps the Node when:
+
+    - the Node still monitors services, for example a remote instance that was added from that replica. Re-add those services from a running replica; the next restart removes the Node
+    - `PMM_HA_PEERS` carries no readable node names, for example bare IP addresses
+    - `PMM_HA_PEERS` names no peers at all, or does not list the pod doing the cleanup. Both contradict the peer list the chart generates, so they are reported as a failure to look for stale Nodes
+
+    To see what was skipped:
+
+    ```sh
+    kubectl exec <pmm-pod> -n pmm -c pmm-ha -- grep -i "stale HA node" /srv/logs/pmm-managed.log
+    ```
 
 To scale PMM server replicas:
 
