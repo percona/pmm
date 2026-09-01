@@ -2,7 +2,12 @@ import type {
   ListThresholdsResponse,
   PrometheusAlertRulesResponse,
   Threshold,
+  ThresholdUpdate,
 } from 'types/alerting.types';
+import type {
+  AlertThresholdRow,
+  AlertThresholdsFormValues,
+} from './AlertThresholds.types';
 import { UNIT_SYMBOLS } from './AlertThresholds.constants';
 
 export const formatUnit = (unit?: string): string =>
@@ -46,3 +51,45 @@ export const getRows = (
     id: thresholdRowId(t, index),
     ruleTitle: ruleTitles.get(t.ruleId) ?? '',
   }));
+
+// Turns the submitted form into the smallest set of changes that expresses it.
+//
+// Emptying a field, or typing the default back in, returns the target to the rule
+// default. That is only a change when an override exists today, and it is expressed by
+// omitting `value` - writing the default as an override instead would pin the target to
+// today's default and stop it following a later change to the rule.
+export const buildThresholdUpdates = (
+  rows: AlertThresholdRow[],
+  values: AlertThresholdsFormValues,
+  scope: ThresholdUpdate['scope'],
+  target: string
+): ThresholdUpdate[] => {
+  const updates: ThresholdUpdate[] = [];
+
+  for (const row of rows) {
+    const raw = values[row.id];
+    const parsed =
+      raw === undefined || (raw as unknown) === '' ? undefined : Number(raw);
+    const cleared = parsed === undefined || Number.isNaN(parsed);
+
+    const base = {
+      scope,
+      target,
+      ruleId: row.ruleId,
+      paramName: row.paramName,
+    };
+
+    if (cleared || parsed === row.defaultValue) {
+      if (row.isOverridden) {
+        updates.push(base);
+      }
+      continue;
+    }
+
+    if (parsed !== row.effectiveValue) {
+      updates.push({ ...base, value: parsed });
+    }
+  }
+
+  return updates;
+};

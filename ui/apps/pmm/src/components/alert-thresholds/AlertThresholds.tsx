@@ -5,7 +5,6 @@ import { Table } from '@percona/peak-ui';
 import type { OpenAlertThresholdsModalMessage } from '@pmm/shared';
 import { Modal } from 'components/modal';
 import {
-  NODE_SCOPE,
   useBatchUpdateNodeThresholds,
   useNodeThresholds,
 } from 'hooks/api/useNodeThresholds';
@@ -23,9 +22,12 @@ import type {
 import type {
   ListThresholdsResponse,
   PrometheusAlertRulesResponse,
-  ThresholdUpdate,
 } from 'types/alerting.types';
-import { getRows, getRuleTitles } from './AlertThresholds.utils';
+import {
+  buildThresholdUpdates,
+  getRows,
+  getRuleTitles,
+} from './AlertThresholds.utils';
 
 const AlertThresholds = () => {
   const [nodeId, setNodeId] = useState<string>();
@@ -106,35 +108,12 @@ const AlertThresholds = () => {
   };
 
   const handleSubmit = async (values: AlertThresholdsFormValues) => {
-    const updates: ThresholdUpdate[] = [];
-
-    for (const row of rows) {
-      const raw = values[row.id];
-      const parsed =
-        raw === undefined || (raw as unknown) === '' ? undefined : Number(raw);
-      const cleared = parsed === undefined || Number.isNaN(parsed);
-
-      const base = {
-        scope: NODE_SCOPE,
-        target: nodeId ?? '',
-        ruleId: row.ruleId,
-        paramName: row.paramName,
-      };
-
-      // Emptying the field, or typing the default back in, returns the node to the
-      // rule default. That is only a change if an override exists today; omitting
-      // the value clears it rather than writing the default as a new override.
-      if (cleared || parsed === row.defaultValue) {
-        if (row.isOverridden) {
-          updates.push(base);
-        }
-        continue;
-      }
-
-      if (parsed !== row.effectiveValue) {
-        updates.push({ ...base, value: parsed });
-      }
-    }
+    const updates = buildThresholdUpdates(
+      rows,
+      values,
+      'THRESHOLD_SCOPE_NODE',
+      nodeId ?? ''
+    );
 
     if (updates.length > 0) {
       // One transactional call: either every row lands or none does.

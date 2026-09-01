@@ -1,17 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   UseMutationOptions,
   UseQueryOptions,
-} from "@tanstack/react-query";
-import { batchUpdateThresholds, getThresholds } from "api/alerting";
+} from '@tanstack/react-query';
+import { batchUpdateThresholds, getThresholds } from 'api/alerting';
 import type {
   BatchUpdateThresholdsResponse,
   ListThresholdsResponse,
   ThresholdUpdate,
-} from "types/alerting.types";
+} from 'types/alerting.types';
 
 export const nodeThresholdsQueryKey = (nodeId: string) => [
-  "alerting:nodeThresholds",
+  'alerting:nodeThresholds',
   nodeId,
 ];
 
@@ -20,11 +20,11 @@ export const nodeThresholdsQueryKey = (nodeId: string) => [
 // overrides.
 export const useNodeThresholds = (
   nodeId: string,
-  options?: Partial<UseQueryOptions<ListThresholdsResponse>>,
+  options?: Partial<UseQueryOptions<ListThresholdsResponse>>
 ) =>
   useQuery({
     queryKey: nodeThresholdsQueryKey(nodeId),
-    queryFn: () => getThresholds("THRESHOLD_SCOPE_NODE", nodeId),
+    queryFn: () => getThresholds('THRESHOLD_SCOPE_NODE', nodeId),
     enabled: !!nodeId,
     ...options,
   });
@@ -36,12 +36,12 @@ export const useBatchUpdateNodeThresholds = (
   nodeId: string,
   options?: Partial<
     UseMutationOptions<BatchUpdateThresholdsResponse, Error, ThresholdUpdate[]>
-  >,
+  >
 ) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationKey: ["alerting:batchUpdateNodeThresholds", nodeId],
+    mutationKey: ['alerting:batchUpdateNodeThresholds', nodeId],
     mutationFn: (updates: ThresholdUpdate[]) => batchUpdateThresholds(updates),
     ...options,
     onSuccess: async (data, variables, onMutate, context) => {
