@@ -1,8 +1,7 @@
 import fs from 'fs';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import react from '@vitejs/plugin-react-swc';
-import { loadEnv } from 'vite';
-import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import { defineConfig, loadEnv } from 'vite';
 import svgr from 'vite-plugin-svgr';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
@@ -26,6 +25,7 @@ const port = hasNginxCerts ? 5173 : 5174;
 const target =
   env.PMM_SERVER_URL ||
   (hasNginxCerts ? 'https://localhost:8443' : 'https://localhost');
+// pnpm link'd packages don't bump the lockfile hash, so Vite's dep cache can go stale for them.
 
 // SEP backend. The dev server proxies SEP's single `/sep` mount point to it so
 // the migrated SEP plugins get real data, mirroring the shipped topology where
@@ -117,6 +117,7 @@ export default defineConfig({
     dedupe: [
       'react',
       'react-dom',
+      'react-is',
       '@emotion/react',
       '@emotion/styled',
       '@mui/material',

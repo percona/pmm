@@ -1175,10 +1175,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}))
 
 	wg.Go(func() {
-		supervisord.Run(ctx)
-	})
-
-	wg.Go(func() {
 		updater.Run(ctx)
 	})
 

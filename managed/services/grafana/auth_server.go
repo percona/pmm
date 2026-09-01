@@ -60,6 +60,9 @@ var rules = map[string]role{
 	"/actions.":                             viewer,
 	"/advisors.v1.":                         editor,
 	"/server.v1.ServerService/CheckUpdates": viewer,
+	// Polled by pre-3.9 clients right after an update, when Grafana and PostgreSQL may still be
+	// migrating and cannot authenticate anyone.
+	"/server.v1.ServerService/UpdateStatus":     none,
 	"/server.v1.ServerService/AWSInstanceCheck": none, // special case - used before Grafana can be accessed
 	"/server.":                  admin, // TODO: do we need it for older agents?
 	"/server.v1.":               admin,
@@ -99,6 +102,7 @@ var rules = map[string]role{
 	"/v1/management/Jobs":             viewer,
 	"/v1/server/AWSInstance":          none, // special case - used before Grafana can be accessed
 	"/v1/server/updates":              viewer,
+	"/v1/server/updates:getStatus":    none,
 	"/v1/server/settings":             admin,
 	"/v1/server/settings/readonly":    viewer,
 	"/v1/platform:":                   admin,
