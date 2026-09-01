@@ -654,6 +654,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}
 
 	s.triggerOMCollectionIfJustEnabled(ctx, oldSettings, newSettings)
+	s.syncOMInventoryEnabledIfChanged(ctx, oldSettings, newSettings)
 
 	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, disableInternalPgQan),
@@ -670,6 +671,16 @@ func (s *Server) triggerOMCollectionIfJustEnabled(ctx context.Context, oldSettin
 	if err != nil {
 		s.l.WithError(err).Warn("failed to trigger OpenManager topology collection after enabling")
 	}
+}
+
+// syncOMInventoryEnabledIfChanged tells SEP's om_inventory app to start or stop its
+// own estate sweep alongside this switch, on either transition -- unlike
+// triggerOMCollectionIfJustEnabled, which only reacts to enabling.
+func (s *Server) syncOMInventoryEnabledIfChanged(ctx context.Context, oldSettings, newSettings *models.Settings) {
+	if oldSettings.IsOMEnabled() == newSettings.IsOMEnabled() || s.omService == nil {
+		return
+	}
+	s.omService.SyncInventoryEnabled(ctx, newSettings.IsOMEnabled())
 }
 
 // internalPgQANDisabled reports whether QAN on PMM Server's own PostgreSQL is currently off.
