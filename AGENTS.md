@@ -441,7 +441,7 @@ All long-running daemons expose on `127.0.0.1`:
 | `make doc-build` | Build user docs (used in CI); `make doc-build-pdf` for the PDF |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
 | `make check` | Run Go/API linters (buf, golangci-lint, go-sumtype) |
-| `make format` | Format code (gofumpt, goimports, gci) |
+| `make format` | Format code (gofumpt, gci) |
 | `make release` | Build all binaries (agent, admin, managed, qan-api2) |
 | `make test-common` | Run common unit tests |
 | `make api-test` | Run API integration tests |

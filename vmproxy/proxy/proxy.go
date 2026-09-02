@@ -17,8 +17,10 @@
 package proxy
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -51,10 +53,35 @@ func RunProxy(cfg Config) error {
 func getHandler(cfg Config) http.HandlerFunc {
 	rProxy := &httputil.ReverseProxy{
 		Director: director(cfg.TargetURL, cfg.HeaderName),
+		// Without this, httputil's default handler reports upstream failures through
+		// the standard logger, so they reach the log without a level and cannot be
+		// filtered alongside everything else here.
+		ErrorHandler: func(rw http.ResponseWriter, req *http.Request, err error) {
+			l := logrus.WithError(err).WithFields(logrus.Fields{
+				"method": req.Method,
+				"path":   req.URL.Path,
+			})
+			// A status is written in every branch: returning without one makes
+			// net/http send 200, which would be worse than any error code here.
+			switch {
+			case errors.Is(err, context.Canceled):
+				// The client hung up -- Grafana cancels superseded queries, and nginx
+				// drops the upstream connection when a viewer navigates away. Nothing
+				// failed upstream, so warning here would be routine noise.
+				l.Debug("Client cancelled request")
+				rw.WriteHeader(http.StatusBadGateway)
+			case errors.Is(err, context.DeadlineExceeded):
+				l.Warn("Timed out proxying request")
+				rw.WriteHeader(http.StatusGatewayTimeout)
+			default:
+				l.Warn("Failed to proxy request")
+				rw.WriteHeader(http.StatusBadGateway)
+			}
+		},
 	}
 
 	return func(rw http.ResponseWriter, req *http.Request) {
-		logrus.Infof("%s: %s", req.Method, req.URL)
+		logrus.Debugf("%s: %s", req.Method, req.URL)
 
 		if failOnInvalidHeader(rw, req, cfg.HeaderName) {
 			return
@@ -68,6 +95,13 @@ func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName s
 	if filters := req.Header.Get(headerName); filters != "" {
 		_, err := parseFilters(filters)
 		if err != nil {
+			// The header value is client-supplied and carries access filters, so log
+			// only the parse error, not the value itself.
+			logrus.WithError(err).WithFields(logrus.Fields{
+				"method": req.Method,
+				"path":   req.URL.Path,
+				"header": headerName,
+			}).Warn("Rejecting request with unparsable filter header")
 			rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			rw.WriteHeader(http.StatusPreconditionFailed)
 			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName)) //nolint:errcheck
