@@ -35,8 +35,8 @@ export const SepPage: FC<PropsWithChildren> = ({ children }) => (
         <SepAuthGate>
           {/*
             A flex column that grows, not a plain block: it carries the height
-            handed down from Page so a plugin (or the ServiceNow setup prompt)
-            can centre itself in the page rather than in its own content box.
+            handed down from Page so a plugin can centre itself in the page
+            rather than in its own content box.
           */}
           <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             {children}
