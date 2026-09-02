@@ -9,7 +9,7 @@ This is the first step in a broader initiative to give you a single place to mon
 
 ## Available capabilities
 
-- [MySQL Backup](mysql-backup.md) — run and schedule MySQL backups using XtraBackup, Mydumper, or Binlog, and restore from them.
+- [MySQL Backups](mysql-backup.md) — run and schedule MySQL backups using XtraBackup, Mydumper, or Binlog, and restore from them.
 - [Support Diagnostics](support-diagnostics.md) — collect diagnostic data from your hosts and send it directly to your Percona support case in ServiceNow.
 
 More operations and database types will be added in future releases.
