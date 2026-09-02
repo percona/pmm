@@ -1,7 +1,10 @@
 import { FC, PropsWithChildren } from 'react';
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import { Page } from 'components/page';
+import { useSettings } from 'contexts/settings';
 import { SepAuthGate } from './SepAuthGate';
 import { SepAuthProvider } from './SepAuthProvider';
 
@@ -27,22 +30,51 @@ import { SepAuthProvider } from './SepAuthProvider';
  * component rendered while the exchange is still in flight must resolve the
  * same capability it will hold once the bearer lands, not the non-admin
  * fallback.
+ *
+ * When SEP is disabled (`sepEnabled` from server settings), direct navigation
+ * to a SEP route renders an explicit unavailable state instead of mounting the
+ * auth gate or firing SEP API requests. Settings must resolve first — otherwise
+ * a hard refresh flashes "not enabled" while `settings` is still null.
  */
-export const SepPage: FC<PropsWithChildren> = ({ children }) => (
-  <Page maxWidth="full">
-    <Stack gap={3} sx={{ flex: 1 }}>
-      <SepAuthProvider>
-        <SepAuthGate>
-          {/*
-            A flex column that grows, not a plain block: it carries the height
-            handed down from Page so a plugin (or the ServiceNow setup prompt)
-            can centre itself in the page rather than in its own content box.
-          */}
-          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            {children}
-          </Box>
-        </SepAuthGate>
-      </SepAuthProvider>
-    </Stack>
-  </Page>
-);
+export const SepPage: FC<PropsWithChildren> = ({ children }) => {
+  const { settings, isLoading } = useSettings();
+
+  if (isLoading || !settings) {
+    return (
+      <Page maxWidth="full">
+        <Stack alignItems="center" py={4}>
+          <CircularProgress data-testid="sep-settings-loading" />
+        </Stack>
+      </Page>
+    );
+  }
+
+  if (!settings.sepEnabled) {
+    return (
+      <Page maxWidth="full">
+        <Alert severity="info">
+          This feature is not enabled. Contact your administrator.
+        </Alert>
+      </Page>
+    );
+  }
+
+  return (
+    <Page maxWidth="full">
+      <Stack gap={3} sx={{ flex: 1 }}>
+        <SepAuthProvider>
+          <SepAuthGate>
+            {/*
+              A flex column that grows, not a plain block: it carries the height
+              handed down from Page so a plugin (or the ServiceNow setup prompt)
+              can centre itself in the page rather than in its own content box.
+            */}
+            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              {children}
+            </Box>
+          </SepAuthGate>
+        </SepAuthProvider>
+      </Stack>
+    </Page>
+  );
+};
