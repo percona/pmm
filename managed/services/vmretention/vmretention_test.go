@@ -116,7 +116,7 @@ func TestReconcileErrors(t *testing.T) {
 
 		err := New(db, client).reconcile(ctx)
 		require.Error(t, err)
-		assert.Contains(t, err.Error(), `failed to set retention period to "30d"`)
+		assert.Contains(t, err.Error(), `failed to set retention period to '30d'`)
 	})
 }
 

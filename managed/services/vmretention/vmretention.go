@@ -197,10 +197,10 @@ func (svc *Service) reconcile(ctx context.Context) error {
 	// operator roll vmstorage for nothing.
 	err = svc.client.Set(ctx, want)
 	if err != nil {
-		return fmt.Errorf("failed to set retention period to %q: %w", want, err)
+		return fmt.Errorf("failed to set retention period to '%s': %w", want, err)
 	}
 
-	svc.l.Infof("Data retention applied to VictoriaMetrics: %q -> %q.", got, want)
+	svc.l.Infof("Data retention applied to VictoriaMetrics: '%s' -> '%s'.", got, want)
 	return nil
 }
 

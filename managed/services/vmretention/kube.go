@@ -79,14 +79,14 @@ func NewKubeClient(params KubeParams) (Client, error) { //nolint:ireturn
 
 	gv, err := schema.ParseGroupVersion(params.APIVersion)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse %q as an API version: %w", params.APIVersion, err)
+		return nil, fmt.Errorf("failed to parse '%s' as an API version: %w", params.APIVersion, err)
 	}
 
 	// ParseGroupVersion accepts both an empty string and a bare version, resolving each to
 	// the core API group. A custom resource always has a group, so neither can be right, and
 	// left unchecked they build a client that instead fails on every reconcile.
 	if gv.Group == "" || gv.Version == "" {
-		return nil, fmt.Errorf("%q is not a group-qualified API version, set PMM_VM_CLUSTER_API_VERSION "+
+		return nil, fmt.Errorf("'%s' is not a group-qualified API version, set PMM_VM_CLUSTER_API_VERSION "+
 			"to a group/version such as operator.victoriametrics.com/v1beta1", params.APIVersion)
 	}
 
@@ -104,7 +104,7 @@ func NewKubeClient(params KubeParams) (Client, error) { //nolint:ireturn
 	// namespaced resource can never be found. Every reconcile would then 404 with a message
 	// naming the two variables that are correct.
 	if namespace == "" {
-		return nil, fmt.Errorf("the namespace to look for %q in is empty, "+
+		return nil, fmt.Errorf("the namespace to look for '%s' in is empty, "+
 			"set PMM_VM_CLUSTER_NAMESPACE (%s held nothing usable)", params.Name, namespaceFile)
 	}
 
