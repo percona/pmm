@@ -835,7 +835,18 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [],
+                    "mappings": [
+                        {
+                            "type": "special",
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "text": "No data",
+                                    "color": "red"
+                                }
+                            }
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -906,7 +917,18 @@
                     "color": {
                         "mode": "thresholds"
                     },
-                    "mappings": [],
+                    "mappings": [
+                        {
+                            "type": "special",
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "text": "No data",
+                                    "color": "red"
+                                }
+                            }
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -2016,7 +2038,7 @@
                                         "options": {
                                             "-1": {
                                                 "text": "No data",
-                                                "color": "text",
+                                                "color": "red",
                                                 "index": 99
                                             }
                                         }
@@ -2236,7 +2258,7 @@
                                         "options": {
                                             "-1": {
                                                 "text": "No data",
-                                                "color": "text",
+                                                "color": "red",
                                                 "index": 99
                                             }
                                         }
@@ -2274,7 +2296,7 @@
                                         "options": {
                                             "-1": {
                                                 "text": "No data",
-                                                "color": "text",
+                                                "color": "red",
                                                 "index": 99
                                             }
                                         }
