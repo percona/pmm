@@ -239,7 +239,7 @@ func BenchmarkResolveThresholds(b *testing.B) {
 		ServicesByCluster: make(map[string][]string, 50),
 	}
 
-	var overrides []*AlertRuleThresholdOverride
+	overrides := make([]*AlertRuleThresholdOverride, 0, 1000)
 	for i := range 1000 {
 		id := fmt.Sprintf("node-id-%d", i)
 		inv.NodeNames[id] = fmt.Sprintf("node-%d", i)

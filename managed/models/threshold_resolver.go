@@ -28,10 +28,18 @@ package models
 // label set is what makes `or` prefer the left operand, but that reduction is exactly
 // what destroys the scope information needed to rank by. So precedence is resolved here,
 // in Go, and there is no backstop in the query if this function is wrong.
+//
+// The iota order below is the precedence chain itself, narrowest last.
+const (
+	thresholdSpecificityCluster = iota + 1
+	thresholdSpecificityNode
+	thresholdSpecificityService
+)
+
 var thresholdScopeSpecificity = map[ThresholdScope]int{
-	ThresholdScopeService: 3,
-	ThresholdScopeNode:    2,
-	ThresholdScopeCluster: 1,
+	ThresholdScopeService: thresholdSpecificityService,
+	ThresholdScopeNode:    thresholdSpecificityNode,
+	ThresholdScopeCluster: thresholdSpecificityCluster,
 }
 
 // ThresholdInventory maps override targets onto the join-label values an alert rule

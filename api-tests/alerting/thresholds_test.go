@@ -100,7 +100,8 @@ func setupThresholdFixture(t *testing.T) *thresholdFixture {
 	folder := createdFolder.Payload
 	t.Cleanup(func() {
 		_, _ = gClient.Folders.DeleteFolder(
-			folders.NewDeleteFolderParams().WithFolderUID(folder.UID).WithForceDeleteRules(&forceDelete))
+			folders.NewDeleteFolderParams().WithFolderUID(folder.UID).WithForceDeleteRules(&forceDelete),
+		)
 	})
 
 	created, err := client.CreateRule(&alerting.CreateRuleParams{
@@ -139,9 +140,9 @@ func (f *thresholdFixture) list(t *testing.T) []*alerting.ListThresholdsOKBodyTh
 	t.Helper()
 
 	res, err := f.client.ListThresholds(&alerting.ListThresholdsParams{
-		Scope:   pointer.ToString(scopeNode),
-		Target:  pointer.ToString(f.nodeID),
-		RuleID:  pointer.ToString(f.ruleID),
+		Scope:   new(scopeNode),
+		Target:  new(f.nodeID),
+		RuleID:  new(f.ruleID),
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
@@ -154,7 +155,7 @@ func (f *thresholdFixture) set(t *testing.T, value float64) (*alerting.SetThresh
 
 	return f.client.SetThreshold(&alerting.SetThresholdParams{
 		Body: alerting.SetThresholdBody{
-			Scope:     pointer.ToString(scopeNode),
+			Scope:     new(scopeNode),
 			Target:    f.nodeID,
 			RuleID:    f.ruleID,
 			ParamName: "threshold",
@@ -192,10 +193,10 @@ func TestThresholdOverrideLifecycle(t *testing.T) {
 	// tombstone so the emitted series keeps existing and merely changes value, but that
 	// is invisible from here - what the API must report is "not overridden".
 	_, err = f.client.ClearThreshold(&alerting.ClearThresholdParams{
-		Scope:     pointer.ToString(scopeNode),
-		Target:    pointer.ToString(f.nodeID),
-		RuleID:    pointer.ToString(f.ruleID),
-		ParamName: pointer.ToString("threshold"),
+		Scope:     new(scopeNode),
+		Target:    new(f.nodeID),
+		RuleID:    new(f.ruleID),
+		ParamName: new("threshold"),
 		Context:   pmmapitests.Context,
 	})
 	require.NoError(t, err)
@@ -213,14 +214,18 @@ func TestThresholdOverrideValidation(t *testing.T) {
 	f := setupThresholdFixture(t)
 
 	t.Run("value outside the declared range", func(t *testing.T) {
+		t.Parallel()
+
 		_, err := f.set(t, 150)
 		pmmapitests.AssertAPIErrorf(t, err, http.StatusBadRequest, codes.InvalidArgument, "")
 	})
 
 	t.Run("unknown parameter", func(t *testing.T) {
+		t.Parallel()
+
 		_, err := f.client.SetThreshold(&alerting.SetThresholdParams{
 			Body: alerting.SetThresholdBody{
-				Scope: pointer.ToString(scopeNode), Target: f.nodeID,
+				Scope: new(scopeNode), Target: f.nodeID,
 				RuleID: f.ruleID, ParamName: "not-overridable", Value: 90,
 			},
 			Context: pmmapitests.Context,
@@ -229,9 +234,11 @@ func TestThresholdOverrideValidation(t *testing.T) {
 	})
 
 	t.Run("unknown rule", func(t *testing.T) {
+		t.Parallel()
+
 		_, err := f.client.SetThreshold(&alerting.SetThresholdParams{
 			Body: alerting.SetThresholdBody{
-				Scope: pointer.ToString(scopeNode), Target: f.nodeID,
+				Scope: new(scopeNode), Target: f.nodeID,
 				RuleID: "no-such-rule", ParamName: "threshold", Value: 90,
 			},
 			Context: pmmapitests.Context,
@@ -240,9 +247,11 @@ func TestThresholdOverrideValidation(t *testing.T) {
 	})
 
 	t.Run("target that does not exist", func(t *testing.T) {
+		t.Parallel()
+
 		_, err := f.client.SetThreshold(&alerting.SetThresholdParams{
 			Body: alerting.SetThresholdBody{
-				Scope: pointer.ToString(scopeNode), Target: "no-such-node",
+				Scope: new(scopeNode), Target: "no-such-node",
 				RuleID: f.ruleID, ParamName: "threshold", Value: 90,
 			},
 			Context: pmmapitests.Context,
@@ -253,10 +262,12 @@ func TestThresholdOverrideValidation(t *testing.T) {
 	// Service and cluster are already carried by the schema, the resolver and the proto,
 	// so they report as not-yet-implemented rather than as a malformed request.
 	t.Run("scopes that are not implemented yet", func(t *testing.T) {
+		t.Parallel()
+
 		for _, scope := range []string{scopeService, scopeCluster} {
 			_, err := f.client.SetThreshold(&alerting.SetThresholdParams{
 				Body: alerting.SetThresholdBody{
-					Scope: pointer.ToString(scope), Target: f.nodeID,
+					Scope: new(scope), Target: f.nodeID,
 					RuleID: f.ruleID, ParamName: "threshold", Value: 90,
 				},
 				Context: pmmapitests.Context,
@@ -266,16 +277,17 @@ func TestThresholdOverrideValidation(t *testing.T) {
 	})
 }
 
+// TestThresholdBatchUpdate is deliberately not parallel, at either level: its subtests
+// drive one override row through set, clear and rollback in that order, and the rollback
+// case asserts against the state the clear case left behind.
 func TestThresholdBatchUpdate(t *testing.T) {
-	t.Parallel()
-
 	f := setupThresholdFixture(t)
 
 	t.Run("sets through the batch endpoint", func(t *testing.T) {
 		res, err := f.client.BatchUpdateThresholds(&alerting.BatchUpdateThresholdsParams{
 			Body: alerting.BatchUpdateThresholdsBody{
 				Updates: []*alerting.BatchUpdateThresholdsParamsBodyUpdatesItems0{{
-					Scope: pointer.ToString(scopeNode), Target: f.nodeID,
+					Scope: new(scopeNode), Target: f.nodeID,
 					RuleID: f.ruleID, ParamName: "threshold",
 					Value: pointer.ToFloat64(70),
 				}},
@@ -291,7 +303,7 @@ func TestThresholdBatchUpdate(t *testing.T) {
 		res, err := f.client.BatchUpdateThresholds(&alerting.BatchUpdateThresholdsParams{
 			Body: alerting.BatchUpdateThresholdsBody{
 				Updates: []*alerting.BatchUpdateThresholdsParamsBodyUpdatesItems0{{
-					Scope: pointer.ToString(scopeNode), Target: f.nodeID,
+					Scope: new(scopeNode), Target: f.nodeID,
 					RuleID: f.ruleID, ParamName: "threshold",
 				}},
 			},
@@ -312,12 +324,12 @@ func TestThresholdBatchUpdate(t *testing.T) {
 			Body: alerting.BatchUpdateThresholdsBody{
 				Updates: []*alerting.BatchUpdateThresholdsParamsBodyUpdatesItems0{
 					{
-						Scope: pointer.ToString(scopeNode), Target: f.nodeID,
+						Scope: new(scopeNode), Target: f.nodeID,
 						RuleID: f.ruleID, ParamName: "threshold",
 						Value: pointer.ToFloat64(60),
 					},
 					{
-						Scope: pointer.ToString(scopeNode), Target: f.nodeID,
+						Scope: new(scopeNode), Target: f.nodeID,
 						RuleID: f.ruleID, ParamName: "threshold",
 						Value: pointer.ToFloat64(500), // outside the declared range
 					},
@@ -350,7 +362,7 @@ func TestThresholdOverrideRemovedWithNode(t *testing.T) {
 	// With the node gone the override is unreachable by target, so ask for every
 	// override of this rule instead.
 	res, err := f.client.ListThresholds(&alerting.ListThresholdsParams{
-		RuleID:  pointer.ToString(f.ruleID),
+		RuleID:  new(f.ruleID),
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)

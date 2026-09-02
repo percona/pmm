@@ -36,7 +36,7 @@ const (
 	queryIntervalMs          = 1000
 	maxDataPoints            = 43200
 
-	// thresholdRefIDPrefix prefixes the ref ID of each injected threshold query.
+	// Prefixes the ref ID of each injected threshold query.
 	thresholdRefIDPrefix = "T_"
 
 	// Ref IDs used when a single-expression template is desugared. A multi-expression

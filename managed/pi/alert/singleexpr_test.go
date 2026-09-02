@@ -158,7 +158,7 @@ func TestSplitShippedSingleExprTemplates(t *testing.T) {
 	splittable := 0
 
 	for _, file := range files {
-		b, err := os.ReadFile(file) //nolint:gosec
+		b, err := os.ReadFile(file)
 		require.NoError(t, err)
 
 		templates, err := Parse(strings.NewReader(string(b)), &ParseParams{

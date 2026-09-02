@@ -405,7 +405,7 @@ func TestThresholdOverridesFollowTargetRemoval(t *testing.T) {
 		service, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "doomed-service",
 			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16(3306),
 		})
 		require.NoError(t, err)
@@ -440,7 +440,7 @@ func TestThresholdOverridesFollowTargetRemoval(t *testing.T) {
 		service, err := models.AddNewService(q, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: "cascade-service",
 			NodeID:      node.NodeID,
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16(3306),
 		})
 		require.NoError(t, err)
@@ -478,7 +478,7 @@ func TestThresholdOverridesFollowTargetRemoval(t *testing.T) {
 			ServiceName: "clustered-service",
 			NodeID:      node.NodeID,
 			Cluster:     "prod",
-			Address:     pointer.ToString("127.0.0.1"),
+			Address:     new("127.0.0.1"),
 			Port:        pointer.ToUint16(3306),
 		})
 		require.NoError(t, err)

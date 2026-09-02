@@ -25,14 +25,14 @@ import (
 )
 
 const (
-	// reconcileInterval is how often orphaned registry rows are reaped. Orphans are
-	// inert rather than harmful - the collector emits nothing for a rule that is gone -
-	// so this trades promptness for staying out of the way.
+	// How often orphaned registry rows are reaped. Orphans are inert rather than
+	// harmful - the collector emits nothing for a rule that is gone - so this trades
+	// promptness for staying out of the way.
 	reconcileInterval = 15 * time.Minute
 
-	// reconcileGracePeriod keeps a freshly created row safe from the sweep. CreateRule
-	// writes the registry row before the rule exists in Grafana, so without this a sweep
-	// landing in that window would delete the row of a rule being created successfully.
+	// Keeps a freshly created row safe from the sweep. CreateRule writes the registry
+	// row before the rule exists in Grafana, so without this a sweep landing in that
+	// window would delete the row of a rule being created successfully.
 	reconcileGracePeriod = 10 * time.Minute
 )
 

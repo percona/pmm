@@ -143,7 +143,8 @@ func (r *Template) validateOverridableParams() error {
 		// the reason, rather than producing a rule whose threshold silently never applies.
 		if len(overridable) > 1 {
 			return fmt.Errorf(
-				"a single-expression template supports at most one overridable parameter, got %d", len(overridable))
+				"a single-expression template supports at most one overridable parameter, got %d", len(overridable),
+			)
 		}
 
 		_, err := SplitSingleExpr(r.Expr, param.Name)

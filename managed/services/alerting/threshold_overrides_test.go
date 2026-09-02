@@ -45,7 +45,7 @@ func setupThresholdAPI(t *testing.T) (*Service, *reform.DB, *models.Node) {
 	require.NoError(t, err)
 
 	// Alerting must be on, or every RPC short-circuits.
-	_, err = models.UpdateSettings(db, &models.ChangeSettingsParams{EnableAlerting: pointer.ToBool(true)})
+	_, err = models.UpdateSettings(db, &models.ChangeSettingsParams{EnableAlerting: new(true)})
 	require.NoError(t, err)
 
 	_, err = models.CreateAlertRule(db.Querier, &models.CreateAlertRuleParams{

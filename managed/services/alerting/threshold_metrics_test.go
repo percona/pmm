@@ -42,7 +42,9 @@ func thresholdExposition(t *testing.T, c *AlertThresholdMetricsCollector, sample
 	start := strings.Index(desc, `help: "`)
 	require.GreaterOrEqual(t, start, 0)
 	help := desc[start+len(`help: "`):]
-	help = help[:strings.Index(help, `"`)]
+	end := strings.Index(help, `"`)
+	require.GreaterOrEqual(t, end, 0)
+	help = help[:end]
 
 	body := "\n# HELP " + thresholdMetricName + " " + help +
 		"\n# TYPE " + thresholdMetricName + " gauge\n" +
@@ -119,8 +121,10 @@ func createThresholdRule(t *testing.T, db *reform.DB) {
 	require.NoError(t, err)
 }
 
-func createThresholdNode(t *testing.T, db *reform.DB, name string) *models.Node {
+func createThresholdNode(t *testing.T, db *reform.DB) *models.Node {
 	t.Helper()
+
+	const name = "node-1"
 
 	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
 		NodeName: name,
@@ -142,7 +146,7 @@ func TestThresholdCollectorEmitsNothingWithoutOverrides(t *testing.T) {
 func TestThresholdCollectorEmitsOverride(t *testing.T) {
 	c, db := setupThresholdCollector(t)
 	createThresholdRule(t, db)
-	node := createThresholdNode(t, db, "node-1")
+	node := createThresholdNode(t, db)
 
 	_, err := models.UpsertThresholdOverride(db.Querier, testRuleID, "threshold", models.ThresholdScopeNode, node.NodeID, 90)
 	require.NoError(t, err)
@@ -159,7 +163,7 @@ func TestThresholdCollectorEmitsOverride(t *testing.T) {
 func TestThresholdCollectorEmitsDefaultForTombstone(t *testing.T) {
 	c, db := setupThresholdCollector(t)
 	createThresholdRule(t, db)
-	node := createThresholdNode(t, db, "node-1")
+	node := createThresholdNode(t, db)
 
 	_, err := models.UpsertThresholdOverride(db.Querier, testRuleID, "threshold", models.ThresholdScopeNode, node.NodeID, 90)
 	require.NoError(t, err)
@@ -187,7 +191,7 @@ func TestThresholdCollectorSkipsDeletedTarget(t *testing.T) {
 func TestThresholdCollectorSkipsUnknownParam(t *testing.T) {
 	c, db := setupThresholdCollector(t)
 	createThresholdRule(t, db)
-	node := createThresholdNode(t, db, "node-1")
+	node := createThresholdNode(t, db)
 
 	_, err := models.UpsertThresholdOverride(db.Querier, testRuleID, "gone", models.ThresholdScopeNode, node.NodeID, 90)
 	require.NoError(t, err)
@@ -207,7 +211,7 @@ func TestThresholdCollectorEmitsOnePerTargetAcrossParams(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	node := createThresholdNode(t, db, "node-1")
+	node := createThresholdNode(t, db)
 	for _, param := range []string{"threshold", "second"} {
 		_, err = models.UpsertThresholdOverride(db.Querier, testRuleID, param, models.ThresholdScopeNode, node.NodeID, 42)
 		require.NoError(t, err)

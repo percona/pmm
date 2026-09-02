@@ -190,7 +190,7 @@ func TestThresholdQueryMatchesCollectorDescriptor(t *testing.T) {
 
 	assert.Contains(t, expr, fqName[1]+"{", "the query must select the metric the collector registers")
 
-	for _, label := range strings.Split(labels[1], ",") {
+	for label := range strings.SplitSeq(labels[1], ",") {
 		label = strings.TrimSpace(label)
 		require.NotEmpty(t, label)
 		assert.Contains(t, expr, label, "the query must reference every label the collector emits")

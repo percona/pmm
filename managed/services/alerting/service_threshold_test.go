@@ -133,7 +133,7 @@ func TestCreateRuleRegistersOverridableRule(t *testing.T) {
 
 		var captured *services.Rule
 		m.On("CreateAlertRule", mock.Anything, "folder-uid", "test-group", mock.Anything, mock.Anything).
-			Run(func(args mock.Arguments) { captured = args.Get(4).(*services.Rule) }). //nolint:forcetypeassert
+			Run(func(args mock.Arguments) { captured = args.Get(4).(*services.Rule) }).
 			Return(nil)
 
 		res, err := svc.CreateRule(ctx, &alerting.CreateRuleRequest{
@@ -178,7 +178,7 @@ func TestCreateRuleRegistersOverridableRule(t *testing.T) {
 
 		var captured *services.Rule
 		m.On("CreateAlertRule", mock.Anything, "folder-uid", "test-group", mock.Anything, mock.Anything).
-			Run(func(args mock.Arguments) { captured = args.Get(4).(*services.Rule) }). //nolint:forcetypeassert
+			Run(func(args mock.Arguments) { captured = args.Get(4).(*services.Rule) }).
 			Return(nil)
 
 		_, err := svc.CreateRule(ctx, &alerting.CreateRuleRequest{
@@ -206,7 +206,7 @@ func TestCreateRuleRegistersOverridableRule(t *testing.T) {
 
 		var captured *services.Rule
 		m.On("CreateAlertRule", mock.Anything, "folder-uid", "test-group", mock.Anything, mock.Anything).
-			Run(func(args mock.Arguments) { captured = args.Get(4).(*services.Rule) }). //nolint:forcetypeassert
+			Run(func(args mock.Arguments) { captured = args.Get(4).(*services.Rule) }).
 			Return(nil)
 
 		before, err := models.FindAlertRules(db.Querier)
@@ -318,7 +318,7 @@ func TestBuiltInOverridableTemplates(t *testing.T) {
 	var got []string
 
 	for _, file := range files {
-		b, err := os.ReadFile(file) //nolint:gosec
+		b, err := os.ReadFile(file)
 		require.NoError(t, err)
 
 		templates, err := alert.Parse(strings.NewReader(string(b)), &alert.ParseParams{

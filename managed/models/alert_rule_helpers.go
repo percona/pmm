@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
@@ -93,7 +94,7 @@ func FindThresholdOverridesByRule(q *reform.Querier, ruleID string) ([]*AlertRul
 		return nil, status.Error(codes.InvalidArgument, "Empty rule ID.")
 	}
 
-	return selectThresholdOverrides(q, "WHERE rule_id = "+q.Placeholder(1), ruleID)
+	return selectThresholdOverrides(q, whereAllEqual(q, "rule_id"), ruleID)
 }
 
 // FindThresholdOverridesByTarget returns every override row for one target, tombstones included.
@@ -107,9 +108,21 @@ func FindThresholdOverridesByTarget(q *reform.Querier, scope ThresholdScope, tar
 		return nil, status.Error(codes.InvalidArgument, "Empty target.")
 	}
 
-	tail := fmt.Sprintf("WHERE scope = %s AND target = %s", q.Placeholder(1), q.Placeholder(2))
+	tail := whereAllEqual(q, "scope", "target")
 
 	return selectThresholdOverrides(q, tail, string(scope), target)
+}
+
+// whereAllEqual builds a WHERE clause matching every named column, numbering the
+// placeholders in column order. Callers pass their arguments in that same order, so
+// the numbering cannot drift out of step with them the way hand-written placeholders can.
+func whereAllEqual(q *reform.Querier, columns ...string) string {
+	conditions := make([]string, len(columns))
+	for i, column := range columns {
+		conditions[i] = column + " = " + q.Placeholder(i+1)
+	}
+
+	return "WHERE " + strings.Join(conditions, " AND ")
 }
 
 func selectThresholdOverrides(q *reform.Querier, tail string, args ...any) ([]*AlertRuleThresholdOverride, error) {
@@ -127,8 +140,7 @@ func selectThresholdOverrides(q *reform.Querier, tail string, args ...any) ([]*A
 }
 
 func findThresholdOverride(q *reform.Querier, ruleID, paramName string, scope ThresholdScope, target string) (*AlertRuleThresholdOverride, error) {
-	tail := fmt.Sprintf("WHERE rule_id = %s AND param_name = %s AND scope = %s AND target = %s",
-		q.Placeholder(1), q.Placeholder(2), q.Placeholder(3), q.Placeholder(4))
+	tail := whereAllEqual(q, "rule_id", "param_name", "scope", "target")
 
 	override := &AlertRuleThresholdOverride{}
 	err := q.SelectOneTo(override, tail, ruleID, paramName, string(scope), target)
@@ -289,7 +301,7 @@ func DeleteThresholdOverridesForTarget(q *reform.Querier, scope ThresholdScope, 
 		return status.Error(codes.InvalidArgument, "Empty target.")
 	}
 
-	tail := fmt.Sprintf("WHERE scope = %s AND target = %s", q.Placeholder(1), q.Placeholder(2))
+	tail := whereAllEqual(q, "scope", "target")
 	_, err = q.DeleteFrom(AlertRuleThresholdOverrideTable, tail, string(scope), target)
 	if err != nil {
 		return fmt.Errorf("failed to delete threshold overrides: %w", err)

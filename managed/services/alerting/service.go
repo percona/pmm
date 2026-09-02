@@ -875,7 +875,9 @@ func (s *Service) deleteRuleRegistration(ruleID string) {
 func collectOverridableParams(template *alert.Template, values AlertExprParamsValues) (models.AlertRuleParams, error) {
 	overridable := template.OverridableParams()
 	if len(overridable) == 0 {
-		return nil, nil
+		// A nil AlertRuleParams map is the valid "nothing to snapshot" result: the rule
+		// is registered without params rather than being an error.
+		return nil, nil //nolint:nilnil
 	}
 
 	byName := make(map[string]AlertExprParamValue, len(values))

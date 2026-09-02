@@ -185,62 +185,31 @@ func (s *Service) ListThresholds(_ context.Context, req *alerting.ListThresholds
 		return nil, services.ErrAlertingDisabled
 	}
 
+	// Converted before the transaction opens: it only reads the request, and a bad scope
+	// should be rejected without taking a connection.
+	var scope models.ThresholdScope
+	if req.Target != "" {
+		scope, err = thresholdScopeFromAPI(req.Scope)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	var thresholds []*alerting.Threshold
 
 	errTx := s.db.InTransaction(func(tx *reform.TX) error {
-		var scope models.ThresholdScope
-		if req.Target != "" {
-			scope, err = thresholdScopeFromAPI(req.Scope)
-			if err != nil {
-				return err
-			}
-		}
-
 		rules, err := s.thresholdRules(tx.Querier, req.RuleId)
 		if err != nil {
 			return err
 		}
 
 		for _, rule := range rules {
-			overrides, err := models.FindThresholdOverridesByRule(tx.Querier, rule.RuleID)
+			ruleThresholds, err := s.thresholdsForRule(tx.Querier, rule, scope, req.Target)
 			if err != nil {
 				return err
 			}
 
-			inv, err := loadThresholdInventory(tx.Querier, overrides)
-			if err != nil {
-				return err
-			}
-
-			targetName, err := s.thresholdTargetName(tx.Querier, scope, req.Target, &inv)
-			if err != nil {
-				return err
-			}
-
-			for paramName, param := range rule.Params {
-				resolved := models.ResolveThresholdsDetailed(
-					filterOverridesByParam(overrides, paramName), param.Default, inv,
-				)
-
-				if req.Target == "" {
-					// With no target there is no bounded set of targets to enumerate, so
-					// only what has actually been overridden is reported.
-					for _, entry := range resolved {
-						if entry.IsOverridden() {
-							thresholds = append(thresholds, thresholdFromResolved(rule.RuleID, paramName, param, entry))
-						}
-					}
-
-					continue
-				}
-
-				entry, ok := resolved[targetName]
-				if !ok {
-					entry = models.ResolvedThreshold{Value: param.Default}
-				}
-
-				thresholds = append(thresholds, thresholdFromResolved(rule.RuleID, paramName, param, entry))
-			}
+			thresholds = append(thresholds, ruleThresholds...)
 		}
 
 		return nil
@@ -252,6 +221,57 @@ func (s *Service) ListThresholds(_ context.Context, req *alerting.ListThresholds
 	sortThresholds(thresholds)
 
 	return &alerting.ListThresholdsResponse{Thresholds: thresholds}, nil
+}
+
+// thresholdsForRule reports one registry row's thresholds. With no target it reports only
+// what has actually been overridden; with a target it reports every parameter of the rule,
+// falling back to that rule's own default where nothing overrides it.
+func (s *Service) thresholdsForRule(
+	q *reform.Querier, rule *models.AlertRule, scope models.ThresholdScope, target string,
+) ([]*alerting.Threshold, error) {
+	overrides, err := models.FindThresholdOverridesByRule(q, rule.RuleID)
+	if err != nil {
+		return nil, err
+	}
+
+	inv, err := loadThresholdInventory(q, overrides)
+	if err != nil {
+		return nil, err
+	}
+
+	targetName, err := s.thresholdTargetName(q, scope, target, &inv)
+	if err != nil {
+		return nil, err
+	}
+
+	var thresholds []*alerting.Threshold
+
+	for paramName, param := range rule.Params {
+		resolved := models.ResolveThresholdsDetailed(
+			filterOverridesByParam(overrides, paramName), param.Default, inv,
+		)
+
+		if target == "" {
+			// With no target there is no bounded set of targets to enumerate, so
+			// only what has actually been overridden is reported.
+			for _, entry := range resolved {
+				if entry.IsOverridden() {
+					thresholds = append(thresholds, thresholdFromResolved(rule.RuleID, paramName, param, entry))
+				}
+			}
+
+			continue
+		}
+
+		entry, ok := resolved[targetName]
+		if !ok {
+			entry = models.ResolvedThreshold{Value: param.Default}
+		}
+
+		thresholds = append(thresholds, thresholdFromResolved(rule.RuleID, paramName, param, entry))
+	}
+
+	return thresholds, nil
 }
 
 // thresholdRules returns the registry rows to report on, honouring an optional filter.

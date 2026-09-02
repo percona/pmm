@@ -27,28 +27,27 @@ import (
 )
 
 const (
-	// thresholdCollectTimeout bounds one scrape. The threshold collector shares
-	// /debug/metrics, and its 0.9 * MR budget, with the inventory and HA collectors, so
-	// overrunning here would take those down too.
+	// Bounds one scrape. The threshold collector shares /debug/metrics, and its
+	// 0.9 * MR budget, with the inventory and HA collectors, so overrunning here
+	// would take those down too.
 	thresholdCollectTimeout = 3 * time.Second
 
-	// thresholdCtxCheckInterval is how often the emission loop re-checks the deadline.
-	// The queries are bounded by the context, but the loop that follows them is not,
-	// so without this a large enough result set could run past the scrape budget with
-	// nothing stopping it.
+	// How often the emission loop re-checks the deadline. The queries are bounded by
+	// the context, but the loop that follows them is not, so without this a large
+	// enough result set could run past the scrape budget with nothing stopping it.
 	thresholdCtxCheckInterval = 1000
 
-	// thresholdMetricName is the gauge the injected threshold query reads. It is shared
-	// with rule_builder.go on purpose: the metric name and its label set are a contract
-	// between the collector and the generated PromQL, and a rule pointing at a metric
-	// nobody emits fails silently - it simply never fires.
+	// The gauge the injected threshold query reads. Shared with rule_builder.go on
+	// purpose: the metric name and its label set are a contract between the collector
+	// and the generated PromQL, and a rule pointing at a metric nobody emits fails
+	// silently - it simply never fires.
 	thresholdMetricName = "pmm_alert_threshold_override"
 
 	thresholdRuleIDLabel = "rule_id"
 	thresholdParamLabel  = "param"
-	// thresholdTargetLabel is generic rather than node_name/service_name because one
-	// fixed descriptor has to serve every scope; the rule query maps it onto whichever
-	// label it joins on with label_replace.
+	// Generic rather than node_name/service_name because one fixed descriptor has to
+	// serve every scope; the rule query maps it onto whichever label it joins on
+	// with label_replace.
 	thresholdTargetLabel = "target"
 )
 
