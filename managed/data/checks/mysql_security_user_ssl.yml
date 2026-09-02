@@ -5,9 +5,9 @@ checks:
     summary: User(s) not using secure SSL protocol to connect
     description: User(s) not using secure SSL protocol to connect.
     interval: standard
-    advisor: security_authentication
-    #author: The Grinch
-    family: MYSQL
+    category: Security
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service /*!80001, count(user) found,group_concat( concat(user,'@',host) separator'; ') user  from mysql.user where ssl_type='' and user not in ('root','mysql.pxc.internal.session', 'mysql.pxc.sst.role', 'mysql.session','mysql.infoschema','mysql.pxc.sst.user','mysql.sys','pmm')*/;"
@@ -16,14 +16,14 @@ checks:
           for row in doc:
             version = row["version"]
             service = row["service"]
-            user = row["user"]
-            found = row["found"]
+            user = row.get("user", "")
+            found = row.get("found", 0)
 
             if found > 0 :
                return {
                  "summary": "User(s) not using secure SSL protocol to connect",
                  "description": "User(s) not using secure SSL protocol to connect. User list = {} ;".format(user),
-                 "severity": "notice",
+                 "severity": "warning",
                  "read_more_url": read_url.format("security-user-not-using-ssl-protocol"),
                  "labels": {
                     "mysql_version": "{}".format(version),

@@ -8,8 +8,6 @@ services:
       - "127.0.0.1:443:8443"
     environment:
       - PMM_DEBUG=1
-      # for local development
-      - PMM_DEV_ADVISOR_CHECKS_FILE=/srv/checks/custom-checks.yml
     volumes:
       - ./testdata/checks:/srv/checks
 

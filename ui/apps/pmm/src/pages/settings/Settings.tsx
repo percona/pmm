@@ -9,6 +9,7 @@ import { useSettings } from 'hooks/api/useSettings';
 import { SshKeyForm } from './components/ssh-key/SshKeyForm';
 import { MetricsResolutionForm } from './components/metrics-resolution/MetricsResolutionForm';
 import { AdvancedSettingsForm } from './components/advanced/AdvancedSettingsForm';
+import { AdvisorsForm } from './components/advisors/AdvisorsForm';
 import { Messages } from './Settings.messages';
 import { TabValue } from './Settings.types';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -66,6 +67,11 @@ export const Settings: FC = () => {
             label={Messages.tabs.advanced}
           />
           <Tab
+            data-testid="settings-tab-advisors"
+            value="advisors"
+            label={Messages.tabs.advisors}
+          />
+          <Tab
             data-testid="settings-tab-ssh"
             value="ssh-key"
             label={Messages.tabs.ssh}
@@ -79,6 +85,7 @@ export const Settings: FC = () => {
           {tab === 'advanced-settings' && (
             <AdvancedSettingsForm settings={settings!} />
           )}
+          {tab === 'advisors' && <AdvisorsForm settings={settings!} />}
           {tab === 'ssh-key' && <SshKeyForm settings={settings!} />}
         </Box>
       </Stack>

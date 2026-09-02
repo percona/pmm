@@ -4,25 +4,34 @@ checks:
     name: postgresql_tmpfiles_check
     summary: PostgreSQL temporary file statistics
     description: This check reports the number of temporary files and number of bytes written to disk since last stats reset.
-    #author: Jorge Torralba
-    advisor: performance_generic
+    # author: Jorge Torralba
+    category: Performance
     interval: standard
-    family: POSTGRESQL
-    category: configuration
+    technology: POSTGRESQL
     queries:
       - type: POSTGRESQL_SELECT
         query: datname, temp_files, PG_SIZE_PRETTY(temp_bytes) AS temp_bytes, TO_CHAR( AGE(stats_reset), 'MM "Months" DD "Days"') AS age FROM pg_stat_database
     script: |
+      def format_list(items, cap=10):
+          if len(items) > cap:
+              return "; ".join(items[:cap]) + "; and {} more".format(len(items) - cap)
+          return "; ".join(items)
+
       def check_context(rows, context):
          results = []
          read_url = "https://docs.percona.com/percona-monitoring-and-management/3/advisors/checks/{}.html"
+         databases = []
          for row in rows[0]:
              db, tempfiles, tempbytes, age = row["datname"], row["temp_files"], row["temp_bytes"], row["age"]
              if tempfiles > 100:
-                 results.append({
-                     "summary": "temporary file statistics",
-                     "read_more_url":read_url.format("postgresql-tmpfiles-check"),
-                     "description": "Database {} has generated {} temporary files. This has resulted in {} written to disk over the past  {}.".format(db, tempfiles, tempbytes, age),
-                     "severity": "warning",
-                 })
+                 databases.append("{} ({} files, {} over the past {})".format(db, tempfiles, tempbytes, age))
+
+         if databases:
+             results.append({
+                 "summary": "{} database(s) with heavy temporary file usage".format(len(databases)),
+                 "read_more_url":read_url.format("postgresql-tmpfiles-check"),
+                 "description": "The following databases have generated more than 100 temporary files written to disk: {}.".format(format_list(databases)),
+                 "severity": "warning",
+                 "labels": {"count": str(len(databases))},
+             })
          return results

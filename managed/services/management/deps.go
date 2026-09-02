@@ -54,15 +54,28 @@ type prometheusService interface {
 
 // checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type checksService interface {
-	StartChecks(checkNames []string) error
+type checksService interface { //nolint:interfacebloat
+	StartChecks(checkNames, serviceIDs []string) (string, error)
 	GetChecks() (map[string]check.Check, error)
 	GetAdvisors() ([]check.Advisor, error)
-	GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error)
-	GetDisabledChecks() ([]string, error)
-	DisableChecks(checkNames []string) error
-	EnableChecks(checkNames []string) error
-	ChangeInterval(params map[string]check.Interval) error
+	GetInsights(ctx context.Context, filters models.InsightFilters, pageIndex, pageSize int) ([]*models.Insight, int, error)
+	GetRuns(ctx context.Context, filters models.AdvisorRunFilters, pageIndex, pageSize int) ([]*models.AdvisorRun, int, error)
+	GetInsightsFilterValues(ctx context.Context) ([]string, []string, error)
+	MarkInsightsRead(ctx context.Context, ids []string, isRead bool) error
+	MarkInsightsReadByFilters(ctx context.Context, filters models.InsightFilters, isRead bool) error
+	GetDisabledChecks(ctx context.Context) ([]string, error)
+	GetDisabledServicesForChecks(ctx context.Context) (map[string][]string, error)
+	DisableChecks(ctx context.Context, checkNames []string) error
+	EnableChecks(ctx context.Context, checkNames []string) error
+	DisableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error
+	EnableChecksForServices(ctx context.Context, checkName string, serviceIDs []string) error
+	ChangeInterval(ctx context.Context, params map[string]check.Interval) error
+	CreateAdvisorCheck(ctx context.Context, c check.Check) error
+	UpdateAdvisorCheck(ctx context.Context, c check.Check) error
+	DeleteAdvisorCheck(ctx context.Context, name string) error
+	TestAdvisorCheck(ctx context.Context, c check.Check, serviceID string) ([]services.CheckResult, string, error)
+	ListTestTargets(ctx context.Context, technology check.Technology) ([]services.Target, error)
+	SendTestNotification(recipients []string) error
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.

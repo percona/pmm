@@ -4,9 +4,9 @@ checks:
     name: mongodb_cpucores
     summary: MongoDB CPU cores
     description: This check returns warnings if the number of CPU cores does not meet the minimum recommended requirements according to best practices.
-    family: MONGODB
-    #author: Parag Bhayani
-    advisor: configuration_resources
+    technology: MONGODB
+    # author: Parag Bhayani
+    category: Resources
     interval: standard
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA
@@ -31,7 +31,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           print(repr(rows[0]))
           data = rows[0]["data"]
@@ -52,14 +52,14 @@ checks:
                   cpu = systemMetrics.get("cpu", {})
                   print(repr(cpu))
                   if cpu:
-                      numcpu = int(cpu.get("num_cpus", fail))
+                      numcpu = int(cpu.get("num_cpus", cpu.get("num_logical_cores", 0)))
                       print("No. of CPU core:")
                       print(numcpu)
-                      if numcpu < 4:
+                      if numcpu > 0 and numcpu < 4:
                           results.append({
                               "summary": "MongoDB node as configured does not have the recommended number of CPU cores - {}".format(numcpu),
                               "description": "The returned number of cores is lower than recommended. To avoid performance issues, see the following documentation to determine the number of CPU cores required for your environment",
-                              "read_more_url": PROD_NOTES["mongodb_url"][mm],
+                              "read_more_url": PROD_NOTES["mongodb_url"].get(mm, ""),
                               "severity": "warning",
                           })
                       # noresults = "no maxS result"

@@ -5,9 +5,9 @@ checks:
     name: mongodb_active_vs_available_connections
     summary: MongoDB Active vs Available Connections
     description: This check returns warnings if the ratio between active and available connections is higher than 75%
-    family: MONGODB
-    #author: Corrado Pandiani
-    advisor: configuration_generic
+    technology: MONGODB
+    # author: Corrado Pandiani
+    category: Connections
     interval: standard
     queries:
       - type: MONGODB_GETDIAGNOSTICDATA
@@ -19,7 +19,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           results = []
 

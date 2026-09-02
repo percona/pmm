@@ -5,9 +5,9 @@ checks:
     name: mongodb_journal
     summary: MongoDB Journal
     description: This check returns warnings if journal is disabled.
-    family: MONGODB
-    #author: Corrado Pandiani
-    advisor: configuration_generic
+    technology: MONGODB
+    # author: Corrado Pandiani
+    category: Durability
     interval: standard
     queries:
       - type: MONGODB_GETCMDLINEOPTS
@@ -21,7 +21,7 @@ checks:
 
           rows = docs[0]
           if len(rows) != 1:
-              return "Unexpected number of documents"
+              return "unexpected number of documents: {}".format(len(rows))
 
           results = []
           parsed = rows[0]["parsed"]

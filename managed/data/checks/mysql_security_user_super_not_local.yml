@@ -2,12 +2,12 @@
 checks:
   - version: 2
     name: mysql_security_user_super_not_local
-    summary: User(s) has/have Super privileges with remote and too open access
-    description: User has Super privileges but is not connecting from local or the host is not fully restricted (ie 192.168.%).
+    summary: Users have super privileges with remote or lack access restrictions
+    description: Users have super privileges but are not connecting from local or the host is not fully restricted (i.e. 192.168.%).
     interval: standard
-    advisor: security_authentication
-    #author: The Grinch
-    family: MYSQL
+    category: Security
+    # author: The Grinch
+    technology: MYSQL
     queries:
       - type: MYSQL_SELECT
         query: " @@version version,@@hostname service, count(user) found,group_concat( concat(user,'@',host) separator'; ') user  from mysql.user where Super_priv = 'Y' and user not in('mysql.pxc.internal.session', 'mysql.pxc.sst.role', 'mysql.session','mysql.infoschema','mysql.pxc.sst.user','mysql.sys') and plugin != 'auth_socket' and host like '%'and host not in ('127.0.0.1','localhost') group by version;"
@@ -21,9 +21,9 @@ checks:
 
             if found > 0 :
                return {
-                 "summary": "User(s) has/have Super privileges with remote and too open access",
-                 "description": "User has Super privileges but is not connecting from local or the host is not fully restricted (ie 192.168.%). User list = {} ;".format(user),
-                 "severity": "notice",
+                 "summary": "Users have super privileges with remote or lack access restrictions",
+                 "description": "Users have super privileges but are not connecting from local or the host is not fully restricted (i.e. 192.168.%). User list = {} ;".format(user),
+                 "severity": "warning",
                  "read_more_url": read_url.format("security-non-root-accounts-super-privileges"),
                  "labels": {
                     "mysql_version": "{}".format(version),
