@@ -9,7 +9,7 @@ The `/ui` directory contains the PMM web frontend — a React/TypeScript applica
 
 ### Monorepo Structure
 
-The UI uses a **Yarn workspaces + Turborepo** monorepo with three packages:
+The UI uses a **pnpm workspaces + Turborepo** monorepo with three packages:
 
 | Package         | Path                  | Purpose                                                       |
 | --------------- | --------------------- | ------------------------------------------------------------- |
@@ -32,6 +32,10 @@ The UI uses a **Yarn workspaces + Turborepo** monorepo with three packages:
 | **Jest**                         | Unit testing (shared package)                        |
 | **Webpack**                      | Build for Grafana plugin (pmm-compat)                |
 | **Rollup**                       | Build for shared package                             |
+| **pnpm (via Corepack)**          | Package manager and workspaces                       |
+| **Turborepo**                    | Task runner across the workspace                     |
+| **oxlint**                       | Linting (`ui/oxlintrc.json`)                         |
+| **oxfmt**                        | Formatting (`ui/.oxfmtrc.json`)                      |
 
 ### Communication with Grafana
 
@@ -126,13 +130,29 @@ The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the the
 - **Pattern**: co-located `*.test.tsx` / `*.test.ts` files next to components
 - **Run**: `make test` or via Turborepo (`turbo test`)
 
+## Linting and Formatting
+
+- **Linter**: oxlint, configured in `ui/oxlintrc.json`. `plugins` lists every
+  built-in plugin the rules rely on — setting it replaces oxlint's default set,
+  and a rule whose plugin is missing is silently inert.
+- **Formatter**: oxfmt, configured in `ui/.oxfmtrc.json`. It owns formatting;
+  there is no Prettier and no formatting rule in the linter.
+- **Scope**: build/test config files (`vite.config.ts`, `vitest.config.ts`,
+  `webpack.config.ts`, `jest.config.js`) are linted like any other source. The
+  only exclusion is `apps/pmm-compat/.config/`, Grafana's auto-generated plugin
+  scaffold, which upstream regenerates and tells you not to edit.
+- **Run**: `make lint`, `make format` (or `make format-check`, which is what CI
+  runs in `.github/workflows/ui.yml`).
+
 ## Development Workflow
 
 ```bash
-# Prerequisites: Node 22, Yarn
+# Prerequisites: Node 22. pnpm comes from Corepack, which `make setup`
+# enables — the version is pinned by `packageManager` in ui/package.json,
+# so never install pnpm separately.
 cd ui
 
-# Install dependencies
+# Enable Corepack + install dependencies
 make setup
 
 # Start dev server
@@ -143,6 +163,10 @@ make build
 
 # Run tests
 make test
+
+# Lint (oxlint) and format (oxfmt)
+make lint
+make format        # make format-check in CI
 ```
 
 Inside the PMM devcontainer (`make env-up` then `make env` from the repo root), `make run-ui` (main UI HMR via Vite on port 5173) and `make run-qan-ui` (QAN livereload on port 35730) replace `make dev` and wire the dev servers into the bundled Grafana automatically. See `ui/README.md` for details.
