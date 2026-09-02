@@ -35,10 +35,10 @@ Replace the self-signed certificate with a proper SSL certificate for production
     systemctl --user stop pmm-server
 
     # Configure PMM to use the certificate
-    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/fullchain.pem /home/admin/volume/pmm-certs/certificate.crt
-    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/privkey.pem /home/admin/volume/pmm-certs/certificate.key
-    sudo chown pmm:pmm /home/admin/volume/pmm-certs/certificate.*
-    sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
+    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/fullchain.pem /home/admin/volume/srv/nginx/certificate.crt
+    sudo cp /etc/letsencrypt/live/pmm.yourdomain.com/privkey.pem /home/admin/volume/srv/nginx/certificate.key
+    sudo chown admin:admin /home/admin/volume/srv/nginx/certificate.*
+    sudo chmod 600 /home/admin/volume/srv/nginx/certificate.*
 
     # Restart PMM Server
     systemctl --user start pmm-server
@@ -56,10 +56,10 @@ Replace the self-signed certificate with a proper SSL certificate for production
 
     2. Install certificates:
        ```bash
-       sudo mv /tmp/certificate.crt /home/admin/volume/pmm-certs/
-       sudo mv /tmp/private.key /home/admin/volume/pmm-certs/certificate.key
-       sudo chown pmm:pmm /home/admin/volume/pmm-certs/certificate.*
-       sudo chmod 600 /home/admin/volume/pmm-certs/certificate.*
+       sudo mv /tmp/certificate.crt /home/admin/volume/srv/nginx/
+       sudo mv /tmp/private.key /home/admin/volume/srv/nginx/certificate.key
+       sudo chown admin:admin /home/admin/volume/srv/nginx/certificate.*
+       sudo chmod 600 /home/admin/volume/srv/nginx/certificate.*
        systemctl --user restart pmm-server
        ```
 
