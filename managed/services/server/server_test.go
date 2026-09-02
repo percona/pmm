@@ -28,6 +28,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -263,6 +264,35 @@ func TestServer(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, settings.Settings.AlertingEnabled)
 		assert.True(t, settings.Settings.AzurediscoverEnabled)
+	})
+
+	t.Run("ChangeSettings data retention in HA", func(t *testing.T) {
+		server := newServer(t)
+		server.UpdateSettingsFromEnv(context.TODO(), []string{})
+
+		var ha mockHaService
+		ha.Test(t)
+		ha.On("Params").Return(&models.HAParams{Enabled: true})
+		server.haService = &ha
+
+		ctx := context.TODO()
+
+		current, err := server.GetSettings(ctx, &serverv1.GetSettingsRequest{})
+		require.NoError(t, err)
+		assert.True(t, current.Settings.DataRetentionReadonly)
+
+		// The settings form resubmits every field, so the unchanged value has to keep working.
+		_, err = server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
+			DataRetention: current.Settings.DataRetention,
+		})
+		require.NoError(t, err)
+
+		expected := status.New(codes.FailedPrecondition,
+			"Data retention is declared by the deployment in HA. Set PMM_DATA_RETENTION on every replica to change it.")
+		_, err = server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
+			DataRetention: durationpb.New(48 * time.Hour),
+		})
+		tests.AssertGRPCError(t, expected, err)
 	})
 
 	t.Run("ChangeSettings Alerting", func(t *testing.T) {

@@ -17,6 +17,8 @@ export const Messages = {
       'How long PMM keeps collected data. Older data is automatically deleted.',
     retentionUnits: 'days',
     retentionLink: 'https://per.co.na/data_retention',
+    retentionReadonly:
+      'Set by this deployment and cannot be changed here. Update PMM_DATA_RETENTION to change it.',
     telemetryLabel: 'Telemetry',
     telemetryLink: 'https://per.co.na/telemetry',
     telemetryDialogLink: 'What we collect',

@@ -31454,6 +31454,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "data_retention_readonly": {
+                      "description": "True if data retention is declared by the deployment, so ChangeSettings refuses to move it.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -31772,6 +31777,11 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
+                    },
+                    "data_retention_readonly": {
+                      "description": "True if data retention is declared by the deployment, so ChangeSettings refuses to move it.",
+                      "type": "boolean",
+                      "x-order": 18
                     }
                   },
                   "x-order": 0

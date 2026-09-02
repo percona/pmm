@@ -12,6 +12,13 @@ If you configure data retention using the [Change Settings API](https://percona-
 
 For example, to set 30-day retention: `"data_retention": "2592000s"`
 
+### When data retention is read-only
+
+The field is read-only, and the API rejects a change to it, when the deployment owns the value:
+
+- `PMM_DATA_RETENTION` is set. The environment variable wins over the stored setting.
+- PMM runs as an [HA cluster](../install-pmm/install-HA-clustered.md). Every replica enforces retention against the same stores, so the value is declared once in `values.yaml` rather than changed at runtime.
+
 ## Telemetry
 
 The **Telemetry** switch enables gathering and sending basic **anonymous** data to Percona, which helps us to determine where to focus the development and what is the uptake for each release of PMM. 
