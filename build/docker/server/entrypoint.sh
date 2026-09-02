@@ -170,13 +170,13 @@ if is_enabled "$PMM_ENABLE_SEP"; then
     # and rejects a bare address, which fails nginx -t and so blocks the whole
     # server from starting.
     declare SEP_RESOLVER
-    SEP_RESOLVER=$(awk '/^nameserver/ && $2 !~ /:/ { print $2; exit }' /etc/resolv.conf 2>/dev/null || true)
+    SEP_RESOLVER=$(awk '/^nameserver/ && $2 != "" && $2 !~ /:/ { print $2; exit }' /etc/resolv.conf 2>/dev/null || true)
     if [ -z "$SEP_RESOLVER" ]; then
         # Scoped addresses are skipped rather than stripped of their zone: nginx has
         # no syntax for the interface scope, so a stripped fe80:: address yields a
         # config that passes nginx -t and can never route DNS -- trading a startup
         # failure for every /sep/ request timing out into the 503.
-        SEP_RESOLVER=$(awk '/^nameserver/ && $2 !~ /%/ { print "[" $2 "]"; exit }' /etc/resolv.conf 2>/dev/null || true)
+        SEP_RESOLVER=$(awk '/^nameserver/ && $2 != "" && $2 !~ /%/ { print "[" $2 "]"; exit }' /etc/resolv.conf 2>/dev/null || true)
     fi
     if [ -z "$SEP_RESOLVER" ]; then
         if awk '/^nameserver/ && $2 ~ /%/ { found = 1 } END { exit !found }' /etc/resolv.conf 2>/dev/null; then
@@ -187,6 +187,14 @@ if is_enabled "$PMM_ENABLE_SEP"; then
             echo "FATAL: PMM_ENABLE_SEP is set but no nameserver found in /etc/resolv.conf." >&2
             echo "Please attach the container to a network with working DNS, or unset PMM_ENABLE_SEP." >&2
         fi
+        exit 1
+    fi
+    # Interpolated into the same config as SEP_ADDRESS, so it needs the same
+    # guard: awk yields a whitespace-delimited field, and a nameserver line
+    # carrying anything else would close the /sep/ block and open its own.
+    if ! [[ "$SEP_RESOLVER" =~ ^([0-9.]+|\[[0-9a-fA-F:]+\])$ ]]; then
+        echo "FATAL: /etc/resolv.conf nameserver '${SEP_RESOLVER}' is not a usable address." >&2
+        echo "Please attach the container to a network with working DNS, or unset PMM_ENABLE_SEP." >&2
         exit 1
     fi
 

@@ -217,22 +217,19 @@ func TestSepConfigFiles(t *testing.T) {
 		require.NoError(t, os.WriteFile(extra, []byte("# left by an older build\n"), 0o600))
 		require.NoError(t, os.WriteFile(filepath.Join(dir, "sep.conf.template"), []byte("# not a drop-in\n"), 0o600))
 
-		ctx := logger.Set(t.Context(), t.Name())
-		assert.ElementsMatch(t, []string{sep, extra}, sepConfigFiles(ctx, dir))
+		assert.ElementsMatch(t, []string{sep, extra}, sepConfigFiles(dir))
 	})
 
 	t.Run("absent directory is not an error", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := logger.Set(t.Context(), t.Name())
-		assert.Empty(t, sepConfigFiles(ctx, filepath.Join(t.TempDir(), "sep.d")))
+		assert.Empty(t, sepConfigFiles(filepath.Join(t.TempDir(), "sep.d")))
 	})
 
 	t.Run("empty directory is not an error", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := logger.Set(t.Context(), t.Name())
-		assert.Empty(t, sepConfigFiles(ctx, t.TempDir()))
+		assert.Empty(t, sepConfigFiles(t.TempDir()))
 	})
 }
 

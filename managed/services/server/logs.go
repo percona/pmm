@@ -52,12 +52,11 @@ const (
 
 // sepConfigFiles returns the SEP nginx drop-ins under dir, and nothing when dir is
 // absent. They are globbed rather than listed because their presence depends on
-// PMM_ENABLE_SEP: absent must not mean an error in the archive.
-func sepConfigFiles(ctx context.Context, dir string) []string {
-	configs, err := filepath.Glob(filepath.Join(dir, "*.conf"))
-	if err != nil {
-		logger.Get(ctx).WithField("component", "logs").Error(err)
-	}
+// PMM_ENABLE_SEP: absent must not mean an error in the archive. Glob's only error
+// is ErrBadPattern, which a caller-supplied directory joined with a literal
+// suffix cannot produce, so it is discarded rather than reported.
+func sepConfigFiles(dir string) []string {
+	configs, _ := filepath.Glob(filepath.Join(dir, "*.conf"))
 
 	return configs
 }
@@ -199,7 +198,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig, logReadLines
 		"/etc/supervisord.d/vmproxy.ini",
 
 		models.AgentConfigFilePath,
-	}, sepConfigFiles(ctx, sepNginxConfigDir))
+	}, sepConfigFiles(sepNginxConfigDir))
 
 	for _, f := range configs {
 		b, m, err := readFile(f)

@@ -21,7 +21,7 @@ location /sep/ {
   # included in the server block, so at file scope it would also redirect DNS
   # for every other request-time lookup, /percona-blog/feed among them.
   # valid= caps how long a restarted side-car stays unreachable.
-  resolver __SEP_RESOLVER__ valid=10s ipv6=off;
+  resolver __SEP_RESOLVER__ valid=10s;
   resolver_timeout 5s;
 
   # A variable defers resolution to request time, so this config loads with the
@@ -45,7 +45,9 @@ location /sep/ {
 
   # Buffering stays on. SEP marks its own streaming responses with
   # X-Accel-Buffering: no, which nginx honours per response -- keeping stream
-  # knowledge in SEP instead of encoding routes here.
+  # knowledge in SEP instead of encoding routes here. SEP applies that header
+  # from one frozen constant shared by every streaming route, so a new stream
+  # cannot reach this proxy without it.
   proxy_http_version 1.1;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection $connection_upgrade;
