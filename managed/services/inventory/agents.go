@@ -1758,10 +1758,10 @@ func unexpectedAgentTypeError(agent inventoryv1.Agent) error {
 //
 // The agent argument is the stored row, before the requested change is applied.
 //
-// Unlike CheckInternalPgQANRemoval, this guard deliberately stays in the service layer rather than
-// moving into models.ApplyAgentChange: Server.handleInternalQANToggle is the legitimate actor for
-// this exact state and calls ApplyAgentChange directly, so a guard down there would make the
-// settings API trip over its own pin.
+// The guard deliberately stays in the service layer rather than moving into
+// models.ApplyAgentChange: Server.handleInternalQANToggle is the legitimate actor for this exact
+// state and calls ApplyAgentChange directly, so a guard down there would make the settings API trip
+// over its own pin.
 func checkInternalPgQANEnvOverride(q *reform.Querier, agent *models.Agent, enable *bool) error {
 	// Only a request that actually flips the enabled state can contradict the variable.
 	if enable == nil || *enable == !agent.Disabled {
