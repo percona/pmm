@@ -54,6 +54,6 @@ EXPOSE 8080 8443
 # before that, so three failed probes marked the container unhealthy around 34s,
 # and a dependent gated on service_healthy aborted whenever compose polled during
 # the few seconds before it recovered.
-HEALTHCHECK --interval=4s --timeout=2s --start-period=180s --retries=3 CMD curl -sf http://127.0.0.1:8080/v1/server/readyz
+HEALTHCHECK --interval=4s --timeout=2s --start-period=90s --retries=3 CMD curl -sf http://127.0.0.1:8080/v1/server/readyz
 
 CMD ["/opt/entrypoint.sh"]
