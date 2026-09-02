@@ -347,3 +347,189 @@ func TestObservedQueryForParamErrors(t *testing.T) {
 		assert.Contains(t, err.Error(), "not referenced by any expression")
 	})
 }
+
+// desugarTemplate returns a single-expression template whose one param is overridable -
+// the shape desugaring exists to handle.
+func desugarTemplate() *alert.Template {
+	return &alert.Template{
+		Name:    "test_single_expr",
+		Version: 1,
+		Summary: "summary",
+		Expr:    "node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes\n* 100\n< bool [[ .threshold ]]",
+		Params: []alert.Parameter{{
+			Name:        "threshold",
+			Summary:     "threshold",
+			Type:        alert.Float,
+			Value:       20,
+			Overridable: true,
+		}},
+	}
+}
+
+func TestBuildDesugaredRuleData(t *testing.T) {
+	t.Parallel()
+
+	data, condition, err := buildGrafanaRuleData(
+		desugarTemplate(), "metrics-uid", "rule-1",
+		map[string]string{"threshold": "20"}, nil,
+	)
+	require.NoError(t, err)
+	assert.Equal(t, "C", condition)
+	require.Len(t, data, 3, "observed query, injected threshold, math condition")
+
+	byRef := dataByRefID(t, data)
+	require.Contains(t, byRef, "T_threshold")
+
+	// The observed query is the left-hand side, with the author's line breaks intact and
+	// the parameter token gone.
+	observed := exprOf(t, byRef["A"])
+	assert.Equal(t, "node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes\n* 100", observed)
+	assert.NotContains(t, observed, "[[")
+
+	// The operator is carried across and `bool` is dropped, since Grafana math already
+	// yields 0/1.
+	body := expressionOf(t, byRef["C"])
+	assert.Equal(t, "$A < $T_threshold", body)
+	assert.NotContains(t, body, "bool")
+	assert.NotContains(t, body, "20", "the default must never be baked into the expression")
+
+	// The threshold fans out over the same observed query, exactly as it does for a
+	// multi-expression template.
+	threshold := exprOf(t, byRef["T_threshold"])
+	assert.Contains(t, threshold, `pmm_alert_threshold_override{rule_id="rule-1", param="threshold"}`)
+	assert.Contains(t, threshold, "* 0 + 20)")
+}
+
+// A single-expression template with no PMM-minted rule ID must generate exactly what it did
+// before desugaring existed: one query, condition A, default baked in.
+func TestBuildDesugaredRuleDataWithoutRuleIDIsUnchanged(t *testing.T) {
+	t.Parallel()
+
+	data, condition, err := buildGrafanaRuleData(
+		desugarTemplate(), "metrics-uid", "",
+		map[string]string{"threshold": "20"}, nil,
+	)
+	require.NoError(t, err)
+	assert.Equal(t, "A", condition)
+	require.Len(t, data, 1)
+	assert.Contains(t, exprOf(t, data[0]), "< bool 20")
+}
+
+func TestBuildDesugaredRuleDataWithoutOverridableParam(t *testing.T) {
+	t.Parallel()
+
+	template := desugarTemplate()
+	template.Params[0].Overridable = false
+
+	data, condition, err := buildGrafanaRuleData(
+		template, "metrics-uid", "rule-1",
+		map[string]string{"threshold": "20"}, nil,
+	)
+	require.NoError(t, err)
+	assert.Equal(t, "A", condition)
+	require.Len(t, data, 1)
+}
+
+// Filters narrow the observed query but not the threshold: a filtered threshold would leave
+// the targets the filter excludes with no threshold at all.
+func TestBuildDesugaredRuleDataDoesNotFilterTheThreshold(t *testing.T) {
+	t.Parallel()
+
+	data, _, err := buildGrafanaRuleData(
+		desugarTemplate(), "metrics-uid", "rule-1",
+		map[string]string{"threshold": "20"},
+		[]*alertingv1.Filter{{
+			Type:   alertingv1.FilterType_FILTER_TYPE_MATCH,
+			Label:  "node_name",
+			Regexp: "prod-.*",
+		}},
+	)
+	require.NoError(t, err)
+
+	byRef := dataByRefID(t, data)
+	assert.Contains(t, exprOf(t, byRef["A"]), "label_match(")
+	assert.NotContains(t, exprOf(t, byRef["T_threshold"]), "label_match(")
+}
+
+// The template chooses no ref IDs of its own, so only the fixed A and C can be collided with.
+func TestBuildDesugaredRuleDataAvoidsFixedRefIDCollision(t *testing.T) {
+	t.Parallel()
+
+	template := desugarTemplate()
+	template.Expr = "up < bool [[ .A ]]"
+	template.Params[0].Name = "A"
+
+	data, _, err := buildGrafanaRuleData(
+		template, "metrics-uid", "rule-1",
+		map[string]string{"A": "20"}, nil,
+	)
+	require.NoError(t, err)
+
+	byRef := dataByRefID(t, data)
+	require.Contains(t, byRef, "T_A")
+	assert.Equal(t, "$A < $T_A", expressionOf(t, byRef["C"]))
+}
+
+func TestRewriteDesugaredAnnotations(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			// A bare value gains formatting: an unformatted float renders every digit.
+			name: "bare value is repointed and formatted",
+			in:   "Memory is {{ $value }}% free.",
+			want: `Memory is {{ printf "%.2f" $values.A.Value }}% free.`,
+		},
+		{
+			// mongodb_pbm_backup_stale pipes the value; the pipeline must survive.
+			name: "piped value keeps its pipeline",
+			in:   "Backup is {{ $value | humanizeDuration }} old.",
+			want: "Backup is {{ $values.A.Value | humanizeDuration }} old.",
+		},
+		{
+			// $values starts with $value, so a plain string replacement would corrupt it.
+			// mongodb_replication_lag already uses this form.
+			name: "an existing $values reference is left alone",
+			in:   "Lag is {{ $values.A }}s.",
+			want: "Lag is {{ $values.A }}s.",
+		},
+		{
+			name: "text with no value reference is untouched",
+			in:   "{{ $labels.node_name }} is unhealthy.",
+			want: "{{ $labels.node_name }} is unhealthy.",
+		},
+		{
+			name: "several references in one annotation",
+			in:   "{{ $value }} and {{ $value | humanize }}",
+			want: `{{ printf "%.2f" $values.A.Value }} and {{ $values.A.Value | humanize }}`,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			annotations := map[string]string{"description": tc.in}
+			rewriteDesugaredAnnotations(annotations)
+			assert.Equal(t, tc.want, annotations["description"])
+		})
+	}
+}
+
+func TestIsDesugaredRule(t *testing.T) {
+	t.Parallel()
+
+	assert.True(t, isDesugaredRule(desugarTemplate(), "rule-1"))
+
+	assert.False(t, isDesugaredRule(desugarTemplate(), ""),
+		"a rule with no PMM identity is built as it always was")
+
+	plain := desugarTemplate()
+	plain.Params[0].Overridable = false
+	assert.False(t, isDesugaredRule(plain, "rule-1"))
+
+	assert.False(t, isDesugaredRule(overridableRuleTemplate(), "rule-1"),
+		"a multi-expression template is not desugared")
+}

@@ -39,6 +39,11 @@ const (
 	// thresholdRefIDPrefix prefixes the ref ID of each injected threshold query.
 	thresholdRefIDPrefix = "T_"
 
+	// Ref IDs used when a single-expression template is desugared. A multi-expression
+	// template names its own steps; a desugared one has none to inherit.
+	desugaredQueryRefID     = "A"
+	desugaredConditionRefID = "C"
+
 	// The label the injected threshold query joins the observed query on. It follows
 	// from the scope: an override targets a node by node_name, and a service - whether
 	// named directly or reached through its cluster - by service_name.
@@ -80,8 +85,10 @@ func buildGrafanaRuleData(
 		return buildMultiExpressionRuleData(template, metricsDatasourceUID, ruleID, params, filters)
 	}
 
-	// Overridable parameters are rejected on single-expression templates at parse time,
-	// so nothing reaches here needing a threshold step.
+	overridable := template.OverridableParams()
+	if ruleID != "" && len(overridable) != 0 {
+		return buildDesugaredRuleData(template, metricsDatasourceUID, ruleID, overridable[0], params, filters)
+	}
 
 	expr, err := fillAndFilterExpr(template.Expr, params, filters)
 	if err != nil {
@@ -94,6 +101,74 @@ func buildGrafanaRuleData(
 	}
 
 	return []services.Data{data}, "A", nil
+}
+
+// buildDesugaredRuleData turns a single-expression template into the same three steps a
+// multi-expression template produces, so its threshold can be overridden per target:
+// the observed query, an injected threshold, and a math comparison between them.
+func buildDesugaredRuleData(
+	template *alert.Template,
+	metricsDatasourceUID string,
+	ruleID string,
+	param alert.Parameter,
+	params map[string]string,
+	filters []*alertingv1.Filter,
+) ([]services.Data, string, error) {
+	split, err := alert.SplitSingleExpr(template.Expr, param.Name)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed to split expression for parameter %q: %w", param.Name, err)
+	}
+
+	joinLabel, err := joinLabelForScopes(param.GetOverrideScopes())
+	if err != nil {
+		return nil, "", fmt.Errorf("parameter %q: %w", param.Name, err)
+	}
+
+	defaultValue, ok := params[param.Name]
+	if !ok {
+		return nil, "", fmt.Errorf("no value supplied for overridable parameter %q", param.Name)
+	}
+
+	// The observed query carries the alert's filters; the threshold deliberately does not,
+	// since a filtered threshold would leave the targets the filter excludes with none.
+	observed, err := fillAndFilterExpr(split.LHS, params, filters)
+	if err != nil {
+		return nil, "", err
+	}
+
+	fanOut, err := fillExprWithParams(split.LHS, params)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// A and C are fixed here, unlike the multi-expression path where the template chooses
+	// its own ref IDs, so only those two can be collided with.
+	taken := map[string]struct{}{
+		desugaredQueryRefID:     {},
+		desugaredConditionRefID: {},
+	}
+	thresholdRefID := allocateThresholdRefID(param.Name, taken)
+
+	query, err := newPromQueryData(metricsDatasourceUID, desugaredQueryRefID, observed)
+	if err != nil {
+		return nil, "", err
+	}
+
+	threshold, err := newPromQueryData(metricsDatasourceUID, thresholdRefID,
+		thresholdQueryExpr(ruleID, param.Name, joinLabel, fanOut, defaultValue))
+	if err != nil {
+		return nil, "", err
+	}
+
+	// The template's `bool` modifier, if any, is dropped: Grafana math comparisons already
+	// yield 0/1, so carrying it across would be redundant.
+	condition, err := newMathExpressionData(desugaredConditionRefID,
+		fmt.Sprintf("$%s %s $%s", desugaredQueryRefID, split.Operator, thresholdRefID))
+	if err != nil {
+		return nil, "", err
+	}
+
+	return []services.Data{query, threshold, condition}, desugaredConditionRefID, nil
 }
 
 func buildMultiExpressionRuleData(
@@ -436,4 +511,39 @@ func swapOverridableTokens(expression string, injections []thresholdInjection) s
 	}
 
 	return expression
+}
+
+// desugaredValueRegexp matches Grafana's `$value` variable, but not `$values`, whose name
+// starts with it. A plain string replacement would turn `$values.A` into nonsense.
+var desugaredValueRegexp = regexp.MustCompile(`\$value\b`)
+
+// desugaredBareValueRegexp matches a whole action that is nothing but `$value`, which is the
+// case worth formatting rather than only renaming.
+var desugaredBareValueRegexp = regexp.MustCompile(`\{\{\s*\$value\s*\}\}`)
+
+// isDesugaredRule reports whether this rule is built by splitting a single expression apart.
+func isDesugaredRule(template *alert.Template, ruleID string) bool {
+	return ruleID != "" && !template.UsesMultipleExpressions() && len(template.OverridableParams()) != 0
+}
+
+// rewriteDesugaredAnnotations repoints Grafana's `$value` at the observed query.
+//
+// `$value` is only a single scalar when a rule has one step. A desugared rule has three, so
+// the variable stops resolving and the alert text ships broken - which is why this runs for
+// every desugared rule rather than only where it looks necessary.
+//
+// A bare `{{ $value }}` also gains formatting, since an unformatted float renders every
+// digit it has. An action that pipes the value, such as `{{ $value | humanizeDuration }}`,
+// keeps its pipeline and only has the variable renamed.
+func rewriteDesugaredAnnotations(annotations map[string]string) {
+	for key, text := range annotations {
+		// Literal replacement throughout: `$values` would otherwise be read as a capture
+		// group reference and silently dropped.
+		rewritten := desugaredBareValueRegexp.ReplaceAllLiteralString(text,
+			`{{ printf "%.2f" $values.`+desugaredQueryRefID+`.Value }}`)
+		rewritten = desugaredValueRegexp.ReplaceAllLiteralString(rewritten,
+			`$values.`+desugaredQueryRefID+`.Value`)
+
+		annotations[key] = rewritten
+	}
 }

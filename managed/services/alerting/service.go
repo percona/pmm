@@ -766,6 +766,12 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, fmt.Errorf("failed to fill template annotations placeholders: %w", err)
 	}
 
+	// A desugared rule has three steps, so Grafana's `$value` no longer resolves and the
+	// alert text would ship broken.
+	if isDesugaredRule(alertTemplate, ruleID) {
+		rewriteDesugaredAnnotations(annotations)
+	}
+
 	labels := make(map[string]string)
 	// Copy labels form template
 	err = transformMaps(req.CustomLabels, labels, paramsValues.AsStringMap())
