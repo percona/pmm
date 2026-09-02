@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import { ReactElement } from 'react';
+import { SettingsContext } from 'contexts/settings';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithSettings } from 'utils/testUtils';
 import { TEST_USER_ADMIN, TEST_USER_VIEWER } from 'utils/testStubs';
@@ -22,7 +24,7 @@ const renderPage = (
     {
       wrapper: ({ children }) => (
         <TestWrapper userContext={{ isLoading: false, user }}>
-          {wrapWithSettings(children, { settings })}
+          {wrapWithSettings(children as ReactElement, { settings })}
         </TestWrapper>
       ),
     }
@@ -53,5 +55,61 @@ describe('SepPage', () => {
       )
     ).toBeInTheDocument();
     expect(screen.queryByTestId('sep-plugin')).not.toBeInTheDocument();
+  });
+
+  it('waits for settings instead of flashing not-enabled while they load', () => {
+    render(
+      <SepPage>
+        <div data-testid="sep-plugin" />
+      </SepPage>,
+      {
+        wrapper: ({ children }) => (
+          <TestWrapper
+            userContext={{ isLoading: false, user: TEST_USER_ADMIN }}
+          >
+            {wrapWithSettings(children as ReactElement, {
+              isLoading: true,
+              settings: { sepEnabled: true },
+            })}
+          </TestWrapper>
+        ),
+      }
+    );
+
+    expect(screen.getByTestId('sep-settings-loading')).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        'This feature is not enabled. Contact your administrator.'
+      )
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('sep-plugin')).not.toBeInTheDocument();
+  });
+
+  it('waits while settings are still null after the default context', () => {
+    render(
+      <SepPage>
+        <div data-testid="sep-plugin" />
+      </SepPage>,
+      {
+        wrapper: ({ children }) => (
+          <TestWrapper
+            userContext={{ isLoading: false, user: TEST_USER_ADMIN }}
+          >
+            <SettingsContext.Provider
+              value={{ isLoading: false, settings: null }}
+            >
+              {children}
+            </SettingsContext.Provider>
+          </TestWrapper>
+        ),
+      }
+    );
+
+    expect(screen.getByTestId('sep-settings-loading')).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        'This feature is not enabled. Contact your administrator.'
+      )
+    ).not.toBeInTheDocument();
   });
 });

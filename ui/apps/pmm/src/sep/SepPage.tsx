@@ -1,6 +1,7 @@
 import { FC, PropsWithChildren } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import { Page } from 'components/page';
 import { useSettings } from 'contexts/settings';
@@ -32,12 +33,23 @@ import { SepAuthProvider } from './SepAuthProvider';
  *
  * When SEP is disabled (`sepEnabled` from server settings), direct navigation
  * to a SEP route renders an explicit unavailable state instead of mounting the
- * auth gate or firing SEP API requests.
+ * auth gate or firing SEP API requests. Settings must resolve first — otherwise
+ * a hard refresh flashes "not enabled" while `settings` is still null.
  */
 export const SepPage: FC<PropsWithChildren> = ({ children }) => {
-  const { settings } = useSettings();
+  const { settings, isLoading } = useSettings();
 
-  if (!settings?.sepEnabled) {
+  if (isLoading || !settings) {
+    return (
+      <Page maxWidth="full">
+        <Stack alignItems="center" py={4}>
+          <CircularProgress data-testid="sep-settings-loading" />
+        </Stack>
+      </Page>
+    );
+  }
+
+  if (!settings.sepEnabled) {
     return (
       <Page maxWidth="full">
         <Alert severity="info">
