@@ -116,23 +116,46 @@ fi
 # which publishes it - both read it from the environment and neither can generate it for
 # the other. An operator value wins and is not persisted, so unsetting it returns to the
 # generated one rather than pinning whatever was passed once.
-if is_enabled "$PMM_ENABLE_SEP" && [ -z "$PMM_SEP_POSTGRES_PASSWORD" ]; then
+#
+# Gated on the same two flags as the migration branch below, which is what decides whether
+# postgres-sep runs at all: under either of them sep-secrets bails too, so generating here
+# would persist a credential on /srv that nothing ever reads.
+if is_enabled "$PMM_ENABLE_SEP" && [ -z "$PMM_SEP_POSTGRES_PASSWORD" ] &&
+    ! is_enabled "$PMM_HA_ENABLE" && ! is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
     declare SEP_PG_PASSWORD_FILE="/srv/.sep_postgres_password"
+    declare SEP_PG_MODE
 
     if [ ! -s "$SEP_PG_PASSWORD_FILE" ]; then
         echo "Generating the PostgreSQL password for SEP..."
         SEP_PG_TMP=$(mktemp "$SEP_PG_PASSWORD_FILE.XXXXXX")
-        openssl rand -hex 24 > "$SEP_PG_TMP"
+        # Removed here rather than from an EXIT trap: the only trap this file installs is
+        # the NSS wrapper's, and a second one would replace it rather than chain onto it.
+        if ! openssl rand -hex 24 > "$SEP_PG_TMP"; then
+            rm -f "$SEP_PG_TMP"
+            echo "FATAL: could not generate the PostgreSQL password for SEP." >&2
+            exit 1
+        fi
         mv "$SEP_PG_TMP" "$SEP_PG_PASSWORD_FILE"
         unset SEP_PG_TMP
     fi
 
-    chmod 600 "$SEP_PG_PASSWORD_FILE" 2> /dev/null ||
-        echo "WARNING: could not narrow $SEP_PG_PASSWORD_FILE to mode 600." >&2
+    # chmod needs ownership rather than write permission, and the arbitrary-uid path lets a
+    # later start run as a uid that does not own what an earlier one persisted - so a failed
+    # chmod is not by itself a reason to stop. A mode that still leaves the credential
+    # readable beyond its owner is, because the value is about to be exported: refusing to
+    # start beats publishing a password this uid cannot narrow.
+    if ! chmod 600 "$SEP_PG_PASSWORD_FILE" 2> /dev/null; then
+        SEP_PG_MODE=$(stat -c '%a' "$SEP_PG_PASSWORD_FILE")
+        if [ $((8#$SEP_PG_MODE & 8#077)) -ne 0 ]; then
+            echo "FATAL: $SEP_PG_PASSWORD_FILE is mode $SEP_PG_MODE and could not be narrowed to 600." >&2
+            echo "Please make sure it is owned by uid $(id -u), or narrow it by hand, and try again." >&2
+            exit 1
+        fi
+    fi
 
     PMM_SEP_POSTGRES_PASSWORD=$(< "$SEP_PG_PASSWORD_FILE")
     export PMM_SEP_POSTGRES_PASSWORD
-    unset SEP_PG_PASSWORD_FILE
+    unset SEP_PG_PASSWORD_FILE SEP_PG_MODE
 fi
 
 # The script owns the embedded cluster: it upgrades a PostgreSQL 14 data directory,
@@ -242,8 +265,8 @@ fi
 bash /opt/ansible/roles/sep/files/sep-secrets
 
 # The last consumer has run, so drop the password before exec'ing supervisord: otherwise
-# every child inherits it, and pmm-managed-init logs each variable it is handed - name and
-# value - once PMM_TRACE is set.
+# every supervisord child inherits it, and anything sharing the container's PID namespace
+# can then read it out of /proc/<pid>/environ.
 unset PMM_SEP_POSTGRES_PASSWORD
 
 echo "Generating self-signed certificates for nginx..."
