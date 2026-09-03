@@ -15,13 +15,30 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { SectionField, TaskHistoryStatus } from '@sep/api';
+import type { SectionField, SepComponents } from '@sep/api';
+
+type Schemas = SepComponents['schemas'];
 
 // ── Category browser ─────────────────────────────────────────────────────
 
 export interface AtwSnippetSummary {
-  /** Snippet filename; use with snippet plugin API path helpers. */
+  /** Snippet filename; use with snippets app API path helpers. */
   name: string;
+  title: string;
+  description: string;
+}
+
+// ── Snippet search ───────────────────────────────────────────────────────
+
+/**
+ * The subset of a snippets-app list row the picker consumes.
+ *
+ * The endpoint's `SnippetResponse` carries more (service type, approval state,
+ * digests), but the picker needs only what it labels an option with, plus the
+ * filename — which is the identity the batch-execute payload sends.
+ */
+export interface AtwSnippetSearchRow {
+  filename: string;
   title: string;
   description: string;
 }
@@ -37,33 +54,10 @@ export interface AtwCategoryListing {
 }
 
 // ── Incidents ────────────────────────────────────────────────────────────
-//
-// STUB TYPES (backend-assumed): the incident/batch-execution contracts below
-// are served by the ATW backend (SEP-1591 / SEP-1592) but are not yet in PMM's
-// committed OpenAPI spec, so they are authored here to mirror the backend
-// ``atw__*`` schemas. Replace with generated ``SepComponents['schemas'][...]``
-// references once ``specs/sep.json`` is regenerated.
 
-export interface AtwIncident {
-  case_ref: string | null;
-  /** Format: date-time */
-  created_at: string;
-  created_by: string;
-  /** Format: uuid4 */
-  id: string;
-  name: string;
-  updated_at: string | null;
-}
-
-export interface AtwIncidentWrite {
-  case_ref?: string | null;
-  name?: string;
-}
-
-export interface AtwIncidentUpdate {
-  case_ref?: string | null;
-  name?: string;
-}
+export type AtwIncident = Schemas['atw__AtwIncidentResponse'];
+export type AtwIncidentWrite = Schemas['atw__AtwIncidentWrite'];
+export type AtwIncidentUpdate = Schemas['atw__AtwIncidentUpdate'];
 
 // ── Merged execution schema ──────────────────────────────────────────────
 
@@ -86,88 +80,21 @@ export interface AtwSnippetSchema {
 
 // ── Batch execution ──────────────────────────────────────────────────────
 
-export interface AtwBatchExecuteItemWrite {
-  args: Record<string, unknown>;
-  snippet_filename: string;
-}
-
-export interface AtwBatchExecuteWrite {
-  executor_host: string;
-  items: AtwBatchExecuteItemWrite[];
-  shared_args: Record<string, unknown>;
-  sudo: boolean;
-}
-
-export interface AtwBatchExecuteItemResponse {
-  error?: string | Record<string, unknown>[] | null;
-  snippet_filename: string;
-  task_history_id?: number | null;
-  task_name?: string | null;
-}
-
-export interface AtwBatchExecuteResponse {
-  items: AtwBatchExecuteItemResponse[];
-}
+export type AtwBatchExecuteWrite = Schemas['atw__ATWBatchExecuteWrite'];
+export type AtwBatchExecuteItemWrite = Schemas['atw__ATWBatchExecuteItemWrite'];
+export type AtwBatchExecuteResponse = Schemas['atw__ATWBatchExecuteResponse'];
+export type AtwBatchExecuteItemResponse =
+  Schemas['atw__ATWBatchExecuteItemResponse'];
 
 // ── Incident execution history ───────────────────────────────────────────
 
-export interface AtwIncidentExecution {
-  /**
-   * Whether the arguments were suppressed because they could not be masked
-   * safely — distinguishing that from an execution that genuinely ran with
-   * none.
-   */
-  args_withheld: boolean;
-  /** Format: date-time */
-  created_at: string;
-  finished_at?: string | null;
-  has_logs?: boolean | null;
-  /** Format: uuid4 */
-  id: string;
-  /**
-   * The command line the snippet ran with, credential values replaced by a
-   * fixed-width mask. `null` together with `args_withheld=false` means the
-   * execution recorded no arguments.
-   */
-  masked_args?: string | null;
-  snippet_filename: string;
-  started_at?: string | null;
-  task_history_id: number;
-  task_status?: TaskHistoryStatus | null;
-}
+export type AtwIncidentExecution = Schemas['atw__ATWIncidentExecutionResponse'];
 
 // ── Diagnostics send ─────────────────────────────────────────────────────
-//
-// STUB TYPES (backend-assumed): the send contracts below are served by the ATW
-// backend (SEP-1595) but are not yet in PMM's committed OpenAPI spec, so they
-// mirror the backend ``atw__AtwSendJobWrite`` / ``atw__AtwSendLogResponse`` /
-// ``atw__AtwConfigResponse`` schemas by hand.
 
-export type AtwSendStatus = 'pending' | 'running' | 'success' | 'failed';
-
-export interface AtwSendJobWrite {
-  case_ref: string;
-  execution_ids: string[];
-}
-
-export interface AtwSendLog {
-  case_ref: string;
-  /** Format: date-time */
-  created_at: string;
-  detail: Record<string, never>;
-  finished_at: string | null;
-  /** Format: uuid4 */
-  id: string;
-  /** Format: uuid4 */
-  incident_id: string;
-  requested_by: string;
-  started_at: string | null;
-  status: AtwSendStatus;
-}
-
-export interface AtwConfig {
-  send_disabled_reasons: string[];
-}
+export type AtwSendJobWrite = Schemas['atw__AtwSendJobWrite'];
+export type AtwSendLog = Schemas['atw__AtwSendLogResponse'];
+export type AtwConfig = Schemas['atw__AtwConfigResponse'];
 
 /** One page of a paginated list endpoint, as the API envelope carries it. */
 export interface AtwPage<T> {
@@ -203,10 +130,10 @@ export interface AtwSendLogStep {
 /**
  * The evidence a send attempt records.
  *
- * The backend column is free-form JSON, so the response types it as an opaque
- * record; this is the shape the orchestrator actually writes. Every field is
- * optional because a row accumulates them as the attempt progresses — a pending
- * row carries only `executions`.
+ * The backend column is free-form JSON, so the generated client types it as an
+ * opaque record; this is the shape the orchestrator actually writes. Every field
+ * is optional because a row accumulates them as the attempt progresses — a
+ * pending row carries only `executions`.
  */
 export interface AtwSendLogDetail {
   executions?: AtwSendLogExecution[];

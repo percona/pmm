@@ -20,6 +20,9 @@ vi.mock('./components/advanced/AdvancedSettingsForm', () => ({
 vi.mock('./components/ssh-key/SshKeyForm', () => ({
   SshKeyForm: () => null,
 }));
+vi.mock('./components/servicenow', () => ({
+  ServiceNowConnectionTab: () => <div data-testid="servicenow-tab" />,
+}));
 
 const getSettingsMock = vi.mocked(settingsApi.getSettings);
 const getVersionMock = vi.mocked(versionApi.getVersion);
@@ -101,6 +104,17 @@ describe('Settings', () => {
           'true'
         )
       );
+    });
+
+    it('activates the ServiceNow tab for /settings/servicenow-connection', async () => {
+      renderWithRoute('/settings/servicenow-connection');
+      await waitFor(() =>
+        expect(screen.getByTestId('settings-tab-servicenow')).toHaveAttribute(
+          'aria-selected',
+          'true'
+        )
+      );
+      expect(screen.getByTestId('servicenow-tab')).toBeInTheDocument();
     });
 
     it('defaults to metrics tab when no tab is in the URL', async () => {

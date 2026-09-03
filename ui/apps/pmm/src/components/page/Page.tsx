@@ -10,7 +10,7 @@ import {
   Link,
   Typography,
 } from '@mui/material';
-import { PageContainer } from '@percona/percona-ui';
+import { PageContainer } from '@percona/peak-ui';
 import { useUser } from 'contexts/user';
 import { Messages } from './Page.messages';
 import { PMM_HOME_URL } from 'lib/constants';

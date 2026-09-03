@@ -788,6 +788,31 @@ export interface paths {
     patch: operations['atw_atw_update_incident_api_apps_atw_incidents__incident_id__patch'];
     trace?: never;
   };
+  '/api/apps/atw/incidents/{incident_id}/close/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Atw Close Incident
+     * @description Close a diagnostic incident, stamping the current UTC time.
+     *
+     *     :param session: The database session.
+     *     :param incident: The open incident resolved from the ``incident_id`` path parameter.
+     *     :return: The closed incident.
+     *     :raises HTTPConflictException: If the incident is already closed.
+     */
+    post: operations['atw_atw_close_incident_api_apps_atw_incidents__incident_id__close__post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/apps/atw/incidents/{incident_id}/executions/': {
     parameters: {
       query?: never;
@@ -839,6 +864,31 @@ export interface paths {
      *         failing the whole request before any item is dispatched.
      */
     post: operations['atw_atw_batch_execute_api_apps_atw_incidents__incident_id__executions__post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/apps/atw/incidents/{incident_id}/reopen/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Atw Reopen Incident
+     * @description Reopen a closed diagnostic incident, clearing its close timestamp.
+     *
+     *     :param session: The database session.
+     *     :param incident: The closed incident resolved from the ``incident_id`` path parameter.
+     *     :return: The reopened incident.
+     *     :raises HTTPConflictException: If the incident is already open.
+     */
+    post: operations['atw_atw_reopen_incident_api_apps_atw_incidents__incident_id__reopen__post'];
     delete?: never;
     options?: never;
     head?: never;
@@ -1740,6 +1790,44 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/apps/mysql_backups/backup-sources/choices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Backup Source Choices
+     * @description Return ``Choice`` options for a MySQL service's restore ``backup_source``.
+     *
+     *     The ``service_id`` query parameter (cascade parent name on the restore form)
+     *     selects which catalog rows to map. Options are newest-first and capped at
+     *     :data:`~app.core.pagination.DEFAULT_PAGINATION_LIMIT` (older runs remain
+     *     reachable via free-text). An omitted, empty, sentinel, or unknown parent
+     *     yields ``[]`` rather than a ``404``, so the RemoteChoices free-text escape
+     *     hatch stays usable. Other Inventory API failures still propagate.
+     *
+     *     Free-typed (non-numeric) parents query the catalog by that name without an
+     *     Inventory type check — matching ``ServiceRef(allow_custom=True)`` on the
+     *     restore form, where the destination may be a name that has no MySQL
+     *     inventory row. Numeric parents still require a resolvable MySQL service, and
+     *     are keyed on its inventory id so a rename does not empty the selector.
+     *
+     *     :param session: The database session the catalog is queried on.
+     *     :param service_key: The cascade parent resolved to the catalog query keys, or
+     *         ``None`` when the parent is unusable.
+     *     :return: Choice-compatible options for the restore backup-source selector.
+     */
+    get: operations['mysql_backups_list_backup_source_choices_api_apps_mysql_backups_backup_sources_choices_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/apps/mysql_backups/restore/': {
     parameters: {
       query?: never;
@@ -1858,6 +1946,10 @@ export interface paths {
      *     runs yields an empty page, so a caller building a restore selector is never
      *     blocked by an empty catalog but is still told when the service itself is
      *     unknown.
+     *
+     *     The query is keyed on the resolved service's inventory id, so a rename between
+     *     recording a run and asking for it cannot detach the rows; runs recorded before
+     *     the id was stored are still matched by the name they were written with.
      *
      *     :param service: The inventory service resolved from the ``service_id`` path
      *         parameter.
@@ -2110,7 +2202,7 @@ export interface paths {
     };
     /**
      * List
-     * @description List scripts as a server-filtered, sorted, paginated projection.
+     * @description List scripts as a filtered, sorted, paginated projection.
      */
     get: operations['snippets_snippets_api_list_api_apps_snippets__get'];
     put?: never;
@@ -2765,7 +2857,7 @@ export interface paths {
      *     that has no override row succeeds with 204. Attempting to delete a field
      *     the code declares NOT_OVERRIDABLE responds 409, since it cannot have an
      *     override row in the first place and the operator's intent is
-     *     unsatisfiable. A field only ``SETTINGS_OVERRIDE_ALLOWED_KEYS`` withheld
+     *     unsatisfiable. A field only ``SETTINGS_OVERRIDE.ALLOWED_KEYS`` withheld
      *     may still carry a row written before the restriction applied, so that
      *     row is deleted normally and only the no-row case answers 409.
      *
@@ -3723,6 +3815,19 @@ export interface components {
       /** Total */
       total: number;
     };
+    /** PaginatedResponse[ArbitraryMapping] */
+    PaginatedResponse_ArbitraryMapping_: {
+      /** Items */
+      items: {
+        [key: string]: unknown;
+      }[];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
     /** PaginatedResponse[ServiceResponse] */
     PaginatedResponse_ServiceResponse_: {
       /** Items */
@@ -3749,17 +3854,6 @@ export interface components {
     PaginatedResponse_TaskHistoryResponse_: {
       /** Items */
       items: components['schemas']['TaskHistoryResponse'][];
-      /** Limit */
-      limit: number;
-      /** Offset */
-      offset: number;
-      /** Total */
-      total: number;
-    };
-    /** PaginatedResponse[dict[str, Any]] */
-    PaginatedResponse_dict_str__Any__: {
-      /** Items */
-      items: Record<string, never>[];
       /** Limit */
       limit: number;
       /** Offset */
@@ -3873,7 +3967,6 @@ export interface components {
      *     :param replication_set: The replication set in which the service is running, if set.
      *     :type replication_set: str | None
      *     :param custom_labels: Custom labels associated with the service, if set.
-     *     :type custom_labels: dict[str, Any] | None
      *     :param node_id: The unique identifier of the node on which the service is running.
      *     :type node_id: int
      *     :param schemas: A list of schemas associated with the service.
@@ -3890,7 +3983,9 @@ export interface components {
        */
       created_at?: string;
       /** Custom Labels */
-      custom_labels?: Record<string, never> | null;
+      custom_labels?: {
+        [key: string]: unknown;
+      } | null;
       /** Environment */
       environment?: string | null;
       /** External Id */
@@ -3945,9 +4040,8 @@ export interface components {
      * @description Enumerate settings classes that may have HOT override rows.
      *
      *     The wired classes are ``SEPSettings``, ``TasksSettings``,
-     *     ``SnippetsSettings``, ``MessagesSettings``, the global ``Settings``,
-     *     ``AlertSettings``, ``AlertsSettings``, ``AnonymizerSettings`` and
-     *     ``InventorySettings``.
+     *     ``SnippetsSettings``, the global ``Settings``, ``AlertSettings``,
+     *     ``AlertsSettings``, ``AnonymizerSettings`` and ``InventorySettings``.
      *
      *     To wire a new settings class:
      *
@@ -3967,7 +4061,6 @@ export interface components {
       | 'SEPSettings'
       | 'TasksSettings'
       | 'SnippetsSettings'
-      | 'MessagesSettings'
       | 'Settings'
       | 'AlertSettings'
       | 'AnonymizerSettings'
@@ -4234,35 +4327,6 @@ export interface components {
       service_types: string[];
     };
     /**
-     * SnippetSortDirection
-     * @description Enumerate the sort direction.
-     *
-     *     :cvar ASC: Ascending order.
-     *     :cvar DESC: Descending order.
-     * @enum {string}
-     */
-    SnippetSortDirection: 'asc' | 'desc';
-    /**
-     * SnippetSortKey
-     * @description Enumerate the allowlisted public sort keys.
-     *
-     *     Membership is the type: an out-of-allowlist key fails to coerce at the
-     *     request boundary, so no raw client-supplied column name can reach a query.
-     *
-     *     :cvar CREATED_AT: Sort by the ``created_at`` column.
-     *     :cvar FILENAME: Sort by the ``filename`` column.
-     *     :cvar APPROVED_AT: Sort by the ``approved_at`` column.
-     *     :cvar TITLE: Sort by the ``meta.title`` JSON value.
-     *     :cvar SERVICE_TYPE: Sort by the ``meta.service_type`` JSON value.
-     * @enum {string}
-     */
-    SnippetSortKey:
-      | 'created_at'
-      | 'filename'
-      | 'approved_at'
-      | 'title'
-      | 'service_type';
-    /**
      * SnippetsCapabilitiesResponse
      * @description Represent per-deployment capability flags for the Snippets plugin.
      *
@@ -4316,13 +4380,11 @@ export interface components {
      *     :param target: The target system or environment.
      *     :type target: str
      *     :param meta: Additional metadata for the task. Defaults to an empty dictionary.
-     *     :type meta: dict | None
      *     :param payload: Optional payload or file path for parameterizing the task.
      *         Defaults to None.
      *     :type payload: str | None
      *     :param tracking: Tracking information for task execution. Defaults to a dictionary
      *         with keys for allocation and evaluation IDs.
-     *     :type tracking: dict | None
      */
     TaskExecutionRequest: {
       /** Eta */
@@ -4331,7 +4393,9 @@ export interface components {
        * Meta
        * @default {}
        */
-      meta: Record<string, never> | null;
+      meta: {
+        [key: string]: unknown;
+      } | null;
       /** Payload */
       payload?: string | null;
       /** Target */
@@ -4342,7 +4406,9 @@ export interface components {
        * Tracking
        * @default {}
        */
-      tracking: Record<string, never> | null;
+      tracking: {
+        [key: string]: unknown;
+      } | null;
     } & {
       [key: string]: unknown;
     };
@@ -4507,7 +4573,9 @@ export interface components {
       /** Created By */
       created_by: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Deleted At */
       deleted_at: string | null;
       /** Id */
@@ -4718,7 +4786,9 @@ export interface components {
       /** Id */
       id: number;
       /** Metadata */
-      metadata: Record<string, never>;
+      metadata: {
+        [key: string]: unknown;
+      };
     };
     /**
      * IndexBackupSummary
@@ -4918,7 +4988,9 @@ export interface components {
      */
     alerts__RestoreResponse: {
       /** Details */
-      details: Record<string, never>;
+      details: {
+        [key: string]: unknown;
+      };
       /**
        * Status
        * @constant
@@ -5094,7 +5166,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Id */
       id?: number | null;
       /** Last Executed At */
@@ -5379,7 +5453,9 @@ export interface components {
      *     :param sudo: The sudo choice applied to every item; snippets whose sudo
      *         option is not optional ignore it.
      *     :param shared_args: Arguments offered to every item, filtered per snippet to
-     *         the parameters that snippet declares.
+     *         the parameters that snippet declares. ``NON_SHAREABLE_FIELD_NAMES`` (e.g.
+     *         Extra Args) are never applied from ``shared_args``, even for a snippet
+     *         that declares a field with that name.
      *     :param items: The snippets to execute, at least one and at most
      *         ``MAX_BATCH_SNIPPETS``.
      */
@@ -5499,7 +5575,9 @@ export interface components {
      *     ``AppSchema`` section carries only a display title.
      *
      *     :param shared: The batch-level execution fields followed by every parameter
-     *         the selection declares identically.
+     *         the selection declares identically, excluding ``NON_SHAREABLE_FIELD_NAMES``
+     *         (e.g. Extra Args), which stay per-snippet even when every item declares
+     *         them.
      *     :param per_snippet: The remaining per-snippet fields, in request order.
      */
     atw__ATWMergedSchemaResponse: {
@@ -5610,10 +5688,13 @@ export interface components {
      *     :param created_by: Username of the support engineer who created the incident.
      *     :param created_at: When the incident was created.
      *     :param updated_at: When the incident was last updated, if ever.
+     *     :param closed_at: When the incident was closed, if ever; ``None`` means open.
      */
     atw__AtwIncidentResponse: {
       /** Case Ref */
       case_ref: string | null;
+      /** Closed At */
+      closed_at: string | null;
       /**
        * Created At
        * Format: date-time
@@ -5700,7 +5781,9 @@ export interface components {
        */
       created_at: string;
       /** Detail */
-      detail: Record<string, never>;
+      detail: {
+        [key: string]: unknown;
+      };
       /** Finished At */
       finished_at: string | null;
       /**
@@ -5811,7 +5894,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Derived Tasks */
       derived_tasks?: components['schemas']['backup_mongo__BackupDerivedTaskSummary'][];
       /** Hostname */
@@ -5859,7 +5944,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Hostname */
       hostname?: string | null;
       /** Id */
@@ -6076,7 +6163,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Derived Tasks */
       derived_tasks?: components['schemas']['backup_mongo__RestoreDerivedTaskSummary'][];
       /** Hostname */
@@ -6131,7 +6220,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Hostname */
       hostname?: string | null;
       /** Id */
@@ -6310,7 +6401,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Host */
       host?: string | null;
       /** Hostname */
@@ -6358,7 +6451,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Hostname */
       hostname?: string | null;
       /** Id */
@@ -6576,7 +6671,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Id */
       id?: number | null;
       /** Last Executed At */
@@ -6614,7 +6711,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Id */
       id?: number | null;
       /** Last Executed At */
@@ -6790,7 +6889,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Host */
       host?: string | null;
       /** Hostname */
@@ -6879,7 +6980,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Id */
       id?: number | null;
       /** Last Executed At */
@@ -7276,7 +7379,6 @@ export interface components {
      *         for plugin-specific identity fields (e.g. ``{"backup_type":
      *         "pbm_logical"}``) that the framework should not name itself.
      *         Defaults to ``None``.
-     *     :type data_overrides: dict[str, Any] | None
      *     :param parent_link: When true, set ``data["parent"]`` on the derived
      *         payload to the parent's ``name``. Defaults to ``True``.
      *     :type parent_link: bool
@@ -7287,7 +7389,9 @@ export interface components {
         [key: string]: string;
       } | null;
       /** Data Overrides */
-      data_overrides?: Record<string, never> | null;
+      data_overrides?: {
+        [key: string]: unknown;
+      } | null;
       /** Name Suffix */
       name_suffix: string;
       /**
@@ -7956,7 +8060,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Hostname */
       hostname?: string | null;
       /** Id */
@@ -8098,8 +8204,9 @@ export interface components {
      *     ``Choice``-compatible options (``value`` / ``label`` / optional ``disabled``
      *     / ``disabled_reason``). When ``depends_on`` is set, the fetch is
      *     parameterised by the dependency's value (appended as a query parameter named
-     *     after ``depends_on``) and the field stays disabled/empty until the
-     *     dependency has a value. When ``allow_custom`` is set, the renderer also
+     *     after ``depends_on``) and the field offers no options until the dependency
+     *     has a value, staying disabled while it waits unless ``allow_custom`` keeps
+     *     free-text entry open. When ``allow_custom`` is set, the renderer also
      *     accepts a free-typed value. The endpoint response contract is a JSON array
      *     of objects shaped like :class:`Choice`: ``{"value": str, "label": str,
      *     "disabled"?: bool, "disabled_reason"?: str}``.
@@ -8656,10 +8763,16 @@ export interface components {
      *     XtraBackup, Binlog, Encryption, Upload), with the DSL markers driving the
      *     derived schema. Field declaration order is load-bearing: the derived section
      *     order follows each section's first field, and the within-section order follows
-     *     declaration order, so the order here reproduces the hand-written schema
-     *     byte-for-byte. The conditional gating that the legacy ``schema.py`` declared
+     *     declaration order, so the derived section and field order matches the
+     *     hand-written schema. The conditional gating that the legacy ``schema.py`` declared
      *     (per-mode ``forbidden`` gates, the upload-provider ``Contains`` gates, the
-     *     encryption requires/forbidden pair, and the per-mode bool ``FailRule``s in
+     *     encryption gates — ``encrypt`` (in-place) and ``post_run_encrypt`` are
+     *     independent encryption modes that both produce an encrypted backup;
+     *     ``encrypt_using_tmpdir`` requires ``encrypt`` and is forbidden alongside
+     *     ``post_run_encrypt`` so post-run takes precedence (matching the backend at
+     *     ``mydumper_payload``), and ``encryption_recipient`` is required iff either mode
+     *     is on — and the per-mode bool
+     *     ``FailRule``s in
      *     :attr:`__form_rules__`) now lives on the model; ``AppFormModel`` extracts it
      *     into the conditional-rule plan at class definition, so no
      *     ``@apply_conditional_rules`` decorator is needed. The config sub-models
@@ -8881,6 +8994,8 @@ export interface components {
      *
      *     :param id: The record's primary key.
      *     :param service_name: The inventory service the backup was taken from.
+     *     :param service_id: The inventory id of that service, or ``None`` on a record
+     *         written before the id was stamped.
      *     :param hostname: The backup target host.
      *     :param backup_type: The backup tool, ``"M"`` (mydumper) or ``"X"`` (xtrabackup).
      *         Narrower than :class:`BackupType`: binlog runs are never catalogued, so
@@ -8905,6 +9020,8 @@ export interface components {
       id: number;
       /** Location */
       location: string | null;
+      /** Service Id */
+      service_id: number | null;
       /** Service Name */
       service_name: string | null;
       /** Size Bytes */
@@ -8940,7 +9057,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Hostname */
       hostname?: string | null;
       /** Id */
@@ -9190,7 +9309,9 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** Data */
-      data: Record<string, never>;
+      data: {
+        [key: string]: unknown;
+      };
       /** Host */
       host?: string | null;
       /** Hostname */
@@ -9476,7 +9597,9 @@ export interface components {
        */
       name: string;
       /** Period */
-      period?: Record<string, never>;
+      period?: {
+        [key: string]: unknown;
+      };
       /**
        * Size
        * @default 0
@@ -9758,12 +9881,9 @@ export interface components {
        */
       pdf_ready: boolean;
       /** Result */
-      result?:
-        | {
-            [key: string]: unknown;
-          }
-        | Record<string, never>
-        | null;
+      result?: {
+        [key: string]: unknown;
+      } | null;
       /** Status */
       status: string;
     };
@@ -9950,7 +10070,9 @@ export interface components {
      */
     tasks__TaskDetailResponse: {
       /** Execution History */
-      execution_history?: Record<string, never>;
+      execution_history?: {
+        [key: string]: unknown;
+      };
       /** Executor Hosts */
       executor_hosts?: components['schemas']['tasks__ExecutorHostMetadata'][];
       /** Periodic Summary */
@@ -10020,7 +10142,9 @@ export interface components {
      */
     topology__DualPrimaryEdge: {
       /** Data */
-      data?: Record<string, never>;
+      data?: {
+        [key: string]: unknown;
+      };
       /** Id */
       id: string;
       /** Source */
@@ -11376,6 +11500,37 @@ export interface operations {
       };
     };
   };
+  atw_atw_close_incident_api_apps_atw_incidents__incident_id__close__post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        incident_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__AtwIncidentResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   atw_atw_list_incident_executions_api_apps_atw_incidents__incident_id__executions__get: {
     parameters: {
       query?: {
@@ -11432,6 +11587,37 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['atw__ATWBatchExecuteResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  atw_atw_reopen_incident_api_apps_atw_incidents__incident_id__reopen__post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        incident_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__AtwIncidentResponse'];
         };
       };
       /** @description Validation Error */
@@ -12457,7 +12643,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PaginatedResponse_dict_str__Any__'];
+          'application/json': components['schemas']['PaginatedResponse_ArbitraryMapping_'];
         };
       };
       /** @description Validation Error */
@@ -13010,6 +13196,38 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['framework__MysqlBackupsCreateResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  mysql_backups_list_backup_source_choices_api_apps_mysql_backups_backup_sources_choices_get: {
+    parameters: {
+      query?: {
+        /** @description Cascade parent from the restore form. Inventory numeric ids are resolved to a MySQL service, keying the catalog query on its id; custom names query the catalog by name directly. Omitted, blank, sentinel, or unknown values yield an empty list so free-text entry is never blocked by a failed options fetch. */
+        service_id?: string | null;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['framework__Choice'][];
         };
       };
       /** @description Validation Error */
@@ -13644,18 +13862,26 @@ export interface operations {
       query?: {
         offset?: number;
         limit?: number;
-        /** @description Case-insensitive search over filename, title, description. */
-        search?: string | null;
-        /** @description Sort key; one of the allowlisted public sort keys. */
-        sort?: components['schemas']['SnippetSortKey'];
-        /** @description Sort direction. */
-        order?: components['schemas']['SnippetSortDirection'];
         /** @description Approval-status filter. */
         approval?: components['schemas']['SnippetApprovalFilter'];
         /** @description Service-type equality filter, or omitted for no filter. */
         service_type?: string | null;
         /** @description When true, keep only snippets with no (absent or blank) service type. A separate flag so a real service type can never collide with a reserved sentinel. Takes precedence over 'service_type'. */
         uncategorized?: boolean;
+        /** @description Sort key; prefix with '-' for descending order. */
+        sort?:
+          | 'approved_at'
+          | '-approved_at'
+          | 'created_at'
+          | '-created_at'
+          | 'filename'
+          | '-filename'
+          | 'service_type'
+          | '-service_type'
+          | 'title'
+          | '-title';
+        /** @description Case-insensitive search across the searchable columns. */
+        search?: string | null;
       };
       header?: never;
       path?: never;
@@ -13944,7 +14170,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': Record<string, never>;
+          'application/json': {
+            [key: string]: unknown;
+          };
         };
       };
       /** @description Validation Error */
@@ -14450,7 +14678,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': Record<string, never>[];
+          'application/json': {
+            [key: string]: unknown;
+          }[];
         };
       };
       /** @description Upstream Tasks API failure. */
@@ -14477,7 +14707,9 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': Record<string, never>;
+        'application/json': {
+          [key: string]: unknown;
+        };
       };
     };
     responses: {
@@ -14487,7 +14719,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': Record<string, never>;
+          'application/json': {
+            [key: string]: unknown;
+          };
         };
       };
       /** @description Validation Error */
@@ -14563,7 +14797,9 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': Record<string, never>;
+        'application/json': {
+          [key: string]: unknown;
+        };
       };
     };
     responses: {
@@ -14573,7 +14809,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': Record<string, never>;
+          'application/json': {
+            [key: string]: unknown;
+          };
         };
       };
       /** @description Validation Error */
@@ -14760,7 +14998,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': Record<string, never>;
+          'application/json': {
+            [key: string]: unknown;
+          };
         };
       };
       /** @description Validation Error */
@@ -14802,7 +15042,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': Record<string, never>;
+          'application/json': {
+            [key: string]: unknown;
+          };
         };
       };
       /** @description Validation Error */

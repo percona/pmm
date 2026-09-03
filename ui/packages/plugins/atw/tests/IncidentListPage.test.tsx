@@ -22,8 +22,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { IncidentListPage } from '../src/IncidentListPage';
+import type { AtwIncident } from '../src/types';
 
-vi.mock('@sep/api', () => ({
+vi.mock('@sep/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@sep/api')>()),
   apiClient: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
 
@@ -35,13 +37,14 @@ const mockedApi = apiClient as unknown as {
   delete: ReturnType<typeof vi.fn>;
 };
 
-const incident = {
+const incident: AtwIncident = {
   id: '11111111-1111-4111-8111-111111111111',
   name: 'DB slowness',
   case_ref: 'CS-42',
   created_by: 'engineer',
   created_at: '2026-07-22T10:00:00Z',
   updated_at: null,
+  closed_at: null,
 };
 
 function paginated<T>(items: T[]) {
@@ -155,5 +158,129 @@ describe('IncidentListPage', () => {
     expect(
       screen.queryByRole('button', { name: /Go to next page/i })
     ).toBeNull();
+  });
+
+  it('closes an open incident from the row action', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+    mockedApi.post.mockResolvedValue({
+      data: { ...incident, closed_at: '2026-07-30T12:00:00Z' },
+    });
+    const user = userEvent.setup();
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
+    await user.click(
+      screen.getByRole('button', { name: /Close DB slowness/i })
+    );
+
+    await waitFor(() => {
+      expect(mockedApi.post).toHaveBeenCalledWith(
+        `/apps/atw/incidents/${incident.id}/close/`
+      );
+    });
+  });
+
+  it('reopens a closed incident from the row action', async () => {
+    const closedIncident = { ...incident, closed_at: '2026-07-30T12:00:00Z' };
+    mockedApi.get.mockResolvedValue(paginated([closedIncident]));
+    mockedApi.post.mockResolvedValue({ data: incident });
+    const user = userEvent.setup();
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => expect(screen.getByText('Closed')).toBeTruthy());
+    await user.click(
+      screen.getByRole('button', { name: /Reopen DB slowness/i })
+    );
+
+    await waitFor(() => {
+      expect(mockedApi.post).toHaveBeenCalledWith(
+        `/apps/atw/incidents/${incident.id}/reopen/`
+      );
+    });
+  });
+
+  it('shows an error when closing an incident fails', async () => {
+    mockedApi.get.mockResolvedValue(paginated([incident]));
+    mockedApi.post.mockRejectedValue(new Error('Incident is already closed.'));
+    const user = userEvent.setup();
+
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
+    await user.click(
+      screen.getByRole('button', { name: /Close DB slowness/i })
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Incident is already closed.')).toBeTruthy();
+    });
+  });
+
+  it('re-enables the first row close button after overlapping closes settle', async () => {
+    const other = {
+      ...incident,
+      id: '22222222-2222-4222-8222-222222222222',
+      name: 'Lock waits',
+    };
+    mockedApi.get.mockResolvedValue(paginated([incident, other]));
+
+    let resolveFirst!: (value: { data: typeof incident }) => void;
+    let resolveSecond!: (value: { data: typeof other }) => void;
+    const firstClose = new Promise<{ data: typeof incident }>((resolve) => {
+      resolveFirst = resolve;
+    });
+    const secondClose = new Promise<{ data: typeof other }>((resolve) => {
+      resolveSecond = resolve;
+    });
+    mockedApi.post.mockImplementation((url: string) => {
+      if (url.endsWith(`/${incident.id}/close/`)) {
+        return firstClose;
+      }
+      if (url.endsWith(`/${other.id}/close/`)) {
+        return secondClose;
+      }
+      return Promise.reject(new Error(`Unexpected POST ${url}`));
+    });
+
+    const user = userEvent.setup();
+    renderPage(<IncidentListPage />);
+
+    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
+    const firstCloseButton = screen.getByRole('button', {
+      name: /Close DB slowness/i,
+    });
+    const secondCloseButton = screen.getByRole('button', {
+      name: /Close Lock waits/i,
+    });
+
+    await user.click(firstCloseButton);
+    await waitFor(() => expect(firstCloseButton).toBeDisabled());
+
+    await user.click(secondCloseButton);
+    await waitFor(() => {
+      expect(firstCloseButton).toBeDisabled();
+      expect(secondCloseButton).toBeDisabled();
+    });
+
+    resolveSecond({ data: { ...other, closed_at: '2026-07-30T12:00:00Z' } });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /Close Lock waits/i })
+      ).not.toBeDisabled();
+    });
+    expect(
+      screen.getByRole('button', { name: /Close DB slowness/i })
+    ).toBeDisabled();
+
+    resolveFirst({ data: { ...incident, closed_at: '2026-07-30T12:00:00Z' } });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /Close DB slowness/i })
+      ).not.toBeDisabled();
+    });
   });
 });

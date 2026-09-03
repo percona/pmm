@@ -40,8 +40,8 @@ export interface SchemaSelectShellProps {
   required?: boolean;
   /** rhf field error; presence flips `aria-invalid` and the outline color. */
   error?: FieldError;
-  /** Helper text shown when there is no error message. */
-  description?: ReactNode;
+  /** Helper text and tooltip body for the label help icon; shown as helper text when there is no error. */
+  description?: string;
   /** Render a multi-select (value is an array). */
   multiple?: boolean;
   /** Owns the empty-placeholder vs populated branch — differs per field. */
@@ -69,13 +69,10 @@ export function SchemaSelectShell({
   renderValue,
   children,
 }: SchemaSelectShellProps) {
-  const helpDescription =
-    typeof description === 'string' ? description : undefined;
-
   return (
     <FormControl fullWidth size="small" error={!!error}>
       <InputLabel id={labelId} shrink required={required}>
-        <FieldLabelWithHelp label={label} description={helpDescription} />
+        <FieldLabelWithHelp label={label} description={description} />
       </InputLabel>
       <Select
         {...field}

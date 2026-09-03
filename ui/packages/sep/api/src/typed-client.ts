@@ -61,16 +61,6 @@ const isLoginRequest = (url: string) => url.includes('/oauth/login');
 const isReplayEligible = (url: string) =>
   !isTokenMintRequest(url) && !isLoginRequest(url);
 
-/**
- * A 200 HTML response (e.g. a follow of a login redirect) means the session
- * is gone. The browser can't observe the 303, so content-type is the only
- * signal. Synthesise a 401 so the normal error path runs.
- */
-function isHtmlLoginResponse(response: Response): boolean {
-  const ct = response.headers.get('content-type') ?? '';
-  return response.ok && ct.includes('text/html');
-}
-
 // `fetch` consumes a Request's body stream, so the instance handed to
 // `onResponse` can no longer be re-sent. Stash an untouched clone taken before
 // dispatch, keyed weakly so requests that never come back are not retained.
@@ -132,14 +122,6 @@ const authMiddleware: Middleware = {
       );
     }
 
-    if (isHtmlLoginResponse(response) && !isRefreshRequest(request.url)) {
-      emitUnauthorized();
-      return new Response(null, {
-        status: 401,
-        statusText: 'Session expired (redirected to login page)',
-      });
-    }
-
     if (response.status === 401 && isReplayEligible(request.url)) {
       const replayed = await replayWithFreshToken(request);
       if (replayed && replayed.status !== 401) {
@@ -150,13 +132,9 @@ const authMiddleware: Middleware = {
       return replayed ?? response;
     }
 
-    if (
-      (response.status === 401 || response.status === 303) &&
-      !isRefreshRequest(request.url)
-    ) {
+    if (response.status === 401 && !isRefreshRequest(request.url)) {
       // A 401 left here is a minting endpoint rejecting the ambient session —
-      // "not signed in", which the auth layer must hear about. A 303 is the
-      // login redirect on any endpoint.
+      // "not signed in", which the auth layer must hear about.
       emitUnauthorized();
     }
 
