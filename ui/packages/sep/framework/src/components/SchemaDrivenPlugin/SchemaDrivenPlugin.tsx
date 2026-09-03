@@ -194,12 +194,12 @@ function PluginEditPage({
           navigate('..', { relative: 'path' });
         },
         onError: (error: unknown) => {
-          const message =
-            error instanceof Error ? error.message : 'Failed to update';
-          // Transient toast is unchanged; 422s additionally map to a persistent
-          // banner plus inline per-field errors.
-          enqueueSnackbar(message, { variant: 'error' });
-          setSubmitErrorState(mapSubmitError(error, sections, message));
+          // Reported by the form's own persistent banner (plus inline per-field
+          // errors for a 422) and by nothing else: one signal per failure, and
+          // one that does not depend on a host-provided snackbar.
+          setSubmitErrorState(
+            mapSubmitError(error, sections, 'Failed to update')
+          );
         },
       }
     );

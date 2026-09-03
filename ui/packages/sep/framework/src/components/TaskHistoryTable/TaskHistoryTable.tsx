@@ -31,6 +31,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { MaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
 import { useAuth } from '@sep/api';
+import { ActionErrorAlert } from '../ActionErrorAlert';
 import {
   isRunningStatus,
   useStopTaskHistory,
@@ -44,6 +45,8 @@ import { StatusBadge } from './StatusBadge';
 import { TaskFilesDialog } from './TaskFilesDialog';
 import type {
   TaskHistoryEntry,
+  TaskHistoryStopContract,
+  TaskHistoryTableBaseProps,
   TaskHistoryTableProps,
 } from './TaskHistoryTable.types';
 
@@ -164,6 +167,10 @@ interface ViewProps {
   isStopping: boolean;
   /** True when the row's stop action will resolve to a real handler (callback or internal mutation). */
   canStop: (entry: TaskHistoryEntry) => boolean;
+  /** Failure of the last action fired from the table, or `null`/`undefined`. */
+  actionError: unknown;
+  /** Dismiss handler for `actionError`, when the owner supports clearing it. */
+  onDismissActionError?: () => void;
 }
 
 function TaskHistoryTableView({
@@ -177,6 +184,8 @@ function TaskHistoryTableView({
   onConfirmStop,
   isStopping,
   canStop,
+  actionError,
+  onDismissActionError,
 }: ViewProps) {
   const { canMutate } = useAuth();
   const [pendingStopEntry, setPendingStopEntry] =
@@ -335,6 +344,14 @@ function TaskHistoryTableView({
 
   return (
     <>
+      {/* The stop dialog closes on confirm, so a refusal that arrives after it
+          is gone has to land here, above the rows the user is left looking at. */}
+      <ActionErrorAlert
+        error={actionError}
+        onClose={onDismissActionError}
+        sx={{ mb: 2 }}
+        testId="task-history-action-error"
+      />
       <MaterialReactTable
         columns={columns}
         data={rows}
@@ -405,7 +422,10 @@ function TaskHistoryTableView({
   );
 }
 
-type ConnectedProps = Omit<TaskHistoryTableProps, 'data' | 'isLoading'>;
+// Omit from the base rather than the props union: `Omit` is not distributive,
+// so applying it to the union would collapse the stop contract's two branches.
+type ConnectedProps = Omit<TaskHistoryTableBaseProps, 'data' | 'isLoading'> &
+  TaskHistoryStopContract;
 
 function ConnectedTaskHistoryTable({
   taskName,
@@ -418,6 +438,8 @@ function ConnectedTaskHistoryTable({
   onDownloadFiles,
   onChainItemClick,
   hideTaskNameColumn,
+  actionError,
+  onDismissActionError,
 }: ConnectedProps) {
   const allHistory = useTaskHistory({
     status: statusFilter,
@@ -467,16 +489,24 @@ function ConnectedTaskHistoryTable({
       onConfirmStop={onConfirmStop}
       isStopping={stopMutation.isPending}
       canStop={canStop}
+      // With no `onStopTask` the stop is this component's own mutation, so it
+      // reports itself; otherwise the caller owns the mutation and threads its
+      // error back in.
+      actionError={onStopTask ? actionError : stopMutation.error}
+      onDismissActionError={
+        onStopTask ? onDismissActionError : stopMutation.reset
+      }
     />
   );
 }
 
-interface PresentationalProps extends Omit<
-  TaskHistoryTableProps,
-  'taskName' | 'statusFilter' | 'pollingIntervalMs' | 'disablePolling'
-> {
-  data: TaskHistoryEntry[];
-}
+type PresentationalProps = Omit<
+  TaskHistoryTableBaseProps,
+  'taskName' | 'statusFilter' | 'pollingIntervalMs' | 'disablePolling' | 'data'
+> &
+  TaskHistoryStopContract & {
+    data: TaskHistoryEntry[];
+  };
 
 function PresentationalTaskHistoryTable({
   data,
@@ -488,6 +518,8 @@ function PresentationalTaskHistoryTable({
   onDownloadFiles,
   onChainItemClick,
   hideTaskNameColumn,
+  actionError,
+  onDismissActionError,
 }: PresentationalProps) {
   const onConfirmStop = useCallback(
     (entry: TaskHistoryEntry) => onStopTask?.(entry),
@@ -508,6 +540,8 @@ function PresentationalTaskHistoryTable({
       onConfirmStop={onConfirmStop}
       isStopping={!!isStopping}
       canStop={canStop}
+      actionError={actionError}
+      onDismissActionError={onDismissActionError}
     />
   );
 }

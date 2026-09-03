@@ -172,7 +172,9 @@ export function IncidentListPage() {
 
       {!isLoading && !error && (!incidents || incidents.length === 0) && (
         <Alert severity="info">
-          No incidents yet. Create one to get started.
+          {canMutate
+            ? 'No incidents yet. Create one to get started.'
+            : 'No incidents yet.'}
         </Alert>
       )}
 

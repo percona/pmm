@@ -144,16 +144,6 @@ export default defineConfig({
         target,
         secure: false,
         changeOrigin: true,
-        // changeOrigin only rewrites Host/Referer, not Origin. Grafana's CSRF
-        // check compares Origin against its own root_url, so a browser
-        // Origin of https://localhost:5173 gets rejected with 403 on
-        // state-changing requests (e.g. /graph/api/user/auth-tokens/rotate)
-        // unless Origin is rewritten to match the target too.
-        configure: (proxy) => {
-          proxy.on('proxyReq', (proxyReq) => {
-            proxyReq.setHeader('Origin', target);
-          });
-        },
       },
       '/logs.zip': {
         target,

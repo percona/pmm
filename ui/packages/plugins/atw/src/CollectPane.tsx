@@ -260,7 +260,12 @@ export function CollectPane({
     () => selected.map((snippet) => snippet.name),
     [selected]
   );
-  const schemaQuery = useAtwMergedSchema(isClosed ? [] : selectedNames);
+  // A read-only session never renders the execute form, so it never needs the
+  // merged schema either. Selecting snippets still works — only the fetch and
+  // the form are withheld.
+  const schemaQuery = useAtwMergedSchema(
+    isClosed || !canMutate ? [] : selectedNames
+  );
   const batchMutation = useAtwBatchExecute(incidentId);
   const searchQuery = useAtwSnippetSearch(debouncedSearch);
 

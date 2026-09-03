@@ -403,4 +403,29 @@ describe('CollectPane — write access', () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  it('fetches no execution schema for a non-admin', async () => {
+    // The form is the only consumer of the merged schema, so a session that
+    // cannot execute should not pay for the request.
+    mockCanMutate = false;
+    await selectOneSnippet();
+
+    const schemaCalls = () =>
+      mockedApi.get.mock.calls.filter((call) =>
+        String(call[0]).includes('/execution-schema/')
+      );
+    await waitFor(() => expect(schemaCalls()).toHaveLength(0));
+  });
+
+  it('fetches the execution schema for a session that may mutate', async () => {
+    await selectOneSnippet();
+
+    await waitFor(() =>
+      expect(
+        mockedApi.get.mock.calls.filter((call) =>
+          String(call[0]).includes('/execution-schema/')
+        ).length
+      ).toBeGreaterThan(0)
+    );
+  });
 });

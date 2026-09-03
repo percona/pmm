@@ -18,7 +18,7 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '@sep/api';
 import type { FormSection } from '../SchemaFormRenderer/types';
-import { EMPTY_SUBMIT_ERROR, mapSubmitError } from './submitErrorMapping';
+import { mapSubmitError } from './submitErrorMapping';
 
 const SECTIONS: FormSection[] = [
   {
@@ -40,19 +40,67 @@ function http(status: number, detail?: unknown): ApiError {
 }
 
 describe('mapSubmitError', () => {
-  it('returns the empty state for non-422 errors (toast-only path unchanged)', () => {
-    expect(mapSubmitError(http(500), SECTIONS, 'Failed')).toBe(
-      EMPTY_SUBMIT_ERROR
-    );
+  it("banners a non-422 failure with the server's own reason", () => {
     expect(
       mapSubmitError(
-        new ApiError({ kind: 'network', message: 'x' }),
+        new ApiError({
+          kind: 'http',
+          status: 403,
+          message: "You don't have permission to perform this action",
+        }),
         SECTIONS,
         'Failed'
       )
-    ).toBe(EMPTY_SUBMIT_ERROR);
-    expect(mapSubmitError(new Error('boom'), SECTIONS, 'Failed')).toBe(
-      EMPTY_SUBMIT_ERROR
+    ).toEqual({
+      submitError: "You don't have permission to perform this action",
+      fieldErrors: [],
+    });
+
+    expect(mapSubmitError(http(500), SECTIONS, 'Failed')).toEqual({
+      submitError: 'HTTP 500',
+      fieldErrors: [],
+    });
+    expect(
+      mapSubmitError(
+        new ApiError({ kind: 'network', message: 'Network error' }),
+        SECTIONS,
+        'Failed'
+      )
+    ).toEqual({ submitError: 'Network error', fieldErrors: [] });
+    expect(mapSubmitError(new Error('boom'), SECTIONS, 'Failed')).toEqual({
+      submitError: 'boom',
+      fieldErrors: [],
+    });
+  });
+
+  it("keeps a 422's string detail rather than substituting the fallback", () => {
+    expect(
+      mapSubmitError(
+        new ApiError({
+          kind: 'http',
+          status: 422,
+          message: 'Task name already in use',
+          data: { detail: 'Task name already in use' },
+        }),
+        SECTIONS,
+        'Failed to create'
+      )
+    ).toEqual({ submitError: 'Task name already in use', fieldErrors: [] });
+  });
+
+  it('falls back for a 422 that carries no reason at all', () => {
+    expect(mapSubmitError(http(422), SECTIONS, 'Failed to create')).toEqual({
+      submitError: 'Failed to create',
+      fieldErrors: [],
+    });
+  });
+
+  it('falls back only when the failure carries no message of its own', () => {
+    expect(mapSubmitError(new Error(''), SECTIONS, 'Failed to create')).toEqual(
+      {
+        submitError: 'Failed to create',
+        fieldErrors: [],
+      }
     );
   });
 
