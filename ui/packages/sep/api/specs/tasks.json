@@ -631,24 +631,8 @@
         "title": "ReloadClassification",
         "type": "string"
       },
-      "SettingClassEnum": {
-        "description": "Enumerate settings classes that may have HOT override rows.\n\nThe wired classes are ``SEPSettings``, ``TasksSettings``,\n``SnippetsSettings``, the global ``Settings``, ``AlertSettings``,\n``AlertsSettings``, ``AnonymizerSettings``, ``HealthReportSettings`` and\n``InventorySettings``.\n\nTo wire a new settings class:\n\n1. Add a member here whose value matches the Pydantic class ``__name__``.\n2. Generate an Alembic migration on every consumer track that extends the\n   ``CHECK`` constraint on ``settingoverride.setting_class``. The column\n   uses ``native_enum=False`` so the value list lives in a constraint,\n   not a PostgreSQL ``TYPE`` -- the migration ``ALTER``s the constraint.\n   Note that the column and ``CHECK`` constraint persist the enum member\n   *names* (e.g. ``SEP_SETTINGS``), which is distinct from the member\n   *value* (the Pydantic class name, e.g. ``SEPSettings``).\n3. Wire a ``ProxyEntry`` for the new class in the relevant service's\n   lifespan (``app/sep/main.py`` or ``app/tasks/main.py``).",
-        "enum": [
-          "SEPSettings",
-          "TasksSettings",
-          "SnippetsSettings",
-          "Settings",
-          "AlertSettings",
-          "AnonymizerSettings",
-          "AlertsSettings",
-          "HealthReportSettings",
-          "InventorySettings"
-        ],
-        "title": "SettingClassEnum",
-        "type": "string"
-      },
       "SettingClassGroup": {
-        "description": "One settings-class group in the LIST response.\n\n:param setting_class: The settings class this group represents.\n:type setting_class: SettingClassEnum\n:param settings: The fields declared on the settings class, with their\n    current values and metadata.\n:type settings: list[SettingResponse]\n:param is_app_owned: Whether this group belongs to a SEP app under\n    ``app/sep/apps/`` rather than core SEP wiring.\n:type is_app_owned: bool\n:param app_id: The owning app's registry key when ``is_app_owned`` is\n    ``True``; ``None`` for core groups.\n:type app_id: str | None\n:param app_display_name: The owning app's human-facing label when\n    ``is_app_owned`` is ``True``; ``None`` for core groups.\n:type app_display_name: str | None\n:param app_enabled: Whether the owning app is currently enabled when\n    ``is_app_owned`` is ``True``; ``None`` for core groups. Disabled\n    apps remain listed so the frontend can hide them without a second\n    lookup.\n:type app_enabled: bool | None",
+        "description": "Group one settings class's fields for the LIST response.\n\n:param setting_class: The Pydantic class ``__name__`` this group represents.\n:param settings: The fields declared on the settings class, with their\n    current values and metadata.\n:param is_app_owned: Whether this group belongs to a SEP app under\n    ``app/sep/apps/`` rather than core SEP wiring.\n:param app_id: The owning app's registry key when ``is_app_owned`` is\n    ``True``; ``None`` for core groups.\n:param app_display_name: The owning app's human-facing label when\n    ``is_app_owned`` is ``True``; ``None`` for core groups.\n:param app_enabled: Whether the owning app is currently enabled when\n    ``is_app_owned`` is ``True``; ``None`` for core groups. Disabled\n    apps remain listed so the frontend can hide them without a second\n    lookup.",
         "properties": {
           "app_display_name": {
             "anyOf": [
@@ -689,7 +673,8 @@
             "type": "boolean"
           },
           "setting_class": {
-            "$ref": "#/components/schemas/SettingClassEnum"
+            "title": "Setting Class",
+            "type": "string"
           },
           "settings": {
             "items": {
@@ -719,7 +704,7 @@
         "type": "object"
       },
       "SettingResponse": {
-        "description": "Represent a single setting's metadata and current value.\n\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param key_path: Carry the canonical key segments for ``key`` such that\n    ``\"__\".join(key_path) == key``.\n:param value: The current value visible through the proxy, dumped to a\n    JSON-safe shape via the field's annotation. ``SecretStr`` fields are\n    redacted to ``\"**********\"``.\n:param default_value: The field's declared default value, dumped via the\n    same JSON serialiser. ``None`` when no default exists.\n:param type: A human-readable representation of the field's declared\n    annotation (for operator visibility; validation uses the actual\n    ``FieldInfo``).\n:param reload: The reload classification (HOT or NOT_OVERRIDABLE).\n:param description: The field's free-text description, or ``None``.\n:param is_secret: Whether the field's annotation contains a Pydantic secret\n    (``SecretStr`` / ``SecretBytes``) at any depth.\n:param is_complex: Whether the field's annotation is or contains a Pydantic\n    ``BaseModel`` subclass (true for nested submodels).\n:param has_override: Whether a row exists in the ``settingoverride`` table\n    for this ``(setting_class, key)`` pair, regardless of ``is_active``.\n:param is_advanced: Whether the setting is flagged ``advanced`` so the UI can\n    present it separately from everyday settings. Display-only:\n    it does not affect PATCH/DELETE eligibility.\n:param is_applicable: Whether the setting applies under current runtime state\n    (e.g. the active auth provider). ``False`` lets the UI present the field\n    as inert. Display-only, like ``is_advanced``: it does not block\n    PATCH/DELETE server-side; the runtime gate is the real enforcement.\n:param options: Selectable enum members for dropdown UIs, or ``None`` when\n    the field is not an ``Enum`` annotation. Aliased members are excluded.",
+        "description": "Represent a single setting's metadata and current value.\n\n:param setting_class: The Pydantic class ``__name__`` the field belongs to.\n:param key: The field name on the settings class.\n:param key_path: Carry the canonical key segments for ``key`` such that\n    ``\"__\".join(key_path) == key``.\n:param value: The current value visible through the proxy, dumped to a\n    JSON-safe shape via the field's annotation. ``SecretStr`` fields are\n    redacted to ``\"**********\"``.\n:param default_value: The field's declared default value, dumped via the\n    same JSON serialiser. ``None`` when no default exists.\n:param type: A human-readable representation of the field's declared\n    annotation (for operator visibility; validation uses the actual\n    ``FieldInfo``).\n:param reload: The reload classification (HOT or NOT_OVERRIDABLE).\n:param description: The field's free-text description, or ``None``.\n:param is_secret: Whether the field's annotation contains a Pydantic secret\n    (``SecretStr`` / ``SecretBytes``) at any depth.\n:param is_complex: Whether the field's annotation is or contains a Pydantic\n    ``BaseModel`` subclass (true for nested submodels).\n:param has_override: Whether a row exists in the ``settingoverride`` table\n    for this ``(setting_class, key)`` pair, regardless of ``is_active``.\n:param is_advanced: Whether the setting is flagged ``advanced`` so the UI can\n    present it separately from everyday settings. Display-only:\n    it does not affect PATCH/DELETE eligibility.\n:param is_applicable: Whether the setting applies under current runtime state\n    (e.g. the active auth provider). ``False`` lets the UI present the field\n    as inert. Display-only, like ``is_advanced``: it does not block\n    PATCH/DELETE server-side; the runtime gate is the real enforcement.\n:param options: Selectable enum members for dropdown UIs, or ``None`` when\n    the field is not an ``Enum`` annotation. Aliased members are excluded.",
         "properties": {
           "default_value": {
             "title": "Default Value"
@@ -786,7 +771,8 @@
             "$ref": "#/components/schemas/ReloadClassification"
           },
           "setting_class": {
-            "$ref": "#/components/schemas/SettingClassEnum"
+            "title": "Setting Class",
+            "type": "string"
           },
           "type": {
             "title": "Type",
@@ -1258,7 +1244,7 @@
         "type": "object"
       },
       "TaskHistoryStatusEnum": {
-        "description": "Define status codes for task executions.\n\n:cvar FAILED: Enum value for failed tasks.\n:cvar PENDING: Enum value for pending tasks.\n:cvar RUNNING: Enum value for running tasks.\n:cvar SUCCESS: Enum value for successfully completed tasks.\n:cvar STOPPED: Enum value for stopped tasks.\n:cvar LOST: Enum value for tasks that are lost.\n:cvar STALE: Enum value for tasks skipped because executor placement\n    exceeded the configured staleness threshold (for example a Nomad\n    allocation that never left the queue).",
+        "description": "Define status codes for task executions.\n\n:cvar FAILED: Enum value for failed tasks.\n:cvar PENDING: Enum value for pending tasks.\n:cvar RUNNING: Enum value for running tasks.\n:cvar SUCCESS: Enum value for successfully completed tasks.\n:cvar STOPPED: Enum value for stopped tasks.\n:cvar LOST: Enum value for tasks that are lost.\n:cvar STALE: Enum value for tasks skipped because executor placement\n    exceeded the configured staleness threshold (for example a Nomad\n    allocation that never left the queue).\n:cvar UNLAUNCHABLE: Enum value for tasks the executor node could not\n    launch at all, because some command in the invocation does not\n    resolve there. The payload never ran, so this is not a script\n    failure.",
         "enum": [
           "failed",
           "pending",
@@ -1266,7 +1252,8 @@
           "success",
           "stopped",
           "lost",
-          "stale"
+          "stale",
+          "unlaunchable"
         ],
         "title": "TaskHistoryStatusEnum",
         "type": "string"
@@ -1920,7 +1907,8 @@
             "name": "setting_class",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SettingClassEnum"
+              "title": "Setting Class",
+              "type": "string"
             }
           }
         ],
@@ -1979,7 +1967,8 @@
             "name": "setting_class",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SettingClassEnum"
+              "title": "Setting Class",
+              "type": "string"
             }
           },
           {
@@ -2024,7 +2013,8 @@
             "name": "setting_class",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SettingClassEnum"
+              "title": "Setting Class",
+              "type": "string"
             }
           },
           {

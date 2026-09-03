@@ -1,6 +1,91 @@
 {
   "components": {
     "schemas": {
+      "ExternalIdentityAliasResponse": {
+        "description": "Define the external-identity alias API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the\n    current time in UTC.\n:param updated_at: The timestamp when the record is last updated.\n    Automatically updated on changes.\n:param entity_type: The inventory entity type the binding names.\n:param entity_id: The primary key of the row the upstream id resolves to.\n:param source: The upstream system the identifier belongs to.\n:param external_id: The upstream identifier being bound.\n:param valid_from: When the binding took effect.\n:param valid_to: When the binding stopped applying, or None while it stands.\n:param linkage_method: How the binding came to be recorded.\n:param principal: The caller that recorded the binding.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "integer"
+          },
+          "entity_type": {
+            "$ref": "#/components/schemas/RetirableEntityName"
+          },
+          "external_id": {
+            "minLength": 1,
+            "title": "External Id",
+            "type": "string"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "linkage_method": {
+            "$ref": "#/components/schemas/LinkageMethodEnum"
+          },
+          "principal": {
+            "minLength": 1,
+            "title": "Principal",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/SourceEnum"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "valid_from": {
+            "format": "date-time",
+            "title": "Valid From",
+            "type": "string"
+          },
+          "valid_to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid To"
+          }
+        },
+        "required": [
+          "entity_type",
+          "entity_id",
+          "source",
+          "external_id",
+          "valid_from",
+          "linkage_method",
+          "principal",
+          "id"
+        ],
+        "title": "ExternalIdentityAliasResponse",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -159,14 +244,105 @@
         "title": "HostSystemObservationWrite",
         "type": "object"
       },
+      "IdentityLinkDecisionEnum": {
+        "description": "Enumerate the decisions an operator may record against a candidate pairing.\n\n:cvar CONFIRMED: The pairing names one machine, and the link stands.\n:cvar REJECTED: The pairing names two machines, so stop suggesting it.\n:cvar UNLINKED: A standing confirmation was reversed.\n\nValues are spelled out for the reason given on\n:class:`LinkageMethodEnum`, and it binds harder here: this enum is also a\n*request* body field, so a rename would reject the payloads callers were\nalready sending.",
+        "enum": ["confirmed", "rejected", "unlinked"],
+        "title": "IdentityLinkDecisionEnum",
+        "type": "string"
+      },
+      "IdentityLinkDecisionWrite": {
+        "description": "Define the request body recording one operator decision over a pairing.\n\n:param successor_id: The row the addressed predecessor is being paired with.\n:param decision: What the operator decided.",
+        "properties": {
+          "decision": {
+            "$ref": "#/components/schemas/IdentityLinkDecisionEnum"
+          },
+          "successor_id": {
+            "title": "Successor Id",
+            "type": "integer"
+          }
+        },
+        "required": ["successor_id", "decision"],
+        "title": "IdentityLinkDecisionWrite",
+        "type": "object"
+      },
+      "InventoryCollectResponse": {
+        "description": "Report what a collection call deleted, or would have deleted.\n\n:param deleted: The collected ids per entity type, exhaustive for this\n    call. On a dry run these are the ids the equivalent real call would\n    delete. A type the walk stopped before reporting is empty rather than\n    absent.\n:param remaining: Whether any entity type filled its ``limit``, meaning more\n    tombstones are waiting for the next batch.",
+        "properties": {
+          "deleted": {
+            "additionalProperties": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "title": "Deleted",
+            "type": "object"
+          },
+          "remaining": {
+            "title": "Remaining",
+            "type": "boolean"
+          }
+        },
+        "required": ["deleted", "remaining"],
+        "title": "InventoryCollectResponse",
+        "type": "object"
+      },
+      "InventoryCollectWrite": {
+        "additionalProperties": false,
+        "description": "Ask the inventory service to collect the tombstones nothing resolves.\n\nUnknown fields are rejected with HTTP 422. This request deletes rows\nirreversibly, so a client typo must never be read as an omitted field: a\nmisspelled ``keep`` would otherwise arrive as an empty retained set and a\nmisspelled ``dry_run`` as a real delete.\n\n:param retired_before: The cutoff a tombstone must predate to be eligible.\n    The caller pins one value for a whole run so successive batches cannot\n    drift into collecting a tombstone that was too young a moment earlier.\n:param keep: The ids the caller knows are still referenced, per entity type.\n    Ancestors of a kept entity are retained without being listed.\n:param limit: The most entities to collect per type in this call.\n:param dry_run: Whether to report the eligible ids without deleting them.\n    Defaults to reporting: on an irreversible endpoint the mode a caller\n    reaches by omission is the one that cannot destroy anything.",
+        "properties": {
+          "dry_run": {
+            "default": true,
+            "title": "Dry Run",
+            "type": "boolean"
+          },
+          "keep": {
+            "additionalProperties": {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            "default": {},
+            "title": "Keep",
+            "type": "object"
+          },
+          "limit": {
+            "default": 500,
+            "exclusiveMinimum": 0.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "retired_before": {
+            "format": "date-time",
+            "title": "Retired Before",
+            "type": "string"
+          }
+        },
+        "required": ["retired_before"],
+        "title": "InventoryCollectWrite",
+        "type": "object"
+      },
       "JsonValue": {},
+      "LinkageMethodEnum": {
+        "description": "Enumerate how an external-identity binding came to be recorded.\n\nEvery member names an operator action: nothing here records a binding the\nsyncer made on its own, because ordinary sync creation writes no alias row.\n\nValues are spelled out rather than derived with ``auto()``. The column\npersists the member *name*, but the API serializes the *value*, so under\n``auto()`` the two move in opposite ways when a member is renamed: the\nstored form follows the rename while the published one silently changes\nwith it. Pinning the value holds the wire contract — this enum reaches the\ngenerated API client — and leaves a rename a database concern alone.",
+        "enum": ["operator_confirmation", "operator_unlink"],
+        "title": "LinkageMethodEnum",
+        "type": "string"
+      },
       "Node": {
-        "description": "Represent a node in the inventory.\n\n:param address: The network address of the node.\n:type address: NonEmptyStr\n:param name: The name of the node.\n:type name: NonEmptyStr\n:param external_id: An external identifier for the node. Must be unique for source,\n    as defined by composite index ix_node_external_id_source.\n:type external_id: NonEmptyStr | None\n:param source: The source from which the node information is derived. Must be unique\n    for external_id, as defined by composite index ix_node_external_id_source.\n:type source: SourceEnum | None\n:param type: The type of the node (e.g., remote, generic).\n:type type: NonEmptyStr\n:param services: A list of services associated with the node.\n:type services: list[Service]",
+        "description": "Represent a node in the inventory.\n\n:param address: The network address of the node.\n:param name: The name of the node.\n:param external_id: An external identifier for the node. Must be unique for source,\n    as defined by composite index ix_node_external_id_source.\n:param source: The source from which the node information is derived. Must be unique\n    for external_id, as defined by composite index ix_node_external_id_source.\n:param type: The type of the node (e.g., remote, generic).\n:param retired_at: When the node stopped being reported upstream, or None while\n    it is active.\n:param retirement_key: The discriminator carried inside every unique index.\n:param last_synced_at: When a syncer last confirmed the node against its\n    source, or None if that has never happened.\n:param last_sync_error: The message from the most recent failed attempt, or\n    None while the node is syncing cleanly.\n:param sync_failing_since: When the current run of failures began, or None\n    while not failing.\n:param consecutive_failures: Failed attempts since the last success.\n:param services: A list of services associated with the node.",
         "properties": {
           "address": {
             "minLength": 1,
             "title": "Address",
             "type": "string"
+          },
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
           },
           "created_at": {
             "format": "date-time",
@@ -174,16 +350,9 @@
             "type": "string"
           },
           "external_id": {
-            "anyOf": [
-              {
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "External Id"
+            "minLength": 1,
+            "title": "External Id",
+            "type": "string"
           },
           "id": {
             "anyOf": [
@@ -196,20 +365,60 @@
             ],
             "title": "Id"
           },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
           "name": {
             "minLength": 1,
             "title": "Name",
             "type": "string"
           },
-          "source": {
+          "retired_at": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/SourceEnum"
+                "format": "date-time",
+                "type": "string"
               },
               {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Retired At"
+          },
+          "source": {
+            "$ref": "#/components/schemas/SourceEnum"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
           },
           "type": {
             "default": "generic",
@@ -230,17 +439,44 @@
             "title": "Updated At"
           }
         },
-        "required": ["id", "address", "name"],
+        "required": ["id", "address", "name", "external_id", "source"],
         "title": "Node",
         "type": "object"
       },
+      "NodeIdentityCandidateResponse": {
+        "description": "Pair a node with the successor a re-registration may have split it into.\n\n:param predecessor: The older row — the one every SEP reference persisted\n    before the re-registration resolves through, and so the one a\n    confirmation keeps.\n:param successor: The newer row PMM created when the node re-registered.\n:param matched_on: The signals that agreed, informational only. Detection\n    never requires an address match, because PMM discards the address on a\n    non-``--force`` re-registration.",
+        "properties": {
+          "matched_on": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Matched On",
+            "type": "array"
+          },
+          "predecessor": {
+            "$ref": "#/components/schemas/NodeResponse"
+          },
+          "successor": {
+            "$ref": "#/components/schemas/NodeResponse"
+          }
+        },
+        "required": ["predecessor", "successor", "matched_on"],
+        "title": "NodeIdentityCandidateResponse",
+        "type": "object"
+      },
       "NodeResponse": {
-        "description": "Represent a node API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param address: The network address of the node.\n:type address: NonEmptyStr\n:param name: The name of the node.\n:type name: NonEmptyStr\n:param external_id: An external identifier for the node.\n:type external_id: NonEmptyStr | None\n:param source: The source from which the node information is derived.\n:type source: SourceEnum | None\n:param type: The type of the node (e.g., remote, generic).\n:type type: NonEmptyStr\n:param services: A list of services associated with the node.\n:type services: list[Service]",
+        "description": "Represent a node API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param address: The network address of the node.\n:param name: The name of the node.\n:param external_id: An external identifier for the node.\n:param source: The source from which the node information is derived.\n:param type: The type of the node (e.g., remote, generic).\n:param retired_at: When the node stopped being reported upstream, or None while\n    it is active.\n:param last_synced_at: When a syncer last confirmed the node against its\n    source, or None if that has never happened.\n:param last_sync_error: The message from the most recent failed attempt, or\n    None while the node is syncing cleanly.\n:param sync_failing_since: When the current run of failures began, or None\n    while not failing.\n:param consecutive_failures: Failed attempts since the last success.\n:param services: A list of services associated with the node.",
         "properties": {
           "address": {
             "minLength": 1,
             "title": "Address",
             "type": "string"
+          },
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
           },
           "created_at": {
             "format": "date-time",
@@ -248,16 +484,9 @@
             "type": "string"
           },
           "external_id": {
-            "anyOf": [
-              {
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "External Id"
+            "minLength": 1,
+            "title": "External Id",
+            "type": "string"
           },
           "id": {
             "anyOf": [
@@ -270,10 +499,45 @@
             ],
             "title": "Id"
           },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
           "name": {
             "minLength": 1,
             "title": "Name",
             "type": "string"
+          },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
           },
           "services": {
             "items": {
@@ -283,14 +547,19 @@
             "type": "array"
           },
           "source": {
+            "$ref": "#/components/schemas/SourceEnum"
+          },
+          "sync_failing_since": {
             "anyOf": [
               {
-                "$ref": "#/components/schemas/SourceEnum"
+                "format": "date-time",
+                "type": "string"
               },
               {
                 "type": "null"
               }
-            ]
+            ],
+            "title": "Sync Failing Since"
           },
           "type": {
             "default": "generic",
@@ -311,12 +580,19 @@
             "title": "Updated At"
           }
         },
-        "required": ["address", "name", "id", "services"],
+        "required": [
+          "address",
+          "name",
+          "external_id",
+          "source",
+          "id",
+          "services"
+        ],
         "title": "NodeResponse",
         "type": "object"
       },
       "NodeWrite": {
-        "description": "Define the model for writing node data to the inventory.\n\n:param address: The network address of the node.\n:type address: NonEmptyStr\n:param name: The name of the node.\n:type name: NonEmptyStr\n:param external_id: An external identifier for the node, indexed for quick lookup.\n    Defaults to None.\n:type external_id: NonEmptyStr | None\n:param source: The source from which the node information is derived. Indexed for\n    quick lookup. Defaults to None.\n:type source: SourceEnum | None\n:param type: The type of the node (e.g., remote, generic). Defaults to \"generic\".\n:type type: NonEmptyStr",
+        "description": "Define the model for writing node data to the inventory.\n\n:param address: The network address of the node.\n:param name: The name of the node.\n:param external_id: An external identifier for the node, indexed for quick lookup.\n:param source: The source from which the node information is derived. Indexed for\n    quick lookup.\n:param type: The type of the node (e.g., remote, generic). Defaults to \"generic\".",
         "properties": {
           "address": {
             "minLength": 1,
@@ -324,16 +600,9 @@
             "type": "string"
           },
           "external_id": {
-            "anyOf": [
-              {
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "External Id"
+            "minLength": 1,
+            "title": "External Id",
+            "type": "string"
           },
           "name": {
             "minLength": 1,
@@ -341,14 +610,7 @@
             "type": "string"
           },
           "source": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/SourceEnum"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "$ref": "#/components/schemas/SourceEnum"
           },
           "type": {
             "default": "generic",
@@ -357,8 +619,60 @@
             "type": "string"
           }
         },
-        "required": ["address", "name"],
+        "required": ["address", "name", "external_id", "source"],
         "title": "NodeWrite",
+        "type": "object"
+      },
+      "PaginatedResponse_ExternalIdentityAliasResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalIdentityAliasResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": ["items", "total", "offset", "limit"],
+        "title": "PaginatedResponse[ExternalIdentityAliasResponse]",
+        "type": "object"
+      },
+      "PaginatedResponse_NodeIdentityCandidateResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NodeIdentityCandidateResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": ["items", "total", "offset", "limit"],
+        "title": "PaginatedResponse[NodeIdentityCandidateResponse]",
         "type": "object"
       },
       "PaginatedResponse_NodeResponse_": {
@@ -411,6 +725,32 @@
         },
         "required": ["items", "total", "offset", "limit"],
         "title": "PaginatedResponse[SchemaResponse]",
+        "type": "object"
+      },
+      "PaginatedResponse_ServiceIdentityCandidateResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ServiceIdentityCandidateResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": ["items", "total", "offset", "limit"],
+        "title": "PaginatedResponse[ServiceIdentityCandidateResponse]",
         "type": "object"
       },
       "PaginatedResponse_ServiceResponse_": {
@@ -504,9 +844,21 @@
         "title": "ReloadClassification",
         "type": "string"
       },
+      "RetirableEntityName": {
+        "description": "Name the inventory entity types that carry a retirement tombstone.\n\nValues are spelled out rather than derived, because they cross a service\nboundary: SEP names an entity type by these strings when it asks inventory\nto collect. Inventory-local on purpose — SEP's own\n``SyncInventoryEntityTypeEnum`` lives in a package this service must not\nimport.",
+        "enum": ["node", "service", "schema", "table"],
+        "title": "RetirableEntityName",
+        "type": "string"
+      },
       "Schema": {
-        "description": "Represent a database schema within a service.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param name: The name of the schema. Must be unique for service_id, as defined by\n    composite index ix_schema_name_service_id.\n:type name: NonEmptyStr\n:param service_id: The unique identifier of the service to which the schema belongs.\n    Must be unique for name, as defined by composite index\n    ix_schema_name_service_id.\n:type service_id: int\n:param service: The service to which the schema is associated.\n:type service: Service\n:param tables: A list of tables within the schema.\n:type tables: list[Table]",
+        "description": "Represent a database schema within a service.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param name: The name of the schema. Must be unique for service_id, as defined by\n    composite index ix_schema_name_service_id.\n:param service_id: The unique identifier of the service to which the schema belongs.\n    Must be unique for name, as defined by composite index\n    ix_schema_name_service_id.\n:param service: The service to which the schema is associated.\n:param retired_at: When the schema stopped being reported upstream, or None\n    while it is active.\n:param retirement_key: The discriminator carried inside every unique index.\n:param last_synced_at: When a syncer last confirmed the schema against its\n    source, or None if that has never happened.\n:param last_sync_error: The message from the most recent failed attempt, or\n    None while the schema is syncing cleanly.\n:param sync_failing_since: When the current run of failures began, or None\n    while not failing.\n:param consecutive_failures: Failed attempts since the last success.\n:param tables: A list of tables within the schema.",
         "properties": {
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -523,14 +875,61 @@
             ],
             "title": "Id"
           },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
           "name": {
             "minLength": 1,
             "title": "Name",
             "type": "string"
           },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
+          },
           "service_id": {
             "title": "Service Id",
             "type": "integer"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
           },
           "updated_at": {
             "anyOf": [
@@ -550,8 +949,14 @@
         "type": "object"
       },
       "SchemaCompactResponse": {
-        "description": "Define a compact schema response without nested tables.\n\n:param id: The primary key for the schema. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param name: The name of the schema.\n:type name: NonEmptyStr\n:param service_id: The unique identifier of the service to which the schema belongs.\n:type service_id: int",
+        "description": "Define a compact schema response without nested tables.\n\n:param id: The primary key for the schema. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param name: The name of the schema.\n:param service_id: The unique identifier of the service to which the schema belongs.\n:param retired_at: When the schema stopped being reported upstream, or None while\n    it is active.\n:param last_synced_at: When a syncer last confirmed the schema against its\n    source, or None if that has never happened.\n:param last_sync_error: The message from the most recent failed attempt, or\n    None while the schema is syncing cleanly.\n:param sync_failing_since: When the current run of failures began, or None\n    while not failing.\n:param consecutive_failures: Failed attempts since the last success.",
         "properties": {
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -568,14 +973,61 @@
             ],
             "title": "Id"
           },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
           "name": {
             "minLength": 1,
             "title": "Name",
             "type": "string"
           },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
+          },
           "service_id": {
             "title": "Service Id",
             "type": "integer"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
           },
           "updated_at": {
             "anyOf": [
@@ -595,8 +1047,14 @@
         "type": "object"
       },
       "SchemaDetailResponse": {
-        "description": "Define the schema retrieve API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param name: The name of the schema.\n:type name: NonEmptyStr\n:param service_id: The unique identifier of the service to which the schema belongs.\n:type service_id: int\n:param service: The schema's service.\n:type service: Service",
+        "description": "Define the schema retrieve API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param name: The name of the schema.\n:param service_id: The unique identifier of the service to which the schema belongs.\n:param service: The schema's service.",
         "properties": {
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -613,10 +1071,45 @@
             ],
             "title": "Id"
           },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
           "name": {
             "minLength": 1,
             "title": "Name",
             "type": "string"
+          },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
           },
           "service": {
             "$ref": "#/components/schemas/Service"
@@ -624,6 +1117,18 @@
           "service_id": {
             "title": "Service Id",
             "type": "integer"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
           },
           "tables": {
             "items": {
@@ -650,8 +1155,14 @@
         "type": "object"
       },
       "SchemaResponse": {
-        "description": "Define the schema API response.\n\n:param id: The primary key for the schema. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param name: The name of the schema.\n:type name: NonEmptyStr\n:param service_id: The unique identifier of the service to which the schema belongs.\n:type service_id: int\n:param tables: A list of tables within the schema.\n:type tables: list[Table]",
+        "description": "Define the schema API response.\n\n:param id: The primary key for the schema. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param name: The name of the schema.\n:param service_id: The unique identifier of the service to which the schema belongs.\n:param retired_at: When the schema stopped being reported upstream, or None while\n    it is active.\n:param last_synced_at: When a syncer last confirmed the schema against its\n    source, or None if that has never happened.\n:param last_sync_error: The message from the most recent failed attempt, or\n    None while the schema is syncing cleanly.\n:param sync_failing_since: When the current run of failures began, or None\n    while not failing.\n:param consecutive_failures: Failed attempts since the last success.\n:param tables: A list of tables within the schema.",
         "properties": {
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -668,14 +1179,61 @@
             ],
             "title": "Id"
           },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
           "name": {
             "minLength": 1,
             "title": "Name",
             "type": "string"
           },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
+          },
           "service_id": {
             "title": "Service Id",
             "type": "integer"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
           },
           "tables": {
             "items": {
@@ -726,7 +1284,7 @@
         "type": "object"
       },
       "Service": {
-        "description": "Represent a service running on a node in the inventory.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param external_id: An external identifier for the service. Must be unique for\n    node_id, as defined by composite index ix_service_external_id_node_id.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running. Must be unique for\n    node_id, as defined by composite index ix_service_port_node_id.\n:type port: int | None\n:param environment: The environment in which the service is running, if set.\n:type environment: str | None\n:param cluster: The cluster in which the service is running, if set.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running, if set.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service, if set.\n:param node_id: The unique identifier of the node on which the service is running.\n    Must be unique for external_id, as defined by composite index\n    ix_service_external_id_node_id, and for port, as defined by composite index\n    ix_service_port_node_id.\n:type node_id: int\n:param node: The node to which the service is associated.\n:type node: Node\n:param schemas: A list of schemas associated with the service.\n:type schemas: list[Schema]",
+        "description": "Represent a service running on a node in the inventory.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param external_id: An external identifier for the service. Must be unique for\n    node_id, as defined by composite index ix_service_external_id_node_id.\n:param name: The name of the service.\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:param port: The port number on which the service is running.\n:param environment: The environment in which the service is running, if set.\n:param cluster: The cluster in which the service is running, if set.\n:param replication_set: The replication set in which the service is running, if set.\n:param custom_labels: Custom labels associated with the service, if set.\n:param node_id: The unique identifier of the node on which the service is running.\n    Must be unique for external_id, as defined by composite index\n    ix_service_external_id_node_id.\n:param node: The node to which the service is associated.\n:param retired_at: When the service stopped being reported upstream, or None\n    while it is active.\n:param retirement_key: The discriminator carried inside every unique index.\n:param last_synced_at: When a syncer last confirmed the service against its\n    source, or None if that has never happened.\n:param last_sync_error: The message from the most recent failed attempt, or\n    None while the service is syncing cleanly.\n:param sync_failing_since: When the current run of failures began, or None\n    while not failing.\n:param consecutive_failures: Failed attempts since the last success.\n:param schemas: A list of schemas associated with the service.",
         "properties": {
           "cluster": {
             "anyOf": [
@@ -738,6 +1296,12 @@
               }
             ],
             "title": "Cluster"
+          },
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
           },
           "created_at": {
             "format": "date-time",
@@ -768,16 +1332,9 @@
             "title": "Environment"
           },
           "external_id": {
-            "anyOf": [
-              {
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "External Id"
+            "minLength": 1,
+            "title": "External Id",
+            "type": "string"
           },
           "id": {
             "anyOf": [
@@ -789,6 +1346,29 @@
               }
             ],
             "title": "Id"
+          },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
           },
           "name": {
             "minLength": 1,
@@ -821,6 +1401,30 @@
             ],
             "title": "Replication Set"
           },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
+          },
           "type": {
             "$ref": "#/components/schemas/ServiceTypeEnum"
           },
@@ -837,12 +1441,12 @@
             "title": "Updated At"
           }
         },
-        "required": ["name", "type", "node_id", "id"],
+        "required": ["external_id", "name", "type", "node_id", "id"],
         "title": "Service",
         "type": "object"
       },
       "ServiceDetailResponse": {
-        "description": "Define the service retrieve API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param external_id: An external identifier for the service.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running.\n:type port: int | None\n:param environment: The environment in which the service is running, if set.\n:type environment: str | None\n:param cluster: The cluster in which the service is running, if set.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running, if set.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service, if set.\n:param node_id: The unique identifier of the node on which the service is running.\n:type node_id: int\n:param schemas: A list of schemas associated with the service.\n:type schemas: list[Schema]\n:param node: The service's node.\n:type node: Node",
+        "description": "Define the service retrieve API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param external_id: An external identifier for the service.\n:param name: The name of the service.\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:param port: The port number on which the service is running.\n:param environment: The environment in which the service is running, if set.\n:param cluster: The cluster in which the service is running, if set.\n:param replication_set: The replication set in which the service is running, if set.\n:param custom_labels: Custom labels associated with the service, if set.\n:param node_id: The unique identifier of the node on which the service is running.\n:param schemas: A list of schemas associated with the service.\n:param node: The service's node.",
         "properties": {
           "cluster": {
             "anyOf": [
@@ -854,6 +1458,12 @@
               }
             ],
             "title": "Cluster"
+          },
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
           },
           "created_at": {
             "format": "date-time",
@@ -884,16 +1494,9 @@
             "title": "Environment"
           },
           "external_id": {
-            "anyOf": [
-              {
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "External Id"
+            "minLength": 1,
+            "title": "External Id",
+            "type": "string"
           },
           "id": {
             "anyOf": [
@@ -905,6 +1508,29 @@
               }
             ],
             "title": "Id"
+          },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
           },
           "name": {
             "minLength": 1,
@@ -940,12 +1566,36 @@
             ],
             "title": "Replication Set"
           },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
+          },
           "schemas": {
             "items": {
               "$ref": "#/components/schemas/Schema"
             },
             "title": "Schemas",
             "type": "array"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
           },
           "type": {
             "$ref": "#/components/schemas/ServiceTypeEnum"
@@ -963,12 +1613,41 @@
             "title": "Updated At"
           }
         },
-        "required": ["name", "type", "node_id", "id", "schemas", "node"],
+        "required": [
+          "external_id",
+          "name",
+          "type",
+          "node_id",
+          "id",
+          "schemas",
+          "node"
+        ],
         "title": "ServiceDetailResponse",
         "type": "object"
       },
+      "ServiceIdentityCandidateResponse": {
+        "description": "Pair a service with the successor a re-registration may have split it into.\n\n:param predecessor: The older row a confirmation keeps.\n:param successor: The newer row PMM created.\n:param matched_on: The signals that agreed, informational only.",
+        "properties": {
+          "matched_on": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Matched On",
+            "type": "array"
+          },
+          "predecessor": {
+            "$ref": "#/components/schemas/ServiceResponse"
+          },
+          "successor": {
+            "$ref": "#/components/schemas/ServiceResponse"
+          }
+        },
+        "required": ["predecessor", "successor", "matched_on"],
+        "title": "ServiceIdentityCandidateResponse",
+        "type": "object"
+      },
       "ServiceResponse": {
-        "description": "Define the service API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param external_id: An external identifier for the service.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running.\n:type port: int | None\n:param environment: The environment in which the service is running, if set.\n:type environment: str | None\n:param cluster: The cluster in which the service is running, if set.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running, if set.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service, if set.\n:param node_id: The unique identifier of the node on which the service is running.\n:type node_id: int\n:param schemas: A list of schemas associated with the service.\n:type schemas: list[Schema]\n:param node: The node to which the service is associated.\n:type node: Node",
+        "description": "Define the service API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param external_id: An external identifier for the service.\n:param name: The name of the service.\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:param port: The port number on which the service is running.\n:param environment: The environment in which the service is running, if set.\n:param cluster: The cluster in which the service is running, if set.\n:param replication_set: The replication set in which the service is running, if set.\n:param custom_labels: Custom labels associated with the service, if set.\n:param node_id: The unique identifier of the node on which the service is running.\n:param schemas: A list of schemas associated with the service.\n:param node: The node to which the service is associated.\n:param retired_at: When the service stopped being reported upstream, or None\n    while it is active.\n:param last_synced_at: When a syncer last confirmed the service against its\n    source, or None if that has never happened.\n:param last_sync_error: The message from the most recent failed attempt, or\n    None while the service is syncing cleanly.\n:param sync_failing_since: When the current run of failures began, or None\n    while not failing.\n:param consecutive_failures: Failed attempts since the last success.",
         "properties": {
           "cluster": {
             "anyOf": [
@@ -980,6 +1659,12 @@
               }
             ],
             "title": "Cluster"
+          },
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
           },
           "created_at": {
             "format": "date-time",
@@ -1010,16 +1695,9 @@
             "title": "Environment"
           },
           "external_id": {
-            "anyOf": [
-              {
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "External Id"
+            "minLength": 1,
+            "title": "External Id",
+            "type": "string"
           },
           "id": {
             "anyOf": [
@@ -1031,6 +1709,29 @@
               }
             ],
             "title": "Id"
+          },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
           },
           "name": {
             "minLength": 1,
@@ -1066,12 +1767,36 @@
             ],
             "title": "Replication Set"
           },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
+          },
           "schemas": {
             "items": {
               "$ref": "#/components/schemas/Schema"
             },
             "title": "Schemas",
             "type": "array"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
           },
           "type": {
             "$ref": "#/components/schemas/ServiceTypeEnum"
@@ -1089,7 +1814,15 @@
             "title": "Updated At"
           }
         },
-        "required": ["name", "type", "node_id", "id", "schemas", "node"],
+        "required": [
+          "external_id",
+          "name",
+          "type",
+          "node_id",
+          "id",
+          "schemas",
+          "node"
+        ],
         "title": "ServiceResponse",
         "type": "object"
       },
@@ -1187,7 +1920,7 @@
         "type": "string"
       },
       "ServiceWrite": {
-        "description": "Define the model for writing service data to the inventory.\n\n:param external_id: An external identifier for the service, indexed for quick\n    lookup. Defaults to None.\n:type external_id: NonEmptyStr | None\n:param name: The name of the service.\n:type name: NonEmptyStr\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:type type: ServiceTypeEnum\n:param port: The port number on which the service is running. Defaults to None.\n:type port: int | None\n:param environment: The environment in which the service is running (e.g.,\n    production, staging). Defaults to None.\n:type environment: str | None\n:param cluster: The cluster in which the service is running. Defaults to None.\n:type cluster: str | None\n:param replication_set: The replication set in which the service is running. Defaults to None.\n:type replication_set: str | None\n:param custom_labels: Custom labels associated with the service. Defaults to None.\n:param node_id: The foreign key referencing the node to which the service belongs.\n    Defaults to None.\n:type node_id: int | None",
+        "description": "Define the model for writing service data to the inventory.\n\n:param external_id: An external identifier for the service, indexed for quick\n    lookup.\n:param name: The name of the service.\n:param type: The type of the service (e.g., MYSQL, POSTGRESQL).\n:param port: The port number on which the service is running. Defaults to None.\n:param environment: The environment in which the service is running (e.g.,\n    production, staging). Defaults to None.\n:param cluster: The cluster in which the service is running. Defaults to None.\n:param replication_set: The replication set in which the service is running. Defaults to None.\n:param custom_labels: Custom labels associated with the service. Defaults to None.\n:param node_id: The foreign key referencing the node to which the service belongs.\n    Defaults to None.",
         "properties": {
           "cluster": {
             "anyOf": [
@@ -1224,16 +1957,9 @@
             "title": "Environment"
           },
           "external_id": {
-            "anyOf": [
-              {
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "External Id"
+            "minLength": 1,
+            "title": "External Id",
+            "type": "string"
           },
           "name": {
             "minLength": 1,
@@ -1277,28 +2003,12 @@
             "$ref": "#/components/schemas/ServiceTypeEnum"
           }
         },
-        "required": ["name", "type"],
+        "required": ["external_id", "name", "type"],
         "title": "ServiceWrite",
         "type": "object"
       },
-      "SettingClassEnum": {
-        "description": "Enumerate settings classes that may have HOT override rows.\n\nThe wired classes are ``SEPSettings``, ``TasksSettings``,\n``SnippetsSettings``, the global ``Settings``, ``AlertSettings``,\n``AlertsSettings``, ``AnonymizerSettings``, ``HealthReportSettings`` and\n``InventorySettings``.\n\nTo wire a new settings class:\n\n1. Add a member here whose value matches the Pydantic class ``__name__``.\n2. Generate an Alembic migration on every consumer track that extends the\n   ``CHECK`` constraint on ``settingoverride.setting_class``. The column\n   uses ``native_enum=False`` so the value list lives in a constraint,\n   not a PostgreSQL ``TYPE`` -- the migration ``ALTER``s the constraint.\n   Note that the column and ``CHECK`` constraint persist the enum member\n   *names* (e.g. ``SEP_SETTINGS``), which is distinct from the member\n   *value* (the Pydantic class name, e.g. ``SEPSettings``).\n3. Wire a ``ProxyEntry`` for the new class in the relevant service's\n   lifespan (``app/sep/main.py`` or ``app/tasks/main.py``).",
-        "enum": [
-          "SEPSettings",
-          "TasksSettings",
-          "SnippetsSettings",
-          "Settings",
-          "AlertSettings",
-          "AnonymizerSettings",
-          "AlertsSettings",
-          "HealthReportSettings",
-          "InventorySettings"
-        ],
-        "title": "SettingClassEnum",
-        "type": "string"
-      },
       "SettingClassGroup": {
-        "description": "One settings-class group in the LIST response.\n\n:param setting_class: The settings class this group represents.\n:type setting_class: SettingClassEnum\n:param settings: The fields declared on the settings class, with their\n    current values and metadata.\n:type settings: list[SettingResponse]\n:param is_app_owned: Whether this group belongs to a SEP app under\n    ``app/sep/apps/`` rather than core SEP wiring.\n:type is_app_owned: bool\n:param app_id: The owning app's registry key when ``is_app_owned`` is\n    ``True``; ``None`` for core groups.\n:type app_id: str | None\n:param app_display_name: The owning app's human-facing label when\n    ``is_app_owned`` is ``True``; ``None`` for core groups.\n:type app_display_name: str | None\n:param app_enabled: Whether the owning app is currently enabled when\n    ``is_app_owned`` is ``True``; ``None`` for core groups. Disabled\n    apps remain listed so the frontend can hide them without a second\n    lookup.\n:type app_enabled: bool | None",
+        "description": "Group one settings class's fields for the LIST response.\n\n:param setting_class: The Pydantic class ``__name__`` this group represents.\n:param settings: The fields declared on the settings class, with their\n    current values and metadata.\n:param is_app_owned: Whether this group belongs to a SEP app under\n    ``app/sep/apps/`` rather than core SEP wiring.\n:param app_id: The owning app's registry key when ``is_app_owned`` is\n    ``True``; ``None`` for core groups.\n:param app_display_name: The owning app's human-facing label when\n    ``is_app_owned`` is ``True``; ``None`` for core groups.\n:param app_enabled: Whether the owning app is currently enabled when\n    ``is_app_owned`` is ``True``; ``None`` for core groups. Disabled\n    apps remain listed so the frontend can hide them without a second\n    lookup.",
         "properties": {
           "app_display_name": {
             "anyOf": [
@@ -1339,7 +2049,8 @@
             "type": "boolean"
           },
           "setting_class": {
-            "$ref": "#/components/schemas/SettingClassEnum"
+            "title": "Setting Class",
+            "type": "string"
           },
           "settings": {
             "items": {
@@ -1369,7 +2080,7 @@
         "type": "object"
       },
       "SettingResponse": {
-        "description": "Represent a single setting's metadata and current value.\n\n:param setting_class: The settings class the field belongs to.\n:param key: The field name on the settings class.\n:param key_path: Carry the canonical key segments for ``key`` such that\n    ``\"__\".join(key_path) == key``.\n:param value: The current value visible through the proxy, dumped to a\n    JSON-safe shape via the field's annotation. ``SecretStr`` fields are\n    redacted to ``\"**********\"``.\n:param default_value: The field's declared default value, dumped via the\n    same JSON serialiser. ``None`` when no default exists.\n:param type: A human-readable representation of the field's declared\n    annotation (for operator visibility; validation uses the actual\n    ``FieldInfo``).\n:param reload: The reload classification (HOT or NOT_OVERRIDABLE).\n:param description: The field's free-text description, or ``None``.\n:param is_secret: Whether the field's annotation contains a Pydantic secret\n    (``SecretStr`` / ``SecretBytes``) at any depth.\n:param is_complex: Whether the field's annotation is or contains a Pydantic\n    ``BaseModel`` subclass (true for nested submodels).\n:param has_override: Whether a row exists in the ``settingoverride`` table\n    for this ``(setting_class, key)`` pair, regardless of ``is_active``.\n:param is_advanced: Whether the setting is flagged ``advanced`` so the UI can\n    present it separately from everyday settings. Display-only:\n    it does not affect PATCH/DELETE eligibility.\n:param is_applicable: Whether the setting applies under current runtime state\n    (e.g. the active auth provider). ``False`` lets the UI present the field\n    as inert. Display-only, like ``is_advanced``: it does not block\n    PATCH/DELETE server-side; the runtime gate is the real enforcement.\n:param options: Selectable enum members for dropdown UIs, or ``None`` when\n    the field is not an ``Enum`` annotation. Aliased members are excluded.",
+        "description": "Represent a single setting's metadata and current value.\n\n:param setting_class: The Pydantic class ``__name__`` the field belongs to.\n:param key: The field name on the settings class.\n:param key_path: Carry the canonical key segments for ``key`` such that\n    ``\"__\".join(key_path) == key``.\n:param value: The current value visible through the proxy, dumped to a\n    JSON-safe shape via the field's annotation. ``SecretStr`` fields are\n    redacted to ``\"**********\"``.\n:param default_value: The field's declared default value, dumped via the\n    same JSON serialiser. ``None`` when no default exists.\n:param type: A human-readable representation of the field's declared\n    annotation (for operator visibility; validation uses the actual\n    ``FieldInfo``).\n:param reload: The reload classification (HOT or NOT_OVERRIDABLE).\n:param description: The field's free-text description, or ``None``.\n:param is_secret: Whether the field's annotation contains a Pydantic secret\n    (``SecretStr`` / ``SecretBytes``) at any depth.\n:param is_complex: Whether the field's annotation is or contains a Pydantic\n    ``BaseModel`` subclass (true for nested submodels).\n:param has_override: Whether a row exists in the ``settingoverride`` table\n    for this ``(setting_class, key)`` pair, regardless of ``is_active``.\n:param is_advanced: Whether the setting is flagged ``advanced`` so the UI can\n    present it separately from everyday settings. Display-only:\n    it does not affect PATCH/DELETE eligibility.\n:param is_applicable: Whether the setting applies under current runtime state\n    (e.g. the active auth provider). ``False`` lets the UI present the field\n    as inert. Display-only, like ``is_advanced``: it does not block\n    PATCH/DELETE server-side; the runtime gate is the real enforcement.\n:param options: Selectable enum members for dropdown UIs, or ``None`` when\n    the field is not an ``Enum`` annotation. Aliased members are excluded.",
         "properties": {
           "default_value": {
             "title": "Default Value"
@@ -1436,7 +2147,8 @@
             "$ref": "#/components/schemas/ReloadClassification"
           },
           "setting_class": {
-            "$ref": "#/components/schemas/SettingClassEnum"
+            "title": "Setting Class",
+            "type": "string"
           },
           "type": {
             "title": "Type",
@@ -1492,9 +2204,49 @@
         "title": "SourceEnum",
         "type": "string"
       },
-      "Table": {
-        "description": "Represent a table within a schema.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param name: The name of the table. Must be unique for schema_id, as defined by\n    composite index ix_table_name_schema_id.\n:type name: NonEmptyStr\n:param create: The SQL statement used to create the table.\n:type create: NonEmptyStr\n:param schema_id: The unique identifier of the schema to which the table belongs.\n    Must be unique for name, as defined by composite index ix_table_name_schema_id.\n:type schema_id: int\n:param database: The schema to which the table is associated.\n:type database: Schema",
+      "SyncHealthWrite": {
+        "description": "Define the body reporting one entity's sync outcome.\n\n:param outcome: Whether the attempt succeeded or failed.\n:param error: The failure's message, never empty. Required on FAILURE,\n    absent on SUCCESS.\n:param attempted_at: When the syncer began this attempt. Stamped as\n    ``last_synced_at`` on success, and compared against the row's current\n    ``last_synced_at`` so a late-arriving report from an older attempt\n    cannot overwrite a newer one. Refused when it sits further ahead of this\n    service's clock than the tolerated skew, since nothing later could then\n    supersede it.",
         "properties": {
+          "attempted_at": {
+            "format": "date-time",
+            "title": "Attempted At",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/SyncOutcomeEnum"
+          }
+        },
+        "required": ["outcome", "attempted_at"],
+        "title": "SyncHealthWrite",
+        "type": "object"
+      },
+      "SyncOutcomeEnum": {
+        "description": "Enumerate the outcomes a syncer reports for one entity's sync attempt.\n\n:cvar SUCCESS: The entity was compared against its source and updated.\n:cvar FAILURE: The attempt raised before the comparison completed.",
+        "enum": ["success", "failure"],
+        "title": "SyncOutcomeEnum",
+        "type": "string"
+      },
+      "Table": {
+        "description": "Represent a table within a schema.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param name: The name of the table. Must be unique for schema_id, as defined by\n    composite index ix_table_name_schema_id.\n:param create: The SQL statement used to create the table.\n:param schema_id: The unique identifier of the schema to which the table belongs.\n    Must be unique for name, as defined by composite index ix_table_name_schema_id.\n:param retired_at: When the table stopped being reported upstream, or None while\n    it is active.\n:param retirement_key: The discriminator carried inside every unique index.\n:param last_synced_at: When a syncer last confirmed the table against its\n    source, or None if that has never happened.\n:param last_sync_error: The message from the most recent failed attempt, or\n    None while the table is syncing cleanly.\n:param sync_failing_since: When the current run of failures began, or None\n    while not failing.\n:param consecutive_failures: Failed attempts since the last success.\n:param database: The schema to which the table is associated.",
+        "properties": {
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
+          },
           "create": {
             "minLength": 1,
             "title": "Create",
@@ -1521,14 +2273,61 @@
             "title": "Keys",
             "type": "object"
           },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
           "name": {
             "minLength": 1,
             "title": "Name",
             "type": "string"
           },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
+          },
           "schema_id": {
             "title": "Schema Id",
             "type": "integer"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
           },
           "updated_at": {
             "anyOf": [
@@ -1548,8 +2347,14 @@
         "type": "object"
       },
       "TableDetailResponse": {
-        "description": "Define the schema retrieve API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param name: The name of the table.\n:type name: NonEmptyStr\n:param create: The SQL statement used to create the table.\n:type create: NonEmptyStr\n:param schema_id: The foreign key referencing the schema to which the table belongs.\n:type schema_id: int\n:param database: The table's schema.\n:type database: Schema",
+        "description": "Define the schema retrieve API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param name: The name of the table.\n:param create: The SQL statement used to create the table.\n:param schema_id: The foreign key referencing the schema to which the table belongs.\n:param database: The table's schema.",
         "properties": {
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
+          },
           "create": {
             "minLength": 1,
             "title": "Create",
@@ -1579,14 +2384,61 @@
             "title": "Keys",
             "type": "object"
           },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
           "name": {
             "minLength": 1,
             "title": "Name",
             "type": "string"
           },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
+          },
           "schema_id": {
             "title": "Schema Id",
             "type": "integer"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
           },
           "updated_at": {
             "anyOf": [
@@ -1606,8 +2458,14 @@
         "type": "object"
       },
       "TableResponse": {
-        "description": "Define the table API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:type id: int | None\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:type created_at: UTCDatetime\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:type updated_at: UTCDatetime | None\n:param name: The name of the table.\n:type name: NonEmptyStr\n:param create: The SQL statement used to create the table.\n:type create: NonEmptyStr\n:param schema_id: The foreign key referencing the schema to which the table belongs.\n:type schema_id: int",
+        "description": "Define the table API response.\n\n:param id: The primary key for the table. Auto-incremented and not nullable.\n:param created_at: The timestamp when the record is created. Defaults to the current\n    time in UTC.\n:param updated_at: The timestamp when the record is last updated. Automatically\n    updated on changes.\n:param name: The name of the table.\n:param create: The SQL statement used to create the table.\n:param schema_id: The foreign key referencing the schema to which the table belongs.\n:param retired_at: When the table stopped being reported upstream, or None while\n    it is active.\n:param last_synced_at: When a syncer last confirmed the table against its\n    source, or None if that has never happened.\n:param last_sync_error: The message from the most recent failed attempt, or\n    None while the table is syncing cleanly.\n:param sync_failing_since: When the current run of failures began, or None\n    while not failing.\n:param consecutive_failures: Failed attempts since the last success.",
         "properties": {
+          "consecutive_failures": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Consecutive Failures",
+            "type": "integer"
+          },
           "create": {
             "minLength": 1,
             "title": "Create",
@@ -1634,14 +2492,61 @@
             "title": "Keys",
             "type": "object"
           },
+          "last_sync_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Sync Error"
+          },
+          "last_synced_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Synced At"
+          },
           "name": {
             "minLength": 1,
             "title": "Name",
             "type": "string"
           },
+          "retired_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retired At"
+          },
           "schema_id": {
             "title": "Schema Id",
             "type": "integer"
+          },
+          "sync_failing_since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sync Failing Since"
           },
           "updated_at": {
             "anyOf": [
@@ -1661,7 +2566,7 @@
         "type": "object"
       },
       "TableWrite": {
-        "description": "Define the model for writing table data to the inventory.\n\n:param name: The name of the table.\n:type name: NonEmptyStr\n:param create: The SQL statement used to create the table.\n:type create: NonEmptyStr\n:param schema_id: The foreign key referencing the schema to which the table belongs.\n:type schema_id: int | None",
+        "description": "Define the model for writing table data to the inventory.\n\n:param name: The name of the table.\n:param create: The SQL statement used to create the table.\n:param schema_id: The foreign key referencing the schema to which the table belongs.",
         "properties": {
           "create": {
             "minLength": 1,
@@ -1785,7 +2690,8 @@
             "name": "setting_class",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SettingClassEnum"
+              "title": "Setting Class",
+              "type": "string"
             }
           }
         ],
@@ -1844,7 +2750,8 @@
             "name": "setting_class",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SettingClassEnum"
+              "title": "Setting Class",
+              "type": "string"
             }
           },
           {
@@ -1889,7 +2796,8 @@
             "name": "setting_class",
             "required": true,
             "schema": {
-              "$ref": "#/components/schemas/SettingClassEnum"
+              "title": "Setting Class",
+              "type": "string"
             }
           },
           {
@@ -1933,9 +2841,54 @@
         "tags": ["settings"]
       }
     },
+    "/collection/collect": {
+      "post": {
+        "description": "Delete the tombstones the caller's retained set does not cover.\n\nEntities are walked deepest-first — table, schema, service, node — so an\ninterrupted run can only leave deleted descendants under a surviving\nancestor rather than an orphan.\n\nA type that fills its ``limit`` ends the walk. Deleting an ancestor cascades\nto descendants the cap had excluded, and those ids would then be missing from\n``deleted`` — leaving the caller unable to clear their bookkeeping and making\nthe reported set a false record of what was removed. Stopping keeps\n``deleted`` exhaustive; the ancestors are collected on the next batch, which\n``remaining`` asks for.\n\n:param session: The asynchronous database session.\n:param body: The cutoff, the retained ids, and the batch controls.\n:return: The collected ids per entity type, and whether more are waiting.",
+        "operationId": "collection_collect_retired_entities_collection_collect_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryCollectWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryCollectResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Collect Retired Entities",
+        "tags": ["collection"]
+      }
+    },
     "/nodes/": {
       "get": {
-        "description": "List Nodes from Inventory.",
+        "description": "List Nodes from Inventory.\n\n:param session: The async database session.\n:param pagination: Validated offset/limit query parameters.\n:param list_query: The resolved sort/search produced at the request boundary.\n:param manager: The node manager the request's retirement scope selected.\n:param external_id: Return only the node carrying this upstream identifier,\n    resolved through any identity alias recorded for it.\n:param source: Return only nodes discovered by this source.\n:param node_type: Return only nodes of this type.\n:return: A paginated response of node responses.",
         "operationId": "nodes_list_nodes_nodes__get",
         "parameters": [
           {
@@ -2041,6 +2994,16 @@
               "description": "Case-insensitive search across the searchable columns.",
               "title": "Search"
             }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -2117,10 +3080,70 @@
         "tags": ["nodes"]
       }
     },
+    "/nodes/identity-candidates": {
+      "get": {
+        "description": "List node pairings a PMM re-registration may have split.\n\nDeclared above ``GET /{node_id}``: FastAPI matches path operations in\ndeclaration order, so the parameterized route would claim this path first and\nanswer 422 on the unparseable identifier rather than 404.\n\nBuilt through :meth:`PaginatedResponse.from_pagination` rather than\n``list_query_paginated``, the item being a pair of rows and not a single\nmodel.\n\n:param session: The async database session.\n:param pagination: Validated offset/limit query parameters.\n:return: A paginated response of candidate pairings.",
+        "operationId": "nodes_list_node_identity_candidates_nodes_identity_candidates_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_NodeIdentityCandidateResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Node Identity Candidates",
+        "tags": ["nodes"]
+      }
+    },
     "/nodes/{node_id}": {
       "delete": {
-        "description": "Delete Node.",
-        "operationId": "nodes_delete_node_nodes__node_id__delete",
+        "description": "Retire Node and everything below it, keeping the rows resolvable.\n\n:param session: The asynchronous database session.\n:param node: The node to retire, retired or not.",
+        "operationId": "nodes_retire_node_nodes__node_id__delete",
         "parameters": [
           {
             "in": "path",
@@ -2152,11 +3175,11 @@
             "OAuth2PasswordBearer": []
           }
         ],
-        "summary": "Delete Node",
+        "summary": "Retire Node",
         "tags": ["nodes"]
       },
       "get": {
-        "description": "Retrieve Node from inventory.",
+        "description": "Retrieve Node from inventory.\n\n:param session: The async database session.\n:param node_id: The identifier of the node to retrieve.\n:param manager: The node manager the request's retirement scope selected.\n:return: The node, with its services nested.\n:raises HTTPNotFoundException: If no node in scope has the given identifier.",
         "operationId": "nodes_retrieve_node_nodes__node_id__get",
         "parameters": [
           {
@@ -2166,6 +3189,16 @@
             "schema": {
               "title": "Node Id",
               "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
             }
           }
         ],
@@ -2200,7 +3233,7 @@
         "tags": ["nodes"]
       },
       "put": {
-        "description": "Update Node.",
+        "description": "Update Node.\n\n:param session: The async database session.\n:param existing_node: The active node addressed by the path.\n:param updated_node: The fields to write onto it.\n:return: The updated node.",
         "operationId": "nodes_update_node_nodes__node_id__put",
         "parameters": [
           {
@@ -2251,6 +3284,163 @@
           }
         ],
         "summary": "Update Node",
+        "tags": ["nodes"]
+      }
+    },
+    "/nodes/{node_id}/identity-aliases": {
+      "get": {
+        "description": "List the upstream identifiers this node has answered for, oldest first.\n\nA node no link has ever touched has no records, which is an empty page rather\nthan a 404.\n\n:param session: The async database session.\n:param node: The node addressed by the path, retired or not.\n:param pagination: Validated offset/limit query parameters.\n:return: A paginated response of the node's binding records, oldest first.",
+        "operationId": "nodes_list_node_identity_aliases_nodes__node_id__identity_aliases_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "title": "Node Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_ExternalIdentityAliasResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Node Identity Aliases",
+        "tags": ["nodes"]
+      }
+    },
+    "/nodes/{node_id}/identity-link": {
+      "post": {
+        "description": "Confirm, reject or reverse a candidate node pairing.\n\nThe path names the **predecessor** — the survivor of a confirmation, and the\nrow the operator is acting on in all three decisions.\n\nCarries ``IsAuthenticatedDep`` and deliberately not ``IsServicePrincipalDep``:\nan identity link is an operator judgement, not a row the syncer owns. The\napp-wide unsafe-method gate already makes the route admin-only for a human\nwhile admitting the principal by identity.\n\n:param session: The async database session.\n:param node: The predecessor addressed by the path, retired or not.\n:param decision: What the operator decided, and about which successor.\n:param principal: The caller recorded on the resulting records.\n:raises HTTPBadRequestException: If the body names the node itself, or both\n    rows already hold one identifier.\n:raises HTTPNotFoundException: If a confirmation or rejection names a\n    successor that does not exist. A reversal reports the same absence as a\n    conflict, the pairing it would reverse no longer being reversible.\n:raises HTTPConflictException: If the decision does not apply to the pairing\n    as it currently stands.",
+        "operationId": "nodes_decide_node_identity_link_nodes__node_id__identity_link_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "title": "Node Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityLinkDecisionWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Decide Node Identity Link",
+        "tags": ["nodes"]
+      }
+    },
+    "/nodes/{node_id}/revive": {
+      "post": {
+        "description": "Revive a retired Node, leaving the services it was retired with retired.\n\n:param session: The asynchronous database session.\n:param node: The node to revive, retired or not.\n:raises HTTPConflictException: If an active entity already holds the unique\n    key the revived node would reclaim.",
+        "operationId": "nodes_revive_node_nodes__node_id__revive_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "title": "Node Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Revive Node",
         "tags": ["nodes"]
       }
     },
@@ -2336,6 +3526,16 @@
               ],
               "description": "Case-insensitive search across the searchable columns.",
               "title": "Search"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
             }
           }
         ],
@@ -2424,6 +3624,55 @@
         "tags": ["nodes"]
       }
     },
+    "/nodes/{node_id}/sync-health": {
+      "post": {
+        "description": "Record the outcome of one syncer attempt on a Node.\n\nAddresses the node whether retired or not: the attempt happened, and a\nconcurrent retirement must not turn bookkeeping into a failed sync item.\n\n:param session: The async database session.\n:param node: The node the outcome was observed for, retired or not.\n:param outcome: What the syncer reported.",
+        "operationId": "nodes_record_node_sync_health_nodes__node_id__sync_health_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "title": "Node Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncHealthWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Record Node Sync Health",
+        "tags": ["nodes"]
+      }
+    },
     "/nodes/{node_id}/system-observation": {
       "get": {
         "description": "Retrieve host system observation for a node.",
@@ -2470,7 +3719,7 @@
         "tags": ["nodes"]
       },
       "put": {
-        "description": "Upsert host system observation for a node.",
+        "description": "Upsert host system observation for a node.\n\n:param session: The async database session.\n:param node: The active node the observation belongs to.\n:param data: The observed host facts to store.\n:return: The stored observation.",
         "operationId": "nodes_upsert_host_system_observation_nodes__node_id__system_observation_put",
         "parameters": [
           {
@@ -2526,7 +3775,7 @@
     },
     "/schemas/": {
       "get": {
-        "description": "List Schemas.",
+        "description": "List Schemas.\n\n:param session: The async database session.\n:param pagination: Validated offset/limit query parameters.\n:param list_query: The resolved sort/search produced at the request boundary.\n:param manager: The schema manager the request's retirement scope selected.\n:return: A paginated response of schema responses.",
         "operationId": "schemas_list_schemas_schemas__get",
         "parameters": [
           {
@@ -2589,6 +3838,16 @@
               "description": "Case-insensitive search across the searchable columns.",
               "title": "Search"
             }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -2624,8 +3883,8 @@
     },
     "/schemas/{schema_id}": {
       "delete": {
-        "description": "Delete Schema.",
-        "operationId": "schemas_delete_schema_schemas__schema_id__delete",
+        "description": "Retire Schema and its tables, keeping the rows resolvable.\n\n:param session: The asynchronous database session.\n:param schema: The schema to retire, retired or not.",
+        "operationId": "schemas_retire_schema_schemas__schema_id__delete",
         "parameters": [
           {
             "in": "path",
@@ -2657,11 +3916,11 @@
             "OAuth2PasswordBearer": []
           }
         ],
-        "summary": "Delete Schema",
+        "summary": "Retire Schema",
         "tags": ["schemas"]
       },
       "get": {
-        "description": "Retrieve Schema.",
+        "description": "Retrieve Schema.\n\n:param session: The async database session.\n:param schema_id: The identifier of the schema to retrieve.\n:param manager: The schema manager the request's retirement scope selected.\n:return: The schema, with its tables and service nested.\n:raises HTTPNotFoundException: If no schema in scope has the given identifier.",
         "operationId": "schemas_retrieve_schema_schemas__schema_id__get",
         "parameters": [
           {
@@ -2671,6 +3930,16 @@
             "schema": {
               "title": "Schema Id",
               "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
             }
           }
         ],
@@ -2759,6 +4028,94 @@
         "tags": ["schemas"]
       }
     },
+    "/schemas/{schema_id}/revive": {
+      "post": {
+        "description": "Revive a retired Schema together with its retired ancestors.\n\n:param session: The asynchronous database session.\n:param schema: The schema to revive, retired or not.\n:raises HTTPConflictException: If an active entity already holds the unique\n    key the revived schema would reclaim.",
+        "operationId": "schemas_revive_schema_schemas__schema_id__revive_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "schema_id",
+            "required": true,
+            "schema": {
+              "title": "Schema Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Revive Schema",
+        "tags": ["schemas"]
+      }
+    },
+    "/schemas/{schema_id}/sync-health": {
+      "post": {
+        "description": "Record the outcome of one syncer attempt on a Schema.\n\nAddresses the schema whether retired or not: the attempt happened, and a\nconcurrent retirement must not turn bookkeeping into a failed sync item.\n\n:param session: The async database session.\n:param schema: The schema the outcome was observed for, retired or not.\n:param outcome: What the syncer reported.",
+        "operationId": "schemas_record_schema_sync_health_schemas__schema_id__sync_health_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "schema_id",
+            "required": true,
+            "schema": {
+              "title": "Schema Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncHealthWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Record Schema Sync Health",
+        "tags": ["schemas"]
+      }
+    },
     "/schemas/{schema_id}/tables/": {
       "get": {
         "description": "List Tables by Schema.",
@@ -2832,6 +4189,16 @@
               ],
               "description": "Case-insensitive search across the searchable columns.",
               "title": "Search"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
             }
           }
         ],
@@ -2922,9 +4289,26 @@
     },
     "/services/": {
       "get": {
-        "description": "List Services.",
+        "description": "List Services.\n\n:param session: The async database session.\n:param pagination: Validated offset/limit query parameters.\n:param list_query: The resolved sort/search produced at the request boundary.\n:param manager: The service manager the request's retirement scope selected.\n:param external_id: Return only the service carrying this upstream identifier,\n    resolved through any identity alias recorded for it.\n:param service_type: Return only services of this type.\n:return: A paginated response of service responses.",
         "operationId": "services_list_services_services__get",
         "parameters": [
+          {
+            "in": "query",
+            "name": "external_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "External Id"
+            }
+          },
           {
             "in": "query",
             "name": "service_type",
@@ -2994,6 +4378,16 @@
               "description": "Case-insensitive search across the searchable columns.",
               "title": "Search"
             }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -3027,10 +4421,70 @@
         "tags": ["services"]
       }
     },
+    "/services/identity-candidates": {
+      "get": {
+        "description": "List service pairings a PMM re-registration may have split.\n\nDeclared above ``GET /{service_id}``: FastAPI matches path operations in\ndeclaration order, so the parameterized route would claim this path first and\nanswer 422 on the unparseable identifier rather than 404.\n\n:param session: The async database session.\n:param pagination: Validated offset/limit query parameters.\n:return: A paginated response of candidate pairings.",
+        "operationId": "services_list_service_identity_candidates_services_identity_candidates_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_ServiceIdentityCandidateResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Service Identity Candidates",
+        "tags": ["services"]
+      }
+    },
     "/services/{service_id}": {
       "delete": {
-        "description": "Delete Service.",
-        "operationId": "services_delete_service_services__service_id__delete",
+        "description": "Retire Service and everything below it, keeping the rows resolvable.\n\n:param session: The asynchronous database session.\n:param service: The service to retire, retired or not.",
+        "operationId": "services_retire_service_services__service_id__delete",
         "parameters": [
           {
             "in": "path",
@@ -3062,7 +4516,7 @@
             "OAuth2PasswordBearer": []
           }
         ],
-        "summary": "Delete Service",
+        "summary": "Retire Service",
         "tags": ["services"]
       },
       "get": {
@@ -3076,6 +4530,16 @@
             "schema": {
               "title": "Service Id",
               "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
             }
           }
         ],
@@ -3164,9 +4628,166 @@
         "tags": ["services"]
       }
     },
+    "/services/{service_id}/identity-aliases": {
+      "get": {
+        "description": "List the upstream identifiers this service has answered for, oldest first.\n\n:param session: The async database session.\n:param service: The service addressed by the path, retired or not.\n:param pagination: Validated offset/limit query parameters.\n:return: A paginated response of the service's binding records, oldest first.",
+        "operationId": "services_list_service_identity_aliases_services__service_id__identity_aliases_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_id",
+            "required": true,
+            "schema": {
+              "title": "Service Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_ExternalIdentityAliasResponse_"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Service Identity Aliases",
+        "tags": ["services"]
+      }
+    },
+    "/services/{service_id}/identity-link": {
+      "post": {
+        "description": "Confirm, reject or reverse a candidate service pairing.\n\nThe path names the **predecessor** — the survivor of a confirmation.\n\nCarries ``IsAuthenticatedDep`` and deliberately not ``IsServicePrincipalDep``:\nan identity link is an operator judgement, not a row the syncer owns.\n\n:param session: The async database session.\n:param service: The predecessor addressed by the path, retired or not.\n:param decision: What the operator decided, and about which successor.\n:param principal: The caller recorded on the resulting records.\n:raises HTTPBadRequestException: If the body names the service itself, or both\n    rows already hold one identifier.\n:raises HTTPNotFoundException: If a confirmation or rejection names a\n    successor that does not exist. A reversal reports the same absence as a\n    conflict, the pairing it would reverse no longer being reversible.\n:raises HTTPConflictException: If the decision does not apply to the pairing\n    as it currently stands.",
+        "operationId": "services_decide_service_identity_link_services__service_id__identity_link_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_id",
+            "required": true,
+            "schema": {
+              "title": "Service Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityLinkDecisionWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Decide Service Identity Link",
+        "tags": ["services"]
+      }
+    },
+    "/services/{service_id}/revive": {
+      "post": {
+        "description": "Revive a retired Service together with its retired ancestors.\n\n:param session: The asynchronous database session.\n:param service: The service to revive, retired or not.\n:raises HTTPConflictException: If an active entity already holds the unique\n    key the revived service would reclaim.",
+        "operationId": "services_revive_service_services__service_id__revive_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_id",
+            "required": true,
+            "schema": {
+              "title": "Service Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Revive Service",
+        "tags": ["services"]
+      }
+    },
     "/services/{service_id}/schemas/": {
       "get": {
-        "description": "List Schemas by Service.\n\nReturn ``SchemaResponse`` (with nested tables) when ``include_tables``\nis set, otherwise return ``SchemaCompactResponse`` (without tables).\n\n:param session: The async database session.\n:param service: The resolved service dependency.\n:param pagination: Validated offset/limit query parameters.\n:param list_query: The resolved sort/search produced at the request\n    boundary.\n:param include_tables: Include nested tables in the response when set to\n    any non-empty value. Defaults to compact mode (no tables).\n:return: A paginated response of schema responses.",
+        "description": "List Schemas by Service.\n\nReturn ``SchemaResponse`` (with nested tables) when ``include_tables``\nis set, otherwise return ``SchemaCompactResponse`` (without tables).\n\n:param session: The async database session.\n:param service: The resolved service dependency.\n:param pagination: Validated offset/limit query parameters.\n:param list_query: The resolved sort/search produced at the request\n    boundary.\n:param manager: The schema manager the request's retirement scope selected.\n:param include_tables: Include nested tables in the response when set to\n    any non-empty value. Defaults to compact mode (no tables).\n:return: A paginated response of schema responses.",
         "operationId": "services_list_schemas_by_service_services__service_id__schemas__get",
         "parameters": [
           {
@@ -3254,6 +4875,16 @@
               "description": "Case-insensitive search across the searchable columns.",
               "title": "Search"
             }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -3338,6 +4969,55 @@
           }
         ],
         "summary": "Create Schema For Service",
+        "tags": ["services"]
+      }
+    },
+    "/services/{service_id}/sync-health": {
+      "post": {
+        "description": "Record the outcome of one syncer attempt on a Service.\n\nAddresses the service whether retired or not: the attempt happened, and a\nconcurrent retirement must not turn bookkeeping into a failed sync item.\n\n:param session: The async database session.\n:param service: The service the outcome was observed for, retired or not.\n:param outcome: What the syncer reported.",
+        "operationId": "services_record_service_sync_health_services__service_id__sync_health_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "service_id",
+            "required": true,
+            "schema": {
+              "title": "Service Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncHealthWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Record Service Sync Health",
         "tags": ["services"]
       }
     },
@@ -3535,6 +5215,16 @@
               "description": "Case-insensitive search across the searchable columns.",
               "title": "Search"
             }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -3570,8 +5260,8 @@
     },
     "/tables/{table_id}": {
       "delete": {
-        "description": "Delete Table.",
-        "operationId": "tables_delete_table_tables__table_id__delete",
+        "description": "Retire Table, keeping the row resolvable.\n\n:param session: The asynchronous database session.\n:param table: The table to retire, retired or not.",
+        "operationId": "tables_retire_table_tables__table_id__delete",
         "parameters": [
           {
             "in": "path",
@@ -3603,11 +5293,11 @@
             "OAuth2PasswordBearer": []
           }
         ],
-        "summary": "Delete Table",
+        "summary": "Retire Table",
         "tags": ["tables"]
       },
       "get": {
-        "description": "Retrieve Table.",
+        "description": "Retrieve Table.\n\n:param session: The async database session.\n:param table_id: The identifier of the table to retrieve.\n:param manager: The table manager the request's retirement scope selected.\n:return: The table, with its schema nested.\n:raises HTTPNotFoundException: If no table in scope has the given identifier.",
         "operationId": "tables_retrieve_table_tables__table_id__get",
         "parameters": [
           {
@@ -3617,6 +5307,16 @@
             "schema": {
               "title": "Table Id",
               "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "include_retired",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Include Retired",
+              "type": "boolean"
             }
           }
         ],
@@ -3702,6 +5402,94 @@
           }
         ],
         "summary": "Update Table",
+        "tags": ["tables"]
+      }
+    },
+    "/tables/{table_id}/revive": {
+      "post": {
+        "description": "Revive a retired Table together with its retired ancestors.\n\n:param session: The asynchronous database session.\n:param table: The table to revive, retired or not.\n:raises HTTPConflictException: If an active entity already holds the unique\n    key the revived table would reclaim.",
+        "operationId": "tables_revive_table_tables__table_id__revive_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "table_id",
+            "required": true,
+            "schema": {
+              "title": "Table Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Revive Table",
+        "tags": ["tables"]
+      }
+    },
+    "/tables/{table_id}/sync-health": {
+      "post": {
+        "description": "Record the outcome of one syncer attempt on a Table.\n\nAddresses the table whether retired or not: the attempt happened, and a\nconcurrent retirement must not turn bookkeeping into a failed sync item.\n\n:param session: The async database session.\n:param table: The table the outcome was observed for, retired or not.\n:param outcome: What the syncer reported.",
+        "operationId": "tables_record_table_sync_health_tables__table_id__sync_health_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "table_id",
+            "required": true,
+            "schema": {
+              "title": "Table Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SyncHealthWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Record Table Sync Health",
         "tags": ["tables"]
       }
     }
