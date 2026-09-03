@@ -32,12 +32,14 @@ import Skeleton from '@mui/material/Skeleton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSnackbar } from 'notistack';
 import {
+  useAuth,
   usePluginSchema,
   usePluginEntityDetail,
   useUpdatePluginEntity,
   type PluginEntitySchema,
   type PluginSchema,
 } from '@sep/api';
+import { ReadOnlyNotice } from '../ReadOnlyNotice';
 import {
   SchemaFormRenderer,
   coerceFormValues,
@@ -141,6 +143,7 @@ function PluginEditPage({
   renderEditForm?: RenderFormSlot;
 }) {
   const navigate = useNavigate();
+  const { canMutate } = useAuth();
   const { entityName, id } = useParams<{ entityName?: string; id: string }>();
   const entitySchema = useMemo(
     () =>
@@ -201,6 +204,31 @@ function PluginEditPage({
       }
     );
   };
+
+  // Editing is a mutation, so the whole page is the control (see
+  // PluginCreatePage), and the back chrome stays so a URL arrival is not a
+  // dead end.
+  if (!canMutate) {
+    return (
+      <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+          <IconButton
+            onClick={() => navigate('..', { relative: 'path' })}
+            aria-label={`Back to ${title}`}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h4">
+            {title} #{id}
+          </Typography>
+        </Box>
+        <ReadOnlyNotice
+          action={`edit ${title}`}
+          testId="plugin-entity-edit-read-only"
+        />
+      </Box>
+    );
+  }
 
   if (!multi || !entitySchema) {
     return (

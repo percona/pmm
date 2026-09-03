@@ -31,6 +31,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+import { useAuth } from '@sep/api';
 import { ScheduledTaskForm } from './ScheduledTaskForm';
 import { ScheduledTaskRow } from './ScheduledTaskRow';
 import {
@@ -58,13 +59,16 @@ const COLUMN_HEADERS = [
   'Runs',
   'Chain',
   'Enabled',
-  'Actions',
 ];
+
+/** Trailing header for the row edit/delete cell, dropped for read-only sessions. */
+const ACTIONS_HEADER = 'Actions';
 
 export function ScheduledTasksPanel({
   pluginName,
   disablePolling = false,
 }: ScheduledTasksPanelProps) {
+  const { canMutate } = useAuth();
   const { periodicTasks, pluginTasks, isLoading, isError, error } =
     useScheduledTasksForPlugin(pluginName, { disablePolling });
 
@@ -183,9 +187,11 @@ export function ScheduledTasksPanel({
   const headerRow = (
     <TableHead>
       <TableRow>
-        {COLUMN_HEADERS.map((h) => (
-          <TableCell key={h}>{h}</TableCell>
-        ))}
+        {(canMutate ? [...COLUMN_HEADERS, ACTIONS_HEADER] : COLUMN_HEADERS).map(
+          (h) => (
+            <TableCell key={h}>{h}</TableCell>
+          )
+        )}
       </TableRow>
     </TableHead>
   );
@@ -251,6 +257,7 @@ export function ScheduledTasksPanel({
                   submitting={updateMut.isPending}
                   toggling={updateMut.isPending}
                   errorMessage={editingId === task.id ? formError : undefined}
+                  readOnly={!canMutate}
                 />
               ))}
             </TableBody>
@@ -272,7 +279,7 @@ export function ScheduledTasksPanel({
         </Box>
       )}
 
-      {!creating && (
+      {!creating && canMutate && (
         <Stack
           direction="row"
           justifyContent="flex-end"

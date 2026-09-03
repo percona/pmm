@@ -26,6 +26,8 @@ import type { RenderFormSlot } from './types';
 
 const mockCreateTaskMutate = vi.fn();
 const mockNavigate = vi.fn();
+/** Flipped per test to cover the read-only (non-admin) rendering. */
+let mockCanMutate = true;
 
 vi.mock('@sep/api', () => ({
   useCreatePluginTask: () => ({
@@ -33,6 +35,7 @@ vi.mock('@sep/api', () => ({
     isPending: false,
   }),
   useCreatePluginEntity: () => ({ mutate: vi.fn(), isPending: false }),
+  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
 }));
 
 vi.mock('react-router-dom', async (importOriginal) => {
@@ -43,6 +46,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 beforeEach(() => {
   mockCreateTaskMutate.mockReset();
   mockNavigate.mockReset();
+  mockCanMutate = true;
 });
 
 const schema: PluginSchema = {
@@ -167,5 +171,29 @@ describe('PluginCreatePage — post-create navigation', () => {
     act(() => onSuccess({ name: 'my task' }));
 
     expect(mockNavigate).toHaveBeenCalledWith('..', { relative: 'path' });
+  });
+});
+
+describe('PluginCreatePage — write access', () => {
+  it('renders the create form for a session that may mutate', () => {
+    renderPage();
+
+    expect(
+      screen.getByRole('button', { name: 'Create Checksum' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('plugin-create-read-only')
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders the read-only guard instead of the create form for a non-admin', () => {
+    mockCanMutate = false;
+    renderPage();
+
+    expect(screen.getByTestId('plugin-create-read-only')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Create Checksum' })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
   });
 });

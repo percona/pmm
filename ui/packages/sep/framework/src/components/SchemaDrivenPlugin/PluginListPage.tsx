@@ -31,6 +31,7 @@ import {
   DEFAULT_PLUGIN_LIST_LIMIT,
   DEFAULT_PLUGIN_LIST_OFFSET,
   RUNNING_STATUSES,
+  useAuth,
   useDeletePluginEntity,
   usePluginEntityList,
   usePluginTasks,
@@ -95,6 +96,7 @@ export function PluginListPage({
   disableTaskPolling = false,
 }: PluginListPageProps) {
   const navigate = useNavigate();
+  const { canMutate } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const [pendingDelete, setPendingDelete] = useState<{
     id: string;
@@ -179,7 +181,11 @@ export function PluginListPage({
   );
 
   const onDeleteRow =
-    allowListEntityDelete && multi && entityName && hasActionsColumn
+    canMutate &&
+    allowListEntityDelete &&
+    multi &&
+    entityName &&
+    hasActionsColumn
       ? (row: Record<string, unknown>) => {
           const rid = row.id;
           if (rid === undefined || rid === null) {
@@ -278,7 +284,7 @@ export function PluginListPage({
                 Schedules
               </Button>
             )}
-            {!hideCreate && (
+            {!hideCreate && canMutate && (
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}

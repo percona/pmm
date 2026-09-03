@@ -16,7 +16,7 @@
  */
 
 import { useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { get, useFormContext } from 'react-hook-form';
 import { AutoCompleteInput } from '@percona/peak-ui';
 import {
   useServices,
@@ -70,8 +70,14 @@ export function ServiceSelector({
   helperText,
   allowCustom,
 }: ServiceSelectorProps) {
-  const { control, setValue, watch } = useFormContext();
+  const {
+    control,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext();
   const storedValue = watch(name);
+  const fieldError = get(errors, name)?.message as string | undefined;
 
   const {
     data: services = EMPTY_OPTIONS,
@@ -82,11 +88,14 @@ export function ServiceSelector({
 
   const empty = !isLoading && !isError && services.length === 0;
 
-  const text = isError
-    ? (error?.message ?? 'Failed to load services')
-    : empty
-      ? 'No services available'
-      : helperText;
+  const showError = isError || Boolean(fieldError);
+  const text = fieldError
+    ? fieldError
+    : isError
+      ? (error?.message ?? 'Failed to load services')
+      : empty
+        ? 'No services available'
+        : helperText;
 
   useEffect(() => {
     if (allowCustom || isHydratedReferenceOption(storedValue)) {
@@ -113,7 +122,7 @@ export function ServiceSelector({
         disabled={disabled || isError}
         loading={isLoading}
         helperText={text}
-        error={isError}
+        error={showError}
         noOptionsText={
           isLoading ? 'Loading services…' : 'No services available'
         }
@@ -141,7 +150,7 @@ export function ServiceSelector({
           : 'No services available',
         value: resolveReferenceOption(storedValue, services),
       }}
-      textFieldProps={{ helperText: text, error: isError }}
+      textFieldProps={{ helperText: text, error: showError }}
     />
   );
 }

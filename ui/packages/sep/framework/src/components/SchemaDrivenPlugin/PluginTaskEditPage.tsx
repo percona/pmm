@@ -24,10 +24,12 @@ import Typography from '@mui/material/Typography';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSnackbar } from 'notistack';
 import {
+  useAuth,
   usePluginTask,
   useUpdatePluginTask,
   type PluginSchema,
 } from '@sep/api';
+import { ReadOnlyNotice } from '../ReadOnlyNotice';
 import {
   SchemaFormRenderer,
   coerceFormValues,
@@ -123,6 +125,7 @@ export function PluginTaskEditPage({
   renderEditForm?: RenderFormSlot;
 }) {
   const navigate = useNavigate();
+  const { canMutate } = useAuth();
   const { id } = useParams<{ id: string }>();
   const { enqueueSnackbar } = useSnackbar();
   const updateTask = useUpdatePluginTask(pluginName, mockTasks);
@@ -190,6 +193,31 @@ export function PluginTaskEditPage({
       }
     );
   };
+
+  // Editing is a mutation, so the whole page is the control (see
+  // PluginCreatePage), and the back chrome stays so a URL arrival is not a
+  // dead end.
+  if (!canMutate) {
+    return (
+      <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
+          <IconButton
+            onClick={() => navigate('..', { relative: 'path' })}
+            aria-label={`Back to ${schema.display_name}`}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h4">
+            {schema.display_name}: {id}
+          </Typography>
+        </Box>
+        <ReadOnlyNotice
+          action={`edit ${schema.display_name} tasks`}
+          testId="plugin-task-edit-read-only"
+        />
+      </Box>
+    );
+  }
 
   if (isLoading) {
     return (
