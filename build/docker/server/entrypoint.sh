@@ -7,6 +7,7 @@ declare CURRENT_GID CURRENT_UID CURRENT_USER
 # Returns 0 (true) if the given variable is set to "1" or "true".
 is_enabled() { [ "$1" = "1" ] || [ "$1" = "true" ]; }
 declare POSTGRES_DATA_DIR="/srv/postgres18"
+declare POSTGRES_OLD_DATA_DIR="/srv/postgres14"
 declare POSTGRES_PASSWORD_FILE="/srv/.postgres_password"
 declare POSTGRES_BIN_DIR="/usr/pgsql-18/bin"
 
@@ -142,11 +143,21 @@ elif is_enabled "$PMM_DISABLE_BUILTIN_POSTGRES"; then
     echo "Skipping embedded PostgreSQL setup (builtin PostgreSQL is disabled)."
 else
     mkdir -p /run/postgresql
-    chmod 750 "$POSTGRES_DATA_DIR" || true
+    # Kubernetes applies fsGroup by recursively adding group permissions to the volume, which
+    # turns an initdb-created 0700 data directory into 2770 — a mode PostgreSQL refuses. Repair
+    # the current cluster and a PostgreSQL 14 directory awaiting migration, which
+    # postgres-migration has to start in order to dump it. chmod keeps the setgid bit on a
+    # directory, so the result is 2750, which PostgreSQL accepts.
+    for dir in "$POSTGRES_DATA_DIR" "$POSTGRES_OLD_DATA_DIR"; do
+        if [ -d "$dir" ]; then
+            chmod 750 "$dir" || true
+        fi
+    done
+    unset dir
     # Scoped to this subshell so the helper scripts inherit them without polluting
     # the environment that supervisord and its children are started with.
     (
-        export POSTGRES_DATA_DIR POSTGRES_PASSWORD_FILE POSTGRES_BIN_DIR
+        export POSTGRES_DATA_DIR POSTGRES_OLD_DATA_DIR POSTGRES_PASSWORD_FILE POSTGRES_BIN_DIR
         bash /opt/ansible/roles/postgres/files/postgres-migration
         bash /opt/ansible/roles/postgres/files/postgres-sep
     )

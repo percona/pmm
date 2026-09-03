@@ -4,9 +4,13 @@ import { Settings } from './Settings';
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithQueryProvider } from 'utils/testUtils';
 import * as settingsApi from 'api/settings';
-import type { Settings as SettingsType } from 'types/settings.types';
+import * as versionApi from 'api/version';
+import { SETTINGS_MOCK } from 'api/__mocks__/settings';
+import { VERSION_MOCK } from 'api/__mocks__/version';
+import { DistributionMethod } from 'types/version.types';
 
 vi.mock('api/settings');
+vi.mock('api/version');
 vi.mock('./components/metrics-resolution/MetricsResolutionForm', () => ({
   MetricsResolutionForm: () => null,
 }));
@@ -21,7 +25,7 @@ vi.mock('./components/servicenow', () => ({
 }));
 
 const getSettingsMock = vi.mocked(settingsApi.getSettings);
-const mockSettings = {} as SettingsType;
+const getVersionMock = vi.mocked(versionApi.getVersion);
 
 const renderWithRoute = (initialPath: string) =>
   render(
@@ -36,18 +40,25 @@ const renderWithRoute = (initialPath: string) =>
 
 describe('Settings', () => {
   beforeEach(() => {
-    getSettingsMock.mockImplementation(() => new Promise(() => {}));
+    getSettingsMock.mockResolvedValue(SETTINGS_MOCK);
+    getVersionMock.mockResolvedValue(VERSION_MOCK);
   });
 
   it('shows loading state when settings are not yet loaded', () => {
+    getSettingsMock.mockImplementation(() => new Promise(() => {}));
+
     render(<TestWrapper>{wrapWithQueryProvider(<Settings />)}</TestWrapper>);
 
     expect(screen.getByTestId('settings-loading')).toBeInTheDocument();
   });
 
   describe('tab navigation by URL', () => {
-    beforeEach(() => {
-      getSettingsMock.mockResolvedValue(mockSettings);
+    it('ssh tab is not shown when distribution type is not AMI', async () => {
+      renderWithRoute('/settings/metrics-resolution');
+
+      await screen.findByTestId('settings-tab-metrics');
+
+      expect(screen.queryByTestId('settings-tab-ssh')).not.toBeInTheDocument();
     });
 
     it('activates metrics tab for /settings/metrics', async () => {
@@ -70,10 +81,25 @@ describe('Settings', () => {
       );
     });
 
-    it('activates ssh tab for /settings/ssh', async () => {
+    it('activates ssh tab for /settings/ssh when distributed as AMI', async () => {
+      getVersionMock.mockResolvedValueOnce({
+        ...VERSION_MOCK,
+        distributionMethod: DistributionMethod.ami,
+      });
+
       renderWithRoute('/settings/ssh-key');
       await waitFor(() =>
         expect(screen.getByTestId('settings-tab-ssh')).toHaveAttribute(
+          'aria-selected',
+          'true'
+        )
+      );
+    });
+
+    it('redirects from ssh tab for /settings/ssh to default', async () => {
+      renderWithRoute('/settings/ssh-key');
+      await waitFor(() =>
+        expect(screen.getByTestId('settings-tab-metrics')).toHaveAttribute(
           'aria-selected',
           'true'
         )
@@ -98,6 +124,18 @@ describe('Settings', () => {
           'aria-selected',
           'true'
         )
+      );
+    });
+
+    it('shows ssh tab when distribution type is AMI', async () => {
+      getVersionMock.mockResolvedValueOnce({
+        ...VERSION_MOCK,
+        distributionMethod: DistributionMethod.ami,
+      });
+
+      renderWithRoute('/settings/metrics-resolution');
+      await waitFor(() =>
+        expect(screen.queryByTestId('settings-tab-ssh')).toBeInTheDocument()
       );
     });
   });
