@@ -94,11 +94,12 @@ Go style, error handling, and the "never edit generated files" rule follow the [
 - Use `go tool buf lint` to validate proto files before committing
 - Add `(validate.rules)` annotations for field validation
 - Use `google.api.http` annotations for REST endpoint mapping
-- Follow RESTful conventions for HTTP mappings (GET for reads, POST for creates, PUT for updates, DELETE for deletes)
+- Follow RESTful conventions for HTTP mappings — GET for reads, POST for creates, PUT for updates (partial ones included), DELETE for deletes
 - Name REST paths per [REST Path Naming](#rest-path-naming) above
 - Add comments to proto messages and fields — they become API documentation
 
 ### Don't
+- Don't use `patch:` in a `google.api.http` annotation — every update is `put:`, partial ones included: `ChangeAgent`, `ChangeService` and `ChangeSettings` each send only the fields being changed, and all three are PUT. There is no `patch:` anywhere in `api/`; keep it that way. `buf lint` won't flag one — its `STANDARD` rules check proto identifiers, not the method keys inside the annotation
 - Don't introduce breaking changes to `v1` APIs (use `v1beta1` for experimental APIs)
 - Don't add business logic to the API layer — it belongs in `managed/services/`
 - Don't skip validation annotations on incoming request messages
