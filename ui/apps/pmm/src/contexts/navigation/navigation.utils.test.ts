@@ -118,16 +118,16 @@ describe('addSepApps', () => {
     const children = addSepApps()[0].children || [];
 
     expect(children.map((child) => child.id)).toEqual([
-      'sep-atw',
       'sep-mysql-backups',
+      'sep-atw',
     ]);
     expect(children[0]).toMatchObject({
-      url: SEP_ATW_PATH,
-      matches: [SEP_ATW_PATH],
-    });
-    expect(children[1]).toMatchObject({
       url: SEP_MYSQL_BACKUPS_PATH,
       matches: [SEP_MYSQL_BACKUPS_PATH],
+    });
+    expect(children[1]).toMatchObject({
+      url: SEP_ATW_PATH,
+      matches: [SEP_ATW_PATH],
     });
   });
 });

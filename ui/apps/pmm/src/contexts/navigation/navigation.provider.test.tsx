@@ -83,8 +83,8 @@ describe('NavigationProvider', () => {
       expect(management?.text).toBe('Management');
       expect(management?.url).toBeUndefined();
       expect(management?.children?.map((child) => child.id)).toEqual([
-        'sep-atw',
         'sep-mysql-backups',
+        'sep-atw',
       ]);
     });
 
@@ -97,14 +97,7 @@ describe('NavigationProvider', () => {
 
     it('preserves each child url, matches and icon', () => {
       const management = findById(renderNavTree(), 'management');
-      const [atw, mysqlBackups] = management?.children || [];
-
-      expect(atw).toMatchObject({
-        text: 'Support diagnostics',
-        url: SEP_ATW_PATH,
-        matches: [SEP_ATW_PATH],
-      });
-      expect(atw?.icon).toBeDefined();
+      const [mysqlBackups, atw] = management?.children || [];
 
       expect(mysqlBackups).toMatchObject({
         text: 'MySQL Backups',
@@ -112,6 +105,13 @@ describe('NavigationProvider', () => {
         matches: [SEP_MYSQL_BACKUPS_PATH],
       });
       expect(mysqlBackups?.icon).toBeDefined();
+
+      expect(atw).toMatchObject({
+        text: 'Support diagnostics',
+        url: SEP_ATW_PATH,
+        matches: [SEP_ATW_PATH],
+      });
+      expect(atw?.icon).toBeDefined();
     });
 
     it('sits right below Inventory for an admin, moving nothing else', () => {

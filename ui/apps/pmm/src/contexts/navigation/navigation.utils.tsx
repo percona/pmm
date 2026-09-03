@@ -318,4 +318,4 @@ export const addSection = (section: NavItem, children: NavItem[]): NavItem[] =>
   children.length ? [{ ...section, children }] : [];
 
 export const addSepApps = (): NavItem[] =>
-  addSection(NAV_MANAGEMENT, [NAV_SEP_ATW, NAV_SEP_MYSQL_BACKUPS]);
+  addSection(NAV_MANAGEMENT, [NAV_SEP_MYSQL_BACKUPS, NAV_SEP_ATW]);

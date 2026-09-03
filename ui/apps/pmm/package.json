@@ -27,7 +27,7 @@
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
     "@mui/x-date-pickers": "^7.5.0",
-    "@percona/peak-ui": "1.0.25",
+    "@percona/peak-ui": "1.0.26",
     "@pmm/shared": "workspace:*",
     "@reactour/tour": "^3.8.0",
     "@sep/api": "workspace:*",

@@ -10,14 +10,13 @@ import AppsRounded from '@mui/icons-material/AppsRounded';
 import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
 import ExploreOutlined from '@mui/icons-material/ExploreOutlined';
 import Groups from '@mui/icons-material/Groups';
-import HandymanOutlined from '@mui/icons-material/HandymanOutlined';
 import HelpOutline from '@mui/icons-material/HelpOutline';
 import Logout from '@mui/icons-material/Logout';
-import MedicalServicesOutlined from '@mui/icons-material/MedicalServicesOutlined';
 import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
 import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
+import Restore from '@mui/icons-material/Restore';
 import Search from '@mui/icons-material/Search';
 import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
@@ -29,7 +28,6 @@ import {
   Graph5Icon,
   HaproxyIcon,
   HomeIcon,
-  MySqlIcon,
   NetworkIntelligenceIcon,
   NetworkNodeIcon,
   PerconaMoIcon,
@@ -39,6 +37,7 @@ import {
   ProxyIcon,
   QueryStatsIcon,
   SearchInsightsIcon,
+  SupportDiagnosticsIcon,
 } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 
@@ -854,13 +853,13 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
 // leads the group.
 export const NAV_MANAGEMENT: NavItem = {
   id: 'management',
-  icon: HandymanOutlined,
+  icon: AppsRounded,
   text: 'Management',
 };
 
 export const NAV_SEP_ATW: NavItem = {
   id: 'sep-atw',
-  icon: MedicalServicesOutlined,
+  icon: SupportDiagnosticsIcon,
   text: 'Support diagnostics',
   url: SEP_ATW_PATH,
   matches: [SEP_ATW_PATH],
@@ -868,7 +867,7 @@ export const NAV_SEP_ATW: NavItem = {
 
 export const NAV_SEP_MYSQL_BACKUPS: NavItem = {
   id: 'sep-mysql-backups',
-  icon: MySqlIcon,
+  icon: Restore,
   text: 'MySQL Backups',
   url: SEP_MYSQL_BACKUPS_PATH,
   matches: [SEP_MYSQL_BACKUPS_PATH],
