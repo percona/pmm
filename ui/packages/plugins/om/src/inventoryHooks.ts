@@ -45,6 +45,7 @@ import { useEffect, useRef } from 'react';
 import { isRunActive, request } from './api';
 import { periodSince, type OmRunPeriod } from './inventory';
 import type {
+  OmHostBootstrapAccepted,
   OmInventoryHost,
   OmInventoryRun,
   OmInventoryRunAccepted,
@@ -344,6 +345,34 @@ export function useForgetHost() {
       queryClient.invalidateQueries({ queryKey: HOSTS_KEY });
       queryClient.invalidateQueries({ queryKey: SERVICES_KEY });
     },
+  });
+}
+
+/**
+ * Bootstrap one host: install MongoDB through the Nomad client and initialize
+ * it as a single-member replica set.
+ *
+ * PMM-15347 PoC only. Does not invalidate the hosts query on success -- unlike
+ * a refresh or a forget, nothing about the estate's *current* row changes yet;
+ * the new service only appears once a later probe finds it.
+ */
+export function useTriggerHostBootstrap() {
+  return useMutation<
+    OmHostBootstrapAccepted,
+    Error,
+    { nodeId: string; replicaSetName: string; mongodbVersion: string }
+  >({
+    mutationFn: ({ nodeId, replicaSetName, mongodbVersion }) =>
+      request<OmHostBootstrapAccepted>(
+        `/inventory/hosts/${encodeURIComponent(nodeId)}:bootstrap`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            replica_set_name: replicaSetName,
+            mongodb_version: mongodbVersion,
+          }),
+        }
+      ),
   });
 }
 

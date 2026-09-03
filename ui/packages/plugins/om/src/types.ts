@@ -422,6 +422,24 @@ export interface OmInventoryHost {
   freshness: OmInventoryFreshness;
   /** The services on it. Empty is a meaningful answer, not a gap. */
   services: OmInventoryService[];
+  /**
+   * Whether PMM's own agent registry currently has a connected pmm-agent for
+   * this node - independent of `executor`, which is Nomad/SEP's own signal.
+   * This is the "PMM-Client installed and healthy" half of automation
+   * eligibility that `executor` alone cannot answer: a node can be a known,
+   * probed host in OM's estate while its agent has since disconnected.
+   */
+  pmm_agent_connected: boolean;
+  /**
+   * Whether this host is eligible for OM automation (a probe today;
+   * provisioning in a later phase): `pmm_agent_connected` is true and
+   * `executor` reports reachable and driver-healthy. Computed server-side so
+   * every consumer agrees on one definition - see `automation_blocked_reasons`
+   * for why not, when this is false.
+   */
+  automation_eligible: boolean;
+  /** Every unmet condition behind `automation_eligible: false`. Empty when true. */
+  automation_blocked_reasons: string[];
 }
 
 /** Whether a host can fetch packages, and why not when it cannot. */
@@ -474,6 +492,21 @@ export interface OmInventoryRunAccepted {
   start_time?: string | null;
   /** The hosts it will cover. Empty means the whole estate. */
   scope: string[];
+}
+
+/**
+ * A single-host bootstrap accepted by the app, from
+ * `POST /v1/om/inventory/hosts/{node_id}:bootstrap`.
+ *
+ * PMM-15347 PoC only. `admin_password` is returned exactly once, in the clear -
+ * nothing on either side of this call stores it after this response, which is
+ * why the dialog that receives it has to say so rather than let a reader
+ * assume it can be looked up again later.
+ */
+export interface OmHostBootstrapAccepted {
+  task_history_id: number;
+  admin_username: string;
+  admin_password: string;
 }
 
 /**
