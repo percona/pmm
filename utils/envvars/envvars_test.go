@@ -136,3 +136,82 @@ func TestNormalizeNames(t *testing.T) {
 		assert.Nil(t, got)
 	})
 }
+
+func TestNormalizeNamesAllowing(t *testing.T) {
+	t.Parallel()
+
+	// grandfatheredSet builds the set the caller derives from an agent's currently-stored names.
+	grandfatheredSet := func(names ...string) map[string]struct{} {
+		set := make(map[string]struct{}, len(names))
+		for _, name := range names {
+			set[name] = struct{}{}
+		}
+
+		return set
+	}
+
+	t.Run("a stored name that would fail ValidateName is carried forward", func(t *testing.T) {
+		t.Parallel()
+
+		names, err := NormalizeNamesAllowing(
+			[]string{"KRB5-KTNAME", "KRB5_CONFIG"},
+			grandfatheredSet("KRB5-KTNAME"),
+		)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5-KTNAME", "KRB5_CONFIG"}, names)
+	})
+
+	t.Run("a name that is not stored is still validated", func(t *testing.T) {
+		t.Parallel()
+
+		names, err := NormalizeNamesAllowing(
+			[]string{"KRB5-KTNAME", "KRB5_CONFIG-2"},
+			grandfatheredSet("KRB5-KTNAME"),
+		)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "invalid environment variable name")
+		assert.Nil(t, names)
+	})
+
+	t.Run("an oversized stored list can be shrunk", func(t *testing.T) {
+		t.Parallel()
+
+		// An agent from before MaxNames existed: the owner drops one name and resends the rest.
+		stored := make([]string, MaxNames+8)
+		for i := range stored {
+			stored[i] = fmt.Sprintf("VAR%d", i)
+		}
+
+		names, err := NormalizeNamesAllowing(stored[1:], grandfatheredSet(stored...))
+		require.NoError(t, err)
+		assert.Len(t, names, MaxNames+7)
+	})
+
+	t.Run("an oversized stored list cannot be grown", func(t *testing.T) {
+		t.Parallel()
+
+		stored := make([]string, MaxNames+8)
+		for i := range stored {
+			stored[i] = fmt.Sprintf("VAR%d", i)
+		}
+
+		names, err := NormalizeNamesAllowing(append(stored, "EXTRA"), grandfatheredSet(stored...)) //nolint:gocritic
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "too many environment variable names")
+		assert.Nil(t, names)
+	})
+
+	t.Run("a list within MaxNames is bounded by MaxNames, not by the stored count", func(t *testing.T) {
+		t.Parallel()
+
+		names := make([]string, MaxNames+1)
+		for i := range names {
+			names[i] = fmt.Sprintf("VAR%d", i)
+		}
+
+		got, err := NormalizeNamesAllowing(names, grandfatheredSet("VAR0"))
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "too many environment variable names")
+		assert.Nil(t, got)
+	})
+}

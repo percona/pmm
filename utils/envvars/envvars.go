@@ -97,8 +97,18 @@ func NormalizeNamesAllowing(names []string, grandfathered map[string]struct{}) (
 		result = append(result, name)
 	}
 
-	if len(result) > MaxNames {
-		return nil, fmt.Errorf("too many environment variable names: %d (max %d)", len(result), MaxNames)
+	// An agent may already store more than MaxNames names: this bound did not exist before it was
+	// introduced alongside the rest of this policy. Applying it unconditionally would leave such a
+	// list uneditable forever, since the field is full-replace — the owner could not even remove a
+	// name without first truncating to MaxNames and losing the rest. Take the stored count as the
+	// effective bound instead, so an oversized list can only shrink toward MaxNames, never grow.
+	limit := MaxNames
+	if len(grandfathered) > limit {
+		limit = len(grandfathered)
+	}
+
+	if len(result) > limit {
+		return nil, fmt.Errorf("too many environment variable names: %d (max %d)", len(result), limit)
 	}
 
 	return result, nil
