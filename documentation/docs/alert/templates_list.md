@@ -44,15 +44,18 @@ These templates monitor a PMM Server [High Availability cluster](../install-pmm/
 | PMM HA | **PMM HA node unreachable** | Alerts when fewer nodes report HA metrics than the number configured in `PMM_HA_PEERS`, which indicates that at least one PMM Server node is down or isolated. | PMM |
 | PMM HA | **PMM HA quorum at risk** | Alerts when the number of live Raft voters has fallen to or below the smallest majority that still forms a quorum. Applies to clusters of three nodes or more. | PMM |
 
-#### Enable the HA alerts
+#### These alerts are created for you
 
-These templates are available as soon as PMM Server is installed, but like all other alert templates they do not create alert rules by themselves. To start receiving notifications:
+Unlike other alert templates, these five do not wait for you to build rules from them. On a PMM Server running in High Availability mode, PMM creates and maintains the rules itself, in the **PMM High Availability** folder and the **PMM Managed** evaluation group. All you need to do is configure a [contact point](./contact_points.md) so the alerts reach you.
 
-1. Go to **Alerting > Alert rule templates** and find the template you want to use.
-2. Select **New alert rule from template**.
-3. Choose a folder and an evaluation group. Percona recommends grouping the HA rules together, for example in a **PMM HA** group.
-4. Configure a [contact point](./contact_points.md) so that the alerts reach you.
-5. Repeat for each of the five templates.
+Two things follow from PMM owning these rules:
+
+- **They cannot be edited in the interface.** They always match what your PMM version ships, so a fix Percona makes to an expression reaches your server when you upgrade, with nothing to migrate by hand.
+- **To use different values, make your own copy.** Create a rule from the same template with the threshold or duration you want, then turn the built-in set off as described in [Disable alerts](./disable_alerts.md) so that you are not notified twice.
+
+If you created rules from these templates by hand in an earlier version, they are still there and you will now be notified twice for the same problem. Delete your copies, or turn the built-in set off. PMM does not touch rules you made: it counts them in the `pmm_alerting_provisioning_duplicate_rules` metric and logs them once, so you can find them.
+
+To turn the built-in High Availability rules off, set `PMM_ENABLE_HA_ALERTS=false` and recreate the server. On a standalone server the variable has no effect, because these rules are only created for a cluster. See [Disable alerts](disable_alerts.md#disable-the-built-in-alert-rules).
 
 #### Coverage limitations
 
@@ -76,6 +79,14 @@ These templates monitor the components that make up PMM Server itself, rather th
 | PMM | **PMM ClickHouse is down** | Alerts when the ClickHouse instance that stores Query Analytics data stops responding. Query Analytics stops collecting while this lasts; metrics are unaffected. | PMM |
 | PMM | **PMM Grafana is down** | Alerts when a Grafana instance stops responding. The user interface, dashboards and alert rule evaluation all depend on it. | PMM |
 | PMM | **PMM Query Analytics API is down** | Alerts when the qan-api2 component stops responding. Query Analytics stops accepting new query data and its page cannot load. | PMM |
+
+#### These alerts are created for you
+
+PMM creates and maintains these four rules itself, on every server, in the **PMM Server** folder and the **PMM Managed** evaluation group. Configure a [contact point](./contact_points.md) and you will be told when part of PMM stops responding; there is nothing else to set up.
+
+As with the High Availability rules, PMM owns them: they cannot be edited in the interface, they follow whatever your PMM version ships, and you make your own copy from the same template if you want different values. If you upgraded from a version without them and had already built your own rules from these templates, delete your copies to avoid being notified twice.
+
+A component this deployment does not scrape produces no data, and a rule with no data stays silent rather than firing, so these rules are safe on any topology. To turn them off, set `PMM_ENABLE_COMPONENT_ALERTS=false` and recreate the server. See [Disable alerts](disable_alerts.md#disable-the-built-in-alert-rules).
 
 #### Coverage limitations
 

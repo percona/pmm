@@ -699,6 +699,20 @@ pmmEnv:
 
 These variables are tested and validated for the HA architecture - modifying them is not recommended. PMM updates are managed through Helm chart upgrades rather than the UI to ensure consistency across all replicas.
 
+### Built-in alert rules
+
+A clustered deployment creates its own alert rules on first start: five covering the cluster itself, in the **PMM High Availability** folder, and four covering PMM's own components, in the **PMM Server** folder. See [Alert templates](../alert/templates_list.md#pmm_ha_alerts) for what each one detects. Configure a [contact point](../alert/contact_points.md) and they will reach you; nothing else is needed.
+
+To start a cluster without them, add either of these to `pmmEnv`:
+
+```yaml
+pmmEnv:
+  PMM_ENABLE_HA_ALERTS: "false"          # do not create the High Availability rules
+  PMM_ENABLE_COMPONENT_ALERTS: "false"   # do not create the PMM component rules
+```
+
+During a rolling upgrade the nodes briefly run different PMM versions. If a release changes one of these rules, it can alternate between the old and the new definition until every node has been rolled, which is expected and resolves itself once the rollout finishes.
+
 #### Customizable settings
 
 Adjust these variables in your `values.yaml` to match your monitoring requirements:
