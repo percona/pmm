@@ -393,7 +393,6 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 ### Code Generation
 - Protobuf/gRPC: `make gen` from repo root
-- reform ORM: `//go:generate go tool reform` (pmm-managed only)
 - Mocks: `mockery` per `.mockery.yaml`
 - **Never edit generated files** (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`)
 
