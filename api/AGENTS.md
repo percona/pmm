@@ -87,19 +87,18 @@ Nothing enforces this: `buf lint` checks proto identifiers, not the path strings
 
 ## Patterns and Conventions
 
+Go style, error handling, and the "never edit generated files" rule follow the [global conventions](../AGENTS.md#global-development-conventions) and are not repeated here. What follows is specific to the API definitions.
+
 ### Do
 - Edit only `.proto` files — they are the source of truth
-- Run `make gen` (from repo root) after any proto change
 - Use `go tool buf lint` to validate proto files before committing
 - Add `(validate.rules)` annotations for field validation
 - Use `google.api.http` annotations for REST endpoint mapping
-- Use gRPC status codes (`codes.NotFound`, `codes.InvalidArgument`, etc.) not HTTP status codes
 - Follow RESTful conventions for HTTP mappings (GET for reads, POST for creates, PUT for updates, DELETE for deletes)
 - Name REST paths per [REST Path Naming](#rest-path-naming) above
 - Add comments to proto messages and fields — they become API documentation
 
 ### Don't
-- **Never edit generated files** (`*.pb.go`, `*.pb.gw.go`, `*.pb.validate.go`, `*.swagger.json`, `json/client/`)
 - Don't introduce breaking changes to `v1` APIs (use `v1beta1` for experimental APIs)
 - Don't add business logic to the API layer — it belongs in `managed/services/`
 - Don't skip validation annotations on incoming request messages

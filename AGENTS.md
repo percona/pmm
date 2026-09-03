@@ -63,6 +63,8 @@ Each PMM component has a dedicated guide with architecture, directory structure,
 | **API Tests** (integration tests) | [api-tests/AGENTS.md](api-tests/AGENTS.md) | `api-tests/**` |
 | **Build & Packaging** | [build/AGENTS.md](build/AGENTS.md) | `build/**` |
 
+A component guide covers only what is specific to its area. Global conventions — Go style, error handling, logging, testing, code generation — live in [Global Development Conventions](#global-development-conventions) and are deliberately **not** repeated in component guides: both files load together, so a restated rule costs context twice and creates a second place to forget to update it. When adding a rule, put it in the most specific guide that covers it, and nowhere else. The one intentional exception is [PMM-specific choices](#pmm-specific-choices-agents-often-get-wrong), a short curated list of pitfalls that repeats a handful of rules on purpose.
+
 ---
 
 ## How AI agents should work in this repo
@@ -356,7 +358,8 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Use modern slice helpers (`slices.Contains`), range loops
 - Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`, and don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
 - Don't use named return values
-- Don't inline comments (`code // comment`); put comments on separate lines
+- Don't inline comments (`code // comment`); put comments on separate lines — `//nolint` is the only exception
+- Don't inline `err != nil` checks (`if err := f(); err != nil`); assign on one line, check on the next
 - Don't add obvious/redundant comments; only comment non-obvious intent
 
 ### Error Handling
@@ -364,7 +367,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Wrap errors with context: `fmt.Errorf("descriptive context: %w", err)`
 - Return early on errors to avoid deep nesting
 - Use `errors.Is()`, `errors.As()` or `errors.AsType()` for error inspection
-- Use standard `errors` package, not `github.com/pkg/errors`
+- Use standard `errors` package, not `github.com/pkg/errors` (existing uses may remain until refactored)
 - Check `reform.ErrNoRows` for "not found" scenarios in pmm-managed
 - Don't interpolate strings with `%q` in error messages; use `%s`, or `'%s'` when the value can contain spaces
 
