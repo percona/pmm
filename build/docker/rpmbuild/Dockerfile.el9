@@ -35,6 +35,12 @@ RUN dnf update -y && \
 # is pinned in exactly one place and needs no change here on a bump.
 RUN corepack enable
 
+# The UI workspace (ui/) builds with pnpm; the QAN Grafana plugin (dashboards/pmm-app)
+# is still on yarn 1, so both are needed. corepack ships with nodesource's nodejs 22
+# and resolves pnpm from the `packageManager` field in ui/package.json, so the version
+# is pinned in exactly one place and needs no change here on a bump.
+RUN corepack enable
+
 # Copy Go from official golang image to avoid QEMU extraction issues
 COPY --from=golang /usr/local/go /usr/local/go
 
