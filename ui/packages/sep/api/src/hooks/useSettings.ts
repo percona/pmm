@@ -37,7 +37,9 @@ import type { components } from '../generated/sep';
 
 // The settings models are declared identically in both the `sep` and `tasks`
 // specs; we treat the `sep` copy as the canonical source for the shared shapes.
-export type SettingClass = components['schemas']['SettingClassEnum'];
+// Path params and response fields carry the Pydantic class __name__ (e.g.
+// "SEPSettings", "AlertsSettings") as a plain string, not a closed enum.
+export type SettingClass = string;
 export type ReloadClassification =
   components['schemas']['ReloadClassification'];
 export type SettingResponse = components['schemas']['SettingResponse'];

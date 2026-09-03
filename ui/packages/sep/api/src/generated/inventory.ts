@@ -148,6 +148,41 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/collection/collect': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Collect Retired Entities
+     * @description Delete the tombstones the caller's retained set does not cover.
+     *
+     *     Entities are walked deepest-first — table, schema, service, node — so an
+     *     interrupted run can only leave deleted descendants under a surviving
+     *     ancestor rather than an orphan.
+     *
+     *     A type that fills its ``limit`` ends the walk. Deleting an ancestor cascades
+     *     to descendants the cap had excluded, and those ids would then be missing from
+     *     ``deleted`` — leaving the caller unable to clear their bookkeeping and making
+     *     the reported set a false record of what was removed. Stopping keeps
+     *     ``deleted`` exhaustive; the ancestors are collected on the next batch, which
+     *     ``remaining`` asks for.
+     *
+     *     :param session: The asynchronous database session.
+     *     :param body: The cutoff, the retained ids, and the batch controls.
+     *     :return: The collected ids per entity type, and whether more are waiting.
+     */
+    post: operations['collection_collect_retired_entities_collection_collect_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/nodes/': {
     parameters: {
       query?: never;
@@ -158,6 +193,16 @@ export interface paths {
     /**
      * List Nodes
      * @description List Nodes from Inventory.
+     *
+     *     :param session: The async database session.
+     *     :param pagination: Validated offset/limit query parameters.
+     *     :param list_query: The resolved sort/search produced at the request boundary.
+     *     :param manager: The node manager the request's retirement scope selected.
+     *     :param external_id: Return only the node carrying this upstream identifier,
+     *         resolved through any identity alias recorded for it.
+     *     :param source: Return only nodes discovered by this source.
+     *     :param node_type: Return only nodes of this type.
+     *     :return: A paginated response of node responses.
      */
     get: operations['nodes_list_nodes_nodes__get'];
     put?: never;
@@ -166,6 +211,38 @@ export interface paths {
      * @description Create Node.
      */
     post: operations['nodes_create_node_nodes__post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/nodes/identity-candidates': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Node Identity Candidates
+     * @description List node pairings a PMM re-registration may have split.
+     *
+     *     Declared above ``GET /{node_id}``: FastAPI matches path operations in
+     *     declaration order, so the parameterized route would claim this path first and
+     *     answer 422 on the unparseable identifier rather than 404.
+     *
+     *     Built through :meth:`PaginatedResponse.from_pagination` rather than
+     *     ``list_query_paginated``, the item being a pair of rows and not a single
+     *     model.
+     *
+     *     :param session: The async database session.
+     *     :param pagination: Validated offset/limit query parameters.
+     *     :return: A paginated response of candidate pairings.
+     */
+    get: operations['nodes_list_node_identity_candidates_nodes_identity_candidates_get'];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -182,19 +259,126 @@ export interface paths {
     /**
      * Retrieve Node
      * @description Retrieve Node from inventory.
+     *
+     *     :param session: The async database session.
+     *     :param node_id: The identifier of the node to retrieve.
+     *     :param manager: The node manager the request's retirement scope selected.
+     *     :return: The node, with its services nested.
+     *     :raises HTTPNotFoundException: If no node in scope has the given identifier.
      */
     get: operations['nodes_retrieve_node_nodes__node_id__get'];
     /**
      * Update Node
      * @description Update Node.
+     *
+     *     :param session: The async database session.
+     *     :param existing_node: The active node addressed by the path.
+     *     :param updated_node: The fields to write onto it.
+     *     :return: The updated node.
      */
     put: operations['nodes_update_node_nodes__node_id__put'];
     post?: never;
     /**
-     * Delete Node
-     * @description Delete Node.
+     * Retire Node
+     * @description Retire Node and everything below it, keeping the rows resolvable.
+     *
+     *     :param session: The asynchronous database session.
+     *     :param node: The node to retire, retired or not.
      */
-    delete: operations['nodes_delete_node_nodes__node_id__delete'];
+    delete: operations['nodes_retire_node_nodes__node_id__delete'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/nodes/{node_id}/identity-aliases': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Node Identity Aliases
+     * @description List the upstream identifiers this node has answered for, oldest first.
+     *
+     *     A node no link has ever touched has no records, which is an empty page rather
+     *     than a 404.
+     *
+     *     :param session: The async database session.
+     *     :param node: The node addressed by the path, retired or not.
+     *     :param pagination: Validated offset/limit query parameters.
+     *     :return: A paginated response of the node's binding records, oldest first.
+     */
+    get: operations['nodes_list_node_identity_aliases_nodes__node_id__identity_aliases_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/nodes/{node_id}/identity-link': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Decide Node Identity Link
+     * @description Confirm, reject or reverse a candidate node pairing.
+     *
+     *     The path names the **predecessor** — the survivor of a confirmation, and the
+     *     row the operator is acting on in all three decisions.
+     *
+     *     Carries ``IsAuthenticatedDep`` and deliberately not ``IsServicePrincipalDep``:
+     *     an identity link is an operator judgement, not a row the syncer owns. The
+     *     app-wide unsafe-method gate already makes the route admin-only for a human
+     *     while admitting the principal by identity.
+     *
+     *     :param session: The async database session.
+     *     :param node: The predecessor addressed by the path, retired or not.
+     *     :param decision: What the operator decided, and about which successor.
+     *     :param principal: The caller recorded on the resulting records.
+     *     :raises HTTPBadRequestException: If the body names the node itself, or both
+     *         rows already hold one identifier.
+     *     :raises HTTPNotFoundException: If a confirmation or rejection names a
+     *         successor that does not exist. A reversal reports the same absence as a
+     *         conflict, the pairing it would reverse no longer being reversible.
+     *     :raises HTTPConflictException: If the decision does not apply to the pairing
+     *         as it currently stands.
+     */
+    post: operations['nodes_decide_node_identity_link_nodes__node_id__identity_link_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/nodes/{node_id}/revive': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Revive Node
+     * @description Revive a retired Node, leaving the services it was retired with retired.
+     *
+     *     :param session: The asynchronous database session.
+     *     :param node: The node to revive, retired or not.
+     *     :raises HTTPConflictException: If an active entity already holds the unique
+     *         key the revived node would reclaim.
+     */
+    post: operations['nodes_revive_node_nodes__node_id__revive_post'];
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -224,6 +408,33 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/nodes/{node_id}/sync-health': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Record Node Sync Health
+     * @description Record the outcome of one syncer attempt on a Node.
+     *
+     *     Addresses the node whether retired or not: the attempt happened, and a
+     *     concurrent retirement must not turn bookkeeping into a failed sync item.
+     *
+     *     :param session: The async database session.
+     *     :param node: The node the outcome was observed for, retired or not.
+     *     :param outcome: What the syncer reported.
+     */
+    post: operations['nodes_record_node_sync_health_nodes__node_id__sync_health_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/nodes/{node_id}/system-observation': {
     parameters: {
       query?: never;
@@ -239,6 +450,11 @@ export interface paths {
     /**
      * Upsert Host System Observation
      * @description Upsert host system observation for a node.
+     *
+     *     :param session: The async database session.
+     *     :param node: The active node the observation belongs to.
+     *     :param data: The observed host facts to store.
+     *     :return: The stored observation.
      */
     put: operations['nodes_upsert_host_system_observation_nodes__node_id__system_observation_put'];
     post?: never;
@@ -258,6 +474,12 @@ export interface paths {
     /**
      * List Schemas
      * @description List Schemas.
+     *
+     *     :param session: The async database session.
+     *     :param pagination: Validated offset/limit query parameters.
+     *     :param list_query: The resolved sort/search produced at the request boundary.
+     *     :param manager: The schema manager the request's retirement scope selected.
+     *     :return: A paginated response of schema responses.
      */
     get: operations['schemas_list_schemas_schemas__get'];
     put?: never;
@@ -278,6 +500,12 @@ export interface paths {
     /**
      * Retrieve Schema
      * @description Retrieve Schema.
+     *
+     *     :param session: The async database session.
+     *     :param schema_id: The identifier of the schema to retrieve.
+     *     :param manager: The schema manager the request's retirement scope selected.
+     *     :return: The schema, with its tables and service nested.
+     *     :raises HTTPNotFoundException: If no schema in scope has the given identifier.
      */
     get: operations['schemas_retrieve_schema_schemas__schema_id__get'];
     /**
@@ -287,10 +515,65 @@ export interface paths {
     put: operations['schemas_update_schema_schemas__schema_id__put'];
     post?: never;
     /**
-     * Delete Schema
-     * @description Delete Schema.
+     * Retire Schema
+     * @description Retire Schema and its tables, keeping the rows resolvable.
+     *
+     *     :param session: The asynchronous database session.
+     *     :param schema: The schema to retire, retired or not.
      */
-    delete: operations['schemas_delete_schema_schemas__schema_id__delete'];
+    delete: operations['schemas_retire_schema_schemas__schema_id__delete'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/schemas/{schema_id}/revive': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Revive Schema
+     * @description Revive a retired Schema together with its retired ancestors.
+     *
+     *     :param session: The asynchronous database session.
+     *     :param schema: The schema to revive, retired or not.
+     *     :raises HTTPConflictException: If an active entity already holds the unique
+     *         key the revived schema would reclaim.
+     */
+    post: operations['schemas_revive_schema_schemas__schema_id__revive_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/schemas/{schema_id}/sync-health': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Record Schema Sync Health
+     * @description Record the outcome of one syncer attempt on a Schema.
+     *
+     *     Addresses the schema whether retired or not: the attempt happened, and a
+     *     concurrent retirement must not turn bookkeeping into a failed sync item.
+     *
+     *     :param session: The async database session.
+     *     :param schema: The schema the outcome was observed for, retired or not.
+     *     :param outcome: What the syncer reported.
+     */
+    post: operations['schemas_record_schema_sync_health_schemas__schema_id__sync_health_post'];
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -330,8 +613,45 @@ export interface paths {
     /**
      * List Services
      * @description List Services.
+     *
+     *     :param session: The async database session.
+     *     :param pagination: Validated offset/limit query parameters.
+     *     :param list_query: The resolved sort/search produced at the request boundary.
+     *     :param manager: The service manager the request's retirement scope selected.
+     *     :param external_id: Return only the service carrying this upstream identifier,
+     *         resolved through any identity alias recorded for it.
+     *     :param service_type: Return only services of this type.
+     *     :return: A paginated response of service responses.
      */
     get: operations['services_list_services_services__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/services/identity-candidates': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Service Identity Candidates
+     * @description List service pairings a PMM re-registration may have split.
+     *
+     *     Declared above ``GET /{service_id}``: FastAPI matches path operations in
+     *     declaration order, so the parameterized route would claim this path first and
+     *     answer 422 on the unparseable identifier rather than 404.
+     *
+     *     :param session: The async database session.
+     *     :param pagination: Validated offset/limit query parameters.
+     *     :return: A paginated response of candidate pairings.
+     */
+    get: operations['services_list_service_identity_candidates_services_identity_candidates_get'];
     put?: never;
     post?: never;
     delete?: never;
@@ -359,10 +679,100 @@ export interface paths {
     put: operations['services_update_service_services__service_id__put'];
     post?: never;
     /**
-     * Delete Service
-     * @description Delete Service.
+     * Retire Service
+     * @description Retire Service and everything below it, keeping the rows resolvable.
+     *
+     *     :param session: The asynchronous database session.
+     *     :param service: The service to retire, retired or not.
      */
-    delete: operations['services_delete_service_services__service_id__delete'];
+    delete: operations['services_retire_service_services__service_id__delete'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/services/{service_id}/identity-aliases': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Service Identity Aliases
+     * @description List the upstream identifiers this service has answered for, oldest first.
+     *
+     *     :param session: The async database session.
+     *     :param service: The service addressed by the path, retired or not.
+     *     :param pagination: Validated offset/limit query parameters.
+     *     :return: A paginated response of the service's binding records, oldest first.
+     */
+    get: operations['services_list_service_identity_aliases_services__service_id__identity_aliases_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/services/{service_id}/identity-link': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Decide Service Identity Link
+     * @description Confirm, reject or reverse a candidate service pairing.
+     *
+     *     The path names the **predecessor** — the survivor of a confirmation.
+     *
+     *     Carries ``IsAuthenticatedDep`` and deliberately not ``IsServicePrincipalDep``:
+     *     an identity link is an operator judgement, not a row the syncer owns.
+     *
+     *     :param session: The async database session.
+     *     :param service: The predecessor addressed by the path, retired or not.
+     *     :param decision: What the operator decided, and about which successor.
+     *     :param principal: The caller recorded on the resulting records.
+     *     :raises HTTPBadRequestException: If the body names the service itself, or both
+     *         rows already hold one identifier.
+     *     :raises HTTPNotFoundException: If a confirmation or rejection names a
+     *         successor that does not exist. A reversal reports the same absence as a
+     *         conflict, the pairing it would reverse no longer being reversible.
+     *     :raises HTTPConflictException: If the decision does not apply to the pairing
+     *         as it currently stands.
+     */
+    post: operations['services_decide_service_identity_link_services__service_id__identity_link_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/services/{service_id}/revive': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Revive Service
+     * @description Revive a retired Service together with its retired ancestors.
+     *
+     *     :param session: The asynchronous database session.
+     *     :param service: The service to revive, retired or not.
+     *     :raises HTTPConflictException: If an active entity already holds the unique
+     *         key the revived service would reclaim.
+     */
+    post: operations['services_revive_service_services__service_id__revive_post'];
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -387,6 +797,7 @@ export interface paths {
      *     :param pagination: Validated offset/limit query parameters.
      *     :param list_query: The resolved sort/search produced at the request
      *         boundary.
+     *     :param manager: The schema manager the request's retirement scope selected.
      *     :param include_tables: Include nested tables in the response when set to
      *         any non-empty value. Defaults to compact mode (no tables).
      *     :return: A paginated response of schema responses.
@@ -398,6 +809,33 @@ export interface paths {
      * @description Create Schema for Service.
      */
     post: operations['services_create_schema_for_service_services__service_id__schemas__post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/services/{service_id}/sync-health': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Record Service Sync Health
+     * @description Record the outcome of one syncer attempt on a Service.
+     *
+     *     Addresses the service whether retired or not: the attempt happened, and a
+     *     concurrent retirement must not turn bookkeeping into a failed sync item.
+     *
+     *     :param session: The async database session.
+     *     :param service: The service the outcome was observed for, retired or not.
+     *     :param outcome: What the syncer reported.
+     */
+    post: operations['services_record_service_sync_health_services__service_id__sync_health_post'];
     delete?: never;
     options?: never;
     head?: never;
@@ -478,6 +916,12 @@ export interface paths {
     /**
      * Retrieve Table
      * @description Retrieve Table.
+     *
+     *     :param session: The async database session.
+     *     :param table_id: The identifier of the table to retrieve.
+     *     :param manager: The table manager the request's retirement scope selected.
+     *     :return: The table, with its schema nested.
+     *     :raises HTTPNotFoundException: If no table in scope has the given identifier.
      */
     get: operations['tables_retrieve_table_tables__table_id__get'];
     /**
@@ -487,10 +931,65 @@ export interface paths {
     put: operations['tables_update_table_tables__table_id__put'];
     post?: never;
     /**
-     * Delete Table
-     * @description Delete Table.
+     * Retire Table
+     * @description Retire Table, keeping the row resolvable.
+     *
+     *     :param session: The asynchronous database session.
+     *     :param table: The table to retire, retired or not.
      */
-    delete: operations['tables_delete_table_tables__table_id__delete'];
+    delete: operations['tables_retire_table_tables__table_id__delete'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/tables/{table_id}/revive': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Revive Table
+     * @description Revive a retired Table together with its retired ancestors.
+     *
+     *     :param session: The asynchronous database session.
+     *     :param table: The table to revive, retired or not.
+     *     :raises HTTPConflictException: If an active entity already holds the unique
+     *         key the revived table would reclaim.
+     */
+    post: operations['tables_revive_table_tables__table_id__revive_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/tables/{table_id}/sync-health': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Record Table Sync Health
+     * @description Record the outcome of one syncer attempt on a Table.
+     *
+     *     Addresses the table whether retired or not: the attempt happened, and a
+     *     concurrent retirement must not turn bookkeeping into a failed sync item.
+     *
+     *     :param session: The async database session.
+     *     :param table: The table the outcome was observed for, retired or not.
+     *     :param outcome: What the syncer reported.
+     */
+    post: operations['tables_record_table_sync_health_tables__table_id__sync_health_post'];
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -500,6 +999,51 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    /**
+     * ExternalIdentityAliasResponse
+     * @description Define the external-identity alias API response.
+     *
+     *     :param id: The primary key for the table. Auto-incremented and not nullable.
+     *     :param created_at: The timestamp when the record is created. Defaults to the
+     *         current time in UTC.
+     *     :param updated_at: The timestamp when the record is last updated.
+     *         Automatically updated on changes.
+     *     :param entity_type: The inventory entity type the binding names.
+     *     :param entity_id: The primary key of the row the upstream id resolves to.
+     *     :param source: The upstream system the identifier belongs to.
+     *     :param external_id: The upstream identifier being bound.
+     *     :param valid_from: When the binding took effect.
+     *     :param valid_to: When the binding stopped applying, or None while it stands.
+     *     :param linkage_method: How the binding came to be recorded.
+     *     :param principal: The caller that recorded the binding.
+     */
+    ExternalIdentityAliasResponse: {
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at?: string;
+      /** Entity Id */
+      entity_id: number;
+      entity_type: components['schemas']['RetirableEntityName'];
+      /** External Id */
+      external_id: string;
+      /** Id */
+      id: number | null;
+      linkage_method: components['schemas']['LinkageMethodEnum'];
+      /** Principal */
+      principal: string;
+      source: components['schemas']['SourceEnum'];
+      /** Updated At */
+      updated_at?: string | null;
+      /**
+       * Valid From
+       * Format: date-time
+       */
+      valid_from: string;
+      /** Valid To */
+      valid_to?: string | null;
+    };
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -588,41 +1132,163 @@ export interface components {
       /** Os Version */
       os_version?: string | null;
     };
+    /**
+     * IdentityLinkDecisionEnum
+     * @description Enumerate the decisions an operator may record against a candidate pairing.
+     *
+     *     :cvar CONFIRMED: The pairing names one machine, and the link stands.
+     *     :cvar REJECTED: The pairing names two machines, so stop suggesting it.
+     *     :cvar UNLINKED: A standing confirmation was reversed.
+     *
+     *     Values are spelled out for the reason given on
+     *     :class:`LinkageMethodEnum`, and it binds harder here: this enum is also a
+     *     *request* body field, so a rename would reject the payloads callers were
+     *     already sending.
+     * @enum {string}
+     */
+    IdentityLinkDecisionEnum: 'confirmed' | 'rejected' | 'unlinked';
+    /**
+     * IdentityLinkDecisionWrite
+     * @description Define the request body recording one operator decision over a pairing.
+     *
+     *     :param successor_id: The row the addressed predecessor is being paired with.
+     *     :param decision: What the operator decided.
+     */
+    IdentityLinkDecisionWrite: {
+      decision: components['schemas']['IdentityLinkDecisionEnum'];
+      /** Successor Id */
+      successor_id: number;
+    };
+    /**
+     * InventoryCollectResponse
+     * @description Report what a collection call deleted, or would have deleted.
+     *
+     *     :param deleted: The collected ids per entity type, exhaustive for this
+     *         call. On a dry run these are the ids the equivalent real call would
+     *         delete. A type the walk stopped before reporting is empty rather than
+     *         absent.
+     *     :param remaining: Whether any entity type filled its ``limit``, meaning more
+     *         tombstones are waiting for the next batch.
+     */
+    InventoryCollectResponse: {
+      /** Deleted */
+      deleted: {
+        [key: string]: number[];
+      };
+      /** Remaining */
+      remaining: boolean;
+    };
+    /**
+     * InventoryCollectWrite
+     * @description Ask the inventory service to collect the tombstones nothing resolves.
+     *
+     *     Unknown fields are rejected with HTTP 422. This request deletes rows
+     *     irreversibly, so a client typo must never be read as an omitted field: a
+     *     misspelled ``keep`` would otherwise arrive as an empty retained set and a
+     *     misspelled ``dry_run`` as a real delete.
+     *
+     *     :param retired_before: The cutoff a tombstone must predate to be eligible.
+     *         The caller pins one value for a whole run so successive batches cannot
+     *         drift into collecting a tombstone that was too young a moment earlier.
+     *     :param keep: The ids the caller knows are still referenced, per entity type.
+     *         Ancestors of a kept entity are retained without being listed.
+     *     :param limit: The most entities to collect per type in this call.
+     *     :param dry_run: Whether to report the eligible ids without deleting them.
+     *         Defaults to reporting: on an irreversible endpoint the mode a caller
+     *         reaches by omission is the one that cannot destroy anything.
+     */
+    InventoryCollectWrite: {
+      /**
+       * Dry Run
+       * @default true
+       */
+      dry_run: boolean;
+      /**
+       * Keep
+       * @default {}
+       */
+      keep: {
+        [key: string]: number[];
+      };
+      /**
+       * Limit
+       * @default 500
+       */
+      limit: number;
+      /**
+       * Retired Before
+       * Format: date-time
+       */
+      retired_before: string;
+    };
     JsonValue: unknown;
+    /**
+     * LinkageMethodEnum
+     * @description Enumerate how an external-identity binding came to be recorded.
+     *
+     *     Every member names an operator action: nothing here records a binding the
+     *     syncer made on its own, because ordinary sync creation writes no alias row.
+     *
+     *     Values are spelled out rather than derived with ``auto()``. The column
+     *     persists the member *name*, but the API serializes the *value*, so under
+     *     ``auto()`` the two move in opposite ways when a member is renamed: the
+     *     stored form follows the rename while the published one silently changes
+     *     with it. Pinning the value holds the wire contract — this enum reaches the
+     *     generated API client — and leaves a rename a database concern alone.
+     * @enum {string}
+     */
+    LinkageMethodEnum: 'operator_confirmation' | 'operator_unlink';
     /**
      * Node
      * @description Represent a node in the inventory.
      *
      *     :param address: The network address of the node.
-     *     :type address: NonEmptyStr
      *     :param name: The name of the node.
-     *     :type name: NonEmptyStr
      *     :param external_id: An external identifier for the node. Must be unique for source,
      *         as defined by composite index ix_node_external_id_source.
-     *     :type external_id: NonEmptyStr | None
      *     :param source: The source from which the node information is derived. Must be unique
      *         for external_id, as defined by composite index ix_node_external_id_source.
-     *     :type source: SourceEnum | None
      *     :param type: The type of the node (e.g., remote, generic).
-     *     :type type: NonEmptyStr
+     *     :param retired_at: When the node stopped being reported upstream, or None while
+     *         it is active.
+     *     :param retirement_key: The discriminator carried inside every unique index.
+     *     :param last_synced_at: When a syncer last confirmed the node against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the node is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      *     :param services: A list of services associated with the node.
-     *     :type services: list[Service]
      */
     Node: {
       /** Address */
       address: string;
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
        */
       created_at?: string;
       /** External Id */
-      external_id?: string | null;
+      external_id: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
-      source?: components['schemas']['SourceEnum'] | null;
+      /** Retired At */
+      retired_at?: string | null;
+      source: components['schemas']['SourceEnum'];
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /**
        * Type
        * @default generic
@@ -632,47 +1298,78 @@ export interface components {
       updated_at?: string | null;
     };
     /**
+     * NodeIdentityCandidateResponse
+     * @description Pair a node with the successor a re-registration may have split it into.
+     *
+     *     :param predecessor: The older row — the one every SEP reference persisted
+     *         before the re-registration resolves through, and so the one a
+     *         confirmation keeps.
+     *     :param successor: The newer row PMM created when the node re-registered.
+     *     :param matched_on: The signals that agreed, informational only. Detection
+     *         never requires an address match, because PMM discards the address on a
+     *         non-``--force`` re-registration.
+     */
+    NodeIdentityCandidateResponse: {
+      /** Matched On */
+      matched_on: string[];
+      predecessor: components['schemas']['NodeResponse'];
+      successor: components['schemas']['NodeResponse'];
+    };
+    /**
      * NodeResponse
      * @description Represent a node API response.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param address: The network address of the node.
-     *     :type address: NonEmptyStr
      *     :param name: The name of the node.
-     *     :type name: NonEmptyStr
      *     :param external_id: An external identifier for the node.
-     *     :type external_id: NonEmptyStr | None
      *     :param source: The source from which the node information is derived.
-     *     :type source: SourceEnum | None
      *     :param type: The type of the node (e.g., remote, generic).
-     *     :type type: NonEmptyStr
+     *     :param retired_at: When the node stopped being reported upstream, or None while
+     *         it is active.
+     *     :param last_synced_at: When a syncer last confirmed the node against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the node is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      *     :param services: A list of services associated with the node.
-     *     :type services: list[Service]
      */
     NodeResponse: {
       /** Address */
       address: string;
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
        */
       created_at?: string;
       /** External Id */
-      external_id?: string | null;
+      external_id: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
+      /** Retired At */
+      retired_at?: string | null;
       /** Services */
       services: components['schemas']['Service'][];
-      source?: components['schemas']['SourceEnum'] | null;
+      source: components['schemas']['SourceEnum'];
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /**
        * Type
        * @default generic
@@ -686,31 +1383,47 @@ export interface components {
      * @description Define the model for writing node data to the inventory.
      *
      *     :param address: The network address of the node.
-     *     :type address: NonEmptyStr
      *     :param name: The name of the node.
-     *     :type name: NonEmptyStr
      *     :param external_id: An external identifier for the node, indexed for quick lookup.
-     *         Defaults to None.
-     *     :type external_id: NonEmptyStr | None
      *     :param source: The source from which the node information is derived. Indexed for
-     *         quick lookup. Defaults to None.
-     *     :type source: SourceEnum | None
+     *         quick lookup.
      *     :param type: The type of the node (e.g., remote, generic). Defaults to "generic".
-     *     :type type: NonEmptyStr
      */
     NodeWrite: {
       /** Address */
       address: string;
       /** External Id */
-      external_id?: string | null;
+      external_id: string;
       /** Name */
       name: string;
-      source?: components['schemas']['SourceEnum'] | null;
+      source: components['schemas']['SourceEnum'];
       /**
        * Type
        * @default generic
        */
       type: string;
+    };
+    /** PaginatedResponse[ExternalIdentityAliasResponse] */
+    PaginatedResponse_ExternalIdentityAliasResponse_: {
+      /** Items */
+      items: components['schemas']['ExternalIdentityAliasResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** PaginatedResponse[NodeIdentityCandidateResponse] */
+    PaginatedResponse_NodeIdentityCandidateResponse_: {
+      /** Items */
+      items: components['schemas']['NodeIdentityCandidateResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
     };
     /** PaginatedResponse[NodeResponse] */
     PaginatedResponse_NodeResponse_: {
@@ -727,6 +1440,17 @@ export interface components {
     PaginatedResponse_SchemaResponse_: {
       /** Items */
       items: components['schemas']['SchemaResponse'][];
+      /** Limit */
+      limit: number;
+      /** Offset */
+      offset: number;
+      /** Total */
+      total: number;
+    };
+    /** PaginatedResponse[ServiceIdentityCandidateResponse] */
+    PaginatedResponse_ServiceIdentityCandidateResponse_: {
+      /** Items */
+      items: components['schemas']['ServiceIdentityCandidateResponse'][];
       /** Limit */
       limit: number;
       /** Offset */
@@ -791,30 +1515,50 @@ export interface components {
      */
     ReloadClassification: 'hot' | 'nested_only' | 'not_overridable';
     /**
+     * RetirableEntityName
+     * @description Name the inventory entity types that carry a retirement tombstone.
+     *
+     *     Values are spelled out rather than derived, because they cross a service
+     *     boundary: SEP names an entity type by these strings when it asks inventory
+     *     to collect. Inventory-local on purpose — SEP's own
+     *     ``SyncInventoryEntityTypeEnum`` lives in a package this service must not
+     *     import.
+     * @enum {string}
+     */
+    RetirableEntityName: 'node' | 'service' | 'schema' | 'table';
+    /**
      * Schema
      * @description Represent a database schema within a service.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param name: The name of the schema. Must be unique for service_id, as defined by
      *         composite index ix_schema_name_service_id.
-     *     :type name: NonEmptyStr
      *     :param service_id: The unique identifier of the service to which the schema belongs.
      *         Must be unique for name, as defined by composite index
      *         ix_schema_name_service_id.
-     *     :type service_id: int
      *     :param service: The service to which the schema is associated.
-     *     :type service: Service
+     *     :param retired_at: When the schema stopped being reported upstream, or None
+     *         while it is active.
+     *     :param retirement_key: The discriminator carried inside every unique index.
+     *     :param last_synced_at: When a syncer last confirmed the schema against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the schema is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      *     :param tables: A list of tables within the schema.
-     *     :type tables: list[Table]
      */
     Schema: {
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
@@ -822,10 +1566,18 @@ export interface components {
       created_at?: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
+      /** Retired At */
+      retired_at?: string | null;
       /** Service Id */
       service_id: number;
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /** Updated At */
       updated_at?: string | null;
     };
@@ -834,19 +1586,28 @@ export interface components {
      * @description Define a compact schema response without nested tables.
      *
      *     :param id: The primary key for the schema. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param name: The name of the schema.
-     *     :type name: NonEmptyStr
      *     :param service_id: The unique identifier of the service to which the schema belongs.
-     *     :type service_id: int
+     *     :param retired_at: When the schema stopped being reported upstream, or None while
+     *         it is active.
+     *     :param last_synced_at: When a syncer last confirmed the schema against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the schema is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      */
     SchemaCompactResponse: {
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
@@ -854,10 +1615,18 @@ export interface components {
       created_at?: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
+      /** Retired At */
+      retired_at?: string | null;
       /** Service Id */
       service_id: number;
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /** Updated At */
       updated_at?: string | null;
     };
@@ -866,21 +1635,20 @@ export interface components {
      * @description Define the schema retrieve API response.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param name: The name of the schema.
-     *     :type name: NonEmptyStr
      *     :param service_id: The unique identifier of the service to which the schema belongs.
-     *     :type service_id: int
      *     :param service: The schema's service.
-     *     :type service: Service
      */
     SchemaDetailResponse: {
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
@@ -888,11 +1656,19 @@ export interface components {
       created_at?: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
+      /** Retired At */
+      retired_at?: string | null;
       service: components['schemas']['Service'];
       /** Service Id */
       service_id: number;
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /** Tables */
       tables: components['schemas']['Table'][];
       /** Updated At */
@@ -903,21 +1679,29 @@ export interface components {
      * @description Define the schema API response.
      *
      *     :param id: The primary key for the schema. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param name: The name of the schema.
-     *     :type name: NonEmptyStr
      *     :param service_id: The unique identifier of the service to which the schema belongs.
-     *     :type service_id: int
+     *     :param retired_at: When the schema stopped being reported upstream, or None while
+     *         it is active.
+     *     :param last_synced_at: When a syncer last confirmed the schema against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the schema is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      *     :param tables: A list of tables within the schema.
-     *     :type tables: list[Table]
      */
     SchemaResponse: {
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
@@ -925,10 +1709,18 @@ export interface components {
       created_at?: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
+      /** Retired At */
+      retired_at?: string | null;
       /** Service Id */
       service_id: number;
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /** Tables */
       tables: components['schemas']['Table'][];
       /** Updated At */
@@ -955,43 +1747,43 @@ export interface components {
      * @description Represent a service running on a node in the inventory.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param external_id: An external identifier for the service. Must be unique for
      *         node_id, as defined by composite index ix_service_external_id_node_id.
-     *     :type external_id: NonEmptyStr | None
      *     :param name: The name of the service.
-     *     :type name: NonEmptyStr
      *     :param type: The type of the service (e.g., MYSQL, POSTGRESQL).
-     *     :type type: ServiceTypeEnum
-     *     :param port: The port number on which the service is running. Must be unique for
-     *         node_id, as defined by composite index ix_service_port_node_id.
-     *     :type port: int | None
+     *     :param port: The port number on which the service is running.
      *     :param environment: The environment in which the service is running, if set.
-     *     :type environment: str | None
      *     :param cluster: The cluster in which the service is running, if set.
-     *     :type cluster: str | None
      *     :param replication_set: The replication set in which the service is running, if set.
-     *     :type replication_set: str | None
      *     :param custom_labels: Custom labels associated with the service, if set.
      *     :param node_id: The unique identifier of the node on which the service is running.
      *         Must be unique for external_id, as defined by composite index
-     *         ix_service_external_id_node_id, and for port, as defined by composite index
-     *         ix_service_port_node_id.
-     *     :type node_id: int
+     *         ix_service_external_id_node_id.
      *     :param node: The node to which the service is associated.
-     *     :type node: Node
+     *     :param retired_at: When the service stopped being reported upstream, or None
+     *         while it is active.
+     *     :param retirement_key: The discriminator carried inside every unique index.
+     *     :param last_synced_at: When a syncer last confirmed the service against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the service is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      *     :param schemas: A list of schemas associated with the service.
-     *     :type schemas: list[Schema]
      */
     Service: {
       /** Cluster */
       cluster?: string | null;
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
@@ -1004,9 +1796,13 @@ export interface components {
       /** Environment */
       environment?: string | null;
       /** External Id */
-      external_id?: string | null;
+      external_id: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
       /** Node Id */
@@ -1015,6 +1811,10 @@ export interface components {
       port?: number | null;
       /** Replication Set */
       replication_set?: string | null;
+      /** Retired At */
+      retired_at?: string | null;
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       type: components['schemas']['ServiceTypeEnum'];
       /** Updated At */
       updated_at?: string | null;
@@ -1024,38 +1824,30 @@ export interface components {
      * @description Define the service retrieve API response.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param external_id: An external identifier for the service.
-     *     :type external_id: NonEmptyStr | None
      *     :param name: The name of the service.
-     *     :type name: NonEmptyStr
      *     :param type: The type of the service (e.g., MYSQL, POSTGRESQL).
-     *     :type type: ServiceTypeEnum
      *     :param port: The port number on which the service is running.
-     *     :type port: int | None
      *     :param environment: The environment in which the service is running, if set.
-     *     :type environment: str | None
      *     :param cluster: The cluster in which the service is running, if set.
-     *     :type cluster: str | None
      *     :param replication_set: The replication set in which the service is running, if set.
-     *     :type replication_set: str | None
      *     :param custom_labels: Custom labels associated with the service, if set.
      *     :param node_id: The unique identifier of the node on which the service is running.
-     *     :type node_id: int
      *     :param schemas: A list of schemas associated with the service.
-     *     :type schemas: list[Schema]
      *     :param node: The service's node.
-     *     :type node: Node
      */
     ServiceDetailResponse: {
       /** Cluster */
       cluster?: string | null;
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
@@ -1068,9 +1860,13 @@ export interface components {
       /** Environment */
       environment?: string | null;
       /** External Id */
-      external_id?: string | null;
+      external_id: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
       node: components['schemas']['Node'];
@@ -1080,49 +1876,68 @@ export interface components {
       port?: number | null;
       /** Replication Set */
       replication_set?: string | null;
+      /** Retired At */
+      retired_at?: string | null;
       /** Schemas */
       schemas: components['schemas']['Schema'][];
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       type: components['schemas']['ServiceTypeEnum'];
       /** Updated At */
       updated_at?: string | null;
+    };
+    /**
+     * ServiceIdentityCandidateResponse
+     * @description Pair a service with the successor a re-registration may have split it into.
+     *
+     *     :param predecessor: The older row a confirmation keeps.
+     *     :param successor: The newer row PMM created.
+     *     :param matched_on: The signals that agreed, informational only.
+     */
+    ServiceIdentityCandidateResponse: {
+      /** Matched On */
+      matched_on: string[];
+      predecessor: components['schemas']['ServiceResponse'];
+      successor: components['schemas']['ServiceResponse'];
     };
     /**
      * ServiceResponse
      * @description Define the service API response.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param external_id: An external identifier for the service.
-     *     :type external_id: NonEmptyStr | None
      *     :param name: The name of the service.
-     *     :type name: NonEmptyStr
      *     :param type: The type of the service (e.g., MYSQL, POSTGRESQL).
-     *     :type type: ServiceTypeEnum
      *     :param port: The port number on which the service is running.
-     *     :type port: int | None
      *     :param environment: The environment in which the service is running, if set.
-     *     :type environment: str | None
      *     :param cluster: The cluster in which the service is running, if set.
-     *     :type cluster: str | None
      *     :param replication_set: The replication set in which the service is running, if set.
-     *     :type replication_set: str | None
      *     :param custom_labels: Custom labels associated with the service, if set.
      *     :param node_id: The unique identifier of the node on which the service is running.
-     *     :type node_id: int
      *     :param schemas: A list of schemas associated with the service.
-     *     :type schemas: list[Schema]
      *     :param node: The node to which the service is associated.
-     *     :type node: Node
+     *     :param retired_at: When the service stopped being reported upstream, or None
+     *         while it is active.
+     *     :param last_synced_at: When a syncer last confirmed the service against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the service is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      */
     ServiceResponse: {
       /** Cluster */
       cluster?: string | null;
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
@@ -1135,9 +1950,13 @@ export interface components {
       /** Environment */
       environment?: string | null;
       /** External Id */
-      external_id?: string | null;
+      external_id: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
       node: components['schemas']['Node'];
@@ -1147,8 +1966,12 @@ export interface components {
       port?: number | null;
       /** Replication Set */
       replication_set?: string | null;
+      /** Retired At */
+      retired_at?: string | null;
       /** Schemas */
       schemas: components['schemas']['Schema'][];
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       type: components['schemas']['ServiceTypeEnum'];
       /** Updated At */
       updated_at?: string | null;
@@ -1245,25 +2068,17 @@ export interface components {
      * @description Define the model for writing service data to the inventory.
      *
      *     :param external_id: An external identifier for the service, indexed for quick
-     *         lookup. Defaults to None.
-     *     :type external_id: NonEmptyStr | None
+     *         lookup.
      *     :param name: The name of the service.
-     *     :type name: NonEmptyStr
      *     :param type: The type of the service (e.g., MYSQL, POSTGRESQL).
-     *     :type type: ServiceTypeEnum
      *     :param port: The port number on which the service is running. Defaults to None.
-     *     :type port: int | None
      *     :param environment: The environment in which the service is running (e.g.,
      *         production, staging). Defaults to None.
-     *     :type environment: str | None
      *     :param cluster: The cluster in which the service is running. Defaults to None.
-     *     :type cluster: str | None
      *     :param replication_set: The replication set in which the service is running. Defaults to None.
-     *     :type replication_set: str | None
      *     :param custom_labels: Custom labels associated with the service. Defaults to None.
      *     :param node_id: The foreign key referencing the node to which the service belongs.
      *         Defaults to None.
-     *     :type node_id: int | None
      */
     ServiceWrite: {
       /** Cluster */
@@ -1275,7 +2090,7 @@ export interface components {
       /** Environment */
       environment?: string | null;
       /** External Id */
-      external_id?: string | null;
+      external_id: string;
       /** Name */
       name: string;
       /** Node Id */
@@ -1287,61 +2102,22 @@ export interface components {
       type: components['schemas']['ServiceTypeEnum'];
     };
     /**
-     * SettingClassEnum
-     * @description Enumerate settings classes that may have HOT override rows.
-     *
-     *     The wired classes are ``SEPSettings``, ``TasksSettings``,
-     *     ``SnippetsSettings``, the global ``Settings``, ``AlertSettings``,
-     *     ``AlertsSettings``, ``AnonymizerSettings``, ``HealthReportSettings`` and
-     *     ``InventorySettings``.
-     *
-     *     To wire a new settings class:
-     *
-     *     1. Add a member here whose value matches the Pydantic class ``__name__``.
-     *     2. Generate an Alembic migration on every consumer track that extends the
-     *        ``CHECK`` constraint on ``settingoverride.setting_class``. The column
-     *        uses ``native_enum=False`` so the value list lives in a constraint,
-     *        not a PostgreSQL ``TYPE`` -- the migration ``ALTER``s the constraint.
-     *        Note that the column and ``CHECK`` constraint persist the enum member
-     *        *names* (e.g. ``SEP_SETTINGS``), which is distinct from the member
-     *        *value* (the Pydantic class name, e.g. ``SEPSettings``).
-     *     3. Wire a ``ProxyEntry`` for the new class in the relevant service's
-     *        lifespan (``app/sep/main.py`` or ``app/tasks/main.py``).
-     * @enum {string}
-     */
-    SettingClassEnum:
-      | 'SEPSettings'
-      | 'TasksSettings'
-      | 'SnippetsSettings'
-      | 'Settings'
-      | 'AlertSettings'
-      | 'AnonymizerSettings'
-      | 'AlertsSettings'
-      | 'HealthReportSettings'
-      | 'InventorySettings';
-    /**
      * SettingClassGroup
-     * @description One settings-class group in the LIST response.
+     * @description Group one settings class's fields for the LIST response.
      *
-     *     :param setting_class: The settings class this group represents.
-     *     :type setting_class: SettingClassEnum
+     *     :param setting_class: The Pydantic class ``__name__`` this group represents.
      *     :param settings: The fields declared on the settings class, with their
      *         current values and metadata.
-     *     :type settings: list[SettingResponse]
      *     :param is_app_owned: Whether this group belongs to a SEP app under
      *         ``app/sep/apps/`` rather than core SEP wiring.
-     *     :type is_app_owned: bool
      *     :param app_id: The owning app's registry key when ``is_app_owned`` is
      *         ``True``; ``None`` for core groups.
-     *     :type app_id: str | None
      *     :param app_display_name: The owning app's human-facing label when
      *         ``is_app_owned`` is ``True``; ``None`` for core groups.
-     *     :type app_display_name: str | None
      *     :param app_enabled: Whether the owning app is currently enabled when
      *         ``is_app_owned`` is ``True``; ``None`` for core groups. Disabled
      *         apps remain listed so the frontend can hide them without a second
      *         lookup.
-     *     :type app_enabled: bool | None
      */
     SettingClassGroup: {
       /** App Display Name */
@@ -1355,7 +2131,8 @@ export interface components {
        * @default false
        */
       is_app_owned: boolean;
-      setting_class: components['schemas']['SettingClassEnum'];
+      /** Setting Class */
+      setting_class: string;
       /** Settings */
       settings: components['schemas']['SettingResponse'][];
     };
@@ -1376,7 +2153,7 @@ export interface components {
      * SettingResponse
      * @description Represent a single setting's metadata and current value.
      *
-     *     :param setting_class: The settings class the field belongs to.
+     *     :param setting_class: The Pydantic class ``__name__`` the field belongs to.
      *     :param key: The field name on the settings class.
      *     :param key_path: Carry the canonical key segments for ``key`` such that
      *         ``"__".join(key_path) == key``.
@@ -1434,7 +2211,8 @@ export interface components {
       /** Options */
       options?: components['schemas']['SettingOption'][] | null;
       reload: components['schemas']['ReloadClassification'];
-      setting_class: components['schemas']['SettingClassEnum'];
+      /** Setting Class */
+      setting_class: string;
       /** Type */
       type: string;
       /** Value */
@@ -1475,29 +2253,70 @@ export interface components {
      */
     SourceEnum: 'pmm';
     /**
+     * SyncHealthWrite
+     * @description Define the body reporting one entity's sync outcome.
+     *
+     *     :param outcome: Whether the attempt succeeded or failed.
+     *     :param error: The failure's message, never empty. Required on FAILURE,
+     *         absent on SUCCESS.
+     *     :param attempted_at: When the syncer began this attempt. Stamped as
+     *         ``last_synced_at`` on success, and compared against the row's current
+     *         ``last_synced_at`` so a late-arriving report from an older attempt
+     *         cannot overwrite a newer one. Refused when it sits further ahead of this
+     *         service's clock than the tolerated skew, since nothing later could then
+     *         supersede it.
+     */
+    SyncHealthWrite: {
+      /**
+       * Attempted At
+       * Format: date-time
+       */
+      attempted_at: string;
+      /** Error */
+      error?: string | null;
+      outcome: components['schemas']['SyncOutcomeEnum'];
+    };
+    /**
+     * SyncOutcomeEnum
+     * @description Enumerate the outcomes a syncer reports for one entity's sync attempt.
+     *
+     *     :cvar SUCCESS: The entity was compared against its source and updated.
+     *     :cvar FAILURE: The attempt raised before the comparison completed.
+     * @enum {string}
+     */
+    SyncOutcomeEnum: 'success' | 'failure';
+    /**
      * Table
      * @description Represent a table within a schema.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param name: The name of the table. Must be unique for schema_id, as defined by
      *         composite index ix_table_name_schema_id.
-     *     :type name: NonEmptyStr
      *     :param create: The SQL statement used to create the table.
-     *     :type create: NonEmptyStr
      *     :param schema_id: The unique identifier of the schema to which the table belongs.
      *         Must be unique for name, as defined by composite index ix_table_name_schema_id.
-     *     :type schema_id: int
+     *     :param retired_at: When the table stopped being reported upstream, or None while
+     *         it is active.
+     *     :param retirement_key: The discriminator carried inside every unique index.
+     *     :param last_synced_at: When a syncer last confirmed the table against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the table is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      *     :param database: The schema to which the table is associated.
-     *     :type database: Schema
      */
     Table: {
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /** Create */
       create: string;
       /**
@@ -1511,10 +2330,18 @@ export interface components {
       keys: {
         [key: string]: unknown;
       };
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
+      /** Retired At */
+      retired_at?: string | null;
       /** Schema Id */
       schema_id: number;
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /** Updated At */
       updated_at?: string | null;
     };
@@ -1523,23 +2350,21 @@ export interface components {
      * @description Define the schema retrieve API response.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param name: The name of the table.
-     *     :type name: NonEmptyStr
      *     :param create: The SQL statement used to create the table.
-     *     :type create: NonEmptyStr
      *     :param schema_id: The foreign key referencing the schema to which the table belongs.
-     *     :type schema_id: int
      *     :param database: The table's schema.
-     *     :type database: Schema
      */
     TableDetailResponse: {
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /** Create */
       create: string;
       /**
@@ -1554,10 +2379,18 @@ export interface components {
       keys: {
         [key: string]: unknown;
       };
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
+      /** Retired At */
+      retired_at?: string | null;
       /** Schema Id */
       schema_id: number;
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /** Updated At */
       updated_at?: string | null;
     };
@@ -1566,21 +2399,29 @@ export interface components {
      * @description Define the table API response.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param name: The name of the table.
-     *     :type name: NonEmptyStr
      *     :param create: The SQL statement used to create the table.
-     *     :type create: NonEmptyStr
      *     :param schema_id: The foreign key referencing the schema to which the table belongs.
-     *     :type schema_id: int
+     *     :param retired_at: When the table stopped being reported upstream, or None while
+     *         it is active.
+     *     :param last_synced_at: When a syncer last confirmed the table against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the table is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      */
     TableResponse: {
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /** Create */
       create: string;
       /**
@@ -1594,10 +2435,18 @@ export interface components {
       keys: {
         [key: string]: unknown;
       };
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
+      /** Retired At */
+      retired_at?: string | null;
       /** Schema Id */
       schema_id: number;
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /** Updated At */
       updated_at?: string | null;
     };
@@ -1606,11 +2455,8 @@ export interface components {
      * @description Define the model for writing table data to the inventory.
      *
      *     :param name: The name of the table.
-     *     :type name: NonEmptyStr
      *     :param create: The SQL statement used to create the table.
-     *     :type create: NonEmptyStr
      *     :param schema_id: The foreign key referencing the schema to which the table belongs.
-     *     :type schema_id: int | None
      */
     TableWrite: {
       /** Create */
@@ -1671,7 +2517,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        setting_class: components['schemas']['SettingClassEnum'];
+        setting_class: string;
       };
       cookie?: never;
     };
@@ -1706,7 +2552,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        setting_class: components['schemas']['SettingClassEnum'];
+        setting_class: string;
         key: string;
       };
       cookie?: never;
@@ -1738,7 +2584,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        setting_class: components['schemas']['SettingClassEnum'];
+        setting_class: string;
         key: string;
       };
       cookie?: never;
@@ -1763,6 +2609,39 @@ export interface operations {
       };
     };
   };
+  collection_collect_retired_entities_collection_collect_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['InventoryCollectWrite'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['InventoryCollectResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   nodes_list_nodes_nodes__get: {
     parameters: {
       query?: {
@@ -1775,6 +2654,7 @@ export interface operations {
         sort?: 'created_at' | '-created_at' | 'name' | '-name';
         /** @description Case-insensitive search across the searchable columns. */
         search?: string | null;
+        include_retired?: boolean;
       };
       header?: never;
       path?: never;
@@ -1835,9 +2715,43 @@ export interface operations {
       };
     };
   };
+  nodes_list_node_identity_candidates_nodes_identity_candidates_get: {
+    parameters: {
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedResponse_NodeIdentityCandidateResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   nodes_retrieve_node_nodes__node_id__get: {
     parameters: {
-      query?: never;
+      query?: {
+        include_retired?: boolean;
+      };
       header?: never;
       path: {
         node_id: number;
@@ -1901,7 +2815,103 @@ export interface operations {
       };
     };
   };
-  nodes_delete_node_nodes__node_id__delete: {
+  nodes_retire_node_nodes__node_id__delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        node_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  nodes_list_node_identity_aliases_nodes__node_id__identity_aliases_get: {
+    parameters: {
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
+      header?: never;
+      path: {
+        node_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedResponse_ExternalIdentityAliasResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  nodes_decide_node_identity_link_nodes__node_id__identity_link_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        node_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['IdentityLinkDecisionWrite'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  nodes_revive_node_nodes__node_id__revive_post: {
     parameters: {
       query?: never;
       header?: never;
@@ -1940,6 +2950,7 @@ export interface operations {
         sort?: 'created_at' | '-created_at' | 'name' | '-name';
         /** @description Case-insensitive search across the searchable columns. */
         search?: string | null;
+        include_retired?: boolean;
       };
       header?: never;
       path: {
@@ -1992,6 +3003,39 @@ export interface operations {
         content: {
           'application/json': components['schemas']['Service'];
         };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  nodes_record_node_sync_health_nodes__node_id__sync_health_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        node_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SyncHealthWrite'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Validation Error */
       422: {
@@ -2085,6 +3129,7 @@ export interface operations {
           | '-service_id';
         /** @description Case-insensitive search across the searchable columns. */
         search?: string | null;
+        include_retired?: boolean;
       };
       header?: never;
       path?: never;
@@ -2114,7 +3159,9 @@ export interface operations {
   };
   schemas_retrieve_schema_schemas__schema_id__get: {
     parameters: {
-      query?: never;
+      query?: {
+        include_retired?: boolean;
+      };
       header?: never;
       path: {
         schema_id: number;
@@ -2178,7 +3225,7 @@ export interface operations {
       };
     };
   };
-  schemas_delete_schema_schemas__schema_id__delete: {
+  schemas_retire_schema_schemas__schema_id__delete: {
     parameters: {
       query?: never;
       header?: never;
@@ -2188,6 +3235,68 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  schemas_revive_schema_schemas__schema_id__revive_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        schema_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  schemas_record_schema_sync_health_schemas__schema_id__sync_health_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        schema_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SyncHealthWrite'];
+      };
+    };
     responses: {
       /** @description Successful Response */
       204: {
@@ -2222,6 +3331,7 @@ export interface operations {
           | '-schema_id';
         /** @description Case-insensitive search across the searchable columns. */
         search?: string | null;
+        include_retired?: boolean;
       };
       header?: never;
       path: {
@@ -2289,6 +3399,7 @@ export interface operations {
   services_list_services_services__get: {
     parameters: {
       query?: {
+        external_id?: string | null;
         service_type?: components['schemas']['ServiceTypeEnum'] | null;
         offset?: number;
         limit?: number;
@@ -2296,6 +3407,7 @@ export interface operations {
         sort?: 'created_at' | '-created_at' | 'name' | '-name';
         /** @description Case-insensitive search across the searchable columns. */
         search?: string | null;
+        include_retired?: boolean;
       };
       header?: never;
       path?: never;
@@ -2323,9 +3435,43 @@ export interface operations {
       };
     };
   };
+  services_list_service_identity_candidates_services_identity_candidates_get: {
+    parameters: {
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedResponse_ServiceIdentityCandidateResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   services_retrieve_service_services__service_id__get: {
     parameters: {
-      query?: never;
+      query?: {
+        include_retired?: boolean;
+      };
       header?: never;
       path: {
         service_id: number;
@@ -2389,7 +3535,103 @@ export interface operations {
       };
     };
   };
-  services_delete_service_services__service_id__delete: {
+  services_retire_service_services__service_id__delete: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  services_list_service_identity_aliases_services__service_id__identity_aliases_get: {
+    parameters: {
+      query?: {
+        offset?: number;
+        limit?: number;
+      };
+      header?: never;
+      path: {
+        service_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PaginatedResponse_ExternalIdentityAliasResponse_'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  services_decide_service_identity_link_services__service_id__identity_link_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['IdentityLinkDecisionWrite'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  services_revive_service_services__service_id__revive_post: {
     parameters: {
       query?: never;
       header?: never;
@@ -2434,6 +3676,7 @@ export interface operations {
           | '-service_id';
         /** @description Case-insensitive search across the searchable columns. */
         search?: string | null;
+        include_retired?: boolean;
       };
       header?: never;
       path: {
@@ -2486,6 +3729,39 @@ export interface operations {
         content: {
           'application/json': components['schemas']['Schema'];
         };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  services_record_service_sync_health_services__service_id__sync_health_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        service_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SyncHealthWrite'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description Validation Error */
       422: {
@@ -2601,6 +3877,7 @@ export interface operations {
           | '-schema_id';
         /** @description Case-insensitive search across the searchable columns. */
         search?: string | null;
+        include_retired?: boolean;
       };
       header?: never;
       path?: never;
@@ -2630,7 +3907,9 @@ export interface operations {
   };
   tables_retrieve_table_tables__table_id__get: {
     parameters: {
-      query?: never;
+      query?: {
+        include_retired?: boolean;
+      };
       header?: never;
       path: {
         table_id: number;
@@ -2694,7 +3973,7 @@ export interface operations {
       };
     };
   };
-  tables_delete_table_tables__table_id__delete: {
+  tables_retire_table_tables__table_id__delete: {
     parameters: {
       query?: never;
       header?: never;
@@ -2704,6 +3983,68 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  tables_revive_table_tables__table_id__revive_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        table_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  tables_record_table_sync_health_tables__table_id__sync_health_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        table_id: number;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SyncHealthWrite'];
+      };
+    };
     responses: {
       /** @description Successful Response */
       204: {

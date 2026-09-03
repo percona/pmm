@@ -32,6 +32,7 @@ import {
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
+  AtwCaseSearchResponse,
   AtwCategoryListing,
   AtwConfig,
   AtwIncident,
@@ -431,11 +432,51 @@ export function useAtwConfig() {
         const { data } = await apiClient.get<AtwConfig>(`${ATW_BASE}/config/`);
         return data;
       } catch {
-        return { send_disabled_reasons: [] };
+        return { send_disabled_reasons: [], case_search_available: false };
       }
     },
     staleTime: Infinity,
     retry: false,
+  });
+}
+
+/**
+ * Search the configured delivery provider for support cases matching `term`.
+ *
+ * Degrades the way `useAtwConfig` does: any error resolves to an unavailable
+ * search rather than rejecting, so a provider blip leaves the case-reference
+ * field a plain text input instead of surfacing an error beside it.
+ *
+ * `enabled` carries the deployment-level answer from `atw_config`, so a
+ * deployment that declares no case-search section issues zero requests rather
+ * than one per typing pause. Callers debounce the term; the query key is the
+ * term they pass, which lags the field by the debounce window — so a caller
+ * rendering the result must also check the term is still current.
+ *
+ * Deliberately without `placeholderData: keepPreviousData`, unlike
+ * `useAtwSnippetSearch`: opting out means react-query never serves the previous
+ * term's matches while a new term resolves.
+ */
+export function useAtwCaseSearch(term: string, enabled: boolean) {
+  const trimmed = term.trim();
+  return useQuery<AtwCaseSearchResponse>({
+    queryKey: ['atw', 'case-search', trimmed],
+    enabled: enabled && trimmed.length > 0,
+    staleTime: ATW_STALE_TIME_MS,
+    retry: false,
+    queryFn: async () => {
+      try {
+        const { data } = await apiClient.get<AtwCaseSearchResponse>(
+          `${ATW_BASE}/case-search/`,
+          {
+            params: { term: trimmed },
+          }
+        );
+        return data;
+      } catch {
+        return { available: false, matches: [] };
+      }
+    },
   });
 }
 

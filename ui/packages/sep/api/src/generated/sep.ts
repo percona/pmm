@@ -656,6 +656,47 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/apps/atw/case-search/': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Atw Case Search
+     * @description Search the configured delivery provider for support cases matching ``term``.
+     *
+     *     No way the search itself can fail reaches the caller as an error: a
+     *     deployment that declares no case-search section, stored inputs that no
+     *     longer fit the plan, a refused credential, an unreachable receiver and a
+     *     search that outran its bound all report the same unavailability, which the
+     *     caller renders as the plain text field rather than as a search that found
+     *     nothing.
+     *
+     *     Restricted to administrators, unlike the app's other reads. The router
+     *     resolves a minimum role for unsafe methods only, so a safe method carries
+     *     whatever guard it declares itself; this one issues the deployment's own
+     *     receiver credential, and the dialog that calls it is already offered to
+     *     administrators alone.
+     *
+     *     :param term: The caller's typed search term, the only input it accepts.
+     *         Surrounding whitespace is stripped, so a whitespace-only term is
+     *         refused rather than reaching the receiver as a match-everything
+     *         fragment.
+     *     :return: The matched cases, or that the search could not run. At most
+     *         ``MAX_CASE_SEARCH_MATCHES`` are offered, so a plan that declares no
+     *         provider-side limit still cannot hand the dialog an unbounded list.
+     */
+    get: operations['atw_atw_case_search_api_apps_atw_case_search__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/apps/atw/config/': {
     parameters: {
       query?: never;
@@ -667,10 +708,11 @@ export interface paths {
      * Atw Config
      * @description Report whether the incident send action is available.
      *
-     *     Not gated by the send guard -- this endpoint is what reports that guard, so
+     *     Not gated by the send guard: this endpoint is what reports that guard, so
      *     it must answer whether or not a receiver is configured.
      *
-     *     :return: The reasons the send action is withheld; empty when it is offered.
+     *     :return: The reasons the send action is withheld, and whether the
+     *         case-reference field may search the receiver.
      */
     get: operations['atw_atw_config_api_apps_atw_config__get'];
     put?: never;
@@ -1514,10 +1556,12 @@ export interface paths {
      * Inventory Plugin Tasks
      * @description Return the list of periodic task names for the Inventory plugin.
      *
-     *     Hard-coded because the Inventory plugin has exactly one periodic task
-     *     (``inventory-sync``). The shape matches what the React
-     *     ``usePluginTasks('inventory')`` hook expects: a list of objects with at
+     *     Hard-coded because the Inventory plugin's periodic tasks are a fixed pair
+     *     (``inventory-sync`` and ``inventory-collection``). The shape matches what the
+     *     React ``usePluginTasks('inventory')`` hook expects: a list of objects with at
      *     minimum a ``name`` key.
+     *
+     *     :return: The plugin's periodic tasks, each with its name and display name.
      */
     get: operations['inventory_inventory_plugin_tasks_api_apps_inventory__get'];
     put?: never;
@@ -1724,16 +1768,14 @@ export interface paths {
     };
     /**
      * Inventory Sync Status
-     * @description Return whether an inventory-wide sync is currently running.
+     * @description Return whether an inventory-wide sync is running, plus recent run outcomes.
      *
      *     Replaces the server-rendered ``sync_is_running`` template variable
      *     used by the Jinja2 inventory page so the React control can poll the
      *     same state without scraping HTML.
      *
      *     :param session: SQLModel async session.
-     *     :type session: SessionDep
-     *     :return: ``{"is_running": <bool>}``.
-     *     :rtype: InventorySyncStatusResponse
+     *     :return: The running flag and the most recent runs, newest first.
      */
     get: operations['inventory_inventory_sync_status_api_apps_inventory_sync_status__get'];
     put?: never;
@@ -1764,11 +1806,7 @@ export interface paths {
      */
     get: operations['inventory_inventory_list_entity_api_apps_inventory__entity___get'];
     put?: never;
-    /**
-     * Inventory Create Entity
-     * @description Create an inventory node, service, schema, or table.
-     */
-    post: operations['inventory_inventory_create_entity_api_apps_inventory__entity___post'];
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -1787,17 +1825,9 @@ export interface paths {
      * @description Retrieve a single inventory node, service, schema, or table.
      */
     get: operations['inventory_inventory_get_entity_api_apps_inventory__entity___item_id__get'];
-    /**
-     * Inventory Update Entity
-     * @description Update an inventory node, service, schema, or table.
-     */
-    put: operations['inventory_inventory_update_entity_api_apps_inventory__entity___item_id__put'];
+    put?: never;
     post?: never;
-    /**
-     * Inventory Delete Entity
-     * @description Delete an inventory node, service, schema, or table.
-     */
-    delete: operations['inventory_inventory_delete_entity_api_apps_inventory__entity___item_id__delete'];
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -3689,7 +3719,10 @@ export interface components {
       | 'error'
       | 'unreachable'
       | 'ssl_error'
-      | 'timeout';
+      | 'timeout'
+      | 'not_configured'
+      | 'inputs_drifted'
+      | 'probe_undeclared';
     /**
      * DashboardStatsResponse
      * @description Represent aggregate counts for the four dashboard stat cards.
@@ -3813,35 +3846,52 @@ export interface components {
      * @description Represent a node in the inventory.
      *
      *     :param address: The network address of the node.
-     *     :type address: NonEmptyStr
      *     :param name: The name of the node.
-     *     :type name: NonEmptyStr
      *     :param external_id: An external identifier for the node. Must be unique for source,
      *         as defined by composite index ix_node_external_id_source.
-     *     :type external_id: NonEmptyStr | None
      *     :param source: The source from which the node information is derived. Must be unique
      *         for external_id, as defined by composite index ix_node_external_id_source.
-     *     :type source: SourceEnum | None
      *     :param type: The type of the node (e.g., remote, generic).
-     *     :type type: NonEmptyStr
+     *     :param retired_at: When the node stopped being reported upstream, or None while
+     *         it is active.
+     *     :param retirement_key: The discriminator carried inside every unique index.
+     *     :param last_synced_at: When a syncer last confirmed the node against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the node is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      *     :param services: A list of services associated with the node.
-     *     :type services: list[Service]
      */
     Node: {
       /** Address */
       address: string;
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
        */
       created_at?: string;
       /** External Id */
-      external_id?: string | null;
+      external_id: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
-      source?: components['schemas']['SourceEnum'] | null;
+      /** Retired At */
+      retired_at?: string | null;
+      source: components['schemas']['SourceEnum'];
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /**
        * Type
        * @default generic
@@ -3946,26 +3996,34 @@ export interface components {
      * @description Represent a database schema within a service.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param name: The name of the schema. Must be unique for service_id, as defined by
      *         composite index ix_schema_name_service_id.
-     *     :type name: NonEmptyStr
      *     :param service_id: The unique identifier of the service to which the schema belongs.
      *         Must be unique for name, as defined by composite index
      *         ix_schema_name_service_id.
-     *     :type service_id: int
      *     :param service: The service to which the schema is associated.
-     *     :type service: Service
+     *     :param retired_at: When the schema stopped being reported upstream, or None
+     *         while it is active.
+     *     :param retirement_key: The discriminator carried inside every unique index.
+     *     :param last_synced_at: When a syncer last confirmed the schema against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the schema is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      *     :param tables: A list of tables within the schema.
-     *     :type tables: list[Table]
      */
     Schema: {
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
@@ -3973,10 +4031,18 @@ export interface components {
       created_at?: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
+      /** Retired At */
+      retired_at?: string | null;
       /** Service Id */
       service_id: number;
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       /** Updated At */
       updated_at?: string | null;
     };
@@ -3985,44 +4051,45 @@ export interface components {
      * @description Enumerate the probeable services, used as stable ``service`` identifiers.
      * @enum {string}
      */
-    ServiceEnum: 'pmm' | 'inventory' | 'tasks' | 'nomad';
+    ServiceEnum: 'pmm' | 'inventory' | 'tasks' | 'nomad' | 'delivery';
     /**
      * ServiceResponse
      * @description Define the service API response.
      *
      *     :param id: The primary key for the table. Auto-incremented and not nullable.
-     *     :type id: int | None
      *     :param created_at: The timestamp when the record is created. Defaults to the current
      *         time in UTC.
-     *     :type created_at: UTCDatetime
      *     :param updated_at: The timestamp when the record is last updated. Automatically
      *         updated on changes.
-     *     :type updated_at: UTCDatetime | None
      *     :param external_id: An external identifier for the service.
-     *     :type external_id: NonEmptyStr | None
      *     :param name: The name of the service.
-     *     :type name: NonEmptyStr
      *     :param type: The type of the service (e.g., MYSQL, POSTGRESQL).
-     *     :type type: ServiceTypeEnum
      *     :param port: The port number on which the service is running.
-     *     :type port: int | None
      *     :param environment: The environment in which the service is running, if set.
-     *     :type environment: str | None
      *     :param cluster: The cluster in which the service is running, if set.
-     *     :type cluster: str | None
      *     :param replication_set: The replication set in which the service is running, if set.
-     *     :type replication_set: str | None
      *     :param custom_labels: Custom labels associated with the service, if set.
      *     :param node_id: The unique identifier of the node on which the service is running.
-     *     :type node_id: int
      *     :param schemas: A list of schemas associated with the service.
-     *     :type schemas: list[Schema]
      *     :param node: The node to which the service is associated.
-     *     :type node: Node
+     *     :param retired_at: When the service stopped being reported upstream, or None
+     *         while it is active.
+     *     :param last_synced_at: When a syncer last confirmed the service against its
+     *         source, or None if that has never happened.
+     *     :param last_sync_error: The message from the most recent failed attempt, or
+     *         None while the service is syncing cleanly.
+     *     :param sync_failing_since: When the current run of failures began, or None
+     *         while not failing.
+     *     :param consecutive_failures: Failed attempts since the last success.
      */
     ServiceResponse: {
       /** Cluster */
       cluster?: string | null;
+      /**
+       * Consecutive Failures
+       * @default 0
+       */
+      consecutive_failures: number;
       /**
        * Created At
        * Format: date-time
@@ -4035,9 +4102,13 @@ export interface components {
       /** Environment */
       environment?: string | null;
       /** External Id */
-      external_id?: string | null;
+      external_id: string;
       /** Id */
       id: number | null;
+      /** Last Sync Error */
+      last_sync_error?: string | null;
+      /** Last Synced At */
+      last_synced_at?: string | null;
       /** Name */
       name: string;
       node: components['schemas']['Node'];
@@ -4047,8 +4118,12 @@ export interface components {
       port?: number | null;
       /** Replication Set */
       replication_set?: string | null;
+      /** Retired At */
+      retired_at?: string | null;
       /** Schemas */
       schemas: components['schemas']['Schema'][];
+      /** Sync Failing Since */
+      sync_failing_since?: string | null;
       type: components['schemas']['ServiceTypeEnum'];
       /** Updated At */
       updated_at?: string | null;
@@ -4082,61 +4157,22 @@ export interface components {
       | 'external'
       | 'valkey';
     /**
-     * SettingClassEnum
-     * @description Enumerate settings classes that may have HOT override rows.
-     *
-     *     The wired classes are ``SEPSettings``, ``TasksSettings``,
-     *     ``SnippetsSettings``, the global ``Settings``, ``AlertSettings``,
-     *     ``AlertsSettings``, ``AnonymizerSettings``, ``HealthReportSettings`` and
-     *     ``InventorySettings``.
-     *
-     *     To wire a new settings class:
-     *
-     *     1. Add a member here whose value matches the Pydantic class ``__name__``.
-     *     2. Generate an Alembic migration on every consumer track that extends the
-     *        ``CHECK`` constraint on ``settingoverride.setting_class``. The column
-     *        uses ``native_enum=False`` so the value list lives in a constraint,
-     *        not a PostgreSQL ``TYPE`` -- the migration ``ALTER``s the constraint.
-     *        Note that the column and ``CHECK`` constraint persist the enum member
-     *        *names* (e.g. ``SEP_SETTINGS``), which is distinct from the member
-     *        *value* (the Pydantic class name, e.g. ``SEPSettings``).
-     *     3. Wire a ``ProxyEntry`` for the new class in the relevant service's
-     *        lifespan (``app/sep/main.py`` or ``app/tasks/main.py``).
-     * @enum {string}
-     */
-    SettingClassEnum:
-      | 'SEPSettings'
-      | 'TasksSettings'
-      | 'SnippetsSettings'
-      | 'Settings'
-      | 'AlertSettings'
-      | 'AnonymizerSettings'
-      | 'AlertsSettings'
-      | 'HealthReportSettings'
-      | 'InventorySettings';
-    /**
      * SettingClassGroup
-     * @description One settings-class group in the LIST response.
+     * @description Group one settings class's fields for the LIST response.
      *
-     *     :param setting_class: The settings class this group represents.
-     *     :type setting_class: SettingClassEnum
+     *     :param setting_class: The Pydantic class ``__name__`` this group represents.
      *     :param settings: The fields declared on the settings class, with their
      *         current values and metadata.
-     *     :type settings: list[SettingResponse]
      *     :param is_app_owned: Whether this group belongs to a SEP app under
      *         ``app/sep/apps/`` rather than core SEP wiring.
-     *     :type is_app_owned: bool
      *     :param app_id: The owning app's registry key when ``is_app_owned`` is
      *         ``True``; ``None`` for core groups.
-     *     :type app_id: str | None
      *     :param app_display_name: The owning app's human-facing label when
      *         ``is_app_owned`` is ``True``; ``None`` for core groups.
-     *     :type app_display_name: str | None
      *     :param app_enabled: Whether the owning app is currently enabled when
      *         ``is_app_owned`` is ``True``; ``None`` for core groups. Disabled
      *         apps remain listed so the frontend can hide them without a second
      *         lookup.
-     *     :type app_enabled: bool | None
      */
     SettingClassGroup: {
       /** App Display Name */
@@ -4150,7 +4186,8 @@ export interface components {
        * @default false
        */
       is_app_owned: boolean;
-      setting_class: components['schemas']['SettingClassEnum'];
+      /** Setting Class */
+      setting_class: string;
       /** Settings */
       settings: components['schemas']['SettingResponse'][];
     };
@@ -4171,7 +4208,7 @@ export interface components {
      * SettingResponse
      * @description Represent a single setting's metadata and current value.
      *
-     *     :param setting_class: The settings class the field belongs to.
+     *     :param setting_class: The Pydantic class ``__name__`` the field belongs to.
      *     :param key: The field name on the settings class.
      *     :param key_path: Carry the canonical key segments for ``key`` such that
      *         ``"__".join(key_path) == key``.
@@ -4229,7 +4266,8 @@ export interface components {
       /** Options */
       options?: components['schemas']['SettingOption'][] | null;
       reload: components['schemas']['ReloadClassification'];
-      setting_class: components['schemas']['SettingClassEnum'];
+      /** Setting Class */
+      setting_class: string;
       /** Type */
       type: string;
       /** Value */
@@ -4424,6 +4462,21 @@ export interface components {
      */
     SourceEnum: 'pmm';
     /**
+     * SyncStatusEnum
+     * @description Enumerate the possible statuses of a synchronization process.
+     *
+     *     :cvar PENDING: The synchronization is pending.
+     *     :vartype PENDING: str
+     *     :cvar RUNNING: The synchronization is currently running.
+     *     :vartype RUNNING: str
+     *     :cvar SUCCESS: The synchronization completed successfully.
+     *     :vartype SUCCESS: str
+     *     :cvar FAILED: The synchronization failed.
+     *     :vartype FAILED: str
+     * @enum {string}
+     */
+    SyncStatusEnum: 'pending' | 'running' | 'success' | 'failed';
+    /**
      * TaskBackendEnum
      * @description Control the choice of backends.
      *
@@ -4568,6 +4621,10 @@ export interface components {
      *     :cvar STALE: Enum value for tasks skipped because executor placement
      *         exceeded the configured staleness threshold (for example a Nomad
      *         allocation that never left the queue).
+     *     :cvar UNLAUNCHABLE: Enum value for tasks the executor node could not
+     *         launch at all, because some command in the invocation does not
+     *         resolve there. The payload never ran, so this is not a script
+     *         failure.
      * @enum {string}
      */
     TaskHistoryStatusEnum:
@@ -4577,7 +4634,8 @@ export interface components {
       | 'success'
       | 'stopped'
       | 'lost'
-      | 'stale';
+      | 'stale'
+      | 'unlaunchable';
     /**
      * TaskResponse
      * @description Represent a task API response.
@@ -5724,13 +5782,51 @@ export interface components {
       title: string;
     };
     /**
+     * AtwCaseMatch
+     * @description Represent one support case the delivery provider matched.
+     *
+     *     :param reference: The case reference to send diagnostics against.
+     *     :param title: The case title, shown beside the reference to tell two
+     *         similar references apart.
+     */
+    atw__AtwCaseMatch: {
+      /** Reference */
+      reference: string;
+      /** Title */
+      title: string;
+    };
+    /**
+     * AtwCaseSearchResponse
+     * @description Report the cases matching a typed term, or that the search could not run.
+     *
+     *     :param available: Whether the search ran at all. This is what keeps an
+     *         unavailable search distinct from an available one that matched nothing:
+     *         a caller must not render the first as the second.
+     *     :param matches: The matched cases, empty when there are none and when the
+     *         search could not run.
+     */
+    atw__AtwCaseSearchResponse: {
+      /** Available */
+      available: boolean;
+      /** Matches */
+      matches: components['schemas']['atw__AtwCaseMatch'][];
+    };
+    /**
      * AtwConfigResponse
      * @description Report whether the incident send action is available.
      *
      *     :param send_disabled_reasons: Why sending is unavailable; empty when the
      *         receiver is configured and the action is offered.
+     *     :param case_search_available: Whether the case-reference field may query the
+     *         receiver for matches. Defaults to ``False`` so a client built against
+     *         the response before this field existed keeps validating.
      */
     atw__AtwConfigResponse: {
+      /**
+       * Case Search Available
+       * @default false
+       */
+      case_search_available: boolean;
       /** Send Disabled Reasons */
       send_disabled_reasons: string[];
     };
@@ -6428,7 +6524,9 @@ export interface components {
       /** Pgbackrest Datadir */
       pgbackrest_datadir?: string | null;
       /** Pgbackrest Incremental Cycle */
-      pgbackrest_incremental_cycle?: string | number | null;
+      pgbackrest_incremental_cycle?:
+        | ('daily' | 'weekly' | '1' | '2' | '3' | '4' | '5' | '6' | '7')
+        | null;
       /** Pgbackrest Retention Archive */
       pgbackrest_retention_archive?: number | null;
       /** Pgbackrest Retention Full */
@@ -6871,8 +6969,10 @@ export interface components {
      *     :param task_type: Optional task-type identifier used when creating tasks
      *         via the shared task API. Defaults to ``None``.
      *     :type task_type: NonEmptyStr | None
-     *     :param forms: Form sections for single-entity / task plugins. Defaults to
-     *         an empty list when ``entities`` is used instead.
+     *     :param forms: Form sections for single-entity / task plugins. When
+     *         ``entities`` is non-empty, root ``forms`` must be empty (declare
+     *         forms on each entity instead); non-empty root ``forms`` are rejected
+     *         at construction. Defaults to an empty list.
      *     :type forms: list[FormSection]
      *     :param capabilities: Optional plugin-level feature flags. Defaults to
      *         ``None``.
@@ -6890,11 +6990,13 @@ export interface components {
      *         When non-empty, the React shell renders one list/create/detail flow
      *         per entity. Defaults to ``None`` (legacy single-entity mode).
      *     :param cardinality_rules: Optional plugin-wide cross-field cardinality
-     *         constraints (task-style plugins only; ignored when ``entities`` is set).
+     *         constraints (task-style plugins only). Rejected at construction when
+     *         ``entities`` is non-empty — declare rules on each entity instead.
      *         Defaults to ``None``.
      *     :type cardinality_rules: list[CardinalityRule] | None
      *     :param fail_when: Optional plugin-wide predicate-only invariants (task-style
-     *         plugins only; ignored when ``entities`` is set). Defaults to ``None``.
+     *         plugins only). Rejected at construction when ``entities`` is non-empty —
+     *         declare rules on each entity instead. Defaults to ``None``.
      *     :type fail_when: list[FailRule] | None
      *     :param derived: Optional declarative specs for sibling tasks derived from
      *         the parent task on cascade. Consumed by
@@ -7787,10 +7889,13 @@ export interface components {
      *
      *     :param field_type: The discriminator literal; always ``"host"`` for this
      *         class. Serialised as the JSON key ``"type"``.
-     *     :type field_type: Literal["host"]
      *     :param depends_on: Optional name of the field whose value drives the
      *         default executor selection. ``None`` (the default) omits the key from
      *         the wire so plugins that do not opt in stay byte-identical.
+     *     :param target_service: Optional service field for a non-blocking
+     *         co-location warning. Independent of ``depends_on`` (see
+     *         :class:`~app.sep.apps.framework.form_dsl.markers.HostRef`).
+     *         ``None`` (the default) omits the key from the wire.
      *     :param allow_custom: When ``True``, the selector also accepts a free-typed
      *         value alongside the inventory options. ``None`` (the default) omits the
      *         key from the wire so plugins that do not opt in stay byte-identical.
@@ -7817,6 +7922,8 @@ export interface components {
       required: boolean;
       /** Requires */
       requires?: components['schemas']['framework__FieldGate'][] | null;
+      /** Target Service */
+      target_service?: string | null;
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
@@ -7957,6 +8064,8 @@ export interface components {
      *     Cascade auto-select is single-host only (:class:`HostField`). ``depends_on``
      *     may still be emitted when ``Ui(depends_on=...)`` is set so derivation stays
      *     uniform, but the multi-host renderer does not honour it today.
+     *     ``target_service`` is mirrored the same way; the multi-host renderer
+     *     ignores it (no co-location warning).
      *
      *     :param field_type: The discriminator literal; always ``"multi_host"`` for
      *         this class. Serialised as the JSON key ``"type"``.
@@ -7964,6 +8073,9 @@ export interface components {
      *         ``Ui(depends_on=...)``. Emitted for wire uniformity with
      *         :class:`HostField`; the current multi-host renderer ignores it (no
      *         cascade). ``None`` (the default) omits the key from the wire.
+     *     :param target_service: Optional service field name mirrored for wire
+     *         uniformity with :class:`HostField`; ignored by the multi-host
+     *         renderer. ``None`` (the default) omits the key from the wire.
      *     :param allow_custom: When ``True``, the selector also accepts free-typed
      *         values alongside the inventory options. ``None`` (the default) omits the
      *         key from the wire so plugins that do not opt in stay byte-identical.
@@ -7990,6 +8102,8 @@ export interface components {
       required: boolean;
       /** Requires */
       requires?: components['schemas']['framework__FieldGate'][] | null;
+      /** Target Service */
+      target_service?: string | null;
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
@@ -8807,11 +8921,16 @@ export interface components {
      *
      *     :param is_running: ``True`` when an inventory-wide sync is currently
      *         in progress; ``False`` otherwise.
-     *     :type is_running: bool
+     *     :param last_runs: The most recently recorded synchronization runs, newest first.
      */
     inventory__InventorySyncStatusResponse: {
       /** Is Running */
       is_running: boolean;
+      /**
+       * Last Runs
+       * @default []
+       */
+      last_runs: components['schemas']['inventory__SyncRunSummary'][];
     };
     /**
      * InventorySyncTriggerWrite
@@ -8834,15 +8953,38 @@ export interface components {
      * @description Represent a single plugin task entry returned by ``GET /api/apps/inventory/``.
      *
      *     :param name: Machine-readable task identifier (e.g. ``"inventory-sync"``).
-     *     :type name: str
      *     :param display_name: Human-readable label for the schedule UI.
-     *     :type display_name: str
      */
     inventory__PluginTaskResponse: {
       /** Display Name */
       display_name: string;
       /** Name */
       name: string;
+    };
+    /**
+     * SyncRunSummary
+     * @description Summarize one recorded synchronization run for the sync-status endpoint.
+     *
+     *     :param syncer: The fully qualified name of the synchronizer that ran.
+     *     :param started_at: When the run was recorded.
+     *     :param finished_at: When the run last changed, or ``None`` while it is open.
+     *     :param status: The run-level outcome.
+     *     :param snapshot_complete: Whether the run observed a complete generation of the
+     *         remote inventory, or ``None`` when the syncer does not produce one.
+     */
+    inventory__SyncRunSummary: {
+      /** Finished At */
+      finished_at: string | null;
+      /** Snapshot Complete */
+      snapshot_complete: boolean | null;
+      /**
+       * Started At
+       * Format: date-time
+       */
+      started_at: string;
+      status: components['schemas']['SyncStatusEnum'];
+      /** Syncer */
+      syncer: string;
     };
     /**
      * BackupCreate
@@ -8855,12 +8997,14 @@ export interface components {
      *     declaration order, so the derived section and field order matches the
      *     hand-written schema. The conditional gating that the legacy ``schema.py`` declared
      *     (per-mode ``forbidden`` gates, the upload-provider ``Contains`` gates, the
-     *     encryption gates — ``encrypt`` (in-place) and ``post_run_encrypt`` are
-     *     independent encryption modes that both produce an encrypted backup;
-     *     ``encrypt_using_tmpdir`` requires ``encrypt`` and is forbidden alongside
-     *     ``post_run_encrypt`` so post-run takes precedence (matching the backend at
-     *     ``mydumper_payload``), and ``encryption_recipient`` is required iff either mode
-     *     is on — and the per-mode bool
+     *     encryption gates — ``encryption_format`` selects which encryption runs and the
+     *     rest of the section parameterises it: the key file is required by the
+     *     AES-bearing formats and forbidden outside them, a GPG-bearing format needs one
+     *     of the two independent timings (``encrypt`` in place, ``post_run_encrypt``
+     *     after), ``encrypt_using_tmpdir`` requires ``encrypt`` and is forbidden
+     *     alongside ``post_run_encrypt`` so post-run takes precedence (matching the
+     *     backend at ``mydumper_payload``), and ``encryption_recipient`` is required iff
+     *     either timing is on — and the per-mode and encryption-format bool
      *     ``FailRule``s in
      *     :attr:`__form_rules__`) now lives on the model; ``AppFormModel`` extracts it
      *     into the conditional-rule plan at class definition, so no
@@ -8868,8 +9012,9 @@ export interface components {
      *     (:class:`BackupConfigAll` and friends) stay the serialization target the
      *     payload builder populates, not this model's base class.
      *
-     *     :cvar __form_rules__: The per-mode bool fail rules — a truthy mode-owned bool
-     *         outside its mode fails validation with a per-field message.
+     *     :cvar __form_rules__: The bool fail rules — a truthy mode-owned bool outside
+     *         its mode, or a GPG timing outside a GPG ``encryption_format``, fails
+     *         validation with a per-field message, as does a GPG format with no timing.
      */
     mysql_backups__BackupCreate: {
       /**
@@ -8927,6 +9072,8 @@ export interface components {
        * @default false
        */
       encrypt_using_tmpdir: boolean;
+      /** @default none */
+      encryption_format: components['schemas']['mysql_backups__EncryptionFormat'];
       /** Encryption Recipient */
       encryption_recipient?: string | null;
       /** Gs Bucket */
@@ -9177,6 +9324,12 @@ export interface components {
      * @enum {string}
      */
     mysql_backups__CompressionAlgorithm: 'zstd' | 'lz4' | 'gzip' | 'quicklz';
+    /**
+     * EncryptionFormat
+     * @description Represent the backup-time encryption formats an operator can select.
+     * @enum {string}
+     */
+    mysql_backups__EncryptionFormat: 'none' | 'gpg' | 'aes256' | 'dual';
     /** PaginatedResponse[BackupRunResponse] */
     mysql_backups__PaginatedResponse_BackupRunResponse_: {
       /** Items */
@@ -11377,6 +11530,38 @@ export interface operations {
       };
     };
   };
+  atw_atw_case_search_api_apps_atw_case_search__get: {
+    parameters: {
+      query: {
+        /** @description The support case reference or title fragment to match. */
+        term: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['atw__AtwCaseSearchResponse'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
   atw_atw_config_api_apps_atw_config__get: {
     parameters: {
       query?: never;
@@ -13161,102 +13346,7 @@ export interface operations {
       };
     };
   };
-  inventory_inventory_create_entity_api_apps_inventory__entity___post: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        entity: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
   inventory_inventory_get_entity_api_apps_inventory__entity___item_id__get: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        entity: string;
-        item_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  inventory_inventory_update_entity_api_apps_inventory__entity___item_id__put: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        entity: string;
-        item_id: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': unknown;
-        };
-      };
-      /** @description Validation Error */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          'application/json': components['schemas']['HTTPValidationError'];
-        };
-      };
-    };
-  };
-  inventory_inventory_delete_entity_api_apps_inventory__entity___item_id__delete: {
     parameters: {
       query?: never;
       header?: never;
@@ -14647,7 +14737,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        setting_class: components['schemas']['SettingClassEnum'];
+        setting_class: string;
       };
       cookie?: never;
     };
@@ -14682,7 +14772,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        setting_class: components['schemas']['SettingClassEnum'];
+        setting_class: string;
         key: string;
       };
       cookie?: never;
@@ -14714,7 +14804,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        setting_class: components['schemas']['SettingClassEnum'];
+        setting_class: string;
         key: string;
       };
       cookie?: never;

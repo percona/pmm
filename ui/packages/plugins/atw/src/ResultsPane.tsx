@@ -79,7 +79,7 @@ interface ResendContext {
  */
 const FINISHED_TASK_STATUSES: ReadonlySet<
   NonNullable<AtwIncidentExecution['task_status']>
-> = new Set(['success', 'failed', 'stopped', 'stale']);
+> = new Set(['success', 'failed', 'stopped', 'stale', 'unlaunchable']);
 
 const SEND_STATUS_COLORS = {
   success: 'success',
