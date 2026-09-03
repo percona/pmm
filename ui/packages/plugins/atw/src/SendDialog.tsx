@@ -18,6 +18,8 @@
 import { useState } from 'react';
 import {
   Alert,
+  Autocomplete,
+  Box,
   Button,
   Dialog,
   DialogActions,
@@ -32,8 +34,21 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { sendJobDetail, useAtwSendJob, useStartSendJob } from './hooks';
-import type { AtwSendLogExecution } from './types';
+import { useDebouncedValue } from '@sep/framework';
+import {
+  sendJobDetail,
+  useAtwCaseSearch,
+  useAtwConfig,
+  useAtwSendJob,
+  useStartSendJob,
+} from './hooks';
+import type { AtwCaseMatch, AtwSendLogExecution } from './types';
+
+/** Shown once a search has answered for the typed term and matched nothing. */
+const NO_MATCH_HELPER =
+  'No matching case. The reference is sent exactly as typed.';
+
+const NO_MATCHES: AtwCaseMatch[] = [];
 
 export interface SendDialogProps {
   open: boolean;
@@ -67,6 +82,28 @@ export function SendDialog({
 }: SendDialogProps) {
   const [caseRef, setCaseRef] = useState(defaultCaseRef ?? '');
   const [jobId, setJobId] = useState<string | null>(null);
+
+  const { data: config } = useAtwConfig();
+  const debouncedCaseRef = useDebouncedValue(caseRef.trim());
+  const searchQuery = useAtwCaseSearch(
+    debouncedCaseRef,
+    Boolean(config?.case_search_available)
+  );
+
+  // The query key is the *debounced* term, so for the debounce window after a
+  // keystroke the data in hand still belongs to the previous term. Rendering it
+  // would put the old term's cases under the new text; clearing the field is the
+  // same bug at its most visible. Nothing below reads the search unless the term
+  // it was issued for is the one now in the field.
+  const termIsCurrent = caseRef.trim() === debouncedCaseRef;
+  const search = termIsCurrent ? searchQuery.data : undefined;
+  const matches = search?.available ? search.matches : NO_MATCHES;
+  const isSearching = termIsCurrent && searchQuery.isFetching;
+  // An available search that matched nothing must not read as an unavailable
+  // one, which leaves the field bare. freeSolo suppresses MUI's own
+  // `noOptionsText`, so the distinction is drawn here instead.
+  const searchFoundNothing =
+    search?.available === true && !isSearching && matches.length === 0;
 
   const startMutation = useStartSendJob(incidentId);
   const { data: job, error: pollError } = useAtwSendJob(
@@ -123,15 +160,65 @@ export function SendDialog({
               bundled and attached to the support case.
             </DialogContentText>
 
-            <TextField
-              autoFocus
+            <Autocomplete<AtwCaseMatch, false, false, true>
+              freeSolo
               fullWidth
-              required
               size="small"
-              label="Support case reference"
-              value={caseRef}
-              onChange={(event) => setCaseRef(event.target.value)}
               disabled={isSending}
+              options={matches}
+              // The receiver already matched the term; re-filtering client-side
+              // would drop hits it matched on a field the label does not show.
+              filterOptions={(option) => option}
+              inputValue={caseRef}
+              onInputChange={(_event, value) => setCaseRef(value)}
+              value={caseRef}
+              onChange={(_event, value) =>
+                setCaseRef(
+                  typeof value === 'string' ? value : (value?.reference ?? '')
+                )
+              }
+              getOptionLabel={(option) =>
+                typeof option === 'string' ? option : option.reference
+              }
+              // The reference is the match's identity: the API answers at most
+              // once per reference, so no synthetic id is needed to key a row.
+              getOptionKey={(option) =>
+                typeof option === 'string' ? option : option.reference
+              }
+              loading={isSearching}
+              clearOnBlur={false}
+              // Keeps an unconfigured deployment's field visually identical to
+              // the plain text input it has always been.
+              forcePopupIcon={false}
+              renderOption={(props, option) => {
+                const { key, ...liProps } = props as typeof props & {
+                  key: string;
+                };
+                return (
+                  <Box component="li" key={key} {...liProps}>
+                    {/* MUI styles the option row as a flex row at a specificity
+                        the sx prop cannot outrank, so the two lines stack in a
+                        wrapper that rule does not reach. */}
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <Typography variant="body2">
+                        {option.reference}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {option.title}
+                      </Typography>
+                    </Box>
+                  </Box>
+                );
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  autoFocus
+                  required
+                  label="Support case reference"
+                  helperText={searchFoundNothing ? NO_MATCH_HELPER : undefined}
+                />
+              )}
               sx={{ mb: 2 }}
             />
 
