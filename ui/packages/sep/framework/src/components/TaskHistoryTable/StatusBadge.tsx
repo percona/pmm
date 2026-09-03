@@ -19,6 +19,7 @@ import { keyframes } from '@emotion/react';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CloudOffIcon from '@mui/icons-material/CloudOff';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import HourglassDisabledIcon from '@mui/icons-material/HourglassDisabled';
@@ -59,6 +60,11 @@ const STATUS_MAP: Record<TaskHistoryStatus, StatusEntry> = {
   stopped: { label: 'Stopped', color: 'warning', icon: <CancelIcon /> },
   lost: { label: 'Lost', color: 'default', icon: <HelpOutlineIcon /> },
   stale: { label: 'Stale', color: 'default', icon: <HourglassDisabledIcon /> },
+  unlaunchable: {
+    label: 'Not in executor',
+    color: 'warning',
+    icon: <CloudOffIcon />,
+  },
 };
 
 /**

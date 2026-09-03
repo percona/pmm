@@ -31,7 +31,20 @@ export type LogType = 'stdout' | 'stderr';
 
 export type StepText = Record<LogType, string>;
 
-export type FinishStatus = 'success' | 'failed' | 'stopped' | 'lost';
+/**
+ * Statuses the SSE `finish` event can carry.
+ *
+ * Mirrors the backend's terminal `TaskHistoryStatusEnum` members, and must stay
+ * exhaustive: `StatusBadge` indexes a `Record` keyed on this union, so a status
+ * the backend emits but this union omits reaches the badge as an unmapped key.
+ */
+export type FinishStatus =
+  | 'success'
+  | 'failed'
+  | 'stopped'
+  | 'lost'
+  | 'stale'
+  | 'unlaunchable';
 
 export interface StreamError {
   code?: number;
