@@ -10,10 +10,8 @@ import AppsRounded from '@mui/icons-material/AppsRounded';
 import DashboardOutlined from '@mui/icons-material/DashboardOutlined';
 import ExploreOutlined from '@mui/icons-material/ExploreOutlined';
 import Groups from '@mui/icons-material/Groups';
-import HandymanOutlined from '@mui/icons-material/HandymanOutlined';
 import HelpOutline from '@mui/icons-material/HelpOutline';
 import Logout from '@mui/icons-material/Logout';
-import MedicalServicesOutlined from '@mui/icons-material/MedicalServicesOutlined';
 import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
@@ -23,13 +21,13 @@ import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
 import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import Update from '@mui/icons-material/Update';
 import {
   CirclesExtIcon,
   Graph4Icon,
   Graph5Icon,
   HaproxyIcon,
   HomeIcon,
-  MySqlIcon,
   NetworkIntelligenceIcon,
   NetworkNodeIcon,
   PerconaMoIcon,
@@ -39,7 +37,9 @@ import {
   ProxyIcon,
   QueryStatsIcon,
   SearchInsightsIcon,
+  SupportDiagnosticsIcon,
 } from '@percona/peak-ui';
+import { styled } from '@mui/material/styles';
 import { NavItem } from 'types/navigation.types';
 
 export const NAV_DIVIDERS: Record<'home' | 'inventory' | 'backups', NavItem> = {
@@ -854,21 +854,26 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
 // leads the group.
 export const NAV_MANAGEMENT: NavItem = {
   id: 'management',
-  icon: HandymanOutlined,
+  icon: AppsRounded,
   text: 'Management',
 };
 
 export const NAV_SEP_ATW: NavItem = {
   id: 'sep-atw',
-  icon: MedicalServicesOutlined,
+  icon: SupportDiagnosticsIcon,
   text: 'Support diagnostics',
   url: SEP_ATW_PATH,
   matches: [SEP_ATW_PATH],
 };
 
+// Design asks for the Update glyph pointing the other way round.
+const MirroredUpdate = styled(Update)({
+  transform: 'scaleX(-1)',
+});
+
 export const NAV_SEP_MYSQL_BACKUPS: NavItem = {
   id: 'sep-mysql-backups',
-  icon: MySqlIcon,
+  icon: MirroredUpdate,
   text: 'MySQL Backups',
   url: SEP_MYSQL_BACKUPS_PATH,
   matches: [SEP_MYSQL_BACKUPS_PATH],
