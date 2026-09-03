@@ -84,7 +84,7 @@ type Node struct {
 ```
 
 **Key conventions:**
-- Models: `managed/models/*_model.go`, each carrying a reform `//go:generate` directive; `make gen` regenerates the `*_reform.go` files
+- Models: `managed/models/*_model.go`, each carrying a `//go:generate go tool reform` directive; `make gen` regenerates the `*_reform.go` files
 - Generated: `managed/models/*_reform.go` (never edit)
 - CRUD helpers: `managed/models/*_helpers.go`
 - Always accept `reform.Querier` parameter (works with both `*reform.DB` and `*reform.TX`)
