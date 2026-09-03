@@ -16,12 +16,12 @@ import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
 import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
+import Restore from '@mui/icons-material/Restore';
 import Search from '@mui/icons-material/Search';
 import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
 import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
-import Update from '@mui/icons-material/Update';
 import {
   CirclesExtIcon,
   Graph4Icon,
@@ -39,7 +39,6 @@ import {
   SearchInsightsIcon,
   SupportDiagnosticsIcon,
 } from '@percona/peak-ui';
-import { styled } from '@mui/material/styles';
 import { NavItem } from 'types/navigation.types';
 
 export const NAV_DIVIDERS: Record<'home' | 'inventory' | 'backups', NavItem> = {
@@ -866,14 +865,9 @@ export const NAV_SEP_ATW: NavItem = {
   matches: [SEP_ATW_PATH],
 };
 
-// Design asks for the Update glyph pointing the other way round.
-const MirroredUpdate = styled(Update)({
-  transform: 'scaleX(-1)',
-});
-
 export const NAV_SEP_MYSQL_BACKUPS: NavItem = {
   id: 'sep-mysql-backups',
-  icon: MirroredUpdate,
+  icon: Restore,
   text: 'MySQL Backups',
   url: SEP_MYSQL_BACKUPS_PATH,
   matches: [SEP_MYSQL_BACKUPS_PATH],
