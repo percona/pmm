@@ -134,7 +134,7 @@ func TestWriteFileAtomic(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "provisioning.json")
 		require.NoError(t, WriteFileAtomic(path, []byte("first"), 0o664))
 
-		content, err := os.ReadFile(path) //nolint:gosec
+		content, err := os.ReadFile(path)
 		require.NoError(t, err)
 		assert.Equal(t, "first", string(content))
 
@@ -150,7 +150,7 @@ func TestWriteFileAtomic(t *testing.T) {
 		require.NoError(t, WriteFileAtomic(path, []byte("first"), 0o664))
 		require.NoError(t, WriteFileAtomic(path, []byte("second"), 0o664))
 
-		content, err := os.ReadFile(path) //nolint:gosec
+		content, err := os.ReadFile(path)
 		require.NoError(t, err)
 		assert.Equal(t, "second", string(content))
 	})
@@ -179,7 +179,7 @@ func TestWriteFileAtomic(t *testing.T) {
 
 		require.Error(t, WriteFileAtomic(filepath.Join(dir, "missing", "provisioning.json"), []byte("bad"), 0o664))
 
-		content, err := os.ReadFile(path) //nolint:gosec
+		content, err := os.ReadFile(path)
 		require.NoError(t, err)
 		assert.Equal(t, "good", string(content))
 	})

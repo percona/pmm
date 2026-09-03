@@ -531,10 +531,7 @@ func (p *Provisioner) write(content []byte) ([]byte, bool, error) {
 // left is the boot where the rendered content changed, and the case where the datasource resolved
 // late.
 func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger, previous []byte) error {
-	running, err := p.supervisord.IsSupervisedServiceRunning(grafanaProgramName)
-	if err != nil {
-		p.l.Debugf("Could not determine Grafana's state: %s.", err)
-	}
+	running := p.supervisord.ProgramState(ctx, grafanaProgramName)
 
 	switch {
 	case running == nil:
@@ -555,7 +552,7 @@ func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger, pr
 		// action across nodes sharing one database; a dead Grafana serves nobody, so there is no
 		// blast radius to contain, and at startup no node is leader yet.
 		p.l.Warnf("Grafana is down and supervisord will not restart it; starting it to apply the alert rules.")
-		err = p.supervisord.StartSupervisedService(grafanaProgramName)
+		err := p.supervisord.StartSupervisedService(grafanaProgramName)
 		if err != nil {
 			return fmt.Errorf("failed to start Grafana: %w", err)
 		}
@@ -581,7 +578,7 @@ func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger, pr
 func (p *Provisioner) restartGrafana(ctx context.Context, previous []byte) error {
 	p.l.Infof("Restarting Grafana to apply alert rule changes.")
 
-	err := p.supervisord.RestartSupervisedService(grafanaProgramName)
+	err := p.supervisord.RestartSupervisedService(ctx, grafanaProgramName)
 	if err != nil {
 		return fmt.Errorf("failed to restart Grafana: %w", err)
 	}

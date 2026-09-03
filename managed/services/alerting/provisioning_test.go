@@ -143,7 +143,7 @@ func TestProvisionerWritesAndAppliesOnStartup(t *testing.T) {
 
 	// A nil status is "state unknown", which supervisord's contract says to leave alone: the file
 	// is written and whoever starts Grafana next reads it.
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -159,7 +159,7 @@ func TestProvisionerOnStandaloneWritesComponentsOnly(t *testing.T) {
 
 	f := newProvisionerFixture(t, false)
 	f.expectSettings(1, true)
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -178,7 +178,7 @@ func TestProvisionerRemovesEverythingWhenAlertingIsOff(t *testing.T) {
 
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, false)
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -195,7 +195,7 @@ func TestProvisionerKeepsStateOutOfGrafanasReach(t *testing.T) {
 
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, true)
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -224,7 +224,7 @@ func TestProvisionerToleratesConcurrentCallers(t *testing.T) {
 			WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON(true)))
 	}
 	f.expectNoConflicts(40)
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil).Maybe()
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Maybe()
 
 	var wg sync.WaitGroup
 	for range 4 {
@@ -252,7 +252,7 @@ func TestProvisionerDoesNothingWhenNothingChanged(t *testing.T) {
 
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(2, true)
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil).Once()
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	first := f.fileContent(t)
@@ -270,8 +270,8 @@ func TestProvisionerRestartsGrafanaWhenRequested(t *testing.T) {
 	f.expectSettings(1, true)
 
 	f.leader.On("IsLeader").Return(true)
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(new(true), nil)
-	f.supervisord.On("RestartSupervisedService", grafanaProgramName).Return(nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(nil)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
@@ -285,13 +285,13 @@ func TestProvisionerTickWaitsForTheLeader(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(3, true)
 
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(new(true), nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
 	f.leader.On("IsLeader").Return(false)
 
 	for range 3 {
 		f.provisioner.reconcile(context.Background(), triggerTick)
 	}
-	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", grafanaProgramName)
+	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
 }
 
 // TestProvisionerRollsBackAFailedRestart proves the promise the whole design rests on: PMM must
@@ -303,7 +303,7 @@ func TestProvisionerRollsBackAFailedRestart(t *testing.T) {
 
 	// A first pass leaves a known good file in place.
 	f.expectSettings(1, true)
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil).Once()
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 	good := f.fileContent(t)
 
@@ -311,8 +311,8 @@ func TestProvisionerRollsBackAFailedRestart(t *testing.T) {
 	// to come back from. Only a change reaches the apply step: an identical render is a no-op.
 	f.expectSettings(1, false)
 	f.leader.On("IsLeader").Return(true)
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(new(true), nil)
-	f.supervisord.On("RestartSupervisedService", grafanaProgramName).Return(nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
@@ -400,7 +400,7 @@ func TestProvisionerRunPicksUpARetryArmedAtStartup(t *testing.T) {
 	// first select rather than after a whole tick has passed.
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, true)
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil).Maybe()
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil).Maybe()
 
 	f.provisioner.retryBackoff = 10 * time.Millisecond
 
@@ -422,7 +422,7 @@ func TestProvisionerStartsGrafanaWhenSupervisordWillNot(t *testing.T) {
 	f.expectSettings(1, true)
 
 	// false is what parseStatus returns for FATAL and STOPPED - "will not be restarted".
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(new(false), nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(nil)
 
@@ -431,7 +431,7 @@ func TestProvisionerStartsGrafanaWhenSupervisordWillNot(t *testing.T) {
 	// Deliberately no leader stub: starting a dead Grafana is a repair, not a rollout action, so it
 	// is not leader-gated. A mockLeaderService call would fail the test.
 	f.supervisord.AssertCalled(t, "StartSupervisedService", grafanaProgramName)
-	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", grafanaProgramName)
+	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
 }
 
 // TestProvisionerLeavesGrafanaAloneWhenStateIsUnknown pins supervisord's documented contract: a nil
@@ -442,13 +442,13 @@ func TestProvisionerLeavesGrafanaAloneWhenStateIsUnknown(t *testing.T) {
 
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, true)
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
 	require.NotEmpty(t, f.fileContent(t), "the file is still written")
 	f.supervisord.AssertNotCalled(t, "StartSupervisedService", grafanaProgramName)
-	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", grafanaProgramName)
+	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
 }
 
 // TestProvisionerLeavesRulesItDoesNotOwnAlone is the guard against the two harms a squatted UID
@@ -464,7 +464,7 @@ func TestProvisionerLeavesRulesItDoesNotOwnAlone(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"uid", "provenance"}).
 			AddRow("pmm-clickhouse-down", "api").
 			AddRow("pmm-grafana-down", "")) // made in the interface: no provenance at all
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -485,7 +485,7 @@ func TestProvisionerOmitsSquattedUIDsFromDeletions(t *testing.T) {
 		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON(false))) // alerting off
 	f.gfMock.ExpectQuery("FROM alert_rule").
 		WillReturnRows(sqlmock.NewRows([]string{"uid", "provenance"}).AddRow("pmm-ha-no-leader", ""))
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(nil, nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(nil)
 
 	f.provisioner.reconcile(context.Background(), triggerStartup)
 
@@ -504,7 +504,7 @@ func TestProvisionerDeferralIsNotAFailure(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(1, true)
 
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(new(true), nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
 	f.leader.On("IsLeader").Return(false)
 
 	f.provisioner.reconcile(context.Background(), triggerTick)
@@ -525,7 +525,7 @@ func TestProvisionerRetriesAnApplyItOwes(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(2, true)
 
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(new(false), nil)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).
 		Return(errors.New("boom")).Once()
 	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil).Once()
@@ -555,9 +555,9 @@ func TestProvisionerStillDoesNothingWhenNothingChanged(t *testing.T) {
 	f := newProvisionerFixture(t, true)
 	f.expectSettings(3, true)
 
-	f.supervisord.On("IsSupervisedServiceRunning", grafanaProgramName).Return(new(true), nil).Once()
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true)).Once()
 	f.leader.On("IsLeader").Return(true).Once()
-	f.supervisord.On("RestartSupervisedService", grafanaProgramName).Return(nil).Once()
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
 	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
 
 	for range 3 {

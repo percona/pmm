@@ -161,29 +161,56 @@ func (s *Service) StopSupervisedService(serviceName string) error {
 // ProgramRunning returns true if the given supervisord program is running or is going to be
 // restarted, false if it is not running, has exited, or has failed for good.
 func (s *Service) ProgramRunning(ctx context.Context, program string) bool {
-	// See http://supervisord.org/subprocess.html#process-states
+	running := s.ProgramState(ctx, program)
+	return running != nil && *running
+}
+
+// ProgramState reports whether the given supervisord program is running, distinguishing the two
+// answers ProgramRunning has to collapse into false.
+//
+// A nil result means the state could not be determined - the program has EXITED and may yet be
+// restarted, or it is not configured at all, which is a container whose first boot has not written
+// its supervisord file yet. Callers must treat nil as "leave it alone": supervisord is about to act
+// and stepping in would fight it. A non-nil false means FATAL or STOPPED, the states supervisord
+// documents as "will not be restarted", so a caller that needs the program up has to start it
+// itself.
+//
+// See http://supervisord.org/subprocess.html#process-states
+func (s *Service) ProgramState(ctx context.Context, program string) *bool {
+	// supervisorctl exits with a non-zero code when the program is not running, so the exit code
+	// cannot tell a stopped program from a failed command. The output is what matters.
 	b, err := s.supervisorctl(ctx, "status", program)
 	if err != nil {
-		// supervisorctl exits with a non-zero code when the program is not running,
-		// so the output is still worth parsing.
 		s.l.Debugf("Status command for '%s' failed: %s", program, err)
 	}
 
 	f := strings.Fields(string(b))
 	if len(f) < 2 { //nolint:mnd
 		s.l.Debugf("Cannot parse status of '%s': %s", program, b)
-		return false
+		return nil
 	}
 
 	switch status := f[1]; status {
 	case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
-		return true
-	case "STOPPED", "EXITED", "FATAL", "UNKNOWN":
-		return false
+		return new(true)
+	case "STOPPED", "FATAL":
+		return new(false)
+	case "EXITED", "UNKNOWN":
+		return nil
 	default:
-		s.l.Debugf("Unhandled status '%s' of '%s', assuming it is not running.", status, program)
-		return false
+		s.l.Debugf("Unhandled status '%s' of '%s', leaving it alone.", status, program)
+		return nil
 	}
+}
+
+// RestartSupervisedService restarts given service.
+//
+// Note that reload() is not a substitute: it runs `supervisorctl update`, which only acts when the
+// program's own configuration file has changed. Restarting because some other file the program
+// reads has changed needs this.
+func (s *Service) RestartSupervisedService(ctx context.Context, serviceName string) error {
+	_, err := s.supervisorctl(ctx, "restart", serviceName)
+	return err
 }
 
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`

@@ -81,12 +81,12 @@ func assertGolden(t *testing.T, name string, actual []byte) {
 	path := filepath.Join(goldenDir, name)
 	if os.Getenv("UPDATE_GOLDEN") != "" {
 		require.NoError(t, os.MkdirAll(goldenDir, 0o750))
-		require.NoError(t, os.WriteFile(path, append(actual, '\n'), 0o644)) //nolint:gosec
+		require.NoError(t, os.WriteFile(path, append(actual, '\n'), 0o644))
 		t.Logf("updated %s", path)
 		return
 	}
 
-	expected, err := os.ReadFile(path) //nolint:gosec
+	expected, err := os.ReadFile(path)
 	require.NoError(t, err, "golden file missing; regenerate with UPDATE_GOLDEN=1")
 	assert.Equal(t, string(expected), string(actual)+"\n")
 }

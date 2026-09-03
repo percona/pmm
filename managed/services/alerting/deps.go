@@ -41,8 +41,8 @@ type grafanaProvisioningClient interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisordService interface {
 	StartSupervisedService(serviceName string) error
-	RestartSupervisedService(serviceName string) error
-	IsSupervisedServiceRunning(serviceName string) (*bool, error)
+	RestartSupervisedService(ctx context.Context, serviceName string) error
+	ProgramState(ctx context.Context, program string) *bool
 }
 
 // leaderService reports whether this node may act on behalf of the cluster. It reports true on a
