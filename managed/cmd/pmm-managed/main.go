@@ -1094,6 +1094,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	// OpenManager enable/disable switch (Enabled gate, IsAvailable check).
 	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
 	omService.WithProbeSource(*sepURLF, *sepTokenF)
+	omService.WithAgentRegistry(agentsRegistry)
 	prom.MustRegister(om.NewMetricsCollector(omService))
 
 	serverParams := &server.Params{

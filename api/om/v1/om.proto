@@ -533,6 +533,21 @@ message InventoryHost {
   InventoryFreshness freshness = 10;
   // The services on it. Empty is a meaningful answer, not a gap.
   repeated InventoryService services = 11;
+
+  // Whether PMM's own agent registry currently has a connected pmm-agent for this
+  // node, independent of anything the probe collected. This is the "PMM-Client
+  // installed and healthy" signal om_inventory has no way to answer on its own: a
+  // node existing in the inventory only means PMM registered it once, not that its
+  // agent is alive now.
+  bool pmm_agent_connected = 12;
+  // Whether this host is eligible for OM automation (probing today; provisioning in
+  // a later phase): pmm_agent_connected is true, and executor reports reachable and
+  // driver-healthy. Computed once here so every consumer agrees on one definition
+  // rather than recomputing it from the fields above separately.
+  bool automation_eligible = 13;
+  // Why automation_eligible is false, one entry per unmet condition. Empty when it
+  // is true.
+  repeated string automation_blocked_reasons = 14;
 }
 
 // InventoryRunCounts is what one refresh saw.
@@ -660,6 +675,10 @@ message ListInventoryHostsRequest {
   // on. Not a client name: the app filters on whether one is matched at all, and
   // "which machines can nothing be dispatched to" is the question worth asking.
   optional bool executor = 3;
+  // When set, return only hosts that are (or are not) automation_eligible. Applied
+  // in pmm-managed, after executor's own filter: om_inventory has no notion of
+  // pmm_agent_connected to filter on itself.
+  optional bool automation_eligible = 4;
 }
 
 // ListInventoryHostsResponse returns the hosts OM knows about.
@@ -798,6 +817,38 @@ message TriggerInventoryRefreshResponse {
   google.protobuf.Timestamp start_time = 3;
   // The hosts it will refresh. Empty means the whole estate.
   repeated string scope = 4;
+}
+
+// TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.
+message TriggerHostBootstrapRequest {
+  // PMM's node ID for the host to bootstrap.
+  string node_id = 1 [(validate.rules).string.min_len = 1];
+  // The replica set's name.
+  string replica_set_name = 2 [(validate.rules).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  // The MongoDB version to install, e.g. "7.0.8". Only the major version
+  // selects the install source; PSMDB does not ship parallel repos per minor
+  // version.
+  string mongodb_version = 3 [(validate.rules).string.min_len = 1];
+}
+
+// TriggerHostBootstrapResponse acknowledges a queued single-host bootstrap.
+//
+// PMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Returned
+// as soon as the Nomad job is queued, not once it finishes.
+message TriggerHostBootstrapResponse {
+  // The queued run's task history ID. There is no OM-specific run id for
+  // this yet -- see PMM-15347/questions.md for why.
+  int64 task_history_id = 1;
+  // The admin user this run will create.
+  string admin_username = 2;
+  // The generated password, in the clear, returned exactly once. Nothing
+  // stores it after this response -- PMM-15347/questions.md Q7 (secrets
+  // storage) is unresolved, and this is a PoC placeholder, not the answer to
+  // it.
+  string admin_password = 3;
 }
 
 // GetInventoryConfigRequest is the request for GetInventoryConfig.
@@ -980,6 +1031,26 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Refresh the inventory"
       description: "Dispatches an on-host probe per executor host and returns as soon as the refresh is accepted. Takes tens of seconds, unlike /v1/om/topology/runs. Pass node_ids to refresh only those hosts; 409 when another refresh already holds one of them."
+    };
+  }
+
+  // TriggerHostBootstrap installs MongoDB on one host and initializes it as a
+  // single-member replica set.
+  //
+  // PMM-15347 PoC, not the shipped feature: one host, one member, keyFile
+  // auth, TLS off, no project/cluster. See PMM-15347/plan.md and
+  // PMM-15347/questions.md for what is and is not built, and what is still
+  // undecided about the real feature this exists to de-risk.
+  rpc TriggerHostBootstrap(TriggerHostBootstrapRequest) returns (TriggerHostBootstrapResponse) {
+    // A custom method, matching TriggerInventoryRefresh: this returns an
+    // *accepted* run that finishes minutes later, not a completed one.
+    option (google.api.http) = {
+      post: "/v1/om/inventory/hosts/{node_id}:bootstrap"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Bootstrap a host (PoC)"
+      description: "Installs MongoDB on one host through the Nomad client and initializes it as a single-member replica set. PMM-15347 proof-of-concept scope only. Returns as soon as the job is queued; poll the host's next probe to see it land."
     };
   }
 

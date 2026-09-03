@@ -77,6 +77,8 @@ type ClientService interface {
 
 	ListTopologyRuns(params *ListTopologyRunsParams, opts ...ClientOption) (*ListTopologyRunsOK, error)
 
+	TriggerHostBootstrap(params *TriggerHostBootstrapParams, opts ...ClientOption) (*TriggerHostBootstrapOK, error)
+
 	TriggerInventoryRefresh(params *TriggerInventoryRefreshParams, opts ...ClientOption) (*TriggerInventoryRefreshOK, error)
 
 	TriggerTopologyCollection(params *TriggerTopologyCollectionParams, opts ...ClientOption) (*TriggerTopologyCollectionOK, error)
@@ -654,6 +656,50 @@ func (a *Client) ListTopologyRuns(params *ListTopologyRunsParams, opts ...Client
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListTopologyRunsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+TriggerHostBootstrap bootstraps a host po c
+
+Installs MongoDB on one host through the Nomad client and initializes it as a single-member replica set. PMM-15347 proof-of-concept scope only. Returns as soon as the job is queued; poll the host's next probe to see it land.
+*/
+func (a *Client) TriggerHostBootstrap(params *TriggerHostBootstrapParams, opts ...ClientOption) (*TriggerHostBootstrapOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewTriggerHostBootstrapParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "TriggerHostBootstrap",
+		Method:             "POST",
+		PathPattern:        "/v1/om/inventory/hosts/{node_id}:bootstrap",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &TriggerHostBootstrapReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*TriggerHostBootstrapOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*TriggerHostBootstrapDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

@@ -58,6 +58,14 @@ ListInventoryHostsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListInventoryHostsParams struct {
+	/* AutomationEligible.
+
+	     When set, return only hosts that are (or are not) automation_eligible. Applied
+	in pmm-managed, after executor's own filter: om_inventory has no notion of
+	pmm_agent_connected to filter on itself.
+	*/
+	AutomationEligible *bool
+
 	/* Executor.
 
 	     When set, return only hosts that do (or do not) have an executor to run a probe
@@ -132,6 +140,17 @@ func (o *ListInventoryHostsParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
+// WithAutomationEligible adds the automationEligible to the list inventory hosts params
+func (o *ListInventoryHostsParams) WithAutomationEligible(automationEligible *bool) *ListInventoryHostsParams {
+	o.SetAutomationEligible(automationEligible)
+	return o
+}
+
+// SetAutomationEligible adds the automationEligible to the list inventory hosts params
+func (o *ListInventoryHostsParams) SetAutomationEligible(automationEligible *bool) {
+	o.AutomationEligible = automationEligible
+}
+
 // WithExecutor adds the executor to the list inventory hosts params
 func (o *ListInventoryHostsParams) WithExecutor(executor *bool) *ListInventoryHostsParams {
 	o.SetExecutor(executor)
@@ -171,6 +190,22 @@ func (o *ListInventoryHostsParams) WriteToRequest(r runtime.ClientRequest, reg s
 		return err
 	}
 	var res []error
+
+	if o.AutomationEligible != nil {
+
+		// query param automation_eligible
+		var qrAutomationEligible bool
+
+		if o.AutomationEligible != nil {
+			qrAutomationEligible = *o.AutomationEligible
+		}
+		qAutomationEligible := swag.FormatBool(qrAutomationEligible)
+		if qAutomationEligible != "" {
+			if err := r.SetQueryParam("automation_eligible", qAutomationEligible); err != nil {
+				return err
+			}
+		}
+	}
 
 	if o.Executor != nil {
 

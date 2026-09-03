@@ -29,6 +29,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
+	"github.com/percona/pmm/managed/models"
 )
 
 // The /v1/om/inventory/* handlers: SEP's estate, served through PMM.
@@ -98,11 +99,48 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 		return nil, err
 	}
 
+	connectedNodes, err := s.pmmAgentConnectedByNode()
+	if err != nil {
+		return nil, err
+	}
+
 	response := &omv1.ListInventoryHostsResponse{Hosts: make([]*omv1.InventoryHost, 0, len(hosts))}
 	for _, host := range hosts {
-		response.Hosts = append(response.Hosts, inventoryHostToProto(host))
+		proto := inventoryHostToProto(host, connectedNodes[host.NodeID])
+		if req.AutomationEligible != nil && proto.AutomationEligible != req.GetAutomationEligible() {
+			continue
+		}
+		response.Hosts = append(response.Hosts, proto)
 	}
 	return response, nil
+}
+
+// pmmAgentConnectedByNode returns, for every node with a pmm-agent, whether that
+// agent is currently connected -- one query and one registry check per node, not one
+// per host in the estate.
+//
+// Absence from the returned map (rather than a false-valued entry) is the same "not
+// connected" answer callers here read either way, since a Go map's missing key
+// already zero-values to false; kept as a genuinely sparse map only because building
+// it is naturally that shape, not because callers need to distinguish a missing agent
+// from a disconnected one.
+func (s *Service) pmmAgentConnectedByNode() (map[string]bool, error) {
+	if s.agents == nil {
+		return nil, nil //nolint:nilnil // absent registry: every lookup below reads as not connected
+	}
+	agentType := models.PMMAgentType
+	pmmAgents, err := models.FindAgents(s.db.Querier, models.AgentFilters{AgentType: &agentType})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list pmm-agents: %s", err)
+	}
+	connected := make(map[string]bool, len(pmmAgents))
+	for _, agent := range pmmAgents {
+		if agent.RunsOnNodeID == nil {
+			continue
+		}
+		connected[*agent.RunsOnNodeID] = s.agents.IsConnected(agent.AgentID)
+	}
+	return connected, nil
 }
 
 // GetInventoryHost returns one host.
@@ -118,7 +156,12 @@ func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHo
 	if err != nil {
 		return nil, err
 	}
-	return &omv1.GetInventoryHostResponse{Host: inventoryHostToProto(host)}, nil
+
+	connectedNodes, err := s.pmmAgentConnectedByNode()
+	if err != nil {
+		return nil, err
+	}
+	return &omv1.GetInventoryHostResponse{Host: inventoryHostToProto(host, connectedNodes[host.NodeID])}, nil
 }
 
 // DeleteInventoryHost forgets a host and the services on it.
@@ -311,6 +354,42 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 	return response, nil
 }
 
+// TriggerHostBootstrap installs MongoDB on one host and initializes it as a
+// single-member replica set.
+//
+// PMM-15347 PoC only -- see the RPC's own proto comment and PMM-15347/plan.md for
+// scope. A thin proxy, like every other write here: SEP's own route does the real
+// work (validates the host is eligible, generates the keyFile and admin password,
+// dispatches the Nomad job) and this only translates the request and response
+// shapes.
+func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHostBootstrapRequest) (*omv1.TriggerHostBootstrapResponse, error) {
+	probe, err := s.inventoryProbe()
+	if err != nil {
+		return nil, err
+	}
+
+	body := sepBootstrapRequest{
+		ReplicaSetName: req.GetReplicaSetName(),
+		MongoDBVersion: req.GetMongodbVersion(),
+	}
+	accepted := sepBootstrapAccepted{}
+	call := inventoryCall{
+		method: http.MethodPost,
+		path:   inventoryPath("hosts", req.GetNodeId()) + "/bootstrap",
+		body:   body,
+	}
+	err = probe.call(ctx, call, &accepted)
+	if err != nil {
+		return nil, err
+	}
+
+	return &omv1.TriggerHostBootstrapResponse{
+		TaskHistoryId: accepted.TaskHistoryID,
+		AdminUsername: accepted.AdminUsername,
+		AdminPassword: accepted.AdminPassword,
+	}, nil
+}
+
 // GetInventoryConfig returns the inventory app's configuration.
 func (s *Service) GetInventoryConfig(ctx context.Context, _ *omv1.GetInventoryConfigRequest) (*omv1.GetInventoryConfigResponse, error) {
 	probe, err := s.inventoryProbe()
@@ -457,24 +536,51 @@ func (s *Service) DeleteInventoryConfigOverride(
 }
 
 // inventoryHostToProto projects one host row for the wire.
-func inventoryHostToProto(host sepHost) *omv1.InventoryHost {
+func inventoryHostToProto(host sepHost, pmmAgentConnected bool) *omv1.InventoryHost {
+	executor := executorToProto(host.Observed)
+	eligible, reasons := automationEligibility(executor, pmmAgentConnected)
 	out := &omv1.InventoryHost{
-		NodeId:              host.NodeID,
-		Name:                host.Name,
-		Address:             optionalString(host.Address),
-		ExecutorHost:        optionalString(host.ExecutorHost),
-		Os:                  observedString(host.Observed, "os"),
-		Kernel:              observedString(host.Observed, "kernel"),
-		Executor:            executorToProto(host.Observed),
-		UnregisteredMongods: unregisteredMongodsToProto(host.Observed),
-		Observed:            observedToStruct(host.Observed),
-		Freshness:           freshnessToProto(host.sepFreshness),
-		Services:            make([]*omv1.InventoryService, 0, len(host.Services)),
+		NodeId:                   host.NodeID,
+		Name:                     host.Name,
+		Address:                  optionalString(host.Address),
+		ExecutorHost:             optionalString(host.ExecutorHost),
+		Os:                       observedString(host.Observed, "os"),
+		Kernel:                   observedString(host.Observed, "kernel"),
+		Executor:                 executor,
+		UnregisteredMongods:      unregisteredMongodsToProto(host.Observed),
+		Observed:                 observedToStruct(host.Observed),
+		Freshness:                freshnessToProto(host.sepFreshness),
+		Services:                 make([]*omv1.InventoryService, 0, len(host.Services)),
+		PmmAgentConnected:        pmmAgentConnected,
+		AutomationEligible:       eligible,
+		AutomationBlockedReasons: reasons,
 	}
 	for _, service := range host.Services {
 		out.Services = append(out.Services, inventoryServiceToProto(service))
 	}
 	return out
+}
+
+// automationEligibility decides whether OM automation (a probe today; provisioning in
+// a later phase) can run on a host, and names every unmet condition.
+//
+// Deliberately one shared definition rather than per-task-type requirements for now:
+// probing and the PMM-15347 PoC's bootstrap dispatch both need the same two things
+// (a connected agent, a reachable driver-healthy executor), and there is exactly one
+// consumer of the distinction so far. See PMM-15347/questions.md Q2 for why a
+// requirements-per-task-type mechanism is deliberately not built until a second,
+// differently-shaped task type actually needs one.
+func automationEligibility(executor *omv1.InventoryExecutor, pmmAgentConnected bool) (bool, []string) {
+	var reasons []string
+	if !pmmAgentConnected {
+		reasons = append(reasons, "PMM-Client is not installed or not connected")
+	}
+	if executor == nil || !executor.GetReachable() {
+		reasons = append(reasons, "host is not reachable by the Nomad client")
+	} else if !executor.GetDriverHealthy() {
+		reasons = append(reasons, "Nomad's raw_exec driver is not healthy on this host")
+	}
+	return len(reasons) == 0, reasons
 }
 
 // inventoryServiceToProto projects one service row for the wire.

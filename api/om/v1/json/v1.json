@@ -327,6 +327,12 @@
             "description": "When set, return only hosts that do (or do not) have an executor to run a probe\non. Not a client name: the app filters on whether one is matched at all, and\n\"which machines can nothing be dispatched to\" is the question worth asking.",
             "name": "executor",
             "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "When set, return only hosts that are (or are not) automation_eligible. Applied\nin pmm-managed, after executor's own filter: om_inventory has no notion of\npmm_agent_connected to filter on itself.",
+            "name": "automation_eligible",
+            "in": "query"
           }
         ],
         "responses": {
@@ -631,6 +637,24 @@
                           }
                         },
                         "x-order": 10
+                      },
+                      "pmm_agent_connected": {
+                        "description": "Whether PMM's own agent registry currently has a connected pmm-agent for this\nnode, independent of anything the probe collected. This is the \"PMM-Client\ninstalled and healthy\" signal om_inventory has no way to answer on its own: a\nnode existing in the inventory only means PMM registered it once, not that its\nagent is alive now.",
+                        "type": "boolean",
+                        "x-order": 11
+                      },
+                      "automation_eligible": {
+                        "description": "Whether this host is eligible for OM automation (probing today; provisioning in\na later phase): pmm_agent_connected is true, and executor reports reachable and\ndriver-healthy. Computed once here so every consumer agrees on one definition\nrather than recomputing it from the fields above separately.",
+                        "type": "boolean",
+                        "x-order": 12
+                      },
+                      "automation_blocked_reasons": {
+                        "description": "Why automation_eligible is false, one entry per unmet condition. Empty when it\nis true.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 13
                       }
                     }
                   },
@@ -989,6 +1013,24 @@
                         }
                       },
                       "x-order": 10
+                    },
+                    "pmm_agent_connected": {
+                      "description": "Whether PMM's own agent registry currently has a connected pmm-agent for this\nnode, independent of anything the probe collected. This is the \"PMM-Client\ninstalled and healthy\" signal om_inventory has no way to answer on its own: a\nnode existing in the inventory only means PMM registered it once, not that its\nagent is alive now.",
+                      "type": "boolean",
+                      "x-order": 11
+                    },
+                    "automation_eligible": {
+                      "description": "Whether this host is eligible for OM automation (probing today; provisioning in\na later phase): pmm_agent_connected is true, and executor reports reachable and\ndriver-healthy. Computed once here so every consumer agrees on one definition\nrather than recomputing it from the fields above separately.",
+                      "type": "boolean",
+                      "x-order": 12
+                    },
+                    "automation_blocked_reasons": {
+                      "description": "Why automation_eligible is false, one entry per unmet condition. Empty when it\nis true.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -1051,6 +1093,104 @@
             "schema": {
               "description": "DeleteInventoryHostResponse acknowledges forgetting a host.",
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/hosts/{node_id}:bootstrap": {
+      "post": {
+        "description": "Installs MongoDB on one host through the Nomad client and initializes it as a single-member replica set. PMM-15347 proof-of-concept scope only. Returns as soon as the job is queued; poll the host's next probe to see it land.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Bootstrap a host (PoC)",
+        "operationId": "TriggerHostBootstrap",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "PMM's node ID for the host to bootstrap.",
+            "name": "node_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.",
+              "type": "object",
+              "properties": {
+                "replica_set_name": {
+                  "description": "The replica set's name.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "mongodb_version": {
+                  "description": "The MongoDB version to install, e.g. \"7.0.8\". Only the major version\nselects the install source; PSMDB does not ship parallel repos per minor\nversion.",
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "TriggerHostBootstrapResponse acknowledges a queued single-host bootstrap.\n\nPMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Returned\nas soon as the Nomad job is queued, not once it finishes.",
+              "type": "object",
+              "properties": {
+                "task_history_id": {
+                  "description": "The queued run's task history ID. There is no OM-specific run id for\nthis yet -- see PMM-15347/questions.md for why.",
+                  "type": "string",
+                  "format": "int64",
+                  "x-order": 0
+                },
+                "admin_username": {
+                  "description": "The admin user this run will create.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "admin_password": {
+                  "description": "The generated password, in the clear, returned exactly once. Nothing\nstores it after this response -- PMM-15347/questions.md Q7 (secrets\nstorage) is unresolved, and this is a PoC placeholder, not the answer to\nit.",
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
             }
           },
           "default": {

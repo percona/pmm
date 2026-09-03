@@ -102,6 +102,11 @@ type Service struct {
 	// configured. Held rather than constructed per run so the HTTP client is reused.
 	probe *probeSource
 
+	// agents reports pmm-agent connectivity for ListInventoryHosts' eligibility
+	// computation, or nil when not wired up (every host then reads as
+	// pmm_agent_connected: false -- see agentConnectionChecker's doc comment).
+	agents agentConnectionChecker
+
 	// restored guards the one-time read of the stored document on a cold start.
 	restored sync.Once
 
@@ -154,6 +159,18 @@ func (s *Service) WithProbeSource(sepURL, token string) *Service {
 	}
 	s.probe = probe
 	s.l.Infof("om_inventory estate at %s", probe.app.endpoint(""))
+	return s
+}
+
+// WithAgentRegistry attaches the pmm-agent connectivity checker ListInventoryHosts
+// uses to compute automation eligibility.
+//
+// Optional, matching WithProbeSource's shape: unset in most tests, and in any build
+// that has not wired one up, every host then reads as not connected. See
+// agentConnectionChecker's doc comment for why that is the fail-closed default rather
+// than treating an unknown state as eligible.
+func (s *Service) WithAgentRegistry(r agentConnectionChecker) *Service {
+	s.agents = r
 	return s
 }
 

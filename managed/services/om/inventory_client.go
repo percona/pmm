@@ -126,6 +126,24 @@ type sepRunNodeService struct {
 	Error       *string `json:"error"`
 }
 
+// sepBootstrapRequest is the body POST /hosts/{node_id}/bootstrap takes.
+//
+// Only the two fields a caller actually chooses; every other field on the app's own
+// BootstrapRequest (data/log path, port, bind IP, key file path, admin username) is
+// left to SEP's defaults -- see PMM-15347/plan.md for why this PoC does not expose
+// them yet.
+type sepBootstrapRequest struct {
+	ReplicaSetName string `json:"replica_set_name"`
+	MongoDBVersion string `json:"mongodb_version"`
+}
+
+// sepBootstrapAccepted is the body POST /hosts/{node_id}/bootstrap answers with.
+type sepBootstrapAccepted struct {
+	TaskHistoryID int64  `json:"task_history_id"`
+	AdminUsername string `json:"admin_username"`
+	AdminPassword string `json:"admin_password"`
+}
+
 // sepSetting is one row of GET /config.
 type sepSetting struct {
 	Key          string  `json:"key"`

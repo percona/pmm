@@ -257,6 +257,50 @@ func TestListInventoryHosts(t *testing.T) {
 		assert.True(t, executor.GetDriverHealthy())
 	})
 
+	t.Run("without an agent registry, no host is eligible", func(t *testing.T) {
+		t.Parallel()
+
+		// stub.service(t) never calls WithAgentRegistry, matching every other test in
+		// this file -- the fail-closed default from PMM-15347's PoC (see
+		// agentConnectionChecker's doc comment): a host with a fully healthy executor
+		// still reads as ineligible when PMM-managed has no wired signal for
+		// pmm-agent connectivity.
+		stub := newSEPStub(t, http.StatusOK, hostsBody)
+
+		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
+		require.NoError(t, err)
+
+		healthyExecutor := response.GetHosts()[0]
+		assert.False(t, healthyExecutor.GetPmmAgentConnected())
+		assert.False(t, healthyExecutor.GetAutomationEligible())
+		assert.Contains(t, healthyExecutor.GetAutomationBlockedReasons(),
+			"PMM-Client is not installed or not connected")
+		assert.NotContains(t, healthyExecutor.GetAutomationBlockedReasons(),
+			"host is not reachable by the Nomad client",
+			"n1's executor is fully healthy -- only the missing agent signal should block it")
+
+		noExecutor := response.GetHosts()[1]
+		assert.False(t, noExecutor.GetAutomationEligible())
+		assert.Contains(t, noExecutor.GetAutomationBlockedReasons(),
+			"PMM-Client is not installed or not connected")
+		assert.Contains(t, noExecutor.GetAutomationBlockedReasons(),
+			"host is not reachable by the Nomad client")
+	})
+
+	t.Run("the automation_eligible filter excludes every host when nothing is eligible", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, hostsBody)
+
+		eligible := true
+		response, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{
+			AutomationEligible: &eligible,
+		})
+		require.NoError(t, err)
+		assert.Empty(t, response.GetHosts(),
+			"no host has a connected agent in this stub, so none should pass the filter")
+	})
+
 	t.Run("a host with no probe reports absent, not false", func(t *testing.T) {
 		t.Parallel()
 
@@ -326,6 +370,65 @@ func TestListInventoryHosts(t *testing.T) {
 
 		require.NoError(t, err)
 		assert.Empty(t, stub.query)
+	})
+}
+
+func TestAutomationEligibility(t *testing.T) {
+	t.Parallel()
+
+	healthyExecutor := &omv1.InventoryExecutor{Registered: true, Reachable: true, DriverHealthy: true}
+	reachableOnlyExecutor := &omv1.InventoryExecutor{Registered: true, Reachable: true, DriverHealthy: false}
+
+	t.Run("connected agent and healthy executor is eligible with no reasons", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons := automationEligibility(healthyExecutor, true)
+
+		assert.True(t, eligible)
+		assert.Empty(t, reasons)
+	})
+
+	t.Run("a disconnected agent blocks even a healthy executor", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons := automationEligibility(healthyExecutor, false)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{"PMM-Client is not installed or not connected"}, reasons)
+	})
+
+	t.Run("no executor block at all blocks on reachability, not driver health", func(t *testing.T) {
+		t.Parallel()
+
+		// A nil executor is what om_inventory sends for a host it has never
+		// dispatched to -- see inventory_test.go's "a host with no probe reports
+		// absent, not false". Reporting a driver-health failure on top of that would
+		// claim a health check ran when none did.
+		eligible, reasons := automationEligibility(nil, true)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{"host is not reachable by the Nomad client"}, reasons)
+	})
+
+	t.Run("reachable but unhealthy driver blocks on the driver, not reachability", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons := automationEligibility(reachableOnlyExecutor, true)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{"Nomad's raw_exec driver is not healthy on this host"}, reasons)
+	})
+
+	t.Run("every condition unmet reports every reason", func(t *testing.T) {
+		t.Parallel()
+
+		eligible, reasons := automationEligibility(nil, false)
+
+		assert.False(t, eligible)
+		assert.Equal(t, []string{
+			"PMM-Client is not installed or not connected",
+			"host is not reachable by the Nomad client",
+		}, reasons)
 	})
 }
 
@@ -404,6 +507,52 @@ func TestTriggerInventoryRefresh(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.Aborted, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "already refreshing n1")
+	})
+}
+
+func TestTriggerHostBootstrap(t *testing.T) {
+	t.Parallel()
+
+	t.Run("posts to the host's own path and maps the response", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusAccepted,
+			`{"node_id": "n1", "task_history_id": 132, "admin_username": "admin", "admin_password": "s3cr3t"}`)
+
+		response, err := stub.service(t).TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeId:         "n1",
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.NoError(t, err)
+		assert.Equal(t, int64(132), response.GetTaskHistoryId())
+		assert.Equal(t, "admin", response.GetAdminUsername())
+		assert.Equal(t, "s3cr3t", response.GetAdminPassword())
+		assert.Equal(t, "/api/apps/om_inventory/hosts/n1/bootstrap", stub.path)
+		assert.JSONEq(t,
+			`{"replica_set_name": "rs-orders-prod", "mongodb_version": "7.0.8"}`,
+			stub.body)
+		assert.Equal(t, http.MethodPost, stub.method)
+	})
+
+	t.Run("a host with no usable executor answers InvalidArgument, not 500", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusUnprocessableEntity,
+			`{"detail": "Host n1 has no usable Nomad executor"}`)
+
+		_, err := stub.service(t).TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeId:         "n1",
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "no usable Nomad executor")
 	})
 }
 

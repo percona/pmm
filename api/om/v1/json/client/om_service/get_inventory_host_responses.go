@@ -555,6 +555,23 @@ type GetInventoryHostOKBodyHost struct {
 	// The services on it. Empty is a meaningful answer, not a gap.
 	Services []*GetInventoryHostOKBodyHostServicesItems0 `json:"services"`
 
+	// Whether PMM's own agent registry currently has a connected pmm-agent for this
+	// node, independent of anything the probe collected. This is the "PMM-Client
+	// installed and healthy" signal om_inventory has no way to answer on its own: a
+	// node existing in the inventory only means PMM registered it once, not that its
+	// agent is alive now.
+	PMMAgentConnected bool `json:"pmm_agent_connected,omitempty"`
+
+	// Whether this host is eligible for OM automation (probing today; provisioning in
+	// a later phase): pmm_agent_connected is true, and executor reports reachable and
+	// driver-healthy. Computed once here so every consumer agrees on one definition
+	// rather than recomputing it from the fields above separately.
+	AutomationEligible bool `json:"automation_eligible,omitempty"`
+
+	// Why automation_eligible is false, one entry per unmet condition. Empty when it
+	// is true.
+	AutomationBlockedReasons []string `json:"automation_blocked_reasons"`
+
 	// executor
 	Executor *GetInventoryHostOKBodyHostExecutor `json:"executor,omitempty"`
 
