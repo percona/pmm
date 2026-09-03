@@ -38,7 +38,8 @@ vi.mock('hooks/theme', () => ({
 
 const renderNavTree = (
   user: User = TEST_USER_ADMIN,
-  routerProps?: MemoryRouterProps
+  routerProps?: MemoryRouterProps,
+  settings?: { sepEnabled?: boolean; backupManagementEnabled?: boolean }
 ) => {
   const { result } = renderHook(() => useNavigation(), {
     wrapper: ({ children }) => (
@@ -50,7 +51,13 @@ const renderNavTree = (
           wrapWithUpdatesProvider(
             <NavigationProvider>{children}</NavigationProvider>
           ) as ReactElement,
-          { settings: { backupManagementEnabled: true } }
+          {
+            settings: {
+              backupManagementEnabled: true,
+              sepEnabled: true,
+              ...settings,
+            },
+          }
         )}
       </TestWrapper>
     ),
@@ -129,6 +136,14 @@ describe('NavigationProvider', () => {
 
     it('is withheld from anonymous, which has no SEP session to exchange', () => {
       const ids = renderNavTree(TEST_USER_ANONYMOUS).map((item) => item.id);
+
+      expect(ids).not.toContain('management');
+    });
+
+    it('is withheld when SEP is disabled in server settings', () => {
+      const ids = renderNavTree(TEST_USER_ADMIN, undefined, {
+        sepEnabled: false,
+      }).map((item) => item.id);
 
       expect(ids).not.toContain('management');
     });
