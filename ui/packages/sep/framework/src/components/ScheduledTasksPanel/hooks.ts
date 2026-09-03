@@ -40,6 +40,7 @@ const POLL_INTERVAL_MS = 30_000;
 
 interface PluginTask extends Record<string, unknown> {
   name: string;
+  display_name?: string;
 }
 
 /**
