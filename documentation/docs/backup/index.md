@@ -4,31 +4,33 @@ Losing your data can destroy your business. This is why backing up data is criti
 Even more important than backing up data, is the ability to restore it in the event of data loss.
 PMM enables you to do all this with zero downtime and minimal performance impact.
 
-- MongoDB (Generally Available)
-- MySQL (in Technical Preview)
+## MySQL backups
 
-Enable the **Backup Management** option in PMM's Advanced Settings to activate the **Backup** page from where you can: 
+For MySQL, use [MySQL Backups](../manage/mysql-backup.md) under **Apps > MySQL Backups**. It supports XtraBackup, Mydumper, and Binlog, with local storage, S3, GCS, and rsync upload, and is the primary MySQL backup option going forward.
 
-- Create and restore MongoDB and MySQL backups 
+!!! warning "Legacy MySQL backup feature deprecated"
+    The MySQL backup feature under **Backups > All backups** is deprecated and will be replaced by [MySQL Backups](../manage/mysql-backup.md) when the [SEP integration](../manage/index.md) reaches GA. Both options are currently in Tech Preview. Backups created in one are not visible in the other.
+
+## MongoDB backups
+
+Enable the **Backup Management** option in PMM's Advanced Settings to activate the **Backup** page from where you can:
+
+- Create and restore MongoDB backups
 - Automate backup scheduling
 - Set retention policies
 - Monitor your backup and restore activity
 
-## Supported setups
-
-For MySQL databases, you can create and restore on-demand and scheduled physical backups. For MongoDB, you can create and restore physical, logical and Point-in-Time-Recovery (PITR) backups, both on-demand and scheduled.
+For MongoDB, you can create and restore physical, logical, and Point-in-Time-Recovery (PITR) backups, both on-demand and scheduled.
 
 ### Sharded MongoDB cluster configurations
 
 PMM 3 supports creating backups of sharded MongoDB clusters. However, the restoring process is not handled end-to-end, and requires you to manually restore the artifacts using the CLI in Percona Backup for MongoDB.
 
-
 ## Start here
-To learn how to create and restore backups, check out subtopics below:
 
 - [Prepare a storage location](prepare_storage_location.md)
-- ![!](../images/MongoDB_Logo.png)  [MongoDB  backups](mongodb-backup/create_mongo_on_demand.md)
-- ![!](../images/mysql_logo.png) [MySQL backups](mysql-backup/create_mysql_backup.md) 
+- ![!](../images/MongoDB_Logo.png) [MongoDB backups](mongodb-backup/create_mongo_on_demand.md)
+- ![!](../images/mysql_logo.png) [MySQL Backups](../manage/mysql-backup.md) 
 
 
 ??? info "Additional resources"
