@@ -368,7 +368,6 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Return early on errors to avoid deep nesting
 - Use `errors.Is()`, `errors.As()` or `errors.AsType()` for error inspection
 - Use standard `errors` package, not `github.com/pkg/errors` (existing uses may remain until refactored)
-- Check `reform.ErrNoRows` for "not found" scenarios in pmm-managed
 - Don't interpolate strings with `%q` in error messages; use `%s`, or `'%s'` when the value can contain spaces
 
 ### Logging
