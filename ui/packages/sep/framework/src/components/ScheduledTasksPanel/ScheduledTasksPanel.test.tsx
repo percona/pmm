@@ -21,7 +21,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 
-const { apiMock, usePluginTasksMock } = vi.hoisted(() => ({
+const { apiMock, usePluginTasksMock, authMock } = vi.hoisted(() => ({
   apiMock: {
     get: vi.fn(),
     post: vi.fn(),
@@ -29,11 +29,17 @@ const { apiMock, usePluginTasksMock } = vi.hoisted(() => ({
     delete: vi.fn(),
   },
   usePluginTasksMock: vi.fn(),
+  /** Flipped per test to cover the read-only (non-admin) rendering. */
+  authMock: { canMutate: true },
 }));
 
 vi.mock('@sep/api', () => ({
   apiClient: apiMock,
   usePluginTasks: (...args: unknown[]) => usePluginTasksMock(...args),
+  useAuth: () => ({
+    isAdmin: authMock.canMutate,
+    canMutate: authMock.canMutate,
+  }),
 }));
 
 import { ScheduledTasksPanel } from './ScheduledTasksPanel';
@@ -79,6 +85,7 @@ beforeEach(() => {
   apiMock.put.mockReset();
   apiMock.delete.mockReset();
   usePluginTasksMock.mockReset();
+  authMock.canMutate = true;
 });
 
 function setup(periodic: PeriodicTaskResponse[]) {
@@ -401,5 +408,44 @@ describe('ScheduledTasksPanel', () => {
     const [url, body] = apiMock.put.mock.calls[0];
     expect(url).toBe('/sep/periodic-tasks/11');
     expect(body.interval).toMatchObject({ every: 10, period: 'hours' });
+  });
+});
+
+describe('ScheduledTasksPanel — write access', () => {
+  it('renders add, edit, delete and the enable toggle for a session that may mutate', async () => {
+    setup([makePeriodic({ id: 1 })]);
+    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('scheduled-task-row-1')).toBeInTheDocument();
+    });
+    expect(screen.getByTestId('scheduled-tasks-add')).toBeInTheDocument();
+    expect(screen.getByTestId('scheduled-task-edit-1')).toBeInTheDocument();
+    expect(screen.getByTestId('scheduled-task-delete-1')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Enable plugin-task/i)).toBeInTheDocument();
+  });
+
+  it('renders no add, edit, delete or enable toggle for a non-admin', async () => {
+    authMock.canMutate = false;
+    setup([makePeriodic({ id: 1 })]);
+    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('scheduled-task-row-1')).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId('scheduled-tasks-add')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('scheduled-task-edit-1')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('scheduled-task-delete-1')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(/Enable plugin-task/i)
+    ).not.toBeInTheDocument();
+    // The schedule stays readable, enabled state included.
+    expect(
+      within(screen.getByTestId('scheduled-task-row-1')).getByText('Enabled')
+    ).toBeInTheDocument();
   });
 });

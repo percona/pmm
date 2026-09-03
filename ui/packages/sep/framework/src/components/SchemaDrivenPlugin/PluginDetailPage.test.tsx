@@ -58,8 +58,12 @@ function defaultPluginTasksResult(items: { name: string }[] = []) {
   };
 }
 
+/** Flipped per test to cover the read-only (non-admin) rendering. */
+let mockCanMutate = true;
+
 // Manual factory keeps axios out of the resolution graph.
 vi.mock('@sep/api', () => ({
+  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
   usePluginTask: (...args: unknown[]) => mockUsePluginTask(...args),
   // Consumed by ScheduleSummary (via useScheduledTasksForPlugin) and by
   // ActionBar when capabilities.chaining is set. Default empty list keeps the
@@ -91,6 +95,7 @@ vi.mock('@sep/api', () => ({
 beforeEach(() => {
   usePluginTasksMock.mockReset();
   usePluginTasksMock.mockReturnValue(defaultPluginTasksResult());
+  mockCanMutate = true;
 });
 
 vi.mock('../../hooks', () => ({
@@ -1570,5 +1575,134 @@ describe('PluginDetailPage delete flow', () => {
     await waitFor(() =>
       expect(screen.getByText('list page')).toBeInTheDocument()
     );
+  });
+});
+
+describe('PluginDetailPage — write access', () => {
+  const taskSchema: PluginSchema = {
+    pluginName: 'checksums',
+    display_name: 'Checksum',
+    description: 'Test',
+    capabilities: { scheduling: true },
+    list_view: {
+      columns: [
+        { key: 'name', label: 'Name' },
+        { key: 'status', label: 'Status', format: 'status' },
+      ],
+      default_sort: '-id',
+    },
+    forms: [],
+  } as unknown as PluginSchema;
+
+  const entitySchema = {
+    pluginName: 'inventory',
+    display_name: 'Inventory',
+    description: 'Test',
+    capabilities: {},
+    entities: [
+      {
+        name: 'services',
+        display_name: 'Services',
+        forms: [],
+        list_view: {
+          columns: [{ key: 'name', label: 'Name' }],
+          default_sort: '-name',
+        },
+      },
+    ],
+    list_view: {
+      columns: [{ key: 'name', label: 'Name' }],
+      default_sort: '-name',
+    },
+    forms: [],
+  } as unknown as PluginSchema;
+
+  function renderEntityDetail() {
+    mockUsePluginEntityDetail.mockReturnValue({
+      data: { id: 1, name: 'mysql-01' },
+      isLoading: false,
+      error: null,
+    });
+    return render(
+      <QueryClientProvider client={makeClient()}>
+        <SnackbarProvider>
+          <MemoryRouter initialEntries={['/apps/inventory/services/1']}>
+            <Routes>
+              <Route
+                path="/apps/:plugin/:entityName/:id/*"
+                element={
+                  <PluginDetailPage
+                    schema={entitySchema}
+                    pluginName="inventory"
+                  />
+                }
+              />
+            </Routes>
+          </MemoryRouter>
+        </SnackbarProvider>
+      </QueryClientProvider>
+    );
+  }
+
+  it('renders execute, edit and delete for a session that may mutate', () => {
+    mockUsePluginTask.mockReturnValue({
+      data: {
+        id: 1,
+        name: 'FECHK',
+        status: 'success',
+        data: { _form: { task_name: 'FECHK' } },
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithSchema(taskSchema);
+
+    expect(screen.getByTestId('plugin-task-execute')).toBeInTheDocument();
+    expect(screen.getByTestId('plugin-task-edit')).toBeInTheDocument();
+    expect(screen.getByTestId('plugin-task-delete')).toBeInTheDocument();
+  });
+
+  it('renders no execute, edit or delete for a non-admin, keeping the schedule link', () => {
+    mockCanMutate = false;
+    mockUsePluginTask.mockReturnValue({
+      data: {
+        id: 1,
+        name: 'FECHK',
+        status: 'success',
+        data: { _form: { task_name: 'FECHK' } },
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    renderWithSchema(taskSchema);
+
+    expect(screen.queryByTestId('plugin-task-execute')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('plugin-task-edit')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('plugin-task-delete')).not.toBeInTheDocument();
+    // Navigation-only affordance is untouched.
+    expect(screen.getByTestId('plugin-task-schedule')).toBeInTheDocument();
+  });
+
+  it('renders entity edit and delete for a session that may mutate', () => {
+    renderEntityDetail();
+
+    expect(screen.getByRole('link', { name: 'Edit' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  });
+
+  it('renders no entity edit or delete for a non-admin', () => {
+    mockCanMutate = false;
+    renderEntityDetail();
+
+    expect(
+      screen.queryByRole('link', { name: 'Edit' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Delete' })
+    ).not.toBeInTheDocument();
+    // The record itself still renders.
+    expect(screen.getByText('mysql-01')).toBeInTheDocument();
   });
 });
