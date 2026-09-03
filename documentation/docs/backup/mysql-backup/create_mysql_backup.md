@@ -1,5 +1,8 @@
 # Create a MySQL backup
 
+!!! warning "Deprecated"
+    This feature is deprecated and will be replaced by [MySQL Backups](../../manage/mysql-backup.md) under **Apps > MySQL Backups** when the [SEP integration](../../manage/index.md) reaches GA. Both options are currently in Tech Preview and run alongside each other. Backups created in one are not visible in the other.
+
 Before creating a backup, make sure to check the [MySQL backup prerequisites](mysql_prerequisites.md).
 
 To create a backup:

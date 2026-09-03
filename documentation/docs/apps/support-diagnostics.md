@@ -21,7 +21,7 @@ If Percona Support asks you for monitoring data from PMM, use PMM Dump. If they 
 
 ## Run a diagnostic collection
 
-1. Go to **Management > Support Diagnostics** in the left navigation.
+1. Go to **Apps > Support Diagnostics** in the left navigation.
 2. Select the target host and your ServiceNow case number.
 3. Click **Run**.
 

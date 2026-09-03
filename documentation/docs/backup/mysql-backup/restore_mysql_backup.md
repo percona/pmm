@@ -1,5 +1,8 @@
 # Restore a MySQL backup
 
+!!! warning "Deprecated"
+    This feature is deprecated and will be replaced by [MySQL Backups](../../manage/mysql-backup.md) under **Apps > MySQL Backups** when the [SEP integration](../../manage/index.md) reaches GA. Both options are currently in Tech Preview and run alongside each other. Backups created in one are not visible in the other.
+
 ## Restore compatibility
 
 MySQL backups can be restored to the same service it was created from, or to a compatible one. 

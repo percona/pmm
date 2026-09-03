@@ -7,7 +7,7 @@ MySQL Backup lets you run and schedule MySQL backups against MySQL services in y
 
 It is part of PMM's [Management framework](index.md) (SEP) integration, accessible from **Apps > MySQL Backups** in the sidebar.
 
-The legacy PMM MySQL backup feature under **Backups > All backups** continues to work alongside this app. Backups created in one are not visible in the other.
+The legacy PMM MySQL backup feature under **Backups > All backups** continues to work alongside this app. Backups created in one are not visible in the other. This app is intended to replace the legacy feature when the [SEP integration](index.md) reaches GA.
 
 ## Supported backup types
 
@@ -25,7 +25,9 @@ MariaDB is supported via the `mariadb-backup` binary.
 
 The MySQL Backups app dispatches tasks via Nomad. To enable Nomad, start PMM Server with both `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS` set. See [Configure Nomad](../reference/nomad.md).
 
-<!-- VERIFY: is any additional enablement step required beyond Nomad, e.g. a settings.yaml APPS entry or PMM UI toggle? -->
+### Install PMM Client on the execution host
+
+The execution host must have PMM Client installed with the Nomad client enabled. PMM Client ships the Nomad client so no separate Nomad installation is required.
 
 ### Install required tools on the execution host
 
