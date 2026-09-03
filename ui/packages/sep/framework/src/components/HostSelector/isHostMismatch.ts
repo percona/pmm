@@ -15,27 +15,21 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { HostSelector } from '../../HostSelector';
-import { serviceTypesForDependsOn, useFormFields } from '../formFieldsContext';
-import type { HostField as HostFieldType } from '../types';
-
-interface HostFieldProps {
-  field: HostFieldType;
-}
-
-export function HostField({ field }: HostFieldProps) {
-  const fields = useFormFields();
-  const serviceTypes = serviceTypesForDependsOn(fields, field.depends_on);
-
-  return (
-    <HostSelector
-      name={field.name}
-      label={field.label}
-      required={field.required}
-      dependsOn={field.depends_on}
-      serviceTypes={serviceTypes}
-      targetService={field.target_service}
-      allowCustom={field.allow_custom}
-    />
-  );
+/**
+ * Decide whether the selected executor host and the target service's node
+ * live at different network addresses.
+ *
+ * Co-location is address-only: Nomad node names and inventory display names
+ * are independent namespaces, so two hosts sharing one address are the same
+ * machine and must not warn. An absent or empty address is unknown, not a
+ * difference — prefer silence whenever co-location cannot be established.
+ */
+export function isHostMismatch(
+  hostAddress: string | undefined,
+  serviceNodeAddress: string | undefined
+): boolean {
+  if (!hostAddress || !serviceNodeAddress) {
+    return false;
+  }
+  return hostAddress !== serviceNodeAddress;
 }

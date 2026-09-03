@@ -21,3 +21,4 @@ export { StandaloneHostSelector } from './StandaloneHostSelector';
 export type { StandaloneHostSelectorProps } from './StandaloneHostSelector';
 export { resolveExecutorHostForService } from './resolveExecutorHostForService';
 export type { ServiceHostResolveInput } from './resolveExecutorHostForService';
+export { isHostMismatch } from './isHostMismatch';

@@ -194,6 +194,11 @@ export interface HostField extends BaseField {
    * not cascaded.
    */
   depends_on?: string;
+  /**
+   * Service field for a non-blocking co-location warning. Independent of
+   * `depends_on`. Omitted when unset.
+   */
+  target_service?: string;
   /** Offer free-text (free-solo) entry alongside the inventory options. */
   allow_custom?: boolean;
 }
