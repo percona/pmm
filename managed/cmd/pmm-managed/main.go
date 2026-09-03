@@ -542,6 +542,7 @@ type setupDeps struct {
 	vmdb        *victoriametrics.Service
 	vmalert     *vmalert.Service
 	server      *server.Server
+	provisioner *alerting.Provisioner
 	l           *logrus.Entry
 }
 
@@ -564,6 +565,15 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		}
 		return false
 	}
+
+	// Runs after UpdateSettingsFromEnv above, which has already written grafana.ini and started
+	// Grafana, so the rules are usually applied by restarting it rather than by being in place
+	// first. Moving this earlier would avoid that restart but would read the settings before the
+	// environment has been applied to them, so the Percona Alerting gate could see a stale value.
+	// Never fails setup: this is retried every couple of seconds until it succeeds, and a permanent
+	// failure here would mean Grafana was never started at all.
+	deps.l.Infof("Provisioning built-in alert rules...")
+	deps.provisioner.ProvisionAtStartup(ctx)
 
 	deps.l.Infof("Updating supervisord configuration...")
 	settings, err := models.GetSettings(db.Querier)
@@ -720,6 +730,17 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
 		Envar("PMM_HA_ENABLE").
+		Bool()
+	// The built-in alert rules are rendered from the shipped templates while pmm-managed starts, so
+	// they are configured here rather than in the settings table: changing an environment variable
+	// means recreating the container, which is exactly when the rules are written anyway.
+	haAlertsEnabled := kingpin.Flag("enable-ha-alerts", "Provision the built-in High Availability alert rules").
+		Envar("PMM_ENABLE_HA_ALERTS").
+		Default("true").
+		Bool()
+	componentAlertsEnabled := kingpin.Flag("enable-component-alerts", "Provision the built-in alert rules for PMM Server's own components").
+		Envar("PMM_ENABLE_COMPONENT_ALERTS").
+		Default("true").
 		Bool()
 	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
 		Envar("PMM_HA_NODE_ID").
@@ -1026,6 +1047,19 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	alertingService.CollectTemplates(ctx)
 
+	alertingProvisioner := alerting.NewProvisioner(alerting.ProvisionerParams{
+		DB:                     db,
+		GrafanaCli:             grafanaClient,
+		Supervisord:            supervisord,
+		Leader:                 haService,
+		GrafanaDBAddr:          *postgresAddrF,
+		GrafanaDBSSLParams:     q.Encode(),
+		HAEnabled:              *haEnabled,
+		HAAlertsEnabled:        *haAlertsEnabled,
+		ComponentAlertsEnabled: *componentAlertsEnabled,
+	})
+	prom.MustRegister(alertingProvisioner.Collector())
+
 	agentService := agents.NewAgentService(agentsRegistry)
 
 	versioner := agents.NewVersionerService(agentsRegistry)
@@ -1098,6 +1132,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		vmdb:        vmdb,
 		vmalert:     vmalert,
 		server:      server,
+		provisioner: alertingProvisioner,
 		l:           logrus.WithField("component", "setup"),
 	}
 	if !setup(ctx, deps) {
@@ -1153,6 +1188,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	wg.Go(func() {
 		supervisord.Run(ctx)
+	})
+
+	wg.Go(func() {
+		alertingProvisioner.Run(ctx)
 	})
 
 	wg.Go(func() {

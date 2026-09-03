@@ -102,6 +102,13 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_DEBUG", "PMM_TRACE":
 			// skip cross-component environment variables that are already handled by kingpin
 			continue
+
+		case "PMM_ENABLE_HA_ALERTS", "PMM_ENABLE_COMPONENT_ALERTS":
+			// Handled by kingpin and read straight by the alert rule provisioner. They deliberately
+			// have no settings entry: the rules are rendered from the shipped templates at startup,
+			// so changing one means recreating the container, which is the only way to change an
+			// environment variable anyway.
+			continue
 		case "PMM_CLICKHOUSE_DATABASE", "PMM_CLICKHOUSE_ADDR",
 			"PMM_CLICKHOUSE_USER", "PMM_CLICKHOUSE_PASSWORD",
 			"PMM_CLICKHOUSE_HOST", "PMM_CLICKHOUSE_PORT",
