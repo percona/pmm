@@ -272,6 +272,9 @@ type AddAzureDatabaseBody struct {
 
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout string `json:"connection_timeout,omitempty"`
+
+	// The pmm-agent identifier which should run agents. Defaults to the PMM Server's own pmm-agent.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 }
 
 // Validate validates this add azure database body
