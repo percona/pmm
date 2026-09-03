@@ -1,15 +1,19 @@
 import { describe, it, expect, vi } from 'vitest';
+import { useSearchParams } from 'react-router-dom';
 import { useKioskMode } from './useKioskMode';
-import reactRouter from 'react-router-dom';
+
+// react-router-dom v7 is ESM-only (frozen namespace) — can't vi.spyOn its exports,
+// so mock the module instead.
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react-router-dom')>();
+  return { ...actual, useSearchParams: vi.fn() };
+});
 
 const setup = (params: string) => {
-  const mockUseSearchParams = vi
-    .fn()
-    .mockReturnValue([new URLSearchParams(params)]);
-
-  vi.spyOn(reactRouter, 'useSearchParams').mockImplementation(
-    mockUseSearchParams
-  );
+  vi.mocked(useSearchParams).mockReturnValue([
+    new URLSearchParams(params),
+    vi.fn(),
+  ]);
 };
 
 describe('useKioskMode', () => {

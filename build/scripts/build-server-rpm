@@ -5,6 +5,15 @@ set -o xtrace
 
 . $(dirname $0)/vars
 
+# The S3 build cache was amd64-only historically; keep those paths unchanged
+# and namespace other architectures to avoid cross-arch cache hits.
+build_arch=$(uname -m)
+if [ "${build_arch}" = "x86_64" ]; then
+    cache_dist=${rpmbuild_dist}
+else
+    cache_dist=${rpmbuild_dist}-${build_arch}
+fi
+
 get_rpm_version() {
     local spec_name=$1
 
@@ -26,8 +35,10 @@ is_build_needed() {
     local packages=
 
     # Structure of S3 build cache
-    # s3://pmm-build-cache/PR-BUILDS/9 - el9
-    # s3://pmm-build-cache/RELEASE/9 - el9
+    # s3://pmm-build-cache/PR-BUILDS/el9 - el9 x86_64
+    # s3://pmm-build-cache/PR-BUILDS/el9-aarch64 - el9 aarch64
+    # s3://pmm-build-cache/RELEASE/el9 - el9 x86_64
+    # s3://pmm-build-cache/RELEASE/el9-aarch64 - el9 aarch64
 
     # RPM_EPOCH is set for Feature Builds
     if [ -n "$RPM_EPOCH" ]; then
@@ -35,14 +46,14 @@ is_build_needed() {
             --region us-east-2 \
             --no-progress \
             --no-sign-request \
-            s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+            s3://pmm-build-cache/PR-BUILDS/${cache_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
     else
         aws s3 sync \
             --region us-east-2 \
             --no-progress \
             --no-sign-request \
-            s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+            s3://pmm-build-cache/RELEASE/${cache_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
     fi
 
@@ -168,14 +179,14 @@ build() {
                 --region us-east-2 \
                 --no-progress \
                 ${rpms_dir}/${spec_name}-${rpm_version} \
-                s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+                s3://pmm-build-cache/PR-BUILDS/${cache_dist}/${spec_name}-${rpm_version} \
                 || :
         else
             aws s3 sync \
                 --region us-east-2 \
                 --no-progress \
                 ${rpms_dir}/${spec_name}-${rpm_version} \
-                s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
+                s3://pmm-build-cache/RELEASE/${cache_dist}/${spec_name}-${rpm_version} \
                 || :
         fi
 

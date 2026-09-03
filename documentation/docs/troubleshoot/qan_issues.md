@@ -38,6 +38,13 @@ SHOW pg_stat_monitor.pgsm_enable_query_plan;
 
 After disabling query plan collection, new metrics should show realistic execution times within minutes. 
 
+### Why do I see `?` instead of real query values?
+
+Your application is likely using server-side prepared statements (common with JDBC and ORM frameworks). 
+
+Performance Schema exposes prepared statement parameters as placeholders rather than real values. See [Prepared statements show placeholders instead of values](../use/qan/mysql.md#prepared-statements-show-placeholders-instead-of-values).
+
+
 ## QAN service fails after upgrade
 
 After upgrading PMM Server, the QAN service may fail to start with `BACKOFF`, `FATAL`, or `EXITED` status, preventing the QAN dashboard from loading. You'll see the following error in `/srv/logs/qan-api2.log`, where `x` is the migration version number:
@@ -114,5 +121,31 @@ To switch back to the default profile, set `PMM_CLICKHOUSE_CONFIG=default` or re
     - `default-config.xml`: default profile
     - `low-memory-config.xml`: low-memory profile
 
+    PMM points ClickHouse at `config.xml` and `users.xml`, which are symlinks to the files of the selected profile.
+
 !!! warning "Deprecated: switch-config.sh"
     The `switch-config.sh` script previously used to switch profiles is deprecated as of PMM 3.9.0 and will be removed in a future release. Use `PMM_CLICKHOUSE_CONFIG` instead.
+
+### Override built-in ClickHouse settings
+
+To change settings without editing the profile files, add a drop-in file inside the PMM Server container:
+
+- `/etc/clickhouse-server/config.d/` for server settings
+- `/etc/clickhouse-server/users.d/` for users, profiles and quotas
+
+ClickHouse merges drop-ins over the profile in use, so the same files apply to both the default and low-memory profiles. For example, to change the password of the read-only data source user, create `/etc/clickhouse-server/users.d/pmm-datasource.xml`:
+
+```xml
+<clickhouse>
+    <users>
+        <grafana>
+            <password_sha256_hex>your-sha256-hash</password_sha256_hex>
+        </grafana>
+    </users>
+</clickhouse>
+```
+
+Set `PMM_CLICKHOUSE_DATASOURCE_PASSWORD` to the same password so Grafana connects with the new credentials, then restart ClickHouse. Drop-ins are not preserved when the container is recreated, so mount them from the host if you need them to persist.
+
+If you set `PMM_CLICKHOUSE_DATABASE` to something other than `pmm`, use a drop-in to update the data source user's grant, since the shipped grant names `pmm` explicitly.
+

@@ -9,7 +9,10 @@
     "description": "This plugins provides a compatibility layer between Grafana and PMM UI",
     "links": [
       { "name": "Project site", "url": "https://github.com/percona/pmm" },
-      { "name": "AGPL-3 License", "url": "https://github.com/percona/pmm/blob/main/LICENSE" }
+      {
+        "name": "AGPL-3 License",
+        "url": "https://github.com/percona/pmm/blob/main/LICENSE"
+      }
     ],
     "author": {
       "name": "Percona"

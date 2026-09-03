@@ -72,7 +72,10 @@ func (m *MongoDB) Run(ctx context.Context) {
 	var prof Profiler
 
 	defer func() {
-		prof.Stop() //nolint:errcheck
+		err := prof.Stop()
+		if err != nil {
+			m.l.Errorf("Can't stop profiler, reason: %v", err)
+		}
 		prof = nil
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
@@ -81,7 +84,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID, m.maxQueryLength)
-	err := prof.Start()
+	err := prof.Start(ctx)
 	if err != nil {
 		m.l.Errorf("can't run profiler, reason: %v", err)
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
@@ -109,7 +112,7 @@ func (m *MongoDB) Write(r *report.Report) error {
 // that handles the extraction of performance data.
 type Profiler interface {
 	// Start begins the profiling data collection process.
-	Start() error
+	Start(ctx context.Context) error
 	// Stop gracefully ends the profiling data collection and cleans up resources.
 	Stop() error
 }

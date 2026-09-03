@@ -12,6 +12,12 @@
 %define gobuild(o:) go build -ldflags "${LDFLAGS:-} -B 0x$(head -c20 /dev/urandom|od -An -tx1|tr -d ' \\n')" -a -v -x %{?**};
 %endif
 
+%ifarch aarch64
+%define go_arch arm64
+%else
+%define go_arch amd64
+%endif
+
 Name:           percona-grafana
 Version:        %{grafana_version}
 Release:        %{rpm_release}
@@ -19,7 +25,7 @@ Summary:        Grafana is an open source, feature rich metrics dashboard and gr
 License:        AGPLv3
 URL:            https://github.com/percona/grafana
 Source0:        https://github.com/percona/grafana/archive/%{commit}.tar.gz
-ExclusiveArch:  %{ix86} x86_64 %{arm}
+ExclusiveArch:  %{ix86} x86_64 %{arm} aarch64
 
 BuildRequires: fontconfig
 
@@ -48,10 +54,10 @@ cp -rpav public %{buildroot}%{_datadir}/grafana
 cp -rpav tools %{buildroot}%{_datadir}/grafana
 
 install -d -p %{buildroot}%{_sbindir}
-cp bin/linux/amd64/grafana-server %{buildroot}%{_sbindir}/
-cp bin/linux/amd64/grafana %{buildroot}%{_sbindir}/
+cp bin/linux/%{go_arch}/grafana-server %{buildroot}%{_sbindir}/
+cp bin/linux/%{go_arch}/grafana %{buildroot}%{_sbindir}/
 install -d -p %{buildroot}%{_bindir}
-cp bin/linux/amd64/grafana-cli %{buildroot}%{_bindir}/
+cp bin/linux/%{go_arch}/grafana-cli %{buildroot}%{_bindir}/
 
 install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini

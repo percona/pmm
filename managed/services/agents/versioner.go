@@ -16,6 +16,7 @@
 package agents
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/hashicorp/go-version"
@@ -185,7 +186,7 @@ func (s *VersionerService) GetVersions(pmmAgentID string, softwareList []Softwar
 	}
 
 	request := &agentv1.GetVersionsRequest{Softwares: softwareRequest}
-	response, err := agent.channel.SendAndWaitResponse(request)
+	response, err := agent.channel.SendAndWaitResponse(context.TODO(), request)
 	if err != nil {
 		return nil, err
 	}

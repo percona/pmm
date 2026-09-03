@@ -1,5 +1,6 @@
 digraph packages {
 	"/cmd/pmm-managed-init" -> "/models";
+	"/cmd/pmm-managed-init" -> "/services/clickhouse";
 	"/cmd/pmm-managed-init" -> "/services/supervisord";
 	"/cmd/pmm-managed-starlark" -> "/pi/check";
 	"/cmd/pmm-managed-starlark" -> "/pi/starlark";

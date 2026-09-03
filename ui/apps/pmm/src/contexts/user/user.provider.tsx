@@ -6,9 +6,12 @@ import {
   useUserInfo,
   useUserPreferences,
 } from 'hooks/api/useUser';
-import { getPerconaUser, isAuthorized } from './user.utils';
+import {
+  ANONYMOUS_USER_INFO,
+  getPerconaUser,
+  isAuthorized,
+} from './user.utils';
 import { useAuth } from 'contexts/auth';
-import { GetPreferenceResponse, UserInfo } from 'types/user.types';
 
 export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
   const auth = useAuth();
@@ -25,20 +28,8 @@ export const UserProvider: FC<PropsWithChildren> = ({ children }) => {
       return;
     }
 
-    const anonymousInfo: UserInfo = {
-      userId: 0,
-      alertingTourCompleted: false,
-      productTourCompleted: false,
-      snoozedAt: null,
-      snoozeCount: 0,
-      snoozedPmmVersion: '',
-    };
-    const anonymousPreferences: GetPreferenceResponse = {};
-
-    const info = auth.isLoggedIn ? userInfoQuery.data : anonymousInfo;
-    const preferences = auth.isLoggedIn
-      ? preferencesQuery.data
-      : anonymousPreferences;
+    const info = auth.isLoggedIn ? userInfoQuery.data : ANONYMOUS_USER_INFO;
+    const preferences = auth.isLoggedIn ? preferencesQuery.data : {};
 
     if (!info || !preferences) {
       return;

@@ -57,3 +57,6 @@ ignore:
 flag_management:
   default_rules:
     carryforward: true
+
+comment:
+  layout: "condensed_header, diff, condensed_files, condensed_footer"

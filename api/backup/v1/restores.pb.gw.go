@@ -64,9 +64,6 @@ func request_RestoreService_GetLogs_0(ctx context.Context, marshaler runtime.Mar
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
 	val, ok := pathParams["restore_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "restore_id")
@@ -80,6 +77,9 @@ func request_RestoreService_GetLogs_0(ctx context.Context, marshaler runtime.Mar
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_RestoreService_GetLogs_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
 	}
 	msg, err := client.GetLogs(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err

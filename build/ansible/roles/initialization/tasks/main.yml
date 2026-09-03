@@ -61,21 +61,22 @@
 
   - name: Create Grafana DB
     block:
-      - name: Create grafana database in postgres
-        postgresql_db:
+      - name: Create grafana user in postgres
+        postgresql_user:
           name: grafana
+          password: grafana
+          expires: infinity
           login_user: postgres
           state: present
         environment:
           PGPASSWORD: "{{ lookup('file', '/srv/.postgres_password') }}"
 
-      - name: Create grafana user in postgres
-        postgresql_user:
-          db: grafana
+      # Since PostgreSQL 15 the public schema belongs to pg_database_owner, so owning the
+      # database is what lets the user create tables in it.
+      - name: Create grafana database in postgres
+        postgresql_db:
           name: grafana
-          password: grafana
-          priv: 'ALL'
-          expires: infinity
+          owner: grafana
           login_user: postgres
           state: present
         environment:
@@ -127,7 +128,8 @@
     state: absent
     path: /usr/share/pmm-server/maintenance/maintenance.html
 
-- name: Remove the file provisioned by 'getStatus'
+# Written by 'updates:start' up to PMM 3.8; nothing uses it now, so clean it off upgraded volumes.
+- name: Remove the update auth token file left by older PMM versions
   file:
     state: absent
     path: /srv/pmm-update.json

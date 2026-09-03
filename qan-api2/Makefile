@@ -111,7 +111,9 @@ env-down:                       ## Remove docker containers
 
 pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench containers
 	docker compose up -d --force-recreate --renew-anon-volumes --remove-orphans $(PMM_CONTAINER)
-	docker exec $(PMM_CONTAINER) sed -i 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
+	# --follow-symlinks keeps config.xml a symlink; replacing it with a regular file would stop
+	# PMM_CLICKHOUSE_CONFIG from selecting the ClickHouse config.
+	docker exec $(PMM_CONTAINER) sed -i --follow-symlinks 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
 	docker exec $(PMM_CONTAINER) supervisorctl restart clickhouse
 	docker exec $(PMM_CONTAINER) supervisorctl stop qan-api2
 	docker exec -i $(PMM_CONTAINER) clickhouse client -d pmm --password=clickhouse --query="drop database pmm"

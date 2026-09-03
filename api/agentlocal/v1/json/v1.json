@@ -468,6 +468,7 @@
   },
   "tags": [
     {
+      "description": "AgentLocal service provides public methods for checking pmm-agent status locally.",
       "name": "AgentLocalService"
     }
   ]

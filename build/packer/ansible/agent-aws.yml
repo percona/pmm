@@ -65,9 +65,6 @@
           - unzip
           - python3
           - svn # we use it in pmm-framework.sh
-          - php # we use PHP in pmm-qa repo
-          - php-mysqlnd
-          - php-pdo
           - wget
           - kernel-devel
           - kernel-headers
@@ -98,6 +95,10 @@
         - ansible.posix
         - community.general
         - community.postgresql
+      register: result
+      retries: 2
+      delay: 10
+      until: result is not failed
 
     - name: Install bats
       shell: "npm install -g bats"
@@ -127,9 +128,9 @@
         remote_src: yes
         mode: "u+x,g+x,o+x"
 
-    - name: Install latest YQ (YAML processor) 
+    - name: Install latest YQ (YAML processor)
       get_url:
-        url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        url: "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_{{ ansible_architecture_alt }}"
         dest: /usr/bin/yq
         mode: "555"
 
@@ -166,12 +167,12 @@
         name: "{{ item }}"
         virtualenv: /home/ec2-user/venv
       loop: # Lookup versions at: https://pypi.org/search/
-        - pyaml==24.12.1
-        - GitPython==3.1.43
-        - PyGithub==2.5.0
+        - pyaml==26.7.0
+        - GitPython==3.1.59
+        - PyGithub==2.9.1
         - python-digitalocean==1.17.0
-        - docker==7.1.0
-        - linode-cli==5.55.0
+        - docker==7.2.0
+        - linode-cli==5.68.0
 
     - name: Copy docker daemon config
       copy:

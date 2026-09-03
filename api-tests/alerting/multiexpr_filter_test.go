@@ -155,7 +155,7 @@ func TestMultiExpressionFilterDoesNotEmptyConstantQuery(t *testing.T) {
 	// 5. Evaluate the built query B against VictoriaMetrics (through the PMM Server proxy,
 	//    which requires basic auth and may serve a self-signed cert).
 	var rt http.RoundTripper = &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: pmmapitests.ServerInsecureTLS}, //nolint:gosec
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: pmmapitests.ServerInsecureTLS},
 	}
 	if u := pmmapitests.BaseURL.User; u != nil {
 		pass, _ := u.Password()

@@ -83,13 +83,6 @@ jobs:
         run: |
           make docker-build-image
 
-      - name: Run compose up for test DBs
-        shell: bash
-        run: |
-          pushd api-tests
-          docker compose up test_db # no daemon mode
-          popd
-
       - name: Check connectivity to PMM Server
         shell: bash
         run: curl -kf ${{env.PMM_URL}}/ping

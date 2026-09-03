@@ -2479,6 +2479,7 @@
   },
   "tags": [
     {
+      "description": "QANService provides an API to interact with PMM Query Analytics.",
       "name": "QANService"
     }
   ]

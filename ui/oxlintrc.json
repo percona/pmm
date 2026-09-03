@@ -1,0 +1,40 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "import", "typescript", "unicorn", "oxc"],
+  "rules": {
+    "no-console": "warn",
+    "no-debugger": "error",
+    "no-unused-vars": "warn",
+    "no-duplicate-imports": "warn",
+    "eqeqeq": ["warn", "always", { "null": "ignore" }],
+    "no-var": "error",
+    "prefer-const": "error",
+    "curly": "warn",
+
+    "react/no-direct-mutation-state": "error",
+    "react/no-unescaped-entities": "warn",
+    "react/jsx-no-duplicate-props": "error",
+    "react/jsx-no-undef": "error",
+    "react/jsx-key": "error",
+    "react/no-children-prop": "error",
+    "react/self-closing-comp": "warn",
+
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-non-null-assertion": "warn",
+    "typescript/no-unused-vars": "warn",
+    "typescript/consistent-type-imports": "warn",
+
+    "import/no-duplicates": "error",
+    "import/no-self-import": "error",
+    "import/no-cycle": "warn",
+
+    "unicorn/no-instanceof-array": "error",
+    "unicorn/no-typeof-undefined": "warn",
+    "unicorn/prefer-array-flat-map": "warn",
+    "unicorn/prefer-includes": "warn"
+  },
+  "ignorePatterns": ["dist", "node_modules", "storybook-static", ".config"]
+}

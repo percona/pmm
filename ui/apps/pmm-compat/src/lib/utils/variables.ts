@@ -1,4 +1,9 @@
-import { DataLinkBuiltInVars, locationUtil, textUtil, urlUtil } from '@grafana/data';
+import {
+  DataLinkBuiltInVars,
+  locationUtil,
+  textUtil,
+  urlUtil,
+} from '@grafana/data';
 import { config, getTemplateSrv } from '@grafana/runtime';
 import { DashboardLink } from '@grafana/schema';
 

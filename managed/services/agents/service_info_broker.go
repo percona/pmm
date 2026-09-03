@@ -172,7 +172,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	l.Infof("ServiceInfoRequest: type: %s, DSN: %s timeout: %s.",
 		request.Type, logger.MaskDSN(request.Dsn), request.Timeout)
 
-	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
+	resp, err := pmmAgent.channel.SendAndWaitResponse(ctx, request)
 	if err != nil {
 		return err
 	}

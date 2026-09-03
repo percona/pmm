@@ -99,13 +99,23 @@
     dest: /etc/sudoers.d/90-admin-user
     mode: 0440
 
-- name: change cloud user for AMI EL9      | Change cloud user
+- name: change cloud user for AMI EL9      | Change cloud user (Oracle Linux)
   when:
     - create_admin == "true"
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution == 'OracleLinux'
     - ansible_distribution_major_version == '9'
   replace:
     dest: /etc/cloud/cloud.cfg.d/00_ol-default-user.cfg
+    regexp: "name: ec2-user"
+    replace: "name: admin"
+
+- name: change cloud user for AMI EL9      | Change cloud user (AlmaLinux)
+  when:
+    - create_admin == "true"
+    - ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  replace:
+    dest: /etc/cloud/cloud.cfg
     regexp: "name: ec2-user"
     replace: "name: admin"
 

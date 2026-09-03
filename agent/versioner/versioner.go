@@ -67,7 +67,7 @@ func (RealExecFunctions) LookPath(file string) (string, error) {
 
 // CommandContext calls Go's implementation of the CommandContext() function.
 func (RealExecFunctions) CommandContext(ctx context.Context, name string, arg ...string) CombinedOutputer { //nolint:ireturn
-	return exec.CommandContext(ctx, name, arg...)
+	return exec.CommandContext(ctx, name, arg...) //nolint:gosec
 }
 
 // Versioner implements version retrieving functions for different software.

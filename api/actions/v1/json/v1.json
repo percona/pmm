@@ -814,6 +814,7 @@
   },
   "tags": [
     {
+      "description": "Actions service provides public Management API methods for Actions.",
       "name": "ActionsService"
     }
   ]

@@ -189,7 +189,10 @@ func addServerData(ctx context.Context, zipW *zip.Writer, usePprof bool) {
 
 		addData(zipW, path.Join("server", rf.Name), rf.Modified, rc) //nolint:gosec
 
-		rc.Close() //nolint:errcheck
+		err = rc.Close()
+		if err != nil {
+			logrus.Errorf("Failed to close zip archive %s: %v", rf.Name, err)
+		}
 	}
 }
 
@@ -277,7 +280,10 @@ func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) e
 		}
 		addData(zipW, path.Join(fileName, rf.Name), rf.Modified, rc) //nolint:gosec
 
-		rc.Close() //nolint:errcheck
+		err = rc.Close()
+		if err != nil {
+			logrus.Errorf("Failed to close zip archive %s: %v", rf.Name, err)
+		}
 	}
 	return nil
 }

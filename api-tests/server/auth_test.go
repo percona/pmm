@@ -38,8 +38,8 @@ import (
 )
 
 const (
-	pmmServiceTokenName   = "pmm-agent-service-token"   //nolint:gosec
-	pmmServiceAccountName = "pmm-agent-service-account" //nolint:gosec
+	pmmServiceTokenName   = "pmm-agent-service-token"
+	pmmServiceAccountName = "pmm-agent-service-account"
 )
 
 func TestAuth(t *testing.T) {

@@ -69,14 +69,14 @@ func request_ManagementService_ListAgents_0(ctx context.Context, marshaler runti
 		protoReq ListAgentsRequest
 		metadata runtime.ServerMetadata
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ManagementService_ListAgents_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
 	}
 	msg, err := client.ListAgents(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -153,9 +153,6 @@ func request_ManagementService_UnregisterNode_0(ctx context.Context, marshaler r
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
 	val, ok := pathParams["node_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "node_id")
@@ -169,6 +166,9 @@ func request_ManagementService_UnregisterNode_0(ctx context.Context, marshaler r
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ManagementService_UnregisterNode_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
 	}
 	msg, err := client.UnregisterNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -205,14 +205,14 @@ func request_ManagementService_ListNodes_0(ctx context.Context, marshaler runtim
 		protoReq ListNodesRequest
 		metadata runtime.ServerMetadata
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ManagementService_ListNodes_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
 	}
 	msg, err := client.ListNodes(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -239,9 +239,6 @@ func request_ManagementService_GetNode_0(ctx context.Context, marshaler runtime.
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
 	val, ok := pathParams["node_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "node_id")
@@ -249,6 +246,9 @@ func request_ManagementService_GetNode_0(ctx context.Context, marshaler runtime.
 	protoReq.NodeId, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "node_id", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
 	}
 	msg, err := client.GetNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -306,14 +306,14 @@ func request_ManagementService_ListServices_0(ctx context.Context, marshaler run
 		protoReq ListServicesRequest
 		metadata runtime.ServerMetadata
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ManagementService_ListServices_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
 	}
 	msg, err := client.ListServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -423,9 +423,6 @@ func request_ManagementService_RemoveService_0(ctx context.Context, marshaler ru
 		metadata runtime.ServerMetadata
 		err      error
 	)
-	if req.Body != nil {
-		_, _ = io.Copy(io.Discard, req.Body)
-	}
 	val, ok := pathParams["service_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "service_id")
@@ -439,6 +436,9 @@ func request_ManagementService_RemoveService_0(ctx context.Context, marshaler ru
 	}
 	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ManagementService_RemoveService_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
 	}
 	msg, err := client.RemoveService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err

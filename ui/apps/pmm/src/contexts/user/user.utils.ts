@@ -8,6 +8,32 @@ import {
   UserPreferences,
 } from 'types/user.types';
 
+export const ANONYMOUS_USER_INFO: UserInfo = {
+  userId: 0,
+  alertingTourCompleted: false,
+  productTourCompleted: false,
+  snoozedAt: null,
+  snoozeCount: 0,
+  snoozedPmmVersion: '',
+};
+
+export const createAnonymousUser = (overrides: Partial<User> = {}): User => ({
+  id: 0,
+  login: 'anonymous',
+  name: 'Anonymous',
+  isAuthorized: true,
+  isViewer: true,
+  isEditor: false,
+  isPMMAdmin: false,
+  orgId: 1,
+  orgRole: OrgRole.Viewer,
+  orgs: [],
+  preferences: {},
+  info: ANONYMOUS_USER_INFO,
+  ...overrides,
+  isAnonymous: true,
+});
+
 export const getPerconaUser = (
   user: GetUserResponse,
   orgs: UserOrg[],

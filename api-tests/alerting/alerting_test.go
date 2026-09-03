@@ -474,7 +474,7 @@ func TestListTemplatesAPI(t *testing.T) {
 			require.NoError(t, err)
 
 			assert.GreaterOrEqual(t, len(listAllTemplates.Payload.Templates), templatesCount)
-			assert.Equal(t, int32(len(listAllTemplates.Payload.Templates)), listAllTemplates.Payload.TotalItems) //nolint:gosec // Templates is an int32
+			assert.Equal(t, int32(len(listAllTemplates.Payload.Templates)), listAllTemplates.Payload.TotalItems)
 			assert.Equal(t, int32(1), listAllTemplates.Payload.TotalPages)
 
 			assertFindTemplate := func(list []*alerting.ListTemplatesOKBodyTemplatesItems0, name string) func() bool {
@@ -758,5 +758,5 @@ func readTemplateContent(t *testing.T, filePath string) ([]byte, error) {
 	if !ok {
 		return nil, errors.New("failed to get current file path")
 	}
-	return os.ReadFile(path.Join(path.Dir(file), filePath)) //nolint:gosec
+	return os.ReadFile(path.Join(path.Dir(file), filePath))
 }

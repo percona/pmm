@@ -16,6 +16,7 @@ package profiler
 
 import (
 	"context"
+	"fmt"
 	"runtime/pprof"
 	"sync"
 	"time"
@@ -68,7 +69,7 @@ type Profiler struct {
 }
 
 // Start starts analyzer but doesn't wait until it exits.
-func (p *Profiler) Start() error {
+func (p *Profiler) Start(ctx context.Context) error {
 	p.m.Lock()
 	defer p.m.Unlock()
 	if p.running {
@@ -76,7 +77,7 @@ func (p *Profiler) Start() error {
 	}
 
 	// create new session
-	client, err := createSession(p.mongoDSN, p.agentID)
+	client, err := createSession(p.mongoDSN, p.agentID) //nolint:contextcheck // has its own dial timeout
 	if err != nil {
 		return err
 	}
@@ -84,11 +85,11 @@ func (p *Profiler) Start() error {
 
 	// create aggregator which collects documents and aggregates them into qan report
 	p.aggregator = aggregator.New(time.Now(), p.agentID, p.logger, p.maxQueryLength)
-	reportChan := p.aggregator.Start()
+	reportChan := p.aggregator.Start() //nolint:contextcheck // stopped explicitly in Stop()
 
 	// create sender which sends qan reports and start it
 	p.sender = sender.New(reportChan, p.w, p.logger)
-	p.sender.Start()
+	p.sender.Start() //nolint:contextcheck // stopped explicitly in Stop()
 
 	f := func(client *mongo.Client, logger *logrus.Entry, dbName string) *Monitor {
 		return NewMonitor(client, dbName, p.aggregator, logger)
@@ -111,7 +112,6 @@ func (p *Profiler) Start() error {
 	ready.L.Lock()
 	defer ready.L.Unlock()
 
-	ctx := context.Background()
 	labels := pprof.Labels("component", "mongodb.profiler")
 	go pprof.Do(ctx, labels, func(ctx context.Context) {
 		start(ctx, p.monitors, p.wg, p.doneChan, ready, p.logger)
@@ -144,11 +144,20 @@ func (p *Profiler) Stop() error {
 	// stop sender; do it after goroutine is closed
 	p.sender.Stop()
 
-	// close the session; do it after goroutine is closed
-	p.client.Disconnect(context.TODO()) //nolint:errcheck
+	// close the session; do it after goroutine is closed.
+	// Stop() is called when the agent context is already canceled, hence a new bounded one.
+	ctx, cancel := context.WithTimeout(context.Background(), mgoTimeoutSessionSync)
+	defer cancel()
+
+	err := p.client.Disconnect(ctx)
 
 	// set state to "not running"
 	p.running = false
+
+	if err != nil {
+		return fmt.Errorf("failed to disconnect from MongoDB: %w", err)
+	}
+
 	return nil
 }
 
@@ -174,6 +183,8 @@ func start(ctx context.Context, monitors *Monitors, wg *sync.WaitGroup, doneChan
 		select {
 		// PMM-13947
 		case <-doneChan:
+			return
+		case <-ctx.Done():
 			return
 		case <-time.After(1 * time.Minute):
 			// just continue after delay if not
