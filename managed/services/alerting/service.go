@@ -191,6 +191,13 @@ func (s *Service) CollectTemplates(ctx context.Context) {
 // loadBuiltinTemplates loads built-in alerting rule templates.
 func (s *Service) loadBuiltinTemplates() ([]*models.Template, error) {
 	s.l.Infof("Loading alerting templates from dir=%s", builtinTemplatesDir)
+	return loadBuiltinTemplatesFromDir(builtinTemplatesDir)
+}
+
+// loadBuiltinTemplatesFromDir loads built-in alerting rule templates from the given directory.
+// Kept separate from the method so that the rule provisioner and the tests can read the shipped
+// templates without depending on the image layout.
+func loadBuiltinTemplatesFromDir(builtinTemplatesDir string) ([]*models.Template, error) {
 	templateFiles, err := filepath.Glob(filepath.Join(builtinTemplatesDir, "*.yml"))
 	if err != nil {
 		return nil, fmt.Errorf("failed to list rule template assets: %w", err)
