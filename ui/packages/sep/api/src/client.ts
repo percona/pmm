@@ -17,6 +17,7 @@
 
 /// <reference path="./vite-env.d.ts" />
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { SEP_BASE_PATH } from './base';
 import { ApiError, normalizeAxiosError } from './errors';
 
 // ── Token provider ─────────────────────────────────────────────────────
@@ -28,13 +29,48 @@ type TokenProvider = () => string | null;
 type OnUnauthorized = () => void;
 type OnRefreshed = (accessToken: string, expiresIn: number) => void;
 
+/**
+ * Slim token payload every minting endpoint returns. Matches both
+ * `SPAOAuthTokenResponse` (`/oauth/refresh`) and `SessionExchangeTokenResponse`
+ * (`/oauth/session/exchange`), which mirror each other by design.
+ */
+export interface MintedToken {
+  access_token: string;
+  expires_in: number;
+}
+
+/**
+ * Produces a fresh access token. Resolving `null` (or rejecting) means none
+ * could be obtained, which the caller treats as unauthorized.
+ */
+type TokenMinter = () => Promise<MintedToken | null>;
+
 let _getToken: TokenProvider = () => null;
 let _onUnauthorized: OnUnauthorized = () => {};
 let _onRefreshed: OnRefreshed = () => {};
+let _mintToken: TokenMinter = mintViaRefreshCookie;
 
 /** Inject a callback that returns the current access token. */
 export function setTokenProvider(provider: TokenProvider) {
   _getToken = provider;
+}
+
+/**
+ * Replace how a fresh token is obtained. Defaults to the cookie-backed
+ * `POST /oauth/refresh` used by the standalone SPA.
+ *
+ * An embedded host that owns the session instead of SEP (PMM) registers a
+ * minter that exchanges its own session cookie via
+ * `POST /oauth/session/exchange`: no refresh cookie exists there, so the
+ * default would 401 on every recovery attempt. Everything downstream —
+ * single-flight coalescing in {@link refreshAccessToken}, the 401 retry in
+ * both transports, the `setOnRefreshed` notification — is transport-agnostic
+ * and works unchanged.
+ *
+ * Pass null to restore the default.
+ */
+export function setTokenMinter(minter: TokenMinter | null) {
+  _mintToken = minter ?? mintViaRefreshCookie;
 }
 
 /** Inject a callback invoked when the API receives an unauthorized response. */
@@ -71,8 +107,8 @@ const IS_DEV = import.meta.env.DEV;
  * field casing matches the OpenAPI spec (see `src/generated/`).
  */
 export const apiClient = axios.create({
-  baseURL: '/api',
-  // Send the HttpOnly refresh cookie on /api/oauth/* requests (same-origin
+  baseURL: `${SEP_BASE_PATH}/api`,
+  // Send the HttpOnly refresh cookie on /sep/api/oauth/* requests (same-origin
   // requests already send cookies, but make the intent explicit so tests
   // and any future cross-origin config keep working).
   withCredentials: true,
@@ -112,24 +148,47 @@ const isRefreshRequest = (url: string | undefined) =>
 const isLoginRequest = (url: string | undefined) =>
   !!url && url.includes('/oauth/login');
 
+/**
+ * Every endpoint that mints a token, whichever minter is registered. These
+ * must never enter the 401 retry path: `refreshAccessToken()` single-flights,
+ * so a 401 on the in-flight mint would hand the interceptor the very promise
+ * it is already running inside — an await on itself that never settles.
+ *
+ * Broader than {@link isRefreshRequest}, which still guards the unauthorized
+ * handler alone: a rejected mint on a session endpoint genuinely means "not
+ * signed in" and should reach the auth layer.
+ */
+export const isTokenMintRequest = (url: string | undefined) =>
+  isRefreshRequest(url) || (!!url && url.includes('/oauth/session'));
+
 // Internal marker so retried requests don't loop through the refresh path
 // again on a second 401.
 type RetriableConfig = InternalAxiosRequestConfig & { _retried?: boolean };
 
-// Single-flight refresh: concurrent callers (401 retry path + background
-// timer + bootstrap) share one in-flight /oauth/refresh call. The promise
-// resolves to the new access token on success and null on failure so
+/**
+ * Default minter: rotate the `HttpOnly` refresh cookie for a new access token.
+ * A function declaration so it can back `_mintToken` above its own definition.
+ */
+async function mintViaRefreshCookie(): Promise<MintedToken> {
+  const { data } = await apiClient.post<MintedToken>('/oauth/refresh');
+  return data;
+}
+
+// Single-flight mint: concurrent callers (401 retry path + background
+// timer + bootstrap) share one in-flight call to the registered minter. The
+// promise resolves to the new access token on success and null on failure so
 // callers can decide whether to retry, surface the 401, or force logout.
 //
-// All refresh traffic must funnel through here — the refresh token cookie
-// rotates on every successful call, so parallel refreshes from different
-// code paths would invalidate each other.
+// All minting traffic must funnel through here — the default minter rotates
+// the refresh token cookie on every successful call, so parallel refreshes
+// from different code paths would invalidate each other, and a session
+// exchange fanned out per request would hammer the identity provider.
 let refreshInFlight: Promise<string | null> | null = null;
 
 /**
- * Trigger (or join) the shared silent refresh. Resolves with the new
- * access token, or null if the refresh failed (missing/invalid cookie,
- * network error, Casdoor rejection).
+ * Trigger (or join) the shared silent mint. Resolves with the new access
+ * token, or null if minting failed (missing/invalid cookie or host session,
+ * network error, provider rejection).
  */
 export function refreshAccessToken(): Promise<string | null> {
   if (!refreshInFlight) {
@@ -138,13 +197,13 @@ export function refreshAccessToken(): Promise<string | null> {
       // from the externally-injected _onRefreshed handler must NOT be reported
       // as a failed refresh, otherwise the auth layer would force-logout a
       // user whose cookie rotation succeeded on the backend.
-      let data: { access_token: string; expires_in: number };
+      let data: MintedToken;
       try {
-        const response = await apiClient.post<{
-          access_token: string;
-          expires_in: number;
-        }>('/oauth/refresh');
-        data = response.data;
+        const minted = await _mintToken();
+        if (!minted) {
+          return null;
+        }
+        data = minted;
       } catch {
         return null;
       } finally {
@@ -206,12 +265,12 @@ apiClient.interceptors.response.use(
       const url = config?.url;
 
       // 401 on a normal request: attempt one silent refresh, then retry.
-      // Skip the refresh/login endpoints themselves and already-retried requests.
+      // Skip the minting/login endpoints themselves and already-retried requests.
       if (
         status === 401 &&
         config &&
         !config._retried &&
-        !isRefreshRequest(url) &&
+        !isTokenMintRequest(url) &&
         !isLoginRequest(url)
       ) {
         const newToken = await refreshAccessToken();

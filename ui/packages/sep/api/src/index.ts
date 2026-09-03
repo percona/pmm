@@ -17,6 +17,9 @@
 
 /// <reference path="./vite-env.d.ts" />
 
+// Backend mount point
+export { SEP_BASE_PATH } from './base';
+
 // API client
 export {
   apiClient,
@@ -24,9 +27,11 @@ export {
   getToken,
   refreshAccessToken,
   setTokenProvider,
+  setTokenMinter,
   setOnUnauthorized,
   setOnRefreshed,
 } from './client';
+export type { MintedToken } from './client';
 
 // Query client
 export { createQueryClient, defaultQueryClientConfig } from './queryClient';

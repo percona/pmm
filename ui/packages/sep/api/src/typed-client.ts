@@ -23,8 +23,9 @@
  *   - `mainApi`      — core API (oauth, users)
  *   - `sepApi`       — SEP app
  *
- * The generated `paths` keys include the mount prefix (e.g. `/api/users/me`),
- * so every client uses `baseUrl: CLIENT_BASE_URL`, which resolves to the
+ * The generated `paths` keys include SEP's own mount prefix (e.g.
+ * `/api/users/me`) but not the `SEP_BASE_PATH` the side-car is reached under,
+ * so every client uses `baseUrl: CLIENT_BASE_URL`, which appends it to the
  * current origin in the browser and falls back to a `http://localhost`
  * sentinel under Node/test environments — identical same-origin behaviour
  * to the axios `apiClient` in the browser.
@@ -36,7 +37,13 @@
  * shape regardless of which client they use.
  */
 import createClient, { type Client, type Middleware } from 'openapi-fetch';
-import { emitUnauthorized, getToken } from './client';
+import { SEP_BASE_PATH } from './base';
+import {
+  emitUnauthorized,
+  getToken,
+  isTokenMintRequest,
+  refreshAccessToken,
+} from './client';
 import { ApiError } from './errors';
 import type { paths as MainPaths } from './generated/main';
 import type { paths as SepPaths } from './generated/sep';
@@ -44,6 +51,15 @@ import type { paths as SepPaths } from './generated/sep';
 const IS_DEV = import.meta.env.DEV;
 
 const isRefreshRequest = (url: string) => url.includes('/oauth/refresh');
+const isLoginRequest = (url: string) => url.includes('/oauth/login');
+
+/**
+ * Whether a 401 on this URL is worth one silent mint-and-replay. Minting
+ * endpoints are the recovery mechanism itself and login carries its own
+ * credentials, so a 401 from either is the answer, not a stale token.
+ */
+const isReplayEligible = (url: string) =>
+  !isTokenMintRequest(url) && !isLoginRequest(url);
 
 /**
  * A 200 HTML response (e.g. a follow of a login redirect) means the session
@@ -55,11 +71,50 @@ function isHtmlLoginResponse(response: Response): boolean {
   return response.ok && ct.includes('text/html');
 }
 
+// `fetch` consumes a Request's body stream, so the instance handed to
+// `onResponse` can no longer be re-sent. Stash an untouched clone taken before
+// dispatch, keyed weakly so requests that never come back are not retained.
+//
+// Only replay-eligible requests are cloned: cloning buffers the body, and the
+// endpoints excluded from the retry would never use theirs.
+const pristineRequests = new WeakMap<Request, Request>();
+
+/**
+ * One silent recovery attempt for a 401: mint a fresh token — single-flighted
+ * with every other caller, including the axios transport — and replay the
+ * request with it.
+ *
+ * The replay goes through raw `fetch` rather than the typed client so it cannot
+ * re-enter this middleware; that bounds recovery to a single extra round-trip
+ * without needing a retry marker. Returns null when there is nothing to replay
+ * or no token could be minted.
+ */
+async function replayWithFreshToken(
+  request: Request
+): Promise<Response | null> {
+  const pristine = pristineRequests.get(request);
+  if (!pristine) {
+    return null;
+  }
+  pristineRequests.delete(request);
+
+  const token = await refreshAccessToken();
+  if (!token) {
+    return null;
+  }
+
+  pristine.headers.set('Authorization', `Bearer ${token}`);
+  return lazyFetch(pristine);
+}
+
 const authMiddleware: Middleware = {
   onRequest({ request }) {
     const token = getToken();
     if (token) {
       request.headers.set('Authorization', `Bearer ${token}`);
+    }
+    if (isReplayEligible(request.url)) {
+      pristineRequests.set(request, request.clone());
     }
     if (IS_DEV) {
       // eslint-disable-next-line no-console
@@ -85,10 +140,23 @@ const authMiddleware: Middleware = {
       });
     }
 
+    if (response.status === 401 && isReplayEligible(request.url)) {
+      const replayed = await replayWithFreshToken(request);
+      if (replayed && replayed.status !== 401) {
+        return replayed;
+      }
+      // Minting failed, or the replay was rejected too — the session is gone.
+      emitUnauthorized();
+      return replayed ?? response;
+    }
+
     if (
       (response.status === 401 || response.status === 303) &&
       !isRefreshRequest(request.url)
     ) {
+      // A 401 left here is a minting endpoint rejecting the ambient session —
+      // "not signed in", which the auth layer must hear about. A 303 is the
+      // login redirect on any endpoint.
       emitUnauthorized();
     }
 
@@ -101,11 +169,12 @@ const authMiddleware: Middleware = {
 // is no implicit document origin to resolve against. Read `location.origin`
 // when available (browser, jsdom-style tests), otherwise use a
 // `http://localhost` sentinel; MSW intercepts by URL in either case.
-const CLIENT_BASE_URL =
+const CLIENT_ORIGIN =
   typeof globalThis !== 'undefined' &&
   typeof (globalThis as { location?: Location }).location?.origin === 'string'
     ? (globalThis as { location: Location }).location.origin
     : 'http://localhost';
+const CLIENT_BASE_URL = `${CLIENT_ORIGIN}${SEP_BASE_PATH}`;
 
 // Resolve `fetch` lazily rather than capturing `globalThis.fetch` at module
 // load. Test harnesses (MSW, happy-dom) patch the global after this file is

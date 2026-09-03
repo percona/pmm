@@ -19,7 +19,12 @@ import {
   EventStreamContentType,
   fetchEventSource,
 } from '@microsoft/fetch-event-source';
-import { emitUnauthorized, getToken, refreshAccessToken } from '@sep/api';
+import {
+  emitUnauthorized,
+  getToken,
+  refreshAccessToken,
+  SEP_BASE_PATH,
+} from '@sep/api';
 import { useEffect, useRef, useState } from 'react';
 
 export type LogType = 'stdout' | 'stderr';
@@ -119,7 +124,7 @@ export function useTaskLogs(
     // shutdown from an unexpected connection drop.
     let terminatedCleanly = false;
 
-    const baseUrl = `/stream-logs/${encodeURIComponent(String(taskHistoryId))}`;
+    const baseUrl = `${SEP_BASE_PATH}/stream-logs/${encodeURIComponent(String(taskHistoryId))}`;
     const url =
       tail !== undefined && tail > 0
         ? `${baseUrl}?tail=${encodeURIComponent(String(tail))}`

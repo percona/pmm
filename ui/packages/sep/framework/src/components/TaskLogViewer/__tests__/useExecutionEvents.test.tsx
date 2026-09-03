@@ -43,6 +43,7 @@ vi.mock('@sep/api', () => ({
     get: (...args: Parameters<typeof mockApiGet>) => mockApiGet(...args),
     defaults: {},
   },
+  SEP_BASE_PATH: '/sep',
 }));
 
 const TEST_TOKEN = 'test-bearer-token';
@@ -74,7 +75,7 @@ describe('useExecutionEvents', () => {
   });
 
   describe('running tasks (SSE)', () => {
-    it('fetches /stream-logs/{id}/execution-events with Bearer token', async () => {
+    it('fetches /sep/stream-logs/{id}/execution-events with Bearer token', async () => {
       const wrapper = makeWrapper(createClient());
       renderHook(() => useExecutionEvents(42, true), { wrapper });
       await flushPromises();
@@ -82,7 +83,7 @@ describe('useExecutionEvents', () => {
       expect(mock.fetchSpy).toHaveBeenCalledTimes(1);
       const [url] = mock.fetchSpy.mock.calls[0];
       const urlStr = typeof url === 'string' ? url : (url as URL).href;
-      expect(urlStr).toBe('/stream-logs/42/execution-events');
+      expect(urlStr).toBe('/sep/stream-logs/42/execution-events');
       // Headers instance lowercases names; stub normalises via Object.fromEntries(headers.entries())
       expect(mock.pending[0].requestHeaders.authorization).toBe(
         `Bearer ${TEST_TOKEN}`
@@ -241,7 +242,7 @@ describe('useExecutionEvents', () => {
   });
 
   describe('completed tasks (REST via apiClient)', () => {
-    it('calls /execution-events/{id} via apiClient and surfaces events', async () => {
+    it('calls /sep/execution-events/{id} via apiClient and surfaces events', async () => {
       mockApiGet.mockResolvedValue({
         data: [
           { timestamp: 't1', type: 'started', description: 'A', step: 'setup' },
@@ -264,7 +265,7 @@ describe('useExecutionEvents', () => {
       // Verify apiClient.get was called with the right URL and baseURL escape
       expect(mockApiGet).toHaveBeenCalledWith(
         '/execution-events/7',
-        expect.objectContaining({ baseURL: '' })
+        expect.objectContaining({ baseURL: '/sep' })
       );
       expect(result.current.stepOrder).toEqual(['setup']);
       // SSE must not have been opened for a completed task
@@ -323,7 +324,7 @@ describe('useExecutionEvents', () => {
       await waitFor(() => expect(result.current.events).toHaveLength(1));
       expect(mockApiGet).toHaveBeenCalledWith(
         '/execution-events/9',
-        expect.objectContaining({ baseURL: '' })
+        expect.objectContaining({ baseURL: '/sep' })
       );
     });
   });

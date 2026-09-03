@@ -16,7 +16,7 @@
  */
 
 import { useMutation } from '@tanstack/react-query';
-import { apiClient } from '@sep/api';
+import { apiClient, SEP_BASE_PATH } from '@sep/api';
 import { downloadBlob } from '../utils/downloadBlob';
 
 export interface TaskFileDownloadParams {
@@ -32,7 +32,7 @@ export function useTaskFileDownload() {
       const { data } = await apiClient.get<Blob>(
         `/files/${taskHistoryId}/download`,
         {
-          baseURL: '',
+          baseURL: SEP_BASE_PATH,
           params: { path },
           responseType: 'blob',
         }

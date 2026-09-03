@@ -17,16 +17,24 @@
 
 import { http, HttpResponse } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { setOnUnauthorized, setTokenProvider } from '../src/client';
+import { SEP_BASE_PATH } from '../src/base';
+import {
+  setOnRefreshed,
+  setOnUnauthorized,
+  setTokenMinter,
+  setTokenProvider,
+} from '../src/client';
 import { ApiError } from '../src/errors';
-import { mainApi, throwOnApiError } from '../src/typed-client';
+import { mainApi, sepApi, throwOnApiError } from '../src/typed-client';
 import { server } from './msw-server';
 
+const API = `http://localhost${SEP_BASE_PATH}/api`;
+
 // openapi-fetch builds absolute URLs from a `baseUrl`. The generated paths
-// already include the `/api/...` prefix, and our typed clients set
-// `baseUrl` to an absolute origin. Under Node we stub `globalThis.location`
-// so the client's origin fallback resolves to `http://localhost` in these
-// tests — matching the MSW handler URLs below.
+// already include SEP's own `/api/...` prefix, and our typed clients set
+// `baseUrl` to an absolute origin plus `SEP_BASE_PATH`. Under Node we stub
+// `globalThis.location` so the client's origin fallback resolves to
+// `http://localhost` in these tests — matching the MSW handler URLs below.
 //
 // `typed-client.ts` evaluates `CLIENT_BASE_URL` at module load (i.e. before
 // `beforeEach` runs), but the fallback path kicks in when `location` is
@@ -48,11 +56,17 @@ beforeEach(() => {
   });
   setTokenProvider(() => null);
   setOnUnauthorized(() => {});
+  setOnRefreshed(() => {});
+  // Default to a minter that cannot recover, so the 401 tests below observe the
+  // give-up path without reaching the network. The recovery suite opts in.
+  setTokenMinter(async () => null);
 });
 
 afterEach(() => {
   setTokenProvider(() => null);
   setOnUnauthorized(() => {});
+  setOnRefreshed(() => {});
+  setTokenMinter(null);
   if (ORIGINAL_LOCATION_DESCRIPTOR) {
     Object.defineProperty(globalThis, 'location', ORIGINAL_LOCATION_DESCRIPTOR);
   } else {
@@ -62,13 +76,30 @@ afterEach(() => {
   }
 });
 
+describe('typed-client — SEP mount point', () => {
+  it('resolves a generated path under the prefix nginx exposes the side-car on', async () => {
+    const seen = vi.fn();
+
+    server.use(
+      http.get('http://localhost/sep/api/users/me', ({ request }) => {
+        seen(new URL(request.url).pathname);
+        return HttpResponse.json({ id: 'x', username: 'u' });
+      })
+    );
+
+    await mainApi.GET('/api/users/me');
+
+    expect(seen).toHaveBeenCalledWith('/sep/api/users/me');
+  });
+});
+
 describe('typed-client — auth middleware', () => {
   it('attaches Bearer token from the shared provider', async () => {
     setTokenProvider(() => 'shared-token');
     const seen = vi.fn();
 
     server.use(
-      http.get('http://localhost/api/users/me', ({ request }) => {
+      http.get(`${API}/users/me`, ({ request }) => {
         seen(request.headers.get('Authorization'));
         return HttpResponse.json({ id: 'x', username: 'u' });
       })
@@ -84,7 +115,7 @@ describe('typed-client — auth middleware', () => {
     setOnUnauthorized(onUnauth);
 
     server.use(
-      http.get('http://localhost/api/users/me', () =>
+      http.get(`${API}/users/me`, () =>
         HttpResponse.json({ detail: 'nope' }, { status: 401 })
       )
     );
@@ -99,7 +130,7 @@ describe('typed-client — auth middleware', () => {
     setOnUnauthorized(onUnauth);
 
     server.use(
-      http.post('http://localhost/api/oauth/refresh', () =>
+      http.post(`${API}/oauth/refresh`, () =>
         HttpResponse.json({ detail: 'bad' }, { status: 401 })
       )
     );
@@ -114,7 +145,7 @@ describe('typed-client — auth middleware', () => {
     setOnUnauthorized(onUnauth);
 
     server.use(
-      http.get('http://localhost/api/users/me', () =>
+      http.get(`${API}/users/me`, () =>
         HttpResponse.html('<html>login</html>', { status: 200 })
       )
     );
@@ -126,10 +157,146 @@ describe('typed-client — auth middleware', () => {
   });
 });
 
+describe('typed-client — 401 recovery', () => {
+  const mintOnce = (token: string) => {
+    const minter = vi.fn(async () => ({
+      access_token: token,
+      expires_in: 300,
+    }));
+    setTokenMinter(minter);
+    return minter;
+  };
+
+  it('mints a fresh token and replays the request', async () => {
+    let currentToken = 'stale';
+    setTokenProvider(() => currentToken);
+    setOnRefreshed((token) => {
+      currentToken = token;
+    });
+    const minter = mintOnce('fresh');
+    const onUnauth = vi.fn();
+    setOnUnauthorized(onUnauth);
+    const seenAuth: Array<string | null> = [];
+
+    server.use(
+      http.get(`${API}/users/me`, ({ request }) => {
+        const auth = request.headers.get('Authorization');
+        seenAuth.push(auth);
+        if (auth === 'Bearer fresh') {
+          return HttpResponse.json({ id: 'abc', username: 'u' });
+        }
+        return HttpResponse.json({ detail: 'expired' }, { status: 401 });
+      })
+    );
+
+    const user = await throwOnApiError(mainApi.GET('/api/users/me'));
+
+    expect(user).toMatchObject({ id: 'abc' });
+    expect(seenAuth).toEqual(['Bearer stale', 'Bearer fresh']);
+    expect(minter).toHaveBeenCalledOnce();
+    expect(onUnauth).not.toHaveBeenCalled();
+  });
+
+  it('replays a request body — `fetch` consumed the original stream', async () => {
+    setTokenProvider(() => 'stale');
+    mintOnce('fresh');
+    const seenBodies: unknown[] = [];
+
+    server.use(
+      http.post(`${API}/apps/inventory/sync/`, async ({ request }) => {
+        const auth = request.headers.get('Authorization');
+        seenBodies.push(await request.json());
+        if (auth === 'Bearer fresh') {
+          return HttpResponse.json({ status: 'queued' });
+        }
+        return HttpResponse.json({ detail: 'expired' }, { status: 401 });
+      })
+    );
+
+    await throwOnApiError(
+      sepApi.POST('/api/apps/inventory/sync/', {
+        body: { syncer: 'mod.Cls' },
+      })
+    );
+
+    expect(seenBodies).toEqual([{ syncer: 'mod.Cls' }, { syncer: 'mod.Cls' }]);
+  });
+
+  it('replays at most once, then reports unauthorized', async () => {
+    setTokenProvider(() => 'stale');
+    const minter = mintOnce('fresh');
+    const onUnauth = vi.fn();
+    setOnUnauthorized(onUnauth);
+    let calls = 0;
+
+    server.use(
+      http.get(`${API}/users/me`, () => {
+        calls += 1;
+        return HttpResponse.json({ detail: 'expired' }, { status: 401 });
+      })
+    );
+
+    await expect(
+      throwOnApiError(mainApi.GET('/api/users/me'))
+    ).rejects.toSatisfy((err) => err instanceof ApiError && err.status === 401);
+    expect(calls).toBe(2);
+    expect(minter).toHaveBeenCalledOnce();
+    expect(onUnauth).toHaveBeenCalledOnce();
+  });
+
+  it('shares one mint across concurrent 401s', async () => {
+    let currentToken = 'stale';
+    setTokenProvider(() => currentToken);
+    setOnRefreshed((token) => {
+      currentToken = token;
+    });
+    let mints = 0;
+    setTokenMinter(async () => {
+      mints += 1;
+      await new Promise((resolve) => setTimeout(resolve, 20));
+      return { access_token: 'fresh', expires_in: 300 };
+    });
+
+    server.use(
+      http.get(`${API}/users/me`, ({ request }) =>
+        request.headers.get('Authorization') === 'Bearer fresh'
+          ? HttpResponse.json({ id: 'abc', username: 'u' })
+          : HttpResponse.json({ detail: 'expired' }, { status: 401 })
+      )
+    );
+
+    const results = await Promise.all([
+      throwOnApiError(mainApi.GET('/api/users/me')),
+      throwOnApiError(mainApi.GET('/api/users/me')),
+    ]);
+
+    expect(results).toHaveLength(2);
+    expect(mints).toBe(1);
+  });
+
+  it('does not attempt recovery when the exchange endpoint itself 401s', async () => {
+    const minter = mintOnce('fresh');
+    const onUnauth = vi.fn();
+    setOnUnauthorized(onUnauth);
+
+    server.use(
+      http.post(`${API}/oauth/session/exchange`, () =>
+        HttpResponse.json({ detail: 'no session' }, { status: 401 })
+      )
+    );
+
+    await mainApi.POST('/api/oauth/session/exchange');
+
+    expect(minter).not.toHaveBeenCalled();
+    // A rejected exchange is "not signed in" and must reach the auth layer.
+    expect(onUnauth).toHaveBeenCalledOnce();
+  });
+});
+
 describe('throwOnApiError', () => {
   it('returns typed data on 2xx', async () => {
     server.use(
-      http.get('http://localhost/api/users/me', () =>
+      http.get(`${API}/users/me`, () =>
         HttpResponse.json({ id: 'abc', username: 'u' })
       )
     );
@@ -141,7 +308,7 @@ describe('throwOnApiError', () => {
 
   it('maps a JSON 4xx body to ApiError with status + detail', async () => {
     server.use(
-      http.get('http://localhost/api/users/me', () =>
+      http.get(`${API}/users/me`, () =>
         HttpResponse.json({ detail: 'not found' }, { status: 404 })
       )
     );
@@ -159,9 +326,7 @@ describe('throwOnApiError', () => {
   });
 
   it('maps a network failure to ApiError with kind "network"', async () => {
-    server.use(
-      http.get('http://localhost/api/users/me', () => HttpResponse.error())
-    );
+    server.use(http.get(`${API}/users/me`, () => HttpResponse.error()));
 
     await expect(
       throwOnApiError(mainApi.GET('/api/users/me'))
@@ -172,7 +337,7 @@ describe('throwOnApiError', () => {
 
   it('maps a malformed JSON body to ApiError (no raw SyntaxError leaks)', async () => {
     server.use(
-      http.get('http://localhost/api/users/me', () =>
+      http.get(`${API}/users/me`, () =>
         HttpResponse.text('not-json', {
           status: 200,
           headers: { 'content-type': 'application/json' },
