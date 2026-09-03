@@ -91,7 +91,7 @@ describe('SepAuthGate — bootstrap', () => {
     renderGate();
 
     expect(await screen.findByTestId('sep-auth-error')).toHaveTextContent(
-      'Could not reach Smart Expert Platform'
+      "This page can't be loaded"
     );
   });
 

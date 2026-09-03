@@ -21,6 +21,7 @@ import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@sep/plugins-atw';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import { SepPage } from './sep/SepPage';
+import { ServiceNowSetupGate } from './sep/ServiceNowSetupGate';
 
 // Route paths below are relative to the `PMM_NEW_NAV_PATH` parent, while the
 // shared SEP constants are absolute (the nav and each plugin's `routeBase` need
@@ -90,14 +91,20 @@ const router = createBrowserRouter(
             // SEP apps mounted as native routes. Both plugins compose their own
             // <Routes>, so the paths are splats.
             {
-              // ATW ("Collect Diagnostic Data") is now incident-first: AtwApp
+              // ATW ("Support diagnostics") is now incident-first: AtwApp
               // composes its own <Routes> (incident list at index, workspace at
               // :incidentId), so this must be a splat. Backend API calls hit
               // /apps/atw and the incident / batch-execution endpoints.
+              //
+              // Everything the app does ends in a ServiceNow upload, so it sits
+              // behind the connection gate — inside SepAuthGate, since reading
+              // the SEP settings needs the exchanged bearer.
               path: `${relativeToNav(SEP_ATW_PATH)}/*`,
               element: (
                 <SepPage>
-                  <AtwApp />
+                  <ServiceNowSetupGate>
+                    <AtwApp />
+                  </ServiceNowSetupGate>
                 </SepPage>
               ),
             },

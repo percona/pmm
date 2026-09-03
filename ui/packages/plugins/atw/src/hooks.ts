@@ -29,7 +29,6 @@ import {
   type PluginListResult,
   type PaginatedPluginList,
 } from '@sep/api';
-import { SNIPPETS_PLUGINS_API_BASE } from '@sep/framework';
 import type {
   AtwBatchExecuteResponse,
   AtwBatchExecuteWrite,
@@ -45,7 +44,6 @@ import type {
   AtwSendJobWrite,
   AtwSendLog,
   AtwSendLogDetail,
-  AtwSnippetSearchRow,
   AtwSnippetSummary,
 } from './types';
 
@@ -123,38 +121,26 @@ export function useAtwCategories() {
  * The endpoint is paginated, so a broad term can match more snippets than one
  * page holds; the picker reports that overflow rather than dropping it
  * silently. Kept at the shared app-list default for consistency with every
- * other app list — the snippets route itself would serve up to
+ * other app list — the search route itself would serve up to
  * `MAX_PAGINATION_LIMIT` (200), so raising this is a deliberate change, not a
  * ceiling to lift.
  */
 export const ATW_SNIPPET_SEARCH_LIMIT = DEFAULT_PLUGIN_LIST_LIMIT;
 
-/** Project a snippets-app list row onto the picker's snippet shape. */
-export function toAtwSnippetSummary(
-  row: AtwSnippetSearchRow
-): AtwSnippetSummary {
-  return {
-    name: row.filename,
-    title: row.title || row.filename,
-    description: row.description,
-  };
-}
-
 /**
  * Search every snippet by free text, independent of the ATW category taxonomy.
  *
- * Served by the snippets app's own list endpoint (the same one the Snippet
- * Manager list uses), so the picker reaches snippets the ATW category listing
- * does not expose — the `atw` metadata tag is a presentation filter on that
- * listing, never consulted by the execute path.
+ * Served by ATW's own route over the snippets library, so the picker reaches
+ * snippets the ATW category listing does not expose — the `atw` metadata tag is
+ * a presentation filter on that listing, never consulted by the execute path —
+ * and search keeps working on a deployment that does not activate the Snippet
+ * Manager app.
  *
- * `approval=approved` is load-bearing: executing an unapproved snippet is
- * rejected server-side, so offering one would only fail at execute time. The
- * query is disabled while the term is empty; callers debounce the term.
- *
- * A local hook rather than the Snippet Manager's `useSnippets`, since `@sep/atw`
- * does not depend on `@sep/snippets` and an app-to-app dependency is worse than
- * this duplication. If a third consumer appears, lift it into `@sep/framework`.
+ * Restricting to approved snippets is load-bearing: executing an unapproved
+ * snippet is rejected server-side, so offering one would only fail at execute
+ * time. The route pins that server-side rather than taking it as a parameter, so
+ * there is nothing for this hook to send. The query is disabled while the term
+ * is empty; callers debounce the term.
  */
 export function useAtwSnippetSearch(search: string) {
   const term = search.trim();
@@ -165,17 +151,15 @@ export function useAtwSnippetSearch(search: string) {
     placeholderData: keepPreviousData,
     queryFn: async () => {
       const { data } = await apiClient.get<
-        AtwSnippetSearchRow[] | PaginatedPluginList<AtwSnippetSearchRow>
-      >(`${SNIPPETS_PLUGINS_API_BASE}/`, {
+        AtwSnippetSummary[] | PaginatedPluginList<AtwSnippetSummary>
+      >(`${ATW_BASE}/snippets/`, {
         params: {
           search: term,
-          approval: 'approved',
           offset: 0,
           limit: ATW_SNIPPET_SEARCH_LIMIT,
         },
       });
-      const page = normalizePluginListResponse<AtwSnippetSearchRow>(data);
-      return { ...page, items: page.items.map(toAtwSnippetSummary) };
+      return normalizePluginListResponse<AtwSnippetSummary>(data);
     },
   });
 }

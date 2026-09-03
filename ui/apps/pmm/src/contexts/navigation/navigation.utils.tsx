@@ -1,6 +1,6 @@
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
-import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import MedicalServicesOutlinedIcon from '@mui/icons-material/MedicalServicesOutlined';
 import { MySqlIcon } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 import { ServiceType } from 'types/services.types';
@@ -316,8 +316,8 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 export const addSepApps = (): NavItem[] => [
   {
     id: 'sep-atw',
-    text: 'Collect Diagnostic Data',
-    icon: MonitorHeartIcon,
+    text: 'Support diagnostics',
+    icon: MedicalServicesOutlinedIcon,
     url: SEP_ATW_PATH,
     matches: [SEP_ATW_PATH],
   },

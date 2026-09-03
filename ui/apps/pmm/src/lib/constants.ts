@@ -23,6 +23,15 @@ export const PMM_NEW_NAV_HOME_URL = `${PMM_NEW_NAV_PATH}/graph/d/pmm-home`;
 export const SEP_ATW_PATH = `${PMM_NEW_NAV_PATH}/sep/atw`;
 export const SEP_MYSQL_BACKUPS_PATH = `${PMM_NEW_NAV_PATH}/sep/mysql-backups`;
 
+// In-app (router-relative, no basename) path of the settings tab that owns the
+// ServiceNow connection — linked from the Support diagnostics setup prompt.
+export const PMM_SERVICENOW_SETTINGS_PATH = `${PMM_NEW_NAV_PATH}/settings/servicenow-connection`;
+
+export const PERCONA_SUPPORT_URL = 'https://www.percona.com/services/support';
+// Placeholder: points at the PMM docs entry point until the Support diagnostics
+// page is published.
+export const SUPPORT_DIAGNOSTICS_DOCS_URL = PMM_SUPPORT_URL;
+
 export const INTERVALS_MS = {
   // 5 mins
   SERVICE_TYPES: 300000,
