@@ -8,6 +8,7 @@ import {
   buildDeliveryInputsPatch,
   connectionStatus,
   declaredSecretNames,
+  secretHelperText,
   secretLabel,
   sepErrorMessage,
   storedDeliveryInputs,
@@ -361,11 +362,34 @@ describe('sepErrorMessage', () => {
 
 describe('secretLabel', () => {
   it.each([
-    ['sn_api_key', 'SN API key'],
+    ['sn_api_key', 'ServiceNow API key'],
     ['client_token', 'Client token'],
+  ])('uses the written copy for %s', (name, expected) => {
+    expect(secretLabel(name)).toBe(expected);
+  });
+
+  it.each([
     ['instance_url', 'Instance URL'],
     ['token', 'Token'],
-  ])('renders %s as %s', (name, expected) => {
+  ])('humanizes an undeclared name %s as %s', (name, expected) => {
     expect(secretLabel(name)).toBe(expected);
+  });
+});
+
+describe('secretHelperText', () => {
+  it('uses the written copy for a declared name', () => {
+    expect(secretHelperText('sn_api_key', false)).toBe(
+      Messages.serviceNow.secretCopy.sn_api_key.helper
+    );
+  });
+
+  it('names the raw key for a name the UI has no copy for', () => {
+    expect(secretHelperText('instance_url', false)).toContain('instance_url');
+  });
+
+  it('adds the keep-it note when a value is stored', () => {
+    expect(secretHelperText('client_token', true)).toBe(
+      `${Messages.serviceNow.secretCopy.client_token.helper} ${Messages.serviceNow.secretStoredSuffix}`
+    );
   });
 });
