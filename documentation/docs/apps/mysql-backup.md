@@ -5,7 +5,7 @@
 
 MySQL Backup lets you run and schedule MySQL backups against MySQL services in your inventory, restore from those backups, and track job status and execution history.
 
-It is part of PMM's [Management framework](index.md) (SEP) integration, accessible from **Apps > MySQL Backups** in the sidebar.
+It is available under **Apps > MySQL Backups** in the sidebar, part of PMM's growing set of [database management apps](index.md).
 
 The legacy PMM MySQL backup feature under **Backups > All backups** continues to work alongside this app. Backups created in one are not visible in the other. This app is intended to replace the legacy feature when the [SEP integration](index.md) reaches GA.
 
