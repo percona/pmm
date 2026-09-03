@@ -36,6 +36,7 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SendIcon from '@mui/icons-material/Send';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '@sep/api';
 import {
   TaskFilesDialog,
@@ -51,6 +52,7 @@ import {
   useAtwIncidentExecutions,
   useAtwSendJobs,
 } from './hooks';
+import { useDeliverySettingsPath } from './deliverySettings';
 import { SendDialog } from './SendDialog';
 import type {
   AtwIncidentExecution,
@@ -92,6 +94,51 @@ function isSelectable(execution: AtwIncidentExecution): boolean {
     status !== null &&
     status !== undefined &&
     FINISHED_TASK_STATUSES.has(status)
+  );
+}
+
+/**
+ * Why the send controls are inert, stated once above them.
+ *
+ * The tooltips on each disabled control carry the backend's own reasons, but a
+ * tooltip on a disabled button is not something an operator finds by accident —
+ * and an administrator looking at a greyed-out Send is the one person who can
+ * fix it. So the pane says it in the open and, when the host supplied a route,
+ * offers the way there; the specific reason stays in the tooltips rather than
+ * being repeated here, which keeps this to one line whatever the backend says.
+ *
+ * Rendered only for a session that has send controls to explain: a read-only
+ * session is never offered one, so the connection state changes nothing it
+ * could do and the notice would be noise. That also makes the settings button
+ * safe to offer unconditionally — `canMutate` is the administrator flag today,
+ * and the settings tab it links to is administrator-only. Should `canMutate`
+ * ever widen to a lesser role, gate the button separately or it becomes the
+ * same dead end this notice replaced.
+ */
+function SendUnavailableNotice() {
+  const settingsPath = useDeliverySettingsPath();
+
+  return (
+    <Alert
+      severity="info"
+      variant="outlined"
+      sx={{ mb: 2, alignItems: 'center' }}
+      data-testid="atw-send-unavailable"
+      action={
+        settingsPath ? (
+          <Button
+            size="small"
+            component={RouterLink}
+            to={settingsPath}
+            data-testid="atw-send-unavailable-settings"
+          >
+            ServiceNow settings
+          </Button>
+        ) : undefined
+      }
+    >
+      Sending requires a valid ServiceNow connection.
+    </Alert>
   );
 }
 
@@ -278,6 +325,13 @@ export function ResultsPane({ incidentId }: ResultsPaneProps) {
             : 'No executions yet.'}
         </Alert>
       )}
+
+      {/*
+        Above every send control in the pane, not just the toolbar: the send
+        history's Re-send buttons are disabled by the same reasons, and an
+        incident with no executions can still hold failed attempts.
+      */}
+      {canMutate && disabledReasons.length > 0 && <SendUnavailableNotice />}
 
       {/* Selection exists only to feed the send action, so both go together. */}
       {rows && rows.length > 0 && canMutate && (

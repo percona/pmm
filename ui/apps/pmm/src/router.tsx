@@ -10,6 +10,7 @@ import { RealtimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
 import {
   PMM_NEW_NAV_PATH,
+  PMM_SERVICENOW_SETTINGS_PATH,
   SEP_ATW_PATH,
   SEP_MYSQL_BACKUPS_PATH,
 } from 'lib/constants';
@@ -21,7 +22,6 @@ import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@sep/plugins-atw';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import { SepPage } from './sep/SepPage';
-import { ServiceNowSetupGate } from './sep/ServiceNowSetupGate';
 
 // Route paths below are relative to the `PMM_NEW_NAV_PATH` parent, while the
 // shared SEP constants are absolute (the nav and each plugin's `routeBase` need
@@ -96,15 +96,14 @@ const router = createBrowserRouter(
               // :incidentId), so this must be a splat. Backend API calls hit
               // /apps/atw and the incident / batch-execution endpoints.
               //
-              // Everything the app does ends in a ServiceNow upload, so it sits
-              // behind the connection gate — inside SepAuthGate, since reading
-              // the SEP settings needs the exchanged bearer.
+              // Everything the app records stays readable without a ServiceNow
+              // connection; only the send action needs one. `deliverySettings`
+              // hands the app the PMM route that fixes it, so the disabled send
+              // control can point an administrator at the settings tab.
               path: `${relativeToNav(SEP_ATW_PATH)}/*`,
               element: (
                 <SepPage>
-                  <ServiceNowSetupGate>
-                    <AtwApp />
-                  </ServiceNowSetupGate>
+                  <AtwApp deliverySettingsPath={PMM_SERVICENOW_SETTINGS_PATH} />
                 </SepPage>
               ),
             },

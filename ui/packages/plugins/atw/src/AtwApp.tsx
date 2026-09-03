@@ -16,18 +16,34 @@
  */
 
 import { Route, Routes } from 'react-router-dom';
+import { DeliverySettingsProvider } from './deliverySettings';
 import { IncidentListPage } from './IncidentListPage';
 import { IncidentWorkspacePage } from './IncidentWorkspacePage';
+
+export interface AtwAppProps {
+  /**
+   * Router-relative route of the shell's ServiceNow delivery settings, linked
+   * from the send control when delivery is unconfigured. Omit it and the
+   * control explains itself without offering a way there.
+   */
+  deliverySettingsPath?: string;
+}
 
 /**
  * ATW app router. The shell mounts this at ``atw/*``; the incident list is the
  * index route and an incident opens its workspace at ``:incidentId``.
+ *
+ * Everything the app has already recorded reads without a delivery connection —
+ * only sending needs one — so there is no gate here, just a disabled send
+ * control that names what is missing.
  */
-export function AtwApp() {
+export function AtwApp({ deliverySettingsPath }: AtwAppProps = {}) {
   return (
-    <Routes>
-      <Route index element={<IncidentListPage />} />
-      <Route path=":incidentId" element={<IncidentWorkspacePage />} />
-    </Routes>
+    <DeliverySettingsProvider path={deliverySettingsPath}>
+      <Routes>
+        <Route index element={<IncidentListPage />} />
+        <Route path=":incidentId" element={<IncidentWorkspacePage />} />
+      </Routes>
+    </DeliverySettingsProvider>
   );
 }

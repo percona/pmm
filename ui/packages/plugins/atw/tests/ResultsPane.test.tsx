@@ -19,6 +19,8 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
+import { MemoryRouter } from 'react-router-dom';
+import { DeliverySettingsProvider } from '../src/deliverySettings';
 import { ResultsPane } from '../src/ResultsPane';
 
 /** Flipped per test to cover the read-only (non-admin) rendering. */
@@ -1005,5 +1007,177 @@ describe('ResultsPane — write access', () => {
     ).not.toBeInTheDocument();
     // Results and their history stay readable.
     expect(screen.getByText(/CS0042/)).toBeTruthy();
+  });
+});
+
+describe('ResultsPane send-unavailable notice', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  /** The pane inside a router, with the host's delivery settings route supplied. */
+  function renderWithSettingsPath(path?: string) {
+    return renderPane(
+      <MemoryRouter>
+        <DeliverySettingsProvider path={path}>
+          <ResultsPane incidentId="inc-1" />
+        </DeliverySettingsProvider>
+      </MemoryRouter>
+    );
+  }
+
+  const UNCONFIGURED = {
+    executions: {
+      items: [FINISHED_EXECUTION],
+      total: 1,
+      offset: 0,
+      limit: 20,
+    },
+    config: {
+      send_disabled_reasons: ['Diagnostics delivery is not configured'],
+    },
+  };
+
+  it('states why sending is unavailable and links to the host settings route', async () => {
+    routeGet(UNCONFIGURED);
+
+    renderWithSettingsPath('/settings/servicenow-connection');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    });
+    expect(
+      screen.getByText(/Sending requires a valid ServiceNow connection/i)
+    ).toBeTruthy();
+    expect(
+      screen.getByTestId('atw-send-unavailable-settings').getAttribute('href')
+    ).toBe('/settings/servicenow-connection');
+  });
+
+  it('keeps the send control rendered with its own copy beside the notice', async () => {
+    routeGet(UNCONFIGURED);
+
+    renderWithSettingsPath('/settings/servicenow-connection');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    });
+    const send = screen.getByRole('button', {
+      name: /Send to support case/i,
+    }) as HTMLButtonElement;
+    expect(send.disabled).toBe(true);
+  });
+
+  it('explains without a route when the host offers none', async () => {
+    routeGet(UNCONFIGURED);
+
+    renderWithSettingsPath(undefined);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable-settings')
+    ).not.toBeInTheDocument();
+  });
+
+  it('stays silent while delivery is configured', async () => {
+    routeGet({
+      executions: {
+        items: [FINISHED_EXECUTION],
+        total: 1,
+        offset: 0,
+        limit: 20,
+      },
+    });
+
+    renderWithSettingsPath('/settings/servicenow-connection');
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Select diag/slow-query.sh')).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable')
+    ).not.toBeInTheDocument();
+  });
+
+  it('explains a send history that cannot be replayed on an incident with no executions', async () => {
+    routeGet({
+      executions: { items: [], total: 0, offset: 0, limit: 20 },
+      sendJobs: {
+        items: [failedJob({ error: 'upstream exploded', executions: [] })],
+        total: 1,
+        offset: 0,
+        limit: 50,
+      },
+      config: {
+        send_disabled_reasons: ['Diagnostics delivery is not configured'],
+      },
+    });
+
+    renderWithSettingsPath('/settings/servicenow-connection');
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Re-send' })).toBeTruthy();
+    });
+    // The notice covers Re-send too, so it must survive an empty execution list.
+    expect(screen.getByTestId('atw-send-unavailable')).toBeTruthy();
+  });
+
+  it('says nothing when the config read itself fails, leaving the POST as the guard', async () => {
+    mockedApi.get.mockImplementation((url: string) => {
+      if (url.includes('/config/')) {
+        return Promise.reject(new Error('config unreachable'));
+      }
+      if (url.includes('/send-jobs/')) {
+        return Promise.resolve({
+          data: { items: [], total: 0, offset: 0, limit: 50 },
+        });
+      }
+      if (url.includes('/executions/')) {
+        return Promise.resolve({
+          data: { items: [FINISHED_EXECUTION], total: 1, offset: 0, limit: 20 },
+        });
+      }
+      return Promise.resolve({ data: { id: 'inc-1', case_ref: 'CS0001' } });
+    });
+
+    renderWithSettingsPath('/settings/servicenow-connection');
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Select diag/slow-query.sh')).toBeTruthy();
+    });
+    // A blip in one read must not claim the connection is broken, nor stop the
+    // pane rendering: the reasons default to none and the send stays offered.
+    expect(
+      screen.queryByTestId('atw-send-unavailable')
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('Select diag/slow-query.sh'));
+    await waitFor(() => {
+      expect(
+        (
+          screen.getByRole('button', {
+            name: /Send to support case/i,
+          }) as HTMLButtonElement
+        ).disabled
+      ).toBe(false);
+    });
+  });
+
+  it('withholds the notice from a read-only session, which has no send control to explain', async () => {
+    mockCanMutate = false;
+    routeGet(UNCONFIGURED);
+
+    renderWithSettingsPath('/settings/servicenow-connection');
+
+    await waitFor(() => {
+      expect(screen.getByText('diag/slow-query.sh')).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId('atw-send-unavailable')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Send to support case/i })
+    ).not.toBeInTheDocument();
   });
 });
