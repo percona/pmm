@@ -30,6 +30,7 @@ import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@sep/api';
+import { ReadOnlyNotice } from '@sep/framework';
 import { CollectPane } from './CollectPane';
 import { ResultsPane } from './ResultsPane';
 import { useAtwIncident, useAtwIncidentLifecycle } from './hooks';
@@ -38,6 +39,12 @@ import { useAtwIncident, useAtwIncidentLifecycle } from './hooks';
  * Incident workspace rendered at ``/atw/:incidentId``. Two side-by-side panes —
  * Collect (browse, select, and batch-execute snippets) and Results (each
  * execution's status, logs, and file listing) — stacked on narrow screens.
+ *
+ * A read-only session gets Results alone, full width. Collect exists only to
+ * start an execution, and every unsafe ATW route requires an administrator, so
+ * leaving the pane mounted with its execute form withheld offered a snippet
+ * picker that could never run anything. Withheld rather than disabled because a
+ * role, unlike a closed incident, is not something the viewer can undo.
  */
 export function IncidentWorkspacePage() {
   const { incidentId } = useParams<{ incidentId: string }>();
@@ -135,6 +142,16 @@ export function IncidentWorkspacePage() {
         </Typography>
       )}
 
+      {!canMutate && (
+        <Box sx={{ mt: 1, mb: 2 }}>
+          <ReadOnlyNotice
+            variant="inline"
+            action="collect diagnostics for this incident"
+            testId="atw-collect-read-only"
+          />
+        </Box>
+      )}
+
       <Box
         sx={{
           mt: 1,
@@ -142,14 +159,17 @@ export function IncidentWorkspacePage() {
           gap: 2,
           gridTemplateColumns: {
             xs: 'minmax(0, 1fr)',
-            md: 'repeat(2, minmax(0, 1fr))',
+            md: canMutate ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)',
           },
           alignItems: 'start',
         }}
       >
-        <Paper variant="outlined" sx={{ p: 2 }}>
-          <CollectPane incidentId={incidentId} isClosed={isClosed} />
-        </Paper>
+        {/* PMM divergence from upstream SEP — keep on the next sync. */}
+        {canMutate && (
+          <Paper variant="outlined" sx={{ p: 2 }}>
+            <CollectPane incidentId={incidentId} isClosed={isClosed} />
+          </Paper>
+        )}
         <Paper variant="outlined" sx={{ p: 2 }}>
           <ResultsPane incidentId={incidentId} />
         </Paper>
