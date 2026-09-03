@@ -260,3 +260,43 @@ func BenchmarkResolveThresholds(b *testing.B) {
 		ResolveThresholds(overrides, testDefault, inv)
 	}
 }
+
+func TestResolvedThresholdIsOverridden(t *testing.T) {
+	t.Parallel()
+
+	// The API reports this as `is_overridden`, and the UI uses it to decide whether the
+	// reset control is live, so a default that claims to be an override would offer a
+	// reset that does nothing.
+	assert.False(t, ResolvedThreshold{Value: 80}.IsOverridden())
+	assert.True(t, ResolvedThreshold{Value: 90, Source: &AlertRuleThresholdOverride{}}.IsOverridden())
+}
+
+func TestTargetNamesSkipsTargetsOutsideInventory(t *testing.T) {
+	t.Parallel()
+
+	// The override table is polymorphic and carries no foreign key, so a row can outlive
+	// its target. Such a row must resolve to nothing rather than to an empty join-label
+	// value, which would match every series the rule produces.
+	inv := ThresholdInventory{
+		NodeNames:         map[string]string{"node-id-1": "node-1"},
+		ServiceNames:      map[string]string{"service-id-1": "service-1"},
+		ServicesByCluster: map[string][]string{"prod": {"service-1"}},
+	}
+
+	assert.Nil(t, inv.targetNames(&AlertRuleThresholdOverride{
+		Scope: ThresholdScopeService, Target: "service-id-gone",
+	}))
+	assert.Nil(t, inv.targetNames(&AlertRuleThresholdOverride{
+		Scope: ThresholdScopeNode, Target: "node-id-gone",
+	}))
+	assert.Nil(t, inv.targetNames(&AlertRuleThresholdOverride{
+		Scope: ThresholdScope("nonsense"), Target: "prod",
+	}))
+
+	assert.Equal(t, []string{"service-1"}, inv.targetNames(&AlertRuleThresholdOverride{
+		Scope: ThresholdScopeService, Target: "service-id-1",
+	}))
+	assert.Equal(t, []string{"service-1"}, inv.targetNames(&AlertRuleThresholdOverride{
+		Scope: ThresholdScopeCluster, Target: "prod",
+	}))
+}

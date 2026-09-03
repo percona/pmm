@@ -315,3 +315,139 @@ func TestBatchUpdateThresholds(t *testing.T) {
 		assert.Empty(t, overrides, "the first update must not survive the second one failing")
 	})
 }
+
+func TestThresholdScopeConversion(t *testing.T) {
+	t.Parallel()
+
+	// Service and cluster already exist in the schema, the resolver and the proto, so
+	// they report as not-yet-implemented rather than as a malformed request. Enabling
+	// them later is then a validation change rather than an API change.
+	for _, scope := range []alerting.ThresholdScope{
+		alerting.ThresholdScope_THRESHOLD_SCOPE_SERVICE,
+		alerting.ThresholdScope_THRESHOLD_SCOPE_CLUSTER,
+	} {
+		_, err := thresholdScopeFromAPI(scope)
+		require.Error(t, err, scope.String())
+		assert.Equal(t, codes.Unimplemented, status.Code(err), scope.String())
+	}
+
+	// An unset scope means node, so a client that only ever deals with nodes need not
+	// send one.
+	got, err := thresholdScopeFromAPI(alerting.ThresholdScope_THRESHOLD_SCOPE_UNSPECIFIED)
+	require.NoError(t, err)
+	assert.Equal(t, models.ThresholdScopeNode, got)
+
+	_, err = thresholdScopeFromAPI(alerting.ThresholdScope(-1))
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+
+	// The reverse mapping must cover every scope, not just the settable ones: an override
+	// stored at a scope the API cannot yet set still has to be reportable.
+	assert.Equal(t, alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, thresholdScopeToAPI(models.ThresholdScopeNode))
+	assert.Equal(t, alerting.ThresholdScope_THRESHOLD_SCOPE_SERVICE, thresholdScopeToAPI(models.ThresholdScopeService))
+	assert.Equal(t, alerting.ThresholdScope_THRESHOLD_SCOPE_CLUSTER, thresholdScopeToAPI(models.ThresholdScopeCluster))
+	assert.Equal(t, alerting.ThresholdScope_THRESHOLD_SCOPE_UNSPECIFIED, thresholdScopeToAPI(models.ThresholdScope("nonsense")))
+}
+
+func TestSortThresholds(t *testing.T) {
+	t.Parallel()
+
+	// This order is what the table renders. ListThresholds gathers a rule's parameters
+	// from a map, so without a total order the rows would reshuffle between two reads of
+	// unchanged data.
+	thresholds := []*alerting.Threshold{
+		{RuleId: "rule-b", ParamName: "threshold", Target: "node-1"},
+		{RuleId: "rule-a", ParamName: "threshold", Target: "node-2"},
+		{RuleId: "rule-a", ParamName: "threshold", Target: "node-1"},
+		{RuleId: "rule-a", ParamName: "another", Target: "node-9"},
+	}
+
+	sortThresholds(thresholds)
+
+	got := make([]string, 0, len(thresholds))
+	for _, threshold := range thresholds {
+		got = append(got, threshold.RuleId+"/"+threshold.ParamName+"/"+threshold.Target)
+	}
+
+	assert.Equal(t, []string{
+		"rule-a/another/node-9",
+		"rule-a/threshold/node-1",
+		"rule-a/threshold/node-2",
+		"rule-b/threshold/node-1",
+	}, got)
+}
+
+func TestSetThresholdRejectsValueBelowMinimum(t *testing.T) {
+	svc, _, node := setupThresholdAPI(t)
+
+	// The maximum is covered by TestSetThreshold; the minimum is the other half of the
+	// same guard, and nothing else would catch it being wrong.
+	_, err := svc.SetThreshold(t.Context(), &alerting.SetThresholdRequest{
+		Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
+		RuleId: thresholdTestRuleID, ParamName: "threshold", Value: -5,
+	})
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestSetThresholdRejectsScopeTheParameterDoesNotDeclare(t *testing.T) {
+	svc, db, node := setupThresholdAPI(t)
+
+	// A parameter carries the scopes its template declared. This rule's parameter joins
+	// on service_name, so overriding it per node would produce a threshold series the
+	// rule can never match.
+	const ruleID = "service-scoped-rule"
+
+	_, err := models.CreateAlertRule(db.Querier, &models.CreateAlertRuleParams{
+		RuleID: ruleID,
+		Params: models.AlertRuleParams{
+			"threshold": {
+				Default:   80,
+				JoinLabel: "service_name",
+				Scopes:    []string{string(models.ThresholdScopeService)},
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	_, err = svc.SetThreshold(t.Context(), &alerting.SetThresholdRequest{
+		Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
+		RuleId: ruleID, ParamName: "threshold", Value: 90,
+	})
+	require.Error(t, err)
+	assert.Equal(t, codes.InvalidArgument, status.Code(err))
+}
+
+func TestListThresholdsFiltersByRule(t *testing.T) {
+	svc, db, node := setupThresholdAPI(t)
+	ctx := t.Context()
+
+	const otherRuleID = "threshold-api-rule-2"
+
+	_, err := models.CreateAlertRule(db.Querier, &models.CreateAlertRuleParams{
+		RuleID: otherRuleID,
+		Params: models.AlertRuleParams{
+			"threshold": {
+				Default:   50,
+				JoinLabel: "node_name",
+				Scopes:    []string{string(models.ThresholdScopeNode)},
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	res, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{
+		Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
+	})
+	require.NoError(t, err)
+	require.Len(t, res.Thresholds, 2, "both registered rules apply to the target")
+
+	res, err = svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{
+		Scope: alerting.ThresholdScope_THRESHOLD_SCOPE_NODE, Target: node.NodeID,
+		RuleId: otherRuleID,
+	})
+	require.NoError(t, err)
+	require.Len(t, res.Thresholds, 1)
+	assert.Equal(t, otherRuleID, res.Thresholds[0].RuleId)
+	assert.InDelta(t, 50.0, res.Thresholds[0].DefaultValue, 0.0001)
+}
