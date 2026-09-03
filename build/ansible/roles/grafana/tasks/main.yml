@@ -48,6 +48,27 @@
     - plugins
     - dashboards
 
+# pmm-managed renders the built-in alert rules into /srv/grafana/provisioning/alerting at runtime
+# and creates that directory itself, because /srv is emptied at the end of the image build and
+# repopulated by the entrypoint. Only the link has to be baked in. A link with no target yet is
+# fine: Grafana logs that it cannot read the directory and carries on.
+# Grafana's own package ships an empty alerting/ directory here, and ansible refuses to convert a
+# directory into a symlink even with force, so it has to go first.
+- name: Remove Grafana's stock alerting provisioning directory
+  file:
+    path: /usr/share/grafana/conf/provisioning/alerting
+    state: absent
+
+- name: Link Grafana's alerting provisioning directory to /srv
+  file:
+    src: /srv/grafana/provisioning/alerting
+    dest: /usr/share/grafana/conf/provisioning/alerting
+    owner: pmm
+    group: root
+    state: link
+    force: true
+    follow: false
+
 - name: Copy change-admin-password command
   copy:
     src: change-admin-password
