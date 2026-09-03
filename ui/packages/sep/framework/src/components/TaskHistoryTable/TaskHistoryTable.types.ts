@@ -23,7 +23,7 @@ import type {
 
 export type { PaginatedTaskHistory, TaskHistoryEntry, TaskHistoryStatus };
 
-export interface TaskHistoryTableProps {
+interface TaskHistoryTableBaseProps {
   /** Optional task name to scope the listing to a single task. */
   taskName?: string;
   /** Optional explicit data — bypasses the internal React Query hook (used in stories/tests). */
@@ -40,8 +40,6 @@ export interface TaskHistoryTableProps {
   resolveUserName?: (userId: string | null | undefined) => string;
   /** Action callback: view logs for a row. */
   onViewLogs?: (entry: TaskHistoryEntry) => void;
-  /** Action callback: stop a running task. */
-  onStopTask?: (entry: TaskHistoryEntry) => void;
   /**
    * Whether a stop request is currently in flight (presentational mode only).
    * Drives the Stop button's spinner/disabled state; defaults to `false`. The
@@ -59,3 +57,40 @@ export interface TaskHistoryTableProps {
   /** Hide the Task Name column (useful when scoped to a single task). */
   hideTaskNameColumn?: boolean;
 }
+
+/**
+ * Who owns the stop mutation, and therefore who owns reporting its failure.
+ *
+ * A caller that supplies `onStopTask` owns the mutation, so it must also supply
+ * `actionError`: the stop confirmation closes as soon as it is confirmed, the
+ * request settles with the user looking at the table, and this is the only
+ * place the refusal can appear. Making it a union rather than two optional
+ * props means dropping the error is a type error rather than a silent failure.
+ *
+ * Omitting `onStopTask` selects the connected variant's internal mutation,
+ * which reports for itself and would ignore these props — so the union forbids
+ * them there rather than accepting a value that goes nowhere.
+ */
+export type TaskHistoryStopContract =
+  | {
+      onStopTask?: never;
+      actionError?: never;
+      onDismissActionError?: never;
+    }
+  | {
+      /** Action callback: stop a running task. */
+      onStopTask: (entry: TaskHistoryEntry) => void;
+      /**
+       * Failure of an action fired from this table, rendered as an alert above
+       * the rows. Pass the owning mutation's `error`; `null` when there is
+       * none.
+       */
+      actionError: unknown;
+      /** Dismiss handler for `actionError` (e.g. the mutation's `reset`). */
+      onDismissActionError?: () => void;
+    };
+
+export type TaskHistoryTableProps = TaskHistoryTableBaseProps &
+  TaskHistoryStopContract;
+
+export type { TaskHistoryTableBaseProps };
