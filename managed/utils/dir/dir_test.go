@@ -17,6 +17,7 @@ package dir
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -122,4 +123,64 @@ func TestFindFilesWithExtensions(t *testing.T) {
 			assert.Len(t, files, tc.expected)
 		})
 	}
+}
+
+func TestWriteFileAtomic(t *testing.T) {
+	t.Parallel()
+
+	t.Run("creates a new file with the requested permissions", func(t *testing.T) {
+		t.Parallel()
+
+		path := filepath.Join(t.TempDir(), "provisioning.json")
+		require.NoError(t, WriteFileAtomic(path, []byte("first"), 0o664))
+
+		content, err := os.ReadFile(path) //nolint:gosec
+		require.NoError(t, err)
+		assert.Equal(t, "first", string(content))
+
+		info, err := os.Stat(path)
+		require.NoError(t, err)
+		assert.Equal(t, os.FileMode(0o664), info.Mode().Perm())
+	})
+
+	t.Run("replaces an existing file", func(t *testing.T) {
+		t.Parallel()
+
+		path := filepath.Join(t.TempDir(), "provisioning.json")
+		require.NoError(t, WriteFileAtomic(path, []byte("first"), 0o664))
+		require.NoError(t, WriteFileAtomic(path, []byte("second"), 0o664))
+
+		content, err := os.ReadFile(path) //nolint:gosec
+		require.NoError(t, err)
+		assert.Equal(t, "second", string(content))
+	})
+
+	t.Run("leaves no temporary files behind", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		path := filepath.Join(dir, "provisioning.json")
+		require.NoError(t, WriteFileAtomic(path, []byte("content"), 0o664))
+
+		// Grafana reads every file in its provisioning directory, so a leftover temporary file
+		// would be parsed as a second provisioning file.
+		entries, err := os.ReadDir(dir)
+		require.NoError(t, err)
+		require.Len(t, entries, 1)
+		assert.Equal(t, "provisioning.json", entries[0].Name())
+	})
+
+	t.Run("leaves the previous content in place when the write fails", func(t *testing.T) {
+		t.Parallel()
+
+		dir := t.TempDir()
+		path := filepath.Join(dir, "provisioning.json")
+		require.NoError(t, WriteFileAtomic(path, []byte("good"), 0o664))
+
+		require.Error(t, WriteFileAtomic(filepath.Join(dir, "missing", "provisioning.json"), []byte("bad"), 0o664))
+
+		content, err := os.ReadFile(path) //nolint:gosec
+		require.NoError(t, err)
+		assert.Equal(t, "good", string(content))
+	})
 }

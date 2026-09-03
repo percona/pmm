@@ -41,6 +41,55 @@ func CreateDataDir(path string, perm os.FileMode) error {
 	return storedErr
 }
 
+// WriteFileAtomic writes a file so that a reader never observes a partial one: the content goes to
+// a temporary file in the same directory, which is then renamed over the destination. Needed where
+// another process may read the file at any moment, such as Grafana scanning its provisioning
+// directory while pmm-managed rewrites it.
+func WriteFileAtomic(path string, data []byte, perm os.FileMode) error {
+	dir, name := filepath.Split(path)
+	if dir == "" {
+		dir = "."
+	}
+
+	// The temporary file has to share a filesystem with the destination, otherwise the rename is
+	// not atomic and may fail outright.
+	tmp, err := os.CreateTemp(dir, "."+name+".tmp")
+	if err != nil {
+		return fmt.Errorf("cannot create a temporary file for %q: %w", path, err)
+	}
+	tmpName := tmp.Name()
+
+	defer func() {
+		// A no-op once the rename has succeeded.
+		_ = os.Remove(tmpName)
+	}()
+
+	_, err = tmp.Write(data)
+	if err != nil {
+		tmp.Close() //nolint:errcheck,gosec
+		return fmt.Errorf("cannot write %q: %w", path, err)
+	}
+
+	// CreateTemp always uses 0600, so the requested permissions have to be set explicitly.
+	err = tmp.Chmod(perm)
+	if err != nil {
+		tmp.Close() //nolint:errcheck,gosec
+		return fmt.Errorf("cannot chmod %q: %w", path, err)
+	}
+
+	err = tmp.Close()
+	if err != nil {
+		return fmt.Errorf("cannot close %q: %w", path, err)
+	}
+
+	err = os.Rename(tmpName, path)
+	if err != nil {
+		return fmt.Errorf("cannot replace %q: %w", path, err)
+	}
+
+	return nil
+}
+
 // FindFilesWithExtensions reads path directory and returns all files satisfying provided extensions.
 // File name is joined with provided path.
 func FindFilesWithExtensions(path string, extensions ...string) ([]string, error) {
