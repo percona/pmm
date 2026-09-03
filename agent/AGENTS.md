@@ -76,6 +76,7 @@ pmm-agent has **no direct database access**. All state comes from pmm-managed vi
 - Use table-driven tests with golden files for parsers
 - Use `utils/templates` to render exporter args from server-provided templates
 - Follow the supervisor pattern — let the supervisor manage all agent lifecycle
+- Check `reform.ErrNoRows` explicitly for "not found" when the QAN collectors read monitored-database system views
 
 ### Don't
 - Don't hardcode exporter binary paths — use `config.Paths`

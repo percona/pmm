@@ -63,7 +63,7 @@ Each PMM component has a dedicated guide with architecture, directory structure,
 | **API Tests** (integration tests) | [api-tests/AGENTS.md](api-tests/AGENTS.md) | `api-tests/**` |
 | **Build & Packaging** | [build/AGENTS.md](build/AGENTS.md) | `build/**` |
 
-A component guide covers only what is specific to its area. Global conventions — Go style, error handling, logging, testing, code generation — live in [Global Development Conventions](#global-development-conventions) and are deliberately **not** repeated in component guides: both files load together, so a restated rule costs context twice and creates a second place to forget to update it. When adding a rule, put it in the most specific guide that covers it, and nowhere else. The one intentional exception is [PMM-specific choices](#pmm-specific-choices-agents-often-get-wrong), a short curated list of pitfalls that repeats a handful of rules on purpose.
+A component guide covers only what is specific to its area. Global conventions — Go style, error handling, logging, testing, code generation — live in [Global Development Conventions](#global-development-conventions) and are deliberately **not** repeated in component guides: both files load together, so a restated rule costs context twice and creates a second place to forget to update it. When adding a rule, put it in the most specific guide — or guides, where a rule genuinely applies to more than one component but not to all — that covers it, and nowhere else. The one intentional exception is [PMM-specific choices](#pmm-specific-choices-agents-often-get-wrong), a short curated list of pitfalls that repeats a handful of rules on purpose.
 
 ---
 
@@ -368,7 +368,6 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Return early on errors to avoid deep nesting
 - Use `errors.Is()`, `errors.As()` or `errors.AsType()` for error inspection
 - Use standard `errors` package, not `github.com/pkg/errors` (existing uses may remain until refactored)
-- Check `reform.ErrNoRows` for "not found" scenarios wherever reform is used (pmm-managed, and pmm-agent's QAN collectors)
 - Don't interpolate strings with `%q` in error messages; use `%s`, or `'%s'` when the value can contain spaces
 
 ### Logging
