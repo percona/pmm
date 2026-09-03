@@ -210,4 +210,37 @@ describe('IncidentWorkspacePage — write access', () => {
       screen.queryByRole('button', { name: /Reopen incident/i })
     ).not.toBeInTheDocument();
   });
+
+  it('shows the Collect pane for a session that may mutate', async () => {
+    renderWorkspace();
+
+    await waitFor(() => expect(screen.getByText('Collect')).toBeTruthy());
+    expect(screen.getByText('Results')).toBeTruthy();
+    expect(
+      screen.queryByTestId('atw-collect-read-only')
+    ).not.toBeInTheDocument();
+  });
+
+  it('withholds the Collect pane from a non-admin, leaving Results', async () => {
+    mockCanMutate = false;
+    renderWorkspace();
+
+    await waitFor(() => expect(screen.getByText('Results')).toBeTruthy());
+    expect(screen.queryByText('Collect')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('combobox', { name: 'Snippets' })
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('atw-collect-read-only')).toBeTruthy();
+    expect(
+      screen.getByText(/permission to collect diagnostics for this incident/i)
+    ).toBeTruthy();
+  });
+
+  it('fetches no snippet categories for a non-admin', async () => {
+    mockCanMutate = false;
+    renderWorkspace();
+
+    await waitFor(() => expect(screen.getByText('Results')).toBeTruthy());
+    expect(mockedApi.get).not.toHaveBeenCalledWith('/apps/atw/');
+  });
 });
