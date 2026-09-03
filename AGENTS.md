@@ -339,7 +339,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 | **VictoriaMetrics** | Time-series metrics storage |
 | **VMAlert** | Alerting rules evaluation |
 | **Grafana** | Dashboards and visualization |
-| **reform** | Go ORM for PostgreSQL (used in pmm-managed only — NOT gorm) |
+| **reform** | Go ORM — NOT gorm. pmm-managed's PostgreSQL store, and pmm-agent's row mappers for monitored MySQL/PostgreSQL system views |
 | **logrus** | Structured logging |
 | **testify** | Test assertions (`assert`, `require` packages only — NOT suites) |
 | **mockery** | Mock generation for Go interfaces |
@@ -368,6 +368,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Return early on errors to avoid deep nesting
 - Use `errors.Is()`, `errors.As()` or `errors.AsType()` for error inspection
 - Use standard `errors` package, not `github.com/pkg/errors` (existing uses may remain until refactored)
+- Check `reform.ErrNoRows` for "not found" scenarios wherever reform is used (pmm-managed, and pmm-agent's QAN collectors)
 - Don't interpolate strings with `%q` in error messages; use `%s`, or `'%s'` when the value can contain spaces
 
 ### Logging

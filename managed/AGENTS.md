@@ -88,7 +88,6 @@ type Node struct {
 - Generated: `managed/models/*_reform.go` (never edit)
 - CRUD helpers: `managed/models/*_helpers.go`
 - Always accept `reform.Querier` parameter (works with both `*reform.DB` and `*reform.TX`)
-- Check `reform.ErrNoRows` explicitly for "not found"
 - Use `models.Find*()` helpers, not `q.Reload()` or `q.SelectOneFrom()` directly
 - Transactions: `db.InTransactionContext(ctx, nil, func(tx *reform.TX) error { ... })`
 - Schema migrations in `models/database.go` (`databaseSchema` map, versioned)
