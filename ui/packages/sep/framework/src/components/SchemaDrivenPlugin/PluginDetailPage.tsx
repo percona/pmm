@@ -57,7 +57,6 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import { useSnackbar } from 'notistack';
 import {
-  useAuth,
   useDeletePluginEntity,
   useDeletePluginTask,
   usePluginEntityDetail,
@@ -70,7 +69,6 @@ import {
   type SepComponents,
 } from '@sep/api';
 import { resolvePath } from '../../utils/resolvePath';
-import { ActionErrorAlert, useActionError } from '../ActionErrorAlert';
 import {
   TaskHistoryTable,
   TaskHistoryStatusBadge,
@@ -640,8 +638,6 @@ function LogsTab({ taskNames }: LogsTabProps) {
               }
             }}
             isStopping={stop.isPending}
-            actionError={stop.error}
-            onDismissActionError={stop.reset}
           />
         </Paper>
       )}
@@ -695,19 +691,13 @@ function ActionBar({
   hasStoredForm,
 }: ActionBarProps) {
   const navigate = useNavigate();
-  const { canMutate } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const deleteTask = useDeletePluginTask(pluginName);
   const executeTask = useExecuteTask(pluginName);
-  // Both actions are confirmed in a dialog that closes before the request
-  // settles, so the failure is held here and rendered on the page behind it.
-  const actionError = useActionError();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pendingExecute, setPendingExecute] =
     useState<TaskExecuteAction | null>(null);
   const [chain, setChain] = useState<ChainValue>(emptyChain);
-  /** Which execute action the current `chain` was composed for. */
-  const [chainActionKey, setChainActionKey] = useState<string | null>(null);
 
   const chainingEnabled = !!schema.capabilities?.chaining;
   const {
@@ -725,19 +715,8 @@ function ActionBar({
   );
 
   useEffect(() => {
-    // Opening a different action starts from an empty chain; reopening the same
-    // one keeps what was composed, so a refused execute can be retried without
-    // rebuilding the chain. Closing the dialog (which now happens on failure
-    // too) leaves the chain alone for that retry.
-    if (!pendingExecute) {
-      return;
-    }
-    const key = `${pendingExecute.taskName}\u0000${pendingExecute.label}`;
-    if (key !== chainActionKey) {
-      setChain(emptyChain());
-      setChainActionKey(key);
-    }
-  }, [pendingExecute, chainActionKey]);
+    setChain(emptyChain());
+  }, [pendingExecute]);
 
   const resolvedExecuteActions =
     executeActions ??
@@ -762,7 +741,6 @@ function ActionBar({
         chain_on_failure: chain.chain_on_failure,
       };
     }
-    actionError.clearError();
     try {
       const executeArgs = executeBody
         ? { taskName: pendingExecute.taskName, executeBody }
@@ -774,17 +752,18 @@ function ActionBar({
           variant: 'success',
         }
       );
-    } catch (e) {
-      actionError.reportError(e);
-    } finally {
-      // Close on confirm whatever the outcome, like the adjacent delete: a
-      // dialog left open holding a failure hides the message rendered behind it.
       setPendingExecute(null);
+    } catch (e) {
+      enqueueSnackbar(
+        e instanceof Error ? e.message : 'Failed to execute task',
+        {
+          variant: 'error',
+        }
+      );
     }
   };
 
   const handleDelete = async () => {
-    actionError.clearError();
     try {
       await deleteTask.mutateAsync(taskName);
       enqueueSnackbar(`${schema.display_name} task deleted`, {
@@ -795,7 +774,12 @@ function ActionBar({
       // sub-route via nested `<Routes>`), so use an absolute path.
       navigate(routeBase);
     } catch (e) {
-      actionError.reportError(e);
+      enqueueSnackbar(
+        e instanceof Error ? e.message : 'Failed to delete task',
+        {
+          variant: 'error',
+        }
+      );
     } finally {
       setConfirmOpen(false);
     }
@@ -803,12 +787,6 @@ function ActionBar({
 
   const editUnavailable =
     "Editing isn't available for this task — it has no saved form input.";
-
-  // Every action here is a mutation except Schedule (navigation), so a
-  // read-only session with no scheduling capability is left with no bar at all.
-  if (!canMutate && !schema.capabilities?.scheduling) {
-    return null;
-  }
 
   return (
     <>
@@ -824,67 +802,56 @@ function ActionBar({
           </Button>
         )}
 
-        {canMutate &&
-          resolvedExecuteActions.map((action) => (
-            <Button
-              key={`${action.taskName}-${action.label}`}
-              variant="outlined"
-              startIcon={<PlayArrowIcon />}
-              onClick={() => setPendingExecute(action)}
-              disabled={executeTask.isPending}
-              data-testid={action.testId ?? 'plugin-task-execute'}
-            >
-              {action.label}
-            </Button>
-          ))}
+        {resolvedExecuteActions.map((action) => (
+          <Button
+            key={`${action.taskName}-${action.label}`}
+            variant="outlined"
+            startIcon={<PlayArrowIcon />}
+            onClick={() => setPendingExecute(action)}
+            disabled={executeTask.isPending}
+            data-testid={action.testId ?? 'plugin-task-execute'}
+          >
+            {action.label}
+          </Button>
+        ))}
 
-        {canMutate &&
-          (hasStoredForm ? (
-            <Button
-              variant="outlined"
-              component={Link}
-              to={`${routeBase}/task/${encodeURIComponent(taskName)}/edit`}
-              startIcon={<EditIcon />}
-              data-testid="plugin-task-edit"
-            >
-              Edit
-            </Button>
-          ) : (
-            <Tooltip title={editUnavailable}>
-              <span>
-                <Button
-                  variant="outlined"
-                  startIcon={<EditIcon />}
-                  disabled
-                  data-testid="plugin-task-edit"
-                >
-                  Edit
-                </Button>
-              </span>
-            </Tooltip>
-          ))}
+        {hasStoredForm ? (
+          <Button
+            variant="outlined"
+            component={Link}
+            to={`${routeBase}/task/${encodeURIComponent(taskName)}/edit`}
+            startIcon={<EditIcon />}
+            data-testid="plugin-task-edit"
+          >
+            Edit
+          </Button>
+        ) : (
+          <Tooltip title={editUnavailable}>
+            <span>
+              <Button
+                variant="outlined"
+                startIcon={<EditIcon />}
+                disabled
+                data-testid="plugin-task-edit"
+              >
+                Edit
+              </Button>
+            </span>
+          </Tooltip>
+        )}
 
         <Box sx={{ flexGrow: 1 }} />
 
-        {canMutate && (
-          <Button
-            variant="outlined"
-            startIcon={<DeleteIcon />}
-            onClick={() => setConfirmOpen(true)}
-            disabled={deleteTask.isPending}
-            data-testid="plugin-task-delete"
-          >
-            Delete
-          </Button>
-        )}
+        <Button
+          variant="outlined"
+          startIcon={<DeleteIcon />}
+          onClick={() => setConfirmOpen(true)}
+          disabled={deleteTask.isPending}
+          data-testid="plugin-task-delete"
+        >
+          Delete
+        </Button>
       </Stack>
-
-      <ActionErrorAlert
-        error={actionError.error}
-        onClose={actionError.clearError}
-        sx={{ mb: 3 }}
-        testId="plugin-task-action-error"
-      />
 
       <Dialog
         open={pendingExecute !== null}
@@ -997,7 +964,6 @@ export function PluginDetailPage({
   allowListEntityDelete = false,
 }: PluginDetailPageProps) {
   const routeBase = resolvePluginRouteBase(pluginName, routeBaseProp);
-  const { canMutate } = useAuth();
   const params = useParams<Record<string, string | undefined>>();
   const id = (detailIdParam && params[detailIdParam]) ?? params.id;
   const entityName = detailEntityName ?? params.entityName;
@@ -1047,18 +1013,13 @@ export function PluginDetailPage({
   );
 
   const [entityDeleteOpen, setEntityDeleteOpen] = useState(false);
-  // The confirm dialog closes on confirm, so a refusal has to land on the
-  // detail page the user is returned to.
-  const deleteEntityError = useActionError();
 
   const confirmEntityDelete = () => {
     setEntityDeleteOpen(false);
     if (!id || !multi) {
       return;
     }
-    deleteEntityError.clearError();
     deleteEntity.mutate(id, {
-      onError: (error) => deleteEntityError.reportError(error),
       onSuccess: () =>
         customParentPath
           ? navigate(customParentPath)
@@ -1126,13 +1087,6 @@ export function PluginDetailPage({
           }
         />
 
-        <ActionErrorAlert
-          error={deleteEntityError.error}
-          onClose={deleteEntityError.clearError}
-          sx={{ mb: 2 }}
-          testId="entity-detail-action-error"
-        />
-
         {headingWhenChromeHidden ? (
           <Typography
             component="h1"
@@ -1174,7 +1128,7 @@ export function PluginDetailPage({
               // SchemaListView's status-cell fallback.
               <Chip label={task.status} size="small" />
             ) : null}
-            {multi && !browseOnly && canMutate && (
+            {multi && !browseOnly && (
               <>
                 <Button
                   component={Link}

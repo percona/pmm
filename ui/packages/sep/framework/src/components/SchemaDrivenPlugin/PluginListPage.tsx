@@ -31,14 +31,12 @@ import {
   DEFAULT_PLUGIN_LIST_LIMIT,
   DEFAULT_PLUGIN_LIST_OFFSET,
   RUNNING_STATUSES,
-  useAuth,
   useDeletePluginEntity,
   usePluginEntityList,
   usePluginTasks,
   type PluginSchema,
   type TaskHistoryStatus,
 } from '@sep/api';
-import { ActionErrorAlert, useActionError } from '../ActionErrorAlert';
 import {
   SchemaListView,
   type RenderListColumnOverride,
@@ -97,7 +95,6 @@ export function PluginListPage({
   disableTaskPolling = false,
 }: PluginListPageProps) {
   const navigate = useNavigate();
-  const { canMutate } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const [pendingDelete, setPendingDelete] = useState<{
     id: string;
@@ -175,9 +172,6 @@ export function PluginListPage({
 
   const hasActionsColumn =
     listView?.columns.some((c) => c.format === 'actions') ?? false;
-  // The confirm dialog closes on confirm, so a refusal surfaces on the list
-  // page the user is left looking at.
-  const deleteError = useActionError();
   const deleteEntity = useDeletePluginEntity(
     pluginName,
     entityName ?? '',
@@ -185,11 +179,7 @@ export function PluginListPage({
   );
 
   const onDeleteRow =
-    canMutate &&
-    allowListEntityDelete &&
-    multi &&
-    entityName &&
-    hasActionsColumn
+    allowListEntityDelete && multi && entityName && hasActionsColumn
       ? (row: Record<string, unknown>) => {
           const rid = row.id;
           if (rid === undefined || rid === null) {
@@ -212,15 +202,13 @@ export function PluginListPage({
     if (!sid) {
       return;
     }
-    deleteError.clearError();
     deleteEntity.mutate(sid, {
       onSuccess: () => {
         enqueueSnackbar(`${title} deleted`, { variant: 'success' });
       },
-      // Reported by the list's own alert rather than a toast: the confirm
-      // dialog is already closed, and the alert does not depend on the host
-      // application mounting a snackbar provider.
-      onError: (err: Error) => deleteError.reportError(err),
+      onError: (err: Error) => {
+        enqueueSnackbar(err.message || 'Delete failed', { variant: 'error' });
+      },
     });
   };
 
@@ -234,13 +222,6 @@ export function PluginListPage({
 
   return (
     <Box>
-      <ActionErrorAlert
-        error={deleteError.error}
-        onClose={deleteError.clearError}
-        sx={{ mb: 2 }}
-        testId="plugin-list-action-error"
-      />
-
       {multi && schema.entities && !hideEntityTabs && (
         <Tabs
           sx={{ mb: 2 }}
@@ -297,7 +278,7 @@ export function PluginListPage({
                 Schedules
               </Button>
             )}
-            {!hideCreate && canMutate && (
+            {!hideCreate && (
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}

@@ -312,8 +312,7 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 
 // SEP apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
 // is lifted from SEP's appNavConfig as data only — no SEP nav component is used.
-// Deliberately unconditional: reachability is not the gate, the per-control
-// mutation capability is (PMM-15358, and NavigationProvider for placement).
+// Role/flag gating arrives with real auth (Option B).
 export const addSepApps = (): NavItem[] => [
   {
     id: 'sep-atw',

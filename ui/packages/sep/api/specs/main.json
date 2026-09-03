@@ -70,7 +70,7 @@
         "type": "object"
       },
       "CasdoorUser": {
-        "description": "Represent a Casdoor user.\n\n:param id: The unique identifier of the user.\n:param email: The email address of the user.\n:param first_name: The first name of the user.\n:param last_name: The last name of the user.\n:param is_admin: Whether the user has administrative privileges. Defaults to False.\n:param created_time: The datetime when the user was created. Defaults to current\n    datetime.\n:param updated_time: The datetime when the user was last updated. Defaults to\n    current datetime.\n:param username: The user's Casdoor username.\n:param owner: The user's Casdoor organization.\n:param is_forbidden: Whether the user has the ``is_forbidden`` attribute set in\n    Casdoor. Defaults to False.\n:param is_deleted: Whether the user has the ``is_deleted`` attribute set in Casdoor.\n    Defaults to False.",
+        "description": "Represent a Casdoor user.\n\n:param id: The unique identifier of the user.\n:param email: The email address of the user.\n:param first_name: The first name of the user.\n:param last_name: The last name of the user.\n:param role: The user's access level, derived from Casdoor's admin flag when\n    the payload carries no role of its own.\n:param created_time: The datetime when the user was created. Defaults to current\n    datetime.\n:param updated_time: The datetime when the user was last updated. Defaults to\n    current datetime.\n:param username: The user's Casdoor username.\n:param owner: The user's Casdoor organization.\n:param is_forbidden: Whether the user has the ``is_forbidden`` attribute set in\n    Casdoor. Defaults to False.\n:param is_deleted: Whether the user has the ``is_deleted`` attribute set in Casdoor.\n    Defaults to False.",
         "properties": {
           "createdTime": {
             "anyOf": [
@@ -112,7 +112,8 @@
             "type": "boolean"
           },
           "isAdmin": {
-            "default": false,
+            "description": "Indicate whether the user holds administrative privileges.\n\n:return: True from ``ADMIN`` upwards, False below it.",
+            "readOnly": true,
             "title": "Isadmin",
             "type": "boolean"
           },
@@ -135,6 +136,9 @@
             "title": "Owner",
             "type": "string"
           },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
           "updatedTime": {
             "anyOf": [
               {
@@ -153,7 +157,15 @@
             "type": "string"
           }
         },
-        "required": ["id", "username", "owner", "fullName", "isActive"],
+        "required": [
+          "id",
+          "username",
+          "role",
+          "owner",
+          "fullName",
+          "isActive",
+          "isAdmin"
+        ],
         "title": "CasdoorUser",
         "type": "object"
       },
@@ -257,6 +269,12 @@
         "title": "SessionExchangeTokenResponse",
         "type": "object"
       },
+      "UserRole": {
+        "description": "Enumerate an identity's access level, lowest to highest.\n\nMembers and ordering mirror PMM's own authorization vocabulary so the two\nproducts stay semantically aligned; ``SUPER_ADMIN`` is SEP's\nprovider-neutral name for the rank PMM calls ``grafanaAdmin``.\n\nMembers compare by declared rank rather than by name: ``EDITOR < ADMIN``\neven though ``\"editor\" > \"admin\"`` lexicographically. Members are not\n``str``, so ``ADMIN == \"admin\"`` is False; the serialized value is\nunchanged at ``\"admin\"``.",
+        "enum": ["none", "viewer", "editor", "admin", "super_admin"],
+        "title": "UserRole",
+        "type": "string"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -309,7 +327,7 @@
   "info": {
     "description": "Percona Services Enablement Platform\n\nThis spec is the **core** API only (OAuth, users). Mounted services publish separate OpenAPI JSON on the same host: ``/api/inventory/openapi.json``, ``/api/tasks/openapi.json``, and ``/api/sep/openapi.json`` (the SEP web app: ``sep_app`` — shared routes, plugins, etc.; not merged into this document).",
     "title": "SEP HTTP API",
-    "version": "v1.0.0.dev0"
+    "version": "v3.10.0.dev0"
   },
   "openapi": "3.1.0",
   "paths": {

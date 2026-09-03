@@ -126,37 +126,6 @@ describe('SchemaListView — renderListColumn override', () => {
     expect(screen.getAllByLabelText('Delete').length).toBe(rows.length);
   });
 
-  it('drops the actions column entirely when no delete handler is supplied', () => {
-    // A read-only session gets no `onDeleteRow`, so the column would otherwise
-    // be a header over empty cells.
-    const actionsListView: ListView = {
-      columns: [
-        { key: 'name', label: 'Name' },
-        { key: 'actions', label: 'Actions', format: 'actions' },
-      ],
-    };
-
-    const { rerender } = render(
-      <SchemaListView listView={actionsListView} data={rows} />
-    );
-
-    expect(screen.queryByText('Actions')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Delete')).not.toBeInTheDocument();
-    // Every other column still renders.
-    expect(screen.getByText('Name')).toBeInTheDocument();
-
-    rerender(
-      <SchemaListView
-        listView={actionsListView}
-        data={rows}
-        onDeleteRow={() => {}}
-      />
-    );
-
-    expect(screen.getByText('Actions')).toBeInTheDocument();
-    expect(screen.getAllByLabelText('Delete').length).toBe(rows.length);
-  });
-
   it('renders the em dash for a row missing a declared column key', () => {
     const datedListView: ListView = {
       columns: [

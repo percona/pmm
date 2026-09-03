@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import {
   ApiError,
-  AuthContext,
   REDACTED_SECRET,
   SettingClassGroup,
   useSettingsList,
@@ -60,17 +59,11 @@ const mockList = (
   } as ReturnType<typeof useSettingsList>);
 };
 
-/**
- * Defaults to an administrator: the prompt only ever renders for one, so every
- * case below except the read-only ones is an admin case.
- */
-const renderGate = (isAdmin = true) =>
+const renderGate = () =>
   render(
-    <AuthContext.Provider value={{ isAdmin }}>
-      <ServiceNowSetupGate>
-        <div data-testid="atw-app" />
-      </ServiceNowSetupGate>
-    </AuthContext.Provider>,
+    <ServiceNowSetupGate>
+      <div data-testid="atw-app" />
+    </ServiceNowSetupGate>,
     { wrapper: TestWrapper }
   );
 
@@ -148,33 +141,5 @@ describe('ServiceNowSetupGate', () => {
 
     expect(screen.getByLabelText(Messages.loading)).toBeInTheDocument();
     expect(screen.queryByTestId('atw-app')).not.toBeInTheDocument();
-  });
-});
-
-describe('ServiceNowSetupGate — read-only sessions', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('renders the app for a non-admin and reads no settings', () => {
-    // SEP holds GET /sep/admin/settings to administrators, reads included, so
-    // the request is skipped rather than fired to be refused.
-    mockList({ data: sepGroups(['sn_api_key']) });
-    renderGate(false);
-
-    expect(screen.getByTestId('atw-app')).toBeInTheDocument();
-    expect(settingsList).toHaveBeenCalledWith({ enabled: false });
-  });
-
-  it('shows a non-admin the app rather than a prompt they cannot act on', () => {
-    // Same unconfigured deployment that prompts an admin: the prompt's only
-    // call to action is a settings tab a non-admin cannot open.
-    mockList({ data: sepGroups(['sn_token'], { sn_api_key: 'secret' }) });
-    renderGate(false);
-
-    expect(screen.getByTestId('atw-app')).toBeInTheDocument();
-    expect(
-      screen.queryByTestId('servicenow-setup-prompt')
-    ).not.toBeInTheDocument();
   });
 });

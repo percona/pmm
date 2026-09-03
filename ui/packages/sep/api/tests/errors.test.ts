@@ -16,7 +16,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { ApiError, normalizeBlobError, parseFieldErrors } from '../src/errors';
+import { ApiError, parseFieldErrors } from '../src/errors';
 
 function http422(detail: unknown): ApiError {
   return new ApiError({
@@ -103,71 +103,5 @@ describe('parseFieldErrors', () => {
     ).toEqual([]);
     expect(parseFieldErrors(null)).toEqual([]);
     expect(parseFieldErrors('boom')).toEqual([]);
-  });
-});
-
-describe('normalizeBlobError', () => {
-  function blobFailure(
-    status: number,
-    body: string,
-    type = 'application/json'
-  ): ApiError {
-    return new ApiError({
-      kind: 'http',
-      status,
-      message: `HTTP ${status}`,
-      data: new Blob([body], { type }),
-      url: '/files/7/download',
-      method: 'GET',
-    });
-  }
-
-  it("recovers a refusal's reason from a blob response body", async () => {
-    const recovered = await normalizeBlobError(
-      blobFailure(
-        403,
-        JSON.stringify({
-          detail: "You don't have permission to perform this action",
-        })
-      )
-    );
-
-    expect(recovered.message).toBe(
-      "You don't have permission to perform this action"
-    );
-    expect(recovered.status).toBe(403);
-    expect(recovered.method).toBe('GET');
-  });
-
-  it("keeps a 422's detail array reachable through parseFieldErrors", async () => {
-    const recovered = await normalizeBlobError(
-      blobFailure(
-        422,
-        JSON.stringify({
-          detail: [{ loc: ['body', 'name'], msg: 'field required' }],
-        })
-      )
-    );
-
-    expect(parseFieldErrors(recovered)).toEqual([
-      { path: 'name', message: 'field required' },
-    ]);
-  });
-
-  it('leaves the error untouched when the body is not JSON', async () => {
-    const original = blobFailure(502, '<html>Bad gateway</html>', 'text/html');
-
-    const recovered = await normalizeBlobError(original);
-
-    expect(recovered.message).toBe('HTTP 502');
-  });
-
-  it('passes through an error with no blob body', async () => {
-    const original = new ApiError({
-      kind: 'network',
-      message: 'Network error',
-    });
-
-    expect(await normalizeBlobError(original)).toBe(original);
   });
 });

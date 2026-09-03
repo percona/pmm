@@ -29,7 +29,6 @@ import {
 import LockOpenOutlinedIcon from '@mui/icons-material/LockOpenOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '@sep/api';
 import { CollectPane } from './CollectPane';
 import { ResultsPane } from './ResultsPane';
 import { useAtwIncident, useAtwIncidentLifecycle } from './hooks';
@@ -42,7 +41,6 @@ import { useAtwIncident, useAtwIncidentLifecycle } from './hooks';
 export function IncidentWorkspacePage() {
   const { incidentId } = useParams<{ incidentId: string }>();
   const navigate = useNavigate();
-  const { canMutate } = useAuth();
   const { data: incident, isLoading, error } = useAtwIncident(incidentId);
   const lifecycle = useAtwIncidentLifecycle();
   const isClosed = Boolean(incident?.closed_at);
@@ -104,7 +102,7 @@ export function IncidentWorkspacePage() {
             />
           )}
         </Stack>
-        {incident && canMutate && (
+        {incident && (
           <Stack direction="row" spacing={1}>
             {isClosed ? (
               <Button

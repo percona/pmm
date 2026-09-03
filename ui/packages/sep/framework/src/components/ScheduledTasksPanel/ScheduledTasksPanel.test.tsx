@@ -21,7 +21,7 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 
-const { apiMock, usePluginTasksMock, authMock } = vi.hoisted(() => ({
+const { apiMock, usePluginTasksMock } = vi.hoisted(() => ({
   apiMock: {
     get: vi.fn(),
     post: vi.fn(),
@@ -29,19 +29,19 @@ const { apiMock, usePluginTasksMock, authMock } = vi.hoisted(() => ({
     delete: vi.fn(),
   },
   usePluginTasksMock: vi.fn(),
-  /** Flipped per test to cover the read-only (non-admin) rendering. */
-  authMock: { canMutate: true },
 }));
 
-vi.mock('@sep/api', () => ({
+vi.mock('@sep/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@sep/api')>()),
   apiClient: apiMock,
   usePluginTasks: (...args: unknown[]) => usePluginTasksMock(...args),
-  useAuth: () => ({
-    isAdmin: authMock.canMutate,
-    canMutate: authMock.canMutate,
-  }),
 }));
+// `fetchAllPluginListPages` (used by `useScheduledTasksForPlugin`) calls the
+// package-internal `apiClient` bound in `../client`, not the barrel export
+// above, so it needs its own mock pointing at the same spy.
+vi.mock('@sep/api/src/client', () => ({ apiClient: apiMock }));
 
+import { DEFAULT_PLUGIN_LIST_LIMIT } from '@sep/api';
 import { ScheduledTasksPanel } from './ScheduledTasksPanel';
 import type { PeriodicTaskResponse } from './hooks';
 
@@ -85,7 +85,6 @@ beforeEach(() => {
   apiMock.put.mockReset();
   apiMock.delete.mockReset();
   usePluginTasksMock.mockReset();
-  authMock.canMutate = true;
 });
 
 function setup(periodic: PeriodicTaskResponse[]) {
@@ -128,6 +127,69 @@ describe('ScheduledTasksPanel', () => {
     ).not.toBeInTheDocument();
     expect(screen.getByText('every 1 hours')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
+  });
+
+  it('short-circuits the periodic fetch after one request for a bare array', async () => {
+    setup([makePeriodic({ id: 1 })]);
+    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('scheduled-task-row-1')).toBeInTheDocument();
+    });
+    expect(apiMock.get).toHaveBeenCalledTimes(1);
+    expect(apiMock.get).toHaveBeenCalledWith('/sep/periodic-tasks/', {
+      params: { offset: 0, limit: DEFAULT_PLUGIN_LIST_LIMIT },
+    });
+  });
+
+  it('walks paginated periodic envelopes before filtering to the plugin', async () => {
+    usePluginTasksMock.mockReturnValue({
+      data: { items: [{ name: 'plugin-task' }], pagination: null },
+      isLoading: false,
+      isError: false,
+    });
+    apiMock.get
+      .mockResolvedValueOnce({
+        data: {
+          items: [
+            makePeriodic({ id: 1, task: 'plugin-task', name: 'page-one' }),
+          ],
+          total: 3,
+          offset: 0,
+          limit: 1,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          items: [
+            makePeriodic({ id: 2, task: 'foreign-task', name: 'page-two' }),
+          ],
+          total: 3,
+          offset: 1,
+          limit: 1,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          items: [
+            makePeriodic({ id: 3, task: 'plugin-task', name: 'page-three' }),
+          ],
+          total: 3,
+          offset: 2,
+          limit: 1,
+        },
+      });
+
+    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('scheduled-task-row-3')).toBeInTheDocument();
+    });
+    expect(screen.getByTestId('scheduled-task-row-1')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('scheduled-task-row-2')
+    ).not.toBeInTheDocument();
+    expect(apiMock.get).toHaveBeenCalledTimes(3);
   });
 
   it('toggles enabled via PUT when the switch is clicked', async () => {
@@ -408,44 +470,5 @@ describe('ScheduledTasksPanel', () => {
     const [url, body] = apiMock.put.mock.calls[0];
     expect(url).toBe('/sep/periodic-tasks/11');
     expect(body.interval).toMatchObject({ every: 10, period: 'hours' });
-  });
-});
-
-describe('ScheduledTasksPanel — write access', () => {
-  it('renders add, edit, delete and the enable toggle for a session that may mutate', async () => {
-    setup([makePeriodic({ id: 1 })]);
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('scheduled-task-row-1')).toBeInTheDocument();
-    });
-    expect(screen.getByTestId('scheduled-tasks-add')).toBeInTheDocument();
-    expect(screen.getByTestId('scheduled-task-edit-1')).toBeInTheDocument();
-    expect(screen.getByTestId('scheduled-task-delete-1')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Enable plugin-task/i)).toBeInTheDocument();
-  });
-
-  it('renders no add, edit, delete or enable toggle for a non-admin', async () => {
-    authMock.canMutate = false;
-    setup([makePeriodic({ id: 1 })]);
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('scheduled-task-row-1')).toBeInTheDocument();
-    });
-    expect(screen.queryByTestId('scheduled-tasks-add')).not.toBeInTheDocument();
-    expect(
-      screen.queryByTestId('scheduled-task-edit-1')
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByTestId('scheduled-task-delete-1')
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByLabelText(/Enable plugin-task/i)
-    ).not.toBeInTheDocument();
-    // The schedule stays readable, enabled state included.
-    expect(
-      within(screen.getByTestId('scheduled-task-row-1')).getByText('Enabled')
-    ).toBeInTheDocument();
   });
 });

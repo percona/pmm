@@ -25,7 +25,6 @@ export { TaskFilesDialog } from './TaskFilesDialog';
 export type { TaskFilesDialogProps } from './TaskFilesDialog';
 export type {
   TaskHistoryTableProps,
-  TaskHistoryStopContract,
   TaskHistoryEntry,
   TaskHistoryStatus,
   PaginatedTaskHistory,

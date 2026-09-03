@@ -273,84 +273,78 @@ function SchemaListViewCore({
 
   const columns = useMemo<MRT_ColumnDef<Record<string, unknown>>[]>(
     () =>
-      listView.columns
-        // An `actions` column holds only the row delete control, so without a
-        // handler it would render as a header over empty cells. Drop it rather
-        // than show a dead column — this is what a read-only session sees, since
-        // the caller withholds `onDeleteRow` when the session may not mutate.
-        .filter((col) => col.format !== 'actions' || Boolean(onDeleteRow))
-        .map((col) => {
-          if (col.format === 'schedule') {
-            return {
-              id: col.key,
-              accessorKey: col.key,
-              header: col.label,
-              enableSorting: col.sortable ?? false,
-              Cell: ({ row }) => {
-                const name = row.original.name;
-                // Trim to match how the detail summary derives its lookup key
-                // (PluginDetailPage trims `task.name`), so the list cell and the
-                // summary join to the same schedule even with stray whitespace.
-                const matched =
-                  name === undefined || name === null
-                    ? undefined
-                    : scheduleByTask.get(String(name).trim());
-                return (
-                  <ScheduleCell task={matched} isLoading={scheduleLoading} />
-                );
-              },
-            };
-          }
-          if (col.format === 'actions') {
-            return {
-              id: col.key,
-              accessorKey: col.key,
-              header: col.label,
-              enableSorting: false,
-              size: 72,
-              Cell: ({ row }) => {
-                const id = row.original.id;
-                if (id === undefined || id === null || !onDeleteRow) {
-                  return null;
-                }
-                const sid = String(id);
-                return (
-                  <IconButton
-                    size="small"
-                    color="error"
-                    aria-label="Delete"
-                    disabled={deletingRowId === sid}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteRow(row.original);
-                    }}
-                  >
-                    <DeleteOutlineIcon fontSize="small" />
-                  </IconButton>
-                );
-              },
-            };
-          }
+      listView.columns.map((col) => {
+        if (col.format === 'schedule') {
           return {
+            id: col.key,
             accessorKey: col.key,
             header: col.label,
-            enableSorting: col.sortable ?? true,
-            Cell: ({ cell, row }) => {
-              const value = cell.getValue();
-              const overridden = renderListColumn?.({
-                columnKey: col.key,
-                value,
-                row: row.original,
-              });
-              // `undefined` is the "no override" sentinel (override absent, or it
-              // declined this column); `null` is honored so an override can
-              // intentionally render an empty cell.
-              return overridden === undefined
-                ? formatCellValue(value, col.format)
-                : overridden;
+            enableSorting: col.sortable ?? false,
+            Cell: ({ row }) => {
+              const name = row.original.name;
+              // Trim to match how the detail summary derives its lookup key
+              // (PluginDetailPage trims `task.name`), so the list cell and the
+              // summary join to the same schedule even with stray whitespace.
+              const matched =
+                name === undefined || name === null
+                  ? undefined
+                  : scheduleByTask.get(String(name).trim());
+              return (
+                <ScheduleCell task={matched} isLoading={scheduleLoading} />
+              );
             },
           };
-        }),
+        }
+        if (col.format === 'actions') {
+          return {
+            id: col.key,
+            accessorKey: col.key,
+            header: col.label,
+            enableSorting: false,
+            size: 72,
+            Cell: ({ row }) => {
+              const id = row.original.id;
+              if (id === undefined || id === null || !onDeleteRow) {
+                return null;
+              }
+              const sid = String(id);
+              return (
+                <IconButton
+                  size="small"
+                  color="error"
+                  aria-label="Delete"
+                  disabled={deletingRowId === sid}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteRow(row.original);
+                  }}
+                >
+                  <DeleteOutlineIcon fontSize="small" />
+                </IconButton>
+              );
+            },
+          };
+        }
+        return {
+          accessorKey: col.key,
+          header: col.label,
+          enableSorting: col.sortable ?? true,
+          Cell: ({ cell, row }) => {
+            const value = cell.getValue();
+            const overridden = renderListColumn?.({
+              columnKey: col.key,
+              value,
+              row: row.original,
+            });
+            // `undefined` is the "no override" sentinel (override absent, or it
+            // declined this column); `null` is honored so an override can
+            // intentionally render an empty cell.
+            return overridden === undefined
+              ? formatCellValue(value, col.format)
+              : overridden;
+          },
+        };
+      }),
     [
       deletingRowId,
       listView.columns,

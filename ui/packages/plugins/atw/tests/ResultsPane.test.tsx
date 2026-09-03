@@ -21,18 +21,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { ResultsPane } from '../src/ResultsPane';
 
-/** Flipped per test to cover the read-only (non-admin) rendering. */
-let mockCanMutate = true;
-
 vi.mock('@sep/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@sep/api')>()),
   apiClient: { get: vi.fn() },
-  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
 }));
-
-beforeEach(() => {
-  mockCanMutate = true;
-});
 
 // No test here mounts the log viewer: rows that stay collapsed leave it unmounted
 // (unmountOnExit), and the rows that expand report no logs. The files dialog stays
@@ -927,69 +919,5 @@ describe('ResultsPane select all on the page', () => {
     await waitFor(() => {
       expect(screen.getByText('diag/slow-query.sh')).toBeTruthy();
     });
-  });
-});
-
-describe('ResultsPane — write access', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('renders the send and re-send actions for a session that may mutate', async () => {
-    routeGet({
-      executions: {
-        items: [FINISHED_EXECUTION],
-        total: 1,
-        offset: 0,
-        limit: 20,
-      },
-      sendJobs: {
-        items: [failedJob({ error: 'upstream exploded', executions: [] })],
-        total: 1,
-        offset: 0,
-        limit: 50,
-      },
-    });
-
-    renderPane(<ResultsPane incidentId="inc-1" />);
-
-    await waitFor(() => expect(screen.getByText('Send history')).toBeTruthy());
-    expect(
-      screen.getByRole('button', { name: /Send to support case/i })
-    ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Re-send' })).toBeInTheDocument();
-  });
-
-  it('renders no send, re-send or selection controls for a non-admin', async () => {
-    mockCanMutate = false;
-    routeGet({
-      executions: {
-        items: [FINISHED_EXECUTION],
-        total: 1,
-        offset: 0,
-        limit: 20,
-      },
-      sendJobs: {
-        items: [failedJob({ error: 'upstream exploded', executions: [] })],
-        total: 1,
-        offset: 0,
-        limit: 50,
-      },
-    });
-
-    renderPane(<ResultsPane incidentId="inc-1" />);
-
-    await waitFor(() => expect(screen.getByText('Send history')).toBeTruthy());
-    expect(
-      screen.queryByRole('button', { name: /Send to support case/i })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Re-send' })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByLabelText('Select diag/slow-query.sh')
-    ).not.toBeInTheDocument();
-    // Results and their history stay readable.
-    expect(screen.getByText(/CS0042/)).toBeTruthy();
   });
 });

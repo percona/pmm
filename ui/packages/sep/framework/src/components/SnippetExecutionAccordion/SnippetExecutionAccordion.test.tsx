@@ -24,12 +24,8 @@ import { SnippetExecutionAccordion } from './SnippetExecutionAccordion';
 import { apiClient, type PluginSchema } from '@sep/api';
 import type { TaskHistoryEntry } from '../TaskHistoryTable';
 
-/** Flipped per test to cover the read-only (non-admin) rendering. */
-let mockCanMutate = true;
-
 vi.mock('@sep/api', () => ({
   apiClient: { get: vi.fn(), post: vi.fn() },
-  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
 }));
 
 vi.mock('../TaskLogViewer', () => ({
@@ -42,24 +38,15 @@ vi.mock('../TaskHistoryTable', () => ({
   TaskHistoryTable: ({
     data,
     onStopTask,
-    actionError,
   }: {
     data?: TaskHistoryEntry[];
     onStopTask?: (entry: TaskHistoryEntry) => void;
-    actionError?: unknown;
   }) => (
     <div data-testid="task-history-table" data-row-count={data?.length ?? 0}>
       {data?.[0] && onStopTask ? (
         <button type="button" onClick={() => onStopTask(data[0])}>
           Stop {String(data[0].id)}
         </button>
-      ) : null}
-      {actionError ? (
-        <div data-testid="task-history-action-error">
-          {actionError instanceof Error
-            ? actionError.message
-            : String(actionError)}
-        </div>
       ) : null}
     </div>
   ),
@@ -141,7 +128,6 @@ function renderWithProviders(ui: ReactNode) {
 describe('SnippetExecutionAccordion', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockCanMutate = true;
   });
 
   it('renders title in collapsed state without fetching schema', () => {
@@ -378,55 +364,6 @@ describe('SnippetExecutionAccordion', () => {
         String(call[0]).includes('/snippet/history')
       ).length;
     await waitFor(() => expect(historyGets()).toBeGreaterThan(1));
-    expect(
-      screen.queryByTestId('task-history-action-error')
-    ).not.toBeInTheDocument();
-  });
-
-  it("reports a failed stop above the history with the server's own reason", async () => {
-    mockedApi.get.mockImplementation((url: string) =>
-      Promise.resolve({
-        data: url.includes('/snippet/history')
-          ? {
-              items: [
-                {
-                  id: 99,
-                  status: 'running',
-                  has_logs: false,
-                  execution_request: {
-                    task: 's',
-                    target: 'h',
-                    meta: {},
-                    tracking: {},
-                  },
-                  task: { id: 1, name: 's' },
-                },
-              ],
-            }
-          : makeSchema(),
-      })
-    );
-    mockedApi.post.mockRejectedValue(
-      new Error("You don't have permission to perform this action")
-    );
-
-    renderWithProviders(
-      <SnippetExecutionAccordion
-        snippetFilename="check.sh"
-        executorHost="db1"
-        title="Check Script"
-        defaultExpanded
-        showHistory
-      />
-    );
-
-    await userEvent.click(
-      await screen.findByRole('button', { name: 'Stop 99' })
-    );
-
-    expect(
-      await screen.findByTestId('task-history-action-error')
-    ).toHaveTextContent("You don't have permission to perform this action");
   });
 
   it('does not render TaskHistoryTable when showHistory is false', async () => {
@@ -626,95 +563,5 @@ describe('SnippetExecutionAccordion', () => {
       const pre = document.querySelector('pre[data-language="bash"]');
       expect(pre?.textContent).toContain('echo hello');
     });
-  });
-});
-
-describe('SnippetExecutionAccordion — write access', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockCanMutate = true;
-  });
-
-  it('renders the execute form for a session that may mutate', async () => {
-    mockedApi.get.mockResolvedValue({ data: makeSchema() });
-
-    renderWithProviders(
-      <SnippetExecutionAccordion
-        snippetFilename="check.sh"
-        executorHost="db1"
-        defaultExpanded
-      />
-    );
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: 'Execute' })
-      ).toBeInTheDocument();
-    });
-    expect(
-      screen.queryByTestId('snippet-execute-read-only')
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders no execute form for a non-admin even when the schema is already cached', async () => {
-    // A disabled query still serves a cached entry, and this schema is held with
-    // `staleTime: Infinity` under a key that carries no identity — so an admin's
-    // fetch must not render the form for a non-admin in the same tab.
-    mockedApi.get.mockResolvedValue({ data: makeSchema() });
-    const queryClient = new QueryClient({
-      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
-    });
-    const ui = (
-      <SnippetExecutionAccordion
-        snippetFilename="check.sh"
-        executorHost="db1"
-        defaultExpanded
-      />
-    );
-
-    // Admin populates the cache.
-    const { unmount } = render(
-      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
-    );
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: 'Execute' })
-      ).toBeInTheDocument();
-    });
-    unmount();
-
-    // Same QueryClient, now a read-only session.
-    mockCanMutate = false;
-    render(
-      <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
-    );
-
-    expect(screen.getByTestId('snippet-execute-read-only')).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Execute' })
-    ).not.toBeInTheDocument();
-  });
-
-  it('renders no execute form for a non-admin and fetches no schema', async () => {
-    mockCanMutate = false;
-    mockedApi.get.mockResolvedValue({ data: makeSchema() });
-
-    renderWithProviders(
-      <SnippetExecutionAccordion
-        snippetFilename="check.sh"
-        executorHost="db1"
-        defaultExpanded
-      />
-    );
-
-    await waitFor(() => {
-      expect(
-        screen.getByTestId('snippet-execute-read-only')
-      ).toBeInTheDocument();
-    });
-    expect(
-      screen.queryByRole('button', { name: 'Execute' })
-    ).not.toBeInTheDocument();
-    expect(mockedApi.get).not.toHaveBeenCalled();
   });
 });

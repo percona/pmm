@@ -6,7 +6,6 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { Link as RouterLink } from 'react-router-dom';
-import { useAuth } from '@sep/api';
 import {
   PERCONA_SUPPORT_URL,
   PMM_SERVICENOW_SETTINGS_PATH,
@@ -90,26 +89,12 @@ const SetupPrompt: FC = () => (
  * one. A SEP build whose settings carry no `DIAGNOSTICS_DELIVERY_INPUTS` key at
  * all is the same case for a different reason — the prompt would send the
  * operator to a settings tab that can only answer that it is unavailable, so
- * the prompt is worse than useless there.
- *
- * A non-admin never reaches any of that. SEP holds `GET /sep/admin/settings` to
- * administrators, reads included, so the read is skipped rather than fired to
- * be refused, and the app renders. The prompt would be a dead end for them in
- * any case: its only call to action is a settings tab they cannot open. `drifted` does gate — SEP holds
+ * the prompt is worse than useless there. `drifted` does gate — SEP holds
  * values the current delivery plan no longer accepts, so delivery is as broken
  * as if nothing were stored.
  */
 export const ServiceNowSetupGate: FC<PropsWithChildren> = ({ children }) => {
-  const { isAdmin } = useAuth();
-  const { status, stored, isLoading, error } = useServiceNowConnection({
-    enabled: isAdmin,
-  });
-
-  // Ahead of the loading branch: the read is disabled for a non-admin, so there
-  // is nothing to wait for and a spinner would never resolve.
-  if (!isAdmin) {
-    return <>{children}</>;
-  }
+  const { status, stored, isLoading, error } = useServiceNowConnection();
 
   if (isLoading) {
     return (

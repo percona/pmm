@@ -36,7 +36,6 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import SendIcon from '@mui/icons-material/Send';
-import { useAuth } from '@sep/api';
 import {
   TaskFilesDialog,
   TaskHistoryStatusBadge,
@@ -104,7 +103,6 @@ function isSelectable(execution: AtwIncidentExecution): boolean {
  * chosen on an earlier page.
  */
 export function ResultsPane({ incidentId }: ResultsPaneProps) {
-  const { canMutate } = useAuth();
   const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
   const { data, isLoading, error } = useAtwIncidentExecutions(incidentId, page);
   const { data: incident } = useAtwIncident(incidentId);
@@ -278,8 +276,7 @@ export function ResultsPane({ incidentId }: ResultsPaneProps) {
         </Alert>
       )}
 
-      {/* Selection exists only to feed the send action, so both go together. */}
-      {rows && rows.length > 0 && canMutate && (
+      {rows && rows.length > 0 && (
         <Stack
           direction="row"
           spacing={2}
@@ -402,7 +399,6 @@ function SendHistory({
   onResend: (context: ResendContext) => void;
   disabledReasons: string[];
 }) {
-  const { canMutate } = useAuth();
   const resendDisabled = disabledReasons.length > 0;
   const resendTooltip = disabledReasons.join('; ');
 
@@ -445,7 +441,7 @@ function SendHistory({
                   ? ` · ${new Date(job.finished_at).toLocaleString()}`
                   : ''}
               </Typography>
-              {job.status === 'failed' && canMutate && (
+              {job.status === 'failed' && (
                 <Tooltip title={resendTooltip}>
                   <span>
                     <Button
@@ -500,7 +496,6 @@ function ExecutionRow({
   onToggleSelected: () => void;
   onOpenFiles: () => void;
 }) {
-  const { canMutate } = useAuth();
   const {
     snippet_filename,
     task_status,
@@ -527,23 +522,20 @@ function ExecutionRow({
           alignItems="center"
           sx={{ width: '100%', pr: 1, flexWrap: 'wrap' }}
         >
-          {/* Selection exists only to feed the send action, so both go together. */}
-          {canMutate && (
-            <Tooltip
-              title={selectable ? '' : 'Only finished executions can be sent.'}
-            >
-              <span>
-                <Checkbox
-                  size="small"
-                  checked={selected}
-                  disabled={!selectable}
-                  onChange={onToggleSelected}
-                  onClick={(event) => event.stopPropagation()}
-                  inputProps={{ 'aria-label': `Select ${snippet_filename}` }}
-                />
-              </span>
-            </Tooltip>
-          )}
+          <Tooltip
+            title={selectable ? '' : 'Only finished executions can be sent.'}
+          >
+            <span>
+              <Checkbox
+                size="small"
+                checked={selected}
+                disabled={!selectable}
+                onChange={onToggleSelected}
+                onClick={(event) => event.stopPropagation()}
+                inputProps={{ 'aria-label': `Select ${snippet_filename}` }}
+              />
+            </span>
+          </Tooltip>
           <Box sx={{ flexGrow: 1, minWidth: 0 }}>
             <Typography variant="subtitle2" sx={{ wordBreak: 'break-all' }}>
               {snippet_filename}

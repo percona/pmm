@@ -32,14 +32,12 @@ import Skeleton from '@mui/material/Skeleton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSnackbar } from 'notistack';
 import {
-  useAuth,
   usePluginSchema,
   usePluginEntityDetail,
   useUpdatePluginEntity,
   type PluginEntitySchema,
   type PluginSchema,
 } from '@sep/api';
-import { ReadOnlyNotice } from '../ReadOnlyNotice';
 import {
   SchemaFormRenderer,
   coerceFormValues,
@@ -143,7 +141,6 @@ function PluginEditPage({
   renderEditForm?: RenderFormSlot;
 }) {
   const navigate = useNavigate();
-  const { canMutate } = useAuth();
   const { entityName, id } = useParams<{ entityName?: string; id: string }>();
   const entitySchema = useMemo(
     () =>
@@ -194,41 +191,16 @@ function PluginEditPage({
           navigate('..', { relative: 'path' });
         },
         onError: (error: unknown) => {
-          // Reported by the form's own persistent banner (plus inline per-field
-          // errors for a 422) and by nothing else: one signal per failure, and
-          // one that does not depend on a host-provided snackbar.
-          setSubmitErrorState(
-            mapSubmitError(error, sections, 'Failed to update')
-          );
+          const message =
+            error instanceof Error ? error.message : 'Failed to update';
+          // Transient toast is unchanged; 422s additionally map to a persistent
+          // banner plus inline per-field errors.
+          enqueueSnackbar(message, { variant: 'error' });
+          setSubmitErrorState(mapSubmitError(error, sections, message));
         },
       }
     );
   };
-
-  // Editing is a mutation, so the whole page is the control (see
-  // PluginCreatePage), and the back chrome stays so a URL arrival is not a
-  // dead end.
-  if (!canMutate) {
-    return (
-      <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-          <IconButton
-            onClick={() => navigate('..', { relative: 'path' })}
-            aria-label={`Back to ${title}`}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h4">
-            {title} #{id}
-          </Typography>
-        </Box>
-        <ReadOnlyNotice
-          action={`edit ${title}`}
-          testId="plugin-entity-edit-read-only"
-        />
-      </Box>
-    );
-  }
 
   if (!multi || !entitySchema) {
     return (

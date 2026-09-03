@@ -24,12 +24,10 @@ import Typography from '@mui/material/Typography';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSnackbar } from 'notistack';
 import {
-  useAuth,
   usePluginTask,
   useUpdatePluginTask,
   type PluginSchema,
 } from '@sep/api';
-import { ReadOnlyNotice } from '../ReadOnlyNotice';
 import {
   SchemaFormRenderer,
   coerceFormValues,
@@ -125,7 +123,6 @@ export function PluginTaskEditPage({
   renderEditForm?: RenderFormSlot;
 }) {
   const navigate = useNavigate();
-  const { canMutate } = useAuth();
   const { id } = useParams<{ id: string }>();
   const { enqueueSnackbar } = useSnackbar();
   const updateTask = useUpdatePluginTask(pluginName, mockTasks);
@@ -183,41 +180,16 @@ export function PluginTaskEditPage({
           navigate('..', { relative: 'path' });
         },
         onError: (error: unknown) => {
-          // Reported by the form's own persistent banner (plus inline per-field
-          // errors for a 422) and by nothing else: one signal per failure, and
-          // one that does not depend on a host-provided snackbar.
-          setSubmitErrorState(
-            mapSubmitError(error, editableSections, 'Failed to update')
-          );
+          const message =
+            error instanceof Error ? error.message : 'Failed to update';
+          // Transient toast is unchanged; 422s additionally map to a persistent
+          // banner plus inline per-field errors.
+          enqueueSnackbar(message, { variant: 'error' });
+          setSubmitErrorState(mapSubmitError(error, editableSections, message));
         },
       }
     );
   };
-
-  // Editing is a mutation, so the whole page is the control (see
-  // PluginCreatePage), and the back chrome stays so a URL arrival is not a
-  // dead end.
-  if (!canMutate) {
-    return (
-      <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-          <IconButton
-            onClick={() => navigate('..', { relative: 'path' })}
-            aria-label={`Back to ${schema.display_name}`}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h4">
-            {schema.display_name}: {id}
-          </Typography>
-        </Box>
-        <ReadOnlyNotice
-          action={`edit ${schema.display_name} tasks`}
-          testId="plugin-task-edit-read-only"
-        />
-      </Box>
-    );
-  }
 
   if (isLoading) {
     return (

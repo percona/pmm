@@ -23,12 +23,10 @@ import IconButton from '@mui/material/IconButton';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSnackbar } from 'notistack';
 import {
-  useAuth,
   useCreatePluginEntity,
   useCreatePluginTask,
   type PluginSchema,
 } from '@sep/api';
-import { ReadOnlyNotice } from '../ReadOnlyNotice';
 import {
   SchemaFormRenderer,
   coerceFormValues,
@@ -62,7 +60,6 @@ export function PluginCreatePage({
   renderCreateForm,
 }: PluginCreatePageProps) {
   const navigate = useNavigate();
-  const { canMutate } = useAuth();
   const { entityName } = useParams<{ entityName?: string }>();
   const entitySchema = useMemo(
     () => schema.entities?.find((e) => e.name === entityName),
@@ -114,39 +111,15 @@ export function PluginCreatePage({
         navigate('..', { relative: 'path' });
       },
       onError: (error: unknown) => {
-        // Reported by the form's own persistent banner (plus inline per-field
-        // errors for a 422) and by nothing else: one signal per failure, and one
-        // that does not depend on the host mounting a snackbar provider.
-        setSubmitErrorState(
-          mapSubmitError(error, sections, 'Failed to create')
-        );
+        const message =
+          error instanceof Error ? error.message : 'Failed to create';
+        // Transient toast is unchanged; 422s additionally map to a persistent
+        // banner plus inline per-field errors.
+        enqueueSnackbar(message, { variant: 'error' });
+        setSubmitErrorState(mapSubmitError(error, sections, message));
       },
     });
   };
-
-  // Creating is a mutation, so the whole page is the control: a read-only
-  // session gets the guard state instead of a form that would answer 403. The
-  // back chrome stays — nothing links here for such a session, so anyone who
-  // arrives did so by URL and needs a way out.
-  if (!canMutate) {
-    return (
-      <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-          <IconButton
-            onClick={() => navigate('..', { relative: 'path' })}
-            aria-label={`Back to ${title}`}
-          >
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="h4">New {title}</Typography>
-        </Box>
-        <ReadOnlyNotice
-          action={`create ${title}`}
-          testId="plugin-create-read-only"
-        />
-      </Box>
-    );
-  }
 
   return (
     <Box>
@@ -163,8 +136,6 @@ export function PluginCreatePage({
         loading: create.isPending,
         capabilities,
         renderField,
-        submitError,
-        fieldErrors,
       }) ?? (
         <SchemaFormRenderer
           sections={sections}

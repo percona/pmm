@@ -21,7 +21,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
-import { ApiError, type PluginSchema } from '@sep/api';
+import type { PluginSchema } from '@sep/api';
 import {
   PluginDetailPage,
   resolveTabFromSplat,
@@ -29,7 +29,6 @@ import {
 } from './PluginDetailPage';
 
 const mockDeleteMutate = vi.fn();
-const mockDeleteEntityMutate = vi.fn();
 const mockExecuteMutate = vi.fn();
 const mockUsePluginTask = vi.fn();
 const mockUsePluginEntityDetail = vi.fn();
@@ -59,12 +58,8 @@ function defaultPluginTasksResult(items: { name: string }[] = []) {
   };
 }
 
-/** Flipped per test to cover the read-only (non-admin) rendering. */
-let mockCanMutate = true;
-
 // Manual factory keeps axios out of the resolution graph.
 vi.mock('@sep/api', () => ({
-  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
   usePluginTask: (...args: unknown[]) => mockUsePluginTask(...args),
   // Consumed by ScheduleSummary (via useScheduledTasksForPlugin) and by
   // ActionBar when capabilities.chaining is set. Default empty list keeps the
@@ -74,11 +69,7 @@ vi.mock('@sep/api', () => ({
     mutateAsync: mockDeleteMutate,
     isPending: false,
   }),
-  useDeletePluginEntity: () => ({
-    mutate: mockDeleteEntityMutate,
-    mutateAsync: vi.fn(),
-    isPending: false,
-  }),
+  useDeletePluginEntity: () => ({ mutateAsync: vi.fn(), isPending: false }),
   usePluginEntityDetail: (...args: unknown[]) =>
     mockUsePluginEntityDetail(...args),
   // Needed by useTaskLogs / useExecutionEvents in the component tree
@@ -90,23 +81,16 @@ vi.mock('@sep/api', () => ({
   setTokenProvider: vi.fn(),
   ApiError: class ApiError extends Error {
     status?: number;
-    data?: unknown;
-    constructor(details: { status?: number; message: string; data?: unknown }) {
+    constructor(details: { status?: number; message: string }) {
       super(details.message);
       this.status = details.status;
-      this.data = details.data;
     }
   },
-  // Used by the shared failure-reporting primitive to read a 422's per-field
-  // detail array; the flows exercised here never send one.
-  parseFieldErrors: () => [],
 }));
 
 beforeEach(() => {
-  mockDeleteEntityMutate.mockReset();
   usePluginTasksMock.mockReset();
   usePluginTasksMock.mockReturnValue(defaultPluginTasksResult());
-  mockCanMutate = true;
 });
 
 vi.mock('../../hooks', () => ({
@@ -124,12 +108,7 @@ vi.mock('../../hooks', () => ({
     mutateAsync: mockExecuteMutate,
     isPending: false,
   }),
-  useStopTaskHistory: () => ({
-    mutate: stopMutate,
-    isPending: false,
-    error: null,
-    reset: vi.fn(),
-  }),
+  useStopTaskHistory: () => ({ mutate: stopMutate, isPending: false }),
 }));
 
 // Execution History tab renders the real TaskHistoryTable; stub it to capture
@@ -477,7 +456,7 @@ describe('PluginDetailPage execute flow', () => {
     );
   });
 
-  it('closes the dialog and reports the failure on the page behind it', async () => {
+  it('shows error snackbar and keeps dialog open on execute failure', async () => {
     mockExecuteMutate.mockReset();
     mockExecuteMutate.mockRejectedValue(new Error('Execute failed'));
     mockUsePluginTask.mockReturnValue({
@@ -495,42 +474,9 @@ describe('PluginDetailPage execute flow', () => {
     );
 
     await waitFor(() =>
-      expect(screen.getByTestId('plugin-task-action-error')).toHaveTextContent(
-        'Execute failed'
-      )
+      expect(screen.getByText('Execute failed')).toBeInTheDocument()
     );
-    await waitFor(() =>
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    );
-  });
-
-  it("reports a refusal with the server's own reason", async () => {
-    mockExecuteMutate.mockReset();
-    mockExecuteMutate.mockRejectedValue(
-      new ApiError({
-        kind: 'http',
-        status: 403,
-        message: "You don't have permission to perform this action",
-      })
-    );
-    mockUsePluginTask.mockReturnValue({
-      data: { id: 1, name: 'FECHK', status: 'completed' },
-      isLoading: false,
-    });
-
-    renderAt('/apps/checksums/task/FECHK');
-
-    await userEvent.click(screen.getByTestId('plugin-task-execute'));
-    const dialog = await screen.findByRole('dialog');
-    await userEvent.click(
-      within(dialog).getByTestId('plugin-task-execute-confirm')
-    );
-
-    await waitFor(() =>
-      expect(screen.getByTestId('plugin-task-action-error')).toHaveTextContent(
-        "You don't have permission to perform this action"
-      )
-    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
   it('closes dialog without calling execute when cancelled', async () => {
@@ -1061,7 +1007,7 @@ describe('PluginDetailPage — execute chain composition', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('closes the dialog and reports the failure when a chained execute fails', async () => {
+  it('keeps dialog open with composed chain when execute fails', async () => {
     const user = userEvent.setup();
     mockExecuteMutate.mockRejectedValue(new Error('Chain contains a cycle'));
     renderWithSchema(makeSchema({ chaining: true }));
@@ -1069,23 +1015,11 @@ describe('PluginDetailPage — execute chain composition', () => {
     const dialog = await screen.findByRole('dialog');
     await addTaskToChain(dialog, 'other-task');
     await user.click(within(dialog).getByTestId('plugin-task-execute-confirm'));
-
-    await waitFor(() =>
-      expect(screen.getByTestId('plugin-task-action-error')).toHaveTextContent(
-        /Chain contains a cycle/
-      )
-    );
-    await waitFor(() =>
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    );
-
-    // Reopening the same action keeps the composed chain, so the retry does not
-    // start from an empty builder.
-    await user.click(screen.getByTestId('plugin-task-execute'));
-    const reopened = await screen.findByRole('dialog');
-    expect(within(reopened).getByTestId('chain-sequence')).toHaveTextContent(
-      'other-task'
-    );
+    await screen.findByText(/Chain contains a cycle/);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('dialog')).getByTestId('chain-sequence')
+    ).toHaveTextContent('other-task');
   });
 });
 
@@ -1636,259 +1570,5 @@ describe('PluginDetailPage delete flow', () => {
     await waitFor(() =>
       expect(screen.getByText('list page')).toBeInTheDocument()
     );
-    expect(
-      screen.queryByTestId('plugin-task-action-error')
-    ).not.toBeInTheDocument();
-  });
-
-  it("closes the dialog and reports a refused delete with the server's own reason", async () => {
-    mockDeleteMutate.mockReset();
-    mockDeleteMutate.mockRejectedValue(
-      new ApiError({
-        kind: 'http',
-        status: 403,
-        message: "You don't have permission to perform this action",
-      })
-    );
-    mockUsePluginTask.mockReturnValue({
-      data: { id: 1, name: 'check1', status: 'completed' },
-      isLoading: false,
-    });
-
-    renderAt('/apps/checksums/task/check1');
-
-    await userEvent.click(screen.getByTestId('plugin-task-delete'));
-    const dialog = await screen.findByRole('dialog');
-    await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Delete' })
-    );
-
-    expect(
-      await screen.findByTestId('plugin-task-action-error')
-    ).toHaveTextContent("You don't have permission to perform this action");
-    await waitFor(() =>
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    );
-    // The alert replaces the previous error toast rather than joining it.
-    expect(document.querySelector('[class*="notistack"]')).toBeNull();
-  });
-});
-
-describe('PluginDetailPage entity delete flow', () => {
-  const entitySchema = {
-    pluginName: 'inventory',
-    display_name: 'Inventory',
-    description: 'Test',
-    capabilities: {},
-    entities: [
-      {
-        name: 'nodes',
-        display_name: 'Nodes',
-        forms: [],
-        list_view: { columns: [{ key: 'name', label: 'Name' }] },
-      },
-    ],
-  } as unknown as PluginSchema;
-
-  function renderEntityDetail() {
-    mockUsePluginEntityDetail.mockReturnValue({
-      data: { id: 5, name: 'node-a' },
-      isLoading: false,
-    });
-    return render(
-      <QueryClientProvider client={new QueryClient()}>
-        <SnackbarProvider>
-          <MemoryRouter initialEntries={['/apps/inventory/nodes/5']}>
-            <Routes>
-              <Route
-                path="/apps/inventory/:entityName/:id"
-                element={
-                  <PluginDetailPage
-                    schema={entitySchema}
-                    pluginName="inventory"
-                  />
-                }
-              />
-              <Route
-                path="/apps/inventory/:entityName"
-                element={<div>list page</div>}
-              />
-            </Routes>
-          </MemoryRouter>
-        </SnackbarProvider>
-      </QueryClientProvider>
-    );
-  }
-
-  async function confirmEntityDelete() {
-    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
-    const dialog = await screen.findByRole('dialog');
-    await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Delete' })
-    );
-  }
-
-  it("reports a refused delete on the detail page with the server's own reason", async () => {
-    mockDeleteEntityMutate.mockImplementation((_id, opts) =>
-      opts.onError?.(
-        new ApiError({
-          kind: 'http',
-          status: 403,
-          message: "You don't have permission to perform this action",
-        })
-      )
-    );
-
-    renderEntityDetail();
-    await confirmEntityDelete();
-
-    expect(
-      await screen.findByTestId('entity-detail-action-error')
-    ).toHaveTextContent("You don't have permission to perform this action");
-  });
-
-  it('reports nothing when the delete succeeds', async () => {
-    mockDeleteEntityMutate.mockImplementation((_id, opts) =>
-      opts.onSuccess?.()
-    );
-
-    renderEntityDetail();
-    await confirmEntityDelete();
-
-    await waitFor(() =>
-      expect(mockDeleteEntityMutate).toHaveBeenCalledTimes(1)
-    );
-    expect(
-      screen.queryByTestId('entity-detail-action-error')
-    ).not.toBeInTheDocument();
-  });
-});
-
-describe('PluginDetailPage — write access', () => {
-  const taskSchema: PluginSchema = {
-    pluginName: 'checksums',
-    display_name: 'Checksum',
-    description: 'Test',
-    capabilities: { scheduling: true },
-    list_view: {
-      columns: [
-        { key: 'name', label: 'Name' },
-        { key: 'status', label: 'Status', format: 'status' },
-      ],
-      default_sort: '-id',
-    },
-    forms: [],
-  } as unknown as PluginSchema;
-
-  const entitySchema = {
-    pluginName: 'inventory',
-    display_name: 'Inventory',
-    description: 'Test',
-    capabilities: {},
-    entities: [
-      {
-        name: 'services',
-        display_name: 'Services',
-        forms: [],
-        list_view: {
-          columns: [{ key: 'name', label: 'Name' }],
-          default_sort: '-name',
-        },
-      },
-    ],
-    list_view: {
-      columns: [{ key: 'name', label: 'Name' }],
-      default_sort: '-name',
-    },
-    forms: [],
-  } as unknown as PluginSchema;
-
-  function renderEntityDetail() {
-    mockUsePluginEntityDetail.mockReturnValue({
-      data: { id: 1, name: 'mysql-01' },
-      isLoading: false,
-      error: null,
-    });
-    return render(
-      <QueryClientProvider client={makeClient()}>
-        <SnackbarProvider>
-          <MemoryRouter initialEntries={['/apps/inventory/services/1']}>
-            <Routes>
-              <Route
-                path="/apps/:plugin/:entityName/:id/*"
-                element={
-                  <PluginDetailPage
-                    schema={entitySchema}
-                    pluginName="inventory"
-                  />
-                }
-              />
-            </Routes>
-          </MemoryRouter>
-        </SnackbarProvider>
-      </QueryClientProvider>
-    );
-  }
-
-  it('renders execute, edit and delete for a session that may mutate', () => {
-    mockUsePluginTask.mockReturnValue({
-      data: {
-        id: 1,
-        name: 'FECHK',
-        status: 'success',
-        data: { _form: { task_name: 'FECHK' } },
-      },
-      isLoading: false,
-      error: null,
-    });
-
-    renderWithSchema(taskSchema);
-
-    expect(screen.getByTestId('plugin-task-execute')).toBeInTheDocument();
-    expect(screen.getByTestId('plugin-task-edit')).toBeInTheDocument();
-    expect(screen.getByTestId('plugin-task-delete')).toBeInTheDocument();
-  });
-
-  it('renders no execute, edit or delete for a non-admin, keeping the schedule link', () => {
-    mockCanMutate = false;
-    mockUsePluginTask.mockReturnValue({
-      data: {
-        id: 1,
-        name: 'FECHK',
-        status: 'success',
-        data: { _form: { task_name: 'FECHK' } },
-      },
-      isLoading: false,
-      error: null,
-    });
-
-    renderWithSchema(taskSchema);
-
-    expect(screen.queryByTestId('plugin-task-execute')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('plugin-task-edit')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('plugin-task-delete')).not.toBeInTheDocument();
-    // Navigation-only affordance is untouched.
-    expect(screen.getByTestId('plugin-task-schedule')).toBeInTheDocument();
-  });
-
-  it('renders entity edit and delete for a session that may mutate', () => {
-    renderEntityDetail();
-
-    expect(screen.getByRole('link', { name: 'Edit' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
-  });
-
-  it('renders no entity edit or delete for a non-admin', () => {
-    mockCanMutate = false;
-    renderEntityDetail();
-
-    expect(
-      screen.queryByRole('link', { name: 'Edit' })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Delete' })
-    ).not.toBeInTheDocument();
-    // The record itself still renders.
-    expect(screen.getByText('mysql-01')).toBeInTheDocument();
   });
 });

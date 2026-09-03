@@ -27,11 +27,6 @@ vi.mock('@sep/api', () => ({
     get: vi.fn(),
   },
   SEP_BASE_PATH: '/sep',
-  // Stands in for the real recovery, which pulls axios into the graph this
-  // manual factory exists to keep out. Every error here is a plain `Error` with
-  // no blob body, which is exactly the case the real one passes through
-  // untouched; the parsing path is covered in useTaskFileDownload.test.tsx.
-  normalizeBlobError: async (error: unknown) => error,
 }));
 
 import { apiClient } from '@sep/api';

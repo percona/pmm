@@ -22,18 +22,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { IncidentWorkspacePage } from '../src/IncidentWorkspacePage';
 
-/** Flipped per test to cover the read-only (non-admin) rendering. */
-let mockCanMutate = true;
-
 vi.mock('@sep/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@sep/api')>()),
   apiClient: { get: vi.fn(), post: vi.fn() },
-  useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
 }));
-
-beforeEach(() => {
-  mockCanMutate = true;
-});
 
 import { apiClient } from '@sep/api';
 const mockedApi = apiClient as unknown as {
@@ -165,49 +157,5 @@ describe('IncidentWorkspacePage', () => {
     await waitFor(() => {
       expect(screen.getByText('Incident is already closed.')).toBeTruthy();
     });
-  });
-});
-
-describe('IncidentWorkspacePage — write access', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockedApi.get.mockImplementation(async (url: string) => {
-      if (url.includes('/executions/')) {
-        return { data: { items: [], total: 0, offset: 0, limit: 20 } };
-      }
-      if (url.includes('/send-jobs/')) {
-        return { data: { items: [], total: 0, offset: 0, limit: 20 } };
-      }
-      if (url.includes('/config/')) {
-        return { data: { send_disabled_reasons: [] } };
-      }
-      if (url === '/apps/atw/') {
-        return { data: [] };
-      }
-      return { data: openIncident };
-    });
-  });
-
-  it('shows the close action for a session that may mutate', async () => {
-    renderWorkspace();
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole('button', { name: /Close incident/i })
-      ).toBeTruthy();
-    });
-  });
-
-  it('shows no close action for a non-admin, keeping the incident readable', async () => {
-    mockCanMutate = false;
-    renderWorkspace();
-
-    await waitFor(() => expect(screen.getByText('DB slowness')).toBeTruthy());
-    expect(
-      screen.queryByRole('button', { name: /Close incident/i })
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: /Reopen incident/i })
-    ).not.toBeInTheDocument();
   });
 });
