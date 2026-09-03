@@ -8,9 +8,11 @@ Some tools also use a thin pointer file that simply routes them here — these a
 
 | Tool | Pointer file (→ reads `AGENTS.md`) |
 |------|------|
-| Claude Code | [CLAUDE.md](CLAUDE.md) |
+| Claude Code | [CLAUDE.md](CLAUDE.md), plus one per component guide |
 | Gemini CLI | [GEMINI.md](GEMINI.md) |
 | GitHub Copilot | [.github/copilot-instructions.md](.github/copilot-instructions.md) |
+
+Claude Code reads `CLAUDE.md` and not `AGENTS.md`, so every directory holding a component guide also carries a `CLAUDE.md` whose only instruction is `@AGENTS.md`. Claude Code loads a nested `CLAUDE.md` on demand — when it first reads a file in that directory — so the component guide enters context automatically for whichever component is being worked on, without the root file pulling in all of them. Keep these pointers to the import alone; guidance belongs in `AGENTS.md`.
 
 Any other agent can read `AGENTS.md` directly — Cursor, for example, loads root and nested `AGENTS.md` files natively, so no Cursor-specific rule is needed. Personal AI-tool files (`.claude/`, `.cursor/`) are gitignored for local experimentation, except `.claude/settings.json` (committed team config).
 
@@ -21,7 +23,7 @@ If an `AGENTS.local.md` (repo root) or `~/AGENTS.local.md` (home) is present, re
 **You are responsible for keeping this file accurate.** After completing work, check whether any of these apply:
 
 - Added, removed, or renamed a top-level directory or component
-- Added or removed a per-component `AGENTS.md`
+- Added or removed a per-component `AGENTS.md` (add or remove its `CLAUDE.md` pointer to match)
 - Changed the tech stack (new dependency in `go.mod`, new tool, removed technology)
 - Changed build targets in `Makefile` / `Makefile.include`
 - Changed global conventions (code style, error handling, testing patterns)
