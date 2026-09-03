@@ -1,0 +1,366 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "PMM Managed",
+      "folder": "PMM High Availability",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "pmm-ha-no-leader",
+          "title": "PMM HA cluster has no active leader",
+          "condition": "A",
+          "for": "3m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "critical",
+            "template_name": "pmm_ha_no_leader"
+          },
+          "annotations": {
+            "description": "No node in the PMM High Availability cluster currently holds the Raft leader lease.\nLeader-only background work such as advisor checks, backups, telemetry and scheduled tasks is not running.\n\nRemediation steps:\n  1. Check that a majority of PMM Server nodes are running and reachable.\n  2. Check network connectivity between nodes on the configured Raft and gossip ports (PMM_HA_RAFT_PORT and PMM_HA_GOSSIP_PORT).\n  3. Inspect the pmm-managed logs on each node for repeated election attempts or 'no known peers' messages.\n  4. If the cluster has lost a majority of its nodes, restore them. Raft cannot elect a leader without quorum.",
+            "summary": "PMM HA cluster has no active leader"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "sum(max by(node_id) (last_over_time(pmm_ha_leader_status[2m]))) == bool 0",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        },
+        {
+          "uid": "pmm-ha-split-brain",
+          "title": "PMM HA split-brain detected",
+          "condition": "A",
+          "for": "3m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "critical",
+            "template_name": "pmm_ha_split_brain"
+          },
+          "annotations": {
+            "description": "More than one PMM Server node reports itself as the Raft leader at the same time.\nRaft never allows two leaders within one cluster, so this means the nodes have formed\nseparate clusters instead of one. Every node bootstraps its own single-node cluster at\nstartup and then relies on peer discovery to merge into the others; when that discovery\nfails, each node stays the leader of a cluster of one.\nLeader-only work may run more than once and diverging writes are possible.\n\nRemediation steps:\n  1. Open the High Availability page to see which nodes claim leadership, and compare the peers each one knows about. A node that formed its own cluster lists only itself.\n  2. Check that PMM_HA_PEERS is identical on every node and that PMM_HA_NODE_ID is unique. A node missing from the peer lists is never discovered.\n  3. Check that the nodes could reach each other at startup on the configured gossip and Raft ports (PMM_HA_GOSSIP_PORT and PMM_HA_RAFT_PORT; the Helm chart sets these to values other than the defaults), and look for firewall, security group, iptables or network policy rules blocking them.\n  4. Inspect the pmm-managed logs on each node from startup onwards, for failures to join the peer list and for nodes entering the leader state.\n  5. Separate Raft clusters do not merge on their own. Once the cause is fixed, restart pmm-managed on the nodes that should not be leaders so they rejoin. If a node keeps re-forming its own cluster, stop it and remove its Raft state directory (/srv/ha/\u003cnode_id\u003e) before restarting; that directory holds only cluster membership state.",
+            "summary": "PMM HA split-brain detected, more than one node claims leadership"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "sum(max by(node_id) (last_over_time(pmm_ha_leader_status[2m]))) \u003e bool 1",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        },
+        {
+          "uid": "pmm-ha-quorum-at-risk",
+          "title": "PMM HA quorum at risk",
+          "condition": "A",
+          "for": "3m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "critical",
+            "template_name": "pmm_ha_quorum_at_risk"
+          },
+          "annotations": {
+            "description": "The number of live Raft voters has fallen to or below the smallest majority that still forms a quorum.\nAt the boundary the cluster still works, but one more node failure will make it impossible to elect a\nleader. Below the boundary leader election has already stopped, and leader-only work such as advisor\nchecks, backups and scheduled tasks has stopped with it. The High Availability page shows which of the\ntwo applies.\n\nRemediation steps:\n  1. If a PMM_HA_PEERS change is being rolled out, this alert can fire while the nodes still disagree on the cluster size. Confirm the rollout has finished before treating it as a failure.\n  2. Restore the failed nodes now. Do not restart or drain any of the remaining nodes until the cluster has a spare again.\n  3. Check the status of the PMM Server container or pod and the pmm-managed logs on every node.\n  4. Check network connectivity between nodes on the configured Raft and gossip ports (PMM_HA_RAFT_PORT and PMM_HA_GOSSIP_PORT).\n  5. Check that the shared PostgreSQL, VictoriaMetrics and ClickHouse storage is reachable from the surviving nodes.\n  6. Confirm recovery on the High Availability page once all nodes are back.",
+            "summary": "PMM HA quorum at risk, the cluster has no spare voters left"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "(count(max by(node_id) (last_over_time(pmm_ha_up{role=\"voter\"}[2m]))) \u003c= bool floor(max(last_over_time(pmm_ha_expected_nodes[2m])) / 2 + 1))\nand on() (max(last_over_time(pmm_ha_expected_nodes[2m])) \u003e 2)",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        },
+        {
+          "uid": "pmm-ha-leader-flapping",
+          "title": "PMM HA leader is flapping",
+          "condition": "C",
+          "for": "5m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "warning",
+            "template_name": "pmm_ha_leader_flapping"
+          },
+          "annotations": {
+            "description": "The Raft term changed more than 5 times in the last 10 minutes.\nFrequent re-elections indicate an unstable network, an overloaded leader, or a leader that keeps restarting.\n\nRemediation steps:\n  1. Check network latency and packet loss between PMM Server nodes on the configured Raft port (PMM_HA_RAFT_PORT).\n  2. Check whether pmm-managed is restarting on any node.\n  3. Check CPU, memory and disk I/O saturation on the PMM Server nodes. A starved leader misses its heartbeats.\n  4. Review the pmm-managed logs for repeated transitions between the candidate and follower states.",
+            "summary": "PMM HA leader is flapping"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "max by(node_id) (changes(pmm_ha_raft_term[10m]))",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            },
+            {
+              "refId": "C",
+              "datasourceUid": "__expr__",
+              "relativeTimeRange": {
+                "from": 0,
+                "to": 0
+              },
+              "model": {
+                "type": "math",
+                "expression": "$A \u003e 5",
+                "refId": "C",
+                "datasource": {
+                  "type": "__expr__",
+                  "uid": "__expr__"
+                },
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        },
+        {
+          "uid": "pmm-ha-node-unreachable",
+          "title": "PMM HA node unreachable",
+          "condition": "A",
+          "for": "5m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "warning",
+            "template_name": "pmm_ha_node_unreachable"
+          },
+          "annotations": {
+            "description": "{{ if $labels.node_id }}PMM Server node '{{ $labels.node_id }}' has stopped reporting HA metrics.{{ else }}Fewer PMM Server nodes are reporting HA metrics than the number configured for this cluster.{{ end }}\nA node is down, restarting repeatedly, or unable to reach the shared metrics storage.\n\nRemediation steps:\n  1. Open the High Availability page to see which nodes are still reporting.\n  2. Check the status of the PMM Server container or pod on every node.\n  3. Check that the missing node can still write metrics to the shared VictoriaMetrics storage.\n  4. Check network connectivity between nodes on the configured Raft and gossip ports (PMM_HA_RAFT_PORT and PMM_HA_GOSSIP_PORT).\n  5. If the node was removed on purpose, update PMM_HA_PEERS on the remaining nodes so that the expected node count matches.",
+            "summary": "{{ if $labels.node_id }}PMM HA node '{{ $labels.node_id }}' is unreachable{{ else }}A PMM HA node is unreachable, fewer nodes are reporting than configured{{ end }}"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "((max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m])))\nor absent(max by(node_id) (last_over_time(pmm_ha_up[6h])) unless max by(node_id) (last_over_time(pmm_ha_up[2m]))))\nand on() (count(max by(node_id) (last_over_time(pmm_ha_up[2m]))) \u003c max(last_over_time(pmm_ha_expected_nodes[2m])))",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "orgId": 1,
+      "name": "PMM Managed",
+      "folder": "PMM Server",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "pmm-victoriametrics-down",
+          "title": "PMM VictoriaMetrics is down",
+          "condition": "A",
+          "for": "5m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "critical",
+            "template_name": "pmm_victoriametrics_down"
+          },
+          "annotations": {
+            "description": "The VictoriaMetrics component '{{ $labels.job }}' on '{{ $labels.instance }}' is not responding.\nDepending on which component is affected, PMM may stop storing new metrics, stop answering\nqueries, or both. Dashboards and metric-based alerts become unreliable while this lasts.\n\nRemediation steps:\n  1. Check the process or pod for that component and restart it if it has stopped.\n  2. Check free disk space. VictoriaMetrics stops accepting writes when its storage fills up.\n  3. Review the component's logs for out-of-memory kills, which are the most common cause under load.\n  4. Confirm PMM Server can reach the address configured in PMM_VM_URL.\n  5. Once it is back, confirm metrics are arriving again on any dashboard.",
+            "summary": "PMM VictoriaMetrics component '{{ $labels.job }}' is down on '{{ $labels.instance }}'"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "last_over_time(up{job=~\"victoriametrics|vmselect|vminsert|vmstorage|vmagent\"}[2m]) == bool 0",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        },
+        {
+          "uid": "pmm-clickhouse-down",
+          "title": "PMM ClickHouse is down",
+          "condition": "A",
+          "for": "5m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "critical",
+            "template_name": "pmm_clickhouse_down"
+          },
+          "annotations": {
+            "description": "The ClickHouse instance '{{ $labels.instance }}' that PMM Server stores Query Analytics data in is not responding.\nQuery Analytics stops collecting and existing QAN data cannot be read while this lasts. Metrics are unaffected.\n\nRemediation steps:\n  1. Check the ClickHouse process or pod on that node and restart it if it has stopped.\n  2. Check free disk space. ClickHouse refuses writes and can shut down when its data directory fills up.\n  3. Review the ClickHouse logs for startup failures, corrupted parts or out-of-memory kills.\n  4. Confirm PMM Server can reach the configured address in PMM_CLICKHOUSE_ADDR.\n  5. Once it is back, confirm new data is arriving on the Query Analytics page.",
+            "summary": "PMM ClickHouse is down on '{{ $labels.instance }}'"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "last_over_time(up{job=\"clickhouse\"}[2m]) == bool 0",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        },
+        {
+          "uid": "pmm-grafana-down",
+          "title": "PMM Grafana is down",
+          "condition": "A",
+          "for": "5m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "critical",
+            "template_name": "pmm_grafana_down"
+          },
+          "annotations": {
+            "description": "The Grafana instance on '{{ $labels.instance }}' is not responding.\nThe PMM user interface, dashboards and alert rule evaluation all depend on it. Data collection\ncontinues, so no metrics are lost, but nobody can see them and alerts on that node do not run.\n\nRemediation steps:\n  1. Check the Grafana process or pod on that node and restart it if it has stopped.\n  2. Review the Grafana logs for startup failures. A failed database migration after an upgrade is a common cause.\n  3. Confirm Grafana can reach the PMM PostgreSQL database that holds its configuration.\n  4. Check free disk space and memory on the node.\n  5. Once it is back, confirm the PMM user interface loads and the alert rules are evaluating.",
+            "summary": "PMM Grafana is down on '{{ $labels.instance }}'"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "last_over_time(up{job=\"grafana\"}[2m]) == bool 0",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        },
+        {
+          "uid": "pmm-qan-api2-down",
+          "title": "PMM Query Analytics API is down",
+          "condition": "A",
+          "for": "5m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "warning",
+            "template_name": "pmm_qan_api2_down"
+          },
+          "annotations": {
+            "description": "The Query Analytics API (qan-api2) on '{{ $labels.instance }}' is not responding.\nQuery Analytics stops accepting new query data from PMM Clients and the Query Analytics page\ncannot load. Metric collection and dashboards are unaffected.\n\nRemediation steps:\n  1. Check the qan-api2 process or pod on that node and restart it if it has stopped.\n  2. Check whether ClickHouse is reachable. qan-api2 fails to start when it cannot connect to its data store.\n  3. Review the qan-api2 logs for startup failures and database migration errors.\n  4. Check free disk space and memory on the node.\n  5. Once it is back, confirm new data is arriving on the Query Analytics page.",
+            "summary": "PMM Query Analytics API is down on '{{ $labels.instance }}'"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "last_over_time(up{job=\"qan-api2\"}[2m]) == bool 0",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "deleteRules": []
+}
