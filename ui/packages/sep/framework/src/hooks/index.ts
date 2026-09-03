@@ -49,6 +49,7 @@ export { useTables } from './useTables';
 export type { TableOption, UseTablesOptions } from './useTables';
 export { useHosts } from './useHosts';
 export type { HostOption, UseHostsOptions } from './useHosts';
+export { useDebouncedValue, SEARCH_DEBOUNCE_MS } from './useDebouncedValue';
 export { useRemoteChoices } from './useRemoteChoices';
 export type { UseRemoteChoicesOptions } from './useRemoteChoices';
 

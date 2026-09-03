@@ -152,6 +152,8 @@ export {
   useHosts,
   useResolvedServiceField,
   useRemoteChoices,
+  useDebouncedValue,
+  SEARCH_DEBOUNCE_MS,
 } from './hooks';
 export type {
   ServiceOption,
