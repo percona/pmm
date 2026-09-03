@@ -364,11 +364,13 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Use `errors.Is()`, `errors.As()` or `errors.AsType()` for error inspection
 - Use standard `errors` package, not `github.com/pkg/errors`
 - Check `reform.ErrNoRows` for "not found" scenarios in pmm-managed
+- Don't interpolate strings with `%q` in error messages; use `%s`, or `'%s'` when the value can contain spaces
 
 ### Logging
 - Use `logrus` with structured fields
 - Pass `*logrus.Entry` (not `*logrus.Logger`) to maintain context
 - Format: `s.l.WithField("key", value).Error("message")`
+- Don't interpolate strings with `%q` in log messages; use `%s`, or `'%s'` when the value can contain spaces
 - Log to unbuffered stderr; let the process supervisor handle the rest
 
 ### Environment Variables
