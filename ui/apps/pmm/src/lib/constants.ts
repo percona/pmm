@@ -29,6 +29,8 @@ export const SEP_MYSQL_BACKUPS_PATH = `${PMM_NEW_NAV_PATH}/sep/mysql-backups`;
 export const PMM_SERVICENOW_SETTINGS_PATH = `${PMM_NEW_NAV_PATH}/settings/servicenow-connection`;
 
 export const PERCONA_SUPPORT_URL = 'https://www.percona.com/services/support';
+// Short link Support hands out for subscription and credential requests.
+export const PERCONA_SUPPORT_CONTACT_URL = 'https://per.co.na/support';
 
 export const INTERVALS_MS = {
   // 5 mins

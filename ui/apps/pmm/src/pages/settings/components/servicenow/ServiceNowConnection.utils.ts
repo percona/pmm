@@ -202,12 +202,7 @@ const ACRONYMS = new Set([
   'tls',
 ]);
 
-/**
- * Render a SEP secret name as a field label — `sn_api_key` reads "SN API key".
- * The raw name stays visible as helper text, since that is what SEP's own
- * documentation and error messages call it.
- */
-export const secretLabel = (name: string): string =>
+const humanizeSecretName = (name: string): string =>
   name
     .split(/[_\-\s]+/)
     .filter(Boolean)
@@ -220,3 +215,26 @@ export const secretLabel = (name: string): string =>
         : word.toLowerCase();
     })
     .join(' ');
+
+/**
+ * Render a SEP secret name as a field label.
+ *
+ * A name the delivery plan is known to declare gets the copy Support wrote for
+ * it; anything else is a SEP build the UI has no copy for, so its raw name is
+ * humanized — `instance_url` reads "Instance URL" — and stays recognisable
+ * against SEP's own documentation and error messages.
+ */
+export const secretLabel = (name: string): string =>
+  Messages.serviceNow.secretCopy[name]?.label ?? humanizeSecretName(name);
+
+/**
+ * Helper text under a credential field.
+ *
+ * `isStored` appends the note that a value is already held, so leaving the
+ * field alone keeps it — true for both the written copy and the fallback.
+ */
+export const secretHelperText = (name: string, isStored: boolean): string => {
+  const { secretCopy, secretHelper, secretStoredSuffix } = Messages.serviceNow;
+  const base = secretCopy[name]?.helper ?? secretHelper(name);
+  return isStored ? `${base} ${secretStoredSuffix}` : base;
+};

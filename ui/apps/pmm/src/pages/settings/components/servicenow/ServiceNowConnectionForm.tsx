@@ -27,6 +27,7 @@ import { ServiceNowFormValues } from './ServiceNowConnection.types';
 import {
   buildDeliveryInputsPatch,
   sepErrorMessage,
+  secretHelperText,
   secretLabel,
   toFormValues,
 } from './ServiceNowConnection.utils';
@@ -161,7 +162,6 @@ export const ServiceNowConnectionForm: FC = () => {
             description={serviceNow.description}
             data-testid="servicenow-label"
           />
-          <Typography variant="body2">{serviceNow.scopeNote}</Typography>
         </Stack>
 
         <Alert
@@ -210,9 +210,7 @@ export const ServiceNowConnectionForm: FC = () => {
                   // A name the plan declares but the stored inputs do not carry
                   // (an image renamed it) has nothing to keep, so it gets the
                   // plain helper even though an override exists.
-                  helperText: stored.secrets[name]
-                    ? serviceNow.secretStoredHelper(name)
-                    : serviceNow.secretHelper(name),
+                  helperText: secretHelperText(name, !!stored.secrets[name]),
                   slotProps: {
                     htmlInput: { 'data-testid': `servicenow-secret-${name}` },
                   },

@@ -1,4 +1,4 @@
-import { PERCONA_SUPPORT_URL } from 'lib/constants';
+import { PERCONA_SUPPORT_CONTACT_URL } from 'lib/constants';
 
 export const Messages = {
   title: 'Settings',
@@ -108,20 +108,32 @@ export const Messages = {
   serviceNow: {
     label: 'ServiceNow connection',
     description:
-      "Connect this PMM instance to Percona's ServiceNow so features like Support diagnostics can work directly with your support cases. You'll need a Percona Support account with access to your organization's cases.",
-    scopeNote:
-      "This connection applies to the whole PMM instance. Once connected, anyone with access to Support features can send results to your organization's cases.",
-    subscriptionPrompt: "Don't have a Percona Support subscription?",
-    subscriptionLink: PERCONA_SUPPORT_URL,
-    subscriptionLinkText: 'Learn about Percona Support',
-    endpointLabel: 'Receiver endpoint',
+      "Connect this PMM instance to Percona's ServiceNow to enable support features like Support diagnostics. To set this up, you'll need an active Percona Support subscription. Once connected, all PMM users can work with your organization's support cases directly from PMM.",
+    subscriptionPrompt: "Don't have a subscription or need credentials?",
+    subscriptionLink: PERCONA_SUPPORT_CONTACT_URL,
+    subscriptionLinkText: 'Contact Percona Support',
+    endpointLabel: 'ServiceNow endpoint',
     endpointPlaceholder: 'https://percona.service-now.com/',
     endpointHelper:
-      'Leave empty to use the receiver bundled with this PMM version.',
+      'Leave empty to use the default endpoint: https://percona.service-now.com/',
     secretsLegend: 'Credentials',
+    // Copy for the credentials this PMM version's delivery plan is known to
+    // declare. A name not listed here is a SEP build the UI has no copy for, so
+    // it falls back to the generic label and helper below.
+    secretCopy: {
+      sn_api_key: {
+        label: 'ServiceNow API key',
+        helper:
+          "Authenticates PMM with Percona's ServiceNow. Contact Percona Support to obtain it.",
+      },
+      client_token: {
+        label: 'Client token',
+        helper:
+          'Identifies your PMM instance to ServiceNow. Contact Percona Support to obtain it.',
+      },
+    } as Record<string, { label: string; helper: string }>,
     secretHelper: (name: string) => `Sent to SEP as "${name}".`,
-    secretStoredHelper: (name: string) =>
-      `Sent to SEP as "${name}". A value is stored — leave it untouched to keep it.`,
+    secretStoredSuffix: 'A value is stored — leave it untouched to keep it.',
     status: {
       configured:
         'Connected. Support diagnostics can send results to your ServiceNow cases.',
@@ -131,7 +143,7 @@ export const Messages = {
         "The stored details no longer match this deployment's delivery plan. Re-supply the values below.",
     },
     noSecrets:
-      "This PMM version's delivery plan declares no credentials, so only the receiver endpoint can be set here.",
+      "This PMM version's delivery plan declares no credentials, so only the ServiceNow endpoint can be set here.",
     unavailable:
       'Support diagnostics delivery is not part of this PMM version, so there is nothing to connect.',
     saveSuccess: 'ServiceNow connection saved',
