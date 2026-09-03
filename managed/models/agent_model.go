@@ -468,13 +468,9 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 		return nil
 	}
 
-	existing, err := a.GetEnvironmentVariableNames()
+	grandfathered, err := a.GrandfatheredEnvironmentVariableNames()
 	if err != nil {
 		return err
-	}
-	grandfathered := make(map[string]struct{}, len(existing))
-	for _, name := range existing {
-		grandfathered[strings.TrimSpace(name)] = struct{}{}
 	}
 
 	names, err = envvars.NormalizeNamesAllowing(names, grandfathered)
@@ -488,6 +484,25 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	}
 	a.EnvironmentVariables = b
 	return nil
+}
+
+// GrandfatheredEnvironmentVariableNames returns the agent's currently-stored environment variable
+// names as the set the grandfathering checks compare against, normalized the same way
+// NormalizeNamesAllowing normalizes its input. Callers that use it to decide whether an update is
+// allowed must read the agent within the same transaction as that update, so the names it
+// grandfathers cannot go stale before the update applies them.
+func (a *Agent) GrandfatheredEnvironmentVariableNames() (map[string]struct{}, error) {
+	existing, err := a.GetEnvironmentVariableNames()
+	if err != nil {
+		return nil, err
+	}
+
+	grandfathered := make(map[string]struct{}, len(existing))
+	for _, name := range existing {
+		grandfathered[strings.TrimSpace(name)] = struct{}{}
+	}
+
+	return grandfathered, nil
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.

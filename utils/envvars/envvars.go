@@ -45,7 +45,7 @@ func ValidateName(name string) error {
 	}
 
 	if len(name) > MaxNameLength {
-		return fmt.Errorf("environment variable name %q is too long (max %d characters)", name, MaxNameLength)
+		return fmt.Errorf("environment variable name '%s' is too long (max %d characters)", name, MaxNameLength)
 	}
 
 	if !namePattern.MatchString(name) {
@@ -53,7 +53,7 @@ func ValidateName(name string) error {
 	}
 
 	if strings.HasPrefix(strings.ToUpper(name), ReservedPrefix) {
-		return fmt.Errorf("environment variable name %q is reserved for pmm-agent's own configuration and cannot be selected", name)
+		return fmt.Errorf("environment variable name '%s' is reserved for pmm-agent's own configuration and cannot be selected", name)
 	}
 
 	return nil

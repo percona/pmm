@@ -68,15 +68,12 @@ Only the flags you specify are updated — all other settings remain unchanged. 
 
 When you change connection-affecting parameters (username, password, TLS settings, etc.), PMM verifies the new settings by connecting to the database before saving them. If the connection fails (for example, wrong credentials), the command returns an error and **no changes are applied**. Use `--skip-connection-check` to bypass this verification (see [Connection and authentication](#connection-and-authentication)).
 
-`--agent-env-vars` is **not** part of this verification: the connection check is performed by pmm-agent itself, not by the exporter, so it does not read or depend on the names you are adding. However, the check and the rest of the change are applied together as a single operation: if you combine `--agent-env-vars` with a connection-affecting flag and the connection check fails, the whole change — including the environment variable names — is discarded, not just saved. Once a change is saved, its effect on the exporter's environment only shows after the exporter restarts.
-
 ### When to use `change agent` vs `remove/add`
 
 **Use `change agent` for:**
 
 - Update database credentials
 - Add or update custom labels
-- Add, replace, or remove `mongodb-exporter` environment variables
 - Enable/disable a collector
 - Update collection limits
 - Change TLS settings
@@ -161,32 +158,6 @@ You can also use `pmm-admin list` to see agents alongside their services.
 - `--custom-labels`
 :   Custom user-assigned labels in `key=value,key=value` format
 
-- `--agent-env-vars` (`mongodb-exporter` only)
-:   Comma-separated list of environment variable names to pass to the exporter, for example `KRB5_KTNAME,KRB5_CONFIG`
-
-!!! note "`--agent-env-vars` applies to `mongodb-exporter` only"
-    Environment variables can only be passed to agents that `pmm-agent` starts as a **separate
-    process**, and `mongodb-exporter` is the only such agent among the MongoDB types.
-    `qan-mongodb-profiler-agent`, `qan-mongodb-mongolog-agent` and `rta-mongodb-agent` are
-    *built-in* agents that run inside the `pmm-agent` process itself, so they inherit `pmm-agent`'s
-    environment as-is and the flag is not available for them.
-
-!!! note "How `--agent-env-vars` is applied"
-    The flag **replaces** the entire list, so any name you leave out is removed. Omitting the flag
-    keeps the current list unchanged, and `--agent-env-vars=""` removes all names.
-    Names must match `[A-Za-z_][A-Za-z0-9_]*` (letters, digits and underscores, not starting with
-    a digit); names starting with `PMM_AGENT_` are rejected, since that prefix is reserved for
-    `pmm-agent`'s own configuration and secrets. `pmm-admin` checks these rules for the change
-    command and for the add commands (`pmm-admin add mongodb`, `pmm-admin inventory add agent
-    mongodb-exporter`); it also trims surrounding whitespace and collapses repeated names before
-    sending the list. The API enforces the same rules server-side, so calling it directly instead
-    of going through `pmm-admin` cannot bypass them, and accepts at most 32 names per request.
-    Only the names are stored: the values are read from the `pmm-agent` environment every time the
-    exporter starts. A name that is not set in that environment is skipped and logged as a warning
-    by `pmm-agent`, so a misspelled name is accepted but has no effect. Names that `pmm-agent`
-    already sets for the exporter (such as `MONGODB_URI`) are rejected by the API with an error,
-    since they would be skipped and cannot be overridden anyway.
-
 - `--enable`
 :   Re-enable a disabled agent
 
@@ -254,20 +225,6 @@ You can also use `pmm-admin list` to see agents alongside their services.
     ```bash
     pmm-admin inventory change agent mongodb-exporter 12345-67890 \
       --stats-collections=db1,db2.collection1
-    ```
-
-- Pass environment variables from `pmm-agent` to the exporter:
-
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --agent-env-vars=KRB5_KTNAME,KRB5_CONFIG
-    ```
-
-- Remove all environment variables from an agent:
-
-    ```bash
-    pmm-admin inventory change agent mongodb-exporter 12345-67890 \
-      --agent-env-vars=""
     ```
 
 - Disable an agent (stops metric collection without removing it):

@@ -893,7 +893,6 @@ func (s *Supervisor) resolveEnvVariableNames(agentID string, names, env []string
 
 		env = append(env, fmt.Sprintf("%s=%s", varName, value))
 		resolvedNames = append(resolvedNames, varName)
-		l.Debug("Resolved environment variable.")
 	}
 
 	return env, resolvedNames

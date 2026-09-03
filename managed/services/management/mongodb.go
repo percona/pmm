@@ -33,6 +33,14 @@ import (
 func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.AddMongoDBServiceParams) (*managementv1.AddServiceResponse, error) { //nolint:gocognit
 	mongodb := &managementv1.MongoDBServiceResult{}
 
+	// Pure request validation: this is a new agent, so there is no existing agent to grandfather,
+	// and nothing here depends on the transaction below. Rejecting before it opens avoids inserting
+	// and rolling back a service row for a request that was never going to be accepted.
+	err := common.ValidateMongoDBExporterEnvVarNames(req.EnvironmentVariableNames, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
@@ -60,12 +68,6 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 		mongodb.Service = invService.(*inventoryv1.MongoDBService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(req.MetricsMode, req.PmmAgentId)
-		if err != nil {
-			return err
-		}
-
-		// This is a new agent, so there is no existing agent to grandfather.
-		err = common.ValidateMongoDBExporterEnvVarNames(req.EnvironmentVariableNames, nil)
 		if err != nil {
 			return err
 		}

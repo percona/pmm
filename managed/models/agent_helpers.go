@@ -333,19 +333,7 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 // FindAgentByID finds Agent by ID.
 func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
-	if id == "" {
-		return nil, status.Error(codes.InvalidArgument, "Empty Agent ID.")
-	}
-
-	agent := &Agent{AgentID: id}
-	err := q.Reload(agent)
-	if err != nil {
-		if errors.Is(err, reform.ErrNoRows) {
-			return nil, status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
-		}
-		return nil, err
-	}
-	return new(DecryptAgent(*agent)), nil
+	return findAgentByID(q, id, false)
 }
 
 // FindAgentByIDForUpdate finds Agent by ID and locks its row (SELECT ... FOR UPDATE) for the
@@ -354,11 +342,22 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 // lock, a concurrent transaction could commit a conflicting write in between, so the decision
 // would be based on data that is no longer current by the time it is acted on.
 func FindAgentByIDForUpdate(q *reform.Querier, id string) (*Agent, error) {
+	return findAgentByID(q, id, true)
+}
+
+// findAgentByID backs both FindAgentByID and FindAgentByIDForUpdate so the not-found mapping and
+// the decryption stay in one place.
+func findAgentByID(q *reform.Querier, id string, forUpdate bool) (*Agent, error) {
 	if id == "" {
 		return nil, status.Error(codes.InvalidArgument, "Empty Agent ID.")
 	}
 
-	row, err := q.SelectOneFrom(AgentTable, "WHERE agent_id = $1 FOR UPDATE", id)
+	tail := "WHERE agent_id = $1"
+	if forUpdate {
+		tail += " FOR UPDATE"
+	}
+
+	row, err := q.SelectOneFrom(AgentTable, tail, id)
 	if err != nil {
 		if errors.Is(err, reform.ErrNoRows) {
 			return nil, status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)

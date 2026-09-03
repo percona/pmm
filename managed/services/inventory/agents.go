@@ -410,13 +410,13 @@ func (as *AgentsService) ChangeMongoDBExporter(
 	agentID string,
 	p *inventoryv1.ChangeMongoDBExporterParams,
 ) (*inventoryv1.ChangeAgentResponse, error) {
-	// EnvironmentVariableNames is a full-replace field: nil means "leave unchanged", so there is
-	// nothing to validate and no need to look up (and lock) the agent's currently-stored names.
+	// EnvironmentVariableNames is a full-replace field: nil means "leave unchanged" and an empty
+	// list means "remove all". Neither can carry a reserved name, so in both cases there is nothing
+	// to validate and no reason to look up (and lock) the agent's currently-stored names.
 	var checkEnvVarNames func(current *models.Agent) error
-	if p.GetEnvironmentVariableNames() != nil {
-		names := p.GetEnvironmentVariableNames().GetValues()
+	if names := p.GetEnvironmentVariableNames().GetValues(); len(names) > 0 {
 		checkEnvVarNames = func(current *models.Agent) error {
-			grandfathered, err := mgmtcommon.MongoDBExporterEnvVarNamesGrandfathered(current)
+			grandfathered, err := current.GrandfatheredEnvironmentVariableNames()
 			if err != nil {
 				return err
 			}
@@ -1866,6 +1866,9 @@ func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		if check != nil {
+			// TODO: models.ChangeAgent re-reads (and re-decrypts) the same row below. Passing the
+			// row read here into it would save a round-trip, at the cost of a signature change
+			// across every ChangeAgent caller.
 			current, err := models.FindAgentByIDForUpdate(tx.Querier, agentID)
 			if err != nil {
 				return err

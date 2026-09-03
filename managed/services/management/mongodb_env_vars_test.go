@@ -16,22 +16,15 @@
 package management
 
 import (
-	"context"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/postgresql"
 
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/testdb"
-	"github.com/percona/pmm/managed/utils/tests"
-	"github.com/percona/pmm/utils/logger"
 )
 
 // Environment variable names are only meaningful for agents that pmm-agent starts as a separate
@@ -40,48 +33,11 @@ import (
 // agents running inside pmm-agent. This test pins that only the exporter row stores the names, so
 // we do not persist data no one reads.
 func TestAddMongoDBStoresEnvVarNamesForExporterOnly(t *testing.T) {
-	uuid.SetRand(&tests.IDReader{})
-	t.Cleanup(func() { uuid.SetRand(nil) })
+	ctx, s, teardown := setup(t)
+	t.Cleanup(func() { teardown(t) })
 
-	ctx := logger.Set(context.Background(), t.Name())
-	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-	t.Cleanup(func() {
-		assert.NoError(t, sqlDB.Close())
-	})
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-	cc := &mockConnectionChecker{}
-	cc.Test(t)
-	sib := &mockServiceInfoBroker{}
-	sib.Test(t)
-	state := &mockAgentsStateUpdater{}
-	state.Test(t)
-	ar := &mockAgentsRegistry{}
-	ar.Test(t)
-	vmdb := &mockPrometheusService{}
-	vmdb.Test(t)
-	vc := &mockVersionCache{}
-	vc.Test(t)
-	grafanaClient := &mockGrafanaClient{}
-	grafanaClient.Test(t)
-	vmClient := &mockVictoriaMetricsClient{}
-	vmClient.Test(t)
-
-	t.Cleanup(func() {
-		cc.AssertExpectations(t)
-		sib.AssertExpectations(t)
-		state.AssertExpectations(t)
-		ar.AssertExpectations(t)
-		vmdb.AssertExpectations(t)
-		vc.AssertExpectations(t)
-		grafanaClient.AssertExpectations(t)
-		vmClient.AssertExpectations(t)
-	})
-
-	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
-
-	state.On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
-	vc.On("RequestSoftwareVersionsUpdate").Once()
+	s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, models.PMMServerAgentID).Once()
+	s.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
 
 	envVarNames := []string{"KRB5_KTNAME", "KRB5_CONFIG"}
 
@@ -122,7 +78,7 @@ func TestAddMongoDBStoresEnvVarNamesForExporterOnly(t *testing.T) {
 		models.RTAMongoDBAgentType:         nil,
 	}
 
-	agents, err := models.FindAgents(db.Querier, models.AgentFilters{
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{
 		ServiceID: mongodb.GetService().GetServiceId(),
 	})
 	require.NoError(t, err)
@@ -142,45 +98,8 @@ func TestAddMongoDBStoresEnvVarNamesForExporterOnly(t *testing.T) {
 // pmm-agent computes MONGODB_URI itself for mongodb_exporter, so a user-selected value here would
 // silently never take effect.
 func TestAddMongoDBRejectsReservedEnvVarName(t *testing.T) {
-	uuid.SetRand(&tests.IDReader{})
-	t.Cleanup(func() { uuid.SetRand(nil) })
-
-	ctx := logger.Set(t.Context(), t.Name())
-	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-	t.Cleanup(func() {
-		assert.NoError(t, sqlDB.Close())
-	})
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-	cc := &mockConnectionChecker{}
-	cc.Test(t)
-	sib := &mockServiceInfoBroker{}
-	sib.Test(t)
-	state := &mockAgentsStateUpdater{}
-	state.Test(t)
-	ar := &mockAgentsRegistry{}
-	ar.Test(t)
-	vmdb := &mockPrometheusService{}
-	vmdb.Test(t)
-	vc := &mockVersionCache{}
-	vc.Test(t)
-	grafanaClient := &mockGrafanaClient{}
-	grafanaClient.Test(t)
-	vmClient := &mockVictoriaMetricsClient{}
-	vmClient.Test(t)
-
-	t.Cleanup(func() {
-		cc.AssertExpectations(t)
-		sib.AssertExpectations(t)
-		state.AssertExpectations(t)
-		ar.AssertExpectations(t)
-		vmdb.AssertExpectations(t)
-		vc.AssertExpectations(t)
-		grafanaClient.AssertExpectations(t)
-		vmClient.AssertExpectations(t)
-	})
-
-	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+	ctx, s, teardown := setup(t)
+	t.Cleanup(func() { teardown(t) })
 
 	_, err := s.AddService(ctx, &managementv1.AddServiceRequest{
 		Service: &managementv1.AddServiceRequest_Mongodb{
@@ -200,7 +119,7 @@ func TestAddMongoDBRejectsReservedEnvVarName(t *testing.T) {
 	require.Error(t, err)
 	assert.Equal(t, codes.InvalidArgument, status.Code(err))
 
-	agents, err := models.FindAgents(db.Querier, models.AgentFilters{})
+	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
 	require.NoError(t, err)
 	for _, agent := range agents {
 		assert.NotEqual(t, models.MongoDBExporterType, agent.AgentType, "rejected request must not persist an agent")
