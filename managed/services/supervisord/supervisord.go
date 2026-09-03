@@ -242,6 +242,29 @@ func (s *Service) StopSupervisedService(serviceName string) error {
 	return s.supervisorctl("stop", serviceName)
 }
 
+// RestartSupervisedService restarts given service.
+//
+// Note that reload() is not a substitute: it runs `supervisorctl update`, which only acts when the
+// program's own configuration file has changed. Restarting because some other file the program
+// reads has changed needs this.
+func (s *Service) RestartSupervisedService(serviceName string) error {
+	return s.supervisorctl("restart", serviceName)
+}
+
+// IsSupervisedServiceRunning reports whether given service is running. The result is nil when the
+// state cannot be determined, which callers should treat as "leave it alone" rather than as either
+// answer.
+func (s *Service) IsSupervisedServiceRunning(serviceName string) (*bool, error) {
+	// `supervisorctl status` exits non-zero when the program is not running, so the exit code
+	// cannot be used to tell a stopped program from a failed command. The output is what matters.
+	out, err := s.supervisorctlOutput("status", serviceName)
+	if len(out) == 0 && err != nil {
+		return nil, err
+	}
+
+	return parseStatus(string(out)), nil
+}
+
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 
 {{define "victoriametrics"}}
@@ -409,19 +432,26 @@ redirect_stderr = true
 `))
 
 func (s *Service) supervisorctl(args ...string) error {
+	_, err := s.supervisorctlOutput(args...)
+	return err
+}
+
+// supervisorctlOutput runs supervisorctl and returns its standard output. Output is returned even
+// when the command reports failure, because some subcommands answer on stdout and exit non-zero.
+func (s *Service) supervisorctlOutput(args ...string) ([]byte, error) {
 	if s.supervisorctlPath == "" {
-		return errors.New("supervisorctl not found")
+		return nil, errors.New("supervisorctl not found")
 	}
 
 	cmd := exec.Command(s.supervisorctlPath, args...) //nolint:gosec,noctx
 	cmdLine := strings.Join(cmd.Args, " ")
 	s.l.Debugf("Running %q...", cmdLine)
 	pdeathsig.Set(cmd, unix.SIGKILL)
-	_, err := cmd.Output()
+	out, err := cmd.Output()
 	if err != nil {
-		return fmt.Errorf("%s failed: %w", cmdLine, err)
+		return out, fmt.Errorf("%s failed: %w", cmdLine, err)
 	}
-	return nil
+	return out, nil
 }
 
 // parseStatus parses `supervisorctl status <name>` output, returns true if <name> is running,
