@@ -107,10 +107,16 @@ export interface AtwSendLogExecution {
   snippet_filename: string;
 }
 
-/** One resolution step the delivery plan reported while the send ran. */
+/**
+ * One step the delivery plan reported while the send ran.
+ *
+ * `kind` is optional only for history: the backend writes it on every entry it
+ * records now, but rows persisted before it existed carry entries without it.
+ */
 export interface AtwSendLogStep {
   name: string;
-  status: 'running' | 'success';
+  kind?: 'resolution' | 'upload';
+  status: 'running' | 'success' | 'failed';
   outputs: Record<string, string> | null;
 }
 
