@@ -43,7 +43,8 @@ func TestChangeAgentRTAMySQLAgentCommand(t *testing.T) {
 			"--password=testpass",
 			"--tls",
 			"--tls-skip-verify",
-			"--collect-interval=5s",
+			// 1m is deliberate: time.Duration.String() renders it "1m0s", which the server rejects.
+			"--collect-interval=1m",
 			"--log-level=info",
 			"--custom-labels=env=test,team=rta",
 			"--skip-connection-check",
@@ -76,7 +77,7 @@ func TestChangeAgentRTAMySQLAgentCommand(t *testing.T) {
 					}
 				},
 				"rta_options": {
-					"collect_interval": "5s"
+					"collect_interval": "60s"
 				}
 			}
 		}`, capturedRequestBody)

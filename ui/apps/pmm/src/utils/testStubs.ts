@@ -1,4 +1,5 @@
 import {
+  BlockedStatus,
   QueryData,
   RawQueryData,
   RealtimeSession,
@@ -204,6 +205,7 @@ export const TEST_MYSQL_QUERY_DATA: QueryData = {
     command: 'Query',
     state: 'Sending data',
     username: 'username',
+    blockedStatus: BlockedStatus.notBlocked,
     rowsExamined: 100,
     rowsSent: 10,
     fullScan: true,

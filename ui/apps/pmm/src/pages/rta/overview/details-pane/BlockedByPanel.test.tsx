@@ -96,12 +96,18 @@ describe('BlockedByPanel', () => {
     );
   });
 
-  it('names the single holder in a lock cycle', () => {
+  it('declines to name a lone blocker that is itself waiting', () => {
+    // root=false means the agent saw that connection waiting too, so resolving it is not
+    // guaranteed to free this statement. The pane must agree with the chip and the CSV,
+    // which both decline here.
     renderPanel([{ ...IDLE_ROOT, root: false }]);
 
     expect(screen.getByTestId('blocked-by-heading')).toHaveTextContent(
-      'Blocked by 409'
+      'Blocked by 1 transaction'
     );
+    expect(
+      screen.getByText(/Every transaction involved is itself waiting/)
+    ).toBeInTheDocument();
   });
 
   it('refuses to name one culprit when several transactions are responsible', () => {

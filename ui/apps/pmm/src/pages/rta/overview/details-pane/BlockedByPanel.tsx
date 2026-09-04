@@ -9,6 +9,10 @@ import { Chip, CodeBlock } from '@percona/peak-ui';
 import { FC } from 'react';
 import { BlockingTransaction } from 'types/rta.types';
 import { formatDurationSeconds, parseDuration } from 'utils/duration.utils';
+import {
+  blockingRoots,
+  soleBlockerOf,
+} from 'pages/rta/overview/table/OverviewTable.utils';
 import { Messages } from './BlockedByPanel.messages';
 
 export interface Props {
@@ -62,13 +66,13 @@ const PanelFrame: FC<React.PropsWithChildren> = ({ children }) => (
 const BlockedByPanel: FC<Props> = ({ blockers, lockedTable, lockedIndex }) => {
   // Transactions that are not themselves waiting. Resolving those is what frees the
   // statement — but there can be several, and then no single one is the answer.
-  const roots = blockers.filter((blocker) => blocker.root);
-  const sole =
-    roots.length === 1
-      ? roots[0]
-      : roots.length === 0 && blockers.length === 1
-        ? blockers[0]
-        : undefined;
+  // Both questions are answered by the shared helpers, so this pane, the table chip and the
+  // CSV cannot end up naming different transactions for the same row.
+  const roots = blockingRoots(blockers);
+  const sole = soleBlockerOf(blockers);
+  // Heading and hint must quote the same number. Only the roots hold the statement up
+  // independently; anything else listed is queued behind them and clears on its own.
+  const culpritCount = roots.length > 1 ? roots.length : blockers.length;
   // With no single culprit, lead with whichever transaction is at the head of the chain so
   // the pane still shows a concrete statement, while the heading stays honest about the count.
   const primary = sole ?? roots[0] ?? blockers[0];
@@ -126,7 +130,7 @@ const BlockedByPanel: FC<Props> = ({ blockers, lockedTable, lockedIndex }) => {
           >
             {sole
               ? Messages.blockedByOne(sole.blockingConnId)
-              : Messages.blockedByMany(blockers.length)}
+              : Messages.blockedByMany(culpritCount)}
           </Typography>
         </Stack>
         <Stack direction="row" alignItems="center" gap={1.5}>
@@ -220,7 +224,7 @@ const BlockedByPanel: FC<Props> = ({ blockers, lockedTable, lockedIndex }) => {
           {sole
             ? Messages.resolveHint(sole.blockingConnId)
             : roots.length > 1
-              ? Messages.resolveHintRoots(roots.length)
+              ? Messages.resolveHintRoots(culpritCount)
               : Messages.resolveHintCycle}
         </Typography>
       </Stack>

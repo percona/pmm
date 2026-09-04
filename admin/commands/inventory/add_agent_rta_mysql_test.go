@@ -106,7 +106,8 @@ func TestAddAgentRTAMySQLAgentCommand(t *testing.T) {
 			"--tls-ca-file=" + caFile,
 			"--tls-cert-file=" + certFile,
 			"--tls-key-file=" + keyFile,
-			"--collect-interval=7s",
+			// 90s is deliberate: time.Duration.String() renders it "1m30s", which the server rejects.
+			"--collect-interval=90s",
 			"--log-level=info",
 			"--custom-labels=env=test,team=rta",
 			"--skip-connection-check",
@@ -136,7 +137,7 @@ func TestAddAgentRTAMySQLAgentCommand(t *testing.T) {
 					"team": "rta"
 				},
 				"rta_options": {
-					"collect_interval": "7s"
+					"collect_interval": "90s"
 				}
 			}
 		}`, capturedRequestBody)

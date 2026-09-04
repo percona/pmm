@@ -56,6 +56,12 @@ const (
 	// MySQL's ER_TABLEACCESS_DENIED_ERROR. The monitoring user was never granted access to the
 	// lock tables, which stays true until someone grants it and restarts the agent.
 	mysqlErrTableAccessDenied = 1142
+	// ER_SPECIFIC_ACCESS_DENIED_ERROR: information_schema.innodb_trx needs the PROCESS
+	// privilege, which the monitoring user either has or does not.
+	mysqlErrSpecificAccessDenied = 1227
+	// ER_VIEW_INVALID: sys.x$processlist cannot be read, typically because the invoker lacks
+	// rights on a table the view selects from. The same class of problem as a denied table.
+	mysqlErrViewInvalid = 1356
 )
 
 // currentQueriesSQL fetches currently running queries from the sys schema.
@@ -98,12 +104,25 @@ WHERE conn_id IS NOT NULL
 // produce several rows (a record lock and a gap lock on the same row), so without an order
 // the deduplicated row -- and the contended index it carries -- would flip between cycles.
 //
+// The null-index tiebreak deliberately sorts ahead of blocking_conn_id. The waiter's lock is
+// recorded from the first row seen for that connection, and a blocker holding a table-level
+// lock reports no index at all; ordering by connection first would let such a blocker, purely
+// by having the lower id, leave the waiter with no index recorded.
+//
+// LIMIT bounds the worst case. The graph is largest during exactly the pile-up this feature
+// exists for -- many-to-many contention is quadratic in the number of waiters -- and every
+// edge costs two innodb_trx joins and one heavyweight sys.x$processlist lookup. Ordering by
+// waiter means a truncated result still describes the waiters it does include completely.
+//
 // The blocking statement is read as current_statement, falling back to last_statement, because
 // the head of a blocking chain is typically idle inside an open transaction and is running
 // nothing at all -- its last statement is the one that took the lock.
 //
-// Latencies are taken in microseconds: a 2s collect interval routinely catches waits well
-// under a second, and whole-second truncation would report those as "0s".
+// Latencies are taken in microseconds rather than seconds so a wait shorter than a second is
+// not truncated to "0s". The precision is not real, though: innodb_trx.trx_wait_started and
+// trx_started are second-granularity DATETIME columns, so the fractional part comes from NOW(6)
+// alone and a wait is over-reported by up to one second. Treat these as "about this long",
+// accurate to a second, not as microsecond measurements.
 const blockingTransactionsSQL = `
 SELECT STRAIGHT_JOIN
     r.trx_mysql_thread_id AS waiting_conn_id,
@@ -120,7 +139,8 @@ JOIN information_schema.innodb_trx r ON r.trx_id = w.REQUESTING_ENGINE_TRANSACTI
 JOIN information_schema.innodb_trx b ON b.trx_id = w.BLOCKING_ENGINE_TRANSACTION_ID
 JOIN performance_schema.data_locks rl ON rl.ENGINE_LOCK_ID = w.REQUESTING_ENGINE_LOCK_ID
 LEFT JOIN sys.x$processlist p ON p.conn_id = b.trx_mysql_thread_id
-ORDER BY waiting_conn_id, blocking_conn_id, locked_index IS NULL, locked_index`
+ORDER BY waiting_conn_id, locked_index IS NULL, locked_index, blocking_conn_id
+LIMIT 1000`
 
 // MySQLRTA extracts Real-Time Analytics data (currently running DB queries) from MySQL.
 type MySQLRTA struct {
@@ -347,12 +367,15 @@ func (m *MySQLRTA) checkPrerequisites(ctx context.Context) error {
 
 // collectProcessList queries sys.x$processlist and parses the result into a slice of *QueryData.
 func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, error) {
-	queryCtx, cancel := context.WithTimeout(ctx, mysqlQueryTimeout)
+	// One budget for the whole cycle. Giving each query its own would let a stalled server hold
+	// the collector's single pooled connection for twice the timeout, dropping twice as many
+	// ticks as intended.
+	cycleCtx, cancel := context.WithTimeout(ctx, mysqlQueryTimeout)
 	defer cancel()
 
 	// An empty processlist is not an error: QueryContext does not return sql.ErrNoRows,
 	// it simply yields no rows below, so we only get here on a real query failure.
-	rows, err := m.db.QueryContext(queryCtx, currentQueriesSQL)
+	rows, err := m.db.QueryContext(cycleCtx, currentQueriesSQL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query sys.x$processlist: %w", err)
 	}
@@ -370,8 +393,8 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 	var scanned []map[string]any
 	for rows.Next() {
 		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
+		case <-cycleCtx.Done():
+			return nil, cycleCtx.Err()
 		default:
 		}
 
@@ -395,12 +418,18 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 	// time would show up in it as a running statement.
 	_ = rows.Close()
 
+	// With no statements there is nothing for the lock graph to explain, and Run discards an
+	// empty bucket anyway, so an idle instance is spared the join entirely.
+	if len(scanned) == 0 {
+		return nil, nil
+	}
+
 	// Read second, on purpose. The two reads are milliseconds apart either way, but the order
 	// decides which way a stale answer errs. Reading the graph first lets a wait that clears
 	// in between attach its blockers to whatever the connection runs next -- a confident
 	// "blocked by 409" on a statement that never waited. Reading it second can only miss a
 	// wait that started in between, which the next collection picks up.
-	graph := m.collectBlockingTransactionsOrWarn(ctx)
+	graph := m.collectBlockingTransactionsOrWarn(cycleCtx)
 
 	results := make([]*rtav1.QueryData, 0, len(scanned))
 	for _, row := range scanned {
@@ -472,7 +501,7 @@ func (m *MySQLRTA) collectBlockingTransactionsOrWarn(ctx context.Context) *block
 // readable without operator action, making retries pointless.
 func permanentBlockingError(number uint16) bool {
 	switch number {
-	case mysqlErrNoSuchTable, mysqlErrTableAccessDenied:
+	case mysqlErrNoSuchTable, mysqlErrTableAccessDenied, mysqlErrSpecificAccessDenied, mysqlErrViewInvalid:
 		return true
 	default:
 		return false
@@ -481,10 +510,9 @@ func permanentBlockingError(number uint16) bool {
 
 // collectBlockingTransactions returns what the lock graph says about every waiting connection.
 func (m *MySQLRTA) collectBlockingTransactions(ctx context.Context) (*blockingGraph, error) {
-	queryCtx, cancel := context.WithTimeout(ctx, mysqlQueryTimeout)
-	defer cancel()
-
-	rows, err := m.db.QueryContext(queryCtx, blockingTransactionsSQL)
+	// ctx already carries the collection's remaining budget; a second timeout here would extend
+	// the cycle rather than bound it.
+	rows, err := m.db.QueryContext(ctx, blockingTransactionsSQL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query the lock wait graph: %w", err)
 	}

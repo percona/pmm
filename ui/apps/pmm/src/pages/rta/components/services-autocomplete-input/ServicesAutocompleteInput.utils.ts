@@ -70,6 +70,13 @@ export const getServiceOptions = (
     }
   });
 
+  // Worked out across the whole list, before the split below. A cluster spanning technologies
+  // has services in more than one group, and each group on its own looks uniform -- so asking
+  // the group would report a single technology for a cluster that has none, and the header
+  // would become selectable. Selecting it seeds a mixed set in one click, which is exactly
+  // what isServiceOptionDisabled exists to prevent.
+  const clusterTechnologies = getClusterTechnologies(services);
+
   return Array.from(byTechnology.keys())
     .sort((a, b) => {
       if (!a || !b) {
@@ -78,13 +85,56 @@ export const getServiceOptions = (
 
       return a.localeCompare(b);
     })
-    .flatMap((label) => getClusterOptions(byTechnology.get(label) ?? []));
+    .flatMap((label) =>
+      getClusterOptions(
+        byTechnology.get(label) ?? [],
+        clusterTechnologies,
+        label
+      )
+    );
 };
+
+// getClusterTechnologies maps each cluster name to the technology all of its services share,
+// or undefined when they disagree.
+const getClusterTechnologies = (
+  services: (AvailableService | RealtimeSession)[]
+): Map<string, ServiceType | undefined> => {
+  const byCluster = new Map<string, (ServiceType | undefined)[]>();
+
+  services.forEach((service) => {
+    const clusterName = clusterNameOf(service);
+
+    if (!clusterName) {
+      return;
+    }
+
+    const seen = byCluster.get(clusterName);
+
+    if (seen) {
+      seen.push(service.serviceType);
+    } else {
+      byCluster.set(clusterName, [service.serviceType]);
+    }
+  });
+
+  return new Map(
+    Array.from(byCluster.entries()).map(([clusterName, types]) => [
+      clusterName,
+      sharedTechnology(types),
+    ])
+  );
+};
+
+// clusterNameOf reads the cluster from either shape the picker is fed.
+const clusterNameOf = (service: AvailableService | RealtimeSession): string =>
+  'cluster' in service ? service.cluster : service.clusterName;
 
 // getClusterOptions lays out one technology's services: standalone ones first,
 // then each cluster header followed by its services.
 const getClusterOptions = (
-  services: (AvailableService | RealtimeSession)[]
+  services: (AvailableService | RealtimeSession)[],
+  clusterTechnologies: Map<string, ServiceType | undefined>,
+  technologyLabel: string
 ): ServiceOption[] => {
   // Group services by cluster
   const clusterMap = new Map<string, (AvailableService | RealtimeSession)[]>();
@@ -133,12 +183,12 @@ const getClusterOptions = (
       // Add cluster header as a selectable option
       options.push({
         type: 'cluster',
-        id: `cluster-${clusterName}`,
+        // A cluster spanning technologies appears once under each of them, so the technology
+        // is part of the identity: two options sharing an id would collide as React keys.
+        id: `cluster-${technologyLabel}-${clusterName}`,
         label: clusterName,
         cluster: clusterName,
-        serviceType: sharedTechnology(
-          clusterServices.map((service) => service.serviceType)
-        ),
+        serviceType: clusterTechnologies.get(clusterName),
       });
 
       // Add cluster services sorted by name

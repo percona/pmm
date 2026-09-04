@@ -146,7 +146,7 @@ func (cmd *ChangeAgentRTAMySQLAgentCommand) RunCmd() (commands.Result, error) {
 
 	if cmd.CollectInterval != nil {
 		body.RtaOptions = &agents.ChangeAgentParamsBodyRtaMysqlAgentRtaOptions{
-			CollectInterval: cmd.CollectInterval.String(),
+			CollectInterval: commands.DurationString(cmd.CollectInterval),
 		}
 	}
 

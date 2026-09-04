@@ -109,7 +109,7 @@ func (cmd *AddAgentRTAMySQLAgentCommand) RunCmd() (commands.Result, error) {
 
 	if cmd.CollectInterval != nil {
 		params.Body.RtaMysqlAgent.RtaOptions = &agents.AddAgentParamsBodyRtaMysqlAgentRtaOptions{
-			CollectInterval: cmd.CollectInterval.String(),
+			CollectInterval: commands.DurationString(cmd.CollectInterval),
 		}
 	}
 

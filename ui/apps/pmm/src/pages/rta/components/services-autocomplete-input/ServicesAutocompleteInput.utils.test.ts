@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { ServiceType } from 'types/services.types';
 import { ServiceOption } from './ServicesAutocompleteInput.types';
-import { isServiceOptionDisabled } from './ServicesAutocompleteInput.utils';
+import { AvailableService } from 'types/rta.types';
+import {
+  getServiceOptions,
+  isServiceOptionDisabled,
+} from './ServicesAutocompleteInput.utils';
 
 const mysqlService: ServiceOption = {
   type: 'service',
@@ -69,5 +73,69 @@ describe('isServiceOptionDisabled', () => {
     expect(isServiceOptionDisabled(mixedCluster, ServiceType.mysql, true)).toBe(
       true
     );
+  });
+});
+
+describe('mixed-technology clusters', () => {
+  const mixed = [
+    {
+      serviceId: 'my-1',
+      serviceName: 'mysql-node',
+      cluster: 'mixed',
+      serviceType: ServiceType.mysql,
+    },
+    {
+      serviceId: 'mo-1',
+      serviceName: 'mongo-node',
+      cluster: 'mixed',
+      serviceType: ServiceType.mongodb,
+    },
+  ] as unknown as AvailableService[];
+
+  it('leaves the cluster header unselectable in every technology group', () => {
+    // The list is grouped by technology, so a cluster spanning two appears under both. Each
+    // group looks uniform on its own; the technology has to be judged across the whole
+    // cluster or the header becomes selectable and seeds a mixed set in one click.
+    const headers = getServiceOptions(mixed).filter(
+      (option) => option.type === 'cluster'
+    );
+
+    expect(headers).toHaveLength(2);
+    headers.forEach((header) => {
+      expect(header.serviceType).toBeUndefined();
+      expect(isServiceOptionDisabled(header, undefined, true)).toBe(true);
+    });
+  });
+
+  it('gives each header its own id so they do not collide as keys', () => {
+    const ids = getServiceOptions(mixed)
+      .filter((option) => option.type === 'cluster')
+      .map((option) => option.id);
+
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('keeps a single-technology cluster header selectable', () => {
+    const uniform = [
+      {
+        serviceId: 'my-1',
+        serviceName: 'a',
+        cluster: 'prod',
+        serviceType: ServiceType.mysql,
+      },
+      {
+        serviceId: 'my-2',
+        serviceName: 'b',
+        cluster: 'prod',
+        serviceType: ServiceType.mysql,
+      },
+    ] as unknown as AvailableService[];
+
+    const header = getServiceOptions(uniform).find(
+      (option) => option.type === 'cluster'
+    );
+
+    expect(header?.serviceType).toBe(ServiceType.mysql);
+    expect(isServiceOptionDisabled(header!, undefined, true)).toBe(false);
   });
 });

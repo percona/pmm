@@ -164,3 +164,13 @@ export const soleBlocker = (
   query: RawQueryData
 ): BlockingTransaction | undefined =>
   soleBlockerOf(query.mySqlPayload?.blockedBy ?? []);
+
+// rtaRowId identifies a row across every service being watched at once.
+//
+// query_id is the database's own identifier -- a MySQL connection id -- and is unique only
+// within one instance. MySQL hands them out from 1 and starts over when the server restarts,
+// so two instances of similar age share almost all of their ids. The overview watches several
+// services at a time, and the details pane finds the selected row by matching this id, so
+// keying on it alone makes the pane navigate to a row on the wrong server.
+export const rtaRowId = (query: RawQueryData): string =>
+  `${query.serviceId}:${query.queryId}`;

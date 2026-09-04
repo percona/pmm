@@ -292,16 +292,20 @@ func TestCollectBlockingTransactionsDeduplicates(t *testing.T) {
 	m, mock := newMockedRTA(t)
 	// One waiter/blocker pair contending on both a record lock and a gap lock produces two
 	// rows for a single relationship; the blocker must be reported once.
+	//
+	// The rows are fed in the order the production query's ORDER BY yields them --
+	// "GEN_CLUST_INDEX" sorts before "PRIMARY" -- so the assertion below pins the value the
+	// server would really deliver rather than an arbitrary one.
 	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
-		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "PRIMARY").
-		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "GEN_CLUST_INDEX"))
+		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "GEN_CLUST_INDEX").
+		AddRow(411, 409, 1_500_000, 2_000_000, "Sleep", "u@h", "SELECT 1 FOR UPDATE", "db.t", "PRIMARY"))
 
 	graph, err := m.collectBlockingTransactions(t.Context())
 	require.NoError(t, err)
 	require.Len(t, graph.blockers["411"], 1, "the same blocking transaction must not be listed twice")
 	assert.Equal(t, int64(409), graph.blockers["411"][0].BlockingConnId)
-	// The ORDER BY makes the surviving row deterministic, so the index cannot flip per cycle.
-	assert.Equal(t, "PRIMARY", graph.lockedIndex["411"])
+	// First row wins, and the ORDER BY makes which row that is the same on every collection.
+	assert.Equal(t, "GEN_CLUST_INDEX", graph.lockedIndex["411"])
 }
 
 func TestCollectBlockingTransactionsSubSecondWait(t *testing.T) {
@@ -440,4 +444,38 @@ func TestCollectBlockingTransactionsRecordsWaiterLockOnce(t *testing.T) {
 	// Both hold the statement up independently, so both are roots and neither is "the" cause.
 	assert.True(t, graph.blockers["411"][0].Root)
 	assert.True(t, graph.blockers["411"][1].Root)
+}
+
+func TestCollectBlockingTransactionsPrefersARowThatNamesAnIndex(t *testing.T) {
+	t.Parallel()
+
+	m, mock := newMockedRTA(t)
+	// Waiter 411 contends with conn 409 over a table-level lock, which reports no index, and
+	// with conn 410 over a record lock on PRIMARY. The query orders the row that names an
+	// index first precisely so the lower-numbered blocker cannot leave the waiter with none.
+	mock.ExpectQuery("data_lock_waits").WillReturnRows(blockingRows().
+		AddRow(411, 410, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 1", "db.t", "PRIMARY").
+		AddRow(411, 409, 1_000_000, 2_000_000, "Sleep", "u@h", "SELECT 2", "db.t", nil))
+
+	graph, err := m.collectBlockingTransactions(t.Context())
+	require.NoError(t, err)
+	assert.Equal(t, "PRIMARY", graph.lockedIndex["411"], "a table-level lock must not erase the index")
+	assert.Len(t, graph.blockers["411"], 2)
+}
+
+func TestPermanentBlockingError(t *testing.T) {
+	t.Parallel()
+
+	// Errors that never heal without an operator changing something, so retrying is pointless.
+	for _, number := range []uint16{
+		mysqlErrNoSuchTable, mysqlErrTableAccessDenied,
+		mysqlErrSpecificAccessDenied, mysqlErrViewInvalid,
+	} {
+		assert.True(t, permanentBlockingError(number), "error %d must stop collection", number)
+	}
+
+	// A dropped connection or a lock-wait timeout may well succeed next cycle.
+	for _, number := range []uint16{2006, 1205, 0} {
+		assert.False(t, permanentBlockingError(number), "error %d must stay retryable", number)
+	}
 }

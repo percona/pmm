@@ -15,16 +15,24 @@ export interface Props {
 
 const BlockedChip: FC<Props> = ({ blockers }) => {
   const sole = soleBlockerOf(blockers);
+  // A blocked statement whose holder was not in the same snapshot: the lock graph and the
+  // statement list are read milliseconds apart. Saying "Blocked by 0" would be nonsense.
+  const holderUnknown = blockers.length === 0;
+
+  const label = holderUnknown
+    ? Messages.blockedUnknownHolder
+    : sole
+      ? Messages.blockedBy(sole.blockingConnId)
+      : Messages.blockedByMany(blockers.length);
+
+  const tooltip = holderUnknown
+    ? Messages.tooltipUnknownHolder
+    : sole
+      ? Messages.tooltip(sole.blockingConnId)
+      : Messages.tooltipMany(blockers.length);
 
   return (
-    <Tooltip
-      title={
-        sole
-          ? Messages.tooltip(sole.blockingConnId)
-          : Messages.tooltipMany(blockers.length)
-      }
-      arrow
-    >
+    <Tooltip title={tooltip} arrow>
       <Chip
         color="warning"
         data-testid="blocked-chip"
@@ -34,9 +42,7 @@ const BlockedChip: FC<Props> = ({ blockers }) => {
         label={
           <Stack direction="row" alignItems="center" gap={0.5}>
             <LockOutlinedIcon fontSize="small" />
-            {sole
-              ? Messages.blockedBy(sole.blockingConnId)
-              : Messages.blockedByMany(blockers.length)}
+            {label}
           </Stack>
         }
       />

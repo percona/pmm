@@ -9,7 +9,12 @@ import { useDetailsPaneNavigation } from '@percona/peak-ui';
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
-import { isBlocked, isTransactionControl } from './table/OverviewTable.utils';
+import {
+  isBlocked,
+  isBlockingUnknown,
+  isTransactionControl,
+  rtaRowId,
+} from './table/OverviewTable.utils';
 import { DetailsPane } from './details-pane';
 import type { QueryData } from 'types/rta.types';
 import DynamicFeed from '@mui/icons-material/DynamicFeed';
@@ -89,6 +94,13 @@ const RealtimeOverviewPage: FC = () => {
     () => visibleQueries.filter(isBlocked),
     [visibleQueries]
   );
+  // The agent could not read the lock graph, so nothing is known about waiting. Reporting
+  // "Blocked only (0)" here would present a monitoring gap as a verified healthy server, which
+  // is the one thing this must not do during an incident.
+  const blockingUnknown = useMemo(
+    () => visibleQueries.length > 0 && visibleQueries.every(isBlockingUnknown),
+    [visibleQueries]
+  );
   const tableQueries = showBlockedOnly ? blockedQueries : visibleQueries;
   const blockedCount = blockedQueries.length;
 
@@ -107,7 +119,7 @@ const RealtimeOverviewPage: FC = () => {
     useDetailsPaneNavigation<QueryData>({
       rows: navigableQueries,
       selected: selectedQuery,
-      getRowId: (query) => query.queryId,
+      getRowId: rtaRowId,
       onSelect: handleQuerySelected,
     });
 
@@ -264,19 +276,31 @@ const RealtimeOverviewPage: FC = () => {
                     flexItem
                     sx={{ my: 1, mx: 0.5 }}
                   />
-                  <Tooltip title={Messages.blockedOnlyTooltip} arrow>
+                  <Tooltip
+                    title={
+                      blockingUnknown
+                        ? Messages.blockedUnknownTooltip
+                        : Messages.blockedOnlyTooltip
+                    }
+                    arrow
+                  >
                     <FormControlLabel
                       data-testid="overview-table-blocked-only-toggle"
+                      disabled={blockingUnknown}
                       control={
                         <Switch
                           size="small"
-                          checked={blockedOnly}
+                          checked={blockedOnly && !blockingUnknown}
                           onChange={(event) =>
                             setBlockedOnly(event.target.checked)
                           }
                         />
                       }
-                      label={Messages.blockedOnly(blockedCount)}
+                      label={
+                        blockingUnknown
+                          ? Messages.blockedUnknown
+                          : Messages.blockedOnly(blockedCount)
+                      }
                       sx={{ whiteSpace: 'nowrap', mr: 0 }}
                     />
                   </Tooltip>

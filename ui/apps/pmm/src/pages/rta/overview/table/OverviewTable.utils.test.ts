@@ -10,6 +10,7 @@ import {
   queryLanguage,
   queryUsername,
   blockingRoots,
+  rtaRowId,
   soleBlocker,
   UNAVAILABLE_VALUE,
 } from './OverviewTable.utils';
@@ -245,5 +246,37 @@ describe('soleBlocker', () => {
     expect(
       blockingRoots(TEST_MYSQL_QUERY_DATA.mySqlPayload?.blockedBy ?? [])
     ).toHaveLength(0);
+  });
+});
+
+describe('rtaRowId', () => {
+  it('keeps two instances apart when they hand out the same connection id', () => {
+    // MySQL connection ids start at 1 and restart with the server, so two watched instances
+    // share almost all of theirs. The details pane finds the selected row by matching this id.
+    const onA: RawQueryData = {
+      ...TEST_MYSQL_QUERY_DATA,
+      serviceId: 'service-a',
+      queryId: '411',
+    };
+    const onB: RawQueryData = {
+      ...TEST_MYSQL_QUERY_DATA,
+      serviceId: 'service-b',
+      queryId: '411',
+    };
+
+    expect(rtaRowId(onA)).not.toBe(rtaRowId(onB));
+  });
+
+  it('is stable for the same row', () => {
+    expect(rtaRowId(TEST_MYSQL_QUERY_DATA)).toBe(
+      rtaRowId({ ...TEST_MYSQL_QUERY_DATA })
+    );
+  });
+
+  it('still distinguishes rows within one service', () => {
+    const a: RawQueryData = { ...TEST_MYSQL_QUERY_DATA, queryId: '411' };
+    const b: RawQueryData = { ...TEST_MYSQL_QUERY_DATA, queryId: '412' };
+
+    expect(rtaRowId(a)).not.toBe(rtaRowId(b));
   });
 });

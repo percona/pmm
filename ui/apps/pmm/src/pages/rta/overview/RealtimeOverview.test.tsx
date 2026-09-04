@@ -219,6 +219,32 @@ describe('RealtimeOverview', () => {
     );
   });
 
+  it('should say blocking is unknown rather than report zero blocked', async () => {
+    // The agent could not read the lock graph. Showing "Blocked only (0)" would present a
+    // monitoring gap as a verified healthy server.
+    const unknown = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '500',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.unspecified,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [unknown] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    const toggle = await screen.findByTestId(
+      'overview-table-blocked-only-toggle'
+    );
+    expect(toggle).toHaveTextContent('Blocked unknown');
+    expect(toggle).not.toHaveTextContent('(0)');
+    expect(toggle.querySelector('input[type="checkbox"]')).toBeDisabled();
+  });
+
   it('should chip the blocked row and filter to it when the toggle is on', async () => {
     const blocked = {
       ...TEST_RAW_MYSQL_QUERY_DATA,
