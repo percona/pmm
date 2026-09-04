@@ -727,43 +727,37 @@ pmmEnv:
 
 For all available variables, see [PMM environment variables](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md).
 
-Data retention is the exception: in HA it is a chart-level value rather than a `pmmEnv` entry. Change it in the PMM UI under **Configuration > Settings > Advanced settings**, or pin it declaratively with the top-level `dataRetentionDays`. Choose a period that matches your compliance requirements and storage capacity:
+Data retention is the exception: in HA it is a chart-level value rather than a `pmmEnv` entry, and it is fixed when the replicas start. Set it with the top-level `dataRetentionDays`, choosing a period that matches your compliance requirements and storage capacity:
 
 ```yaml
 dataRetentionDays: 30   # Whole days. Use 180 for six months
 ```
 
-The chart renders this value into `PMM_DATA_RETENTION` on every replica, so all of them agree on one retention period. As on standalone PMM, a retention value supplied through the environment takes precedence over the UI, so while `dataRetentionDays` is set the **Advanced settings** field is rejected. Remove it and upgrade again to hand control back to the UI.
+The chart renders this value in two places from the one setting: `PMM_DATA_RETENTION` on every replica, which governs Query Analytics data in ClickHouse, and `retentionPeriod` on the VictoriaMetrics resource, which governs metrics. Both stores therefore follow the same period, and every replica agrees on it.
 
-Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPeriod` yourself is rejected, because either one lets the replicas disagree about retention and purge on their own schedules.
+To change retention, edit `dataRetentionDays` and run `helm upgrade`. The value takes effect as the replicas restart.
 
-!!! note "Standalone PMM is unaffected"
-    `PMM_DATA_RETENTION` is still the supported way to set retention on standalone PMM. Only the HA chart reserves the variable, because it derives it from `dataRetentionDays`.
+!!! warning "Retention cannot be changed from the UI in HA"
+    In **Configuration > Settings > Advanced settings** the **Data retention** field is read-only, and the API refuses a change to it. Retention in both stores is a start-up setting: VictoriaMetrics reads its period when `vmstorage` starts, and each replica's Query Analytics service reads its own when it starts. Accepting a change while the cluster is running would store a value that PMM displays and neither store enforces.
 
-??? note "If you set `serviceAccount.create: false`, grant access to the VMCluster"
-    PMM applies retention to metrics by patching `retentionPeriod` on the `VMCluster` resource. The chart creates the Role for this together with the service account, so with the default `serviceAccount.create: true` there is nothing to do.
+    Standalone PMM is unaffected. There, retention remains changeable from the UI and the API, unless you set `PMM_DATA_RETENTION`, which pins it exactly as it always has.
 
-    With `serviceAccount.create: false` the chart creates neither the Role nor a `serviceAccountName` on the pods, so PMM runs under the namespace's `default` service account whatever `serviceAccount.name` says. Grant `default` the `get` and `patch` verbs on the `VMCluster`.
+Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPeriod` yourself is rejected. Either one lets the two stores disagree about how long to keep data, and each then purges on its own schedule.
 
-    Without those permissions, a retention change fails quietly: the UI accepts the new value and PMM stores it, but metrics keep their old retention. Only the leader reconciles, and it logs the failure once per leadership term, so check every replica rather than just the first:
+#### Check the retention period a replica is using
 
-    ```sh
-    for i in 0 1 2; do
-      kubectl exec -n pmm "pmm-ha-$i" -- grep component=vmretention /srv/logs/pmm-managed.log
-    done
-    ```
+Every replica reports its retention period and where the value came from when it starts:
 
-??? note "Pointing PMM at a different VictoriaMetrics resource"
-    The chart sets these variables to match the `VMCluster` it deploys. Override them only if your VictoriaMetrics resource differs:
+```sh
+for i in 0 1 2; do
+  kubectl exec -n pmm "pmm-ha-$i" -- grep "Data retention:" /srv/logs/pmm-managed.log
+done
+```
 
-    | Variable | Description | Default |
-    |----------|-------------|---------|
-    | `PMM_VM_CLUSTER_NAME` | Name of the resource holding the retention period. Leave unset to turn metrics retention reconciliation off | unset |
-    | `PMM_VM_CLUSTER_NAMESPACE` | Namespace of the resource | the pod's own namespace |
-    | `PMM_VM_CLUSTER_API_VERSION` | Group-qualified API version of the resource | `operator.victoriametrics.com/v1beta1` |
-    | `PMM_VM_CLUSTER_KIND` | Kind of the resource | `VMCluster` |
+A replica that warns about `dataRetentionDays` is running without `PMM_DATA_RETENTION`. It keeps whatever period was already stored, and nothing can change that until the chart supplies a value, so set `dataRetentionDays` and upgrade.
 
-    A bad value does not stop PMM from starting: it keeps running with metrics retention unapplied, and logs the reason at error level under `component=vmretention` on every leader promotion. Use the same command as above to read it.
+!!! note "Shortening retention deletes data immediately"
+    Metrics are removed one whole month partition at a time and Query Analytics data one whole day partition at a time, so a shorter period starts purging as soon as the replicas restart. Increasing the period afterwards does not bring back what was already removed.
 
 ### Review Helm parameters reference
 
@@ -773,7 +767,7 @@ Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPerio
 | `image.repository` | PMM server image repository | `percona/pmm-server` |
 | `image.tag` | PMM server image tag | `3.6.0` |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
-| `dataRetentionDays` | Data retention in whole days, applied to metrics and queries alike. Leave unset to manage retention from the PMM UI | unset |
+| `dataRetentionDays` | Data retention in whole days, applied to metrics and queries alike. The only way to set retention in HA | `30` |
 | `secret.create` | Create secret automatically | `false` |
 | `secret.name` | Name of the PMM secret | `pmm-secret` |
 | `storage.size` | PVC size | `10Gi` |

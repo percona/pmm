@@ -18,6 +18,15 @@ Neither store deletes data the moment it passes the retention period, and the tw
 !!! note alert alert-primary ""
     Increasing the retention period does not restore data that has already been removed.
 
+### When data retention is read-only
+
+The **Data retention** field is disabled, and the API refuses a change to it, in two cases:
+
+- **You set the `PMM_DATA_RETENTION` environment variable.** A value supplied through the environment is authoritative, on any deployment. Remove the variable and restart PMM to manage retention from the UI again.
+- **PMM runs in high availability mode.** There, retention is fixed when the replicas start and is set through the `pmm-ha` Helm chart's `dataRetentionDays` value. See [Set up PMM in HA mode](../install-pmm/install-HA-clustered.md#adjust-data-retention-and-other-settings).
+
+In both cases the field shows why it cannot be edited, so you do not have to submit a change to find out.
+
 ### Set data retention via the API
 
 If you configure data retention using the [Change Settings API](https://percona-pmm.readme.io/reference/changesettings) (`PUT /v1/server/settings`), express the value in seconds. Hours and minutes formats are not supported and will return an error.
