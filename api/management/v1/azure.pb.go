@@ -381,8 +381,10 @@ type AddAzureDatabaseRequest struct {
 	Type DiscoverAzureDatabaseType `protobuf:"varint,25,opt,name=type,proto3,enum=management.v1.DiscoverAzureDatabaseType" json:"type,omitempty"`
 	// Connection timeout for exporter (if set).
 	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,26,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
-	unknownFields     protoimpl.UnknownFields
-	sizeCache         protoimpl.SizeCache
+	// The pmm-agent identifier which should run agents. Defaults to the PMM Server's own pmm-agent.
+	PmmAgentId    string `protobuf:"bytes,27,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddAzureDatabaseRequest) Reset() {
@@ -597,6 +599,13 @@ func (x *AddAzureDatabaseRequest) GetConnectionTimeout() *durationpb.Duration {
 	return nil
 }
 
+func (x *AddAzureDatabaseRequest) GetPmmAgentId() string {
+	if x != nil {
+		return x.PmmAgentId
+	}
+	return ""
+}
+
 type AddAzureDatabaseResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -658,7 +667,8 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"node_model\x18\n" +
 	" \x01(\tR\tnodeModel\"\x85\x01\n" +
 	"\x1dDiscoverAzureDatabaseResponse\x12d\n" +
-	"\x17azure_database_instance\x18\x01 \x03(\v2,.management.v1.DiscoverAzureDatabaseInstanceR\x15azureDatabaseInstance\"\xfc\t\n" +
+	"\x17azure_database_instance\x18\x01 \x03(\v2,.management.v1.DiscoverAzureDatabaseInstanceR\x15azureDatabaseInstance\"\x9e\n" +
+	"\n" +
 	"\x17AddAzureDatabaseRequest\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -688,7 +698,9 @@ const file_management_v1_azure_proto_rawDesc = "" +
 	"\x16disable_query_examples\x18\x17 \x01(\bR\x14disableQueryExamples\x12?\n" +
 	"\x1ctablestats_group_table_limit\x18\x18 \x01(\x05R\x19tablestatsGroupTableLimit\x12<\n" +
 	"\x04type\x18\x19 \x01(\x0e2(.management.v1.DiscoverAzureDatabaseTypeR\x04type\x12R\n" +
-	"\x12connection_timeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
+	"\x12connection_timeout\x18\x1a \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x12 \n" +
+	"\fpmm_agent_id\x18\x1b \x01(\tR\n" +
+	"pmmAgentId\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x1a\n" +
