@@ -96,9 +96,7 @@ func vmAgentConfig(l *logrus.Entry, scrapeCfg string, params victoriaMetricsPara
 		rw  remoteWrite
 		err error
 	)
-	path := "standalone"
 	if d.haEnabled {
-		path = "ha"
 		rw, err = haRemoteWrite(params, d.isServerAgent)
 	} else {
 		rw, err = standaloneRemoteWrite(params)
@@ -107,7 +105,7 @@ func vmAgentConfig(l *logrus.Entry, scrapeCfg string, params victoriaMetricsPara
 		return nil, err
 	}
 
-	return buildVMAgentProcess(l.WithField("path", path), scrapeCfg, rw), nil
+	return buildVMAgentProcess(l, scrapeCfg, rw), nil
 }
 
 // serverProxyRemoteWrite writes through PMM Server's /victoriametrics/ write endpoint with the

@@ -194,13 +194,12 @@ func TestVMAgentConfigDebugLog(t *testing.T) {
 	logger.SetLevel(logrus.DebugLevel)
 	l := logrus.NewEntry(logger)
 
-	t.Run("names the path and the credential source, never the credential", func(t *testing.T) {
+	t.Run("names the credential source, never the credential", func(t *testing.T) {
 		hook.Reset()
 		_, err := vmAgentConfig(l, "", newVMParams(t, testVMAuth), vmAgentDeployment{haEnabled: true, isServerAgent: true})
 		require.NoError(t, err)
 		require.Len(t, hook.Entries, 1)
 		entry := hook.LastEntry()
-		assert.Equal(t, "ha", entry.Data["path"])
 		assert.Equal(t, credentialVMURL, entry.Data["credential_source"])
 		assert.Equal(t, testVMAuthWrite, entry.Data["remote_write_url"])
 		line, err := entry.String()
@@ -214,7 +213,6 @@ func TestVMAgentConfigDebugLog(t *testing.T) {
 		_, err := vmAgentConfig(l, "", newVMParams(t, models.VMBaseURL), vmAgentDeployment{})
 		require.NoError(t, err)
 		entry := hook.LastEntry()
-		assert.Equal(t, "standalone", entry.Data["path"])
 		assert.Equal(t, credentialNone, entry.Data["credential_source"])
 		assert.Equal(t, testInjectedURL, entry.Data["remote_write_url"])
 		line, err := entry.String()
