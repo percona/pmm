@@ -88,6 +88,123 @@ func (DistributionMethod) EnumDescriptor() ([]byte, []int) {
 	return file_server_v1_server_proto_rawDescGZIP(), []int{0}
 }
 
+// SettingName identifies a PMM Server setting.
+type SettingName int32
+
+const (
+	SettingName_SETTING_NAME_UNSPECIFIED            SettingName = 0
+	SettingName_SETTING_NAME_DATA_RETENTION         SettingName = 1
+	SettingName_SETTING_NAME_UPDATES_ENABLED        SettingName = 2
+	SettingName_SETTING_NAME_TELEMETRY_ENABLED      SettingName = 3
+	SettingName_SETTING_NAME_ALERTING_ENABLED       SettingName = 4
+	SettingName_SETTING_NAME_AZUREDISCOVER_ENABLED  SettingName = 5
+	SettingName_SETTING_NAME_METRICS_RESOLUTIONS    SettingName = 6
+	SettingName_SETTING_NAME_ENABLE_INTERNAL_PG_QAN SettingName = 7
+)
+
+// Enum value maps for SettingName.
+var (
+	SettingName_name = map[int32]string{
+		0: "SETTING_NAME_UNSPECIFIED",
+		1: "SETTING_NAME_DATA_RETENTION",
+		2: "SETTING_NAME_UPDATES_ENABLED",
+		3: "SETTING_NAME_TELEMETRY_ENABLED",
+		4: "SETTING_NAME_ALERTING_ENABLED",
+		5: "SETTING_NAME_AZUREDISCOVER_ENABLED",
+		6: "SETTING_NAME_METRICS_RESOLUTIONS",
+		7: "SETTING_NAME_ENABLE_INTERNAL_PG_QAN",
+	}
+	SettingName_value = map[string]int32{
+		"SETTING_NAME_UNSPECIFIED":            0,
+		"SETTING_NAME_DATA_RETENTION":         1,
+		"SETTING_NAME_UPDATES_ENABLED":        2,
+		"SETTING_NAME_TELEMETRY_ENABLED":      3,
+		"SETTING_NAME_ALERTING_ENABLED":       4,
+		"SETTING_NAME_AZUREDISCOVER_ENABLED":  5,
+		"SETTING_NAME_METRICS_RESOLUTIONS":    6,
+		"SETTING_NAME_ENABLE_INTERNAL_PG_QAN": 7,
+	}
+)
+
+func (x SettingName) Enum() *SettingName {
+	p := new(SettingName)
+	*p = x
+	return p
+}
+
+func (x SettingName) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SettingName) Descriptor() protoreflect.EnumDescriptor {
+	return file_server_v1_server_proto_enumTypes[1].Descriptor()
+}
+
+func (SettingName) Type() protoreflect.EnumType {
+	return &file_server_v1_server_proto_enumTypes[1]
+}
+
+func (x SettingName) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SettingName.Descriptor instead.
+func (SettingName) EnumDescriptor() ([]byte, []int) {
+	return file_server_v1_server_proto_rawDescGZIP(), []int{1}
+}
+
+// LockReason says why a setting cannot be changed through the API.
+type LockReason int32
+
+const (
+	LockReason_LOCK_REASON_UNSPECIFIED LockReason = 0
+	// The value is pinned by an environment variable.
+	LockReason_LOCK_REASON_ENVIRONMENT LockReason = 1
+	// The value is fixed at start-up because PMM runs in a high availability cluster.
+	LockReason_LOCK_REASON_HIGH_AVAILABILITY LockReason = 2
+)
+
+// Enum value maps for LockReason.
+var (
+	LockReason_name = map[int32]string{
+		0: "LOCK_REASON_UNSPECIFIED",
+		1: "LOCK_REASON_ENVIRONMENT",
+		2: "LOCK_REASON_HIGH_AVAILABILITY",
+	}
+	LockReason_value = map[string]int32{
+		"LOCK_REASON_UNSPECIFIED":       0,
+		"LOCK_REASON_ENVIRONMENT":       1,
+		"LOCK_REASON_HIGH_AVAILABILITY": 2,
+	}
+)
+
+func (x LockReason) Enum() *LockReason {
+	p := new(LockReason)
+	*p = x
+	return p
+}
+
+func (x LockReason) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LockReason) Descriptor() protoreflect.EnumDescriptor {
+	return file_server_v1_server_proto_enumTypes[2].Descriptor()
+}
+
+func (LockReason) Type() protoreflect.EnumType {
+	return &file_server_v1_server_proto_enumTypes[2]
+}
+
+func (x LockReason) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LockReason.Descriptor instead.
+func (LockReason) EnumDescriptor() ([]byte, []int) {
+	return file_server_v1_server_proto_rawDescGZIP(), []int{2}
+}
+
 // VersionInfo describes component version, or PMM Server as a whole.
 type VersionInfo struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -976,6 +1093,71 @@ func (x *AdvisorRunIntervals) GetFrequentInterval() *durationpb.Duration {
 	return nil
 }
 
+// SettingLock reports a setting that ChangeSettings will refuse to change.
+type SettingLock struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The setting that cannot be changed.
+	Setting SettingName `protobuf:"varint,1,opt,name=setting,proto3,enum=server.v1.SettingName" json:"setting,omitempty"`
+	// Why it cannot be changed.
+	Reason LockReason `protobuf:"varint,2,opt,name=reason,proto3,enum=server.v1.LockReason" json:"reason,omitempty"`
+	// Name of the environment variable that pins the value. Set only when reason is
+	// LOCK_REASON_ENVIRONMENT.
+	EnvironmentVariable string `protobuf:"bytes,3,opt,name=environment_variable,json=environmentVariable,proto3" json:"environment_variable,omitempty"`
+	unknownFields       protoimpl.UnknownFields
+	sizeCache           protoimpl.SizeCache
+}
+
+func (x *SettingLock) Reset() {
+	*x = SettingLock{}
+	mi := &file_server_v1_server_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SettingLock) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SettingLock) ProtoMessage() {}
+
+func (x *SettingLock) ProtoReflect() protoreflect.Message {
+	mi := &file_server_v1_server_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SettingLock.ProtoReflect.Descriptor instead.
+func (*SettingLock) Descriptor() ([]byte, []int) {
+	return file_server_v1_server_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *SettingLock) GetSetting() SettingName {
+	if x != nil {
+		return x.Setting
+	}
+	return SettingName_SETTING_NAME_UNSPECIFIED
+}
+
+func (x *SettingLock) GetReason() LockReason {
+	if x != nil {
+		return x.Reason
+	}
+	return LockReason_LOCK_REASON_UNSPECIFIED
+}
+
+func (x *SettingLock) GetEnvironmentVariable() string {
+	if x != nil {
+		return x.EnvironmentVariable
+	}
+	return ""
+}
+
 // Settings represents PMM Server settings.
 type Settings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1013,13 +1195,17 @@ type Settings struct {
 	DefaultRoleId uint32 `protobuf:"varint,18,opt,name=default_role_id,json=defaultRoleId,proto3" json:"default_role_id,omitempty"`
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQan bool `protobuf:"varint,19,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3" json:"enable_internal_pg_qan,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Settings that ChangeSettings will refuse to change, and why. Empty when every setting is
+	// writable. A client should present these as read-only rather than let a user discover the
+	// refusal by submitting a change.
+	LockedSettings []*SettingLock `protobuf:"bytes,21,rep,name=locked_settings,json=lockedSettings,proto3" json:"locked_settings,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Settings) Reset() {
 	*x = Settings{}
-	mi := &file_server_v1_server_proto_msgTypes[16]
+	mi := &file_server_v1_server_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1031,7 +1217,7 @@ func (x *Settings) String() string {
 func (*Settings) ProtoMessage() {}
 
 func (x *Settings) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[16]
+	mi := &file_server_v1_server_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1044,7 +1230,7 @@ func (x *Settings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Settings.ProtoReflect.Descriptor instead.
 func (*Settings) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{16}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *Settings) GetUpdatesEnabled() bool {
@@ -1175,6 +1361,13 @@ func (x *Settings) GetEnableInternalPgQan() bool {
 	return false
 }
 
+func (x *Settings) GetLockedSettings() []*SettingLock {
+	if x != nil {
+		return x.LockedSettings
+	}
+	return nil
+}
+
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
 type ReadOnlySettings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1200,7 +1393,7 @@ type ReadOnlySettings struct {
 
 func (x *ReadOnlySettings) Reset() {
 	*x = ReadOnlySettings{}
-	mi := &file_server_v1_server_proto_msgTypes[17]
+	mi := &file_server_v1_server_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1212,7 +1405,7 @@ func (x *ReadOnlySettings) String() string {
 func (*ReadOnlySettings) ProtoMessage() {}
 
 func (x *ReadOnlySettings) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[17]
+	mi := &file_server_v1_server_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1225,7 +1418,7 @@ func (x *ReadOnlySettings) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReadOnlySettings.ProtoReflect.Descriptor instead.
 func (*ReadOnlySettings) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{17}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ReadOnlySettings) GetUpdatesEnabled() bool {
@@ -1292,7 +1485,7 @@ type GetSettingsRequest struct {
 
 func (x *GetSettingsRequest) Reset() {
 	*x = GetSettingsRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[18]
+	mi := &file_server_v1_server_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1304,7 +1497,7 @@ func (x *GetSettingsRequest) String() string {
 func (*GetSettingsRequest) ProtoMessage() {}
 
 func (x *GetSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[18]
+	mi := &file_server_v1_server_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1317,7 +1510,7 @@ func (x *GetSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{18}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{19}
 }
 
 type GetReadOnlySettingsRequest struct {
@@ -1328,7 +1521,7 @@ type GetReadOnlySettingsRequest struct {
 
 func (x *GetReadOnlySettingsRequest) Reset() {
 	*x = GetReadOnlySettingsRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[19]
+	mi := &file_server_v1_server_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1340,7 +1533,7 @@ func (x *GetReadOnlySettingsRequest) String() string {
 func (*GetReadOnlySettingsRequest) ProtoMessage() {}
 
 func (x *GetReadOnlySettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[19]
+	mi := &file_server_v1_server_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1353,7 +1546,7 @@ func (x *GetReadOnlySettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReadOnlySettingsRequest.ProtoReflect.Descriptor instead.
 func (*GetReadOnlySettingsRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{19}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{20}
 }
 
 type GetSettingsResponse struct {
@@ -1365,7 +1558,7 @@ type GetSettingsResponse struct {
 
 func (x *GetSettingsResponse) Reset() {
 	*x = GetSettingsResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[20]
+	mi := &file_server_v1_server_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1377,7 +1570,7 @@ func (x *GetSettingsResponse) String() string {
 func (*GetSettingsResponse) ProtoMessage() {}
 
 func (x *GetSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[20]
+	mi := &file_server_v1_server_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1390,7 +1583,7 @@ func (x *GetSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetSettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{20}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetSettingsResponse) GetSettings() *Settings {
@@ -1409,7 +1602,7 @@ type GetReadOnlySettingsResponse struct {
 
 func (x *GetReadOnlySettingsResponse) Reset() {
 	*x = GetReadOnlySettingsResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[21]
+	mi := &file_server_v1_server_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1421,7 +1614,7 @@ func (x *GetReadOnlySettingsResponse) String() string {
 func (*GetReadOnlySettingsResponse) ProtoMessage() {}
 
 func (x *GetReadOnlySettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[21]
+	mi := &file_server_v1_server_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1434,7 +1627,7 @@ func (x *GetReadOnlySettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetReadOnlySettingsResponse.ProtoReflect.Descriptor instead.
 func (*GetReadOnlySettingsResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{21}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *GetReadOnlySettingsResponse) GetSettings() *ReadOnlySettings {
@@ -1475,7 +1668,7 @@ type ChangeSettingsRequest struct {
 
 func (x *ChangeSettingsRequest) Reset() {
 	*x = ChangeSettingsRequest{}
-	mi := &file_server_v1_server_proto_msgTypes[22]
+	mi := &file_server_v1_server_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1487,7 +1680,7 @@ func (x *ChangeSettingsRequest) String() string {
 func (*ChangeSettingsRequest) ProtoMessage() {}
 
 func (x *ChangeSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[22]
+	mi := &file_server_v1_server_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1500,7 +1693,7 @@ func (x *ChangeSettingsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeSettingsRequest.ProtoReflect.Descriptor instead.
 func (*ChangeSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{22}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ChangeSettingsRequest) GetEnableUpdates() bool {
@@ -1610,7 +1803,7 @@ type ChangeSettingsResponse struct {
 
 func (x *ChangeSettingsResponse) Reset() {
 	*x = ChangeSettingsResponse{}
-	mi := &file_server_v1_server_proto_msgTypes[23]
+	mi := &file_server_v1_server_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1622,7 +1815,7 @@ func (x *ChangeSettingsResponse) String() string {
 func (*ChangeSettingsResponse) ProtoMessage() {}
 
 func (x *ChangeSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_v1_server_proto_msgTypes[23]
+	mi := &file_server_v1_server_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1635,7 +1828,7 @@ func (x *ChangeSettingsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChangeSettingsResponse.ProtoReflect.Descriptor instead.
 func (*ChangeSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_server_v1_server_proto_rawDescGZIP(), []int{23}
+	return file_server_v1_server_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ChangeSettingsResponse) GetSettings() *Settings {
@@ -1703,7 +1896,11 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xbc\a\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xa1\x01\n" +
+	"\vSettingLock\x120\n" +
+	"\asetting\x18\x01 \x01(\x0e2\x16.server.v1.SettingNameR\asetting\x12-\n" +
+	"\x06reason\x18\x02 \x01(\x0e2\x15.server.v1.LockReasonR\x06reason\x121\n" +
+	"\x14environment_variable\x18\x03 \x01(\tR\x13environmentVariable\"\xfd\a\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -1723,7 +1920,8 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13telemetry_summaries\x18\x10 \x03(\tR\x12telemetrySummaries\x122\n" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
 	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
-	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQanJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\x8f\x03\n" +
+	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12?\n" +
+	"\x0flocked_settings\x18\x15 \x03(\v2\x16.server.v1.SettingLockR\x0elockedSettingsJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\x8f\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1776,7 +1974,21 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x17DISTRIBUTION_METHOD_OVF\x10\x02\x12\x1b\n" +
 	"\x17DISTRIBUTION_METHOD_AMI\x10\x03\x12\x1d\n" +
 	"\x19DISTRIBUTION_METHOD_AZURE\x10\x04\x12\x1a\n" +
-	"\x16DISTRIBUTION_METHOD_DO\x10\x052\xc1\x0e\n" +
+	"\x16DISTRIBUTION_METHOD_DO\x10\x05*\xac\x02\n" +
+	"\vSettingName\x12\x1c\n" +
+	"\x18SETTING_NAME_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bSETTING_NAME_DATA_RETENTION\x10\x01\x12 \n" +
+	"\x1cSETTING_NAME_UPDATES_ENABLED\x10\x02\x12\"\n" +
+	"\x1eSETTING_NAME_TELEMETRY_ENABLED\x10\x03\x12!\n" +
+	"\x1dSETTING_NAME_ALERTING_ENABLED\x10\x04\x12&\n" +
+	"\"SETTING_NAME_AZUREDISCOVER_ENABLED\x10\x05\x12$\n" +
+	" SETTING_NAME_METRICS_RESOLUTIONS\x10\x06\x12'\n" +
+	"#SETTING_NAME_ENABLE_INTERNAL_PG_QAN\x10\a*i\n" +
+	"\n" +
+	"LockReason\x12\x1b\n" +
+	"\x17LOCK_REASON_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17LOCK_REASON_ENVIRONMENT\x10\x01\x12!\n" +
+	"\x1dLOCK_REASON_HIGH_AVAILABILITY\x10\x022\xc1\x0e\n" +
 	"\rServerService\x12\x86\x01\n" +
 	"\aVersion\x12\x19.server.v1.VersionRequest\x1a\x1a.server.v1.VersionResponse\"D\x92A'\x12\aVersion\x1a\x1cReturns PMM Server versions.\x82\xd3\xe4\x93\x02\x14\x12\x12/v1/server/version\x12\xab\x02\n" +
 	"\tReadiness\x12\x1b.server.v1.ReadinessRequest\x1a\x1c.server.v1.ReadinessResponse\"\xe2\x01\x92A\xc5\x01\x12\x16Check server readiness\x1a\xaa\x01Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.\x82\xd3\xe4\x93\x02\x13\x12\x11/v1/server/readyz\x12\x81\x02\n" +
@@ -1803,90 +2015,96 @@ func file_server_v1_server_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 24)
+	file_server_v1_server_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
+	file_server_v1_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 25)
 	file_server_v1_server_proto_goTypes   = []any{
 		DistributionMethod(0),               // 0: server.v1.DistributionMethod
-		(*VersionInfo)(nil),                 // 1: server.v1.VersionInfo
-		(*VersionRequest)(nil),              // 2: server.v1.VersionRequest
-		(*VersionResponse)(nil),             // 3: server.v1.VersionResponse
-		(*ReadinessRequest)(nil),            // 4: server.v1.ReadinessRequest
-		(*ReadinessResponse)(nil),           // 5: server.v1.ReadinessResponse
-		(*LeaderHealthCheckRequest)(nil),    // 6: server.v1.LeaderHealthCheckRequest
-		(*LeaderHealthCheckResponse)(nil),   // 7: server.v1.LeaderHealthCheckResponse
-		(*CheckUpdatesRequest)(nil),         // 8: server.v1.CheckUpdatesRequest
-		(*DockerVersionInfo)(nil),           // 9: server.v1.DockerVersionInfo
-		(*CheckUpdatesResponse)(nil),        // 10: server.v1.CheckUpdatesResponse
-		(*ListChangeLogsRequest)(nil),       // 11: server.v1.ListChangeLogsRequest
-		(*ListChangeLogsResponse)(nil),      // 12: server.v1.ListChangeLogsResponse
-		(*UpdateStatusRequest)(nil),         // 13: server.v1.UpdateStatusRequest
-		(*UpdateStatusResponse)(nil),        // 14: server.v1.UpdateStatusResponse
-		(*MetricsResolutions)(nil),          // 15: server.v1.MetricsResolutions
-		(*AdvisorRunIntervals)(nil),         // 16: server.v1.AdvisorRunIntervals
-		(*Settings)(nil),                    // 17: server.v1.Settings
-		(*ReadOnlySettings)(nil),            // 18: server.v1.ReadOnlySettings
-		(*GetSettingsRequest)(nil),          // 19: server.v1.GetSettingsRequest
-		(*GetReadOnlySettingsRequest)(nil),  // 20: server.v1.GetReadOnlySettingsRequest
-		(*GetSettingsResponse)(nil),         // 21: server.v1.GetSettingsResponse
-		(*GetReadOnlySettingsResponse)(nil), // 22: server.v1.GetReadOnlySettingsResponse
-		(*ChangeSettingsRequest)(nil),       // 23: server.v1.ChangeSettingsRequest
-		(*ChangeSettingsResponse)(nil),      // 24: server.v1.ChangeSettingsResponse
-		(*timestamppb.Timestamp)(nil),       // 25: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),         // 26: google.protobuf.Duration
-		(*common.StringArray)(nil),          // 27: common.StringArray
+		SettingName(0),                      // 1: server.v1.SettingName
+		LockReason(0),                       // 2: server.v1.LockReason
+		(*VersionInfo)(nil),                 // 3: server.v1.VersionInfo
+		(*VersionRequest)(nil),              // 4: server.v1.VersionRequest
+		(*VersionResponse)(nil),             // 5: server.v1.VersionResponse
+		(*ReadinessRequest)(nil),            // 6: server.v1.ReadinessRequest
+		(*ReadinessResponse)(nil),           // 7: server.v1.ReadinessResponse
+		(*LeaderHealthCheckRequest)(nil),    // 8: server.v1.LeaderHealthCheckRequest
+		(*LeaderHealthCheckResponse)(nil),   // 9: server.v1.LeaderHealthCheckResponse
+		(*CheckUpdatesRequest)(nil),         // 10: server.v1.CheckUpdatesRequest
+		(*DockerVersionInfo)(nil),           // 11: server.v1.DockerVersionInfo
+		(*CheckUpdatesResponse)(nil),        // 12: server.v1.CheckUpdatesResponse
+		(*ListChangeLogsRequest)(nil),       // 13: server.v1.ListChangeLogsRequest
+		(*ListChangeLogsResponse)(nil),      // 14: server.v1.ListChangeLogsResponse
+		(*UpdateStatusRequest)(nil),         // 15: server.v1.UpdateStatusRequest
+		(*UpdateStatusResponse)(nil),        // 16: server.v1.UpdateStatusResponse
+		(*MetricsResolutions)(nil),          // 17: server.v1.MetricsResolutions
+		(*AdvisorRunIntervals)(nil),         // 18: server.v1.AdvisorRunIntervals
+		(*SettingLock)(nil),                 // 19: server.v1.SettingLock
+		(*Settings)(nil),                    // 20: server.v1.Settings
+		(*ReadOnlySettings)(nil),            // 21: server.v1.ReadOnlySettings
+		(*GetSettingsRequest)(nil),          // 22: server.v1.GetSettingsRequest
+		(*GetReadOnlySettingsRequest)(nil),  // 23: server.v1.GetReadOnlySettingsRequest
+		(*GetSettingsResponse)(nil),         // 24: server.v1.GetSettingsResponse
+		(*GetReadOnlySettingsResponse)(nil), // 25: server.v1.GetReadOnlySettingsResponse
+		(*ChangeSettingsRequest)(nil),       // 26: server.v1.ChangeSettingsRequest
+		(*ChangeSettingsResponse)(nil),      // 27: server.v1.ChangeSettingsResponse
+		(*timestamppb.Timestamp)(nil),       // 28: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),         // 29: google.protobuf.Duration
+		(*common.StringArray)(nil),          // 30: common.StringArray
 	}
 )
 
 var file_server_v1_server_proto_depIdxs = []int32{
-	25, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
-	1,  // 1: server.v1.VersionResponse.server:type_name -> server.v1.VersionInfo
-	1,  // 2: server.v1.VersionResponse.managed:type_name -> server.v1.VersionInfo
+	28, // 0: server.v1.VersionInfo.timestamp:type_name -> google.protobuf.Timestamp
+	3,  // 1: server.v1.VersionResponse.server:type_name -> server.v1.VersionInfo
+	3,  // 2: server.v1.VersionResponse.managed:type_name -> server.v1.VersionInfo
 	0,  // 3: server.v1.VersionResponse.distribution_method:type_name -> server.v1.DistributionMethod
-	25, // 4: server.v1.DockerVersionInfo.timestamp:type_name -> google.protobuf.Timestamp
-	1,  // 5: server.v1.CheckUpdatesResponse.installed:type_name -> server.v1.VersionInfo
-	9,  // 6: server.v1.CheckUpdatesResponse.latest:type_name -> server.v1.DockerVersionInfo
-	25, // 7: server.v1.CheckUpdatesResponse.last_check:type_name -> google.protobuf.Timestamp
-	9,  // 8: server.v1.ListChangeLogsResponse.updates:type_name -> server.v1.DockerVersionInfo
-	25, // 9: server.v1.ListChangeLogsResponse.last_check:type_name -> google.protobuf.Timestamp
-	26, // 10: server.v1.MetricsResolutions.hr:type_name -> google.protobuf.Duration
-	26, // 11: server.v1.MetricsResolutions.mr:type_name -> google.protobuf.Duration
-	26, // 12: server.v1.MetricsResolutions.lr:type_name -> google.protobuf.Duration
-	26, // 13: server.v1.AdvisorRunIntervals.standard_interval:type_name -> google.protobuf.Duration
-	26, // 14: server.v1.AdvisorRunIntervals.rare_interval:type_name -> google.protobuf.Duration
-	26, // 15: server.v1.AdvisorRunIntervals.frequent_interval:type_name -> google.protobuf.Duration
-	15, // 16: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
-	26, // 17: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
-	16, // 18: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	17, // 19: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
-	18, // 20: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
-	15, // 21: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
-	26, // 22: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
-	27, // 23: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
-	16, // 24: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
-	17, // 25: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
-	2,  // 26: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
-	4,  // 27: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
-	6,  // 28: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
-	8,  // 29: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
-	11, // 30: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
-	13, // 31: server.v1.ServerService.UpdateStatus:input_type -> server.v1.UpdateStatusRequest
-	19, // 32: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
-	20, // 33: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
-	23, // 34: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
-	3,  // 35: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
-	5,  // 36: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
-	7,  // 37: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
-	10, // 38: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
-	12, // 39: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
-	14, // 40: server.v1.ServerService.UpdateStatus:output_type -> server.v1.UpdateStatusResponse
-	21, // 41: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
-	22, // 42: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
-	24, // 43: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
-	35, // [35:44] is the sub-list for method output_type
-	26, // [26:35] is the sub-list for method input_type
-	26, // [26:26] is the sub-list for extension type_name
-	26, // [26:26] is the sub-list for extension extendee
-	0,  // [0:26] is the sub-list for field type_name
+	28, // 4: server.v1.DockerVersionInfo.timestamp:type_name -> google.protobuf.Timestamp
+	3,  // 5: server.v1.CheckUpdatesResponse.installed:type_name -> server.v1.VersionInfo
+	11, // 6: server.v1.CheckUpdatesResponse.latest:type_name -> server.v1.DockerVersionInfo
+	28, // 7: server.v1.CheckUpdatesResponse.last_check:type_name -> google.protobuf.Timestamp
+	11, // 8: server.v1.ListChangeLogsResponse.updates:type_name -> server.v1.DockerVersionInfo
+	28, // 9: server.v1.ListChangeLogsResponse.last_check:type_name -> google.protobuf.Timestamp
+	29, // 10: server.v1.MetricsResolutions.hr:type_name -> google.protobuf.Duration
+	29, // 11: server.v1.MetricsResolutions.mr:type_name -> google.protobuf.Duration
+	29, // 12: server.v1.MetricsResolutions.lr:type_name -> google.protobuf.Duration
+	29, // 13: server.v1.AdvisorRunIntervals.standard_interval:type_name -> google.protobuf.Duration
+	29, // 14: server.v1.AdvisorRunIntervals.rare_interval:type_name -> google.protobuf.Duration
+	29, // 15: server.v1.AdvisorRunIntervals.frequent_interval:type_name -> google.protobuf.Duration
+	1,  // 16: server.v1.SettingLock.setting:type_name -> server.v1.SettingName
+	2,  // 17: server.v1.SettingLock.reason:type_name -> server.v1.LockReason
+	17, // 18: server.v1.Settings.metrics_resolutions:type_name -> server.v1.MetricsResolutions
+	29, // 19: server.v1.Settings.data_retention:type_name -> google.protobuf.Duration
+	18, // 20: server.v1.Settings.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
+	19, // 21: server.v1.Settings.locked_settings:type_name -> server.v1.SettingLock
+	20, // 22: server.v1.GetSettingsResponse.settings:type_name -> server.v1.Settings
+	21, // 23: server.v1.GetReadOnlySettingsResponse.settings:type_name -> server.v1.ReadOnlySettings
+	17, // 24: server.v1.ChangeSettingsRequest.metrics_resolutions:type_name -> server.v1.MetricsResolutions
+	29, // 25: server.v1.ChangeSettingsRequest.data_retention:type_name -> google.protobuf.Duration
+	30, // 26: server.v1.ChangeSettingsRequest.aws_partitions:type_name -> common.StringArray
+	18, // 27: server.v1.ChangeSettingsRequest.advisor_run_intervals:type_name -> server.v1.AdvisorRunIntervals
+	20, // 28: server.v1.ChangeSettingsResponse.settings:type_name -> server.v1.Settings
+	4,  // 29: server.v1.ServerService.Version:input_type -> server.v1.VersionRequest
+	6,  // 30: server.v1.ServerService.Readiness:input_type -> server.v1.ReadinessRequest
+	8,  // 31: server.v1.ServerService.LeaderHealthCheck:input_type -> server.v1.LeaderHealthCheckRequest
+	10, // 32: server.v1.ServerService.CheckUpdates:input_type -> server.v1.CheckUpdatesRequest
+	13, // 33: server.v1.ServerService.ListChangeLogs:input_type -> server.v1.ListChangeLogsRequest
+	15, // 34: server.v1.ServerService.UpdateStatus:input_type -> server.v1.UpdateStatusRequest
+	22, // 35: server.v1.ServerService.GetSettings:input_type -> server.v1.GetSettingsRequest
+	23, // 36: server.v1.ServerService.GetReadOnlySettings:input_type -> server.v1.GetReadOnlySettingsRequest
+	26, // 37: server.v1.ServerService.ChangeSettings:input_type -> server.v1.ChangeSettingsRequest
+	5,  // 38: server.v1.ServerService.Version:output_type -> server.v1.VersionResponse
+	7,  // 39: server.v1.ServerService.Readiness:output_type -> server.v1.ReadinessResponse
+	9,  // 40: server.v1.ServerService.LeaderHealthCheck:output_type -> server.v1.LeaderHealthCheckResponse
+	12, // 41: server.v1.ServerService.CheckUpdates:output_type -> server.v1.CheckUpdatesResponse
+	14, // 42: server.v1.ServerService.ListChangeLogs:output_type -> server.v1.ListChangeLogsResponse
+	16, // 43: server.v1.ServerService.UpdateStatus:output_type -> server.v1.UpdateStatusResponse
+	24, // 44: server.v1.ServerService.GetSettings:output_type -> server.v1.GetSettingsResponse
+	25, // 45: server.v1.ServerService.GetReadOnlySettings:output_type -> server.v1.GetReadOnlySettingsResponse
+	27, // 46: server.v1.ServerService.ChangeSettings:output_type -> server.v1.ChangeSettingsResponse
+	38, // [38:47] is the sub-list for method output_type
+	29, // [29:38] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_server_v1_server_proto_init() }
@@ -1894,14 +2112,14 @@ func file_server_v1_server_proto_init() {
 	if File_server_v1_server_proto != nil {
 		return
 	}
-	file_server_v1_server_proto_msgTypes[22].OneofWrappers = []any{}
+	file_server_v1_server_proto_msgTypes[23].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_server_v1_server_proto_rawDesc), len(file_server_v1_server_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   24,
+			NumEnums:      3,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

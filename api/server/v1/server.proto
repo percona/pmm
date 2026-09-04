@@ -140,6 +140,38 @@ message AdvisorRunIntervals {
   google.protobuf.Duration frequent_interval = 3;
 }
 
+// SettingName identifies a PMM Server setting.
+enum SettingName {
+  SETTING_NAME_UNSPECIFIED = 0;
+  SETTING_NAME_DATA_RETENTION = 1;
+  SETTING_NAME_UPDATES_ENABLED = 2;
+  SETTING_NAME_TELEMETRY_ENABLED = 3;
+  SETTING_NAME_ALERTING_ENABLED = 4;
+  SETTING_NAME_AZUREDISCOVER_ENABLED = 5;
+  SETTING_NAME_METRICS_RESOLUTIONS = 6;
+  SETTING_NAME_ENABLE_INTERNAL_PG_QAN = 7;
+}
+
+// LockReason says why a setting cannot be changed through the API.
+enum LockReason {
+  LOCK_REASON_UNSPECIFIED = 0;
+  // The value is pinned by an environment variable.
+  LOCK_REASON_ENVIRONMENT = 1;
+  // The value is fixed at start-up because PMM runs in a high availability cluster.
+  LOCK_REASON_HIGH_AVAILABILITY = 2;
+}
+
+// SettingLock reports a setting that ChangeSettings will refuse to change.
+message SettingLock {
+  // The setting that cannot be changed.
+  SettingName setting = 1;
+  // Why it cannot be changed.
+  LockReason reason = 2;
+  // Name of the environment variable that pins the value. Set only when reason is
+  // LOCK_REASON_ENVIRONMENT.
+  string environment_variable = 3;
+}
+
 // Settings represents PMM Server settings.
 message Settings {
   // True if updates are enabled.
@@ -176,6 +208,10 @@ message Settings {
   // Field 20 (update_snooze_duration) was removed when GUI-triggered upgrades were deprecated.
   reserved 20;
   reserved "update_snooze_duration";
+  // Settings that ChangeSettings will refuse to change, and why. Empty when every setting is
+  // writable. A client should present these as read-only rather than let a user discover the
+  // refusal by submitting a change.
+  repeated SettingLock locked_settings = 21;
 }
 
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
