@@ -66,7 +66,6 @@ type Server struct {
 	haService            haService
 	updater              *Updater
 	nomad                nomadService
-	vmRetention          vmRetentionService
 
 	l *logrus.Entry
 
@@ -93,7 +92,6 @@ type Params struct {
 	Dus                  *distribution.Service
 	HAService            haService
 	Nomad                nomadService
-	VMRetention          vmRetentionService
 }
 
 // NewServer returns new server for Server service.
@@ -119,7 +117,6 @@ func NewServer(params *Params) (*Server, error) {
 		updater:              params.Updater,
 		haService:            params.HAService,
 		nomad:                params.Nomad,
-		vmRetention:          params.VMRetention,
 		l:                    logrus.WithField("component", "server"),
 		envSettings:          &models.ChangeSettingsParams{},
 	}
@@ -693,9 +690,6 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
-
-	// Fast path: only the leader reconciles, and its ticker applies the change otherwise.
-	s.vmRetention.RequestRetentionUpdate()
 
 	err = s.agentsState.UpdateAgentsState(ctx)
 	if err != nil {
