@@ -19,7 +19,9 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 
+	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -32,6 +34,7 @@ func TestServerKnowsAgent(t *testing.T) {
 	for _, tc := range []struct {
 		name       string
 		statusCode int
+		hangs      bool
 		known      bool
 		unknowable bool
 	}{
@@ -57,9 +60,25 @@ func TestServerKnowsAgent(t *testing.T) {
 			statusCode: http.StatusServiceUnavailable,
 			unknowable: true,
 		},
+		{
+			name:       "PMM Server hangs",
+			hangs:      true,
+			unknowable: true,
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, _ *http.Request) {
+			if tc.hangs {
+				// The request has to give up long before the default 30 seconds.
+				defaultTimeout := httptransport.DefaultTimeout
+				httptransport.DefaultTimeout = 100 * time.Millisecond
+				t.Cleanup(func() { httptransport.DefaultTimeout = defaultTimeout })
+			}
+
+			server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+				if tc.hangs {
+					<-req.Context().Done()
+					return
+				}
 				rw.Header().Set("Content-Type", "application/json")
 				rw.WriteHeader(tc.statusCode)
 				_, _ = rw.Write([]byte(`{"message": "` + tc.name + `"}`))

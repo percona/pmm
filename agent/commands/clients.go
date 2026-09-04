@@ -146,10 +146,8 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 //
 // This method is not thread-safe.
 func serverKnowsAgent(agentID string) (bool, error) {
-	_, err := inventoryClient.Default.AgentsService.GetAgent(&aservice.GetAgentParams{
-		AgentID: agentID,
-		Context: context.Background(),
-	})
+	// The constructor bounds the request with the default timeout, so a hung PMM Server cannot stall the setup.
+	_, err := inventoryClient.Default.AgentsService.GetAgent(aservice.NewGetAgentParams().WithAgentID(agentID))
 	if err == nil {
 		return true, nil
 	}
