@@ -706,6 +706,7 @@ var (
 		(*durationpb.Duration)(nil),   // 6: google.protobuf.Duration
 	}
 )
+
 var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
 	5, // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
 	6, // 1: realtimeanalytics.v1.BlockingTransaction.wait_duration:type_name -> google.protobuf.Duration
