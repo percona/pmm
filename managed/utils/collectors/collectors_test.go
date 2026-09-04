@@ -60,6 +60,15 @@ func TestDisableDefaultEnabledCollectors(t *testing.T) {
 			want: []string{"--no-collector.a", "--no-collector.b", "--no-collector.c"},
 		},
 		{
+			name: "Duplicated collectors yield a single argument",
+			args: args{
+				prefix:             "--no-collector.",
+				defaultCollectors:  []string{"a", "b", "c"},
+				disabledCollectors: []string{"b", "a", "b", "b"},
+			},
+			want: []string{"--no-collector.b", "--no-collector.a"},
+		},
+		{
 			name: "Disable non-default enabled collectors",
 			args: args{
 				prefix:             "--no-collector.",
