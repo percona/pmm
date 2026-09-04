@@ -1,13 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { type MRT_Row } from 'material-react-table';
-import { QueryData, RawQueryData } from 'types/rta.types';
+import { BlockedStatus, QueryData, RawQueryData } from 'types/rta.types';
 import {
   filterCommaSeparated,
   formatElapsedTime,
+  isBlocked,
   isTransactionControl,
   queryDatabaseName,
   queryLanguage,
   queryUsername,
+  blockingRoots,
+  soleBlocker,
   UNAVAILABLE_VALUE,
 } from './OverviewTable.utils';
 import {
@@ -141,5 +144,106 @@ describe('isTransactionControl', () => {
     'INSERT INTO commits VALUES (1)',
   ])('does not flag regular statement %j', (text) => {
     expect(isTransactionControl(withText(text))).toBe(false);
+  });
+});
+
+// The lock graph observed for a three-connection pile-up: 409 is idle inside an open
+// transaction and heads the chain, 412 is queued in the middle of it.
+const blockedQuery: RawQueryData = {
+  ...TEST_MYSQL_QUERY_DATA,
+  mySqlPayload: {
+    ...TEST_MYSQL_QUERY_DATA.mySqlPayload!,
+    blockedStatus: BlockedStatus.blocked,
+    blockedBy: [
+      {
+        blockingConnId: '409',
+        blockingQuery: 'SELECT id,k FROM sbtest1 WHERE id=1 FOR UPDATE',
+        blockingCommand: 'Sleep',
+        blockingUsername: 'sbtest@172.17.0.1',
+        root: true,
+      },
+      {
+        blockingConnId: '412',
+        blockingQuery: 'UPDATE sbtest1 SET k=k+1 WHERE id=1',
+        blockingCommand: 'Query',
+        blockingUsername: 'sbtest@172.17.0.1',
+        root: false,
+      },
+    ],
+  },
+};
+
+describe('isBlocked', () => {
+  it('reports a MySQL statement waiting for a row lock', () => {
+    expect(isBlocked(blockedQuery)).toBe(true);
+  });
+
+  it('reports an unblocked MySQL statement', () => {
+    expect(isBlocked(TEST_MYSQL_QUERY_DATA)).toBe(false);
+  });
+
+  it('never reports a MongoDB statement as blocked', () => {
+    expect(isBlocked(TEST_MONGO_DB_QUERY_DATA)).toBe(false);
+  });
+});
+
+describe('soleBlocker', () => {
+  it('names the head of the chain when exactly one transaction is responsible', () => {
+    expect(soleBlocker(blockedQuery)?.blockingConnId).toBe('409');
+  });
+
+  it('names nobody when several independent transactions hold the statement up', () => {
+    // Both blockers are non-waiting, so resolving either one leaves the statement blocked.
+    const twoRoots: RawQueryData = {
+      ...blockedQuery,
+      mySqlPayload: {
+        ...blockedQuery.mySqlPayload!,
+        blockedBy: blockedQuery.mySqlPayload!.blockedBy!.map((blocker) => ({
+          ...blocker,
+          root: true,
+        })),
+      },
+    };
+
+    expect(soleBlocker(twoRoots)).toBeUndefined();
+    expect(blockingRoots(twoRoots.mySqlPayload!.blockedBy!)).toHaveLength(2);
+  });
+
+  it('names nobody when the only blocker is itself waiting', () => {
+    // root=false means the agent saw that connection waiting too, so resolving it is not
+    // guaranteed to free this statement. The rule declines rather than guess.
+    const cycle: RawQueryData = {
+      ...blockedQuery,
+      mySqlPayload: {
+        ...blockedQuery.mySqlPayload!,
+        blockedBy: [
+          { ...blockedQuery.mySqlPayload!.blockedBy![0], root: false },
+        ],
+      },
+    };
+
+    expect(soleBlocker(cycle)).toBeUndefined();
+  });
+
+  it('names nobody in a lock cycle with several blockers', () => {
+    const cycle: RawQueryData = {
+      ...blockedQuery,
+      mySqlPayload: {
+        ...blockedQuery.mySqlPayload!,
+        blockedBy: blockedQuery.mySqlPayload!.blockedBy!.map((blocker) => ({
+          ...blocker,
+          root: false,
+        })),
+      },
+    };
+
+    expect(soleBlocker(cycle)).toBeUndefined();
+  });
+
+  it('returns nothing for an unblocked statement', () => {
+    expect(soleBlocker(TEST_MYSQL_QUERY_DATA)).toBeUndefined();
+    expect(
+      blockingRoots(TEST_MYSQL_QUERY_DATA.mySqlPayload?.blockedBy ?? [])
+    ).toHaveLength(0);
   });
 });

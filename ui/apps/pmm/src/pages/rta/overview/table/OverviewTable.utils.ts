@@ -1,5 +1,10 @@
 import { type MRT_Row } from 'material-react-table';
-import { QueryData, RawQueryData } from 'types/rta.types';
+import {
+  BlockedStatus,
+  BlockingTransaction,
+  QueryData,
+  RawQueryData,
+} from 'types/rta.types';
 import { CodeLanguage } from 'types/util.types';
 
 // queryLanguage returns the syntax-highlighting language for a query
@@ -114,3 +119,48 @@ export const filterElapsedTime = (
 
   return valueSeconds >= parseFloat(min) && valueSeconds <= parseFloat(max);
 };
+
+// isBlocked reports whether a statement is known to be waiting for a row lock. Only MySQL
+// reports this; MongoDB rows are never blocked as far as RTA is concerned.
+export const isBlocked = (query: RawQueryData): boolean =>
+  query.mySqlPayload?.blockedStatus === BlockedStatus.blocked;
+
+// isBlockingUnknown reports that the agent could not read the lock graph for this statement,
+// so nothing is known about whether it is waiting. Distinct from a verified "not blocked":
+// showing those the same way would let a monitoring gap look like a healthy server.
+export const isBlockingUnknown = (query: RawQueryData): boolean =>
+  !!query.mySqlPayload &&
+  (query.mySqlPayload.blockedStatus === undefined ||
+    query.mySqlPayload.blockedStatus === BlockedStatus.unspecified);
+
+// blockingRoots returns the blockers that are not themselves waiting. Several can hold up one
+// statement at once, so this is a list: naming one of them as the culprit would be wrong
+// whenever there is more than one.
+export const blockingRoots = (
+  blockers: BlockingTransaction[]
+): BlockingTransaction[] => blockers.filter((blocker) => blocker.root);
+
+// soleBlockerOf returns the one transaction responsible for a wait, and nothing when the
+// answer is not a single transaction. Shared by every surface that has room for one name --
+// the table chip, the CSV column, the details pane -- so they cannot disagree about who is
+// to blame for the same row.
+export const soleBlockerOf = (
+  blockers: BlockingTransaction[]
+): BlockingTransaction | undefined => {
+  const roots = blockingRoots(blockers);
+
+  // Exactly one transaction is holding the statement up and is not itself waiting.
+  if (roots.length === 1) {
+    return roots[0];
+  }
+
+  // No root at all means every participant is waiting -- a cycle, or a graph we only read
+  // part of. Naming the single survivor would claim resolving it frees the statement, which
+  // is only true if it really is the whole story, and we cannot tell those apart. So do not.
+  return undefined;
+};
+
+export const soleBlocker = (
+  query: RawQueryData
+): BlockingTransaction | undefined =>
+  soleBlockerOf(query.mySqlPayload?.blockedBy ?? []);

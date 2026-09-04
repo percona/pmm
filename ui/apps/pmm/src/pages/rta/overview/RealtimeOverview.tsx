@@ -9,7 +9,7 @@ import { useDetailsPaneNavigation } from '@percona/peak-ui';
 import { RealtimePage } from '../components/rta-page';
 import { useRealtimeQueries, useRealtimeSessions } from 'hooks/api/useRealtime';
 import OverviewTable from './table/OverviewTable';
-import { isTransactionControl } from './table/OverviewTable.utils';
+import { isBlocked, isTransactionControl } from './table/OverviewTable.utils';
 import { DetailsPane } from './details-pane';
 import type { QueryData } from 'types/rta.types';
 import DynamicFeed from '@mui/icons-material/DynamicFeed';
@@ -58,6 +58,7 @@ const RealtimeOverviewPage: FC = () => {
     }
   );
   const [hideCommit, setHideCommit] = useState(false);
+  const [blockedOnly, setBlockedOnly] = useState(false);
   // Transaction-control statements are a MySQL concern, so the toggle is only
   // offered while MySQL services are being watched.
   const isMySqlSelection = serviceType === ServiceType.mysql;
@@ -70,12 +71,26 @@ const RealtimeOverviewPage: FC = () => {
   // the control unmounts, and a filter nobody can see must not keep hiding rows
   // (nor silently shrink the CSV export, which exports the filtered rows).
   const hideTransactionControl = hideCommit && isMySqlSelection;
-  const tableQueries = useMemo(() => {
+  // Gated the same way as the transaction-control toggle: lock waits are reported for
+  // MySQL only, and a filter that has left the screen must not keep hiding rows.
+  const showBlockedOnly = blockedOnly && isMySqlSelection;
+  // Split out so the toggle label counts the rows switching it on would leave, rather than
+  // every blocked row in the response. It is still counted before the table's own column
+  // filters, which live inside MRT and are not visible here, so a Database or User filter can
+  // leave the label higher than the row count.
+  const visibleQueries = useMemo(() => {
     const allQueries = queries ?? EMPTY_QUERIES;
+
     return hideTransactionControl
       ? allQueries.filter((query) => !isTransactionControl(query))
       : allQueries;
   }, [queries, hideTransactionControl]);
+  const blockedQueries = useMemo(
+    () => visibleQueries.filter(isBlocked),
+    [visibleQueries]
+  );
+  const tableQueries = showBlockedOnly ? blockedQueries : visibleQueries;
+  const blockedCount = blockedQueries.length;
 
   const handleQuerySelected = (query: QueryData) => {
     setSelectedQuery(query);
@@ -249,6 +264,22 @@ const RealtimeOverviewPage: FC = () => {
                     flexItem
                     sx={{ my: 1, mx: 0.5 }}
                   />
+                  <Tooltip title={Messages.blockedOnlyTooltip} arrow>
+                    <FormControlLabel
+                      data-testid="overview-table-blocked-only-toggle"
+                      control={
+                        <Switch
+                          size="small"
+                          checked={blockedOnly}
+                          onChange={(event) =>
+                            setBlockedOnly(event.target.checked)
+                          }
+                        />
+                      }
+                      label={Messages.blockedOnly(blockedCount)}
+                      sx={{ whiteSpace: 'nowrap', mr: 0 }}
+                    />
+                  </Tooltip>
                   <Tooltip title={Messages.hideCommitTooltip} arrow>
                     <FormControlLabel
                       data-testid="overview-table-hide-commit-toggle"

@@ -204,6 +204,74 @@
                             "description": "Indicates whether the statement performed a full table scan.",
                             "type": "boolean",
                             "x-order": 8
+                          },
+                          "blocked_status": {
+                            "description": "BlockedStatus says whether a statement is waiting for a row lock, keeping \"we could not\nfind out\" distinct from \"we checked and it is not waiting\". Collapsing the two would let a\nmonitoring gap look like a healthy server during the incident the feature exists for.\n\n - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.\n - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.\n - BLOCKED_STATUS_BLOCKED: The statement is waiting for a row lock; blocked_by names the transactions holding it.",
+                            "type": "string",
+                            "default": "BLOCKED_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "BLOCKED_STATUS_UNSPECIFIED",
+                              "BLOCKED_STATUS_NOT_BLOCKED",
+                              "BLOCKED_STATUS_BLOCKED"
+                            ],
+                            "x-order": 9
+                          },
+                          "blocked_by": {
+                            "description": "Transactions blocking this statement, ordered by connection id. Empty whenever\nblocked_status is not BLOCKED.",
+                            "type": "array",
+                            "items": {
+                              "description": "BlockingTransaction describes a transaction that is preventing a statement from\nacquiring the lock it needs. It is read from performance_schema.data_lock_waits in\nthe same collection cycle as the statement itself, so no extra round trip is needed\nto explain why a statement is stuck.",
+                              "type": "object",
+                              "properties": {
+                                "blocking_conn_id": {
+                                  "description": "Connection id (processlist id) of the blocking transaction.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 0
+                                },
+                                "blocking_query": {
+                                  "description": "The blocking connection's statement: its current statement, or the last statement\nit ran when it sits idle inside an open transaction.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "blocking_command": {
+                                  "description": "Command the blocking connection is executing (\"Query\", \"Execute\", ...).\n\"Sleep\" means it is idle inside an open transaction and is running nothing at all.",
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "blocking_username": {
+                                  "description": "MySQL user name of the blocking connection.",
+                                  "type": "string",
+                                  "x-order": 3
+                                },
+                                "wait_duration": {
+                                  "description": "How long the waiting statement has been waiting on this blocker.",
+                                  "type": "string",
+                                  "x-order": 4
+                                },
+                                "blocker_transaction_duration": {
+                                  "description": "How long the blocking transaction has been open.",
+                                  "type": "string",
+                                  "x-order": 5
+                                },
+                                "root": {
+                                  "description": "True when this blocker is not itself waiting for a lock, i.e. it sits at the head of the\nblocking chain. More than one blocker of a statement can be marked -- several independent\ntransactions can hold up the same statement -- so a client must not present one of them\nas the sole cause unless it is the only one flagged. None are marked when the lock graph\nis a cycle and every participant is waiting.",
+                                  "type": "boolean",
+                                  "x-order": 6
+                                }
+                              }
+                            },
+                            "x-order": 10
+                          },
+                          "locked_table": {
+                            "description": "Schema-qualified table the statement is waiting for a lock on. This describes the lock\nthe statement itself requested, so it is a property of the waiter rather than of any one\nblocking transaction. Empty unless blocked_status is BLOCKED.",
+                            "type": "string",
+                            "x-order": 11
+                          },
+                          "locked_index": {
+                            "description": "Index the statement is waiting for a lock on. Empty unless blocked_status is BLOCKED.",
+                            "type": "string",
+                            "x-order": 12
                           }
                         },
                         "x-order": 9

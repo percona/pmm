@@ -3,7 +3,7 @@ import {
   TEST_MONGO_DB_QUERY_DATA,
   TEST_MYSQL_QUERY_DATA,
 } from 'utils/testStubs';
-import { QueryData } from 'types/rta.types';
+import { BlockedStatus, QueryData } from 'types/rta.types';
 import {
   buildRtaExportFilename,
   collectCsvColumns,
@@ -220,5 +220,75 @@ describe('exportRtaQueriesToCsv', () => {
     expect(mkConfig).not.toHaveBeenCalled();
     expect(generateCsv).not.toHaveBeenCalled();
     expect(download).not.toHaveBeenCalled();
+  });
+});
+
+describe('blocking columns', () => {
+  const blockedQuery = {
+    ...TEST_MYSQL_QUERY,
+    mySqlPayload: {
+      ...TEST_MYSQL_QUERY.mySqlPayload!,
+      blockedStatus: BlockedStatus.blocked,
+      lockedTable: 'sbtest.sbtest1',
+      lockedIndex: 'PRIMARY',
+      blockedBy: [
+        {
+          blockingConnId: '412',
+          blockingQuery: 'UPDATE sbtest1 SET k=k+1 WHERE id=1',
+          blockingCommand: 'Query',
+          blockingUsername: 'sbtest@172.17.0.1',
+          root: false,
+        },
+        {
+          blockingConnId: '409',
+          blockingQuery: 'SELECT id,k FROM sbtest1 WHERE id=1 FOR UPDATE',
+          blockingCommand: 'Sleep',
+          blockingUsername: 'sbtest@172.17.0.1',
+          root: true,
+        },
+      ],
+    },
+  };
+
+  it('exports the head of the chain as plain columns', () => {
+    const row = mapQueryToCsvRow(blockedQuery);
+
+    expect(row.blocked_status).toBe('BLOCKED_STATUS_BLOCKED');
+    expect(row.blocking_conn_id).toBe('409');
+    // The contended lock belongs to the waiting statement, so it is one pair of columns.
+    expect(row.locked_table).toBe('sbtest.sbtest1');
+    expect(row.locked_index).toBe('PRIMARY');
+    expect(row.blocking_query).toBe(
+      'SELECT id,k FROM sbtest1 WHERE id=1 FOR UPDATE'
+    );
+  });
+
+  it('never emits the blocker array as a JSON cell', () => {
+    expect(mapQueryToCsvRow(blockedQuery)).not.toHaveProperty('blocked_by');
+  });
+
+  it('names nobody when several independent transactions are responsible', () => {
+    const twoRoots = {
+      ...blockedQuery,
+      mySqlPayload: {
+        ...blockedQuery.mySqlPayload!,
+        blockedBy: blockedQuery.mySqlPayload!.blockedBy!.map((b) => ({
+          ...b,
+          root: true,
+        })),
+      },
+    };
+    const row = mapQueryToCsvRow(twoRoots);
+
+    // Still findable as blocked, but no column claims one transaction is the cause.
+    expect(row.blocked_status).toBe('BLOCKED_STATUS_BLOCKED');
+    expect(row).not.toHaveProperty('blocking_conn_id');
+  });
+
+  it('leaves an unblocked statement without blocker columns', () => {
+    const row = mapQueryToCsvRow(TEST_MYSQL_QUERY);
+
+    expect(row).not.toHaveProperty('blocking_conn_id');
+    expect(row).not.toHaveProperty('blocking_query');
   });
 });

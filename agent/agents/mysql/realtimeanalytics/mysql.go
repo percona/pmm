@@ -16,17 +16,20 @@
 package realtimeanalytics
 
 import (
+	"cmp"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	"github.com/go-sql-driver/mysql"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -47,6 +50,12 @@ const (
 	// time.NewTicker panic, and a panic here takes down the whole pmm-agent, so a
 	// missing interval degrades to the server's own default instead.
 	defaultCollectInterval = 2 * time.Second
+	// MySQL's ER_NO_SUCH_TABLE. The performance_schema lock tables the blocking query needs
+	// were added in 8.0, so this error means the server will never serve them.
+	mysqlErrNoSuchTable = 1146
+	// MySQL's ER_TABLEACCESS_DENIED_ERROR. The monitoring user was never granted access to the
+	// lock tables, which stays true until someone grants it and restarts the agent.
+	mysqlErrTableAccessDenied = 1142
 )
 
 // currentQueriesSQL fetches currently running queries from the sys schema.
@@ -64,6 +73,54 @@ WHERE conn_id IS NOT NULL
   AND conn_id <> CONNECTION_ID()
   AND current_statement IS NOT NULL
   AND command NOT IN ('Sleep', 'Daemon')`
+
+// blockingTransactionsSQL reads the InnoDB lock-wait graph, so a statement that is stuck can
+// be explained in the same payload as the statement itself rather than by a second round trip.
+//
+// The sys.innodb_lock_waits view would give the same graph in one shot, but the PMM monitoring user
+// cannot read it: the sys views call sys stored functions, and PMM's documented grants carry
+// SELECT without EXECUTE, so it fails with ERROR 1356. Reusing it would force
+// GRANT EXECUTE ON sys.* onto every existing deployment, hence this join over the raw tables,
+// which the documented grants already cover.
+//
+// STRAIGHT_JOIN is load-bearing, not cosmetic. It forces MySQL to drive from data_lock_waits,
+// which is empty whenever nothing is blocked, letting the later tables be skipped entirely.
+// Without it the optimizer materializes information_schema.innodb_trx first: measured on
+// Percona Server 8.0.46 with 48 open transactions and no locks held, 68ms per collection
+// against 8ms with the order forced.
+//
+// The processlist join is a LEFT JOIN on purpose: a blocking transaction whose thread has
+// already gone (or an XA transaction with no connection) still explains the wait, so the
+// relationship is kept and only the blocker's command/query/user come back empty.
+//
+// Rows are ordered so that repeated collections of an unchanged lock graph agree with one
+// another: performance_schema does not promise an order, and one waiter/blocker pair can
+// produce several rows (a record lock and a gap lock on the same row), so without an order
+// the deduplicated row -- and the contended index it carries -- would flip between cycles.
+//
+// The blocking statement is read as current_statement, falling back to last_statement, because
+// the head of a blocking chain is typically idle inside an open transaction and is running
+// nothing at all -- its last statement is the one that took the lock.
+//
+// Latencies are taken in microseconds: a 2s collect interval routinely catches waits well
+// under a second, and whole-second truncation would report those as "0s".
+const blockingTransactionsSQL = `
+SELECT STRAIGHT_JOIN
+    r.trx_mysql_thread_id AS waiting_conn_id,
+    b.trx_mysql_thread_id AS blocking_conn_id,
+    TIMESTAMPDIFF(MICROSECOND, r.trx_wait_started, NOW(6)) AS wait_micros,
+    TIMESTAMPDIFF(MICROSECOND, b.trx_started, NOW(6)) AS blocker_trx_micros,
+    p.command AS blocking_command,
+    p.user AS blocking_user,
+    COALESCE(p.current_statement, p.last_statement) AS blocking_query,
+    CONCAT(rl.OBJECT_SCHEMA, '.', rl.OBJECT_NAME) AS locked_table,
+    rl.INDEX_NAME AS locked_index
+FROM performance_schema.data_lock_waits w
+JOIN information_schema.innodb_trx r ON r.trx_id = w.REQUESTING_ENGINE_TRANSACTION_ID
+JOIN information_schema.innodb_trx b ON b.trx_id = w.BLOCKING_ENGINE_TRANSACTION_ID
+JOIN performance_schema.data_locks rl ON rl.ENGINE_LOCK_ID = w.REQUESTING_ENGINE_LOCK_ID
+LEFT JOIN sys.x$processlist p ON p.conn_id = b.trx_mysql_thread_id
+ORDER BY waiting_conn_id, blocking_conn_id, locked_index IS NULL, locked_index`
 
 // MySQLRTA extracts Real-Time Analytics data (currently running DB queries) from MySQL.
 type MySQLRTA struct {
@@ -88,6 +145,13 @@ type MySQLRTA struct {
 	db *sql.DB
 	// dbInstanceAddress is the monitored instance address parsed from the DSN.
 	dbInstanceAddress string
+	// blockingUnavailable records that the lock-wait graph could not be read, so a
+	// persistent problem is logged once instead of on every collection.
+	blockingUnavailable bool
+	// blockingUnsupported records that this server will never serve the lock-wait graph
+	// (the performance_schema lock tables are 8.0+), so the query is abandoned rather than
+	// re-issued every collect interval for the life of the agent.
+	blockingUnsupported bool
 }
 
 // Params represent Agent parameters.
@@ -303,7 +367,7 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 
 	collectTime := timestamppb.New(time.Now())
 
-	var results []*rtav1.QueryData
+	var scanned []map[string]any
 	for rows.Next() {
 		select {
 		case <-ctx.Done():
@@ -317,10 +381,7 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 			continue
 		}
 
-		queryData := m.buildQueryData(row)
-		queryData.QueryCollectTime = collectTime
-
-		results = append(results, queryData)
+		scanned = append(scanned, row)
 	}
 
 	err = rows.Err()
@@ -329,7 +390,212 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 		return nil, err
 	}
 
+	// Closed before the lock graph is read so the two queries never overlap: the statement
+	// list excludes only its own connection, and a second connection querying at the same
+	// time would show up in it as a running statement.
+	_ = rows.Close()
+
+	// Read second, on purpose. The two reads are milliseconds apart either way, but the order
+	// decides which way a stale answer errs. Reading the graph first lets a wait that clears
+	// in between attach its blockers to whatever the connection runs next -- a confident
+	// "blocked by 409" on a statement that never waited. Reading it second can only miss a
+	// wait that started in between, which the next collection picks up.
+	graph := m.collectBlockingTransactionsOrWarn(ctx)
+
+	results := make([]*rtav1.QueryData, 0, len(scanned))
+	for _, row := range scanned {
+		queryData := m.buildQueryData(row, graph)
+		queryData.QueryCollectTime = collectTime
+
+		results = append(results, queryData)
+	}
+
 	return results, nil
+}
+
+// blockingGraph is what one collection learned about which statements are waiting. A nil
+// graph means the lock tables could not be read at all, which is deliberately different from
+// a graph with no waits in it: the first is ignorance, the second is a verified healthy server.
+type blockingGraph struct {
+	// blockers holds the transactions holding up each waiting connection, keyed by the
+	// waiting connection id.
+	blockers map[string][]*rtav1.BlockingTransaction
+	// lockedTable and lockedIndex describe the lock each waiting connection asked for. They
+	// are a property of the waiter, not of any one blocker: every blocker of a statement is
+	// contending over the same requested lock.
+	lockedTable map[string]string
+	lockedIndex map[string]string
+}
+
+// collectBlockingTransactionsOrWarn reads the lock-wait graph and returns nil when it cannot,
+// so callers report the difference rather than passing an outage off as a healthy server.
+func (m *MySQLRTA) collectBlockingTransactionsOrWarn(ctx context.Context) *blockingGraph {
+	if m.blockingUnsupported {
+		return nil
+	}
+
+	graph, err := m.collectBlockingTransactions(ctx)
+	if err != nil {
+		// Two failures never heal on their own: the performance_schema lock tables only exist
+		// from 8.0, and a privilege the monitoring user was never granted stays ungranted
+		// until someone changes it and restarts the agent. Retrying either every collect
+		// interval would be tens of thousands of doomed round trips a day, so stop asking and
+		// say what would make it work.
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && permanentBlockingError(mysqlErr.Number) {
+			m.blockingUnsupported = true
+			m.l.Warnf("Blocking transaction details cannot be collected from this instance and will not be retried "+
+				"(grant the monitoring user SELECT on performance_schema and restart the agent if this is a privilege problem): %v", err)
+
+			return nil
+		}
+
+		// Anything else may be transient, so collection keeps trying. The warning is logged
+		// once per outage: repeating it every collect interval would bury the rest of the log.
+		if !m.blockingUnavailable {
+			m.blockingUnavailable = true
+			m.l.Warnf("Blocking transaction details are unavailable: %v", err)
+		}
+
+		return nil
+	}
+
+	if m.blockingUnavailable {
+		m.blockingUnavailable = false
+		m.l.Info("Blocking transaction details are available again")
+	}
+
+	return graph
+}
+
+// permanentBlockingError reports whether a MySQL error means the lock graph will never become
+// readable without operator action, making retries pointless.
+func permanentBlockingError(number uint16) bool {
+	switch number {
+	case mysqlErrNoSuchTable, mysqlErrTableAccessDenied:
+		return true
+	default:
+		return false
+	}
+}
+
+// collectBlockingTransactions returns what the lock graph says about every waiting connection.
+func (m *MySQLRTA) collectBlockingTransactions(ctx context.Context) (*blockingGraph, error) {
+	queryCtx, cancel := context.WithTimeout(ctx, mysqlQueryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryContext(queryCtx, blockingTransactionsSQL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query the lock wait graph: %w", err)
+	}
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	graph := &blockingGraph{
+		blockers:    make(map[string][]*rtav1.BlockingTransaction),
+		lockedTable: make(map[string]string),
+		lockedIndex: make(map[string]string),
+	}
+	// waiting collects every connection that is itself waiting, so the transactions at the
+	// head of a chain can be told apart from those queued in the middle of it.
+	waiting := make(map[int64]struct{})
+	// seen keeps one entry per (waiter, blocker) pair. A single pair can produce several rows
+	// -- one per contended lock, e.g. a record lock and a gap lock on the same row -- and the
+	// same blocker must not be reported twice for one statement. The query's ORDER BY makes
+	// the surviving row the same one on every collection.
+	seen := make(map[[2]int64]struct{})
+
+	for rows.Next() {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
+		var waitingConnID, blockingConnID int64
+		var waitMicros, blockerTrxMicros sql.NullInt64
+		var blockingCommand, blockingUser, blockingQuery, lockedTable, lockedIndex sql.NullString
+
+		err = rows.Scan(&waitingConnID, &blockingConnID, &waitMicros, &blockerTrxMicros,
+			&blockingCommand, &blockingUser, &blockingQuery, &lockedTable, &lockedIndex)
+		if err != nil {
+			m.l.Warnf("Failed to scan lock wait row: %v", err)
+			continue
+		}
+
+		waiting[waitingConnID] = struct{}{}
+		key := strconv.FormatInt(waitingConnID, 10)
+
+		// The contended lock belongs to the waiter and is the same across its blockers, so it
+		// is recorded once, from the first row the ORDER BY yields for that connection.
+		if _, recorded := graph.lockedTable[key]; !recorded {
+			graph.lockedTable[key] = lockedTable.String
+			graph.lockedIndex[key] = lockedIndex.String
+		}
+
+		pair := [2]int64{waitingConnID, blockingConnID}
+		if _, duplicate := seen[pair]; duplicate {
+			continue
+		}
+		seen[pair] = struct{}{}
+
+		graph.blockers[key] = append(graph.blockers[key], &rtav1.BlockingTransaction{
+			BlockingConnId:             blockingConnID,
+			BlockingQuery:              blockingQuery.String,
+			BlockingCommand:            blockingCommand.String,
+			BlockingUsername:           blockingUser.String,
+			WaitDuration:               microsToDuration(waitMicros),
+			BlockerTransactionDuration: microsToDuration(blockerTrxMicros),
+		})
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("failed to iterate lock wait rows: %w", err)
+	}
+
+	markRootBlockers(graph.blockers, waiting)
+
+	return graph, nil
+}
+
+// microsToDuration converts a microsecond column into a duration, leaving it unset when the
+// column is NULL. A NULL means the server had no value -- a transaction that stopped waiting
+// between the two reads inside the query -- which is not the same as a zero-length wait, and
+// reporting it as "0s" would state something untrue.
+func microsToDuration(micros sql.NullInt64) *durationpb.Duration {
+	if !micros.Valid {
+		return nil
+	}
+
+	return durationpb.New(time.Duration(micros.Int64) * time.Microsecond)
+}
+
+// markRootBlockers flags the blockers that are not themselves waiting for a lock. Those sit at
+// the head of the chain, so resolving them is what actually frees the waiter.
+//
+// There can be more than one: a statement can be held up by several independent transactions
+// at once (two holders of a shared lock, say). Every one of them is marked, and it is the
+// caller's job not to present a single one as "the" culprit when several are flagged --
+// resolving one of two independent holders leaves the statement blocked by the other.
+//
+// There can also be none, when the lock graph contains a cycle and every participant is
+// waiting. Nothing is invented in that case.
+//
+// Each list is sorted by connection id so repeated collections of an unchanged lock graph
+// agree with one another.
+func markRootBlockers(blockers map[string][]*rtav1.BlockingTransaction, waiting map[int64]struct{}) {
+	for _, list := range blockers {
+		for _, blocker := range list {
+			_, alsoWaiting := waiting[blocker.BlockingConnId]
+			blocker.Root = !alsoWaiting
+		}
+
+		slices.SortFunc(list, func(a, b *rtav1.BlockingTransaction) int {
+			return cmp.Compare(a.BlockingConnId, b.BlockingConnId)
+		})
+	}
 }
 
 // scanRow scans a single result row into a map keyed by column name. Values are
@@ -386,8 +652,27 @@ func coerceValue(b sql.RawBytes) any {
 // buildQueryData converts a single sys.x$processlist row into a *QueryData.
 // The complete row is preserved in QueryRawJson; a curated subset is exposed
 // via the MySQL payload for the details view.
-func (m *MySQLRTA) buildQueryData(row map[string]any) *rtav1.QueryData {
+func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rtav1.QueryData {
 	execDuration := durationpb.New(time.Duration(mapFloat(row, "statement_latency")/picosecondsPerNanosecond) * time.Nanosecond)
+
+	connID := mapString(row, "conn_id")
+
+	// A nil graph means the lock tables could not be read. Reporting NOT_BLOCKED then would
+	// dress a monitoring gap up as a healthy server, so the status stays unspecified and the
+	// UI can say it does not know rather than that nothing is wrong.
+	blockedStatus := rtav1.BlockedStatus_BLOCKED_STATUS_UNSPECIFIED
+	var blockedBy []*rtav1.BlockingTransaction
+	var lockedTable, lockedIndex string
+
+	if graph != nil {
+		blockedBy = graph.blockers[connID]
+		blockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_NOT_BLOCKED
+		if len(blockedBy) > 0 {
+			blockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED
+			lockedTable = graph.lockedTable[connID]
+			lockedIndex = graph.lockedIndex[connID]
+		}
+	}
 
 	mysqlPayload := &rtav1.QueryMySQLData{
 		DbInstanceAddress: m.dbInstanceAddress,
@@ -399,6 +684,10 @@ func (m *MySQLRTA) buildQueryData(row map[string]any) *rtav1.QueryData {
 		RowsExamined:      mapInt(row, "rows_examined"),
 		RowsSent:          mapInt(row, "rows_sent"),
 		FullScan:          strings.EqualFold(mapString(row, "full_scan"), "YES"),
+		BlockedStatus:     blockedStatus,
+		BlockedBy:         blockedBy,
+		LockedTable:       lockedTable,
+		LockedIndex:       lockedIndex,
 	}
 
 	rawJSON, err := json.MarshalIndent(row, "", "    ")
@@ -409,7 +698,7 @@ func (m *MySQLRTA) buildQueryData(row map[string]any) *rtav1.QueryData {
 	return &rtav1.QueryData{
 		ServiceId:              m.serviceID,
 		ServiceName:            m.serviceName,
-		QueryId:                mapString(row, "conn_id"),
+		QueryId:                connID,
 		QueryText:              mapString(row, "current_statement"),
 		QueryRawJson:           string(rawJSON),
 		QueryExecutionDuration: execDuration,

@@ -88,6 +88,35 @@ export interface QueryMySQLData {
   rowsExamined?: number | string;
   rowsSent?: number | string;
   fullScan?: boolean;
+  // Whether the statement is waiting for a row lock. UNSPECIFIED means the agent
+  // could not read the lock graph at all, which must not be shown as "not blocked".
+  blockedStatus?: BlockedStatus;
+  blockedBy?: BlockingTransaction[];
+  // The lock the statement itself is waiting for. A property of the waiter: every
+  // blocker of a statement is contending over the same requested lock.
+  lockedTable?: string;
+  lockedIndex?: string;
+}
+
+export enum BlockedStatus {
+  unspecified = 'BLOCKED_STATUS_UNSPECIFIED',
+  notBlocked = 'BLOCKED_STATUS_NOT_BLOCKED',
+  blocked = 'BLOCKED_STATUS_BLOCKED',
+}
+
+// A transaction preventing a statement from taking the lock it is waiting for.
+export interface BlockingTransaction {
+  blockingConnId: number | string;
+  blockingQuery: string;
+  // "Sleep" means the blocker is idle inside an open transaction and is running
+  // nothing at all, so blockingQuery is the statement that took the lock.
+  blockingCommand: string;
+  blockingUsername: string;
+  waitDuration?: string | null;
+  blockerTransactionDuration?: string | null;
+  // The blocker is not itself waiting, so it heads the chain: resolving it
+  // releases everything queued behind it.
+  root?: boolean;
 }
 
 // TODO: Add other service types when available

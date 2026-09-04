@@ -179,6 +179,177 @@ var _ interface {
 	ErrorName() string
 } = QueryMongoDBDataValidationError{}
 
+// Validate checks the field values on BlockingTransaction with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *BlockingTransaction) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BlockingTransaction with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// BlockingTransactionMultiError, or nil if none found.
+func (m *BlockingTransaction) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BlockingTransaction) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for BlockingConnId
+
+	// no validation rules for BlockingQuery
+
+	// no validation rules for BlockingCommand
+
+	// no validation rules for BlockingUsername
+
+	if all {
+		switch v := interface{}(m.GetWaitDuration()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, BlockingTransactionValidationError{
+					field:  "WaitDuration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, BlockingTransactionValidationError{
+					field:  "WaitDuration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetWaitDuration()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return BlockingTransactionValidationError{
+				field:  "WaitDuration",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if all {
+		switch v := interface{}(m.GetBlockerTransactionDuration()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, BlockingTransactionValidationError{
+					field:  "BlockerTransactionDuration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, BlockingTransactionValidationError{
+					field:  "BlockerTransactionDuration",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetBlockerTransactionDuration()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return BlockingTransactionValidationError{
+				field:  "BlockerTransactionDuration",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for Root
+
+	if len(errors) > 0 {
+		return BlockingTransactionMultiError(errors)
+	}
+
+	return nil
+}
+
+// BlockingTransactionMultiError is an error wrapping multiple validation
+// errors returned by BlockingTransaction.ValidateAll() if the designated
+// constraints aren't met.
+type BlockingTransactionMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BlockingTransactionMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BlockingTransactionMultiError) AllErrors() []error { return m }
+
+// BlockingTransactionValidationError is the validation error returned by
+// BlockingTransaction.Validate if the designated constraints aren't met.
+type BlockingTransactionValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BlockingTransactionValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BlockingTransactionValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BlockingTransactionValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BlockingTransactionValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BlockingTransactionValidationError) ErrorName() string {
+	return "BlockingTransactionValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e BlockingTransactionValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBlockingTransaction.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = BlockingTransactionValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BlockingTransactionValidationError{}
+
 // Validate checks the field values on QueryMySQLData with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
@@ -218,6 +389,46 @@ func (m *QueryMySQLData) validate(all bool) error {
 	// no validation rules for RowsSent
 
 	// no validation rules for FullScan
+
+	// no validation rules for BlockedStatus
+
+	for idx, item := range m.GetBlockedBy() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, QueryMySQLDataValidationError{
+						field:  fmt.Sprintf("BlockedBy[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, QueryMySQLDataValidationError{
+						field:  fmt.Sprintf("BlockedBy[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return QueryMySQLDataValidationError{
+					field:  fmt.Sprintf("BlockedBy[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for LockedTable
+
+	// no validation rules for LockedIndex
 
 	if len(errors) > 0 {
 		return QueryMySQLDataMultiError(errors)

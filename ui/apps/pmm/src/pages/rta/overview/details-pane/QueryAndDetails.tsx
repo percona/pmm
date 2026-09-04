@@ -6,12 +6,14 @@ import { CodeBlock } from '@percona/peak-ui';
 import { QueryData } from 'types/rta.types';
 import DetailsMetric from 'components/details-pane/DataPoint';
 import BigNumberMetric from './BigNumberMetric';
+import BlockedByPanel from './BlockedByPanel';
 import { Messages } from './QueryAndDetails.messages';
 import { TIME_FORMAT } from 'lib/constants';
 import { useUser } from 'contexts/user';
 import {
   codeBlockLanguage,
   elapsedTimeValue,
+  isBlocked,
   queryLanguage,
 } from '../table/OverviewTable.utils';
 
@@ -61,8 +63,25 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
     ? formattedQueryExecutionDuration.split(' ')
     : [];
 
+  // Gated on the same predicate the table chip and the blocked-only filter use, so a row
+  // that shows as blocked always opens a pane that explains it -- even when the holder was
+  // not in the same snapshot, which the panel renders as its unknown-holder state.
+  const blocked = isBlocked(queryData);
+  const blockers = mySqlPayload?.blockedBy ?? [];
+
   return (
     <Grid container spacing={3}>
+      {blocked && (
+        // Full width and above both columns: when a statement is stuck, why it is stuck
+        // outranks every other detail on the pane.
+        <Grid size={{ xs: 12 }}>
+          <BlockedByPanel
+            blockers={blockers}
+            lockedTable={mySqlPayload?.lockedTable}
+            lockedIndex={mySqlPayload?.lockedIndex}
+          />
+        </Grid>
+      )}
       <Grid size={{ xs: 12, md: 6 }}>
         <Grid container spacing={3}>
           <GridItem>

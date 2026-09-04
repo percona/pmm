@@ -5,8 +5,11 @@ import { ServiceType } from 'types/services.types';
 import { Messages } from './OverviewTable.messages';
 import { QueryCell } from './query-cell';
 import UnavailableText from 'components/unavailable-text';
+import Stack from '@mui/material/Stack';
+import { BlockedChip } from 'pages/rta/components/blocked-chip';
 import {
   formatElapsedTime,
+  isBlocked,
   queryDatabaseName,
   queryLanguage,
   queryUsername,
@@ -19,10 +22,18 @@ const QUERY_TEXT_COLUMN: MRT_ColumnDef<QueryData> = {
   accessorKey: 'queryText',
   filterFn: 'contains',
   Cell: ({ row }) => (
-    <QueryCell
-      query={row.original.queryText}
-      language={queryLanguage(row.original)}
-    />
+    // The chip sits with the statement rather than in a column of its own: most rows are
+    // never blocked, so a dedicated column would be mostly empty and cost horizontal space
+    // that the query text uses better.
+    <Stack direction="row" alignItems="center" gap={1} sx={{ minWidth: 0 }}>
+      {isBlocked(row.original) && (
+        <BlockedChip blockers={row.original.mySqlPayload?.blockedBy ?? []} />
+      )}
+      <QueryCell
+        query={row.original.queryText}
+        language={queryLanguage(row.original)}
+      />
+    </Stack>
   ),
   // @ts-expect-error - muiTableBodyCellProps is not typed correctly
   muiTableBodyCellProps: ({ row }) => ({

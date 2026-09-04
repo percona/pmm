@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { QueryData } from 'types/rta.types';
+import { soleBlocker } from '../table/OverviewTable.utils';
 import { isPlainObject } from 'utils/object.utils';
 
 const CSV_FORMULA_PREFIX = /^[=+\-@\t\r]/;
@@ -55,6 +56,11 @@ const CSV_COLUMN_ORDER = [
   'rowsExamined',
   'rowsSent',
   'fullScan',
+  'blockedStatus',
+  'lockedTable',
+  'lockedIndex',
+  'blockingConnId',
+  'blockingQuery',
   'queryCollectTime',
   'queryRawJson',
 ].map(toCsvHeader);
@@ -100,8 +106,23 @@ const flattenToCsvRow = (source: Record<string, unknown>): CsvRow => {
   return row;
 };
 
-export const mapQueryToCsvRow = (query: QueryData): CsvRow =>
-  flattenToCsvRow(query as unknown as Record<string, unknown>);
+export const mapQueryToCsvRow = (query: QueryData): CsvRow => {
+  const row = flattenToCsvRow(query as unknown as Record<string, unknown>);
+
+  // The blocker list is an array, which the generic flattening would serialize into one
+  // JSON cell that nobody can filter on. A spreadsheet column can hold one name, so it is
+  // filled only when one transaction is actually the answer; blocked_status stays BLOCKED
+  // either way, so a statement held up by several is still findable.
+  delete row[toCsvHeader('blockedBy')];
+
+  const blocker = soleBlocker(query);
+  if (blocker) {
+    row[toCsvHeader('blockingConnId')] = toCsvValue(blocker.blockingConnId);
+    row[toCsvHeader('blockingQuery')] = toCsvValue(blocker.blockingQuery);
+  }
+
+  return row;
+};
 
 // Columns are collected across every row: export-to-csv derives headers from
 // the first row only, which would drop fields that are unset on it.

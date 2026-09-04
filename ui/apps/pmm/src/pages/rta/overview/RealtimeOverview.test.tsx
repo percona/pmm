@@ -11,6 +11,7 @@ import {
   TEST_REAL_TIME_SESSION_MYSQL,
 } from 'utils/testStubs';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { BlockedStatus } from 'types/rta.types';
 import { Messages } from './RealtimeOverview.messages';
 
 const { exportRtaQueriesToCsv } = vi.hoisted(() => ({
@@ -196,6 +197,87 @@ describe('RealtimeOverview', () => {
         screen.getByTestId('overview-table-hide-commit-toggle')
       ).toHaveTextContent('Hide transaction control')
     );
+  });
+
+  it('should hide the blocked-only toggle for a MongoDB selection', async () => {
+    renderComponent();
+
+    await waitFor(() => screen.getByTestId('realtime-overview-table'));
+
+    expect(
+      screen.queryByTestId('overview-table-blocked-only-toggle')
+    ).not.toBeInTheDocument();
+  });
+
+  it('should show the blocked-only toggle for a MySQL selection', async () => {
+    renderMySqlSelection();
+
+    await waitFor(() =>
+      expect(
+        screen.getByTestId('overview-table-blocked-only-toggle')
+      ).toHaveTextContent('Blocked only')
+    );
+  });
+
+  it('should chip the blocked row and filter to it when the toggle is on', async () => {
+    const blocked = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '411',
+      queryText: 'UPDATE sbtest1 SET k=k+1 WHERE id=1',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.blocked,
+        blockedBy: [
+          {
+            blockingConnId: '409',
+            blockingQuery: 'SELECT 1 FOR UPDATE',
+            blockingCommand: 'Sleep',
+            blockingUsername: 'u@h',
+            root: true,
+          },
+        ],
+      },
+    };
+    const running = {
+      ...TEST_RAW_MYSQL_QUERY_DATA,
+      queryId: '412',
+      mySqlPayload: {
+        ...TEST_RAW_MYSQL_QUERY_DATA.mySqlPayload!,
+        blockedStatus: BlockedStatus.notBlocked,
+      },
+    };
+    getRunningSessions.mockResolvedValue([TEST_REAL_TIME_SESSION_MYSQL]);
+    searchQueries.mockResolvedValue({ queries: [blocked, running] });
+
+    renderComponent({
+      initialEntry: `/rta/overview?serviceIds=${TEST_REAL_TIME_SESSION_MYSQL.serviceId}`,
+    });
+
+    // Both rows are listed, and only the waiting one is chipped.
+    await waitFor(() =>
+      expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-412-host-cell')).toBeInTheDocument();
+    expect(screen.getByTestId('blocked-chip')).toHaveTextContent(
+      'Blocked by 409'
+    );
+    // The count names exactly the rows switching the toggle on will leave.
+    expect(
+      screen.getByTestId('overview-table-blocked-only-toggle')
+    ).toHaveTextContent('Blocked only (1)');
+
+    const toggle = screen
+      .getByTestId('overview-table-blocked-only-toggle')
+      .querySelector('input[type="checkbox"]');
+    expect(toggle).not.toBeNull();
+    fireEvent.click(toggle!);
+
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('query-412-host-cell')
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.getByTestId('query-411-host-cell')).toBeInTheDocument();
   });
 
   it('should not offer services of another technology while one is selected', async () => {
