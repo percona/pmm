@@ -25,23 +25,26 @@ import (
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/utils/logger"
 )
 
 // NodesService works with inventory API Nodes.
 type NodesService struct {
-	db    *reform.DB
-	r     agentsRegistry
-	state agentsStateUpdater
-	vmdb  prometheusService
+	db            *reform.DB
+	r             agentsRegistry
+	state         agentsStateUpdater
+	vmdb          prometheusService
+	grafanaClient grafanaClient
 }
 
 // NewNodesService returns Inventory API handler for managing Nodes.
-func NewNodesService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *NodesService {
+func NewNodesService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, gc grafanaClient) *NodesService {
 	return &NodesService{
-		db:    db,
-		r:     r,
-		state: state,
-		vmdb:  vmdb,
+		db:            db,
+		r:             r,
+		state:         state,
+		vmdb:          vmdb,
+		grafanaClient: gc,
 	}
 }
 
@@ -303,6 +306,11 @@ func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inve
 // Removes Node with the Agents and Services if force == true.
 // Returns an error if force == false and Node has Agents or Services.
 func (s *NodesService) Remove(ctx context.Context, id string, force bool) error {
+	node, err := models.FindNodeByID(s.db.Querier, id)
+	if err != nil {
+		return err
+	}
+
 	idsToKick := make(map[string]struct{})
 	idsToSetState := make(map[string]struct{})
 
@@ -353,6 +361,13 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 	if force {
 		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
 		s.vmdb.RequestConfigurationUpdate()
+	}
+
+	// pmm-agent authenticates with a token of the Grafana service account named after the Node.
+	// Drop the account, so that the token does not outlive the Node.
+	_, err = s.grafanaClient.DeleteServiceAccount(ctx, node.NodeName, force)
+	if err != nil {
+		logger.Get(ctx).Warnf("Failed to delete the service account of node %s: %s", node.NodeName, err)
 	}
 
 	return nil

@@ -29,6 +29,7 @@ packages:
       agentsRegistry:
       agentsStateUpdater:
       connectionChecker:
+      grafanaClient:
       inventoryMetrics:
       prometheusService:
       serviceInfoBroker:

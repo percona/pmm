@@ -16,6 +16,7 @@
 package inventory
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
@@ -61,6 +62,7 @@ func TestNodes(t *testing.T) {
 		require.Len(t, nodesResponse, 2)
 		assert.Equal(t, expectedNode, nodesResponse[0])
 
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", ctx, "test-bm", false).Return("", nil)
 		err = ns.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
 		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: "00000000-0000-4000-8000-000000000005"})
@@ -168,6 +170,28 @@ func TestNodes(t *testing.T) {
 		err = ns.Remove(ctx, models.PMMServerNodeID, true)
 		tests.AssertGRPCError(t, expected, err)
 	})
+
+	t.Run("RemoveWithoutServiceAccount", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Generic{
+				Generic: &inventoryv1.AddGenericNodeParams{NodeName: "test-bm"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetGeneric().NodeId
+
+		// A Node which pmm-agent never registered has no service account, and its removal still succeeds.
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", ctx, "test-bm", false).
+			Return("", errors.New("service account pmm-agent-sa-test-bm not found"))
+		err = ns.Remove(ctx, nodeID, false)
+		require.NoError(t, err)
+
+		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+	})
 }
 
 func TestAddNode(t *testing.T) {
@@ -204,6 +228,7 @@ func TestAddNode(t *testing.T) {
 		require.Len(t, nodesResponse, 2)
 		assert.Equal(t, expectedNode, nodesResponse[0])
 
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", ctx, "test-bm", false).Return("", nil)
 		err = ns.Remove(ctx, nodeID, false)
 		require.NoError(t, err)
 		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
@@ -337,6 +362,7 @@ func TestAddNode(t *testing.T) {
 		require.Len(t, nodesResponse, 6)
 		assert.Equal(t, expectedNode1, nodesResponse[0])
 
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", ctx, "test-name1", false).Return("", nil)
 		err = ns.Remove(ctx, nodeID1, false)
 		require.NoError(t, err)
 		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID1})
