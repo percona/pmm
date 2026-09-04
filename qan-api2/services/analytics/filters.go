@@ -19,6 +19,9 @@ import (
 	"context"
 	"fmt"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
@@ -34,7 +37,7 @@ func (s *Service) GetFilteredMetricsNames(ctx context.Context, in *qanpb.GetFilt
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	periodStartToSec := in.PeriodStartTo.Seconds
 	if periodStartFromSec > periodStartToSec {
-		return nil, fmt.Errorf("from-date %v cannot be later then to-date %v", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, status.Errorf(codes.InvalidArgument, "from-date %v cannot be later then to-date %v", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 
 	labels := make(map[string][]string)

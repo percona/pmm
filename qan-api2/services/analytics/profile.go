@@ -21,6 +21,9 @@ import (
 	"fmt"
 	"strings"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
 )
@@ -34,9 +37,15 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.GetReportRequest) (*q
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	periodStartToSec := in.PeriodStartTo.Seconds
 	if periodStartFromSec > periodStartToSec {
-		return nil, fmt.Errorf("from-date %v cannot be later then to-date %v", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, status.Errorf(codes.InvalidArgument, "from-date %v cannot be later then to-date %v", in.PeriodStartFrom, in.PeriodStartTo)
 	}
-	periodDurationSec := periodStartToSec - periodStartFromSec
+	// A report may be requested for a single instant, where every per-second rate below
+	// -- and the SQL that divides by this duration -- would otherwise divide by zero and
+	// yield +Inf, which the generated API clients cannot decode into their float fields.
+	// One second is the smallest floor that leaves every real duration untouched; note it
+	// makes these rates disagree with the sparkline, which reports such a period as one
+	// whole minute.
+	periodDurationSec := max(periodStartToSec-periodStartFromSec, 1)
 
 	if _, ok := standartDimensions[in.GroupBy]; !ok {
 		return nil, fmt.Errorf("unknown group dimension: %#q", in.GroupBy)
