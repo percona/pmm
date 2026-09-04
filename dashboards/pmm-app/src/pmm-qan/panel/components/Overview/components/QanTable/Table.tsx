@@ -137,7 +137,7 @@ export const Table: FC<TableProps> = ({
       {headers.map((column: any, index) => {
         const { HeaderAccessor } = column;
 
-        column.Header = () => HeaderAccessor();
+        column.Header = HeaderAccessor;
         let sorted = '';
 
         if (column.isSorted) {
@@ -205,29 +205,30 @@ export const Table: FC<TableProps> = ({
     <div>
       <div className={cx(styles.table, { [styles.tableDisabled]: disabled })}>
         <div className={styles.tableWrap(scroll)}>
-          {loading ? (
-            <div data-testid="table-loading" className={styles.empty(scroll.y)}>
-              <Spinner />
+          <div {...getTableProps()} className="table">
+            <div
+              {...getTableBodyProps()}
+              className={cx('table-body')}
+            >
+              <Scrollbar forceVisible="x">
+                {headerGroups.map(RenderHeader)}
+                {loading ? (
+                  <div data-testid="table-loading" className={styles.empty(scroll.y)}>
+                    <Spinner />
+                  </div>
+                ) : (
+                  <>
+                    {rows.length ? rows.map(RenderRow)
+                      : (
+                        <div data-testid="table-no-data" className={styles.empty(scroll.y)}>
+                          {noData || <h1>No data</h1>}
+                        </div>
+                      )}
+                  </>
+                )}
+              </Scrollbar>
             </div>
-          ) : null}
-          {!loading ? (
-            <div {...getTableProps()} className="table">
-              <div
-                {...getTableBodyProps()}
-                className={cx('table-body')}
-              >
-                <Scrollbar forceVisible="x">
-                  {headerGroups.map(RenderHeader)}
-                  {!!rows.length && rows.map(RenderRow)}
-                  {!rows.length && (
-                    <div data-testid="table-no-data" className={styles.empty(scroll.y)}>
-                      {noData || <h1>No data</h1>}
-                    </div>
-                  )}
-                </Scrollbar>
-              </div>
-            </div>
-          ) : null}
+          </div>
         </div>
       </div>
     </div>

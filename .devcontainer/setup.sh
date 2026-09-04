@@ -7,7 +7,7 @@ set -o nounset
 set -o pipefail
 
 declare MARKER="/tmp/devcontainer-setup-done"
-declare POSTGRES_DATA_DIR="/srv/postgres14"
+declare POSTGRES_DATA_DIR="/srv/postgres18"
 declare HBA_RULE="host    all         all     all     trust"
 
 # Installs required and useful RPM packages.
@@ -51,9 +51,11 @@ install_go() {
 install_node() {
     dnf module enable -y nodejs:22
     dnf install -y nodejs npm
-    npm install -g yarn@1.22.22
-    # pnpm is not pinned here: corepack resolves it from the `packageManager`
-    # field in ui/package.json on first use.
+    # The dnf-packaged Node.js does not bundle corepack (unlike official Node.js tarballs).
+    npm install -g corepack
+    # corepack's own package ships yarn/yarnpkg shims too; --force lets the real yarn
+    # binary below win over those.
+    npm install -g yarn@1.22.22 --force
     corepack enable pnpm
     node --version
     yarn --version

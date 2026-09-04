@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"fmt"
+	"math/rand/v2"
 	"sync"
 	"time"
 
@@ -37,7 +38,28 @@ const (
 	updateBatchDelay                = time.Second
 	stateChangeTimeout              = 5 * time.Second
 	loggerComponentNameStateUpdater = "state-updater"
+
+	// Constants for the failure retry backoff.
+	retryBaseDelay  = time.Second
+	retryMaxDelay   = 30 * time.Second
+	retryMaxShift   = 5
+	retryJitterFrac = 2
 )
+
+// retryDelay returns an exponentially increasing, jittered delay for the given number of
+// consecutive sendSetStateRequest failures.
+//
+// The jitter matters as much as the backoff: a fleet that failed together would otherwise
+// retry together, rebuilding the same thundering herd on every interval (PMM-15228).
+func retryDelay(failures int) time.Duration {
+	if failures < 1 {
+		failures = 1
+	}
+	d := min(retryBaseDelay<<min(failures-1, retryMaxShift), retryMaxDelay)
+	// Spread over [d/2, d) so agents that failed together pick different moments.
+	half := int64(d) / retryJitterFrac
+	return time.Duration(half + rand.Int64N(half)) //nolint:gosec // retry spacing, not security-sensitive
+}
 
 // StateUpdater handles updating status of agents.
 type StateUpdater struct {
@@ -113,6 +135,8 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 		panic("stateChangeChan should have capacity 1")
 	}
 
+	var failures int
+
 	for {
 		select {
 		case <-ctx.Done():
@@ -133,13 +157,32 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 
 			nCtx, cancel := context.WithTimeout(ctx, stateChangeTimeout)
 			err := u.sendSetStateRequest(nCtx, agent)
-			if err != nil {
-				// Now that the channel honours nCtx, a request loop busy for longer than
-				// stateChangeTimeout lands here, so say what timed out.
-				l.Errorf("Failed to send SetState request: %s", err)
-				u.RequestStateUpdate(ctx, agent.id)
-			}
 			cancel()
+			if err == nil {
+				failures = 0
+				continue
+			}
+
+			// Now that the channel honours nCtx, a request loop busy for longer than
+			// stateChangeTimeout lands here, so say what timed out.
+			failures++
+			l.WithError(err).WithField("attempt", failures).Error("Failed to send SetState request")
+
+			// Wait before re-requesting. Without this every failure re-queues immediately,
+			// so a fleet reconnecting at once keeps the server saturated with retries and
+			// never lets it recover (PMM-15228).
+			delay := retryDelay(failures)
+			timer := time.NewTimer(delay)
+			select {
+			case <-ctx.Done():
+				timer.Stop()
+				return
+			case <-agent.kickChan:
+				timer.Stop()
+				return
+			case <-timer.C:
+			}
+			u.RequestStateUpdate(ctx, agent.id)
 		}
 	}
 }
@@ -183,6 +226,35 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		redactMode = exposeSecrets
 	}
 
+	// Agent rows belonging to one pmm-agent share the same node, and several of them
+	// share the same service, so the per-row lookups below repeated the same queries.
+	// Under a fleet-wide reconnect that repetition dominates the cost (PMM-15228).
+	nodeCache := make(map[string]*models.Node, len(agents))
+	serviceCache := make(map[string]*models.Service, len(agents))
+
+	getNode := func(id string) (*models.Node, error) {
+		if n, ok := nodeCache[id]; ok {
+			return n, nil
+		}
+		n, err := models.FindNodeByID(u.db.Querier, id)
+		if err != nil {
+			return nil, err
+		}
+		nodeCache[id] = n
+		return n, nil
+	}
+	getService := func(id string) (*models.Service, error) {
+		if s, ok := serviceCache[id]; ok {
+			return s, nil
+		}
+		s, err := models.FindServiceByID(u.db.Querier, id)
+		if err != nil {
+			return nil, err
+		}
+		serviceCache[id] = s
+		return s, nil
+	}
+
 	rdsExporters := make(map[*models.Node]*models.Agent)
 	agentProcesses := make(map[string]*agentv1.SetStateRequest_AgentProcess)
 	builtinAgents := make(map[string]*agentv1.SetStateRequest_BuiltinAgent)
@@ -197,7 +269,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 		case models.NomadAgentType:
-			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			node, err := getNode(pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -208,7 +280,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			agentProcesses[row.AgentID] = params
 
 		case models.NodeExporterType:
-			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			node, err := getNode(pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -220,7 +292,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			agentProcesses[row.AgentID] = params
 
 		case models.RDSExporterType:
-			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+			node, err := getNode(pointer.GetString(row.NodeID))
 			if err != nil {
 				return err
 			}
@@ -230,7 +302,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			// ignore
 
 		case models.AzureDatabaseExporterType:
-			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
+			service, err := getService(pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
 			}
@@ -246,11 +318,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			models.QANMongoDBProfilerAgentType, models.QANMongoDBMongologAgentType,
 			models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType,
 			models.RTAMongoDBAgentType, models.RTAMySQLAgentType:
-			service, err := models.FindServiceByID(u.db.Querier, pointer.GetString(row.ServiceID))
+			service, err := getService(pointer.GetString(row.ServiceID))
 			if err != nil {
 				return err
 			}
-			node, _ := models.FindNodeByID(u.db.Querier, pointer.GetString(pmmAgent.RunsOnNodeID))
+			node, _ := getNode(pointer.GetString(pmmAgent.RunsOnNodeID))
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
 				cfg, err := mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
