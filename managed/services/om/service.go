@@ -209,7 +209,8 @@ func (s *Service) SyncInventoryEnabled(ctx context.Context, enabled bool) {
 	if s.probe == nil || s.probe.app.client == nil {
 		return
 	}
-	if err := s.probe.app.patchConfig(ctx, map[string]any{"ENABLED": enabled}); err != nil {
+	err := s.probe.app.patchConfig(ctx, map[string]any{"ENABLED": enabled})
+	if err != nil {
 		s.l.WithError(err).WithField("enabled", enabled).
 			Warn("failed to sync OpenManager's on/off state to SEP's om_inventory app")
 		return
@@ -217,7 +218,8 @@ func (s *Service) SyncInventoryEnabled(ctx context.Context, enabled bool) {
 	if !enabled {
 		return
 	}
-	if err := s.probe.app.triggerRun(ctx); err != nil {
+	err = s.probe.app.triggerRun(ctx)
+	if err != nil {
 		s.l.WithError(err).Warn("failed to trigger an immediate SEP inventory sweep after enabling OpenManager")
 	}
 }
