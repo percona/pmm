@@ -142,8 +142,6 @@ const (
 
 	distributionInfoFilePath = "/srv/pmm-distribution"
 	osInfoFilePath           = "/proc/version"
-
-	supervisordConfigRetryInterval = 30 * time.Second
 )
 
 var pprofSemaphore = semaphore.NewWeighted(1)
@@ -556,34 +554,6 @@ func updateSupervisordConfig(q reform.DBTX, svc *supervisord.Service) error {
 		return fmt.Errorf("failed to get settings: %w", err)
 	}
 	return svc.UpdateConfiguration(settings)
-}
-
-// applySupervisordConfig re-renders supervisord configuration from the stored settings,
-// retrying until it succeeds or ctx is canceled.
-//
-// Registered as a leader service, so it runs on promotion. Without it a node promoted later
-// would keep the programs it configured at start-up, and for qan-api2 that means enforcing a
-// retention period the user has since changed. It does not cover a change served by another
-// node while this one is already leader.
-func applySupervisordConfig(ctx context.Context, db *reform.DB, svc *supervisord.Service) error {
-	l := logrus.WithField("component", "supervisord")
-
-	for {
-		err := updateSupervisordConfig(db.WithContext(ctx), svc) //nolint:contextcheck // supervisorctl runs to completion
-		if err == nil {
-			l.Info("Applied stored settings to supervisord configuration after gaining leadership.")
-			return nil
-		}
-		l.Errorf("Failed to apply supervisord configuration after gaining leadership, will retry: %+v.", err)
-
-		t := time.NewTimer(supervisordConfigRetryInterval)
-		select {
-		case <-ctx.Done():
-			t.Stop()
-			return nil
-		case <-t.C:
-		}
-	}
 }
 
 // setup performs setup tasks that depend on database.
@@ -1207,11 +1177,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	haService.AddLeaderService(ha.NewContextService("versionCache", func(ctx context.Context) error {
 		versionCache.Run(ctx)
 		return nil
-	}))
-
-	// Refreshes what this node runs the moment it becomes the node that acts on the settings.
-	haService.AddLeaderService(ha.NewContextService("supervisordConfig", func(ctx context.Context) error {
-		return applySupervisordConfig(ctx, db, supervisord)
 	}))
 
 	wg.Go(func() {
