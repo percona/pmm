@@ -102,6 +102,18 @@ func TestHARemoteWriteWarning(t *testing.T) {
 		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
 	})
 
+	t.Run("an injected write URL with its own credentials takes PMM_VM_URL out of the write path", func(t *testing.T) {
+		t.Setenv(envRemoteWriteURL, "https://collector:secret@collector.example.com/api/v1/write")
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
+	t.Run("an injected write URL without credentials is left to environment validation", func(t *testing.T) {
+		// ParseEnvVars emits the URL-only warning for this shape; a second warning about PMM_VM_URL
+		// would point the operator at a URL nobody writes to.
+		t.Setenv(envRemoteWriteURL, testInjectedURL)
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
 	t.Run("an unparsable URL is left to startup validation", func(t *testing.T) {
 		assert.Empty(t, HARemoteWriteWarning(fakeVMParams{externalVM: true, url: "http://[::1"}))
 	})

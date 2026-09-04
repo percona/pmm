@@ -58,17 +58,24 @@ func haRemoteWrite(params victoriaMetricsParams, isServerAgent bool) (remoteWrit
 
 // HARemoteWriteWarning returns a startup warning when the HA remote-write configuration cannot
 // work as deployed, or "" when it can. The check is by shape only: an unparsable PMM_VM_URL and
-// half an injected basic-auth pair are reported by environment validation before this runs.
+// half an injected basic-auth pair are reported by environment validation before this runs, and
+// so is an injected VMAGENT_remoteWrite_url, which replaces the write endpoint for every vmagent
+// and takes PMM_VM_URL out of the write path.
 func HARemoteWriteWarning(params victoriaMetricsParams) string {
 	if !params.ExternalVM() {
 		return "HA mode with the built-in VictoriaMetrics is not supported: PMM_VM_URL must point at the cluster's VictoriaMetrics"
+	}
+
+	injected := injectedVMAgentEnv()
+	if _, ok := injected[envRemoteWriteURL]; ok {
+		return ""
 	}
 
 	_, username, password, err := splitURLCredentials(params.URL())
 	if err != nil || username != "" || password != "" {
 		return ""
 	}
-	if envvars.VMAgentRemoteWriteAuthFromEnv(injectedVMAgentEnv()) == envvars.VMAgentRemoteWriteAuthComplete {
+	if envvars.VMAgentRemoteWriteAuthFromEnv(injected) == envvars.VMAgentRemoteWriteAuthComplete {
 		return ""
 	}
 
