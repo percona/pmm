@@ -66,7 +66,6 @@ docker run --network host -e PMM_SERVER_URL=http://admin:admin@127.0.0.1 pmm-api
 ### Do
 - Make tests **idempotent** — tests must clean up after themselves
 - Use helper functions in `helpers.go` for common setup (creating nodes, services, agents)
-- Use `testify/assert` and `testify/require` for assertions
 - Test both success and error paths (invalid input, not found, permission denied)
 - Use the generated Swagger clients for API calls (same clients as pmm-admin)
 - Test with the `t.Cleanup()` pattern to ensure resources are removed even on failure
