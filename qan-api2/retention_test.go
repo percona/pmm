@@ -19,8 +19,6 @@ import (
 	"context"
 	"errors"
 	"io"
-	"net/http"
-	"net/http/httptest"
 	"sync"
 	"testing"
 	"time"
@@ -31,58 +29,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// stubLeaderCheck serves status on every request, standing in for the pmm-managed next door.
-// The returned func reports how many checks it has answered, which is the only reliable proof
-// the loop is still polling: the follower branch logs at debug level and so is filtered out.
-func stubLeaderCheck(t *testing.T, status int) (string, func() int) {
-	t.Helper()
-
-	var mu sync.Mutex
-	hits := 0
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		mu.Lock()
-		hits++
-		mu.Unlock()
-		w.WriteHeader(status)
-		if status == http.StatusBadRequest {
-			// What pmm-managed actually sends on a follower. A bodyless 400 is undetermined,
-			// not a follower verdict, so the stub has to carry the gRPC code.
-			_, _ = w.Write([]byte(`{"code": 9, "message": "this PMM Server isn't the leader"}`))
-		}
-	}))
-	t.Cleanup(srv.Close)
-
-	return srv.URL, func() int {
-		mu.Lock()
-		defer mu.Unlock()
-
-		return hits
-	}
-}
-
-// stubBody serves status with an arbitrary body, for the answers stubLeaderCheck cannot express.
-func stubBody(t *testing.T, status int, body string) string {
-	t.Helper()
-
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(status)
-		_, _ = w.Write([]byte(body))
-	}))
-	t.Cleanup(srv.Close)
-
-	return srv.URL
-}
-
 // shortenIntervals makes the loop cycle fast enough to observe. Both values are only read.
 func shortenIntervals(t *testing.T) {
 	t.Helper()
 
-	drop, recheck := defaultDropOldPartitionInterval, leaderRecheckInterval
+	drop, retry := defaultDropOldPartitionInterval, retentionRetryInterval
 	t.Cleanup(func() {
-		defaultDropOldPartitionInterval, leaderRecheckInterval = drop, recheck
+		defaultDropOldPartitionInterval, retentionRetryInterval = drop, retry
 	})
 	defaultDropOldPartitionInterval = time.Millisecond
-	leaderRecheckInterval = time.Millisecond
+	retentionRetryInterval = time.Millisecond
 }
 
 // captureLogs collects what the loop logs, and keeps it off the test output. The hook and the
@@ -139,13 +95,13 @@ func (d *dropRecorder) count() int {
 }
 
 // runLoop starts the loop and returns a stop function that cancels it and waits for it to exit.
-func runLoop(t *testing.T, drop func(context.Context) error, url string) func() {
+func runLoop(t *testing.T, drop func(context.Context) error) func() {
 	t.Helper()
 
 	ctx, cancel := context.WithCancel(t.Context())
 	done := make(chan struct{})
 	go func() {
-		runRetentionLoop(ctx, drop, url)
+		runRetentionLoop(ctx, drop)
 		close(done)
 	}()
 
@@ -180,69 +136,21 @@ func waitFor(t *testing.T, until func() bool) {
 	}
 }
 
-// Deleting data on an answer we do not have is the failure this gate exists to prevent, so
-// neither a follower nor an undetermined answer may reach the drop.
-func TestRetentionLoopDropsOnlyAsLeader(t *testing.T) {
-	t.Run("Leader", func(t *testing.T) {
-		shortenIntervals(t)
-		captureLogs(t)
-		resetPasses(t)
-
-		var rec dropRecorder
-		url, _ := stubLeaderCheck(t, http.StatusOK)
-		stop := runLoop(t, rec.drop, url)
-		waitFor(t, func() bool { return rec.count() >= 2 })
-		stop()
-
-		assert.GreaterOrEqual(t, rec.count(), 2, "the leader must keep cycling")
-		assert.Positive(t, passes(t, retentionApplied))
-		assert.Zero(t, passes(t, retentionFailed))
-	})
-
-	for _, tc := range []struct {
-		name   string
-		status int
-		result string
-	}{
-		{"Follower", http.StatusBadRequest, retentionFollower},
-		{"Undetermined", http.StatusInternalServerError, retentionUndetermined},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			shortenIntervals(t)
-			captureLogs(t)
-			resetPasses(t)
-
-			var rec dropRecorder
-			url, checks := stubLeaderCheck(t, tc.status)
-			stop := runLoop(t, rec.drop, url)
-			// There is nothing to wait for, so let the loop prove it keeps checking and
-			// still never drops.
-			waitFor(t, func() bool { return checks() >= 3 })
-			stop()
-
-			assert.Zero(t, rec.count(), "nothing may be dropped unless this node is the leader")
-			assert.Positive(t, passes(t, tc.result))
-			assert.Zero(t, passes(t, retentionApplied))
-		})
-	}
-}
-
-// A proxy on port 7772 answering 400 must not read as "follower" and quietly stop retention on
-// every node. Such an answer is rejected in leader.go, and the loop must count it as
-// undetermined.
-func TestRetentionLoopCountsAForeign400AsUndetermined(t *testing.T) {
+// Retention is applied on every node, on a schedule, with no leadership to wait for: the period
+// is fixed at start-up, so every replica agrees on which partitions are old.
+func TestRetentionLoopDropsOnSchedule(t *testing.T) {
 	shortenIntervals(t)
 	captureLogs(t)
 	resetPasses(t)
 
 	var rec dropRecorder
-	url := stubBody(t, http.StatusBadRequest, `{"code": 3, "message": "invalid argument"}`)
-	stop := runLoop(t, rec.drop, url)
-	waitFor(t, func() bool { return passes(t, retentionUndetermined) >= 2 })
+	stop := runLoop(t, rec.drop)
+	waitFor(t, func() bool { return rec.count() >= 2 })
 	stop()
 
-	assert.Zero(t, passes(t, retentionFollower), "a 400 without FailedPrecondition is not a follower verdict")
-	assert.Zero(t, rec.count(), "nothing may be dropped on an answer we could not read")
+	assert.GreaterOrEqual(t, rec.count(), 2, "the loop must keep cycling")
+	assert.Positive(t, passes(t, retentionApplied))
+	assert.Zero(t, passes(t, retentionFailed))
 }
 
 // The drop is synchronous, so without a context it could hold up shutdown for as long as
@@ -262,11 +170,10 @@ func TestRetentionLoopCancelsAnInFlightDrop(t *testing.T) {
 		return ctx.Err()
 	}
 
-	url, _ := stubLeaderCheck(t, http.StatusOK)
 	ctx, cancel := context.WithCancel(t.Context())
 	done := make(chan struct{})
 	go func() {
-		runRetentionLoop(ctx, drop, url)
+		runRetentionLoop(ctx, drop)
 		close(done)
 	}()
 
@@ -282,75 +189,17 @@ func TestRetentionLoopCancelsAnInFlightDrop(t *testing.T) {
 	assert.Zero(t, passes(t, retentionFailed), "our own shutdown is not a retention failure")
 }
 
-// Cancellation reaches the leader check as readily as it reaches the drop, and there it surfaces
-// as an unreadable answer. Counting that as undetermined would have every shutdown look like a
-// node that could not tell whether it was the leader.
-func TestRetentionLoopDoesNotCountShutdownAsUndetermined(t *testing.T) {
-	shortenIntervals(t)
-	captureLogs(t)
-	resetPasses(t)
-
-	started := make(chan struct{})
-	var once sync.Once
-	// Holds the leader check open until the loop's context is canceled, so cancellation lands
-	// while the request is in flight rather than between passes.
-	srv := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
-		once.Do(func() { close(started) })
-		<-r.Context().Done()
-	}))
-	t.Cleanup(srv.Close)
-
-	ctx, cancel := context.WithCancel(t.Context())
-	done := make(chan struct{})
-	go func() {
-		runRetentionLoop(ctx, func(context.Context) error { return nil }, srv.URL)
-		close(done)
-	}()
-
-	<-started
-	cancel()
-
-	select {
-	case <-done:
-	case <-time.After(5 * time.Second):
-		t.Fatal("a leader check in flight kept the loop from returning, which would hold up shutdown")
-	}
-
-	assert.Zero(t, passes(t, retentionUndetermined), "our own shutdown is not an undetermined verdict")
-}
-
-// The metric is what makes a standing failure noticeable: an operator picks the threshold in an
-// alert rather than inheriting one from this source file.
-func TestRetentionLoopCountsUndetermined(t *testing.T) {
-	shortenIntervals(t)
-	captureLogs(t)
-	resetPasses(t)
-
-	var rec dropRecorder
-	url, _ := stubLeaderCheck(t, http.StatusInternalServerError)
-	stop := runLoop(t, rec.drop, url)
-	waitFor(t, func() bool { return passes(t, retentionUndetermined) >= 3 })
-	stop()
-
-	assert.GreaterOrEqual(t, passes(t, retentionUndetermined), float64(3))
-	assert.Zero(t, rec.count(), "nothing may be dropped while leadership is undetermined")
-	for _, result := range []string{retentionApplied, retentionFailed, retentionFollower} {
-		assert.Zero(t, passes(t, result), "result %q", result)
-	}
-}
-
 // A failed drop must not wait out the full day before trying again.
 func TestRetentionLoopRetriesAfterFailedDrop(t *testing.T) {
 	shortenIntervals(t)
-	// Only the recheck interval stays short: if a failed drop waited out the daily interval,
+	// Only the retry interval stays short: if a failed drop waited out the daily interval,
 	// this test would time out rather than pass.
 	defaultDropOldPartitionInterval = time.Hour
 	hook := captureLogs(t)
 	resetPasses(t)
 
 	rec := dropRecorder{err: errors.New("clickhouse said no")}
-	url, _ := stubLeaderCheck(t, http.StatusOK)
-	stop := runLoop(t, rec.drop, url)
+	stop := runLoop(t, rec.drop)
 	waitFor(t, func() bool { return rec.count() >= 2 })
 	stop()
 
@@ -365,4 +214,16 @@ func TestRetentionLoopRetriesAfterFailedDrop(t *testing.T) {
 	assert.Positive(t, errCount, "a failed drop must be reported at error level")
 	assert.Positive(t, passes(t, retentionFailed))
 	assert.Zero(t, passes(t, retentionApplied))
+}
+
+// An alert on a condition that has never happened must read as zero rather than as no data,
+// which only holds if every label value exists before the first pass.
+func TestRetentionCountersAreSeeded(t *testing.T) {
+	resetPasses(t)
+
+	seedRetentionCounters()
+
+	assert.Equal(t, 2, testutil.CollectAndCount(mRetentionPasses), "every outcome needs a zero series")
+	assert.Zero(t, passes(t, retentionApplied))
+	assert.Zero(t, passes(t, retentionFailed))
 }
