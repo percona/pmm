@@ -1,56 +1,52 @@
-import { FC, useMemo, useState } from 'react';
+import { FC, useMemo } from 'react';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import Divider from '@mui/material/Divider';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { formControlClasses } from '@mui/material';
+import NorthEastIcon from '@mui/icons-material/NorthEast';
 import { TextInput } from '@percona/peak-ui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
-import { type ApiError, useResetSetting, usePatchSetting } from '@sep/api';
-import { Modal } from 'components/modal';
-import { helperTextTestId } from 'utils/mui.utils';
+import { usePatchSetting } from '@sep/api';
 import { Messages } from '../../Settings.messages';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
-import { SettingsFieldLabel } from '../settings-field-label';
-import { SettingsSubmitButton } from '../settings-submit-button';
 import {
   DELIVERY_INPUTS_KEY,
   SEP_SETTINGS_CLASS,
 } from './ServiceNowConnection.constants';
 import { serviceNowSchema } from './ServiceNowConnectionForm.schema';
-import { ServiceNowFormValues } from './ServiceNowConnection.types';
+import {
+  ServiceNowFormValues,
+  StoredDeliveryInputs,
+} from './ServiceNowConnection.types';
 import {
   buildDeliveryInputsPatch,
-  sepErrorMessage,
   secretHelperText,
   secretLabel,
+  sepErrorMessage,
   toFormValues,
 } from './ServiceNowConnection.utils';
-import { useServiceNowConnection } from './ServiceNowConnection.hooks';
+import { SecretField } from './SecretField';
 
-const STATUS_SEVERITY = {
-  configured: 'success',
-  'not-configured': 'info',
-  drifted: 'warning',
-} as const;
-
-const STATUS_MESSAGE = {
-  configured: Messages.serviceNow.status.configured,
-  'not-configured': Messages.serviceNow.status.notConfigured,
-  drifted: Messages.serviceNow.status.drifted,
-} as const;
+interface Props {
+  declaredNames: string[];
+  stored: StoredDeliveryInputs;
+  /** Whether the stored values no longer satisfy this deployment's plan. */
+  isDrifted: boolean;
+  /** Present only while replacing credentials that are already stored. */
+  onCancel?: () => void;
+  onConnected: () => void;
+}
 
 /**
- * Direct entry of the ServiceNow details SEP needs to deliver diagnostics.
+ * The two steps an operator without a working connection has to walk.
  *
- * The operator obtains a ServiceNow token out of band and enters it here;
- * PMM-15218 replaces this entry surface with a guided round trip and keeps the
- * write path below untouched.
+ * Step 1 exists because the credentials cannot be self-served: Percona Support
+ * issues them per instance, and a form that only asks for them leaves anyone
+ * who does not already hold them with nowhere to go.
  *
  * The write is one whole-object PATCH of `DIAGNOSTICS_DELIVERY_INPUTS` carrying
  * exactly the secret names the SEP image declares — SEP seals the leaves and
@@ -58,21 +54,18 @@ const STATUS_MESSAGE = {
  * validation is server-side and all-or-nothing: a rejected save leaves the
  * previous configuration standing, which is why nothing here is optimistic.
  */
-export const ServiceNowConnectionForm: FC = () => {
-  const {
-    declaredNames,
-    stored,
-    status,
-    isLoading,
-    error: loadError,
-  } = useServiceNowConnection();
+export const ServiceNowConnectionForm: FC<Props> = ({
+  declaredNames,
+  stored,
+  isDrifted,
+  onCancel,
+  onConnected,
+}) => {
   const { mutateAsync: patchSetting, error: saveError } = usePatchSetting();
-  const { mutateAsync: resetSetting, isPending: isDisconnecting } =
-    useResetSetting();
-  const [disconnectOpen, setDisconnectOpen] = useState(false);
+  const { serviceNow } = Messages;
 
   // `values` (not `defaultValues`) so a refetch — the invalidation after a save,
-  // in particular — re-seeds the fields with what SEP actually stored. React
+  // in particular — re-seeds the endpoint with what SEP actually stored. React
   // Hook Form only re-seeds on a deep change, so a background refetch that
   // returns the same data leaves half-typed input alone.
   const values = useMemo(
@@ -83,113 +76,81 @@ export const ServiceNowConnectionForm: FC = () => {
     resolver: zodResolver(serviceNowSchema),
     values,
   });
-
-  if (isLoading) {
-    return (
-      <Stack alignItems="center" py={4}>
-        <CircularProgress data-testid="servicenow-loading" />
-      </Stack>
-    );
-  }
-
-  if (loadError) {
-    return (
-      <Alert severity="error" data-testid="servicenow-load-error">
-        {sepErrorMessage(loadError, Messages.serviceNow.errors.loadFailed)}
-      </Alert>
-    );
-  }
-
-  // A SEP build that does not carry the key at all would answer any write with
-  // a 422, so there is nothing to offer — as distinct from a deployment that
-  // carries it and has simply not been configured yet.
-  if (!stored.isPresent) {
-    return (
-      <Alert severity="info" data-testid="servicenow-unavailable">
-        {Messages.serviceNow.unavailable}
-      </Alert>
-    );
-  }
+  const {
+    formState: { isSubmitting, isValid },
+  } = methods;
 
   const onSubmit = async (values: ServiceNowFormValues) => {
     try {
       await patchSetting({
         settingClass: SEP_SETTINGS_CLASS,
         key: DELIVERY_INPUTS_KEY,
-        value: buildDeliveryInputsPatch(values, declaredNames, stored),
+        value: buildDeliveryInputsPatch(values, declaredNames),
       });
-      enqueueSnackbar(Messages.serviceNow.saveSuccess, { variant: 'success' });
+      enqueueSnackbar(serviceNow.saveSuccess, { variant: 'success' });
+      onConnected();
     } catch {
       // The rejected mutation is rendered inline by `saveError`; the previous
       // configuration is intact because SEP writes nothing on a failed validate.
     }
   };
 
-  const onDisconnect = async () => {
-    try {
-      await resetSetting({
-        settingClass: SEP_SETTINGS_CLASS,
-        key: DELIVERY_INPUTS_KEY,
-      });
-      enqueueSnackbar(Messages.serviceNow.disconnectSuccess, {
-        variant: 'success',
-      });
-      setDisconnectOpen(false);
-    } catch (error) {
-      enqueueSnackbar(sepErrorMessage(error as ApiError), {
-        variant: 'error',
-      });
-    }
-  };
-
-  const { serviceNow } = Messages;
-
   return (
     <FormProvider {...methods}>
       <Stack
         component="form"
         onSubmit={methods.handleSubmit(onSubmit)}
-        gap={3}
+        gap={4}
+        maxWidth={MAX_LABEL_WIDTH}
         sx={{
           [`.${formControlClasses.root}`]: {
             margin: 0,
           },
         }}
       >
-        <Stack gap={1} maxWidth={MAX_LABEL_WIDTH}>
-          <SettingsFieldLabel
-            label={serviceNow.label}
-            description={serviceNow.description}
-            data-testid="servicenow-label"
-          />
+        <Stack gap={2} alignItems="flex-start">
+          <Typography variant="h6" data-testid="servicenow-step-credentials">
+            {serviceNow.getCredentialsStep}
+          </Typography>
+          <Typography variant="body2">
+            {serviceNow.getCredentialsBody}
+          </Typography>
+          <Button
+            variant="outlined"
+            component="a"
+            href={serviceNow.requestCredentialsLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            endIcon={<NorthEastIcon />}
+            data-testid="servicenow-request-credentials"
+          >
+            {serviceNow.requestCredentials}
+          </Button>
+          <Typography variant="body2">
+            {serviceNow.subscriptionPrompt}{' '}
+            <Link
+              href={serviceNow.subscriptionLink}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {serviceNow.subscriptionLinkText}
+            </Link>
+          </Typography>
         </Stack>
 
-        <Alert
-          severity={STATUS_SEVERITY[status]}
-          data-testid="servicenow-status"
-          sx={{ maxWidth: MAX_LABEL_WIDTH }}
-        >
-          {STATUS_MESSAGE[status]}
-        </Alert>
+        <Stack gap={2}>
+          <Stack gap={1}>
+            <Typography variant="h6" data-testid="servicenow-step-connect">
+              {serviceNow.connectStep}
+            </Typography>
+            <Typography variant="body2">{serviceNow.connectBody}</Typography>
+          </Stack>
 
-        <Stack gap={2} maxWidth={MAX_LABEL_WIDTH}>
-          <TextInput
-            name="endpoint"
-            label={serviceNow.endpointLabel}
-            textFieldProps={{
-              placeholder: serviceNow.endpointPlaceholder,
-              helperText: serviceNow.endpointHelper,
-              slotProps: {
-                htmlInput: { 'data-testid': 'servicenow-endpoint' },
-              },
-            }}
-            formHelperTextProps={helperTextTestId('servicenow-endpoint-helper')}
-          />
-
-          <Divider />
-          <Typography variant="subtitle2">
-            {serviceNow.secretsLegend}
-          </Typography>
+          {isDrifted && (
+            <Alert severity="warning" data-testid="servicenow-drifted">
+              {serviceNow.driftedWarning}
+            </Alert>
+          )}
 
           {declaredNames.length === 0 ? (
             <Typography variant="body2" data-testid="servicenow-no-secrets">
@@ -197,101 +158,57 @@ export const ServiceNowConnectionForm: FC = () => {
             </Typography>
           ) : (
             declaredNames.map((name, index) => (
-              <TextInput
+              <SecretField
                 key={name}
                 // Addressed by position: a declared name is runtime data from
                 // SEP, and react-hook-form would read one containing a `.` as a
                 // nested path.
                 name={`secrets.${index}`}
                 label={secretLabel(name)}
-                textFieldProps={{
-                  type: 'password',
-                  autoComplete: 'off',
-                  // A name the plan declares but the stored inputs do not carry
-                  // (an image renamed it) has nothing to keep, so it gets the
-                  // plain helper even though an override exists.
-                  helperText: secretHelperText(name, !!stored.secrets[name]),
-                  slotProps: {
-                    htmlInput: { 'data-testid': `servicenow-secret-${name}` },
-                  },
-                }}
-                formHelperTextProps={helperTextTestId(
-                  `servicenow-secret-${name}-helper`
-                )}
+                helperText={secretHelperText(name)}
+                testId={`servicenow-secret-${name}`}
               />
             ))
           )}
+
+          <TextInput
+            name="endpoint"
+            label={serviceNow.endpointLabel}
+            textFieldProps={{
+              helperText: serviceNow.endpointHelper,
+              slotProps: {
+                htmlInput: { 'data-testid': 'servicenow-endpoint' },
+              },
+            }}
+          />
         </Stack>
 
         {saveError && (
-          <Alert
-            severity="error"
-            data-testid="servicenow-save-error"
-            sx={{ maxWidth: MAX_LABEL_WIDTH }}
-          >
+          <Alert severity="error" data-testid="servicenow-save-error">
             {sepErrorMessage(saveError)}
           </Alert>
         )}
 
-        <Typography variant="body2">
-          {serviceNow.subscriptionPrompt}{' '}
-          <Link
-            href={serviceNow.subscriptionLink}
-            target="_blank"
-            rel="noopener noreferrer"
+        <Stack direction="row" gap={1} alignItems="center">
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={!isValid || isSubmitting}
+            data-testid="servicenow-submit"
           >
-            {serviceNow.subscriptionLinkText}
-          </Link>
-        </Typography>
-
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          gap={2}
-          maxWidth={MAX_LABEL_WIDTH}
-        >
-          <SettingsSubmitButton testId="servicenow-submit" />
-          {stored.hasOverride && (
+            {isSubmitting ? serviceNow.submitting : serviceNow.submit}
+          </Button>
+          {onCancel && (
             <Button
               variant="text"
-              color="error"
-              data-testid="servicenow-disconnect"
-              onClick={() => setDisconnectOpen(true)}
+              onClick={onCancel}
+              data-testid="servicenow-cancel"
             >
-              {serviceNow.disconnect}
+              {serviceNow.cancelRenew}
             </Button>
           )}
         </Stack>
       </Stack>
-
-      <Modal
-        open={disconnectOpen}
-        onClose={() => setDisconnectOpen(false)}
-        title={serviceNow.disconnectTitle}
-      >
-        <Stack gap={3}>
-          <Typography variant="body2">{serviceNow.disconnectBody}</Typography>
-          <Stack direction="row" gap={1} justifyContent="flex-end">
-            <Button
-              variant="text"
-              onClick={() => setDisconnectOpen(false)}
-              data-testid="servicenow-disconnect-cancel"
-            >
-              {serviceNow.disconnectCancel}
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              disabled={isDisconnecting}
-              onClick={onDisconnect}
-              data-testid="servicenow-disconnect-confirm"
-            >
-              {serviceNow.disconnectConfirm}
-            </Button>
-          </Stack>
-        </Stack>
-      </Modal>
     </FormProvider>
   );
 };

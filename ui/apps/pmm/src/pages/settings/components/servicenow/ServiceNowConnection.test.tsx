@@ -10,7 +10,7 @@ import {
 import { TestWrapper } from 'utils/testWrapper';
 import { wrapWithSnackbarProvider } from 'utils/testUtils';
 import { Messages } from '../../Settings.messages';
-import { ServiceNowConnectionForm } from './ServiceNowConnectionForm';
+import { ServiceNowConnection } from './ServiceNowConnection';
 
 vi.mock('@sep/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@sep/api')>()),
@@ -25,6 +25,7 @@ const resetSetting = vi.mocked(useResetSetting);
 
 const patchMutation = vi.fn();
 const resetMutation = vi.fn();
+const refetch = vi.fn();
 
 const setting = (key: string, value: unknown, hasOverride = false) =>
   ({
@@ -71,9 +72,11 @@ const mockList = (
   settingsList.mockReturnValue({
     data: sepGroups(['sn_api_key', 'client_token']),
     isLoading: false,
+    isFetching: false,
     error: null,
+    refetch,
     ...overrides,
-  } as ReturnType<typeof useSettingsList>);
+  } as unknown as ReturnType<typeof useSettingsList>);
 };
 
 const mockPatch = (error: ApiError | null = null) => {
@@ -83,15 +86,30 @@ const mockPatch = (error: ApiError | null = null) => {
   } as unknown as ReturnType<typeof usePatchSetting>);
 };
 
-const renderForm = () =>
+/** Both declared credentials stored, which is what "connected" means here. */
+const mockConfigured = (endpoint = '') =>
+  mockList({
+    data: sepGroups(
+      ['sn_api_key', 'client_token'],
+      { sn_api_key: REDACTED_SECRET, client_token: REDACTED_SECRET },
+      endpoint
+    ),
+  } as Partial<ReturnType<typeof useSettingsList>>);
+
+const renderTab = () =>
   render(
     <TestWrapper>
-      {wrapWithSnackbarProvider(<ServiceNowConnectionForm />)}
+      {wrapWithSnackbarProvider(<ServiceNowConnection />)}
     </TestWrapper>
   );
 
 const type = (testId: string, value: string) =>
   fireEvent.change(screen.getByTestId(testId), { target: { value } });
+
+const fillCredentials = () => {
+  type('servicenow-secret-sn_api_key', 'key-1');
+  type('servicenow-secret-client_token', 'token-1');
+};
 
 const submit = async () => {
   const button = screen.getByTestId('servicenow-submit');
@@ -111,9 +129,24 @@ beforeEach(() => {
   } as unknown as ReturnType<typeof useResetSetting>);
 });
 
-describe('ServiceNowConnectionForm — rendering', () => {
-  it('renders one field per declared secret name', () => {
-    renderForm();
+describe('ServiceNowConnection — states', () => {
+  it('offers both steps while nothing is connected', () => {
+    renderTab();
+
+    expect(
+      screen.getByTestId('servicenow-step-credentials')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('servicenow-step-connect')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('servicenow-request-credentials')
+    ).toHaveAttribute('href', Messages.serviceNow.requestCredentialsLink);
+    expect(
+      screen.queryByTestId('servicenow-connected')
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders one masked field per declared secret name', () => {
+    renderTab();
 
     expect(screen.getByTestId('servicenow-secret-sn_api_key')).toHaveAttribute(
       'type',
@@ -124,17 +157,26 @@ describe('ServiceNowConnectionForm — rendering', () => {
     ).toBeInTheDocument();
   });
 
+  it('reveals a credential on request so a pasted value can be checked', () => {
+    renderTab();
+
+    fireEvent.click(screen.getByTestId('servicenow-secret-sn_api_key-reveal'));
+
+    expect(screen.getByTestId('servicenow-secret-sn_api_key')).toHaveAttribute(
+      'type',
+      'text'
+    );
+  });
+
   it('follows the plan when an image renames a declared secret', () => {
-    settingsList.mockReturnValue({
+    mockList({
       data: sepGroups(['sn_api_key', 'renamed_token'], {
         sn_api_key: REDACTED_SECRET,
         client_token: REDACTED_SECRET,
       }),
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof useSettingsList>);
+    } as Partial<ReturnType<typeof useSettingsList>>);
 
-    renderForm();
+    renderTab();
 
     expect(
       screen.getByTestId('servicenow-secret-renamed_token')
@@ -142,121 +184,54 @@ describe('ServiceNowConnectionForm — rendering', () => {
     expect(
       screen.queryByTestId('servicenow-secret-client_token')
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId('servicenow-status')).toHaveTextContent(
-      Messages.serviceNow.status.drifted
-    );
-  });
-
-  it('submits a declared name that form paths cannot express, verbatim', async () => {
-    settingsList.mockReturnValue({
-      data: sepGroups(['sn.api.key']),
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof useSettingsList>);
-
-    renderForm();
-
-    type('servicenow-secret-sn.api.key', 'key-1');
-    await submit();
-
-    await waitFor(() => expect(patchMutation).toHaveBeenCalledTimes(1));
-    expect(patchMutation.mock.calls[0][0].value).toEqual({
-      secrets: { 'sn.api.key': 'key-1' },
-    });
-  });
-
-  it('reports an unsaved connection as not configured rather than as an error', () => {
-    renderForm();
-
-    const status = screen.getByTestId('servicenow-status');
-    expect(status).toHaveTextContent(Messages.serviceNow.status.notConfigured);
-    expect(status).toHaveClass('MuiAlert-colorInfo');
-  });
-
-  it('reports a saved-but-empty secret as not configured', () => {
-    settingsList.mockReturnValue({
-      data: sepGroups(['sn_api_key', 'client_token'], {
-        sn_api_key: REDACTED_SECRET,
-        client_token: '',
-      }),
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof useSettingsList>);
-
-    renderForm();
-
-    expect(screen.getByTestId('servicenow-status')).toHaveTextContent(
-      Messages.serviceNow.status.notConfigured
-    );
-  });
-
-  it('shows the stored values back, masked', () => {
-    settingsList.mockReturnValue({
-      data: sepGroups(
-        ['sn_api_key', 'client_token'],
-        { sn_api_key: REDACTED_SECRET, client_token: REDACTED_SECRET },
-        'https://acme.service-now.com/'
-      ),
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof useSettingsList>);
-
-    renderForm();
-
-    expect(screen.getByTestId('servicenow-endpoint')).toHaveValue(
-      'https://acme.service-now.com/'
-    );
-    expect(screen.getByTestId('servicenow-secret-sn_api_key')).toHaveValue(
-      REDACTED_SECRET
-    );
-    expect(screen.getByTestId('servicenow-status')).toHaveTextContent(
-      Messages.serviceNow.status.configured
+    expect(screen.getByTestId('servicenow-drifted')).toHaveTextContent(
+      Messages.serviceNow.driftedWarning
     );
   });
 
   it('shows a spinner while the settings load', () => {
     mockList({ isLoading: true, data: undefined });
-    renderForm();
+    renderTab();
 
     expect(screen.getByTestId('servicenow-loading')).toBeInTheDocument();
+    expect(screen.queryByTestId('servicenow-submit')).not.toBeInTheDocument();
   });
 
-  it('explains a load that was refused rather than showing an empty form', () => {
+  it('explains a load that was refused, and offers a retry', () => {
     mockList({
       data: undefined,
       error: new ApiError({ kind: 'http', status: 403, message: 'HTTP 403' }),
     });
-    renderForm();
+    renderTab();
 
     expect(screen.getByTestId('servicenow-load-error')).toHaveTextContent(
       Messages.serviceNow.errors.forbidden
     );
     expect(screen.queryByTestId('servicenow-submit')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('servicenow-load-retry'));
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 
   it('still offers the endpoint when the plan declares no credentials', () => {
-    settingsList.mockReturnValue({
-      data: sepGroups([]),
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof useSettingsList>);
+    mockList({ data: sepGroups([]) } as Partial<
+      ReturnType<typeof useSettingsList>
+    >);
 
-    renderForm();
+    renderTab();
 
     expect(screen.getByTestId('servicenow-no-secrets')).toBeInTheDocument();
     expect(screen.getByTestId('servicenow-endpoint')).toBeInTheDocument();
   });
 
   it('offers nothing when the deployment does not carry the key at all', () => {
-    settingsList.mockReturnValue({
+    mockList({
       data: [
         { setting_class: 'SEPSettings', is_app_owned: false, settings: [] },
       ] as SettingClassGroup[],
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof useSettingsList>);
+    });
 
-    renderForm();
+    renderTab();
 
     expect(screen.getByTestId('servicenow-unavailable')).toHaveTextContent(
       Messages.serviceNow.unavailable
@@ -265,13 +240,57 @@ describe('ServiceNowConnectionForm — rendering', () => {
   });
 });
 
-describe('ServiceNowConnectionForm — saving', () => {
+describe('ServiceNowConnection — connected', () => {
+  it('reports the connection instead of asking for it again', () => {
+    mockConfigured('https://acme.service-now.com/');
+    renderTab();
+
+    expect(screen.getByTestId('servicenow-connected')).toHaveTextContent(
+      Messages.serviceNow.connectedTitle
+    );
+    expect(
+      screen.getByTestId('servicenow-connected-endpoint')
+    ).toHaveTextContent('https://acme.service-now.com/');
+    expect(screen.queryByTestId('servicenow-submit')).not.toBeInTheDocument();
+  });
+
+  it('names the bundled receiver when no endpoint was supplied', () => {
+    mockConfigured();
+    renderTab();
+
+    expect(
+      screen.getByTestId('servicenow-connected-endpoint')
+    ).toHaveTextContent(Messages.serviceNow.defaultEndpoint);
+  });
+
+  it('renews through an empty form, never showing the stored masks back', () => {
+    mockConfigured('https://acme.service-now.com/');
+    renderTab();
+
+    fireEvent.click(screen.getByTestId('servicenow-renew'));
+
+    expect(screen.getByTestId('servicenow-secret-sn_api_key')).toHaveValue('');
+    expect(screen.getByTestId('servicenow-endpoint')).toHaveValue(
+      'https://acme.service-now.com/'
+    );
+
+    fireEvent.click(screen.getByTestId('servicenow-cancel'));
+    expect(screen.getByTestId('servicenow-connected')).toBeInTheDocument();
+  });
+
+  it('offers no renewal cancel while nothing is stored', () => {
+    renderTab();
+
+    expect(screen.queryByTestId('servicenow-cancel')).not.toBeInTheDocument();
+  });
+});
+
+describe('ServiceNowConnection — saving', () => {
   it('writes the whole key in one PATCH carrying exactly the declared names', async () => {
-    renderForm();
+    renderTab();
 
     type('servicenow-endpoint', 'https://acme.service-now.com/');
-    type('servicenow-secret-sn_api_key', 'key-1');
-    type('servicenow-secret-client_token', 'token-1');
+    fillCredentials();
     await submit();
 
     await waitFor(() => expect(patchMutation).toHaveBeenCalledTimes(1));
@@ -285,58 +304,43 @@ describe('ServiceNowConnectionForm — saving', () => {
     });
   });
 
-  it('keeps a stored secret by resubmitting the mask it was shown', async () => {
-    settingsList.mockReturnValue({
-      data: sepGroups(
-        ['sn_api_key', 'client_token'],
-        { sn_api_key: REDACTED_SECRET, client_token: REDACTED_SECRET },
-        'https://acme.service-now.com/'
-      ),
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof useSettingsList>);
+  it('submits a declared name that form paths cannot express, verbatim', async () => {
+    mockList({ data: sepGroups(['sn.api.key']) } as Partial<
+      ReturnType<typeof useSettingsList>
+    >);
 
-    renderForm();
+    renderTab();
 
-    type('servicenow-endpoint', 'https://other.service-now.com/');
+    type('servicenow-secret-sn.api.key', 'key-1');
     await submit();
 
     await waitFor(() => expect(patchMutation).toHaveBeenCalledTimes(1));
     expect(patchMutation.mock.calls[0][0].value).toEqual({
-      endpoint: 'https://other.service-now.com/',
-      secrets: {
-        sn_api_key: REDACTED_SECRET,
-        client_token: REDACTED_SECRET,
-      },
+      secrets: { 'sn.api.key': 'key-1' },
     });
   });
 
-  it('accepts clearing a secret as an explicit unconfigured save', async () => {
-    settingsList.mockReturnValue({
-      data: sepGroups(['sn_api_key', 'client_token'], {
-        sn_api_key: REDACTED_SECRET,
-        client_token: REDACTED_SECRET,
-      }),
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof useSettingsList>);
+  it('holds the submit until every declared credential is supplied', async () => {
+    renderTab();
 
-    renderForm();
+    type('servicenow-secret-sn_api_key', 'key-1');
 
-    type('servicenow-secret-sn_api_key', '');
-    await submit();
+    await waitFor(() =>
+      expect(screen.getByTestId('servicenow-submit')).toBeDisabled()
+    );
 
-    await waitFor(() => expect(patchMutation).toHaveBeenCalledTimes(1));
-    expect(patchMutation.mock.calls[0][0].value).toEqual({
-      secrets: { sn_api_key: '', client_token: REDACTED_SECRET },
-    });
+    type('servicenow-secret-client_token', 'token-1');
+
+    await waitFor(() =>
+      expect(screen.getByTestId('servicenow-submit')).toBeEnabled()
+    );
   });
 
   it('refuses an endpoint that is not a URL before it reaches SEP', async () => {
-    renderForm();
+    renderTab();
 
+    fillCredentials();
     type('servicenow-endpoint', 'not-a-url');
-    type('servicenow-secret-sn_api_key', 'key-1');
 
     await waitFor(() =>
       expect(screen.getByTestId('servicenow-submit')).toBeDisabled()
@@ -344,7 +348,7 @@ describe('ServiceNowConnectionForm — saving', () => {
     expect(patchMutation).not.toHaveBeenCalled();
   });
 
-  it('surfaces the 422 SEP answers with instead of swallowing it', async () => {
+  it('surfaces the 422 SEP answers with instead of swallowing it', () => {
     mockPatch(
       new ApiError({
         kind: 'http',
@@ -362,20 +366,20 @@ describe('ServiceNowConnectionForm — saving', () => {
       })
     );
 
-    renderForm();
+    renderTab();
 
     expect(screen.getByTestId('servicenow-save-error')).toHaveTextContent(
       'undeclared secret names: extra'
     );
   });
 
-  it('keeps the form on screen when the save is rejected', async () => {
+  it('keeps the typed credentials on screen when the save is rejected', async () => {
     patchMutation.mockRejectedValue(
       new ApiError({ kind: 'network', message: 'down' })
     );
-    renderForm();
+    renderTab();
 
-    type('servicenow-secret-sn_api_key', 'key-1');
+    fillCredentials();
     await submit();
 
     await waitFor(() => expect(patchMutation).toHaveBeenCalled());
@@ -385,21 +389,9 @@ describe('ServiceNowConnectionForm — saving', () => {
   });
 });
 
-describe('ServiceNowConnectionForm — disconnecting', () => {
-  const renderConfigured = () => {
-    settingsList.mockReturnValue({
-      data: sepGroups(['sn_api_key', 'client_token'], {
-        sn_api_key: REDACTED_SECRET,
-        client_token: REDACTED_SECRET,
-      }),
-      isLoading: false,
-      error: null,
-    } as ReturnType<typeof useSettingsList>);
-    return renderForm();
-  };
-
+describe('ServiceNowConnection — disconnecting', () => {
   it('is not offered while nothing is stored', () => {
-    renderForm();
+    renderTab();
 
     expect(
       screen.queryByTestId('servicenow-disconnect')
@@ -407,7 +399,8 @@ describe('ServiceNowConnectionForm — disconnecting', () => {
   });
 
   it('confirms before clearing the stored inputs', async () => {
-    renderConfigured();
+    mockConfigured();
+    renderTab();
 
     fireEvent.click(screen.getByTestId('servicenow-disconnect'));
     expect(resetMutation).not.toHaveBeenCalled();
@@ -423,7 +416,8 @@ describe('ServiceNowConnectionForm — disconnecting', () => {
   });
 
   it('leaves the configuration alone when the confirmation is dismissed', () => {
-    renderConfigured();
+    mockConfigured();
+    renderTab();
 
     fireEvent.click(screen.getByTestId('servicenow-disconnect'));
     fireEvent.click(screen.getByTestId('servicenow-disconnect-cancel'));

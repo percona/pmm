@@ -340,10 +340,14 @@ export function SchemaDrivenPlugin({
   }
 
   if (error && !schema) {
+    // PMM divergence (PMM-15419): the schema load fails in practice because the
+    // ServiceNow credentials are wrong, and SEP's own wording ("Failed to load
+    // plugin schema: Could not validate credentials") named an internal object
+    // rather than the thing an operator can fix. Keep on the next SEP sync.
     return (
       <Box sx={{ py: 4 }}>
         <Typography color="error">
-          Failed to load plugin schema: {error.message}
+          Could not connect to ServiceNow. Check your credentials and try again.
         </Typography>
       </Box>
     );

@@ -107,7 +107,7 @@ describe('storedDeliveryInputs', () => {
 });
 
 describe('toFormValues', () => {
-  it('seeds one field per declared name from the stored values', () => {
+  it('seeds one empty field per declared name, keeping the stored endpoint', () => {
     expect(
       toFormValues(['sn_api_key', 'client_token'], {
         endpoint: 'https://acme.service-now.com/',
@@ -117,16 +117,16 @@ describe('toFormValues', () => {
       })
     ).toEqual({
       endpoint: 'https://acme.service-now.com/',
-      secrets: [REDACTED_SECRET, ''],
+      secrets: ['', ''],
     });
   });
 
-  it('leaves every field empty when nothing is stored', () => {
+  it('never seeds a stored secret back into the form', () => {
     expect(
       toFormValues(['sn_api_key'], {
         endpoint: '',
         secrets: { sn_api_key: REDACTED_SECRET },
-        hasOverride: false,
+        hasOverride: true,
         isPresent: true,
       })
     ).toEqual({ endpoint: '', secrets: [''] });
@@ -134,27 +134,13 @@ describe('toFormValues', () => {
 });
 
 describe('buildDeliveryInputsPatch', () => {
-  const unconfigured = {
-    endpoint: '',
-    secrets: {},
-    hasOverride: false,
-    isPresent: true,
-  };
-  const configured = {
-    endpoint: 'https://acme.service-now.com/',
-    secrets: { sn_api_key: REDACTED_SECRET, client_token: REDACTED_SECRET },
-    hasOverride: true,
-    isPresent: true,
-  };
-
   it('submits exactly the declared names, dropping anything else the form holds', () => {
     const patch = buildDeliveryInputsPatch(
       {
         endpoint: 'https://acme.service-now.com/',
         secrets: ['a', 'b', 'c'],
       },
-      ['sn_api_key', 'client_token'],
-      unconfigured
+      ['sn_api_key', 'client_token']
     );
 
     expect(patch).toEqual({
@@ -165,21 +151,15 @@ describe('buildDeliveryInputsPatch', () => {
 
   it('adds a declared name the form never rendered as empty', () => {
     expect(
-      buildDeliveryInputsPatch(
-        { endpoint: '', secrets: [] },
-        ['sn_api_key'],
-        unconfigured
-      )
+      buildDeliveryInputsPatch({ endpoint: '', secrets: [] }, ['sn_api_key'])
     ).toEqual({ secrets: { sn_api_key: '' } });
   });
 
   it('omits a blank endpoint so SEP keeps the baked receiver', () => {
     expect(
-      buildDeliveryInputsPatch(
-        { endpoint: '   ', secrets: ['a'] },
-        ['sn_api_key'],
-        unconfigured
-      )
+      buildDeliveryInputsPatch({ endpoint: '   ', secrets: ['a'] }, [
+        'sn_api_key',
+      ])
     ).toEqual({ secrets: { sn_api_key: 'a' } });
   });
 
@@ -187,55 +167,18 @@ describe('buildDeliveryInputsPatch', () => {
     expect(
       buildDeliveryInputsPatch(
         { endpoint: '  https://acme.service-now.com/ ', secrets: [] },
-        [],
-        unconfigured
+        []
       )
     ).toEqual({ endpoint: 'https://acme.service-now.com/', secrets: {} });
   });
 
-  it('resubmits an untouched mask so SEP restores the stored secret', () => {
-    expect(
-      buildDeliveryInputsPatch(
-        {
-          endpoint: '',
-          secrets: [REDACTED_SECRET, 'new'],
-        },
-        ['sn_api_key', 'client_token'],
-        configured
-      )
-    ).toEqual({
-      secrets: { sn_api_key: REDACTED_SECRET, client_token: 'new' },
-    });
-  });
-
-  it('never sends a mask there is nothing stored to restore', () => {
-    expect(
-      buildDeliveryInputsPatch(
-        { endpoint: '', secrets: [REDACTED_SECRET] },
-        ['sn_api_key'],
-        unconfigured
-      )
-    ).toEqual({ secrets: { sn_api_key: '' } });
-  });
-
   it('keys the payload by name even for a name that is not a valid form path', () => {
     expect(
-      buildDeliveryInputsPatch(
-        { endpoint: '', secrets: ['a', 'b'] },
-        ['sn.api.key', 'client[token]'],
-        unconfigured
-      )
+      buildDeliveryInputsPatch({ endpoint: '', secrets: ['a', 'b'] }, [
+        'sn.api.key',
+        'client[token]',
+      ])
     ).toEqual({ secrets: { 'sn.api.key': 'a', 'client[token]': 'b' } });
-  });
-
-  it('sends empty strings, which is a valid unconfigured save', () => {
-    expect(
-      buildDeliveryInputsPatch(
-        { endpoint: '', secrets: ['', ''] },
-        ['sn_api_key', 'client_token'],
-        configured
-      )
-    ).toEqual({ secrets: { sn_api_key: '', client_token: '' } });
   });
 });
 
@@ -378,18 +321,12 @@ describe('secretLabel', () => {
 
 describe('secretHelperText', () => {
   it('uses the written copy for a declared name', () => {
-    expect(secretHelperText('sn_api_key', false)).toBe(
+    expect(secretHelperText('sn_api_key')).toBe(
       Messages.serviceNow.secretCopy.sn_api_key.helper
     );
   });
 
   it('names the raw key for a name the UI has no copy for', () => {
-    expect(secretHelperText('instance_url', false)).toContain('instance_url');
-  });
-
-  it('adds the keep-it note when a value is stored', () => {
-    expect(secretHelperText('client_token', true)).toBe(
-      `${Messages.serviceNow.secretCopy.client_token.helper} ${Messages.serviceNow.secretStoredSuffix}`
-    );
+    expect(secretHelperText('instance_url')).toContain('instance_url');
   });
 });

@@ -1,2 +1,2 @@
 export { ServiceNowConnectionTab } from './ServiceNowConnectionTab';
-export { ServiceNowConnectionForm } from './ServiceNowConnectionForm';
+export { ServiceNowConnection } from './ServiceNowConnection';
