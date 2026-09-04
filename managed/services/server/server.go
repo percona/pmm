@@ -41,6 +41,7 @@ import (
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/distribution"
+	pkgenv "github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
@@ -346,6 +347,86 @@ func (s *Server) UpdateStatus(ctx context.Context, _ *serverv1.UpdateStatusReque
 	}, nil
 }
 
+// retentionLock reports why data retention cannot be changed, or nil when it can be.
+//
+// Both the settings response and ChangeSettings consult this, so a field the API presents as
+// locked and a request the API refuses cannot disagree about whether retention is writable.
+func (s *Server) retentionLock() *serverv1.SettingLock {
+	// High availability is checked first so that an HA user is told about the deployment that
+	// actually governs the value, rather than about an environment variable they would then
+	// have to trace back to the chart.
+	if s.haService.Params().Enabled {
+		return &serverv1.SettingLock{
+			Setting: serverv1.SettingName_SETTING_NAME_DATA_RETENTION,
+			Reason:  serverv1.LockReason_LOCK_REASON_HIGH_AVAILABILITY,
+		}
+	}
+
+	if s.envSettings.DataRetention != 0 {
+		return &serverv1.SettingLock{
+			Setting:             serverv1.SettingName_SETTING_NAME_DATA_RETENTION,
+			Reason:              serverv1.LockReason_LOCK_REASON_ENVIRONMENT,
+			EnvironmentVariable: "PMM_DATA_RETENTION",
+		}
+	}
+
+	return nil
+}
+
+// lockedSettings lists the settings ChangeSettings will refuse to change, so that a client can
+// present them as read-only instead of letting a user discover the refusal by submitting one.
+func (s *Server) lockedSettings() []*serverv1.SettingLock {
+	var locks []*serverv1.SettingLock
+
+	if lock := s.retentionLock(); lock != nil {
+		locks = append(locks, lock)
+	}
+
+	// Query Analytics on PMM's own database is refused in HA whatever the environment says,
+	// because there PostgreSQL is external. See handleInternalQANToggle.
+	if s.haService.Params().Enabled {
+		locks = append(locks, &serverv1.SettingLock{
+			Setting: serverv1.SettingName_SETTING_NAME_ENABLE_INTERNAL_PG_QAN,
+			Reason:  serverv1.LockReason_LOCK_REASON_HIGH_AVAILABILITY,
+		})
+	}
+
+	env := s.envSettings
+	res := env.MetricsResolutions
+	for _, l := range []struct {
+		pinned  bool
+		setting serverv1.SettingName
+		name    string
+	}{
+		{env.EnableUpdates != nil, serverv1.SettingName_SETTING_NAME_UPDATES_ENABLED, "PMM_ENABLE_UPDATES"},
+		{env.EnableTelemetry != nil, serverv1.SettingName_SETTING_NAME_TELEMETRY_ENABLED, "PMM_ENABLE_TELEMETRY"},
+		{env.EnableAlerting != nil, serverv1.SettingName_SETTING_NAME_ALERTING_ENABLED, "PMM_ENABLE_ALERTING"},
+		{env.EnableAzurediscover != nil, serverv1.SettingName_SETTING_NAME_AZUREDISCOVER_ENABLED, "PMM_ENABLE_AZURE_DISCOVER"},
+		{res.HR != 0 || res.MR != 0 || res.LR != 0, serverv1.SettingName_SETTING_NAME_METRICS_RESOLUTIONS, "PMM_METRICS_RESOLUTION"},
+	} {
+		if !l.pinned {
+			continue
+		}
+		locks = append(locks, &serverv1.SettingLock{
+			Setting:             l.setting,
+			Reason:              serverv1.LockReason_LOCK_REASON_ENVIRONMENT,
+			EnvironmentVariable: l.name,
+		})
+	}
+
+	// Only reported when high availability has not already locked it, so the list never names
+	// the same setting twice.
+	if env.EnableInternalPgQAN != nil && !s.haService.Params().Enabled {
+		locks = append(locks, &serverv1.SettingLock{
+			Setting:             serverv1.SettingName_SETTING_NAME_ENABLE_INTERNAL_PG_QAN,
+			Reason:              serverv1.LockReason_LOCK_REASON_ENVIRONMENT,
+			EnvironmentVariable: pkgenv.EnableInternalPgQAN,
+		})
+	}
+
+	return locks
+}
+
 // convertSettings merges database settings and settings from environment variables into API response.
 func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan bool) *serverv1.Settings {
 	res := &serverv1.Settings{
@@ -362,6 +443,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
 		},
 		DataRetention:        durationpb.New(settings.DataRetention),
+		LockedSettings:       s.lockedSettings(),
 		SshKey:               settings.SSHKey,
 		AwsPartitions:        settings.AWSPartitions,
 		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
@@ -497,11 +579,54 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via PMM_METRICS_RESOLUTION_LR environment variable.")
 	}
 
-	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
-		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
+	err := s.validateDataRetention(ctx, req)
+	if err != nil {
+		return err
 	}
 
 	return nil
+}
+
+// validateDataRetention refuses a request that would change data retention while it is locked.
+//
+// Whether it is locked at all comes from retentionLock, the same answer the settings response
+// reports, so the two cannot drift apart.
+func (s *Server) validateDataRetention(ctx context.Context, req *serverv1.ChangeSettingsRequest) error {
+	lock := s.retentionLock()
+	if lock == nil {
+		return nil
+	}
+
+	if lock.GetReason() == serverv1.LockReason_LOCK_REASON_ENVIRONMENT {
+		if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
+			return status.Error(codes.FailedPrecondition, "Data retention is set via the PMM_DATA_RETENTION environment variable.")
+		}
+
+		return nil
+	}
+
+	// Repeating the value already in force is not a change. The UI submits the whole settings
+	// form, so refusing an unchanged retention would block every other setting on the page.
+	if req.DataRetention == nil || req.DataRetention.AsDuration() == 0 {
+		return nil
+	}
+
+	// Reading the stored value can fail, and this returns that failure rather than falling
+	// through to "no change requested". Treating an unreadable settings row as permission to
+	// proceed would let retention move in an HA cluster exactly when the database is unhealthy,
+	// and shortening retention deletes data that cannot be brought back.
+	settings, err := models.GetSettings(s.db.WithContext(ctx))
+	if err != nil {
+		return fmt.Errorf("failed to get settings: %w", err)
+	}
+
+	if req.DataRetention.AsDuration() == settings.DataRetention {
+		return nil
+	}
+
+	return status.Error(codes.FailedPrecondition,
+		"Data retention cannot be changed at runtime when high availability is enabled. "+
+			"Set it with the pmm-ha chart's dataRetentionDays value and apply it with helm upgrade.")
 }
 
 // ChangeSettings changes PMM Server settings.
