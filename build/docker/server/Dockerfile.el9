@@ -49,6 +49,11 @@ VOLUME [ "/srv" ]
 
 EXPOSE 8080 8443
 
-HEALTHCHECK --interval=4s --timeout=2s --start-period=25s --retries=3 CMD curl -sf http://127.0.0.1:8080/v1/server/readyz
+# Sized on a cold boot against an empty volume: 34s to first pass readyz on fast
+# local storage, near 90s on slower hardware. The previous 25s grace period ended
+# before that, so three failed probes marked the container unhealthy around 34s,
+# and a dependent gated on service_healthy aborted whenever compose polled during
+# the few seconds before it recovered.
+HEALTHCHECK --interval=4s --timeout=2s --start-period=90s --retries=3 CMD curl -sf http://127.0.0.1:8080/v1/server/readyz
 
 CMD ["/opt/entrypoint.sh"]
