@@ -9,6 +9,32 @@ export interface ReadonlySettings {
   enableAccessControl: boolean;
 }
 
+/** Settings the server will refuse to change. Values match the SettingName proto enum. */
+export enum SettingName {
+  unspecified = 'SETTING_NAME_UNSPECIFIED',
+  dataRetention = 'SETTING_NAME_DATA_RETENTION',
+  updatesEnabled = 'SETTING_NAME_UPDATES_ENABLED',
+  telemetryEnabled = 'SETTING_NAME_TELEMETRY_ENABLED',
+  alertingEnabled = 'SETTING_NAME_ALERTING_ENABLED',
+  azurediscoverEnabled = 'SETTING_NAME_AZUREDISCOVER_ENABLED',
+  metricsResolutions = 'SETTING_NAME_METRICS_RESOLUTIONS',
+  enableInternalPgQan = 'SETTING_NAME_ENABLE_INTERNAL_PG_QAN',
+}
+
+/** Why a setting cannot be changed. Values match the LockReason proto enum. */
+export enum LockReason {
+  unspecified = 'LOCK_REASON_UNSPECIFIED',
+  environment = 'LOCK_REASON_ENVIRONMENT',
+  highAvailability = 'LOCK_REASON_HIGH_AVAILABILITY',
+}
+
+export interface SettingLock {
+  setting: SettingName;
+  reason: LockReason;
+  /** Only set when reason is LockReason.environment. */
+  environmentVariable?: string;
+}
+
 export interface MetricsResolutions {
   hr: string;
   mr: string;
@@ -34,6 +60,7 @@ export interface Settings extends ReadonlySettings {
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
   defaultRoleId?: number;
+  lockedSettings?: SettingLock[];
 }
 
 /** Payload for PUT /server/settings - partial updates supported */

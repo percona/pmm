@@ -34,6 +34,8 @@ import {
   advancedSettingsSchema,
 } from './AdvancedSettingsForm.schema';
 import { toFormValues, toPayload } from './AdvancedSettingsForm.utils';
+import { findSettingLock } from './Advanced.utils';
+import { LockReason, SettingName } from 'types/settings.types';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
@@ -76,6 +78,21 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   };
 
   const m = Messages.advanced;
+
+  // The server decides what is writable and reports it, so the field is disabled before a user
+  // types into it rather than after they press Save and get a refusal back.
+  const retentionLock = findSettingLock(
+    settings.lockedSettings,
+    SettingName.dataRetention
+  );
+  const retentionLockMessage =
+    retentionLock?.reason === LockReason.highAvailability
+      ? m.retentionLockedByHa
+      : retentionLock
+        ? m.retentionLockedByEnv(
+            retentionLock.environmentVariable ?? 'PMM_DATA_RETENTION'
+          )
+        : undefined;
 
   return (
     <FormProvider {...methods}>
@@ -135,6 +152,8 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               name="retention"
               textFieldProps={{
                 type: 'number',
+                disabled: !!retentionLock,
+                helperText: retentionLockMessage,
                 slotProps: {
                   htmlInput: {
                     min: MIN_DAYS,
