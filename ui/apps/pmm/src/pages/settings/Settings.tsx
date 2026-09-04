@@ -11,9 +11,11 @@ import { MetricsResolutionForm } from './components/metrics-resolution/MetricsRe
 import { AdvancedSettingsForm } from './components/advanced/AdvancedSettingsForm';
 import { Messages } from './Settings.messages';
 import { TabValue } from './Settings.types';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { OrgRole } from 'types/user.types';
 import { useUser } from 'contexts/user';
+import { useVersion } from 'hooks/api/useVersion';
+import { DistributionMethod } from 'types/version.types';
 
 export const Settings: FC = () => {
   const { user } = useUser();
@@ -25,9 +27,13 @@ export const Settings: FC = () => {
   } = useSettings({
     enabled: !!user && user.isPMMAdmin,
   });
+  const { data: version, isLoading: isVersionLoading } = useVersion({
+    enabled: !!user && user.isPMMAdmin,
+  });
   const navigate = useNavigate();
+  const showSshKeyTab = version?.distributionMethod === DistributionMethod.ami;
 
-  if (isLoading || (isEnabled && !settings)) {
+  if (isLoading || isVersionLoading || (isEnabled && !settings)) {
     return (
       <Page title={Messages.title}>
         <Stack alignItems="center" py={4}>
@@ -38,6 +44,10 @@ export const Settings: FC = () => {
   }
 
   const setTab = (value: TabValue) => navigate(`/settings/${value}`);
+
+  if (!showSshKeyTab && tab === 'ssh-key') {
+    return <Navigate to="/settings" replace />;
+  }
 
   return (
     <Page title={Messages.title} surface="paper" roles={[OrgRole.Admin]}>
@@ -60,11 +70,13 @@ export const Settings: FC = () => {
             value="advanced-settings"
             label={Messages.tabs.advanced}
           />
-          <Tab
-            data-testid="settings-tab-ssh"
-            value="ssh-key"
-            label={Messages.tabs.ssh}
-          />
+          {showSshKeyTab && (
+            <Tab
+              data-testid="settings-tab-ssh"
+              value="ssh-key"
+              label={Messages.tabs.ssh}
+            />
+          )}
         </Tabs>
 
         <Box sx={{ flex: 1 }} data-testid="settings-tab-content">

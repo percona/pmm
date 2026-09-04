@@ -51,7 +51,7 @@ docker run -d -p 443:8443 --volumes-from pmm-data \
 !!! warning "Certificate requirements"
     Before mounting certificates, make sure to configure them correctly:
 
-    - All certificates must be owned by root: `chown 0:0 /etc/pmm-certs/*`
+    - All certificates must be owned by 1000:0: `chown 1000:0 /etc/pmm-certs/*`
     - Set proper permissions: `chmod 644 /etc/pmm-certs/*.crt /etc/pmm-certs/*.pem && chmod 600 /etc/pmm-certs/*.key`
     - The certificate directory must contain all four required files
     - Use port `443` for SSL encryption instead of port `80`
@@ -67,9 +67,9 @@ docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
 docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
 
 # Set proper ownership and permissions
-docker exec -it pmm-server chown pmm:root /srv/nginx/*
-docker exec -it pmm-server chmod 644 /srv/nginx/*.crt /srv/nginx/*.pem
-docker exec -it pmm-server chmod 600 /srv/nginx/*.key
+docker exec --user root pmm-server sh -c 'chown 1000:0 /srv/nginx/*'
+docker exec --user root pmm-server sh -c 'chmod 644 /srv/nginx/*.crt /srv/nginx/*.pem'
+docker exec --user root pmm-server sh -c 'chmod 600 /srv/nginx/*.key'
 ```
 
 ### Apply certificate changes
