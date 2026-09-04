@@ -488,19 +488,9 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via PMM_ENABLE_AZURE_DISCOVER environment variable.")
 	}
 
-	if req.EnableOm != nil && s.envSettings.EnableOM != nil && *req.EnableOm != *s.envSettings.EnableOM {
-		return status.Error(codes.FailedPrecondition, "OpenManager is configured via PMM_ENABLE_OM environment variable.")
-	}
-
-	if req.EnableOm != nil && *req.EnableOm {
-		currentSettings, err := models.GetSettings(s.db.WithContext(ctx))
-		if err != nil {
-			return status.Errorf(codes.Internal, "failed to get server settings: %s", err)
-		}
-
-		if !currentSettings.IsOMEnabled() && (s.omService == nil || !s.omService.IsAvailable(ctx)) {
-			return status.Error(codes.FailedPrecondition, "OpenManager cannot be enabled: the OpenManager Inventory app is not available in SEP.")
-		}
+	err := s.validateEnableOm(ctx, req.EnableOm)
+	if err != nil {
+		return err
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
@@ -520,6 +510,29 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 
 	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
+	}
+
+	return nil
+}
+
+// validateEnableOm checks an EnableOm request value against the environment override
+// and, when it would turn OpenManager on, against SEP's own availability.
+func (s *Server) validateEnableOm(ctx context.Context, enableOm *bool) error {
+	if enableOm != nil && s.envSettings.EnableOM != nil && *enableOm != *s.envSettings.EnableOM {
+		return status.Error(codes.FailedPrecondition, "OpenManager is configured via PMM_ENABLE_OM environment variable.")
+	}
+
+	if enableOm == nil || !*enableOm {
+		return nil
+	}
+
+	currentSettings, err := models.GetSettings(s.db.WithContext(ctx))
+	if err != nil {
+		return status.Errorf(codes.Internal, "failed to get server settings: %s", err)
+	}
+
+	if !currentSettings.IsOMEnabled() && (s.omService == nil || !s.omService.IsAvailable(ctx)) {
+		return status.Error(codes.FailedPrecondition, "OpenManager cannot be enabled: the OpenManager Inventory app is not available in SEP.")
 	}
 
 	return nil
