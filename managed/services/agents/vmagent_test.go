@@ -101,14 +101,14 @@ func envValue(env []string, key string) (string, bool) {
 func assertEnv(t *testing.T, env []string, key, want string) {
 	t.Helper()
 	got, ok := envValue(env, key)
-	require.True(t, ok, "missing env %q in %v", key, env)
-	assert.Equal(t, want, got, "env %q", key)
+	require.True(t, ok, "missing env %s in %v", key, env)
+	assert.Equal(t, want, got, "env %s", key)
 }
 
 func assertNoEnv(t *testing.T, env []string, key string) {
 	t.Helper()
 	got, ok := envValue(env, key)
-	assert.False(t, ok, "unexpected env %s=%q", key, got)
+	assert.False(t, ok, "unexpected env %s='%s'", key, got)
 }
 
 // assertCredentials asserts the basic-auth pair emitted for the vmagent; an empty value asserts

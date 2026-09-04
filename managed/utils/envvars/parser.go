@@ -224,7 +224,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_VM_URL":
 			_, err := models.ParseVictoriaMetricsURL(v)
 			if err != nil {
-				errs = append(errs, fmt.Errorf("invalid value for environment variable %q: %w", k, err))
+				errs = append(errs, fmt.Errorf("invalid value for environment variable %s: %w", k, err))
 			}
 
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
