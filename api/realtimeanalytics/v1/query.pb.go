@@ -26,6 +26,61 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// BlockedStatus says whether a statement is waiting for a row lock, keeping "we could not
+// find out" distinct from "we checked and it is not waiting". Collapsing the two would let a
+// monitoring gap look like a healthy server during the incident the feature exists for.
+type BlockedStatus int32
+
+const (
+	// The lock graph could not be read, so nothing is known about this statement's waiting.
+	BlockedStatus_BLOCKED_STATUS_UNSPECIFIED BlockedStatus = 0
+	// The lock graph was read and this statement is not waiting for a lock.
+	BlockedStatus_BLOCKED_STATUS_NOT_BLOCKED BlockedStatus = 1
+	// The statement is waiting for a row lock; blocked_by names the transactions holding it.
+	BlockedStatus_BLOCKED_STATUS_BLOCKED BlockedStatus = 2
+)
+
+// Enum value maps for BlockedStatus.
+var (
+	BlockedStatus_name = map[int32]string{
+		0: "BLOCKED_STATUS_UNSPECIFIED",
+		1: "BLOCKED_STATUS_NOT_BLOCKED",
+		2: "BLOCKED_STATUS_BLOCKED",
+	}
+	BlockedStatus_value = map[string]int32{
+		"BLOCKED_STATUS_UNSPECIFIED": 0,
+		"BLOCKED_STATUS_NOT_BLOCKED": 1,
+		"BLOCKED_STATUS_BLOCKED":     2,
+	}
+)
+
+func (x BlockedStatus) Enum() *BlockedStatus {
+	p := new(BlockedStatus)
+	*p = x
+	return p
+}
+
+func (x BlockedStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BlockedStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_realtimeanalytics_v1_query_proto_enumTypes[0].Descriptor()
+}
+
+func (BlockedStatus) Type() protoreflect.EnumType {
+	return &file_realtimeanalytics_v1_query_proto_enumTypes[0]
+}
+
+func (x BlockedStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BlockedStatus.Descriptor instead.
+func (BlockedStatus) EnumDescriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{0}
+}
+
 // QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.
 type QueryMongoDBData struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -135,6 +190,275 @@ func (x *QueryMongoDBData) GetPlanSummary() string {
 	return ""
 }
 
+// BlockingTransaction describes a transaction that is preventing a statement from
+// acquiring the lock it needs. It is read from performance_schema.data_lock_waits in
+// the same collection cycle as the statement itself, so no extra round trip is needed
+// to explain why a statement is stuck.
+type BlockingTransaction struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Connection id (processlist id) of the blocking transaction.
+	BlockingConnId int64 `protobuf:"varint,1,opt,name=blocking_conn_id,json=blockingConnId,proto3" json:"blocking_conn_id,omitempty"`
+	// The blocking connection's statement: its current statement, or the last statement
+	// it ran when it sits idle inside an open transaction.
+	BlockingQuery string `protobuf:"bytes,2,opt,name=blocking_query,json=blockingQuery,proto3" json:"blocking_query,omitempty"`
+	// Command the blocking connection is executing ("Query", "Execute", ...).
+	// "Sleep" means it is idle inside an open transaction and is running nothing at all.
+	BlockingCommand string `protobuf:"bytes,3,opt,name=blocking_command,json=blockingCommand,proto3" json:"blocking_command,omitempty"`
+	// MySQL user name of the blocking connection.
+	BlockingUsername string `protobuf:"bytes,4,opt,name=blocking_username,json=blockingUsername,proto3" json:"blocking_username,omitempty"`
+	// How long the waiting statement has been waiting on this blocker.
+	WaitDuration *durationpb.Duration `protobuf:"bytes,5,opt,name=wait_duration,json=waitDuration,proto3" json:"wait_duration,omitempty"`
+	// How long the blocking transaction has been open.
+	BlockerTransactionDuration *durationpb.Duration `protobuf:"bytes,6,opt,name=blocker_transaction_duration,json=blockerTransactionDuration,proto3" json:"blocker_transaction_duration,omitempty"`
+	// True when this blocker is not itself waiting for a lock, i.e. it sits at the head of the
+	// blocking chain. More than one blocker of a statement can be marked -- several independent
+	// transactions can hold up the same statement -- so a client must not present one of them
+	// as the sole cause unless it is the only one flagged. None are marked when the lock graph
+	// is a cycle and every participant is waiting.
+	Root          bool `protobuf:"varint,7,opt,name=root,proto3" json:"root,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BlockingTransaction) Reset() {
+	*x = BlockingTransaction{}
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BlockingTransaction) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BlockingTransaction) ProtoMessage() {}
+
+func (x *BlockingTransaction) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BlockingTransaction.ProtoReflect.Descriptor instead.
+func (*BlockingTransaction) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *BlockingTransaction) GetBlockingConnId() int64 {
+	if x != nil {
+		return x.BlockingConnId
+	}
+	return 0
+}
+
+func (x *BlockingTransaction) GetBlockingQuery() string {
+	if x != nil {
+		return x.BlockingQuery
+	}
+	return ""
+}
+
+func (x *BlockingTransaction) GetBlockingCommand() string {
+	if x != nil {
+		return x.BlockingCommand
+	}
+	return ""
+}
+
+func (x *BlockingTransaction) GetBlockingUsername() string {
+	if x != nil {
+		return x.BlockingUsername
+	}
+	return ""
+}
+
+func (x *BlockingTransaction) GetWaitDuration() *durationpb.Duration {
+	if x != nil {
+		return x.WaitDuration
+	}
+	return nil
+}
+
+func (x *BlockingTransaction) GetBlockerTransactionDuration() *durationpb.Duration {
+	if x != nil {
+		return x.BlockerTransactionDuration
+	}
+	return nil
+}
+
+func (x *BlockingTransaction) GetRoot() bool {
+	if x != nil {
+		return x.Root
+	}
+	return false
+}
+
+// QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
+// The data is sourced from the sys.x$processlist view.
+type QueryMySQLData struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// MySQL instance address(host:port) that processing the query.
+	DbInstanceAddress string `protobuf:"bytes,1,opt,name=db_instance_address,json=dbInstanceAddress,proto3" json:"db_instance_address,omitempty"`
+	// Client program name connected to MySQL (program_name from sys.x$processlist).
+	ProgramName string `protobuf:"bytes,2,opt,name=program_name,json=programName,proto3" json:"program_name,omitempty"`
+	// Database name (db from sys.x$processlist).
+	DatabaseName string `protobuf:"bytes,3,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
+	// Command type the connection is executing ("Query", "Execute", etc).
+	Command string `protobuf:"bytes,4,opt,name=command,proto3" json:"command,omitempty"`
+	// State of the connection/thread (for example "Sending data").
+	State string `protobuf:"bytes,5,opt,name=state,proto3" json:"state,omitempty"`
+	// MySQL user name associated with the query.
+	Username string `protobuf:"bytes,6,opt,name=username,proto3" json:"username,omitempty"`
+	// Number of rows examined by the statement so far.
+	RowsExamined int64 `protobuf:"varint,7,opt,name=rows_examined,json=rowsExamined,proto3" json:"rows_examined,omitempty"`
+	// Number of rows sent by the statement so far.
+	RowsSent int64 `protobuf:"varint,8,opt,name=rows_sent,json=rowsSent,proto3" json:"rows_sent,omitempty"`
+	// Indicates whether the statement performed a full table scan.
+	FullScan bool `protobuf:"varint,9,opt,name=full_scan,json=fullScan,proto3" json:"full_scan,omitempty"`
+	// Whether the statement is waiting for a row lock. UNSPECIFIED means the agent could not
+	// read the lock graph at all (missing privilege, unsupported server), which is not the same
+	// as having checked and found nothing -- a client must not report "not blocked" for it.
+	BlockedStatus BlockedStatus `protobuf:"varint,10,opt,name=blocked_status,json=blockedStatus,proto3,enum=realtimeanalytics.v1.BlockedStatus" json:"blocked_status,omitempty"`
+	// Transactions blocking this statement, ordered by connection id. Empty whenever
+	// blocked_status is not BLOCKED.
+	BlockedBy []*BlockingTransaction `protobuf:"bytes,11,rep,name=blocked_by,json=blockedBy,proto3" json:"blocked_by,omitempty"`
+	// Schema-qualified table the statement is waiting for a lock on. This describes the lock
+	// the statement itself requested, so it is a property of the waiter rather than of any one
+	// blocking transaction. Empty unless blocked_status is BLOCKED.
+	LockedTable string `protobuf:"bytes,12,opt,name=locked_table,json=lockedTable,proto3" json:"locked_table,omitempty"`
+	// Index the statement is waiting for a lock on. Empty unless blocked_status is BLOCKED.
+	LockedIndex   string `protobuf:"bytes,13,opt,name=locked_index,json=lockedIndex,proto3" json:"locked_index,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *QueryMySQLData) Reset() {
+	*x = QueryMySQLData{}
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *QueryMySQLData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryMySQLData) ProtoMessage() {}
+
+func (x *QueryMySQLData) ProtoReflect() protoreflect.Message {
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use QueryMySQLData.ProtoReflect.Descriptor instead.
+func (*QueryMySQLData) Descriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *QueryMySQLData) GetDbInstanceAddress() string {
+	if x != nil {
+		return x.DbInstanceAddress
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetProgramName() string {
+	if x != nil {
+		return x.ProgramName
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetDatabaseName() string {
+	if x != nil {
+		return x.DatabaseName
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetCommand() string {
+	if x != nil {
+		return x.Command
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetRowsExamined() int64 {
+	if x != nil {
+		return x.RowsExamined
+	}
+	return 0
+}
+
+func (x *QueryMySQLData) GetRowsSent() int64 {
+	if x != nil {
+		return x.RowsSent
+	}
+	return 0
+}
+
+func (x *QueryMySQLData) GetFullScan() bool {
+	if x != nil {
+		return x.FullScan
+	}
+	return false
+}
+
+func (x *QueryMySQLData) GetBlockedStatus() BlockedStatus {
+	if x != nil {
+		return x.BlockedStatus
+	}
+	return BlockedStatus_BLOCKED_STATUS_UNSPECIFIED
+}
+
+func (x *QueryMySQLData) GetBlockedBy() []*BlockingTransaction {
+	if x != nil {
+		return x.BlockedBy
+	}
+	return nil
+}
+
+func (x *QueryMySQLData) GetLockedTable() string {
+	if x != nil {
+		return x.LockedTable
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetLockedIndex() string {
+	if x != nil {
+		return x.LockedIndex
+	}
+	return ""
+}
+
 // QueryData represents a single Real-Time Analytics query data point.
 // It includes general query information and a payload for database-specific details.
 type QueryData struct {
@@ -160,6 +484,7 @@ type QueryData struct {
 	// Types that are valid to be assigned to Payload:
 	//
 	//	*QueryData_MongoDbPayload
+	//	*QueryData_MySqlPayload
 	Payload       isQueryData_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -167,7 +492,7 @@ type QueryData struct {
 
 func (x *QueryData) Reset() {
 	*x = QueryData{}
-	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -179,7 +504,7 @@ func (x *QueryData) String() string {
 func (*QueryData) ProtoMessage() {}
 
 func (x *QueryData) ProtoReflect() protoreflect.Message {
-	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[1]
+	mi := &file_realtimeanalytics_v1_query_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -192,7 +517,7 @@ func (x *QueryData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use QueryData.ProtoReflect.Descriptor instead.
 func (*QueryData) Descriptor() ([]byte, []int) {
-	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{1}
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *QueryData) GetServiceId() string {
@@ -267,6 +592,15 @@ func (x *QueryData) GetMongoDbPayload() *QueryMongoDBData {
 	return nil
 }
 
+func (x *QueryData) GetMySqlPayload() *QueryMySQLData {
+	if x != nil {
+		if x, ok := x.Payload.(*QueryData_MySqlPayload); ok {
+			return x.MySqlPayload
+		}
+	}
+	return nil
+}
+
 type isQueryData_Payload interface {
 	isQueryData_Payload()
 }
@@ -276,7 +610,14 @@ type QueryData_MongoDbPayload struct {
 	MongoDbPayload *QueryMongoDBData `protobuf:"bytes,9,opt,name=mongo_db_payload,json=mongoDbPayload,proto3,oneof"`
 }
 
+type QueryData_MySqlPayload struct {
+	// MySQL-specific query data.
+	MySqlPayload *QueryMySQLData `protobuf:"bytes,10,opt,name=my_sql_payload,json=mySqlPayload,proto3,oneof"`
+}
+
 func (*QueryData_MongoDbPayload) isQueryData_Payload() {}
+
+func (*QueryData_MySqlPayload) isQueryData_Payload() {}
 
 var File_realtimeanalytics_v1_query_proto protoreflect.FileDescriptor
 
@@ -293,7 +634,31 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\toperation\x18\x05 \x01(\tR\toperation\x12L\n" +
 	"\x14operation_start_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x12operationStartTime\x12 \n" +
 	"\busername\x18\a \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12!\n" +
-	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xd2\x03\n" +
+	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xf5\x02\n" +
+	"\x13BlockingTransaction\x12(\n" +
+	"\x10blocking_conn_id\x18\x01 \x01(\x03R\x0eblockingConnId\x12%\n" +
+	"\x0eblocking_query\x18\x02 \x01(\tR\rblockingQuery\x12)\n" +
+	"\x10blocking_command\x18\x03 \x01(\tR\x0fblockingCommand\x121\n" +
+	"\x11blocking_username\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\x10blockingUsername\x12>\n" +
+	"\rwait_duration\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\fwaitDuration\x12[\n" +
+	"\x1cblocker_transaction_duration\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x1ablockerTransactionDuration\x12\x12\n" +
+	"\x04root\x18\a \x01(\bR\x04root\"\x95\x04\n" +
+	"\x0eQueryMySQLData\x12.\n" +
+	"\x13db_instance_address\x18\x01 \x01(\tR\x11dbInstanceAddress\x12!\n" +
+	"\fprogram_name\x18\x02 \x01(\tR\vprogramName\x12#\n" +
+	"\rdatabase_name\x18\x03 \x01(\tR\fdatabaseName\x12\x18\n" +
+	"\acommand\x18\x04 \x01(\tR\acommand\x12\x14\n" +
+	"\x05state\x18\x05 \x01(\tR\x05state\x12 \n" +
+	"\busername\x18\x06 \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12#\n" +
+	"\rrows_examined\x18\a \x01(\x03R\frowsExamined\x12\x1b\n" +
+	"\trows_sent\x18\b \x01(\x03R\browsSent\x12\x1b\n" +
+	"\tfull_scan\x18\t \x01(\bR\bfullScan\x12J\n" +
+	"\x0eblocked_status\x18\n" +
+	" \x01(\x0e2#.realtimeanalytics.v1.BlockedStatusR\rblockedStatus\x12H\n" +
+	"\n" +
+	"blocked_by\x18\v \x03(\v2).realtimeanalytics.v1.BlockingTransactionR\tblockedBy\x12!\n" +
+	"\flocked_table\x18\f \x01(\tR\vlockedTable\x12!\n" +
+	"\flocked_index\x18\r \x01(\tR\vlockedIndex\"\xa0\x04\n" +
 	"\tQueryData\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -305,8 +670,14 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\x18query_execution_duration\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x16queryExecutionDuration\x12H\n" +
 	"\x12query_collect_time\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x10queryCollectTime\x12%\n" +
 	"\x0eclient_address\x18\b \x01(\tR\rclientAddress\x12R\n" +
-	"\x10mongo_db_payload\x18\t \x01(\v2&.realtimeanalytics.v1.QueryMongoDBDataH\x00R\x0emongoDbPayloadB\t\n" +
-	"\apayloadB\xdc\x01\n" +
+	"\x10mongo_db_payload\x18\t \x01(\v2&.realtimeanalytics.v1.QueryMongoDBDataH\x00R\x0emongoDbPayload\x12L\n" +
+	"\x0emy_sql_payload\x18\n" +
+	" \x01(\v2$.realtimeanalytics.v1.QueryMySQLDataH\x00R\fmySqlPayloadB\t\n" +
+	"\apayload*k\n" +
+	"\rBlockedStatus\x12\x1e\n" +
+	"\x1aBLOCKED_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
+	"\x1aBLOCKED_STATUS_NOT_BLOCKED\x10\x01\x12\x1a\n" +
+	"\x16BLOCKED_STATUS_BLOCKED\x10\x02B\xdc\x01\n" +
 	"\x18com.realtimeanalytics.v1B\n" +
 	"QueryProtoP\x01ZCgithub.com/percona/pmm/api/realtimeanalytics/v1;realtimeanalyticsv1\xa2\x02\x03RXX\xaa\x02\x14Realtimeanalytics.V1\xca\x02\x14Realtimeanalytics\\V1\xe2\x02 Realtimeanalytics\\V1\\GPBMetadata\xea\x02\x15Realtimeanalytics::V1b\x06proto3"
 
@@ -323,25 +694,34 @@ func file_realtimeanalytics_v1_query_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_realtimeanalytics_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-	file_realtimeanalytics_v1_query_proto_goTypes  = []any{
-		(*QueryMongoDBData)(nil),      // 0: realtimeanalytics.v1.QueryMongoDBData
-		(*QueryData)(nil),             // 1: realtimeanalytics.v1.QueryData
-		(*timestamppb.Timestamp)(nil), // 2: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),   // 3: google.protobuf.Duration
+	file_realtimeanalytics_v1_query_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_realtimeanalytics_v1_query_proto_msgTypes  = make([]protoimpl.MessageInfo, 4)
+	file_realtimeanalytics_v1_query_proto_goTypes   = []any{
+		BlockedStatus(0),              // 0: realtimeanalytics.v1.BlockedStatus
+		(*QueryMongoDBData)(nil),      // 1: realtimeanalytics.v1.QueryMongoDBData
+		(*BlockingTransaction)(nil),   // 2: realtimeanalytics.v1.BlockingTransaction
+		(*QueryMySQLData)(nil),        // 3: realtimeanalytics.v1.QueryMySQLData
+		(*QueryData)(nil),             // 4: realtimeanalytics.v1.QueryData
+		(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),   // 6: google.protobuf.Duration
 	}
 )
 
 var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
-	2, // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
-	3, // 1: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
-	2, // 2: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
-	0, // 3: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	5, // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
+	6, // 1: realtimeanalytics.v1.BlockingTransaction.wait_duration:type_name -> google.protobuf.Duration
+	6, // 2: realtimeanalytics.v1.BlockingTransaction.blocker_transaction_duration:type_name -> google.protobuf.Duration
+	0, // 3: realtimeanalytics.v1.QueryMySQLData.blocked_status:type_name -> realtimeanalytics.v1.BlockedStatus
+	2, // 4: realtimeanalytics.v1.QueryMySQLData.blocked_by:type_name -> realtimeanalytics.v1.BlockingTransaction
+	6, // 5: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
+	5, // 6: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
+	1, // 7: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
+	3, // 8: realtimeanalytics.v1.QueryData.my_sql_payload:type_name -> realtimeanalytics.v1.QueryMySQLData
+	9, // [9:9] is the sub-list for method output_type
+	9, // [9:9] is the sub-list for method input_type
+	9, // [9:9] is the sub-list for extension type_name
+	9, // [9:9] is the sub-list for extension extendee
+	0, // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_query_proto_init() }
@@ -349,21 +729,23 @@ func file_realtimeanalytics_v1_query_proto_init() {
 	if File_realtimeanalytics_v1_query_proto != nil {
 		return
 	}
-	file_realtimeanalytics_v1_query_proto_msgTypes[1].OneofWrappers = []any{
+	file_realtimeanalytics_v1_query_proto_msgTypes[3].OneofWrappers = []any{
 		(*QueryData_MongoDbPayload)(nil),
+		(*QueryData_MySqlPayload)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_realtimeanalytics_v1_query_proto_rawDesc), len(file_realtimeanalytics_v1_query_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   2,
+			NumEnums:      1,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_realtimeanalytics_v1_query_proto_goTypes,
 		DependencyIndexes: file_realtimeanalytics_v1_query_proto_depIdxs,
+		EnumInfos:         file_realtimeanalytics_v1_query_proto_enumTypes,
 		MessageInfos:      file_realtimeanalytics_v1_query_proto_msgTypes,
 	}.Build()
 	File_realtimeanalytics_v1_query_proto = out.File

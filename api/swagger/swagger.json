@@ -4436,7 +4436,8 @@
               "AGENT_TYPE_RDS_EXPORTER",
               "AGENT_TYPE_AZURE_DATABASE_EXPORTER",
               "AGENT_TYPE_NOMAD_AGENT",
-              "AGENT_TYPE_RTA_MONGODB_AGENT"
+              "AGENT_TYPE_RTA_MONGODB_AGENT",
+              "AGENT_TYPE_RTA_MYSQL_AGENT"
             ],
             "type": "string",
             "default": "AGENT_TYPE_UNSPECIFIED",
@@ -6580,6 +6581,102 @@
                     }
                   },
                   "x-order": 18
+                },
+                "rta_mysql_agent": {
+                  "type": "array",
+                  "items": {
+                    "description": "RTAMySQLAgent runs within pmm-agent and sends MySQL Real-Time Query Analytics data to the PMM Server.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique agent identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "x-order": 2
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "username": {
+                        "description": "MySQL username for getting the currently running queries.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "tls": {
+                        "description": "Use TLS for database connections.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "tls_skip_verify": {
+                        "description": "Skip TLS certificate and hostname validation.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 7
+                      },
+                      "rta_options": {
+                        "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                        "type": "object",
+                        "properties": {
+                          "collect_interval": {
+                            "description": "Query collect interval (default 2s is set by server).",
+                            "type": "string",
+                            "x-order": 0
+                          }
+                        },
+                        "x-order": 8
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
+                        "enum": [
+                          "AGENT_STATUS_UNSPECIFIED",
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_INITIALIZATION_ERROR",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
+                        ],
+                        "x-order": 9
+                      },
+                      "log_level": {
+                        "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                        "type": "string",
+                        "title": "Log level for exporters",
+                        "default": "LOG_LEVEL_UNSPECIFIED",
+                        "enum": [
+                          "LOG_LEVEL_UNSPECIFIED",
+                          "LOG_LEVEL_FATAL",
+                          "LOG_LEVEL_ERROR",
+                          "LOG_LEVEL_WARN",
+                          "LOG_LEVEL_INFO",
+                          "LOG_LEVEL_DEBUG"
+                        ],
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 19
                 }
               }
             }
@@ -8181,6 +8278,97 @@
                     }
                   },
                   "x-order": 16
+                },
+                "rta_mysql_agent": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "username": {
+                      "description": "MySQL username for getting queries data.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "MySQL password for getting queries data.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 5
+                    },
+                    "tls": {
+                      "description": "MySQL specific options.\nUse TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "tls_key": {
+                      "description": "Client key.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-order": 11
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 12
+                    }
+                  },
+                  "x-order": 17
                 }
               }
             }
@@ -10172,6 +10360,99 @@
                     }
                   },
                   "x-order": 16
+                },
+                "rta_mysql_agent": {
+                  "description": "RTAMySQLAgent runs within pmm-agent and sends MySQL Real-Time Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique agent identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for getting the currently running queries.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 17
                 }
               }
             }
@@ -12305,6 +12586,99 @@
                     }
                   },
                   "x-order": 18
+                },
+                "rta_mysql_agent": {
+                  "description": "RTAMySQLAgent runs within pmm-agent and sends MySQL Real-Time Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique agent identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for getting the currently running queries.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 19
                 }
               }
             }
@@ -14442,6 +14816,110 @@
                     }
                   },
                   "x-order": 16
+                },
+                "rta_mysql_agent": {
+                  "type": "object",
+                  "properties": {
+                    "enable": {
+                      "description": "Enable this Agent. Agents are enabled by default when they get added.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "description": "A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.",
+                      "type": "object",
+                      "properties": {
+                        "values": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 1
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-nullable": true,
+                      "x-order": 2
+                    },
+                    "username": {
+                      "description": "MySQL username for getting queries data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "password": {
+                      "description": "MySQL password for getting queries data.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 6
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 7
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 8
+                    },
+                    "tls_key": {
+                      "description": "Client key.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-nullable": true,
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 17
                 }
               }
             }
@@ -16446,6 +16924,99 @@
                     }
                   },
                   "x-order": 16
+                },
+                "rta_mysql_agent": {
+                  "description": "RTAMySQLAgent runs within pmm-agent and sends MySQL Real-Time Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique agent identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MySQL username for getting the currently running queries.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "rta_options": {
+                      "description": "RTAOptions holds Real-Time Query Analytics agent options.",
+                      "type": "object",
+                      "properties": {
+                        "collect_interval": {
+                          "description": "Query collect interval (default 2s is set by server).",
+                          "type": "string",
+                          "x-order": 0
+                        }
+                      },
+                      "x-order": 8
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent has been stopped or disabled.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_INITIALIZATION_ERROR",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 9
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 17
                 }
               }
             }
@@ -30698,6 +31269,128 @@
                           }
                         },
                         "x-order": 8
+                      },
+                      "my_sql_payload": {
+                        "description": "QueryMySQLData holds MySQL-specific Real-Time Analytics query information.\nThe data is sourced from the sys.x$processlist view.",
+                        "type": "object",
+                        "properties": {
+                          "db_instance_address": {
+                            "description": "MySQL instance address(host:port) that processing the query.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "program_name": {
+                            "description": "Client program name connected to MySQL (program_name from sys.x$processlist).",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "database_name": {
+                            "description": "Database name (db from sys.x$processlist).",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "command": {
+                            "description": "Command type the connection is executing (\"Query\", \"Execute\", etc).",
+                            "type": "string",
+                            "x-order": 3
+                          },
+                          "state": {
+                            "description": "State of the connection/thread (for example \"Sending data\").",
+                            "type": "string",
+                            "x-order": 4
+                          },
+                          "username": {
+                            "description": "MySQL user name associated with the query.",
+                            "type": "string",
+                            "x-order": 5
+                          },
+                          "rows_examined": {
+                            "description": "Number of rows examined by the statement so far.",
+                            "type": "string",
+                            "format": "int64",
+                            "x-order": 6
+                          },
+                          "rows_sent": {
+                            "description": "Number of rows sent by the statement so far.",
+                            "type": "string",
+                            "format": "int64",
+                            "x-order": 7
+                          },
+                          "full_scan": {
+                            "description": "Indicates whether the statement performed a full table scan.",
+                            "type": "boolean",
+                            "x-order": 8
+                          },
+                          "blocked_status": {
+                            "description": "BlockedStatus says whether a statement is waiting for a row lock, keeping \"we could not\nfind out\" distinct from \"we checked and it is not waiting\". Collapsing the two would let a\nmonitoring gap look like a healthy server during the incident the feature exists for.\n\n - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.\n - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.\n - BLOCKED_STATUS_BLOCKED: The statement is waiting for a row lock; blocked_by names the transactions holding it.",
+                            "type": "string",
+                            "default": "BLOCKED_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "BLOCKED_STATUS_UNSPECIFIED",
+                              "BLOCKED_STATUS_NOT_BLOCKED",
+                              "BLOCKED_STATUS_BLOCKED"
+                            ],
+                            "x-order": 9
+                          },
+                          "blocked_by": {
+                            "description": "Transactions blocking this statement, ordered by connection id. Empty whenever\nblocked_status is not BLOCKED.",
+                            "type": "array",
+                            "items": {
+                              "description": "BlockingTransaction describes a transaction that is preventing a statement from\nacquiring the lock it needs. It is read from performance_schema.data_lock_waits in\nthe same collection cycle as the statement itself, so no extra round trip is needed\nto explain why a statement is stuck.",
+                              "type": "object",
+                              "properties": {
+                                "blocking_conn_id": {
+                                  "description": "Connection id (processlist id) of the blocking transaction.",
+                                  "type": "string",
+                                  "format": "int64",
+                                  "x-order": 0
+                                },
+                                "blocking_query": {
+                                  "description": "The blocking connection's statement: its current statement, or the last statement\nit ran when it sits idle inside an open transaction.",
+                                  "type": "string",
+                                  "x-order": 1
+                                },
+                                "blocking_command": {
+                                  "description": "Command the blocking connection is executing (\"Query\", \"Execute\", ...).\n\"Sleep\" means it is idle inside an open transaction and is running nothing at all.",
+                                  "type": "string",
+                                  "x-order": 2
+                                },
+                                "blocking_username": {
+                                  "description": "MySQL user name of the blocking connection.",
+                                  "type": "string",
+                                  "x-order": 3
+                                },
+                                "wait_duration": {
+                                  "description": "How long the waiting statement has been waiting on this blocker.",
+                                  "type": "string",
+                                  "x-order": 4
+                                },
+                                "blocker_transaction_duration": {
+                                  "description": "How long the blocking transaction has been open.",
+                                  "type": "string",
+                                  "x-order": 5
+                                },
+                                "root": {
+                                  "description": "True when this blocker is not itself waiting for a lock, i.e. it sits at the head of the\nblocking chain. More than one blocker of a statement can be marked -- several independent\ntransactions can hold up the same statement -- so a client must not present one of them\nas the sole cause unless it is the only one flagged. None are marked when the lock graph\nis a cycle and every participant is waiting.",
+                                  "type": "boolean",
+                                  "x-order": 6
+                                }
+                              }
+                            },
+                            "x-order": 10
+                          },
+                          "locked_table": {
+                            "description": "Schema-qualified table the statement is waiting for a lock on. This describes the lock\nthe statement itself requested, so it is a property of the waiter rather than of any one\nblocking transaction. Empty unless blocked_status is BLOCKED.",
+                            "type": "string",
+                            "x-order": 11
+                          },
+                          "locked_index": {
+                            "description": "Index the statement is waiting for a lock on. Empty unless blocked_status is BLOCKED.",
+                            "type": "string",
+                            "x-order": 12
+                          }
+                        },
+                        "x-order": 9
                       }
                     }
                   },
@@ -30841,6 +31534,83 @@
                     }
                   },
                   "x-order": 0
+                },
+                "mysql": {
+                  "type": "array",
+                  "items": {
+                    "description": "MySQLService represents a generic MySQL instance.",
+                    "type": "object",
+                    "properties": {
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "address": {
+                        "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "port": {
+                        "description": "Access port.\nPort is required when the address present.",
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 4
+                      },
+                      "socket": {
+                        "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "environment": {
+                        "description": "Environment name.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "cluster": {
+                        "description": "Cluster name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "replication_set": {
+                        "description": "Replication set name.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 9
+                      },
+                      "version": {
+                        "description": "MySQL version.",
+                        "type": "string",
+                        "x-order": 10
+                      },
+                      "extra_dsn_params": {
+                        "description": "Extra parameters to be added to the DSN.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 11
+                      }
+                    }
+                  },
+                  "x-order": 1
                 }
               }
             }
@@ -30946,6 +31716,22 @@
                           "SESSION_STATUS_DOWN"
                         ],
                         "x-order": 5
+                      },
+                      "service_type": {
+                        "description": "ServiceType describes supported Service types.",
+                        "type": "string",
+                        "default": "SERVICE_TYPE_UNSPECIFIED",
+                        "enum": [
+                          "SERVICE_TYPE_UNSPECIFIED",
+                          "SERVICE_TYPE_MYSQL_SERVICE",
+                          "SERVICE_TYPE_MONGODB_SERVICE",
+                          "SERVICE_TYPE_POSTGRESQL_SERVICE",
+                          "SERVICE_TYPE_VALKEY_SERVICE",
+                          "SERVICE_TYPE_PROXYSQL_SERVICE",
+                          "SERVICE_TYPE_HAPROXY_SERVICE",
+                          "SERVICE_TYPE_EXTERNAL_SERVICE"
+                        ],
+                        "x-order": 6
                       }
                     }
                   },
@@ -31063,6 +31849,22 @@
                         "SESSION_STATUS_DOWN"
                       ],
                       "x-order": 5
+                    },
+                    "service_type": {
+                      "description": "ServiceType describes supported Service types.",
+                      "type": "string",
+                      "default": "SERVICE_TYPE_UNSPECIFIED",
+                      "enum": [
+                        "SERVICE_TYPE_UNSPECIFIED",
+                        "SERVICE_TYPE_MYSQL_SERVICE",
+                        "SERVICE_TYPE_MONGODB_SERVICE",
+                        "SERVICE_TYPE_POSTGRESQL_SERVICE",
+                        "SERVICE_TYPE_VALKEY_SERVICE",
+                        "SERVICE_TYPE_PROXYSQL_SERVICE",
+                        "SERVICE_TYPE_HAPROXY_SERVICE",
+                        "SERVICE_TYPE_EXTERNAL_SERVICE"
+                      ],
+                      "x-order": 6
                     }
                   },
                   "x-order": 0

@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { TEST_MONGO_DB_QUERY_DATA } from 'utils/testStubs';
+import {
+  TEST_MONGO_DB_QUERY_DATA,
+  TEST_MYSQL_QUERY_DATA,
+} from 'utils/testStubs';
+import { BlockedStatus, QueryData } from 'types/rta.types';
 import {
   buildRtaExportFilename,
   collectCsvColumns,
@@ -22,13 +26,18 @@ vi.mock('export-to-csv', () => ({
   mkConfig,
 }));
 
-const TEST_QUERY = {
+const TEST_QUERY: QueryData = {
   ...TEST_MONGO_DB_QUERY_DATA,
   queryExecutionDurationMs: 10,
   mongoDbPayload: {
-    ...TEST_MONGO_DB_QUERY_DATA.mongoDbPayload,
+    ...TEST_MONGO_DB_QUERY_DATA.mongoDbPayload!,
     collection: 'mycollection',
   },
+};
+
+const TEST_MYSQL_QUERY: QueryData = {
+  ...TEST_MYSQL_QUERY_DATA,
+  queryExecutionDurationMs: 5,
 };
 
 describe('exportRtaQueriesToCsv', () => {
@@ -80,6 +89,56 @@ describe('exportRtaQueriesToCsv', () => {
     });
   });
 
+  it('maps every MySQL query field to a csv column, flattening the payload', () => {
+    expect(mapQueryToCsvRow(TEST_MYSQL_QUERY)).toEqual({
+      operation_id: 'query-2',
+      elapsed_exec_time_sec: 5,
+      db_instance_address: '127.0.0.1',
+      client_address: '127.0.0.1',
+      database_name: 'database-name',
+      service: 'Service 2',
+      user_name: 'username',
+      command: 'Query',
+      state: 'Sending data',
+      program_name: 'mysql',
+      rows_examined: 100,
+      rows_sent: 10,
+      full_scan: true,
+      blocked_status: 'BLOCKED_STATUS_NOT_BLOCKED',
+      data_capture_time: '2021-01-01T00:00:00Z',
+      raw_query: '{"current_statement": "SELECT * FROM my_table"}',
+      service_id: 'service-2',
+      query_text: 'SELECT * FROM my_table WHERE status = "active"',
+    });
+  });
+
+  // The MySQL-specific fields are listed in the documented order, so the raw
+  // JSON blob stays last instead of being pushed ahead of them.
+  it('keeps the MySQL columns ahead of the raw query column', () => {
+    const columns = collectCsvColumns([mapQueryToCsvRow(TEST_MYSQL_QUERY)]);
+
+    expect(columns).toEqual([
+      'operation_id',
+      'elapsed_exec_time_sec',
+      'db_instance_address',
+      'client_address',
+      'database_name',
+      'service',
+      'user_name',
+      'command',
+      'state',
+      'program_name',
+      'rows_examined',
+      'rows_sent',
+      'full_scan',
+      'blocked_status',
+      'data_capture_time',
+      'raw_query',
+      'service_id',
+      'query_text',
+    ]);
+  });
+
   it('keeps the documented column order and appends unlisted fields', () => {
     const columns = collectCsvColumns([mapQueryToCsvRow(TEST_QUERY)]);
 
@@ -124,8 +183,10 @@ describe('exportRtaQueriesToCsv', () => {
     const [withoutCollection, withCollection] = [
       mapQueryToCsvRow({
         ...TEST_QUERY,
+        // The payload is optional now that a query may carry a MySQL one
+        // instead, so the spread needs the assertion to stay fully typed.
         mongoDbPayload: {
-          ...TEST_QUERY.mongoDbPayload,
+          ...TEST_QUERY.mongoDbPayload!,
           collection: undefined,
         },
       }),
@@ -140,7 +201,7 @@ describe('exportRtaQueriesToCsv', () => {
   it('builds the required filename template', () => {
     expect(
       buildRtaExportFilename(new Date('2026-06-25T14:30:22.000Z'))
-    ).toMatch(/^mongodb_rta_export_\d{8}_\d{6}$/);
+    ).toMatch(/^rta_export_\d{8}_\d{6}$/);
   });
 
   it('exports filtered query rows to csv', () => {
@@ -148,7 +209,8 @@ describe('exportRtaQueriesToCsv', () => {
 
     expect(mkConfig).toHaveBeenCalledWith({
       columnHeaders: expect.arrayContaining(['operation_id', 'raw_query']),
-      filename: expect.stringMatching(/^mongodb_rta_export_\d{8}_\d{6}$/),
+      // No technology prefix: RTA now covers MySQL as well as MongoDB.
+      filename: expect.stringMatching(/^rta_export_\d{8}_\d{6}$/),
     });
     expect(generateCsv).toHaveBeenCalled();
     expect(download).toHaveBeenCalled();
@@ -160,5 +222,75 @@ describe('exportRtaQueriesToCsv', () => {
     expect(mkConfig).not.toHaveBeenCalled();
     expect(generateCsv).not.toHaveBeenCalled();
     expect(download).not.toHaveBeenCalled();
+  });
+});
+
+describe('blocking columns', () => {
+  const blockedQuery = {
+    ...TEST_MYSQL_QUERY,
+    mySqlPayload: {
+      ...TEST_MYSQL_QUERY.mySqlPayload!,
+      blockedStatus: BlockedStatus.blocked,
+      lockedTable: 'sbtest.sbtest1',
+      lockedIndex: 'PRIMARY',
+      blockedBy: [
+        {
+          blockingConnId: '412',
+          blockingQuery: 'UPDATE sbtest1 SET k=k+1 WHERE id=1',
+          blockingCommand: 'Query',
+          blockingUsername: 'sbtest@172.17.0.1',
+          root: false,
+        },
+        {
+          blockingConnId: '409',
+          blockingQuery: 'SELECT id,k FROM sbtest1 WHERE id=1 FOR UPDATE',
+          blockingCommand: 'Sleep',
+          blockingUsername: 'sbtest@172.17.0.1',
+          root: true,
+        },
+      ],
+    },
+  };
+
+  it('exports the head of the chain as plain columns', () => {
+    const row = mapQueryToCsvRow(blockedQuery);
+
+    expect(row.blocked_status).toBe('BLOCKED_STATUS_BLOCKED');
+    expect(row.blocking_conn_id).toBe('409');
+    // The contended lock belongs to the waiting statement, so it is one pair of columns.
+    expect(row.locked_table).toBe('sbtest.sbtest1');
+    expect(row.locked_index).toBe('PRIMARY');
+    expect(row.blocking_query).toBe(
+      'SELECT id,k FROM sbtest1 WHERE id=1 FOR UPDATE'
+    );
+  });
+
+  it('never emits the blocker array as a JSON cell', () => {
+    expect(mapQueryToCsvRow(blockedQuery)).not.toHaveProperty('blocked_by');
+  });
+
+  it('names nobody when several independent transactions are responsible', () => {
+    const twoRoots = {
+      ...blockedQuery,
+      mySqlPayload: {
+        ...blockedQuery.mySqlPayload!,
+        blockedBy: blockedQuery.mySqlPayload!.blockedBy!.map((b) => ({
+          ...b,
+          root: true,
+        })),
+      },
+    };
+    const row = mapQueryToCsvRow(twoRoots);
+
+    // Still findable as blocked, but no column claims one transaction is the cause.
+    expect(row.blocked_status).toBe('BLOCKED_STATUS_BLOCKED');
+    expect(row).not.toHaveProperty('blocking_conn_id');
+  });
+
+  it('leaves an unblocked statement without blocker columns', () => {
+    const row = mapQueryToCsvRow(TEST_MYSQL_QUERY);
+
+    expect(row).not.toHaveProperty('blocking_conn_id');
+    expect(row).not.toHaveProperty('blocking_query');
   });
 });

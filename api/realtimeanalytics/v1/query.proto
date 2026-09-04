@@ -26,6 +26,81 @@ message QueryMongoDBData {
   string plan_summary = 8;
 }
 
+// BlockedStatus says whether a statement is waiting for a row lock, keeping "we could not
+// find out" distinct from "we checked and it is not waiting". Collapsing the two would let a
+// monitoring gap look like a healthy server during the incident the feature exists for.
+enum BlockedStatus {
+  // The lock graph could not be read, so nothing is known about this statement's waiting.
+  BLOCKED_STATUS_UNSPECIFIED = 0;
+  // The lock graph was read and this statement is not waiting for a lock.
+  BLOCKED_STATUS_NOT_BLOCKED = 1;
+  // The statement is waiting for a row lock; blocked_by names the transactions holding it.
+  BLOCKED_STATUS_BLOCKED = 2;
+}
+
+// BlockingTransaction describes a transaction that is preventing a statement from
+// acquiring the lock it needs. It is read from performance_schema.data_lock_waits in
+// the same collection cycle as the statement itself, so no extra round trip is needed
+// to explain why a statement is stuck.
+message BlockingTransaction {
+  // Connection id (processlist id) of the blocking transaction.
+  int64 blocking_conn_id = 1;
+  // The blocking connection's statement: its current statement, or the last statement
+  // it ran when it sits idle inside an open transaction.
+  string blocking_query = 2;
+  // Command the blocking connection is executing ("Query", "Execute", ...).
+  // "Sleep" means it is idle inside an open transaction and is running nothing at all.
+  string blocking_command = 3;
+  // MySQL user name of the blocking connection.
+  string blocking_username = 4 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // How long the waiting statement has been waiting on this blocker.
+  google.protobuf.Duration wait_duration = 5;
+  // How long the blocking transaction has been open.
+  google.protobuf.Duration blocker_transaction_duration = 6;
+  // True when this blocker is not itself waiting for a lock, i.e. it sits at the head of the
+  // blocking chain. More than one blocker of a statement can be marked -- several independent
+  // transactions can hold up the same statement -- so a client must not present one of them
+  // as the sole cause unless it is the only one flagged. None are marked when the lock graph
+  // is a cycle and every participant is waiting.
+  bool root = 7;
+}
+
+// QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
+// The data is sourced from the sys.x$processlist view.
+message QueryMySQLData {
+  // MySQL instance address(host:port) that processing the query.
+  string db_instance_address = 1;
+  // Client program name connected to MySQL (program_name from sys.x$processlist).
+  string program_name = 2;
+  // Database name (db from sys.x$processlist).
+  string database_name = 3;
+  // Command type the connection is executing ("Query", "Execute", etc).
+  string command = 4;
+  // State of the connection/thread (for example "Sending data").
+  string state = 5;
+  // MySQL user name associated with the query.
+  string username = 6 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
+  // Number of rows examined by the statement so far.
+  int64 rows_examined = 7;
+  // Number of rows sent by the statement so far.
+  int64 rows_sent = 8;
+  // Indicates whether the statement performed a full table scan.
+  bool full_scan = 9;
+  // Whether the statement is waiting for a row lock. UNSPECIFIED means the agent could not
+  // read the lock graph at all (missing privilege, unsupported server), which is not the same
+  // as having checked and found nothing -- a client must not report "not blocked" for it.
+  BlockedStatus blocked_status = 10;
+  // Transactions blocking this statement, ordered by connection id. Empty whenever
+  // blocked_status is not BLOCKED.
+  repeated BlockingTransaction blocked_by = 11;
+  // Schema-qualified table the statement is waiting for a lock on. This describes the lock
+  // the statement itself requested, so it is a property of the waiter rather than of any one
+  // blocking transaction. Empty unless blocked_status is BLOCKED.
+  string locked_table = 12;
+  // Index the statement is waiting for a lock on. Empty unless blocked_status is BLOCKED.
+  string locked_index = 13;
+}
+
 // QueryData represents a single Real-Time Analytics query data point.
 // It includes general query information and a payload for database-specific details.
 message QueryData {
@@ -49,5 +124,7 @@ message QueryData {
   oneof payload {
     // MongoDB-specific query data.
     QueryMongoDBData mongo_db_payload = 9;
+    // MySQL-specific query data.
+    QueryMySQLData my_sql_payload = 10;
   }
 }
