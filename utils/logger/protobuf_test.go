@@ -437,6 +437,26 @@ func Test_maskDSN(t *testing.T) {
 		want  string
 	}{
 		{
+			name:  "environment entry whose key names a password",
+			input: "VMAGENT_remoteWrite_basicAuth_password=vm-password",
+			want:  "VMAGENT_remoteWrite_basicAuth_password=***REDACTED***",
+		},
+		{
+			name:  "environment entry whose key names a token",
+			input: "VMAGENT_remoteWrite_bearerToken=abc.def",
+			want:  "VMAGENT_remoteWrite_bearerToken=***REDACTED***",
+		},
+		{
+			name:  "environment entry without a secret in its key",
+			input: "VMAGENT_loggerLevel=INFO",
+			want:  "VMAGENT_loggerLevel=INFO",
+		},
+		{
+			name:  "environment entry holding a URL with userinfo",
+			input: "VMAGENT_remoteWrite_url=http://user:password@vm:8428/api/v1/write",
+			want:  "VMAGENT_remoteWrite_url=http://***REDACTED***:***REDACTED***@vm:8428/api/v1/write",
+		},
+		{
 			name:  "PostgreSQL DSN",
 			input: "postgres://user:password@localhost:5432/dbname?param=value",
 			want:  "postgres://***REDACTED***:***REDACTED***@localhost:5432/dbname?param=value",

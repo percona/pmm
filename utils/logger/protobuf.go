@@ -15,6 +15,7 @@
 package logger
 
 import (
+	"regexp"
 	"strings"
 	"sync"
 
@@ -191,10 +192,17 @@ func maskString(s string) string {
 	}
 }
 
+// envSecretRe matches KEY=value environment entries whose key names a secret.
+var envSecretRe = regexp.MustCompile(`(?i)^([A-Za-z0-9_]*(?:password|passwd|secret|token)[A-Za-z0-9_]*)=(.+)$`)
+
 // MaskDSN returns a masked copy of DSN string, which masks username and password in DSN.
+// It also masks the value of a KEY=value environment entry whose key names a secret.
 func MaskDSN(s string) string {
 	at := strings.LastIndex(s, "@")
 	if at <= 0 {
+		if m := envSecretRe.FindStringSubmatch(s); m != nil {
+			return m[1] + "=" + maskedString
+		}
 		return s
 	}
 
