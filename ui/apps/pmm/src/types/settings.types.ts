@@ -34,6 +34,7 @@ export interface Settings extends ReadonlySettings {
   telemetrySummaries?: string[];
   enableInternalPgQan?: boolean;
   defaultRoleId?: number;
+  dataRetentionReadonly?: boolean;
 }
 
 /** Payload for PUT /server/settings - partial updates supported */

@@ -346,6 +346,42 @@ func (s *Server) UpdateStatus(ctx context.Context, _ *serverv1.UpdateStatusReque
 	}, nil
 }
 
+// dataRetentionIsDeclared reports whether data retention belongs to the deployment rather than to
+// this API. PMM_DATA_RETENTION pins it everywhere. HA pins it too: every replica enforces retention
+// against the same VictoriaMetrics and ClickHouse, but each renders its own supervisord flags at
+// start-up, so a value that can move at runtime is a value the replicas disagree about.
+//
+// Callers must hold envRW.
+func (s *Server) dataRetentionIsDeclared() bool {
+	return s.envSettings.DataRetention != 0 || s.haService.Params().Enabled
+}
+
+// validateDataRetentionInHA rejects a change to data retention on an HA cluster that has not
+// declared one. A cluster that has is already covered by the PMM_DATA_RETENTION check, which cannot
+// cover this case because telling a real change from an unchanged field needs the stored value.
+//
+// A zero newValue means the field was omitted, and the current value is always accepted, because the
+// settings form resubmits every field on save.
+//
+// Callers must hold envRW.
+func (s *Server) validateDataRetentionInHA(ctx context.Context, newValue time.Duration) error {
+	if newValue == 0 || s.envSettings.DataRetention != 0 || !s.haService.Params().Enabled {
+		return nil
+	}
+
+	settings, err := models.GetSettings(s.db.WithContext(ctx))
+	if err != nil {
+		return err
+	}
+
+	if newValue == settings.DataRetention {
+		return nil
+	}
+
+	return status.Error(codes.FailedPrecondition,
+		"Data retention is declared by the deployment in HA. Set PMM_DATA_RETENTION on every replica to change it.")
+}
+
 // convertSettings merges database settings and settings from environment variables into API response.
 func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan bool) *serverv1.Settings {
 	res := &serverv1.Settings{
@@ -361,13 +397,14 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 			StandardInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.StandardInterval),
 			FrequentInterval: durationpb.New(settings.SaaS.AdvisorRunIntervals.FrequentInterval),
 		},
-		DataRetention:        durationpb.New(settings.DataRetention),
-		SshKey:               settings.SSHKey,
-		AwsPartitions:        settings.AWSPartitions,
-		AdvisorEnabled:       settings.IsAdvisorsEnabled(),
-		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
-		PmmPublicAddress:     settings.PMMPublicAddress,
-		EnableInternalPgQan:  !disableInternalPgQan,
+		DataRetention:         durationpb.New(settings.DataRetention),
+		DataRetentionReadonly: s.dataRetentionIsDeclared(),
+		SshKey:                settings.SSHKey,
+		AwsPartitions:         settings.AWSPartitions,
+		AdvisorEnabled:        settings.IsAdvisorsEnabled(),
+		AzurediscoverEnabled:  settings.IsAzureDiscoverEnabled(),
+		PmmPublicAddress:      settings.PMMPublicAddress,
+		EnableInternalPgQan:   !disableInternalPgQan,
 
 		AlertingEnabled:         settings.IsAlertingEnabled(),
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
@@ -501,7 +538,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
 	}
 
-	return nil
+	return s.validateDataRetentionInHA(ctx, req.DataRetention.AsDuration())
 }
 
 // ChangeSettings changes PMM Server settings.

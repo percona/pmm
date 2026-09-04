@@ -2283,6 +2283,8 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for EnableInternalPgQan
 
+	// no validation rules for DataRetentionReadonly
+
 	if len(errors) > 0 {
 		return SettingsMultiError(errors)
 	}
