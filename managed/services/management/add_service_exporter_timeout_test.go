@@ -75,7 +75,7 @@ func TestAddServiceExporterTimeout(t *testing.T) {
 		vmClient.AssertExpectations(t)
 	})
 
-	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient)
+	s := NewManagementService(db, ar, state, cc, sib, vmdb, vc, grafanaClient, vmClient, nil, false)
 	want := durationpb.New(17 * time.Second)
 
 	t.Run("MySQL", func(t *testing.T) {

@@ -76,11 +76,12 @@ pmm-agent has **no direct database access**. All state comes from pmm-managed vi
 - Use table-driven tests with golden files for parsers
 - Use `utils/templates` to render exporter args from server-provided templates
 - Follow the supervisor pattern — let the supervisor manage all agent lifecycle
+- Check `reform.ErrNoRows` explicitly for "not found" when the QAN collectors read monitored-database system views
 
 ### Don't
 - Don't hardcode exporter binary paths — use `config.Paths`
 - Don't bypass the supervisor for agent lifecycle management
-- Don't use raw SQL — the agent has no database; all data comes via gRPC
+- Don't persist agent state locally — pmm-agent has no datastore of its own; configuration arrives from pmm-managed over gRPC. Querying *monitored* databases is a separate matter: the QAN collectors read their system views through reform
 - Don't modify exporter args directly — they come from server templates
 
 ## Testing
@@ -96,7 +97,7 @@ pmm-agent has **no direct database access**. All state comes from pmm-managed vi
 
 ## Code Generation
 
-- **reform**: not used (agent has no DB)
+- **reform**: used by the QAN collectors to map monitored-database system views — `agents/mysql/perfschema`, `agents/postgres/pgstatstatements`, `agents/postgres/pgstatmonitor`. Each has a `//go:generate go tool reform` directive producing `models_reform.go`
 - **mockery**: generates mocks for supervisor, connectionChecker, serviceInfoBroker interfaces
 - **protobuf**: agent consumes types from `/api`; run `make gen` from repo root if proto files change
 
