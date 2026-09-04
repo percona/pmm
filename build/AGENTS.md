@@ -12,19 +12,28 @@ The `/build` directory contains everything needed to build, package, and distrib
 |----------|--------|--------|
 | PMM Server Docker image | Docker (EL9) | `docker/server/Dockerfile.el9` |
 | PMM Client Docker image | Docker (EL9) | `docker/client/Dockerfile.el9` |
-| PMM Server RPMs | RPM (EL9) | `packages/rpm/server/SPECS/` |
+| PMM Server binaries | Plain binaries/assets | `scripts/build-server-binaries` |
 | PMM Client RPM | RPM (EL9) | `packages/rpm/client/pmm-client.spec` |
 | PMM Client DEB | DEB | `packages/deb/` |
 | PMM Server AMI | AWS AMI | `packer/pmm.json` |
 
 ### Build Pipeline
 
+PMM Server components are built as plain binaries and static assets — they are
+not packaged as RPMs because they are only ever shipped inside the server
+Docker image (PMM-14804). PMM Client components keep RPM/DEB packaging for
+distribution to client hosts.
+
 ```
-Source code (Go, TypeScript)
-  → Binary compilation (make release)
+Server: Source code (Go, TypeScript)
+  → Binary compilation (scripts/build-server-binaries)
+    → Docker image build (docker/server/)
+      → Machine image build (packer/)
+
+Client: Source code (Go)
+  → Binary compilation (scripts/build-client-binary → tarball)
     → RPM/DEB packaging (packages/)
-      → Docker image build (docker/)
-        → Machine image build (packer/)
+    → Docker image build (docker/client/)
 ```
 
 ## Ansible Roles
@@ -71,14 +80,14 @@ make rpmbuild-el9         # Build RPM build environment image
 - Use Ansible roles for server provisioning — they're the single source of truth for PMM Server setup
 - Keep Dockerfiles minimal — delegate to Ansible for complex provisioning
 - Use multi-stage Docker builds where appropriate
-- Keep RPM/DEB specs in sync with actual binary and config file paths
+- Keep client RPM/DEB specs in sync with actual binary and config file paths
 - Test image builds in CI before merging
 
 ### Don't
 - Don't hardcode versions in Dockerfiles — use build args
 - Don't modify Ansible roles without testing the full image build
 - Don't add secrets or credentials to build scripts or Dockerfiles
-- Don't skip the RPM build step when modifying server components
+- Don't change install paths in `scripts/build-server-binaries` — supervisord, nginx and the entrypoint expect them at runtime
 
 ## Key Files to Reference
 
@@ -86,6 +95,6 @@ make rpmbuild-el9         # Build RPM build environment image
 - `build/docker/server/entrypoint.sh` — Server container entrypoint
 - `build/ansible/pmm-docker/main.yml` — Docker provisioning playbook
 - `build/ansible/roles/` — All Ansible roles for server components
-- `build/packages/rpm/server/SPECS/` — RPM spec files for server components
+- `build/scripts/build-server-binaries` — Server component binary builds
 - `build/packer/pmm.json` — Machine image definitions
 - `build/scripts/` — Build scripts for all artifact types
