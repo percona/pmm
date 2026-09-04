@@ -195,7 +195,11 @@ func TestNormalizeNamesAllowing(t *testing.T) {
 			stored[i] = fmt.Sprintf("VAR%d", i)
 		}
 
-		names, err := NormalizeNamesAllowing(append(stored, "EXTRA"), grandfatheredSet(stored...)) //nolint:gocritic
+		grown := make([]string, 0, len(stored)+1)
+		grown = append(grown, stored...)
+		grown = append(grown, "EXTRA")
+
+		names, err := NormalizeNamesAllowing(grown, grandfatheredSet(stored...))
 		require.Error(t, err)
 		assert.Contains(t, err.Error(), "too many environment variable names")
 		assert.Nil(t, names)

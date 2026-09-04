@@ -102,10 +102,7 @@ func NormalizeNamesAllowing(names []string, grandfathered map[string]struct{}) (
 	// list uneditable forever, since the field is full-replace — the owner could not even remove a
 	// name without first truncating to MaxNames and losing the rest. Take the stored count as the
 	// effective bound instead, so an oversized list can only shrink toward MaxNames, never grow.
-	limit := MaxNames
-	if len(grandfathered) > limit {
-		limit = len(grandfathered)
-	}
+	limit := max(MaxNames, len(grandfathered))
 
 	if len(result) > limit {
 		return nil, fmt.Errorf("too many environment variable names: %d (max %d)", len(result), limit)
