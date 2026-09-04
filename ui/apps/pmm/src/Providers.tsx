@@ -9,6 +9,7 @@ import { UserProvider } from 'contexts/user';
 import { FC, PropsWithChildren } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useThemeSync } from 'hooks/useThemeSync';
+import { FirstLoginRedirect } from 'components/first-login-redirect';
 
 const ThemeSyncProvider: FC<PropsWithChildren> = ({ children }) => {
   useThemeSync();
@@ -18,6 +19,7 @@ const ThemeSyncProvider: FC<PropsWithChildren> = ({ children }) => {
 const Providers: FC<PropsWithChildren> = () => (
   <AuthProvider>
     <UserProvider>
+      <FirstLoginRedirect />
       <ThemeSyncProvider>
         <SettingsProvider>
           <UpdatesProvider>

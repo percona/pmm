@@ -10,6 +10,7 @@ export const PMM_NEW_NAV_GRAFANA_PATH = `${PMM_NEW_NAV_PATH}${GRAFANA_SUB_PATH}`
 export const PMM_HOME_URL = `${GRAFANA_SUB_PATH}/d/pmm-home`;
 export const PMM_LOGIN_URL = `${GRAFANA_SUB_PATH}/login`;
 export const PMM_SETTINGS_URL = `${PMM_BASE_PATH}/settings`;
+export const PMM_HELP_PATH = `${PMM_NEW_NAV_PATH}/help`;
 export const PMM_NEW_NAV_UPDATES_PATH = `${PMM_NEW_NAV_PATH}/updates`;
 export const PMM_SUPPORT_URL = 'https://per.co.na/pmm_documentation';
 export const PMM_DOCS_UPDATES_URL = 'https://per.co.na/pmm-upgrade';
@@ -49,6 +50,9 @@ export const ALL_SERVICE_TYPES = [
 export const SHOW_UPDATE_INFO_DELAY_MS = 5000;
 // 1 hour
 export const SHOW_UPDATE_MODAL_AFTER_MS = 60 * 60 * 1000;
+// 15 minutes — long enough for credential entry, an SSO round trip or a password reset, short
+// enough that a user who wandered off is not dropped onto a stale deep link
+export const AUTH_RETURN_TO_TTL_MS = 15 * 60 * 1000;
 // 7 days — UI-owned snooze window (settings update_snooze_duration was removed)
 export const DEFAULT_UPDATE_SNOOZE_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
 // QA/dev only: localStorage.setItem(UPDATE_SNOOZE_DURATION_OVERRIDE_KEY, '10000')
