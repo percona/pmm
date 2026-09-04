@@ -912,6 +912,8 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	if *haEnabled {
 		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
+		l.Info("HA mode: PMM Client vmagents write metrics to the PMM Server address they connect to; " +
+			"the pmm-ha chart's HAProxy must route /victoriametrics/api/v1/write to vmauth (PMM-14678).")
 	}
 
 	migrateDB(ctx, sqlDB, setupParams)

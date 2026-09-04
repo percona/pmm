@@ -16,278 +16,345 @@
 package agents
 
 import (
+	"io"
+	"sort"
 	"strings"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
-func TestMaxScrapeSize(t *testing.T) {
-	t.Run("by default 64MiB", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
-		require.NoError(t, err)
-		actual := vmAgentConfig("", params)
-		assert.Contains(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize="+maxScrapeSizeDefault)
-	})
-	t.Run("overridden with ENV", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
-		require.NoError(t, err)
-		newValue := "16MiB"
-		t.Setenv(maxScrapeSizeEnv, newValue)
-		actual := vmAgentConfig("", params)
-		assert.Contains(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize="+newValue)
-	})
-	t.Run("VMAGENT_ ENV variables", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
-		require.NoError(t, err)
-		t.Setenv("VMAGENT_promscrape_maxScrapeSize", "16MiB")
-		t.Setenv("VM_remoteWrite_basicAuth_password", "password")
-		actual := vmAgentConfig("", params)
-		assert.Contains(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize=16MiB")
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
-		assert.NotContains(t, actual.Env, "VM_remoteWrite_basicAuth_password=password")
-	})
-	t.Run("External Victoria Metrics ENV variables", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://victoriametrics:8428")
-		require.NoError(t, err)
-		t.Setenv("VMAGENT_promscrape_maxScrapeSize", "16MiB")
-		actual := vmAgentConfig("", params)
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://victoriametrics:8428/api/v1/write")
-		assert.Contains(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize=16MiB")
-		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
-	})
-	t.Run("External Victoria Metrics with credentials in URL", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user:pass@victoriametrics:8428")
-		require.NoError(t, err)
-		actual := vmAgentConfig("", params)
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user:pass@victoriametrics:8428/api/v1/write")
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user")
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=pass")
-		// Should not contain server credentials
-		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
-		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
-	})
-	t.Run("External Victoria Metrics with username only in URL", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user@victoriametrics:8428")
-		require.NoError(t, err)
-		actual := vmAgentConfig("", params)
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user@victoriametrics:8428/api/v1/write")
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user")
-		// Should not contain password or server credentials
-		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=")
-		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
-		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
-	})
-	t.Run("External Victoria Metrics with special characters in credentials", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, "http://user%40domain:p%40ss%21@victoriametrics:8428")
-		require.NoError(t, err)
-		actual := vmAgentConfig("", params)
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url=http://user%40domain:p%40ss%21@victoriametrics:8428/api/v1/write")
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=user@domain")
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=p@ss!")
-	})
-	t.Run("System VMAGENT_ variables override defaults", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
-		require.NoError(t, err)
-		// Set system environment variables that should override defaults
-		t.Setenv("VMAGENT_loggerLevel", "DEBUG")
-		t.Setenv("VMAGENT_remoteWrite_maxDiskUsagePerURL", "2147483648") // 2GB instead of 1GB
-		actual := vmAgentConfig("", params)
+// Fixture URLs shared by the vmagent tests. Credentials in them are fixtures, not secrets.
+const (
+	testExternalVM      = "http://victoriametrics:8428"
+	testExternalVMWrite = "http://victoriametrics:8428/api/v1/write"
+	testExternalVMAuth  = "http://vmuser:vmpass@victoriametrics:8428"
+	// The shape the pmm-ha chart composes PMM_VM_URL in: vmauth credentials in the userinfo.
+	testVMAuth      = "http://victoriametrics_pmm:vm-password@pmm-ha-vmauth.pmm.svc.cluster.local:8427/"
+	testVMAuthWrite = "http://pmm-ha-vmauth.pmm.svc.cluster.local:8427/api/v1/write"
+	testInjectedURL = "https://collector.example.com/api/v1/write"
+)
 
-		// Verify that system variables override defaults
-		assert.Contains(t, actual.Env, "VMAGENT_loggerLevel=DEBUG")
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_maxDiskUsagePerURL=2147483648")
+func testLogger() *logrus.Entry {
+	l := logrus.New()
+	l.SetOutput(io.Discard)
+	return logrus.NewEntry(l)
+}
 
-		// Verify that non-overridden defaults are still present
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
+func newVMParams(t *testing.T, vmURL string) *models.VictoriaMetricsParams {
+	t.Helper()
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, vmURL)
+	require.NoError(t, err)
+	return params
+}
 
-		// Verify that the default values are NOT present when overridden
-		assert.NotContains(t, actual.Env, "VMAGENT_loggerLevel=INFO")
-		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824")
-	})
-	t.Run("httpListenAddr is in Args not Env", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
-		require.NoError(t, err)
-		actual := vmAgentConfig("", params)
-
-		// Verify that httpListenAddr is in Args (not overrideable)
-		found := false
-		for _, arg := range actual.Args {
-			if strings.Contains(arg, "-httpListenAddr=") {
-				found = true
-				break
-			}
+// envValue returns the value of key in a KEY=value slice.
+func envValue(env []string, key string) (string, bool) {
+	for _, e := range env {
+		if k, v, ok := strings.Cut(e, "="); ok && k == key {
+			return v, true
 		}
-		assert.True(t, found, "httpListenAddr should be in Args")
+	}
+	return "", false
+}
 
-		// Verify that httpListenAddr is NOT in Env
-		for _, env := range actual.Env {
-			assert.NotContains(t, env, "VMAGENT_httpListenAddr=", "httpListenAddr should not be in Env")
-		}
+func assertEnv(t *testing.T, env []string, key, want string) {
+	t.Helper()
+	got, ok := envValue(env, key)
+	require.True(t, ok, "missing env %q in %v", key, env)
+	assert.Equal(t, want, got, "env %q", key)
+}
+
+func assertNoEnv(t *testing.T, env []string, key string) {
+	t.Helper()
+	got, ok := envValue(env, key)
+	assert.False(t, ok, "unexpected env %s=%q", key, got)
+}
+
+// assertCredentials asserts the basic-auth pair emitted for the vmagent; an empty value asserts
+// that the corresponding variable is absent.
+func assertCredentials(t *testing.T, env []string, username, password string) {
+	t.Helper()
+	if username == "" {
+		assertNoEnv(t, env, envRemoteWriteUsername)
+	} else {
+		assertEnv(t, env, envRemoteWriteUsername, username)
+	}
+	if password == "" {
+		assertNoEnv(t, env, envRemoteWritePassword)
+	} else {
+		assertEnv(t, env, envRemoteWritePassword, password)
+	}
+}
+
+// assertNoServerCredentialTemplates asserts that no env entry would render to the client's PMM
+// Server credentials.
+func assertNoServerCredentialTemplates(t *testing.T, env []string) {
+	t.Helper()
+	for _, e := range env {
+		assert.NotContains(t, e, serverUsernameTmpl)
+		assert.NotContains(t, e, serverPasswordTmpl)
+	}
+}
+
+// assertNotAnywhere asserts that value appears in no env entry and no argument, whatever the key.
+func assertNotAnywhere(t *testing.T, env, args []string, value string) {
+	t.Helper()
+	for _, e := range env {
+		assert.NotContains(t, e, value)
+	}
+	for _, a := range args {
+		assert.NotContains(t, a, value)
+	}
+}
+
+func TestVMAgentConfigSelectsPath(t *testing.T) {
+	// The dispatcher is the only place that looks at the deployment mode.
+	t.Run("standalone ignores the server-agent flag", func(t *testing.T) {
+		params := newVMParams(t, models.VMBaseURL)
+		client := vmAgentConfig(testLogger(), "", params, vmAgentDeployment{})
+		server := vmAgentConfig(testLogger(), "", params, vmAgentDeployment{isServerAgent: true})
+		assert.Equal(t, client.Env, server.Env)
+		assertEnv(t, client.Env, envRemoteWriteURL, serverProxyWriteURL)
+	})
+
+	t.Run("HA distinguishes clients from the server agent", func(t *testing.T) {
+		params := newVMParams(t, testVMAuth)
+		client := vmAgentConfig(testLogger(), "", params, vmAgentDeployment{haEnabled: true})
+		server := vmAgentConfig(testLogger(), "", params, vmAgentDeployment{haEnabled: true, isServerAgent: true})
+		assertEnv(t, client.Env, envRemoteWriteURL, serverProxyWriteURL)
+		assertEnv(t, server.Env, envRemoteWriteURL, testVMAuthWrite)
+	})
+
+	t.Run("the same off-box VM URL routes clients differently in standalone and HA", func(t *testing.T) {
+		// Standalone: an off-box VM is an external VM the operator made reachable, write directly.
+		// HA: the off-box VM is vmauth, reachable only in-cluster, so clients write via the server.
+		params := newVMParams(t, testVMAuth)
+		standalone := vmAgentConfig(testLogger(), "", params, vmAgentDeployment{})
+		ha := vmAgentConfig(testLogger(), "", params, vmAgentDeployment{haEnabled: true})
+		assertEnv(t, standalone.Env, envRemoteWriteURL, testVMAuthWrite)
+		assertEnv(t, ha.Env, envRemoteWriteURL, serverProxyWriteURL)
 	})
 }
 
-func TestVMAgentExternalVM(t *testing.T) {
-	testCases := []struct {
-		name                  string
-		vmURL                 string
-		expectedUsername      string
-		expectedPassword      string
-		shouldHaveCredentials bool
-	}{
-		{
-			name:                  "No credentials in URL",
-			vmURL:                 "http://victoriametrics:8428",
-			expectedUsername:      "",
-			expectedPassword:      "",
-			shouldHaveCredentials: false,
-		},
-		{
-			name:                  "Username and password in URL",
-			vmURL:                 "http://user:pass@victoriametrics:8428",
-			expectedUsername:      "user",
-			expectedPassword:      "pass",
-			shouldHaveCredentials: true,
-		},
-		{
-			name:                  "Username only in URL",
-			vmURL:                 "http://user@victoriametrics:8428",
-			expectedUsername:      "user",
-			expectedPassword:      "",
-			shouldHaveCredentials: true,
-		},
-		{
-			name:                  "URL encoded credentials",
-			vmURL:                 "http://user%40domain:p%40ss%21@victoriametrics:8428",
-			expectedUsername:      "user@domain",
-			expectedPassword:      "p@ss!",
-			shouldHaveCredentials: true,
-		},
-		{
-			name:                  "Complex password with special chars",
-			vmURL:                 "http://admin:my%2Bpassword%3D123@victoriametrics:8428",
-			expectedUsername:      "admin",
-			expectedPassword:      "my+password=123",
-			shouldHaveCredentials: true,
-		},
+func TestBuildVMAgentProcess(t *testing.T) {
+	// A neutral pair: these tests are about layering the operator's environment on top of whatever
+	// pair a path picked, not about any particular path.
+	pair := remoteWrite{
+		url:      "http://vm.example:8428/api/v1/write",
+		username: "default-user",
+		password: "default-pass",
+		source:   credentialVMURL,
 	}
 
+	t.Run("canonical args, credentials never on the command line", func(t *testing.T) {
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assert.Equal(t, []string{
+			"-envflag.enable=true",
+			"-envflag.prefix=VMAGENT_",
+			"-httpListenAddr=127.0.0.1:{{.listen_port}}",
+			"-promscrape.config={{.TextFiles.vmagentscrapecfg}}",
+			"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
+		}, actual.Args)
+		assertNotAnywhere(t, nil, actual.Args, "basicAuth")
+		assertNotAnywhere(t, nil, actual.Args, "default-pass")
+	})
+
+	t.Run("bind interface follows PMM_INTERFACE_TO_BIND", func(t *testing.T) {
+		t.Setenv("PMM_INTERFACE_TO_BIND", "0.0.0.0")
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assert.Contains(t, actual.Args, "-httpListenAddr=0.0.0.0:{{.listen_port}}")
+	})
+
+	t.Run("defaults", func(t *testing.T) {
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assert.Equal(t, inventoryv1.AgentType_AGENT_TYPE_VM_AGENT, actual.Type)
+		assert.Equal(t, "{{", actual.TemplateLeftDelim)
+		assert.Equal(t, "}}", actual.TemplateRightDelim)
+		assertEnv(t, actual.Env, envRemoteWriteURL, pair.url)
+		assertCredentials(t, actual.Env, "default-user", "default-pass")
+		assertEnv(t, actual.Env, "VMAGENT_remoteWrite_tlsInsecureSkipVerify", "{{.server_insecure}}")
+		assertEnv(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize", maxScrapeSizeDefault)
+		assertEnv(t, actual.Env, "VMAGENT_remoteWrite_maxDiskUsagePerURL", "1073741824")
+		assertEnv(t, actual.Env, "VMAGENT_loggerLevel", "INFO")
+		assert.Len(t, actual.Env, 7)
+	})
+
+	t.Run("PMM_PROMSCRAPE_MAX_SCRAPE_SIZE sets the scrape size default", func(t *testing.T) {
+		t.Setenv(maxScrapeSizeEnv, "16MiB")
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assertEnv(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize", "16MiB")
+	})
+
+	t.Run("injected tuning variables win over defaults", func(t *testing.T) {
+		t.Setenv(maxScrapeSizeEnv, "16MiB")
+		t.Setenv("VMAGENT_promscrape_maxScrapeSize", "32MiB")
+		t.Setenv("VMAGENT_loggerLevel", "DEBUG")
+		t.Setenv("VMAGENT_remoteWrite_maxDiskUsagePerURL", "52428800")
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assertEnv(t, actual.Env, "VMAGENT_promscrape_maxScrapeSize", "32MiB")
+		assertEnv(t, actual.Env, "VMAGENT_loggerLevel", "DEBUG")
+		assertEnv(t, actual.Env, "VMAGENT_remoteWrite_maxDiskUsagePerURL", "52428800")
+		assert.Len(t, actual.Env, 7)
+	})
+
+	t.Run("injected credentials win over the default pair", func(t *testing.T) {
+		t.Setenv(envRemoteWriteUsername, "injected-user")
+		t.Setenv(envRemoteWritePassword, "injected-pass")
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assertEnv(t, actual.Env, envRemoteWriteURL, pair.url)
+		assertCredentials(t, actual.Env, "injected-user", "injected-pass")
+		assertNotAnywhere(t, actual.Env, actual.Args, "default-pass")
+	})
+
+	t.Run("a partially injected credential keeps the other default", func(t *testing.T) {
+		t.Setenv(envRemoteWriteUsername, "injected-user")
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assertCredentials(t, actual.Env, "injected-user", "default-pass")
+	})
+
+	t.Run("injected URL withholds the default credential", func(t *testing.T) {
+		// PMM's default credential belongs to PMM's default endpoint; an operator-chosen endpoint
+		// gets nothing PMM derived.
+		t.Setenv(envRemoteWriteURL, testInjectedURL)
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assertEnv(t, actual.Env, envRemoteWriteURL, testInjectedURL)
+		assertCredentials(t, actual.Env, "", "")
+		assertNotAnywhere(t, actual.Env, actual.Args, "default-user")
+		assertNotAnywhere(t, actual.Env, actual.Args, "default-pass")
+	})
+
+	t.Run("injected URL and credentials travel together", func(t *testing.T) {
+		t.Setenv(envRemoteWriteURL, testInjectedURL)
+		t.Setenv(envRemoteWriteUsername, "injected-user")
+		t.Setenv(envRemoteWritePassword, "injected-pass")
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assertEnv(t, actual.Env, envRemoteWriteURL, testInjectedURL)
+		assertCredentials(t, actual.Env, "injected-user", "injected-pass")
+	})
+
+	t.Run("credential templates injected alongside a URL pass through verbatim", func(t *testing.T) {
+		// The documented opt-in for redirecting writes while keeping per-client PMM credentials:
+		// injected values are rendered on the client like PMM's own defaults.
+		t.Setenv(envRemoteWriteURL, "https://pmm.example.com/victoriametrics/api/v1/write")
+		t.Setenv(envRemoteWriteUsername, serverUsernameTmpl)
+		t.Setenv(envRemoteWritePassword, serverPasswordTmpl)
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assertCredentials(t, actual.Env, serverUsernameTmpl, serverPasswordTmpl)
+	})
+
+	t.Run("a pair without credentials emits none", func(t *testing.T) {
+		actual := buildVMAgentProcess(testLogger(), "", remoteWrite{url: pair.url, source: credentialNone})
+		assertEnv(t, actual.Env, envRemoteWriteURL, pair.url)
+		assertCredentials(t, actual.Env, "", "")
+		assert.Len(t, actual.Env, 5)
+	})
+
+	t.Run("unrelated VMAGENT_ variables pass through, other prefixes do not", func(t *testing.T) {
+		// Kubernetes service links inject upper-case VMAGENT_* names into HA pods; they are inert
+		// for vmagent and must neither be dropped nor confused with routing variables.
+		t.Setenv("VMAGENT_PMM_HA_VMAGENT_SERVICE_HOST", "10.96.0.1")
+		t.Setenv("VMAGENT_PMM_HA_VMAGENT_PORT_8429_TCP", "tcp://10.96.0.1:8429")
+		t.Setenv("VM_retentionPeriod", "30d")
+		actual := buildVMAgentProcess(testLogger(), "", pair)
+		assertEnv(t, actual.Env, "VMAGENT_PMM_HA_VMAGENT_SERVICE_HOST", "10.96.0.1")
+		assertEnv(t, actual.Env, "VMAGENT_PMM_HA_VMAGENT_PORT_8429_TCP", "tcp://10.96.0.1:8429")
+		assertNoEnv(t, actual.Env, "VM_retentionPeriod")
+		assertEnv(t, actual.Env, envRemoteWriteURL, pair.url)
+		assertCredentials(t, actual.Env, "default-user", "default-pass")
+	})
+
+	t.Run("env is sorted and deterministic", func(t *testing.T) {
+		t.Setenv("VMAGENT_loggerLevel", "WARN")
+		t.Setenv("VMAGENT_PMM_HA_VMAGENT_SERVICE_HOST", "10.96.0.1")
+		first := buildVMAgentProcess(testLogger(), "", pair)
+		second := buildVMAgentProcess(testLogger(), "", pair)
+		assert.True(t, sort.StringsAreSorted(first.Env), "%v", first.Env)
+		assert.Equal(t, first.Env, second.Env)
+	})
+
+	t.Run("scrape config is passed as a text file", func(t *testing.T) {
+		actual := buildVMAgentProcess(testLogger(), "scrape_configs: []", pair)
+		assert.Equal(t, map[string]string{"vmagentscrapecfg": "scrape_configs: []"}, actual.TextFiles)
+	})
+}
+
+func TestVMRemoteWrite(t *testing.T) {
+	testCases := []struct {
+		name string
+		url  string
+		want remoteWrite
+	}{
+		{
+			name: "no credentials, trailing slash",
+			url:  "http://victoriametrics:8428/",
+			want: remoteWrite{url: testExternalVMWrite, source: credentialNone},
+		},
+		{
+			name: "no credentials, no trailing slash",
+			url:  testExternalVM,
+			want: remoteWrite{url: testExternalVMWrite, source: credentialNone},
+		},
+		{
+			name: "path prefix is kept",
+			url:  "https://vm.example.com/victoria/",
+			want: remoteWrite{url: "https://vm.example.com/victoria/api/v1/write", source: credentialNone},
+		},
+		{
+			name: "credentials move from the URL into the pair",
+			url:  testExternalVMAuth,
+			want: remoteWrite{url: testExternalVMWrite, username: "vmuser", password: "vmpass", source: credentialVMURL},
+		},
+		{
+			name: "username only",
+			url:  "http://vmuser@victoriametrics:8428",
+			want: remoteWrite{url: testExternalVMWrite, username: "vmuser", source: credentialVMURL},
+		},
+		{
+			name: "percent-encoded credentials are decoded",
+			url:  "http://us%40er:p%40ss%3A1@victoriametrics:8428",
+			want: remoteWrite{url: testExternalVMWrite, username: "us@er", password: "p@ss:1", source: credentialVMURL},
+		},
+		{
+			name: "the chart's vmauth URL",
+			url:  testVMAuth,
+			want: remoteWrite{url: testVMAuthWrite, username: "victoriametrics_pmm", password: "vm-password", source: credentialVMURL},
+		},
+	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, tc.vmURL)
-			require.NoError(t, err)
-
-			actual := vmAgentConfig("", params)
-
-			// External VM uses actual URL
-			expectedURL := params.URL() + "api/v1/write"
-			assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url="+expectedURL)
-
-			if tc.shouldHaveCredentials {
-				// Should have extracted credentials
-				assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username="+tc.expectedUsername)
-				if tc.expectedPassword != "" {
-					assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password="+tc.expectedPassword)
-				} else {
-					assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=")
-				}
-			} else {
-				// Should not have any credentials for external VM without auth
-				assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=")
-				assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=")
-			}
-			// Should not have server credentials
-			assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
-			assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
+			assert.Equal(t, tc.want, vmRemoteWrite(tc.url))
 		})
 	}
 }
 
-func TestVMAgentInternalVM(t *testing.T) {
-	t.Run("Internal VM uses server credentials", func(t *testing.T) {
-		params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
-		require.NoError(t, err)
-
-		actual := vmAgentConfig("", params)
-
-		// Internal VM should use templated URL
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write")
-
-		// Internal VM should use server credentials
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username={{.server_username}}")
-		assert.Contains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password={{.server_password}}")
-
-		// Should not have any extracted credentials
-		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_username=admin")
-		assert.NotContains(t, actual.Env, "VMAGENT_remoteWrite_basicAuth_password=secret")
-	})
-}
-
-func TestExtractCredentialsFromURL(t *testing.T) {
+func TestSplitURLCredentials(t *testing.T) {
 	testCases := []struct {
 		name             string
 		url              string
+		expectedURL      string
 		expectedUsername string
 		expectedPassword string
 	}{
-		{
-			name:             "Empty URL",
-			url:              "",
-			expectedUsername: "",
-			expectedPassword: "",
-		},
-		{
-			name:             "URL without credentials",
-			url:              "http://example.com:8428",
-			expectedUsername: "",
-			expectedPassword: "",
-		},
-		{
-			name:             "URL with username and password",
-			url:              "http://user:pass@example.com:8428",
-			expectedUsername: "user",
-			expectedPassword: "pass",
-		},
-		{
-			name:             "URL with username only",
-			url:              "http://user@example.com:8428",
-			expectedUsername: "user",
-			expectedPassword: "",
-		},
-		{
-			name:             "URL with empty username and password",
-			url:              "http://:pass@example.com:8428",
-			expectedUsername: "",
-			expectedPassword: "pass",
-		},
-		{
-			name:             "URL with URL-encoded credentials",
-			url:              "http://user%40domain:p%40ss%21@example.com:8428",
-			expectedUsername: "user@domain",
-			expectedPassword: "p@ss!",
-		},
-		{
-			name:             "Invalid URL",
-			url:              "://invalid-url",
-			expectedUsername: "",
-			expectedPassword: "",
-		},
-		{
-			name:             "URL with complex password",
-			url:              "http://admin:my%2Bpassword%3D123@example.com:8428",
-			expectedUsername: "admin",
-			expectedPassword: "my+password=123",
-		},
+		{name: "empty", url: "", expectedURL: ""},
+		{name: "no credentials", url: "http://victoriametrics:8428/", expectedURL: "http://victoriametrics:8428/"},
+		{name: "username and password", url: testExternalVMAuth, expectedURL: testExternalVM, expectedUsername: "vmuser", expectedPassword: "vmpass"},
+		{name: "username only", url: "http://vmuser@victoriametrics:8428", expectedURL: testExternalVM, expectedUsername: "vmuser"},
+		{name: "empty password", url: "http://vmuser:@victoriametrics:8428", expectedURL: testExternalVM, expectedUsername: "vmuser"},
+		{name: "special characters", url: "http://us%40er:p%40ss%3A1@victoriametrics:8428", expectedURL: testExternalVM, expectedUsername: "us@er", expectedPassword: "p@ss:1"},
+		{name: "unparsable URL is returned unchanged", url: "://not-a-url", expectedURL: "://not-a-url"},
 	}
-
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			username, password := extractCredentialsFromURL(tc.url)
-			assert.Equal(t, tc.expectedUsername, username, "Username mismatch")
-			assert.Equal(t, tc.expectedPassword, password, "Password mismatch")
+			gotURL, gotUsername, gotPassword := splitURLCredentials(tc.url)
+			assert.Equal(t, tc.expectedURL, gotURL)
+			assert.Equal(t, tc.expectedUsername, gotUsername)
+			assert.Equal(t, tc.expectedPassword, gotPassword)
 		})
 	}
 }
