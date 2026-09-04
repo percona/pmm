@@ -1,0 +1,646 @@
+{
+  "components": {
+    "schemas": {
+      "AlertConfigResponse": {
+        "description": "Represent the response of ``GET /api/config/alerts``.\n\n:param available: Whether at least one alert provider is configured.\n:type available: bool",
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          }
+        },
+        "required": ["available"],
+        "title": "AlertConfigResponse",
+        "type": "object"
+      },
+      "Body_oauth_create_oauth_token_api_oauth_token_post": {
+        "properties": {
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "format": "password",
+            "title": "Client Secret"
+          },
+          "grant_type": {
+            "anyOf": [
+              {
+                "pattern": "^password$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grant Type"
+          },
+          "password": {
+            "format": "password",
+            "title": "Password",
+            "type": "string"
+          },
+          "scope": {
+            "default": "",
+            "title": "Scope",
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": ["username", "password"],
+        "title": "Body_oauth_create_oauth_token_api_oauth_token_post",
+        "type": "object"
+      },
+      "CasdoorUser": {
+        "description": "Represent a Casdoor user.\n\n:param id: The unique identifier of the user.\n:param email: The email address of the user.\n:param first_name: The first name of the user.\n:param last_name: The last name of the user.\n:param role: The user's access level, derived from Casdoor's admin flag when\n    the payload carries no role of its own.\n:param created_time: The datetime when the user was created. Defaults to current\n    datetime.\n:param updated_time: The datetime when the user was last updated. Defaults to\n    current datetime.\n:param username: The user's Casdoor username.\n:param owner: The user's Casdoor organization.\n:param is_forbidden: Whether the user has the ``is_forbidden`` attribute set in\n    Casdoor. Defaults to False.\n:param is_deleted: Whether the user has the ``is_deleted`` attribute set in Casdoor.\n    Defaults to False.",
+        "properties": {
+          "createdTime": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdtime"
+          },
+          "email": {
+            "default": "",
+            "title": "Email",
+            "type": "string"
+          },
+          "firstName": {
+            "default": "",
+            "title": "Firstname",
+            "type": "string"
+          },
+          "fullName": {
+            "description": "The combination of the user's first and last names.\n\n:return: The user's full name.\n:rtype: str",
+            "readOnly": true,
+            "title": "Fullname",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid4",
+            "title": "Id",
+            "type": "string"
+          },
+          "isActive": {
+            "description": "Return True if the user is not forbidden nor deleted.\n\n:return: True if the user is active.",
+            "readOnly": true,
+            "title": "Isactive",
+            "type": "boolean"
+          },
+          "isAdmin": {
+            "description": "Indicate whether the user holds administrative privileges.\n\n:return: True from ``ADMIN`` upwards, False below it.",
+            "readOnly": true,
+            "title": "Isadmin",
+            "type": "boolean"
+          },
+          "isDeleted": {
+            "default": false,
+            "title": "Isdeleted",
+            "type": "boolean"
+          },
+          "isForbidden": {
+            "default": false,
+            "title": "Isforbidden",
+            "type": "boolean"
+          },
+          "lastName": {
+            "default": "",
+            "title": "Lastname",
+            "type": "string"
+          },
+          "owner": {
+            "title": "Owner",
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "updatedTime": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updatedtime"
+          },
+          "username": {
+            "pattern": "^[a-zA-Z0-9]+(?:[_-][a-zA-Z0-9]+)*$",
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "role",
+          "owner",
+          "fullName",
+          "isActive",
+          "isAdmin"
+        ],
+        "title": "CasdoorUser",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "OAuthToken": {
+        "description": "Represent an OAuth token.\n\n:param access_token: The token used to access protected resources.\n:type access_token: str\n:param id_token: The token that contains identity information about the user.\n:type id_token: str\n:param refresh_token: The token used to obtain new access tokens after the\n    current one expires.\n:type refresh_token: str\n:param token_type: The type of token, typically \"bearer\".\n:type token_type: str\n:param expires_in: The time duration after which the token expires.\n:type expires_in: TimedeltaSeconds\n:param scope: The scope of the access granted by the token.\n:type scope: str",
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "expires_in": {
+            "title": "Expires In",
+            "type": "integer"
+          },
+          "id_token": {
+            "title": "Id Token",
+            "type": "string"
+          },
+          "refresh_token": {
+            "title": "Refresh Token",
+            "type": "string"
+          },
+          "scope": {
+            "title": "Scope",
+            "type": "string"
+          },
+          "token_type": {
+            "title": "Token Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "id_token",
+          "refresh_token",
+          "token_type",
+          "expires_in",
+          "scope"
+        ],
+        "title": "OAuthToken",
+        "type": "object"
+      },
+      "SPALoginBody": {
+        "description": "Represent the JSON body expected by ``POST /api/oauth/login``.\n\n:param username: The username of the user.\n:type username: str\n:param password: The password of the user.\n:type password: str",
+        "properties": {
+          "password": {
+            "title": "Password",
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": ["username", "password"],
+        "title": "SPALoginBody",
+        "type": "object"
+      },
+      "SPAOAuthTokenResponse": {
+        "description": "Represent the slim OAuth token response returned to SPA clients.\n\nOmit ``refresh_token``, ``id_token``, ``token_type``, and ``scope``. The\nSPA keeps the refresh token in an ``HttpOnly`` cookie and derives nothing\nfrom the other fields.\n\n:param access_token: The token used to access protected resources.\n:type access_token: str\n:param expires_in: The time duration after which the access token expires.\n:type expires_in: TimedeltaSeconds",
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "expires_in": {
+            "title": "Expires In",
+            "type": "integer"
+          }
+        },
+        "required": ["access_token", "expires_in"],
+        "title": "SPAOAuthTokenResponse",
+        "type": "object"
+      },
+      "SessionExchangeTokenResponse": {
+        "description": "Represent the bearer returned when an ambient session is exchanged.\n\nMirror :class:`SPAOAuthTokenResponse`'s field names so a client's token\nprovider reads the same shape, but keep the contract separate: no refresh\ntoken is issued and no cookie is set, so the holder renews by exchanging\nagain rather than by refreshing.\n\n:param access_token: The short-lived token used to access protected\n    resources.\n:param expires_in: The time duration after which the token expires.",
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "expires_in": {
+            "title": "Expires In",
+            "type": "integer"
+          }
+        },
+        "required": ["access_token", "expires_in"],
+        "title": "SessionExchangeTokenResponse",
+        "type": "object"
+      },
+      "UserRole": {
+        "description": "Enumerate an identity's access level, lowest to highest.\n\nMembers and ordering mirror PMM's own authorization vocabulary so the two\nproducts stay semantically aligned; ``SUPER_ADMIN`` is SEP's\nprovider-neutral name for the rank PMM calls ``grafanaAdmin``.\n\nMembers compare by declared rank rather than by name: ``EDITOR < ADMIN``\neven though ``\"editor\" > \"admin\"`` lexicographically. Members are not\n``str``, so ``ADMIN == \"admin\"`` is False; the serialized value is\nunchanged at ``\"admin\"``.",
+        "enum": ["none", "viewer", "editor", "admin", "super_admin"],
+        "title": "UserRole",
+        "type": "string"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/api/oauth/token"
+          }
+        },
+        "type": "oauth2"
+      }
+    }
+  },
+  "info": {
+    "description": "Percona Services Enablement Platform\n\nThis spec is the **core** API only (OAuth, users). Mounted services publish separate OpenAPI JSON on the same host: ``/api/inventory/openapi.json``, ``/api/tasks/openapi.json``, and ``/api/sep/openapi.json`` (the SEP web app: ``sep_app`` — shared routes, plugins, etc.; not merged into this document).",
+    "title": "SEP HTTP API",
+    "version": "v3.10.0.dev0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/config/alerts": {
+      "get": {
+        "description": "Report whether at least one alert provider is configured.\n\nMirrors the server-side ``bool(alert_settings.PROVIDERS)`` check used by\nthe Jinja2 task forms so the React frontend can drive the same\nenabled/disabled behavior of the *Alert on failure* field. The endpoint\nis gated behind authentication so an anonymous probe cannot leak\nwhether alerting is wired up on this deployment.\n\n:return: The alert provider availability flag.\n:rtype: AlertConfigResponse",
+        "operationId": "config_get_alert_config_api_config_alerts_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertConfigResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Get Alert Config",
+        "tags": ["config"]
+      }
+    },
+    "/api/oauth/login": {
+      "post": {
+        "description": "Authenticate the SPA user and establish the refresh cookie.\n\nRun the Casdoor password grant server-side, set the refresh token as an\n``HttpOnly`` cookie scoped to ``/api/oauth``, and return the access token\n(plus its TTL) in JSON. The refresh token is never included in the\nresponse body.\n\n:param body: The JSON body containing username and password.\n:type body: SPALoginBody\n:param response: The HTTP response on which to set the refresh cookie.\n:type response: Response\n:return: The slim OAuth token response for the SPA.\n:rtype: SPAOAuthTokenResponse\n:raises InactiveUserException: If the user is not active.",
+        "operationId": "oauth_spa_login_api_oauth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SPALoginBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SPAOAuthTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Spa Login",
+        "tags": ["oauth"]
+      }
+    },
+    "/api/oauth/logout": {
+      "post": {
+        "description": "End the SPA session: revoke the access token and clear the refresh cookie.\n\nThe SPA authenticates this request via the ``Authorization: Bearer``\nheader. Clear the refresh cookie first so a Casdoor revocation failure\ndoes not leave the browser with a stale cookie, then revoke the access\ntoken upstream. Swallow ``KeyError`` / ``ValidationError`` from the\nupstream revocation so the client always sees a clean 204.\n\n:param user: The authenticated user resolved from the Bearer token.\n:type user: CurrentUser\n:param response: The HTTP response on which to clear the refresh cookie.\n:type response: Response",
+        "operationId": "oauth_spa_logout_api_oauth_logout_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Spa Logout",
+        "tags": ["oauth"]
+      }
+    },
+    "/api/oauth/refresh": {
+      "post": {
+        "description": "Mint a fresh access token from the ``HttpOnly`` refresh cookie.\n\nOn success, rotate the refresh cookie and return a new access token. On\nany failure (missing cookie, Casdoor-rejected token, malformed Casdoor\nresponse), return 401 without mutating the cookie so the SPA observes a\nclean invalidation signal. The route never reads the refresh token from\nthe request body.\n\n:param response: The HTTP response on which to rotate the refresh cookie.\n:type response: Response\n:param refresh_token: The refresh token from the ``refreshToken`` cookie.\n:type refresh_token: str | None\n:return: The slim OAuth token response for the SPA.\n:rtype: SPAOAuthTokenResponse\n:raises HTTPUnauthorizedException: If the refresh token is missing,\n    invalid, expired, or revoked.\n:raises InactiveUserException: If the user is not active.",
+        "operationId": "oauth_refresh_token_api_oauth_refresh_post",
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "refreshToken",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Refreshtoken"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SPAOAuthTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Refresh Token",
+        "tags": ["oauth"]
+      }
+    },
+    "/api/oauth/session": {
+      "post": {
+        "description": "Authenticate the SPA from an ambient Grafana session cookie.\n\nRead the ambient Grafana session cookie off the request, validate it against\nGrafana, set the ``HttpOnly`` refresh cookie scoped to ``/api/oauth``, and\nreturn the slim access assertion in JSON. A ``401`` (no valid ambient\nsession) tells the SPA to show its login screen.\n\n:param request: The incoming request, carrying the ambient Grafana session\n    cookie.\n:param response: The HTTP response on which to set the refresh cookie.\n:return: The slim OAuth token response for the SPA.\n:raises HTTPUnauthorizedException: If there is no valid ambient session.",
+        "operationId": "oauth_spa_session_login_api_oauth_session_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SPAOAuthTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Spa Session Login",
+        "tags": ["oauth"]
+      }
+    },
+    "/api/oauth/session/exchange": {
+      "post": {
+        "description": "Mint a short-lived SEP bearer from an ambient Grafana session.\n\nServes an embedded client that already carries the host's session cookie on\nthe same origin. Unlike ``POST /session``, set no cookie and issue no refresh\ntoken: the caller holds the bearer in memory and exchanges again before it\nexpires, so the deployment never shares a long-lived credential.\n\nEvery exchange re-reads the identity from the provider and no validation is\ncached, so a role change takes effect within one bearer lifetime. A\nsigned-out browser loses embedded access just as fast, because without the\nsession cookie it cannot obtain another bearer -- though whether a\n*previously copied* host cookie stops working depends on the host revoking\nits own session server-side, which is outside SEP's control.\n\nCarries no auth dependency by design: the caller is not yet SEP-authenticated,\nand the ambient session cookie is the credential being presented. No CSRF\nprimitive applies either: requiring a Bearer token cannot gate an\nendpoint whose purpose is to issue one. That is safe because a cross-origin\nattacker cannot read this response (the CORS posture is an explicit\nper-environment origin allowlist, with the middleware absent when none is\nconfigured), and the bearer-authenticated calls the token enables are\nCSRF-exempt by design, since browsers never attach an ``Authorization``\nheader automatically.\n\nEvery failure -- no cookie, a rejected session, an unreachable provider --\ndenies with the same ``401`` rather than reporting a reason the route cannot\ndistinguish.\n\n:param request: The incoming request, carrying the ambient session cookie.\n:param response: The HTTP response, marked uncacheable so no intermediary\n    stores the minted bearer.\n:return: The minted bearer and its lifetime.\n:raises HTTPUnauthorizedException: If there is no valid ambient session.",
+        "operationId": "oauth_spa_session_exchange_api_oauth_session_exchange_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionExchangeTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Spa Session Exchange",
+        "tags": ["oauth"]
+      }
+    },
+    "/api/oauth/token": {
+      "post": {
+        "description": "Generate an OAuth token for a user from their username and password.\n\nOAuth2-style endpoint kept for non-SPA clients. For the React SPA, use\n``POST /api/oauth/login`` which returns a slim response body and places\nthe refresh token in an ``HttpOnly`` cookie.\n\n:param form_data: The form data containing username and password.\n:type form_data: OAuth2PasswordRequestForm\n:return: The OAuth token for the user.\n:rtype: OAuthToken\n:raises InactiveUserException: If the user is not active.",
+        "operationId": "oauth_create_oauth_token_api_oauth_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_oauth_create_oauth_token_api_oauth_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OAuthToken"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Oauth Token",
+        "tags": ["oauth"]
+      }
+    },
+    "/api/users/": {
+      "get": {
+        "description": "List users.\n\n:return: The list of users.\n:rtype: list[User]",
+        "operationId": "users_list_users_api_users__get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CasdoorUser"
+                  },
+                  "title": "Response Users List Users Api Users  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "List Users",
+        "tags": ["users"]
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "description": "Retrieve the current authenticated user.\n\n:param current_user: The current authenticated user.\n:type current_user: CurrentUser\n:return: The current authenticated user.\n:rtype: User",
+        "operationId": "users_retrieve_current_user_api_users_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CasdoorUser"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Retrieve Current User",
+        "tags": ["users"]
+      }
+    },
+    "/api/users/{username}": {
+      "get": {
+        "description": "Retrieve a user by username.\n\n:param current_user: The current authenticated user.\n:type current_user: CurrentUser\n:param username: The username of the user to retrieve.\n:type username: str\n:return: The requested user.\n:rtype: User\n:raises HTTPForbiddenException: If the current user is not an admin and tries to\n    access another user's information.",
+        "operationId": "users_retrieve_user_api_users__username__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "title": "Username",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CasdoorUser"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "summary": "Retrieve User",
+        "tags": ["users"]
+      }
+    }
+  }
+}

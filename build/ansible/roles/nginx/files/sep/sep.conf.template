@@ -1,0 +1,57 @@
+# Reverse-proxy locations for the SEP side-car. Installed into
+# /etc/nginx/sep.d/ by build/docker/server/entrypoint.sh when PMM_ENABLE_SEP is
+# enabled; removed on the next start when it is not.
+
+location @sep_unavailable {
+  auth_request off;
+  default_type application/json;
+
+  # An explicit body bypasses the server-level error_page 503 @maintenance,
+  # which would otherwise turn this into PMM's maintenance page.
+  return 503 '{"code":14,"error":"SEP unavailable","message":"SEP unavailable"}';
+}
+
+location /sep/ {
+  # SEP authenticates its own bearer; pmm-managed knows nothing about it.
+  auth_request off;
+
+  # The http-level resolver is public and cannot answer for a container name.
+  # The address is read from /etc/resolv.conf at start so this works under both
+  # Docker and Podman. It stays inside this location on purpose: this file is
+  # included in the server block, so at file scope it would also redirect DNS
+  # for every other request-time lookup, /percona-blog/feed among them.
+  # valid= caps how long a restarted side-car stays unreachable.
+  resolver __SEP_RESOLVER__ valid=10s;
+  resolver_timeout 5s;
+
+  # A variable defers resolution to request time, so this config loads with the
+  # side-car absent. It must carry no URI component: a trailing / would replace
+  # the request URI rather than strip the prefix.
+  set $sep_upstream "__SEP_ADDRESS__";
+  proxy_pass http://$sep_upstream;
+
+  # Covers nginx-generated DNS and connect failures only; proxy_intercept_errors
+  # is off, so a 502 returned by SEP itself passes through unchanged. Like
+  # proxy_set_header below, this is not additive -- it drops the inherited
+  # 401/403/503 handlers, which is only safe while auth_request is off.
+  error_page 502 504 = @sep_unavailable;
+
+  # proxy_set_header is not additive: declaring any header here discards the
+  # server-level X-Forwarded-For, so it is re-declared.
+  # Host drives SEP's url_for output; without it SEP emits upstream-addressed URLs.
+  proxy_set_header Host $http_host;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Proto $scheme;
+
+  # Buffering stays on. SEP marks its own streaming responses with
+  # X-Accel-Buffering: no, which nginx honours per response -- keeping stream
+  # knowledge in SEP instead of encoding routes here. SEP applies that header
+  # from one frozen constant shared by every streaming route, so a new stream
+  # cannot reach this proxy without it.
+  proxy_http_version 1.1;
+  proxy_set_header Upgrade $http_upgrade;
+  proxy_set_header Connection $connection_upgrade;
+  proxy_read_timeout 3600;
+
+  client_max_body_size 100m;
+}

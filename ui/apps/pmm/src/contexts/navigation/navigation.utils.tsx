@@ -48,6 +48,9 @@ import {
   NAV_HIGH_AVAILABILITY_LEADER,
   NAV_HIGH_AVAILABILITY_NODES,
   NAV_HOME_PAGE,
+  NAV_MANAGEMENT,
+  NAV_SEP_ATW,
+  NAV_SEP_MYSQL_BACKUPS,
 } from './navigation.constants';
 import { CombinedSettings } from 'contexts/settings';
 import { capitalize } from 'utils/text.utils';
@@ -303,3 +306,16 @@ export const addHomePage = (preferences?: UserPreferences): NavItem => {
 
   return NAV_HOME_PAGE;
 };
+
+// SEP apps mounted as native PMM routes (migration). Metadata (icons/labels/routes)
+// is lifted from SEP's appNavConfig as data only — no SEP nav component is used.
+// Deliberately unconditional: reachability is not the gate, the per-control
+// mutation capability is (PMM-15358, and NavigationProvider for placement).
+// A collapsible with no children renders as an expandable shell that opens on
+// nothing, so a section drops out with its last child rather than outliving it.
+// Callers spread the result, which is what lets it contribute no entry at all.
+export const addSection = (section: NavItem, children: NavItem[]): NavItem[] =>
+  children.length ? [{ ...section, children }] : [];
+
+export const addSepApps = (): NavItem[] =>
+  addSection(NAV_MANAGEMENT, [NAV_SEP_MYSQL_BACKUPS, NAV_SEP_ATW]);
