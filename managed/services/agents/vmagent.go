@@ -42,9 +42,9 @@ const defaultRemoteWriteMaxDiskUsage = "1073741824"
 // Environment variable names vmagent reads through -envflag.prefix=VMAGENT_.
 // The password name is a variable name, not a secret.
 const (
-	envRemoteWriteURL      = "VMAGENT_remoteWrite_url"
-	envRemoteWriteUsername = "VMAGENT_remoteWrite_basicAuth_username"
-	envRemoteWritePassword = "VMAGENT_remoteWrite_basicAuth_password" //nolint:gosec
+	envRemoteWriteURL      = envvars.EnvVMAgentRemoteWriteURL
+	envRemoteWriteUsername = envvars.EnvVMAgentRemoteWriteUsername
+	envRemoteWritePassword = envvars.EnvVMAgentRemoteWritePassword
 )
 
 // Placeholders rendered on the client from its own pmm-agent.yaml (agent/agents/supervisor).

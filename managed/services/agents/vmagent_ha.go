@@ -15,6 +15,8 @@
 
 package agents
 
+import "github.com/percona/pmm/managed/utils/envvars"
+
 // haRemoteWrite picks the default remote-write pair for a vmagent when PMM Server runs in HA mode.
 //
 // In HA, VictoriaMetrics is a cluster service behind vmauth. PMM_VM_URL points at vmauth and
@@ -55,8 +57,8 @@ func haRemoteWrite(params victoriaMetricsParams, isServerAgent bool) (remoteWrit
 }
 
 // HARemoteWriteWarning returns a startup warning when the HA remote-write configuration cannot
-// work as deployed, or "" when it can. The check is by shape only: an unparsable PMM_VM_URL is
-// rejected by environment validation before this runs.
+// work as deployed, or "" when it can. The check is by shape only: an unparsable PMM_VM_URL and
+// half an injected basic-auth pair are reported by environment validation before this runs.
 func HARemoteWriteWarning(params victoriaMetricsParams) string {
 	if !params.ExternalVM() {
 		return "HA mode with the built-in VictoriaMetrics is not supported: PMM_VM_URL must point at the cluster's VictoriaMetrics"
@@ -66,15 +68,11 @@ func HARemoteWriteWarning(params victoriaMetricsParams) string {
 	if err != nil || username != "" || password != "" {
 		return ""
 	}
-	injected := injectedVMAgentEnv()
-	if _, ok := injected[envRemoteWriteUsername]; ok {
-		return ""
-	}
-	if _, ok := injected[envRemoteWritePassword]; ok {
+	if envvars.VMAgentRemoteWriteAuthFromEnv(injectedVMAgentEnv()) == envvars.VMAgentRemoteWriteAuthComplete {
 		return ""
 	}
 
-	return "PMM_VM_URL carries no credentials and no VMAGENT_remoteWrite_basicAuth_* is set: " +
-		"PMM Client metric writes will be sent without authentication and rejected by VictoriaMetrics; " +
+	return "PMM_VM_URL carries no credentials and the VMAGENT_* environment does not configure a complete remote-write credential: " +
+		"PMM Client metric writes will be rejected by VictoriaMetrics; " +
 		"store the VictoriaMetrics credentials in the PMM secret so that they reach PMM_VM_URL"
 }

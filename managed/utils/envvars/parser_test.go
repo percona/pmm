@@ -327,6 +327,15 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Len(t, gotWarns, 1)
 	})
 
+	t.Run("half a basic-auth pair warns even without a remote-write URL", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VMAGENT_remoteWrite_basicAuth_password=vm-password"})
+		assert.Nil(t, gotErrs)
+		require.Len(t, gotWarns, 1)
+		assert.Contains(t, gotWarns[0], "only one of")
+	})
+
 	t.Run("PMM_VM_URL must be an http or https URL with a host", func(t *testing.T) {
 		t.Parallel()
 
@@ -425,12 +434,41 @@ func TestRedactSecretEnvVar(t *testing.T) {
 		{key: "AWS_SECRET_KEY", value: "s3cret", expected: "<redacted>"},
 		{key: "PMM_CLICKHOUSE_DATASOURCE_USER", value: "grafana", expected: "grafana"},
 		{key: "PMM_DATA_RETENTION", value: "72h", expected: "72h"},
+		{key: "PMM_VM_URL", value: "http://victoriametrics_pmm:vm-password@vmauth:8427/", expected: "http://<redacted>@vmauth:8427/"},
+		{key: "PMM_VM_URL", value: "http://vmauth:8427/", expected: "http://vmauth:8427/"},
+		{key: "VMAGENT_remoteWrite_url", value: "https://user:p%40ss@collector.example.com/api/v1/write", expected: "https://<redacted>@collector.example.com/api/v1/write"},
+		{key: "PMM_PUBLIC_ADDRESS", value: "pmm.example.com", expected: "pmm.example.com"},
 	}
 	for _, tt := range tests {
-		t.Run(tt.key, func(t *testing.T) {
+		t.Run(tt.key+"="+tt.value, func(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, tt.expected, redactSecretEnvVar(tt.key, tt.value))
+		})
+	}
+}
+
+func TestVMAgentRemoteWriteAuthFromEnv(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name string
+		env  map[string]string
+		want VMAgentRemoteWriteAuth
+	}{
+		{name: "nothing", env: map[string]string{"VMAGENT_loggerLevel": "INFO"}, want: VMAgentRemoteWriteAuthNone},
+		{name: "username only", env: map[string]string{EnvVMAgentRemoteWriteUsername: "u"}, want: VMAgentRemoteWriteAuthPartial},
+		{name: "password only", env: map[string]string{EnvVMAgentRemoteWritePassword: "p"}, want: VMAgentRemoteWriteAuthPartial},
+		{name: "basic-auth pair", env: map[string]string{EnvVMAgentRemoteWriteUsername: "u", EnvVMAgentRemoteWritePassword: "p"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "username with a password file", env: map[string]string{EnvVMAgentRemoteWriteUsername: "u", "VMAGENT_remoteWrite_basicAuth_passwordFile": "/run/secrets/p"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "bearer token", env: map[string]string{"VMAGENT_remoteWrite_bearerToken": "t"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "custom headers", env: map[string]string{"VMAGENT_remoteWrite_headers": "X-Auth: t"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "upper-cased names are inert", env: map[string]string{"VMAGENT_REMOTEWRITE_BASICAUTH_USERNAME": "u", "VMAGENT_REMOTEWRITE_BASICAUTH_PASSWORD": "p"}, want: VMAgentRemoteWriteAuthNone},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, VMAgentRemoteWriteAuthFromEnv(tc.env))
 		})
 	}
 }

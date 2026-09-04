@@ -64,6 +64,8 @@ If the external VictoriaMetrics database requires basic authentication, either i
 PMM_VM_URL=http(s)://username:password@hostname:port/path
 ```
 
+Credentials in `PMM_VM_URL` travel in clear text over `http`. Use `https` whenever the connection to VictoriaMetrics leaves a trusted network.
+
 ```sh
 VMAGENT_remoteWrite_basicAuth_username={username}
 VMAGENT_remoteWrite_basicAuth_password={password}
@@ -74,7 +76,7 @@ These credentials can be [set on PMM Server](../../install-pmm/install-pmm-serve
 If other authentication methods are used on the VictoriaMetrics side, use any of the `vmagent` environment variables by prepending the `VMAGENT_` prefix.
 
 !!! caution alert alert-warning "Redirecting remote write"
-    `VMAGENT_remoteWrite_url` overrides the write endpoint derived from `PMM_VM_URL` for every connected PMM Client. PMM does not send its own remote-write credentials to an endpoint set this way, so set `VMAGENT_remoteWrite_basicAuth_username` and `VMAGENT_remoteWrite_basicAuth_password` alongside it if that endpoint requires authentication. Use it, for example, to send writes to `vminsert` while `PMM_VM_URL` points at `vmselect` in a VictoriaMetrics cluster.
+    `VMAGENT_remoteWrite_url` overrides the write endpoint derived from `PMM_VM_URL` for every `vmagent` PMM Server manages: all connected PMM Clients and, with an external VictoriaMetrics, PMM Server's own `vmagent`. PMM does not send its own remote-write credentials to an endpoint set this way, so set `VMAGENT_remoteWrite_basicAuth_username` and `VMAGENT_remoteWrite_basicAuth_password` alongside it if that endpoint requires authentication. Use it, for example, to send writes to `vminsert` while `PMM_VM_URL` points at `vmselect` in a VictoriaMetrics cluster.
 
 When external VictoriaMetrics is configured, internal VictoriaMetrics stops. In this case, VM Agent on PMM Server pulls metrics from agents configured in the `pull metrics mode` and from remote nodes. Data is then pushed to external VictoriaMetrics.
 

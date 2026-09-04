@@ -442,6 +442,11 @@ func Test_maskDSN(t *testing.T) {
 			want:  "VMAGENT_remoteWrite_basicAuth_password=***REDACTED***",
 		},
 		{
+			name:  "environment entry whose secret value contains an at sign",
+			input: "VMAGENT_remoteWrite_basicAuth_password=p@ss",
+			want:  "VMAGENT_remoteWrite_basicAuth_password=***REDACTED***",
+		},
+		{
 			name:  "environment entry whose key names a token",
 			input: "VMAGENT_remoteWrite_bearerToken=abc.def",
 			want:  "VMAGENT_remoteWrite_bearerToken=***REDACTED***",

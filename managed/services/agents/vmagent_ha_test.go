@@ -92,6 +92,16 @@ func TestHARemoteWriteWarning(t *testing.T) {
 		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
 	})
 
+	t.Run("half an injected pair does not satisfy a credential-less URL", func(t *testing.T) {
+		t.Setenv(envRemoteWriteUsername, "victoriametrics_pmm")
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
+	})
+
+	t.Run("another vmagent authentication method satisfies a credential-less URL", func(t *testing.T) {
+		t.Setenv("VMAGENT_remoteWrite_bearerToken", "token")
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
 	t.Run("an unparsable URL is left to startup validation", func(t *testing.T) {
 		assert.Empty(t, HARemoteWriteWarning(fakeVMParams{externalVM: true, url: "http://[::1"}))
 	})

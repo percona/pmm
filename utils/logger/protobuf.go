@@ -198,11 +198,13 @@ var envSecretRe = regexp.MustCompile(`(?i)^([A-Za-z0-9_]*(?:password|passwd|secr
 // MaskDSN returns a masked copy of DSN string, which masks username and password in DSN.
 // It also masks the value of a KEY=value environment entry whose key names a secret.
 func MaskDSN(s string) string {
+	// Before the DSN heuristics: a secret value may itself contain "@".
+	if m := envSecretRe.FindStringSubmatch(s); m != nil {
+		return m[1] + "=" + maskedString
+	}
+
 	at := strings.LastIndex(s, "@")
 	if at <= 0 {
-		if m := envSecretRe.FindStringSubmatch(s); m != nil {
-			return m[1] + "=" + maskedString
-		}
 		return s
 	}
 

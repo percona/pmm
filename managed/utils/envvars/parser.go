@@ -348,11 +348,40 @@ func redactSecretEnvVar(key, value string) string {
 		}
 	}
 
+	// A URL with userinfo (PMM_VM_URL, VMAGENT_remoteWrite_url): keep scheme and host, drop the credentials.
+	if scheme := strings.Index(value, "://"); scheme >= 0 {
+		if at := strings.LastIndex(value, "@"); at > scheme {
+			return value[:scheme+3] + "<redacted>@" + value[at+1:]
+		}
+	}
+
 	return value
 }
 
-// remoteWriteAuthEnvs are vmagent settings that supply a credential for the remote-write endpoint
-// other than the basic-auth pair; any of them counts as "credentials supplied".
+// Names of the vmagent remote-write variables PMM Server sets by default. An operator may inject
+// them on PMM Server to override the defaults for every vmagent it manages. The password name is
+// a variable name, not a secret.
+const (
+	EnvVMAgentRemoteWriteURL      = "VMAGENT_remoteWrite_url"
+	EnvVMAgentRemoteWriteUsername = "VMAGENT_remoteWrite_basicAuth_username"
+	EnvVMAgentRemoteWritePassword = "VMAGENT_remoteWrite_basicAuth_password" //nolint:gosec
+)
+
+// VMAgentRemoteWriteAuth classifies the remote-write authentication an operator configured
+// through VMAGENT_* variables.
+type VMAgentRemoteWriteAuth int
+
+const (
+	// VMAgentRemoteWriteAuthNone means no authentication variable is set.
+	VMAgentRemoteWriteAuthNone VMAgentRemoteWriteAuth = iota
+	// VMAgentRemoteWriteAuthPartial means only one of the basic-auth pair is set.
+	VMAgentRemoteWriteAuthPartial
+	// VMAgentRemoteWriteAuthComplete means both basic-auth variables, or another vmagent
+	// authentication method, are set.
+	VMAgentRemoteWriteAuthComplete
+)
+
+// remoteWriteAuthEnvs are the vmagent authentication methods other than the basic-auth pair.
 var remoteWriteAuthEnvs = []string{
 	"VMAGENT_remoteWrite_basicAuth_passwordFile",
 	"VMAGENT_remoteWrite_bearerToken",
@@ -362,61 +391,65 @@ var remoteWriteAuthEnvs = []string{
 	"VMAGENT_remoteWrite_tlsCertFile",
 }
 
-// checkVMAgentRemoteWriteOverride validates an operator's VMAGENT_remoteWrite_url override, which
-// redirects the metric writes of every vmagent PMM Server manages. PMM attaches its default
-// remote-write credential only to the endpoint it chose itself (each client's PMM Server
-// credentials with the built-in VictoriaMetrics, the PMM_VM_URL credentials otherwise), so an
-// injected URL receives only the credentials injected alongside it. Warn when none or half of a
-// basic-auth pair is supplied; an empty override would disable metric writes and is an error.
-// See managed/services/agents/vmagent.go.
-//
-// Names are compared as written rather than folded: VMAGENT_ variables carry vmagent's own
-// camelCase flag names and are matched case-sensitively both by vmagent and when the client config
-// is built, so an upper-cased variant is inert and must not trigger this warning.
-func checkVMAgentRemoteWriteOverride(envs []string) ([]error, []string) {
-	var hasURL, emptyURL, urlHasUserinfo, hasUsername, hasPassword, hasOtherAuth bool
-	for _, env := range envs {
-		name, value, _ := strings.Cut(env, "=")
-		switch name {
-		case "VMAGENT_remoteWrite_url":
-			hasURL = true
-			emptyURL = value == ""
-			urlHasUserinfo = strings.Contains(value, "@")
-		case "VMAGENT_remoteWrite_basicAuth_username":
-			hasUsername = true
-		case "VMAGENT_remoteWrite_basicAuth_password":
-			hasPassword = true
-		default:
-			if slices.Contains(remoteWriteAuthEnvs, name) {
-				hasOtherAuth = true
-			}
-		}
-	}
-
-	if !hasURL {
-		return nil, nil
-	}
-	if emptyURL {
-		return []error{errors.New("VMAGENT_remoteWrite_url is set but empty, which would disable metric writes on every vmagent PMM Server manages")}, nil
-	}
+// VMAgentRemoteWriteAuthFromEnv classifies the VMAGENT_* variables in env, keyed by name. Names are
+// matched case-sensitively, like vmagent matches them.
+func VMAgentRemoteWriteAuthFromEnv(env map[string]string) VMAgentRemoteWriteAuth {
+	_, hasUsername := env[EnvVMAgentRemoteWriteUsername]
+	_, hasPassword := env[EnvVMAgentRemoteWritePassword]
+	hasOtherAuth := slices.ContainsFunc(remoteWriteAuthEnvs, func(name string) bool {
+		_, ok := env[name]
+		return ok
+	})
 
 	switch {
-	case hasUsername && hasPassword, hasOtherAuth, urlHasUserinfo:
-		return nil, nil
+	case hasUsername && hasPassword, hasOtherAuth:
+		return VMAgentRemoteWriteAuthComplete
 	case hasUsername || hasPassword:
-		return nil, []string{
-			"VMAGENT_remoteWrite_url is set with only one of VMAGENT_remoteWrite_basicAuth_username and " +
-				"VMAGENT_remoteWrite_basicAuth_password; set both, PMM adds neither to an endpoint it did not choose",
+		return VMAgentRemoteWriteAuthPartial
+	}
+
+	return VMAgentRemoteWriteAuthNone
+}
+
+// checkVMAgentRemoteWriteOverride validates the operator's VMAGENT_remoteWrite_* variables. Half a
+// basic-auth pair is always reported. An injected VMAGENT_remoteWrite_url must not be empty, and is
+// reported when no credential accompanies it, because PMM's own remote-write credential is not
+// sent to an endpoint PMM did not choose. The vmagent flag names are camelCase and matched
+// case-sensitively both by vmagent and when the client config is built, so an upper-cased variant
+// is inert and must not trigger these checks.
+func checkVMAgentRemoteWriteOverride(envs []string) ([]error, []string) {
+	vmagentEnv := make(map[string]string)
+	for _, env := range envs {
+		if name, value, ok := strings.Cut(env, "="); ok && strings.HasPrefix(name, EnvVMAgentPrefix) {
+			vmagentEnv[name] = value
 		}
 	}
 
-	return nil, []string{
-		"VMAGENT_remoteWrite_url redirects the metric writes of every vmagent PMM Server manages to a custom endpoint, " +
-			"and PMM's own remote-write credentials are not sent there. Set " +
-			"VMAGENT_remoteWrite_basicAuth_username and VMAGENT_remoteWrite_basicAuth_password " +
-			"if that endpoint requires authentication; if the endpoint is a PMM Server, the {{.server_username}} and " +
-			"{{.server_password}} placeholders keep each client's own PMM Server credentials",
+	var warns []string
+	auth := VMAgentRemoteWriteAuthFromEnv(vmagentEnv)
+	if auth == VMAgentRemoteWriteAuthPartial {
+		warns = append(warns, "only one of VMAGENT_remoteWrite_basicAuth_username and VMAGENT_remoteWrite_basicAuth_password is set; "+
+			"set both: the lone half is paired with PMM's own default or, with VMAGENT_remoteWrite_url, sent alone, "+
+			"and either fails authentication")
 	}
+
+	writeURL, hasURL := vmagentEnv[EnvVMAgentRemoteWriteURL]
+	if !hasURL {
+		return nil, warns
+	}
+	if writeURL == "" {
+		return []error{errors.New("VMAGENT_remoteWrite_url is set but empty, which would disable metric writes on every vmagent PMM Server manages")}, warns
+	}
+	if auth != VMAgentRemoteWriteAuthNone || strings.Contains(writeURL, "@") {
+		return nil, warns
+	}
+
+	return nil, append(warns,
+		"VMAGENT_remoteWrite_url redirects the metric writes of every vmagent PMM Server manages to a custom endpoint, "+
+			"and PMM's own remote-write credentials are not sent there. Set "+
+			"VMAGENT_remoteWrite_basicAuth_username and VMAGENT_remoteWrite_basicAuth_password "+
+			"if that endpoint requires authentication; if the endpoint is a PMM Server, the {{.server_username}} and "+
+			"{{.server_password}} placeholders keep each client's own PMM Server credentials")
 }
 
 // parseStringDuration validate duration as string value.
