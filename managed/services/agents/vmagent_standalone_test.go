@@ -19,6 +19,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -26,26 +27,31 @@ import (
 func TestStandaloneRemoteWrite(t *testing.T) {
 	t.Run("internal VM: clients write through the server with their own credentials", func(t *testing.T) {
 		for _, vmURL := range []string{models.VMBaseURL, "http://localhost:9090/prometheus/"} {
-			assert.Equal(t, serverProxyRemoteWrite(), standaloneRemoteWrite(newVMParams(t, vmURL)), vmURL)
+			rw, err := standaloneRemoteWrite(newVMParams(t, vmURL))
+			require.NoError(t, err)
+			assert.Equal(t, serverProxyRemoteWrite(), rw, vmURL)
 		}
 	})
 
 	t.Run("external VM: write directly, no credentials", func(t *testing.T) {
-		assert.Equal(t, remoteWrite{url: testExternalVMWrite, source: credentialNone},
-			standaloneRemoteWrite(newVMParams(t, testExternalVM)))
+		rw, err := standaloneRemoteWrite(newVMParams(t, testExternalVM))
+		require.NoError(t, err)
+		assert.Equal(t, remoteWrite{url: testExternalVMWrite, source: credentialNone}, rw)
 	})
 
 	t.Run("external VM: credentials come from PMM_VM_URL", func(t *testing.T) {
-		assert.Equal(t, remoteWrite{url: testExternalVMWrite, username: "vmuser", password: "vmpass", source: credentialVMURL},
-			standaloneRemoteWrite(newVMParams(t, testExternalVMAuth)))
+		rw, err := standaloneRemoteWrite(newVMParams(t, testExternalVMAuth))
+		require.NoError(t, err)
+		assert.Equal(t, remoteWrite{url: testExternalVMWrite, username: "vmuser", password: "vmpass", source: credentialVMURL}, rw)
 	})
 }
 
 // TestVMAgentStandaloneInternalVM covers the default deployment: VictoriaMetrics inside PMM Server.
 func TestVMAgentStandaloneInternalVM(t *testing.T) {
+	clearVMAgentEnv(t)
 	build := func(t *testing.T) []string {
 		t.Helper()
-		return vmAgentConfig(testLogger(), "", newVMParams(t, models.VMBaseURL), vmAgentDeployment{}).Env
+		return mustVMAgentConfig(t, "", newVMParams(t, models.VMBaseURL), vmAgentDeployment{}).Env
 	}
 
 	t.Run("clients write through the server with their own credentials", func(t *testing.T) {
@@ -95,9 +101,10 @@ func TestVMAgentStandaloneInternalVM(t *testing.T) {
 
 // TestVMAgentStandaloneExternalVM covers PMM_VM_URL pointing at an operator-run VictoriaMetrics.
 func TestVMAgentStandaloneExternalVM(t *testing.T) {
+	clearVMAgentEnv(t)
 	build := func(t *testing.T, vmURL string, d vmAgentDeployment) ([]string, []string) {
 		t.Helper()
-		actual := vmAgentConfig(testLogger(), "", newVMParams(t, vmURL), d)
+		actual := mustVMAgentConfig(t, "", newVMParams(t, vmURL), d)
 		return actual.Env, actual.Args
 	}
 
@@ -116,6 +123,12 @@ func TestVMAgentStandaloneExternalVM(t *testing.T) {
 		assertNotAnywhere(t, nil, args, "vmpass")
 		url, _ := envValue(env, envRemoteWriteURL)
 		assert.NotContains(t, url, "@")
+	})
+
+	t.Run("a password-only credential in PMM_VM_URL is passed through as a password", func(t *testing.T) {
+		env, _ := build(t, "http://:vmpass@victoriametrics:8428", vmAgentDeployment{})
+		assertEnv(t, env, envRemoteWriteURL, testExternalVMWrite)
+		assertCredentials(t, env, "", "vmpass")
 	})
 
 	t.Run("documented shape: bare PMM_VM_URL plus injected credentials", func(t *testing.T) {

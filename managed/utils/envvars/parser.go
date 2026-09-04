@@ -17,9 +17,11 @@
 package envvars
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -66,6 +68,8 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
 //   - the environment variables prefixed with GF_ are related to Grafana.
+//   - the environment variables prefixed with VMAGENT_ are forwarded to every vmagent PMM Server manages;
+//     VMAGENT_remoteWrite_url is validated by checkVMAgentRemoteWriteOverride.
 //   - the environment variables related to proxies
 //   - the environment variable set by podman
 func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []string) { //nolint:gocognit,cyclop,maintidx
@@ -218,9 +222,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.PMMPublicAddress = new(v)
 
 		case "PMM_VM_URL":
-			_, err = url.Parse(v)
+			_, err := models.ParseVictoriaMetricsURL(v)
 			if err != nil {
-				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				errs = append(errs, fmt.Errorf("invalid value for environment variable %q: %w", k, err))
 			}
 
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
@@ -326,7 +330,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		}
 	}
 
-	warns = append(warns, checkVMAgentRemoteWriteOverride(envs)...)
+	overrideErrs, overrideWarns := checkVMAgentRemoteWriteOverride(envs)
+	errs = append(errs, overrideErrs...)
+	warns = append(warns, overrideWarns...)
 
 	return envSettings, errs, warns
 }
@@ -345,38 +351,71 @@ func redactSecretEnvVar(key, value string) string {
 	return value
 }
 
-// checkVMAgentRemoteWriteOverride warns when VMAGENT_remoteWrite_url redirects client metric
-// writes to a custom endpoint but no credentials are supplied for it. PMM does not forward its
-// own remote-write credentials to an operator-chosen endpoint - on the server-proxy path those
-// are each client's PMM Server credentials - so such an endpoint receives unauthenticated writes.
+// remoteWriteAuthEnvs are vmagent settings that supply a credential for the remote-write endpoint
+// other than the basic-auth pair; any of them counts as "credentials supplied".
+var remoteWriteAuthEnvs = []string{
+	"VMAGENT_remoteWrite_basicAuth_passwordFile",
+	"VMAGENT_remoteWrite_bearerToken",
+	"VMAGENT_remoteWrite_bearerTokenFile",
+	"VMAGENT_remoteWrite_oauth2_clientID",
+	"VMAGENT_remoteWrite_headers",
+	"VMAGENT_remoteWrite_tlsCertFile",
+}
+
+// checkVMAgentRemoteWriteOverride validates an operator's VMAGENT_remoteWrite_url override, which
+// redirects the metric writes of every vmagent PMM Server manages. PMM attaches its default
+// remote-write credential only to the endpoint it chose itself (each client's PMM Server
+// credentials with the built-in VictoriaMetrics, the PMM_VM_URL credentials otherwise), so an
+// injected URL receives only the credentials injected alongside it. Warn when none or half of a
+// basic-auth pair is supplied; an empty override would disable metric writes and is an error.
 // See managed/services/agents/vmagent.go.
 //
 // Names are compared as written rather than folded: VMAGENT_ variables carry vmagent's own
 // camelCase flag names and are matched case-sensitively both by vmagent and when the client config
 // is built, so an upper-cased variant is inert and must not trigger this warning.
-func checkVMAgentRemoteWriteOverride(envs []string) []string {
-	var hasURL, hasUsername, hasPassword bool
+func checkVMAgentRemoteWriteOverride(envs []string) ([]error, []string) {
+	var hasURL, emptyURL, urlHasUserinfo, hasUsername, hasPassword, hasOtherAuth bool
 	for _, env := range envs {
-		switch name, _, _ := strings.Cut(env, "="); name {
+		name, value, _ := strings.Cut(env, "=")
+		switch name {
 		case "VMAGENT_remoteWrite_url":
 			hasURL = true
+			emptyURL = value == ""
+			urlHasUserinfo = strings.Contains(value, "@")
 		case "VMAGENT_remoteWrite_basicAuth_username":
 			hasUsername = true
 		case "VMAGENT_remoteWrite_basicAuth_password":
 			hasPassword = true
+		default:
+			if slices.Contains(remoteWriteAuthEnvs, name) {
+				hasOtherAuth = true
+			}
 		}
 	}
 
-	if !hasURL || hasUsername || hasPassword {
-		return nil
+	if !hasURL {
+		return nil, nil
+	}
+	if emptyURL {
+		return []error{errors.New("VMAGENT_remoteWrite_url is set but empty, which would disable metric writes on every vmagent PMM Server manages")}, nil
 	}
 
-	return []string{
-		"VMAGENT_remoteWrite_url redirects all PMM Client metric writes to a custom endpoint, " +
+	switch {
+	case hasUsername && hasPassword, hasOtherAuth, urlHasUserinfo:
+		return nil, nil
+	case hasUsername || hasPassword:
+		return nil, []string{
+			"VMAGENT_remoteWrite_url is set with only one of VMAGENT_remoteWrite_basicAuth_username and " +
+				"VMAGENT_remoteWrite_basicAuth_password; set both, PMM adds neither to an endpoint it did not choose",
+		}
+	}
+
+	return nil, []string{
+		"VMAGENT_remoteWrite_url redirects the metric writes of every vmagent PMM Server manages to a custom endpoint, " +
 			"and PMM's own remote-write credentials are not sent there. Set " +
 			"VMAGENT_remoteWrite_basicAuth_username and VMAGENT_remoteWrite_basicAuth_password " +
-			"if that endpoint requires authentication; use the {{.server_username}} and " +
-			"{{.server_password}} placeholders to keep each client's own PMM Server credentials",
+			"if that endpoint requires authentication; if the endpoint is a PMM Server, the {{.server_username}} and " +
+			"{{.server_password}} placeholders keep each client's own PMM Server credentials",
 	}
 }
 

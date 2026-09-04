@@ -63,3 +63,36 @@ func TestVictoriaMetricsParams(t *testing.T) {
 		}
 	})
 }
+
+func TestParseVictoriaMetricsURL(t *testing.T) {
+	t.Run("valid URLs get a trailing slash", func(t *testing.T) {
+		for raw, want := range map[string]string{
+			VMBaseURL:                           VMBaseURL,
+			"http://victoriametrics:8428":       "http://victoriametrics:8428/",
+			"https://user:pass@vm:8428/path":    "https://user:pass@vm:8428/path/",
+			"http://pmm-ha-vmauth.pmm.svc:8427": "http://pmm-ha-vmauth.pmm.svc:8427/",
+		} {
+			u, err := ParseVictoriaMetricsURL(raw)
+			require.NoError(t, err, raw)
+			assert.Equal(t, want, u.String(), raw)
+		}
+	})
+
+	t.Run("URLs without an http scheme and a host are rejected", func(t *testing.T) {
+		for _, raw := range []string{"", "vm:8428", "//vm:8428/", "vm.example.com", "ftp://vm:8428", "http:///path"} {
+			_, err := ParseVictoriaMetricsURL(raw)
+			require.Error(t, err, raw)
+			assert.Contains(t, err.Error(), "invalid VictoriaMetrics URL", raw)
+		}
+	})
+
+	t.Run("errors never echo credentials", func(t *testing.T) {
+		_, err := ParseVictoriaMetricsURL("http://user:secret@[::1")
+		require.Error(t, err)
+		assert.NotContains(t, err.Error(), "secret")
+
+		_, err = ParseVictoriaMetricsURL("ftp://user:secret@vm:8428")
+		require.Error(t, err)
+		assert.NotContains(t, err.Error(), "secret")
+	})
+}

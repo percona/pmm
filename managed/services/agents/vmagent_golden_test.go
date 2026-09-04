@@ -27,12 +27,15 @@ import (
 // must not, so that a typo in a placeholder or URL cannot be masked by a test comparing against
 // the same constant. The placeholders are rendered on the client from its pmm-agent.yaml.
 func TestVMAgentConfigGolden(t *testing.T) {
+	clearVMAgentEnv(t)
+
 	const (
 		internalVM = "http://127.0.0.1:9090/prometheus/"
 		externalVM = "http://victoriametrics:8428"
 		// Credentials in the fixtures are fixtures, not secrets.
 		externalVMWithCreds = "http://vmuser:vmpass@victoriametrics:8428"
 		haVMAuth            = "http://victoriametrics_pmm:vm-password@pmm-ha-vmauth.pmm.svc.cluster.local:8427/"
+		haVMAuthNoCreds     = "http://pmm-ha-vmauth.pmm.svc.cluster.local:8427/"
 	)
 
 	wantArgs := []string{
@@ -43,7 +46,8 @@ func TestVMAgentConfigGolden(t *testing.T) {
 		"-remoteWrite.tmpDataPath={{.tmp_dir}}/vmagent-temp-dir",
 	}
 
-	chartCreds := map[string]string{
+	// The pre-PMM_HA_VM_* chart put the vmauth credential under the VMAGENT_ passthrough names.
+	legacyChartCreds := map[string]string{
 		"VMAGENT_remoteWrite_basicAuth_username": "victoriametrics_pmm",
 		"VMAGENT_remoteWrite_basicAuth_password": "vm-password",
 	}
@@ -110,10 +114,10 @@ func TestVMAgentConfigGolden(t *testing.T) {
 			},
 		},
 		{
-			name:       "HA, client, chart shape",
+			name:       "HA, client, legacy chart secret keys alongside PMM_VM_URL",
 			vmURL:      haVMAuth,
 			deployment: vmAgentDeployment{haEnabled: true},
-			injected:   chartCreds,
+			injected:   legacyChartCreds,
 			wantEnv: []string{
 				"VMAGENT_loggerLevel=INFO",
 				"VMAGENT_promscrape_maxScrapeSize=64MiB",
@@ -139,10 +143,10 @@ func TestVMAgentConfigGolden(t *testing.T) {
 			},
 		},
 		{
-			name:       "HA, built-in agent, chart shape",
+			name:       "HA, built-in agent, legacy chart secret keys alongside PMM_VM_URL",
 			vmURL:      haVMAuth,
 			deployment: vmAgentDeployment{haEnabled: true, isServerAgent: true},
-			injected:   chartCreds,
+			injected:   legacyChartCreds,
 			wantEnv: []string{
 				"VMAGENT_loggerLevel=INFO",
 				"VMAGENT_promscrape_maxScrapeSize=64MiB",
@@ -185,13 +189,53 @@ func TestVMAgentConfigGolden(t *testing.T) {
 				"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
 			},
 		},
+		{
+			name:  "any, remote-write URL and only a username injected",
+			vmURL: internalVM,
+			injected: map[string]string{
+				"VMAGENT_remoteWrite_url":                "https://collector.example.com/api/v1/write",
+				"VMAGENT_remoteWrite_basicAuth_username": "collector-user",
+			},
+			wantEnv: []string{
+				"VMAGENT_loggerLevel=INFO",
+				"VMAGENT_promscrape_maxScrapeSize=64MiB",
+				"VMAGENT_remoteWrite_basicAuth_username=collector-user",
+				"VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824",
+				"VMAGENT_remoteWrite_tlsInsecureSkipVerify={{.server_insecure}}",
+				"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			},
+		},
+		{
+			name:  "standalone, external VM with a password-only credential in PMM_VM_URL",
+			vmURL: "http://:vmpass@victoriametrics:8428",
+			wantEnv: []string{
+				"VMAGENT_loggerLevel=INFO",
+				"VMAGENT_promscrape_maxScrapeSize=64MiB",
+				"VMAGENT_remoteWrite_basicAuth_password=vmpass",
+				"VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824",
+				"VMAGENT_remoteWrite_tlsInsecureSkipVerify={{.server_insecure}}",
+				"VMAGENT_remoteWrite_url=http://victoriametrics:8428/api/v1/write",
+			},
+		},
+		{
+			name:       "HA, client, PMM_VM_URL without credentials (HARemoteWriteWarning reports it)",
+			vmURL:      haVMAuthNoCreds,
+			deployment: vmAgentDeployment{haEnabled: true},
+			wantEnv: []string{
+				"VMAGENT_loggerLevel=INFO",
+				"VMAGENT_promscrape_maxScrapeSize=64MiB",
+				"VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824",
+				"VMAGENT_remoteWrite_tlsInsecureSkipVerify={{.server_insecure}}",
+				"VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write",
+			},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			for k, v := range tc.injected {
 				t.Setenv(k, v)
 			}
-			actual := vmAgentConfig(testLogger(), "scrape_configs: []", newVMParams(t, tc.vmURL), tc.deployment)
+			actual := mustVMAgentConfig(t, "scrape_configs: []", newVMParams(t, tc.vmURL), tc.deployment)
 			assert.Equal(t, wantArgs, actual.Args)
 			assert.Equal(t, tc.wantEnv, actual.Env)
 			assert.Equal(t, map[string]string{"vmagentscrapecfg": "scrape_configs: []"}, actual.TextFiles)

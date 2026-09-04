@@ -22,14 +22,14 @@ package agents
 // /victoriametrics/ write endpoint, authenticated with its own PMM Server credentials. The
 // server's own agent has no vmagent in this mode, because VictoriaMetrics scrapes it directly.
 //
-// External VictoriaMetrics (PMM_VM_URL points off-box, documented in
-// documentation/docs/reference/third-party/victoria.md): PMM Clients and the server's own agent
-// write straight to it, authenticated with the credentials carried by PMM_VM_URL, if any. The
-// documented VMAGENT_remoteWrite_basicAuth_* variables override those through the passthrough.
-func standaloneRemoteWrite(params victoriaMetricsParams) remoteWrite {
+// External VictoriaMetrics (PMM_VM_URL points off-box; see the external VictoriaMetrics guide in
+// the user documentation): PMM Clients and the server's own agent write straight to it,
+// authenticated with the credentials carried by PMM_VM_URL, if any. The documented
+// VMAGENT_remoteWrite_basicAuth_* variables override those through the passthrough.
+func standaloneRemoteWrite(params victoriaMetricsParams) (remoteWrite, error) {
 	if params.ExternalVM() {
 		return vmRemoteWrite(params.URL())
 	}
 
-	return serverProxyRemoteWrite()
+	return serverProxyRemoteWrite(), nil
 }

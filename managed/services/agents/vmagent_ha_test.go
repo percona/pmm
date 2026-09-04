@@ -19,13 +19,15 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
 
-// chartShape injects what the pmm-ha chart puts into every PMM Server pod besides PMM_VM_URL:
-// the vmauth credentials under the VMAGENT_ passthrough names.
-func chartShape(t *testing.T) {
+// legacyChartCreds injects the vmauth credential under the VMAGENT_ passthrough names, as pmm-ha
+// chart releases before the PMM_HA_VM_* keys did. Kept because that shape exists during a chart
+// and server upgrade window, and because an operator can still inject the pair deliberately.
+func legacyChartCreds(t *testing.T) {
 	t.Helper()
 	t.Setenv(envRemoteWriteUsername, "victoriametrics_pmm")
 	t.Setenv(envRemoteWritePassword, "vm-password")
@@ -37,33 +39,75 @@ func TestHARemoteWrite(t *testing.T) {
 	t.Run("clients write to their PMM Server address with the VM credential", func(t *testing.T) {
 		want := vmCreds
 		want.url = serverProxyWriteURL
-		assert.Equal(t, want, haRemoteWrite(newVMParams(t, testVMAuth), false))
+		rw, err := haRemoteWrite(newVMParams(t, testVMAuth), false)
+		require.NoError(t, err)
+		assert.Equal(t, want, rw)
 	})
 
 	t.Run("the server agent writes to vmauth directly", func(t *testing.T) {
 		want := vmCreds
 		want.url = testVMAuthWrite
-		assert.Equal(t, want, haRemoteWrite(newVMParams(t, testVMAuth), true))
+		rw, err := haRemoteWrite(newVMParams(t, testVMAuth), true)
+		require.NoError(t, err)
+		assert.Equal(t, want, rw)
+	})
+
+	t.Run("a VM URL without credentials yields pairs without any credential", func(t *testing.T) {
+		client, err := haRemoteWrite(newVMParams(t, testVMAuthNoCreds), false)
+		require.NoError(t, err)
+		assert.Equal(t, remoteWrite{url: serverProxyWriteURL, source: credentialNone}, client)
+		server, err := haRemoteWrite(newVMParams(t, testVMAuthNoCreds), true)
+		require.NoError(t, err)
+		assert.Equal(t, remoteWrite{url: testVMAuthWrite, source: credentialNone}, server)
 	})
 
 	t.Run("an internal VM URL falls back to the standalone pair", func(t *testing.T) {
 		params := newVMParams(t, models.VMBaseURL)
-		assert.Equal(t, serverProxyRemoteWrite(), haRemoteWrite(params, false))
-		assert.Equal(t, serverProxyRemoteWrite(), haRemoteWrite(params, true))
+		client, err := haRemoteWrite(params, false)
+		require.NoError(t, err)
+		assert.Equal(t, serverProxyRemoteWrite(), client)
+		server, err := haRemoteWrite(params, true)
+		require.NoError(t, err)
+		assert.Equal(t, serverProxyRemoteWrite(), server)
+	})
+}
+
+func TestHARemoteWriteWarning(t *testing.T) {
+	clearVMAgentEnv(t)
+
+	t.Run("internal VM URL is unsupported in HA", func(t *testing.T) {
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, models.VMBaseURL)), "not supported")
+	})
+
+	t.Run("external VM URL with credentials is fine", func(t *testing.T) {
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuth)))
+	})
+
+	t.Run("external VM URL without credentials and nothing injected warns", func(t *testing.T) {
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
+	})
+
+	t.Run("injected credentials satisfy a credential-less URL", func(t *testing.T) {
+		legacyChartCreds(t)
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
+	})
+
+	t.Run("an unparsable URL is left to startup validation", func(t *testing.T) {
+		assert.Empty(t, HARemoteWriteWarning(fakeVMParams{externalVM: true, url: "http://[::1"}))
 	})
 }
 
 func TestVMAgentHA(t *testing.T) {
+	clearVMAgentEnv(t)
 	client := vmAgentDeployment{haEnabled: true}
 	server := vmAgentDeployment{haEnabled: true, isServerAgent: true}
 	build := func(t *testing.T, vmURL string, d vmAgentDeployment) ([]string, []string) {
 		t.Helper()
-		actual := vmAgentConfig(testLogger(), "", newVMParams(t, vmURL), d)
+		actual := mustVMAgentConfig(t, "", newVMParams(t, vmURL), d)
 		return actual.Env, actual.Args
 	}
 
-	t.Run("chart shape: clients write via their PMM Server address with the VM credential", func(t *testing.T) {
-		chartShape(t)
+	t.Run("clients write via their PMM Server address with the VM credential", func(t *testing.T) {
 		env, args := build(t, testVMAuth, client)
 		assertEnv(t, env, envRemoteWriteURL, serverProxyWriteURL)
 		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
@@ -71,15 +115,16 @@ func TestVMAgentHA(t *testing.T) {
 		assertNotAnywhere(t, nil, args, "basicAuth.")
 	})
 
-	t.Run("the VM credential comes from PMM_VM_URL even without the chart's VMAGENT_ variables", func(t *testing.T) {
-		// The chart may stop exposing the credential under VMAGENT_ names; PMM_VM_URL is the source.
+	t.Run("legacy chart credentials under VMAGENT_ names are the same credential", func(t *testing.T) {
+		legacyChartCreds(t)
 		env, _ := build(t, testVMAuth, client)
 		assertEnv(t, env, envRemoteWriteURL, serverProxyWriteURL)
 		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
+		assertNoServerCredentialTemplates(t, env)
 	})
 
-	t.Run("injected URL with the chart credential: all-in-cluster fleets write to vmauth directly", func(t *testing.T) {
-		chartShape(t)
+	t.Run("injected URL with the VM credential: all-in-cluster fleets write to vmauth directly", func(t *testing.T) {
+		legacyChartCreds(t)
 		t.Setenv(envRemoteWriteURL, testVMAuthWrite)
 		env, _ := build(t, testVMAuth, client)
 		assertEnv(t, env, envRemoteWriteURL, testVMAuthWrite)
@@ -95,7 +140,6 @@ func TestVMAgentHA(t *testing.T) {
 	})
 
 	t.Run("tuning variables pass through unchanged", func(t *testing.T) {
-		chartShape(t)
 		t.Setenv("VMAGENT_loggerLevel", "WARN")
 		t.Setenv("VMAGENT_remoteWrite_maxDiskUsagePerURL", "52428800")
 		env, _ := build(t, testVMAuth, client)
@@ -115,7 +159,6 @@ func TestVMAgentHA(t *testing.T) {
 	})
 
 	t.Run("the server agent writes to vmauth directly with the VM credential", func(t *testing.T) {
-		chartShape(t)
 		env, args := build(t, testVMAuth, server)
 		assertEnv(t, env, envRemoteWriteURL, testVMAuthWrite)
 		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
@@ -126,11 +169,20 @@ func TestVMAgentHA(t *testing.T) {
 	})
 
 	t.Run("the server agent follows an injected URL too", func(t *testing.T) {
-		chartShape(t)
+		legacyChartCreds(t)
 		t.Setenv(envRemoteWriteURL, testInjectedURL)
 		env, _ := build(t, testVMAuth, server)
 		assertEnv(t, env, envRemoteWriteURL, testInjectedURL)
 		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
+	})
+
+	t.Run("a VM URL without credentials emits none and no PMM templates", func(t *testing.T) {
+		// HARemoteWriteWarning reports this shape at startup; the output must still be well-formed.
+		for _, d := range []vmAgentDeployment{client, server} {
+			env, _ := build(t, testVMAuthNoCreds, d)
+			assertCredentials(t, env, "", "")
+			assertNoServerCredentialTemplates(t, env)
+		}
 	})
 
 	t.Run("internal VM URL: clients get the standalone pair", func(t *testing.T) {
@@ -140,7 +192,6 @@ func TestVMAgentHA(t *testing.T) {
 	})
 
 	t.Run("Kubernetes service-link noise passes through without affecting routing", func(t *testing.T) {
-		chartShape(t)
 		t.Setenv("VMAGENT_PMM_HA_VMAGENT_SERVICE_HOST", "10.96.0.1")
 		t.Setenv("VMAGENT_PMM_HA_VMAGENT_SERVICE_PORT", "8429")
 		env, _ := build(t, testVMAuth, client)
@@ -149,12 +200,14 @@ func TestVMAgentHA(t *testing.T) {
 		assertCredentials(t, env, "victoriametrics_pmm", "vm-password")
 	})
 
-	t.Run("no HA agent ever receives a PMM Server credential template", func(t *testing.T) {
-		for _, d := range []vmAgentDeployment{client, server} {
-			env, _ := build(t, testVMAuth, d)
-			assertNoServerCredentialTemplates(t, env)
+	t.Run("no HA agent receives a PMM Server credential template with an external VM URL", func(t *testing.T) {
+		for _, vmURL := range []string{testVMAuth, testVMAuthNoCreds} {
+			for _, d := range []vmAgentDeployment{client, server} {
+				env, _ := build(t, vmURL, d)
+				assertNoServerCredentialTemplates(t, env)
+			}
 		}
-		chartShape(t)
+		legacyChartCreds(t)
 		for _, d := range []vmAgentDeployment{client, server} {
 			env, _ := build(t, testVMAuth, d)
 			assertNoServerCredentialTemplates(t, env)

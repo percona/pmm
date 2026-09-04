@@ -83,7 +83,7 @@ When external VictoriaMetrics is configured, internal VictoriaMetrics stops. In 
     
     Ensure that they can connect to external VictoriaMetrics.
 
-In [PMM High Availability](../../install-pmm/install-HA-clustered.md#how-client-metrics-reach-victoriametrics) deployments, the Helm chart sets `PMM_VM_URL` to the in-cluster VictoriaMetrics endpoint, and PMM Clients write through the HAProxy endpoint instead of connecting to VictoriaMetrics directly.
+In [PMM High Availability](../../install-pmm/install-HA-clustered.md#how-client-metrics-reach-victoriametrics) deployments, the Helm chart sets `PMM_VM_URL` to the in-cluster VictoriaMetrics endpoint, and PMM Clients write through the PMM Server address they were configured with (HAProxy in the documented setup) instead of connecting to VictoriaMetrics directly.
 
 ## Troubleshooting
 

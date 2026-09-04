@@ -81,18 +81,17 @@ These environment variables prevent the most common deployment challenges. For a
 | Variable | Purpose | Example | Default | Notes |
 |----------|---------|---------|---------|-------|
 | `VMAGENT_remoteWrite_maxDiskUsagePerURL` | Disk space limit per client during network outages | `52428800` (50MB) | `1073741824` (1GB) | Critical for Kubernetes |
-| `VMAGENT_remoteWrite_tmpDataPath` | Temporary data storage path | `/tmp/custom-vmagent` | `/tmp/vmagent-temp-dir` | |
 | `VMAGENT_loggerLevel` | Logging verbosity level | `DEBUG`, `WARN`, `ERROR` | `INFO` | |
 | `VMAGENT_promscrape_maxScrapeSize` | Maximum scrape size per target | `128MiB`, `32MiB` | `64MiB` | Controls memory usage |
 | `VMAGENT_remoteWrite_basicAuth_username` | Basic auth username for the remote-write endpoint | `vmuser` | Each client's own PMM Server credentials, or the credentials in `PMM_VM_URL` | Overrides the default; meant for an [external VictoriaMetrics](../../../../reference/third-party/victoria.md#using-victoriametrics-external-database-instance) |
 | `VMAGENT_remoteWrite_basicAuth_password` | Basic auth password for the remote-write endpoint | `secret` | Same as the username | Same as the username |
 | `VMAGENT_remoteWrite_url` | Remote-write endpoint for every PMM Client | `https://vm.example.com/api/v1/write` | Chosen by PMM Server for the deployment | Advanced, global override; see the caution below |
-| `VMAGENT_remoteWrite_tlsInsecureSkipVerify` | Skip TLS certificate verification | `true`, `false` | `false` | Security setting |
+| `VMAGENT_remoteWrite_tlsInsecureSkipVerify` | Skip TLS certificate verification | `true`, `false` | Follows the client's `--server-insecure-tls` | Security setting |
 
 !!! caution alert alert-warning "Redirecting remote write"
-    Setting `VMAGENT_remoteWrite_url` redirects the metric writes of *every* connected PMM Client to that endpoint. PMM does not send its own remote-write credentials there: on the default write path those credentials are each client's own PMM Server credentials, and PMM will not forward them to an endpoint it did not choose.
+    Setting `VMAGENT_remoteWrite_url` redirects the metric writes of every vmagent PMM Server manages (all PMM Clients and, with an external VictoriaMetrics, PMM Server's own) to that endpoint. PMM does not send its default remote-write credentials there: each client's own PMM Server credentials with the built-in VictoriaMetrics, the `PMM_VM_URL` credentials otherwise. PMM will not forward either to an endpoint it did not choose.
 
-    If the endpoint requires authentication, set `VMAGENT_remoteWrite_basicAuth_username` and `VMAGENT_remoteWrite_basicAuth_password` alongside the URL. To keep sending each client's own PMM Server credentials, set them to the {% raw %}`{{.server_username}}` and `{{.server_password}}`{% endraw %} placeholders.
+    If the endpoint requires authentication, set `VMAGENT_remoteWrite_basicAuth_username` and `VMAGENT_remoteWrite_basicAuth_password` alongside the URL. If the endpoint is another PMM Server, the {% raw %}`{{.server_username}}` and `{{.server_password}}`{% endraw %} placeholders keep sending each client's own PMM Server credentials.
 
 ##### Convert flags to environment variables
 
@@ -110,7 +109,7 @@ To manage these settings centrally through PMM Server, convert the flags to envi
 
 - `loggerLevel` > `VMAGENT_loggerLevel`
 
-- `httpListenAddr` > `VMAGENT_httpListenAddr`
+- `remoteWrite.queues` > `VMAGENT_remoteWrite_queues`
 
 #### Common deployment scenarios
 

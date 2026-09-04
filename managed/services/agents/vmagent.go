@@ -16,6 +16,8 @@
 package agents
 
 import (
+	"errors"
+	"fmt"
 	"net/url"
 	"os"
 	"sort"
@@ -32,6 +34,10 @@ var (
 	maxScrapeSizeEnv     = "PMM_PROMSCRAPE_MAX_SCRAPE_SIZE"
 	maxScrapeSizeDefault = "64MiB"
 )
+
+// defaultRemoteWriteMaxDiskUsage is the on-disk queue vmagent may fill per remote-write URL
+// while the endpoint is unreachable: 1 GiB.
+const defaultRemoteWriteMaxDiskUsage = "1073741824"
 
 // Environment variable names vmagent reads through -envflag.prefix=VMAGENT_.
 // The password name is a variable name, not a secret.
@@ -85,17 +91,23 @@ type remoteWrite struct {
 // consulted here and nowhere else: HA and standalone each pick their default remote-write pair
 // (vmagent_ha.go, vmagent_standalone.go), and the shared builder applies the operator's
 // VMAGENT_* environment on top.
-func vmAgentConfig(l *logrus.Entry, scrapeCfg string, params victoriaMetricsParams, d vmAgentDeployment) *agentv1.SetStateRequest_AgentProcess {
-	var rw remoteWrite
+func vmAgentConfig(l *logrus.Entry, scrapeCfg string, params victoriaMetricsParams, d vmAgentDeployment) (*agentv1.SetStateRequest_AgentProcess, error) {
+	var (
+		rw  remoteWrite
+		err error
+	)
 	path := "standalone"
 	if d.haEnabled {
 		path = "ha"
-		rw = haRemoteWrite(params, d.isServerAgent)
+		rw, err = haRemoteWrite(params, d.isServerAgent)
 	} else {
-		rw = standaloneRemoteWrite(params)
+		rw, err = standaloneRemoteWrite(params)
+	}
+	if err != nil {
+		return nil, err
 	}
 
-	return buildVMAgentProcess(l.WithField("path", path), scrapeCfg, rw)
+	return buildVMAgentProcess(l.WithField("path", path), scrapeCfg, rw), nil
 }
 
 // serverProxyRemoteWrite writes through PMM Server's /victoriametrics/ write endpoint with the
@@ -113,9 +125,11 @@ func serverProxyRemoteWrite() remoteWrite {
 // vmRemoteWrite writes straight to the VictoriaMetrics at vmURL. Credentials, if the URL carries
 // any, move out of the URL and into the pair so that they reach vmagent through its environment
 // only, never on its command line or inside the URL.
-func vmRemoteWrite(vmURL string) remoteWrite {
-	base, username, password := splitURLCredentials(vmURL)
-	writeURL, _ := url.JoinPath(base, "api/v1/write")
+func vmRemoteWrite(vmURL string) (remoteWrite, error) {
+	base, username, password, err := parseURLCredentials(vmURL)
+	if err != nil {
+		return remoteWrite{}, err
+	}
 
 	source := credentialVMURL
 	if username == "" && password == "" {
@@ -123,31 +137,48 @@ func vmRemoteWrite(vmURL string) remoteWrite {
 	}
 
 	return remoteWrite{
-		url:      writeURL,
+		url:      base.JoinPath("api/v1/write").String(),
 		username: username,
 		password: password,
 		source:   source,
-	}
+	}, nil
 }
 
-// splitURLCredentials strips credentials from a URL string and returns the clean URL
-// together with the extracted username and password (URL-decoded).
-// When no credentials are present, the URL is returned unchanged with empty credentials.
-func splitURLCredentials(urlStr string) (string, string, string) {
-	if urlStr == "" {
-		return urlStr, "", ""
-	}
-
+// parseURLCredentials parses a URL and moves its userinfo, if any, out of the returned URL and
+// into the returned username and password (URL-decoded). The error never contains the URL,
+// because the URL may carry a password.
+func parseURLCredentials(urlStr string) (*url.URL, string, string, error) {
 	parsedURL, err := url.Parse(urlStr)
-	if err != nil || parsedURL.User == nil {
-		return urlStr, "", ""
+	if err != nil {
+		var urlErr *url.Error
+		if errors.As(err, &urlErr) {
+			err = urlErr.Err
+		}
+		return nil, "", "", fmt.Errorf("cannot parse the VictoriaMetrics URL: %w", err)
+	}
+	if parsedURL.User == nil {
+		return parsedURL, "", "", nil
 	}
 
 	username := parsedURL.User.Username()
 	password, _ := parsedURL.User.Password()
 	parsedURL.User = nil
 
-	return parsedURL.String(), username, password
+	return parsedURL, username, password, nil
+}
+
+// splitURLCredentials is parseURLCredentials for callers that keep the URL as a string. A URL
+// without credentials is returned unchanged.
+func splitURLCredentials(urlStr string) (string, string, string, error) {
+	parsedURL, username, password, err := parseURLCredentials(urlStr)
+	if err != nil {
+		return "", "", "", err
+	}
+	if username == "" && password == "" {
+		return urlStr, "", "", nil
+	}
+
+	return parsedURL.String(), username, password, nil
 }
 
 // injectedVMAgentEnv returns every VMAGENT_* variable set in PMM Server's environment.
@@ -176,7 +207,9 @@ func injectedVMAgentEnv() map[string]string {
 //     belong with whatever the operator configured.
 func buildVMAgentProcess(l *logrus.Entry, scrapeCfg string, rw remoteWrite) *agentv1.SetStateRequest_AgentProcess {
 	interfaceToBind := envvars.GetInterfaceToBind()
-	// Only keep the specified exceptions as command line arguments.
+	// These stay command-line flags on purpose: vmagent gives a flag priority over the
+	// environment variable of the same name, so an injected VMAGENT_* cannot move the scrape
+	// config, the temp dir, or the listen address away from where pmm-agent manages them.
 	args := []string{
 		"-envflag.enable=true",
 		"-envflag.prefix=VMAGENT_",
@@ -191,7 +224,7 @@ func buildVMAgentProcess(l *logrus.Entry, scrapeCfg string, rw remoteWrite) *age
 	}
 
 	injected := injectedVMAgentEnv()
-	_, urlInjected := injected[envRemoteWriteURL]
+	injectedURL, urlInjected := injected[envRemoteWriteURL]
 	_, usernameInjected := injected[envRemoteWriteUsername]
 	_, passwordInjected := injected[envRemoteWritePassword]
 
@@ -205,8 +238,7 @@ func buildVMAgentProcess(l *logrus.Entry, scrapeCfg string, rw remoteWrite) *age
 	addEnvIfNotInjected(envRemoteWriteURL, rw.url)
 	addEnvIfNotInjected("VMAGENT_remoteWrite_tlsInsecureSkipVerify", "{{.server_insecure}}")
 	addEnvIfNotInjected("VMAGENT_promscrape_maxScrapeSize", maxScrapeSize)
-	// 1GB disk queue size.
-	addEnvIfNotInjected("VMAGENT_remoteWrite_maxDiskUsagePerURL", "1073741824")
+	addEnvIfNotInjected("VMAGENT_remoteWrite_maxDiskUsagePerURL", defaultRemoteWriteMaxDiskUsage)
 	addEnvIfNotInjected("VMAGENT_loggerLevel", "INFO")
 
 	if !urlInjected {
@@ -234,7 +266,12 @@ func buildVMAgentProcess(l *logrus.Entry, scrapeCfg string, rw remoteWrite) *age
 	}
 	remoteWriteURL := rw.url
 	if urlInjected {
+		// The injected URL may carry userinfo; log it without.
 		remoteWriteURL = "injected"
+		stripped, _, _, err := splitURLCredentials(injectedURL)
+		if err == nil {
+			remoteWriteURL = stripped
+		}
 	}
 	l.WithFields(logrus.Fields{
 		"remote_write_url":  remoteWriteURL,

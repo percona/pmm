@@ -230,7 +230,7 @@ func TestEnvVarValidator(t *testing.T) {
 		_, gotErrs, gotWarns := ParseEnvVars(envs)
 		assert.Nil(t, gotErrs)
 		require.Len(t, gotWarns, 1)
-		assert.Contains(t, gotWarns[0], "VMAGENT_remoteWrite_url redirects all PMM Client metric writes")
+		assert.Contains(t, gotWarns[0], "VMAGENT_remoteWrite_url redirects the metric writes")
 	})
 
 	t.Run("VMAGENT_remoteWrite_url with credentials does not warn", func(t *testing.T) {
@@ -250,13 +250,91 @@ func TestEnvVarValidator(t *testing.T) {
 	t.Run("VMAGENT credentials without a remote-write URL do not warn", func(t *testing.T) {
 		t.Parallel()
 
-		// The shape the HA chart injects: credentials only, no URL override.
+		// Credentials without a URL override (what HA charts injected before the PMM_HA_VM_* keys).
 		envs := []string{
 			"VMAGENT_remoteWrite_basicAuth_username=victoriametrics_pmm",
 			"VMAGENT_remoteWrite_basicAuth_password=vm-password",
 		}
 
 		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("VMAGENT_remoteWrite_url set but empty is an error", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VMAGENT_remoteWrite_url="})
+		require.Len(t, gotErrs, 1)
+		assert.Contains(t, gotErrs[0].Error(), "set but empty")
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("VMAGENT_remoteWrite_url with half a basic-auth pair warns about the pair", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_remoteWrite_basicAuth_username=collector",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		require.Len(t, gotWarns, 1)
+		assert.Contains(t, gotWarns[0], "only one of")
+	})
+
+	t.Run("VMAGENT_remoteWrite_url with credentials in the URL does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VMAGENT_remoteWrite_url=https://collector:secret@collector.example.com/api/v1/write"})
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("VMAGENT_remoteWrite_url with a bearer token does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_remoteWrite_bearerToken=abc",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("an upper-cased VMAGENT_REMOTEWRITE_URL is inert and does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VMAGENT_REMOTEWRITE_URL=https://collector.example.com/api/v1/write"})
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("a URL override among other variables produces exactly one warning", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_ENABLE_UPDATES=true",
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_loggerLevel=INFO",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Len(t, gotWarns, 1)
+	})
+
+	t.Run("PMM_VM_URL must be an http or https URL with a host", func(t *testing.T) {
+		t.Parallel()
+
+		for _, bad := range []string{"vm:8428", "//vm:8428/", "vm.example.com", "ftp://vm:8428"} {
+			_, gotErrs, _ := ParseEnvVars([]string{"PMM_VM_URL=" + bad})
+			assert.Len(t, gotErrs, 1, bad)
+		}
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"PMM_VM_URL=http://user:pass@vm:8428"})
 		assert.Nil(t, gotErrs)
 		assert.Nil(t, gotWarns)
 	})

@@ -115,10 +115,6 @@ linters:
           - unusedwrite      # not critical for tests
         path: _test\.go
       - linters:
-          - gosec
-        path: _test\.go
-        text: G101         # fixture credentials in test URLs are not real secrets
-      - linters:
           - recvcheck
         path: managed/models/
       - linters:
