@@ -18,6 +18,7 @@ package inventory
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
@@ -27,6 +28,10 @@ import (
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/utils/logger"
 )
+
+// serviceAccountCleanupTimeout bounds the Grafana calls of Remove: the Node is gone by then,
+// and an unresponsive Grafana must not hold the request.
+const serviceAccountCleanupTimeout = 10 * time.Second
 
 // NodesService works with inventory API Nodes.
 type NodesService struct {
@@ -365,7 +370,9 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 
 	// pmm-agent authenticates with a token of the Grafana service account named after the Node.
 	// Drop the account, so that the token does not outlive the Node.
-	_, err = s.grafanaClient.DeleteServiceAccount(ctx, node.NodeName, force)
+	cleanupCtx, cancel := context.WithTimeout(ctx, serviceAccountCleanupTimeout)
+	defer cancel()
+	_, err = s.grafanaClient.DeleteServiceAccount(cleanupCtx, node.NodeName, force)
 	if err != nil {
 		logger.Get(ctx).Warnf("Failed to delete the service account of node %s: %s", node.NodeName, err)
 	}
