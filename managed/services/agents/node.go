@@ -16,6 +16,7 @@
 package agents
 
 import (
+	"slices"
 	"sort"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -31,6 +32,68 @@ import (
 var (
 	v2_28_00 = version.MustParse("2.28.0-0")
 )
+
+// defaultEnabledNodeExporterCollectors lists collectors that node_exporter enables on Linux on its own,
+// as of node_exporter 1.8.2. Dropping the "--collector.<name>" flag does not stop those, so disabling one
+// means passing "--no-collector.<name>" explicitly. 14 of them are in the "disabled" block below already,
+// which is why they are appended only when missing.
+//
+// Entries are exact node_exporter collector names, the same way DisabledCollectors is matched everywhere
+// else, so a name here never stands for a family of collectors. In particular "textfile" is the upstream
+// base collector alone: the textfile metrics PMM actually collects come from the separate, default-off
+// "textfile.hr"/"textfile.mr"/"textfile.lr" collectors, and silencing those means listing them by name so
+// that FilterOutCollectors drops their "--collector." flag. Disabling a collector must stay in sync with
+// scrapeConfigsForNodeExporter, which filters the same names out of "collect[]" - naming a disabled
+// collector there makes node_exporter answer the whole resolution endpoint with HTTP 400.
+var defaultEnabledNodeExporterCollectors = []string{
+	"arp",
+	"bcache",
+	"bonding",
+	"btrfs",
+	"conntrack",
+	"cpu",
+	"cpufreq",
+	"diskstats",
+	"dmi",
+	"edac",
+	"entropy",
+	"fibrechannel",
+	"filefd",
+	"filesystem",
+	"hwmon",
+	"infiniband",
+	"ipvs",
+	"loadavg",
+	"mdadm",
+	"meminfo",
+	"netclass",
+	"netdev",
+	"netstat",
+	"nfs",
+	"nfsd",
+	"nvme",
+	"os",
+	"powersupplyclass",
+	"pressure",
+	"rapl",
+	"schedstat",
+	"selinux",
+	"sockstat",
+	"softnet",
+	"stat",
+	"tapestats",
+	// the upstream base collector only, not PMM's textfile.hr/textfile.mr/textfile.lr
+	"textfile",
+	"thermal_zone",
+	"time",
+	"timex",
+	"udp_queues",
+	"uname",
+	"vmstat",
+	"watchdog",
+	"xfs",
+	"zfs",
+}
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
@@ -123,6 +186,22 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 	}
 
 	args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
+
+	// Collectors are not tweaked on macOS, where node_exporter enables a different set by default.
+	// Older pmm-agents ship node_exporter builds that do not know all of the flags below and would exit.
+	if node.Distro != "darwin" && agentVersion.IsFeatureSupported(version.NodeExporterV1_8) {
+		disableArgs := collectors.DisableDefaultEnabledCollectors(
+			"--no-collector.",
+			defaultEnabledNodeExporterCollectors,
+			exporter.ExporterOptions.DisabledCollectors,
+		)
+		for _, arg := range disableArgs {
+			// some collectors are already disabled above
+			if !slices.Contains(args, arg) {
+				args = append(args, arg)
+			}
+		}
+	}
 
 	if exporter.ExporterOptions.MetricsPath != "" {
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
