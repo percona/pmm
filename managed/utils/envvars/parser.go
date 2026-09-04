@@ -326,6 +326,8 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		}
 	}
 
+	warns = append(warns, checkVMAgentRemoteWriteOverride(envs)...)
+
 	return envSettings, errs, warns
 }
 
@@ -341,6 +343,41 @@ func redactSecretEnvVar(key, value string) string {
 	}
 
 	return value
+}
+
+// checkVMAgentRemoteWriteOverride warns when VMAGENT_remoteWrite_url redirects client metric
+// writes to a custom endpoint but no credentials are supplied for it. PMM does not forward its
+// own remote-write credentials to an operator-chosen endpoint - on the server-proxy path those
+// are each client's PMM Server credentials - so such an endpoint receives unauthenticated writes.
+// See managed/services/agents/vmagent.go.
+//
+// Names are compared as written rather than folded: VMAGENT_ variables carry vmagent's own
+// camelCase flag names and are matched case-sensitively both by vmagent and when the client config
+// is built, so an upper-cased variant is inert and must not trigger this warning.
+func checkVMAgentRemoteWriteOverride(envs []string) []string {
+	var hasURL, hasUsername, hasPassword bool
+	for _, env := range envs {
+		switch name, _, _ := strings.Cut(env, "="); name {
+		case "VMAGENT_remoteWrite_url":
+			hasURL = true
+		case "VMAGENT_remoteWrite_basicAuth_username":
+			hasUsername = true
+		case "VMAGENT_remoteWrite_basicAuth_password":
+			hasPassword = true
+		}
+	}
+
+	if !hasURL || hasUsername || hasPassword {
+		return nil
+	}
+
+	return []string{
+		"VMAGENT_remoteWrite_url redirects all PMM Client metric writes to a custom endpoint, " +
+			"and PMM's own remote-write credentials are not sent there. Set " +
+			"VMAGENT_remoteWrite_basicAuth_username and VMAGENT_remoteWrite_basicAuth_password " +
+			"if that endpoint requires authentication; use the {{.server_username}} and " +
+			"{{.server_password}} placeholders to keep each client's own PMM Server credentials",
+	}
 }
 
 // parseStringDuration validate duration as string value.

@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -219,6 +220,45 @@ func TestEnvVarValidator(t *testing.T) {
 		gotEnvVars, _, gotWarns := ParseEnvVars(envs)
 		assert.Equal(t, expectedEnvVars, gotEnvVars)
 		assert.Equal(t, expectedWarns, gotWarns)
+	})
+
+	t.Run("VMAGENT_remoteWrite_url without credentials warns", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write"}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		require.Len(t, gotWarns, 1)
+		assert.Contains(t, gotWarns[0], "VMAGENT_remoteWrite_url redirects all PMM Client metric writes")
+	})
+
+	t.Run("VMAGENT_remoteWrite_url with credentials does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_remoteWrite_basicAuth_username=collector",
+			"VMAGENT_remoteWrite_basicAuth_password=secret",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("VMAGENT credentials without a remote-write URL do not warn", func(t *testing.T) {
+		t.Parallel()
+
+		// The shape the HA chart injects: credentials only, no URL override.
+		envs := []string{
+			"VMAGENT_remoteWrite_basicAuth_username=victoriametrics_pmm",
+			"VMAGENT_remoteWrite_basicAuth_password=vm-password",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
 	})
 
 	t.Run("Parse Platform API Timeout", func(t *testing.T) {
