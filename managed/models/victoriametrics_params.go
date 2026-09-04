@@ -16,6 +16,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -43,13 +44,32 @@ type VictoriaMetricsParams struct {
 	url *url.URL
 }
 
-// NewVictoriaMetricsParams - returns configuration params for VictoriaMetrics.
-func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsParams, error) {
+// ParseVictoriaMetricsURL parses and validates a VictoriaMetrics base URL (PMM_VM_URL): an http or
+// https URL with a host. A trailing slash is appended when missing so that paths resolve under it.
+// Error messages never echo credentials the URL may carry.
+func ParseVictoriaMetricsURL(vmURL string) (*url.URL, error) {
 	if !strings.HasSuffix(vmURL, "/") {
 		vmURL += "/"
 	}
 
 	URL, err := url.Parse(vmURL)
+	if err != nil {
+		var urlErr *url.Error
+		if errors.As(err, &urlErr) {
+			err = urlErr.Err
+		}
+		return nil, fmt.Errorf("invalid VictoriaMetrics URL: %w", err)
+	}
+	if (URL.Scheme != "http" && URL.Scheme != "https") || URL.Host == "" || URL.Opaque != "" {
+		return nil, fmt.Errorf("invalid VictoriaMetrics URL '%s': expected http(s)://host[:port][/path]", URL.Redacted())
+	}
+
+	return URL, nil
+}
+
+// NewVictoriaMetricsParams - returns configuration params for VictoriaMetrics.
+func NewVictoriaMetricsParams(basePath, vmURL string) (*VictoriaMetricsParams, error) {
+	URL, err := ParseVictoriaMetricsURL(vmURL)
 	if err != nil {
 		return nil, err
 	}
@@ -120,17 +140,4 @@ func (vmp *VictoriaMetricsParams) URLFor(path string) (*url.URL, error) {
 		return vmp.url, nil
 	}
 	return vmp.url.Parse(path)
-}
-
-// VMAgentArgs returns additional arguments for vmagents.
-func (vmp *VictoriaMetricsParams) VMAgentArgs() []string {
-	if vmp.url.User != nil {
-		username := vmp.url.User.Username()
-		password, _ := vmp.url.User.Password()
-		return []string{
-			"-remoteWrite.basicAuth.username=" + username,
-			"-remoteWrite.basicAuth.password=" + password,
-		}
-	}
-	return []string{}
 }

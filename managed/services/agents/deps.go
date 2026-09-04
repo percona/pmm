@@ -17,7 +17,6 @@ package agents
 
 import (
 	"context"
-	"net/url"
 	"time"
 
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
@@ -67,9 +66,7 @@ type jobsService interface {
 // We use it instead of real type to avoid dependency cycle.
 type victoriaMetricsParams interface {
 	ExternalVM() bool
-	URLFor(path string) (*url.URL, error)
 	URL() string
-	VMAgentArgs() []string
 }
 
 // victoriaMetricsClient is a subset of methods of prometheus' API used by this package.

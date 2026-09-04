@@ -17,9 +17,11 @@
 package envvars
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -66,6 +68,8 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
 //   - the environment variables prefixed with GF_ are related to Grafana.
+//   - the environment variables prefixed with VMAGENT_ are forwarded to every vmagent PMM Server manages;
+//     VMAGENT_remoteWrite_url is validated by checkVMAgentRemoteWriteOverride.
 //   - the environment variables related to proxies
 //   - the environment variable set by podman
 func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []string) { //nolint:gocognit,cyclop,maintidx
@@ -218,9 +222,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			envSettings.PMMPublicAddress = new(v)
 
 		case "PMM_VM_URL":
-			_, err = url.Parse(v)
+			_, err := models.ParseVictoriaMetricsURL(v)
 			if err != nil {
-				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				errs = append(errs, fmt.Errorf("invalid value for environment variable %s: %w", k, err))
 			}
 
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
@@ -326,6 +330,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		}
 	}
 
+	overrideErrs, overrideWarns := checkVMAgentRemoteWriteOverride(envs)
+	errs = append(errs, overrideErrs...)
+	warns = append(warns, overrideWarns...)
+
 	return envSettings, errs, warns
 }
 
@@ -340,7 +348,108 @@ func redactSecretEnvVar(key, value string) string {
 		}
 	}
 
+	// A URL with userinfo (PMM_VM_URL, VMAGENT_remoteWrite_url): keep scheme and host, drop the credentials.
+	if scheme := strings.Index(value, "://"); scheme >= 0 {
+		if at := strings.LastIndex(value, "@"); at > scheme {
+			return value[:scheme+3] + "<redacted>@" + value[at+1:]
+		}
+	}
+
 	return value
+}
+
+// Names of the vmagent remote-write variables PMM Server sets by default. An operator may inject
+// them on PMM Server to override the defaults for every vmagent it manages. The password name is
+// a variable name, not a secret.
+const (
+	EnvVMAgentRemoteWriteURL      = "VMAGENT_remoteWrite_url"
+	EnvVMAgentRemoteWriteUsername = "VMAGENT_remoteWrite_basicAuth_username"
+	EnvVMAgentRemoteWritePassword = "VMAGENT_remoteWrite_basicAuth_password" //nolint:gosec
+)
+
+// VMAgentRemoteWriteAuth classifies the remote-write authentication an operator configured
+// through VMAGENT_* variables.
+type VMAgentRemoteWriteAuth int
+
+const (
+	// VMAgentRemoteWriteAuthNone means no authentication variable is set.
+	VMAgentRemoteWriteAuthNone VMAgentRemoteWriteAuth = iota
+	// VMAgentRemoteWriteAuthPartial means only one of the basic-auth pair is set.
+	VMAgentRemoteWriteAuthPartial
+	// VMAgentRemoteWriteAuthComplete means both basic-auth variables, or another vmagent
+	// authentication method, are set.
+	VMAgentRemoteWriteAuthComplete
+)
+
+// remoteWriteAuthEnvs are the vmagent authentication methods other than the basic-auth pair.
+var remoteWriteAuthEnvs = []string{
+	"VMAGENT_remoteWrite_basicAuth_passwordFile",
+	"VMAGENT_remoteWrite_bearerToken",
+	"VMAGENT_remoteWrite_bearerTokenFile",
+	"VMAGENT_remoteWrite_oauth2_clientID",
+	"VMAGENT_remoteWrite_headers",
+	"VMAGENT_remoteWrite_tlsCertFile",
+}
+
+// VMAgentRemoteWriteAuthFromEnv classifies the VMAGENT_* variables in env, keyed by name. Names are
+// matched case-sensitively, like vmagent matches them.
+func VMAgentRemoteWriteAuthFromEnv(env map[string]string) VMAgentRemoteWriteAuth {
+	_, hasUsername := env[EnvVMAgentRemoteWriteUsername]
+	_, hasPassword := env[EnvVMAgentRemoteWritePassword]
+	hasOtherAuth := slices.ContainsFunc(remoteWriteAuthEnvs, func(name string) bool {
+		_, ok := env[name]
+		return ok
+	})
+
+	switch {
+	case hasUsername && hasPassword, hasOtherAuth:
+		return VMAgentRemoteWriteAuthComplete
+	case hasUsername || hasPassword:
+		return VMAgentRemoteWriteAuthPartial
+	}
+
+	return VMAgentRemoteWriteAuthNone
+}
+
+// checkVMAgentRemoteWriteOverride validates the operator's VMAGENT_remoteWrite_* variables. Half a
+// basic-auth pair is always reported. An injected VMAGENT_remoteWrite_url must not be empty, and is
+// reported when no credential accompanies it, because PMM's own remote-write credential is not
+// sent to an endpoint PMM did not choose. The vmagent flag names are camelCase and matched
+// case-sensitively both by vmagent and when the client config is built, so an upper-cased variant
+// is inert and must not trigger these checks.
+func checkVMAgentRemoteWriteOverride(envs []string) ([]error, []string) {
+	vmagentEnv := make(map[string]string)
+	for _, env := range envs {
+		if name, value, ok := strings.Cut(env, "="); ok && strings.HasPrefix(name, EnvVMAgentPrefix) {
+			vmagentEnv[name] = value
+		}
+	}
+
+	var warns []string
+	auth := VMAgentRemoteWriteAuthFromEnv(vmagentEnv)
+	if auth == VMAgentRemoteWriteAuthPartial {
+		warns = append(warns, "only one of VMAGENT_remoteWrite_basicAuth_username and VMAGENT_remoteWrite_basicAuth_password is set; "+
+			"set both: the lone half is paired with PMM's own default or, with VMAGENT_remoteWrite_url, sent alone, "+
+			"and either fails authentication")
+	}
+
+	writeURL, hasURL := vmagentEnv[EnvVMAgentRemoteWriteURL]
+	if !hasURL {
+		return nil, warns
+	}
+	if writeURL == "" {
+		return []error{errors.New("VMAGENT_remoteWrite_url is set but empty, which would disable metric writes on every vmagent PMM Server manages")}, warns
+	}
+	if auth != VMAgentRemoteWriteAuthNone || strings.Contains(writeURL, "@") {
+		return nil, warns
+	}
+
+	return nil, append(warns,
+		"VMAGENT_remoteWrite_url redirects the metric writes of every vmagent PMM Server manages to a custom endpoint, "+
+			"and PMM's own remote-write credentials are not sent there. Set "+
+			"VMAGENT_remoteWrite_basicAuth_username and VMAGENT_remoteWrite_basicAuth_password "+
+			"if that endpoint requires authentication; if the endpoint is a PMM Server, the {{.server_username}} and "+
+			"{{.server_password}} placeholders keep each client's own PMM Server credentials")
 }
 
 // parseStringDuration validate duration as string value.

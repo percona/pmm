@@ -79,8 +79,8 @@ To install PMM HA:
         --from-literal=PMM_CLICKHOUSE_PASSWORD="clickhouse-password" \
         --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
         --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="clickhouse-readonly-password" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-        --from-literal=VMAGENT_remoteWrite_basicAuth_password="vm-password" \
+        --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+        --from-literal=PMM_HA_VM_PASSWORD="vm-password" \
         --from-literal=PG_PASSWORD="postgres-password" \
         --from-literal=GF_PASSWORD="grafana-password" \
         --namespace pmm
@@ -198,6 +198,9 @@ To install PMM HA:
 
     This prevents Helm from overwriting your secrets during upgrades and keeps sensitive credentials out of your `values.yaml` file.
 
+    !!! note alert alert-primary "VictoriaMetrics credential keys"
+        Store the VictoriaMetrics credential under `PMM_HA_VM_USERNAME` and `PMM_HA_VM_PASSWORD`, never under `VMAGENT_`-prefixed names: PMM Server forwards every `VMAGENT_*` variable it finds to all PMM Clients, including to any endpoint an operator redirects their writes to. Technical Preview installations that used `VMAGENT_remoteWrite_basicAuth_username` and `VMAGENT_remoteWrite_basicAuth_password` must rename those two keys in `pmm-secret` before upgrading.
+
     === "Using kubectl (recommended)"
 
         ```sh
@@ -207,8 +210,8 @@ To install PMM HA:
           --from-literal=PMM_CLICKHOUSE_PASSWORD="your-clickhouse-password" \
           --from-literal=PMM_CLICKHOUSE_DATASOURCE_USER="clickhouse_pmm_readonly" \
           --from-literal=PMM_CLICKHOUSE_DATASOURCE_PASSWORD="your-clickhouse-readonly-password" \
-          --from-literal=VMAGENT_remoteWrite_basicAuth_username="victoriametrics_pmm" \
-          --from-literal=VMAGENT_remoteWrite_basicAuth_password="your-vm-password" \
+          --from-literal=PMM_HA_VM_USERNAME="victoriametrics_pmm" \
+          --from-literal=PMM_HA_VM_PASSWORD="your-vm-password" \
           --from-literal=PG_PASSWORD="your-postgres-password" \
           --from-literal=GF_PASSWORD="your-grafana-password" \
           --namespace pmm
@@ -233,8 +236,8 @@ To install PMM HA:
           PMM_CLICKHOUSE_PASSWORD: "your-clickhouse-password"
           PMM_CLICKHOUSE_DATASOURCE_USER: "clickhouse_pmm_readonly"
           PMM_CLICKHOUSE_DATASOURCE_PASSWORD: "your-clickhouse-readonly-password"
-          VMAGENT_remoteWrite_basicAuth_username: "victoriametrics_pmm"
-          VMAGENT_remoteWrite_basicAuth_password: "your-vm-password"
+          PMM_HA_VM_USERNAME: "victoriametrics_pmm"
+          PMM_HA_VM_PASSWORD: "your-vm-password"
           PG_PASSWORD: "your-postgres-password"
           GF_PASSWORD: "your-grafana-password"
     ```
@@ -773,6 +776,15 @@ pmm-admin config \
   --server-insecure-tls
 ```
 
+### How client metrics reach VictoriaMetrics
+
+PMM Clients push metrics with a `vmagent` process that PMM Server configures for them. In PMM HA, PMM Server tells every client to write to the PMM Server address the client already uses, at the path `/victoriametrics/api/v1/write`, authenticated with the VictoriaMetrics credentials from `pmm-secret`. HAProxy routes exactly that path to the in-cluster `vmauth` service, so metric writes never pass through the PMM Server pods, and clients outside the cluster can send metrics although VictoriaMetrics itself is not exposed. All other requests, including VictoriaMetrics queries from the PMM UI, continue to go to the PMM Server pods behind PMM authentication. PMM Server's own agents, which run inside the pods, write to `vmauth` directly.
+
+!!! caution alert alert-warning "Upgrade the chart before PMM Server"
+    This write path requires the `pmm-ha` chart release that accompanies this PMM Server release, which adds the HAProxy route. Upgrade the chart first, then PMM Server. A PMM Server that expects the route, running behind an older chart, cannot deliver client metrics: HAProxy sends the writes to the PMM Server pods, which reject them with `401 Unauthorized` because the VictoriaMetrics credential the clients present is not a PMM credential, and services added with `pmm-admin` show no dashboard data. An updated chart with an older PMM Server is harmless.
+
+The write endpoint is reachable wherever HAProxy is reachable (see [Configure external access](#configure-external-access)) and is protected by HTTP basic authentication with the shared VictoriaMetrics credentials. To revoke a client's ability to write metrics, rotate that credential.
+
 ### Monitor PostgreSQL databases
 
 To add PostgreSQL monitoring to PMM HA, see [Deploy a PMM client](https://docs.percona.com/percona-operator-for-postgresql/latest/monitoring.html#deploy-a-pmm-client) in the Percona PostgreSQL Operator documentation.
@@ -1098,7 +1110,6 @@ We are aware of the following issues in this Tech Preview version and plan to fi
 | Issue | Impact | Workaround |
 |-------|--------|------------|
 | **[PMM-14704](https://perconadev.atlassian.net/browse/PMM-14704)**: PostgreSQL nodes in dropdown | Node selector shows database instances alongside PMM nodes | Select only nodes named `pmm-ha-0`, `pmm-ha-1`, `pmm-ha-2` |
-| **[PMM-14705](https://perconadev.atlassian.net/browse/PMM-14705)**: CLI-added services show no metrics | Services from `pmm-admin` appear as UNSPECIFIED, dashboards empty (QAN works) | Add services via PMM UI instead |
 | **[PMM-14706](https://perconadev.atlassian.net/browse/PMM-14706)**: Extra 'pmm-' prefix | PostgreSQL nodes show as `pmm-pmm-ha-pg-...` | Cosmetic only - no action needed |
 | **[PMM-14707](https://perconadev.atlassian.net/browse/PMM-14707)**: Wrong PostgreSQL status | Inventory shows FAILED/UNSPECIFIED despite working metrics | Check dashboards to verify metrics flow |
 | **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |                                   
