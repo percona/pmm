@@ -38,6 +38,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
+	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/distribution"
@@ -66,6 +67,7 @@ type Server struct {
 	haService            haService
 	updater              *Updater
 	nomad                nomadService
+	omService            omService
 
 	l *logrus.Entry
 
@@ -92,6 +94,7 @@ type Params struct {
 	Dus                  *distribution.Service
 	HAService            haService
 	Nomad                nomadService
+	OmService            omService
 }
 
 // NewServer returns new server for Server service.
@@ -117,6 +120,7 @@ func NewServer(params *Params) (*Server, error) {
 		updater:              params.Updater,
 		haService:            params.HAService,
 		nomad:                params.Nomad,
+		omService:            params.OmService,
 		l:                    logrus.WithField("component", "server"),
 		envSettings:          &models.ChangeSettingsParams{},
 	}
@@ -484,6 +488,11 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via PMM_ENABLE_AZURE_DISCOVER environment variable.")
 	}
 
+	err := s.validateEnableOm(ctx, req.EnableOm)
+	if err != nil {
+		return err
+	}
+
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
 		return status.Error(
 			codes.FailedPrecondition,
@@ -501,6 +510,29 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 
 	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
 		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
+	}
+
+	return nil
+}
+
+// validateEnableOm checks an EnableOm request value against the environment override
+// and, when it would turn OpenManager on, against SEP's own availability.
+func (s *Server) validateEnableOm(ctx context.Context, enableOm *bool) error {
+	if enableOm != nil && s.envSettings.EnableOM != nil && *enableOm != *s.envSettings.EnableOM {
+		return status.Error(codes.FailedPrecondition, "OpenManager is configured via PMM_ENABLE_OM environment variable.")
+	}
+
+	if enableOm == nil || !*enableOm {
+		return nil
+	}
+
+	currentSettings, err := models.GetSettings(s.db.WithContext(ctx))
+	if err != nil {
+		return status.Errorf(codes.Internal, "failed to get server settings: %s", err)
+	}
+
+	if !currentSettings.IsOMEnabled() && (s.omService == nil || !s.omService.IsAvailable(ctx)) {
+		return status.Error(codes.FailedPrecondition, "OpenManager cannot be enabled: the OpenManager Inventory app is not available in SEP.")
 	}
 
 	return nil
@@ -536,6 +568,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			EnableBackupManagement: req.EnableBackupManagement,
 			EnableAccessControl:    req.EnableAccessControl,
 			EnableInternalPgQAN:    req.EnableInternalPgQan,
+			EnableOM:               req.EnableOm,
 			AdvisorsRunInterval: models.AdvisorsRunIntervals{
 				RareInterval:     advisorsRunInterval.GetRareInterval().AsDuration(),
 				StandardInterval: advisorsRunInterval.GetStandardInterval().AsDuration(),
@@ -627,9 +660,34 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 	}
 
+	s.triggerOMCollectionIfJustEnabled(ctx, oldSettings, newSettings)
+	s.syncOMInventoryEnabledIfChanged(ctx, oldSettings, newSettings)
+
 	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, disableInternalPgQan),
 	}, nil
+}
+
+// triggerOMCollectionIfJustEnabled kicks a topology collection so OpenManager's page is
+// not empty on first view, instead of waiting out the next scheduled tick.
+func (s *Server) triggerOMCollectionIfJustEnabled(ctx context.Context, oldSettings, newSettings *models.Settings) {
+	if oldSettings.IsOMEnabled() || !newSettings.IsOMEnabled() || s.omService == nil {
+		return
+	}
+	_, err := s.omService.TriggerTopologyCollection(ctx, &omv1.TriggerTopologyCollectionRequest{})
+	if err != nil {
+		s.l.WithError(err).Warn("failed to trigger OpenManager topology collection after enabling")
+	}
+}
+
+// syncOMInventoryEnabledIfChanged tells SEP's om_inventory app to start or stop its
+// own estate sweep alongside this switch, on either transition -- unlike
+// triggerOMCollectionIfJustEnabled, which only reacts to enabling.
+func (s *Server) syncOMInventoryEnabledIfChanged(ctx context.Context, oldSettings, newSettings *models.Settings) {
+	if oldSettings.IsOMEnabled() == newSettings.IsOMEnabled() || s.omService == nil {
+		return
+	}
+	s.omService.SyncInventoryEnabled(ctx, newSettings.IsOMEnabled())
 }
 
 func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error) {

@@ -157,6 +157,73 @@ func (s *Service) WithProbeSource(sepURL, token string) *Service {
 	return s
 }
 
+// Enabled returns true if OpenManager is enabled, so every /v1/om/* RPC and the
+// scheduled collection in Run refuse while it is off, via the same generic
+// gRPC-service-enabled interceptor BackupService and the other preview features use.
+func (s *Service) Enabled() bool {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		s.l.WithError(err).Error("can't get settings")
+		return false
+	}
+	return settings.IsOMEnabled()
+}
+
+// IsAvailable reports whether SEP's om_inventory app is configured and reachable.
+//
+// Used to gate turning OpenManager on: an admin flipping the switch with no inventory
+// app to talk to would enable a UI backed by a source that can never answer, with no
+// way to tell "off" from "broken" apart from reading logs. It does not drive anything
+// on SEP's side -- this is the same read every scheduled collection already performs
+// via probeSource.collect, just run once up front rather than waited out.
+func (s *Service) IsAvailable(ctx context.Context) bool {
+	if s.probe == nil || s.probe.app.client == nil {
+		return false
+	}
+	_, err := s.probe.fetch(ctx)
+	return err == nil
+}
+
+// SyncInventoryEnabled tells SEP's om_inventory app whether OpenManager is on, and
+// on enabling, kicks an immediate sweep instead of leaving the estate to wait out
+// SCHEDULE's own interval.
+//
+// PATCHes ENABLED rather than SCHEDULE: the app keeps its own configured cadence
+// (an operator's SCHEDULE override) independent of whether OpenManager is turned
+// on, so toggling this switch off and back on does not reset a customized interval
+// back to the app's default. See OmInventorySettings in SEP for the other half.
+//
+// The immediate sweep exists because a freshly (re-)enabled periodic task in SEP's
+// beat store is not due until one full SCHEDULE interval has elapsed -- there is no
+// "run once now, then repeat" concept in an interval schedule, so a 60-minute
+// cadence would otherwise leave the estate empty for up to an hour after being
+// turned on. Mirrors triggerOMCollectionIfJustEnabled, PMM's own equivalent kick for
+// its topology page.
+//
+// Both calls are best-effort: a stale write, or a sweep that does not fire, means
+// SEP is briefly out of step with PMM's switch, not a broken settings change, so
+// failure is logged rather than returned to the caller -- matching
+// triggerOMCollectionIfJustEnabled, the other side effect ChangeSettings fires on
+// this same transition.
+func (s *Service) SyncInventoryEnabled(ctx context.Context, enabled bool) {
+	if s.probe == nil || s.probe.app.client == nil {
+		return
+	}
+	err := s.probe.app.patchConfig(ctx, map[string]any{"ENABLED": enabled})
+	if err != nil {
+		s.l.WithError(err).WithField("enabled", enabled).
+			Warn("failed to sync OpenManager's on/off state to SEP's om_inventory app")
+		return
+	}
+	if !enabled {
+		return
+	}
+	err = s.probe.app.triggerRun(ctx)
+	if err != nil {
+		s.l.WithError(err).Warn("failed to trigger an immediate SEP inventory sweep after enabling OpenManager")
+	}
+}
+
 // GetTopology returns the whole MongoDB estate as one document.
 //
 // A pure read path: memory, then the stored snapshot, never a collection. Collection is
@@ -261,6 +328,9 @@ func (s *Service) Run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
+			if !s.Enabled() {
+				continue
+			}
 			_, err := s.discover(ctx)
 			if err != nil && ctx.Err() == nil {
 				s.l.Warnf("scheduled collection failed: %s", err)
