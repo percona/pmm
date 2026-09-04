@@ -45,6 +45,10 @@ export const Messages = {
     accessControlTooltip:
       'Restrict data visibility based on user roles and labels.',
     accessControlLink: 'https://per.co.na/roles_permissions',
+    openManagerLabel: 'OpenManager',
+    openManagerTooltip:
+      'Option to enable/disable OpenManager, PMM periodic collection and the OpenManager Inventory app.',
+    openManagerLink: 'https://per.co.na/pmm-feature-status',
     publicAddressLabel: 'Public address',
     publicAddressTooltip:
       'The address or hostname PMM Server will be accessible at.',
