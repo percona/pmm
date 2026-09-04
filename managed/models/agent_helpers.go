@@ -53,7 +53,7 @@ func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
 		// this prevents unsupported parameters from being passed to the mysql config.
 		for k := range params.GetExtraDsnParams() {
 			switch k {
-			case "allowCleartextPasswords":
+			case "allowCleartextPasswords", "time_zone":
 				continue
 			default:
 				return MySQLOptions{}, status.Errorf(codes.InvalidArgument, "Unsupported DSN parameter: %s", k)
