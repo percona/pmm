@@ -16,6 +16,7 @@ export const READONLY_SETTINGS_MOCK: ReadonlySettings = {
   azurediscoverEnabled: false,
   enableAccessControl: false,
   sepEnabled: false,
+  omEnabled: false,
 };
 
 export const SETTINGS_MOCK: Settings = {
