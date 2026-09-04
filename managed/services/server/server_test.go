@@ -19,10 +19,12 @@ import (
 	"context"
 	"errors"
 	"math"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -354,6 +356,53 @@ func TestServer(t *testing.T) {
 			for name, n := range seen {
 				assert.Equal(t, 1, n, "setting %s is named %d times", name, n)
 			}
+		})
+	})
+
+	t.Run("DataRetentionIsReportedAtStartUp", func(t *testing.T) {
+		// A boot-time setting has no other feedback channel, so the line itself is the
+		// contract: assert the level, since that is what decides whether an operator sees it.
+		run := func(t *testing.T, haEnabled bool, env []string) *logrustest.Hook {
+			t.Helper()
+
+			s := newServerWithHA(t, haEnabled)
+			l, hook := logrustest.NewNullLogger()
+			s.l = l.WithField("component", "server-test")
+			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), env))
+
+			return hook
+		}
+
+		retentionEntry := func(t *testing.T, hook *logrustest.Hook) *logrus.Entry {
+			t.Helper()
+
+			for _, e := range hook.AllEntries() {
+				if strings.HasPrefix(e.Message, "Data retention:") {
+					return e
+				}
+			}
+			t.Fatal("the effective data retention was never reported")
+
+			return nil
+		}
+
+		t.Run("HA without the environment variable warns", func(t *testing.T) {
+			e := retentionEntry(t, run(t, true, nil))
+			assert.Equal(t, logrus.WarnLevel, e.Level, "an HA deployment with no retention supplied must be warned about")
+			assert.Contains(t, e.Message, "dataRetentionDays", "the message must say where the value should come from")
+		})
+
+		t.Run("HA with the environment variable is informational", func(t *testing.T) {
+			e := retentionEntry(t, run(t, true, []string{"PMM_DATA_RETENTION=240h"}))
+			assert.Equal(t, logrus.InfoLevel, e.Level)
+			assert.Contains(t, e.Message, "10d")
+			assert.Contains(t, e.Message, "PMM_DATA_RETENTION")
+		})
+
+		t.Run("standalone is informational", func(t *testing.T) {
+			e := retentionEntry(t, run(t, false, nil))
+			assert.Equal(t, logrus.InfoLevel, e.Level)
+			assert.Contains(t, e.Message, "changeable through the settings API")
 		})
 	})
 

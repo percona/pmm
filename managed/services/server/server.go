@@ -138,19 +138,53 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 		return errs
 	}
 
+	var newSettings *models.Settings
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		_, err := models.UpdateSettings(tx, envSettings)
+		var err error
+		newSettings, err = models.UpdateSettings(tx, envSettings)
 		return err
 	})
 	if err != nil {
 		return []error{err}
 	}
 	s.envSettings = envSettings
+	s.logDataRetention(newSettings)
 	err = s.UpdateConfigurations(ctx)
 	if err != nil {
 		return []error{err}
 	}
 	return nil
+}
+
+// logDataRetention reports the retention period in force and where it came from.
+//
+// A boot-time setting has no other feedback channel. In an HA cluster the value cannot be read
+// back out of the UI as confirmation that it took effect, because the field is not writable
+// there, so this line is what answers "what is this replica actually enforcing".
+func (s *Server) logDataRetention(settings *models.Settings) {
+	days := settings.DataRetentionDays()
+	fromEnv := s.envSettings.DataRetention != 0
+
+	if !s.haService.Params().Enabled {
+		if fromEnv {
+			s.l.Infof("Data retention: %dd, set by PMM_DATA_RETENTION.", days)
+			return
+		}
+		s.l.Infof("Data retention: %dd, changeable through the settings API.", days)
+
+		return
+	}
+
+	if fromEnv {
+		s.l.Infof("Data retention: %dd, set by PMM_DATA_RETENTION and fixed for the lifetime of this process.", days)
+		return
+	}
+
+	// Warned rather than corrected. Substituting the default would silently shorten retention
+	// for a deployment that had a longer period stored, and deleted metrics do not come back.
+	s.l.Warnf("Data retention: %dd, carried over from the stored settings. High availability is enabled "+
+		"and PMM_DATA_RETENTION is not set, so nothing can change this value while this process runs. "+
+		"The pmm-ha chart is expected to supply it through dataRetentionDays.", days)
 }
 
 // Version returns PMM Server version.
