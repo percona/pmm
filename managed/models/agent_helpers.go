@@ -333,7 +333,16 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 
 // FindAgentByID finds Agent by ID.
 func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
-	return findAgentByID(q, id, false)
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Agent ID.")
+	}
+
+	agent := &Agent{AgentID: id}
+	err := q.Reload(agent)
+	if err != nil {
+		return nil, agentLookupError(err, id)
+	}
+	return new(DecryptAgent(*agent)), nil
 }
 
 // FindAgentByIDForUpdate finds Agent by ID and locks its row (SELECT ... FOR UPDATE) for the
@@ -341,32 +350,31 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 // the row to decide whether a subsequent write in the same transaction is allowed: without the
 // lock, a concurrent transaction could commit a conflicting write in between, so the decision
 // would be based on data that is no longer current by the time it is acted on.
+//
+// It cannot reuse FindAgentByID's q.Reload: Reload builds the whole statement itself and leaves
+// nowhere to append FOR UPDATE, so the locking read needs its own SelectOneFrom.
 func FindAgentByIDForUpdate(q *reform.Querier, id string) (*Agent, error) {
-	return findAgentByID(q, id, true)
-}
-
-// findAgentByID backs both FindAgentByID and FindAgentByIDForUpdate so the not-found mapping and
-// the decryption stay in one place.
-func findAgentByID(q *reform.Querier, id string, forUpdate bool) (*Agent, error) {
 	if id == "" {
 		return nil, status.Error(codes.InvalidArgument, "Empty Agent ID.")
 	}
 
-	tail := "WHERE agent_id = $1"
-	if forUpdate {
-		tail += " FOR UPDATE"
-	}
-
-	row, err := q.SelectOneFrom(AgentTable, tail, id)
+	row, err := q.SelectOneFrom(AgentTable, "WHERE agent_id = $1 FOR UPDATE", id)
 	if err != nil {
-		if errors.Is(err, reform.ErrNoRows) {
-			return nil, status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
-		}
-		return nil, err
+		return nil, agentLookupError(err, id)
 	}
 
 	agent := row.(*Agent) //nolint:forcetypeassert
 	return new(DecryptAgent(*agent)), nil
+}
+
+// agentLookupError maps a failed single-agent lookup to the error both finders above return, so
+// the not-found status stays defined in one place.
+func agentLookupError(err error, id string) error {
+	if errors.Is(err, reform.ErrNoRows) {
+		return status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
+	}
+
+	return err
 }
 
 // FindAgentsByIDs finds Agents by IDs.
