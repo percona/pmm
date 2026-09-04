@@ -193,7 +193,7 @@
                     "step": 240
                 },
                 {
-                    "expr": "clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~\"$node_name\"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_MemFree_bytes{node_name=~\"$node_name\"}[5m]))+ \n(avg_over_time(node_memory_Buffers_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_Buffers_bytes{node_name=~\"$node_name\"}[5m])) + \n(avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\"}[5m]))))),0)",
+                    "expr": "clamp_min(avg by (node_name) (((avg_over_time(node_memory_MemTotal_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_MemTotal_bytes{node_name=~\"$node_name\"}[5m])) - ((avg_over_time(node_memory_MemFree_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_MemFree_bytes{node_name=~\"$node_name\"}[5m]))+ \n(avg_over_time(node_memory_Buffers_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_Buffers_bytes{node_name=~\"$node_name\"}[5m])) + \n(avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\"}[5m])) + \n((avg_over_time(node_memory_SReclaimable_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_SReclaimable_bytes{node_name=~\"$node_name\"}[5m])) - (avg_over_time(node_memory_Shmem_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_Shmem_bytes{node_name=~\"$node_name\"}[5m])) or (avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\"}[$interval]) or avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\"}[5m])) * 0)))),0)",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
@@ -203,7 +203,7 @@
                     "step": 240
                 },
                 {
-                    "expr": "avg by (node_name) (avg(avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\",job=~\"rds.*|node.*\"}[$interval]) or avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\",job=~\"rds.*|node.*\"}[5m])) without (job))",
+                    "expr": "avg by (node_name) (avg((avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\",job=~\"rds.*|node.*\"}[$interval]) or avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\",job=~\"rds.*|node.*\"}[5m])) + \n((avg_over_time(node_memory_SReclaimable_bytes{node_name=~\"$node_name\",job=~\"rds.*|node.*\"}[$interval]) or avg_over_time(node_memory_SReclaimable_bytes{node_name=~\"$node_name\",job=~\"rds.*|node.*\"}[5m])) - (avg_over_time(node_memory_Shmem_bytes{node_name=~\"$node_name\",job=~\"rds.*|node.*\"}[$interval]) or avg_over_time(node_memory_Shmem_bytes{node_name=~\"$node_name\",job=~\"rds.*|node.*\"}[5m])) or (avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\",job=~\"rds.*|node.*\"}[$interval]) or avg_over_time(node_memory_Cached_bytes{node_name=~\"$node_name\",job=~\"rds.*|node.*\"}[5m])) * 0)) without (job))",
                     "format": "time_series",
                     "hide": false,
                     "interval": "$interval",
