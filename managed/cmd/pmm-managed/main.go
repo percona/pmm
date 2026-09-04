@@ -112,7 +112,6 @@ import (
 	platformClient "github.com/percona/pmm/managed/utils/platform"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/utils/logger"
-	"github.com/percona/pmm/utils/managedapi"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 )
@@ -120,7 +119,7 @@ import (
 var (
 	interfaceToBind = envvars.GetInterfaceToBind()
 	gRPCAddr        = net.JoinHostPort(interfaceToBind, "7771")
-	http1Addr       = net.JoinHostPort(interfaceToBind, managedapi.HTTPPort)
+	http1Addr       = net.JoinHostPort(interfaceToBind, "7772")
 	debugAddr       = net.JoinHostPort(interfaceToBind, "7773")
 )
 
