@@ -101,8 +101,11 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         // is established; role/flag gating comes with real auth (Option B).
         items.push(...addSepApps());
 
-        // Served by pmm-managed, so it is not gated with the SEP group.
-        items.push(...addOm());
+        // Served by pmm-managed, so it is not gated with the SEP group -- gated
+        // on the settings flag alone.
+        if (settings?.omEnabled) {
+          items.push(...addOm());
+        }
 
         if (settings?.backupManagementEnabled) {
           items.push(NAV_BACKUPS);
