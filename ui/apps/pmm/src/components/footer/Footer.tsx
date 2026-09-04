@@ -1,7 +1,7 @@
 import { Stack, Typography } from '@mui/material';
 import { useUpdates } from 'contexts/updates';
 import { FC } from 'react';
-import { formatCheckDate } from './Footer.utils';
+import { getCheckStatus } from './Footer.utils';
 import { Messages } from './Footer.messages';
 
 export const Footer: FC = () => {
@@ -9,14 +9,7 @@ export const Footer: FC = () => {
 
   if (!versionInfo) return null;
 
-  const { lastCheck } = versionInfo;
-  let checkStatus: string | null = null;
-
-  if (inProgress) {
-    checkStatus = Messages.inProgress;
-  } else if (lastCheck) {
-    checkStatus = Messages.checkedOn(formatCheckDate(lastCheck));
-  }
+  const checkStatus = getCheckStatus(versionInfo, inProgress);
 
   return (
     <Stack direction="row" gap={2} data-testid="pmm-footer">
