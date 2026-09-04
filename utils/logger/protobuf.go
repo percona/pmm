@@ -192,8 +192,9 @@ func maskString(s string) string {
 	}
 }
 
-// envSecretRe matches KEY=value environment entries whose key names a secret.
-var envSecretRe = regexp.MustCompile(`(?i)^([A-Za-z0-9_]*(?:password|passwd|secret|token)[A-Za-z0-9_]*)=(.+)$`)
+// envSecretRe matches KEY=value environment entries whose key names a secret. The value may span
+// lines (the s flag), so a multiline secret cannot fall through to the DSN heuristic unmasked.
+var envSecretRe = regexp.MustCompile(`(?is)^([A-Za-z0-9_]*(?:password|passwd|secret|token)[A-Za-z0-9_]*)=(.+)$`)
 
 // MaskDSN returns a masked copy of DSN string, which masks username and password in DSN.
 // It also masks the value of a KEY=value environment entry whose key names a secret.
