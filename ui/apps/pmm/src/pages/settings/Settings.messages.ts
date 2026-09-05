@@ -169,10 +169,11 @@ export const Messages = {
     disconnectCancel: 'Cancel',
     disconnectSuccess: 'ServiceNow connection removed',
     // The delivery connectivity probe. SEP classifies every probe into one of
-    // `ConnectivityStatusEnum`'s members, so the record is keyed by the
-    // generated union — a member added to SEP fails to compile here rather
-    // than rendering nothing, and until it is written it falls back to
-    // `unknown` below.
+    // `ConnectivityStatusEnum`'s members, so the record is checked against the
+    // generated union — `satisfies`, not `as`, so a member added to SEP fails
+    // to compile here rather than being asserted away and rendering nothing.
+    // A member this build has never heard of still falls back to `unknown`
+    // below at runtime.
     test: {
       action: 'Test connection',
       testing: 'Testing…',
@@ -195,7 +196,7 @@ export const Messages = {
         // declares no probe, so there is nothing to reach out to.
         probe_undeclared:
           "This PMM version doesn't ship a connectivity test for ServiceNow, so there's nothing to check. The saved connection is unaffected.",
-      } as Record<ConnectivityStatus, string>,
+      } satisfies Record<ConnectivityStatus, string>,
       unknown: {
         reachable: 'ServiceNow answered. This connection works.',
         unreachable: "ServiceNow couldn't be reached.",

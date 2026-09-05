@@ -121,16 +121,18 @@ export const toFormValues = (
  *
  * It removes only what SEP provably discards — trailing slashes and the
  * fragment, which `split_endpoint` never carries — and reorders or drops
- * nothing else. The query keeps every pair it was given rather than being
- * re-serialized: SEP reads it with `parse_qsl` into a dict, so it collapses a
- * repeated key and drops a blank value on its own, and matching that here
+ * nothing else. Every query pair survives, in the order and the encoding it
+ * arrived in: SEP reads the query with `parse_qsl` into a dict, so it collapses
+ * a repeated key and drops a blank value on its own, and matching that here
  * would mean deleting something the operator typed to gain nothing they can
  * see.
  *
- * What the `URL` constructor itself settles is left settled: it percent-encodes
- * non-ASCII, normalizes encoding case, punycodes an IDN host, and drops a
- * default port, so `https://host:443/x` is stored back as `https://host/x`.
- * Every one of those reaches the same receiver as what was typed.
+ * What the `URL` parser itself settles is left settled: it escapes a character
+ * that could not have stood in a URL unescaped (a literal space becomes
+ * `%20`), punycodes an IDN host, and drops a default port, so
+ * `https://host:443/x` is stored back as `https://host/x`. Existing
+ * percent-encoding is passed through untouched, case included, and every one
+ * of these reaches the same receiver as what was typed.
  *
  * A URL carrying userinfo is left entirely alone. `URL.origin` omits it while
  * Python's `netloc` keeps it, so normalizing one would quietly store an
