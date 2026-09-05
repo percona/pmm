@@ -331,6 +331,58 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	return agents, nil
 }
 
+// IsInternalPgQANAgent reports whether the Agent is the QAN Agent of PMM Server's own PostgreSQL
+// Service.
+//
+// Keyed on the Service alone, not the pmm-agent: Service names are unique, so the name already
+// excludes a remote instance's QAN Agent (RDS/Azure discovery attaches those to PMM Server's own
+// pmm-agent too). Adding pmm_agent_id == PMMServerAgentID would also be wrong, because
+// PMMServerAgentID is a mutable process global, reassigned in HA setup and from the pmm-agent
+// config file.
+func IsInternalPgQANAgent(q *reform.Querier, agent *Agent) (bool, error) {
+	if agent.AgentType != QANPostgreSQLPgStatementsAgentType {
+		return false, nil
+	}
+
+	serviceID := pointer.GetString(agent.ServiceID)
+	if serviceID == "" {
+		return false, nil
+	}
+
+	service, err := FindServiceByID(q, serviceID)
+	if err != nil {
+		return false, err
+	}
+
+	return service.ServiceName == PMMServerPostgreSQLServiceName, nil
+}
+
+// FindInternalPgQANAgent returns the QAN Agent of PMM Server's own PostgreSQL Service.
+//
+// It returns NotFound when PMM Server has no such Service, which is the normal state in HA mode
+// where PMM Server runs against an external PostgreSQL and the fixtures do not create it.
+func FindInternalPgQANAgent(q *reform.Querier) (*Agent, error) {
+	service, err := FindServiceByName(q, PMMServerPostgreSQLServiceName)
+	if err != nil {
+		return nil, err
+	}
+
+	// Queried directly rather than through FindAgents, which re-validates a ServiceID filter with
+	// FindServiceByID -- a third round trip for the Service row just loaded above.
+	structs, err := q.SelectAllFrom(AgentTable, "WHERE service_id = $1 AND agent_type = $2 ORDER BY agent_id",
+		service.ServiceID, QANPostgreSQLPgStatementsAgentType)
+	if err != nil {
+		return nil, err
+	}
+	if len(structs) == 0 {
+		return nil, status.Errorf(codes.NotFound, "QAN Agent for the %q Service not found.", PMMServerPostgreSQLServiceName)
+	}
+
+	agent := DecryptAgent(*structs[0].(*Agent)) //nolint:forcetypeassert
+
+	return &agent, nil
+}
+
 // FindAgentByID finds Agent by ID.
 func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	if id == "" {
@@ -1208,11 +1260,22 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 }
 
 // ChangeAgent changes agent parameters based on agent type.
-func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,maintidx
+func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (*Agent, error) {
 	row, err := FindAgentByID(q, agentID)
 	if err != nil {
 		return nil, err
 	}
+
+	return ApplyAgentChange(q, row, params)
+}
+
+// ApplyAgentChange changes agent parameters on an already-loaded Agent row, based on agent type.
+//
+// Callers that already had to load the row to inspect it before changing it (e.g. to check its
+// type or a precondition) can pass it here directly, instead of ChangeAgent re-fetching the same
+// row from the database.
+func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,gocognit,maintidx
+	var err error
 
 	// Handle common fields first
 	if params.Enabled != nil {

@@ -421,7 +421,7 @@ func (s *Server) GetSettings(ctx context.Context, _ *serverv1.GetSettingsRequest
 		// In HA mode, internal QAN is always disabled as PostgreSQL is external
 		disabledInternalPgQan = true
 	} else {
-		internalPgQanAgent, err := s.getInternalPgQANAgent(dbCtx)
+		internalPgQanAgent, err := models.FindInternalPgQANAgent(dbCtx)
 		if err != nil {
 			// if we can't get the agent, log the error and set it to disabled.
 			s.l.Errorf("failed to get internal pgQAN agent: %v", err)
@@ -630,20 +630,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}, nil
 }
 
-func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error) {
-	agents, err := models.FindAgents(q, models.AgentFilters{
-		PMMAgentID: models.PMMServerAgentID,
-		AgentType:  new(models.QANPostgreSQLPgStatementsAgentType),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to find agents: %w", err)
-	}
-	if len(agents) == 0 {
-		return nil, errors.New("internal pgQAN agent not found")
-	}
-	return agents[0], nil
-}
-
 func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier, enableInternalPgQan *bool) (bool, error) {
 	if s.haService.Params().Enabled {
 		if *enableInternalPgQan {
@@ -654,15 +640,12 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 		return true, nil
 	}
 
-	internalQanAgent, err := s.getInternalPgQANAgent(q)
+	internalQanAgent, err := models.FindInternalPgQANAgent(q)
 	if err != nil {
 		return false, fmt.Errorf("failed to get QAN agent: %w", err)
 	}
-	if internalQanAgent == nil {
-		return false, errors.New("internal QAN agent not found")
-	}
 
-	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeAgentParams{
+	newAgent, err := models.ApplyAgentChange(q, internalQanAgent, &models.ChangeAgentParams{
 		Enabled: enableInternalPgQan,
 	})
 	if err != nil {
