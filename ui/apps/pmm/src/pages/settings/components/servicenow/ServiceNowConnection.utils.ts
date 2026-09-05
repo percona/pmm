@@ -1,6 +1,5 @@
 import {
   ApiError,
-  REDACTED_SECRET,
   SettingClassGroup,
   SettingResponse,
   settingErrorMessage,
@@ -70,9 +69,9 @@ export const declaredSecretNames = (
 };
 
 /**
- * The stored per-deployment inputs. Secrets come back masked
- * ({@link REDACTED_SECRET}) once something is stored, so the values here are
- * only ever displayed or resubmitted verbatim — never inspected for content.
+ * The stored per-deployment inputs. Secrets come back masked once something is
+ * stored, so a value here says only that one exists — it is never displayed and
+ * never inspected for content.
  */
 export const storedDeliveryInputs = (
   groups: SettingClassGroup[] | undefined
@@ -88,17 +87,22 @@ export const storedDeliveryInputs = (
 };
 
 /**
- * Seed the form from what SEP stored, one field per declared secret name, in
- * declaration order — the form addresses secrets by position, not by name.
+ * Seed the form: the stored endpoint, and one empty field per declared secret
+ * name in declaration order — the form addresses secrets by position, not by
+ * name.
+ *
+ * Secrets are never seeded from what SEP holds. Every route to the form is a
+ * route that replaces them: nothing is stored yet, the stored values no longer
+ * satisfy the plan, or the operator asked to renew them. SEP masks a stored
+ * secret anyway, so seeding could only ever put a mask in front of someone
+ * about to overwrite it.
  */
 export const toFormValues = (
   declaredNames: string[],
   stored: StoredDeliveryInputs
 ): ServiceNowFormValues => ({
   endpoint: stored.endpoint,
-  secrets: declaredNames.map((name) =>
-    stored.hasOverride ? (stored.secrets[name] ?? '') : ''
-  ),
+  secrets: declaredNames.map(() => ''),
 });
 
 /**
@@ -106,23 +110,17 @@ export const toFormValues = (
  * names.
  *
  * `endpoint` is dropped when blank so SEP keeps the receiver its image bakes
- * in — that is also how a previously entered endpoint is reverted. A mask is
- * only resubmitted when an override exists to restore it from; without one SEP
- * answers 422, so it is sent as empty instead.
+ * in — that is also how a previously entered endpoint is reverted. The secrets
+ * are whatever the operator typed: the form requires every declared one, so
+ * there is no mask to restore and no empty value to send.
  */
 export const buildDeliveryInputsPatch = (
   values: ServiceNowFormValues,
-  declaredNames: string[],
-  stored: StoredDeliveryInputs
+  declaredNames: string[]
 ): DeliveryInputs => {
   const endpoint = values.endpoint.trim();
   const secrets = Object.fromEntries(
-    declaredNames.map((name, index) => {
-      const value = values.secrets[index] ?? '';
-      const isUnrestorableMask =
-        value === REDACTED_SECRET && !stored.hasOverride;
-      return [name, isUnrestorableMask ? '' : value];
-    })
+    declaredNames.map((name, index) => [name, values.secrets[index] ?? ''])
   );
   return endpoint ? { endpoint, secrets } : { secrets };
 };
@@ -202,12 +200,7 @@ const ACRONYMS = new Set([
   'tls',
 ]);
 
-/**
- * Render a SEP secret name as a field label — `sn_api_key` reads "SN API key".
- * The raw name stays visible as helper text, since that is what SEP's own
- * documentation and error messages call it.
- */
-export const secretLabel = (name: string): string =>
+const humanizeSecretName = (name: string): string =>
   name
     .split(/[_\-\s]+/)
     .filter(Boolean)
@@ -220,3 +213,23 @@ export const secretLabel = (name: string): string =>
         : word.toLowerCase();
     })
     .join(' ');
+
+/**
+ * Render a SEP secret name as a field label.
+ *
+ * A name the delivery plan is known to declare gets the copy Support wrote for
+ * it; anything else is a SEP build the UI has no copy for, so its raw name is
+ * humanized — `instance_url` reads "Instance URL" — and stays recognisable
+ * against SEP's own documentation and error messages.
+ */
+export const secretLabel = (name: string): string =>
+  Messages.serviceNow.secretCopy[name]?.label ?? humanizeSecretName(name);
+
+/**
+ * Helper text under a credential field: what the credential is for, or — for a
+ * name the UI has no copy for — the raw key SEP will receive it as.
+ */
+export const secretHelperText = (name: string): string => {
+  const { secretCopy, secretHelper } = Messages.serviceNow;
+  return secretCopy[name]?.helper ?? secretHelper(name);
+};

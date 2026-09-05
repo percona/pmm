@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Messages } from '../../Settings.messages';
 
-const { invalidUrl } = Messages.serviceNow.validation;
+const { invalidUrl, required } = Messages.serviceNow.validation;
 
 const isAbsoluteUrl = (value: string) => {
   try {
@@ -15,13 +15,16 @@ const isAbsoluteUrl = (value: string) => {
 /**
  * Client-side validation is deliberately thin: SEP validates the whole object
  * on write and is the only authority on which secret names are acceptable, so
- * the schema only catches an endpoint that could never be a URL. The secret
- * values are positional and unconstrained — the names they belong to come from
- * the declared plan, and a mismatch is SEP's 422 to report, which the form
- * surfaces verbatim.
+ * the schema checks presence and an endpoint that could never be a URL, and
+ * leaves the rest to SEP's 422 — which the form surfaces verbatim.
  *
- * An empty endpoint is valid: it means "keep the receiver this image bakes in".
- * An empty secret is valid too, and saves as an explicitly unconfigured state.
+ * Every declared secret is required. The form is only ever reached to supply
+ * credentials — nothing stored, stored values the plan no longer accepts, or a
+ * deliberate renewal — so a blank field is an unfinished form rather than a
+ * request to store nothing. Removing a connection is what Disconnect is for.
+ *
+ * An empty endpoint stays valid: it means "keep the receiver this image bakes
+ * in".
  */
 export const serviceNowSchema = z.object({
   endpoint: z
@@ -29,5 +32,5 @@ export const serviceNowSchema = z.object({
     .refine((value) => value.trim() === '' || isAbsoluteUrl(value.trim()), {
       message: invalidUrl,
     }),
-  secrets: z.array(z.string()),
+  secrets: z.array(z.string().min(1, { message: required })),
 });

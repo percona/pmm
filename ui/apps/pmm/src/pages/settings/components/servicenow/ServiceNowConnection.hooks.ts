@@ -13,7 +13,13 @@ import {
  * every caller must already be admin-only — today that is the settings form.
  */
 export const useServiceNowConnection = () => {
-  const { data: groups, isLoading, error } = useSettingsList();
+  const {
+    data: groups,
+    isLoading,
+    isFetching,
+    error,
+    refetch,
+  } = useSettingsList();
 
   const declaredNames = useMemo(() => declaredSecretNames(groups), [groups]);
   const stored = useMemo(() => storedDeliveryInputs(groups), [groups]);
@@ -23,6 +29,8 @@ export const useServiceNowConnection = () => {
     stored,
     status: connectionStatus(declaredNames, stored),
     isLoading,
+    isFetching,
     error,
+    refetch,
   };
 };
