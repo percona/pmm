@@ -119,6 +119,23 @@ export const toFormValues = (
  * same receiver, while the tab would go on displaying whichever was typed.
  * Normalizing on write keeps the value shown and the value used identical.
  *
+ * It removes only what SEP provably discards — trailing slashes and the
+ * fragment, which `split_endpoint` never carries — and reorders or drops
+ * nothing else. The query keeps every pair it was given rather than being
+ * re-serialized: SEP reads it with `parse_qsl` into a dict, so it collapses a
+ * repeated key and drops a blank value on its own, and matching that here
+ * would mean deleting something the operator typed to gain nothing they can
+ * see.
+ *
+ * What the `URL` constructor itself settles is left settled: it percent-encodes
+ * non-ASCII, normalizes encoding case, punycodes an IDN host, and drops a
+ * default port, so `https://host:443/x` is stored back as `https://host/x`.
+ * Every one of those reaches the same receiver as what was typed.
+ *
+ * A URL carrying userinfo is left entirely alone. `URL.origin` omits it while
+ * Python's `netloc` keeps it, so normalizing one would quietly store an
+ * endpoint that no longer authenticates the way the one SEP receives does.
+ *
  * A blank endpoint stays blank — it means "keep the receiver this image bakes
  * in", and normalization must never turn that into a stored one. Anything that
  * is not an http(s) URL is passed through trimmed and left to SEP: the schema
@@ -139,14 +156,10 @@ export const normalizeEndpoint = (value: string): string => {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') {
     return trimmed;
   }
-  // SEP reads the query with `parse_qsl` into a dict, so a repeated key keeps
-  // only its last value; the fragment never reaches `split_endpoint` at all.
-  const query = new URLSearchParams();
-  url.searchParams.forEach((paramValue, key) => query.set(key, paramValue));
-  const search = query.toString();
-  return `${url.origin}${url.pathname.replace(/\/+$/, '')}${
-    search ? `?${search}` : ''
-  }`;
+  if (url.username || url.password) {
+    return trimmed;
+  }
+  return `${url.origin}${url.pathname.replace(/\/+$/, '')}${url.search}`;
 };
 
 /**
@@ -279,6 +292,25 @@ export const secretHelperText = (name: string): string => {
   const { secretCopy, secretHelper } = Messages.serviceNow;
   return secretCopy[name]?.helper ?? secretHelper(name);
 };
+
+/**
+ * Identity of the stored configuration a probe verdict describes.
+ *
+ * A verdict is only true of the configuration that was stored when it ran, so
+ * the tab has to know when that configuration has moved under it — another
+ * administrator saving from a second session, or a background refetch bringing
+ * a change back — and drop a verdict that now describes something else.
+ *
+ * Secret values are useless as identity (SEP masks every one of them with the
+ * same string), so the names are what is compared, alongside the endpoint and
+ * whether an override exists at all.
+ */
+export const connectionIdentity = (stored: StoredDeliveryInputs): string =>
+  JSON.stringify([
+    stored.endpoint,
+    Object.keys(stored.secrets).sort(),
+    stored.hasOverride,
+  ]);
 
 /**
  * Alert severity per probe outcome, keyed by SEP's generated union so a member

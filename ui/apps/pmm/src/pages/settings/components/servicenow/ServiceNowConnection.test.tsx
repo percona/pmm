@@ -31,6 +31,7 @@ const connectivityCheck = vi.mocked(useConnectivityCheck);
 const patchMutation = vi.fn();
 const resetMutation = vi.fn();
 const probeMutation = vi.fn();
+const probeReset = vi.fn();
 const refetch = vi.fn();
 
 const setting = (key: string, value: unknown, hasOverride = false) =>
@@ -113,11 +114,12 @@ const probed = (
   version: null,
 });
 
-const mockProbe = (
-  overrides: Partial<ReturnType<typeof useConnectivityCheck>> = {}
-) => {
+/** Loosely typed on purpose: React Query's result union forbids `data` on a
+ *  pending mutation, which is exactly the combination a re-test renders. */
+const mockProbe = (overrides: Record<string, unknown> = {}) => {
   connectivityCheck.mockReturnValue({
     mutate: probeMutation,
+    reset: probeReset,
     data: undefined,
     error: null,
     isPending: false,
@@ -503,14 +505,41 @@ describe('ServiceNowConnection — testing the connection', () => {
 
   it('stays legible while the probe is still running', () => {
     mockConfigured();
-    mockProbe({ isPending: true } as Partial<
-      ReturnType<typeof useConnectivityCheck>
-    >);
+    mockProbe({ isPending: true });
     renderTab();
 
     const button = screen.getByTestId('servicenow-test');
     expect(button).toBeDisabled();
     expect(button).toHaveTextContent(Messages.serviceNow.test.testing);
+  });
+
+  it('withholds the previous verdict while a re-test is in flight', () => {
+    mockConfigured();
+    mockProbe({ isPending: true, data: [probed('reachable')] });
+    renderTab();
+
+    expect(
+      screen.queryByTestId('servicenow-test-result')
+    ).not.toBeInTheDocument();
+  });
+
+  it('drops a verdict once the configuration it described has changed', () => {
+    mockConfigured('https://acme.service-now.com');
+    mockProbe({ data: [probed('reachable')] });
+    const { rerender } = renderTab();
+
+    expect(screen.getByTestId('servicenow-test-result')).toBeInTheDocument();
+    expect(probeReset).not.toHaveBeenCalled();
+
+    // What another administrator saving from a second session looks like here.
+    mockConfigured('https://other.service-now.com');
+    rerender(
+      <TestWrapper>
+        {wrapWithSnackbarProvider(<ServiceNowConnection />)}
+      </TestWrapper>
+    );
+
+    expect(probeReset).toHaveBeenCalledTimes(1);
   });
 
   it.each([
@@ -521,9 +550,7 @@ describe('ServiceNowConnection — testing the connection', () => {
     'reports the %s verdict in its own words',
     (status) => {
       mockConfigured();
-      mockProbe({ data: [probed(status)] } as Partial<
-        ReturnType<typeof useConnectivityCheck>
-      >);
+      mockProbe({ data: [probed(status)] });
       renderTab();
 
       expect(screen.getByTestId('servicenow-test-result')).toHaveTextContent(
@@ -539,7 +566,7 @@ describe('ServiceNowConnection — testing the connection', () => {
     mockConfigured();
     mockProbe({
       error: new ApiError({ kind: 'http', status: 403, message: 'HTTP 403' }),
-    } as Partial<ReturnType<typeof useConnectivityCheck>>);
+    });
     renderTab();
 
     expect(screen.getByTestId('servicenow-test-error')).toHaveTextContent(
@@ -552,9 +579,7 @@ describe('ServiceNowConnection — testing the connection', () => {
 
   it('leaves the connection itself standing whatever the verdict says', () => {
     mockConfigured('https://acme.service-now.com');
-    mockProbe({ data: [probed('unreachable')] } as Partial<
-      ReturnType<typeof useConnectivityCheck>
-    >);
+    mockProbe({ data: [probed('unreachable')] });
     renderTab();
 
     expect(screen.getByTestId('servicenow-connected')).toHaveTextContent(

@@ -12,6 +12,7 @@ import {
 } from './ServiceNowConnection.constants';
 import {
   buildDeliveryInputsPatch,
+  connectionIdentity,
   connectionStatus,
   connectivityOutcome,
   declaredSecretNames,
@@ -353,9 +354,18 @@ describe('normalizeEndpoint', () => {
     expect(normalizeEndpoint(typed)).toBe(stored);
   });
 
-  it('keeps the query SEP carries onto the step, last value winning', () => {
-    expect(normalizeEndpoint('https://acme.service-now.com/?a=1&a=2&b=3')).toBe(
-      'https://acme.service-now.com?a=2&b=3'
+  it('keeps the query exactly as typed, rewriting nothing SEP reads itself', () => {
+    expect(
+      normalizeEndpoint('https://acme.service-now.com/?a=1&a=2&b=x%20y')
+    ).toBe('https://acme.service-now.com?a=1&a=2&b=x%20y');
+  });
+
+  it('leaves an endpoint carrying credentials alone rather than dropping them', () => {
+    // `URL.origin` omits userinfo where Python's `netloc` keeps it, so
+    // normalizing this would store an endpoint that authenticates differently
+    // from the one SEP receives.
+    expect(normalizeEndpoint('https://user:pass@acme.service-now.com/')).toBe(
+      'https://user:pass@acme.service-now.com/'
     );
   });
 
@@ -453,5 +463,55 @@ describe('connectivityOutcome', () => {
       message: Messages.serviceNow.test.unknown.unreachable,
       severity: 'error',
     });
+  });
+});
+
+describe('connectionIdentity', () => {
+  const stored = (
+    endpoint: string,
+    secrets: Record<string, string> = { sn_api_key: REDACTED_SECRET }
+  ) => ({ endpoint, secrets, hasOverride: true, isPresent: true });
+
+  it('is stable across a refetch that changed nothing', () => {
+    expect(connectionIdentity(stored('https://acme.service-now.com'))).toBe(
+      connectionIdentity(stored('https://acme.service-now.com'))
+    );
+  });
+
+  it('ignores the order the secret names came back in', () => {
+    expect(
+      connectionIdentity(
+        stored('', {
+          sn_api_key: REDACTED_SECRET,
+          client_token: REDACTED_SECRET,
+        })
+      )
+    ).toBe(
+      connectionIdentity(
+        stored('', {
+          client_token: REDACTED_SECRET,
+          sn_api_key: REDACTED_SECRET,
+        })
+      )
+    );
+  });
+
+  it.each([
+    ['a changed endpoint', stored('https://other.service-now.com')],
+    [
+      'a renamed secret',
+      stored('https://acme.service-now.com', { renamed: REDACTED_SECRET }),
+    ],
+    [
+      'an added secret',
+      stored('https://acme.service-now.com', {
+        sn_api_key: REDACTED_SECRET,
+        client_token: REDACTED_SECRET,
+      }),
+    ],
+  ])('changes for %s', (_case, changed) => {
+    expect(connectionIdentity(changed)).not.toBe(
+      connectionIdentity(stored('https://acme.service-now.com'))
+    );
   });
 });

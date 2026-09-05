@@ -15,6 +15,11 @@ import {
 
 interface Props {
   /**
+   * Identity of the configuration a verdict would describe. When it changes,
+   * any verdict on screen described something else and is dropped.
+   */
+  configurationId: string;
+  /**
    * Run the probe once on mount. Set right after a save, so "Verify and
    * connect" ends in a verdict instead of only a stored value.
    */
@@ -35,14 +40,24 @@ interface Props {
  * reported as that. A `ConnectivityResult` that came back means it did run, and
  * is reported by its own status, whatever that status says.
  *
+ * A verdict never outlives what it described. It says something about the
+ * configuration that was stored when the probe ran, so a configuration that
+ * changes underneath it — saved from another session, or arriving on a
+ * refetch — takes it away rather than leaving it standing beside a receiver it
+ * never reached.
+ *
  * Admin-only comes for free: the settings page renders nothing to a non-admin
  * (`Page roles={[OrgRole.Admin]}`), and SEP holds the endpoint to `IsApiAdmin`
  * besides.
  */
-export const ServiceNowConnectionTest: FC<Props> = ({ autoRun = false }) => {
-  const { mutate, data, error, isPending } = useConnectivityCheck();
+export const ServiceNowConnectionTest: FC<Props> = ({
+  configurationId,
+  autoRun = false,
+}) => {
+  const { mutate, reset, data, error, isPending } = useConnectivityCheck();
   const { serviceNow } = Messages;
   const hasAutoRun = useRef(false);
+  const probedConfiguration = useRef(configurationId);
 
   const runTest = useCallback(
     () => mutate({ targets: DELIVERY_TARGETS }),
@@ -58,9 +73,28 @@ export const ServiceNowConnectionTest: FC<Props> = ({ autoRun = false }) => {
     }
   }, [autoRun, runTest]);
 
-  const result = deliveryResult(data);
-  // The probe leaves the cluster and SEP bounds it at 15 seconds, so the
-  // pending state has to stay legible for that long rather than flicker.
+  useEffect(() => {
+    if (probedConfiguration.current !== configurationId) {
+      probedConfiguration.current = configurationId;
+      // Deliberately not a re-probe: the operator asked about the configuration
+      // that was there before, and probing something they have not looked at
+      // yet would answer a question nobody asked.
+      //
+      // This relies on `reset()` detaching the observer from a probe still in
+      // flight, so its verdict cannot land against the configuration that
+      // replaced the one it was asked about. If that ever stops holding, this
+      // needs to track which configuration each run was started for rather
+      // than only the boundary at which it changed.
+      reset();
+    }
+  }, [configurationId, reset]);
+
+  // A re-test keeps the previous `data` until the new call resolves, so the
+  // verdict is withheld while one is in flight rather than answering for the
+  // run the operator is currently waiting on. The probe leaves the cluster and
+  // SEP bounds it at 15 seconds, so that wait has to stay legible for that
+  // long rather than flicker.
+  const result = isPending ? undefined : deliveryResult(data);
   const outcome = result ? connectivityOutcome(result) : undefined;
 
   return (
@@ -81,7 +115,7 @@ export const ServiceNowConnectionTest: FC<Props> = ({ autoRun = false }) => {
         {isPending ? serviceNow.test.testing : serviceNow.test.action}
       </Button>
 
-      {error ? (
+      {error && !isPending ? (
         <Alert
           severity="error"
           sx={{ width: '100%' }}

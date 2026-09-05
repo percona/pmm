@@ -12,7 +12,10 @@ import {
   SEP_SETTINGS_CLASS,
 } from './ServiceNowConnection.constants';
 import { StoredDeliveryInputs } from './ServiceNowConnection.types';
-import { sepErrorMessage } from './ServiceNowConnection.utils';
+import {
+  connectionIdentity,
+  sepErrorMessage,
+} from './ServiceNowConnection.utils';
 import { ServiceNowConnectionTest } from './ServiceNowConnectionTest';
 
 interface Props {
@@ -86,7 +89,10 @@ export const ServiceNowConnected: FC<Props> = ({
           testId="servicenow-connected-endpoint"
         />
 
-        <ServiceNowConnectionTest autoRun={justConnected} />
+        <ServiceNowConnectionTest
+          configurationId={connectionIdentity(stored)}
+          autoRun={justConnected}
+        />
 
         <Stack
           direction="row"
