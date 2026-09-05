@@ -1,3 +1,4 @@
+import { type ConnectivityStatus } from '@sep/api';
 import { PERCONA_SUPPORT_CONTACT_URL } from 'lib/constants';
 
 export const Messages = {
@@ -167,6 +168,53 @@ export const Messages = {
     disconnectConfirm: 'Disconnect',
     disconnectCancel: 'Cancel',
     disconnectSuccess: 'ServiceNow connection removed',
+    // The delivery connectivity probe. SEP classifies every probe into one of
+    // `ConnectivityStatusEnum`'s members, so the record is checked against the
+    // generated union — `satisfies`, not `as`, so a member added to SEP fails
+    // to compile here rather than being asserted away and rendering nothing.
+    // A member this build has never heard of still falls back to `unknown`
+    // below at runtime.
+    test: {
+      action: 'Test connection',
+      testing: 'Testing…',
+      statuses: {
+        reachable: 'ServiceNow answered. This connection works.',
+        auth_failed:
+          'ServiceNow rejected the stored credentials. Renew them and test again.',
+        error:
+          'ServiceNow answered with an error. Check the endpoint, and renew the credentials if it keeps failing.',
+        unreachable:
+          "Couldn't reach the ServiceNow endpoint. Check the endpoint and that this PMM server can reach it.",
+        ssl_error:
+          "The ServiceNow endpoint's certificate couldn't be verified.",
+        timeout: "ServiceNow didn't answer in time. Try again.",
+        not_configured:
+          "There's nothing to test yet — connect ServiceNow first.",
+        inputs_drifted:
+          'The saved credentials no longer match what this PMM version expects. Renew them to reconnect.',
+        // Not an error and not the operator's doing: this image's delivery plan
+        // declares no probe, so there is nothing to reach out to.
+        probe_undeclared:
+          "This PMM version doesn't ship a connectivity test for ServiceNow, so there's nothing to check. The saved connection is unaffected.",
+      } satisfies Record<ConnectivityStatus, string>,
+      unknown: {
+        reachable: 'ServiceNow answered. This connection works.',
+        unreachable: "ServiceNow couldn't be reached.",
+      },
+      // A test that never ran. Deliberately separate from the save errors
+      // below: a refused probe says nothing about whether the connection could
+      // be saved, and telling an operator to ask an administrator to "save it"
+      // answers a question they did not ask.
+      errors: {
+        forbidden:
+          "Your account isn't allowed to test this connection. A PMM administrator can run it.",
+        unauthenticated:
+          "Your session isn't valid for this action anymore. Reload the page and try again.",
+        unreachable:
+          "Couldn't reach the Support Diagnostics service to run the test. The saved connection is unchanged.",
+        generic: "Couldn't run the test. The saved connection is unchanged.",
+      },
+    },
     loading: 'Loading the ServiceNow connection…',
     validation: {
       invalidUrl: 'Enter a valid URL (e.g. https://example.service-now.com/)',

@@ -30,6 +30,9 @@ export const ServiceNowConnection: FC = () => {
     refetch,
   } = useServiceNowConnection();
   const [isRenewing, setIsRenewing] = useState(false);
+  // Whether this render followed a save, which is what turns "Verify and
+  // connect" into a verdict: the connected screen probes once on arrival.
+  const [justConnected, setJustConnected] = useState(false);
   const { serviceNow } = Messages;
 
   // A disconnect elsewhere in the tab (or a drift arriving on a refetch) takes
@@ -96,7 +99,11 @@ export const ServiceNowConnection: FC = () => {
       return (
         <ServiceNowConnected
           stored={stored}
-          onRenew={() => setIsRenewing(true)}
+          justConnected={justConnected}
+          onRenew={() => {
+            setJustConnected(false);
+            setIsRenewing(true);
+          }}
         />
       );
     }
@@ -107,7 +114,10 @@ export const ServiceNowConnection: FC = () => {
         stored={stored}
         isDrifted={status === 'drifted'}
         onCancel={isRenewing ? () => setIsRenewing(false) : undefined}
-        onConnected={() => setIsRenewing(false)}
+        onConnected={() => {
+          setIsRenewing(false);
+          setJustConnected(true);
+        }}
       />
     );
   };

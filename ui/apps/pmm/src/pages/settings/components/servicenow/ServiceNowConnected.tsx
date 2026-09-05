@@ -12,10 +12,16 @@ import {
   SEP_SETTINGS_CLASS,
 } from './ServiceNowConnection.constants';
 import { StoredDeliveryInputs } from './ServiceNowConnection.types';
-import { sepErrorMessage } from './ServiceNowConnection.utils';
+import {
+  connectionIdentity,
+  sepErrorMessage,
+} from './ServiceNowConnection.utils';
+import { ServiceNowConnectionTest } from './ServiceNowConnectionTest';
 
 interface Props {
   stored: StoredDeliveryInputs;
+  /** Whether this screen was reached by saving, rather than by loading. */
+  justConnected?: boolean;
   onRenew: () => void;
 }
 
@@ -43,7 +49,11 @@ const ConnectionDetail: FC<{
  * A blank stored endpoint means SEP is using the receiver its image bakes in,
  * which is the default this reports rather than an empty row.
  */
-export const ServiceNowConnected: FC<Props> = ({ stored, onRenew }) => {
+export const ServiceNowConnected: FC<Props> = ({
+  stored,
+  justConnected = false,
+  onRenew,
+}) => {
   const { mutateAsync: resetSetting, isPending: isDisconnecting } =
     useResetSetting();
   const [disconnectOpen, setDisconnectOpen] = useState(false);
@@ -77,6 +87,11 @@ export const ServiceNowConnected: FC<Props> = ({ stored, onRenew }) => {
           label={serviceNow.endpointDetailLabel}
           value={stored.endpoint || serviceNow.defaultEndpoint}
           testId="servicenow-connected-endpoint"
+        />
+
+        <ServiceNowConnectionTest
+          configurationId={connectionIdentity(stored)}
+          autoRun={justConnected}
         />
 
         <Stack
