@@ -59,26 +59,160 @@ const (
 	// ER_SPECIFIC_ACCESS_DENIED_ERROR: information_schema.innodb_trx needs the PROCESS
 	// privilege, which the monitoring user either has or does not.
 	mysqlErrSpecificAccessDenied = 1227
-	// ER_VIEW_INVALID: sys.x$processlist cannot be read, typically because the invoker lacks
-	// rights on a table the view selects from. The same class of problem as a denied table.
-	mysqlErrViewInvalid = 1356
+	// The statement query is bounded by processlistRowLimit. Its result is capped only by
+	// max_connections otherwise -- thousands on a busy server -- and every row costs a
+	// per-thread memory lookup and a slice of raw JSON on the wire, every collect interval.
+	processlistRowLimit = 1000
+	// Each lock query is bounded by lockGraphRowLimit. Contention is quadratic in the number of
+	// waiters on one object -- 51 open readers behind one DDL already produce 2600 edges -- so
+	// a limit is needed, and hitting it is reported rather than passed off as a complete graph.
+	lockGraphRowLimit = 5000
 )
 
-// currentQueriesSQL fetches currently running queries from the sys schema.
-// The sys.x$processlist view is the machine-readable (raw) version of sys.processlist
-// (https://dev.mysql.com/doc/refman/8.4/en/sys-processlist.html); it exposes
-// the same columns but with unformatted numeric latencies.
-// We select all columns so the complete row is preserved in the raw payload
-// (mirroring how the MongoDB RTA agent dumps the whole currentOp document), and
-// exclude background threads, idle ("Sleep") connections, the RTA agent's own
-// connection and rows without a current statement.
-const currentQueriesSQL = `
-SELECT *
-FROM sys.x$processlist
-WHERE conn_id IS NOT NULL
-  AND conn_id <> CONNECTION_ID()
-  AND current_statement IS NOT NULL
-  AND command NOT IN ('Sleep', 'Daemon')`
+// currentQueriesSQLTemplate fetches currently running queries from the performance_schema
+// tables sys.x$processlist is built on. The row is preserved in the raw payload, mirroring how
+// the MongoDB RTA agent dumps the whole currentOp document, and background threads, idle
+// ("Sleep") connections, the agent's own connection and rows without a current statement are
+// excluded.
+//
+// The view itself is not used because it is far too expensive to run every collect interval.
+// Among its six joins is sys.x$memory_by_thread_by_current_bytes, which groups the whole of
+// performance_schema.memory_summary_by_thread_by_event_name and then orders the result, all to
+// produce one column. Measured on Percona Server 8.0.46 under a 64-thread sysbench run: 89.6ms
+// per collection for the view against 8.7ms for an equivalent query. Selecting a narrower column
+// list does not help: MySQL does not eliminate the unused join, and the same measurement gives
+// 67ms.
+//
+// The view's current_memory column is not collected at all. It was the one column costing a
+// lookup per row -- summing one row per enabled memory instrument, 383 on a default 8.0 server
+// -- and measured 41-49% of the whole query, its single largest cost, growing with both the row
+// count and the server's thread count. What it buys is slight: the manual defines it as "the
+// number of bytes allocated by the thread", but attribution follows whichever thread performed
+// the allocation, so on a real server it is dominated by InnoDB internals (13.6MB of 19.9MB on a
+// sampled connection) rather than by anything the statement is doing, and the manual notes the
+// per-thread values can even go negative when memory ownership moves between threads.
+//
+// The row count is bounded, because otherwise it is capped only by max_connections and every row
+// carries a slice of raw JSON on the wire, every interval. The limit rarely binds -- only running
+// statements are returned, and threads_running sits far below max_connections on a healthy
+// server -- but it bounds the pile-up this feature exists for.
+//
+// The bound is applied in a derived table rather than as a plain ORDER BY ... LIMIT on the whole
+// query, so the outer joins run only for the rows that survive truncation. The derived table also
+// carries the statement columns, which keeps events_statements_current to one lookup per row
+// instead of two: it has to be joined inside for the sort key either way.
+//
+// Ordering is by statement latency, not PROCESSLIST_TIME. That column counts whole seconds, so in
+// a pile-up hundreds of rows tie on the same value and which of them survived truncation would
+// flip between collections; TIMER_WAIT is picosecond-grained and is what the UI already shows as
+// elapsed time. The connection id breaks any remaining tie so repeated collections of an
+// unchanged server agree with one another.
+//
+// The outer query repeats the PROCESSLIST_INFO filter. The derived table and the join read
+// threads at slightly different moments, so a statement that finishes in between would otherwise
+// come back with a NULL current_statement and surface as a row with no query text.
+//
+// Row order beyond that is not depended on: the raw payload is a JSON object keyed by column name
+// and the collector maps rows by connection id.
+const currentQueriesSQLTemplate = `
+SELECT
+    pps.THREAD_ID AS thd_id,
+    pps.PROCESSLIST_ID AS conn_id,
+    IF(pps.NAME IN ('thread/sql/one_connection', 'thread/thread_pool/tp_one_connection'),
+       CONCAT(pps.PROCESSLIST_USER, '@', CONVERT(pps.PROCESSLIST_HOST USING utf8mb4)),
+       REPLACE(pps.NAME, 'thread/', '')) AS user,
+    pps.PROCESSLIST_DB AS db,
+    pps.PROCESSLIST_COMMAND AS command,
+    pps.PROCESSLIST_STATE AS state,
+    pps.PROCESSLIST_TIME AS time,
+    pps.PROCESSLIST_INFO AS current_statement,
+    IF(sel.END_EVENT_ID IS NULL, sel.TIMER_WAIT, NULL) AS statement_latency,
+    sel.LOCK_TIME AS lock_latency,
+    sel.ROWS_EXAMINED AS rows_examined,
+    sel.ROWS_SENT AS rows_sent,
+    sel.ROWS_AFFECTED AS rows_affected,
+    sel.CREATED_TMP_TABLES AS tmp_tables,
+    sel.CREATED_TMP_DISK_TABLES AS tmp_disk_tables,
+    IF(sel.NO_GOOD_INDEX_USED > 0 OR sel.NO_INDEX_USED > 0, 'YES', 'NO') AS full_scan,
+    IF(sel.END_EVENT_ID IS NOT NULL, sel.SQL_TEXT, NULL) AS last_statement,
+    IF(sel.END_EVENT_ID IS NOT NULL, sel.TIMER_WAIT, NULL) AS last_statement_latency,
+    etc.TIMER_WAIT AS trx_latency,
+    etc.STATE AS trx_state,
+    etc.AUTOCOMMIT AS trx_autocommit,
+    conattr_pid.ATTR_VALUE AS pid,
+    conattr_progname.ATTR_VALUE AS program_name{{outer_columns}}
+FROM (
+    SELECT t.THREAD_ID, s.END_EVENT_ID, s.TIMER_WAIT, s.LOCK_TIME, s.ROWS_EXAMINED, s.ROWS_SENT,
+           s.ROWS_AFFECTED, s.CREATED_TMP_TABLES, s.CREATED_TMP_DISK_TABLES,
+           s.NO_GOOD_INDEX_USED, s.NO_INDEX_USED, s.SQL_TEXT{{inner_columns}}
+    FROM performance_schema.threads t
+    LEFT JOIN performance_schema.events_statements_current s ON s.THREAD_ID = t.THREAD_ID
+    WHERE t.PROCESSLIST_ID IS NOT NULL
+      AND t.PROCESSLIST_ID <> CONNECTION_ID()
+      AND t.PROCESSLIST_INFO IS NOT NULL
+      AND t.PROCESSLIST_COMMAND NOT IN ('Sleep', 'Daemon')
+    ORDER BY COALESCE(s.TIMER_WAIT, 0) DESC, t.PROCESSLIST_ID
+    LIMIT {{limit}}
+) sel
+JOIN performance_schema.threads pps ON pps.THREAD_ID = sel.THREAD_ID
+LEFT JOIN performance_schema.events_transactions_current etc ON pps.THREAD_ID = etc.THREAD_ID
+LEFT JOIN performance_schema.session_connect_attrs conattr_pid
+       ON conattr_pid.PROCESSLIST_ID = pps.PROCESSLIST_ID AND conattr_pid.ATTR_NAME = '_pid'
+LEFT JOIN performance_schema.session_connect_attrs conattr_progname
+       ON conattr_progname.PROCESSLIST_ID = pps.PROCESSLIST_ID AND conattr_progname.ATTR_NAME = 'program_name'{{joins}}
+WHERE pps.PROCESSLIST_INFO IS NOT NULL`
+
+// optionalProcesslistColumns are columns sys.x$processlist exposes on some servers and not
+// others: EXECUTION_ENGINE arrived in MySQL 8.0.24 and CPU_TIME in 8.0.28. Naming one on a
+// server that lacks it fails the whole collection, and the view degrades by simply not having
+// the column, so each is probed once at startup and included only when it is really there.
+//
+// The check is against information_schema rather than the version string because forks and
+// distributions report versions inconsistently, while the column either exists or it does not.
+var optionalProcesslistColumns = []struct {
+	table  string
+	column string
+	// outer is the SELECT-list entry. inner is what the derived table must carry for it, empty
+	// when the column comes from a table the outer query joins directly.
+	outer string
+	inner string
+}{
+	{
+		table:  "threads",
+		column: "EXECUTION_ENGINE",
+		outer:  ",\n    pps.EXECUTION_ENGINE AS execution_engine",
+	},
+	{
+		table:  "events_statements_current",
+		column: "CPU_TIME",
+		outer:  ",\n    sel.CPU_TIME AS cpu_latency",
+		inner:  ", s.CPU_TIME",
+	},
+}
+
+// optionalProcesslistSources are joins whose performance_schema consumer is off by default, in
+// which case the table holds no rows at all and every column it feeds comes back NULL. Joining
+// them regardless costs a lookup per row for nothing -- measured at about 11% of the query -- so
+// each is probed once at startup and joined only when its consumer is on, which keeps the columns
+// available to anyone who has deliberately enabled them.
+var optionalProcesslistSources = []struct {
+	consumer string
+	outer    string
+	join     string
+}{
+	{
+		consumer: "events_waits_current",
+		outer: ",\n    ewc.EVENT_NAME AS last_wait," +
+			"\n    IF(ewc.END_EVENT_ID IS NULL AND ewc.EVENT_NAME IS NOT NULL, 'Still Waiting', ewc.TIMER_WAIT) AS last_wait_latency," +
+			"\n    ewc.SOURCE AS source",
+		join: "\nLEFT JOIN performance_schema.events_waits_current ewc ON pps.THREAD_ID = ewc.THREAD_ID",
+	},
+	{
+		consumer: "events_stages_current",
+		outer:    ",\n    IF(sel.END_EVENT_ID IS NULL, ROUND(100 * (estc.WORK_COMPLETED / estc.WORK_ESTIMATED), 2), NULL) AS progress",
+		join:     "\nLEFT JOIN performance_schema.events_stages_current estc ON pps.THREAD_ID = estc.THREAD_ID",
+	},
+}
 
 // blockingTransactionsSQL reads the InnoDB lock-wait graph, so a statement that is stuck can
 // be explained in the same payload as the statement itself rather than by a second round trip.
@@ -95,9 +229,15 @@ WHERE conn_id IS NOT NULL
 // Percona Server 8.0.46 with 48 open transactions and no locks held, 68ms per collection
 // against 8ms with the order forced.
 //
-// The processlist join is a LEFT JOIN on purpose: a blocking transaction whose thread has
+// The processlist joins are LEFT JOINs on purpose: a blocking transaction whose thread has
 // already gone (or an XA transaction with no connection) still explains the wait, so the
 // relationship is kept and only the blocker's command/query/user come back empty.
+//
+// The blocker's details come from performance_schema.threads directly rather than through
+// sys.x$processlist, for the reason given on currentQueriesSQLTemplate: that view aggregates
+// every thread's memory to produce a column nothing here reads. Measured on the same server
+// with a lock pile-up live, 12.7ms per collection through the view against 0.2ms for the join
+// below, returning the same values.
 //
 // Rows are ordered so that repeated collections of an unchanged lock graph agree with one
 // another: performance_schema does not promise an order, and one waiter/blocker pair can
@@ -111,12 +251,19 @@ WHERE conn_id IS NOT NULL
 //
 // LIMIT bounds the worst case. The graph is largest during exactly the pile-up this feature
 // exists for -- many-to-many contention is quadratic in the number of waiters -- and every
-// edge costs two innodb_trx joins and one heavyweight sys.x$processlist lookup. Ordering by
-// waiter means a truncated result still describes the waiters it does include completely.
+// edge costs two innodb_trx joins and two processlist lookups. Ordering by waiter means a
+// truncated result still describes the waiters it does include completely.
 //
-// The blocking statement is read as current_statement, falling back to last_statement, because
-// the head of a blocking chain is typically idle inside an open transaction and is running
-// nothing at all -- its last statement is the one that took the lock.
+// The blocking statement is read as the thread's live statement, falling back to the last one
+// performance_schema recorded for it, because the head of a blocking chain is typically idle
+// inside an open transaction and is running nothing at all -- its last statement is the one
+// that took the lock.
+//
+// The two LOCK_MODE columns say what was asked for and what is held ("X,REC_NOT_GAP",
+// "S,GAP", ...). They are what separates a wait on the row itself from a wait on the gap
+// before it, which is the distinction that makes an apparently impossible deadlock explicable.
+// The blocking lock is looked up by its own ENGINE_LOCK_ID, a primary-key lookup into a table
+// the query already reads, measured at 0.8ms on top of the query's other work.
 //
 // Latencies are taken in microseconds rather than seconds so a wait shorter than a second is
 // not truncated to "0s". The precision is not real, though: innodb_trx.trx_wait_started and
@@ -129,18 +276,96 @@ SELECT STRAIGHT_JOIN
     b.trx_mysql_thread_id AS blocking_conn_id,
     TIMESTAMPDIFF(MICROSECOND, r.trx_wait_started, NOW(6)) AS wait_micros,
     TIMESTAMPDIFF(MICROSECOND, b.trx_started, NOW(6)) AS blocker_trx_micros,
-    p.command AS blocking_command,
-    p.user AS blocking_user,
-    COALESCE(p.current_statement, p.last_statement) AS blocking_query,
+    bt.PROCESSLIST_COMMAND AS blocking_command,
+    IF(bt.PROCESSLIST_USER IS NULL,
+       REPLACE(bt.NAME, 'thread/', ''),
+       CONCAT(bt.PROCESSLIST_USER, '@', CONVERT(bt.PROCESSLIST_HOST USING utf8mb4))) AS blocking_user,
+    COALESCE(bt.PROCESSLIST_INFO, bs.SQL_TEXT) AS blocking_query,
     CONCAT(rl.OBJECT_SCHEMA, '.', rl.OBJECT_NAME) AS locked_table,
-    rl.INDEX_NAME AS locked_index
+    rl.INDEX_NAME AS locked_index,
+    rl.LOCK_MODE AS requested_mode,
+    bl.LOCK_MODE AS blocking_mode
 FROM performance_schema.data_lock_waits w
 JOIN information_schema.innodb_trx r ON r.trx_id = w.REQUESTING_ENGINE_TRANSACTION_ID
 JOIN information_schema.innodb_trx b ON b.trx_id = w.BLOCKING_ENGINE_TRANSACTION_ID
 JOIN performance_schema.data_locks rl ON rl.ENGINE_LOCK_ID = w.REQUESTING_ENGINE_LOCK_ID
-LEFT JOIN sys.x$processlist p ON p.conn_id = b.trx_mysql_thread_id
+JOIN performance_schema.data_locks bl ON bl.ENGINE_LOCK_ID = w.BLOCKING_ENGINE_LOCK_ID
+LEFT JOIN performance_schema.threads bt ON bt.PROCESSLIST_ID = b.trx_mysql_thread_id
+LEFT JOIN performance_schema.events_statements_current bs ON bs.THREAD_ID = bt.THREAD_ID
 ORDER BY waiting_conn_id, locked_index IS NULL, locked_index, blocking_conn_id
-LIMIT 1000`
+LIMIT 5000`
+
+// metadataLockWaitsSQL reads the metadata-lock (MDL) wait graph. Metadata locks are a wholly
+// separate mechanism from InnoDB row locks -- different tables, different lifetimes, different
+// remedies -- and a statement waiting on one shows up nowhere in data_lock_waits. Without this
+// query the most visible stall MySQL produces, a DDL parked behind an open transaction with
+// every later statement on that table queued behind the DDL, is reported as "not blocked".
+//
+// The sys.schema_table_lock_waits view would give the graph in one shot and is unusable for
+// exactly the reason sys.innodb_lock_waits is: it calls sys stored functions, PMM's documented grants carry
+// SELECT without EXECUTE, and it fails with ERROR 1356. The raw tables below need nothing the
+// monitoring user does not already have.
+//
+// There is no metadata_locks equivalent of data_lock_waits -- performance_schema records the
+// locks but not the waits between them -- so the edges are derived by self-joining PENDING
+// requests against GRANTED holders of the same object. STRAIGHT_JOIN drives from the PENDING
+// side, which is empty on a healthy server, so the rest of the join is skipped entirely.
+//
+// The object columns are compared NULL-safely because only TABLE locks carry a schema and name;
+// GLOBAL, COMMIT and BACKUP LOCK rows leave both NULL, and plain equality would drop them --
+// losing precisely the FLUSH TABLES WITH READ LOCK stall a backup causes.
+//
+// A granted lock is reported as blocking even when the two modes look compatible (a SHARED_READ
+// holder against a SHARED_READ request, say). That is not a bug: MDL grants are queued fairly,
+// so once a request for EXCLUSIVE is pending, later SHARED requests queue behind it and cannot
+// be granted until the holders ahead of them let go. The SHARED_READ holder really is what the
+// whole queue is waiting on, and marking it as such is what points at the transaction to end.
+//
+// Blocker details come from performance_schema directly rather than through sys.x$processlist.
+// That view joins six sources including a per-thread memory aggregate, and on the same server
+// and scenario costs 13.6ms against 0.19ms for the form below -- for the same values, since
+// threads is already joined here to map thread ids onto connection ids.
+//
+// No wait duration is reported: performance_schema.metadata_locks records no timestamp of any
+// kind, so how long a request has been pending is simply not available. Reporting the waiting
+// statement's own elapsed time in its place would be a different number wearing this one's
+// label, so the field is left unset and the UI omits it.
+//
+// The blocker's transaction duration is only reported while that transaction is ACTIVE. The
+// events_transactions_current row survives commit with its final timer intact, and reporting
+// that would age a finished transaction as though it were still open.
+const metadataLockWaitsSQL = `
+SELECT STRAIGHT_JOIN
+    tw.PROCESSLIST_ID AS waiting_conn_id,
+    tg.PROCESSLIST_ID AS blocking_conn_id,
+    w.LOCK_TYPE AS requested_mode,
+    g.LOCK_TYPE AS blocking_mode,
+    tg.PROCESSLIST_COMMAND AS blocking_command,
+    IF(tg.PROCESSLIST_USER IS NULL,
+       REPLACE(tg.NAME, 'thread/', ''),
+       CONCAT(tg.PROCESSLIST_USER, '@', CONVERT(tg.PROCESSLIST_HOST USING utf8mb4))) AS blocking_user,
+    IF(tx.STATE = 'ACTIVE', tx.TIMER_WAIT, NULL) AS blocker_trx_picos,
+    COALESCE(tg.PROCESSLIST_INFO, st.SQL_TEXT) AS blocking_query,
+    CASE
+        WHEN w.OBJECT_NAME IS NOT NULL THEN CONCAT(w.OBJECT_SCHEMA, '.', w.OBJECT_NAME)
+        WHEN w.OBJECT_SCHEMA IS NOT NULL THEN w.OBJECT_SCHEMA
+        ELSE w.OBJECT_TYPE
+    END AS locked_table
+FROM performance_schema.metadata_locks w
+JOIN performance_schema.metadata_locks g
+  ON g.OBJECT_TYPE <=> w.OBJECT_TYPE
+  AND g.OBJECT_SCHEMA <=> w.OBJECT_SCHEMA
+  AND g.OBJECT_NAME <=> w.OBJECT_NAME
+  AND g.LOCK_STATUS = 'GRANTED'
+  AND g.OWNER_THREAD_ID <> w.OWNER_THREAD_ID
+JOIN performance_schema.threads tw ON tw.THREAD_ID = w.OWNER_THREAD_ID
+JOIN performance_schema.threads tg ON tg.THREAD_ID = g.OWNER_THREAD_ID
+LEFT JOIN performance_schema.events_statements_current st ON st.THREAD_ID = tg.THREAD_ID
+LEFT JOIN performance_schema.events_transactions_current tx ON tx.THREAD_ID = tg.THREAD_ID
+WHERE w.LOCK_STATUS = 'PENDING'
+  AND tw.PROCESSLIST_ID IS NOT NULL
+ORDER BY waiting_conn_id, blocking_conn_id
+LIMIT 5000`
 
 // MySQLRTA extracts Real-Time Analytics data (currently running DB queries) from MySQL.
 type MySQLRTA struct {
@@ -165,13 +390,31 @@ type MySQLRTA struct {
 	db *sql.DB
 	// dbInstanceAddress is the monitored instance address parsed from the DSN.
 	dbInstanceAddress string
-	// blockingUnavailable records that the lock-wait graph could not be read, so a
-	// persistent problem is logged once instead of on every collection.
-	blockingUnavailable bool
-	// blockingUnsupported records that this server will never serve the lock-wait graph
-	// (the performance_schema lock tables are 8.0+), so the query is abandoned rather than
-	// re-issued every collect interval for the life of the agent.
-	blockingUnsupported bool
+	// currentQueriesSQL is the statement query built for this server, with the columns it
+	// actually has. Built once at startup because the answer cannot change while the agent is
+	// connected, and probing it per collection would cost a round trip every interval.
+	currentQueriesSQL string
+	// processlistTruncated remembers that the statement list is being cut short, so a pile-up
+	// that lasts hours is reported when it starts and when it clears rather than every two
+	// seconds for its whole duration.
+	processlistTruncated bool
+	// rowLocks and metadataLocks track the two lock sources separately because they fail
+	// independently: performance_schema.data_lock_waits arrived in 8.0 while metadata_locks
+	// goes back to 5.7, so a server that can never serve one may serve the other perfectly.
+	rowLocks      lockSourceState
+	metadataLocks lockSourceState
+}
+
+// lockSourceState remembers why one lock source stopped answering, so a permanent problem is
+// not retried every collect interval and a transient one is not logged every time.
+type lockSourceState struct {
+	// unavailable records a failure that may yet heal, so the warning is logged once per
+	// outage rather than on every collection.
+	unavailable bool
+	// unsupported records a failure that never heals without operator action -- the table does
+	// not exist on this version, or the monitoring user was never granted it -- so the query is
+	// abandoned for the life of the agent instead of costing a doomed round trip every tick.
+	unsupported bool
 }
 
 // Params represent Agent parameters.
@@ -262,7 +505,7 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 	m.dbInstanceAddress = addr
 
 	// Verify the instance can actually serve RTA (not MariaDB, performance_schema on,
-	// sys.x$processlist readable) before reporting RUNNING.
+	// the performance_schema processlist readable) before reporting RUNNING.
 	err = m.checkPrerequisites(ctx)
 	if err != nil {
 		// A shutdown during initialization is a normal stop, not an initialization failure.
@@ -326,11 +569,13 @@ func (m *MySQLRTA) Run(ctx context.Context) {
 }
 
 // checkPrerequisites verifies that the target instance can serve Real-Time Analytics:
-//   - it must be Oracle MySQL or Percona Server. MariaDB's performance_schema/sys schema
-//     differ (no sys.x$processlist with these columns) and are not supported.
-//   - performance_schema must be enabled (sys.x$processlist is backed by it).
-//   - sys.x$processlist must be readable by the monitoring user (the view is
-//     SQL SECURITY INVOKER, so it requires SELECT on the underlying performance_schema tables).
+//   - it must be Oracle MySQL or Percona Server. MariaDB's performance_schema differs and is
+//     not supported.
+//   - performance_schema must be enabled.
+//   - the statement query must run, which needs SELECT on the performance_schema tables it
+//     reads. It is assembled first, for the columns this server actually has, and then run.
+//   - the metadata lock instrument must be on, or that lock source is disabled rather than
+//     left to report an empty table as a healthy server.
 //
 // It returns a descriptive error otherwise, so the session reports a clear status
 // instead of silently collecting nothing every cycle.
@@ -355,17 +600,153 @@ func (m *MySQLRTA) checkPrerequisites(ctx context.Context) error {
 		return errors.New("performance_schema is disabled; it is required for Real-Time Analytics")
 	}
 
-	// Probe the view that the collector uses so missing schema or privileges fail fast.
-	rows, err := m.db.QueryContext(checkCtx, "SELECT 1 FROM sys.x$processlist LIMIT 1")
+	// Assemble the statement query for the columns this server has, then run it, so missing
+	// schema or privileges fail fast at startup instead of once per collection.
+	m.currentQueriesSQL, err = m.buildCurrentQueriesSQL(checkCtx)
 	if err != nil {
-		return fmt.Errorf("sys.x$processlist is not accessible: %w", err)
+		return err
+	}
+
+	err = m.probeCurrentQueries(checkCtx)
+	if err != nil {
+		return err
+	}
+
+	// Checked last, and it returns nothing: everything it can conclude disables one lock source
+	// rather than the agent, so a server that cannot report metadata locks still collects
+	// statements and row locks.
+	m.checkMetadataLockInstrument(checkCtx)
+
+	return nil
+}
+
+// probeCurrentQueries runs the statement query once so missing schema or privileges fail at
+// startup instead of once per collection.
+//
+// It is a function of its own so the rows are closed before the caller runs anything else: the
+// pool is capped at a single connection, so a query issued while these rows are still open
+// waits on the connection they hold and gets nothing but the context deadline.
+func (m *MySQLRTA) probeCurrentQueries(ctx context.Context) error {
+	// LIMIT 1 because this only has to prove the query runs: without it the probe pulls every
+	// running statement, and pays the per-row memory subquery for each, only to discard them.
+	rows, err := m.db.QueryContext(ctx, m.currentQueriesSQL+"\nLIMIT 1")
+	if err != nil {
+		return fmt.Errorf("the performance_schema processlist is not accessible: %w", err)
 	}
 	defer rows.Close() //nolint:errcheck
 
 	return rows.Err()
 }
 
-// collectProcessList queries sys.x$processlist and parses the result into a slice of *QueryData.
+// metadataLockInstrument is what records metadata locks. With it disabled -- the default before
+// MySQL 8.0 -- performance_schema.metadata_locks is simply empty, so the wait query succeeds and
+// returns nothing, which is indistinguishable from a server where nothing is waiting.
+const metadataLockInstrument = "wait/lock/metadata/sql/mdl"
+
+// checkMetadataLockInstrument disables the metadata source when the instrument that feeds it is
+// off. Without this the source reports success on an empty table and every statement queued
+// behind a DDL is published as NOT_BLOCKED -- a monitoring gap wearing the badge of a verified
+// healthy server, which is the one outcome this feature must never produce.
+//
+// The state is read once at startup, like the privilege and version checks around it: turning a
+// performance_schema instrument on is a deliberate operator action, and the agent says in its
+// log what to change and that a restart picks it up.
+//
+// It never fails the agent. Everything it can conclude only ever disables one of the two lock
+// sources, so an instance that cannot answer still collects statements and row locks.
+func (m *MySQLRTA) checkMetadataLockInstrument(ctx context.Context) {
+	var enabled string
+	err := m.db.QueryRowContext(ctx,
+		"SELECT ENABLED FROM performance_schema.setup_instruments WHERE NAME = ?", metadataLockInstrument).Scan(&enabled)
+	if errors.Is(err, sql.ErrNoRows) {
+		// The instrument does not exist on this server, so metadata locks are never recorded.
+		m.metadataLocks.unsupported = true
+		m.l.Warnf("This server has no %s instrument, so metadata lock waits cannot be detected", metadataLockInstrument)
+
+		return
+	}
+	if err != nil {
+		// Never fatal. This check only decides whether one lock source can be trusted, so a
+		// monitoring user that cannot read setup_instruments -- a narrower grant than the lock
+		// tables themselves need -- keeps collecting statements and row locks instead of
+		// having the agent refuse to start.
+		m.metadataLocks.unsupported = true
+		m.l.Warnf("Could not read the %s instrument state, so metadata lock waits will not be collected: %v",
+			metadataLockInstrument, err)
+
+		return
+	}
+
+	if !strings.EqualFold(enabled, "YES") {
+		m.metadataLocks.unsupported = true
+		m.l.Warnf("The %s instrument is disabled, so metadata lock waits cannot be detected. "+
+			"Enable it (UPDATE performance_schema.setup_instruments SET ENABLED='YES', TIMED='YES' WHERE NAME='%s', "+
+			"or performance_schema_instrument='%s=ON' in the config) and restart the agent",
+			metadataLockInstrument, metadataLockInstrument, metadataLockInstrument)
+	}
+}
+
+// buildCurrentQueriesSQL fills in the columns that only some servers have, so one agent build
+// serves every supported version without naming a column that would fail the whole collection.
+func (m *MySQLRTA) buildCurrentQueriesSQL(ctx context.Context) (string, error) {
+	var outer, inner, joins strings.Builder
+
+	for _, column := range optionalProcesslistColumns {
+		var present int
+		err := m.db.QueryRowContext(ctx,
+			"SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'performance_schema' AND TABLE_NAME = ? AND COLUMN_NAME = ?",
+			column.table, column.column).Scan(&present)
+		if err != nil {
+			return "", fmt.Errorf("failed to check for performance_schema.%s.%s: %w", column.table, column.column, err)
+		}
+
+		if present == 0 {
+			m.l.Debugf("This server has no performance_schema.%s.%s; the column is omitted from the raw payload",
+				column.table, column.column)
+
+			continue
+		}
+
+		outer.WriteString(column.outer)
+		inner.WriteString(column.inner)
+	}
+
+	for _, source := range optionalProcesslistSources {
+		var enabled string
+		err := m.db.QueryRowContext(ctx,
+			"SELECT ENABLED FROM performance_schema.setup_consumers WHERE NAME = ?", source.consumer).Scan(&enabled)
+		// Any failure to read the consumer -- it does not exist, or the monitoring user cannot
+		// select from setup_consumers, which is a narrower grant than the rest of the query needs
+		// -- is treated as off. The columns it feeds are extras, so losing them costs far less
+		// than refusing to collect anything at all.
+		if err != nil && !errors.Is(err, sql.ErrNoRows) {
+			m.l.Warnf("Could not read the %s consumer state, so its columns are omitted from the raw payload: %v",
+				source.consumer, err)
+
+			continue
+		}
+
+		if !strings.EqualFold(enabled, "YES") {
+			m.l.Debugf("The %s consumer is off, so its columns are omitted from the raw payload", source.consumer)
+
+			continue
+		}
+
+		outer.WriteString(source.outer)
+		joins.WriteString(source.join)
+	}
+
+	return strings.NewReplacer(
+		"{{outer_columns}}", outer.String(),
+		"{{inner_columns}}", inner.String(),
+		"{{joins}}", joins.String(),
+		"{{limit}}", strconv.Itoa(processlistRowLimit),
+	).Replace(currentQueriesSQLTemplate), nil
+}
+
+// collectProcessList queries the performance_schema processlist and parses the result into a
+// slice of *QueryData. It relies on checkPrerequisites having built currentQueriesSQL, which
+// Run guarantees by returning before the collection loop starts if that fails.
 func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, error) {
 	// One budget for the whole cycle. Giving each query its own would let a stalled server hold
 	// the collector's single pooled connection for twice the timeout, dropping twice as many
@@ -375,9 +756,9 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 
 	// An empty processlist is not an error: QueryContext does not return sql.ErrNoRows,
 	// it simply yields no rows below, so we only get here on a real query failure.
-	rows, err := m.db.QueryContext(cycleCtx, currentQueriesSQL)
+	rows, err := m.db.QueryContext(cycleCtx, m.currentQueriesSQL)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query sys.x$processlist: %w", err)
+		return nil, fmt.Errorf("failed to query the performance_schema processlist: %w", err)
 	}
 	defer func() {
 		_ = rows.Close()
@@ -424,6 +805,23 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 		return nil, nil
 	}
 
+	// Said out loud rather than left for someone to notice a short list: past this point the
+	// view shows the longest-running statements and not every statement. Unlike a truncated
+	// lock graph this cannot turn into a false "not blocked" -- the rows that are here are
+	// still described completely -- so it is reported and collection carries on.
+	//
+	// Once per episode, not once per collection: this condition lasts as long as the load does,
+	// and at a two-second interval saying it every time would bury everything else in the log.
+	switch truncated := len(scanned) >= processlistRowLimit; {
+	case truncated && !m.processlistTruncated:
+		m.processlistTruncated = true
+		m.l.Warnf("More than %d statements are running, so only the %d longest-running are collected",
+			processlistRowLimit, processlistRowLimit)
+	case !truncated && m.processlistTruncated:
+		m.processlistTruncated = false
+		m.l.Infof("Fewer than %d statements are running again, so all of them are collected", processlistRowLimit)
+	}
+
 	// Read second, on purpose. The two reads are milliseconds apart either way, but the order
 	// decides which way a stale answer errs. Reading the graph first lets a wait that clears
 	// in between attach its blockers to whatever the connection runs next -- a confident
@@ -442,97 +840,270 @@ func (m *MySQLRTA) collectProcessList(ctx context.Context) ([]*rtav1.QueryData, 
 	return results, nil
 }
 
+// waiterLock describes the lock one waiting connection asked for. Every blocker of a statement
+// contends over the same requested lock, so it is recorded once per waiter rather than repeated
+// per blocker, and kept as a single value so the four fields cannot drift apart.
+type waiterLock struct {
+	lockType      rtav1.LockType
+	lockedTable   string
+	lockedIndex   string
+	requestedMode string
+}
+
 // blockingGraph is what one collection learned about which statements are waiting. A nil
-// graph means the lock tables could not be read at all, which is deliberately different from
-// a graph with no waits in it: the first is ignorance, the second is a verified healthy server.
+// graph means no lock source could be read at all, which is deliberately different from a
+// graph with no waits in it: the first is ignorance, the second is a verified healthy server.
 type blockingGraph struct {
 	// blockers holds the transactions holding up each waiting connection, keyed by the
 	// waiting connection id.
 	blockers map[string][]*rtav1.BlockingTransaction
-	// lockedTable and lockedIndex describe the lock each waiting connection asked for. They
-	// are a property of the waiter, not of any one blocker: every blocker of a statement is
-	// contending over the same requested lock.
-	lockedTable map[string]string
-	lockedIndex map[string]string
+	// waiters records what each waiting connection asked for. Presence here, not a non-empty
+	// blockers entry, is what makes a statement blocked: a holder can be a thread with no
+	// connection id to report, and dropping the waiter with it would report the wait as health.
+	waiters map[string]waiterLock
+	// complete is false when a lock source could not be read, or read only in part. The
+	// blockers that were found are still reported, but a connection absent from the graph can
+	// no longer be called "not blocked" -- it may be waiting on whatever was missed.
+	complete bool
 }
 
-// collectBlockingTransactionsOrWarn reads the lock-wait graph and returns nil when it cannot,
-// so callers report the difference rather than passing an outage off as a healthy server.
+func newBlockingGraph() *blockingGraph {
+	return &blockingGraph{
+		blockers: make(map[string][]*rtav1.BlockingTransaction),
+		waiters:  make(map[string]waiterLock),
+	}
+}
+
+// lockEdge is one "this waiter is held up by this blocker" relationship, in the single shape
+// both lock queries reduce to so the graph is assembled once rather than once per source.
+//
+// Both connection ids are nullable. A waiting XA transaction has no connection, and a metadata
+// lock can be held by a background thread, which performance_schema reports with a NULL
+// PROCESSLIST_ID. Scanning either into a plain int64 fails the whole row.
+type lockEdge struct {
+	waitingConnID      sql.NullInt64
+	blockingConnID     sql.NullInt64
+	waitDuration       *durationpb.Duration
+	blockerTrxDuration *durationpb.Duration
+	blockingCommand    string
+	blockingUser       string
+	blockingQuery      string
+	lockedTable        string
+	lockedIndex        string
+	requestedMode      string
+	blockingMode       string
+}
+
+// lockSource is one of the two independent ways a MySQL statement can be stuck.
+type lockSource struct {
+	// name identifies the source in log messages, which is what tells an operator which of the
+	// two stopped working.
+	name string
+	// lockType is what a wait found by this source is a wait on.
+	lockType rtav1.LockType
+	// sql is the query that yields this source's edges.
+	sql string
+	// rowLimit is the LIMIT the query carries. A result of exactly this many rows describes
+	// only some waiters, and TestLockSourceRowLimits keeps the two in step.
+	rowLimit int
+	// scan reads one result row into the common edge shape.
+	scan func(*sql.Rows) (*lockEdge, error)
+}
+
+// rowLockSource reads InnoDB row-lock waits: a transaction holding a row the waiter needs.
+var rowLockSource = lockSource{
+	name:     "row lock",
+	lockType: rtav1.LockType_LOCK_TYPE_ROW,
+	sql:      blockingTransactionsSQL,
+	rowLimit: lockGraphRowLimit,
+	scan: func(rows *sql.Rows) (*lockEdge, error) {
+		var edge lockEdge
+		var waitMicros, blockerTrxMicros sql.NullInt64
+		var blockingCommand, blockingUser, blockingQuery sql.NullString
+		var lockedTable, lockedIndex, requestedMode, blockingMode sql.NullString
+
+		err := rows.Scan(&edge.waitingConnID, &edge.blockingConnID, &waitMicros, &blockerTrxMicros,
+			&blockingCommand, &blockingUser, &blockingQuery, &lockedTable, &lockedIndex,
+			&requestedMode, &blockingMode)
+		if err != nil {
+			return nil, err
+		}
+
+		edge.waitDuration = microsToDuration(waitMicros)
+		edge.blockerTrxDuration = microsToDuration(blockerTrxMicros)
+		edge.blockingCommand = blockingCommand.String
+		edge.blockingUser = blockingUser.String
+		edge.blockingQuery = blockingQuery.String
+		edge.lockedTable = lockedTable.String
+		edge.lockedIndex = lockedIndex.String
+		edge.requestedMode = requestedMode.String
+		edge.blockingMode = blockingMode.String
+
+		return &edge, nil
+	},
+}
+
+// metadataLockSource reads table metadata-lock waits: the DDL-behind-an-open-transaction stall,
+// and everything queued behind that DDL. It reports no wait duration because
+// performance_schema.metadata_locks records no timestamp to derive one from, and no locked
+// index because a metadata lock is taken on the table as a whole.
+var metadataLockSource = lockSource{
+	name:     "metadata lock",
+	lockType: rtav1.LockType_LOCK_TYPE_METADATA,
+	sql:      metadataLockWaitsSQL,
+	rowLimit: lockGraphRowLimit,
+	scan: func(rows *sql.Rows) (*lockEdge, error) {
+		var edge lockEdge
+		var blockerTrxPicos sql.NullInt64
+		var requestedMode, blockingMode sql.NullString
+		var blockingCommand, blockingUser, blockingQuery, lockedTable sql.NullString
+
+		err := rows.Scan(&edge.waitingConnID, &edge.blockingConnID, &requestedMode, &blockingMode,
+			&blockingCommand, &blockingUser, &blockerTrxPicos, &blockingQuery, &lockedTable)
+		if err != nil {
+			return nil, err
+		}
+
+		edge.blockerTrxDuration = picosToDuration(blockerTrxPicos)
+		edge.blockingCommand = blockingCommand.String
+		edge.blockingUser = blockingUser.String
+		edge.blockingQuery = blockingQuery.String
+		edge.lockedTable = lockedTable.String
+		edge.requestedMode = requestedMode.String
+		edge.blockingMode = blockingMode.String
+
+		return &edge, nil
+	},
+}
+
+// collectBlockingTransactionsOrWarn reads both lock sources into one graph and returns nil when
+// neither could be read, so callers report the difference rather than passing an outage off as
+// a healthy server.
 func (m *MySQLRTA) collectBlockingTransactionsOrWarn(ctx context.Context) *blockingGraph {
-	if m.blockingUnsupported {
+	graph := newBlockingGraph()
+	// waiting collects every connection that is itself waiting, across both sources, so the
+	// transactions at the head of a chain can be told apart from those queued in the middle of
+	// it. A metadata-lock waiter can be what a row-lock waiter is queued behind and vice versa,
+	// so this has to be shared rather than computed per source.
+	waiting := make(map[int64]struct{})
+
+	rowOK := m.readLockSource(ctx, rowLockSource, &m.rowLocks, graph, waiting)
+	metadataOK := m.readLockSource(ctx, metadataLockSource, &m.metadataLocks, graph, waiting)
+
+	if !rowOK && !metadataOK {
 		return nil
 	}
 
-	graph, err := m.collectBlockingTransactions(ctx)
-	if err != nil {
-		// Two failures never heal on their own: the performance_schema lock tables only exist
-		// from 8.0, and a privilege the monitoring user was never granted stays ungranted
-		// until someone changes it and restarts the agent. Retrying either every collect
-		// interval would be tens of thousands of doomed round trips a day, so stop asking and
-		// say what would make it work.
-		var mysqlErr *mysql.MySQLError
-		if errors.As(err, &mysqlErr) && permanentBlockingError(mysqlErr.Number) {
-			m.blockingUnsupported = true
-			m.l.Warnf("Blocking transaction details cannot be collected from this instance and will not be retried "+
-				"(grant the monitoring user SELECT on performance_schema and restart the agent if this is a privilege problem): %v", err)
+	// Only a graph built from both sources can support "this statement is not waiting". With
+	// one source missing, the blockers found are still reported and everything else is left
+	// unknown rather than declared healthy.
+	graph.complete = rowOK && metadataOK
 
-			return nil
-		}
-
-		// Anything else may be transient, so collection keeps trying. The warning is logged
-		// once per outage: repeating it every collect interval would bury the rest of the log.
-		if !m.blockingUnavailable {
-			m.blockingUnavailable = true
-			m.l.Warnf("Blocking transaction details are unavailable: %v", err)
-		}
-
-		return nil
-	}
-
-	if m.blockingUnavailable {
-		m.blockingUnavailable = false
-		m.l.Info("Blocking transaction details are available again")
-	}
+	markRootBlockers(graph.blockers, waiting)
 
 	return graph
 }
 
-// permanentBlockingError reports whether a MySQL error means the lock graph will never become
+// readLockSource runs one lock query and merges its edges into the graph, reporting whether the
+// source answered completely. A source that fails permanently is never asked again.
+func (m *MySQLRTA) readLockSource(ctx context.Context, source lockSource, state *lockSourceState, graph *blockingGraph, waiting map[int64]struct{}) bool {
+	if state.unsupported {
+		return false
+	}
+
+	found, err := m.readLockEdges(ctx, source)
+	if err != nil {
+		// Two failures never heal on their own: a performance_schema table that does not exist
+		// on this server version, and a privilege the monitoring user was never granted, which
+		// stays ungranted until someone changes it and restarts the agent. Retrying either
+		// every collect interval would be tens of thousands of doomed round trips a day, so
+		// stop asking and say what would make it work.
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && permanentBlockingError(mysqlErr.Number) {
+			state.unsupported = true
+			m.l.Warnf("%s details cannot be collected from this instance and will not be retried "+
+				"(grant the monitoring user SELECT on performance_schema and restart the agent if this is a privilege problem): %v",
+				source.name, err)
+
+			return false
+		}
+
+		// Anything else may be transient, so collection keeps trying. The warning is logged
+		// once per outage: repeating it every collect interval would bury the rest of the log.
+		if !state.unavailable {
+			state.unavailable = true
+			m.l.Warnf("%s details are unavailable: %v", source.name, err)
+		}
+
+		return false
+	}
+
+	if state.unavailable {
+		state.unavailable = false
+		m.l.Infof("%s details are available again", source.name)
+	}
+
+	graph.merge(found, waiting)
+
+	if found.truncated {
+		// Logged every time it happens rather than once: unlike a privilege problem this is a
+		// property of the current load, so it says something about the incident in progress.
+		m.l.Warnf("The %s wait graph hit its %d row limit, so some waiting statements are not described in this collection",
+			source.name, source.rowLimit)
+
+		return false
+	}
+
+	return true
+}
+
+// permanentBlockingError reports whether a MySQL error means a lock source will never become
 // readable without operator action, making retries pointless.
 func permanentBlockingError(number uint16) bool {
 	switch number {
-	case mysqlErrNoSuchTable, mysqlErrTableAccessDenied, mysqlErrSpecificAccessDenied, mysqlErrViewInvalid:
+	case mysqlErrNoSuchTable, mysqlErrTableAccessDenied, mysqlErrSpecificAccessDenied:
 		return true
 	default:
 		return false
 	}
 }
 
-// collectBlockingTransactions returns what the lock graph says about every waiting connection.
-func (m *MySQLRTA) collectBlockingTransactions(ctx context.Context) (*blockingGraph, error) {
+// sourceEdges is one source's contribution, staged before it is merged. A source that fails
+// part-way must leave nothing behind: partial rows would claim waiters and lock them out of the
+// other source, which may hold the real answer for them.
+type sourceEdges struct {
+	blockers map[string][]*rtav1.BlockingTransaction
+	waiters  map[string]waiterLock
+	waiting  map[int64]struct{}
+	// truncated records that the query returned every row it was allowed to. Past that point
+	// the result describes only some waiters, so silence about the rest is not evidence.
+	truncated bool
+}
+
+// readLockEdges runs one lock query and returns what it found, without touching the shared
+// graph -- the caller merges only after the source has finished successfully.
+func (m *MySQLRTA) readLockEdges(ctx context.Context, source lockSource) (*sourceEdges, error) {
 	// ctx already carries the collection's remaining budget; a second timeout here would extend
 	// the cycle rather than bound it.
-	rows, err := m.db.QueryContext(ctx, blockingTransactionsSQL)
+	rows, err := m.db.QueryContext(ctx, source.sql)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query the lock wait graph: %w", err)
+		return nil, fmt.Errorf("failed to query the %s wait graph: %w", source.name, err)
 	}
 	defer func() {
 		_ = rows.Close()
 	}()
 
-	graph := &blockingGraph{
-		blockers:    make(map[string][]*rtav1.BlockingTransaction),
-		lockedTable: make(map[string]string),
-		lockedIndex: make(map[string]string),
+	found := &sourceEdges{
+		blockers: make(map[string][]*rtav1.BlockingTransaction),
+		waiters:  make(map[string]waiterLock),
+		waiting:  make(map[int64]struct{}),
 	}
-	// waiting collects every connection that is itself waiting, so the transactions at the
-	// head of a chain can be told apart from those queued in the middle of it.
-	waiting := make(map[int64]struct{})
 	// seen keeps one entry per (waiter, blocker) pair. A single pair can produce several rows
-	// -- one per contended lock, e.g. a record lock and a gap lock on the same row -- and the
-	// same blocker must not be reported twice for one statement. The query's ORDER BY makes
-	// the surviving row the same one on every collection.
+	// -- one per contended lock, e.g. a record lock and a gap lock on the same row, or several
+	// metadata locks on one table -- and the same blocker must not be reported twice for one
+	// statement. Each query's ORDER BY makes the surviving row the same one on every collection.
 	seen := make(map[[2]int64]struct{})
+	read := 0
 
 	for rows.Next() {
 		select {
@@ -541,51 +1112,94 @@ func (m *MySQLRTA) collectBlockingTransactions(ctx context.Context) (*blockingGr
 		default:
 		}
 
-		var waitingConnID, blockingConnID int64
-		var waitMicros, blockerTrxMicros sql.NullInt64
-		var blockingCommand, blockingUser, blockingQuery, lockedTable, lockedIndex sql.NullString
+		read++
 
-		err = rows.Scan(&waitingConnID, &blockingConnID, &waitMicros, &blockerTrxMicros,
-			&blockingCommand, &blockingUser, &blockingQuery, &lockedTable, &lockedIndex)
+		edge, err := source.scan(rows)
 		if err != nil {
-			m.l.Warnf("Failed to scan lock wait row: %v", err)
+			m.l.Warnf("Failed to scan %s wait row: %v", source.name, err)
 			continue
 		}
 
-		waiting[waitingConnID] = struct{}{}
-		key := strconv.FormatInt(waitingConnID, 10)
-
-		// The contended lock belongs to the waiter and is the same across its blockers, so it
-		// is recorded once, from the first row the ORDER BY yields for that connection.
-		if _, recorded := graph.lockedTable[key]; !recorded {
-			graph.lockedTable[key] = lockedTable.String
-			graph.lockedIndex[key] = lockedIndex.String
+		// A waiter with no connection id cannot be matched to a statement -- an XA transaction
+		// with no session, say -- so there is nothing for the row to explain.
+		if !edge.waitingConnID.Valid {
+			continue
 		}
 
-		pair := [2]int64{waitingConnID, blockingConnID}
+		key := strconv.FormatInt(edge.waitingConnID.Int64, 10)
+		found.waiting[edge.waitingConnID.Int64] = struct{}{}
+
+		// The contended lock belongs to the waiter and is the same across its blockers, so it
+		// is recorded once, from the first row the ORDER BY yields for that connection. It is
+		// recorded even when the blocker below turns out to be unnameable, because the waiting
+		// is a fact about this statement either way.
+		if _, ok := found.waiters[key]; !ok {
+			found.waiters[key] = waiterLock{
+				lockType:      source.lockType,
+				lockedTable:   edge.lockedTable,
+				lockedIndex:   edge.lockedIndex,
+				requestedMode: edge.requestedMode,
+			}
+		}
+
+		// A metadata lock can be held by a background thread, which has no connection id to
+		// report. The wait is still real, so the waiter stays recorded above and only the
+		// blocker is left out -- the pane already has a state for "held by something not in
+		// this snapshot", which is the honest rendering.
+		if !edge.blockingConnID.Valid {
+			continue
+		}
+
+		pair := [2]int64{edge.waitingConnID.Int64, edge.blockingConnID.Int64}
 		if _, duplicate := seen[pair]; duplicate {
 			continue
 		}
 		seen[pair] = struct{}{}
 
-		graph.blockers[key] = append(graph.blockers[key], &rtav1.BlockingTransaction{
-			BlockingConnId:             blockingConnID,
-			BlockingQuery:              blockingQuery.String,
-			BlockingCommand:            blockingCommand.String,
-			BlockingUsername:           blockingUser.String,
-			WaitDuration:               microsToDuration(waitMicros),
-			BlockerTransactionDuration: microsToDuration(blockerTrxMicros),
+		found.blockers[key] = append(found.blockers[key], &rtav1.BlockingTransaction{
+			BlockingConnId:             edge.blockingConnID.Int64,
+			BlockingQuery:              edge.blockingQuery,
+			BlockingCommand:            edge.blockingCommand,
+			BlockingUsername:           edge.blockingUser,
+			WaitDuration:               edge.waitDuration,
+			BlockerTransactionDuration: edge.blockerTrxDuration,
+			BlockingLockMode:           edge.blockingMode,
 		})
 	}
 
 	err = rows.Err()
 	if err != nil {
-		return nil, fmt.Errorf("failed to iterate lock wait rows: %w", err)
+		return nil, fmt.Errorf("failed to iterate %s wait rows: %w", source.name, err)
 	}
 
-	markRootBlockers(graph.blockers, waiting)
+	// Contention is quadratic in the number of waiters on one object, so a busy table behind a
+	// DDL can produce far more edges than the query is allowed to return. The rows that did
+	// arrive are still true; what is lost is the guarantee that every waiter is represented.
+	found.truncated = source.rowLimit > 0 && read >= source.rowLimit
 
-	return graph, nil
+	return found, nil
+}
+
+// merge folds one source's edges into the shared graph.
+func (g *blockingGraph) merge(found *sourceEdges, waiting map[int64]struct{}) {
+	for key, lock := range found.waiters {
+		// A connection waits on one thing at a time, so a waiter another source already claimed
+		// is left to that source. Appending these blockers would build a list whose entries are
+		// held under different mechanisms, described by a single lock type that fits only some
+		// of them -- and would point the reader at the wrong remedy for the rest.
+		if _, claimed := g.waiters[key]; claimed {
+			continue
+		}
+
+		g.waiters[key] = lock
+		if blockers := found.blockers[key]; len(blockers) > 0 {
+			g.blockers[key] = blockers
+		}
+	}
+
+	for connID := range found.waiting {
+		waiting[connID] = struct{}{}
+	}
 }
 
 // microsToDuration converts a microsecond column into a duration, leaving it unset when the
@@ -598,6 +1212,18 @@ func microsToDuration(micros sql.NullInt64) *durationpb.Duration {
 	}
 
 	return durationpb.New(time.Duration(micros.Int64) * time.Microsecond)
+}
+
+// picosToDuration converts a picosecond column into a duration, leaving it unset when the
+// column is NULL. The performance_schema timers are in picoseconds; a NULL means the server
+// had no value to report -- for the blocker's transaction timer, that it has no transaction
+// open -- which is not the same as a zero-length one.
+func picosToDuration(picos sql.NullInt64) *durationpb.Duration {
+	if !picos.Valid {
+		return nil
+	}
+
+	return durationpb.New(time.Duration(picos.Int64/picosecondsPerNanosecond) * time.Nanosecond)
 }
 
 // markRootBlockers flags the blockers that are not themselves waiting for a lock. Those sit at
@@ -652,7 +1278,7 @@ func scanRow(rows *sql.Rows, columns []string) (map[string]any, error) {
 // coerceValue converts a raw column value into nil (NULL), int64, float64 or string
 // so the raw payload renders as human-readable JSON with native types.
 //
-// It is tuned for the sys.x$processlist columns, whose numeric columns are plain
+// It is tuned for the processlist columns, whose numeric columns are plain
 // integers/decimals. It will reinterpret any numeric-looking string as a number, so
 // it is not a general-purpose converter: zero-padded identifiers or values wider than
 // int64 would lose their original textual form. None of the processlist columns have
@@ -677,28 +1303,39 @@ func coerceValue(b sql.RawBytes) any {
 	return s
 }
 
-// buildQueryData converts a single sys.x$processlist row into a *QueryData.
+// buildQueryData converts a single processlist row into a *QueryData.
 // The complete row is preserved in QueryRawJson; a curated subset is exposed
 // via the MySQL payload for the details view.
 func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rtav1.QueryData {
-	execDuration := durationpb.New(time.Duration(mapFloat(row, "statement_latency")/picosecondsPerNanosecond) * time.Nanosecond)
+	execDuration := picosToDuration(sql.NullInt64{Int64: int64(mapFloat(row, "statement_latency")), Valid: true})
 
 	connID := mapString(row, "conn_id")
 
-	// A nil graph means the lock tables could not be read. Reporting NOT_BLOCKED then would
-	// dress a monitoring gap up as a healthy server, so the status stays unspecified and the
-	// UI can say it does not know rather than that nothing is wrong.
+	// A nil graph means no lock source could be read. Reporting NOT_BLOCKED then would dress a
+	// monitoring gap up as a healthy server, so the status stays unspecified and the UI can say
+	// it does not know rather than that nothing is wrong. The same applies, per statement, when
+	// only one of the two sources answered: blockers that were found are reported, but silence
+	// from an incomplete graph is not evidence of health.
 	blockedStatus := rtav1.BlockedStatus_BLOCKED_STATUS_UNSPECIFIED
+	lockType := rtav1.LockType_LOCK_TYPE_UNSPECIFIED
 	var blockedBy []*rtav1.BlockingTransaction
-	var lockedTable, lockedIndex string
+	var lockedTable, lockedIndex, requestedLockMode string
 
 	if graph != nil {
-		blockedBy = graph.blockers[connID]
-		blockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_NOT_BLOCKED
-		if len(blockedBy) > 0 {
+		// The waiter record, not the blocker list, is what says this statement is waiting: a
+		// holder can be a thread with no connection id, and reading "no blockers" as "not
+		// waiting" would turn that into a clean bill of health.
+		lock, waiting := graph.waiters[connID]
+		switch {
+		case waiting:
 			blockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_BLOCKED
-			lockedTable = graph.lockedTable[connID]
-			lockedIndex = graph.lockedIndex[connID]
+			blockedBy = graph.blockers[connID]
+			lockType = lock.lockType
+			lockedTable = lock.lockedTable
+			lockedIndex = lock.lockedIndex
+			requestedLockMode = lock.requestedMode
+		case graph.complete:
+			blockedStatus = rtav1.BlockedStatus_BLOCKED_STATUS_NOT_BLOCKED
 		}
 	}
 
@@ -716,6 +1353,8 @@ func (m *MySQLRTA) buildQueryData(row map[string]any, graph *blockingGraph) *rta
 		BlockedBy:         blockedBy,
 		LockedTable:       lockedTable,
 		LockedIndex:       lockedIndex,
+		LockType:          lockType,
+		RequestedLockMode: requestedLockMode,
 	}
 
 	rawJSON, err := json.MarshalIndent(row, "", "    ")

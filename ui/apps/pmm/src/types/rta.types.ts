@@ -88,20 +88,34 @@ export interface QueryMySQLData {
   rowsExamined?: number | string;
   rowsSent?: number | string;
   fullScan?: boolean;
-  // Whether the statement is waiting for a row lock. UNSPECIFIED means the agent
-  // could not read the lock graph at all, which must not be shown as "not blocked".
+  // Whether the statement is waiting for a lock. UNSPECIFIED means the agent could
+  // not read the lock graph at all, which must not be shown as "not blocked".
   blockedStatus?: BlockedStatus;
   blockedBy?: BlockingTransaction[];
   // The lock the statement itself is waiting for. A property of the waiter: every
   // blocker of a statement is contending over the same requested lock.
   lockedTable?: string;
+  // Row locks only. A metadata lock is taken on the table as a whole, so this is
+  // empty whenever lockType is metadata.
   lockedIndex?: string;
+  lockType?: LockType;
+  requestedLockMode?: string;
 }
 
 export enum BlockedStatus {
   unspecified = 'BLOCKED_STATUS_UNSPECIFIED',
   notBlocked = 'BLOCKED_STATUS_NOT_BLOCKED',
   blocked = 'BLOCKED_STATUS_BLOCKED',
+}
+
+// Which of MySQL's two independent locking mechanisms a statement is waiting on. They
+// are freed differently — a row lock by ending the holding transaction, a metadata lock
+// by the holder finishing its statement or transaction on that table — so the reader has
+// to be told which one they are looking at.
+export enum LockType {
+  unspecified = 'LOCK_TYPE_UNSPECIFIED',
+  row = 'LOCK_TYPE_ROW',
+  metadata = 'LOCK_TYPE_METADATA',
 }
 
 // A transaction preventing a statement from taking the lock it is waiting for.
@@ -117,6 +131,9 @@ export interface BlockingTransaction {
   // The blocker is not itself waiting, so it heads the chain: resolving it
   // releases everything queued behind it.
   root?: boolean;
+  // The mode this transaction holds on the contended object: "X,REC_NOT_GAP" and the
+  // like for a row lock, "SHARED_READ" and the like for a metadata lock.
+  blockingLockMode?: string;
 }
 
 // TODO: Add other service types when available

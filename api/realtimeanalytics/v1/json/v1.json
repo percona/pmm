@@ -155,7 +155,7 @@
                         "x-order": 8
                       },
                       "my_sql_payload": {
-                        "description": "QueryMySQLData holds MySQL-specific Real-Time Analytics query information.\nThe data is sourced from the sys.x$processlist view.",
+                        "description": "QueryMySQLData holds MySQL-specific Real-Time Analytics query information.\nThe data is read from performance_schema: the threads table and the current statement,\nstage, transaction and wait tables keyed by thread.",
                         "type": "object",
                         "properties": {
                           "db_instance_address": {
@@ -164,12 +164,12 @@
                             "x-order": 0
                           },
                           "program_name": {
-                            "description": "Client program name connected to MySQL (program_name from sys.x$processlist).",
+                            "description": "Client program name connected to MySQL, from the connection's program_name attribute.",
                             "type": "string",
                             "x-order": 1
                           },
                           "database_name": {
-                            "description": "Database name (db from sys.x$processlist).",
+                            "description": "Database name the connection is using.",
                             "type": "string",
                             "x-order": 2
                           },
@@ -206,7 +206,7 @@
                             "x-order": 8
                           },
                           "blocked_status": {
-                            "description": "BlockedStatus says whether a statement is waiting for a row lock, keeping \"we could not\nfind out\" distinct from \"we checked and it is not waiting\". Collapsing the two would let a\nmonitoring gap look like a healthy server during the incident the feature exists for.\n\n - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.\n - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.\n - BLOCKED_STATUS_BLOCKED: The statement is waiting for a row lock; blocked_by names the transactions holding it.",
+                            "description": "BlockedStatus says whether a statement is waiting for a lock, keeping \"we could not\nfind out\" distinct from \"we checked and it is not waiting\". Collapsing the two would let a\nmonitoring gap look like a healthy server during the incident the feature exists for.\n\n - BLOCKED_STATUS_UNSPECIFIED: The lock graph could not be read, so nothing is known about this statement's waiting.\n - BLOCKED_STATUS_NOT_BLOCKED: The lock graph was read and this statement is not waiting for a lock.\n - BLOCKED_STATUS_BLOCKED: The statement is waiting for a lock; blocked_by names the transactions holding it and\nlock_type says which kind of lock is being waited on.",
                             "type": "string",
                             "default": "BLOCKED_STATUS_UNSPECIFIED",
                             "enum": [
@@ -220,7 +220,7 @@
                             "description": "Transactions blocking this statement, ordered by connection id. Empty whenever\nblocked_status is not BLOCKED.",
                             "type": "array",
                             "items": {
-                              "description": "BlockingTransaction describes a transaction that is preventing a statement from\nacquiring the lock it needs. It is read from performance_schema.data_lock_waits in\nthe same collection cycle as the statement itself, so no extra round trip is needed\nto explain why a statement is stuck.",
+                              "description": "BlockingTransaction describes a transaction that is preventing a statement from\nacquiring the lock it needs. It is read from performance_schema.data_lock_waits (row locks)\nor performance_schema.metadata_locks (metadata locks) in the same collection cycle as the\nstatement itself, so no extra round trip is needed to explain why a statement is stuck.",
                               "type": "object",
                               "properties": {
                                 "blocking_conn_id": {
@@ -258,6 +258,11 @@
                                   "description": "True when this blocker is not itself waiting for a lock, i.e. it sits at the head of the\nblocking chain. More than one blocker of a statement can be marked -- several independent\ntransactions can hold up the same statement -- so a client must not present one of them\nas the sole cause unless it is the only one flagged. None are marked when the lock graph\nis a cycle and every participant is waiting.",
                                   "type": "boolean",
                                   "x-order": 6
+                                },
+                                "blocking_lock_mode": {
+                                  "description": "The lock mode this transaction holds on the contended object: an InnoDB mode such as\n\"X,REC_NOT_GAP\" or \"S,GAP\" for a row lock, or an MDL mode such as \"SHARED_READ\" or\n\"SHARED_UPGRADABLE\" for a metadata lock. Empty when the server did not report one.",
+                                  "type": "string",
+                                  "x-order": 7
                                 }
                               }
                             },
@@ -269,9 +274,25 @@
                             "x-order": 11
                           },
                           "locked_index": {
-                            "description": "Index the statement is waiting for a lock on. Empty unless blocked_status is BLOCKED.",
+                            "description": "Index the statement is waiting for a lock on. Row locks only -- a metadata lock is taken\non the table as a whole, so this stays empty when lock_type is METADATA. Empty unless\nblocked_status is BLOCKED.",
                             "type": "string",
                             "x-order": 12
+                          },
+                          "lock_type": {
+                            "description": "LockType says which of MySQL's two independent locking mechanisms a statement is waiting on.\nThey are collected from different tables and explain different problems, so a client that\nshowed them identically would tell the reader to look in the wrong place: an InnoDB row lock\nis released by ending the holding transaction, while a metadata lock is released by the\nholder finishing its statement or transaction on that table.\n\n - LOCK_TYPE_UNSPECIFIED: The lock graph could not be read, or the statement is not waiting at all.\n - LOCK_TYPE_ROW: An InnoDB row-level lock, read from performance_schema.data_lock_waits.\n - LOCK_TYPE_METADATA: A table metadata lock (MDL), read from performance_schema.metadata_locks. This is what\nholds up DDL behind an open transaction, and any statement queued behind that DDL.",
+                            "type": "string",
+                            "default": "LOCK_TYPE_UNSPECIFIED",
+                            "enum": [
+                              "LOCK_TYPE_UNSPECIFIED",
+                              "LOCK_TYPE_ROW",
+                              "LOCK_TYPE_METADATA"
+                            ],
+                            "x-order": 13
+                          },
+                          "requested_lock_mode": {
+                            "description": "The lock mode the waiting statement asked for, in the same vocabulary as\nBlockingTransaction.blocking_lock_mode. Empty unless blocked_status is BLOCKED.",
+                            "type": "string",
+                            "x-order": 14
                           }
                         },
                         "x-order": 9

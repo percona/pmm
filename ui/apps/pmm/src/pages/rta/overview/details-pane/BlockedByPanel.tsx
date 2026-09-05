@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { Chip, CodeBlock } from '@percona/peak-ui';
 import { FC } from 'react';
-import { BlockingTransaction } from 'types/rta.types';
+import { BlockingTransaction, LockType } from 'types/rta.types';
 import { formatDurationSeconds, parseDuration } from 'utils/duration.utils';
 import {
   blockingRoots,
@@ -24,7 +24,22 @@ export interface Props {
   // blockers, so it is passed once rather than read off whichever blocker leads the list.
   lockedTable?: string;
   lockedIndex?: string;
+  lockType?: LockType;
+  requestedLockMode?: string;
 }
+
+// Which mechanism the wait is on, in the reader's words. Unknown lock types render nothing
+// rather than a placeholder: a row that says "Lock type: —" is worse than no row.
+const lockTypeLabel = (lockType?: LockType): string | undefined => {
+  switch (lockType) {
+    case LockType.row:
+      return Messages.lockTypes.row;
+    case LockType.metadata:
+      return Messages.lockTypes.metadata;
+    default:
+      return undefined;
+  }
+};
 
 // MySQL reports an idle connection as "Sleep": it is inside an open transaction and is
 // running nothing, so its statement is the one that took the lock rather than a current one.
@@ -61,9 +76,56 @@ const PanelFrame: FC<React.PropsWithChildren> = ({ children }) => (
   </Box>
 );
 
+// BlockerList renders one group of blockers with the mode each holds, so a chain of mixed
+// modes reads as the sequence it is rather than as a list of interchangeable ids.
+const BlockerList: FC<{ title: string; blockers: BlockingTransaction[] }> = ({
+  title,
+  blockers,
+}) => (
+  <Stack gap={1}>
+    <Typography variant="caption" color="text.secondary">
+      {title}
+    </Typography>
+    <Stack gap={0.5}>
+      {blockers.map((blocker) => (
+        <Stack
+          key={String(blocker.blockingConnId)}
+          direction="row"
+          alignItems="center"
+          gap={1}
+        >
+          <Typography
+            variant="body2"
+            fontFamily="Roboto Mono, monospace"
+            color="text.secondary"
+          >
+            {blocker.blockingConnId}
+          </Typography>
+          {blocker.blockingLockMode && (
+            <Typography
+              variant="caption"
+              fontFamily="Roboto Mono, monospace"
+              color="text.secondary"
+            >
+              {blocker.blockingLockMode}
+            </Typography>
+          )}
+          {blocker.root && <Chip color="warning" label={Messages.root} />}
+        </Stack>
+      ))}
+    </Stack>
+  </Stack>
+);
+
 // BlockedByPanel explains why a statement is stuck. The data arrives with the statement in
 // the same collection cycle, so nothing here is fetched on open.
-const BlockedByPanel: FC<Props> = ({ blockers, lockedTable, lockedIndex }) => {
+const BlockedByPanel: FC<Props> = ({
+  blockers,
+  lockedTable,
+  lockedIndex,
+  lockType,
+  requestedLockMode,
+}) => {
   // Transactions that are not themselves waiting. Resolving those is what frees the
   // statement — but there can be several, and then no single one is the answer.
   // Both questions are answered by the shared helpers, so this pane, the table chip and the
@@ -76,7 +138,12 @@ const BlockedByPanel: FC<Props> = ({ blockers, lockedTable, lockedIndex }) => {
   // With no single culprit, lead with whichever transaction is at the head of the chain so
   // the pane still shows a concrete statement, while the heading stays honest about the count.
   const primary = sole ?? roots[0] ?? blockers[0];
+  // Split rather than lumped together: a second root holds the statement up independently and
+  // must be resolved too, while a non-root is only queued in front and clears on its own.
+  // Calling both "ahead" contradicted the hint below, which counts the roots.
   const others = blockers.filter((blocker) => blocker !== primary);
+  const otherRoots = others.filter((blocker) => blocker.root);
+  const queuedAhead = others.filter((blocker) => !blocker.root);
 
   if (!primary) {
     return (
@@ -164,7 +231,9 @@ const BlockedByPanel: FC<Props> = ({ blockers, lockedTable, lockedIndex }) => {
             />
             {isIdle && (
               <Typography variant="caption" color="text.secondary">
-                {Messages.idleNote}
+                {blockerAge
+                  ? Messages.idleNote
+                  : Messages.idleNoteNoTransaction}
               </Typography>
             )}
           </Stack>
@@ -184,37 +253,44 @@ const BlockedByPanel: FC<Props> = ({ blockers, lockedTable, lockedIndex }) => {
             value={primary.blockingUsername}
           />
           <Fact title={Messages.titles.lockedTable} value={lockedTable} />
+          {/* Empty for a metadata lock, which is taken on the table as a whole, and Fact
+              renders nothing rather than an empty row. */}
           <Fact title={Messages.titles.lockedIndex} value={lockedIndex} />
+          <Fact
+            title={Messages.titles.lockType}
+            value={lockTypeLabel(lockType)}
+          />
+          <Fact
+            title={Messages.titles.requestedMode}
+            value={requestedLockMode}
+          />
+          {/* Only when one transaction is named. With several blockers this sat next to the
+              requested mode as though the two were a matched pair, while the other blockers
+              held different modes; each one's mode is listed individually below instead. */}
+          {sole && (
+            <Fact
+              title={Messages.titles.blockingMode}
+              value={sole.blockingLockMode}
+            />
+          )}
         </Grid>
 
         {others.length > 0 && (
           <>
             <Divider />
-            <Stack gap={1}>
-              <Typography variant="caption" color="text.secondary">
-                {Messages.otherBlockers(others.length)}
-              </Typography>
-              <Stack gap={0.5}>
-                {others.map((blocker) => (
-                  <Stack
-                    key={String(blocker.blockingConnId)}
-                    direction="row"
-                    alignItems="center"
-                    gap={1}
-                  >
-                    <Typography
-                      variant="body2"
-                      fontFamily="Roboto Mono, monospace"
-                      color="text.secondary"
-                    >
-                      {blocker.blockingConnId}
-                    </Typography>
-                    {blocker.root && (
-                      <Chip color="warning" label={Messages.root} />
-                    )}
-                  </Stack>
-                ))}
-              </Stack>
+            <Stack gap={1.5}>
+              {otherRoots.length > 0 && (
+                <BlockerList
+                  title={Messages.otherRootBlockers(otherRoots.length)}
+                  blockers={otherRoots}
+                />
+              )}
+              {queuedAhead.length > 0 && (
+                <BlockerList
+                  title={Messages.otherBlockers(queuedAhead.length)}
+                  blockers={queuedAhead}
+                />
+              )}
             </Stack>
           </>
         )}
@@ -222,9 +298,11 @@ const BlockedByPanel: FC<Props> = ({ blockers, lockedTable, lockedIndex }) => {
         <Divider />
         <Typography variant="caption" color="text.secondary">
           {sole
-            ? Messages.resolveHint(sole.blockingConnId)
+            ? lockType === LockType.metadata
+              ? Messages.resolveHintMetadata(sole.blockingConnId)
+              : Messages.resolveHint(sole.blockingConnId)
             : roots.length > 1
-              ? Messages.resolveHintRoots(culpritCount)
+              ? Messages.resolveHintRoots(culpritCount, queuedAhead.length)
               : Messages.resolveHintCycle}
         </Typography>
       </Stack>

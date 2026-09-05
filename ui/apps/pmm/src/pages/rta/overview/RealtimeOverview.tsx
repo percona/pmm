@@ -41,8 +41,10 @@ const EMPTY_QUERIES: QueryData[] = [];
 
 const RealtimeOverviewPage: FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  // Blanks are dropped: "?serviceIds=" yields one empty string, which is not a selection
+  // and which the API rejects outright.
   const requestedServiceIds = useMemo(
-    () => searchParams.getAll('serviceIds'),
+    () => searchParams.getAll('serviceIds').filter(Boolean),
     [searchParams]
   );
   const { data: sessions = [], isLoading } = useRealtimeSessions();
@@ -58,7 +60,10 @@ const RealtimeOverviewPage: FC = () => {
   const { data: queries, refetch } = useRealtimeQueries(
     { serviceIds },
     {
-      enabled: fetching,
+      // Belt and braces. handleCloseDetails is where fetching and the selection can fall out
+      // of step, and it now reconciles them, but the request is rejected outright when it
+      // names no service so the invariant is asserted here too.
+      enabled: fetching && serviceIds.length > 0,
       refetchInterval: refreshInterval,
     }
   );
@@ -112,7 +117,10 @@ const RealtimeOverviewPage: FC = () => {
 
   const handleCloseDetails = () => {
     setSelectedQuery(undefined);
-    setFetching(previousFetchingState.current);
+    // The selection can be emptied while the pane is open, which makes the state captured on
+    // open stale: restoring it unchecked resumes polling with nothing selected, and the API
+    // rejects a request that names no service.
+    setFetching(previousFetchingState.current && serviceIds.length > 0);
   };
 
   const { isFirst, isLast, next, previous } =
@@ -301,7 +309,7 @@ const RealtimeOverviewPage: FC = () => {
                           ? Messages.blockedUnknown
                           : Messages.blockedOnly(blockedCount)
                       }
-                      sx={{ whiteSpace: 'nowrap', mr: 0 }}
+                      sx={{ whiteSpace: 'nowrap', mr: 1 }}
                     />
                   </Tooltip>
                   <Tooltip title={Messages.hideCommitTooltip} arrow>
@@ -317,7 +325,10 @@ const RealtimeOverviewPage: FC = () => {
                         />
                       }
                       label={Messages.hideCommit}
-                      sx={{ whiteSpace: 'nowrap', mr: 0 }}
+                      // ml resets the negative margin FormControlLabel applies to align a
+                      // standalone switch; left in place it pulls this control flush against
+                      // the previous label, so the two toggles read as one run of text.
+                      sx={{ whiteSpace: 'nowrap', ml: 0, mr: 0 }}
                     />
                   </Tooltip>
                 </>

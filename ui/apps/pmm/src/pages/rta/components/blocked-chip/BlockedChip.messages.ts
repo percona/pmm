@@ -9,12 +9,14 @@ export const Messages = {
       : `Blocked by ${count} transactions`,
   // The statement is waiting but no holder came with this snapshot.
   blockedUnknownHolder: 'Blocked',
+  // "a lock" rather than "a row lock": the same chip now covers metadata locks, and naming the
+  // wrong mechanism sends the reader looking in the wrong place. The pane says which it is.
   tooltip: (connId: number | string) =>
-    `This statement is waiting for a row lock held by connection ${connId}.`,
+    `This statement is waiting for a lock held by connection ${connId}.`,
   tooltipMany: (count: number) =>
     count === 1
-      ? 'This statement is waiting for a row lock. Open the row to see which transaction holds it.'
-      : `This statement is waiting for a row lock held by ${count} transactions. Open the row to see them.`,
+      ? 'This statement is waiting for a lock. Open the row to see which transaction holds it.'
+      : `This statement is waiting for a lock held by ${count} transactions. Open the row to see them.`,
   tooltipUnknownHolder:
-    'This statement is waiting for a row lock. The transaction holding it was not in this snapshot; the next refresh should show it.',
+    'This statement is waiting for a lock. The transaction holding it was not in this snapshot; the next refresh should show it.',
 };

@@ -79,6 +79,8 @@ const QueryAndDetails: FC<Props> = ({ queryData }) => {
             blockers={blockers}
             lockedTable={mySqlPayload?.lockedTable}
             lockedIndex={mySqlPayload?.lockedIndex}
+            lockType={mySqlPayload?.lockType}
+            requestedLockMode={mySqlPayload?.requestedLockMode}
           />
         </Grid>
       )}

@@ -695,4 +695,50 @@ describe('RealtimeOverview', () => {
       }),
     ]);
   });
+
+  it('never asks the API for an empty selection after the pane is closed', async () => {
+    // Clearing the selection while the details pane is open leaves the polling toggle off,
+    // and closing the pane restores the state it had before opening -- fetching, with
+    // nothing selected. The request needs at least one service id ("value must contain at
+    // least 1 item(s)"), so the guard belongs on the request, not only on the controls.
+    renderMySqlSelection();
+
+    await waitFor(() =>
+      expect(
+        screen.getAllByText(TEST_MYSQL_QUERY_DATA.serviceName)[0]
+      ).toBeInTheDocument()
+    );
+
+    fireEvent.click(screen.getAllByText(TEST_MYSQL_QUERY_DATA.serviceName)[0]);
+    expect(screen.getByTestId('query-details-pane')).toBeInTheDocument();
+
+    // Empty the selection while the pane is open, then close it.
+    fireEvent.click(screen.getByTitle('Clear'));
+    searchQueries.mockClear();
+    fireEvent.click(screen.getByTestId('details-pane-close-button'));
+
+    // The pane slides out rather than unmounting, so closing is observed via aria-hidden.
+    await waitFor(() =>
+      expect(screen.getByTestId('query-details-pane')).toHaveAttribute(
+        'aria-hidden',
+        'true'
+      )
+    );
+
+    for (const [payload] of searchQueries.mock.calls) {
+      expect(payload.serviceIds.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('treats a blank serviceIds parameter as no selection', async () => {
+    // "?serviceIds=" parses to one empty string, which counts as a selection by length but
+    // is not one, and the API rejects it.
+    searchQueries.mockClear();
+    getRunningSessions.mockResolvedValue([]);
+
+    renderComponent({ initialEntry: '/rta/overview?serviceIds=' });
+
+    await waitFor(() => expect(getRunningSessions).toHaveBeenCalled());
+    expect(searchQueries).not.toHaveBeenCalled();
+  });
 });

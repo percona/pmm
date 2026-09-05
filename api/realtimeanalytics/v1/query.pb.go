@@ -26,7 +26,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// BlockedStatus says whether a statement is waiting for a row lock, keeping "we could not
+// BlockedStatus says whether a statement is waiting for a lock, keeping "we could not
 // find out" distinct from "we checked and it is not waiting". Collapsing the two would let a
 // monitoring gap look like a healthy server during the incident the feature exists for.
 type BlockedStatus int32
@@ -36,7 +36,8 @@ const (
 	BlockedStatus_BLOCKED_STATUS_UNSPECIFIED BlockedStatus = 0
 	// The lock graph was read and this statement is not waiting for a lock.
 	BlockedStatus_BLOCKED_STATUS_NOT_BLOCKED BlockedStatus = 1
-	// The statement is waiting for a row lock; blocked_by names the transactions holding it.
+	// The statement is waiting for a lock; blocked_by names the transactions holding it and
+	// lock_type says which kind of lock is being waited on.
 	BlockedStatus_BLOCKED_STATUS_BLOCKED BlockedStatus = 2
 )
 
@@ -79,6 +80,64 @@ func (x BlockedStatus) Number() protoreflect.EnumNumber {
 // Deprecated: Use BlockedStatus.Descriptor instead.
 func (BlockedStatus) EnumDescriptor() ([]byte, []int) {
 	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{0}
+}
+
+// LockType says which of MySQL's two independent locking mechanisms a statement is waiting on.
+// They are collected from different tables and explain different problems, so a client that
+// showed them identically would tell the reader to look in the wrong place: an InnoDB row lock
+// is released by ending the holding transaction, while a metadata lock is released by the
+// holder finishing its statement or transaction on that table.
+type LockType int32
+
+const (
+	// The lock graph could not be read, or the statement is not waiting at all.
+	LockType_LOCK_TYPE_UNSPECIFIED LockType = 0
+	// An InnoDB row-level lock, read from performance_schema.data_lock_waits.
+	LockType_LOCK_TYPE_ROW LockType = 1
+	// A table metadata lock (MDL), read from performance_schema.metadata_locks. This is what
+	// holds up DDL behind an open transaction, and any statement queued behind that DDL.
+	LockType_LOCK_TYPE_METADATA LockType = 2
+)
+
+// Enum value maps for LockType.
+var (
+	LockType_name = map[int32]string{
+		0: "LOCK_TYPE_UNSPECIFIED",
+		1: "LOCK_TYPE_ROW",
+		2: "LOCK_TYPE_METADATA",
+	}
+	LockType_value = map[string]int32{
+		"LOCK_TYPE_UNSPECIFIED": 0,
+		"LOCK_TYPE_ROW":         1,
+		"LOCK_TYPE_METADATA":    2,
+	}
+)
+
+func (x LockType) Enum() *LockType {
+	p := new(LockType)
+	*p = x
+	return p
+}
+
+func (x LockType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (LockType) Descriptor() protoreflect.EnumDescriptor {
+	return file_realtimeanalytics_v1_query_proto_enumTypes[1].Descriptor()
+}
+
+func (LockType) Type() protoreflect.EnumType {
+	return &file_realtimeanalytics_v1_query_proto_enumTypes[1]
+}
+
+func (x LockType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use LockType.Descriptor instead.
+func (LockType) EnumDescriptor() ([]byte, []int) {
+	return file_realtimeanalytics_v1_query_proto_rawDescGZIP(), []int{1}
 }
 
 // QueryMongoDBData holds MongoDB-specific Real-Time Analytics query information.
@@ -191,9 +250,9 @@ func (x *QueryMongoDBData) GetPlanSummary() string {
 }
 
 // BlockingTransaction describes a transaction that is preventing a statement from
-// acquiring the lock it needs. It is read from performance_schema.data_lock_waits in
-// the same collection cycle as the statement itself, so no extra round trip is needed
-// to explain why a statement is stuck.
+// acquiring the lock it needs. It is read from performance_schema.data_lock_waits (row locks)
+// or performance_schema.metadata_locks (metadata locks) in the same collection cycle as the
+// statement itself, so no extra round trip is needed to explain why a statement is stuck.
 type BlockingTransaction struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Connection id (processlist id) of the blocking transaction.
@@ -215,9 +274,13 @@ type BlockingTransaction struct {
 	// transactions can hold up the same statement -- so a client must not present one of them
 	// as the sole cause unless it is the only one flagged. None are marked when the lock graph
 	// is a cycle and every participant is waiting.
-	Root          bool `protobuf:"varint,7,opt,name=root,proto3" json:"root,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	Root bool `protobuf:"varint,7,opt,name=root,proto3" json:"root,omitempty"`
+	// The lock mode this transaction holds on the contended object: an InnoDB mode such as
+	// "X,REC_NOT_GAP" or "S,GAP" for a row lock, or an MDL mode such as "SHARED_READ" or
+	// "SHARED_UPGRADABLE" for a metadata lock. Empty when the server did not report one.
+	BlockingLockMode string `protobuf:"bytes,8,opt,name=blocking_lock_mode,json=blockingLockMode,proto3" json:"blocking_lock_mode,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *BlockingTransaction) Reset() {
@@ -299,15 +362,23 @@ func (x *BlockingTransaction) GetRoot() bool {
 	return false
 }
 
+func (x *BlockingTransaction) GetBlockingLockMode() string {
+	if x != nil {
+		return x.BlockingLockMode
+	}
+	return ""
+}
+
 // QueryMySQLData holds MySQL-specific Real-Time Analytics query information.
-// The data is sourced from the sys.x$processlist view.
+// The data is read from performance_schema: the threads table and the current statement,
+// stage, transaction and wait tables keyed by thread.
 type QueryMySQLData struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// MySQL instance address(host:port) that processing the query.
 	DbInstanceAddress string `protobuf:"bytes,1,opt,name=db_instance_address,json=dbInstanceAddress,proto3" json:"db_instance_address,omitempty"`
-	// Client program name connected to MySQL (program_name from sys.x$processlist).
+	// Client program name connected to MySQL, from the connection's program_name attribute.
 	ProgramName string `protobuf:"bytes,2,opt,name=program_name,json=programName,proto3" json:"program_name,omitempty"`
-	// Database name (db from sys.x$processlist).
+	// Database name the connection is using.
 	DatabaseName string `protobuf:"bytes,3,opt,name=database_name,json=databaseName,proto3" json:"database_name,omitempty"`
 	// Command type the connection is executing ("Query", "Execute", etc).
 	Command string `protobuf:"bytes,4,opt,name=command,proto3" json:"command,omitempty"`
@@ -332,10 +403,18 @@ type QueryMySQLData struct {
 	// the statement itself requested, so it is a property of the waiter rather than of any one
 	// blocking transaction. Empty unless blocked_status is BLOCKED.
 	LockedTable string `protobuf:"bytes,12,opt,name=locked_table,json=lockedTable,proto3" json:"locked_table,omitempty"`
-	// Index the statement is waiting for a lock on. Empty unless blocked_status is BLOCKED.
-	LockedIndex   string `protobuf:"bytes,13,opt,name=locked_index,json=lockedIndex,proto3" json:"locked_index,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Index the statement is waiting for a lock on. Row locks only -- a metadata lock is taken
+	// on the table as a whole, so this stays empty when lock_type is METADATA. Empty unless
+	// blocked_status is BLOCKED.
+	LockedIndex string `protobuf:"bytes,13,opt,name=locked_index,json=lockedIndex,proto3" json:"locked_index,omitempty"`
+	// Which locking mechanism the statement is waiting on. UNSPECIFIED whenever blocked_status
+	// is not BLOCKED.
+	LockType LockType `protobuf:"varint,14,opt,name=lock_type,json=lockType,proto3,enum=realtimeanalytics.v1.LockType" json:"lock_type,omitempty"`
+	// The lock mode the waiting statement asked for, in the same vocabulary as
+	// BlockingTransaction.blocking_lock_mode. Empty unless blocked_status is BLOCKED.
+	RequestedLockMode string `protobuf:"bytes,15,opt,name=requested_lock_mode,json=requestedLockMode,proto3" json:"requested_lock_mode,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *QueryMySQLData) Reset() {
@@ -455,6 +534,20 @@ func (x *QueryMySQLData) GetLockedTable() string {
 func (x *QueryMySQLData) GetLockedIndex() string {
 	if x != nil {
 		return x.LockedIndex
+	}
+	return ""
+}
+
+func (x *QueryMySQLData) GetLockType() LockType {
+	if x != nil {
+		return x.LockType
+	}
+	return LockType_LOCK_TYPE_UNSPECIFIED
+}
+
+func (x *QueryMySQLData) GetRequestedLockMode() string {
+	if x != nil {
+		return x.RequestedLockMode
 	}
 	return ""
 }
@@ -634,7 +727,7 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\toperation\x18\x05 \x01(\tR\toperation\x12L\n" +
 	"\x14operation_start_time\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\x12operationStartTime\x12 \n" +
 	"\busername\x18\a \x01(\tB\x04\x88\xb5\x18\x01R\busername\x12!\n" +
-	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xf5\x02\n" +
+	"\fplan_summary\x18\b \x01(\tR\vplanSummary\"\xa3\x03\n" +
 	"\x13BlockingTransaction\x12(\n" +
 	"\x10blocking_conn_id\x18\x01 \x01(\x03R\x0eblockingConnId\x12%\n" +
 	"\x0eblocking_query\x18\x02 \x01(\tR\rblockingQuery\x12)\n" +
@@ -642,7 +735,8 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\x11blocking_username\x18\x04 \x01(\tB\x04\x88\xb5\x18\x01R\x10blockingUsername\x12>\n" +
 	"\rwait_duration\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\fwaitDuration\x12[\n" +
 	"\x1cblocker_transaction_duration\x18\x06 \x01(\v2\x19.google.protobuf.DurationR\x1ablockerTransactionDuration\x12\x12\n" +
-	"\x04root\x18\a \x01(\bR\x04root\"\x95\x04\n" +
+	"\x04root\x18\a \x01(\bR\x04root\x12,\n" +
+	"\x12blocking_lock_mode\x18\b \x01(\tR\x10blockingLockMode\"\x82\x05\n" +
 	"\x0eQueryMySQLData\x12.\n" +
 	"\x13db_instance_address\x18\x01 \x01(\tR\x11dbInstanceAddress\x12!\n" +
 	"\fprogram_name\x18\x02 \x01(\tR\vprogramName\x12#\n" +
@@ -658,7 +752,9 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\n" +
 	"blocked_by\x18\v \x03(\v2).realtimeanalytics.v1.BlockingTransactionR\tblockedBy\x12!\n" +
 	"\flocked_table\x18\f \x01(\tR\vlockedTable\x12!\n" +
-	"\flocked_index\x18\r \x01(\tR\vlockedIndex\"\xa0\x04\n" +
+	"\flocked_index\x18\r \x01(\tR\vlockedIndex\x12;\n" +
+	"\tlock_type\x18\x0e \x01(\x0e2\x1e.realtimeanalytics.v1.LockTypeR\blockType\x12.\n" +
+	"\x13requested_lock_mode\x18\x0f \x01(\tR\x11requestedLockMode\"\xa0\x04\n" +
 	"\tQueryData\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12!\n" +
@@ -677,7 +773,11 @@ const file_realtimeanalytics_v1_query_proto_rawDesc = "" +
 	"\rBlockedStatus\x12\x1e\n" +
 	"\x1aBLOCKED_STATUS_UNSPECIFIED\x10\x00\x12\x1e\n" +
 	"\x1aBLOCKED_STATUS_NOT_BLOCKED\x10\x01\x12\x1a\n" +
-	"\x16BLOCKED_STATUS_BLOCKED\x10\x02B\xdc\x01\n" +
+	"\x16BLOCKED_STATUS_BLOCKED\x10\x02*P\n" +
+	"\bLockType\x12\x19\n" +
+	"\x15LOCK_TYPE_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rLOCK_TYPE_ROW\x10\x01\x12\x16\n" +
+	"\x12LOCK_TYPE_METADATA\x10\x02B\xdc\x01\n" +
 	"\x18com.realtimeanalytics.v1B\n" +
 	"QueryProtoP\x01ZCgithub.com/percona/pmm/api/realtimeanalytics/v1;realtimeanalyticsv1\xa2\x02\x03RXX\xaa\x02\x14Realtimeanalytics.V1\xca\x02\x14Realtimeanalytics\\V1\xe2\x02 Realtimeanalytics\\V1\\GPBMetadata\xea\x02\x15Realtimeanalytics::V1b\x06proto3"
 
@@ -694,34 +794,36 @@ func file_realtimeanalytics_v1_query_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_realtimeanalytics_v1_query_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_realtimeanalytics_v1_query_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 	file_realtimeanalytics_v1_query_proto_msgTypes  = make([]protoimpl.MessageInfo, 4)
 	file_realtimeanalytics_v1_query_proto_goTypes   = []any{
 		BlockedStatus(0),              // 0: realtimeanalytics.v1.BlockedStatus
-		(*QueryMongoDBData)(nil),      // 1: realtimeanalytics.v1.QueryMongoDBData
-		(*BlockingTransaction)(nil),   // 2: realtimeanalytics.v1.BlockingTransaction
-		(*QueryMySQLData)(nil),        // 3: realtimeanalytics.v1.QueryMySQLData
-		(*QueryData)(nil),             // 4: realtimeanalytics.v1.QueryData
-		(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-		(*durationpb.Duration)(nil),   // 6: google.protobuf.Duration
+		LockType(0),                   // 1: realtimeanalytics.v1.LockType
+		(*QueryMongoDBData)(nil),      // 2: realtimeanalytics.v1.QueryMongoDBData
+		(*BlockingTransaction)(nil),   // 3: realtimeanalytics.v1.BlockingTransaction
+		(*QueryMySQLData)(nil),        // 4: realtimeanalytics.v1.QueryMySQLData
+		(*QueryData)(nil),             // 5: realtimeanalytics.v1.QueryData
+		(*timestamppb.Timestamp)(nil), // 6: google.protobuf.Timestamp
+		(*durationpb.Duration)(nil),   // 7: google.protobuf.Duration
 	}
 )
 
 var file_realtimeanalytics_v1_query_proto_depIdxs = []int32{
-	5, // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
-	6, // 1: realtimeanalytics.v1.BlockingTransaction.wait_duration:type_name -> google.protobuf.Duration
-	6, // 2: realtimeanalytics.v1.BlockingTransaction.blocker_transaction_duration:type_name -> google.protobuf.Duration
-	0, // 3: realtimeanalytics.v1.QueryMySQLData.blocked_status:type_name -> realtimeanalytics.v1.BlockedStatus
-	2, // 4: realtimeanalytics.v1.QueryMySQLData.blocked_by:type_name -> realtimeanalytics.v1.BlockingTransaction
-	6, // 5: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
-	5, // 6: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
-	1, // 7: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
-	3, // 8: realtimeanalytics.v1.QueryData.my_sql_payload:type_name -> realtimeanalytics.v1.QueryMySQLData
-	9, // [9:9] is the sub-list for method output_type
-	9, // [9:9] is the sub-list for method input_type
-	9, // [9:9] is the sub-list for extension type_name
-	9, // [9:9] is the sub-list for extension extendee
-	0, // [0:9] is the sub-list for field type_name
+	6,  // 0: realtimeanalytics.v1.QueryMongoDBData.operation_start_time:type_name -> google.protobuf.Timestamp
+	7,  // 1: realtimeanalytics.v1.BlockingTransaction.wait_duration:type_name -> google.protobuf.Duration
+	7,  // 2: realtimeanalytics.v1.BlockingTransaction.blocker_transaction_duration:type_name -> google.protobuf.Duration
+	0,  // 3: realtimeanalytics.v1.QueryMySQLData.blocked_status:type_name -> realtimeanalytics.v1.BlockedStatus
+	3,  // 4: realtimeanalytics.v1.QueryMySQLData.blocked_by:type_name -> realtimeanalytics.v1.BlockingTransaction
+	1,  // 5: realtimeanalytics.v1.QueryMySQLData.lock_type:type_name -> realtimeanalytics.v1.LockType
+	7,  // 6: realtimeanalytics.v1.QueryData.query_execution_duration:type_name -> google.protobuf.Duration
+	6,  // 7: realtimeanalytics.v1.QueryData.query_collect_time:type_name -> google.protobuf.Timestamp
+	2,  // 8: realtimeanalytics.v1.QueryData.mongo_db_payload:type_name -> realtimeanalytics.v1.QueryMongoDBData
+	4,  // 9: realtimeanalytics.v1.QueryData.my_sql_payload:type_name -> realtimeanalytics.v1.QueryMySQLData
+	10, // [10:10] is the sub-list for method output_type
+	10, // [10:10] is the sub-list for method input_type
+	10, // [10:10] is the sub-list for extension type_name
+	10, // [10:10] is the sub-list for extension extendee
+	0,  // [0:10] is the sub-list for field type_name
 }
 
 func init() { file_realtimeanalytics_v1_query_proto_init() }
@@ -738,7 +840,7 @@ func file_realtimeanalytics_v1_query_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_realtimeanalytics_v1_query_proto_rawDesc), len(file_realtimeanalytics_v1_query_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      2,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,

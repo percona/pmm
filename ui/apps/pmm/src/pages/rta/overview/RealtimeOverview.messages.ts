@@ -9,7 +9,7 @@ export const Messages = {
   blockedOnly: (count: number) =>
     count > 0 ? `Blocked only (${count})` : 'Blocked only',
   blockedOnlyTooltip:
-    'Show only statements waiting for a row lock. Collection is unaffected; this filters the view.',
+    'Show only statements waiting for a lock, of either kind. Collection is unaffected; this filters the view.',
   // Distinct from "(0)": nothing is known about waiting, so no claim is made either way.
   blockedUnknown: 'Blocked unknown',
   blockedUnknownTooltip:

@@ -124,6 +124,15 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
       )}
       disabled={disabled || serviceOptions.length === 0}
       data-testid={testId}
+      // Only the one-line 'label' summary needs this: without it a selection wider than the
+      // field pushes the text input and the clear button onto a second line and the control
+      // grows into the toolbar. The 'tags' presentation renders a chip row that is meant to
+      // wrap, so forcing nowrap on it would squeeze the input instead.
+      sx={
+        tagPresentation === 'label'
+          ? { '& .MuiAutocomplete-inputRoot': { flexWrap: 'nowrap' } }
+          : undefined
+      }
     />
   );
 };
