@@ -1,5 +1,8 @@
+import { AlertColor } from '@mui/material/Alert';
 import {
   ApiError,
+  type ConnectivityResult,
+  type ConnectivityStatus,
   SettingClassGroup,
   SettingResponse,
   settingErrorMessage,
@@ -8,6 +11,7 @@ import { Messages } from '../../Settings.messages';
 import {
   DELIVERY_INPUTS_KEY,
   DELIVERY_PLAN_KEY,
+  DELIVERY_TARGETS,
   SEP_SETTINGS_CLASS,
 } from './ServiceNowConnection.constants';
 import {
@@ -106,11 +110,53 @@ export const toFormValues = (
 });
 
 /**
+ * Render an endpoint the way SEP will actually use it.
+ *
+ * SEP keeps only `scheme://netloc` as the delivery transport's origin and moves
+ * the endpoint's path and query onto the plan's own step paths
+ * (`split_endpoint`), joining each step onto the endpoint path with its
+ * trailing slash stripped. So `https://host//` and `https://host` reach the
+ * same receiver, while the tab would go on displaying whichever was typed.
+ * Normalizing on write keeps the value shown and the value used identical.
+ *
+ * A blank endpoint stays blank — it means "keep the receiver this image bakes
+ * in", and normalization must never turn that into a stored one. Anything that
+ * is not an http(s) URL is passed through trimmed and left to SEP: the schema
+ * already refuses it before submit, and inventing a shape for it here could
+ * only ever store something the operator did not type.
+ */
+export const normalizeEndpoint = (value: string): string => {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return '';
+  }
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    return trimmed;
+  }
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return trimmed;
+  }
+  // SEP reads the query with `parse_qsl` into a dict, so a repeated key keeps
+  // only its last value; the fragment never reaches `split_endpoint` at all.
+  const query = new URLSearchParams();
+  url.searchParams.forEach((paramValue, key) => query.set(key, paramValue));
+  const search = query.toString();
+  return `${url.origin}${url.pathname.replace(/\/+$/, '')}${
+    search ? `?${search}` : ''
+  }`;
+};
+
+/**
  * Build the PATCH value: one whole object carrying exactly the declared secret
  * names.
  *
  * `endpoint` is dropped when blank so SEP keeps the receiver its image bakes
- * in — that is also how a previously entered endpoint is reverted. The secrets
+ * in — that is also how a previously entered endpoint is reverted, and it is
+ * stored normalized so the tab never displays a value SEP would reduce to
+ * something else. The secrets
  * are whatever the operator typed: the form requires every declared one, so
  * there is no mask to restore and no empty value to send.
  */
@@ -118,7 +164,7 @@ export const buildDeliveryInputsPatch = (
   values: ServiceNowFormValues,
   declaredNames: string[]
 ): DeliveryInputs => {
-  const endpoint = values.endpoint.trim();
+  const endpoint = normalizeEndpoint(values.endpoint);
   const secrets = Object.fromEntries(
     declaredNames.map((name, index) => [name, values.secrets[index] ?? ''])
   );
@@ -232,4 +278,71 @@ export const secretLabel = (name: string): string =>
 export const secretHelperText = (name: string): string => {
   const { secretCopy, secretHelper } = Messages.serviceNow;
   return secretCopy[name]?.helper ?? secretHelper(name);
+};
+
+/**
+ * Alert severity per probe outcome, keyed by SEP's generated union so a member
+ * added there fails to compile here rather than rendering unstyled.
+ *
+ * `not_configured` and `probe_undeclared` are informational on purpose: neither
+ * says anything failed. The first means there is nothing stored to reach out
+ * with, the second that this image's delivery plan declares no probe at all —
+ * "nothing to test here", not a fault the operator caused.
+ */
+const STATUS_SEVERITY: Record<ConnectivityStatus, AlertColor> = {
+  reachable: 'success',
+  auth_failed: 'error',
+  error: 'error',
+  unreachable: 'error',
+  ssl_error: 'error',
+  timeout: 'warning',
+  not_configured: 'info',
+  inputs_drifted: 'warning',
+  probe_undeclared: 'info',
+};
+
+export interface ConnectivityOutcome {
+  message: string;
+  severity: AlertColor;
+}
+
+/**
+ * The delivery entry of a probe response.
+ *
+ * The request names exactly one target and SEP answers one result per target in
+ * request order, so the fallback is only reached by a SEP that answered
+ * something else — in which case the first entry is still the only result there
+ * is, and reporting it beats reporting nothing.
+ */
+export const deliveryResult = (
+  results: ConnectivityResult[] | undefined
+): ConnectivityResult | undefined =>
+  results?.find((result) => result.service === DELIVERY_TARGETS[0]) ??
+  results?.[0];
+
+/**
+ * How to render a probe that ran, in the operator's terms rather than the
+ * receiver's.
+ *
+ * SEP's own `detail` is deliberately not shown: for everything except the two
+ * unavailable outcomes it is a fixed English sentence this copy already says
+ * better, and the ticket's complaint about a failure "phrased in the receiver's
+ * own words" is exactly what it would put back.
+ *
+ * A status this UI has no copy for is a newer SEP than this PMM. Falling back
+ * on `reachable` keeps the one thing every result carries — whether the
+ * receiver answered — rather than rendering an empty alert.
+ */
+export const connectivityOutcome = (
+  result: ConnectivityResult
+): ConnectivityOutcome => {
+  const { statuses, unknown } = Messages.serviceNow.test;
+  const message = statuses[result.status] as string | undefined;
+  const severity = STATUS_SEVERITY[result.status] as AlertColor | undefined;
+  if (message && severity) {
+    return { message, severity };
+  }
+  return result.reachable
+    ? { message: unknown.reachable, severity: 'success' }
+    : { message: unknown.unreachable, severity: 'error' };
 };

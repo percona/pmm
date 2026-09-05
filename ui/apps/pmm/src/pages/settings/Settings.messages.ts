@@ -1,3 +1,4 @@
+import { type ConnectivityStatus } from '@sep/api';
 import { PERCONA_SUPPORT_CONTACT_URL } from 'lib/constants';
 
 export const Messages = {
@@ -167,6 +168,39 @@ export const Messages = {
     disconnectConfirm: 'Disconnect',
     disconnectCancel: 'Cancel',
     disconnectSuccess: 'ServiceNow connection removed',
+    // The delivery connectivity probe. SEP classifies every probe into one of
+    // `ConnectivityStatusEnum`'s members, so the record is keyed by the
+    // generated union — a member added to SEP fails to compile here rather
+    // than rendering nothing, and until it is written it falls back to
+    // `unknown` below.
+    test: {
+      action: 'Test connection',
+      testing: 'Testing…',
+      statuses: {
+        reachable: 'ServiceNow answered. This connection works.',
+        auth_failed:
+          'ServiceNow rejected the stored credentials. Renew them and test again.',
+        error:
+          'ServiceNow answered with an error. Check the endpoint, and renew the credentials if it keeps failing.',
+        unreachable:
+          "Couldn't reach the ServiceNow endpoint. Check the endpoint and that this PMM server can reach it.",
+        ssl_error:
+          "The ServiceNow endpoint's certificate couldn't be verified.",
+        timeout: "ServiceNow didn't answer in time. Try again.",
+        not_configured:
+          "There's nothing to test yet — connect ServiceNow first.",
+        inputs_drifted:
+          'The saved credentials no longer match what this PMM version expects. Renew them to reconnect.',
+        // Not an error and not the operator's doing: this image's delivery plan
+        // declares no probe, so there is nothing to reach out to.
+        probe_undeclared:
+          "This PMM version doesn't ship a connectivity test for ServiceNow, so there's nothing to check. The saved connection is unaffected.",
+      } as Record<ConnectivityStatus, string>,
+      unknown: {
+        reachable: 'ServiceNow answered. This connection works.',
+        unreachable: "ServiceNow couldn't be reached.",
+      },
+    },
     loading: 'Loading the ServiceNow connection…',
     validation: {
       invalidUrl: 'Enter a valid URL (e.g. https://example.service-now.com/)',
@@ -183,6 +217,7 @@ export const Messages = {
         "Couldn't save the connection. The previous configuration is unchanged.",
       loadFailed:
         "Couldn't load the ServiceNow connection. This is usually temporary — try again, or reload the page.",
+      testFailed: "Couldn't run the test. The saved connection is unchanged.",
     },
   },
   service: {

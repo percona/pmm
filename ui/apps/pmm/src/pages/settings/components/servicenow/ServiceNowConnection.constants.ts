@@ -1,4 +1,4 @@
-import { SettingClass } from '@sep/api';
+import { type ConnectivityCheckRequest, SettingClass } from '@sep/api';
 
 /** The SEP settings class that owns the diagnostics delivery keys. */
 export const SEP_SETTINGS_CLASS: SettingClass = 'SEPSettings';
@@ -17,3 +17,12 @@ export const DELIVERY_INPUTS_KEY = 'DIAGNOSTICS_DELIVERY_INPUTS';
  * one is picked up on the next load rather than 422-ing on save.
  */
 export const DELIVERY_PLAN_KEY = 'DIAGNOSTICS_DELIVERY';
+
+/**
+ * The single connectivity target this tab probes, as SEP's generated
+ * `ServiceEnum` — the endpoint probes whatever it is asked for, and the tab has
+ * no reason to report on PMM, Inventory, Tasks or Nomad.
+ */
+export const DELIVERY_TARGETS: ConnectivityCheckRequest['targets'] = [
+  'delivery',
+];

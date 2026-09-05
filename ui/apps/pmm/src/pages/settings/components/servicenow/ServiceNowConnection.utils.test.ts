@@ -1,4 +1,10 @@
-import { ApiError, REDACTED_SECRET, SettingClassGroup } from '@sep/api';
+import {
+  ApiError,
+  type ConnectivityResult,
+  type ConnectivityStatus,
+  REDACTED_SECRET,
+  SettingClassGroup,
+} from '@sep/api';
 import { Messages } from '../../Settings.messages';
 import {
   DELIVERY_INPUTS_KEY,
@@ -7,7 +13,10 @@ import {
 import {
   buildDeliveryInputsPatch,
   connectionStatus,
+  connectivityOutcome,
   declaredSecretNames,
+  deliveryResult,
+  normalizeEndpoint,
   secretHelperText,
   secretLabel,
   sepErrorMessage,
@@ -144,7 +153,7 @@ describe('buildDeliveryInputsPatch', () => {
     );
 
     expect(patch).toEqual({
-      endpoint: 'https://acme.service-now.com/',
+      endpoint: 'https://acme.service-now.com',
       secrets: { sn_api_key: 'a', client_token: 'b' },
     });
   });
@@ -163,13 +172,13 @@ describe('buildDeliveryInputsPatch', () => {
     ).toEqual({ secrets: { sn_api_key: 'a' } });
   });
 
-  it('trims the endpoint it does send', () => {
+  it('stores the endpoint as SEP will use it, not as it was typed', () => {
     expect(
       buildDeliveryInputsPatch(
-        { endpoint: '  https://acme.service-now.com/ ', secrets: [] },
+        { endpoint: '  https://acme.service-now.com// ', secrets: [] },
         []
       )
-    ).toEqual({ endpoint: 'https://acme.service-now.com/', secrets: {} });
+    ).toEqual({ endpoint: 'https://acme.service-now.com', secrets: {} });
   });
 
   it('keys the payload by name even for a name that is not a valid form path', () => {
@@ -328,5 +337,121 @@ describe('secretHelperText', () => {
 
   it('names the raw key for a name the UI has no copy for', () => {
     expect(secretHelperText('instance_url')).toContain('instance_url');
+  });
+});
+
+describe('normalizeEndpoint', () => {
+  it.each([
+    ['https://acme.service-now.com/', 'https://acme.service-now.com'],
+    ['https://acme.service-now.com//', 'https://acme.service-now.com'],
+    ['  https://acme.service-now.com  ', 'https://acme.service-now.com'],
+    [
+      'https://acme.service-now.com/api/now/',
+      'https://acme.service-now.com/api/now',
+    ],
+  ])('reduces %s to what SEP keeps: %s', (typed, stored) => {
+    expect(normalizeEndpoint(typed)).toBe(stored);
+  });
+
+  it('keeps the query SEP carries onto the step, last value winning', () => {
+    expect(normalizeEndpoint('https://acme.service-now.com/?a=1&a=2&b=3')).toBe(
+      'https://acme.service-now.com?a=2&b=3'
+    );
+  });
+
+  it('drops a fragment, which never reaches the receiver', () => {
+    expect(normalizeEndpoint('https://acme.service-now.com/#section')).toBe(
+      'https://acme.service-now.com'
+    );
+  });
+
+  it('leaves a blank endpoint blank so the baked receiver is kept', () => {
+    expect(normalizeEndpoint('   ')).toBe('');
+  });
+
+  it.each(['not-a-url', 'ftp://acme.service-now.com/'])(
+    'passes %s through rather than inventing a shape for it',
+    (value) => {
+      expect(normalizeEndpoint(value)).toBe(value);
+    }
+  );
+});
+
+describe('deliveryResult', () => {
+  const result = (service: string): ConnectivityResult => ({
+    service,
+    reachable: true,
+    status: 'reachable',
+    detail: 'Reachable.',
+    version: null,
+  });
+
+  it('picks the delivery entry out of the response', () => {
+    expect(deliveryResult([result('pmm'), result('delivery')])?.service).toBe(
+      'delivery'
+    );
+  });
+
+  it('reports the only answer there is when delivery is not named', () => {
+    expect(deliveryResult([result('pmm')])?.service).toBe('pmm');
+  });
+
+  it('has nothing to report for an empty or absent response', () => {
+    expect(deliveryResult([])).toBeUndefined();
+    expect(deliveryResult(undefined)).toBeUndefined();
+  });
+});
+
+describe('connectivityOutcome', () => {
+  const probed = (
+    status: ConnectivityStatus,
+    reachable = false
+  ): ConnectivityResult => ({
+    service: 'delivery',
+    reachable,
+    status,
+    detail: 'whatever SEP said',
+    version: null,
+  });
+
+  it.each([
+    ['reachable', 'success'],
+    ['auth_failed', 'error'],
+    ['error', 'error'],
+    ['unreachable', 'error'],
+    ['ssl_error', 'error'],
+    ['timeout', 'warning'],
+    ['not_configured', 'info'],
+    ['inputs_drifted', 'warning'],
+    ['probe_undeclared', 'info'],
+  ] as [ConnectivityStatus, string][])(
+    'gives %s its own label at severity %s',
+    (status, severity) => {
+      const outcome = connectivityOutcome(
+        probed(status, status === 'reachable')
+      );
+
+      expect(outcome.severity).toBe(severity);
+      expect(outcome.message).toBe(Messages.serviceNow.test.statuses[status]);
+    }
+  );
+
+  it('never echoes what the receiver said', () => {
+    expect(connectivityOutcome(probed('error')).message).not.toContain(
+      'whatever SEP said'
+    );
+  });
+
+  it('falls back on the reachable flag for a status this UI has no copy for', () => {
+    const status = 'quantum_tunnelled' as ConnectivityStatus;
+
+    expect(connectivityOutcome(probed(status, true))).toEqual({
+      message: Messages.serviceNow.test.unknown.reachable,
+      severity: 'success',
+    });
+    expect(connectivityOutcome(probed(status))).toEqual({
+      message: Messages.serviceNow.test.unknown.unreachable,
+      severity: 'error',
+    });
   });
 });

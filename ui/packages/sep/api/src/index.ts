@@ -179,6 +179,13 @@ export {
   useConfigExport,
   useAppInfo,
   APP_INFO_QUERY_KEY,
+  useConnectivityCheck,
+  CONNECTIVITY_CHECK_PATH,
+} from './hooks';
+export type {
+  ConnectivityCheckRequest,
+  ConnectivityResult,
+  ConnectivityStatus,
 } from './hooks';
 export type {
   AlertConfig,
