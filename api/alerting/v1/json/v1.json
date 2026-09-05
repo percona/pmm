@@ -167,7 +167,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "rule_id": {
+                  "description": "Identifier PMM assigns to a rule whose thresholds can be overridden per target.\nEmpty when the rule has no overridable parameters, since nothing can be keyed on it.\nThis is the rule's identity for threshold purposes rather than its Grafana UID:\ncopying or renaming the rule in Grafana preserves it.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -365,6 +372,11 @@
                                 }
                               },
                               "x-order": 6
+                            },
+                            "overridable": {
+                              "description": "Whether this parameter's threshold can be overridden per target without editing the\nrule. Only set for templates that support it; the scopes it may be set at are\nreported per rule by ListThresholds.",
+                              "type": "boolean",
+                              "x-order": 7
                             }
                           }
                         },
@@ -678,6 +690,561 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerting/thresholds": {
+      "get": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "ListThresholds returns per-target threshold overrides.",
+        "operationId": "ListThresholds",
+        "parameters": [
+          {
+            "enum": [
+              "THRESHOLD_SCOPE_UNSPECIFIED",
+              "THRESHOLD_SCOPE_NODE",
+              "THRESHOLD_SCOPE_SERVICE",
+              "THRESHOLD_SCOPE_CLUSTER"
+            ],
+            "type": "string",
+            "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+            "description": "Scope of the target to report thresholds for. Must be set together with target.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+            "name": "scope",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Target to report thresholds for. When set, every overridable parameter is returned\nfor that target, overridden or not. When empty, only existing overrides are\nreturned, since there is otherwise no bounded set to enumerate.",
+            "name": "target",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Return only thresholds of this rule.",
+            "name": "rule_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "thresholds": {
+                  "type": "array",
+                  "items": {
+                    "description": "Threshold is one overridable parameter of one rule, as it applies to one target.",
+                    "type": "object",
+                    "properties": {
+                      "rule_id": {
+                        "description": "Identifier PMM assigned to the rule. Not unique within a response: rules duplicated\nin Grafana share it, so two entries can carry the same rule_id and param_name and\ndiffer only in which rule they came from. Do not key a map on it.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "param_name": {
+                        "description": "Machine-readable name of the overridable parameter.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "summary": {
+                        "description": "Short human-readable parameter summary, as it was when the rule was created.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "unit": {
+                        "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
+                        "type": "string",
+                        "default": "PARAM_UNIT_UNSPECIFIED",
+                        "enum": [
+                          "PARAM_UNIT_UNSPECIFIED",
+                          "PARAM_UNIT_PERCENTAGE",
+                          "PARAM_UNIT_SECONDS"
+                        ],
+                        "x-order": 3
+                      },
+                      "default_value": {
+                        "description": "Value the rule falls back to when no override applies.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 4
+                      },
+                      "effective_value": {
+                        "description": "Value the rule currently evaluates this target against.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 5
+                      },
+                      "is_overridden": {
+                        "description": "Whether effective_value comes from an override rather than the default.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "scope": {
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                        "type": "string",
+                        "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                        "enum": [
+                          "THRESHOLD_SCOPE_UNSPECIFIED",
+                          "THRESHOLD_SCOPE_NODE",
+                          "THRESHOLD_SCOPE_SERVICE",
+                          "THRESHOLD_SCOPE_CLUSTER"
+                        ],
+                        "x-order": 7
+                      },
+                      "target": {
+                        "description": "Target the effective override was set on. Empty when not overridden.",
+                        "type": "string",
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "SetThreshold overrides one rule parameter for one target.",
+        "operationId": "SetThreshold",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scope": {
+                  "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                  "type": "string",
+                  "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                  "enum": [
+                    "THRESHOLD_SCOPE_UNSPECIFIED",
+                    "THRESHOLD_SCOPE_NODE",
+                    "THRESHOLD_SCOPE_SERVICE",
+                    "THRESHOLD_SCOPE_CLUSTER"
+                  ],
+                  "x-order": 0
+                },
+                "target": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "rule_id": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "param_name": {
+                  "type": "string",
+                  "x-order": 3
+                },
+                "value": {
+                  "description": "Must be finite and within the parameter's declared range.",
+                  "type": "number",
+                  "format": "double",
+                  "x-order": 4
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "threshold": {
+                  "description": "Threshold is one overridable parameter of one rule, as it applies to one target.",
+                  "type": "object",
+                  "properties": {
+                    "rule_id": {
+                      "description": "Identifier PMM assigned to the rule. Not unique within a response: rules duplicated\nin Grafana share it, so two entries can carry the same rule_id and param_name and\ndiffer only in which rule they came from. Do not key a map on it.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "param_name": {
+                      "description": "Machine-readable name of the overridable parameter.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "summary": {
+                      "description": "Short human-readable parameter summary, as it was when the rule was created.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "unit": {
+                      "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
+                      "type": "string",
+                      "default": "PARAM_UNIT_UNSPECIFIED",
+                      "enum": [
+                        "PARAM_UNIT_UNSPECIFIED",
+                        "PARAM_UNIT_PERCENTAGE",
+                        "PARAM_UNIT_SECONDS"
+                      ],
+                      "x-order": 3
+                    },
+                    "default_value": {
+                      "description": "Value the rule falls back to when no override applies.",
+                      "type": "number",
+                      "format": "double",
+                      "x-order": 4
+                    },
+                    "effective_value": {
+                      "description": "Value the rule currently evaluates this target against.",
+                      "type": "number",
+                      "format": "double",
+                      "x-order": 5
+                    },
+                    "is_overridden": {
+                      "description": "Whether effective_value comes from an override rather than the default.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "scope": {
+                      "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                      "type": "string",
+                      "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                      "enum": [
+                        "THRESHOLD_SCOPE_UNSPECIFIED",
+                        "THRESHOLD_SCOPE_NODE",
+                        "THRESHOLD_SCOPE_SERVICE",
+                        "THRESHOLD_SCOPE_CLUSTER"
+                      ],
+                      "x-order": 7
+                    },
+                    "target": {
+                      "description": "Target the effective override was set on. Empty when not overridden.",
+                      "type": "string",
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "ClearThreshold removes an override so the target falls back to the rule's default,\nor to a broader override still covering it.",
+        "operationId": "ClearThreshold",
+        "parameters": [
+          {
+            "enum": [
+              "THRESHOLD_SCOPE_UNSPECIFIED",
+              "THRESHOLD_SCOPE_NODE",
+              "THRESHOLD_SCOPE_SERVICE",
+              "THRESHOLD_SCOPE_CLUSTER"
+            ],
+            "type": "string",
+            "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+            "description": " - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+            "name": "scope",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "target",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "rule_id",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "param_name",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerting/thresholds:batchUpdate": {
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "BatchUpdateThresholds applies several set and clear operations in one transaction.",
+        "operationId": "BatchUpdateThresholds",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "updates": {
+                  "description": "Applied in one transaction: either every update lands or none does. A client\nediting several rows at once cannot otherwise report which ones took effect.",
+                  "type": "array",
+                  "items": {
+                    "description": "ThresholdUpdate sets or clears one override.",
+                    "type": "object",
+                    "properties": {
+                      "scope": {
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                        "type": "string",
+                        "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                        "enum": [
+                          "THRESHOLD_SCOPE_UNSPECIFIED",
+                          "THRESHOLD_SCOPE_NODE",
+                          "THRESHOLD_SCOPE_SERVICE",
+                          "THRESHOLD_SCOPE_CLUSTER"
+                        ],
+                        "x-order": 0
+                      },
+                      "target": {
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "rule_id": {
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "param_name": {
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "value": {
+                        "description": "Omit to clear the override rather than set it.",
+                        "type": "number",
+                        "format": "double",
+                        "x-nullable": true,
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "thresholds": {
+                  "description": "Thresholds that were set, in request order. Cleared ones are omitted.",
+                  "type": "array",
+                  "items": {
+                    "description": "Threshold is one overridable parameter of one rule, as it applies to one target.",
+                    "type": "object",
+                    "properties": {
+                      "rule_id": {
+                        "description": "Identifier PMM assigned to the rule. Not unique within a response: rules duplicated\nin Grafana share it, so two entries can carry the same rule_id and param_name and\ndiffer only in which rule they came from. Do not key a map on it.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "param_name": {
+                        "description": "Machine-readable name of the overridable parameter.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "summary": {
+                        "description": "Short human-readable parameter summary, as it was when the rule was created.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "unit": {
+                        "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
+                        "type": "string",
+                        "default": "PARAM_UNIT_UNSPECIFIED",
+                        "enum": [
+                          "PARAM_UNIT_UNSPECIFIED",
+                          "PARAM_UNIT_PERCENTAGE",
+                          "PARAM_UNIT_SECONDS"
+                        ],
+                        "x-order": 3
+                      },
+                      "default_value": {
+                        "description": "Value the rule falls back to when no override applies.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 4
+                      },
+                      "effective_value": {
+                        "description": "Value the rule currently evaluates this target against.",
+                        "type": "number",
+                        "format": "double",
+                        "x-order": 5
+                      },
+                      "is_overridden": {
+                        "description": "Whether effective_value comes from an override rather than the default.",
+                        "type": "boolean",
+                        "x-order": 6
+                      },
+                      "scope": {
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                        "type": "string",
+                        "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                        "enum": [
+                          "THRESHOLD_SCOPE_UNSPECIFIED",
+                          "THRESHOLD_SCOPE_NODE",
+                          "THRESHOLD_SCOPE_SERVICE",
+                          "THRESHOLD_SCOPE_CLUSTER"
+                        ],
+                        "x-order": 7
+                      },
+                      "target": {
+                        "description": "Target the effective override was set on. Empty when not overridden.",
+                        "type": "string",
+                        "x-order": 8
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {

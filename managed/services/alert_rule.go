@@ -19,6 +19,11 @@ import "encoding/json"
 
 // This file contains grafana alerting API DTOs.
 
+// PMMRuleIDLabel is the label carrying PMM's own identity for a rule whose thresholds can
+// be overridden. It lives on the rule rather than being its Grafana UID, so the rule can
+// be matched back to its overrides after being copied or renamed in Grafana.
+const PMMRuleIDLabel = "pmm_rule_id"
+
 // Rule represents grafana alerting rule.
 type Rule struct {
 	GrafanaAlert GrafanaAlert      `json:"grafana_alert"`

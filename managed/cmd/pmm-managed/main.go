@@ -1050,6 +1050,9 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	}
 	alertingService.CollectTemplates(ctx)
 
+	alertThresholdMetricsCollector := alerting.NewAlertThresholdMetricsCollector(db)
+	prom.MustRegister(alertThresholdMetricsCollector)
+
 	agentService := agents.NewAgentService(agentsRegistry)
 
 	versioner := agents.NewVersionerService(agentsRegistry)
@@ -1172,6 +1175,13 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)
+		return nil
+	}))
+
+	// Leader-only: every replica shares one database, so several sweeps would duplicate
+	// the same deletions and race each other.
+	haService.AddLeaderService(ha.NewContextService("alert-rule-reconciler", func(ctx context.Context) error {
+		alertingService.RunReconciler(ctx)
 		return nil
 	}))
 

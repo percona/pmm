@@ -49,6 +49,10 @@ message ParamDefinition {
     // String value.
     StringParamDefinition string = 7;
   }
+  // Whether this parameter's threshold can be overridden per target without editing the
+  // rule. Only set for templates that support it; the scopes it may be set at are
+  // reported per rule by ListThresholds.
+  bool overridable = 8;
 }
 
 // TemplateSource defines template source.
@@ -208,7 +212,106 @@ message CreateRuleRequest {
   google.protobuf.Duration interval = 10;
 }
 
-message CreateRuleResponse {}
+message CreateRuleResponse {
+  // Identifier PMM assigns to a rule whose thresholds can be overridden per target.
+  // Empty when the rule has no overridable parameters, since nothing can be keyed on it.
+  // This is the rule's identity for threshold purposes rather than its Grafana UID:
+  // copying or renaming the rule in Grafana preserves it.
+  string rule_id = 1;
+}
+
+// ThresholdScope says what a threshold override's target refers to.
+enum ThresholdScope {
+  THRESHOLD_SCOPE_UNSPECIFIED = 0;
+  // Target is a Node ID.
+  THRESHOLD_SCOPE_NODE = 1;
+  // Target is a Service ID.
+  THRESHOLD_SCOPE_SERVICE = 2;
+  // Target is a cluster label value.
+  THRESHOLD_SCOPE_CLUSTER = 3;
+}
+
+// Threshold is one overridable parameter of one rule, as it applies to one target.
+message Threshold {
+  // Identifier PMM assigned to the rule. Not unique within a response: rules duplicated
+  // in Grafana share it, so two entries can carry the same rule_id and param_name and
+  // differ only in which rule they came from. Do not key a map on it.
+  string rule_id = 1;
+  // Machine-readable name of the overridable parameter.
+  string param_name = 2;
+  // Short human-readable parameter summary, as it was when the rule was created.
+  string summary = 3;
+  // Parameter unit.
+  ParamUnit unit = 4;
+  // Value the rule falls back to when no override applies.
+  double default_value = 5;
+  // Value the rule currently evaluates this target against.
+  double effective_value = 6;
+  // Whether effective_value comes from an override rather than the default.
+  bool is_overridden = 7;
+  // Scope the effective override was set at. Unspecified when not overridden.
+  ThresholdScope scope = 8;
+  // Target the effective override was set on. Empty when not overridden.
+  string target = 9;
+}
+
+message ListThresholdsRequest {
+  // Scope of the target to report thresholds for. Must be set together with target.
+  ThresholdScope scope = 1;
+  // Target to report thresholds for. When set, every overridable parameter is returned
+  // for that target, overridden or not. When empty, only existing overrides are
+  // returned, since there is otherwise no bounded set to enumerate.
+  string target = 2;
+  // Return only thresholds of this rule.
+  string rule_id = 3;
+}
+
+message ListThresholdsResponse {
+  repeated Threshold thresholds = 1;
+}
+
+message SetThresholdRequest {
+  ThresholdScope scope = 1;
+  string target = 2 [(validate.rules).string.min_len = 1];
+  string rule_id = 3 [(validate.rules).string.min_len = 1];
+  string param_name = 4 [(validate.rules).string.min_len = 1];
+  // Must be finite and within the parameter's declared range.
+  double value = 5;
+}
+
+message SetThresholdResponse {
+  Threshold threshold = 1;
+}
+
+message ClearThresholdRequest {
+  ThresholdScope scope = 1;
+  string target = 2 [(validate.rules).string.min_len = 1];
+  string rule_id = 3 [(validate.rules).string.min_len = 1];
+  string param_name = 4 [(validate.rules).string.min_len = 1];
+}
+
+message ClearThresholdResponse {}
+
+// ThresholdUpdate sets or clears one override.
+message ThresholdUpdate {
+  ThresholdScope scope = 1;
+  string target = 2 [(validate.rules).string.min_len = 1];
+  string rule_id = 3 [(validate.rules).string.min_len = 1];
+  string param_name = 4 [(validate.rules).string.min_len = 1];
+  // Omit to clear the override rather than set it.
+  optional double value = 5;
+}
+
+message BatchUpdateThresholdsRequest {
+  // Applied in one transaction: either every update lands or none does. A client
+  // editing several rows at once cannot otherwise report which ones took effect.
+  repeated ThresholdUpdate updates = 1 [(validate.rules).repeated.min_items = 1];
+}
+
+message BatchUpdateThresholdsResponse {
+  // Thresholds that were set, in request order. Cleared ones are omitted.
+  repeated Threshold thresholds = 1;
+}
 
 // Alerting service lets to manage alerting templates and create alerting rules from them.
 service AlertingService {
@@ -238,6 +341,29 @@ service AlertingService {
   rpc CreateRule(CreateRuleRequest) returns (CreateRuleResponse) {
     option (google.api.http) = {
       post: "/v1/alerting/rules"
+      body: "*"
+    };
+  }
+  // ListThresholds returns per-target threshold overrides.
+  rpc ListThresholds(ListThresholdsRequest) returns (ListThresholdsResponse) {
+    option (google.api.http) = {get: "/v1/alerting/thresholds"};
+  }
+  // SetThreshold overrides one rule parameter for one target.
+  rpc SetThreshold(SetThresholdRequest) returns (SetThresholdResponse) {
+    option (google.api.http) = {
+      post: "/v1/alerting/thresholds"
+      body: "*"
+    };
+  }
+  // ClearThreshold removes an override so the target falls back to the rule's default,
+  // or to a broader override still covering it.
+  rpc ClearThreshold(ClearThresholdRequest) returns (ClearThresholdResponse) {
+    option (google.api.http) = {delete: "/v1/alerting/thresholds"};
+  }
+  // BatchUpdateThresholds applies several set and clear operations in one transaction.
+  rpc BatchUpdateThresholds(BatchUpdateThresholdsRequest) returns (BatchUpdateThresholdsResponse) {
+    option (google.api.http) = {
+      post: "/v1/alerting/thresholds:batchUpdate"
       body: "*"
     };
   }

@@ -4,9 +4,13 @@ import {
   AlertmanagerSilence,
   GrafanaAlertQuery,
   GrafanaRulerRuleDTO,
+  BatchUpdateThresholdsResponse,
+  ListThresholdsResponse,
   PrometheusAlertRulesResponse,
+  ThresholdScope,
+  ThresholdUpdate,
 } from 'types/alerting.types';
-import { grafanaApi } from './api';
+import { api, grafanaApi } from './api';
 
 export const getPrometheusAlertRules = async () => {
   const response = await grafanaApi.get<PrometheusAlertRulesResponse>(
@@ -52,6 +56,37 @@ export const evalAlertQueries = async (data: GrafanaAlertQuery[]) => {
 export const getRulerRule = async (uid: string) => {
   const res = await grafanaApi.get<GrafanaRulerRuleDTO>(
     `/ruler/grafana/api/v1/rule/${uid}`
+  );
+  return res.data;
+};
+
+export const getThresholds = async (
+  scope: ThresholdScope,
+  target: string,
+  ruleId?: string
+) => {
+  const res = await api.get<ListThresholdsResponse>('alerting/thresholds', {
+    params: { scope, target, ruleId },
+  });
+  return res.data;
+};
+
+export const setThreshold = async (update: Required<ThresholdUpdate>) => {
+  const res = await api.post('alerting/thresholds', update);
+  return res.data;
+};
+
+export const clearThreshold = async (
+  update: Omit<ThresholdUpdate, 'value'>
+) => {
+  const res = await api.delete('alerting/thresholds', { params: update });
+  return res.data;
+};
+
+export const batchUpdateThresholds = async (updates: ThresholdUpdate[]) => {
+  const res = await api.post<BatchUpdateThresholdsResponse>(
+    'alerting/thresholds:batchUpdate',
+    { updates }
   );
   return res.data;
 };
