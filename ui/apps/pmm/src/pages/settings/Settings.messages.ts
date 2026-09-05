@@ -201,6 +201,19 @@ export const Messages = {
         reachable: 'ServiceNow answered. This connection works.',
         unreachable: "ServiceNow couldn't be reached.",
       },
+      // A test that never ran. Deliberately separate from the save errors
+      // below: a refused probe says nothing about whether the connection could
+      // be saved, and telling an operator to ask an administrator to "save it"
+      // answers a question they did not ask.
+      errors: {
+        forbidden:
+          "Your account isn't allowed to test this connection. A PMM administrator can run it.",
+        unauthenticated:
+          "Your session isn't valid for this action anymore. Reload the page and try again.",
+        unreachable:
+          "Couldn't reach the Support Diagnostics service to run the test. The saved connection is unchanged.",
+        generic: "Couldn't run the test. The saved connection is unchanged.",
+      },
     },
     loading: 'Loading the ServiceNow connection…',
     validation: {
@@ -218,7 +231,6 @@ export const Messages = {
         "Couldn't save the connection. The previous configuration is unchanged.",
       loadFailed:
         "Couldn't load the ServiceNow connection. This is usually temporary — try again, or reload the page.",
-      testFailed: "Couldn't run the test. The saved connection is unchanged.",
     },
   },
   service: {

@@ -570,7 +570,7 @@ describe('ServiceNowConnection — testing the connection', () => {
     renderTab();
 
     expect(screen.getByTestId('servicenow-test-error')).toHaveTextContent(
-      Messages.serviceNow.errors.forbidden
+      Messages.serviceNow.test.errors.forbidden
     );
     expect(
       screen.queryByTestId('servicenow-test-result')

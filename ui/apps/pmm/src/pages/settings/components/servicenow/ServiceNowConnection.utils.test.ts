@@ -18,6 +18,7 @@ import {
   declaredSecretNames,
   deliveryResult,
   normalizeEndpoint,
+  probeErrorMessage,
   secretHelperText,
   secretLabel,
   sepErrorMessage,
@@ -513,5 +514,56 @@ describe('connectionIdentity', () => {
     expect(connectionIdentity(changed)).not.toBe(
       connectionIdentity(stored('https://acme.service-now.com'))
     );
+  });
+});
+
+describe('probeErrorMessage', () => {
+  const httpError = (status: number, data?: unknown) =>
+    new ApiError({ kind: 'http', status, message: `HTTP ${status}`, data });
+  const { errors } = Messages.serviceNow.test;
+
+  it('offers the remedy for a test, not the remedy for a save', () => {
+    const message = probeErrorMessage(httpError(403));
+
+    expect(message).toBe(errors.forbidden);
+    expect(message).not.toBe(Messages.serviceNow.errors.forbidden);
+    expect(message).not.toContain('save');
+  });
+
+  it('explains a 401', () => {
+    expect(probeErrorMessage(httpError(401))).toBe(errors.unauthenticated);
+  });
+
+  it.each(['network', 'timeout'] as const)(
+    'reports a %s failure as the test not having run',
+    (kind) => {
+      expect(probeErrorMessage(new ApiError({ kind, message: 'down' }))).toBe(
+        errors.unreachable
+      );
+    }
+  );
+
+  it("ignores a settings 422, which is not the operator's to fix here", () => {
+    expect(
+      probeErrorMessage(
+        httpError(422, {
+          detail: [
+            {
+              loc: ['body', DELIVERY_INPUTS_KEY, 'secrets'],
+              msg: 'undeclared secret names: extra_key',
+              type: 'value_error',
+            },
+          ],
+        })
+      )
+    ).toBe(errors.generic);
+  });
+
+  it('never leaks a raw HTTP message', () => {
+    expect(probeErrorMessage(httpError(500))).toBe(errors.generic);
+  });
+
+  it('is empty without an error', () => {
+    expect(probeErrorMessage(null)).toBe('');
   });
 });

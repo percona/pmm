@@ -10,7 +10,7 @@ import { DELIVERY_TARGETS } from './ServiceNowConnection.constants';
 import {
   connectivityOutcome,
   deliveryResult,
-  sepErrorMessage,
+  probeErrorMessage,
 } from './ServiceNowConnection.utils';
 
 interface Props {
@@ -121,7 +121,7 @@ export const ServiceNowConnectionTest: FC<Props> = ({
           sx={{ width: '100%' }}
           data-testid="servicenow-test-error"
         >
-          {sepErrorMessage(error, serviceNow.errors.testFailed)}
+          {probeErrorMessage(error)}
         </Alert>
       ) : (
         outcome && (

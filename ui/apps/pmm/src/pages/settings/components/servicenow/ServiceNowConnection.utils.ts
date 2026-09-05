@@ -250,6 +250,35 @@ export const sepErrorMessage = (
   return fallback;
 };
 
+/**
+ * Turn a failed probe *call* into something the operator can act on.
+ *
+ * Separate from {@link sepErrorMessage} because the two answer different
+ * questions. That one explains a rejected write and offers the write's remedy;
+ * this one explains why no verdict exists, and a probe refused for want of
+ * privilege has nothing to say about saving. It also skips the settings 422
+ * lookup entirely: a 422 here concerns the `targets` this UI chose, which is
+ * not the operator's to fix.
+ */
+export const probeErrorMessage = (
+  error: ApiError | null | undefined
+): string => {
+  if (!error) {
+    return '';
+  }
+  const { errors } = Messages.serviceNow.test;
+  if (error.status === 403) {
+    return errors.forbidden;
+  }
+  if (error.status === 401) {
+    return errors.unauthenticated;
+  }
+  if (error.kind === 'network' || error.kind === 'timeout') {
+    return errors.unreachable;
+  }
+  return errors.generic;
+};
+
 const ACRONYMS = new Set([
   'api',
   'id',
