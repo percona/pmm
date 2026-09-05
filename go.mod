@@ -81,6 +81,8 @@ require (
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/reform.v1 v1.5.1
 	gopkg.in/yaml.v3 v3.0.1
+	k8s.io/apimachinery v0.35.3
+	k8s.io/client-go v0.35.3
 )
 
 require (
@@ -162,6 +164,7 @@ require (
 	github.com/fatih/color v1.19.0 // indirect
 	github.com/felixge/httpsnoop v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.10.1 // indirect
+	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
 	github.com/gliderlabs/ssh v0.3.9-0.20241212082318-d137aad99cd6 // indirect
 	github.com/go-delve/delve v1.21.2 // indirect
 	github.com/go-delve/liner v1.2.3-0.20231231155935-4726ab1d7f62 // indirect
@@ -307,6 +310,7 @@ require (
 	github.com/toqueteos/webbrowser v1.2.1 // indirect
 	github.com/vbatts/tar-split v0.12.3 // indirect
 	github.com/vektra/mockery/v2 v2.53.6 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
 	github.com/xanzy/go-gitlab v0.20.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
@@ -328,6 +332,7 @@ require (
 	go.uber.org/mock v0.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.28.0 // indirect
+	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	golang.org/x/arch v0.11.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/mod v0.39.0 // indirect
@@ -335,14 +340,23 @@ require (
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/perf v0.0.0-20260409210113-8e83ce0f7b1c // indirect
 	golang.org/x/term v0.45.0 // indirect
+	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/appengine v1.6.8-0.20221117013220-504804fb50de // indirect
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.0 // indirect
+	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.3 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	k8s.io/klog/v2 v2.140.0 // indirect
+	k8s.io/kube-openapi v0.0.0-20250910181357-589584f1c912 // indirect
+	k8s.io/utils v0.0.0-20251002143259-bc988d571ff4 // indirect
 	mvdan.cc/gofumpt v0.10.0 // indirect
 	mvdan.cc/xurls/v2 v2.6.0 // indirect
 	pluginrpc.com/pluginrpc v0.5.0 // indirect
+	sigs.k8s.io/json v0.0.0-20250730193827-2d320260d730 // indirect
+	sigs.k8s.io/randfill v1.0.0 // indirect
+	sigs.k8s.io/structured-merge-diff/v6 v6.3.1 // indirect
+	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
 tool (

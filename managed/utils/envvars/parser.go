@@ -223,6 +223,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
 			}
 
+		// read by pmm-managed as flags, not stored in settings
+		case "PMM_VM_CLUSTER_NAME", "PMM_VM_CLUSTER_NAMESPACE", "PMM_VM_CLUSTER_API_VERSION", "PMM_VM_CLUSTER_KIND":
+			continue
+
 		case "PMM_INSTALL_METHOD", "PMM_DISTRIBUTION_METHOD":
 			continue
 

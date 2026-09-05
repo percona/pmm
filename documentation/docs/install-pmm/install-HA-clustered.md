@@ -717,22 +717,53 @@ If you're used to standalone PMM, note that `PMM_DISABLE_BUILTIN_CLICKHOUSE` and
 
 #### Adjust data retention and other settings
 
-Set customizable variables in your `values.yaml` to match your monitoring requirements. 
-
-Choose a retention period that matches your compliance requirements and storage capacity. For example, `720h` keeps 30 days of data and `4320h` keeps 180 days:
+Set customizable variables in your `values.yaml` to match your monitoring requirements:
 
 ```yaml
 pmmEnv:
-  PMM_DATA_RETENTION: "2160h"  # Adjust based on your retention policy (default: 90 days)
+  PMM_METRICS_RESOLUTION: "5s"   # Base metrics collection interval (default: 1s)
   # Add other environment variables as needed
 ```
 
 For all available variables, see [PMM environment variables](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md).
 
-#### Common customizations
+Data retention is the exception: in HA it is a chart-level value rather than a `pmmEnv` entry. Change it in the PMM UI under **Configuration > Settings > Advanced settings**, or pin it declaratively with the top-level `dataRetentionDays`. Choose a period that matches your compliance requirements and storage capacity:
 
-- **Data retention**: Set `PMM_DATA_RETENTION` based on your compliance requirements and storage capacity (e.g., `720h` for 30 days, `4320h` for 180 days)
-- **Additional variables**: See [PMM environment variables documentation](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md) for all available options.
+```yaml
+dataRetentionDays: 30   # Whole days. Use 180 for six months
+```
+
+The chart renders this value into `PMM_DATA_RETENTION` on every replica, so all of them agree on one retention period. As on standalone PMM, a retention value supplied through the environment takes precedence over the UI, so while `dataRetentionDays` is set the **Advanced settings** field is rejected. Remove it and upgrade again to hand control back to the UI.
+
+Setting `pmmEnv.PMM_DATA_RETENTION` or `victoriaMetrics.vmstorage.retentionPeriod` yourself is rejected, because either one lets the replicas disagree about retention and purge on their own schedules.
+
+!!! note "Standalone PMM is unaffected"
+    `PMM_DATA_RETENTION` is still the supported way to set retention on standalone PMM. Only the HA chart reserves the variable, because it derives it from `dataRetentionDays`.
+
+??? note "If you set `serviceAccount.create: false`, grant access to the VMCluster"
+    PMM applies retention to metrics by patching `retentionPeriod` on the `VMCluster` resource. The chart creates the Role for this together with the service account, so with the default `serviceAccount.create: true` there is nothing to do.
+
+    With `serviceAccount.create: false` the chart creates neither the Role nor a `serviceAccountName` on the pods, so PMM runs under the namespace's `default` service account whatever `serviceAccount.name` says. Grant `default` the `get` and `patch` verbs on the `VMCluster`.
+
+    Without those permissions, a retention change fails quietly: the UI accepts the new value and PMM stores it, but metrics keep their old retention. Only the leader reconciles, and it logs the failure once per leadership term, so check every replica rather than just the first:
+
+    ```sh
+    for i in 0 1 2; do
+      kubectl exec -n pmm "pmm-ha-$i" -- grep component=vmretention /srv/logs/pmm-managed.log
+    done
+    ```
+
+??? note "Pointing PMM at a different VictoriaMetrics resource"
+    The chart sets these variables to match the `VMCluster` it deploys. Override them only if your VictoriaMetrics resource differs:
+
+    | Variable | Description | Default |
+    |----------|-------------|---------|
+    | `PMM_VM_CLUSTER_NAME` | Name of the resource holding the retention period. Leave unset to turn metrics retention reconciliation off | unset |
+    | `PMM_VM_CLUSTER_NAMESPACE` | Namespace of the resource | the pod's own namespace |
+    | `PMM_VM_CLUSTER_API_VERSION` | Group-qualified API version of the resource | `operator.victoriametrics.com/v1beta1` |
+    | `PMM_VM_CLUSTER_KIND` | Kind of the resource | `VMCluster` |
+
+    A bad value does not stop PMM from starting: it keeps running with metrics retention unapplied, and logs the reason at error level under `component=vmretention` on every leader promotion. Use the same command as above to read it.
 
 ### Review Helm parameters reference
 
@@ -742,6 +773,7 @@ For all available variables, see [PMM environment variables](../install-pmm/inst
 | `image.repository` | PMM server image repository | `percona/pmm-server` |
 | `image.tag` | PMM server image tag | `3.6.0` |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
+| `dataRetentionDays` | Data retention in whole days, applied to metrics and queries alike. Leave unset to manage retention from the PMM UI | unset |
 | `secret.create` | Create secret automatically | `false` |
 | `secret.name` | Name of the PMM secret | `pmm-secret` |
 | `storage.size` | PVC size | `10Gi` |
@@ -1101,8 +1133,7 @@ We are aware of the following issues in this Tech Preview version and plan to fi
 | **[PMM-14705](https://perconadev.atlassian.net/browse/PMM-14705)**: CLI-added services show no metrics | Services from `pmm-admin` appear as UNSPECIFIED, dashboards empty (QAN works) | Add services via PMM UI instead |
 | **[PMM-14706](https://perconadev.atlassian.net/browse/PMM-14706)**: Extra 'pmm-' prefix | PostgreSQL nodes show as `pmm-pmm-ha-pg-...` | Cosmetic only - no action needed |
 | **[PMM-14707](https://perconadev.atlassian.net/browse/PMM-14707)**: Wrong PostgreSQL status | Inventory shows FAILED/UNSPECIFIED despite working metrics | Check dashboards to verify metrics flow |
-| **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |                                   
-| **[PMM-14709](https://perconadev.atlassian.net/browse/PMM-14709)**: Data retention does not work on HA | Changing data retention under **Configuration > Settings > Advanced Settings** has no effect and older metrics remain available despite the new retention value. | Technical Preview only: The UI-based data retention setting does not work in HA clusters. To implement retention, configure it directly in ClickHouse using `ALTER TABLE ... TTL` instead of relying on this UI option to remove old metrics. |
+| **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |
 
 ### Scaling limitations
 

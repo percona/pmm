@@ -40,7 +40,7 @@ import (
 func TestServer(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
-	newServer := func(t *testing.T) *Server {
+	newServer := func(t *testing.T) (*Server, *mockVmRetentionService) {
 		t.Helper()
 		var r mockSupervisordService
 		r.Test(t)
@@ -78,6 +78,10 @@ func TestServer(t *testing.T) {
 		nomad.Test(t)
 		nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
 
+		vmRetentionMock := &mockVmRetentionService{}
+		vmRetentionMock.Test(t)
+		vmRetentionMock.On("RequestRetentionUpdate").Return()
+
 		var ha mockHaService
 		ha.Test(t)
 		ha.On("IsLeader").Return(true)
@@ -95,14 +99,16 @@ func TestServer(t *testing.T) {
 			TelemetryService:     &ts,
 			Nomad:                &nomad,
 			HAService:            &ha,
+			VMRetention:          vmRetentionMock,
 		})
 		require.NoError(t, err)
-		return s
+
+		return s, vmRetentionMock
 	}
 
 	t.Run("UpdateSettingsFromEnv", func(t *testing.T) {
 		t.Run("Typical", func(t *testing.T) {
-			s := newServer(t)
+			s, vmRetentionMock := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_UPDATES=true",
 				"PMM_ENABLE_TELEMETRY=1",
@@ -113,6 +119,7 @@ func TestServer(t *testing.T) {
 				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
 			})
 			require.Empty(t, errs)
+			vmRetentionMock.AssertCalled(t, "RequestRetentionUpdate")
 			assert.True(t, *s.envSettings.EnableUpdates)
 			assert.True(t, *s.envSettings.EnableTelemetry)
 			assert.Equal(t, time.Second, s.envSettings.MetricsResolutions.HR)
@@ -123,7 +130,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
-			s := newServer(t)
+			s, _ := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_TELEMETRY=TrUe",
 				"PMM_METRICS_RESOLUTION=3S",
@@ -136,7 +143,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("NoValue", func(t *testing.T) {
-			s := newServer(t)
+			s, _ := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_TELEMETRY",
 			})
@@ -146,7 +153,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("InvalidValue", func(t *testing.T) {
-			s := newServer(t)
+			s, _ := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_ENABLE_TELEMETRY=",
 			})
@@ -156,7 +163,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("MetricsLessThenMin", func(t *testing.T) {
-			s := newServer(t)
+			s, _ := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_METRICS_RESOLUTION=5ns",
 			})
@@ -168,7 +175,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("DataRetentionLessThenMin", func(t *testing.T) {
-			s := newServer(t)
+			s, _ := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_DATA_RETENTION=12h",
 			})
@@ -180,7 +187,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Data retention is not a natural number of days", func(t *testing.T) {
-			s := newServer(t)
+			s, _ := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_DATA_RETENTION=30h",
 			})
@@ -192,7 +199,7 @@ func TestServer(t *testing.T) {
 		})
 
 		t.Run("Data retention without suffix", func(t *testing.T) {
-			s := newServer(t)
+			s, _ := newServer(t)
 			errs := s.UpdateSettingsFromEnv(context.TODO(), []string{
 				"PMM_DATA_RETENTION=30",
 			})
@@ -203,7 +210,7 @@ func TestServer(t *testing.T) {
 	})
 
 	t.Run("ValidateChangeSettingsRequest", func(t *testing.T) {
-		s := newServer(t)
+		s, _ := newServer(t)
 
 		ctx := context.TODO()
 
@@ -243,7 +250,7 @@ func TestServer(t *testing.T) {
 	})
 
 	t.Run("ChangeSettings", func(t *testing.T) {
-		server := newServer(t)
+		server, vmRetentionMock := newServer(t)
 
 		server.UpdateSettingsFromEnv(context.TODO(), []string{
 			"ENABLE_ALERTING=1",
@@ -257,6 +264,7 @@ func TestServer(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
+		vmRetentionMock.AssertCalled(t, "RequestRetentionUpdate")
 
 		settings, err := server.GetSettings(ctx, &serverv1.GetSettingsRequest{})
 
@@ -266,7 +274,7 @@ func TestServer(t *testing.T) {
 	})
 
 	t.Run("ChangeSettings Alerting", func(t *testing.T) {
-		server := newServer(t)
+		server, _ := newServer(t)
 		server.UpdateSettingsFromEnv(context.TODO(), []string{})
 
 		ctx := context.TODO()

@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"net"
 	"net/url"
 	"os"
 	"os/exec"
@@ -37,6 +38,7 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/utils/managedapi"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -275,6 +277,7 @@ priority = 13
 command =
 	/usr/sbin/percona-qan-api2
 		--data-retention={{ .DataRetentionDays }}
+		--leader-check-url={{ .LeaderCheckURL }}
 environment =
 	PMM_CLICKHOUSE_ADDR="{{ .ClickhouseAddr }}",
 	PMM_CLICKHOUSE_DATABASE="{{ .ClickhouseDatabase }}",
@@ -407,8 +410,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	vmMaxIngestionRate := envvars.GetEnv("VM_maxIngestionRate", defaultVMMaxIngestionRate)
 
 	templateParams := map[string]any{
-		"DataRetentionHours":           int(settings.DataRetention.Hours()),
-		"DataRetentionDays":            int(settings.DataRetention.Hours() / 24), //nolint:mnd
+		"DataRetentionDays":            settings.DataRetentionDays(),
 		"VMAlertFlags":                 s.vmParams.VMAlertFlags,
 		"VMSearchDisableCache":         vmSearchDisableCache,
 		"VMSearchMaxQueryLen":          vmSearchMaxQueryLen,
@@ -424,6 +426,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ExternalVM":                   s.vmParams.ExternalVM(),
 		"NomadEnabled":                 settings.IsNomadEnabled(),
 		"InterfaceToBind":              envvars.GetInterfaceToBind(),
+		"LeaderCheckURL":               leaderCheckURL(),
 		"ClickhouseAddr":               clickhouseAddr,
 		"ClickhouseDatabase":           clickhouseDatabase,
 		"ClickhouseHost":               clickhouseAddrPair[0],
@@ -472,6 +475,13 @@ func (s *Service) addPostgresParams(templateParams map[string]any) {
 	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
 	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath
 	templateParams["PostgresSSLCertPath"] = s.pgParams.SSLCertPath
+}
+
+// leaderCheckURL returns the address of pmm-managed's leader health check on this node.
+// Each qan-api2 asks its local pmm-managed, so the URL is always loopback.
+func leaderCheckURL() string {
+	addr := net.JoinHostPort(envvars.GetInterfaceToBind(), managedapi.HTTPPort)
+	return "http://" + addr + managedapi.LeaderHealthCheckPath
 }
 
 func (s *Service) addClusterParams(templateParams map[string]any) {
