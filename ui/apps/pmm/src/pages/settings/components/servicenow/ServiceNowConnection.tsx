@@ -41,6 +41,8 @@ export const ServiceNowConnection: FC = () => {
     }
   }, [status]);
 
+  const isConnected = status === 'configured' && !isRenewing;
+
   const body = () => {
     if (isLoading) {
       return (
@@ -90,7 +92,7 @@ export const ServiceNowConnection: FC = () => {
       );
     }
 
-    if (status === 'configured' && !isRenewing) {
+    if (isConnected) {
       return (
         <ServiceNowConnected
           stored={stored}
@@ -111,12 +113,14 @@ export const ServiceNowConnection: FC = () => {
   };
 
   return (
-    <Stack gap={4}>
-      <SettingsFieldLabel
-        label={serviceNow.label}
-        description={serviceNow.description}
-        data-testid="servicenow-label"
-      />
+    <Stack gap={4} sx={{ width: '640px' }}>
+      {!isConnected && (
+        <SettingsFieldLabel
+          label={serviceNow.label}
+          description={serviceNow.description}
+          data-testid="servicenow-label"
+        />
+      )}
       {body()}
     </Stack>
   );
