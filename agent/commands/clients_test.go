@@ -77,6 +77,24 @@ func TestServerNodeOfAgent(t *testing.T) {
 			unknowable:  true,
 		},
 		{
+			name:        "PMM Server does not know the Node",
+			agentStatus: http.StatusOK,
+			nodeStatus:  http.StatusNotFound,
+			err:         errAgentNotFound,
+		},
+		{
+			name:        "PMM Server does not accept the credentials for the Node",
+			agentStatus: http.StatusOK,
+			nodeStatus:  http.StatusUnauthorized,
+			err:         errCredentialsRejected,
+		},
+		{
+			name:        "PMM Server forbids the Node request",
+			agentStatus: http.StatusOK,
+			nodeStatus:  http.StatusForbidden,
+			err:         errCredentialsRejected,
+		},
+		{
 			name:        "PMM Server cannot answer about the Node",
 			agentStatus: http.StatusOK,
 			nodeStatus:  http.StatusServiceUnavailable,

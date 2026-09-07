@@ -157,11 +157,7 @@ func serverNodeOfAgent(agentID string) (string, error) {
 	// The constructors bound the requests with the default timeout, so a hung PMM Server cannot stall the setup.
 	agent, err := inventoryClient.Default.AgentsService.GetAgent(aservice.NewGetAgentParams().WithAgentID(agentID))
 	if err != nil {
-		e, ok := errors.AsType[*aservice.GetAgentDefault](err)
-		if !ok {
-			return "", err
-		}
-		return "", lookupError(e.Code(), err)
+		return "", lookupError(err)
 	}
 	if agent.Payload.PMMAgent == nil {
 		// The ID belongs to another kind of Agent, so it is not a registration of this pmm-agent.
@@ -170,15 +166,26 @@ func serverNodeOfAgent(agentID string) (string, error) {
 
 	node, err := inventoryClient.Default.NodesService.GetNode(nservice.NewGetNodeParams().WithNodeID(agent.Payload.PMMAgent.RunsOnNodeID))
 	if err != nil {
-		return "", err
+		return "", lookupError(err)
 	}
 
 	return nodeNameOf(node.Payload), nil
 }
 
+// statusError is an error of the generated API clients which carries the HTTP status of the response.
+type statusError interface {
+	error
+	Code() int
+}
+
 // lookupError maps the status of a failed inventory lookup to what it says about the registration.
-func lookupError(code int, err error) error {
-	switch code {
+func lookupError(err error) error {
+	e, ok := errors.AsType[statusError](err)
+	if !ok {
+		return err
+	}
+
+	switch e.Code() {
 	// An ID which PMM Server rejects as invalid cannot be registered there either.
 	case http.StatusBadRequest, http.StatusNotFound:
 		return errAgentNotFound
