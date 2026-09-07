@@ -53,6 +53,18 @@ type Server struct {
 	WithoutTLS bool `yaml:"without-tls,omitempty"` // for development and testing
 }
 
+// NormalizedAddress returns the PMM Server address with the default port added when it has none.
+func (s *Server) NormalizedAddress() string {
+	if s.Address == "" {
+		return ""
+	}
+	_, _, err := net.SplitHostPort(s.Address)
+	if err != nil {
+		return net.JoinHostPort(s.Address, "443")
+	}
+	return s.Address
+}
+
 // URL returns base PMM Server URL for JSON APIs.
 func (s *Server) URL() *url.URL {
 	if s.Address == "" {
@@ -306,13 +318,9 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			l.Infof("Using %s as a path to %s", *sp, n)
 		}
 
-		if cfg.Server.Address != "" {
-			_, _, e := net.SplitHostPort(cfg.Server.Address)
-			if e != nil {
-				host := cfg.Server.Address
-				cfg.Server.Address = net.JoinHostPort(host, "443")
-				l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
-			}
+		if address := cfg.Server.NormalizedAddress(); address != cfg.Server.Address {
+			l.Infof("Updating PMM Server address from %s to %s.", cfg.Server.Address, address)
+			cfg.Server.Address = address
 		}
 
 		// enabled cross-component PMM_DEBUG and PMM_TRACE take priority

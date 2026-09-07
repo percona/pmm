@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -30,56 +31,127 @@ import (
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 )
 
-// registrationCheck reports whether PMM Server no longer knows the Agent described by cfg,
-// so that the Node has to be registered again.
-type registrationCheck func(cfg *config.Config, l *logrus.Entry) bool
+// registrationState is what `pmm-agent setup` knows about the Node registration the Agent holds.
+type registrationState int
 
-// mustRegisterOnServer reports whether PMM Server no longer knows this Agent. The server may have
-// been reinstalled, or restored from a backup taken before the Agent was registered, leaving the
-// Agent with an ID nothing recognizes. An unreachable server is not an answer: an Agent has to be
-// able to start while PMM Server has no leader yet, so its registration is kept in that case.
-func mustRegisterOnServer(cfg *config.Config, l *logrus.Entry) bool {
+const (
+	// The Node has to be registered: the Agent holds no ID, it is pointed at another PMM Server,
+	// --force was given, or PMM Server does not know the Agent on this Node.
+	registrationMissing registrationState = iota
+	// PMM Server knows the Agent on this Node.
+	registrationConfirmed
+	// PMM Server could not be asked, and the registration is kept.
+	registrationUnverified
+)
+
+// registrationCheck asks PMM Server about the registration of the Agent described by cfg.
+type registrationCheck func(cfg *config.Config, l *logrus.Entry) registrationState
+
+// checkRegistrationOnServer asks PMM Server whether it knows this Agent on this Node. The server may
+// have been reinstalled, or restored from a backup taken before the Agent was registered, leaving the
+// Agent with an ID nothing recognizes. The configuration file may also have been copied from another
+// host, whose Node the Agent is registered on. An unreachable server is not an answer: an Agent has to
+// be able to start while PMM Server has no leader yet, so its registration is kept in that case.
+func checkRegistrationOnServer(cfg *config.Config, l *logrus.Entry) registrationState {
 	u := cfg.Server.URL()
 	if u == nil {
 		// register reports the missing server address with an actionable message
-		return true
+		return registrationMissing
 	}
 	setServerTransport(u, cfg.Server.InsecureTLS, l)
 
-	known, err := serverKnowsAgent(cfg.ID)
-	if err != nil {
-		l.Warnf("Failed to check the registration of pmm-agent %s with %s, keeping it: %s", cfg.ID, cfg.Server.Address, err)
-		return false
-	}
-	if !known {
+	serverNode, err := serverNodeOfAgent(cfg.ID)
+	switch {
+	case errors.Is(err, errAgentNotFound):
 		fmt.Printf("PMM Server at %s does not know pmm-agent %s, registering the Node again.\n", cfg.Server.Address, cfg.ID)
+		return registrationMissing
+	case errors.Is(err, errCredentialsRejected):
+		fmt.Printf("PMM Server at %s does not accept the credentials of pmm-agent %s, registering the Node again.\n",
+			cfg.Server.Address, cfg.ID)
+		return registrationMissing
+	case err != nil:
+		fmt.Printf("Failed to check the registration of pmm-agent %s with %s: %s.\n", cfg.ID, cfg.Server.Address, err)
+		return registrationUnverified
+	case cfg.Setup.NodeName != "" && serverNode != cfg.Setup.NodeName:
+		fmt.Printf("PMM Server at %s has pmm-agent %s on Node %s, not on %s, registering the Node again.\n",
+			cfg.Server.Address, cfg.ID, serverNode, cfg.Setup.NodeName)
+		return registrationMissing
+	default:
+		return registrationConfirmed
 	}
-
-	return !known
 }
 
-// skipRegistration reports whether `pmm-agent setup` can leave the Node registration as it is.
-// An Agent which already holds an ID is registered with PMM Server, and registering it again makes
-// the server drop the Node together with every Service on it. That is only done on demand, when the
-// Agent is being pointed at a different PMM Server, or when the server no longer knows the Agent.
-func skipRegistration(cfg *config.Config, configFilepath string, mustRegister registrationCheck, l *logrus.Entry) bool {
-	if cfg.Setup.SkipRegistration {
-		return true
+// registrationOf reports what `pmm-agent setup` is to do about the Node registration. An Agent which
+// already holds an ID is registered with PMM Server, and registering it again makes the server drop
+// the Node together with every Service on it. That is only done on demand, when the Agent is being
+// pointed at a different PMM Server, or when the server does not know the Agent on this Node.
+// A nil fileCfg means that the Agent runs with no configuration file yet.
+func registrationOf(cfg, fileCfg *config.Config, check registrationCheck, l *logrus.Entry) registrationState {
+	if cfg.ID == "" || cfg.Setup.Force || fileCfg == nil {
+		return registrationMissing
 	}
-	if cfg.ID == "" || cfg.Setup.Force {
-		return false
+	// The file may hold the address without the default port, unlike the parsed configuration.
+	if !strings.EqualFold(cfg.Server.NormalizedAddress(), fileCfg.Server.NormalizedAddress()) {
+		return registrationMissing
 	}
 
+	return check(cfg, l)
+}
+
+// registeredConfig returns the configuration file the Agent runs with, or nil when there is none.
+// `pmm-admin config` runs `pmm-agent setup` without --config-file, so the file, whose path is only known
+// from the running pmm-agent, has not been loaded yet in that case.
+func registeredConfig(configFilepath string, cfg *config.Config) *config.Config {
 	fileCfg, err := config.LoadFromFile(configFilepath, &cfg.Encryption)
-	if err != nil {
-		l.Warnf("Failed to read the configuration file %s, registering the Node: %s", configFilepath, err)
-		return false
+	var e config.ConfigFileDoesNotExistError
+	switch {
+	case err == nil:
+		return fileCfg
+	case errors.As(err, &e):
+		return nil
+	default:
+		fmt.Printf("Failed to read the configuration file %s, registering the Node: %s.\n", configFilepath, err)
+		return nil
 	}
-	if fileCfg.Server.Address != cfg.Server.Address {
-		return false
+}
+
+// keepRegistration keeps the credentials the Agent runs with: those given to `pmm-agent setup` only
+// serve to register, which replaces them with a service token. It also reports the settings which
+// describe the Node on PMM Server, because they are only applied when the Node is registered.
+func keepRegistration(cfg, fileCfg *config.Config) {
+	if fileCfg.Server.Password != "" {
+		cfg.Server.Username = fileCfg.Server.Username
+		cfg.Server.Password = fileCfg.Server.Password
 	}
 
-	return !mustRegister(cfg, l)
+	flags := unappliedSetupFlags(&cfg.Setup)
+	if len(flags) > 0 {
+		fmt.Printf("Settings %s only take effect when the Node is registered.\n", strings.Join(flags, ", "))
+	}
+}
+
+// unappliedSetupFlags lists the given `pmm-agent setup` flags which describe the Node on PMM Server.
+func unappliedSetupFlags(s *config.Setup) []string {
+	var flags []string
+	for _, f := range []struct {
+		name  string
+		given bool
+	}{
+		{"--node-model", s.NodeModel != ""},
+		{"--region", s.Region != ""},
+		{"--az", s.Az != ""},
+		{"--metrics-mode", s.MetricsMode != "" && s.MetricsMode != "auto"},
+		{"--disable-collectors", s.DisableCollectors != ""},
+		{"--custom-labels", s.CustomLabels != ""},
+		{"--agent-password", s.AgentPassword != ""},
+		{"--expose-exporter", s.ExposeExporter},
+	} {
+		if f.given {
+			flags = append(flags, f.name)
+		}
+	}
+
+	return flags
 }
 
 // Setup implements `pmm-agent setup` command.
@@ -112,6 +184,11 @@ func Setup() {
 
 	configFilepath, running := checkStatus(configFilepath, l)
 
+	fileCfg := registeredConfig(configFilepath, cfg)
+	if cfg.ID == "" && fileCfg != nil {
+		cfg.ID = fileCfg.ID
+	}
+
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
 		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
 		os.Exit(1)
@@ -123,11 +200,18 @@ func Setup() {
 		os.Exit(1)
 	}
 
-	if skipRegistration(cfg, configFilepath, mustRegisterOnServer, l) {
-		fmt.Printf("Node is already registered with %s, pmm-agent ID is %s. Use --force to register it again.\n",
-			cfg.Server.Address, cfg.ID)
-	} else {
-		register(cfg, l)
+	if !cfg.Setup.SkipRegistration {
+		switch registrationOf(cfg, fileCfg, checkRegistrationOnServer, l) {
+		case registrationMissing:
+			register(cfg, l)
+		case registrationConfirmed:
+			fmt.Printf("Node is already registered with %s, pmm-agent ID is %s. Use --force to register it again.\n",
+				cfg.Server.Address, cfg.ID)
+			keepRegistration(cfg, fileCfg)
+		case registrationUnverified:
+			fmt.Printf("Keeping the registration, pmm-agent ID is %s. Use --force to register the Node again.\n", cfg.ID)
+			keepRegistration(cfg, fileCfg)
+		}
 	}
 
 	cfg.ProcMountsPath = cfg.Setup.ProcMountsPath

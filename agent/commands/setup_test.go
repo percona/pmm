@@ -15,7 +15,6 @@
 package commands
 
 import (
-	"os"
 	"path/filepath"
 	"testing"
 
@@ -26,91 +25,153 @@ import (
 	"github.com/percona/pmm/agent/config"
 )
 
-func TestSkipRegistration(t *testing.T) {
+const (
+	testAgentID       = "5a2b8a4b-2b9d-4a5f-9a11-2b6a3f6f9a11"
+	testServerAddress = "pmm.example.com:443"
+)
+
+// answer makes PMM Server answer the registration check with the given state.
+func answer(state registrationState) registrationCheck {
+	return func(*config.Config, *logrus.Entry) registrationState { return state }
+}
+
+// notAsked fails the test if PMM Server is asked about the registration at all.
+func notAsked(t *testing.T) registrationCheck {
+	t.Helper()
+
+	return func(*config.Config, *logrus.Entry) registrationState {
+		t.Errorf("PMM Server should not be asked about the registration")
+		return registrationMissing
+	}
+}
+
+func TestRegistrationOf(t *testing.T) {
 	t.Parallel()
 
-	const (
-		agentID       = "5a2b8a4b-2b9d-4a5f-9a11-2b6a3f6f9a11"
-		serverAddress = "pmm.example.com:443"
-	)
+	registered := &config.Config{ID: testAgentID, Server: config.Server{Address: testServerAddress}}
 
-	// writeConfigFile stores a configuration file holding the Agent ID and the PMM Server address.
-	writeConfigFile := func(t *testing.T, address string) string {
-		t.Helper()
+	for _, tc := range []struct {
+		name    string
+		cfg     *config.Config
+		fileCfg *config.Config
+		// check answers as PMM Server; nil means PMM Server must not be asked
+		check registrationCheck
+		want  registrationState
+	}{
+		{
+			name:    "a new Agent registers",
+			cfg:     &config.Config{Server: config.Server{Address: testServerAddress}},
+			fileCfg: &config.Config{Server: config.Server{Address: testServerAddress}},
+			want:    registrationMissing,
+		},
+		{
+			name:    "a registered Agent does not register again",
+			cfg:     registered,
+			fileCfg: registered,
+			check:   answer(registrationConfirmed),
+			want:    registrationConfirmed,
+		},
+		{
+			name:    "a registered Agent registers again when PMM Server does not know it",
+			cfg:     registered,
+			fileCfg: registered,
+			check:   answer(registrationMissing),
+			want:    registrationMissing,
+		},
+		{
+			name:    "a registered Agent keeps its registration when PMM Server cannot be asked",
+			cfg:     registered,
+			fileCfg: registered,
+			check:   answer(registrationUnverified),
+			want:    registrationUnverified,
+		},
+		{
+			name:    "the file may hold the PMM Server address without the default port",
+			cfg:     registered,
+			fileCfg: &config.Config{ID: testAgentID, Server: config.Server{Address: "PMM.example.com"}},
+			check:   answer(registrationConfirmed),
+			want:    registrationConfirmed,
+		},
+		{
+			name:    "a registered Agent registers with a different PMM Server",
+			cfg:     &config.Config{ID: testAgentID, Server: config.Server{Address: "new-pmm.example.com:443"}},
+			fileCfg: registered,
+			want:    registrationMissing,
+		},
+		{
+			name:    "a registered Agent registers again when forced",
+			cfg:     &config.Config{ID: testAgentID, Server: config.Server{Address: testServerAddress}, Setup: config.Setup{Force: true}},
+			fileCfg: registered,
+			want:    registrationMissing,
+		},
+		{
+			name: "a registered Agent registers when there is no configuration file",
+			cfg:  registered,
+			want: registrationMissing,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			check := tc.check
+			if check == nil {
+				check = notAsked(t)
+			}
+			assert.Equal(t, tc.want, registrationOf(tc.cfg, tc.fileCfg, check, logrus.WithField("test", t.Name())))
+		})
+	}
+}
+
+func TestRegisteredConfig(t *testing.T) {
+	t.Parallel()
+
+	t.Run("the file the Agent runs with is loaded", func(t *testing.T) {
+		t.Parallel()
 
 		path := filepath.Join(t.TempDir(), "pmm-agent.yaml")
-		err := config.SaveToFile(path, &config.Config{ID: agentID, Server: config.Server{Address: address}}, t.Name())
-		require.NoError(t, err)
+		saved := &config.Config{ID: testAgentID, Server: config.Server{Address: testServerAddress}}
+		require.NoError(t, config.SaveToFile(path, saved, t.Name()))
 
-		return path
-	}
-
-	// serverKnows answers as PMM Server which still has the Agent registered.
-	serverKnows := func(*config.Config, *logrus.Entry) bool { return false }
-
-	// serverForgot answers as PMM Server which was reinstalled and knows nothing about the Agent.
-	serverForgot := func(*config.Config, *logrus.Entry) bool { return true }
-
-	// serverNotAsked fails the test if PMM Server is asked at all.
-	serverNotAsked := func(*config.Config, *logrus.Entry) bool {
-		t.Errorf("PMM Server should not be asked about the registration")
-		return false
-	}
-
-	t.Run("a new Agent registers", func(t *testing.T) {
-		t.Parallel()
-
-		cfg := &config.Config{Server: config.Server{Address: serverAddress}}
-		path := writeConfigFile(t, serverAddress)
-		assert.False(t, skipRegistration(cfg, path, serverNotAsked, logrus.WithField("test", t.Name())))
+		fileCfg := registeredConfig(path, &config.Config{})
+		require.NotNil(t, fileCfg)
+		assert.Equal(t, testAgentID, fileCfg.ID)
+		assert.Equal(t, testServerAddress, fileCfg.Server.Address)
 	})
 
-	t.Run("a registered Agent does not register again", func(t *testing.T) {
+	t.Run("a missing file means no registration", func(t *testing.T) {
 		t.Parallel()
 
-		cfg := &config.Config{ID: agentID, Server: config.Server{Address: serverAddress}}
-		path := writeConfigFile(t, serverAddress)
-		assert.True(t, skipRegistration(cfg, path, serverKnows, logrus.WithField("test", t.Name())))
+		assert.Nil(t, registeredConfig(filepath.Join(t.TempDir(), "pmm-agent.yaml"), &config.Config{}))
 	})
+}
 
-	t.Run("a registered Agent registers again when PMM Server does not know it", func(t *testing.T) {
+func TestKeepRegistration(t *testing.T) {
+	t.Parallel()
+
+	t.Run("the stored service token outlives the credentials given to setup", func(t *testing.T) {
 		t.Parallel()
 
-		cfg := &config.Config{ID: agentID, Server: config.Server{Address: serverAddress}}
-		path := writeConfigFile(t, serverAddress)
-		assert.False(t, skipRegistration(cfg, path, serverForgot, logrus.WithField("test", t.Name())))
+		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "admin"}}
+		fileCfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "service_token", Password: "glsa_token"}}
+		keepRegistration(cfg, fileCfg)
+		assert.Equal(t, "service_token", cfg.Server.Username)
+		assert.Equal(t, "glsa_token", cfg.Server.Password)
 	})
 
-	t.Run("a registered Agent registers with a different PMM Server", func(t *testing.T) {
+	t.Run("credentials given to setup are stored when the file holds none", func(t *testing.T) {
 		t.Parallel()
 
-		cfg := &config.Config{ID: agentID, Server: config.Server{Address: "new-pmm.example.com:443"}}
-		path := writeConfigFile(t, serverAddress)
-		assert.False(t, skipRegistration(cfg, path, serverNotAsked, logrus.WithField("test", t.Name())))
+		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "admin"}}
+		keepRegistration(cfg, &config.Config{ID: testAgentID})
+		assert.Equal(t, "admin", cfg.Server.Username)
+		assert.Equal(t, "admin", cfg.Server.Password)
 	})
+}
 
-	t.Run("a registered Agent registers again when forced", func(t *testing.T) {
-		t.Parallel()
+func TestUnappliedSetupFlags(t *testing.T) {
+	t.Parallel()
 
-		cfg := &config.Config{ID: agentID, Server: config.Server{Address: serverAddress}, Setup: config.Setup{Force: true}}
-		path := writeConfigFile(t, serverAddress)
-		assert.False(t, skipRegistration(cfg, path, serverNotAsked, logrus.WithField("test", t.Name())))
-	})
-
-	t.Run("registration is skipped on demand", func(t *testing.T) {
-		t.Parallel()
-
-		cfg := &config.Config{ID: agentID, Setup: config.Setup{SkipRegistration: true, Force: true}}
-		assert.True(t, skipRegistration(cfg, "not-exist.yaml", serverNotAsked, logrus.WithField("test", t.Name())))
-	})
-
-	t.Run("a registered Agent registers when the configuration file cannot be read", func(t *testing.T) {
-		t.Parallel()
-
-		path := writeConfigFile(t, serverAddress)
-		require.NoError(t, os.Remove(path))
-
-		cfg := &config.Config{ID: agentID, Server: config.Server{Address: serverAddress}}
-		assert.False(t, skipRegistration(cfg, path, serverNotAsked, logrus.WithField("test", t.Name())))
-	})
+	assert.Empty(t, unappliedSetupFlags(&config.Setup{NodeName: "host", MetricsMode: "auto"}))
+	assert.Equal(t, []string{"--region", "--custom-labels", "--expose-exporter"},
+		unappliedSetupFlags(&config.Setup{Region: "eu", CustomLabels: "env=prod", ExposeExporter: true}))
 }

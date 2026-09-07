@@ -51,7 +51,7 @@ type ConfigCommand struct {
 	Region            string   `help:"Node region"`
 	Az                string   `help:"Node availability zone"`
 	AgentPassword     string   `help:"Custom password for /metrics endpoint"`
-	Force             bool     `help:"Remove Node with that name with all dependent Services and Agents if one exist"`
+	Force             bool     `help:"Register the Node again even if this pmm-agent is registered, removing the existing Node and all its Services and Agents"`
 	DisableCollectors []string `help:"Comma-separated list of collector names to exclude from exporter"`
 	CustomLabels      string   `placeholder:"KEY=VALUE,KEY=VALUE,..." help:"Custom user-assigned labels"`
 	BasePath          string   `name:"paths-base" help:"Base path where all binaries, tools and collectors of PMM client are located"`

@@ -36,6 +36,7 @@ import (
 	agentlocalClient "github.com/percona/pmm/api/agentlocal/v1/json/client"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	aservice "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nservice "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -140,30 +141,70 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	inventoryClient.Default.SetTransport(transport)
 }
 
-// serverKnowsAgent reports whether PMM Server has an Agent with the given ID.
-// An error is returned when PMM Server could not be asked, so that the caller can tell
-// "the Agent is gone" apart from "the answer is unknown".
+// errAgentNotFound reports that PMM Server has no Agent with the given ID.
+var errAgentNotFound = errors.New("agent not found")
+
+// errCredentialsRejected reports that PMM Server did not accept the credentials of the request.
+var errCredentialsRejected = errors.New("credentials rejected")
+
+// serverNodeOfAgent returns the name of the Node which PMM Server has the Agent registered on.
+// The errors errAgentNotFound and errCredentialsRejected mean that the Node has to be registered again. Any other
+// error means that PMM Server could not be asked, so that the caller can tell "the registration is gone"
+// apart from "the answer is unknown".
 //
 // This method is not thread-safe.
-func serverKnowsAgent(agentID string) (bool, error) {
-	// The constructor bounds the request with the default timeout, so a hung PMM Server cannot stall the setup.
-	_, err := inventoryClient.Default.AgentsService.GetAgent(aservice.NewGetAgentParams().WithAgentID(agentID))
-	if err == nil {
-		return true, nil
+func serverNodeOfAgent(agentID string) (string, error) {
+	// The constructors bound the requests with the default timeout, so a hung PMM Server cannot stall the setup.
+	agent, err := inventoryClient.Default.AgentsService.GetAgent(aservice.NewGetAgentParams().WithAgentID(agentID))
+	if err != nil {
+		e, ok := errors.AsType[*aservice.GetAgentDefault](err)
+		if !ok {
+			return "", err
+		}
+		return "", lookupError(e.Code(), err)
+	}
+	if agent.Payload.PMMAgent == nil {
+		// The ID belongs to another kind of Agent, so it is not a registration of this pmm-agent.
+		return "", errAgentNotFound
 	}
 
-	e, ok := errors.AsType[*aservice.GetAgentDefault](err)
-	if !ok {
-		return false, err
+	node, err := inventoryClient.Default.NodesService.GetNode(nservice.NewGetNodeParams().WithNodeID(agent.Payload.PMMAgent.RunsOnNodeID))
+	if err != nil {
+		return "", err
 	}
 
-	switch e.Code() {
-	// PMM Server either does not know this Agent, or does not accept its credentials. Registering
-	// again is the only way forward, and it reports a credentials problem with a clear message.
-	case http.StatusNotFound, http.StatusUnauthorized, http.StatusForbidden:
-		return false, nil
+	return nodeNameOf(node.Payload), nil
+}
+
+// lookupError maps the status of a failed inventory lookup to what it says about the registration.
+func lookupError(code int, err error) error {
+	switch code {
+	// An ID which PMM Server rejects as invalid cannot be registered there either.
+	case http.StatusBadRequest, http.StatusNotFound:
+		return errAgentNotFound
+	// Registering again reports a credentials problem with a clear message.
+	case http.StatusUnauthorized, http.StatusForbidden:
+		return errCredentialsRejected
 	default:
-		return false, err
+		return err
+	}
+}
+
+// nodeNameOf returns the name of the Node in the GetNode response, whichever type it has.
+func nodeNameOf(node *nservice.GetNodeOKBody) string {
+	switch {
+	case node.Generic != nil:
+		return node.Generic.NodeName
+	case node.Container != nil:
+		return node.Container.NodeName
+	case node.Remote != nil:
+		return node.Remote.NodeName
+	case node.RemoteRDS != nil:
+		return node.RemoteRDS.NodeName
+	case node.RemoteAzureDatabase != nil:
+		return node.RemoteAzureDatabase.NodeName
+	default:
+		return ""
 	}
 }
 

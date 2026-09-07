@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -28,37 +29,58 @@ import (
 )
 
 // The subtests share the package level API clients, so they cannot run in parallel.
-func TestServerKnowsAgent(t *testing.T) {
-	const agentID = "5a2b8a4b-2b9d-4a5f-9a11-2b6a3f6f9a11"
+func TestServerNodeOfAgent(t *testing.T) {
+	const (
+		agentID  = "5a2b8a4b-2b9d-4a5f-9a11-2b6a3f6f9a11"
+		nodeID   = "8c1e0d3a-6f2b-4c8e-9a0d-3b7f2e1c5d44"
+		nodeName = "test-node"
+	)
 
 	for _, tc := range []struct {
-		name       string
-		statusCode int
-		hangs      bool
-		known      bool
-		unknowable bool
+		name        string
+		agentStatus int
+		nodeStatus  int
+		hangs       bool
+		nodeName    string
+		err         error
+		unknowable  bool
 	}{
 		{
-			name:       "PMM Server knows the Agent",
-			statusCode: http.StatusOK,
-			known:      true,
+			name:        "PMM Server knows the Agent",
+			agentStatus: http.StatusOK,
+			nodeStatus:  http.StatusOK,
+			nodeName:    nodeName,
 		},
 		{
-			name:       "PMM Server does not know the Agent",
-			statusCode: http.StatusNotFound,
+			name:        "PMM Server does not know the Agent",
+			agentStatus: http.StatusNotFound,
+			err:         errAgentNotFound,
 		},
 		{
-			name:       "PMM Server does not accept the credentials",
-			statusCode: http.StatusUnauthorized,
+			name:        "PMM Server rejects the Agent ID",
+			agentStatus: http.StatusBadRequest,
+			err:         errAgentNotFound,
 		},
 		{
-			name:       "PMM Server forbids the request",
-			statusCode: http.StatusForbidden,
+			name:        "PMM Server does not accept the credentials",
+			agentStatus: http.StatusUnauthorized,
+			err:         errCredentialsRejected,
 		},
 		{
-			name:       "PMM Server cannot answer",
-			statusCode: http.StatusServiceUnavailable,
-			unknowable: true,
+			name:        "PMM Server forbids the request",
+			agentStatus: http.StatusForbidden,
+			err:         errCredentialsRejected,
+		},
+		{
+			name:        "PMM Server cannot answer",
+			agentStatus: http.StatusServiceUnavailable,
+			unknowable:  true,
+		},
+		{
+			name:        "PMM Server cannot answer about the Node",
+			agentStatus: http.StatusOK,
+			nodeStatus:  http.StatusServiceUnavailable,
+			unknowable:  true,
 		},
 		{
 			name:       "PMM Server hangs",
@@ -80,7 +102,22 @@ func TestServerKnowsAgent(t *testing.T) {
 					return
 				}
 				rw.Header().Set("Content-Type", "application/json")
-				rw.WriteHeader(tc.statusCode)
+				switch {
+				case strings.HasPrefix(req.URL.Path, "/v1/inventory/agents/"):
+					rw.WriteHeader(tc.agentStatus)
+					if tc.agentStatus == http.StatusOK {
+						_, _ = rw.Write([]byte(`{"pmm_agent": {"agent_id": "` + agentID + `", "runs_on_node_id": "` + nodeID + `"}}`))
+						return
+					}
+				case strings.HasPrefix(req.URL.Path, "/v1/inventory/nodes/"):
+					rw.WriteHeader(tc.nodeStatus)
+					if tc.nodeStatus == http.StatusOK {
+						_, _ = rw.Write([]byte(`{"generic": {"node_id": "` + nodeID + `", "node_name": "` + nodeName + `"}}`))
+						return
+					}
+				default:
+					rw.WriteHeader(http.StatusNotFound)
+				}
 				_, _ = rw.Write([]byte(`{"message": "` + tc.name + `"}`))
 			}))
 			t.Cleanup(server.Close)
@@ -89,13 +126,18 @@ func TestServerKnowsAgent(t *testing.T) {
 			require.NoError(t, err)
 			setServerTransport(u, true, logrus.WithField("test", t.Name()))
 
-			known, err := serverKnowsAgent(agentID)
-			if tc.unknowable {
+			name, err := serverNodeOfAgent(agentID)
+			switch {
+			case tc.err != nil:
+				require.ErrorIs(t, err, tc.err)
+			case tc.unknowable:
 				require.Error(t, err)
-			} else {
+				require.NotErrorIs(t, err, errAgentNotFound)
+				require.NotErrorIs(t, err, errCredentialsRejected)
+			default:
 				require.NoError(t, err)
 			}
-			assert.Equal(t, tc.known, known)
+			assert.Equal(t, tc.nodeName, name)
 		})
 	}
 }
