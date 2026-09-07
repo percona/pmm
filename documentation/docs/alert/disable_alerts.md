@@ -21,7 +21,6 @@ Set either to `false` and recreate the server to turn that set off. In Docker th
 Keep the following in mind:
 
 - **These take effect when the server starts.** PMM writes the rules while it starts up, so a change needs the server recreated - which is what changing an environment variable requires anyway. To quieten a rule right now, without restarting anything, add a [silence](silence_alerts.md) instead.
-- **Set the variable on every node.** In a High Availability deployment each node writes the rules for itself, so give all of them the same value.
 - **Turning a set off deletes its rules.** Any silences you created keep working if you turn the set back on, because they match on labels and the labels do not change. The rules' own state does not survive, so anything that was firing is evaluated afresh and notifies again once its `for` duration has passed.
 - **Your own rules are never touched.** Rules you created from these templates are yours, including copies you made to change a threshold.
 - **Disabling Percona Alerting removes both sets** as well, since these rules are built from Percona alert templates. That switch is in **Configuration > Settings > Advanced settings**. It needs no server restart, but it is not instant either: PMM notices it on its next check, within a few minutes.
