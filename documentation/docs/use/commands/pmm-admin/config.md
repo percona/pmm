@@ -22,6 +22,8 @@ Set the PMM Server URL and credentials that pmm-agent uses to communicate with t
 
 Run this after installing PMM Client or when changing server connection details.
 
+Running it again for a registered pmm-agent keeps its registration. The Node is registered again only when the PMM Server address changed, when PMM Server no longer knows the pmm-agent on that Node, or with `--force`. Settings which describe the Node, such as `--custom-labels`, only take effect when the Node is registered. The credentials in `--server-url` only serve to register the Node; a registered pmm-agent keeps its service token.
+
 ### Syntax
 
 ```bash
@@ -47,6 +49,8 @@ pmm-admin config [<node-address> [<node-type> [<node-name>]]] [FLAGS]
 - `--paths-base=dir`:   Base path for PMM client binaries, tools, and collectors
 
 - `--agent-password=password`:   Custom agent password
+
+- `--force`:   Register the Node even if this pmm-agent is registered already, removing the Node with that name together with all dependent Services and Agents
 
 ### Examples
 

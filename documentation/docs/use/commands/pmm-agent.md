@@ -24,6 +24,8 @@ You typically don't interact with pmm-agent directly, `pmm-admin` communicates w
 `pmm-agent setup [node-address] [node-type] [node-name]`
 : Configure local pmm-agent (requires root permissions)
 
+    Running `setup` again for a registered pmm-agent keeps its registration. The Node is registered again only when the PMM Server address changed, when PMM Server no longer knows the pmm-agent on that Node, or with `--force`. Settings which describe the Node, such as `--custom-labels` or `--disable-collectors`, only take effect when the Node is registered. The credentials given to `setup` only serve to register the Node; a registered pmm-agent keeps its service token.
+
 `pmm-agent help [command]`
 : Show help (for command) and exit.
 
@@ -45,7 +47,7 @@ Most options can be set via environment variables (shown in parentheses).
 | `--container-name=CONTAINER-NAME`      | `PMM_AGENT_SETUP_CONTAINER_NAME`    | Container name.
 | `--debug`                              | `PMM_AGENT_DEBUG`                   | Enable debug output.
 | `--distro=distro`                      | `PMM_AGENT_SETUP_DISTRO`            | Node OS distribution (default is auto-detected).
-| `--force`                              | `PMM_AGENT_SETUP_FORCE`             | Remove Node with that name and all dependent Services and Agents (if existing).
+| `--force`                              | `PMM_AGENT_SETUP_FORCE`             | Register the Node even if this pmm-agent is registered already, removing the Node with that name together with all dependent Services and Agents (if existing).
 | `--id=...`                             | `PMM_AGENT_ID`                      | ID of this pmm-agent.
 | `--listen-address=LISTEN-ADDRESS`      | `PMM_AGENT_LISTEN_ADDRESS`          | Agent local API address.
 | `--listen-port=LISTEN-PORT`            | `PMM_AGENT_LISTEN_PORT`             | Agent local API port.
