@@ -29,8 +29,8 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-// serviceAccountCleanupTimeout bounds the Grafana calls of Remove: the Node is gone by then,
-// and an unresponsive Grafana must not hold the request.
+// serviceAccountCleanupTimeout bounds the Grafana calls of Remove. The Node is gone by then, so the
+// cleanup neither waits on an unresponsive Grafana, nor stops with a client which gave up on the request.
 const serviceAccountCleanupTimeout = 10 * time.Second
 
 // NodesService works with inventory API Nodes.
@@ -370,11 +370,14 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 
 	// pmm-agent authenticates with a token of the Grafana service account named after the Node.
 	// Drop the account, so that the token does not outlive the Node.
-	cleanupCtx, cancel := context.WithTimeout(ctx, serviceAccountCleanupTimeout)
+	cleanupCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), serviceAccountCleanupTimeout)
 	defer cancel()
-	_, err = s.grafanaClient.DeleteServiceAccount(cleanupCtx, node.NodeName, force)
-	if err != nil {
+	warning, err := s.grafanaClient.DeleteServiceAccount(cleanupCtx, node.NodeName, force)
+	switch {
+	case err != nil:
 		logger.Get(ctx).Warnf("Failed to delete the service account of node %s: %s", node.NodeName, err)
+	case warning != "":
+		logger.Get(ctx).Warnf("Service account of node %s: %s", node.NodeName, warning)
 	}
 
 	return nil
