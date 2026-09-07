@@ -34,7 +34,7 @@ function secondsSince(startedAt: string): number | null {
  * The wire carries no duration for a run in flight — `TaskHistoryResponse.
  * duration` is server-computed from `finished_at` and stays null until the run
  * ends — so an in-flight elapsed time has to be derived here. Nothing else in
- * the framework tickes, so this is the only place a clock runs.
+ * the framework ticks, so this is the only place a clock runs.
  *
  * The ticker is torn down as soon as `isRunning` goes false, and the final
  * value is left in place rather than zeroed: a caller that swaps to the

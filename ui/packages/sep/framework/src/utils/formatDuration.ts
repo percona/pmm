@@ -41,12 +41,16 @@ export function formatDuration(seconds: number | null | undefined): string {
   }
 
   const safe = Math.max(0, seconds);
+  // Bucket on the value as it will be rendered, not the raw one: 59.95s
+  // renders as `60.0s`, which belongs in the minutes bucket as `1m 0s` rather
+  // than being shown as a minute's worth of seconds.
+  const rounded = Math.round(safe * 10) / 10;
 
-  if (safe < SECONDS_PER_MINUTE) {
-    return `${safe.toFixed(1)}s`;
+  if (rounded < SECONDS_PER_MINUTE) {
+    return `${rounded.toFixed(1)}s`;
   }
 
-  const total = Math.round(safe);
+  const total = Math.round(rounded);
 
   if (total < SECONDS_PER_HOUR) {
     return `${Math.floor(total / SECONDS_PER_MINUTE)}m ${total % SECONDS_PER_MINUTE}s`;

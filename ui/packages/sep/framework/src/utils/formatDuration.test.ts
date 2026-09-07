@@ -14,6 +14,18 @@ describe('formatDuration', () => {
     expect(formatDuration(59.9)).toBe('59.9s');
   });
 
+  it('rounds up into the minutes bucket at the boundary', () => {
+    // 59.95 renders as '60.0s' at one decimal, which is a minute — reporting
+    // it in the sub-minute bucket would show a duration the bucket excludes.
+    expect(formatDuration(59.95)).toBe('1m 0s');
+    expect(formatDuration(59.94)).toBe('59.9s');
+  });
+
+  it('rounds up into the hours bucket at the boundary', () => {
+    expect(formatDuration(3599.6)).toBe('1h 0m');
+    expect(formatDuration(3599.4)).toBe('59m 59s');
+  });
+
   it('drops the decimal from a minute up', () => {
     expect(formatDuration(60)).toBe('1m 0s');
     expect(formatDuration(127.4)).toBe('2m 7s');
