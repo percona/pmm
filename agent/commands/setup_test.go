@@ -15,6 +15,8 @@
 package commands
 
 import (
+	"errors"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -28,6 +30,8 @@ import (
 const (
 	testAgentID       = "5a2b8a4b-2b9d-4a5f-9a11-2b6a3f6f9a11"
 	testServerAddress = "pmm.example.com:443"
+	testNodeName      = "test-node"
+	testNodeAddress   = "10.20.30.40"
 )
 
 // answer makes PMM Server answer the registration check with the given state.
@@ -43,6 +47,107 @@ func notAsked(t *testing.T) registrationCheck {
 		t.Errorf("PMM Server should not be asked about the registration")
 		return registrationMissing
 	}
+}
+
+// found makes PMM Server answer the Agent lookup with the given Node.
+func found(node serverNode) agentLookup {
+	return func(string) (serverNode, error) { return node, nil }
+}
+
+// failed makes the Agent lookup fail with the given error.
+func failed(err error) agentLookup {
+	return func(string) (serverNode, error) { return serverNode{}, err }
+}
+
+func TestCheckRegistration(t *testing.T) {
+	t.Parallel()
+
+	registeredNode := serverNode{Name: testNodeName, Address: testNodeAddress}
+
+	for _, tc := range []struct {
+		name     string
+		nodeName string
+		lookup   agentLookup
+		want     registrationState
+	}{
+		{
+			name:     "PMM Server knows the Agent on this Node",
+			nodeName: testNodeName,
+			lookup:   found(registeredNode),
+			want:     registrationConfirmed,
+		},
+		{
+			name:     "an address which no longer matches keeps the registration",
+			nodeName: testNodeName,
+			lookup:   found(serverNode{Name: testNodeName, Address: "10.20.30.41"}),
+			want:     registrationConfirmed,
+		},
+		{
+			name:   "the Node name is not known locally",
+			lookup: found(registeredNode),
+			want:   registrationConfirmed,
+		},
+		{
+			name:     "PMM Server has the Agent on another Node",
+			nodeName: "another-node",
+			lookup:   found(registeredNode),
+			want:     registrationConflict,
+		},
+		{
+			name:     "PMM Server does not know the Agent",
+			nodeName: testNodeName,
+			lookup:   failed(errAgentNotFound),
+			want:     registrationMissing,
+		},
+		{
+			name:     "PMM Server does not accept the credentials the Agent runs with",
+			nodeName: testNodeName,
+			lookup:   failed(errCredentialsRejected),
+			want:     registrationMissing,
+		},
+		{
+			name:     "PMM Server cannot be asked",
+			nodeName: testNodeName,
+			lookup:   failed(errors.New("connection refused")),
+			want:     registrationUnverified,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			cfg := &config.Config{
+				ID:     testAgentID,
+				Server: config.Server{Address: testServerAddress},
+				Setup:  config.Setup{NodeName: tc.nodeName, Address: testNodeAddress},
+			}
+			assert.Equal(t, tc.want, checkRegistration(cfg, tc.lookup))
+		})
+	}
+}
+
+func TestRunningCredentials(t *testing.T) {
+	t.Parallel()
+
+	t.Run("the registration is checked with the credentials the Agent runs with", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "admin"}}
+		fileCfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "service_token", Password: "glsa_token"}}
+
+		check := runningCredentials(cfg, fileCfg)
+		assert.Equal(t, "service_token", check.Server.Username)
+		assert.Equal(t, "glsa_token", check.Server.Password)
+		// The credentials given to setup are still the ones to register with.
+		assert.Equal(t, "admin", cfg.Server.Username)
+		assert.Equal(t, "admin", cfg.Server.Password)
+	})
+
+	t.Run("the credentials given to setup are used when the file holds none", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "admin"}}
+		assert.Same(t, cfg, runningCredentials(cfg, &config.Config{ID: testAgentID}))
+	})
 }
 
 func TestRegistrationOf(t *testing.T) {
@@ -132,7 +237,8 @@ func TestRegisteredConfig(t *testing.T) {
 		saved := &config.Config{ID: testAgentID, Server: config.Server{Address: testServerAddress}}
 		require.NoError(t, config.SaveToFile(path, saved, t.Name()))
 
-		fileCfg := registeredConfig(path, &config.Config{})
+		fileCfg, err := registeredConfig(path, &config.Config{})
+		require.NoError(t, err)
 		require.NotNil(t, fileCfg)
 		assert.Equal(t, testAgentID, fileCfg.ID)
 		assert.Equal(t, testServerAddress, fileCfg.Server.Address)
@@ -141,7 +247,20 @@ func TestRegisteredConfig(t *testing.T) {
 	t.Run("a missing file means no registration", func(t *testing.T) {
 		t.Parallel()
 
-		assert.Nil(t, registeredConfig(filepath.Join(t.TempDir(), "pmm-agent.yaml"), &config.Config{}))
+		fileCfg, err := registeredConfig(filepath.Join(t.TempDir(), "pmm-agent.yaml"), &config.Config{})
+		require.NoError(t, err)
+		assert.Nil(t, fileCfg)
+	})
+
+	t.Run("a file which cannot be read is not a missing file", func(t *testing.T) {
+		t.Parallel()
+
+		path := filepath.Join(t.TempDir(), "pmm-agent.yaml")
+		require.NoError(t, os.WriteFile(path, []byte("not YAML"), 0o600))
+
+		fileCfg, err := registeredConfig(path, &config.Config{})
+		require.Error(t, err)
+		assert.Nil(t, fileCfg)
 	})
 }
 

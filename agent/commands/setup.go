@@ -42,16 +42,18 @@ const (
 	registrationConfirmed
 	// PMM Server could not be asked, and the registration is kept.
 	registrationUnverified
+	// PMM Server has the Agent on a Node with another name, so registering would add a second Node
+	// instead of replacing that one. Only the operator can say which of the two is meant.
+	registrationConflict
 )
 
 // registrationCheck asks PMM Server about the registration of the Agent described by cfg.
 type registrationCheck func(cfg *config.Config, l *logrus.Entry) registrationState
 
-// checkRegistrationOnServer asks PMM Server whether it knows this Agent on this Node. The server may
-// have been reinstalled, or restored from a backup taken before the Agent was registered, leaving the
-// Agent with an ID nothing recognizes. The configuration file may also have been copied from another
-// host, whose Node the Agent is registered on. An unreachable server is not an answer: an Agent has to
-// be able to start while PMM Server has no leader yet, so its registration is kept in that case.
+// agentLookup returns the Node which PMM Server has the given Agent registered on.
+type agentLookup func(agentID string) (serverNode, error)
+
+// checkRegistrationOnServer asks PMM Server whether it knows this Agent on this Node.
 func checkRegistrationOnServer(cfg *config.Config, l *logrus.Entry) registrationState {
 	u := cfg.Server.URL()
 	if u == nil {
@@ -60,7 +62,15 @@ func checkRegistrationOnServer(cfg *config.Config, l *logrus.Entry) registration
 	}
 	setServerTransport(u, cfg.Server.InsecureTLS, l)
 
-	serverNode, err := serverNodeOfAgent(cfg.ID)
+	return checkRegistration(cfg, serverNodeOfAgent)
+}
+
+// checkRegistration turns what PMM Server says about the Agent into the state of its registration. The
+// server may have been reinstalled, or restored from a backup taken before the Agent was registered,
+// leaving the Agent with an ID nothing recognizes. An unreachable server is not an answer: an Agent has
+// to be able to start while PMM Server has no leader yet, so its registration is kept in that case.
+func checkRegistration(cfg *config.Config, lookup agentLookup) registrationState {
+	node, err := lookup(cfg.ID)
 	switch {
 	case errors.Is(err, errAgentNotFound):
 		fmt.Printf("PMM Server at %s does not know pmm-agent %s, registering the Node again.\n", cfg.Server.Address, cfg.ID)
@@ -72,13 +82,33 @@ func checkRegistrationOnServer(cfg *config.Config, l *logrus.Entry) registration
 	case err != nil:
 		fmt.Printf("Failed to check the registration of pmm-agent %s with %s: %s.\n", cfg.ID, cfg.Server.Address, err)
 		return registrationUnverified
-	case cfg.Setup.NodeName != "" && serverNode != cfg.Setup.NodeName:
-		fmt.Printf("PMM Server at %s has pmm-agent %s on Node %s, not on %s, registering the Node again.\n",
-			cfg.Server.Address, cfg.ID, serverNode, cfg.Setup.NodeName)
-		return registrationMissing
+	case cfg.Setup.NodeName != "" && node.Name != cfg.Setup.NodeName:
+		// Registering would not replace that Node. Without --region the address is not checked for
+		// uniqueness, so PMM Server would create a second Node under the given name and leave the
+		// registered one behind with every Service on it, monitored by nothing. A configuration file
+		// copied from another host looks like this too, and there --force is the answer.
+		fmt.Printf("PMM Server at %s has pmm-agent %s on Node %s, not on %s.\n"+
+			"Re-run with --node-name=%s to keep that Node, or with --force to replace it, which removes it"+
+			" together with every Service on it.\n",
+			cfg.Server.Address, cfg.ID, node.Name, cfg.Setup.NodeName, node.Name)
+		return registrationConflict
 	default:
+		reportNodeAddress(cfg, node)
 		return registrationConfirmed
 	}
+}
+
+// reportNodeAddress reports an address of the Node which no longer matches the one detected locally.
+// The address of a Node is only set when it is registered, and nothing updates it afterwards, so it is
+// what PMM Server keeps scraping in pull metrics mode.
+func reportNodeAddress(cfg *config.Config, node serverNode) {
+	if node.Address == "" || cfg.Setup.Address == "" || node.Address == cfg.Setup.Address {
+		return
+	}
+
+	fmt.Printf("Node %s is registered with address %s, not %s. The registered address is kept;"+
+		" it is the address PMM Server scrapes in pull metrics mode. Use --force to register the Node with %s.\n",
+		node.Name, node.Address, cfg.Setup.Address, cfg.Setup.Address)
 }
 
 // registrationOf reports what `pmm-agent setup` is to do about the Node registration. An Agent which
@@ -95,23 +125,39 @@ func registrationOf(cfg, fileCfg *config.Config, check registrationCheck, l *log
 		return registrationMissing
 	}
 
-	return check(cfg, l)
+	return check(runningCredentials(cfg, fileCfg), l)
+}
+
+// runningCredentials returns cfg holding the credentials the Agent runs with, so that the registration
+// is checked with the stored service token rather than with the credentials given to setup. Only then
+// does a confirmed registration mean that the Agent can still reach PMM Server on its own: a token the
+// server no longer accepts registers the Node again, with the credentials given to setup.
+func runningCredentials(cfg, fileCfg *config.Config) *config.Config {
+	if fileCfg.Server.Password == "" {
+		return cfg
+	}
+
+	c := *cfg
+	c.Server.Username = fileCfg.Server.Username
+	c.Server.Password = fileCfg.Server.Password
+
+	return &c
 }
 
 // registeredConfig returns the configuration file the Agent runs with, or nil when there is none.
 // `pmm-admin config` runs `pmm-agent setup` without --config-file, so the file, whose path is only known
-// from the running pmm-agent, has not been loaded yet in that case.
-func registeredConfig(configFilepath string, cfg *config.Config) *config.Config {
+// from the running pmm-agent, has not been loaded yet in that case. An error means that the file is
+// there but could not be read, which says nothing about the registration either way.
+func registeredConfig(configFilepath string, cfg *config.Config) (*config.Config, error) {
 	fileCfg, err := config.LoadFromFile(configFilepath, &cfg.Encryption)
 	var e config.ConfigFileDoesNotExistError
 	switch {
 	case err == nil:
-		return fileCfg
+		return fileCfg, nil
 	case errors.As(err, &e):
-		return nil
+		return nil, nil //nolint:nilnil
 	default:
-		fmt.Printf("Failed to read the configuration file %s, registering the Node: %s.\n", configFilepath, err)
-		return nil
+		return nil, err
 	}
 }
 
@@ -184,7 +230,20 @@ func Setup() {
 
 	configFilepath, running := checkStatus(configFilepath, l)
 
-	fileCfg := registeredConfig(configFilepath, cfg)
+	fileCfg, err := registeredConfig(configFilepath, cfg)
+	switch {
+	case err != nil && !cfg.Setup.Force:
+		// Registering would take the Node over from whatever the unreadable file describes, together with
+		// every Service on it. Only --force asks for that.
+		fmt.Printf("Failed to read the configuration file %s: %s.\n"+
+			"Whether this pmm-agent is registered cannot be told from it. Fix the file, or re-run with --force to"+
+			" register the Node again, removing it together with every Service on it.\n", configFilepath, err)
+		os.Exit(1)
+	case err != nil:
+		fmt.Printf("Failed to read the configuration file %s: %s. Registering the Node, as --force is given.\n",
+			configFilepath, err)
+	}
+
 	if cfg.ID == "" && fileCfg != nil {
 		cfg.ID = fileCfg.ID
 	}
@@ -211,6 +270,9 @@ func Setup() {
 		case registrationUnverified:
 			fmt.Printf("Keeping the registration, pmm-agent ID is %s. Use --force to register the Node again.\n", cfg.ID)
 			keepRegistration(cfg, fileCfg)
+		case registrationConflict:
+			// checkRegistrationOnServer reported which Node PMM Server has and what to do about it.
+			os.Exit(1)
 		}
 	}
 

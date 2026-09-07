@@ -147,29 +147,35 @@ var errAgentNotFound = errors.New("agent not found")
 // errCredentialsRejected reports that PMM Server did not accept the credentials of the request.
 var errCredentialsRejected = errors.New("credentials rejected")
 
-// serverNodeOfAgent returns the name of the Node which PMM Server has the Agent registered on.
+// serverNode describes the Node which PMM Server has an Agent registered on.
+type serverNode struct {
+	Name    string
+	Address string
+}
+
+// serverNodeOfAgent returns the Node which PMM Server has the Agent registered on.
 // The errors errAgentNotFound and errCredentialsRejected mean that the Node has to be registered again. Any other
 // error means that PMM Server could not be asked, so that the caller can tell "the registration is gone"
 // apart from "the answer is unknown".
 //
 // This method is not thread-safe.
-func serverNodeOfAgent(agentID string) (string, error) {
+func serverNodeOfAgent(agentID string) (serverNode, error) {
 	// The constructors bound the requests with the default timeout, so a hung PMM Server cannot stall the setup.
 	agent, err := inventoryClient.Default.AgentsService.GetAgent(aservice.NewGetAgentParams().WithAgentID(agentID))
 	if err != nil {
-		return "", lookupError(err)
+		return serverNode{}, lookupError(err)
 	}
 	if agent.Payload.PMMAgent == nil {
 		// The ID belongs to another kind of Agent, so it is not a registration of this pmm-agent.
-		return "", errAgentNotFound
+		return serverNode{}, errAgentNotFound
 	}
 
 	node, err := inventoryClient.Default.NodesService.GetNode(nservice.NewGetNodeParams().WithNodeID(agent.Payload.PMMAgent.RunsOnNodeID))
 	if err != nil {
-		return "", lookupError(err)
+		return serverNode{}, lookupError(err)
 	}
 
-	return nodeNameOf(node.Payload), nil
+	return nodeOf(node.Payload), nil
 }
 
 // statusError is an error of the generated API clients which carries the HTTP status of the response.
@@ -197,21 +203,21 @@ func lookupError(err error) error {
 	}
 }
 
-// nodeNameOf returns the name of the Node in the GetNode response, whichever type it has.
-func nodeNameOf(node *nservice.GetNodeOKBody) string {
+// nodeOf returns the Node in the GetNode response, whichever type it has.
+func nodeOf(node *nservice.GetNodeOKBody) serverNode {
 	switch {
 	case node.Generic != nil:
-		return node.Generic.NodeName
+		return serverNode{Name: node.Generic.NodeName, Address: node.Generic.Address}
 	case node.Container != nil:
-		return node.Container.NodeName
+		return serverNode{Name: node.Container.NodeName, Address: node.Container.Address}
 	case node.Remote != nil:
-		return node.Remote.NodeName
+		return serverNode{Name: node.Remote.NodeName, Address: node.Remote.Address}
 	case node.RemoteRDS != nil:
-		return node.RemoteRDS.NodeName
+		return serverNode{Name: node.RemoteRDS.NodeName, Address: node.RemoteRDS.Address}
 	case node.RemoteAzureDatabase != nil:
-		return node.RemoteAzureDatabase.NodeName
+		return serverNode{Name: node.RemoteAzureDatabase.NodeName, Address: node.RemoteAzureDatabase.Address}
 	default:
-		return ""
+		return serverNode{}
 	}
 }
 

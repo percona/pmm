@@ -31,17 +31,19 @@ import (
 // The subtests share the package level API clients, so they cannot run in parallel.
 func TestServerNodeOfAgent(t *testing.T) {
 	const (
-		agentID  = "5a2b8a4b-2b9d-4a5f-9a11-2b6a3f6f9a11"
-		nodeID   = "8c1e0d3a-6f2b-4c8e-9a0d-3b7f2e1c5d44"
-		nodeName = "test-node"
+		agentID     = "5a2b8a4b-2b9d-4a5f-9a11-2b6a3f6f9a11"
+		nodeID      = "8c1e0d3a-6f2b-4c8e-9a0d-3b7f2e1c5d44"
+		nodeName    = "test-node"
+		nodeAddress = "10.20.30.40"
 	)
 
 	for _, tc := range []struct {
 		name        string
 		agentStatus int
+		agentBody   string
 		nodeStatus  int
 		hangs       bool
-		nodeName    string
+		node        serverNode
 		err         error
 		unknowable  bool
 	}{
@@ -49,7 +51,13 @@ func TestServerNodeOfAgent(t *testing.T) {
 			name:        "PMM Server knows the Agent",
 			agentStatus: http.StatusOK,
 			nodeStatus:  http.StatusOK,
-			nodeName:    nodeName,
+			node:        serverNode{Name: nodeName, Address: nodeAddress},
+		},
+		{
+			name:        "the ID belongs to another kind of Agent",
+			agentStatus: http.StatusOK,
+			agentBody:   `{"node_exporter": {"agent_id": "` + agentID + `"}}`,
+			err:         errAgentNotFound,
 		},
 		{
 			name:        "PMM Server does not know the Agent",
@@ -124,13 +132,18 @@ func TestServerNodeOfAgent(t *testing.T) {
 				case strings.HasPrefix(req.URL.Path, "/v1/inventory/agents/"):
 					rw.WriteHeader(tc.agentStatus)
 					if tc.agentStatus == http.StatusOK {
-						_, _ = rw.Write([]byte(`{"pmm_agent": {"agent_id": "` + agentID + `", "runs_on_node_id": "` + nodeID + `"}}`))
+						body := tc.agentBody
+						if body == "" {
+							body = `{"pmm_agent": {"agent_id": "` + agentID + `", "runs_on_node_id": "` + nodeID + `"}}`
+						}
+						_, _ = rw.Write([]byte(body))
 						return
 					}
 				case strings.HasPrefix(req.URL.Path, "/v1/inventory/nodes/"):
 					rw.WriteHeader(tc.nodeStatus)
 					if tc.nodeStatus == http.StatusOK {
-						_, _ = rw.Write([]byte(`{"generic": {"node_id": "` + nodeID + `", "node_name": "` + nodeName + `"}}`))
+						_, _ = rw.Write([]byte(`{"generic": {"node_id": "` + nodeID + `", "node_name": "` + nodeName +
+							`", "address": "` + nodeAddress + `"}}`))
 						return
 					}
 				default:
@@ -144,7 +157,7 @@ func TestServerNodeOfAgent(t *testing.T) {
 			require.NoError(t, err)
 			setServerTransport(u, true, logrus.WithField("test", t.Name()))
 
-			name, err := serverNodeOfAgent(agentID)
+			node, err := serverNodeOfAgent(agentID)
 			switch {
 			case tc.err != nil:
 				require.ErrorIs(t, err, tc.err)
@@ -155,7 +168,7 @@ func TestServerNodeOfAgent(t *testing.T) {
 			default:
 				require.NoError(t, err)
 			}
-			assert.Equal(t, tc.nodeName, name)
+			assert.Equal(t, tc.node, node)
 		})
 	}
 }
