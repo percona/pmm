@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -43,6 +43,11 @@ import {
   SchemaListView,
   type RenderListColumnOverride,
 } from '../SchemaListView';
+import {
+  TaskHistoryStatusBadge,
+  isTaskHistoryStatus,
+} from '../TaskHistoryTable';
+import { TaskRunDetailDrawer } from '../TaskRunDetailDrawer';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
 
 interface PluginListPageProps {
@@ -103,6 +108,7 @@ export function PluginListPage({
     id: string;
     name?: string;
   } | null>(null);
+  const [runTaskName, setRunTaskName] = useState<string | null>(null);
   const { entityName: entityNameParam } = useParams<{ entityName?: string }>();
   const entityName = entityNameOverride ?? entityNameParam;
   const entitySchema = useMemo(
@@ -172,6 +178,59 @@ export function PluginListPage({
   const listView = multi ? entitySchema!.list_view : schema.list_view;
   const title = multi ? entitySchema!.display_name : schema.display_name;
   const description = multi ? entitySchema?.description : schema.description;
+
+  // Which columns render a task status, so the chip in them can become the way
+  // into that task's last run. Read off the schema because the per-cell
+  // override is keyed by column name and carries no format.
+  const statusColumnKeys = useMemo(
+    () =>
+      new Set(
+        (listView?.columns ?? [])
+          .filter((col) => col.format === 'status')
+          .map((col) => col.key)
+      ),
+    [listView]
+  );
+
+  /**
+   * Makes a list row's status chip open that task's most recent run.
+   *
+   * Wraps rather than replaces a plugin-supplied override, which keeps first
+   * refusal. Single-task plugins only: on a multi-entity list a row is an
+   * entity and `name` is not a task name, so there is nothing to resolve a run
+   * from and the chip is left as it was.
+   */
+  const renderListColumnWithRunAccess = useCallback<RenderListColumnOverride>(
+    (context) => {
+      const overridden = renderListColumn?.(context);
+      if (overridden !== undefined) {
+        return overridden;
+      }
+      if (multi || !statusColumnKeys.has(context.columnKey)) {
+        return undefined;
+      }
+
+      const status = String(context.value);
+      const name = context.row.name;
+      if (!isTaskHistoryStatus(status) || typeof name !== 'string' || !name) {
+        return undefined;
+      }
+
+      return (
+        <TaskHistoryStatusBadge
+          status={status}
+          title="View the last run"
+          onClick={(event) => {
+            // The row navigates to the task detail; without this, one click on
+            // the chip both opens the run and leaves the page.
+            event.stopPropagation();
+            setRunTaskName(name);
+          }}
+        />
+      );
+    },
+    [multi, renderListColumn, statusColumnKeys]
+  );
 
   const hasActionsColumn =
     listView?.columns.some((c) => c.format === 'actions') ?? false;
@@ -362,8 +421,20 @@ export function PluginListPage({
         }
         onDeleteRow={onDeleteRow}
         deletingRowId={deleteEntity.isPending ? deleteEntity.variables : null}
-        renderListColumn={renderListColumn}
+        renderListColumn={renderListColumnWithRunAccess}
       />
+
+      {/* Mounted only while open: the drawer resolves the run it shows with a
+          query, and a list has no reason to hold one open for a row nobody
+          clicked. */}
+      {runTaskName !== null && (
+        <TaskRunDetailDrawer
+          open
+          onClose={() => setRunTaskName(null)}
+          taskNames={runTaskName}
+          taskLabel={runTaskName}
+        />
+      )}
     </Box>
   );
 }

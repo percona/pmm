@@ -33,6 +33,7 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { useAuth } from '@sep/api';
 import { ScheduledTaskForm } from './ScheduledTaskForm';
+import { TaskRunDetailDrawer } from '../TaskRunDetailDrawer';
 import { ScheduledTaskRow } from './ScheduledTaskRow';
 import {
   useCreateScheduledTask,
@@ -80,6 +81,12 @@ export function ScheduledTasksPanel({
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formError, setFormError] = useState<string | undefined>(undefined);
   const [actionError, setActionError] = useState<string | undefined>(undefined);
+  // The periodic-task API reports a last-run status and time but no task
+  // history id, so the cell identifies its run by name plus that timestamp.
+  const [openedRun, setOpenedRun] = useState<{
+    taskName: string;
+    lastRunAt: string | null;
+  } | null>(null);
 
   const availableTasks = useMemo(
     () => pluginTasks.map((t) => ({ name: t.name })),
@@ -258,6 +265,9 @@ export function ScheduledTasksPanel({
                   toggling={updateMut.isPending}
                   errorMessage={editingId === task.id ? formError : undefined}
                   readOnly={!canMutate}
+                  onOpenLastRun={(taskName, lastRunAt) =>
+                    setOpenedRun({ taskName, lastRunAt })
+                  }
                 />
               ))}
             </TableBody>
@@ -294,6 +304,16 @@ export function ScheduledTasksPanel({
             Add new
           </Button>
         </Stack>
+      )}
+
+      {openedRun !== null && (
+        <TaskRunDetailDrawer
+          open
+          onClose={() => setOpenedRun(null)}
+          taskNames={openedRun.taskName}
+          at={openedRun.lastRunAt}
+          taskLabel={openedRun.taskName}
+        />
       )}
     </Paper>
   );

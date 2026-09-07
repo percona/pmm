@@ -18,6 +18,8 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import type { PluginSchema } from '@sep/api';
@@ -112,6 +114,112 @@ describe('PluginListPage — generic Schedules button', () => {
     expect(
       screen.queryByTestId('plugin-schedule-link')
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('PluginListPage — status column opens the last run', () => {
+  const renderWithClient = (ui: ReactNode) =>
+    render(
+      <QueryClientProvider
+        client={
+          new QueryClient({
+            defaultOptions: { queries: { retry: false, gcTime: 0 } },
+          })
+        }
+      >
+        <SnackbarProvider>
+          <MemoryRouter>{ui}</MemoryRouter>
+        </SnackbarProvider>
+      </QueryClientProvider>
+    );
+
+  const statusSchema: PluginSchema = {
+    name: 'sched',
+    display_name: 'Sched',
+    list_view: {
+      columns: [
+        { key: 'name', label: 'Name' },
+        { key: 'status', label: 'Status', format: 'status' },
+      ],
+    },
+  } as unknown as PluginSchema;
+
+  const statusCell = (row: Record<string, unknown> = { name: 'backup' }) => {
+    const render = schemaListViewMock.mock.calls.at(-1)?.[0]
+      .renderListColumn as (context: {
+      columnKey: string;
+      value: unknown;
+      row: Record<string, unknown>;
+    }) => ReactNode | undefined;
+
+    return render({ columnKey: 'status', value: 'failed', row });
+  };
+
+  it('opens the run without also following the row', async () => {
+    // The row navigates to the task detail. Both handlers see the same native
+    // click, so without a stopPropagation one click would open the run and
+    // leave the page at the same time.
+    renderWithClient(
+      <PluginListPage schema={statusSchema} pluginName="sched" />
+    );
+
+    const onRowClick = vi.fn();
+    render(<div onClick={onRowClick}>{statusCell()}</div>);
+
+    await userEvent.click(screen.getByRole('button', { name: /Failed/ }));
+
+    expect(onRowClick).not.toHaveBeenCalled();
+  });
+
+  it('leaves the chip inert on a multi-entity list', () => {
+    // A row there is an entity, so `name` is not a task name and there is no
+    // run to resolve from it.
+    render(
+      <SnackbarProvider>
+        <MemoryRouter initialEntries={['/apps/sched/inventory']}>
+          <Routes>
+            <Route
+              path="/apps/:plugin/:entityName"
+              element={
+                <PluginListPage
+                  schema={
+                    {
+                      ...statusSchema,
+                      entities: [
+                        {
+                          name: 'inventory',
+                          display_name: 'Inventory',
+                          list_view: statusSchema.list_view,
+                        },
+                      ],
+                    } as unknown as PluginSchema
+                  }
+                  pluginName="sched"
+                />
+              }
+            />
+          </Routes>
+        </MemoryRouter>
+      </SnackbarProvider>
+    );
+
+    expect(statusCell()).toBeUndefined();
+  });
+
+  it('defers to a plugin-supplied override for the same column', () => {
+    const renderListColumn = vi.fn(() => <span>custom</span>);
+    renderWithClient(
+      <PluginListPage
+        schema={statusSchema}
+        pluginName="sched"
+        renderListColumn={renderListColumn}
+      />
+    );
+
+    render(<div>{statusCell()}</div>);
+
+    expect(screen.getByText('custom')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Failed/ })).toBeNull();
   });
 });
 

@@ -32,6 +32,7 @@ import Tabs from '@mui/material/Tabs';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { RUNNING_STATUSES, type TaskHistoryStatus } from '@sep/api';
 import { useExecutionEvents } from '../../hooks/useExecutionEvents';
 import { useLogDownload } from '../../hooks/useLogDownload';
 import {
@@ -103,8 +104,24 @@ export interface TaskLogViewerProps {
   height?: number | string;
 }
 
+/**
+ * Whether a loosely-typed status means the run is still going.
+ *
+ * `taskStatus` arrives as a bare string, so the canonical set from `@sep/api`
+ * is probed rather than compared against a literal. That set counts `pending`
+ * as running, which the local comparison this replaces did not: a run in the
+ * seconds between launch and first output was treated as finished, so its
+ * execution events came over one-shot REST and its log never streamed —
+ * exactly the window someone watching a backup start is looking at.
+ *
+ * The case fold is kept from that comparison. The enum is lower-case on the
+ * wire, but the prop is typed as a bare string and callers outside the
+ * generated client have passed other casings.
+ */
 function isRunningStatus(status?: string): boolean {
-  return (status ?? '').toLowerCase() === 'running';
+  return RUNNING_STATUSES.has(
+    (status ?? '').toLowerCase() as TaskHistoryStatus
+  );
 }
 
 /**

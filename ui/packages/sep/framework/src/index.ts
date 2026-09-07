@@ -103,6 +103,16 @@ export type {
   PaginatedTaskHistory,
   TaskFilesDialogProps,
 } from './components/TaskHistoryTable';
+export {
+  TaskRunDetailDrawer,
+  LastRunCard,
+  runFailureReason,
+} from './components/TaskRunDetailDrawer';
+export type {
+  TaskRunDetailDrawerProps,
+  LastRunCardProps,
+} from './components/TaskRunDetailDrawer';
+export { formatDuration } from './utils/formatDuration';
 export { SnippetExecutionAccordion } from './components/SnippetExecutionAccordion';
 export type { SnippetExecutionAccordionProps } from './components/SnippetExecutionAccordion';
 export { ChainBuilder } from './components/ChainBuilder';
