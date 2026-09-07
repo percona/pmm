@@ -62,6 +62,7 @@ type sepBootstrapHost struct {
 	Host          string             `json:"host"`
 	Steps         []sepBootstrapStep `json:"steps"`
 	RollbackSteps []sepBootstrapStep `json:"rollback_steps"`
+	FinalizeSteps []sepBootstrapStep `json:"finalize_steps"`
 }
 
 // sepBootstrapRun is one row of GET /runs, and the full body of GET /runs/{id}
@@ -185,6 +186,26 @@ func (c *bootstrapClient) dispatchStep(ctx context.Context, runID, host, stepNam
 	call := inventoryCall{
 		method: http.MethodPost,
 		path:   inventoryPath("runs", runID, "hosts", host, "steps", stepName+":dispatch"),
+		body:   sepDispatchStepRequest{Params: params},
+	}
+	err := c.app.call(ctx, call, run)
+	if err != nil {
+		return nil, err
+	}
+	return run, nil
+}
+
+// dispatchFinalizeStep dispatches one host's named finalize step, optionally
+// carrying params -- the same shape as dispatchStep, just against
+// om_bootstrap's finalize route rather than its forward-step one.
+func (c *bootstrapClient) dispatchFinalizeStep(ctx context.Context, runID, host, stepName string, params map[string]string) (*sepBootstrapRun, error) {
+	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
+	defer cancel()
+
+	run := &sepBootstrapRun{}
+	call := inventoryCall{
+		method: http.MethodPost,
+		path:   inventoryPath("runs", runID, "hosts", host, "finalize", stepName+":dispatch"),
 		body:   sepDispatchStepRequest{Params: params},
 	}
 	err := c.app.call(ctx, call, run)

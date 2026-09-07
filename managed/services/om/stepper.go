@@ -135,6 +135,13 @@ func (s *Service) advanceRunningRun(ctx context.Context, run *sepBootstrapRun) {
 	if action := nextRunStepAction(*run); action != nil {
 		s.dispatchRunStep(ctx, run, action.name)
 	}
+	if runStepsSucceeded(*run) {
+		for _, host := range run.Hosts {
+			if action := nextFinalizeAction(host); action != nil {
+				s.dispatchFinalize(ctx, run, host.Host, action.name)
+			}
+		}
+	}
 }
 
 // dispatchHost dispatches one host's forward step, resolving whatever secret
@@ -148,6 +155,22 @@ func (s *Service) dispatchHost(ctx context.Context, run *sepBootstrapRun, host, 
 	_, err = s.bootstrap.dispatchStep(ctx, run.ID, host, stepName, params)
 	if err != nil {
 		s.l.Warnf("bootstrap run %s: failed to dispatch %s on %s: %s", run.ID, stepName, host, err)
+	}
+}
+
+// dispatchFinalize dispatches one host's finalize step, resolving whatever
+// secret params it needs first -- the same shape as dispatchHost, just against
+// om_bootstrap's finalize route. Only ever called once runStepsSucceeded is
+// true; see advanceRunningRun.
+func (s *Service) dispatchFinalize(ctx context.Context, run *sepBootstrapRun, host, stepName string) {
+	params, err := s.paramsForStep(ctx, run.ID, stepName)
+	if err != nil {
+		s.l.Warnf("bootstrap run %s: failed to prepare finalize step %s on %s: %s", run.ID, stepName, host, err)
+		return
+	}
+	_, err = s.bootstrap.dispatchFinalizeStep(ctx, run.ID, host, stepName, params)
+	if err != nil {
+		s.l.Warnf("bootstrap run %s: failed to dispatch finalize step %s on %s: %s", run.ID, stepName, host, err)
 	}
 }
 

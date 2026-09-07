@@ -114,6 +114,69 @@ func TestNextRunStepAction(t *testing.T) {
 	})
 }
 
+func TestNextFinalizeAction(t *testing.T) {
+	t.Run("dispatches the first pending finalize step", func(t *testing.T) {
+		host := sepBootstrapHost{FinalizeSteps: []sepBootstrapStep{
+			step("enable_auth", bootstrapStepPending, 0),
+		}}
+		action := nextFinalizeAction(host)
+		require.NotNil(t, action)
+		assert.Equal(t, "enable_auth", action.name)
+	})
+
+	t.Run("waits while a finalize step is running", func(t *testing.T) {
+		host := sepBootstrapHost{FinalizeSteps: []sepBootstrapStep{
+			step("enable_auth", bootstrapStepRunning, 1),
+		}}
+		assert.Nil(t, nextFinalizeAction(host))
+	})
+
+	t.Run("retries a failed finalize step under the attempt cap", func(t *testing.T) {
+		host := sepBootstrapHost{FinalizeSteps: []sepBootstrapStep{
+			step("enable_auth", bootstrapStepFailed, 1),
+		}}
+		action := nextFinalizeAction(host)
+		require.NotNil(t, action)
+		assert.Equal(t, "enable_auth", action.name)
+	})
+
+	t.Run("gives up once the attempt cap is reached", func(t *testing.T) {
+		host := sepBootstrapHost{FinalizeSteps: []sepBootstrapStep{
+			step("enable_auth", bootstrapStepFailed, bootstrapMaxAttempts),
+		}}
+		assert.Nil(t, nextFinalizeAction(host))
+	})
+
+	t.Run("has nothing to do once every finalize step succeeded", func(t *testing.T) {
+		host := sepBootstrapHost{FinalizeSteps: []sepBootstrapStep{
+			step("enable_auth", bootstrapStepSucceeded, 1),
+		}}
+		assert.Nil(t, nextFinalizeAction(host))
+	})
+}
+
+func TestRunStepsSucceeded(t *testing.T) {
+	t.Run("false while a run-level step is still pending", func(t *testing.T) {
+		run := sepBootstrapRun{RunSteps: []sepBootstrapStep{
+			step("rs_initiate", bootstrapStepSucceeded, 1),
+			step("create_pmm_monitoring_user", bootstrapStepPending, 0),
+		}}
+		assert.False(t, runStepsSucceeded(run))
+	})
+
+	t.Run("true once every run-level step succeeded or was skipped", func(t *testing.T) {
+		run := sepBootstrapRun{RunSteps: []sepBootstrapStep{
+			step("rs_initiate", bootstrapStepSucceeded, 1),
+			step("create_pmm_monitoring_user", bootstrapStepSucceeded, 1),
+		}}
+		assert.True(t, runStepsSucceeded(run))
+	})
+
+	t.Run("true when there are no run-level steps at all", func(t *testing.T) {
+		assert.True(t, runStepsSucceeded(sepBootstrapRun{}))
+	})
+}
+
 func TestRunNeedsRollback(t *testing.T) {
 	t.Run("false while every step is still pending, running, or succeeded", func(t *testing.T) {
 		run := sepBootstrapRun{
@@ -143,6 +206,16 @@ func TestRunNeedsRollback(t *testing.T) {
 			Hosts: []sepBootstrapHost{{Steps: []sepBootstrapStep{step("install_package", bootstrapStepFailed, 1)}}},
 		}
 		assert.False(t, runNeedsRollback(run))
+	})
+
+	t.Run("true once a host's finalize step exhausts its retries", func(t *testing.T) {
+		run := sepBootstrapRun{
+			Hosts: []sepBootstrapHost{{
+				Steps:         []sepBootstrapStep{step("verify", bootstrapStepSucceeded, 1)},
+				FinalizeSteps: []sepBootstrapStep{step("enable_auth", bootstrapStepFailed, bootstrapMaxAttempts)},
+			}},
+		}
+		assert.True(t, runNeedsRollback(run))
 	})
 }
 
