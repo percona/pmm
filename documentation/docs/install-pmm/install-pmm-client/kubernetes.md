@@ -168,7 +168,7 @@ Choose your deployment approach:
         is registered already and keeps its identity, so any Services you added remain.
 
     !!! hint alert-success "Adding services automatically"
-        You can set the container environment variable `PMM_AGENT_PRERUN_SCRIPT` to a shell script to automatically add services to PMM for monitoring. Because this deployment keeps the Services you add, a prerun script is only needed if you would rather declare them in the manifest than add them once.
+        You can set the container environment variable `PMM_AGENT_PRERUN_SCRIPT` to a shell script to automatically add services to PMM for monitoring. Because this deployment keeps the Services you add, a prerun script is only needed if you would rather declare them in the manifest than add them once. The script runs on every start of the pod, after setup. `pmm-admin add` reports a Service which exists already as an error, and a failing script stops the container, so make the script tolerate the Services it added on an earlier start, for example by appending `|| true` to each command.
 
     !!! caution alert alert-warning "Recovering a Node after losing the volume"
         If the volume is deleted while the Node still exists in PMM, the Client cannot register that
