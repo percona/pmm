@@ -540,12 +540,14 @@ const DEFAULT_MONGODB_VERSION = '7.0';
  * Configure and trigger a single-host bootstrap.
  *
  * PMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Two panes in
- * one dialog rather than a form that redirects on submit, because there is
- * exactly one thing to show once the mutation succeeds -- the generated admin
- * credentials -- and this is the last screen that will ever show them. Closing
- * the dialog (`onClose`) is available throughout; only a successful bootstrap
- * calls `onBootstrapped`, which is what clears the row selection the way
- * `ForgetDialog`'s `onForgotten` does.
+ * one dialog rather than a form that redirects on submit, so there is somewhere
+ * to show the accepted run before the dialog closes. Carries no credentials --
+ * the run's generated MongoDB user is created only once every host is up,
+ * minutes later, by PMM's own stepper (PMM-15347/plan.md §4 item 9), so there
+ * is nothing for this dialog to show yet. Closing the dialog (`onClose`) is
+ * available throughout; only a successful bootstrap calls `onBootstrapped`,
+ * which is what clears the row selection the way `ForgetDialog`'s
+ * `onForgotten` does.
  */
 const BootstrapDialog = ({
   row,
@@ -595,27 +597,11 @@ const BootstrapDialog = ({
         {result ? (
           <Stack spacing={2}>
             <Alert severity="success">
-              Bootstrap queued as task {result.task_history_id}. Installing
-              MongoDB and initializing the replica set takes a minute or two;
-              the host&apos;s next probe will show the new service once it
-              lands.
+              Bootstrap run {result.run_id} planned. Installing MongoDB,
+              initializing the replica set, and registering it with PMM takes
+              a few minutes; the host&apos;s next probe will show the new
+              service once it lands.
             </Alert>
-            <Alert severity="warning">
-              The admin password below is shown <strong>once</strong>. Nothing
-              stores it after this dialog closes.
-            </Alert>
-            <TextField
-              label="Admin username"
-              value={result.admin_username}
-              slotProps={{ input: { readOnly: true } }}
-              fullWidth
-            />
-            <TextField
-              label="Admin password"
-              value={result.admin_password}
-              slotProps={{ input: { readOnly: true, sx: { fontFamily: 'monospace' } } }}
-              fullWidth
-            />
           </Stack>
         ) : (
           <Stack spacing={2} sx={{ mt: 1 }}>

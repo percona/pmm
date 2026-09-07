@@ -498,15 +498,13 @@ export interface OmInventoryRunAccepted {
  * A single-host bootstrap accepted by the app, from
  * `POST /v1/om/inventory/hosts/{node_id}:bootstrap`.
  *
- * PMM-15347 PoC only. `admin_password` is returned exactly once, in the clear -
- * nothing on either side of this call stores it after this response, which is
- * why the dialog that receives it has to say so rather than let a reader
- * assume it can be looked up again later.
+ * PMM-15347 PoC only. Carries no credentials: the run's generated MongoDB user
+ * is created only once every host is up, minutes after this response - see
+ * `run_id`'s own comment for why there is nothing to show here yet.
  */
 export interface OmHostBootstrapAccepted {
-  task_history_id: number;
-  admin_username: string;
-  admin_password: string;
+  /** The om_bootstrap run's id. Nothing here polls it for progress yet. */
+  run_id: string;
 }
 
 /**

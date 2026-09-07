@@ -836,19 +836,17 @@ message TriggerHostBootstrapRequest {
 
 // TriggerHostBootstrapResponse acknowledges a queued single-host bootstrap.
 //
-// PMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Returned
-// as soon as the Nomad job is queued, not once it finishes.
+// PMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Returned as
+// soon as SEP's om_bootstrap app has planned the run, not once it finishes --
+// PMM's own HA-leader-only stepper drives it forward from here
+// (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's generated
+// MongoDB user is created only once every host is up, minutes after this
+// response, and lives encrypted in PMM's own Postgres
+// (PMM-15347/questions.md Q7) -- there is nothing to hand back yet.
 message TriggerHostBootstrapResponse {
-  // The queued run's task history ID. There is no OM-specific run id for
-  // this yet -- see PMM-15347/questions.md for why.
-  int64 task_history_id = 1;
-  // The admin user this run will create.
-  string admin_username = 2;
-  // The generated password, in the clear, returned exactly once. Nothing
-  // stores it after this response -- PMM-15347/questions.md Q7 (secrets
-  // storage) is unresolved, and this is a PoC placeholder, not the answer to
-  // it.
-  string admin_password = 3;
+  // The om_bootstrap run's id. Nothing here polls it for progress yet -- see
+  // PMM-15347/plan.md for the still-to-come Bootstrap step UI.
+  string run_id = 1;
 }
 
 // GetInventoryConfigRequest is the request for GetInventoryConfig.
@@ -1034,13 +1032,17 @@ service OmService {
     };
   }
 
-  // TriggerHostBootstrap installs MongoDB on one host and initializes it as a
-  // single-member replica set.
+  // TriggerHostBootstrap plans installing MongoDB on one host and initializing
+  // it as a single-member replica set, monitored by PMM once it comes up.
   //
   // PMM-15347 PoC, not the shipped feature: one host, one member, keyFile
-  // auth, TLS off, no project/cluster. See PMM-15347/plan.md and
-  // PMM-15347/questions.md for what is and is not built, and what is still
-  // undecided about the real feature this exists to de-risk.
+  // auth, TLS off, no project/cluster, no live progress UI yet. Proxies to
+  // SEP's om_bootstrap app (not om_inventory, which stays read-only by
+  // design) and returns as soon as that app has planned the run -- PMM's own
+  // HA-leader-only stepper drives every step of it forward from there,
+  // including registering the mongod with PMM's inventory once it succeeds.
+  // See PMM-15347/plan.md §4 item 9 for that split, and
+  // PMM-15347/questions.md for what is and is not built.
   rpc TriggerHostBootstrap(TriggerHostBootstrapRequest) returns (TriggerHostBootstrapResponse) {
     // A custom method, matching TriggerInventoryRefresh: this returns an
     // *accepted* run that finishes minutes later, not a completed one.
@@ -1050,7 +1052,7 @@ service OmService {
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Bootstrap a host (PoC)"
-      description: "Installs MongoDB on one host through the Nomad client and initializes it as a single-member replica set. PMM-15347 proof-of-concept scope only. Returns as soon as the job is queued; poll the host's next probe to see it land."
+      description: "Plans installing MongoDB on one host through the Nomad client and initializing it as a single-member replica set, monitored by PMM once it comes up. PMM-15347 proof-of-concept scope only. Returns as soon as the run is planned; PMM's own stepper drives it forward in the background."
     };
   }
 

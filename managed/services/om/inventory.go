@@ -354,40 +354,51 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 	return response, nil
 }
 
-// TriggerHostBootstrap installs MongoDB on one host and initializes it as a
-// single-member replica set.
+// TriggerHostBootstrap plans installing MongoDB on one host and initializing it
+// as a single-member replica set.
 //
 // PMM-15347 PoC only -- see the RPC's own proto comment and PMM-15347/plan.md for
-// scope. A thin proxy, like every other write here: SEP's own route does the real
-// work (validates the host is eligible, generates the keyFile and admin password,
-// dispatches the Nomad job) and this only translates the request and response
-// shapes.
+// scope. Reads the host's own os_id from om_inventory (a general inventory fact,
+// PMM-15326: Surface the host's machine-readable OS id) rather than asking the
+// caller for it, then hands off to SEP's om_bootstrap app -- not om_inventory,
+// which stays read-only by design -- which does the real planning
+// (install_method fixed to "packages", the only strategy implemented yet).
+// PMM's own HA-leader-only stepper (stepper.go) drives the returned run forward
+// from here; this handler's job ends at planning it.
 func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHostBootstrapRequest) (*omv1.TriggerHostBootstrapResponse, error) {
 	probe, err := s.inventoryProbe()
 	if err != nil {
 		return nil, err
 	}
+	if s.bootstrap == nil {
+		return nil, status.Error(codes.FailedPrecondition,
+			"SEP is not configured; set PMM_SEP_URL and PMM_SEP_TOKEN to reach the bootstrap app")
+	}
 
-	body := sepBootstrapRequest{
-		ReplicaSetName: req.GetReplicaSetName(),
+	host := sepHost{}
+	call := inventoryCall{method: http.MethodGet, path: inventoryPath("hosts", req.GetNodeId())}
+	err = probe.call(ctx, call, &host)
+	if err != nil {
+		return nil, err
+	}
+	osID, _ := host.Observed["os_id"].(string)
+	if osID == "" {
+		return nil, status.Errorf(codes.FailedPrecondition,
+			"host %s has no known OS yet; wait for its next inventory probe and try again", req.GetNodeId())
+	}
+
+	run, err := s.bootstrap.triggerRun(ctx, sepTriggerBootstrapRunRequest{
+		Hosts:          []string{req.GetNodeId()},
+		InstallMethod:  "packages",
+		OS:             osID,
 		MongoDBVersion: req.GetMongodbVersion(),
-	}
-	accepted := sepBootstrapAccepted{}
-	call := inventoryCall{
-		method: http.MethodPost,
-		path:   inventoryPath("hosts", req.GetNodeId()) + "/bootstrap",
-		body:   body,
-	}
-	err = probe.call(ctx, call, &accepted)
+		ReplicaSetName: req.GetReplicaSetName(),
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &omv1.TriggerHostBootstrapResponse{
-		TaskHistoryId: accepted.TaskHistoryID,
-		AdminUsername: accepted.AdminUsername,
-		AdminPassword: accepted.AdminPassword,
-	}, nil
+	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID}, nil
 }
 
 // GetInventoryConfig returns the inventory app's configuration.
