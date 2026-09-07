@@ -102,6 +102,11 @@ type Service struct {
 	// configured. Held rather than constructed per run so the HTTP client is reused.
 	probe *probeSource
 
+	// bootstrap is PMM's handle onto SEP's om_bootstrap app, or nil when SEP is not
+	// configured. Used only by the HA-leader-only stepper (RunBootstrapStepper) and
+	// TriggerHostBootstrap -- never by the topology-collection pipeline probe feeds.
+	bootstrap *bootstrapClient
+
 	// agents reports pmm-agent connectivity for ListInventoryHosts' eligibility
 	// computation, or nil when not wired up (every host then reads as
 	// pmm_agent_connected: false -- see agentConnectionChecker's doc comment).
@@ -159,6 +164,30 @@ func (s *Service) WithProbeSource(sepURL, token string) *Service {
 	}
 	s.probe = probe
 	s.l.Infof("om_inventory estate at %s", probe.app.endpoint(""))
+	return s
+}
+
+// WithBootstrapSource attaches SEP's om_bootstrap app as the HA-leader-only
+// stepper's (RunBootstrapStepper) target, and TriggerHostBootstrap's.
+//
+// A second, independent sepClient rather than reusing probe's -- see
+// probeSource's own construction in WithProbeSource -- because the two are
+// configured (and, in principle, could fail) independently: an operator with
+// only om_inventory reachable still gets a working Hosts page with no
+// bootstrap capability, and vice versa. Both point at the same SEP in every
+// current deployment, so the extra HTTP client is one more connection pool
+// to a host already being talked to, not a second thing to reach.
+func (s *Service) WithBootstrapSource(sepURL, token string) *Service {
+	if sepURL == "" {
+		s.l.Info("SEP is not configured; MongoDB bootstrap will be unavailable")
+		return s
+	}
+	client := &sepClient{
+		baseURL: sepURL,
+		token:   token,
+		http:    &http.Client{Timeout: probeRequestTimeout},
+	}
+	s.bootstrap = &bootstrapClient{app: client.app(bootstrapAppModule)}
 	return s
 }
 

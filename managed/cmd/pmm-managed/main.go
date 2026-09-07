@@ -1094,6 +1094,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	// OpenManager enable/disable switch (Enabled gate, IsAvailable check).
 	omService := om.New(db, v1.NewAPI(vmClient), haService, logrus.WithField("component", "om"))
 	omService.WithProbeSource(*sepURLF, *sepTokenF)
+	omService.WithBootstrapSource(*sepURLF, *sepTokenF)
 	omService.WithAgentRegistry(agentsRegistry)
 	prom.MustRegister(om.NewMetricsCollector(omService))
 
@@ -1232,6 +1233,16 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	// pruning is what makes that destructive rather than merely wasteful.
 	haService.AddLeaderService(ha.NewContextService("om", func(ctx context.Context) error {
 		omService.Run(ctx)
+		return nil
+	}))
+
+	// Leader-only, same reasoning as "om" above: two leaders driving the same
+	// bootstrap run would double-dispatch every step. Registered separately from
+	// "om" itself (rather than folded into Service.Run's own ticker) since the two
+	// run on independent cadences and neither's failure should stop the other --
+	// see PMM-15347/plan.md §4 item 9 for the state-machine split this implements.
+	haService.AddLeaderService(ha.NewContextService("om-bootstrap-stepper", func(ctx context.Context) error {
+		omService.RunBootstrapStepper(ctx)
 		return nil
 	}))
 
