@@ -2,10 +2,13 @@ import { render, screen } from '@testing-library/react';
 import { ReactElement } from 'react';
 import { SettingsContext } from 'contexts/settings';
 import { TestWrapper } from 'utils/testWrapper';
-import { wrapWithSettings } from 'utils/testUtils';
+import {
+  measurePageSurface,
+  measureSurface,
+  wrapWithSettings,
+} from 'utils/testUtils';
 import { TEST_USER_ADMIN, TEST_USER_VIEWER } from 'utils/testStubs';
 import { User } from 'types/user.types';
-import { Page } from 'components/page';
 import { SepPage } from './SepPage';
 
 // The gate mints a SEP bearer on mount; this suite is about who reaches it, so
@@ -35,30 +38,6 @@ const renderSepPage = ({
       ),
     }
   );
-
-// `Page` paints its surface with a <GlobalStyles> rule on html/body, so the
-// resulting background is read back off the document rather than off a node.
-const bodyBackground = () => getComputedStyle(document.body).backgroundColor;
-
-// A bare `Page` on each surface, to name the two colours without hardcoding
-// them: `surface="paper"` is what Settings passes.
-const renderPlainPage = (surface: 'default' | 'paper') =>
-  render(
-    <Page maxWidth="full" surface={surface}>
-      <div />
-    </Page>,
-    {
-      wrapper: ({ children }) => <TestWrapper>{children}</TestWrapper>,
-    }
-  );
-
-const measureSurface = (renderState: () => { unmount: () => void }) => {
-  const { unmount } = renderState();
-  const background = bodyBackground();
-  unmount();
-
-  return background;
-};
 
 describe('SepPage', () => {
   it('renders the plugin for an administrator', () => {
@@ -128,8 +107,8 @@ describe('SepPage', () => {
   });
 
   it('renders every state on the paper surface Settings uses', () => {
-    const stage = measureSurface(() => renderPlainPage('default'));
-    const paper = measureSurface(() => renderPlainPage('paper'));
+    const stage = measurePageSurface('default');
+    const paper = measurePageSurface('paper');
 
     // Guards the rest of the assertions: they only mean anything while the two
     // surfaces actually differ.

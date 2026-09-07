@@ -36,7 +36,7 @@ export const Settings: FC = () => {
 
   if (isLoading || isVersionLoading || (isEnabled && !settings)) {
     return (
-      <Page title={Messages.title}>
+      <Page title={Messages.title} surface="paper">
         <Stack alignItems="center" py={4}>
           <CircularProgress data-testid="settings-loading" />
         </Stack>
