@@ -438,7 +438,7 @@ func (p *Provisioner) reportConflictsLocked(notOurs map[string]string) {
 		} else {
 			owner = "a rule with provenance " + owner
 		}
-		p.l.Errorf("Not provisioning the built-in alert rule %q: that UID already belongs to %s. "+
+		p.l.Errorf("Not provisioning the built-in alert rule %s: that UID already belongs to %s. "+
 			"PMM leaves it alone rather than overwrite it; delete or re-point that rule to get the "+
 			"built-in one back.", uid, owner)
 	}

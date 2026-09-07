@@ -153,24 +153,24 @@ func validateCatalog(templates map[string]models.Template) error {
 	seen := make(map[string]string, len(builtinBundles))
 	for _, bundle := range builtinBundles {
 		if len(bundle.rules) == 0 {
-			return fmt.Errorf("bundle %q has no rules", bundle.id)
+			return fmt.Errorf("bundle %s has no rules", bundle.id)
 		}
 
 		for _, rule := range bundle.rules {
 			if other, ok := seen[rule.uid]; ok {
-				return fmt.Errorf("rule UID %q is used by both bundle %q and bundle %q", rule.uid, other, bundle.id)
+				return fmt.Errorf("rule UID %s is used by both bundle %s and bundle %s", rule.uid, other, bundle.id)
 			}
 			seen[rule.uid] = bundle.id
 
 			template, ok := templates[rule.templateName]
 			if !ok {
-				return fmt.Errorf("bundle %q references unknown built-in template %q", bundle.id, rule.templateName)
+				return fmt.Errorf("bundle %s references unknown built-in template %s", bundle.id, rule.templateName)
 			}
 
 			// Grafana's file provisioner does not check this, but CreateAlertRule does, and a
 			// rule whose `for` is shorter than its evaluation interval never settles.
 			if template.For < provisionedInterval {
-				return fmt.Errorf("template %q has for=%s, shorter than the evaluation interval %s",
+				return fmt.Errorf("template %s has for=%s, shorter than the evaluation interval %s",
 					rule.templateName, template.For, provisionedInterval)
 			}
 		}
@@ -178,7 +178,7 @@ func validateCatalog(templates map[string]models.Template) error {
 
 	for _, uid := range retiredRuleUIDs {
 		if bundleID, ok := seen[uid]; ok {
-			return fmt.Errorf("retired rule UID %q is still provisioned by bundle %q", uid, bundleID)
+			return fmt.Errorf("retired rule UID %s is still provisioned by bundle %s", uid, bundleID)
 		}
 	}
 

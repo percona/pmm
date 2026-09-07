@@ -232,7 +232,7 @@ func (r *grafanaReader) ResolveDatasourceUID(ctx context.Context) (string, error
 	switch {
 	case err == nil:
 		if r.uid != uid {
-			r.l.Infof("Resolved %s datasource UID %q from Grafana's database.", metricsDatasourceName, uid)
+			r.l.Infof("Resolved %s datasource UID %s from Grafana's database.", metricsDatasourceName, uid)
 		}
 		r.uid, r.checkedAt, r.lastErr = uid, time.Now(), nil
 		return uid, nil

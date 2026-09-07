@@ -150,7 +150,7 @@ func renderProvisioningFile(
 
 			rendered, err := renderProvisionedRule(rule, templates[rule.templateName], datasourceUID)
 			if err != nil {
-				return nil, fmt.Errorf("failed to render rule %q: %w", rule.uid, err)
+				return nil, fmt.Errorf("failed to render rule %s: %w", rule.uid, err)
 			}
 			group.Rules = append(group.Rules, rendered)
 		}
@@ -221,7 +221,7 @@ func renderProvisionedRule(rule provisionedRule, template models.Template, datas
 
 	for name, value := range labels {
 		if strings.ContainsRune(value, '$') {
-			return provisioningRule{}, fmt.Errorf("label %q contains a dollar sign, which Grafana provisioning would expand: %q", name, value)
+			return provisioningRule{}, fmt.Errorf("label '%s' contains a dollar sign, which Grafana provisioning would expand: '%s'", name, value)
 		}
 	}
 
@@ -247,7 +247,7 @@ func defaultParamsValues(definitions models.AlertExprParamsDefinitions) (AlertEx
 		switch definition.Type {
 		case models.Float:
 			if definition.FloatParam == nil || definition.FloatParam.Default == nil {
-				return nil, fmt.Errorf("parameter %q has no default value", definition.Name)
+				return nil, fmt.Errorf("parameter %s has no default value", definition.Name)
 			}
 			values = append(values, AlertExprParamValue{
 				Name:       definition.Name,
@@ -255,9 +255,9 @@ func defaultParamsValues(definitions models.AlertExprParamsDefinitions) (AlertEx
 				FloatValue: *definition.FloatParam.Default,
 			})
 		case models.Bool, models.String:
-			return nil, fmt.Errorf("parameter %q has unsupported type %q for a provisioned rule", definition.Name, definition.Type)
+			return nil, fmt.Errorf("parameter %s has unsupported type %s for a provisioned rule", definition.Name, definition.Type)
 		default:
-			return nil, fmt.Errorf("parameter %q has unknown type %q", definition.Name, definition.Type)
+			return nil, fmt.Errorf("parameter %s has unknown type %s", definition.Name, definition.Type)
 		}
 	}
 
@@ -297,11 +297,11 @@ func validateProvisioningGroup(group provisioningGroup, provisioned map[string]s
 	case group.Name == "":
 		return errors.New("rule group has no name")
 	case group.Folder == "":
-		return fmt.Errorf("rule group %q has no folder", group.Name)
+		return fmt.Errorf("rule group '%s' has no folder", group.Name)
 	case group.Interval == "":
-		return fmt.Errorf("rule group %q has no interval", group.Name)
+		return fmt.Errorf("rule group '%s' has no interval", group.Name)
 	case group.OrgID != provisionedOrgID:
-		return fmt.Errorf("rule group %q has orgId %d", group.Name, group.OrgID)
+		return fmt.Errorf("rule group '%s' has orgId %d", group.Name, group.OrgID)
 	}
 
 	for _, rule := range group.Rules {
@@ -318,41 +318,41 @@ func validateProvisioningGroup(group provisioningGroup, provisioned map[string]s
 func validateProvisioningRule(rule provisioningRule) error {
 	switch {
 	case rule.UID == "":
-		return fmt.Errorf("rule %q has no UID", rule.Title)
+		return fmt.Errorf("rule '%s' has no UID", rule.Title)
 	case rule.Title == "":
-		return fmt.Errorf("rule %q has no title", rule.UID)
+		return fmt.Errorf("rule %s has no title", rule.UID)
 	case rule.Condition == "":
-		return fmt.Errorf("rule %q has no condition", rule.UID)
+		return fmt.Errorf("rule %s has no condition", rule.UID)
 	case rule.For == "":
-		return fmt.Errorf("rule %q has no for duration", rule.UID)
+		return fmt.Errorf("rule %s has no for duration", rule.UID)
 	case len(rule.Data) == 0:
-		return fmt.Errorf("rule %q has no data", rule.UID)
+		return fmt.Errorf("rule %s has no data", rule.UID)
 	}
 
 	// Grafana parses these with the Prometheus duration parser, which accepts units Go's
 	// time.ParseDuration does not, so validate the way Grafana will.
 	forDuration, err := model.ParseDuration(rule.For)
 	if err != nil {
-		return fmt.Errorf("rule %q has an unparseable for duration %q: %w", rule.UID, rule.For, err)
+		return fmt.Errorf("rule %s has an unparseable for duration %s: %w", rule.UID, rule.For, err)
 	}
 	if time.Duration(forDuration) < provisionedInterval {
-		return fmt.Errorf("rule %q has for=%s, shorter than the evaluation interval", rule.UID, rule.For)
+		return fmt.Errorf("rule %s has for=%s, shorter than the evaluation interval", rule.UID, rule.For)
 	}
 
 	var conditionFound bool
 	for _, query := range rule.Data {
 		if query.RefID == "" {
-			return fmt.Errorf("rule %q has a query with no refId", rule.UID)
+			return fmt.Errorf("rule %s has a query with no refId", rule.UID)
 		}
 		if query.DatasourceUID == "" {
-			return fmt.Errorf("rule %q query %q has no datasource UID", rule.UID, query.RefID)
+			return fmt.Errorf("rule %s query %s has no datasource UID", rule.UID, query.RefID)
 		}
 		if query.RefID == rule.Condition {
 			conditionFound = true
 		}
 	}
 	if !conditionFound {
-		return fmt.Errorf("rule %q names condition %q, which is not one of its queries", rule.UID, rule.Condition)
+		return fmt.Errorf("rule %s names condition %s, which is not one of its queries", rule.UID, rule.Condition)
 	}
 
 	return nil
@@ -366,10 +366,10 @@ func validateProvisioningDeletions(deletions []provisioningRuleDelete, provision
 		// A deletion entry gets no default organisation, unlike a rule group, so one without an
 		// explicit orgId deletes from organisation 0 and silently does nothing.
 		if deletion.OrgID != provisionedOrgID {
-			return fmt.Errorf("deletion of %q has orgId %d", deletion.UID, deletion.OrgID)
+			return fmt.Errorf("deletion of %s has orgId %d", deletion.UID, deletion.OrgID)
 		}
 		if _, ok := provisioned[deletion.UID]; ok {
-			return fmt.Errorf("rule %q is both provisioned and deleted by the same file", deletion.UID)
+			return fmt.Errorf("rule %s is both provisioned and deleted by the same file", deletion.UID)
 		}
 	}
 

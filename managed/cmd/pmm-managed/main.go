@@ -1309,7 +1309,7 @@ func parseHAPeers(peers string) []string {
 			continue
 		}
 		if _, ok := seen[node]; ok {
-			logrus.Warnf("Ignoring duplicate entry %q in PMM_HA_PEERS.", node)
+			logrus.Warnf("Ignoring duplicate entry %s in PMM_HA_PEERS.", node)
 			continue
 		}
 		seen[node] = struct{}{}
