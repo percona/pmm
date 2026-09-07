@@ -150,6 +150,18 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
+	t.Run("Skipped internal node name prefixes env var", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"PMM_INTERNAL_NODE_NAME_PREFIXES=pmm-pmm-ha-pg-db-"}
+		expectedEnvVars := &models.ChangeSettingsParams{}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("Invalid env variables values", func(t *testing.T) {
 		t.Parallel()
 
