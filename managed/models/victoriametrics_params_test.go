@@ -94,5 +94,11 @@ func TestParseVictoriaMetricsURL(t *testing.T) {
 		_, err = ParseVictoriaMetricsURL("ftp://user:secret@vm:8428")
 		require.Error(t, err)
 		assert.NotContains(t, err.Error(), "secret")
+
+		// Redacted() keeps the username, so the scheme and host check drops the whole userinfo.
+		_, err = ParseVictoriaMetricsURL("ftp://vmadmin:secret@vm:8428")
+		require.Error(t, err)
+		assert.NotContains(t, err.Error(), "secret")
+		assert.NotContains(t, err.Error(), "vmadmin")
 	})
 }

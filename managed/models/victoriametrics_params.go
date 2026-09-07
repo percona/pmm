@@ -61,7 +61,10 @@ func ParseVictoriaMetricsURL(vmURL string) (*url.URL, error) {
 		return nil, fmt.Errorf("invalid VictoriaMetrics URL: %w", err)
 	}
 	if (URL.Scheme != "http" && URL.Scheme != "https") || URL.Host == "" || URL.Opaque != "" {
-		return nil, fmt.Errorf("invalid VictoriaMetrics URL '%s': expected http(s)://host[:port][/path]", URL.Redacted())
+		// Redacted keeps the username, so drop the whole userinfo on a copy before naming the value.
+		sanitized := *URL
+		sanitized.User = nil
+		return nil, fmt.Errorf("invalid VictoriaMetrics URL '%s': expected http(s)://host[:port][/path]", sanitized.String())
 	}
 
 	return URL, nil

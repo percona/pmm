@@ -55,13 +55,13 @@ You can use an external VictoriaMetrics database for monitoring in PMM.
 Point PMM Server at it with the `PMM_VM_URL` environment variable:
 
 ```sh
-PMM_VM_URL=http(s)://hostname:port/path
+PMM_VM_URL=https://victoriametrics.example.com:8428/
 ```
 
 If the external VictoriaMetrics database requires basic authentication, either include the credentials in the URL or set them as `vmagent` environment variables on PMM Server. The `VMAGENT_` variables take precedence over credentials in the URL.
 
 ```sh
-PMM_VM_URL=http(s)://username:password@hostname:port/path
+PMM_VM_URL=https://username:password@victoriametrics.example.com:8428/
 ```
 
 Credentials in `PMM_VM_URL` travel in clear text over `http`. Use `https` whenever the connection to VictoriaMetrics leaves a trusted network.
