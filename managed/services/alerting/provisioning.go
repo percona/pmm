@@ -60,14 +60,24 @@ const (
 	// GrafanaProgramName is the supervisord program Grafana runs under.
 	grafanaProgramName = "grafana"
 
-	// ReconcileInterval is slow on purpose, and the tick is the only thing that notices anything
-	// changing while the process runs: the bundle toggles are read once at start, so what is left
-	// is the Percona Alerting setting and a rule UID being squatted or released. Nothing triggers a
-	// reconcile directly - a settings change reaches one node of a cluster, but every node has to
-	// converge, because each writes its own copy of the file and its own Grafana reads that copy at
-	// its next start. A follower left behind would revert the cluster, which is also why writing is
-	// not leader-gated. Five minutes is the compromise: soon enough that a toggle feels like it
-	// worked, rare enough to be invisible.
+	// ReconcileInterval is slow on purpose. The tick is the only thing that notices anything
+	// changing while the process runs, and the bundle toggles are not it: those are read once at
+	// start and cannot change without recreating the container. Three things can:
+	//
+	//   - the Percona Alerting setting, which gates both bundles;
+	//   - ownership of a rule UID, which a user can take while PMM is not provisioning it and give
+	//     back at any time;
+	//   - the Metrics datasource UID, whose re-check is deliberately tied to this same interval.
+	//
+	// Do not assume the first of those carries the tick on its own: a deployment can pin Percona
+	// Alerting with PMM_ENABLE_ALERTING, which makes the setting unchangeable through the API and
+	// leaves the other two as the only reasons to wake up.
+	//
+	// Nothing triggers a reconcile directly. A settings change reaches one node of a cluster, but
+	// every node has to converge, because each writes its own copy of the file and its own Grafana
+	// reads that copy at its next start. A follower left behind would revert the cluster, which is
+	// also why writing is not leader-gated. Five minutes is the compromise: soon enough that a
+	// change feels like it worked, rare enough to be invisible.
 	reconcileInterval = 5 * time.Minute
 
 	// A datasource that cannot be resolved blocks the whole bundle, so it is retried far faster
