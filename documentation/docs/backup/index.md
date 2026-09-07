@@ -6,10 +6,10 @@ PMM enables you to do all this with zero downtime and minimal performance impact
 
 ## MySQL backups
 
-For MySQL, use [MySQL Backups](../manage/mysql-backup.md) under **Apps > MySQL Backups**. It supports XtraBackup, Mydumper, and Binlog, with local storage, S3, GCS, and rsync upload, and is the primary MySQL backup option going forward.
+For MySQL, use [MySQL Backups](../apps/mysql-backup.md) under **Apps > MySQL Backups**. It supports XtraBackup, Mydumper, and Binlog, with local storage, S3, GCS, and rsync upload, and is the primary MySQL backup option going forward.
 
 !!! warning "Legacy MySQL backup feature deprecated"
-    The MySQL backup feature under **Backups > All backups** is deprecated and will be replaced by [MySQL Backups](../manage/mysql-backup.md) when the [SEP integration](../manage/index.md) reaches GA. Both options are currently in Tech Preview. Backups created in one are not visible in the other.
+    The MySQL backup feature under **Backups > All backups** is deprecated and will be replaced by [MySQL Backups](../apps/mysql-backup.md) when the [SEP integration](../apps/index.md) reaches GA. Both options are currently in Tech Preview. Backups created in one are not visible in the other.
 
 ## MongoDB backups
 
@@ -30,7 +30,7 @@ PMM 3 supports creating backups of sharded MongoDB clusters. However, the restor
 
 - [Prepare a storage location](prepare_storage_location.md)
 - ![!](../images/MongoDB_Logo.png) [MongoDB backups](mongodb-backup/create_mongo_on_demand.md)
-- ![!](../images/mysql_logo.png) [MySQL Backups](../manage/mysql-backup.md) 
+- ![!](../images/mysql_logo.png) [MySQL Backups](../apps/mysql-backup.md) 
 
 
 ??? info "Additional resources"

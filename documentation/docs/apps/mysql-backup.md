@@ -1,4 +1,4 @@
-# MySQL Backups
+# Back up and restore MySQL databases
 
 !!! warning "Tech Preview"
     This feature is not production-ready. Use for testing and feedback only.
@@ -7,121 +7,60 @@ MySQL Backup lets you run and schedule MySQL backups against MySQL services in y
 
 It is available under **Apps > MySQL Backups** in the sidebar, part of PMM's growing set of [database management apps](index.md).
 
-The legacy PMM MySQL backup feature under **Backups > All backups** continues to work alongside this app. Backups created in one are not visible in the other. This app is intended to replace the legacy feature when the [SEP integration](index.md) reaches GA.
+This app runs alongside the MySQL backup feature in **Backups > All backups**. Backups made in one won't appear in the other. Once this app reaches GA, it will replace the MySQL backup part of that feature.
 
 ## Supported backup types
 
 | Type | Tool | Best for |
 |---|---|---|
-| **XtraBackup** | `xtrabackup`, `mariadb-backup`, or `innobackupex` | Physical hot backups of large datasets with minimal locking. Supports full and incremental backups. Must run directly on the database host. |
+| **XtraBackup** | `xtrabackup`, `mariadb-backup`, or `innobackupex` | Physical hot backups of large datasets with minimal locking. Supports full and incremental backups. Must run directly on the database host. Supports MariaDB via `mariadb-backup`. |
 | **Mydumper** | `mydumper` | Logical SQL dumps with selective database and table restores. Can run from a remote executor host. |
-| **Binlog** | `mysqlbinlog` | Continuous binary log capture. Use alongside a base XtraBackup or Mydumper backup for point-in-time recovery — not a standalone complete backup. |
-
-MariaDB is supported via the `mariadb-backup` binary.
+| **Binlog** | `mysqlbinlog` | Continuous binary log capture. Combine with a base XtraBackup or Mydumper backup for point-in-time recovery. Not a standalone backup. |
 
 ## Before you start
 
-### Enable Nomad on PMM Server
+Complete the following steps before creating your first backup.
+{.power-number}
 
-The MySQL Backups app dispatches tasks via Nomad. To enable Nomad, start PMM Server with both `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS` set. See [Configure Nomad](../reference/nomad.md).
+1. Enable Nomad on PMM Server by starting it with both `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS` set. See [Configure Nomad](../reference/nomad.md).
 
-### Install PMM Client on the execution host
+2. Install PMM Client on the execution host with the Nomad client enabled. PMM Client ships the Nomad client so no separate Nomad installation is required.
 
-The execution host must have PMM Client installed with the Nomad client enabled. PMM Client ships the Nomad client so no separate Nomad installation is required.
+3. Install the tool for your backup type and make sure it is available on `$PATH`:
 
-### Install required tools on the execution host
+    - XtraBackup: `xtrabackup`, `mariadb-backup`, or `innobackupex`
+    - Mydumper: `mydumper`
+    - Binlog: `mysqlbinlog`
 
-Install the tool for your backup type and make sure it is available on `$PATH`:
+    XtraBackup requires **root** on the execution host. Mydumper and Binlog do not.
 
-| Backup type | Required tool |
-|---|---|
-| XtraBackup | `xtrabackup`, `mariadb-backup`, or `innobackupex` |
-| Mydumper | `mydumper` |
-| Binlog | `mysqlbinlog` |
+    For XtraBackup, use a version that matches your MySQL version:
 
-XtraBackup requires **root** on the execution host. Mydumper and Binlog do not.
+    - MySQL 5.5, 5.6, 5.7: PXB 2.4.x
+    - MySQL 8.0.0–8.0.33: PXB 8.0.x (same version or newer)
+    - MySQL 8.0.34+: PXB 8.0.34+
+    - MySQL 8.1.x, 8.2.x, 8.3.x: matching PXB version
+    - MySQL 8.4.x: any PXB 8.4.x
 
-For XtraBackup, use a version that matches your MySQL version:
+    The backup type also determines which host can run the task:
 
-| MySQL version | Percona XtraBackup version |
-|---|---|
-| 5.5, 5.6, 5.7 | PXB 2.4.x |
-| 8.0.0–8.0.33 | PXB 8.0.x (same version or newer) |
-| 8.0.34+ | PXB 8.0.34+ |
-| 8.1.x, 8.2.x, 8.3.x | Matching PXB version |
-| 8.4.x | Any PXB 8.4.x |
+    - **XtraBackup**: the executor must be the database host itself. The task always connects to `localhost`.
+    - **Mydumper**: the executor can be any host with network access to the database.
+    - **Binlog**: the executor can be any host with network access to the database. Use **Alternative binlog host** to stream logs from a specific source host.
 
-### Configure database credentials on the host
+    For remote or cloud-hosted databases, select an executor host that has network access to the target.
 
-SEP reads MySQL credentials from `~/.my.cnf` or `~/.mylogin.cnf` on the executor host. The backup task does not prompt for a password — this file must exist and be readable before running a backup.
+4. Configure MySQL credentials on the executor host. Place them in `~/.my.cnf` or `~/.mylogin.cnf`. The app reads from this file and does not prompt for a password, so it must exist and be readable before running a backup.
 
-For XtraBackup on MySQL 8.0+, the MySQL user must have the `BACKUP_ADMIN` privilege.
+    For XtraBackup on MySQL 8.0+, the MySQL user must have the `BACKUP_ADMIN` privilege.
 
-<!-- VERIFY: privilege requirements for Mydumper and Binlog -->
+    <!-- VERIFY: privilege requirements for Mydumper and Binlog -->
 
-### Prepare a backup directory
+5. Create a backup directory on the execution host and confirm it is writable. Set the path per task in the **Backup directory** field.
 
-Backups are written to a local directory on the execution host. Create the directory and confirm it is writable before creating a task. Set the path per task in the **Backup directory** field.
+6. Trigger a sync from **Inventory** if your MySQL service does not appear in the backup form. Apps syncs from PMM, so services registered in PMM may not appear until a sync has run.
 
-### Sync your MySQL service
-
-The MySQL service must appear in the SEP inventory. SEP syncs from PMM — if a service is registered in PMM but a sync has not run, it will not appear in the backup form. Trigger a sync from **Inventory** if needed.
-
-## Storage
-
-Backups are written locally to the execution host by default. You can optionally upload to one or more remote destinations, configured per task:
-
-| Provider | Required field |
-|---|---|
-| S3-compatible storage | S3 bucket |
-| Google Cloud Storage | GCS bucket |
-| Rsync | Rsync destination path |
-
-You can select multiple upload providers simultaneously.
-
-### Retention
-
-Without retention configured, backups accumulate until deleted manually. Set retention per task:
-
-| Backup type | Retention options |
-|---|---|
-| Mydumper | Daily purge (days), Weekly purge (weeks) |
-| XtraBackup | Number of copies to keep |
-| Binlog | Purge after (days) |
-
-## Compression and encryption
-
-### Compression
-
-Enable **Compress backup data** and select an algorithm. Available algorithms vary by backup type:
-
-| Backup type | Supported algorithms |
-|---|---|
-| XtraBackup | zstd, lz4, quicklz |
-| Mydumper | gzip, zstd |
-
-### Encryption
-
-Two independent GPG encryption modes are available:
-
-- **Encrypt backup** — encrypts the backup in place during the run. Combine with **Encrypt using tmpdir** to write to a temporary directory during encryption.
-- **Encrypt after backup completes** — GPG-encrypts the finished backup as a post-run step. Mutually exclusive with **Encrypt using tmpdir**.
-
-Both modes require setting an **Encryption recipient** (GPG key or recipient ID).
-
-XtraBackup also supports **AES-256 encryption** via a keyfile, configured in the **AES-256 key file path** field.
-
-## About execution hosts
-
-The execution host is the Nomad agent that runs the backup task. The backup type determines where it must run:
-
-- **XtraBackup** — the executor must be the database host itself. The task always connects to `localhost`.
-- **Mydumper** — the executor can be any host with network access to the database.
-- **Binlog** — the executor can be any host with network access to the database. Use **Alternative binlog host** to stream logs from a specific source host.
-
-For remote or cloud-hosted databases, select an executor host that has network access to the target.
-
-## Run a MySQL backup
+## Run a backup
 
 To run a MySQL backup:
 {.power-number}
@@ -136,12 +75,25 @@ To run a MySQL backup:
 
 Completed XtraBackup and Mydumper runs are recorded in the backup catalog with their location, upload destination, size, and timestamps. Binlog runs are not catalogued.
 
+### Schedule a backup
+
+When creating a backup task, set a schedule and click **Schedule** instead of **Run**. Scheduled tasks appear under **Schedules** on the **MySQL Backups** page.
+
+<!-- VERIFY: schedule field format (cron, UI picker, presets); minimum interval; overlap behavior when previous run is still in progress -->
+
 ### Incremental XtraBackup backups
 
 XtraBackup supports two incremental methods. Select one in **Incremental method**:
 
-- **less_space** — smaller incremental files. Set **Incremental cycle** to control when the full backup runs: `daily`, `weekly`, or a specific weekday (Monday–Sunday).
-- **fast_restore** — optimized for faster restores. The cycle is not configurable.
+- **less_space**: smaller incremental files. Set **Incremental cycle** to control when the full backup runs: `daily`, `weekly`, or a specific weekday (Monday–Sunday).
+- **fast_restore**: optimized for faster restores. The cycle is not configurable.
+
+## Manage scheduled backups
+
+To manage your scheduled backup tasks, click **Schedules** on the **MySQL Backups** page. From there you can:
+
+- Enable or disable a schedule using the toggle.
+- Edit, delete, or copy a schedule using the actions menu.
 
 ## Restore from a backup
 
@@ -153,12 +105,10 @@ To restore from a backup:
 3. Select the **backup type**.
 4. Optionally select a **destination service**. Selecting a known service populates the **Backup source** list with that service's recorded backups. You can also enter a path directly:
 
-    | Format | Example |
-    |---|---|
-    | Local path | `/backups/mydumper/20240101` |
-    | Remote path | `db01:/path/to/backup` |
-    | S3 | `s3://bucket/path` |
-    | GCS | `gs://bucket/path` |
+    - Local path: `/backups/mydumper/20240101`
+    - Remote path: `db01:/path/to/backup`
+    - S3: `s3://bucket/path`
+    - GCS: `gs://bucket/path`
 
     Append `/latest` to any path to use the most recent backup automatically.
 
@@ -168,53 +118,80 @@ To restore from a backup:
 
 ### Restore options by backup type
 
-**Mydumper**
+#### Mydumper
 
 The destination must be a MySQL service in inventory. Optionally scope the restore with **Include databases**, **Skip databases**, or **Restore to Database** to target a single schema.
 
-**XtraBackup**
+#### XtraBackup
 
-The destination service is optional — you can restore to any reachable host, including hosts not in inventory. Key options:
+The destination service is optional. You can restore to any reachable host, including hosts not in inventory. Key options:
 
-| Option | Description |
-|---|---|
-| Kill MySQL | Kills the MySQL process before restoring. MySQL does **not** restart automatically — start it manually after the restore completes. |
-| Skip incrementals | Applies the full backup only, skipping incremental layers. |
-| XtraBackup parallel | Number of threads for the restore (default: 4). |
-| Data directory | Override the target datadir path. |
-| Restore my.cnf | Restores the `my.cnf` configuration file as part of the restore. |
+- **Kill MySQL**: kills the MySQL process before restoring. MySQL does **not** restart automatically. Start it manually after the restore completes.
+- **Skip incrementals**: applies the full backup only, skipping incremental layers.
+- **XtraBackup parallel**: number of threads for the restore (default: 4).
+- **Data directory**: override the target datadir path.
+- **Restore my.cnf**: restores the `my.cnf` configuration file as part of the restore.
 
-**Binlog — point-in-time recovery**
+#### Binlog: point-in-time recovery
 
 Set start and stop positions to control how far to replay logs:
 
-| Field | Description |
-|---|---|
-| Start file / Start position | Where to begin replaying. |
-| Stop file / Stop position | Where to stop. Leave empty to replay all available logs. |
+- **Start file / Start position**: where to begin replaying.
+- **Stop file / Stop position**: where to stop. Leave empty to replay all available logs.
 
 ### Restoring to a different host
 
-| Backup type | Cross-host restore |
-|---|---|
-| Mydumper | Destination must be a MySQL service in inventory. |
-| XtraBackup | Any reachable host, including hosts not in inventory. Configure access via **SSH user**, **SSH port**, and **SSH key**. |
-| Binlog | Any reachable host. Same SSH options as XtraBackup. |
+- **Mydumper**: destination must be a MySQL service in inventory.
+- **XtraBackup**: any reachable host, including hosts not in inventory. Configure access via **SSH user**, **SSH port**, and **SSH key**.
+- **Binlog**: any reachable host. Same SSH options as XtraBackup.
 
 <!-- VERIFY: MySQL version or OS constraints for cross-host XtraBackup restores -->
 
 ### Pre and post scripts
 
-All restore types support **Pre-script** and **Post-script** — shell scripts that run on the execution host before and after the restore.
+All restore types support **Pre-script** and **Post-script**: shell scripts that run on the execution host before and after the restore.
 
-## Scheduling
+## Configure backup options
 
-To manage scheduled backup or restore tasks, click **Schedules** on the **MySQL Backups** or **Restore** page. Scheduled tasks are listed under **Scheduled Tasks** and can be added with **+ Add new**, edited, or deleted without losing their execution history.
+The following options are configured per task when creating a backup.
 
-<!-- VERIFY: schedule field format (cron, UI picker, presets); minimum interval; overlap behavior when previous run is still in progress -->
+### Store backups off-host
 
-## Monitoring
+By default, backups stay on the execution host. To store them off-host, select one or more upload providers when creating a task:
+
+- S3-compatible storage: S3 bucket
+- Google Cloud Storage: GCS bucket
+- Rsync: Rsync destination path
+
+You can select multiple upload providers simultaneously.
+
+### Limit how many backups to keep
+
+Without retention configured, backups accumulate until deleted manually. Set retention per task:
+
+- Mydumper: daily purge (days), weekly purge (weeks)
+- XtraBackup: number of copies to keep
+- Binlog: purge after (days)
+
+### Compress backups
+
+Enable **Compress backup data** and select an algorithm. Available algorithms vary by backup type:
+
+- XtraBackup: zstd, lz4, quicklz
+- Mydumper: gzip, zstd
+
+### Encrypt backups
+
+Two independent GPG encryption modes are available:
+
+- **Encrypt backup**: encrypts the backup in place during the run. Combine with **Encrypt using tmpdir** to write to a temporary directory during encryption.
+- **Encrypt after backup completes**: GPG-encrypts the finished backup as a post-run step. Mutually exclusive with **Encrypt using tmpdir**.
+
+Both modes require setting an **Encryption recipient** (GPG key or recipient ID).
+
+XtraBackup also supports **AES-256 encryption** via a keyfile, configured in the **AES-256 key file path** field.
+
+## Monitor backups
 
 Task status and execution history are visible in the **Apps > MySQL Backups** list. Use the **Status** filter to narrow results.
 
-<!-- VERIFY: exact status values and their meaning; log location on host and retention period; cancel and retry support -->

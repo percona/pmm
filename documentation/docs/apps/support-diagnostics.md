@@ -1,18 +1,17 @@
-# Support Diagnostics
+# Collect and share database diagnostics
 
 !!! warning "Tech Preview"
     This feature is not production-ready. Use for testing and feedback only.
 
-Support Diagnostics runs targeted diagnostic scripts directly on your database hosts and sends the results straight to your Percona support case in ServiceNow, without connecting to any server or uploading files yourself.
+Support Diagnostics runs targeted diagnostic scripts on your database hosts and sends the results directly to your Percona support case in ServiceNow, without SSH access or manual file uploads.
 
-This capability is part of the [Management framework](index.md) integration.
+It is available under **Apps > Support Diagnostics** in the sidebar, part of PMM's growing set of [database management apps](index.md).
 
-## Support Diagnostics vs PMM Dump
+## When to use Support Diagnostics vs PMM Dump
 
-Support Diagnostics runs specific diagnostic scripts on your database hosts to investigate a particular issue, and ships the output to your support case. 
+Use **Support Diagnostics** when Percona Support asks you to run diagnostics on your databases. It runs specific scripts on the host and ships the output to your case.
 
-[PMM Dump](../../get-help.md) exports PMM's own monitoring data (metrics and dashboards) compressed for Percona to analyze. 
-If Percona Support asks you for monitoring data from PMM, use PMM Dump. If they ask you to run diagnostics on your databases, use Support Diagnostics.
+Use **[PMM Dump](../../get-help.md)** when Percona Support asks for monitoring data from PMM itself, such as metrics or dashboards.
 
 ## Before you start
 
@@ -21,7 +20,10 @@ If Percona Support asks you for monitoring data from PMM, use PMM Dump. If they 
 
 ## Run a diagnostic collection
 
-1. Go to **Apps > Support Diagnostics** in the left navigation.
+To collect and send diagnostics to your support case:
+{.power-number}
+
+1. Go to **Apps > Support Diagnostics** in the sidebar.
 2. Select the target host and your ServiceNow case number.
 3. Click **Run**.
 
