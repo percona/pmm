@@ -821,8 +821,15 @@ message TriggerInventoryRefreshResponse {
 
 // TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.
 message TriggerHostBootstrapRequest {
-  // PMM's node ID for the host to bootstrap.
-  string node_id = 1 [(validate.rules).string.min_len = 1];
+  // PMM's node IDs for the hosts to bootstrap into one replica set. Adamo's
+  // decided phase-1 scope (PMM-15347/questions.md Q5/Q12): exactly one or
+  // three, checked server-side since protoc-gen-validate has no "one of these
+  // counts" rule to state it declaratively.
+  repeated string node_ids = 1 [(validate.rules).repeated = {
+    min_items: 1
+    max_items: 3
+    unique: true
+  }];
   // The replica set's name.
   string replica_set_name = 2 [(validate.rules).string = {
     min_len: 1
@@ -834,19 +841,76 @@ message TriggerHostBootstrapRequest {
   string mongodb_version = 3 [(validate.rules).string.min_len = 1];
 }
 
-// TriggerHostBootstrapResponse acknowledges a queued single-host bootstrap.
+// TriggerHostBootstrapResponse acknowledges a queued bootstrap run.
 //
-// PMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Returned as
-// soon as SEP's om_bootstrap app has planned the run, not once it finishes --
-// PMM's own HA-leader-only stepper drives it forward from here
-// (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's generated
-// MongoDB user is created only once every host is up, minutes after this
-// response, and lives encrypted in PMM's own Postgres
+// PMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS
+// off. Returned as soon as SEP's om_bootstrap app has planned the run, not
+// once it finishes -- PMM's own HA-leader-only stepper drives it forward from
+// here (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's
+// generated MongoDB user is created only once every host is up, minutes after
+// this response, and lives encrypted in PMM's own Postgres
 // (PMM-15347/questions.md Q7) -- there is nothing to hand back yet.
 message TriggerHostBootstrapResponse {
-  // The om_bootstrap run's id. Nothing here polls it for progress yet -- see
-  // PMM-15347/plan.md for the still-to-come Bootstrap step UI.
+  // The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
   string run_id = 1;
+}
+
+// BootstrapStep is one step's progress -- a host's own, one of its rollback
+// steps, or one of the run's run-level steps. One shape for all three, the
+// same way om_bootstrap's own StepRecord is (see its doc comment): none of
+// the three contexts needs a field the others don't.
+message BootstrapStep {
+  // The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
+  // fixed enum -- the step list itself is per-strategy (only "packages" exists
+  // yet) and per-spec, so a reader renders whatever names actually came back.
+  string name = 1;
+  // "pending", "running", "succeeded", "failed", or "skipped" -- SEP's own
+  // StepStatus values, passed through verbatim rather than re-enumerated here,
+  // since this proto has no logic of its own to gate on them.
+  string status = 2;
+  // A human-readable outcome, set once the step reaches a terminal status.
+  optional string detail = 3;
+  // How many times this step has been dispatched, including the current or
+  // most recent attempt.
+  int32 attempt_count = 4;
+}
+
+// BootstrapHost is one host's progress within a run.
+message BootstrapHost {
+  // The node id this progress belongs to.
+  string host = 1;
+  // This host's own install steps, in the order they run.
+  repeated BootstrapStep steps = 2;
+  // This host's teardown steps, planned up front alongside `steps` -- see
+  // om_bootstrap's own HostBootstrapState doc comment. Every entry stays
+  // "pending" unless the run actually rolls this host back.
+  repeated BootstrapStep rollback_steps = 3;
+}
+
+// GetBootstrapRunRequest is the request for GetBootstrapRun.
+message GetBootstrapRunRequest {
+  // The run to fetch, from TriggerHostBootstrapResponse.run_id.
+  string run_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// GetBootstrapRunResponse is one run, in full, as of this call.
+//
+// A thin proxy onto SEP's om_bootstrap GET /runs/{id}, which reconciles the
+// run's in-flight dispatches before answering -- so polling this is enough to
+// see a step's real outcome, not a stale snapshot.
+message GetBootstrapRunResponse {
+  string run_id = 1;
+  // "running", "succeeded", "failed", or "rolled_back" -- SEP's own
+  // BootstrapRunStatus values, passed through verbatim.
+  string status = 2;
+  // Every host's progress, in the order the run was created with.
+  repeated BootstrapHost hosts = 3;
+  // The run-level steps (rs.initiate, creating PMM's monitoring user) -- see
+  // BootstrapStep's own doc comment for why these share its shape.
+  repeated BootstrapStep run_steps = 4;
+  // Set when the run itself failed outside any single step -- e.g. SEP
+  // rejected the request before planning anything.
+  optional string error = 5;
 }
 
 // GetInventoryConfigRequest is the request for GetInventoryConfig.
@@ -1032,27 +1096,42 @@ service OmService {
     };
   }
 
-  // TriggerHostBootstrap plans installing MongoDB on one host and initializing
-  // it as a single-member replica set, monitored by PMM once it comes up.
+  // TriggerHostBootstrap plans installing MongoDB on one or three hosts and
+  // initializing them as one replica set, monitored by PMM once it comes up.
   //
-  // PMM-15347 PoC, not the shipped feature: one host, one member, keyFile
-  // auth, TLS off, no project/cluster, no live progress UI yet. Proxies to
-  // SEP's om_bootstrap app (not om_inventory, which stays read-only by
-  // design) and returns as soon as that app has planned the run -- PMM's own
-  // HA-leader-only stepper drives every step of it forward from there,
-  // including registering the mongod with PMM's inventory once it succeeds.
-  // See PMM-15347/plan.md §4 item 9 for that split, and
-  // PMM-15347/questions.md for what is and is not built.
+  // PMM-15347 PoC, not the shipped feature: one or three hosts, keyFile auth,
+  // TLS off, no project/cluster. Proxies to SEP's om_bootstrap app (not
+  // om_inventory, which stays read-only by design) and returns as soon as
+  // that app has planned the run -- PMM's own HA-leader-only stepper drives
+  // every step of it forward from there, including registering every mongod
+  // with PMM's inventory once it succeeds. See PMM-15347/plan.md §4 item 9
+  // for that split, and PMM-15347/questions.md for what is and is not built.
   rpc TriggerHostBootstrap(TriggerHostBootstrapRequest) returns (TriggerHostBootstrapResponse) {
     // A custom method, matching TriggerInventoryRefresh: this returns an
-    // *accepted* run that finishes minutes later, not a completed one.
+    // *accepted* run that finishes minutes later, not a completed one. No
+    // path-bound host -- node_ids is repeated, and google.api.http path
+    // params must be singular scalars -- so every field, including the
+    // hosts, travels in the body.
     option (google.api.http) = {
-      post: "/v1/om/inventory/hosts/{node_id}:bootstrap"
+      post: "/v1/om/inventory/hosts:bootstrap"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Bootstrap a host (PoC)"
-      description: "Plans installing MongoDB on one host through the Nomad client and initializing it as a single-member replica set, monitored by PMM once it comes up. PMM-15347 proof-of-concept scope only. Returns as soon as the run is planned; PMM's own stepper drives it forward in the background."
+      summary: "Bootstrap one or three hosts (PoC)"
+      description: "Plans installing MongoDB on one or three hosts through the Nomad client and initializing them as one replica set, monitored by PMM once it comes up. PMM-15347 proof-of-concept scope only. Returns as soon as the run is planned; PMM's own stepper drives it forward in the background."
+    };
+  }
+
+  // GetBootstrapRun returns one bootstrap run's current progress.
+  //
+  // A thin proxy onto SEP's om_bootstrap GET /runs/{id}, like every other read
+  // here -- reconciling the run's in-flight dispatches happens on SEP's side,
+  // not this handler's. Meant to be polled while a run is in progress.
+  rpc GetBootstrapRun(GetBootstrapRunRequest) returns (GetBootstrapRunResponse) {
+    option (google.api.http) = {get: "/v1/om/inventory/bootstrap-runs/{run_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get a bootstrap run's progress (PoC)"
+      description: "Returns one bootstrap run's current status and every host's step-by-step progress, reconciled against its in-flight dispatches as of this call. Poll this to watch a run started by TriggerHostBootstrap."
     };
   }
 
