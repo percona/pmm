@@ -537,7 +537,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		t.Parallel()
 
 		stub := newSEPStubSeq(t, http.StatusOK,
-			`{"node_id": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
@@ -554,6 +554,9 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Len(t, stub.calls, 2)
 		assert.Equal(t, "/api/apps/om_inventory/hosts/n1", stub.calls[0].path)
 		assert.Equal(t, "/api/apps/om_bootstrap/runs", stub.calls[1].path)
+		// The dispatched-to host is n1's *executor*, not its node id -- see
+		// TriggerHostBootstrap's own doc comment on why they can differ, even
+		// though this fixture happens to give them the same value.
 		assert.JSONEq(t,
 			`{"hosts": ["n1"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod"}`,
 			stub.calls[1].body)
@@ -562,7 +565,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("a host with no known OS yet answers FailedPrecondition, not 500", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "observed": {}}`)
+		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "executor_host": "n1", "observed": {}}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		_, err := svc.TriggerHostBootstrap(t.Context(),
@@ -577,16 +580,15 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		assert.Contains(t, status.Convert(err).Message(), "no known OS")
 	})
 
-	t.Run("a host with no usable executor answers InvalidArgument, not 500", func(t *testing.T) {
+	t.Run("a host with no usable executor answers FailedPrecondition, not 500", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStubSeqCodes(t,
-			[]int{http.StatusOK, http.StatusUnprocessableEntity},
-			[]string{
-				`{"node_id": "n1", "observed": {"os_id": "ubuntu"}}`,
-				`{"detail": "Host n1 has no usable Nomad executor"}`,
-			},
-		)
+		// No executor_host at all -- an unprobed host, or one om_inventory
+		// never matched to a Nomad client. Caught locally, before ever
+		// reaching om_bootstrap: dispatching to node_id here (this bug's own
+		// root cause -- see TriggerHostBootstrap's doc comment) would instead
+		// reach SEP and fail there, confusingly, once every host in flight.
+		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "observed": {"os_id": "ubuntu"}}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		_, err := svc.TriggerHostBootstrap(t.Context(),
@@ -597,7 +599,7 @@ func TestTriggerHostBootstrap(t *testing.T) {
 			})
 
 		require.Error(t, err)
-		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "no usable Nomad executor")
 	})
 
@@ -605,9 +607,9 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		t.Parallel()
 
 		stub := newSEPStubSeq(t, http.StatusOK,
-			`{"node_id": "n1", "observed": {"os_id": "ubuntu"}}`,
-			`{"node_id": "n2", "observed": {"os_id": "ubuntu"}}`,
-			`{"node_id": "n3", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n2", "executor_host": "n2", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n3", "executor_host": "n3", "observed": {"os_id": "ubuntu"}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
@@ -650,8 +652,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		t.Parallel()
 
 		stub := newSEPStubSeq(t, http.StatusOK,
-			`{"node_id": "n1", "observed": {"os_id": "ubuntu"}}`,
-			`{"node_id": "n2", "observed": {"os_id": "rocky"}}`,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n2", "executor_host": "n2", "observed": {"os_id": "rocky"}}`,
 		)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
@@ -716,6 +718,38 @@ func TestGetBootstrapRun(t *testing.T) {
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		_, err := svc.GetBootstrapRun(t.Context(), &omv1.GetBootstrapRunRequest{RunId: "run-missing"})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+}
+
+func TestNodeIDForExecutorHost(t *testing.T) {
+	t.Parallel()
+
+	t.Run("finds the node id whose executor matches", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `[
+			{"node_id": "c58168e8-...", "executor_host": "pmm-client-node00"},
+			{"node_id": "other-node", "executor_host": "pmm-client-node01"}
+		]`)
+		svc := stub.service(t)
+
+		nodeID, err := svc.nodeIDForExecutorHost(t.Context(), "pmm-client-node00")
+
+		require.NoError(t, err)
+		assert.Equal(t, "c58168e8-...", nodeID)
+		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.path)
+	})
+
+	t.Run("answers NotFound when no host has that executor", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `[{"node_id": "n1", "executor_host": "pmm-client-node00"}]`)
+		svc := stub.service(t)
+
+		_, err := svc.nodeIDForExecutorHost(t.Context(), "no-such-executor")
 
 		require.Error(t, err)
 		assert.Equal(t, codes.NotFound, status.Code(err))

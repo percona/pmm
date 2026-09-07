@@ -188,6 +188,10 @@ func (s *Service) finishBootstrapRun(ctx context.Context, run *sepBootstrapRun, 
 // without one having been generated first -- so that case is reported rather than
 // silently skipped: it means the secret disappeared after being used, not that
 // nothing needs registering.
+//
+// run.Hosts is keyed on Nomad executor host (TriggerHostBootstrap's own doc
+// comment), not the node id PMM's own inventory needs -- nodeIDForExecutorHost
+// resolves each one back before registering it.
 func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun) {
 	secret, err := models.FindOmBootstrapSecretByRunID(s.db.Querier, run.ID)
 	if err != nil {
@@ -195,7 +199,12 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun
 		return
 	}
 	for _, host := range run.Hosts {
-		err := s.registerBootstrapHost(ctx, host.Host, run.ReplicaSetName, secret.MongoDBUsername, secret.MongoDBPassword)
+		nodeID, err := s.nodeIDForExecutorHost(ctx, host.Host)
+		if err != nil {
+			s.l.Warnf("bootstrap run %s: failed to resolve executor %s to a node id: %s", run.ID, host.Host, err)
+			continue
+		}
+		err = s.registerBootstrapHost(ctx, nodeID, run.ReplicaSetName, secret.MongoDBUsername, secret.MongoDBPassword)
 		if err != nil {
 			s.l.Warnf("bootstrap run %s: failed to register %s with PMM: %s", run.ID, host.Host, err)
 		}

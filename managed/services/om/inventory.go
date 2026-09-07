@@ -365,6 +365,17 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 // planning (install_method fixed to "packages", the only strategy implemented
 // yet). PMM's own HA-leader-only stepper (stepper.go) drives the returned run
 // forward from here; this handler's job ends at planning it.
+//
+// om_bootstrap's own "host" identity is the Nomad *executor* host (the name
+// its own dispatch route passes straight through as the Tasks API's
+// target -- see dispatch.go's own doc comment on SEP's side), not PMM's node
+// id: the two are different strings for the same machine (a node id is a
+// UUID PMM minted; the executor host is whatever name the Nomad client
+// registered under, e.g. "pmm-client-node00"), and Nomad only knows the
+// latter. GetBootstrapRun passes the executor host straight through --
+// arguably more readable for a progress display than a bare UUID -- and only
+// registerBootstrapHost (nodeIDForExecutorHost) ever needs the node id back,
+// since PMM's own inventory is keyed on that instead.
 func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHostBootstrapRequest) (*omv1.TriggerHostBootstrapResponse, error) {
 	probe, err := s.inventoryProbe()
 	if err != nil {
@@ -381,12 +392,17 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 	}
 
 	osID := ""
+	executorHosts := make([]string, 0, len(nodeIDs))
 	for _, nodeID := range nodeIDs {
 		host := sepHost{}
 		call := inventoryCall{method: http.MethodGet, path: inventoryPath("hosts", nodeID)}
 		err = probe.call(ctx, call, &host)
 		if err != nil {
 			return nil, err
+		}
+		if host.ExecutorHost == nil || *host.ExecutorHost == "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"host %s has no usable Nomad executor", nodeID)
 		}
 		hostOSID, _ := host.Observed["os_id"].(string)
 		if hostOSID == "" {
@@ -400,10 +416,11 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 				"host %s runs %s, but %s was already selected; a mixed-OS replica set is out of phase-1 scope",
 				nodeID, hostOSID, osID)
 		}
+		executorHosts = append(executorHosts, *host.ExecutorHost)
 	}
 
 	run, err := s.bootstrap.triggerRun(ctx, sepTriggerBootstrapRunRequest{
-		Hosts:          nodeIDs,
+		Hosts:          executorHosts,
 		InstallMethod:  "packages",
 		OS:             osID,
 		MongoDBVersion: req.GetMongodbVersion(),
@@ -414,6 +431,37 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 	}
 
 	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID}, nil
+}
+
+// nodeIDForExecutorHost resolves a Nomad executor host name back to the PMM
+// node id it belongs to -- the reverse of TriggerHostBootstrap's own
+// resolution, needed wherever a bootstrap run's progress (keyed on executor
+// host, see TriggerHostBootstrap's own doc comment) has to reach PMM's own
+// inventory, which is keyed on node id.
+//
+// Fetches the whole estate rather than a filtered query: om_inventory's own
+// GET /hosts has no "find by executor_host" filter, and the estate size this
+// phase targets (a handful of hosts in one replica set) makes one full fetch
+// no real cost -- see ListInventoryHosts's own similar fetch-then-filter
+// shape.
+func (s *Service) nodeIDForExecutorHost(ctx context.Context, executorHost string) (string, error) {
+	probe, err := s.inventoryProbe()
+	if err != nil {
+		return "", err
+	}
+	hosts := []sepHost{}
+	call := inventoryCall{method: http.MethodGet, path: "hosts"}
+	err = probe.call(ctx, call, &hosts)
+	if err != nil {
+		return "", err
+	}
+	for _, host := range hosts {
+		if host.ExecutorHost != nil && *host.ExecutorHost == executorHost {
+			return host.NodeID, nil
+		}
+	}
+	return "", status.Errorf(codes.NotFound,
+		"no host in the inventory has executor %q", executorHost)
 }
 
 // bootstrapProbe returns the configured om_bootstrap client, or an error saying
