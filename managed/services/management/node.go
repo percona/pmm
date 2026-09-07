@@ -196,7 +196,9 @@ func (s *ManagementService) UnregisterNode(ctx context.Context, req *managementv
 		s.vmdb.RequestConfigurationUpdate()
 	}
 
-	warning, err := s.grafanaClient.DeleteServiceAccount(ctx, node.NodeName, req.Force)
+	// pmm-agent authenticates with a token of the Grafana service account named after the Node.
+	// Drop the account, so that the token does not outlive the Node.
+	warning, err := services.RemoveNodeServiceAccount(ctx, s.grafanaClient, node.NodeName, req.Force)
 	if err != nil {
 		// TODO: need to pass the logger to the service
 		// s.l.WithError(err).Error("deleting service account")
