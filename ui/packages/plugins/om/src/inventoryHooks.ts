@@ -42,9 +42,10 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { isRunActive, request } from './api';
+import { isBootstrapRunActive, isRunActive, request } from './api';
 import { periodSince, type OmRunPeriod } from './inventory';
 import type {
+  OmGetBootstrapRunResponse,
   OmHostBootstrapAccepted,
   OmInventoryHost,
   OmInventoryRun,
@@ -58,6 +59,7 @@ const HOSTS_KEY = ['om', 'inventory', 'hosts'] as const;
 const SERVICES_KEY = ['om', 'inventory', 'services'] as const;
 const RUNS_KEY = ['om', 'inventory', 'runs'] as const;
 const CONFIG_KEY = ['om', 'inventory', 'config'] as const;
+const BOOTSTRAP_RUNS_KEY = ['om', 'inventory', 'bootstrap-runs'] as const;
 
 /** Poll cadence while a refresh is in flight (ms). */
 const REFRESH_POLL_MS = 3000;
@@ -349,30 +351,50 @@ export function useForgetHost() {
 }
 
 /**
- * Bootstrap one host: install MongoDB through the Nomad client and initialize
- * it as a single-member replica set.
+ * Bootstrap one or three hosts: install MongoDB through the Nomad client and
+ * initialize them as one replica set.
  *
  * PMM-15347 PoC only. Does not invalidate the hosts query on success -- unlike
  * a refresh or a forget, nothing about the estate's *current* row changes yet;
- * the new service only appears once a later probe finds it.
+ * the new service only appears once a later probe finds it. No path-bound
+ * host -- `node_ids` is a list, so every field travels in the body, same as
+ * the RPC's own proto comment explains.
  */
 export function useTriggerHostBootstrap() {
   return useMutation<
     OmHostBootstrapAccepted,
     Error,
-    { nodeId: string; replicaSetName: string; mongodbVersion: string }
+    { nodeIds: string[]; replicaSetName: string; mongodbVersion: string }
   >({
-    mutationFn: ({ nodeId, replicaSetName, mongodbVersion }) =>
-      request<OmHostBootstrapAccepted>(
-        `/inventory/hosts/${encodeURIComponent(nodeId)}:bootstrap`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            replica_set_name: replicaSetName,
-            mongodb_version: mongodbVersion,
-          }),
-        }
+    mutationFn: ({ nodeIds, replicaSetName, mongodbVersion }) =>
+      request<OmHostBootstrapAccepted>('/inventory/hosts:bootstrap', {
+        method: 'POST',
+        body: JSON.stringify({
+          node_ids: nodeIds,
+          replica_set_name: replicaSetName,
+          mongodb_version: mongodbVersion,
+        }),
+      }),
+  });
+}
+
+/**
+ * One bootstrap run's live progress, from `GET /inventory/bootstrap-runs/{id}`.
+ *
+ * Polls while the run is active, same cadence and stop-on-terminal pattern as
+ * {@link useOmInventoryRun} - a run reaching `succeeded`/`failed`/`rolled_back`
+ * never changes again, so there's nothing left to poll for.
+ */
+export function useBootstrapRun(runId: string | null) {
+  return useQuery<OmGetBootstrapRunResponse>({
+    queryKey: [...BOOTSTRAP_RUNS_KEY, runId],
+    enabled: Boolean(runId),
+    queryFn: () =>
+      request<OmGetBootstrapRunResponse>(
+        `/inventory/bootstrap-runs/${encodeURIComponent(runId ?? '')}`
       ),
+    refetchInterval: (query) =>
+      isBootstrapRunActive(query.state.data?.status) ? REFRESH_POLL_MS : false,
   });
 }
 

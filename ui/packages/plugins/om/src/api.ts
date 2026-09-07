@@ -34,7 +34,11 @@
  *   `EmitUnpopulated`, and `types.ts` describes exactly that shape.
  */
 
-import type { OmTopologyRunStatus } from './types';
+import type {
+  OmBootstrapHost,
+  OmBootstrapRunStatus,
+  OmTopologyRunStatus,
+} from './types';
 
 const OM_BASE = '/v1/om';
 
@@ -96,4 +100,24 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
  */
 export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
   return status === 'RUN_STATUS_RUNNING';
+}
+
+/** True while a bootstrap run has not reached a terminal status. */
+export function isBootstrapRunActive(
+  status: OmBootstrapRunStatus | undefined
+): boolean {
+  return status === 'running';
+}
+
+/**
+ * True once any of a host's rollback steps has been dispatched.
+ *
+ * Every rollback step is planned `pending` up front alongside the host's
+ * forward steps (om_bootstrap's own HostBootstrapState doc comment) and stays
+ * that way for the entire life of a run that never needed rollback - so "not
+ * still all pending" is "rollback actually started," the same test
+ * PMM-15347's stepper itself uses (bootstrap_decision.go's hostRollbackStarted).
+ */
+export function isHostRollingBack(host: OmBootstrapHost): boolean {
+  return host.rollback_steps.some((step) => step.status !== 'pending');
 }

@@ -17,6 +17,8 @@
 
 import type { ChipProps } from '@mui/material/Chip';
 import type {
+  OmBootstrapRunStatus,
+  OmBootstrapStepStatus,
   OmHostDatabaseState,
   OmProcessRole,
   OmTopologyRunStatus,
@@ -252,4 +254,44 @@ export const SETTING_HELP: Record<string, string> = {
   RUN_RETENTION: 'How many refresh rows to keep before the oldest are pruned.',
   STALE_RUN_AFTER:
     'How long a refresh may stay running before its worker is presumed gone. Must exceed the slowest legitimate sweep.',
+};
+
+/** One bootstrap step's status, as a short label. */
+export const BOOTSTRAP_STEP_LABEL: Record<OmBootstrapStepStatus, string> = {
+  pending: 'Pending',
+  running: 'Running',
+  succeeded: 'Succeeded',
+  failed: 'Failed',
+  skipped: 'Skipped',
+};
+
+/** Same palette convention as {@link RUN_STATUS_COLOR}. */
+export const BOOTSTRAP_STEP_COLOR: Record<
+  OmBootstrapStepStatus,
+  ChipProps['color']
+> = {
+  pending: 'default',
+  running: 'info',
+  succeeded: 'success',
+  failed: 'error',
+  skipped: 'default',
+};
+
+/** A bootstrap run's overall status, as a short label. */
+export const BOOTSTRAP_RUN_LABEL: Record<OmBootstrapRunStatus, string> = {
+  running: 'Running',
+  succeeded: 'Succeeded',
+  failed: 'Failed',
+  rolled_back: 'Rolled back',
+};
+
+/** Same palette convention as {@link RUN_STATUS_COLOR}. */
+export const BOOTSTRAP_RUN_COLOR: Record<
+  OmBootstrapRunStatus,
+  ChipProps['color']
+> = {
+  running: 'info',
+  succeeded: 'success',
+  failed: 'error',
+  rolled_back: 'warning',
 };

@@ -28,7 +28,6 @@ import {
   DialogTitle,
   LinearProgress,
   Stack,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -42,6 +41,7 @@ import {
   HOST_DATABASE_STATE_LABEL,
   HOST_DATABASE_STATE_PHRASE,
 } from './constants';
+import { BootstrapWizardDialog } from './components/BootstrapWizard';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
 import { formatCompactDuration } from './format';
@@ -51,10 +51,9 @@ import {
   useIsEstateRefreshing,
   useOmInventoryHosts,
   useRefreshInventory,
-  useTriggerHostBootstrap,
 } from './inventoryHooks';
 import { OmApiError } from './api';
-import type { OmHostBootstrapAccepted, OmHostRow } from './types';
+import type { OmHostRow } from './types';
 
 /** Identifiers and long text the table carries but does not open with. */
 const HIDDEN_BY_DEFAULT = {
@@ -534,135 +533,6 @@ const ForgetDialog = ({
   );
 };
 
-const DEFAULT_MONGODB_VERSION = '7.0';
-
-/**
- * Configure and trigger a single-host bootstrap.
- *
- * PMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Two panes in
- * one dialog rather than a form that redirects on submit, so there is somewhere
- * to show the accepted run before the dialog closes. Carries no credentials --
- * the run's generated MongoDB user is created only once every host is up,
- * minutes later, by PMM's own stepper (PMM-15347/plan.md §4 item 9), so there
- * is nothing for this dialog to show yet. Closing the dialog (`onClose`) is
- * available throughout; only a successful bootstrap calls `onBootstrapped`,
- * which is what clears the row selection the way `ForgetDialog`'s
- * `onForgotten` does.
- */
-const BootstrapDialog = ({
-  row,
-  onClose,
-  onBootstrapped,
-}: {
-  row: OmHostRow | null;
-  onClose: () => void;
-  onBootstrapped: () => void;
-}) => {
-  const bootstrap = useTriggerHostBootstrap();
-  const [replicaSetName, setReplicaSetName] = useState('');
-  const [mongodbVersion, setMongodbVersion] = useState(DEFAULT_MONGODB_VERSION);
-  const [result, setResult] = useState<OmHostBootstrapAccepted | null>(null);
-
-  // A fresh row (a new open, not a re-render of the same one) resets the form and
-  // any previous result -- opening the dialog on a different host must not carry
-  // over the last one's credentials or an in-flight mutation's error.
-  useEffect(() => {
-    setReplicaSetName('');
-    setMongodbVersion(DEFAULT_MONGODB_VERSION);
-    setResult(null);
-    bootstrap.reset();
-    // bootstrap is a fresh object every render (useMutation), so it is deliberately
-    // left out of the dependency list -- including it would reset the form on every
-    // keystroke-triggered re-render, not just on a genuinely new row.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [row]);
-
-  if (!row) {
-    return null;
-  }
-
-  const handleSubmit = async () => {
-    const accepted = await bootstrap.mutateAsync({
-      nodeId: row.node_id,
-      replicaSetName,
-      mongodbVersion,
-    });
-    setResult(accepted);
-  };
-
-  return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Bootstrap {row.name}</DialogTitle>
-      <DialogContent>
-        {result ? (
-          <Stack spacing={2}>
-            <Alert severity="success">
-              Bootstrap run {result.run_id} planned. Installing MongoDB,
-              initializing the replica set, and registering it with PMM takes
-              a few minutes; the host&apos;s next probe will show the new
-              service once it lands.
-            </Alert>
-          </Stack>
-        ) : (
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <DialogContentText>
-              Installs MongoDB on {row.name} through the Nomad client and
-              initializes it as a single-member replica set. Proof-of-concept
-              scope only -- keyFile auth, TLS off, no project or cluster yet.
-            </DialogContentText>
-            <TextField
-              label="Replica set name"
-              value={replicaSetName}
-              onChange={(event) => setReplicaSetName(event.target.value)}
-              required
-              autoFocus
-              fullWidth
-            />
-            <TextField
-              label="MongoDB version"
-              value={mongodbVersion}
-              onChange={(event) => setMongodbVersion(event.target.value)}
-              required
-              fullWidth
-              helperText="Only the major version selects the install source, e.g. 7.0."
-            />
-            {bootstrap.isError && (
-              <Alert severity="error">{bootstrap.error.message}</Alert>
-            )}
-          </Stack>
-        )}
-      </DialogContent>
-      <DialogActions>
-        {result ? (
-          <Button
-            variant="contained"
-            onClick={() => {
-              onBootstrapped();
-            }}
-          >
-            Done
-          </Button>
-        ) : (
-          <>
-            <Button onClick={onClose}>Cancel</Button>
-            <Button
-              variant="contained"
-              disabled={
-                bootstrap.isPending ||
-                !replicaSetName.trim() ||
-                !mongodbVersion.trim()
-              }
-              onClick={handleSubmit}
-            >
-              Bootstrap
-            </Button>
-          </>
-        )}
-      </DialogActions>
-    </Dialog>
-  );
-};
-
 /**
  * One row per host OM keeps, whether or not a database runs on it.
  *
@@ -679,7 +549,7 @@ export const HostsPage = () => {
   // estate query's own business now, so this page no longer arranges it.
   const refreshing = useIsEstateRefreshing();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
-  const [bootstrapping, setBootstrapping] = useState<OmHostRow | null>(null);
+  const [bootstrapping, setBootstrapping] = useState<OmHostRow[]>([]);
   const [hostFilter, setHostFilter] = useState<HostFilter>('all');
   // Keyed by node_id (this table's getRowId), independent of which filter is
   // active — switching filters does not silently drop a selection made under a
@@ -764,7 +634,7 @@ export const HostsPage = () => {
             <Button
               size="small"
               disabled={!row.original.automation_eligible}
-              onClick={() => setBootstrapping(row.original)}
+              onClick={() => setBootstrapping([row.original])}
             >
               Bootstrap
             </Button>
@@ -898,6 +768,29 @@ export const HostsPage = () => {
               </Button>
             </Box>
           </Tooltip>
+          <Tooltip
+            title={
+              selectedRows.length !== 1 && selectedRows.length !== 3
+                ? 'Select exactly one host for a single-member replica set, or three for a three-member one.'
+                : selectedRows.some((row) => !row.automation_eligible)
+                  ? 'Every selected host must be eligible for automation.'
+                  : 'Install MongoDB on the selected hosts and initialize them as one replica set (PoC).'
+            }
+          >
+            <Box component="span">
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={
+                  (selectedRows.length !== 1 && selectedRows.length !== 3) ||
+                  selectedRows.some((row) => !row.automation_eligible)
+                }
+                onClick={() => setBootstrapping(selectedRows)}
+              >
+                Bootstrap selected
+              </Button>
+            </Box>
+          </Tooltip>
           <Button
             size="small"
             variant="outlined"
@@ -917,11 +810,16 @@ export const HostsPage = () => {
           setRowSelection({});
         }}
       />
-      <BootstrapDialog
-        row={bootstrapping}
-        onClose={() => setBootstrapping(null)}
-        onBootstrapped={() => setBootstrapping(null)}
-      />
+      {bootstrapping.length > 0 && (
+        <BootstrapWizardDialog
+          hosts={bootstrapping}
+          onClose={() => setBootstrapping([])}
+          onBootstrapped={() => {
+            setBootstrapping([]);
+            setRowSelection({});
+          }}
+        />
+      )}
     </Box>
   );
 };
