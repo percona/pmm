@@ -188,36 +188,13 @@ Choose your deployment approach:
         kubectl config set-context --current --namespace=pmm-client-test
         ```
 
-    2. Create `mysql-pmm-client-volume.yaml` to define persistent storage for storing PMM Client and MySQL data between pod restarts:
+    2. Create `mysql-pmm-client-volume.yaml` to define persistent storage for MySQL data between pod restarts:
+
+        The PMM Client sidecar deliberately gets no volume of its own. It keeps its configuration in
+        the container, registers with `PMM_AGENT_SETUP_FORCE=1` and re-adds the database service from
+        `PMM_AGENT_PRERUN_SCRIPT` on every start, so it rebuilds its state instead of persisting it.
 
         ```yaml
-        apiVersion: v1
-        kind: PersistentVolume
-        metadata:
-          name: pmm-client-pv
-          labels:
-            type: local
-        spec:
-          storageClassName: manual
-          capacity:
-            storage: 10Gi
-          accessModes:
-            - ReadWriteOnce
-          hostPath:
-            path: "/mnt/data/pmm-client"
-        ---
-        apiVersion: v1
-        kind: PersistentVolumeClaim
-        metadata:
-          name: pmm-client-pvc
-        spec:
-          storageClassName: manual
-          accessModes:
-            - ReadWriteOnce
-          resources:
-            requests:
-              storage: 10Gi
-        ---
         apiVersion: v1
         kind: PersistentVolume
         metadata:
@@ -337,9 +314,6 @@ Choose your deployment approach:
                 - name: mysql-persistent-storage
                   persistentVolumeClaim:
                     claimName: mysql-pv-claim
-                - name: pmm-client-storage
-                  persistentVolumeClaim:
-                    claimName: pmm-client-pvc
         ```
 
         !!! warning alert alert-warning "Security note"
