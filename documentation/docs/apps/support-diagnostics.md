@@ -11,7 +11,7 @@ It is available under **Apps > Support Diagnostics** in the sidebar, part of PMM
 
 Use **Support Diagnostics** when Percona Support asks you to run diagnostics on your databases. It runs specific scripts on the host and ships the output to your case.
 
-Use **[PMM Dump](../../get-help.md)** when Percona Support asks for monitoring data from PMM itself, such as metrics or dashboards.
+Use **[PMM Dump](../../docs/troubleshoot/pmm_dump.md)** when Percona Support asks for monitoring data from PMM itself, such as metrics or dashboards.
 
 ## Before you start
 

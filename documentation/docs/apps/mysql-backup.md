@@ -103,7 +103,9 @@ To restore from a backup:
 1. Go to **Apps > MySQL Backups** and select the **Restore** tab.
 2. Click **+ New MySQL Restore**.
 3. Select the **backup type**.
-4. Optionally select a **destination service**. Selecting a known service populates the **Backup source** list with that service's recorded backups. You can also enter a path directly:
+4. Select the **destination service** to restore into. The service must be compatible with the backup artifact. PMM checks the target's agent and MySQL version before restoring, and returns `ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL` if the target is not compatible.
+
+    Selecting a known service populates the **Backup source** list with that service's recorded backups. You can also enter a path directly:
 
     - Local path: `/backups/mydumper/20240101`
     - Remote path: `db01:/path/to/backup`
