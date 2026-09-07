@@ -24,7 +24,7 @@ You typically don't interact with pmm-agent directly, `pmm-admin` communicates w
 `pmm-agent setup [node-address] [node-type] [node-name]`
 : Configure local pmm-agent (requires root permissions)
 
-    Running `setup` again for a registered pmm-agent keeps its registration. The Node is registered again only when the PMM Server address changed, when PMM Server no longer knows the pmm-agent on that Node, or with `--force`. Settings which describe the Node, such as `--custom-labels` or `--disable-collectors`, only take effect when the Node is registered. The credentials given to `setup` only serve to register the Node; a registered pmm-agent keeps its service token.
+    Running `setup` again for a registered pmm-agent keeps its registration. The Node is registered again only when the PMM Server address changed, when PMM Server no longer knows the pmm-agent on that Node, or with `--force`. If PMM Server has the pmm-agent on a Node with another name, `setup` stops: re-run it with that name to keep the Node, or with `--force` to replace it. Settings which describe the Node, such as `--custom-labels` or `--disable-collectors`, only take effect when the Node is registered. The credentials given to `setup` only serve to register the Node; a registered pmm-agent keeps its service token.
 
 `pmm-agent help [command]`
 : Show help (for command) and exit.

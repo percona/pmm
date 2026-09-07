@@ -184,5 +184,6 @@ When running PMM Client in Docker, use the `PMM_AGENT_PRERUN_SCRIPT` argument to
 
 ## Tips for Docker configuration
 
+- The examples above register the Node on every start, because `PMM_AGENT_SETUP_FORCE=1` replaces the Node together with the Services on it, and the prerun script adds them again. To keep the Node and its Services across containers instead, mount a volume at `/usr/local/percona/pmm/config`, drop `PMM_AGENT_SETUP_FORCE`, and set `PMM_AGENT_SETUP_NODE_NAME`: the Node name defaults to the hostname, which a new container does not keep, and `pmm-agent setup` stops when PMM Server has the pmm-agent registered under another name. Requires PMM Client 3.10.0 or later.
 - Ensure your host's firewall and routing rules are configured to allow Docker communications. This is crucial for Docker containers to communicate properly. For more details, see the [troubleshooting checklist](../../troubleshoot/checklist.md).
 - To view available pmm-agent command-line options, run: `docker run --rm percona/pmm-client:3 --help`
