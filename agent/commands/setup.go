@@ -88,9 +88,10 @@ func checkRegistration(cfg *config.Config, lookup agentLookup) registrationState
 		// registered one behind with every Service on it, monitored by nothing. A configuration file
 		// copied from another host looks like this too, and there --force is the answer.
 		fmt.Printf("PMM Server at %s has pmm-agent %s on Node %s, not on %s.\n"+
-			"Re-run with --node-name=%s to keep that Node, or with --force to replace it, which removes it"+
-			" together with every Service on it.\n",
-			cfg.Server.Address, cfg.ID, node.Name, cfg.Setup.NodeName, node.Name)
+			"Re-run with %s as the Node name argument to keep that Node together with its Services.\n"+
+			"Use --force to register %s as a new Node instead: Node %s and its Services stay on PMM Server,"+
+			" monitored by nothing.\n",
+			cfg.Server.Address, cfg.ID, node.Name, cfg.Setup.NodeName, node.Name, cfg.Setup.NodeName, node.Name)
 		return registrationConflict
 	default:
 		reportNodeAddress(cfg, node)
@@ -107,7 +108,9 @@ func reportNodeAddress(cfg *config.Config, node serverNode) {
 	}
 
 	fmt.Printf("Node %s is registered with address %s, not %s. The registered address is kept;"+
-		" it is the address PMM Server scrapes in pull metrics mode. Use --force to register the Node with %s.\n",
+		" it is the address PMM Server scrapes in pull metrics mode.\n"+
+		"Use --force to register the Node with %s, which removes the registered Node together with every"+
+		" Service on it.\n",
 		node.Name, node.Address, cfg.Setup.Address, cfg.Setup.Address)
 }
 

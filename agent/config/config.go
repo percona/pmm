@@ -520,8 +520,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	setupCmd.Flag("az", "Node availability zone [PMM_AGENT_SETUP_AZ]").
 		Envar("PMM_AGENT_SETUP_AZ").StringVar(&cfg.Setup.Az)
 
-	setupCmd.Flag("force", "Register the Node even if this pmm-agent is registered already, removing the Node with"+
-		" that name together with all dependent Services and Agents if one exists [PMM_AGENT_SETUP_FORCE]").
+	setupCmd.Flag("force", "Register the Node even if this pmm-agent is registered, removing any existing Node"+
+		" with that name and its Services and Agents [PMM_AGENT_SETUP_FORCE]").
 		Envar("PMM_AGENT_SETUP_FORCE").BoolVar(&cfg.Setup.Force)
 	setupCmd.Flag("skip-registration", "Skip registration on PMM Server [PMM_AGENT_SETUP_SKIP_REGISTRATION]").
 		Envar("PMM_AGENT_SETUP_SKIP_REGISTRATION").BoolVar(&cfg.Setup.SkipRegistration)
