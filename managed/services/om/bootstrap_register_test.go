@@ -16,6 +16,7 @@
 package om
 
 import (
+	"context"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -26,24 +27,38 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+// fakeStateUpdater records every pmmAgentID RequestStateUpdate was called
+// with, in call order -- all this package's tests need from a real
+// *agents.StateUpdater, which pulls in the whole agent registry to construct.
+type fakeStateUpdater struct {
+	requested []string
+}
+
+func (f *fakeStateUpdater) RequestStateUpdate(_ context.Context, pmmAgentID string) {
+	f.requested = append(f.requested, pmmAgentID)
+}
+
 // registerTestNode creates a node with a running pmm-agent, the minimum
 // registerBootstrapHost needs to succeed.
-func registerTestNode(t *testing.T, db *reform.DB, nodeName string) string {
+//
+// :return: The node's id, and its pmm-agent's id -- registerBootstrapHost
+// pushes a state update for the latter, which some tests need to assert on.
+func registerTestNode(t *testing.T, db *reform.DB, nodeName string) (string, string) {
 	t.Helper()
 	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
 		NodeName: nodeName,
 	})
 	require.NoError(t, err)
-	_, err = models.CreatePMMAgent(db.Querier, node.NodeID, nil)
+	pmmAgent, err := models.CreatePMMAgent(db.Querier, node.NodeID, nil)
 	require.NoError(t, err)
-	return node.NodeID
+	return node.NodeID, pmmAgent.AgentID
 }
 
 func TestRegisterBootstrapHost(t *testing.T) {
 	t.Run("registers a service and an exporter agent for the node", func(t *testing.T) {
 		db := storeTestDB(t)
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
-		nodeID := registerTestNode(t, db, "node00")
+		nodeID, _ := registerTestNode(t, db, "node00")
 
 		err := svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "admin", "secret")
 		require.NoError(t, err)
@@ -63,9 +78,9 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		// failed "already exists" on every stepper tick, forever.
 		db := storeTestDB(t)
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
-		node00 := registerTestNode(t, db, "node00")
-		node01 := registerTestNode(t, db, "node01")
-		node02 := registerTestNode(t, db, "node02")
+		node00, _ := registerTestNode(t, db, "node00")
+		node01, _ := registerTestNode(t, db, "node01")
+		node02, _ := registerTestNode(t, db, "node02")
 
 		require.NoError(t, svc.registerBootstrapHost(t.Context(), node00, "node00", "rs-test", "admin", "secret"))
 		require.NoError(t, svc.registerBootstrapHost(t.Context(), node01, "node01", "rs-test", "admin", "secret"))
@@ -82,7 +97,7 @@ func TestRegisterBootstrapHost(t *testing.T) {
 	t.Run("is idempotent: a second call for an already-registered host is a no-op", func(t *testing.T) {
 		db := storeTestDB(t)
 		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
-		nodeID := registerTestNode(t, db, "node00")
+		nodeID, _ := registerTestNode(t, db, "node00")
 
 		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "admin", "secret"))
 		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "admin", "secret"))
@@ -90,6 +105,48 @@ func TestRegisterBootstrapHost(t *testing.T) {
 		services, err := models.FindServices(db.Querier, models.ServiceFilters{NodeID: nodeID})
 		require.NoError(t, err)
 		assert.Len(t, services, 1, "a second call must not create a duplicate service")
+	})
+
+	t.Run("pushes a state update for the host's pmm-agent on a fresh registration", func(t *testing.T) {
+		// The bug this guards: pmm-agent only ever starts an exporter in response
+		// to this push, never merely because its Agent row now exists in
+		// Postgres -- confirmed against a real bootstrapped host, whose exporter
+		// sat at AGENT_STATUS_UNKNOWN (and the service showed Down) forever
+		// without it, even though mongod itself was up, secured, and reachable.
+		db := storeTestDB(t)
+		updater := &fakeStateUpdater{}
+		svc := &Service{db: db, l: logrus.WithField("test", t.Name()), stateUpdater: updater}
+		nodeID, pmmAgentID := registerTestNode(t, db, "node00")
+
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "admin", "secret"))
+
+		assert.Equal(t, []string{pmmAgentID}, updater.requested)
+	})
+
+	t.Run("also pushes a state update when the host was already registered", func(t *testing.T) {
+		// Self-healing for a host registered before this push existed at all
+		// (or by a leader that failed over mid-registration): every tick that
+		// revisits a succeeded run (RunBootstrapStepper's own doc comment) gets
+		// another chance to nudge pmm-agent into actually running the exporter.
+		db := storeTestDB(t)
+		updater := &fakeStateUpdater{}
+		svc := &Service{db: db, l: logrus.WithField("test", t.Name()), stateUpdater: updater}
+		nodeID, pmmAgentID := registerTestNode(t, db, "node00")
+
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "admin", "secret"))
+		require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "admin", "secret"))
+
+		assert.Equal(t, []string{pmmAgentID, pmmAgentID}, updater.requested)
+	})
+
+	t.Run("does not panic when no state updater is wired", func(t *testing.T) {
+		db := storeTestDB(t)
+		svc := &Service{db: db, l: logrus.WithField("test", t.Name())}
+		nodeID, _ := registerTestNode(t, db, "node00")
+
+		assert.NotPanics(t, func() {
+			require.NoError(t, svc.registerBootstrapHost(t.Context(), nodeID, "node00", "rs-test", "admin", "secret"))
+		})
 	})
 
 	t.Run("fails when the node has no running pmm-agent", func(t *testing.T) {

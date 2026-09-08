@@ -112,6 +112,12 @@ type Service struct {
 	// pmm_agent_connected: false -- see agentConnectionChecker's doc comment).
 	agents agentConnectionChecker
 
+	// stateUpdater pushes a pmm-agent's new state after registerBootstrapHost
+	// creates its mongodb_exporter Agent row directly, or nil when not wired up
+	// (the exporter's row then exists but pmm-agent is never told to actually
+	// start it -- see agentStateUpdater's doc comment).
+	stateUpdater agentStateUpdater
+
 	// restored guards the one-time read of the stored document on a cold start.
 	restored sync.Once
 
@@ -200,6 +206,19 @@ func (s *Service) WithBootstrapSource(sepURL, token string) *Service {
 // than treating an unknown state as eligible.
 func (s *Service) WithAgentRegistry(r agentConnectionChecker) *Service {
 	s.agents = r
+	return s
+}
+
+// WithStateUpdater attaches the pmm-agent state pusher registerBootstrapHost
+// uses to tell a host's pmm-agent to actually start the mongodb_exporter it
+// just created a row for.
+//
+// Optional, matching WithAgentRegistry's shape: unset in most tests, and in
+// any build that has not wired one up, a bootstrapped host's exporter row
+// exists in Postgres but pmm-agent is never told to start the process -- see
+// agentStateUpdater's doc comment.
+func (s *Service) WithStateUpdater(u agentStateUpdater) *Service {
+	s.stateUpdater = u
 	return s
 }
 

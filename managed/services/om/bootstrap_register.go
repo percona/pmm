@@ -57,6 +57,15 @@ const mongodExporterPort = 27017
 // after the first, since SEP never forgets a succeeded run -- see
 // RunBootstrapStepper's own doc comment on why succeeded runs are revisited) it
 // finds that service already exists and returns nil without creating a second one.
+//
+// Also pushes pmmAgentID a state update once the transaction commits, the same
+// way addMongoDB (services/management/mongodb.go) does right after its own
+// models.CreateAgent call -- pmm-agent only ever starts an exporter in
+// response to that push, never merely because its row now exists in Postgres.
+// Confirmed against a real bootstrapped host: without this, the new
+// mongodb_exporter agent sat at AGENT_STATUS_UNKNOWN and the service showed
+// Down in PMM's own UI forever, even though mongod itself was up, secured,
+// and reachable the whole time.
 func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, replicaSetName, username, password string) error {
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, nodeID)
 	if err != nil {
@@ -74,6 +83,16 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, repli
 	if len(existing) > 0 {
 		// Already registered -- a previous tick (on this leader or another, before
 		// or after a failover) already did this. See the doc comment above.
+		//
+		// Still pushes a state update rather than returning immediately: cheap
+		// (RequestStateUpdate is a non-blocking, already-debounced channel send)
+		// and self-healing for a host whose earlier registration never got one --
+		// exactly what a host registered before this function pushed updates at
+		// all is stuck in otherwise, permanently, with no other path back to a
+		// running exporter.
+		if s.stateUpdater != nil {
+			s.stateUpdater.RequestStateUpdate(ctx, pmmAgentID)
+		}
 		return nil
 	}
 
@@ -109,6 +128,9 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, repli
 	})
 	if e != nil {
 		return e
+	}
+	if s.stateUpdater != nil {
+		s.stateUpdater.RequestStateUpdate(ctx, pmmAgentID)
 	}
 	return nil
 }
