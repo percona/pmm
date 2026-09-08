@@ -14,7 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // ChangeSettingsReader is a Reader for the ChangeSettings structure.
@@ -984,11 +983,6 @@ type ChangeSettingsOKBodySettings struct {
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
 
-	// Settings that ChangeSettings will refuse to change, and why. Empty when every setting is
-	// writable. A client should present these as read-only rather than let a user discover the
-	// refusal by submitting a change.
-	LockedSettings []*ChangeSettingsOKBodySettingsLockedSettingsItems0 `json:"locked_settings"`
-
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -999,10 +993,6 @@ type ChangeSettingsOKBodySettings struct {
 // Validate validates this change settings OK body settings
 func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateLockedSettings(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateAdvisorRunIntervals(formats); err != nil {
 		res = append(res, err)
@@ -1015,36 +1005,6 @@ func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *ChangeSettingsOKBodySettings) validateLockedSettings(formats strfmt.Registry) error {
-	if swag.IsZero(o.LockedSettings) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.LockedSettings); i++ {
-		if swag.IsZero(o.LockedSettings[i]) { // not required
-			continue
-		}
-
-		if o.LockedSettings[i] != nil {
-			if err := o.LockedSettings[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
-					return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "locked_settings" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
-					return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "locked_settings" + "." + strconv.Itoa(i))
-				}
-
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -1098,10 +1058,6 @@ func (o *ChangeSettingsOKBodySettings) validateMetricsResolutions(formats strfmt
 func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidateLockedSettings(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.contextValidateAdvisorRunIntervals(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1113,32 +1069,6 @@ func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, form
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *ChangeSettingsOKBodySettings) contextValidateLockedSettings(ctx context.Context, formats strfmt.Registry) error {
-	for i := 0; i < len(o.LockedSettings); i++ {
-		if o.LockedSettings[i] != nil {
-
-			if swag.IsZero(o.LockedSettings[i]) { // not required
-				return nil
-			}
-
-			if err := o.LockedSettings[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
-					return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "locked_settings" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
-					return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "locked_settings" + "." + strconv.Itoa(i))
-				}
-
-				return err
-			}
-		}
-	}
-
 	return nil
 }
 
@@ -1244,173 +1174,6 @@ func (o *ChangeSettingsOKBodySettingsAdvisorRunIntervals) MarshalBinary() ([]byt
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsOKBodySettingsAdvisorRunIntervals) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsOKBodySettingsAdvisorRunIntervals
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ChangeSettingsOKBodySettingsLockedSettingsItems0 SettingLock reports a setting that ChangeSettings will refuse to change.
-swagger:model ChangeSettingsOKBodySettingsLockedSettingsItems0
-*/
-type ChangeSettingsOKBodySettingsLockedSettingsItems0 struct {
-	// SettingName identifies a PMM Server setting.
-	// Enum: ["SETTING_NAME_UNSPECIFIED","SETTING_NAME_DATA_RETENTION","SETTING_NAME_UPDATES_ENABLED","SETTING_NAME_TELEMETRY_ENABLED","SETTING_NAME_ALERTING_ENABLED","SETTING_NAME_AZUREDISCOVER_ENABLED","SETTING_NAME_METRICS_RESOLUTIONS","SETTING_NAME_ENABLE_INTERNAL_PG_QAN"]
-	Setting *string `json:"setting,omitempty"`
-
-	// LockReason says why a setting cannot be changed through the API.
-	//
-	//  - LOCK_REASON_ENVIRONMENT: The value is pinned by an environment variable.
-	//  - LOCK_REASON_HIGH_AVAILABILITY: The value is fixed at start-up because PMM runs in a high availability cluster.
-	// Enum: ["LOCK_REASON_UNSPECIFIED","LOCK_REASON_ENVIRONMENT","LOCK_REASON_HIGH_AVAILABILITY"]
-	Reason *string `json:"reason,omitempty"`
-
-	// Name of the environment variable that pins the value. Set only when reason is
-	// LOCK_REASON_ENVIRONMENT.
-	EnvironmentVariable string `json:"environment_variable,omitempty"`
-}
-
-// Validate validates this change settings OK body settings locked settings items0
-func (o *ChangeSettingsOKBodySettingsLockedSettingsItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateSetting(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateReason(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var changeSettingsOkBodySettingsLockedSettingsItems0TypeSettingPropEnum []any
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["SETTING_NAME_UNSPECIFIED","SETTING_NAME_DATA_RETENTION","SETTING_NAME_UPDATES_ENABLED","SETTING_NAME_TELEMETRY_ENABLED","SETTING_NAME_ALERTING_ENABLED","SETTING_NAME_AZUREDISCOVER_ENABLED","SETTING_NAME_METRICS_RESOLUTIONS","SETTING_NAME_ENABLE_INTERNAL_PG_QAN"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		changeSettingsOkBodySettingsLockedSettingsItems0TypeSettingPropEnum = append(changeSettingsOkBodySettingsLockedSettingsItems0TypeSettingPropEnum, v)
-	}
-}
-
-const (
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEUNSPECIFIED captures enum value "SETTING_NAME_UNSPECIFIED"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEUNSPECIFIED string = "SETTING_NAME_UNSPECIFIED"
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEDATARETENTION captures enum value "SETTING_NAME_DATA_RETENTION"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEDATARETENTION string = "SETTING_NAME_DATA_RETENTION"
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEUPDATESENABLED captures enum value "SETTING_NAME_UPDATES_ENABLED"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEUPDATESENABLED string = "SETTING_NAME_UPDATES_ENABLED"
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMETELEMETRYENABLED captures enum value "SETTING_NAME_TELEMETRY_ENABLED"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMETELEMETRYENABLED string = "SETTING_NAME_TELEMETRY_ENABLED"
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEALERTINGENABLED captures enum value "SETTING_NAME_ALERTING_ENABLED"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEALERTINGENABLED string = "SETTING_NAME_ALERTING_ENABLED"
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEAZUREDISCOVERENABLED captures enum value "SETTING_NAME_AZUREDISCOVER_ENABLED"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEAZUREDISCOVERENABLED string = "SETTING_NAME_AZUREDISCOVER_ENABLED"
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEMETRICSRESOLUTIONS captures enum value "SETTING_NAME_METRICS_RESOLUTIONS"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEMETRICSRESOLUTIONS string = "SETTING_NAME_METRICS_RESOLUTIONS"
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEENABLEINTERNALPGQAN captures enum value "SETTING_NAME_ENABLE_INTERNAL_PG_QAN"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0SettingSETTINGNAMEENABLEINTERNALPGQAN string = "SETTING_NAME_ENABLE_INTERNAL_PG_QAN"
-)
-
-// prop value enum
-func (o *ChangeSettingsOKBodySettingsLockedSettingsItems0) validateSettingEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeSettingsOkBodySettingsLockedSettingsItems0TypeSettingPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ChangeSettingsOKBodySettingsLockedSettingsItems0) validateSetting(formats strfmt.Registry) error {
-	if swag.IsZero(o.Setting) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateSettingEnum("setting", "body", *o.Setting); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-var changeSettingsOkBodySettingsLockedSettingsItems0TypeReasonPropEnum []any
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["LOCK_REASON_UNSPECIFIED","LOCK_REASON_ENVIRONMENT","LOCK_REASON_HIGH_AVAILABILITY"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		changeSettingsOkBodySettingsLockedSettingsItems0TypeReasonPropEnum = append(changeSettingsOkBodySettingsLockedSettingsItems0TypeReasonPropEnum, v)
-	}
-}
-
-const (
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0ReasonLOCKREASONUNSPECIFIED captures enum value "LOCK_REASON_UNSPECIFIED"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0ReasonLOCKREASONUNSPECIFIED string = "LOCK_REASON_UNSPECIFIED"
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0ReasonLOCKREASONENVIRONMENT captures enum value "LOCK_REASON_ENVIRONMENT"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0ReasonLOCKREASONENVIRONMENT string = "LOCK_REASON_ENVIRONMENT"
-
-	// ChangeSettingsOKBodySettingsLockedSettingsItems0ReasonLOCKREASONHIGHAVAILABILITY captures enum value "LOCK_REASON_HIGH_AVAILABILITY"
-	ChangeSettingsOKBodySettingsLockedSettingsItems0ReasonLOCKREASONHIGHAVAILABILITY string = "LOCK_REASON_HIGH_AVAILABILITY"
-)
-
-// prop value enum
-func (o *ChangeSettingsOKBodySettingsLockedSettingsItems0) validateReasonEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, changeSettingsOkBodySettingsLockedSettingsItems0TypeReasonPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ChangeSettingsOKBodySettingsLockedSettingsItems0) validateReason(formats strfmt.Registry) error {
-	if swag.IsZero(o.Reason) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateReasonEnum("reason", "body", *o.Reason); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this change settings OK body settings locked settings items0 based on context it is used
-func (o *ChangeSettingsOKBodySettingsLockedSettingsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeSettingsOKBodySettingsLockedSettingsItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeSettingsOKBodySettingsLockedSettingsItems0) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsOKBodySettingsLockedSettingsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

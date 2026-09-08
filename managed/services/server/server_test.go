@@ -305,60 +305,6 @@ func TestServer(t *testing.T) {
 		})
 	})
 
-	t.Run("LockedSettings", func(t *testing.T) {
-		findLock := func(locks []*serverv1.SettingLock, name serverv1.SettingName) *serverv1.SettingLock {
-			for _, l := range locks {
-				if l.GetSetting() == name {
-					return l
-				}
-			}
-
-			return nil
-		}
-
-		t.Run("HA locks data retention", func(t *testing.T) {
-			s := newServerWithHA(t, true)
-
-			lock := findLock(s.lockedSettings(), serverv1.SettingName_SETTING_NAME_DATA_RETENTION)
-			require.NotNil(t, lock)
-			assert.Equal(t, serverv1.LockReason_LOCK_REASON_HIGH_AVAILABILITY, lock.GetReason())
-			assert.Empty(t, lock.GetEnvironmentVariable(), "no environment variable is responsible in HA")
-		})
-
-		t.Run("the environment locks data retention", func(t *testing.T) {
-			s := newServer(t)
-			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), []string{"PMM_DATA_RETENTION=240h"}))
-
-			lock := findLock(s.lockedSettings(), serverv1.SettingName_SETTING_NAME_DATA_RETENTION)
-			require.NotNil(t, lock)
-			assert.Equal(t, serverv1.LockReason_LOCK_REASON_ENVIRONMENT, lock.GetReason())
-			assert.Equal(t, "PMM_DATA_RETENTION", lock.GetEnvironmentVariable())
-		})
-
-		t.Run("nothing locks data retention by default", func(t *testing.T) {
-			s := newServer(t)
-
-			assert.Nil(t, findLock(s.lockedSettings(), serverv1.SettingName_SETTING_NAME_DATA_RETENTION))
-		})
-
-		// A client keys off the setting, so naming one twice would make the answer ambiguous.
-		t.Run("a setting is never locked twice", func(t *testing.T) {
-			s := newServerWithHA(t, true)
-			require.Empty(t, s.UpdateSettingsFromEnv(context.TODO(), []string{
-				"PMM_DATA_RETENTION=240h",
-				"PMM_ENABLE_INTERNAL_PG_QAN=1",
-			}))
-
-			seen := make(map[serverv1.SettingName]int)
-			for _, l := range s.lockedSettings() {
-				seen[l.GetSetting()]++
-			}
-			for name, n := range seen {
-				assert.Equal(t, 1, n, "setting %s is named %d times", name, n)
-			}
-		})
-	})
-
 	t.Run("DataRetentionIsReportedAtStartUp", func(t *testing.T) {
 		// A boot-time setting has no other feedback channel, so the line itself is the
 		// contract: assert the level, since that is what decides whether an operator sees it.

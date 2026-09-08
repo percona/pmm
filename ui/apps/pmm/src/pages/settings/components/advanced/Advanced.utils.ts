@@ -1,8 +1,4 @@
-import type {
-  AdvisorRunIntervals,
-  SettingLock,
-  SettingName,
-} from 'types/settings.types';
+import { AdvisorRunIntervals } from 'types/settings.types';
 import { HOURS, MINUTES_IN_DAY, SECONDS_IN_DAY } from './Advanced.constants';
 
 export const convertSecondsToDays = (dataRetention: string): number | '' => {
@@ -50,14 +46,3 @@ export const convertCheckIntervalsToHours = (
     frequentInterval: `${convertSecondsStringToHour(sttCheckIntervals.frequentInterval)}`,
   };
 };
-
-/**
- * findSettingLock returns the server's reason for refusing to change a setting, or undefined
- * when it is writable. The server is the only source: it decides the lock, so asking it beats
- * inferring one here from the deployment.
- */
-export const findSettingLock = (
-  lockedSettings: SettingLock[] | undefined,
-  setting: SettingName
-): SettingLock | undefined =>
-  lockedSettings?.find((lock) => lock.setting === setting);

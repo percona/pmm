@@ -32442,49 +32442,6 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
-                    },
-                    "locked_settings": {
-                      "description": "Settings that ChangeSettings will refuse to change, and why. Empty when every setting is\nwritable. A client should present these as read-only rather than let a user discover the\nrefusal by submitting a change.",
-                      "type": "array",
-                      "items": {
-                        "description": "SettingLock reports a setting that ChangeSettings will refuse to change.",
-                        "type": "object",
-                        "properties": {
-                          "setting": {
-                            "description": "SettingName identifies a PMM Server setting.",
-                            "type": "string",
-                            "default": "SETTING_NAME_UNSPECIFIED",
-                            "enum": [
-                              "SETTING_NAME_UNSPECIFIED",
-                              "SETTING_NAME_DATA_RETENTION",
-                              "SETTING_NAME_UPDATES_ENABLED",
-                              "SETTING_NAME_TELEMETRY_ENABLED",
-                              "SETTING_NAME_ALERTING_ENABLED",
-                              "SETTING_NAME_AZUREDISCOVER_ENABLED",
-                              "SETTING_NAME_METRICS_RESOLUTIONS",
-                              "SETTING_NAME_ENABLE_INTERNAL_PG_QAN"
-                            ],
-                            "x-order": 0
-                          },
-                          "reason": {
-                            "description": "LockReason says why a setting cannot be changed through the API.\n\n - LOCK_REASON_ENVIRONMENT: The value is pinned by an environment variable.\n - LOCK_REASON_HIGH_AVAILABILITY: The value is fixed at start-up because PMM runs in a high availability cluster.",
-                            "type": "string",
-                            "default": "LOCK_REASON_UNSPECIFIED",
-                            "enum": [
-                              "LOCK_REASON_UNSPECIFIED",
-                              "LOCK_REASON_ENVIRONMENT",
-                              "LOCK_REASON_HIGH_AVAILABILITY"
-                            ],
-                            "x-order": 1
-                          },
-                          "environment_variable": {
-                            "description": "Name of the environment variable that pins the value. Set only when reason is\nLOCK_REASON_ENVIRONMENT.",
-                            "type": "string",
-                            "x-order": 2
-                          }
-                        }
-                      },
-                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -32803,49 +32760,6 @@
                       "description": "True if Query Analytics for PMM's internal PG database is enabled.",
                       "type": "boolean",
                       "x-order": 17
-                    },
-                    "locked_settings": {
-                      "description": "Settings that ChangeSettings will refuse to change, and why. Empty when every setting is\nwritable. A client should present these as read-only rather than let a user discover the\nrefusal by submitting a change.",
-                      "type": "array",
-                      "items": {
-                        "description": "SettingLock reports a setting that ChangeSettings will refuse to change.",
-                        "type": "object",
-                        "properties": {
-                          "setting": {
-                            "description": "SettingName identifies a PMM Server setting.",
-                            "type": "string",
-                            "default": "SETTING_NAME_UNSPECIFIED",
-                            "enum": [
-                              "SETTING_NAME_UNSPECIFIED",
-                              "SETTING_NAME_DATA_RETENTION",
-                              "SETTING_NAME_UPDATES_ENABLED",
-                              "SETTING_NAME_TELEMETRY_ENABLED",
-                              "SETTING_NAME_ALERTING_ENABLED",
-                              "SETTING_NAME_AZUREDISCOVER_ENABLED",
-                              "SETTING_NAME_METRICS_RESOLUTIONS",
-                              "SETTING_NAME_ENABLE_INTERNAL_PG_QAN"
-                            ],
-                            "x-order": 0
-                          },
-                          "reason": {
-                            "description": "LockReason says why a setting cannot be changed through the API.\n\n - LOCK_REASON_ENVIRONMENT: The value is pinned by an environment variable.\n - LOCK_REASON_HIGH_AVAILABILITY: The value is fixed at start-up because PMM runs in a high availability cluster.",
-                            "type": "string",
-                            "default": "LOCK_REASON_UNSPECIFIED",
-                            "enum": [
-                              "LOCK_REASON_UNSPECIFIED",
-                              "LOCK_REASON_ENVIRONMENT",
-                              "LOCK_REASON_HIGH_AVAILABILITY"
-                            ],
-                            "x-order": 1
-                          },
-                          "environment_variable": {
-                            "description": "Name of the environment variable that pins the value. Set only when reason is\nLOCK_REASON_ENVIRONMENT.",
-                            "type": "string",
-                            "x-order": 2
-                          }
-                        }
-                      },
-                      "x-order": 18
                     }
                   },
                   "x-order": 0
