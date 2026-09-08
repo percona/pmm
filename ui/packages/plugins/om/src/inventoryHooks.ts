@@ -427,7 +427,7 @@ export function useBootstrapRun(runId: string | null) {
         `/inventory/bootstrap-runs/${encodeURIComponent(runId ?? '')}`
       ),
     refetchInterval: (query) =>
-      isBootstrapRunActive(query.state.data?.status) ? REFRESH_POLL_MS : false,
+      isBootstrapRunActive(query.state.data) ? REFRESH_POLL_MS : false,
     // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
     // polling entirely otherwise, with no other mechanism to unstick it -- and
     // for a wizard dialog left open while the user looks at something else,
@@ -457,7 +457,7 @@ export function useOmBootstrapRuns(limit?: number) {
       return runs ?? [];
     },
     refetchInterval: (query) =>
-      (query.state.data ?? []).some((run) => isBootstrapRunActive(run.status))
+      (query.state.data ?? []).some((run) => isBootstrapRunActive(run))
         ? REFRESH_POLL_MS
         : ESTATE_POLL_MS,
     // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses

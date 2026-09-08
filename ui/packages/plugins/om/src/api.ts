@@ -36,7 +36,7 @@
 
 import type {
   OmBootstrapHost,
-  OmBootstrapRunStatus,
+  OmGetBootstrapRunResponse,
   OmTopologyRunStatus,
 } from './types';
 
@@ -102,11 +102,35 @@ export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
   return status === 'RUN_STATUS_RUNNING';
 }
 
-/** True while a bootstrap run has not reached a terminal status. */
+/**
+ * True while a bootstrap run is still worth polling: SEP's own status has not
+ * reached a terminal value, or it has but a host's confirm_monitoring step
+ * (PMM's own, appended to finalize_steps -- see its own proto comment) has not
+ * caught up yet.
+ *
+ * SEP's status alone understates "done": om_bootstrap marks a run succeeded the
+ * moment every step it dispatched has succeeded, before PMM's inventory sweep
+ * has necessarily noticed the newly-registered service. Stopping on SEP's status
+ * alone left confirm_monitoring showing "Running" forever once nothing was
+ * polling to see it flip to "Succeeded" a few seconds later.
+ */
 export function isBootstrapRunActive(
-  status: OmBootstrapRunStatus | undefined
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'> | undefined
 ): boolean {
-  return status === 'running';
+  if (!run) {
+    return false;
+  }
+  if (run.status === 'running') {
+    return true;
+  }
+  if (run.status !== 'succeeded') {
+    return false;
+  }
+  return run.hosts.some((host) =>
+    host.finalize_steps.some(
+      (step) => step.name === 'confirm_monitoring' && step.status === 'running'
+    )
+  );
 }
 
 /**
