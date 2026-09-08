@@ -17,8 +17,14 @@ package services
 
 import (
 	"context"
+	"errors"
 	"time"
 )
+
+// ErrServiceAccountNotFound reports that Grafana holds no service account for the Node. A Node which no
+// pmm-agent ever registered has none, so its removal meets this and is not a failure. Every other
+// failure leaves a live token behind and is, so the two must not look alike to the caller.
+var ErrServiceAccountNotFound = errors.New("service account not found")
 
 // serviceAccountCleanupTimeout bounds the Grafana calls of RemoveNodeServiceAccount. The Node is gone
 // by then, so the cleanup neither waits on an unresponsive Grafana, nor stops with a client which gave

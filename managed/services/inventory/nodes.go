@@ -17,6 +17,7 @@ package inventory
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/AlekSi/pointer"
@@ -363,12 +364,18 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 		s.vmdb.RequestConfigurationUpdate()
 	}
 
-	// pmm-agent authenticates with a token of the Grafana service account named after the Node.
-	// Drop the account, so that the token does not outlive the Node.
-	warning, err := services.RemoveNodeServiceAccount(ctx, s.grafanaClient, node.NodeName, force)
+	// pmm-agent authenticates with a token of the Grafana service account named after the Node. Drop the
+	// account, so that the token does not outlive the Node. force is deliberately not passed on: here it
+	// means "remove the Node with everything on it", while DeleteServiceAccount reads it as "delete the
+	// account even when it holds tokens nobody here created", which is not what removing a Node asks for.
+	warning, err := services.RemoveNodeServiceAccount(ctx, s.grafanaClient, node.NodeName, false)
 	switch {
+	case errors.Is(err, services.ErrServiceAccountNotFound):
+		// A Node no pmm-agent ever registered, a remote or an RDS one among them, has no account.
+		logger.Get(ctx).Debugf("Node %s had no service account to delete.", node.NodeName)
 	case err != nil:
-		logger.Get(ctx).Warnf("Failed to delete the service account of node %s: %s", node.NodeName, err)
+		logger.Get(ctx).Errorf("Failed to delete the service account of node %s, its token outlives the Node"+
+			" and has to be revoked by hand: %s", node.NodeName, err)
 	case warning != "":
 		logger.Get(ctx).Warnf("Service account of node %s: %s", node.NodeName, warning)
 	}

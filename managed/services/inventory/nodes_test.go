@@ -17,7 +17,6 @@ package inventory
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"testing"
 
@@ -29,6 +28,7 @@ import (
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
@@ -192,13 +192,35 @@ func TestNodes(t *testing.T) {
 		nodeID := addNodeResponse.GetGeneric().NodeId
 
 		// A Node which pmm-agent never registered has no service account, and its removal still succeeds.
+		// The error has to be the sentinel: any other failure leaves a live token behind, and this test
+		// would pass for that too if it only asserted that some error is tolerated.
 		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).
-			Return("", errors.New("service account pmm-agent-sa-test-bm not found"))
+			Return("", fmt.Errorf("%w: pmm-agent-sa-test-bm", services.ErrServiceAccountNotFound))
 		err = ns.Remove(ctx, nodeID, false)
 		require.NoError(t, err)
 
 		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+	})
+
+	t.Run("RemoveKeepsForeignServiceAccountTokens", func(t *testing.T) {
+		_, _, ns, teardown, ctx, vmdb := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Generic{
+				Generic: &inventoryv1.AddGenericNodeParams{NodeName: "test-bm"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetGeneric().NodeId
+
+		// Removing a Node with everything on it does not ask for tokens nobody here created to go with it,
+		// so the cascade flag must not reach Grafana as its own force.
+		vmdb.Mock.On("RequestConfigurationUpdate").Once().Return()
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).Return("", nil)
+		err = ns.Remove(ctx, nodeID, true)
+		require.NoError(t, err)
 	})
 }
 

@@ -584,7 +584,7 @@ func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName strin
 		return serviceAccount.ID, nil
 	}
 
-	return 0, fmt.Errorf("service account %s not found", serviceAccountName)
+	return 0, fmt.Errorf("%w: %s", services.ErrServiceAccountNotFound, serviceAccountName)
 }
 
 func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, nodeName string) (int, error) {

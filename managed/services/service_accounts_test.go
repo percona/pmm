@@ -61,11 +61,11 @@ func TestRemoveNodeServiceAccount(t *testing.T) {
 	t.Run("the failure of Grafana is reported", func(t *testing.T) {
 		t.Parallel()
 
-		errNoAccount := errors.New("service account not found")
+		errGrafana := errors.New("connection refused")
 		_, err := RemoveNodeServiceAccount(t.Context(), removerFunc(func(context.Context, string, bool) (string, error) {
-			return "", errNoAccount
+			return "", errGrafana
 		}), "test-node", false)
 
-		assert.ErrorIs(t, err, errNoAccount)
+		assert.ErrorIs(t, err, errGrafana)
 	})
 }
