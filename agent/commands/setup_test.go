@@ -264,6 +264,47 @@ func TestRegisteredConfig(t *testing.T) {
 	})
 }
 
+func TestStoresConfig(t *testing.T) {
+	t.Parallel()
+
+	fileCfg := &config.Config{ID: testAgentID}
+
+	for _, tc := range []struct {
+		name           string
+		registered     bool
+		loadedFromFile bool
+		fileCfg        *config.Config
+		stores         bool
+	}{
+		{
+			name:       "registering replaces the configuration file",
+			registered: true,
+			fileCfg:    fileCfg,
+			stores:     true,
+		},
+		{
+			name:           "a configuration file setup loaded is written back",
+			loadedFromFile: true,
+			fileCfg:        fileCfg,
+			stores:         true,
+		},
+		{
+			name:   "the first configuration file is written without being loaded",
+			stores: true,
+		},
+		{
+			name:    "keeping the registration leaves a file setup did not load alone",
+			fileCfg: fileCfg,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tc.stores, storesConfig(tc.registered, tc.loadedFromFile, tc.fileCfg))
+		})
+	}
+}
+
 func TestKeepRegistration(t *testing.T) {
 	t.Parallel()
 

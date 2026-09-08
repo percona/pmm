@@ -179,6 +179,15 @@ func keepRegistration(cfg, fileCfg *config.Config) {
 	}
 }
 
+// storesConfig reports whether the configuration `pmm-agent setup` assembled is the one to store. It
+// holds what the configuration file has only when setup loaded that file, and `pmm-admin config` runs
+// setup without --config-file: there the configuration is the flags and the defaults alone, missing
+// every setting the file holds beyond them, from the ports range to the /proc/mounts path. Registering
+// replaces the file by design, but keeping a registration must leave those settings alone.
+func storesConfig(registered, loadedFromFile bool, fileCfg *config.Config) bool {
+	return registered || loadedFromFile || fileCfg == nil
+}
+
 // unappliedSetupFlags lists the given `pmm-agent setup` flags which describe the Node on PMM Server.
 func unappliedSetupFlags(s *config.Setup) []string {
 	var flags []string
@@ -220,7 +229,7 @@ func Setup() {
 	l := logrus.WithField("component", "setup")
 
 	configStorage := config.NewStorage(nil)
-	configFilepath, err := configStorage.Reload(l)
+	loadedFilepath, err := configStorage.Reload(l)
 
 	var e config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {
@@ -231,7 +240,7 @@ func Setup() {
 	cfg := configStorage.Get()
 	setLocalTransport(cfg.ListenAddress, cfg.ListenPort, l)
 
-	configFilepath, running := checkStatus(configFilepath, l)
+	configFilepath, running := checkStatus(loadedFilepath, l)
 
 	fileCfg, err := registeredConfig(configFilepath, cfg)
 	switch {
@@ -265,10 +274,12 @@ func Setup() {
 		os.Exit(1)
 	}
 
+	registered := false
 	if !cfg.Setup.SkipRegistration {
 		switch registrationOf(cfg, fileCfg, checkRegistrationOnServer, l) {
 		case registrationMissing:
 			register(cfg, l)
+			registered = true
 		case registrationConfirmed:
 			fmt.Printf("Node is already registered with %s, pmm-agent ID is %s. Use --force to register it again.\n",
 				cfg.Server.Address, cfg.ID)
@@ -280,6 +291,11 @@ func Setup() {
 			// checkRegistrationOnServer reported which Node PMM Server has and what to do about it.
 			os.Exit(1)
 		}
+	}
+
+	if !storesConfig(registered, loadedFilepath != "", fileCfg) {
+		fmt.Printf("Configuration file %s is left unchanged.\n", configFilepath)
+		return
 	}
 
 	cfg.ProcMountsPath = cfg.Setup.ProcMountsPath
