@@ -127,9 +127,11 @@ type builtinAgentInfo struct {
 // NewSupervisor creates new Supervisor object.
 //
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
-// Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
-// QAN data is sent to QANRequests() channel which must be read until it is closed.
-// RTA data is sent to RTARequests() channel which must be read until it is closed.
+// Changes of Agent statuses are reported via Changes() channel, QAN data via QANRequests(), and RTA
+// data via RTARequests(). All three must be read, under the same context that stops the Supervisor:
+// they are closed once it has stopped, but an Agent whose status forwarder outlives the stop budget
+// leaves them open rather than risk a send on a closed channel (see stopAll), so waiting only for
+// the close can wait forever.
 func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Supervisor {
 	return &Supervisor{
 		ctx:            ctx,
