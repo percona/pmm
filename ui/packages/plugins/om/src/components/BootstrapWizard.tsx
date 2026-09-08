@@ -15,9 +15,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  Autocomplete,
   Box,
   Button,
   CircularProgress,
@@ -39,6 +40,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useBootstrapRun, useTriggerHostBootstrap } from '../inventoryHooks';
+import { useOmTopology } from '../topologyHooks';
 import { RunProgress } from './RunProgress';
 import type { OmHostRow } from '../types';
 
@@ -58,10 +60,10 @@ function isSupportedHostCount(count: number): boolean {
  * that selection, not a second place to make it, so this dialog never
  * duplicates the eligibility table it was opened from.
  *
- * PMM-15347 PoC only: one or three hosts, keyFile auth, TLS off, no project
- * or cluster. Once bootstrap is triggered the dialog stays open on its own
- * "Bootstrap" step polling {@link useBootstrapRun} live, rather than closing
- * on submit the way a plain form would - watching it land is the point.
+ * PMM-15347 PoC only: one or three hosts, keyFile auth, TLS off. Once
+ * bootstrap is triggered the dialog stays open on its own "Bootstrap" step
+ * polling {@link useBootstrapRun} live, rather than closing on submit the way
+ * a plain form would - watching it land is the point.
  */
 export const BootstrapWizardDialog = ({
   hosts,
@@ -75,9 +77,43 @@ export const BootstrapWizardDialog = ({
   const [activeStep, setActiveStep] = useState(0);
   const [replicaSetName, setReplicaSetName] = useState('');
   const [mongodbVersion, setMongodbVersion] = useState(DEFAULT_MONGODB_VERSION);
+  const [environment, setEnvironment] = useState('');
+  const [cluster, setCluster] = useState('');
   const [runId, setRunId] = useState<string | null>(null);
   const bootstrap = useTriggerHostBootstrap();
   const run = useBootstrapRun(runId);
+  const topology = useOmTopology();
+
+  // Suggestions only -- typing anything not listed here creates it, the same as
+  // ManagementService's own Environment/Cluster fields let an operator do today.
+  // Drawn from the estate's current topology rather than a dedicated endpoint,
+  // since none exists (there is no "list environments" RPC); a name only
+  // appears here once some service is actually labelled with it.
+  const environmentOptions = useMemo(() => {
+    const names = (topology.data?.environments ?? [])
+      .map((environmentDoc) => environmentDoc.env_name)
+      .filter((name): name is string => Boolean(name));
+    return Array.from(new Set(names)).sort();
+  }, [topology.data]);
+
+  // Scoped to the chosen environment once one is picked, matching how the
+  // estate itself nests clusters under an environment -- typing a cluster name
+  // that exists only in a different environment is still a new cluster here,
+  // not a hidden collision.
+  const clusterOptions = useMemo(() => {
+    const environments = topology.data?.environments ?? [];
+    const scope = environment
+      ? environments.filter(
+          (environmentDoc) => environmentDoc.env_name === environment
+        )
+      : environments;
+    const names = scope.flatMap((environmentDoc) =>
+      environmentDoc.clusters.map((clusterDoc) => clusterDoc.name)
+    );
+    return Array.from(
+      new Set(names.filter((name): name is string => Boolean(name)))
+    ).sort();
+  }, [topology.data, environment]);
 
   // A fresh selection (a new open, not a re-render of the same one) resets the
   // wizard back to its first step - opening it on a different host set must not
@@ -86,6 +122,8 @@ export const BootstrapWizardDialog = ({
     setActiveStep(0);
     setReplicaSetName('');
     setMongodbVersion(DEFAULT_MONGODB_VERSION);
+    setEnvironment('');
+    setCluster('');
     setRunId(null);
     bootstrap.reset();
     // bootstrap is a fresh object every render (useMutation), so it is deliberately
@@ -103,6 +141,8 @@ export const BootstrapWizardDialog = ({
       nodeIds: hosts.map((host) => host.node_id),
       replicaSetName,
       mongodbVersion,
+      environment: environment.trim() || undefined,
+      cluster: cluster.trim() || undefined,
     });
     setRunId(accepted.run_id);
     setActiveStep(3);
@@ -156,8 +196,7 @@ export const BootstrapWizardDialog = ({
             <DialogContentText>
               Percona Server for MongoDB, installed through the Nomad client and
               initialized as a {hosts.length}-member replica set.
-              Proof-of-concept scope only — keyFile auth, TLS off, no project or
-              cluster yet.
+              Proof-of-concept scope only — keyFile auth, TLS off.
             </DialogContentText>
             <TextField
               label="Replica set name"
@@ -174,6 +213,32 @@ export const BootstrapWizardDialog = ({
               required
               fullWidth
               helperText="Only the major version selects the install source, e.g. 7.0."
+            />
+            <Autocomplete
+              freeSolo
+              options={environmentOptions}
+              inputValue={environment}
+              onInputChange={(_event, value) => setEnvironment(value)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Environment"
+                  helperText="Optional. Pick an existing environment or type a new name to create one."
+                />
+              )}
+            />
+            <Autocomplete
+              freeSolo
+              options={clusterOptions}
+              inputValue={cluster}
+              onInputChange={(_event, value) => setCluster(value)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Cluster"
+                  helperText="Optional. Pick an existing cluster or type a new name to create one."
+                />
+              )}
             />
           </Stack>
         )}
@@ -205,6 +270,10 @@ export const BootstrapWizardDialog = ({
               Replica set: <strong>{replicaSetName || '—'}</strong>
               <br />
               MongoDB version: <strong>{mongodbVersion || '—'}</strong>
+              <br />
+              Environment: <strong>{environment || '—'}</strong>
+              <br />
+              Cluster: <strong>{cluster || '—'}</strong>
             </Typography>
             {bootstrap.isError && (
               <Alert severity="error">{bootstrap.error.message}</Alert>

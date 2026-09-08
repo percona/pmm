@@ -94,7 +94,10 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => (
         size="small"
         label={BOOTSTRAP_RUN_LABEL[run.status] ?? run.status}
         color={BOOTSTRAP_RUN_COLOR[run.status] ?? 'default'}
-      />
+      />{' '}
+      {run.replica_set_name}
+      {(run.environment || run.cluster) &&
+        ` (${[run.environment, run.cluster].filter(Boolean).join(' / ')})`}
       {run.error ? ` — ${run.error}` : ''}
     </Alert>
     {run.hosts.map((host) => (

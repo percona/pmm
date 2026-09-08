@@ -57,6 +57,16 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
     header: 'MongoDB version',
   },
   {
+    accessorFn: (row) => row.environment || '—',
+    id: 'environment',
+    header: 'Environment',
+  },
+  {
+    accessorFn: (row) => row.cluster || '—',
+    id: 'cluster',
+    header: 'Cluster',
+  },
+  {
     accessorFn: (row) => row.hosts.length,
     id: 'hosts',
     header: 'Hosts',

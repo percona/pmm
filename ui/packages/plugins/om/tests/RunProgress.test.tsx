@@ -17,14 +17,33 @@
 
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { HostProgress } from '../src/components/RunProgress';
-import type { OmBootstrapHost, OmBootstrapStep } from '../src/types';
+import { HostProgress, RunProgress } from '../src/components/RunProgress';
+import type {
+  OmBootstrapHost,
+  OmBootstrapStep,
+  OmGetBootstrapRunResponse,
+} from '../src/types';
 
 function step(
   name: string,
   status: OmBootstrapStep['status']
 ): OmBootstrapStep {
   return { name, status, attempt_count: 1 };
+}
+
+function run(
+  overrides: Partial<OmGetBootstrapRunResponse> = {}
+): OmGetBootstrapRunResponse {
+  return {
+    run_id: 'run-abc',
+    status: 'running',
+    hosts: [],
+    run_steps: [],
+    replica_set_name: 'rs-orders-prod',
+    mongodb_version: '7.0.8',
+    started_at: '2026-01-01T00:00:00Z',
+    ...overrides,
+  };
 }
 
 describe('HostProgress', () => {
@@ -59,5 +78,30 @@ describe('HostProgress', () => {
     expect(screen.getByText(/stop_service: Running/)).toBeInTheDocument();
     expect(screen.queryByText(/pre_check/)).not.toBeInTheDocument();
     expect(screen.queryByText(/enable_auth/)).not.toBeInTheDocument();
+  });
+});
+
+describe('RunProgress', () => {
+  it('shows the environment and cluster the run was triggered with', () => {
+    render(
+      <RunProgress run={run({ environment: 'staging', cluster: 'orders' })} />
+    );
+
+    expect(
+      screen.getByText(/rs-orders-prod \(staging \/ orders\)/)
+    ).toBeInTheDocument();
+  });
+
+  it('shows only the replica set name when neither was given', () => {
+    render(<RunProgress run={run()} />);
+
+    expect(screen.getByText(/^Run run-abc:/)).toBeInTheDocument();
+    expect(screen.queryByText(/\(/)).not.toBeInTheDocument();
+  });
+
+  it('shows just the one label given, without a stray separator', () => {
+    render(<RunProgress run={run({ environment: 'staging' })} />);
+
+    expect(screen.getByText(/rs-orders-prod \(staging\)/)).toBeInTheDocument();
   });
 });

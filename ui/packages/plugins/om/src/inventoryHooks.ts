@@ -380,15 +380,32 @@ export function useTriggerHostBootstrap() {
   return useMutation<
     OmHostBootstrapAccepted,
     Error,
-    { nodeIds: string[]; replicaSetName: string; mongodbVersion: string }
+    {
+      nodeIds: string[];
+      replicaSetName: string;
+      mongodbVersion: string;
+      environment?: string;
+      cluster?: string;
+    }
   >({
-    mutationFn: ({ nodeIds, replicaSetName, mongodbVersion }) =>
+    mutationFn: ({
+      nodeIds,
+      replicaSetName,
+      mongodbVersion,
+      environment,
+      cluster,
+    }) =>
       request<OmHostBootstrapAccepted>('/inventory/hosts:bootstrap', {
         method: 'POST',
         body: JSON.stringify({
           node_ids: nodeIds,
           replica_set_name: replicaSetName,
           mongodb_version: mongodbVersion,
+          // Omitted rather than sent as "" -- an unset optional proto field reads
+          // as "leave unlabelled", the same distinction TriggerHostBootstrapRequest
+          // itself draws (see its own proto comment).
+          ...(environment ? { environment } : {}),
+          ...(cluster ? { cluster } : {}),
         }),
       }),
   });

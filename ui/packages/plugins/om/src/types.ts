@@ -570,6 +570,8 @@ export interface OmGetBootstrapRunResponse {
   mongodb_version: string;
   started_at: string;
   finished_at?: string | null;
+  environment?: string | null;
+  cluster?: string | null;
 }
 
 /** The bootstrap run history, from `GET /v1/om/inventory/bootstrap-runs`. */
