@@ -341,6 +341,10 @@ func (c *Channel) runReceiver() {
 		case <-c.closeWait:
 			return
 		case <-time.After(requestQueueStuckTimeout):
+			// Loudly: this is a monitoring outage that recovers itself, and the whole
+			// point of PMM-15431 is that it used to be invisible. Closing on its own is
+			// only reported at debug level.
+			c.l.Errorf("Request queue full for %s, giving up on the connection.", requestQueueStuckTimeout)
 			c.close(fmt.Errorf("request queue full for %s", requestQueueStuckTimeout))
 			return
 		}

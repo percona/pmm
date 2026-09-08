@@ -25,6 +25,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -62,8 +63,10 @@ const (
 	// and the client waits for each to be acknowledged - so left unbounded they took the whole
 	// supervisor down with a wedged connection, s.rw included, and with it every SetState and
 	// the local status API. Giving up risks only reporting a stopped Agent's last statuses out
-	// of order, or reusing its port before it is fully gone, in which case starting its
-	// replacement is retried on another port. The budget covers the whole call rather than each
+	// of order, or clearing its temporary directory and reusing its port while it is still
+	// shutting down, in which case starting its replacement is retried on another port. It also
+	// leaves a forwarder that stopAll must not close the channels under, hence the count of
+	// them below. The budget covers the whole call rather than each
 	// Agent so that a batch of them cannot hold s.rw for N times as long; it is sized well
 	// above process.killT, so a normal SIGTERM/SIGKILL stop never eats into it. See PMM-15431.
 	agentsStopTimeout = 60 * time.Second
@@ -92,6 +95,13 @@ type Supervisor struct {
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventoryv1.AgentStatus
+
+	// forwarders counts the running Agent status forwarders, so that stopAll never closes the
+	// channels they send to while one of them is still able to send. See PMM-15431.
+	forwarders atomic.Int64
+
+	// for unit tests only
+	agentsStopTimeout time.Duration
 }
 
 // agentProcessInfo describes Agent process.
@@ -134,6 +144,8 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
 		lastStatuses:   make(map[string]inventoryv1.AgentStatus),
+
+		agentsStopTimeout: agentsStopTimeout,
 	}
 }
 
@@ -253,7 +265,7 @@ func (s *Supervisor) SetState(state *agentv1.SetStateRequest) {
 		return
 	}
 
-	deadline := time.Now().Add(agentsStopTimeout)
+	deadline := time.Now().Add(s.agentsStopTimeout)
 	s.setAgentProcesses(state.AgentProcesses, deadline)
 	s.setBuiltinAgents(state.BuiltinAgents, deadline)
 }
@@ -263,7 +275,7 @@ func (s *Supervisor) RestartAgents() {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
-	deadline := time.Now().Add(agentsStopTimeout)
+	deadline := time.Now().Add(s.agentsStopTimeout)
 
 	for id, agent := range s.agentProcesses {
 		agent.cancel()
@@ -534,6 +546,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	}
 
 	done := make(chan struct{})
+	s.forwarders.Add(1)
 	go func() {
 		for status := range processWrapper.Changes() {
 			s.storeLastStatus(agentID, status)
@@ -546,6 +559,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 				Version:         version,
 			}
 		}
+		// Before done, so that an observed done implies this forwarder is out of the count.
+		s.forwarders.Add(-1)
 		close(done)
 	}()
 
@@ -722,6 +737,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
+	s.forwarders.Add(1)
 	go func() {
 		rtaBucketLastCollectTime := timestamppb.New(time.Now()).AsTime()
 
@@ -761,6 +777,8 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 				}
 			}
 		}
+		// Before done, so that an observed done implies this forwarder is out of the count.
+		s.forwarders.Add(-1)
 		close(done)
 	}()
 
@@ -923,11 +941,21 @@ func (s *Supervisor) stopAll() {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
-	deadline := time.Now().Add(agentsStopTimeout)
+	deadline := time.Now().Add(s.agentsStopTimeout)
 	s.setAgentProcesses(nil, deadline)
 	s.setBuiltinAgents(nil, deadline)
 
 	s.l.Infof("Done.")
+
+	// Closing these while a forwarder can still send panics, and the waits above are bounded,
+	// so a forwarder can outlive them. Leaving the channels open is the safe failure: their
+	// only consumer selects on its own context rather than reading them until they close, and
+	// the process is on its way out anyway. See PMM-15431.
+	if n := s.forwarders.Load(); n != 0 {
+		s.l.Errorf("%d Agent status forwarders are still running, leaving their channels open.", n)
+		return
+	}
+
 	close(s.qanRequests)
 	close(s.rtaRequests)
 	close(s.changes)

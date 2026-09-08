@@ -324,6 +324,73 @@ func TestWaitAgentStopped(t *testing.T) {
 	})
 }
 
+func TestStopAll(t *testing.T) {
+	t.Parallel()
+
+	newSupervisor := func(t *testing.T, minPort, maxPort uint16) *Supervisor {
+		t.Helper()
+
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths:         config.Paths{TempDir: t.TempDir()},
+			Ports:         config.Ports{Min: minPort, Max: maxPort},
+			LogLinesCount: 1,
+		})
+		s := NewSupervisor(t.Context(), nil, cfgStorage)
+		s.agentsStopTimeout = 200 * time.Millisecond
+
+		return s
+	}
+
+	sleeper := &agentv1.SetStateRequest{
+		AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
+			"sleep1": {Type: typeTestSleep, Args: []string{"100"}},
+		},
+	}
+
+	t.Run("ClosesChannels", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 65300, 65399)
+		s.SetState(sleeper)
+
+		// Drained throughout, so every forwarder finishes and the channels can be closed.
+		drained := make(chan struct{})
+		go func() {
+			for range s.Changes() { //nolint:revive
+			}
+			close(drained)
+		}()
+
+		s.stopAll()
+
+		<-drained
+		_, more := <-s.QANRequests()
+		assert.False(t, more)
+		_, more = <-s.RTARequests()
+		assert.False(t, more)
+	})
+
+	t.Run("StuckForwarderKeepsChannelsOpen", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 65400, 65499)
+		s.SetState(sleeper)
+
+		// Nobody drains Changes(), so fill it: the forwarder's next send blocks, and the
+		// bounded wait in stopAll gives up on it. Closing the channels then would panic the
+		// forwarder on a send to a closed channel. See PMM-15431.
+		for len(s.changes) < changesBufferSize {
+			s.changes <- &agentv1.StateChangedRequest{}
+		}
+
+		s.stopAll()
+
+		// Still open, so the send the forwarder is parked on cannot bring the agent down.
+		_, more := <-s.Changes()
+		assert.True(t, more)
+	})
+}
+
 func TestStartProcessFail(t *testing.T) {
 	t.Parallel()
 
