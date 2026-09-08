@@ -250,9 +250,9 @@ func Setup() {
 		// with every Service on it, and it would store a plaintext file over one which may be encrypted,
 		// which the Agent, started with its key, then fails to load.
 		fmt.Printf("Failed to read the configuration file %s: %s.\n"+
-			"Whether this pmm-agent is registered cannot be told from it. If the file is encrypted, re-run with"+
-			" --config-file-key-file, or set PMM_AGENT_CONFIG_FILE_KEY_FILE, which `pmm-admin config` passes on"+
-			" to `pmm-agent setup`. Otherwise repair the file, or remove it to register this Node afresh.\n",
+			"If the file is encrypted, re-run with --config-file-key-file, or set"+
+			" PMM_AGENT_CONFIG_FILE_KEY_FILE, which `pmm-admin config` passes on to `pmm-agent setup`."+
+			" Otherwise repair the file, or remove it to register this Node afresh.\n",
 			configFilepath, err)
 		os.Exit(1)
 	}
