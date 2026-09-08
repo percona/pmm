@@ -258,27 +258,18 @@ func (c *Client) Run(ctx context.Context) error {
 }
 
 // runProcessors starts the goroutines that serve the connection and blocks until the first of them
-// exits; Done() is closed once the rest have too.
+// exits - that is how Run reports the connection is finished. Done() closes once they have all
+// exited. Their ctx is cancelled only by Run's caller, after Run has returned.
 //
-// Once the client is connected, ctx cancellation is ignored by it.
+//  1. processActionResults and processJobsResults send action and job results from the runner to
+//     the channel. They exit when the runner is stopped by cancelling ctx.
 //
-// We start goroutines, and terminate the gRPC connection and exit Run when any of them exits:
+//  2. processSupervisorRequests sends status changes, QAN and RTA data from the supervisor to the
+//     channel. It exits when the caller stops the supervisor, which it does once Run has returned
+//     and the gRPC connection is closed.
 //
-//  1. processActionResults reads action results from action runner and sends them to the channel.
-//     It exits when the action runner is stopped by cancelling ctx.
-//
-//  2. processSupervisorRequests reads requests (status changes and QAN data) from the supervisor and sends them to the channel.
-//     It exits when the supervisor is stopped by the caller.
-//     Caller stops supervisor when Run is left and gRPC connection is closed.
-//
-//  3. processChannelRequests reads requests from the channel and processes them.
-//     It exits when an unexpected message is received from the channel, or when can't be received at all.
-//     When Run is left, caller stops supervisor, and that allows processSupervisorRequests to exit.
-//
-//  4. processPings answers Ping from a path nothing else can starve.
-//     It exits when the channel is closed, or when ctx is cancelled.
-//
-// Done() channel is closed when all of them exited.
+//  3. processChannelRequests reads requests from the channel and processes them; processPings
+//     answers Ping from a queue of its own. Both exit when the channel is closed.
 //
 // TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 // https://jira.percona.com/browse/PMM-4245
@@ -286,24 +277,25 @@ func (c *Client) runProcessors(ctx context.Context) {
 	c.supervisor.ClearChangesChannel()
 	c.SendActualStatuses(ctx)
 
-	// Applying a state is deliberately kept off the request loop and out of the accounting
-	// below: it can block for as long as the agents it replaces take to stop, and gating
-	// Done() on it would hold up the reconnect that unblocks it. See processSetStates.
+	// Kept out of the accounting below as well as off the request loop: applying a state can
+	// take as long as the agents it replaces take to stop, and Done() gates the reconnect that
+	// drains what they are waiting on. See processSetStates.
 	setStates := make(chan *agentv1.SetStateRequest, setStatesCap)
 	go func() {
 		c.processSetStates(ctx, setStates)
 		c.l.Debug("processSetStates is finished")
 	}()
 
-	// Run returns as soon as any one of these exits, and Done() closes once they all have.
 	var wg sync.WaitGroup
-	var firstOnce sync.Once
-	firstDone := make(chan struct{})
+	firstDone := make(chan struct{}, 1)
 	start := func(name string, process func(context.Context)) {
 		wg.Go(func() {
 			process(ctx)
 			c.l.Debugf("%s is finished", name)
-			firstOnce.Do(func() { close(firstDone) })
+			select {
+			case firstDone <- struct{}{}:
+			default:
+			}
 		})
 	}
 

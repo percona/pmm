@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -287,6 +288,26 @@ func TestWaitAgentStopped(t *testing.T) {
 		start := time.Now()
 		s.waitAgentStopped("stuck", make(chan struct{}), start.Add(budget))
 		assert.GreaterOrEqual(t, time.Since(start), budget)
+	})
+
+	t.Run("StoppedAfterBudgetSpent", func(t *testing.T) {
+		t.Parallel()
+
+		// An Agent that had already stopped must not be reported as timed out just because
+		// an earlier one used up the budget. Both select cases are ready in that case, so
+		// without the fast path roughly half of these would be logged as a timeout.
+		logger, hook := logrustest.NewNullLogger()
+		spent := NewSupervisor(t.Context(), nil, cfgStorage)
+		spent.l = logger.WithField("component", "supervisor")
+
+		done := make(chan struct{})
+		close(done)
+
+		for range 100 {
+			spent.waitAgentStopped("stopped", done, time.Now().Add(-time.Second))
+		}
+
+		assert.Empty(t, hook.AllEntries())
 	})
 
 	t.Run("BudgetSharedByAllAgents", func(t *testing.T) {

@@ -288,6 +288,15 @@ func (s *Supervisor) RestartAgents() {
 
 // waitAgentStopped waits for a canceled Agent's status forwarder to finish, until deadline.
 func (s *Supervisor) waitAgentStopped(agentID string, done <-chan struct{}, deadline time.Time) {
+	// Take the answer if it is already there. Once the budget is spent both cases below are
+	// ready, and select would pick between them at random - reporting a timeout for every
+	// other Agent that had in fact stopped cleanly.
+	select {
+	case <-done:
+		return
+	default:
+	}
+
 	t := time.NewTimer(time.Until(deadline))
 	defer t.Stop()
 
