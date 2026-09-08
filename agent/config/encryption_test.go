@@ -136,8 +136,10 @@ func TestEncryption(t *testing.T) {
 		key := writeKey(t, "key", keyPEM)
 		configfilef := writeConfig(t, &Config{ID: "agent-id", Encryption: Encryption{KeyFile: key}})
 
+		// Without the key the ciphertext reaches the YAML parser. What matters is that it fails rather
+		// than yielding a zero configuration, which the caller would read as an unregistered Agent.
 		cfg, err := LoadFromFile(configfilef, nil)
-		require.ErrorIs(t, err, ErrEncryptedConfigFile)
+		require.Error(t, err)
 		assert.Nil(t, cfg)
 	})
 }

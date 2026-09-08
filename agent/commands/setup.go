@@ -243,25 +243,18 @@ func Setup() {
 	configFilepath, running := checkStatus(loadedFilepath, l)
 
 	fileCfg, err := registeredConfig(configFilepath, cfg)
-	switch {
-	case errors.Is(err, config.ErrEncryptedConfigFile):
-		// --force is not the answer here: it would replace the encrypted file with a plaintext one, which
-		// the Agent, started with the key it was encrypted with, then fails to load.
-		fmt.Printf("The configuration file %s is encrypted and no key file was given, so whether this pmm-agent"+
-			" is registered cannot be told from it.\nRe-run with --config-file-key-file, or set"+
-			" PMM_AGENT_CONFIG_FILE_KEY_FILE, which `pmm-admin config` passes on to `pmm-agent setup`.\n",
-			configFilepath)
-		os.Exit(1)
-	case err != nil && !cfg.Setup.Force:
-		// Registering would take the Node over from whatever the unreadable file describes, together with
-		// every Service on it. Only --force asks for that.
+	if err != nil {
+		// A file encrypted with a key setup was not given reads exactly like a damaged one, and the format
+		// carries nothing to tell them apart. --force answers neither: not knowing what the file says is
+		// not knowing whether this Agent is registered, so registering would take the Node over together
+		// with every Service on it, and it would store a plaintext file over one which may be encrypted,
+		// which the Agent, started with its key, then fails to load.
 		fmt.Printf("Failed to read the configuration file %s: %s.\n"+
-			"Whether this pmm-agent is registered cannot be told from it. Fix the file, or re-run with --force to"+
-			" register the Node again, removing it together with every Service on it.\n", configFilepath, err)
-		os.Exit(1)
-	case err != nil:
-		fmt.Printf("Failed to read the configuration file %s: %s. Registering the Node, as --force is given.\n",
+			"Whether this pmm-agent is registered cannot be told from it. If the file is encrypted, re-run with"+
+			" --config-file-key-file, or set PMM_AGENT_CONFIG_FILE_KEY_FILE, which `pmm-admin config` passes on"+
+			" to `pmm-agent setup`. Otherwise repair the file, or remove it to register this Node afresh.\n",
 			configFilepath, err)
+		os.Exit(1)
 	}
 
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {

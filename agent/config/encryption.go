@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"unicode/utf8"
 
 	"github.com/youmark/pkcs8"
 )
@@ -40,12 +39,6 @@ const (
 	gcmNonceSize = 12
 	aesKeySize   = 32
 )
-
-// looksEncrypted reports whether the content of a configuration file is encrypted. Encrypt prepends the
-// RSA-wrapped AES key, which is random bytes, while a YAML configuration is text.
-func looksEncrypted(b []byte) bool {
-	return len(b) != 0 && !utf8.Valid(b)
-}
 
 // Encrypt encrypts the given plaintext.
 func (enc Encryption) Encrypt(plain []byte) ([]byte, error) {

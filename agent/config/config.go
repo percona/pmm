@@ -194,10 +194,6 @@ func (e ConfigFileDoesNotExistError) Error() string {
 	return fmt.Sprintf("configuration file %s does not exist", string(e))
 }
 
-// ErrEncryptedConfigFile is returned when the configuration file is encrypted and no key file was given,
-// so that a caller can tell a file it has no key for from a broken one.
-var ErrEncryptedConfigFile = errors.New("the configuration file is encrypted and no key file was given")
-
 // getFromCmdLine parses command-line flags, environment variables and configuration file
 // (if --config-file/PMM_AGENT_CONFIG_FILE is defined).
 // It returns configuration, configuration file path (value of -config-file/PMM_AGENT_CONFIG_FILE, may be empty),
@@ -562,16 +558,11 @@ func LoadFromFile(path string, enc *Encryption) (*Config, error) {
 		return nil, err
 	}
 
-	switch {
-	case enc != nil && len(enc.KeyFile) != 0 && len(b) != 0:
+	if enc != nil && len(enc.KeyFile) != 0 && len(b) != 0 {
 		b, err = enc.Decrypt(b)
 		if err != nil {
 			return nil, err
 		}
-	case looksEncrypted(b):
-		// Without this the ciphertext reaches the YAML parser, whose complaint about control characters
-		// reads like a broken file, sending the caller to fix what is only unreadable for want of a key.
-		return nil, ErrEncryptedConfigFile
 	}
 
 	cfg := &Config{}
