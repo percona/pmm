@@ -131,6 +131,15 @@ export function useOmInventoryHosts(filters: OmHostFilters = {}) {
       return hosts ?? [];
     },
     refetchInterval: refreshing ? REFRESH_POLL_MS : ESTATE_POLL_MS,
+    // Otherwise a backgrounded/inactive tab pauses polling entirely (TanStack's
+    // own default) and never catches back up on its own: the app's QueryClient
+    // also sets refetchOnWindowFocus: false, so there is no second mechanism to
+    // rescue a query stuck this way -- only the next scheduled tick would, and
+    // that tick is exactly what a paused interval never fires. Confirmed against
+    // a real session: switching tabs mid-bootstrap froze this table on a stale
+    // "Unregistered mongod" read that a completed, successfully-registered
+    // bootstrap had already made false.
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -154,6 +163,9 @@ export function useOmInventoryServices() {
       return services ?? [];
     },
     refetchInterval: refreshing ? REFRESH_POLL_MS : ESTATE_POLL_MS,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it.
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -212,6 +224,9 @@ export function useOmInventoryRuns(filters: OmRunFilters = {}) {
       (query.state.data ?? []).some((run) => isRunActive(run.status))
         ? REFRESH_POLL_MS
         : ESTATE_POLL_MS,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it.
+    refetchIntervalInBackground: true,
     // Switching period keeps the old page on screen instead of blanking to the
     // spinner: the filters change the query key, and with no placeholder the table
     // would flash empty on every chip click the way HostsPage's and ServicesPage's
@@ -395,6 +410,13 @@ export function useBootstrapRun(runId: string | null) {
       ),
     refetchInterval: (query) =>
       isBootstrapRunActive(query.state.data?.status) ? REFRESH_POLL_MS : false,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it -- and
+    // for a wizard dialog left open while the user looks at something else,
+    // that means it can sit showing an early, long-superseded snapshot (a host
+    // mid-verify, a run-level step still pending) well after the real run has
+    // actually succeeded or failed.
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -430,6 +452,9 @@ export function useOmInventoryRun(runId: string | undefined) {
     // follows it; a finished one never changes again.
     refetchInterval: (query) =>
       isRunActive(query.state.data?.run.status) ? REFRESH_POLL_MS : false,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it.
+    refetchIntervalInBackground: true,
   });
 }
 
