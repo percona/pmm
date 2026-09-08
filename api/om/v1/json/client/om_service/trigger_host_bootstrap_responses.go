@@ -205,6 +205,15 @@ type TriggerHostBootstrapBody struct {
 	// selects the install source; PSMDB does not ship parallel repos per minor
 	// version.
 	MongodbVersion string `json:"mongodb_version,omitempty"`
+
+	// The monitoring environment to label the resulting service with, same free-form
+	// string as ManagementService's own AddMongoDBServiceParams.environment. Unset
+	// means unlabelled, same as adding a service without one today. Not sent to SEP
+	// at all -- see OmBootstrapRunConfig's own doc comment on PMM's side.
+	Environment *string `json:"environment,omitempty"`
+
+	// The cluster to label the resulting service with, same terms as `environment`.
+	Cluster *string `json:"cluster,omitempty"`
 }
 
 // Validate validates this trigger host bootstrap body

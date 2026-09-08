@@ -17,6 +17,7 @@ package om
 
 import (
 	"context"
+	"errors"
 	"math"
 	"net/http"
 	"net/url"
@@ -431,6 +432,18 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 
+	if environment, cluster := req.GetEnvironment(), req.GetCluster(); environment != "" || cluster != "" {
+		config := &models.OmBootstrapRunConfig{RunID: run.ID, Environment: environment, Cluster: cluster}
+		err = models.CreateOmBootstrapRunConfig(s.db.Querier, config)
+		if err != nil {
+			// The bootstrap itself is already under way on SEP's side; failing this
+			// request now would report an error for a run that is, in fact, running --
+			// worse than registering it unlabelled, which is exactly what happens
+			// today for every run triggered before this field existed.
+			s.l.Warnf("bootstrap run %s: failed to persist environment/cluster: %s", run.ID, err)
+		}
+	}
+
 	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID}, nil
 }
 
@@ -521,7 +534,8 @@ func (s *Service) GetBootstrapRun(ctx context.Context, req *omv1.GetBootstrapRun
 		return nil, err
 	}
 
-	return bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status)), nil
+	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
+	return bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster), nil
 }
 
 // ListBootstrapRuns returns the bootstrap run history, newest first.
@@ -555,9 +569,28 @@ func (s *Service) ListBootstrapRuns(ctx context.Context, req *omv1.ListBootstrap
 
 	proto := make([]*omv1.GetBootstrapRunResponse, 0, len(runs))
 	for i := range runs {
-		proto = append(proto, bootstrapRunToProto(&runs[i], hostsByExecutor))
+		environment, cluster := s.bootstrapRunConfigLabels(runs[i].ID)
+		proto = append(proto, bootstrapRunToProto(&runs[i], hostsByExecutor, environment, cluster))
 	}
 	return &omv1.ListBootstrapRunsResponse{Runs: proto}, nil
+}
+
+// bootstrapRunConfigLabels returns the environment and cluster runID was
+// triggered with, or two empty strings when there is nothing on record -- see
+// OmBootstrapRunConfig's own doc comment on why that is the ordinary case, not
+// a failure.
+func (s *Service) bootstrapRunConfigLabels(runID string) (string, string) {
+	if s.db == nil {
+		return "", ""
+	}
+	config, err := models.FindOmBootstrapRunConfigByRunID(s.db.Querier, runID)
+	if err != nil {
+		if !errors.Is(err, models.ErrNotFound) {
+			s.l.Warnf("bootstrap run %s: failed to load its environment/cluster: %s", runID, err)
+		}
+		return "", ""
+	}
+	return config.Environment, config.Cluster
 }
 
 // confirmMonitoringLookup fetches the inventory app's current hosts for
@@ -611,8 +644,10 @@ func confirmMonitoringStep(runStatus, executorHost string, hostsByExecutor map[s
 
 // bootstrapRunToProto projects a sepBootstrapRun onto the wire shape
 // GetBootstrapRun answers with. Its hostsByExecutor argument comes from
-// confirmMonitoringLookup, and may be nil -- see confirmMonitoringStep.
-func bootstrapRunToProto(run *sepBootstrapRun, hostsByExecutor map[string]sepHost) *omv1.GetBootstrapRunResponse {
+// confirmMonitoringLookup, and may be nil -- see confirmMonitoringStep. Its
+// environment and cluster arguments come from bootstrapRunConfigLabels, and are
+// empty strings when there is nothing on record for this run.
+func bootstrapRunToProto(run *sepBootstrapRun, hostsByExecutor map[string]sepHost, environment, cluster string) *omv1.GetBootstrapRunResponse {
 	hosts := make([]*omv1.BootstrapHost, 0, len(run.Hosts))
 	for _, host := range run.Hosts {
 		finalizeSteps := bootstrapStepsToProto(host.FinalizeSteps)
@@ -635,6 +670,8 @@ func bootstrapRunToProto(run *sepBootstrapRun, hostsByExecutor map[string]sepHos
 		MongodbVersion: run.MongoDBVersion,
 		StartedAt:      timestamppb.New(run.StartedAt),
 		FinishedAt:     optionalTimestamp(run.FinishedAt),
+		Environment:    optional(environment),
+		Cluster:        optional(cluster),
 	}
 }
 

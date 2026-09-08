@@ -34,6 +34,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
+	"github.com/percona/pmm/managed/models"
 )
 
 // hostsBody is one om_inventory GET /hosts answer.
@@ -670,6 +671,75 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "mixed-OS")
+	})
+
+	t.Run("persists environment and cluster, and echoes them back through GetBootstrapRun", func(t *testing.T) {
+		// Not t.Parallel(): storeTestDB drops and recreates one fixed-name
+		// database, which two parallel subtests would race on -- see
+		// TestRegisterBootstrapHost's own subtests, which follow the same rule.
+		db := storeTestDB(t)
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token").
+			WithBootstrapSource(stub.server.URL, "test-token")
+		environment, cluster := "staging", "orders"
+
+		triggered, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				Environment:    &environment,
+				Cluster:        &cluster,
+			})
+		require.NoError(t, err)
+
+		config, err := models.FindOmBootstrapRunConfigByRunID(db.Querier, triggered.GetRunId())
+		require.NoError(t, err)
+		assert.Equal(t, "staging", config.Environment)
+		assert.Equal(t, "orders", config.Cluster)
+
+		response, err := svc.GetBootstrapRun(t.Context(),
+			&omv1.GetBootstrapRunRequest{RunId: triggered.GetRunId()})
+		require.NoError(t, err)
+		assert.Equal(t, "staging", response.GetEnvironment())
+		assert.Equal(t, "orders", response.GetCluster())
+	})
+
+	t.Run("leaves no config row, and echoes no environment or cluster, when neither was given", func(t *testing.T) {
+		// Not t.Parallel() -- see the previous subtest's own comment.
+		db := storeTestDB(t)
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
+			WithProbeSource(stub.server.URL, "test-token").
+			WithBootstrapSource(stub.server.URL, "test-token")
+
+		triggered, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+		require.NoError(t, err)
+
+		_, err = models.FindOmBootstrapRunConfigByRunID(db.Querier, triggered.GetRunId())
+		require.ErrorIs(t, err, models.ErrNotFound)
+
+		response, err := svc.GetBootstrapRun(t.Context(),
+			&omv1.GetBootstrapRunRequest{RunId: triggered.GetRunId()})
+		require.NoError(t, err)
+		assert.Nil(t, response.Environment)
+		assert.Nil(t, response.Cluster)
 	})
 }
 

@@ -3907,8 +3907,15 @@ type TriggerHostBootstrapRequest struct {
 	// selects the install source; PSMDB does not ship parallel repos per minor
 	// version.
 	MongodbVersion string `protobuf:"bytes,3,opt,name=mongodb_version,json=mongodbVersion,proto3" json:"mongodb_version,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// The monitoring environment to label the resulting service with, same free-form
+	// string as ManagementService's own AddMongoDBServiceParams.environment. Unset
+	// means unlabelled, same as adding a service without one today. Not sent to SEP
+	// at all -- see OmBootstrapRunConfig's own doc comment on PMM's side.
+	Environment *string `protobuf:"bytes,4,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	// The cluster to label the resulting service with, same terms as `environment`.
+	Cluster       *string `protobuf:"bytes,5,opt,name=cluster,proto3,oneof" json:"cluster,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *TriggerHostBootstrapRequest) Reset() {
@@ -3958,6 +3965,20 @@ func (x *TriggerHostBootstrapRequest) GetReplicaSetName() string {
 func (x *TriggerHostBootstrapRequest) GetMongodbVersion() string {
 	if x != nil {
 		return x.MongodbVersion
+	}
+	return ""
+}
+
+func (x *TriggerHostBootstrapRequest) GetEnvironment() string {
+	if x != nil && x.Environment != nil {
+		return *x.Environment
+	}
+	return ""
+}
+
+func (x *TriggerHostBootstrapRequest) GetCluster() string {
+	if x != nil && x.Cluster != nil {
+		return *x.Cluster
 	}
 	return ""
 }
@@ -4253,7 +4274,14 @@ type GetBootstrapRunResponse struct {
 	// When this run was created.
 	StartedAt *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=started_at,json=startedAt,proto3" json:"started_at,omitempty"`
 	// When this run reached a terminal status. Unset while it is still going.
-	FinishedAt    *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=finished_at,json=finishedAt,proto3,oneof" json:"finished_at,omitempty"`
+	FinishedAt *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=finished_at,json=finishedAt,proto3,oneof" json:"finished_at,omitempty"`
+	// The monitoring environment this run's service will be (or was) labelled
+	// with, from TriggerHostBootstrapRequest.environment. Unset means the caller
+	// left it blank, or triggered this run before PMM tracked the field at all.
+	Environment *string `protobuf:"bytes,10,opt,name=environment,proto3,oneof" json:"environment,omitempty"`
+	// The cluster this run's service will be (or was) labelled with, same terms
+	// as `environment`.
+	Cluster       *string `protobuf:"bytes,11,opt,name=cluster,proto3,oneof" json:"cluster,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -4349,6 +4377,20 @@ func (x *GetBootstrapRunResponse) GetFinishedAt() *timestamppb.Timestamp {
 		return x.FinishedAt
 	}
 	return nil
+}
+
+func (x *GetBootstrapRunResponse) GetEnvironment() string {
+	if x != nil && x.Environment != nil {
+		return *x.Environment
+	}
+	return ""
+}
+
+func (x *GetBootstrapRunResponse) GetCluster() string {
+	if x != nil && x.Cluster != nil {
+		return *x.Cluster
+	}
+	return ""
 }
 
 // ListBootstrapRunsRequest is the request for ListBootstrapRuns.
@@ -5047,11 +5089,16 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x06status\x18\x02 \x01(\x0e2\x10.om.v1.RunStatusR\x06status\x129\n" +
 	"\n" +
 	"start_time\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tstartTime\x12\x14\n" +
-	"\x05scope\x18\x04 \x03(\tR\x05scope\"\xad\x01\n" +
+	"\x05scope\x18\x04 \x03(\tR\x05scope\"\x8f\x02\n" +
 	"\x1bTriggerHostBootstrapRequest\x12'\n" +
 	"\bnode_ids\x18\x01 \x03(\tB\f\xfaB\t\x92\x01\x06\b\x01\x10\x03\x18\x01R\anodeIds\x123\n" +
 	"\x10replica_set_name\x18\x02 \x01(\tB\t\xfaB\x06r\x04\x10\x01\x18@R\x0ereplicaSetName\x120\n" +
-	"\x0fmongodb_version\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x0emongodbVersion\"5\n" +
+	"\x0fmongodb_version\x18\x03 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x0emongodbVersion\x12%\n" +
+	"\venvironment\x18\x04 \x01(\tH\x00R\venvironment\x88\x01\x01\x12\x1d\n" +
+	"\acluster\x18\x05 \x01(\tH\x01R\acluster\x88\x01\x01B\x0e\n" +
+	"\f_environmentB\n" +
+	"\n" +
+	"\b_cluster\"5\n" +
 	"\x1cTriggerHostBootstrapResponse\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\"\x88\x01\n" +
 	"\rBootstrapStep\x12\x12\n" +
@@ -5066,7 +5113,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x0erollback_steps\x18\x03 \x03(\v2\x14.om.v1.BootstrapStepR\rrollbackSteps\x12;\n" +
 	"\x0efinalize_steps\x18\x04 \x03(\v2\x14.om.v1.BootstrapStepR\rfinalizeSteps\"8\n" +
 	"\x16GetBootstrapRunRequest\x12\x1e\n" +
-	"\x06run_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x05runId\"\xac\x03\n" +
+	"\x06run_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x05runId\"\x8e\x04\n" +
 	"\x17GetBootstrapRunResponse\x12\x15\n" +
 	"\x06run_id\x18\x01 \x01(\tR\x05runId\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12*\n" +
@@ -5078,9 +5125,15 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\n" +
 	"started_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tstartedAt\x12@\n" +
 	"\vfinished_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\x01R\n" +
-	"finishedAt\x88\x01\x01B\b\n" +
+	"finishedAt\x88\x01\x01\x12%\n" +
+	"\venvironment\x18\n" +
+	" \x01(\tH\x02R\venvironment\x88\x01\x01\x12\x1d\n" +
+	"\acluster\x18\v \x01(\tH\x03R\acluster\x88\x01\x01B\b\n" +
 	"\x06_errorB\x0e\n" +
-	"\f_finished_at\";\n" +
+	"\f_finished_atB\x0e\n" +
+	"\f_environmentB\n" +
+	"\n" +
+	"\b_cluster\";\n" +
 	"\x18ListBootstrapRunsRequest\x12\x1f\n" +
 	"\x05limit\x18\x01 \x01(\x05B\t\xfaB\x06\x1a\x04\x18d(\x00R\x05limit\"O\n" +
 	"\x19ListBootstrapRunsResponse\x122\n" +
@@ -5379,6 +5432,7 @@ func file_om_v1_om_proto_init() {
 	file_om_v1_om_proto_msgTypes[26].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[27].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[33].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[45].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[47].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[50].OneofWrappers = []any{}
 	type x struct{}

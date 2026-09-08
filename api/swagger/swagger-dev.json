@@ -29288,6 +29288,18 @@
                         "format": "date-time",
                         "x-nullable": true,
                         "x-order": 8
+                      },
+                      "environment": {
+                        "description": "The monitoring environment this run's service will be (or was) labelled\nwith, from TriggerHostBootstrapRequest.environment. Unset means the caller\nleft it blank, or triggered this run before PMM tracked the field at all.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 9
+                      },
+                      "cluster": {
+                        "description": "The cluster this run's service will be (or was) labelled with, same terms\nas `environment`.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 10
                       }
                     }
                   },
@@ -29539,6 +29551,18 @@
                   "format": "date-time",
                   "x-nullable": true,
                   "x-order": 8
+                },
+                "environment": {
+                  "description": "The monitoring environment this run's service will be (or was) labelled\nwith, from TriggerHostBootstrapRequest.environment. Unset means the caller\nleft it blank, or triggered this run before PMM tracked the field at all.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 9
+                },
+                "cluster": {
+                  "description": "The cluster this run's service will be (or was) labelled with, same terms\nas `environment`.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 10
                 }
               }
             }
@@ -30726,6 +30750,18 @@
                   "description": "The MongoDB version to install, e.g. \"7.0.8\". Only the major version\nselects the install source; PSMDB does not ship parallel repos per minor\nversion.",
                   "type": "string",
                   "x-order": 2
+                },
+                "environment": {
+                  "description": "The monitoring environment to label the resulting service with, same free-form\nstring as ManagementService's own AddMongoDBServiceParams.environment. Unset\nmeans unlabelled, same as adding a service without one today. Not sent to SEP\nat all -- see OmBootstrapRunConfig's own doc comment on PMM's side.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 3
+                },
+                "cluster": {
+                  "description": "The cluster to label the resulting service with, same terms as `environment`.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 4
                 }
               }
             }

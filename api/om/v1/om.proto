@@ -839,6 +839,13 @@ message TriggerHostBootstrapRequest {
   // selects the install source; PSMDB does not ship parallel repos per minor
   // version.
   string mongodb_version = 3 [(validate.rules).string.min_len = 1];
+  // The monitoring environment to label the resulting service with, same free-form
+  // string as ManagementService's own AddMongoDBServiceParams.environment. Unset
+  // means unlabelled, same as adding a service without one today. Not sent to SEP
+  // at all -- see OmBootstrapRunConfig's own doc comment on PMM's side.
+  optional string environment = 4;
+  // The cluster to label the resulting service with, same terms as `environment`.
+  optional string cluster = 5;
 }
 
 // TriggerHostBootstrapResponse acknowledges a queued bootstrap run.
@@ -930,6 +937,13 @@ message GetBootstrapRunResponse {
   google.protobuf.Timestamp started_at = 8;
   // When this run reached a terminal status. Unset while it is still going.
   optional google.protobuf.Timestamp finished_at = 9;
+  // The monitoring environment this run's service will be (or was) labelled
+  // with, from TriggerHostBootstrapRequest.environment. Unset means the caller
+  // left it blank, or triggered this run before PMM tracked the field at all.
+  optional string environment = 10;
+  // The cluster this run's service will be (or was) labelled with, same terms
+  // as `environment`.
+  optional string cluster = 11;
 }
 
 // ListBootstrapRunsRequest is the request for ListBootstrapRuns.

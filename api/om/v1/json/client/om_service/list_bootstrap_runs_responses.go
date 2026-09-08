@@ -581,6 +581,15 @@ type ListBootstrapRunsOKBodyRunsItems0 struct {
 	// When this run reached a terminal status. Unset while it is still going.
 	// Format: date-time
 	FinishedAt *strfmt.DateTime `json:"finished_at,omitempty"`
+
+	// The monitoring environment this run's service will be (or was) labelled
+	// with, from TriggerHostBootstrapRequest.environment. Unset means the caller
+	// left it blank, or triggered this run before PMM tracked the field at all.
+	Environment *string `json:"environment,omitempty"`
+
+	// The cluster this run's service will be (or was) labelled with, same terms
+	// as `environment`.
+	Cluster *string `json:"cluster,omitempty"`
 }
 
 // Validate validates this list bootstrap runs OK body runs items0

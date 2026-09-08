@@ -6461,6 +6461,14 @@ func (m *TriggerHostBootstrapRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if m.Environment != nil {
+		// no validation rules for Environment
+	}
+
+	if m.Cluster != nil {
+		// no validation rules for Cluster
+	}
+
 	if len(errors) > 0 {
 		return TriggerHostBootstrapRequestMultiError(errors)
 	}
@@ -7236,6 +7244,14 @@ func (m *GetBootstrapRunResponse) validate(all bool) error {
 			}
 		}
 
+	}
+
+	if m.Environment != nil {
+		// no validation rules for Environment
+	}
+
+	if m.Cluster != nil {
+		// no validation rules for Cluster
 	}
 
 	if len(errors) > 0 {
