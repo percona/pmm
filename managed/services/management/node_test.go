@@ -199,12 +199,15 @@ func TestNodeService(t *testing.T) {
 			serviceAccountID := int(0)
 			nodeName := getTestNodeName()
 			reregister := true
-			force := true
+			// The request below is forced, but --force says to unregister the Node with everything on it,
+			// not to delete service tokens pmm-agent never created, so it must not reach Grafana as its own
+			// force.
+			const deleteForeignTokens = false
 
 			authProvider := &mockGrafanaClient{}
 			authProvider.Test(t)
 			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
-			authProvider.On("DeleteServiceAccount", boundedCtx, nodeName, force).Return("", nil)
+			authProvider.On("DeleteServiceAccount", boundedCtx, nodeName, deleteForeignTokens).Return("", nil)
 			s.grafanaClient = authProvider
 
 			state := &mockAgentsStateUpdater{}
