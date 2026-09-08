@@ -58,6 +58,7 @@ ListTopologyRunsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListTopologyRunsParams struct {
+
 	/* Limit.
 
 	   How many runs to return, newest first. Defaults to 25, capped at 100.
@@ -132,6 +133,7 @@ func (o *ListTopologyRunsParams) SetLimit(limit *int32) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListTopologyRunsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -147,6 +149,7 @@ func (o *ListTopologyRunsParams) WriteToRequest(r runtime.ClientRequest, reg str
 		}
 		qLimit := swag.FormatInt32(qrLimit)
 		if qLimit != "" {
+
 			if err := r.SetQueryParam("limit", qLimit); err != nil {
 				return err
 			}

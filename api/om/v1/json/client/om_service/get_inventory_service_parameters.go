@@ -57,6 +57,7 @@ GetInventoryServiceParams contains all the parameters to send to the API endpoin
 	Typically these are written to a http.Request.
 */
 type GetInventoryServiceParams struct {
+
 	/* ServiceID.
 
 	   PMM's service ID.
@@ -129,6 +130,7 @@ func (o *GetInventoryServiceParams) SetServiceID(serviceID string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetInventoryServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

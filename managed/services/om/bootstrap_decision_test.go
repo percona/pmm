@@ -223,12 +223,16 @@ func TestRunIsRollingBack(t *testing.T) {
 	t.Run("true once any host's rollback has started, even without a fresh failure", func(t *testing.T) {
 		run := sepBootstrapRun{
 			Hosts: []sepBootstrapHost{
-				{Steps: []sepBootstrapStep{step("install_package", bootstrapStepFailed, bootstrapMaxAttempts)},
-					RollbackSteps: []sepBootstrapStep{step("stop_service", bootstrapStepRunning, 1)}},
+				{
+					Steps:         []sepBootstrapStep{step("install_package", bootstrapStepFailed, bootstrapMaxAttempts)},
+					RollbackSteps: []sepBootstrapStep{step("stop_service", bootstrapStepRunning, 1)},
+				},
 				// A second, otherwise-healthy host: still counts as rolling back
 				// because rollback means every host, not just the failed one.
-				{Steps: []sepBootstrapStep{step("verify", bootstrapStepSucceeded, 1)},
-					RollbackSteps: []sepBootstrapStep{step("stop_service", bootstrapStepPending, 0)}},
+				{
+					Steps:         []sepBootstrapStep{step("verify", bootstrapStepSucceeded, 1)},
+					RollbackSteps: []sepBootstrapStep{step("stop_service", bootstrapStepPending, 0)},
+				},
 			},
 		}
 		assert.True(t, runIsRollingBack(run))

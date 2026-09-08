@@ -705,6 +705,10 @@ func TestGetBootstrapRun(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, "run-abc", response.GetRunId())
 		assert.Equal(t, "running", response.GetStatus())
+		assert.Equal(t, "rs-orders-prod", response.GetReplicaSetName())
+		assert.Equal(t, "7.0.8", response.GetMongodbVersion())
+		assert.Equal(t, mustParseTime(t, "2026-01-01T00:00:00Z"), response.GetStartedAt().AsTime())
+		assert.Nil(t, response.GetFinishedAt())
 		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc", stub.path)
 		require.Len(t, response.GetHosts(), 1)
 		assert.Equal(t, "n1", response.GetHosts()[0].GetHost())
@@ -745,6 +749,7 @@ func TestListBootstrapRuns(t *testing.T) {
 				"mongodb_version": "7.0.8",
 				"replica_set_name": "rs-orders-prod",
 				"started_at": "2026-01-01T00:00:00Z",
+				"finished_at": "2026-01-01T00:05:00Z",
 				"hosts": [{"host": "n1", "steps": [{"name": "pre_check", "status": "succeeded", "attempt_count": 1}]}],
 				"run_steps": []
 			},
@@ -770,8 +775,11 @@ func TestListBootstrapRuns(t *testing.T) {
 		require.Len(t, response.GetRuns(), 2)
 		assert.Equal(t, "run-abc", response.GetRuns()[0].GetRunId())
 		assert.Equal(t, "succeeded", response.GetRuns()[0].GetStatus())
+		assert.Equal(t, "rs-orders-prod", response.GetRuns()[0].GetReplicaSetName())
+		assert.Equal(t, mustParseTime(t, "2026-01-01T00:05:00Z"), response.GetRuns()[0].GetFinishedAt().AsTime())
 		assert.Equal(t, "n1", response.GetRuns()[0].GetHosts()[0].GetHost())
 		assert.Equal(t, "run-def", response.GetRuns()[1].GetRunId())
+		assert.Nil(t, response.GetRuns()[1].GetFinishedAt())
 	})
 
 	t.Run("clamps an over-large limit before forwarding it", func(t *testing.T) {

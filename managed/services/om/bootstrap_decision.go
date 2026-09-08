@@ -15,6 +15,8 @@
 
 package om
 
+import "slices"
+
 // This file is pure decision logic for the bootstrap stepper (stepper.go): given a
 // run's current state (as om_bootstrap's own API reports it), what should happen
 // next. No network, no database, no clock -- every function here is a plain
@@ -30,8 +32,8 @@ package om
 // back, including ones that had already fully succeeded.
 
 // bootstrapMaxAttempts caps a step's attempt_count before its failure is treated as
-// permanent. attempt_count counts every dispatch including the first, so 2 means
-// "the first attempt failed, and so did the one retry."
+// permanent: attempt_count counts every dispatch including the first, so 2 means the
+// first attempt failed, and so did the one retry.
 const bootstrapMaxAttempts = 2
 
 // stepAction names one step the stepper has decided to dispatch next.
@@ -198,10 +200,8 @@ func runStepsExhaustedRetries(run sepBootstrapRun) bool {
 // back. Does not itself check whether rollback has already started; see
 // runIsRollingBack, which callers use instead.
 func runNeedsRollback(run sepBootstrapRun) bool {
-	for _, host := range run.Hosts {
-		if hostExhaustedRetries(host) {
-			return true
-		}
+	if slices.ContainsFunc(run.Hosts, hostExhaustedRetries) {
+		return true
 	}
 	return runStepsExhaustedRetries(run)
 }
@@ -235,10 +235,8 @@ func hostRollbackDone(host sepBootstrapHost) bool {
 // step anywhere in the run -- see the module doc comment on why "roll back" means
 // every host, not just the one that failed.
 func runIsRollingBack(run sepBootstrapRun) bool {
-	for _, host := range run.Hosts {
-		if hostRollbackStarted(host) {
-			return true
-		}
+	if slices.ContainsFunc(run.Hosts, hostRollbackStarted) {
+		return true
 	}
 	return runNeedsRollback(run)
 }

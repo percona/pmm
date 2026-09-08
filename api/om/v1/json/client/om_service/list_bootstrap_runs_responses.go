@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ListBootstrapRunsReader is a Reader for the ListBootstrapRuns structure.
@@ -101,6 +102,7 @@ func (o *ListBootstrapRunsOK) GetPayload() *ListBootstrapRunsOKBody {
 }
 
 func (o *ListBootstrapRunsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListBootstrapRunsOKBody)
 
 	// response payload
@@ -174,6 +176,7 @@ func (o *ListBootstrapRunsDefault) GetPayload() *ListBootstrapRunsDefaultBody {
 }
 
 func (o *ListBootstrapRunsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListBootstrapRunsDefaultBody)
 
 	// response payload
@@ -189,6 +192,7 @@ ListBootstrapRunsDefaultBody list bootstrap runs default body
 swagger:model ListBootstrapRunsDefaultBody
 */
 type ListBootstrapRunsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -258,7 +262,9 @@ func (o *ListBootstrapRunsDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ListBootstrapRunsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -278,6 +284,7 @@ func (o *ListBootstrapRunsDefaultBody) contextValidateDetails(ctx context.Contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -306,6 +313,7 @@ ListBootstrapRunsDefaultBodyDetailsItems0 list bootstrap runs default body detai
 swagger:model ListBootstrapRunsDefaultBodyDetailsItems0
 */
 type ListBootstrapRunsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -317,6 +325,7 @@ type ListBootstrapRunsDefaultBodyDetailsItems0 struct {
 func (o *ListBootstrapRunsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -354,6 +363,7 @@ func (o *ListBootstrapRunsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListBootstrapRunsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -417,6 +427,7 @@ ListBootstrapRunsOKBody ListBootstrapRunsResponse returns the bootstrap run hist
 swagger:model ListBootstrapRunsOKBody
 */
 type ListBootstrapRunsOKBody struct {
+
 	// Each run in the same full shape GetBootstrapRun answers with, not a
 	// trimmed summary -- SEP's own GET /runs already returns every host's steps
 	// per row (see bootstrapRunToProto's doc comment), so there is no cheaper
@@ -483,7 +494,9 @@ func (o *ListBootstrapRunsOKBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListBootstrapRunsOKBody) contextValidateRuns(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Runs); i++ {
+
 		if o.Runs[i] != nil {
 
 			if swag.IsZero(o.Runs[i]) { // not required
@@ -503,6 +516,7 @@ func (o *ListBootstrapRunsOKBody) contextValidateRuns(ctx context.Context, forma
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -535,6 +549,7 @@ ListBootstrapRunsOKBodyRunsItems0 GetBootstrapRunResponse is one run, in full, a
 swagger:model ListBootstrapRunsOKBodyRunsItems0
 */
 type ListBootstrapRunsOKBodyRunsItems0 struct {
+
 	// run id
 	RunID string `json:"run_id,omitempty"`
 
@@ -552,6 +567,20 @@ type ListBootstrapRunsOKBodyRunsItems0 struct {
 	// Set when the run itself failed outside any single step -- e.g. SEP
 	// rejected the request before planning anything.
 	Error *string `json:"error,omitempty"`
+
+	// The replica set this run is building.
+	ReplicaSetName string `json:"replica_set_name,omitempty"`
+
+	// The MongoDB version this run is installing.
+	MongodbVersion string `json:"mongodb_version,omitempty"`
+
+	// When this run was created.
+	// Format: date-time
+	StartedAt strfmt.DateTime `json:"started_at,omitempty"`
+
+	// When this run reached a terminal status. Unset while it is still going.
+	// Format: date-time
+	FinishedAt *strfmt.DateTime `json:"finished_at,omitempty"`
 }
 
 // Validate validates this list bootstrap runs OK body runs items0
@@ -563,6 +592,14 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) Validate(formats strfmt.Registry) er
 	}
 
 	if err := o.validateRunSteps(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStartedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateFinishedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -632,6 +669,30 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) validateRunSteps(formats strfmt.Regi
 	return nil
 }
 
+func (o *ListBootstrapRunsOKBodyRunsItems0) validateStartedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.StartedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("started_at", "body", "date-time", o.StartedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListBootstrapRunsOKBodyRunsItems0) validateFinishedAt(formats strfmt.Registry) error {
+	if swag.IsZero(o.FinishedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("finished_at", "body", "date-time", o.FinishedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // ContextValidate validate this list bootstrap runs OK body runs items0 based on the context it is used
 func (o *ListBootstrapRunsOKBodyRunsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -651,7 +712,9 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) ContextValidate(ctx context.Context,
 }
 
 func (o *ListBootstrapRunsOKBodyRunsItems0) contextValidateHosts(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Hosts); i++ {
+
 		if o.Hosts[i] != nil {
 
 			if swag.IsZero(o.Hosts[i]) { // not required
@@ -671,13 +734,16 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) contextValidateHosts(ctx context.Con
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListBootstrapRunsOKBodyRunsItems0) contextValidateRunSteps(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.RunSteps); i++ {
+
 		if o.RunSteps[i] != nil {
 
 			if swag.IsZero(o.RunSteps[i]) { // not required
@@ -697,6 +763,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) contextValidateRunSteps(ctx context.
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -725,6 +792,7 @@ ListBootstrapRunsOKBodyRunsItems0HostsItems0 BootstrapHost is one host's progres
 swagger:model ListBootstrapRunsOKBodyRunsItems0HostsItems0
 */
 type ListBootstrapRunsOKBodyRunsItems0HostsItems0 struct {
+
 	// The node id this progress belongs to.
 	Host string `json:"host,omitempty"`
 
@@ -879,7 +947,9 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) ContextValidate(ctx conte
 }
 
 func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateSteps(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Steps); i++ {
+
 		if o.Steps[i] != nil {
 
 			if swag.IsZero(o.Steps[i]) { // not required
@@ -899,13 +969,16 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateSteps(ctx 
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateRollbackSteps(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.RollbackSteps); i++ {
+
 		if o.RollbackSteps[i] != nil {
 
 			if swag.IsZero(o.RollbackSteps[i]) { // not required
@@ -925,13 +998,16 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateRollbackSt
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateFinalizeSteps(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.FinalizeSteps); i++ {
+
 		if o.FinalizeSteps[i] != nil {
 
 			if swag.IsZero(o.FinalizeSteps[i]) { // not required
@@ -951,6 +1027,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateFinalizeSt
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -982,6 +1059,7 @@ ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0 BootstrapStep is
 swagger:model ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0
 */
 type ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0 struct {
+
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.
@@ -1036,6 +1114,7 @@ ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0 BootstrapStep is
 swagger:model ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0
 */
 type ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0 struct {
+
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.
@@ -1090,6 +1169,7 @@ ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0 BootstrapStep is one ste
 swagger:model ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0
 */
 type ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0 struct {
+
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.
@@ -1144,6 +1224,7 @@ ListBootstrapRunsOKBodyRunsItems0RunStepsItems0 BootstrapStep is one step's prog
 swagger:model ListBootstrapRunsOKBodyRunsItems0RunStepsItems0
 */
 type ListBootstrapRunsOKBodyRunsItems0RunStepsItems0 struct {
+
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.

@@ -28292,6 +28292,29 @@
                         "type": "string",
                         "x-nullable": true,
                         "x-order": 4
+                      },
+                      "replica_set_name": {
+                        "description": "The replica set this run is building.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "mongodb_version": {
+                        "description": "The MongoDB version this run is installing.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "started_at": {
+                        "description": "When this run was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 7
+                      },
+                      "finished_at": {
+                        "description": "When this run reached a terminal status. Unset while it is still going.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-nullable": true,
+                        "x-order": 8
                       }
                     }
                   },
@@ -28520,6 +28543,29 @@
                   "type": "string",
                   "x-nullable": true,
                   "x-order": 4
+                },
+                "replica_set_name": {
+                  "description": "The replica set this run is building.",
+                  "type": "string",
+                  "x-order": 5
+                },
+                "mongodb_version": {
+                  "description": "The MongoDB version this run is installing.",
+                  "type": "string",
+                  "x-order": 6
+                },
+                "started_at": {
+                  "description": "When this run was created.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 7
+                },
+                "finished_at": {
+                  "description": "When this run reached a terminal status. Unset while it is still going.",
+                  "type": "string",
+                  "format": "date-time",
+                  "x-nullable": true,
+                  "x-order": 8
                 }
               }
             }

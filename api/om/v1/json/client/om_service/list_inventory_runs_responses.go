@@ -102,6 +102,7 @@ func (o *ListInventoryRunsOK) GetPayload() *ListInventoryRunsOKBody {
 }
 
 func (o *ListInventoryRunsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListInventoryRunsOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *ListInventoryRunsDefault) GetPayload() *ListInventoryRunsDefaultBody {
 }
 
 func (o *ListInventoryRunsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListInventoryRunsDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ ListInventoryRunsDefaultBody list inventory runs default body
 swagger:model ListInventoryRunsDefaultBody
 */
 type ListInventoryRunsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *ListInventoryRunsDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ListInventoryRunsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *ListInventoryRunsDefaultBody) contextValidateDetails(ctx context.Contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ ListInventoryRunsDefaultBodyDetailsItems0 list inventory runs default body detai
 swagger:model ListInventoryRunsDefaultBodyDetailsItems0
 */
 type ListInventoryRunsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type ListInventoryRunsDefaultBodyDetailsItems0 struct {
 func (o *ListInventoryRunsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *ListInventoryRunsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListInventoryRunsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ ListInventoryRunsOKBody ListInventoryRunsResponse returns the refresh history, n
 swagger:model ListInventoryRunsOKBody
 */
 type ListInventoryRunsOKBody struct {
+
 	// The runs.
 	Runs []*ListInventoryRunsOKBodyRunsItems0 `json:"runs"`
 }
@@ -481,7 +491,9 @@ func (o *ListInventoryRunsOKBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListInventoryRunsOKBody) contextValidateRuns(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Runs); i++ {
+
 		if o.Runs[i] != nil {
 
 			if swag.IsZero(o.Runs[i]) { // not required
@@ -501,6 +513,7 @@ func (o *ListInventoryRunsOKBody) contextValidateRuns(ctx context.Context, forma
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -529,6 +542,7 @@ ListInventoryRunsOKBodyRunsItems0 InventoryRun is one refresh of the estate.
 swagger:model ListInventoryRunsOKBodyRunsItems0
 */
 type ListInventoryRunsOKBodyRunsItems0 struct {
+
 	// The run's ID.
 	RunID string `json:"run_id,omitempty"`
 
@@ -716,6 +730,7 @@ func (o *ListInventoryRunsOKBodyRunsItems0) ContextValidate(ctx context.Context,
 }
 
 func (o *ListInventoryRunsOKBodyRunsItems0) contextValidateCounts(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Counts != nil {
 
 		if swag.IsZero(o.Counts) { // not required
@@ -762,6 +777,7 @@ ListInventoryRunsOKBodyRunsItems0Counts InventoryRunCounts is what one refresh s
 swagger:model ListInventoryRunsOKBodyRunsItems0Counts
 */
 type ListInventoryRunsOKBodyRunsItems0Counts struct {
+
 	// Services enumeration found.
 	TotalServices int32 `json:"total_services,omitempty"`
 

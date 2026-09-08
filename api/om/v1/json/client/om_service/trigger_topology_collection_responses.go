@@ -102,6 +102,7 @@ func (o *TriggerTopologyCollectionOK) GetPayload() *TriggerTopologyCollectionOKB
 }
 
 func (o *TriggerTopologyCollectionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(TriggerTopologyCollectionOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *TriggerTopologyCollectionDefault) GetPayload() *TriggerTopologyCollecti
 }
 
 func (o *TriggerTopologyCollectionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(TriggerTopologyCollectionDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ TriggerTopologyCollectionDefaultBody trigger topology collection default body
 swagger:model TriggerTopologyCollectionDefaultBody
 */
 type TriggerTopologyCollectionDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *TriggerTopologyCollectionDefaultBody) ContextValidate(ctx context.Conte
 }
 
 func (o *TriggerTopologyCollectionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *TriggerTopologyCollectionDefaultBody) contextValidateDetails(ctx contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ TriggerTopologyCollectionDefaultBodyDetailsItems0 trigger topology collection de
 swagger:model TriggerTopologyCollectionDefaultBodyDetailsItems0
 */
 type TriggerTopologyCollectionDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type TriggerTopologyCollectionDefaultBodyDetailsItems0 struct {
 func (o *TriggerTopologyCollectionDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *TriggerTopologyCollectionDefaultBodyDetailsItems0) UnmarshalJSON(data [
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o TriggerTopologyCollectionDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ TriggerTopologyCollectionOKBody TriggerTopologyCollectionResponse acknowledges a
 swagger:model TriggerTopologyCollectionOKBody
 */
 type TriggerTopologyCollectionOKBody struct {
+
 	// The run's ID.
 	RunID string `json:"run_id,omitempty"`
 

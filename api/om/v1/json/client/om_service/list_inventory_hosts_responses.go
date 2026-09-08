@@ -102,6 +102,7 @@ func (o *ListInventoryHostsOK) GetPayload() *ListInventoryHostsOKBody {
 }
 
 func (o *ListInventoryHostsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListInventoryHostsOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *ListInventoryHostsDefault) GetPayload() *ListInventoryHostsDefaultBody 
 }
 
 func (o *ListInventoryHostsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListInventoryHostsDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ ListInventoryHostsDefaultBody list inventory hosts default body
 swagger:model ListInventoryHostsDefaultBody
 */
 type ListInventoryHostsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *ListInventoryHostsDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *ListInventoryHostsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *ListInventoryHostsDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ ListInventoryHostsDefaultBodyDetailsItems0 list inventory hosts default body det
 swagger:model ListInventoryHostsDefaultBodyDetailsItems0
 */
 type ListInventoryHostsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type ListInventoryHostsDefaultBodyDetailsItems0 struct {
 func (o *ListInventoryHostsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *ListInventoryHostsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListInventoryHostsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -418,6 +427,7 @@ ListInventoryHostsOKBody ListInventoryHostsResponse returns the hosts OM knows a
 swagger:model ListInventoryHostsOKBody
 */
 type ListInventoryHostsOKBody struct {
+
 	// The hosts.
 	Hosts []*ListInventoryHostsOKBodyHostsItems0 `json:"hosts"`
 }
@@ -481,7 +491,9 @@ func (o *ListInventoryHostsOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *ListInventoryHostsOKBody) contextValidateHosts(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Hosts); i++ {
+
 		if o.Hosts[i] != nil {
 
 			if swag.IsZero(o.Hosts[i]) { // not required
@@ -501,6 +513,7 @@ func (o *ListInventoryHostsOKBody) contextValidateHosts(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -534,6 +547,7 @@ ListInventoryHostsOKBodyHostsItems0 InventoryHost is one machine OM knows about,
 swagger:model ListInventoryHostsOKBodyHostsItems0
 */
 type ListInventoryHostsOKBodyHostsItems0 struct {
+
 	// PMM's node ID. Also what a scoped refresh is addressed by.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -747,7 +761,9 @@ func (o *ListInventoryHostsOKBodyHostsItems0) ContextValidate(ctx context.Contex
 }
 
 func (o *ListInventoryHostsOKBodyHostsItems0) contextValidateUnregisteredMongods(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.UnregisteredMongods); i++ {
+
 		if o.UnregisteredMongods[i] != nil {
 
 			if swag.IsZero(o.UnregisteredMongods[i]) { // not required
@@ -767,13 +783,16 @@ func (o *ListInventoryHostsOKBodyHostsItems0) contextValidateUnregisteredMongods
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListInventoryHostsOKBodyHostsItems0) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Services); i++ {
+
 		if o.Services[i] != nil {
 
 			if swag.IsZero(o.Services[i]) { // not required
@@ -793,12 +812,14 @@ func (o *ListInventoryHostsOKBodyHostsItems0) contextValidateServices(ctx contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListInventoryHostsOKBodyHostsItems0) contextValidateExecutor(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Executor != nil {
 
 		if swag.IsZero(o.Executor) { // not required
@@ -823,6 +844,7 @@ func (o *ListInventoryHostsOKBodyHostsItems0) contextValidateExecutor(ctx contex
 }
 
 func (o *ListInventoryHostsOKBodyHostsItems0) contextValidateFreshness(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Freshness != nil {
 
 		if swag.IsZero(o.Freshness) { // not required
@@ -875,6 +897,7 @@ ListInventoryHostsOKBodyHostsItems0Executor InventoryExecutor reports whether SE
 swagger:model ListInventoryHostsOKBodyHostsItems0Executor
 */
 type ListInventoryHostsOKBodyHostsItems0Executor struct {
+
 	// Whether the Tasks backend knows this node at all.
 	Registered bool `json:"registered,omitempty"`
 
@@ -927,6 +950,7 @@ ListInventoryHostsOKBodyHostsItems0Freshness InventoryFreshness says how current
 swagger:model ListInventoryHostsOKBodyHostsItems0Freshness
 */
 type ListInventoryHostsOKBodyHostsItems0Freshness struct {
+
 	// When OM first wrote a row for this entity.
 	// Format: date-time
 	FirstSeenAt strfmt.DateTime `json:"first_seen_at,omitempty"`
@@ -1060,6 +1084,7 @@ ListInventoryHostsOKBodyHostsItems0ServicesItems0 InventoryService is one MongoD
 swagger:model ListInventoryHostsOKBodyHostsItems0ServicesItems0
 */
 type ListInventoryHostsOKBodyHostsItems0ServicesItems0 struct {
+
 	// PMM's service ID. The join key against the topology document.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -1160,6 +1185,7 @@ func (o *ListInventoryHostsOKBodyHostsItems0ServicesItems0) ContextValidate(ctx 
 }
 
 func (o *ListInventoryHostsOKBodyHostsItems0ServicesItems0) contextValidateFreshness(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Freshness != nil {
 
 		if swag.IsZero(o.Freshness) { // not required
@@ -1212,6 +1238,7 @@ ListInventoryHostsOKBodyHostsItems0ServicesItems0Freshness InventoryFreshness sa
 swagger:model ListInventoryHostsOKBodyHostsItems0ServicesItems0Freshness
 */
 type ListInventoryHostsOKBodyHostsItems0ServicesItems0Freshness struct {
+
 	// When OM first wrote a row for this entity.
 	// Format: date-time
 	FirstSeenAt strfmt.DateTime `json:"first_seen_at,omitempty"`
@@ -1342,6 +1369,7 @@ ListInventoryHostsOKBodyHostsItems0UnregisteredMongodsItems0 UnregisteredMongod 
 swagger:model ListInventoryHostsOKBodyHostsItems0UnregisteredMongodsItems0
 */
 type ListInventoryHostsOKBodyHostsItems0UnregisteredMongodsItems0 struct {
+
 	// The port it is listening on.
 	Port *int32 `json:"port,omitempty"`
 

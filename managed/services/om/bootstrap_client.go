@@ -257,10 +257,10 @@ func (c *bootstrapClient) dispatchRollbackStep(ctx context.Context, runID, host,
 }
 
 // finishRun records the stepper's own decision that a run is done -- failed, with
-// retries exhausted, or rolled back. runStatus must be bootstrapRunFailed or
-// bootstrapRunRolledBack; SUCCEEDED is never requested here, since om_bootstrap
-// infers it on its own the moment every step actually succeeds (see
-// reconcile.py's module docstring).
+// retries exhausted, or rolled back. Its runStatus argument must be
+// bootstrapRunFailed or bootstrapRunRolledBack; SUCCEEDED is never requested here,
+// since om_bootstrap infers it on its own the moment every step actually succeeds
+// (see reconcile.py's module docstring).
 func (c *bootstrapClient) finishRun(ctx context.Context, runID, runStatus string, detail *string) (*sepBootstrapRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
 	defer cancel()

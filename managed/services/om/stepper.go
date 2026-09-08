@@ -221,7 +221,7 @@ func (s *Service) finishBootstrapRun(ctx context.Context, run *sepBootstrapRun, 
 // silently skipped: it means the secret disappeared after being used, not that
 // nothing needs registering.
 //
-// run.Hosts is keyed on Nomad executor host (TriggerHostBootstrap's own doc
+// The run's Hosts field is keyed on Nomad executor host (TriggerHostBootstrap's own doc
 // comment), not the node id PMM's own inventory needs -- nodeIDForExecutorHost
 // resolves each one back before registering it.
 func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun) {

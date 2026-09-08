@@ -8,7 +8,6 @@ package omv1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -392,75 +391,57 @@ type UnimplementedOmServiceServer struct{}
 func (UnimplementedOmServiceServer) GetTopology(context.Context, *GetTopologyRequest) (*GetTopologyResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTopology not implemented")
 }
-
 func (UnimplementedOmServiceServer) ListTopologyRuns(context.Context, *ListTopologyRunsRequest) (*ListTopologyRunsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListTopologyRuns not implemented")
 }
-
 func (UnimplementedOmServiceServer) GetTopologyRun(context.Context, *GetTopologyRunRequest) (*GetTopologyRunResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTopologyRun not implemented")
 }
-
 func (UnimplementedOmServiceServer) TriggerTopologyCollection(context.Context, *TriggerTopologyCollectionRequest) (*TriggerTopologyCollectionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TriggerTopologyCollection not implemented")
 }
-
 func (UnimplementedOmServiceServer) ListInventoryHosts(context.Context, *ListInventoryHostsRequest) (*ListInventoryHostsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListInventoryHosts not implemented")
 }
-
 func (UnimplementedOmServiceServer) GetInventoryHost(context.Context, *GetInventoryHostRequest) (*GetInventoryHostResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInventoryHost not implemented")
 }
-
 func (UnimplementedOmServiceServer) DeleteInventoryHost(context.Context, *DeleteInventoryHostRequest) (*DeleteInventoryHostResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteInventoryHost not implemented")
 }
-
 func (UnimplementedOmServiceServer) ListInventoryServices(context.Context, *ListInventoryServicesRequest) (*ListInventoryServicesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListInventoryServices not implemented")
 }
-
 func (UnimplementedOmServiceServer) GetInventoryService(context.Context, *GetInventoryServiceRequest) (*GetInventoryServiceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInventoryService not implemented")
 }
-
 func (UnimplementedOmServiceServer) DeleteInventoryService(context.Context, *DeleteInventoryServiceRequest) (*DeleteInventoryServiceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteInventoryService not implemented")
 }
-
 func (UnimplementedOmServiceServer) ListInventoryRuns(context.Context, *ListInventoryRunsRequest) (*ListInventoryRunsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListInventoryRuns not implemented")
 }
-
 func (UnimplementedOmServiceServer) GetInventoryRun(context.Context, *GetInventoryRunRequest) (*GetInventoryRunResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInventoryRun not implemented")
 }
-
 func (UnimplementedOmServiceServer) TriggerInventoryRefresh(context.Context, *TriggerInventoryRefreshRequest) (*TriggerInventoryRefreshResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TriggerInventoryRefresh not implemented")
 }
-
 func (UnimplementedOmServiceServer) TriggerHostBootstrap(context.Context, *TriggerHostBootstrapRequest) (*TriggerHostBootstrapResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TriggerHostBootstrap not implemented")
 }
-
 func (UnimplementedOmServiceServer) GetBootstrapRun(context.Context, *GetBootstrapRunRequest) (*GetBootstrapRunResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBootstrapRun not implemented")
 }
-
 func (UnimplementedOmServiceServer) ListBootstrapRuns(context.Context, *ListBootstrapRunsRequest) (*ListBootstrapRunsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListBootstrapRuns not implemented")
 }
-
 func (UnimplementedOmServiceServer) GetInventoryConfig(context.Context, *GetInventoryConfigRequest) (*GetInventoryConfigResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInventoryConfig not implemented")
 }
-
 func (UnimplementedOmServiceServer) UpdateInventoryConfig(context.Context, *UpdateInventoryConfigRequest) (*UpdateInventoryConfigResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateInventoryConfig not implemented")
 }
-
 func (UnimplementedOmServiceServer) DeleteInventoryConfigOverride(context.Context, *DeleteInventoryConfigOverrideRequest) (*DeleteInventoryConfigOverrideResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteInventoryConfigOverride not implemented")
 }

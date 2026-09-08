@@ -58,6 +58,7 @@ ListInventoryHostsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListInventoryHostsParams struct {
+
 	/* AutomationEligible.
 
 	     When set, return only hosts that are (or are not) automation_eligible. Applied
@@ -186,6 +187,7 @@ func (o *ListInventoryHostsParams) SetHasService(hasService *bool) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListInventoryHostsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}
@@ -201,6 +203,7 @@ func (o *ListInventoryHostsParams) WriteToRequest(r runtime.ClientRequest, reg s
 		}
 		qAutomationEligible := swag.FormatBool(qrAutomationEligible)
 		if qAutomationEligible != "" {
+
 			if err := r.SetQueryParam("automation_eligible", qAutomationEligible); err != nil {
 				return err
 			}
@@ -217,6 +220,7 @@ func (o *ListInventoryHostsParams) WriteToRequest(r runtime.ClientRequest, reg s
 		}
 		qExecutor := swag.FormatBool(qrExecutor)
 		if qExecutor != "" {
+
 			if err := r.SetQueryParam("executor", qExecutor); err != nil {
 				return err
 			}
@@ -233,6 +237,7 @@ func (o *ListInventoryHostsParams) WriteToRequest(r runtime.ClientRequest, reg s
 		}
 		qFailing := swag.FormatBool(qrFailing)
 		if qFailing != "" {
+
 			if err := r.SetQueryParam("failing", qFailing); err != nil {
 				return err
 			}
@@ -249,6 +254,7 @@ func (o *ListInventoryHostsParams) WriteToRequest(r runtime.ClientRequest, reg s
 		}
 		qHasService := swag.FormatBool(qrHasService)
 		if qHasService != "" {
+
 			if err := r.SetQueryParam("has_service", qHasService); err != nil {
 				return err
 			}

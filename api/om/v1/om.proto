@@ -917,6 +917,14 @@ message GetBootstrapRunResponse {
   // Set when the run itself failed outside any single step -- e.g. SEP
   // rejected the request before planning anything.
   optional string error = 5;
+  // The replica set this run is building.
+  string replica_set_name = 6;
+  // The MongoDB version this run is installing.
+  string mongodb_version = 7;
+  // When this run was created.
+  google.protobuf.Timestamp started_at = 8;
+  // When this run reached a terminal status. Unset while it is still going.
+  optional google.protobuf.Timestamp finished_at = 9;
 }
 
 // ListBootstrapRunsRequest is the request for ListBootstrapRuns.

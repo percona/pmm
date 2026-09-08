@@ -366,7 +366,7 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 // yet). PMM's own HA-leader-only stepper (stepper.go) drives the returned run
 // forward from here; this handler's job ends at planning it.
 //
-// om_bootstrap's own "host" identity is the Nomad *executor* host (the name
+// The om_bootstrap app's own "host" identity is the Nomad *executor* host (the name
 // its own dispatch route passes straight through as the Tasks API's
 // target -- see dispatch.go's own doc comment on SEP's side), not PMM's node
 // id: the two are different strings for the same machine (a node id is a
@@ -547,11 +547,15 @@ func bootstrapRunToProto(run *sepBootstrapRun) *omv1.GetBootstrapRunResponse {
 		})
 	}
 	return &omv1.GetBootstrapRunResponse{
-		RunId:    run.ID,
-		Status:   run.Status,
-		Hosts:    hosts,
-		RunSteps: bootstrapStepsToProto(run.RunSteps),
-		Error:    run.Error,
+		RunId:          run.ID,
+		Status:         run.Status,
+		Hosts:          hosts,
+		RunSteps:       bootstrapStepsToProto(run.RunSteps),
+		Error:          run.Error,
+		ReplicaSetName: run.ReplicaSetName,
+		MongodbVersion: run.MongoDBVersion,
+		StartedAt:      timestamppb.New(run.StartedAt),
+		FinishedAt:     optionalTimestamp(run.FinishedAt),
 	}
 }
 

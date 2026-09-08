@@ -102,6 +102,7 @@ func (o *GetTopologyOK) GetPayload() *GetTopologyOKBody {
 }
 
 func (o *GetTopologyOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetTopologyOKBody)
 
 	// response payload
@@ -175,6 +176,7 @@ func (o *GetTopologyDefault) GetPayload() *GetTopologyDefaultBody {
 }
 
 func (o *GetTopologyDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetTopologyDefaultBody)
 
 	// response payload
@@ -190,6 +192,7 @@ GetTopologyDefaultBody get topology default body
 swagger:model GetTopologyDefaultBody
 */
 type GetTopologyDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -259,7 +262,9 @@ func (o *GetTopologyDefaultBody) ContextValidate(ctx context.Context, formats st
 }
 
 func (o *GetTopologyDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -279,6 +284,7 @@ func (o *GetTopologyDefaultBody) contextValidateDetails(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -307,6 +313,7 @@ GetTopologyDefaultBodyDetailsItems0 get topology default body details items0
 swagger:model GetTopologyDefaultBodyDetailsItems0
 */
 type GetTopologyDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -318,6 +325,7 @@ type GetTopologyDefaultBodyDetailsItems0 struct {
 func (o *GetTopologyDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -355,6 +363,7 @@ func (o *GetTopologyDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetTopologyDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
+
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -419,6 +428,7 @@ GetTopologyOKBody GetTopologyResponse is the whole topology document plus the pr
 swagger:model GetTopologyOKBody
 */
 type GetTopologyOKBody struct {
+
 	// The PMM node the document was assembled on.
 	OriginNode *string `json:"origin_node,omitempty"`
 
@@ -556,7 +566,9 @@ func (o *GetTopologyOKBody) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *GetTopologyOKBody) contextValidateEnvironments(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Environments); i++ {
+
 		if o.Environments[i] != nil {
 
 			if swag.IsZero(o.Environments[i]) { // not required
@@ -576,12 +588,14 @@ func (o *GetTopologyOKBody) contextValidateEnvironments(ctx context.Context, for
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetTopologyOKBody) contextValidateSnapshot(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Snapshot != nil {
 
 		if swag.IsZero(o.Snapshot) { // not required
@@ -606,6 +620,7 @@ func (o *GetTopologyOKBody) contextValidateSnapshot(ctx context.Context, formats
 }
 
 func (o *GetTopologyOKBody) contextValidateSummary(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Summary != nil {
 
 		if swag.IsZero(o.Summary) { // not required
@@ -652,6 +667,7 @@ GetTopologyOKBodyEnvironmentsItems0 Environment represents one monitoring enviro
 swagger:model GetTopologyOKBodyEnvironmentsItems0
 */
 type GetTopologyOKBodyEnvironmentsItems0 struct {
+
 	// Environment label, unset when its services carry none.
 	EnvName *string `json:"env_name,omitempty"`
 
@@ -718,7 +734,9 @@ func (o *GetTopologyOKBodyEnvironmentsItems0) ContextValidate(ctx context.Contex
 }
 
 func (o *GetTopologyOKBodyEnvironmentsItems0) contextValidateClusters(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Clusters); i++ {
+
 		if o.Clusters[i] != nil {
 
 			if swag.IsZero(o.Clusters[i]) { // not required
@@ -738,6 +756,7 @@ func (o *GetTopologyOKBodyEnvironmentsItems0) contextValidateClusters(ctx contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -771,6 +790,7 @@ GetTopologyOKBodyEnvironmentsItems0ClustersItems0 Cluster represents one grouped
 swagger:model GetTopologyOKBodyEnvironmentsItems0ClustersItems0
 */
 type GetTopologyOKBodyEnvironmentsItems0ClustersItems0 struct {
+
 	// Cluster label, unset when its services carry none. Not a stable identity: two
 	// clusters can share this label (a second generation of a sandbox reusing a name), and
 	// `id` is what tells them apart.
@@ -960,7 +980,9 @@ func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) ContextValidate(ctx 
 }
 
 func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Services); i++ {
+
 		if o.Services[i] != nil {
 
 			if swag.IsZero(o.Services[i]) { // not required
@@ -980,6 +1002,7 @@ func (o *GetTopologyOKBodyEnvironmentsItems0ClustersItems0) contextValidateServi
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -1022,6 +1045,7 @@ GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 TopologyService 
 swagger:model GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0
 */
 type GetTopologyOKBodyEnvironmentsItems0ClustersItems0ServicesItems0 struct {
+
 	// Service name as PMM inventory registered it.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -1265,6 +1289,7 @@ GetTopologyOKBodySnapshot Snapshot carries the provenance every snapshot-backed 
 swagger:model GetTopologyOKBodySnapshot
 */
 type GetTopologyOKBodySnapshot struct {
+
 	// When the document was assembled.
 	// Format: date-time
 	GeneratedAt strfmt.DateTime `json:"generated_at,omitempty"`
@@ -1357,6 +1382,7 @@ GetTopologyOKBodySummary Summary carries the fleet-level counts, so a caller nee
 swagger:model GetTopologyOKBodySummary
 */
 type GetTopologyOKBodySummary struct {
+
 	// Environments in the document.
 	Environments int32 `json:"environments,omitempty"`
 
