@@ -18,6 +18,7 @@ import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
+import { useHAStatus } from 'hooks/api/useHA';
 import { Messages } from '../../Settings.messages';
 import {
   FEATURE_MANAGEMENT_SETTINGS,
@@ -34,8 +35,6 @@ import {
   advancedSettingsSchema,
 } from './AdvancedSettingsForm.schema';
 import { toFormValues, toPayload } from './AdvancedSettingsForm.utils';
-import { findSettingLock } from './Advanced.utils';
-import { LockReason, SettingName } from 'types/settings.types';
 import { SettingsFieldLabel } from '../settings-field-label';
 import { SettingsSubmitButton } from '../settings-submit-button';
 import { formControlClasses } from '@mui/material/FormControl';
@@ -46,6 +45,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   settings,
 }) => {
   const { mutateAsync: updateSettings } = useUpdateSettings();
+  const { data: haStatus } = useHAStatus();
 
   const methods = useForm<AdvancedSettingsFormValues>({
     resolver: zodResolver(advancedSettingsSchema),
@@ -79,20 +79,9 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
 
   const m = Messages.advanced;
 
-  // The server decides what is writable and reports it, so the field is disabled before a user
-  // types into it rather than after they press Save and get a refusal back.
-  const retentionLock = findSettingLock(
-    settings.lockedSettings,
-    SettingName.dataRetention
-  );
-  const retentionLockMessage =
-    retentionLock?.reason === LockReason.highAvailability
-      ? m.retentionLockedByHa
-      : retentionLock
-        ? m.retentionLockedByEnv(
-            retentionLock.environmentVariable ?? 'PMM_DATA_RETENTION'
-          )
-        : undefined;
+  // In HA retention is fixed at start-up and the server refuses a change, so the field is
+  // disabled before a user types into it rather than after they press Save.
+  const retentionLockedByHa = haStatus?.status === 'Enabled';
 
   return (
     <FormProvider {...methods}>
@@ -152,8 +141,10 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               name="retention"
               textFieldProps={{
                 type: 'number',
-                disabled: !!retentionLock,
-                helperText: retentionLockMessage,
+                disabled: retentionLockedByHa,
+                helperText: retentionLockedByHa
+                  ? m.retentionLockedByHa
+                  : undefined,
                 slotProps: {
                   htmlInput: {
                     min: MIN_DAYS,

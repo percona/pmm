@@ -18,8 +18,6 @@ export const Messages = {
     retentionUnits: 'days',
     retentionLockedByHa:
       "Fixed by your high availability deployment. Change it with the chart's dataRetentionDays value and run helm upgrade.",
-    retentionLockedByEnv: (variable: string) =>
-      `Set by the ${variable} environment variable.`,
     retentionLink: 'https://per.co.na/data_retention',
     telemetryLabel: 'Telemetry',
     telemetryLink: 'https://per.co.na/telemetry',
