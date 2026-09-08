@@ -36,15 +36,17 @@ the handler waits for. Nothing breaks that from inside; the agent goes silent wh
 
 What keeps it out:
 
-- `Ping` is answered by `client.processPings` from `channel.Pings()`, its own single-slot queue, so
-  a busy request loop cannot delay a pong
-- `SetStateRequest` is queued for `client.processSetStates` and answered immediately; the response
-  means "accepted", and the outcome arrives as `StateChanged` requests
-- `runReceiver`'s send into the request queue and `Channel.SendAndWaitResponse` both have a way out
-  (channel close, ctx)
-- `supervisor` bounds its waits for stopping agents (`agentStopTimeout`)
-- `client.processServerSilence` closes the channel, forcing a redial, if nothing arrives from the
-  server for a couple of minutes
+- `SetStateRequest` is queued for `client.processSetStates` and answered immediately — the response
+  means acceptance, per `agent.proto`, and the outcome arrives as `StateChanged` requests
+- `Ping` is answered by `client.processPings` from `channel.Pings()`, a single-slot queue dropped on
+  overflow, so a pong is never queued behind a request the loop has not got to yet
+- `runReceiver` gives up on the connection if the queue stays full (`requestQueueStuckTimeout`), and
+  `Channel.SendAndWaitResponse` takes a ctx, so a caller with its own deadline is bounded
+- `supervisor` bounds the waits for stopping agents to one budget per call (`agentsStopTimeout`)
+
+`CheckConnectionRequest`, `ServiceInfoRequest` and `GetVersionsRequest` still run inline, bounded
+only by the user's own timeouts. They cannot deadlock — they do not wait on the server — but they do
+delay every request behind them, and making the loop a pure dispatcher is what PMM-4245 is about.
 
 ### Local API
 

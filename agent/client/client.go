@@ -68,13 +68,7 @@ const (
 	keepaliveTimeout = 15 * time.Second
 	// One slot is enough for the state queue: a SetStateRequest carries the whole desired
 	// state, so one that has not been applied yet is fully superseded by a newer one.
-	// See PMM-15431.
 	setStatesCap = 1
-	// Watchdog of last resort, see processServerSilence. The server pings every 10s for the
-	// life of the stream, so a couple of minutes without a single message means the connection
-	// is no longer usable.
-	serverSilenceTimeout       = 2 * time.Minute
-	serverSilenceCheckInterval = 15 * time.Second
 )
 
 // configGetter allows to get a config.
@@ -259,7 +253,7 @@ func (c *Client) Run(ctx context.Context) error {
 	c.rtaChannel = rtaChannel
 	c.rw.Unlock()
 
-	c.runProcessors(ctx, agentServiceDialResult.channel)
+	c.runProcessors(ctx)
 	return nil
 }
 
@@ -288,7 +282,7 @@ func (c *Client) Run(ctx context.Context) error {
 //
 // TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 // https://jira.percona.com/browse/PMM-4245
-func (c *Client) runProcessors(ctx context.Context, ch *channel.Channel) {
+func (c *Client) runProcessors(ctx context.Context) {
 	c.supervisor.ClearChangesChannel()
 	c.SendActualStatuses(ctx)
 
@@ -300,40 +294,30 @@ func (c *Client) runProcessors(ctx context.Context, ch *channel.Channel) {
 		c.processSetStates(ctx, setStates)
 		c.l.Debug("processSetStates is finished")
 	}()
-	go c.processServerSilence(ctx, ch)
 
-	oneDone := make(chan struct{}, 5) //nolint:mnd
-	go func() {
-		c.processActionResults(ctx)
-		c.l.Debug("processActionResults is finished")
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processJobsResults(ctx)
-		c.l.Debug("processJobsResults is finished")
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processSupervisorRequests(ctx)
-		c.l.Debug("processSupervisorRequests is finished")
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processPings(ctx)
-		c.l.Debug("processPings is finished")
-		oneDone <- struct{}{}
-	}()
-	go func() {
+	// Run returns as soon as any one of these exits, and Done() closes once they all have.
+	var wg sync.WaitGroup
+	var firstOnce sync.Once
+	firstDone := make(chan struct{})
+	start := func(name string, process func(context.Context)) {
+		wg.Go(func() {
+			process(ctx)
+			c.l.Debugf("%s is finished", name)
+			firstOnce.Do(func() { close(firstDone) })
+		})
+	}
+
+	start("processActionResults", c.processActionResults)
+	start("processJobsResults", c.processJobsResults)
+	start("processSupervisorRequests", c.processSupervisorRequests)
+	start("processPings", c.processPings)
+	start("processChannelRequests", func(ctx context.Context) {
 		c.processChannelRequests(ctx, setStates)
-		c.l.Debug("processChannelRequests is finished")
-		oneDone <- struct{}{}
-	}()
+	})
 
-	<-oneDone
+	<-firstDone
 	go func() {
-		for range cap(oneDone) - 1 {
-			<-oneDone
-		}
+		wg.Wait()
 		c.l.Info("Done.")
 		close(c.done)
 	}()
@@ -472,14 +456,11 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 	wg.Wait()
 }
 
-// processPings answers Ping from its own goroutine, mirroring the fix made on the server side in
-// PMM-15310.
-//
-// The loop reading channel.Requests() is the only responder to everything else, and some of what it
-// runs is bounded only by the user's own timeouts - a connection check carrying
-// --connection-timeout, or gathering software versions. Answering pings there makes the agent look
-// dead to the server for as long as one of those runs, and once the request queue fills,
-// channel.runReceiver stops reading the stream altogether. See PMM-15431.
+// processPings answers Ping from its own goroutine, so that a pong is never queued behind a request
+// the loop below has not got to yet. Some of what that loop runs is bounded only by the user's own
+// timeouts - a connection check carrying --connection-timeout, gathering software versions - and
+// for as long as one of those runs the agent would otherwise look dead to the server.
+// See "the request loop must never block indefinitely" in agent/AGENTS.md (PMM-15431).
 func (c *Client) processPings(ctx context.Context) {
 	for {
 		select {
@@ -500,24 +481,23 @@ func (c *Client) processPings(ctx context.Context) {
 	}
 }
 
-// processSetStates applies desired states, one at a time, off the request loop.
+// processSetStates applies desired states, one at a time, off the request loop: applying one waits
+// for the agents it replaces to stop, and that wait reaches the server.
+// See "the request loop must never block indefinitely" in agent/AGENTS.md (PMM-15431).
 //
-// Applying a state waits for the agents it replaces to stop, and those waits reach all the way to
-// the server: a stopping agent's last status updates go through the same channel, and the client
-// waits for the server to acknowledge each one. Applying state on the request loop therefore stops
-// that loop draining channel.Requests(), and a full request queue blocks channel.runReceiver - the
-// one goroutine that can deliver the acknowledgement the loop is now waiting for. Nothing can break
-// that cycle from inside: the agent stops answering even pings, and Run never returns, so nothing
-// redials either. See PMM-15431, and PMM-15310 for the same cycle on the server side.
-//
-// The trade-off is that SetStateResponse no longer means "applied", only "accepted". Nothing relies
-// on the stronger meaning - the server logs the response and learns the outcome from the
-// StateChanged requests that follow - and the server gives the response 5s, which applying a large
-// state can exceed on its own.
+// Answering from the loop instead of from here makes SetStateResponse mean what agent.proto already
+// says it means - acceptance, not application. The server only logs it, learns the outcome from the
+// StateChanged requests that follow, and gives the response 5s, which applying a large state could
+// exceed on its own.
 func (c *Client) processSetStates(ctx context.Context, setStates <-chan *agentv1.SetStateRequest) {
 	for {
 		select {
 		case state := <-setStates:
+			// Both cases can be ready at once, and a state whose connection is already
+			// gone is superseded by the one the next connection starts with.
+			if ctx.Err() != nil {
+				return
+			}
 			c.supervisor.SetState(state)
 		case <-ctx.Done():
 			return
@@ -528,46 +508,14 @@ func (c *Client) processSetStates(ctx context.Context, setStates <-chan *agentv1
 // requestSetState queues state for processSetStates, replacing one that has not been applied yet.
 // It never blocks: blocking the request loop is what PMM-15431 is about.
 func (c *Client) requestSetState(setStates chan *agentv1.SetStateRequest, state *agentv1.SetStateRequest) {
-	for {
-		select {
-		case setStates <- state:
-			return
-		// The queue holds a single state, and this is its only producer, so the one being
-		// dropped here is superseded by the one we are about to queue.
-		case <-setStates:
-			c.l.Debug("Dropping a state update that was superseded before it was applied.")
-		}
+	select {
+	case <-setStates:
+		c.l.Debug("Dropping a state update that was superseded before it was applied.")
+	default:
 	}
-}
 
-// processServerSilence forces a redial when nothing at all has been received from the server for
-// serverSilenceTimeout.
-//
-// It is the watchdog of last resort for a request loop that stopped draining
-// channel.Requests(): once that queue is full, channel.runReceiver stops reading the stream, so no
-// message - not even a ping - arrives any more, and none of Run's goroutines ever exits, which is
-// what keeps the caller from redialing. Closing the channel unblocks all of them. See PMM-15431.
-// The channel is taken as an argument rather than read from the client: this goroutine outlives the
-// accounting that Run's caller waits on before starting the next connection.
-func (c *Client) processServerSilence(ctx context.Context, ch *channel.Channel) {
-	ticker := time.NewTicker(serverSilenceCheckInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			silence := time.Since(ch.LastReceived()).Round(time.Second)
-			if silence < serverSilenceTimeout {
-				continue
-			}
-
-			c.l.Errorf("Nothing received from server for %s, closing the connection to reconnect.", silence)
-			ch.Close(fmt.Errorf("nothing received from server for %s", silence))
-			return
-		}
-	}
+	// Single producer, so the slot freed above is still free and this cannot block.
+	setStates <- state
 }
 
 func (c *Client) processChannelRequests(ctx context.Context, setStates chan *agentv1.SetStateRequest) {

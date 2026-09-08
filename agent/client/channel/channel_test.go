@@ -374,13 +374,63 @@ func TestFullRequestQueueDoesNotWedgeReceiver(t *testing.T) {
 	t.Cleanup(teardown)
 
 	<-queueFilled
+	requireQueueFull(t, channel)
+
+	channel.close(errClosed)
+
+	assertReceiverStopped(t, channel)
+}
+
+// TestFullRequestQueueGivesUpOnConnection covers the recovery path: a consumer that never resumes
+// draining leaves runReceiver parked, and only giving up on the connection gets the agent back -
+// nothing else can, since Run does not return while its goroutines are all still parked.
+func TestFullRequestQueueGivesUpOnConnection(t *testing.T) {
+	const count = serverRequestsCap + 5
+
+	restore := requestQueueStuckTimeout
+	requestQueueStuckTimeout = 200 * time.Millisecond
+	t.Cleanup(func() { requestQueueStuckTimeout = restore })
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		// Nobody reads Requests() in this test, so these overflow the queue.
+		for i := uint32(1); i <= count; i++ {
+			err := stream.Send(&agentv1.ServerMessage{
+				Id:      i,
+				Payload: (&agentv1.SetStateRequest{}).ServerMessageRequestPayload(),
+			})
+			require.NoError(t, err)
+		}
+
+		_, err := stream.Recv()
+		require.Error(t, err)
+
+		return nil
+	}
+
+	channel, _, teardown := setup(t, connect, errors.New("request queue full for"))
+	t.Cleanup(teardown)
+
+	requireQueueFull(t, channel)
+
+	// Nothing is drained and nothing is closed from this side, so the only way Wait returns is
+	// the receiver giving up on the connection by itself.
+	require.ErrorContains(t, channel.Wait(), "request queue full for")
+	assertReceiverStopped(t, channel)
+}
+
+func requireQueueFull(t *testing.T, channel *Channel) {
+	t.Helper()
+
 	require.Eventually(t, func() bool {
 		return len(channel.requests) == serverRequestsCap
 	}, 3*time.Second, 10*time.Millisecond)
+}
 
-	channel.Close(errClosed)
+// assertReceiverStopped drains the queue runReceiver owns and asserts that it closed it, which it
+// does only on its way out.
+func assertReceiverStopped(t *testing.T, channel *Channel) {
+	t.Helper()
 
-	// runReceiver returned, so the queue it owns is closed once drained.
 	for range serverRequestsCap {
 		require.NotNil(t, <-channel.Requests())
 	}

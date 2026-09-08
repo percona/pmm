@@ -266,7 +266,7 @@ func TestWaitAgentStopped(t *testing.T) {
 
 	cfgStorage := config.NewStorage(&config.Config{Ports: config.Ports{Min: 65200, Max: 65299}})
 	s := NewSupervisor(t.Context(), nil, cfgStorage)
-	s.agentStopTimeout = 100 * time.Millisecond
+	const budget = 100 * time.Millisecond
 
 	t.Run("Stopped", func(t *testing.T) {
 		t.Parallel()
@@ -275,8 +275,8 @@ func TestWaitAgentStopped(t *testing.T) {
 		close(done)
 
 		start := time.Now()
-		s.waitAgentStopped("stopped", done)
-		assert.Less(t, time.Since(start), s.agentStopTimeout)
+		s.waitAgentStopped("stopped", done, start.Add(budget))
+		assert.Less(t, time.Since(start), budget)
 	})
 
 	t.Run("Stuck", func(t *testing.T) {
@@ -285,8 +285,21 @@ func TestWaitAgentStopped(t *testing.T) {
 		// An Agent whose status forwarder cannot finish must not hold up SetState - and with
 		// it every other supervisor operation - forever. See PMM-15431.
 		start := time.Now()
-		s.waitAgentStopped("stuck", make(chan struct{}))
-		assert.GreaterOrEqual(t, time.Since(start), s.agentStopTimeout)
+		s.waitAgentStopped("stuck", make(chan struct{}), start.Add(budget))
+		assert.GreaterOrEqual(t, time.Since(start), budget)
+	})
+
+	t.Run("BudgetSharedByAllAgents", func(t *testing.T) {
+		t.Parallel()
+
+		// The budget is for the whole call, so a batch of stuck Agents cannot hold s.rw for
+		// a multiple of it.
+		start := time.Now()
+		deadline := start.Add(budget)
+		for range 5 {
+			s.waitAgentStopped("stuck", make(chan struct{}), deadline)
+		}
+		assert.Less(t, time.Since(start), 2*budget)
 	})
 }
 

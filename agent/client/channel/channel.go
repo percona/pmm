@@ -37,14 +37,18 @@ import (
 const (
 	serverRequestsCap = 32
 
-	// One slot is enough for the Ping queue: a ping carries no state, a new one arrives every
-	// few seconds, and the goroutine reading them answers immediately. What matters is that
-	// queuing a ping can never block runReceiver. See PMM-15431.
+	// One slot is enough for the Ping queue: a ping carries no state and a new one arrives
+	// every few seconds, so a ping that finds the slot taken is stale. See PMM-15431.
 	serverPingsCap = 1
 
 	prometheusNamespace = "pmm_agent"
 	prometheusSubsystem = "channel"
 )
+
+// How long runReceiver waits for room in the request queue before giving up on the connection.
+// Reaching it means the consumer of Requests() has stopped draining, which no amount of further
+// waiting fixes - see runReceiver. Overridden in tests.
+var requestQueueStuckTimeout = 2 * time.Minute
 
 // ServerRequest represents a request from server.
 // It is similar to agentv1.ServerMessage except it can contain only requests,
@@ -87,8 +91,6 @@ type Channel struct {
 	requests  chan *ServerRequest
 	pings     chan *ServerRequest
 
-	lastReceived atomic.Int64
-
 	closeOnce sync.Once
 	closeWait chan struct{}
 	closeErr  error
@@ -121,16 +123,9 @@ func New(stream agentv1.AgentService_ConnectClient) *Channel {
 
 		closeWait: make(chan struct{}),
 	}
-	s.lastReceived.Store(time.Now().UnixNano())
 
 	go s.runReceiver()
 	return s
-}
-
-// Close closes the channel with the given error, unblocking everything parked on it. It is a
-// no-op if the channel is already closed (see Wait).
-func (c *Channel) Close(err error) {
-	c.close(err)
 }
 
 // close marks channel as closed with given error - only once.
@@ -166,20 +161,13 @@ func (c *Channel) Requests() <-chan *ServerRequest {
 	return c.requests
 }
 
-// Pings returns a channel for incoming Ping requests. It must be read. It is closed on any error
-// (see Wait).
+// Pings returns a channel for incoming Ping requests. It is closed on any error (see Wait).
 //
-// Pings are kept out of Requests() so that answering them cannot be delayed by whatever else the
-// consumer of Requests() is doing: it is the only responder, some of what it runs is bounded only
-// by the user's own timeouts, and a queue it stopped draining blocks runReceiver - the one
-// goroutine that could deliver the response it is waiting for. See PMM-15431.
+// Unlike Requests() this queue is dropped on overflow rather than waited on, which is the whole
+// point of keeping pings out of Requests(): a pong cannot end up queued behind a request the
+// consumer has not got to yet. See PMM-15431.
 func (c *Channel) Pings() <-chan *ServerRequest {
 	return c.pings
-}
-
-// LastReceived returns the time the last message was received from the server.
-func (c *Channel) LastReceived() time.Time {
-	return time.Unix(0, c.lastReceived.Load())
 }
 
 // Send sends message to pmm-managed. It is no-op once channel is closed (see Wait).
@@ -215,11 +203,11 @@ func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.Agent
 		return resp.Payload, resp.Error
 
 	case <-ctx.Done():
-		// Drop the subscription so that a response arriving later is not left waiting for a
-		// reader. Only runReceiver can deliver it, and it publishes every response in the
-		// same goroutine, so a subscription nobody reads would stall the whole channel.
-		// The response channel is buffered, so a publisher that took the entry first still
-		// completes; that response is simply discarded. See PMM-15431.
+		// This is what bounds the callers that have a deadline of their own: the ping/pong
+		// of the dial handshake, and pmm-admin status asking for network info. Both used to
+		// wait for a response that a wedged connection would never deliver.
+		// The subscription goes so that a response arriving later is not left waiting for a
+		// reader; it is buffered, so a publisher that took the entry first still completes.
 		c.removeResponseChannel(id)
 		return nil, ctx.Err()
 	}
@@ -269,7 +257,6 @@ func (c *Channel) runReceiver() {
 			return
 		}
 		c.mRecv.Inc()
-		c.lastReceived.Store(time.Now().UnixNano())
 
 		// Check log level before calling formatting function.
 		// Do not waste resources in case debug level is not enabled.
@@ -345,12 +332,16 @@ func (c *Channel) runReceiver() {
 			continue
 		}
 
-		// Never park here without a way out. c.requests is bounded, and this goroutine also
-		// delivers every response its consumer may be waiting for, so a full queue would stop
-		// both directions with nothing able to break the cycle from inside. See PMM-15431.
+		// Never park here without a way out: this goroutine also delivers every response the
+		// consumer of Requests() may be waiting for, so a full queue stops both directions at
+		// once. Giving up on the connection is what breaks that cycle - the caller of Run
+		// redials, and the fresh connection starts with an empty queue. See PMM-15431.
 		select {
 		case c.requests <- req:
 		case <-c.closeWait:
+			return
+		case <-time.After(requestQueueStuckTimeout):
+			c.close(fmt.Errorf("request queue full for %s", requestQueueStuckTimeout))
 			return
 		}
 	}
