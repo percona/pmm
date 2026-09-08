@@ -377,6 +377,80 @@ func TestSetStateDoesNotBlockRequestLoop(t *testing.T) {
 	s.AssertExpectations(t)
 }
 
+// TestDoneClosesAfterCancel covers the handshake pmm-agent's reconnect depends on: run.go cancels
+// the client context and then waits on Done() before redialing, so a processor that does not exit
+// leaves the agent connected to nothing for good - which is how PMM-15431 presented.
+func TestDoneClosesAfterCancel(t *testing.T) {
+	serverMD := &agentv1.ServerConnectMetadata{
+		ServerVersion: t.Name(),
+	}
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
+		require.NoError(t, err)
+		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		err = agentv1.SendServerConnectMetadata(stream, serverMD)
+		require.NoError(t, err)
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, msg.GetPing())
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      msg.Id,
+			Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+		})
+		require.NoError(t, err)
+
+		// Idle, with the stream healthy, until the client tears it down itself.
+		_, err = stream.Recv()
+		require.Error(t, err)
+
+		return nil
+	}
+	port, teardown := setup(t, connect)
+	defer teardown()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		ID: "agent_id",
+		Server: config.Server{
+			Address:    fmt.Sprintf("127.0.0.1:%d", port),
+			WithoutTLS: true,
+		},
+	})
+
+	s := &mockSupervisor{}
+	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
+	s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
+	s.On("ClearChangesChannel").Return()
+
+	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
+	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	runErr := make(chan error, 1)
+	go func() { runErr <- client.Run(ctx) }()
+
+	require.Eventually(t, func() bool {
+		return client.GetServerConnectMetadata() != nil
+	}, 10*time.Second, 50*time.Millisecond, "client never connected")
+
+	cancel()
+
+	select {
+	case err := <-runErr:
+		require.NoError(t, err)
+	case <-time.After(10 * time.Second):
+		t.Fatal("Run did not return after its context was cancelled")
+	}
+
+	select {
+	case <-client.Done():
+	case <-time.After(10 * time.Second):
+		t.Fatal("Done() did not close after cancellation: pmm-agent would never reconnect")
+	}
+}
+
 func TestRequestSetState(t *testing.T) {
 	c := &Client{l: logrus.WithField("component", "client")}
 	setStates := make(chan *agentv1.SetStateRequest, setStatesCap)
