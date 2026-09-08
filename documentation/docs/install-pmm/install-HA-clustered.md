@@ -721,7 +721,7 @@ Set customizable variables in your `values.yaml` to match your monitoring requir
 
 ```yaml
 pmmEnv:
-  PMM_METRICS_RESOLUTION: "5s"   # Base metrics collection interval (default: 1s)
+  PMM_METRICS_RESOLUTION: "10s"  # High-resolution metrics interval (default: 5s)
   # Add other environment variables as needed
 ```
 
