@@ -41,6 +41,7 @@ import (
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/distribution"
+	pkgenv "github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
 )
@@ -376,6 +377,8 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 
 		EnableAccessControl: settings.IsAccessControlEnabled(),
 		DefaultRoleId:       convertDefaultRoleID(settings.DefaultRoleID),
+
+		SepEnabled: pkgenv.SEPEnabled(),
 	}
 
 	return res
@@ -400,6 +403,7 @@ func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.Re
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
 		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
 		EnableAccessControl:     settings.IsAccessControlEnabled(),
+		SepEnabled:              pkgenv.SEPEnabled(),
 	}
 
 	return res
