@@ -262,6 +262,17 @@ func TestRegisteredConfig(t *testing.T) {
 		require.Error(t, err)
 		assert.Nil(t, fileCfg)
 	})
+
+	t.Run("a file with no key for it is told from a broken one", func(t *testing.T) {
+		t.Parallel()
+
+		path := filepath.Join(t.TempDir(), "pmm-agent.yaml")
+		require.NoError(t, os.WriteFile(path, []byte{0xd7, 0x2a, 0x00, 0xff, 0xfe}, 0o600))
+
+		fileCfg, err := registeredConfig(path, &config.Config{})
+		require.ErrorIs(t, err, config.ErrEncryptedConfigFile)
+		assert.Nil(t, fileCfg)
+	})
 }
 
 func TestStoresConfig(t *testing.T) {

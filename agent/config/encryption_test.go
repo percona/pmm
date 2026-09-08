@@ -130,4 +130,14 @@ func TestEncryption(t *testing.T) {
 		require.EqualError(t, err, "unable to RSA-unwrap AES key: crypto/rsa: decryption error")
 		assert.Nil(t, cfg)
 	})
+
+	t.Run("EncryptedNoKey", func(t *testing.T) {
+		keyPEM := generateRSAKey(t)
+		key := writeKey(t, "key", keyPEM)
+		configfilef := writeConfig(t, &Config{ID: "agent-id", Encryption: Encryption{KeyFile: key}})
+
+		cfg, err := LoadFromFile(configfilef, nil)
+		require.ErrorIs(t, err, ErrEncryptedConfigFile)
+		assert.Nil(t, cfg)
+	})
 }

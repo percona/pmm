@@ -244,6 +244,14 @@ func Setup() {
 
 	fileCfg, err := registeredConfig(configFilepath, cfg)
 	switch {
+	case errors.Is(err, config.ErrEncryptedConfigFile):
+		// --force is not the answer here: it would replace the encrypted file with a plaintext one, which
+		// the Agent, started with the key it was encrypted with, then fails to load.
+		fmt.Printf("The configuration file %s is encrypted and no key file was given, so whether this pmm-agent"+
+			" is registered cannot be told from it.\nRe-run with --config-file-key-file, or set"+
+			" PMM_AGENT_CONFIG_FILE_KEY_FILE, which `pmm-admin config` passes on to `pmm-agent setup`.\n",
+			configFilepath)
+		os.Exit(1)
 	case err != nil && !cfg.Setup.Force:
 		// Registering would take the Node over from whatever the unreadable file describes, together with
 		// every Service on it. Only --force asks for that.
