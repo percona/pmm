@@ -712,8 +712,8 @@ func (s *Server) writeSSHKey(sshKey string) error {
 	defer s.sshKeyM.Unlock()
 
 	distributionMethod := s.telemetryService.DistributionMethod()
-	if distributionMethod != serverv1.DistributionMethod_DISTRIBUTION_METHOD_AMI && distributionMethod != serverv1.DistributionMethod_DISTRIBUTION_METHOD_OVF {
-		return errors.New("SSH key can be set only on AMI and OVF distributions")
+	if distributionMethod != serverv1.DistributionMethod_DISTRIBUTION_METHOD_AMI {
+		return errors.New("SSH key can be set only on AMI distribution")
 	}
 
 	username := "pmm"

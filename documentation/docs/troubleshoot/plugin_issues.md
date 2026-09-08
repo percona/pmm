@@ -1,10 +1,24 @@
-
 # Plugin issues
 
-## PMM does not allow to install, upgrade or remove plugins
+## PMM cannot install, upgrade, or remove plugins
 
-Users have encountered issues with installing, updating and removing plugins from PMM. The cause of this issue is the incorrect permissions assigned to the `/srv/grafana/plugins` directory. These permissions are preventing the grafana component from writing to the directory.
+If you cannot install, upgrade, or remove plugins in PMM, check the permissions on the `/srv/grafana/plugins` directory. 
+
+When permissions are wrong, Grafana cannot write to the directory, which blocks all plugin operations.
 
 ## Solution
 
-Set the ownership on the directory`/srv/grafana/plugins` to `grafana:grafana`.
+To fix the permissions and restart Grafana, run the following commands:
+{.power-number}
+
+1. Set ownership on the `/srv/grafana/plugins` directory to `1000:0`, which is the UID/GID that PMM Server runs as:
+
+    ```sh
+    docker exec --user root pmm-server chown -R 1000:0 /srv/grafana/plugins
+    ```
+
+2. Restart Grafana to pick up the change:
+
+    ```sh
+    docker exec --user root pmm-server supervisorctl restart grafana
+    ```

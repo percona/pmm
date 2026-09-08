@@ -4212,22 +4212,6 @@
                                 "width": 100
                             },
                             "decimals": 2,
-                            "mappings": [
-                                {
-                                    "options": {
-                                        "-": {
-                                            "index": 1,
-                                            "text": "No Data"
-                                        },
-                                        "0": {
-                                            "color": "#8b0000",
-                                            "index": 0,
-                                            "text": "No Data"
-                                        }
-                                    },
-                                    "type": "value"
-                                }
-                            ],
                             "noValue": "-",
                             "thresholds": {
                                 "mode": "absolute",
@@ -4292,6 +4276,20 @@
                                     {
                                         "id": "unit",
                                         "value": "decbytes"
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "0": {
+                                                        "index": 0,
+                                                        "text": "No Data"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -4364,6 +4362,20 @@
                                     {
                                         "id": "custom.width",
                                         "value": 160
+                                    },
+                                    {
+                                        "id": "mappings",
+                                        "value": [
+                                            {
+                                                "options": {
+                                                    "0": {
+                                                        "index": 0,
+                                                        "text": "No Data"
+                                                    }
+                                                },
+                                                "type": "value"
+                                            }
+                                        ]
                                     }
                                 ]
                             },
