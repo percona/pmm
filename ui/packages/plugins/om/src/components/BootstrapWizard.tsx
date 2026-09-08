@@ -20,7 +20,6 @@ import {
   Alert,
   Box,
   Button,
-  Chip,
   CircularProgress,
   Dialog,
   DialogActions,
@@ -39,20 +38,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import {
-  BOOTSTRAP_RUN_COLOR,
-  BOOTSTRAP_RUN_LABEL,
-  BOOTSTRAP_STEP_COLOR,
-  BOOTSTRAP_STEP_LABEL,
-} from '../constants';
-import { isHostRollingBack } from '../api';
 import { useBootstrapRun, useTriggerHostBootstrap } from '../inventoryHooks';
-import type {
-  OmBootstrapHost,
-  OmBootstrapStep,
-  OmGetBootstrapRunResponse,
-  OmHostRow,
-} from '../types';
+import { RunProgress } from './RunProgress';
+import type { OmHostRow } from '../types';
 
 const DEFAULT_MONGODB_VERSION = '7.0';
 
@@ -63,79 +51,6 @@ const WIZARD_STEPS = ['Hosts', 'Configure', 'Review', 'Bootstrap'] as const;
 function isSupportedHostCount(count: number): boolean {
   return count === 1 || count === 3;
 }
-
-const StepChip = ({ step }: { step: OmBootstrapStep }) => (
-  <Chip
-    size="small"
-    label={`${step.name}: ${BOOTSTRAP_STEP_LABEL[step.status] ?? step.status}${
-      step.attempt_count > 1 ? ` (attempt ${step.attempt_count})` : ''
-    }`}
-    color={BOOTSTRAP_STEP_COLOR[step.status] ?? 'default'}
-    variant={step.status === 'running' ? 'outlined' : 'filled'}
-    title={step.detail ?? undefined}
-  />
-);
-
-/**
- * One host's progress: its own steps ordinarily, or its rollback steps once
- * the run has actually started tearing it down - never both at once, since a
- * host being rolled back has nothing left to show from its forward attempt
- * that the rollback list doesn't already explain.
- */
-const HostProgress = ({ host }: { host: OmBootstrapHost }) => {
-  const rollingBack = isHostRollingBack(host);
-  return (
-    <Box>
-      <Typography variant="subtitle2" gutterBottom>
-        {host.host}
-        {rollingBack ? ' — rolling back' : ''}
-      </Typography>
-      <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-        {(rollingBack ? host.rollback_steps : host.steps).map((step) => (
-          <StepChip key={step.name} step={step} />
-        ))}
-      </Stack>
-    </Box>
-  );
-};
-
-/** A run's full progress: its own status, every host, and the run-level steps. */
-const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => (
-  <Stack spacing={2}>
-    <Alert
-      severity={
-        run.status === 'succeeded'
-          ? 'success'
-          : run.status === 'failed' || run.status === 'rolled_back'
-            ? 'error'
-            : 'info'
-      }
-    >
-      Run {run.run_id}:{' '}
-      <Chip
-        size="small"
-        label={BOOTSTRAP_RUN_LABEL[run.status] ?? run.status}
-        color={BOOTSTRAP_RUN_COLOR[run.status] ?? 'default'}
-      />
-      {run.error ? ` — ${run.error}` : ''}
-    </Alert>
-    {run.hosts.map((host) => (
-      <HostProgress key={host.host} host={host} />
-    ))}
-    {run.run_steps.length > 0 && (
-      <Box>
-        <Typography variant="subtitle2" gutterBottom>
-          Replica set
-        </Typography>
-        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">
-          {run.run_steps.map((step) => (
-            <StepChip key={step.name} step={step} />
-          ))}
-        </Stack>
-      </Box>
-    )}
-  </Stack>
-);
 
 /**
  * Configure -> Review -> Bootstrap for a set of hosts already selected on
@@ -239,10 +154,10 @@ export const BootstrapWizardDialog = ({
         {activeStep === 1 && (
           <Stack spacing={2} sx={{ mt: 1 }}>
             <DialogContentText>
-              Percona Server for MongoDB, installed through the Nomad client
-              and initialized as a {hosts.length}-member replica set.
-              Proof-of-concept scope only — keyFile auth, TLS off, no project
-              or cluster yet.
+              Percona Server for MongoDB, installed through the Nomad client and
+              initialized as a {hosts.length}-member replica set.
+              Proof-of-concept scope only — keyFile auth, TLS off, no project or
+              cluster yet.
             </DialogContentText>
             <TextField
               label="Replica set name"

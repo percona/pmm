@@ -371,6 +371,12 @@ export const addOm = (): NavItem[] => [
         url: `${OM_PATH}/inventory`,
         matches: [`${OM_PATH}/inventory`],
       },
+      {
+        id: 'om-operations',
+        text: 'Operations',
+        url: `${OM_PATH}/operations`,
+        matches: [`${OM_PATH}/operations`],
+      },
     ],
   },
 ];

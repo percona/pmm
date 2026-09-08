@@ -36,6 +36,7 @@ export const OM_ROUTE_SERVICES = 'services';
 export const OM_ROUTE_HOSTS = 'hosts';
 /** Renamed from `runs`, so the route matches the nav label. */
 export const OM_ROUTE_INVENTORY = 'inventory';
+export const OM_ROUTE_OPERATIONS = 'operations';
 
 export const SERVICE_STATUS_LABEL: Record<OmServiceStatus, string> = {
   SERVICE_STATUS_UNSPECIFIED: 'Unknown',

@@ -53,6 +53,7 @@ import type {
   OmInventoryRunDetail,
   OmInventoryService,
   OmInventorySetting,
+  OmListBootstrapRunsResponse,
 } from './types';
 
 const HOSTS_KEY = ['om', 'inventory', 'hosts'] as const;
@@ -417,6 +418,35 @@ export function useBootstrapRun(runId: string | null) {
     // mid-verify, a run-level step still pending) well after the real run has
     // actually succeeded or failed.
     refetchIntervalInBackground: true,
+  });
+}
+
+/**
+ * Bootstrap run history, newest first, from `GET /inventory/bootstrap-runs`.
+ *
+ * Every run in full detail -- SEP's own GET /runs already returns each row's hosts
+ * and steps, so there is nothing cheaper to ask for and nothing more to fetch once
+ * a row is expanded. Polls fast while any run in the page is still active, same as
+ * {@link useOmInventoryRuns}, and slowly otherwise.
+ */
+export function useOmBootstrapRuns(limit?: number) {
+  return useQuery<OmGetBootstrapRunResponse[]>({
+    queryKey: [...BOOTSTRAP_RUNS_KEY, limit],
+    queryFn: async () => {
+      const query = limit ? `?limit=${limit}` : '';
+      const { runs } = await request<OmListBootstrapRunsResponse>(
+        `/inventory/bootstrap-runs${query}`
+      );
+      return runs ?? [];
+    },
+    refetchInterval: (query) =>
+      (query.state.data ?? []).some((run) => isBootstrapRunActive(run.status))
+        ? REFRESH_POLL_MS
+        : ESTATE_POLL_MS,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it.
+    refetchIntervalInBackground: true,
+    placeholderData: keepPreviousData,
   });
 }
 

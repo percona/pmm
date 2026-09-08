@@ -19,6 +19,7 @@ import { describe, expect, it } from 'vitest';
 import {
   OM_ROUTE_HOSTS,
   OM_ROUTE_INVENTORY,
+  OM_ROUTE_OPERATIONS,
   OM_ROUTE_SERVICES,
 } from '../src/constants';
 import { omBase } from '../src/useOmBase';
@@ -39,7 +40,12 @@ describe('omBase', () => {
   // the sidebar. These are the routes OmApp actually declares -- the cases here used
   // to name `topology`, `runs` and `clusters/:id`, which no longer exist, so the suite
   // passed while the patterns matched nothing that ships.
-  it.each([OM_ROUTE_SERVICES, OM_ROUTE_HOSTS, OM_ROUTE_INVENTORY])(
+  it.each([
+    OM_ROUTE_SERVICES,
+    OM_ROUTE_HOSTS,
+    OM_ROUTE_INVENTORY,
+    OM_ROUTE_OPERATIONS,
+  ])(
     'strips the %s segment so an absolute link resolves to the mount',
     (route) => {
       expect(omBase(`${MOUNT}/${route}`)).toBe(MOUNT);

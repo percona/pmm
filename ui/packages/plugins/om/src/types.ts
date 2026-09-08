@@ -539,6 +539,12 @@ export interface OmBootstrapHost {
    * `isHostRollingBack` in `api.ts`.
    */
   rollback_steps: OmBootstrapStep[];
+  /**
+   * This host's post-install steps, dispatched only once every run-level step
+   * has succeeded - e.g. enabling MongoDB authorization once the run's own
+   * create_pmm_monitoring_user step has created the first user.
+   */
+  finalize_steps: OmBootstrapStep[];
 }
 
 /** A bootstrap run's overall lifecycle state, from om_bootstrap's own BootstrapRunStatus. */
@@ -560,6 +566,15 @@ export interface OmGetBootstrapRunResponse {
   hosts: OmBootstrapHost[];
   run_steps: OmBootstrapStep[];
   error?: string | null;
+  replica_set_name: string;
+  mongodb_version: string;
+  started_at: string;
+  finished_at?: string | null;
+}
+
+/** The bootstrap run history, from `GET /v1/om/inventory/bootstrap-runs`. */
+export interface OmListBootstrapRunsResponse {
+  runs: OmGetBootstrapRunResponse[];
 }
 
 /**
