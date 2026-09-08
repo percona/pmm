@@ -8,6 +8,7 @@ package omv1
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -34,6 +35,7 @@ const (
 	OmService_TriggerInventoryRefresh_FullMethodName       = "/om.v1.OmService/TriggerInventoryRefresh"
 	OmService_TriggerHostBootstrap_FullMethodName          = "/om.v1.OmService/TriggerHostBootstrap"
 	OmService_GetBootstrapRun_FullMethodName               = "/om.v1.OmService/GetBootstrapRun"
+	OmService_ListBootstrapRuns_FullMethodName             = "/om.v1.OmService/ListBootstrapRuns"
 	OmService_GetInventoryConfig_FullMethodName            = "/om.v1.OmService/GetInventoryConfig"
 	OmService_UpdateInventoryConfig_FullMethodName         = "/om.v1.OmService/UpdateInventoryConfig"
 	OmService_DeleteInventoryConfigOverride_FullMethodName = "/om.v1.OmService/DeleteInventoryConfigOverride"
@@ -88,6 +90,8 @@ type OmServiceClient interface {
 	// here -- reconciling the run's in-flight dispatches happens on SEP's side,
 	// not this handler's. Meant to be polled while a run is in progress.
 	GetBootstrapRun(ctx context.Context, in *GetBootstrapRunRequest, opts ...grpc.CallOption) (*GetBootstrapRunResponse, error)
+	// ListBootstrapRuns returns the bootstrap run history (PoC).
+	ListBootstrapRuns(ctx context.Context, in *ListBootstrapRunsRequest, opts ...grpc.CallOption) (*ListBootstrapRunsResponse, error)
 	// GetInventoryConfig returns the inventory app's configuration.
 	GetInventoryConfig(ctx context.Context, in *GetInventoryConfigRequest, opts ...grpc.CallOption) (*GetInventoryConfigResponse, error)
 	// UpdateInventoryConfig changes the inventory app's configuration.
@@ -266,6 +270,16 @@ func (c *omServiceClient) GetBootstrapRun(ctx context.Context, in *GetBootstrapR
 	return out, nil
 }
 
+func (c *omServiceClient) ListBootstrapRuns(ctx context.Context, in *ListBootstrapRunsRequest, opts ...grpc.CallOption) (*ListBootstrapRunsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListBootstrapRunsResponse)
+	err := c.cc.Invoke(ctx, OmService_ListBootstrapRuns_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *omServiceClient) GetInventoryConfig(ctx context.Context, in *GetInventoryConfigRequest, opts ...grpc.CallOption) (*GetInventoryConfigResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetInventoryConfigResponse)
@@ -345,6 +359,8 @@ type OmServiceServer interface {
 	// here -- reconciling the run's in-flight dispatches happens on SEP's side,
 	// not this handler's. Meant to be polled while a run is in progress.
 	GetBootstrapRun(context.Context, *GetBootstrapRunRequest) (*GetBootstrapRunResponse, error)
+	// ListBootstrapRuns returns the bootstrap run history (PoC).
+	ListBootstrapRuns(context.Context, *ListBootstrapRunsRequest) (*ListBootstrapRunsResponse, error)
 	// GetInventoryConfig returns the inventory app's configuration.
 	GetInventoryConfig(context.Context, *GetInventoryConfigRequest) (*GetInventoryConfigResponse, error)
 	// UpdateInventoryConfig changes the inventory app's configuration.
@@ -376,54 +392,75 @@ type UnimplementedOmServiceServer struct{}
 func (UnimplementedOmServiceServer) GetTopology(context.Context, *GetTopologyRequest) (*GetTopologyResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTopology not implemented")
 }
+
 func (UnimplementedOmServiceServer) ListTopologyRuns(context.Context, *ListTopologyRunsRequest) (*ListTopologyRunsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListTopologyRuns not implemented")
 }
+
 func (UnimplementedOmServiceServer) GetTopologyRun(context.Context, *GetTopologyRunRequest) (*GetTopologyRunResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetTopologyRun not implemented")
 }
+
 func (UnimplementedOmServiceServer) TriggerTopologyCollection(context.Context, *TriggerTopologyCollectionRequest) (*TriggerTopologyCollectionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TriggerTopologyCollection not implemented")
 }
+
 func (UnimplementedOmServiceServer) ListInventoryHosts(context.Context, *ListInventoryHostsRequest) (*ListInventoryHostsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListInventoryHosts not implemented")
 }
+
 func (UnimplementedOmServiceServer) GetInventoryHost(context.Context, *GetInventoryHostRequest) (*GetInventoryHostResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInventoryHost not implemented")
 }
+
 func (UnimplementedOmServiceServer) DeleteInventoryHost(context.Context, *DeleteInventoryHostRequest) (*DeleteInventoryHostResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteInventoryHost not implemented")
 }
+
 func (UnimplementedOmServiceServer) ListInventoryServices(context.Context, *ListInventoryServicesRequest) (*ListInventoryServicesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListInventoryServices not implemented")
 }
+
 func (UnimplementedOmServiceServer) GetInventoryService(context.Context, *GetInventoryServiceRequest) (*GetInventoryServiceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInventoryService not implemented")
 }
+
 func (UnimplementedOmServiceServer) DeleteInventoryService(context.Context, *DeleteInventoryServiceRequest) (*DeleteInventoryServiceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteInventoryService not implemented")
 }
+
 func (UnimplementedOmServiceServer) ListInventoryRuns(context.Context, *ListInventoryRunsRequest) (*ListInventoryRunsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListInventoryRuns not implemented")
 }
+
 func (UnimplementedOmServiceServer) GetInventoryRun(context.Context, *GetInventoryRunRequest) (*GetInventoryRunResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInventoryRun not implemented")
 }
+
 func (UnimplementedOmServiceServer) TriggerInventoryRefresh(context.Context, *TriggerInventoryRefreshRequest) (*TriggerInventoryRefreshResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TriggerInventoryRefresh not implemented")
 }
+
 func (UnimplementedOmServiceServer) TriggerHostBootstrap(context.Context, *TriggerHostBootstrapRequest) (*TriggerHostBootstrapResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TriggerHostBootstrap not implemented")
 }
+
 func (UnimplementedOmServiceServer) GetBootstrapRun(context.Context, *GetBootstrapRunRequest) (*GetBootstrapRunResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetBootstrapRun not implemented")
 }
+
+func (UnimplementedOmServiceServer) ListBootstrapRuns(context.Context, *ListBootstrapRunsRequest) (*ListBootstrapRunsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListBootstrapRuns not implemented")
+}
+
 func (UnimplementedOmServiceServer) GetInventoryConfig(context.Context, *GetInventoryConfigRequest) (*GetInventoryConfigResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetInventoryConfig not implemented")
 }
+
 func (UnimplementedOmServiceServer) UpdateInventoryConfig(context.Context, *UpdateInventoryConfigRequest) (*UpdateInventoryConfigResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UpdateInventoryConfig not implemented")
 }
+
 func (UnimplementedOmServiceServer) DeleteInventoryConfigOverride(context.Context, *DeleteInventoryConfigOverrideRequest) (*DeleteInventoryConfigOverrideResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteInventoryConfigOverride not implemented")
 }
@@ -718,6 +755,24 @@ func _OmService_GetBootstrapRun_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OmService_ListBootstrapRuns_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListBootstrapRunsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).ListBootstrapRuns(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_ListBootstrapRuns_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).ListBootstrapRuns(ctx, req.(*ListBootstrapRunsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OmService_GetInventoryConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetInventoryConfigRequest)
 	if err := dec(in); err != nil {
@@ -838,6 +893,10 @@ var OmService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetBootstrapRun",
 			Handler:    _OmService_GetBootstrapRun_Handler,
+		},
+		{
+			MethodName: "ListBootstrapRuns",
+			Handler:    _OmService_ListBootstrapRuns_Handler,
 		},
 		{
 			MethodName: "GetInventoryConfig",

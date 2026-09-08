@@ -76,7 +76,7 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, repli
 	}
 	pmmAgentID := agents[0].AgentID
 
-	existing, err := models.FindServices(s.db.Querier, models.ServiceFilters{NodeID: nodeID, ServiceType: pointerToServiceType(models.MongoDBServiceType)})
+	existing, err := models.FindServices(s.db.Querier, models.ServiceFilters{NodeID: nodeID, ServiceType: new(models.MongoDBServiceType)})
 	if err != nil {
 		return fmt.Errorf("failed to check for an existing MongoDB service on node %s: %w", nodeID, err)
 	}
@@ -97,7 +97,8 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, repli
 	}
 
 	address := nodeID
-	if node, findErr := models.FindNodeByID(s.db.Querier, nodeID); findErr == nil && node.Address != "" {
+	node, findErr := models.FindNodeByID(s.db.Querier, nodeID)
+	if findErr == nil && node.Address != "" {
 		address = node.Address
 	}
 
@@ -107,7 +108,7 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, repli
 			NodeID:         nodeID,
 			ReplicationSet: replicaSetName,
 			Address:        &address,
-			Port:           pointerToPort(mongodExporterPort),
+			Port:           new(uint16(mongodExporterPort)),
 		})
 		if err != nil {
 			return fmt.Errorf("failed to add the MongoDB service: %w", err)
@@ -134,10 +135,3 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, repli
 	}
 	return nil
 }
-
-// pointerToServiceType is a typed &v -- models.ServiceFilters wants a pointer to
-// discriminate "any type" from "this type", and Go has no address-of-literal syntax.
-func pointerToServiceType(t models.ServiceType) *models.ServiceType { return &t }
-
-// pointerToPort is a typed &v for the same reason -- see pointerToServiceType.
-func pointerToPort(port uint16) *uint16 { return &port }

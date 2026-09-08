@@ -536,7 +536,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("reads the host's OS from inventory, then plans a run with om_bootstrap", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStubSeq(t, http.StatusOK,
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
 			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
 		)
@@ -606,7 +607,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("plans a three-host run when every host runs the same OS", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStubSeq(t, http.StatusOK,
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
 			`{"node_id": "n2", "executor_host": "n2", "observed": {"os_id": "ubuntu"}}`,
 			`{"node_id": "n3", "executor_host": "n3", "observed": {"os_id": "ubuntu"}}`,
@@ -651,7 +653,8 @@ func TestTriggerHostBootstrap(t *testing.T) {
 	t.Run("rejects a mixed-OS selection", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStubSeq(t, http.StatusOK,
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
 			`{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "ubuntu"}}`,
 			`{"node_id": "n2", "executor_host": "n2", "observed": {"os_id": "rocky"}}`,
 		)
@@ -688,7 +691,8 @@ func TestGetBootstrapRun(t *testing.T) {
 				{
 					"host": "n1",
 					"steps": [{"name": "pre_check", "status": "succeeded", "attempt_count": 1}],
-					"rollback_steps": [{"name": "stop_service", "status": "pending", "attempt_count": 0}]
+					"rollback_steps": [{"name": "stop_service", "status": "pending", "attempt_count": 0}],
+					"finalize_steps": [{"name": "enable_auth", "status": "pending", "attempt_count": 0}]
 				}
 			],
 			"run_steps": [{"name": "rs_initiate", "status": "pending", "attempt_count": 0}]
@@ -707,6 +711,8 @@ func TestGetBootstrapRun(t *testing.T) {
 		assert.Equal(t, "pre_check", response.GetHosts()[0].GetSteps()[0].GetName())
 		assert.Equal(t, "succeeded", response.GetHosts()[0].GetSteps()[0].GetStatus())
 		assert.Equal(t, "stop_service", response.GetHosts()[0].GetRollbackSteps()[0].GetName())
+		require.Len(t, response.GetHosts()[0].GetFinalizeSteps(), 1)
+		assert.Equal(t, "enable_auth", response.GetHosts()[0].GetFinalizeSteps()[0].GetName())
 		require.Len(t, response.GetRunSteps(), 1)
 		assert.Equal(t, "rs_initiate", response.GetRunSteps()[0].GetName())
 	})
@@ -721,6 +727,63 @@ func TestGetBootstrapRun(t *testing.T) {
 
 		require.Error(t, err)
 		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+}
+
+func TestListBootstrapRuns(t *testing.T) {
+	t.Parallel()
+
+	t.Run("projects every run in the same shape GetBootstrapRun answers with", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `[
+			{
+				"id": "run-abc",
+				"status": "succeeded",
+				"install_method": "packages",
+				"os": "ubuntu",
+				"mongodb_version": "7.0.8",
+				"replica_set_name": "rs-orders-prod",
+				"started_at": "2026-01-01T00:00:00Z",
+				"hosts": [{"host": "n1", "steps": [{"name": "pre_check", "status": "succeeded", "attempt_count": 1}]}],
+				"run_steps": []
+			},
+			{
+				"id": "run-def",
+				"status": "running",
+				"install_method": "packages",
+				"os": "ubuntu",
+				"mongodb_version": "7.0.8",
+				"replica_set_name": "rs-billing",
+				"started_at": "2026-01-02T00:00:00Z",
+				"hosts": [],
+				"run_steps": []
+			}
+		]`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		response, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{})
+
+		require.NoError(t, err)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs", stub.path)
+		assert.Equal(t, "limit=20", stub.query)
+		require.Len(t, response.GetRuns(), 2)
+		assert.Equal(t, "run-abc", response.GetRuns()[0].GetRunId())
+		assert.Equal(t, "succeeded", response.GetRuns()[0].GetStatus())
+		assert.Equal(t, "n1", response.GetRuns()[0].GetHosts()[0].GetHost())
+		assert.Equal(t, "run-def", response.GetRuns()[1].GetRunId())
+	})
+
+	t.Run("clamps an over-large limit before forwarding it", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `[]`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{Limit: 500})
+
+		require.NoError(t, err)
+		assert.Equal(t, "limit=100", stub.query)
 	})
 }
 

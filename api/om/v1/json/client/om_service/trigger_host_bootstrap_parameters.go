@@ -57,14 +57,11 @@ TriggerHostBootstrapParams contains all the parameters to send to the API endpoi
 	Typically these are written to a http.Request.
 */
 type TriggerHostBootstrapParams struct {
-	// Body.
-	Body TriggerHostBootstrapBody
+	/* Body.
 
-	/* NodeID.
-
-	   PMM's node ID for the host to bootstrap.
+	   TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.
 	*/
-	NodeID string
+	Body TriggerHostBootstrapBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -130,17 +127,6 @@ func (o *TriggerHostBootstrapParams) SetBody(body TriggerHostBootstrapBody) {
 	o.Body = body
 }
 
-// WithNodeID adds the nodeID to the trigger host bootstrap params
-func (o *TriggerHostBootstrapParams) WithNodeID(nodeID string) *TriggerHostBootstrapParams {
-	o.SetNodeID(nodeID)
-	return o
-}
-
-// SetNodeID adds the nodeId to the trigger host bootstrap params
-func (o *TriggerHostBootstrapParams) SetNodeID(nodeID string) {
-	o.NodeID = nodeID
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *TriggerHostBootstrapParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 	if err := r.SetTimeout(o.timeout); err != nil {
@@ -148,11 +134,6 @@ func (o *TriggerHostBootstrapParams) WriteToRequest(r runtime.ClientRequest, reg
 	}
 	var res []error
 	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
-	}
-
-	// path param node_id
-	if err := r.SetPathParam("node_id", o.NodeID); err != nil {
 		return err
 	}
 

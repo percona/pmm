@@ -28099,6 +28099,465 @@
         }
       }
     },
+    "/v1/om/inventory/bootstrap-runs": {
+      "get": {
+        "description": "Returns the recorded bootstrap runs, newest first, each in the same full detail GetBootstrapRun answers with.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "List bootstrap runs (PoC)",
+        "operationId": "ListBootstrapRuns",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "How many to return, newest first. Defaults to 20, capped at 100.",
+            "name": "limit",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ListBootstrapRunsResponse returns the bootstrap run history, newest first.",
+              "type": "object",
+              "properties": {
+                "runs": {
+                  "description": "Each run in the same full shape GetBootstrapRun answers with, not a\ntrimmed summary -- SEP's own GET /runs already returns every host's steps\nper row (see bootstrapRunToProto's doc comment), so there is no cheaper\nshape to ask it for.",
+                  "type": "array",
+                  "items": {
+                    "description": "GetBootstrapRunResponse is one run, in full, as of this call.\n\nA thin proxy onto SEP's om_bootstrap GET /runs/{id}, which reconciles the\nrun's in-flight dispatches before answering -- so polling this is enough to\nsee a step's real outcome, not a stale snapshot.",
+                    "type": "object",
+                    "properties": {
+                      "run_id": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "status": {
+                        "description": "\"running\", \"succeeded\", \"failed\", or \"rolled_back\" -- SEP's own\nBootstrapRunStatus values, passed through verbatim.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "hosts": {
+                        "description": "Every host's progress, in the order the run was created with.",
+                        "type": "array",
+                        "items": {
+                          "description": "BootstrapHost is one host's progress within a run.",
+                          "type": "object",
+                          "properties": {
+                            "host": {
+                              "description": "The node id this progress belongs to.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "steps": {
+                              "description": "This host's own install steps, in the order they run.",
+                              "type": "array",
+                              "items": {
+                                "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "status": {
+                                    "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                                    "type": "string",
+                                    "x-order": 1
+                                  },
+                                  "detail": {
+                                    "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                                    "type": "string",
+                                    "x-nullable": true,
+                                    "x-order": 2
+                                  },
+                                  "attempt_count": {
+                                    "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 3
+                                  }
+                                }
+                              },
+                              "x-order": 1
+                            },
+                            "rollback_steps": {
+                              "description": "This host's teardown steps, planned up front alongside `steps` -- see\nom_bootstrap's own HostBootstrapState doc comment. Every entry stays\n\"pending\" unless the run actually rolls this host back.",
+                              "type": "array",
+                              "items": {
+                                "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "status": {
+                                    "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                                    "type": "string",
+                                    "x-order": 1
+                                  },
+                                  "detail": {
+                                    "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                                    "type": "string",
+                                    "x-nullable": true,
+                                    "x-order": 2
+                                  },
+                                  "attempt_count": {
+                                    "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 3
+                                  }
+                                }
+                              },
+                              "x-order": 2
+                            },
+                            "finalize_steps": {
+                              "description": "This host's post-install steps, dispatched only once every run-level step has\nsucceeded -- e.g. enabling MongoDB authorization once the run's own\ncreate_pmm_monitoring_user step has created the first user. See\nom_bootstrap's own HostBootstrapState doc comment for why these are a\ndistinct phase from `steps` rather than appended to them.",
+                              "type": "array",
+                              "items": {
+                                "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "status": {
+                                    "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                                    "type": "string",
+                                    "x-order": 1
+                                  },
+                                  "detail": {
+                                    "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                                    "type": "string",
+                                    "x-nullable": true,
+                                    "x-order": 2
+                                  },
+                                  "attempt_count": {
+                                    "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                                    "type": "integer",
+                                    "format": "int32",
+                                    "x-order": 3
+                                  }
+                                }
+                              },
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 2
+                      },
+                      "run_steps": {
+                        "description": "The run-level steps (rs.initiate, creating PMM's monitoring user) -- see\nBootstrapStep's own doc comment for why these share its shape.",
+                        "type": "array",
+                        "items": {
+                          "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "status": {
+                              "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "detail": {
+                              "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 2
+                            },
+                            "attempt_count": {
+                              "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 3
+                      },
+                      "error": {
+                        "description": "Set when the run itself failed outside any single step -- e.g. SEP\nrejected the request before planning anything.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/bootstrap-runs/{run_id}": {
+      "get": {
+        "description": "Returns one bootstrap run's current status and every host's step-by-step progress, reconciled against its in-flight dispatches as of this call. Poll this to watch a run started by TriggerHostBootstrap.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get a bootstrap run's progress (PoC)",
+        "operationId": "GetBootstrapRun",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The run to fetch, from TriggerHostBootstrapResponse.run_id.",
+            "name": "run_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetBootstrapRunResponse is one run, in full, as of this call.\n\nA thin proxy onto SEP's om_bootstrap GET /runs/{id}, which reconciles the\nrun's in-flight dispatches before answering -- so polling this is enough to\nsee a step's real outcome, not a stale snapshot.",
+              "type": "object",
+              "properties": {
+                "run_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "status": {
+                  "description": "\"running\", \"succeeded\", \"failed\", or \"rolled_back\" -- SEP's own\nBootstrapRunStatus values, passed through verbatim.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "hosts": {
+                  "description": "Every host's progress, in the order the run was created with.",
+                  "type": "array",
+                  "items": {
+                    "description": "BootstrapHost is one host's progress within a run.",
+                    "type": "object",
+                    "properties": {
+                      "host": {
+                        "description": "The node id this progress belongs to.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "steps": {
+                        "description": "This host's own install steps, in the order they run.",
+                        "type": "array",
+                        "items": {
+                          "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "status": {
+                              "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "detail": {
+                              "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 2
+                            },
+                            "attempt_count": {
+                              "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 1
+                      },
+                      "rollback_steps": {
+                        "description": "This host's teardown steps, planned up front alongside `steps` -- see\nom_bootstrap's own HostBootstrapState doc comment. Every entry stays\n\"pending\" unless the run actually rolls this host back.",
+                        "type": "array",
+                        "items": {
+                          "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "status": {
+                              "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "detail": {
+                              "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 2
+                            },
+                            "attempt_count": {
+                              "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 2
+                      },
+                      "finalize_steps": {
+                        "description": "This host's post-install steps, dispatched only once every run-level step has\nsucceeded -- e.g. enabling MongoDB authorization once the run's own\ncreate_pmm_monitoring_user step has created the first user. See\nom_bootstrap's own HostBootstrapState doc comment for why these are a\ndistinct phase from `steps` rather than appended to them.",
+                        "type": "array",
+                        "items": {
+                          "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "status": {
+                              "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "detail": {
+                              "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 2
+                            },
+                            "attempt_count": {
+                              "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 3
+                      }
+                    }
+                  },
+                  "x-order": 2
+                },
+                "run_steps": {
+                  "description": "The run-level steps (rs.initiate, creating PMM's monitoring user) -- see\nBootstrapStep's own doc comment for why these share its shape.",
+                  "type": "array",
+                  "items": {
+                    "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "status": {
+                        "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "detail": {
+                        "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 2
+                      },
+                      "attempt_count": {
+                        "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 3
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "description": "Set when the run itself failed outside any single step -- e.g. SEP\nrejected the request before planning anything.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 4
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/om/inventory/config": {
       "get": {
         "description": "Returns every configuration field of the inventory app, its effective value, and whether an override is in effect.",
@@ -28411,6 +28870,12 @@
             "description": "When set, return only hosts that do (or do not) have an executor to run a probe\non. Not a client name: the app filters on whether one is matched at all, and\n\"which machines can nothing be dispatched to\" is the question worth asking.",
             "name": "executor",
             "in": "query"
+          },
+          {
+            "type": "boolean",
+            "description": "When set, return only hosts that are (or are not) automation_eligible. Applied\nin pmm-managed, after executor's own filter: om_inventory has no notion of\npmm_agent_connected to filter on itself.",
+            "name": "automation_eligible",
+            "in": "query"
           }
         ],
         "responses": {
@@ -28715,6 +29180,24 @@
                           }
                         },
                         "x-order": 10
+                      },
+                      "pmm_agent_connected": {
+                        "description": "Whether PMM's own agent registry currently has a connected pmm-agent for this\nnode, independent of anything the probe collected. This is the \"PMM-Client\ninstalled and healthy\" signal om_inventory has no way to answer on its own: a\nnode existing in the inventory only means PMM registered it once, not that its\nagent is alive now.",
+                        "type": "boolean",
+                        "x-order": 11
+                      },
+                      "automation_eligible": {
+                        "description": "Whether this host is eligible for OM automation (probing today; provisioning in\na later phase): pmm_agent_connected is true, and executor reports reachable and\ndriver-healthy. Computed once here so every consumer agrees on one definition\nrather than recomputing it from the fields above separately.",
+                        "type": "boolean",
+                        "x-order": 12
+                      },
+                      "automation_blocked_reasons": {
+                        "description": "Why automation_eligible is false, one entry per unmet condition. Empty when it\nis true.",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 13
                       }
                     }
                   },
@@ -29073,6 +29556,24 @@
                         }
                       },
                       "x-order": 10
+                    },
+                    "pmm_agent_connected": {
+                      "description": "Whether PMM's own agent registry currently has a connected pmm-agent for this\nnode, independent of anything the probe collected. This is the \"PMM-Client\ninstalled and healthy\" signal om_inventory has no way to answer on its own: a\nnode existing in the inventory only means PMM registered it once, not that its\nagent is alive now.",
+                      "type": "boolean",
+                      "x-order": 11
+                    },
+                    "automation_eligible": {
+                      "description": "Whether this host is eligible for OM automation (probing today; provisioning in\na later phase): pmm_agent_connected is true, and executor reports reachable and\ndriver-healthy. Computed once here so every consumer agrees on one definition\nrather than recomputing it from the fields above separately.",
+                      "type": "boolean",
+                      "x-order": 12
+                    },
+                    "automation_blocked_reasons": {
+                      "description": "Why automation_eligible is false, one entry per unmet condition. Empty when it\nis true.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -29135,6 +29636,95 @@
             "schema": {
               "description": "DeleteInventoryHostResponse acknowledges forgetting a host.",
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/inventory/hosts:bootstrap": {
+      "post": {
+        "description": "Plans installing MongoDB on one or three hosts through the Nomad client and initializing them as one replica set, monitored by PMM once it comes up. PMM-15347 proof-of-concept scope only. Returns as soon as the run is planned; PMM's own stepper drives it forward in the background.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Bootstrap one or three hosts (PoC)",
+        "operationId": "TriggerHostBootstrap",
+        "parameters": [
+          {
+            "description": "TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.",
+              "type": "object",
+              "properties": {
+                "node_ids": {
+                  "description": "PMM's node IDs for the hosts to bootstrap into one replica set. Adamo's\ndecided phase-1 scope (PMM-15347/questions.md Q5/Q12): exactly one or\nthree, checked server-side since protoc-gen-validate has no \"one of these\ncounts\" rule to state it declaratively.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "replica_set_name": {
+                  "description": "The replica set's name.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "mongodb_version": {
+                  "description": "The MongoDB version to install, e.g. \"7.0.8\". Only the major version\nselects the install source; PSMDB does not ship parallel repos per minor\nversion.",
+                  "type": "string",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "TriggerHostBootstrapResponse acknowledges a queued bootstrap run.\n\nPMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS\noff. Returned as soon as SEP's om_bootstrap app has planned the run, not\nonce it finishes -- PMM's own HA-leader-only stepper drives it forward from\nhere (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's\ngenerated MongoDB user is created only once every host is up, minutes after\nthis response, and lives encrypted in PMM's own Postgres\n(PMM-15347/questions.md Q7) -- there is nothing to hand back yet.",
+              "type": "object",
+              "properties": {
+                "run_id": {
+                  "description": "The om_bootstrap run's id. Poll GetBootstrapRun for its progress.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {

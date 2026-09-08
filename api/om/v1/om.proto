@@ -885,6 +885,12 @@ message BootstrapHost {
   // om_bootstrap's own HostBootstrapState doc comment. Every entry stays
   // "pending" unless the run actually rolls this host back.
   repeated BootstrapStep rollback_steps = 3;
+  // This host's post-install steps, dispatched only once every run-level step has
+  // succeeded -- e.g. enabling MongoDB authorization once the run's own
+  // create_pmm_monitoring_user step has created the first user. See
+  // om_bootstrap's own HostBootstrapState doc comment for why these are a
+  // distinct phase from `steps` rather than appended to them.
+  repeated BootstrapStep finalize_steps = 4;
 }
 
 // GetBootstrapRunRequest is the request for GetBootstrapRun.
@@ -911,6 +917,24 @@ message GetBootstrapRunResponse {
   // Set when the run itself failed outside any single step -- e.g. SEP
   // rejected the request before planning anything.
   optional string error = 5;
+}
+
+// ListBootstrapRunsRequest is the request for ListBootstrapRuns.
+message ListBootstrapRunsRequest {
+  // How many to return, newest first. Defaults to 20, capped at 100.
+  int32 limit = 1 [(validate.rules).int32 = {
+    gte: 0
+    lte: 100
+  }];
+}
+
+// ListBootstrapRunsResponse returns the bootstrap run history, newest first.
+message ListBootstrapRunsResponse {
+  // Each run in the same full shape GetBootstrapRun answers with, not a
+  // trimmed summary -- SEP's own GET /runs already returns every host's steps
+  // per row (see bootstrapRunToProto's doc comment), so there is no cheaper
+  // shape to ask it for.
+  repeated GetBootstrapRunResponse runs = 1;
 }
 
 // GetInventoryConfigRequest is the request for GetInventoryConfig.
@@ -1132,6 +1156,15 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get a bootstrap run's progress (PoC)"
       description: "Returns one bootstrap run's current status and every host's step-by-step progress, reconciled against its in-flight dispatches as of this call. Poll this to watch a run started by TriggerHostBootstrap."
+    };
+  }
+
+  // ListBootstrapRuns returns the bootstrap run history (PoC).
+  rpc ListBootstrapRuns(ListBootstrapRunsRequest) returns (ListBootstrapRunsResponse) {
+    option (google.api.http) = {get: "/v1/om/inventory/bootstrap-runs"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List bootstrap runs (PoC)"
+      description: "Returns the recorded bootstrap runs, newest first, each in the same full detail GetBootstrapRun answers with."
     };
   }
 

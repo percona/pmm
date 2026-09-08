@@ -476,6 +476,15 @@ func (s *Service) bootstrapProbe() (*bootstrapClient, error) {
 	return s.bootstrap, nil
 }
 
+// defaultBootstrapRunLimit and maxBootstrapRunLimit mirror defaultInventoryRunLimit and
+// maxInventoryRunLimit's own doc comment: the ceiling is forwarded to SEP verbatim, and
+// matches both the proto's ListBootstrapRunsRequest.limit validation and SEP's own
+// om_bootstrap GET /runs le=100.
+const (
+	defaultBootstrapRunLimit = 20
+	maxBootstrapRunLimit     = 100
+)
+
 // GetBootstrapRun returns one bootstrap run's current progress.
 //
 // A thin proxy onto SEP's om_bootstrap GET /runs/{id}, like every other read in
@@ -495,6 +504,36 @@ func (s *Service) GetBootstrapRun(ctx context.Context, req *omv1.GetBootstrapRun
 	return bootstrapRunToProto(run), nil
 }
 
+// ListBootstrapRuns returns the bootstrap run history, newest first.
+//
+// Every status, not just active ones -- this backs an operator-facing history view,
+// where a finished run is exactly as worth seeing as a running one.
+func (s *Service) ListBootstrapRuns(ctx context.Context, req *omv1.ListBootstrapRunsRequest) (*omv1.ListBootstrapRunsResponse, error) {
+	bootstrap, err := s.bootstrapProbe()
+	if err != nil {
+		return nil, err
+	}
+
+	limit := int(req.GetLimit())
+	switch {
+	case limit <= 0:
+		limit = defaultBootstrapRunLimit
+	case limit > maxBootstrapRunLimit:
+		limit = maxBootstrapRunLimit
+	}
+
+	runs, err := bootstrap.listRuns(ctx, "", limit)
+	if err != nil {
+		return nil, err
+	}
+
+	proto := make([]*omv1.GetBootstrapRunResponse, 0, len(runs))
+	for i := range runs {
+		proto = append(proto, bootstrapRunToProto(&runs[i]))
+	}
+	return &omv1.ListBootstrapRunsResponse{Runs: proto}, nil
+}
+
 // bootstrapRunToProto projects a sepBootstrapRun onto the wire shape
 // GetBootstrapRun answers with.
 func bootstrapRunToProto(run *sepBootstrapRun) *omv1.GetBootstrapRunResponse {
@@ -504,6 +543,7 @@ func bootstrapRunToProto(run *sepBootstrapRun) *omv1.GetBootstrapRunResponse {
 			Host:          host.Host,
 			Steps:         bootstrapStepsToProto(host.Steps),
 			RollbackSteps: bootstrapStepsToProto(host.RollbackSteps),
+			FinalizeSteps: bootstrapStepsToProto(host.FinalizeSteps),
 		})
 	}
 	return &omv1.GetBootstrapRunResponse{

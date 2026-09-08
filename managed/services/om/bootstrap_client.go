@@ -19,6 +19,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -130,14 +131,18 @@ type bootstrapClient struct {
 }
 
 // listRuns returns every run in the given status, newest first. An empty status
-// returns runs regardless of status.
-func (c *bootstrapClient) listRuns(ctx context.Context, runStatus string) ([]sepBootstrapRun, error) {
+// returns runs regardless of status. A limit of 0 leaves SEP's own default in
+// place.
+func (c *bootstrapClient) listRuns(ctx context.Context, runStatus string, limit int) ([]sepBootstrapRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
 	defer cancel()
 
 	query := url.Values{}
 	if runStatus != "" {
 		query.Set("status", runStatus)
+	}
+	if limit > 0 {
+		query.Set("limit", strconv.Itoa(limit))
 	}
 	runs := []sepBootstrapRun{}
 	call := inventoryCall{method: http.MethodGet, path: "runs", query: query}

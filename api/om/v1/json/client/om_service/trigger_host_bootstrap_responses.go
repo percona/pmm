@@ -88,12 +88,12 @@ func (o *TriggerHostBootstrapOK) Code() int {
 
 func (o *TriggerHostBootstrapOK) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/inventory/hosts/{node_id}:bootstrap][%d] triggerHostBootstrapOk %s", 200, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/hosts:bootstrap][%d] triggerHostBootstrapOk %s", 200, payload)
 }
 
 func (o *TriggerHostBootstrapOK) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/inventory/hosts/{node_id}:bootstrap][%d] triggerHostBootstrapOk %s", 200, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/hosts:bootstrap][%d] triggerHostBootstrapOk %s", 200, payload)
 }
 
 func (o *TriggerHostBootstrapOK) GetPayload() *TriggerHostBootstrapOKBody {
@@ -161,12 +161,12 @@ func (o *TriggerHostBootstrapDefault) Code() int {
 
 func (o *TriggerHostBootstrapDefault) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/inventory/hosts/{node_id}:bootstrap][%d] TriggerHostBootstrap default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/hosts:bootstrap][%d] TriggerHostBootstrap default %s", o._statusCode, payload)
 }
 
 func (o *TriggerHostBootstrapDefault) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[POST /v1/om/inventory/hosts/{node_id}:bootstrap][%d] TriggerHostBootstrap default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/hosts:bootstrap][%d] TriggerHostBootstrap default %s", o._statusCode, payload)
 }
 
 func (o *TriggerHostBootstrapDefault) GetPayload() *TriggerHostBootstrapDefaultBody {
@@ -189,6 +189,12 @@ TriggerHostBootstrapBody TriggerHostBootstrapRequest is the request for TriggerH
 swagger:model TriggerHostBootstrapBody
 */
 type TriggerHostBootstrapBody struct {
+	// PMM's node IDs for the hosts to bootstrap into one replica set. Adamo's
+	// decided phase-1 scope (PMM-15347/questions.md Q5/Q12): exactly one or
+	// three, checked server-side since protoc-gen-validate has no "one of these
+	// counts" rule to state it declaratively.
+	NodeIds []string `json:"node_ids"`
+
 	// The replica set's name.
 	ReplicaSetName string `json:"replica_set_name,omitempty"`
 
@@ -455,25 +461,20 @@ func (o *TriggerHostBootstrapDefaultBodyDetailsItems0) UnmarshalBinary(b []byte)
 }
 
 /*
-TriggerHostBootstrapOKBody TriggerHostBootstrapResponse acknowledges a queued single-host bootstrap.
+TriggerHostBootstrapOKBody TriggerHostBootstrapResponse acknowledges a queued bootstrap run.
 //
-// PMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Returned
-// as soon as the Nomad job is queued, not once it finishes.
+// PMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS
+// off. Returned as soon as SEP's om_bootstrap app has planned the run, not
+// once it finishes -- PMM's own HA-leader-only stepper drives it forward from
+// here (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's
+// generated MongoDB user is created only once every host is up, minutes after
+// this response, and lives encrypted in PMM's own Postgres
+// (PMM-15347/questions.md Q7) -- there is nothing to hand back yet.
 swagger:model TriggerHostBootstrapOKBody
 */
 type TriggerHostBootstrapOKBody struct {
-	// The queued run's task history ID. There is no OM-specific run id for
-	// this yet -- see PMM-15347/questions.md for why.
-	TaskHistoryID string `json:"task_history_id,omitempty"`
-
-	// The admin user this run will create.
-	AdminUsername string `json:"admin_username,omitempty"`
-
-	// The generated password, in the clear, returned exactly once. Nothing
-	// stores it after this response -- PMM-15347/questions.md Q7 (secrets
-	// storage) is unresolved, and this is a PoC placeholder, not the answer to
-	// it.
-	AdminPassword string `json:"admin_password,omitempty"`
+	// The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
+	RunID string `json:"run_id,omitempty"`
 }
 
 // Validate validates this trigger host bootstrap OK body

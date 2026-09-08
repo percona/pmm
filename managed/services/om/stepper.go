@@ -36,6 +36,15 @@ const bootstrapPollInterval = 15 * time.Second
 // PMM-15347/questions.md Q7).
 const bootstrapMongoDBUsername = "admin"
 
+// bootstrapPasswordBytes and bootstrapKeyFileBytes size the two secrets
+// ensureBootstrapSecret generates -- the created MongoDB user's password, and the
+// replica set's keyFile content. 756 sits in MongoDB's own recommended 6-1024
+// byte range for a keyFile; see generateBootstrapSecret's own doc comment.
+const (
+	bootstrapPasswordBytes = 24
+	bootstrapKeyFileBytes  = 756
+)
+
 // RunBootstrapStepper drives every in-flight, and every just-succeeded but not yet
 // PMM-registered, bootstrap run forward until ctx is cancelled.
 //
@@ -75,7 +84,7 @@ func (s *Service) RunBootstrapStepper(ctx context.Context) {
 // stepBootstrapRuns discovers every run worth a look this tick and drives each one.
 func (s *Service) stepBootstrapRuns(ctx context.Context) {
 	for _, runStatus := range [...]string{bootstrapRunRunning, bootstrapRunSucceeded} {
-		runs, err := s.bootstrap.listRuns(ctx, runStatus)
+		runs, err := s.bootstrap.listRuns(ctx, runStatus, 0)
 		if err != nil {
 			s.l.Warnf("failed to list %s bootstrap runs: %s", runStatus, err)
 			continue
@@ -271,11 +280,11 @@ func (s *Service) ensureBootstrapSecret(_ context.Context, runID string) (*model
 		return nil, fmt.Errorf("failed to look up the stored secret: %w", err)
 	}
 
-	password, err := generateBootstrapSecret(24)
+	password, err := generateBootstrapSecret(bootstrapPasswordBytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate a password: %w", err)
 	}
-	keyFile, err := generateBootstrapSecret(756)
+	keyFile, err := generateBootstrapSecret(bootstrapKeyFileBytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate a keyFile: %w", err)
 	}

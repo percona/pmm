@@ -36,17 +36,20 @@ func DecryptOmBootstrapSecret(secret OmBootstrapSecret) OmBootstrapSecret {
 }
 
 func omBootstrapSecretEncryption(secret OmBootstrapSecret, handler func(string) (string, error)) OmBootstrapSecret {
-	if username, err := handler(secret.MongoDBUsername); err != nil {
+	username, err := handler(secret.MongoDBUsername)
+	if err != nil {
 		logrus.Warning(err)
 	} else {
 		secret.MongoDBUsername = username
 	}
-	if password, err := handler(secret.MongoDBPassword); err != nil {
+	password, err := handler(secret.MongoDBPassword)
+	if err != nil {
 		logrus.Warning(err)
 	} else {
 		secret.MongoDBPassword = password
 	}
-	if keyFile, err := handler(secret.KeyFile); err != nil {
+	keyFile, err := handler(secret.KeyFile)
+	if err != nil {
 		logrus.Warning(err)
 	} else {
 		secret.KeyFile = keyFile
