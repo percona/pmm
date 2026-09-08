@@ -42,12 +42,22 @@ const mongodExporterPort = 27017
 // functions addMongoDB itself calls -- models.AddNewService, models.CreateAgent --
 // directly, inside one transaction, using the db handle Service already holds.
 //
+// ServiceName is keyed on host, the executor name (e.g. "pmm-client-node00"), not
+// replicaSetName: models.AddNewService enforces service names unique across the
+// whole PMM instance, and every member of one replica set shares the same
+// replicaSetName by definition. Confirmed against a real 3-member run: naming
+// every member's service "<replicaSetName>-mongod" registered only the first
+// host, leaving the other two failing "already exists" forever (every tick,
+// since a failed registration is exactly the case this function retries).
+// Host is what actually distinguishes them; ReplicationSet below is what
+// still ties all three together as one logical set in PMM's own model.
+//
 // Idempotent by construction, not by a "was this run registered" flag: called again
 // for a host that already has a MongoDB service (the ordinary case on every tick
 // after the first, since SEP never forgets a succeeded run -- see
 // RunBootstrapStepper's own doc comment on why succeeded runs are revisited) it
 // finds that service already exists and returns nil without creating a second one.
-func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, replicaSetName, username, password string) error {
+func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, replicaSetName, username, password string) error {
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, nodeID)
 	if err != nil {
 		return fmt.Errorf("failed to find a pmm-agent on node %s: %w", nodeID, err)
@@ -74,7 +84,7 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, replicaSetN
 
 	e := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		service, err := models.AddNewService(tx.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
-			ServiceName:    fmt.Sprintf("%s-mongod", replicaSetName),
+			ServiceName:    host + "-mongod",
 			NodeID:         nodeID,
 			ReplicationSet: replicaSetName,
 			Address:        &address,
