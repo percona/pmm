@@ -16,9 +16,11 @@
 package channel
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -34,6 +36,11 @@ import (
 
 const (
 	serverRequestsCap = 32
+
+	// One slot is enough for the Ping queue: a ping carries no state, a new one arrives every
+	// few seconds, and the goroutine reading them answers immediately. What matters is that
+	// queuing a ping can never block runReceiver. See PMM-15431.
+	serverPingsCap = 1
 
 	prometheusNamespace = "pmm_agent"
 	prometheusSubsystem = "channel"
@@ -78,6 +85,9 @@ type Channel struct {
 	m         sync.Mutex
 	responses map[uint32]chan Response
 	requests  chan *ServerRequest
+	pings     chan *ServerRequest
+
+	lastReceived atomic.Int64
 
 	closeOnce sync.Once
 	closeWait chan struct{}
@@ -107,12 +117,20 @@ func New(stream agentv1.AgentService_ConnectClient) *Channel {
 
 		responses: make(map[uint32]chan Response),
 		requests:  make(chan *ServerRequest, serverRequestsCap),
+		pings:     make(chan *ServerRequest, serverPingsCap),
 
 		closeWait: make(chan struct{}),
 	}
+	s.lastReceived.Store(time.Now().UnixNano())
 
 	go s.runReceiver()
 	return s
+}
+
+// Close closes the channel with the given error, unblocking everything parked on it. It is a
+// no-op if the channel is already closed (see Wait).
+func (c *Channel) Close(err error) {
+	c.close(err)
 }
 
 // close marks channel as closed with given error - only once.
@@ -148,6 +166,22 @@ func (c *Channel) Requests() <-chan *ServerRequest {
 	return c.requests
 }
 
+// Pings returns a channel for incoming Ping requests. It must be read. It is closed on any error
+// (see Wait).
+//
+// Pings are kept out of Requests() so that answering them cannot be delayed by whatever else the
+// consumer of Requests() is doing: it is the only responder, some of what it runs is bounded only
+// by the user's own timeouts, and a queue it stopped draining blocks runReceiver - the one
+// goroutine that could deliver the response it is waiting for. See PMM-15431.
+func (c *Channel) Pings() <-chan *ServerRequest {
+	return c.pings
+}
+
+// LastReceived returns the time the last message was received from the server.
+func (c *Channel) LastReceived() time.Time {
+	return time.Unix(0, c.lastReceived.Load())
+}
+
 // Send sends message to pmm-managed. It is no-op once channel is closed (see Wait).
 func (c *Channel) Send(resp *AgentResponse) {
 	msg := &agentv1.AgentMessage{
@@ -162,11 +196,12 @@ func (c *Channel) Send(resp *AgentResponse) {
 	c.send(msg)
 }
 
-// SendAndWaitResponse sends request to pmm-managed, blocks until response is available.
+// SendAndWaitResponse sends request to pmm-managed and blocks until the response is available,
+// the channel is closed, or ctx is done, whichever happens first.
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancelation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn,nolintlint
+func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn,nolintlint
 	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
@@ -175,8 +210,19 @@ func (c *Channel) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agen
 		Payload: payload.AgentMessageRequestPayload(),
 	})
 
-	resp := <-ch
-	return resp.Payload, resp.Error
+	select {
+	case resp := <-ch:
+		return resp.Payload, resp.Error
+
+	case <-ctx.Done():
+		// Drop the subscription so that a response arriving later is not left waiting for a
+		// reader. Only runReceiver can deliver it, and it publishes every response in the
+		// same goroutine, so a subscription nobody reads would stall the whole channel.
+		// The response channel is buffered, so a publisher that took the entry first still
+		// completes; that response is simply discarded. See PMM-15431.
+		c.removeResponseChannel(id)
+		return nil, ctx.Err()
+	}
 }
 
 func (c *Channel) send(msg *agentv1.AgentMessage) {
@@ -212,6 +258,7 @@ func (c *Channel) send(msg *agentv1.AgentMessage) {
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
+		close(c.pings)
 		c.l.Debug("Exiting receiver goroutine.")
 	}()
 
@@ -222,6 +269,7 @@ func (c *Channel) runReceiver() {
 			return
 		}
 		c.mRecv.Inc()
+		c.lastReceived.Store(time.Now().UnixNano())
 
 		// Check log level before calling formatting function.
 		// Do not waste resources in case debug level is not enabled.
@@ -234,68 +282,40 @@ func (c *Channel) runReceiver() {
 			}
 		}
 
+		var req *ServerRequest
 		switch p := msg.Payload.(type) {
 		// requests
 		case *agentv1.ServerMessage_Ping:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.Ping,
+			// Answered from its own goroutine, see Pings. Dropping a ping that finds the
+			// single slot taken costs only a warning on the server side, which is a much
+			// smaller price than blocking here.
+			select {
+			case c.pings <- &ServerRequest{ID: msg.Id, Payload: p.Ping}:
+			default:
+				c.l.Warnf("Dropping ping %d: previous one is not answered yet.", msg.Id)
 			}
 		case *agentv1.ServerMessage_SetState:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.SetState,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.SetState}
 		case *agentv1.ServerMessage_StartAction:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.StartAction,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.StartAction}
 		case *agentv1.ServerMessage_StopAction:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.StopAction,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.StopAction}
 		case *agentv1.ServerMessage_CheckConnection:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.CheckConnection,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.CheckConnection}
 		case *agentv1.ServerMessage_StartJob:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.StartJob,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.StartJob}
 		case *agentv1.ServerMessage_StopJob:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.StopJob,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.StopJob}
 		case *agentv1.ServerMessage_JobStatus:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.JobStatus,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.JobStatus}
 		case *agentv1.ServerMessage_GetVersions:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.GetVersions,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.GetVersions}
 		case *agentv1.ServerMessage_PbmSwitchPitr:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.PbmSwitchPitr,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.PbmSwitchPitr}
 		case *agentv1.ServerMessage_AgentLogs:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.AgentLogs,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.AgentLogs}
 		case *agentv1.ServerMessage_ServiceInfo:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.ServiceInfo,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.ServiceInfo}
 
 		// responses
 		case *agentv1.ServerMessage_Pong:
@@ -319,6 +339,19 @@ func (c *Channel) runReceiver() {
 				ID:     msg.Id,
 				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
+		}
+
+		if req == nil {
+			continue
+		}
+
+		// Never park here without a way out. c.requests is bounded, and this goroutine also
+		// delivers every response its consumer may be waiting for, so a full queue would stop
+		// both directions with nothing able to break the cycle from inside. See PMM-15431.
+		select {
+		case c.requests <- req:
+		case <-c.closeWait:
+			return
 		}
 	}
 }

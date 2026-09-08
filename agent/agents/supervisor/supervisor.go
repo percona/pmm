@@ -55,6 +55,19 @@ const (
 	changesBufferSize     = 100
 	qanRequestsBufferSize = 100
 	rtaRequestsBufferSize = 100
+
+	// Bound for the wait on a stopped Agent's status forwarder.
+	//
+	// The forwarder feeds Changes(), which the client drains by sending each update to the
+	// server and waiting for the acknowledgement, so this wait reaches the server and can only
+	// be as reliable as the connection. Left unbounded it took SetState - and with it the whole
+	// request loop and every other supervisor operation, since it holds s.rw - down with a
+	// wedged connection, with no way back except restarting pmm-agent. Giving up on the wait
+	// only risks reporting a stopped Agent's last statuses out of order, or reusing its port
+	// before it is fully gone, in which case starting its replacement is retried on another
+	// port. Sized well above process.killT so that a normal SIGTERM/SIGKILL stop never hits it.
+	// See PMM-15431.
+	agentStopTimeout = 15 * time.Second
 )
 
 // configGetter allows for getting a config.
@@ -80,6 +93,9 @@ type Supervisor struct {
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventoryv1.AgentStatus
+
+	// for unit tests only
+	agentStopTimeout time.Duration
 }
 
 // agentProcessInfo describes Agent process.
@@ -122,6 +138,8 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
 		lastStatuses:   make(map[string]inventoryv1.AgentStatus),
+
+		agentStopTimeout: agentStopTimeout,
 	}
 }
 
@@ -252,7 +270,7 @@ func (s *Supervisor) RestartAgents() {
 
 	for id, agent := range s.agentProcesses {
 		agent.cancel()
-		<-agent.done
+		s.waitAgentStopped(id, agent.done)
 
 		err := s.tryStartProcess(id, agent.requestedState, agent.listenPort)
 		if err != nil {
@@ -262,12 +280,24 @@ func (s *Supervisor) RestartAgents() {
 
 	for id, agent := range s.builtinAgents {
 		agent.cancel()
-		<-agent.done
+		s.waitAgentStopped(id, agent.done)
 
 		err := s.startBuiltin(id, agent.requestedState)
 		if err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
 		}
+	}
+}
+
+// waitAgentStopped waits for a canceled Agent's status forwarder to finish, up to agentStopTimeout.
+func (s *Supervisor) waitAgentStopped(agentID string, done <-chan struct{}) {
+	t := time.NewTimer(s.agentStopTimeout)
+	defer t.Stop()
+
+	select {
+	case <-done:
+	case <-t.C:
+		s.l.Errorf("Agent %s did not report itself stopped in %s, proceeding without it.", agentID, s.agentStopTimeout)
 	}
 }
 
@@ -308,7 +338,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 	for _, agentID := range toStop {
 		agent := s.agentProcesses[agentID]
 		agent.cancel()
-		<-agent.done
+		s.waitAgentStopped(agentID, agent.done)
 
 		err := s.portsRegistry.Release(agent.listenPort)
 		if err != nil {
@@ -328,7 +358,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 	for _, agentID := range toRestart {
 		agent := s.agentProcesses[agentID]
 		agent.cancel()
-		<-agent.done
+		s.waitAgentStopped(agentID, agent.done)
 
 		err := s.tryStartProcess(agentID, agentProcesses[agentID], agent.listenPort)
 		if err != nil {
@@ -371,7 +401,7 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 	for _, agentID := range toStop {
 		agent := s.builtinAgents[agentID]
 		agent.cancel()
-		<-agent.done
+		s.waitAgentStopped(agentID, agent.done)
 
 		delete(s.builtinAgents, agentID)
 
@@ -386,7 +416,7 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 	for _, agentID := range toRestart {
 		agent := s.builtinAgents[agentID]
 		agent.cancel()
-		<-agent.done
+		s.waitAgentStopped(agentID, agent.done)
 
 		err := s.startBuiltin(agentID, builtinAgents[agentID])
 		if err != nil {

@@ -19,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -257,6 +258,35 @@ func TestSupervisor(t *testing.T) {
 			&agentv1.StateChangedRequest{AgentId: "noop4", Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE},
 		)
 		require.Empty(t, s.AgentsList())
+	})
+}
+
+func TestWaitAgentStopped(t *testing.T) {
+	t.Parallel()
+
+	cfgStorage := config.NewStorage(&config.Config{Ports: config.Ports{Min: 65200, Max: 65299}})
+	s := NewSupervisor(t.Context(), nil, cfgStorage)
+	s.agentStopTimeout = 100 * time.Millisecond
+
+	t.Run("Stopped", func(t *testing.T) {
+		t.Parallel()
+
+		done := make(chan struct{})
+		close(done)
+
+		start := time.Now()
+		s.waitAgentStopped("stopped", done)
+		assert.Less(t, time.Since(start), s.agentStopTimeout)
+	})
+
+	t.Run("Stuck", func(t *testing.T) {
+		t.Parallel()
+
+		// An Agent whose status forwarder cannot finish must not hold up SetState - and with
+		// it every other supervisor operation - forever. See PMM-15431.
+		start := time.Now()
+		s.waitAgentStopped("stuck", make(chan struct{}))
+		assert.GreaterOrEqual(t, time.Since(start), s.agentStopTimeout)
 	})
 }
 

@@ -25,6 +25,27 @@ The `client` package maintains a persistent bidirectional gRPC stream (`Agent.Co
 - **Agent → Server**: `StateChanged`, `QanCollect`, `ActionResult`, `JobResult`, `Pong`
 - A separate RTA channel streams `CollectRequest` data via client-streaming RPC
 
+#### The request loop must never block indefinitely
+
+`client.processChannelRequests` is the only reader of `channel.Requests()`, and `channel.runReceiver`
+is the only goroutine that reads the stream — so it is also the only one that can deliver a response
+the loop is waiting for. A handler that waits on the server therefore forms a cycle: the loop stops
+draining the queue, the full queue stops the receiver, and the receiver can no longer deliver what
+the handler waits for. Nothing breaks that from inside; the agent goes silent while looking healthy
+(PMM-15431 on the agent, PMM-15310 on the server).
+
+What keeps it out:
+
+- `Ping` is answered by `client.processPings` from `channel.Pings()`, its own single-slot queue, so
+  a busy request loop cannot delay a pong
+- `SetStateRequest` is queued for `client.processSetStates` and answered immediately; the response
+  means "accepted", and the outcome arrives as `StateChanged` requests
+- `runReceiver`'s send into the request queue and `Channel.SendAndWaitResponse` both have a way out
+  (channel close, ctx)
+- `supervisor` bounds its waits for stopping agents (`agentStopTimeout`)
+- `client.processServerSilence` closes the channel, forcing a redial, if nothing arrives from the
+  server for a couple of minutes
+
 ### Local API
 
 `agentlocal` exposes a local gRPC + JSON API for status, Prometheus metrics, pprof debug endpoints, and config reload.
@@ -83,6 +104,8 @@ pmm-agent has **no direct database access**. All state comes from pmm-managed vi
 - Don't bypass the supervisor for agent lifecycle management
 - Don't persist agent state locally — pmm-agent has no datastore of its own; configuration arrives from pmm-managed over gRPC. Querying *monitored* databases is a separate matter: the QAN collectors read their system views through reform
 - Don't modify exporter args directly — they come from server templates
+- Don't add a handler that waits on the server (or on a stopping agent) to the request loop in
+  `client.processChannelRequests` — see [the request loop must never block indefinitely](#the-request-loop-must-never-block-indefinitely)
 
 ## Testing
 

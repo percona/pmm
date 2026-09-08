@@ -66,6 +66,15 @@ const (
 	// and the client reconnects. See PMM-15200.
 	keepaliveTime    = 30 * time.Second
 	keepaliveTimeout = 15 * time.Second
+	// One slot is enough for the state queue: a SetStateRequest carries the whole desired
+	// state, so one that has not been applied yet is fully superseded by a newer one.
+	// See PMM-15431.
+	setStatesCap = 1
+	// Watchdog of last resort, see processServerSilence. The server pings every 10s for the
+	// life of the stream, so a couple of minutes without a single message means the connection
+	// is no longer usable.
+	serverSilenceTimeout       = 2 * time.Minute
+	serverSilenceCheckInterval = 15 * time.Second
 )
 
 // configGetter allows to get a config.
@@ -250,30 +259,50 @@ func (c *Client) Run(ctx context.Context) error {
 	c.rtaChannel = rtaChannel
 	c.rw.Unlock()
 
-	// Once the client is connected, ctx cancellation is ignored by it.
-	//
-	// We start goroutines, and terminate the gRPC connection and exit Run when any of them exits:
-	//
-	// 1. processActionResults reads action results from action runner and sends them to the channel.
-	//    It exits when the action runner is stopped by cancelling ctx.
-	//
-	// 2. processSupervisorRequests reads requests (status changes and QAN data) from the supervisor and sends them to the channel.
-	//    It exits when the supervisor is stopped by the caller.
-	//    Caller stops supervisor when Run is left and gRPC connection is closed.
-	//
-	// 3. processChannelRequests reads requests from the channel and processes them.
-	//    It exits when an unexpected message is received from the channel, or when can't be received at all.
-	//    When Run is left, caller stops supervisor, and that allows processSupervisorRequests to exit.
-	//
-	// Done() channel is closed when all three goroutines exited.
+	c.runProcessors(ctx, agentServiceDialResult.channel)
+	return nil
+}
 
-	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
-	// https://jira.percona.com/browse/PMM-4245
-
+// runProcessors starts the goroutines that serve the connection and blocks until the first of them
+// exits; Done() is closed once the rest have too.
+//
+// Once the client is connected, ctx cancellation is ignored by it.
+//
+// We start goroutines, and terminate the gRPC connection and exit Run when any of them exits:
+//
+//  1. processActionResults reads action results from action runner and sends them to the channel.
+//     It exits when the action runner is stopped by cancelling ctx.
+//
+//  2. processSupervisorRequests reads requests (status changes and QAN data) from the supervisor and sends them to the channel.
+//     It exits when the supervisor is stopped by the caller.
+//     Caller stops supervisor when Run is left and gRPC connection is closed.
+//
+//  3. processChannelRequests reads requests from the channel and processes them.
+//     It exits when an unexpected message is received from the channel, or when can't be received at all.
+//     When Run is left, caller stops supervisor, and that allows processSupervisorRequests to exit.
+//
+//  4. processPings answers Ping from a path nothing else can starve.
+//     It exits when the channel is closed, or when ctx is cancelled.
+//
+// Done() channel is closed when all of them exited.
+//
+// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
+// https://jira.percona.com/browse/PMM-4245
+func (c *Client) runProcessors(ctx context.Context, ch *channel.Channel) {
 	c.supervisor.ClearChangesChannel()
-	c.SendActualStatuses()
+	c.SendActualStatuses(ctx)
 
-	oneDone := make(chan struct{}, 4) //nolint:mnd
+	// Applying a state is deliberately kept off the request loop and out of the accounting
+	// below: it can block for as long as the agents it replaces take to stop, and gating
+	// Done() on it would hold up the reconnect that unblocks it. See processSetStates.
+	setStates := make(chan *agentv1.SetStateRequest, setStatesCap)
+	go func() {
+		c.processSetStates(ctx, setStates)
+		c.l.Debug("processSetStates is finished")
+	}()
+	go c.processServerSilence(ctx, ch)
+
+	oneDone := make(chan struct{}, 5) //nolint:mnd
 	go func() {
 		c.processActionResults(ctx)
 		c.l.Debug("processActionResults is finished")
@@ -290,27 +319,32 @@ func (c *Client) Run(ctx context.Context) error {
 		oneDone <- struct{}{}
 	}()
 	go func() {
-		c.processChannelRequests(ctx)
+		c.processPings(ctx)
+		c.l.Debug("processPings is finished")
+		oneDone <- struct{}{}
+	}()
+	go func() {
+		c.processChannelRequests(ctx, setStates)
 		c.l.Debug("processChannelRequests is finished")
 		oneDone <- struct{}{}
 	}()
 
 	<-oneDone
 	go func() {
-		<-oneDone
-		<-oneDone
-		<-oneDone
+		for range cap(oneDone) - 1 {
+			<-oneDone
+		}
 		c.l.Info("Done.")
 		close(c.done)
 	}()
-	return nil
 }
 
 // SendActualStatuses sends status of running agents to server.
-func (c *Client) SendActualStatuses() {
+func (c *Client) SendActualStatuses(ctx context.Context) {
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
 		resp, err := c.channel.SendAndWaitResponse(
+			ctx,
 			&agentv1.StateChangedRequest{
 				AgentId:         agent.AgentId,
 				Status:          agent.Status,
@@ -340,7 +374,7 @@ func (c *Client) processActionResults(ctx context.Context) {
 			if result == nil {
 				continue
 			}
-			resp, err := c.channel.SendAndWaitResponse(result)
+			resp, err := c.channel.SendAndWaitResponse(ctx, result)
 			if err != nil {
 				c.l.Error(err)
 				continue
@@ -383,7 +417,7 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 				if state == nil {
 					continue
 				}
-				resp, err := c.channel.SendAndWaitResponse(state)
+				resp, err := c.channel.SendAndWaitResponse(ctx, state)
 				if err != nil {
 					c.l.Error(err)
 					continue
@@ -405,7 +439,7 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 				if collect == nil {
 					continue
 				}
-				resp, err := c.channel.SendAndWaitResponse(collect)
+				resp, err := c.channel.SendAndWaitResponse(ctx, collect)
 				if err != nil {
 					c.l.Error(err)
 					continue
@@ -438,7 +472,105 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 	wg.Wait()
 }
 
-func (c *Client) processChannelRequests(ctx context.Context) {
+// processPings answers Ping from its own goroutine, mirroring the fix made on the server side in
+// PMM-15310.
+//
+// The loop reading channel.Requests() is the only responder to everything else, and some of what it
+// runs is bounded only by the user's own timeouts - a connection check carrying
+// --connection-timeout, or gathering software versions. Answering pings there makes the agent look
+// dead to the server for as long as one of those runs, and once the request queue fills,
+// channel.runReceiver stops reading the stream altogether. See PMM-15431.
+func (c *Client) processPings(ctx context.Context) {
+	for {
+		select {
+		case req, more := <-c.channel.Pings():
+			if !more {
+				return
+			}
+			c.channel.Send(&channel.AgentResponse{
+				ID: req.ID,
+				Payload: &agentv1.Pong{
+					CurrentTime: timestamppb.Now(),
+				},
+			})
+			c.cus.RegisterConnectionStatus(time.Now(), true)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+// processSetStates applies desired states, one at a time, off the request loop.
+//
+// Applying a state waits for the agents it replaces to stop, and those waits reach all the way to
+// the server: a stopping agent's last status updates go through the same channel, and the client
+// waits for the server to acknowledge each one. Applying state on the request loop therefore stops
+// that loop draining channel.Requests(), and a full request queue blocks channel.runReceiver - the
+// one goroutine that can deliver the acknowledgement the loop is now waiting for. Nothing can break
+// that cycle from inside: the agent stops answering even pings, and Run never returns, so nothing
+// redials either. See PMM-15431, and PMM-15310 for the same cycle on the server side.
+//
+// The trade-off is that SetStateResponse no longer means "applied", only "accepted". Nothing relies
+// on the stronger meaning - the server logs the response and learns the outcome from the
+// StateChanged requests that follow - and the server gives the response 5s, which applying a large
+// state can exceed on its own.
+func (c *Client) processSetStates(ctx context.Context, setStates <-chan *agentv1.SetStateRequest) {
+	for {
+		select {
+		case state := <-setStates:
+			c.supervisor.SetState(state)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+// requestSetState queues state for processSetStates, replacing one that has not been applied yet.
+// It never blocks: blocking the request loop is what PMM-15431 is about.
+func (c *Client) requestSetState(setStates chan *agentv1.SetStateRequest, state *agentv1.SetStateRequest) {
+	for {
+		select {
+		case setStates <- state:
+			return
+		// The queue holds a single state, and this is its only producer, so the one being
+		// dropped here is superseded by the one we are about to queue.
+		case <-setStates:
+			c.l.Debug("Dropping a state update that was superseded before it was applied.")
+		}
+	}
+}
+
+// processServerSilence forces a redial when nothing at all has been received from the server for
+// serverSilenceTimeout.
+//
+// It is the watchdog of last resort for a request loop that stopped draining
+// channel.Requests(): once that queue is full, channel.runReceiver stops reading the stream, so no
+// message - not even a ping - arrives any more, and none of Run's goroutines ever exits, which is
+// what keeps the caller from redialing. Closing the channel unblocks all of them. See PMM-15431.
+// The channel is taken as an argument rather than read from the client: this goroutine outlives the
+// accounting that Run's caller waits on before starting the next connection.
+func (c *Client) processServerSilence(ctx context.Context, ch *channel.Channel) {
+	ticker := time.NewTicker(serverSilenceCheckInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			silence := time.Since(ch.LastReceived()).Round(time.Second)
+			if silence < serverSilenceTimeout {
+				continue
+			}
+
+			c.l.Errorf("Nothing received from server for %s, closing the connection to reconnect.", silence)
+			ch.Close(fmt.Errorf("nothing received from server for %s", silence))
+			return
+		}
+	}
+}
+
+func (c *Client) processChannelRequests(ctx context.Context, setStates chan *agentv1.SetStateRequest) {
 LOOP:
 	for {
 		select {
@@ -449,12 +581,8 @@ LOOP:
 			var responsePayload agentv1.AgentResponsePayload
 			var status *grpcstatus.Status
 			switch p := req.Payload.(type) {
-			case *agentv1.Ping:
-				responsePayload = &agentv1.Pong{
-					CurrentTime: timestamppb.Now(),
-				}
 			case *agentv1.SetStateRequest:
-				c.supervisor.SetState(p)
+				c.requestSetState(setStates, p)
 				responsePayload = &agentv1.SetStateResponse{}
 
 			case *agentv1.StartActionRequest:
@@ -917,7 +1045,7 @@ func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn,
 
 	channel := channel.New(stream)
 
-	_, clockDrift, err := getNetworkInformation(channel) // ping/pong
+	_, clockDrift, err := getNetworkInformation(dialCtx, channel) // ping/pong
 	if err != nil {
 		msg := err.Error()
 
@@ -1007,10 +1135,10 @@ func createChannelToRealTimeAnalyticsService(dialCtx context.Context, conn *grpc
 	return channel.NewRTAChannel(stream), nil
 }
 
-func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
+func getNetworkInformation(ctx context.Context, channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	start := time.Now()
 	var resp agentv1.ServerResponsePayload
-	resp, err = channel.SendAndWaitResponse(&agentv1.Ping{})
+	resp, err = channel.SendAndWaitResponse(ctx, &agentv1.Ping{})
 	if err != nil {
 		return latency, clockDrift, err
 	}
@@ -1032,7 +1160,7 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 }
 
 // GetNetworkInformation sends ping request to the server and returns info about latency and clock drift.
-func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
+func (c *Client) GetNetworkInformation(ctx context.Context) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	c.rw.RLock()
 	channel := c.channel
 	c.rw.RUnlock()
@@ -1041,7 +1169,7 @@ func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err
 		return latency, clockDrift, err
 	}
 
-	latency, clockDrift, err = getNetworkInformation(channel)
+	latency, clockDrift, err = getNetworkInformation(ctx, channel)
 	return latency, clockDrift, err
 }
 
