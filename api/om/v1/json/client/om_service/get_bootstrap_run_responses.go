@@ -691,6 +691,11 @@ type GetBootstrapRunOKBodyHostsItems0 struct {
 	// create_pmm_monitoring_user step has created the first user. See
 	// om_bootstrap's own HostBootstrapState doc comment for why these are a
 	// distinct phase from `steps` rather than appended to them.
+	//
+	// The last entry, named "confirm_monitoring", is PMM's own -- SEP never
+	// dispatches it. It stays "pending" until the run itself has succeeded, then
+	// "running" until PMM's inventory app notices the registered service, then
+	// "succeeded".
 	FinalizeSteps []*GetBootstrapRunOKBodyHostsItems0FinalizeStepsItems0 `json:"finalize_steps"`
 }
 

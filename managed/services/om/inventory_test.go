@@ -715,10 +715,59 @@ func TestGetBootstrapRun(t *testing.T) {
 		assert.Equal(t, "pre_check", response.GetHosts()[0].GetSteps()[0].GetName())
 		assert.Equal(t, "succeeded", response.GetHosts()[0].GetSteps()[0].GetStatus())
 		assert.Equal(t, "stop_service", response.GetHosts()[0].GetRollbackSteps()[0].GetName())
-		require.Len(t, response.GetHosts()[0].GetFinalizeSteps(), 1)
+		require.Len(t, response.GetHosts()[0].GetFinalizeSteps(), 2)
 		assert.Equal(t, "enable_auth", response.GetHosts()[0].GetFinalizeSteps()[0].GetName())
+		// confirm_monitoring is PMM's own synthetic step, appended regardless of what
+		// SEP returned -- "pending" here because the run itself has not succeeded yet,
+		// same as rollback_steps stay "pending" until a run actually rolls back.
+		assert.Equal(t, "confirm_monitoring", response.GetHosts()[0].GetFinalizeSteps()[1].GetName())
+		assert.Equal(t, "pending", response.GetHosts()[0].GetFinalizeSteps()[1].GetStatus())
 		require.Len(t, response.GetRunSteps(), 1)
 		assert.Equal(t, "rs_initiate", response.GetRunSteps()[0].GetName())
+	})
+
+	t.Run("confirms monitoring against the inventory app once the run has succeeded", func(t *testing.T) {
+		t.Parallel()
+
+		// Two responses in order: the bootstrap run itself, then the inventory app's
+		// own host list that confirmMonitoringLookup fetches once it sees "succeeded".
+		// n1 already has a service the inventory sweep noticed; n2's bootstrap
+		// succeeded too but the sweep has not caught up to it yet.
+		stub := newSEPStubSeq(t, http.StatusOK,
+			`{
+				"id": "run-abc",
+				"status": "succeeded",
+				"install_method": "packages",
+				"os": "ubuntu",
+				"mongodb_version": "7.0.8",
+				"replica_set_name": "rs-orders-prod",
+				"started_at": "2026-01-01T00:00:00Z",
+				"hosts": [
+					{"host": "n1", "steps": [], "rollback_steps": [], "finalize_steps": []},
+					{"host": "n2", "steps": [], "rollback_steps": [], "finalize_steps": []}
+				],
+				"run_steps": []
+			}`,
+			`[
+				{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]},
+				{"node_id": "node-2", "executor_host": "n2", "services": []}
+			]`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		response, err := svc.GetBootstrapRun(t.Context(),
+			&omv1.GetBootstrapRunRequest{RunId: "run-abc"})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 2)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc", stub.calls[0].path)
+		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[1].path)
+		require.Len(t, response.GetHosts(), 2)
+		n1Confirm := response.GetHosts()[0].GetFinalizeSteps()[0]
+		assert.Equal(t, "confirm_monitoring", n1Confirm.GetName())
+		assert.Equal(t, "succeeded", n1Confirm.GetStatus())
+		n2Confirm := response.GetHosts()[1].GetFinalizeSteps()[0]
+		assert.Equal(t, "confirm_monitoring", n2Confirm.GetName())
+		assert.Equal(t, "running", n2Confirm.GetStatus())
 	})
 
 	t.Run("a run nobody created answers NotFound, not 500", func(t *testing.T) {
@@ -740,7 +789,7 @@ func TestListBootstrapRuns(t *testing.T) {
 	t.Run("projects every run in the same shape GetBootstrapRun answers with", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `[
+		stub := newSEPStubSeq(t, http.StatusOK, `[
 			{
 				"id": "run-abc",
 				"status": "succeeded",
@@ -764,20 +813,31 @@ func TestListBootstrapRuns(t *testing.T) {
 				"hosts": [],
 				"run_steps": []
 			}
-		]`)
+		]`,
+			// The second response: confirmMonitoringLookup's own GET /hosts, fetched
+			// once because run-abc is "succeeded" -- run-def being "running" would
+			// never trigger it on its own. n1 already has a service.
+			`[{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]}]`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		response, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{})
 
 		require.NoError(t, err)
-		assert.Equal(t, "/api/apps/om_bootstrap/runs", stub.path)
-		assert.Equal(t, "limit=20", stub.query)
+		require.Len(t, stub.calls, 2)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs", stub.calls[0].path)
+		assert.Equal(t, "limit=20", stub.calls[0].query)
+		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[1].path)
 		require.Len(t, response.GetRuns(), 2)
 		assert.Equal(t, "run-abc", response.GetRuns()[0].GetRunId())
 		assert.Equal(t, "succeeded", response.GetRuns()[0].GetStatus())
 		assert.Equal(t, "rs-orders-prod", response.GetRuns()[0].GetReplicaSetName())
 		assert.Equal(t, mustParseTime(t, "2026-01-01T00:05:00Z"), response.GetRuns()[0].GetFinishedAt().AsTime())
 		assert.Equal(t, "n1", response.GetRuns()[0].GetHosts()[0].GetHost())
+		// confirm_monitoring is the last finalize step on every host, appended by PMM
+		// itself -- "succeeded" here because n1 already has a service.
+		n1FinalizeSteps := response.GetRuns()[0].GetHosts()[0].GetFinalizeSteps()
+		assert.Equal(t, "confirm_monitoring", n1FinalizeSteps[len(n1FinalizeSteps)-1].GetName())
+		assert.Equal(t, "succeeded", n1FinalizeSteps[len(n1FinalizeSteps)-1].GetStatus())
 		assert.Equal(t, "run-def", response.GetRuns()[1].GetRunId())
 		assert.Nil(t, response.GetRuns()[1].GetFinishedAt())
 	})

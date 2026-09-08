@@ -28218,7 +28218,7 @@
                               "x-order": 2
                             },
                             "finalize_steps": {
-                              "description": "This host's post-install steps, dispatched only once every run-level step has\nsucceeded -- e.g. enabling MongoDB authorization once the run's own\ncreate_pmm_monitoring_user step has created the first user. See\nom_bootstrap's own HostBootstrapState doc comment for why these are a\ndistinct phase from `steps` rather than appended to them.",
+                              "description": "This host's post-install steps, dispatched only once every run-level step has\nsucceeded -- e.g. enabling MongoDB authorization once the run's own\ncreate_pmm_monitoring_user step has created the first user. See\nom_bootstrap's own HostBootstrapState doc comment for why these are a\ndistinct phase from `steps` rather than appended to them.\n\nThe last entry, named \"confirm_monitoring\", is PMM's own -- SEP never\ndispatches it. It stays \"pending\" until the run itself has succeeded, then\n\"running\" until PMM's inventory app notices the registered service, then\n\"succeeded\".",
                               "type": "array",
                               "items": {
                                 "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
@@ -28469,7 +28469,7 @@
                         "x-order": 2
                       },
                       "finalize_steps": {
-                        "description": "This host's post-install steps, dispatched only once every run-level step has\nsucceeded -- e.g. enabling MongoDB authorization once the run's own\ncreate_pmm_monitoring_user step has created the first user. See\nom_bootstrap's own HostBootstrapState doc comment for why these are a\ndistinct phase from `steps` rather than appended to them.",
+                        "description": "This host's post-install steps, dispatched only once every run-level step has\nsucceeded -- e.g. enabling MongoDB authorization once the run's own\ncreate_pmm_monitoring_user step has created the first user. See\nom_bootstrap's own HostBootstrapState doc comment for why these are a\ndistinct phase from `steps` rather than appended to them.\n\nThe last entry, named \"confirm_monitoring\", is PMM's own -- SEP never\ndispatches it. It stays \"pending\" until the run itself has succeeded, then\n\"running\" until PMM's inventory app notices the registered service, then\n\"succeeded\".",
                         "type": "array",
                         "items": {
                           "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",

@@ -20,6 +20,7 @@ import (
 	"math"
 	"net/http"
 	"net/url"
+	"slices"
 	"strconv"
 	"time"
 
@@ -433,35 +434,54 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID}, nil
 }
 
-// nodeIDForExecutorHost resolves a Nomad executor host name back to the PMM
-// node id it belongs to -- the reverse of TriggerHostBootstrap's own
-// resolution, needed wherever a bootstrap run's progress (keyed on executor
-// host, see TriggerHostBootstrap's own doc comment) has to reach PMM's own
-// inventory, which is keyed on node id.
+// inventoryHostsByExecutor returns every host the inventory app currently has a
+// row for, keyed by its Nomad executor host name -- the identity a bootstrap
+// run's progress is keyed on (TriggerHostBootstrap's own doc comment), not the
+// node id PMM's own inventory needs. Shared by nodeIDForExecutorHost and
+// confirmMonitoringLookup, the two places that need the estate the other way
+// round from how ListInventoryHosts reads it.
 //
 // Fetches the whole estate rather than a filtered query: om_inventory's own
 // GET /hosts has no "find by executor_host" filter, and the estate size this
 // phase targets (a handful of hosts in one replica set) makes one full fetch
 // no real cost -- see ListInventoryHosts's own similar fetch-then-filter
-// shape.
-func (s *Service) nodeIDForExecutorHost(ctx context.Context, executorHost string) (string, error) {
+// shape. A host with no executor at all (never dispatched an eligibility
+// probe) is silently dropped rather than keyed on empty string.
+func (s *Service) inventoryHostsByExecutor(ctx context.Context) (map[string]sepHost, error) {
 	probe, err := s.inventoryProbe()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	hosts := []sepHost{}
 	call := inventoryCall{method: http.MethodGet, path: "hosts"}
 	err = probe.call(ctx, call, &hosts)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
+	byExecutor := make(map[string]sepHost, len(hosts))
 	for _, host := range hosts {
-		if host.ExecutorHost != nil && *host.ExecutorHost == executorHost {
-			return host.NodeID, nil
+		if host.ExecutorHost != nil {
+			byExecutor[*host.ExecutorHost] = host
 		}
 	}
-	return "", status.Errorf(codes.NotFound,
-		"no host in the inventory has executor %q", executorHost)
+	return byExecutor, nil
+}
+
+// nodeIDForExecutorHost resolves a Nomad executor host name back to the PMM
+// node id it belongs to -- the reverse of TriggerHostBootstrap's own
+// resolution, needed wherever a bootstrap run's progress has to reach PMM's
+// own inventory, which is keyed on node id.
+func (s *Service) nodeIDForExecutorHost(ctx context.Context, executorHost string) (string, error) {
+	hosts, err := s.inventoryHostsByExecutor(ctx)
+	if err != nil {
+		return "", err
+	}
+	host, ok := hosts[executorHost]
+	if !ok {
+		return "", status.Errorf(codes.NotFound,
+			"no host in the inventory has executor %q", executorHost)
+	}
+	return host.NodeID, nil
 }
 
 // bootstrapProbe returns the configured om_bootstrap client, or an error saying
@@ -501,7 +521,7 @@ func (s *Service) GetBootstrapRun(ctx context.Context, req *omv1.GetBootstrapRun
 		return nil, err
 	}
 
-	return bootstrapRunToProto(run), nil
+	return bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status)), nil
 }
 
 // ListBootstrapRuns returns the bootstrap run history, newest first.
@@ -527,23 +547,82 @@ func (s *Service) ListBootstrapRuns(ctx context.Context, req *omv1.ListBootstrap
 		return nil, err
 	}
 
+	statuses := make([]string, len(runs))
+	for i, run := range runs {
+		statuses[i] = run.Status
+	}
+	hostsByExecutor := s.confirmMonitoringLookup(ctx, statuses...)
+
 	proto := make([]*omv1.GetBootstrapRunResponse, 0, len(runs))
 	for i := range runs {
-		proto = append(proto, bootstrapRunToProto(&runs[i]))
+		proto = append(proto, bootstrapRunToProto(&runs[i], hostsByExecutor))
 	}
 	return &omv1.ListBootstrapRunsResponse{Runs: proto}, nil
 }
 
+// confirmMonitoringLookup fetches the inventory app's current hosts for
+// confirmMonitoringStep to check, but only when at least one of statuses is
+// bootstrapRunSucceeded -- a run still installing, or one that failed or rolled
+// back, can only ever report confirm_monitoring as "pending", so there is
+// nothing worth an extra SEP call for. Degrades to nil on failure rather than
+// failing the read it backs: a run's own progress is the more important half
+// of that response, and a nil map reads every host as still unconfirmed, which
+// is the honest answer when the lookup itself is unavailable.
+func (s *Service) confirmMonitoringLookup(ctx context.Context, statuses ...string) map[string]sepHost {
+	needed := slices.Contains(statuses, bootstrapRunSucceeded)
+	if !needed {
+		return nil
+	}
+	hosts, err := s.inventoryHostsByExecutor(ctx)
+	if err != nil {
+		s.l.Warnf("failed to confirm bootstrap monitoring against the inventory app: %s", err)
+		return nil
+	}
+	return hosts
+}
+
+// confirmMonitoringStepName names the synthetic, PMM-only step appended to every
+// host's finalize_steps. Unlike every other step in this file, om_bootstrap never
+// dispatches it -- it is PMM's own read-time confirmation that the service
+// registerBootstrapHost created has actually been noticed by the estate's own
+// inventory sweep, the same fact HostsPage's "Unregistered mongod" badge reports
+// (databaseState in inventory.ts, on the UI side) until it flips. Appended to
+// finalize_steps rather than a list of its own so it renders for free wherever a
+// host's steps already do.
+const confirmMonitoringStepName = "confirm_monitoring"
+
+// confirmMonitoringStep reports whether executorHost's bootstrapped service has
+// been noticed yet. "Pending" until the run itself has succeeded (nothing to
+// confirm before then), "running" from there until hostsByExecutor shows a
+// service for that host, "succeeded" once it does. A nil hostsByExecutor is what
+// confirmMonitoringLookup returns when there was nothing to check yet, or its own
+// SEP call failed -- both read as "still running" here, which is honest either
+// way: a host genuinely isn't confirmed yet, or PMM cannot currently say.
+func confirmMonitoringStep(runStatus, executorHost string, hostsByExecutor map[string]sepHost) *omv1.BootstrapStep {
+	stepStatus := bootstrapStepPending
+	if runStatus == bootstrapRunSucceeded {
+		stepStatus = bootstrapStepRunning
+		if host, ok := hostsByExecutor[executorHost]; ok && len(host.Services) > 0 {
+			stepStatus = bootstrapStepSucceeded
+		}
+	}
+	return &omv1.BootstrapStep{Name: confirmMonitoringStepName, Status: stepStatus}
+}
+
 // bootstrapRunToProto projects a sepBootstrapRun onto the wire shape
-// GetBootstrapRun answers with.
-func bootstrapRunToProto(run *sepBootstrapRun) *omv1.GetBootstrapRunResponse {
+// GetBootstrapRun answers with. Its hostsByExecutor argument comes from
+// confirmMonitoringLookup, and may be nil -- see confirmMonitoringStep.
+func bootstrapRunToProto(run *sepBootstrapRun, hostsByExecutor map[string]sepHost) *omv1.GetBootstrapRunResponse {
 	hosts := make([]*omv1.BootstrapHost, 0, len(run.Hosts))
 	for _, host := range run.Hosts {
+		finalizeSteps := bootstrapStepsToProto(host.FinalizeSteps)
+		finalizeSteps = append(finalizeSteps,
+			confirmMonitoringStep(run.Status, host.Host, hostsByExecutor))
 		hosts = append(hosts, &omv1.BootstrapHost{
 			Host:          host.Host,
 			Steps:         bootstrapStepsToProto(host.Steps),
 			RollbackSteps: bootstrapStepsToProto(host.RollbackSteps),
-			FinalizeSteps: bootstrapStepsToProto(host.FinalizeSteps),
+			FinalizeSteps: finalizeSteps,
 		})
 	}
 	return &omv1.GetBootstrapRunResponse{
