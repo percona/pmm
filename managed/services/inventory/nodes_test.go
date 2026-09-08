@@ -72,7 +72,7 @@ func TestNodes(t *testing.T) {
 		assert.Equal(t, expectedNode, nodesResponse[0])
 
 		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).Return("", nil)
-		err = ns.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
+		_, err = ns.Remove(ctx, "00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
 		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: "00000000-0000-4000-8000-000000000005"})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "00000000-0000-4000-8000-000000000005" not found.`), err)
@@ -165,7 +165,7 @@ func TestNodes(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
-		err := ns.Remove(ctx, "no-such-id", false)
+		_, err := ns.Remove(ctx, "no-such-id", false)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
 
@@ -174,9 +174,9 @@ func TestNodes(t *testing.T) {
 		defer teardown(t)
 
 		expected := status.New(codes.PermissionDenied, `PMM Server node can't be removed.`)
-		err := ns.Remove(ctx, models.PMMServerNodeID, false)
+		_, err := ns.Remove(ctx, models.PMMServerNodeID, false)
 		tests.AssertGRPCError(t, expected, err)
-		err = ns.Remove(ctx, models.PMMServerNodeID, true)
+		_, err = ns.Remove(ctx, models.PMMServerNodeID, true)
 		tests.AssertGRPCError(t, expected, err)
 	})
 
@@ -197,7 +197,7 @@ func TestNodes(t *testing.T) {
 		// would pass for that too if it only asserted that some error is tolerated.
 		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).
 			Return("", fmt.Errorf("%w: pmm-agent-sa-test-bm", services.ErrServiceAccountNotFound))
-		err = ns.Remove(ctx, nodeID, false)
+		_, err = ns.Remove(ctx, nodeID, false)
 		require.NoError(t, err)
 
 		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
@@ -220,7 +220,7 @@ func TestNodes(t *testing.T) {
 		// which no longer exists, so the removal goes back rather than half through.
 		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).
 			Return("", errors.New("connection refused"))
-		err = ns.Remove(ctx, nodeID, false)
+		_, err = ns.Remove(ctx, nodeID, false)
 		tests.AssertGRPCErrorRE(t, codes.Unavailable, "Node test-bm was not removed", err)
 
 		// The Node is still there, so the operator can remove it again once Grafana is up.
@@ -241,11 +241,33 @@ func TestNodes(t *testing.T) {
 		nodeID := addNodeResponse.GetGeneric().NodeId
 
 		// Removing a Node with everything on it does not ask for tokens nobody here created to go with it,
-		// so the cascade flag must not reach Grafana as its own force.
+		// so the cascade flag must not reach Grafana as its own force. What Grafana kept has to reach the
+		// caller, not only the log: a credential outliving its Node is not something to find out later.
 		vmdb.Mock.On("RequestConfigurationUpdate").Once().Return()
-		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).Return("", nil)
-		err = ns.Remove(ctx, nodeID, true)
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).
+			Return("the account is kept", nil)
+		warning, err := ns.Remove(ctx, nodeID, true)
 		require.NoError(t, err)
+		assert.Equal(t, "the account is kept", warning)
+	})
+
+	t.Run("RemoveReportsNothingWhenTheAccountIsGone", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Generic{
+				Generic: &inventoryv1.AddGenericNodeParams{NodeName: "test-bm"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetGeneric().NodeId
+
+		// Nothing was left behind, so there is nothing to warn about.
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).Return("", nil)
+		warning, err := ns.Remove(ctx, nodeID, false)
+		require.NoError(t, err)
+		assert.Empty(t, warning)
 	})
 }
 
@@ -284,7 +306,7 @@ func TestAddNode(t *testing.T) {
 		assert.Equal(t, expectedNode, nodesResponse[0])
 
 		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).Return("", nil)
-		err = ns.Remove(ctx, nodeID, false)
+		_, err = ns.Remove(ctx, nodeID, false)
 		require.NoError(t, err)
 		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
@@ -418,7 +440,7 @@ func TestAddNode(t *testing.T) {
 		assert.Equal(t, expectedNode1, nodesResponse[0])
 
 		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-name1", false).Return("", nil)
-		err = ns.Remove(ctx, nodeID1, false)
+		_, err = ns.Remove(ctx, nodeID1, false)
 		require.NoError(t, err)
 		getNodeResponse, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID1})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID1)), err)
