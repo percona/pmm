@@ -15,6 +15,7 @@
 package commands
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -26,6 +27,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 )
 
 // The subtests share the package level API clients, so they cannot run in parallel.
@@ -40,8 +42,11 @@ func TestServerNodeOfAgent(t *testing.T) {
 	for _, tc := range []struct {
 		name        string
 		agentStatus int
+		agentCode   codes.Code
 		agentBody   string
 		nodeStatus  int
+		nodeCode    codes.Code
+		nodeBody    string
 		hangs       bool
 		node        serverNode
 		err         error
@@ -62,50 +67,82 @@ func TestServerNodeOfAgent(t *testing.T) {
 		{
 			name:        "PMM Server does not know the Agent",
 			agentStatus: http.StatusNotFound,
+			agentCode:   codes.NotFound,
 			err:         errAgentNotFound,
 		},
 		{
 			name:        "PMM Server rejects the Agent ID",
 			agentStatus: http.StatusBadRequest,
+			agentCode:   codes.InvalidArgument,
 			err:         errAgentNotFound,
 		},
 		{
 			name:        "PMM Server does not accept the credentials",
 			agentStatus: http.StatusUnauthorized,
+			agentCode:   codes.Unauthenticated,
 			err:         errCredentialsRejected,
 		},
 		{
-			name:        "PMM Server forbids the request",
+			// A service account below the admin role holds credentials PMM Server accepts, so registering
+			// the Node again over this would only add a second one.
+			name:        "the credentials are not allowed to read the inventory",
 			agentStatus: http.StatusForbidden,
-			err:         errCredentialsRejected,
+			agentCode:   codes.PermissionDenied,
+			unknowable:  true,
+		},
+		{
+			// PMM Server answers 401 for a failure of its own, a Grafana restart among them.
+			name:        "PMM Server failed while authenticating",
+			agentStatus: http.StatusUnauthorized,
+			agentCode:   codes.Internal,
+			unknowable:  true,
+		},
+		{
+			// A proxy whose path rules predate this call answers the same status with a body of its own.
+			name:        "the 404 is not PMM Server's",
+			agentStatus: http.StatusNotFound,
+			unknowable:  true,
 		},
 		{
 			name:        "PMM Server cannot answer",
 			agentStatus: http.StatusServiceUnavailable,
+			agentCode:   codes.Unavailable,
 			unknowable:  true,
 		},
 		{
 			name:        "PMM Server does not know the Node",
 			agentStatus: http.StatusOK,
 			nodeStatus:  http.StatusNotFound,
+			nodeCode:    codes.NotFound,
 			err:         errAgentNotFound,
 		},
 		{
 			name:        "PMM Server does not accept the credentials for the Node",
 			agentStatus: http.StatusOK,
 			nodeStatus:  http.StatusUnauthorized,
+			nodeCode:    codes.Unauthenticated,
 			err:         errCredentialsRejected,
 		},
 		{
-			name:        "PMM Server forbids the Node request",
+			name:        "the credentials are not allowed to read the Node",
 			agentStatus: http.StatusOK,
 			nodeStatus:  http.StatusForbidden,
-			err:         errCredentialsRejected,
+			nodeCode:    codes.PermissionDenied,
+			unknowable:  true,
 		},
 		{
 			name:        "PMM Server cannot answer about the Node",
 			agentStatus: http.StatusOK,
 			nodeStatus:  http.StatusServiceUnavailable,
+			nodeCode:    codes.Unavailable,
+			unknowable:  true,
+		},
+		{
+			// A newer PMM Server may hold the Agent on a Node type this pmm-agent has never heard of.
+			name:        "the Node has a type this pmm-agent does not know",
+			agentStatus: http.StatusOK,
+			nodeStatus:  http.StatusOK,
+			nodeBody:    `{"remote_valkey": {"node_id": "` + nodeID + `", "node_name": "` + nodeName + `"}}`,
 			unknowable:  true,
 		},
 		{
@@ -128,6 +165,16 @@ func TestServerNodeOfAgent(t *testing.T) {
 					return
 				}
 				rw.Header().Set("Content-Type", "application/json")
+				// A failure of PMM Server's own carries the gRPC code, which is what the client reads.
+				// codes.OK stands for an answer from something else on the path, which carries none.
+				failure := func(code codes.Code) {
+					if code == codes.OK {
+						_, _ = rw.Write([]byte(`{"message": "` + tc.name + `"}`))
+						return
+					}
+					_, _ = fmt.Fprintf(rw, `{"code": %d, "message": %q}`, code, tc.name)
+				}
+
 				switch {
 				case strings.HasPrefix(req.URL.Path, "/v1/inventory/agents/"):
 					rw.WriteHeader(tc.agentStatus)
@@ -139,17 +186,23 @@ func TestServerNodeOfAgent(t *testing.T) {
 						_, _ = rw.Write([]byte(body))
 						return
 					}
+					failure(tc.agentCode)
 				case strings.HasPrefix(req.URL.Path, "/v1/inventory/nodes/"):
 					rw.WriteHeader(tc.nodeStatus)
 					if tc.nodeStatus == http.StatusOK {
-						_, _ = rw.Write([]byte(`{"generic": {"node_id": "` + nodeID + `", "node_name": "` + nodeName +
-							`", "address": "` + nodeAddress + `"}}`))
+						body := tc.nodeBody
+						if body == "" {
+							body = `{"generic": {"node_id": "` + nodeID + `", "node_name": "` + nodeName +
+								`", "address": "` + nodeAddress + `"}}`
+						}
+						_, _ = rw.Write([]byte(body))
 						return
 					}
+					failure(tc.nodeCode)
 				default:
 					rw.WriteHeader(http.StatusNotFound)
+					failure(codes.OK)
 				}
-				_, _ = rw.Write([]byte(`{"message": "` + tc.name + `"}`))
 			}))
 			t.Cleanup(server.Close)
 

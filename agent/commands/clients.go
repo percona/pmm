@@ -31,6 +31,7 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
 
 	"github.com/percona/pmm/agent/config"
 	agentlocalClient "github.com/percona/pmm/api/agentlocal/v1/json/client"
@@ -175,49 +176,66 @@ func serverNodeOfAgent(agentID string) (serverNode, error) {
 		return serverNode{}, lookupError(err)
 	}
 
-	return nodeOf(node.Payload), nil
+	return nodeOf(node.Payload)
 }
 
-// statusError is an error of the generated API clients which carries the HTTP status of the response.
-type statusError interface {
-	error
-	Code() int
-}
-
-// lookupError maps the status of a failed inventory lookup to what it says about the registration.
-func lookupError(err error) error {
-	e, ok := errors.AsType[statusError](err)
-	if !ok {
-		return err
+// serverCode returns the gRPC code PMM Server put in the body of a failed inventory request, or codes.OK
+// when the answer carries none. It is the only thing which identifies the answer as PMM Server's own.
+func serverCode(err error) codes.Code {
+	var code int32
+	switch e := err.(type) { //nolint:errorlint
+	case *aservice.GetAgentDefault:
+		if e.Payload != nil {
+			code = e.Payload.Code
+		}
+	case *nservice.GetNodeDefault:
+		if e.Payload != nil {
+			code = e.Payload.Code
+		}
+	}
+	if code < 0 {
+		return codes.OK
 	}
 
-	switch e.Code() {
-	// An ID which PMM Server rejects as invalid cannot be registered there either.
-	case http.StatusBadRequest, http.StatusNotFound:
+	return codes.Code(code)
+}
+
+// lookupError maps a failed inventory lookup to what it says about the registration. Only PMM Server's
+// own answer says anything: a proxy whose path rules predate this call answers 404 just the same, and
+// PMM Server maps a failure of its own to 401 exactly as it does a credential it rejected. The gRPC code
+// in the body is what tells those apart, so an answer carrying none is no answer at all.
+func lookupError(err error) error {
+	switch serverCode(err) {
+	// An ID which PMM Server does not know, or rejects as invalid, cannot be registered there either.
+	case codes.NotFound, codes.InvalidArgument:
 		return errAgentNotFound
-	// Registering again reports a credentials problem with a clear message.
-	case http.StatusUnauthorized, http.StatusForbidden:
+	// The credentials the Agent runs with are gone, so registering either succeeds with the ones given to
+	// setup or reports a credentials problem with an actionable message. codes.PermissionDenied is
+	// deliberately not here: a service account below the admin role still holds valid credentials, it
+	// just cannot read the inventory, and registering the Node again over that would only add a second.
+	case codes.Unauthenticated:
 		return errCredentialsRejected
 	default:
 		return err
 	}
 }
 
-// nodeOf returns the Node in the GetNode response, whichever type it has.
-func nodeOf(node *nservice.GetNodeOKBody) serverNode {
+// nodeOf returns the Node in the GetNode response. A Node type this pmm-agent does not know is not one
+// it can compare a name with, and a newer PMM Server may well answer with one.
+func nodeOf(node *nservice.GetNodeOKBody) (serverNode, error) {
 	switch {
 	case node.Generic != nil:
-		return serverNode{Name: node.Generic.NodeName, Address: node.Generic.Address}
+		return serverNode{Name: node.Generic.NodeName, Address: node.Generic.Address}, nil
 	case node.Container != nil:
-		return serverNode{Name: node.Container.NodeName, Address: node.Container.Address}
+		return serverNode{Name: node.Container.NodeName, Address: node.Container.Address}, nil
 	case node.Remote != nil:
-		return serverNode{Name: node.Remote.NodeName, Address: node.Remote.Address}
+		return serverNode{Name: node.Remote.NodeName, Address: node.Remote.Address}, nil
 	case node.RemoteRDS != nil:
-		return serverNode{Name: node.RemoteRDS.NodeName, Address: node.RemoteRDS.Address}
+		return serverNode{Name: node.RemoteRDS.NodeName, Address: node.RemoteRDS.Address}, nil
 	case node.RemoteAzureDatabase != nil:
-		return serverNode{Name: node.RemoteAzureDatabase.NodeName, Address: node.RemoteAzureDatabase.Address}
+		return serverNode{Name: node.RemoteAzureDatabase.NodeName, Address: node.RemoteAzureDatabase.Address}, nil
 	default:
-		return serverNode{}
+		return serverNode{}, errors.New("PMM Server answered with a Node type this pmm-agent does not know")
 	}
 }
 

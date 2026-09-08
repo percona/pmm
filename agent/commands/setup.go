@@ -35,13 +35,15 @@ import (
 type registrationState int
 
 const (
+	// PMM Server could not be asked, or answered something this pmm-agent could not interpret, and the
+	// registration is kept. It is the zero value so that anything which does not reach a verdict of its
+	// own leaves the Node alone: only a clear answer is grounds for registering it again.
+	registrationUnverified registrationState = iota
 	// The Node has to be registered: the Agent holds no ID, it is pointed at another PMM Server,
 	// --force was given, or PMM Server does not know the Agent on this Node.
-	registrationMissing registrationState = iota
+	registrationMissing
 	// PMM Server knows the Agent on this Node.
 	registrationConfirmed
-	// PMM Server could not be asked, and the registration is kept.
-	registrationUnverified
 	// PMM Server has the Agent on a Node with another name, so registering would add a second Node
 	// instead of replacing that one. Only the operator can say which of the two is meant.
 	registrationConflict
@@ -67,8 +69,9 @@ func checkRegistrationOnServer(cfg *config.Config, l *logrus.Entry) registration
 
 // checkRegistration turns what PMM Server says about the Agent into the state of its registration. The
 // server may have been reinstalled, or restored from a backup taken before the Agent was registered,
-// leaving the Agent with an ID nothing recognizes. An unreachable server is not an answer: an Agent has
-// to be able to start while PMM Server has no leader yet, so its registration is kept in that case.
+// leaving the Agent with an ID nothing recognizes. Anything short of a clear answer is not an answer: an
+// Agent has to be able to start while PMM Server has no leader yet, and a reply this pmm-agent cannot
+// interpret says as little as no reply at all, so the registration is kept in both cases.
 func checkRegistration(cfg *config.Config, lookup agentLookup) registrationState {
 	node, err := lookup(cfg.ID)
 	switch {
