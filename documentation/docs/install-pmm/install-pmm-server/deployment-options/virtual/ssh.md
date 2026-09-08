@@ -13,7 +13,7 @@ To configure SSH access:
 {.power-number}
 
 1. Go to **Configuration > Settings > SSH key**.
-2. Enter your public key in the **SSH Key** field.
+2. Enter your public key in the **SSH key** field.
 3. Click **Apply changes**.
 
 ## Connect via SSH
