@@ -173,6 +173,9 @@ message Settings {
   uint32 default_role_id = 18;
   // True if Query Analytics for PMM's internal PG database is enabled.
   bool enable_internal_pg_qan = 19;
+  // True if the SEP integration is enabled. Read-only: it reports how this PMM
+  // Server process was started, and cannot be changed through ChangeSettings.
+  bool sep_enabled = 21;
   // Field 20 (update_snooze_duration) was removed when GUI-triggered upgrades were deprecated.
   reserved 20;
   reserved "update_snooze_duration";
@@ -196,6 +199,8 @@ message ReadOnlySettings {
   bool azurediscover_enabled = 7;
   // True if Access Control is enabled.
   bool enable_access_control = 8;
+  // True if the SEP integration is enabled.
+  bool sep_enabled = 9;
 }
 
 message GetSettingsRequest {}
