@@ -247,13 +247,16 @@ func Setup() {
 			configFilepath, err)
 	}
 
-	if cfg.ID == "" && fileCfg != nil {
-		cfg.ID = fileCfg.ID
-	}
-
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
 		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
 		os.Exit(1)
+	}
+
+	// The ID the Agent runs with, so that its registration can be checked. It is taken after the
+	// --skip-registration guard, which asks about the ID given to setup: reading one from the file would
+	// let that command through to store a configuration assembled without the file it came from.
+	if cfg.ID == "" && fileCfg != nil {
+		cfg.ID = fileCfg.ID
 	}
 
 	err = config.IsWritable(configFilepath)
