@@ -34,17 +34,12 @@ func (f removerFunc) DeleteServiceAccount(ctx context.Context, nodeName string, 
 func TestRemoveNodeServiceAccount(t *testing.T) {
 	t.Parallel()
 
-	t.Run("the cleanup outlives the request and carries a deadline", func(t *testing.T) {
+	t.Run("the cleanup carries a deadline", func(t *testing.T) {
 		t.Parallel()
 
-		// A client which gave up right after the Node was removed must not leave the account behind.
-		ctx, cancel := context.WithCancel(t.Context())
-		cancel()
-
 		called := false
-		warning, err := RemoveNodeServiceAccount(ctx, removerFunc(func(ctx context.Context, nodeName string, force bool) (string, error) {
+		warning, err := RemoveNodeServiceAccount(t.Context(), removerFunc(func(ctx context.Context, nodeName string, force bool) (string, error) {
 			called = true
-			require.NoError(t, ctx.Err())
 			_, ok := ctx.Deadline()
 			assert.True(t, ok, "the cleanup has to give up on an unresponsive Grafana")
 			assert.Equal(t, "test-node", nodeName)
@@ -56,6 +51,31 @@ func TestRemoveNodeServiceAccount(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, called)
 		assert.Equal(t, "the account is kept", warning)
+	})
+
+	t.Run("cancellation is left to the caller", func(t *testing.T) {
+		t.Parallel()
+
+		// A caller which can still abort the removal, NodesService.Remove, wants a client which gave up to
+		// take the removal with it. One which has already committed passes context.WithoutCancel itself.
+		ctx, cancel := context.WithCancel(t.Context())
+		cancel()
+
+		called := false
+		_, err := RemoveNodeServiceAccount(ctx, removerFunc(func(ctx context.Context, _ string, _ bool) (string, error) {
+			called = true
+			return "", ctx.Err()
+		}), "test-node", false)
+
+		assert.True(t, called)
+		require.ErrorIs(t, err, context.Canceled)
+
+		// ...and WithoutCancel at the call site is what carries the cleanup through.
+		_, err = RemoveNodeServiceAccount(context.WithoutCancel(ctx), removerFunc(func(ctx context.Context, _ string, _ bool) (string, error) {
+			return "", ctx.Err()
+		}), "test-node", false)
+
+		require.NoError(t, err)
 	})
 
 	t.Run("the failure of Grafana is reported", func(t *testing.T) {

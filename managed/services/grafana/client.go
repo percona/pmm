@@ -696,7 +696,7 @@ func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, forc
 	}
 
 	if !force && customsTokensCount > 0 {
-		warning = "Service account wont be deleted, because there are more not PMM agent related service tokens."
+		warning = "The service account was not deleted, because it holds service tokens pmm-agent did not create."
 		err = c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 	} else {
 		err = c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)

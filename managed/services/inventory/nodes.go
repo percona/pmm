@@ -21,6 +21,8 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -346,7 +348,34 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 				idsToSetState[a.AgentID] = struct{}{}
 			}
 		}
-		return models.RemoveNode(tx.Querier, id, mode)
+		err := models.RemoveNode(tx.Querier, id, mode)
+		if err != nil {
+			return err
+		}
+
+		// pmm-agent authenticates with a token of the Grafana service account named after the Node, so the
+		// account goes with the Node. It is deleted inside the transaction, and bounded, so that a Grafana
+		// which cannot be reached takes the removal down with it: removing the Node while its account
+		// survives leaves a live Admin credential for a host which no longer exists, and by then nothing is
+		// in a position to put either back. Refusing keeps the two in step, and leaves the operator with a
+		// Node they can remove again once Grafana is up.
+		//
+		// force is deliberately not passed on: here it means "remove the Node with everything on it", while
+		// DeleteServiceAccount reads it as "delete the account even when it holds tokens nobody here
+		// created", which is not what removing a Node asks for.
+		warning, err := services.RemoveNodeServiceAccount(ctx, s.grafanaClient, node.NodeName, false)
+		switch {
+		case errors.Is(err, services.ErrServiceAccountNotFound):
+			// A Node no pmm-agent ever registered, a remote or an RDS one among them, has no account.
+			logger.Get(ctx).Debugf("Node %s had no service account to delete.", node.NodeName)
+		case err != nil:
+			return status.Errorf(codes.Unavailable, "Node %s was not removed: its Grafana service account"+
+				" could not be deleted, and removing the Node would leave its token behind. %s", node.NodeName, err)
+		case warning != "":
+			logger.Get(ctx).Warnf("Service account of node %s: %s", node.NodeName, warning)
+		}
+
+		return nil
 	})
 	if e != nil {
 		return e
@@ -362,22 +391,6 @@ func (s *NodesService) Remove(ctx context.Context, id string, force bool) error 
 	if force {
 		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
 		s.vmdb.RequestConfigurationUpdate()
-	}
-
-	// pmm-agent authenticates with a token of the Grafana service account named after the Node. Drop the
-	// account, so that the token does not outlive the Node. force is deliberately not passed on: here it
-	// means "remove the Node with everything on it", while DeleteServiceAccount reads it as "delete the
-	// account even when it holds tokens nobody here created", which is not what removing a Node asks for.
-	warning, err := services.RemoveNodeServiceAccount(ctx, s.grafanaClient, node.NodeName, false)
-	switch {
-	case errors.Is(err, services.ErrServiceAccountNotFound):
-		// A Node no pmm-agent ever registered, a remote or an RDS one among them, has no account.
-		logger.Get(ctx).Debugf("Node %s had no service account to delete.", node.NodeName)
-	case err != nil:
-		logger.Get(ctx).Errorf("Failed to delete the service account of node %s, its token outlives the Node"+
-			" and has to be revoked by hand: %s", node.NodeName, err)
-	case warning != "":
-		logger.Get(ctx).Warnf("Service account of node %s: %s", node.NodeName, warning)
 	}
 
 	return nil

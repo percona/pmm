@@ -17,6 +17,7 @@ package inventory
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 
@@ -201,6 +202,30 @@ func TestNodes(t *testing.T) {
 
 		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+	})
+
+	t.Run("RemoveRefusedWhenServiceAccountCannotBeDeleted", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventoryv1.AddNodeRequest{
+			Node: &inventoryv1.AddNodeRequest_Generic{
+				Generic: &inventoryv1.AddGenericNodeParams{NodeName: "test-bm"},
+			},
+		})
+		require.NoError(t, err)
+		nodeID := addNodeResponse.GetGeneric().NodeId
+
+		// Removing the Node while its account survives would leave a live Admin credential for a host
+		// which no longer exists, so the removal goes back rather than half through.
+		ns.grafanaClient.(*mockGrafanaClient).On("DeleteServiceAccount", boundedCtx, "test-bm", false).
+			Return("", errors.New("connection refused"))
+		err = ns.Remove(ctx, nodeID, false)
+		tests.AssertGRPCErrorRE(t, codes.Unavailable, "Node test-bm was not removed", err)
+
+		// The Node is still there, so the operator can remove it again once Grafana is up.
+		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: nodeID})
+		require.NoError(t, err)
 	})
 
 	t.Run("RemoveKeepsForeignServiceAccountTokens", func(t *testing.T) {
