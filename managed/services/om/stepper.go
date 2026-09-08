@@ -221,9 +221,19 @@ func (s *Service) finishBootstrapRun(ctx context.Context, run *sepBootstrapRun, 
 // silently skipped: it means the secret disappeared after being used, not that
 // nothing needs registering.
 //
-// The run's Hosts field is keyed on Nomad executor host (TriggerHostBootstrap's own doc
-// comment), not the node id PMM's own inventory needs -- nodeIDForExecutorHost
-// resolves each one back before registering it.
+// The run's Hosts field is keyed on Nomad executor host (TriggerHostBootstrap's own
+// doc comment), not the node id PMM's own inventory needs -- resolved via one
+// inventoryHostsByExecutor call up front, shared by every host in the loop rather
+// than looked up per host (nodeIDForExecutorHost does the same lookup, but alone
+// for one host at a time, which is the wrong shape here).
+//
+// Also nudges the inventory app to re-probe any host it has not yet noticed the
+// registered service on, rather than leaving confirm_monitoring (GetBootstrapRun's
+// own synthetic step -- see confirmMonitoringStep's doc comment) to wait out
+// however long the app's own schedule takes to get there unprompted. Scoped to
+// exactly this run's hosts, and best-effort: a trigger failure only delays
+// confirm_monitoring, never registration itself, and this whole function runs
+// again next tick regardless.
 func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun) {
 	secret, err := models.FindOmBootstrapSecretByRunID(s.db.Querier, run.ID)
 	if err != nil {
@@ -231,17 +241,33 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun
 		return
 	}
 	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
+
+	hostsByExecutor, err := s.inventoryHostsByExecutor(ctx)
+	if err != nil {
+		s.l.Warnf("bootstrap run %s: failed to look up the inventory app's hosts: %s", run.ID, err)
+		return
+	}
+
+	unconfirmed := make([]string, 0, len(run.Hosts))
 	for _, host := range run.Hosts {
-		nodeID, err := s.nodeIDForExecutorHost(ctx, host.Host)
-		if err != nil {
-			s.l.Warnf("bootstrap run %s: failed to resolve executor %s to a node id: %s", run.ID, host.Host, err)
+		inventoryHost, ok := hostsByExecutor[host.Host]
+		if !ok {
+			s.l.Warnf("bootstrap run %s: executor %s has no row in the inventory app yet", run.ID, host.Host)
 			continue
 		}
-		err = s.registerBootstrapHost(ctx, nodeID, host.Host, run.ReplicaSetName, environment, cluster,
+		err = s.registerBootstrapHost(ctx, inventoryHost.NodeID, host.Host, run.ReplicaSetName, environment, cluster,
 			secret.MongoDBUsername, secret.MongoDBPassword)
 		if err != nil {
 			s.l.Warnf("bootstrap run %s: failed to register %s with PMM: %s", run.ID, host.Host, err)
+			continue
 		}
+		if len(inventoryHost.Services) == 0 {
+			unconfirmed = append(unconfirmed, inventoryHost.NodeID)
+		}
+	}
+
+	if len(unconfirmed) > 0 {
+		s.triggerScopedInventoryRefresh(ctx, unconfirmed)
 	}
 }
 

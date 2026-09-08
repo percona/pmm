@@ -480,6 +480,29 @@ func (s *Service) inventoryHostsByExecutor(ctx context.Context) (map[string]sepH
 	return byExecutor, nil
 }
 
+// triggerScopedInventoryRefresh asks the inventory app to re-probe exactly
+// nodeIDs now, rather than leaving confirmMonitoringStep to wait out however
+// long the app's own schedule takes to get there on its own -- called by
+// completeSucceededRun once a run's hosts are registered.
+//
+// A 409 (Aborted here -- see sepStatusError) means some other refresh already
+// holds one of these hosts, which is an expected outcome, not a failure: the
+// stepper calls this again on its next tick regardless (completeSucceededRun's
+// own doc comment on why a succeeded run keeps being revisited), so a run that
+// loses the race this tick gets another chance next tick without any retry
+// logic of its own.
+func (s *Service) triggerScopedInventoryRefresh(ctx context.Context, nodeIDs []string) {
+	probe, err := s.inventoryProbe()
+	if err != nil {
+		return
+	}
+	call := inventoryCall{method: http.MethodPost, path: "runs", body: map[string]any{"node_ids": nodeIDs}}
+	err = probe.call(ctx, call, nil)
+	if err != nil && status.Code(err) != codes.Aborted {
+		s.l.Warnf("failed to trigger a scoped inventory refresh for %v: %s", nodeIDs, err)
+	}
+}
+
 // nodeIDForExecutorHost resolves a Nomad executor host name back to the PMM
 // node id it belongs to -- the reverse of TriggerHostBootstrap's own
 // resolution, needed wherever a bootstrap run's progress has to reach PMM's
