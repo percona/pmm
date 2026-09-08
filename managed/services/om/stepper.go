@@ -227,7 +227,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun
 			s.l.Warnf("bootstrap run %s: failed to resolve executor %s to a node id: %s", run.ID, host.Host, err)
 			continue
 		}
-		err = s.registerBootstrapHost(ctx, nodeID, run.ReplicaSetName, secret.MongoDBUsername, secret.MongoDBPassword)
+		err = s.registerBootstrapHost(ctx, nodeID, host.Host, run.ReplicaSetName, secret.MongoDBUsername, secret.MongoDBPassword)
 		if err != nil {
 			s.l.Warnf("bootstrap run %s: failed to register %s with PMM: %s", run.ID, host.Host, err)
 		}
