@@ -19,6 +19,7 @@ import (
 	"testing"
 	"time"
 
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -118,4 +119,63 @@ reporting:
 	logger, _ := test.NewNullLogger()
 	err = actual.Init(logger.WithField("test", t.Name()))
 	require.NoError(t, err)
+}
+
+// PMM_INSTALL_METHOD is injected by the Helm charts and KUBERNETES_SERVICE_HOST by kubelet, so this
+// pair of datapoints is what separates a Kubernetes deployment from a Docker one in telemetry.
+func TestDefaultConfigReportsKubernetesDeployment(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logEntry := logger.WithField("test", t.Name())
+	cfg := ServiceConfig{l: logEntry}
+
+	telemetry, err := cfg.loadMetricsConfig("")
+	require.NoError(t, err)
+
+	byID := make(map[string]Config, len(telemetry))
+	for _, each := range telemetry {
+		byID[each.ID] = each
+	}
+
+	installMethod, ok := byID["PMMServerInstallMethod"]
+	require.True(t, ok, "PMMServerInstallMethod datapoint is missing")
+	assert.Equal(t, string(dsEnvVars), installMethod.Source)
+	assert.Equal(t, []ConfigData{{MetricName: "pmm_server_install_method", Column: "PMM_INSTALL_METHOD"}}, installMethod.Data)
+	assert.Nil(t, installMethod.Transform, "the install method is reported as-is")
+
+	inKubernetes, ok := byID["PMMServerInKubernetes"]
+	require.True(t, ok, "PMMServerInKubernetes datapoint is missing")
+	assert.Equal(t, string(dsEnvVars), inKubernetes.Source)
+	assert.Equal(t, []ConfigData{{MetricName: "pmm_server_in_kubernetes", Column: "KUBERNETES_SERVICE_HOST"}}, inKubernetes.Data)
+	require.NotNil(t, inKubernetes.Transform)
+	assert.Equal(t, StripValuesTransform, inKubernetes.Transform.Type, "the cluster address must not be reported")
+
+	dataSource := NewDataSourceEnvVars(DSConfigEnvVars{Enabled: true}, logEntry)
+
+	t.Run("Kubernetes", func(t *testing.T) {
+		t.Setenv("PMM_INSTALL_METHOD", "Helm")
+		t.Setenv("KUBERNETES_SERVICE_HOST", "10.96.0.1")
+
+		metrics, err := dataSource.FetchMetrics(t.Context(), installMethod)
+		require.NoError(t, err)
+		assert.Equal(t, []*telemetryv1.GenericReport_Metric{{Key: "pmm_server_install_method", Value: "Helm"}}, metrics)
+
+		metrics, err = dataSource.FetchMetrics(t.Context(), inKubernetes)
+		require.NoError(t, err)
+		metrics, err = transformExportValues(&inKubernetes, metrics)
+		require.NoError(t, err)
+		assert.Equal(t, []*telemetryv1.GenericReport_Metric{{Key: "pmm_server_in_kubernetes", Value: "1"}}, metrics)
+	})
+
+	t.Run("Docker", func(t *testing.T) {
+		t.Setenv("PMM_INSTALL_METHOD", "")
+		t.Setenv("KUBERNETES_SERVICE_HOST", "")
+
+		metrics, err := dataSource.FetchMetrics(t.Context(), installMethod)
+		require.NoError(t, err)
+		assert.Empty(t, metrics)
+
+		metrics, err = dataSource.FetchMetrics(t.Context(), inKubernetes)
+		require.NoError(t, err)
+		assert.Empty(t, metrics)
+	})
 }
