@@ -12,6 +12,7 @@ import {
   addHighAvailability,
   addUsersAndAccess,
   addHomePage,
+  addSepApps,
 } from './navigation.utils';
 import { useUser } from 'contexts/user';
 import { useAdvisors } from 'hooks/api/useAdvisors';
@@ -90,11 +91,28 @@ export const NavigationProvider: FC<PropsWithChildren> = ({ children }) => {
         items.push(addAdvisors(advisors || []));
       }
 
+      items.push(NAV_DIVIDERS.inventory);
+
       if (user.isPMMAdmin) {
-        items.push(NAV_DIVIDERS.inventory);
-
         items.push(NAV_INVENTORY);
+      }
 
+      // SEP apps mounted as native routes, grouped under "Management" and
+      // placed right below Inventory so no pre-existing entry moves. Offered to
+      // every signed-in user, not only admins: SEP's API serves its reads to
+      // any authenticated session and holds every unsafe method to
+      // administrators, so a non-admin gets a read-only view with no write
+      // control rendered (PMM-15358).
+      //
+      // Signed-in is the rule, so anonymous is excluded: it has no Grafana
+      // session cookie to exchange for a SEP bearer, and the entry would open
+      // on SepAuthGate's failure card rather than on the app. SEP navigation
+      // is also withheld when the integration is disabled (PMM_ENABLE_SEP).
+      if (!user.isAnonymous && settings?.sepEnabled) {
+        items.push(...addSepApps());
+      }
+
+      if (user.isPMMAdmin) {
         if (settings?.backupManagementEnabled) {
           items.push(NAV_BACKUPS);
         }

@@ -1013,8 +1013,11 @@ type Settings struct {
 	DefaultRoleId uint32 `protobuf:"varint,18,opt,name=default_role_id,json=defaultRoleId,proto3" json:"default_role_id,omitempty"`
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQan bool `protobuf:"varint,19,opt,name=enable_internal_pg_qan,json=enableInternalPgQan,proto3" json:"enable_internal_pg_qan,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// True if the SEP integration is enabled. Read-only: it reports how this PMM
+	// Server process was started, and cannot be changed through ChangeSettings.
+	SepEnabled    bool `protobuf:"varint,21,opt,name=sep_enabled,json=sepEnabled,proto3" json:"sep_enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Settings) Reset() {
@@ -1175,6 +1178,13 @@ func (x *Settings) GetEnableInternalPgQan() bool {
 	return false
 }
 
+func (x *Settings) GetSepEnabled() bool {
+	if x != nil {
+		return x.SepEnabled
+	}
+	return false
+}
+
 // ReadOnlySettings represents a stripped-down version of PMM Server settings that can be accessed by users of all roles.
 type ReadOnlySettings struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1194,8 +1204,10 @@ type ReadOnlySettings struct {
 	AzurediscoverEnabled bool `protobuf:"varint,7,opt,name=azurediscover_enabled,json=azurediscoverEnabled,proto3" json:"azurediscover_enabled,omitempty"`
 	// True if Access Control is enabled.
 	EnableAccessControl bool `protobuf:"varint,8,opt,name=enable_access_control,json=enableAccessControl,proto3" json:"enable_access_control,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// True if the SEP integration is enabled.
+	SepEnabled    bool `protobuf:"varint,9,opt,name=sep_enabled,json=sepEnabled,proto3" json:"sep_enabled,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ReadOnlySettings) Reset() {
@@ -1280,6 +1292,13 @@ func (x *ReadOnlySettings) GetAzurediscoverEnabled() bool {
 func (x *ReadOnlySettings) GetEnableAccessControl() bool {
 	if x != nil {
 		return x.EnableAccessControl
+	}
+	return false
+}
+
+func (x *ReadOnlySettings) GetSepEnabled() bool {
+	if x != nil {
+		return x.SepEnabled
 	}
 	return false
 }
@@ -1703,7 +1722,7 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13AdvisorRunIntervals\x12F\n" +
 	"\x11standard_interval\x18\x01 \x01(\v2\x19.google.protobuf.DurationR\x10standardInterval\x12>\n" +
 	"\rrare_interval\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\frareInterval\x12F\n" +
-	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xbc\a\n" +
+	"\x11frequent_interval\x18\x03 \x01(\v2\x19.google.protobuf.DurationR\x10frequentInterval\"\xdd\a\n" +
 	"\bSettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12N\n" +
@@ -1723,7 +1742,9 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x13telemetry_summaries\x18\x10 \x03(\tR\x12telemetrySummaries\x122\n" +
 	"\x15enable_access_control\x18\x11 \x01(\bR\x13enableAccessControl\x12&\n" +
 	"\x0fdefault_role_id\x18\x12 \x01(\rR\rdefaultRoleId\x123\n" +
-	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQanJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\x8f\x03\n" +
+	"\x16enable_internal_pg_qan\x18\x13 \x01(\bR\x13enableInternalPgQan\x12\x1f\n" +
+	"\vsep_enabled\x18\x15 \x01(\bR\n" +
+	"sepEnabledJ\x04\b\x14\x10\x15R\x16update_snooze_duration\"\xb0\x03\n" +
 	"\x10ReadOnlySettings\x12'\n" +
 	"\x0fupdates_enabled\x18\x01 \x01(\bR\x0eupdatesEnabled\x12+\n" +
 	"\x11telemetry_enabled\x18\x02 \x01(\bR\x10telemetryEnabled\x12'\n" +
@@ -1732,7 +1753,9 @@ const file_server_v1_server_proto_rawDesc = "" +
 	"\x12pmm_public_address\x18\x05 \x01(\tR\x10pmmPublicAddress\x12:\n" +
 	"\x19backup_management_enabled\x18\x06 \x01(\bR\x17backupManagementEnabled\x123\n" +
 	"\x15azurediscover_enabled\x18\a \x01(\bR\x14azurediscoverEnabled\x122\n" +
-	"\x15enable_access_control\x18\b \x01(\bR\x13enableAccessControl\"\x14\n" +
+	"\x15enable_access_control\x18\b \x01(\bR\x13enableAccessControl\x12\x1f\n" +
+	"\vsep_enabled\x18\t \x01(\bR\n" +
+	"sepEnabled\"\x14\n" +
 	"\x12GetSettingsRequest\"\x1c\n" +
 	"\x1aGetReadOnlySettingsRequest\"F\n" +
 	"\x13GetSettingsResponse\x12/\n" +

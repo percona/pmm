@@ -38,6 +38,7 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
         backupManagementEnabled: false,
         azurediscoverEnabled: false,
         enableAccessControl: false,
+        sepEnabled: false,
         frontend: frontendSettings.data,
         // check if pmm-compat-app plugin is enabled
         newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,

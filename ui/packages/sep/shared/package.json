@@ -1,0 +1,17 @@
+{
+  "name": "@sep/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "check-types": "tsc --noEmit",
+    "lint": "oxlint --config ../../../oxlintrc.json src",
+    "format": "oxfmt --write src"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3"
+  }
+}

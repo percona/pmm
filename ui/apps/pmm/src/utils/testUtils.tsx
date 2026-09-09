@@ -9,6 +9,9 @@ import { SettingsContext } from 'contexts/settings';
 import { FrontendSettings, Settings } from 'types/settings.types';
 import { GrafanaContext, GrafanaContextProps } from 'contexts/grafana';
 import { SnackbarProvider, SnackbarProviderProps } from 'notistack';
+import { render } from '@testing-library/react';
+import { Page } from 'components/page';
+import { TestWrapper } from './testWrapper';
 
 export const wrapWithUpdatesProvider = (
   children: ReactElement,
@@ -110,6 +113,7 @@ export const wrapWithSettings = (
         backupManagementEnabled: false,
         azurediscoverEnabled: false,
         enableAccessControl: false,
+        sepEnabled: false,
         ...props?.settings,
         frontend: {
           anonymousEnabled: false,
@@ -157,3 +161,32 @@ export const wrapWithSnackbarProvider = (
   children: ReactElement,
   props?: Partial<SnackbarProviderProps>
 ) => <SnackbarProvider {...props}>{children}</SnackbarProvider>;
+
+// `Page` paints its surface with a <GlobalStyles> rule on html/body, so the
+// resulting background is read back off the document rather than off a node.
+export const bodyBackground = () =>
+  getComputedStyle(document.body).backgroundColor;
+
+// Renders one state, reads the surface it painted, then unmounts so the next
+// measurement starts from a document the previous <GlobalStyles> has left.
+export const measureSurface = (renderState: () => { unmount: () => void }) => {
+  const { unmount } = renderState();
+  const background = bodyBackground();
+  unmount();
+
+  return background;
+};
+
+// The colour a bare `Page` paints for each surface, so a test can name the two
+// without hardcoding theme values.
+export const measurePageSurface = (surface: 'default' | 'paper') =>
+  measureSurface(() =>
+    render(
+      <Page maxWidth="full" surface={surface}>
+        <div />
+      </Page>,
+      {
+        wrapper: ({ children }) => <TestWrapper>{children}</TestWrapper>,
+      }
+    )
+  );

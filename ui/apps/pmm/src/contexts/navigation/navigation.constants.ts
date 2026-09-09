@@ -1,4 +1,9 @@
-import { PMM_NEW_NAV_GRAFANA_PATH, PMM_NEW_NAV_PATH } from 'lib/constants';
+import {
+  PMM_NEW_NAV_GRAFANA_PATH,
+  PMM_NEW_NAV_PATH,
+  SEP_ATW_PATH,
+  SEP_MYSQL_BACKUPS_PATH,
+} from 'lib/constants';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import AccountCircleOutlined from '@mui/icons-material/AccountCircleOutlined';
 import AppsRounded from '@mui/icons-material/AppsRounded';
@@ -11,6 +16,7 @@ import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
 import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
+import Restore from '@mui/icons-material/Restore';
 import Search from '@mui/icons-material/Search';
 import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
@@ -31,6 +37,7 @@ import {
   ProxyIcon,
   QueryStatsIcon,
   SearchInsightsIcon,
+  SupportDiagnosticsIcon,
 } from '@percona/peak-ui';
 import { NavItem } from 'types/navigation.types';
 
@@ -836,4 +843,32 @@ export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {
   icon: NorthEast,
   text: 'Identify Nodes',
   url: `${PMM_NEW_NAV_GRAFANA_PATH}/inventory/nodes?isPmmServerNode=true`,
+};
+
+//
+// Management
+//
+// Section grouping the SEP apps. It has no page of its own: a collapsible nav
+// item takes its link from its first child, so the header opens whichever app
+// leads the group.
+export const NAV_MANAGEMENT: NavItem = {
+  id: 'management',
+  icon: AppsRounded,
+  text: 'Management',
+};
+
+export const NAV_SEP_ATW: NavItem = {
+  id: 'sep-atw',
+  icon: SupportDiagnosticsIcon,
+  text: 'Support diagnostics',
+  url: SEP_ATW_PATH,
+  matches: [SEP_ATW_PATH],
+};
+
+export const NAV_SEP_MYSQL_BACKUPS: NavItem = {
+  id: 'sep-mysql-backups',
+  icon: Restore,
+  text: 'MySQL Backups',
+  url: SEP_MYSQL_BACKUPS_PATH,
+  matches: [SEP_MYSQL_BACKUPS_PATH],
 };
