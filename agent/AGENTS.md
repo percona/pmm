@@ -41,7 +41,9 @@ What keeps it out:
 - `Ping` is answered by `client.processPings` from `channel.Pings()`, a single-slot queue dropped on
   overflow, so a pong is never queued behind a request the loop has not got to yet
 - `runReceiver` gives up on the connection if the queue stays full (`requestQueueStuckTimeout`), and
-  `Channel.SendAndWaitResponse` takes a ctx, so a caller with its own deadline is bounded
+  `Channel.SendAndWaitResponse` takes a ctx, so a caller with its own deadline is bounded. That only
+  recovers as far as the blocked handler allows: `run.go` waits on `client.Done()` before redialing,
+  and that waits for `processChannelRequests`, so a handler still has to honor the canceled ctx
 - `supervisor` bounds the waits for stopping agents to one budget per call (`agentsStopTimeout`)
 
 `CheckConnectionRequest`, `ServiceInfoRequest` and `GetVersionsRequest` still run inline, bounded

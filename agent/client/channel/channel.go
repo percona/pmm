@@ -135,8 +135,12 @@ func (c *Channel) close(err error) {
 		c.closeErr = err
 
 		c.m.Lock()
-		for _, ch := range c.responses { // unblock all subscribers
-			close(ch)
+		for _, ch := range c.responses {
+			// unblock all subscribers; a nil channel marks an abandoned request with
+			// no subscriber left to unblock
+			if ch != nil {
+				close(ch)
+			}
 		}
 		c.responses = nil // prevent future subscriptions
 		c.m.Unlock()
@@ -206,10 +210,19 @@ func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.Agent
 		// This is what bounds the callers that have a deadline of their own: the ping/pong
 		// of the dial handshake, and pmm-admin status asking for network info. Both used to
 		// wait for a response that a wedged connection would never deliver.
-		// The subscription goes so that a response arriving later is not left waiting for a
-		// reader; it is buffered, so a publisher that took the entry first still completes.
-		c.removeResponseChannel(id)
-		return nil, ctx.Err()
+		//
+		// select picks a ready case at random, so the response may already have been
+		// delivered when ctx expired, and it may land while we are giving up. Marking the
+		// request abandoned settles that: it succeeds only while nothing has taken the
+		// subscription, and once taken the publisher is committed to sending, so the
+		// response is imminent. Reporting a timeout for one that did arrive would fail the
+		// dial handshake, or report a live connection as down.
+		if c.abandon(id) {
+			return nil, ctx.Err()
+		}
+
+		resp := <-ch
+		return resp.Payload, resp.Error
 	}
 }
 
@@ -334,8 +347,12 @@ func (c *Channel) runReceiver() {
 
 		// Never park here without a way out: this goroutine also delivers every response the
 		// consumer of Requests() may be waiting for, so a full queue stops both directions at
-		// once. Giving up on the connection is what breaks that cycle - the caller of Run
-		// redials, and the fresh connection starts with an empty queue. See PMM-15431.
+		// once. Closing the channel is what breaks that cycle: it closes Pings() as well, and
+		// the pong loop exiting is what makes client.Run return, after which its caller
+		// cancels the client context, so a handler blocked on it gives up too. Only then does
+		// the reconnect happen - it waits on client.Done() - so a handler that ignores that
+		// cancellation holds the agent off the fresh connection for as long as it runs. See
+		// "the request loop must never block indefinitely" in agent/AGENTS.md (PMM-15431).
 		select {
 		case c.requests <- req:
 		case <-c.closeWait:
@@ -351,27 +368,84 @@ func (c *Channel) runReceiver() {
 	}
 }
 
-func (c *Channel) removeResponseChannel(id uint32) chan Response {
+// abandon leaves a marker behind instead of dropping the entry, which is the whole difference
+// from removeResponseChannel: the sender is gone, but a response may still arrive, and only the
+// marker tells that apart from a response to an ID the agent never sent.
+//
+// It reports whether the request was still tracked. False means the publisher took the entry
+// first and is committed to delivering a response, so there is nothing left to mark: writing
+// the marker anyway would leave an entry behind that nothing ever clears.
+func (c *Channel) abandon(id uint32) bool {
 	c.m.Lock()
 	defer c.m.Unlock()
-	if c.responses == nil { // Channel is closed
-		return nil
+	if c.responses == nil { // Channel is closed, no subscriptions left
+		return false
+	}
+	if _, ok := c.responses[id]; !ok {
+		return false
+	}
+	c.responses[id] = nil
+
+	return true
+}
+
+// subscription tells what the responses map held for a request ID.
+type subscription int
+
+const (
+	// A sender is still waiting on the returned channel.
+	subscriptionWaiting subscription = iota
+	// The sender stopped waiting for the response (see abandon).
+	subscriptionAbandoned
+	// Nothing was ever tracked for the ID.
+	subscriptionUnknown
+	// The channel is closed, so there are no subscriptions left.
+	subscriptionClosed
+)
+
+// removeResponseChannel drops the entry for id and returns the channel its sender is waiting on,
+// together with what was there. The channel is non-nil only for subscriptionWaiting.
+func (c *Channel) removeResponseChannel(id uint32) (chan Response, subscription) {
+	c.m.Lock()
+	defer c.m.Unlock()
+	if c.responses == nil {
+		return nil, subscriptionClosed
 	}
 
-	ch := c.responses[id]
-	if ch == nil {
-		return nil
+	ch, ok := c.responses[id]
+	if !ok {
+		return nil, subscriptionUnknown
 	}
 	delete(c.responses, id)
-	return ch
+
+	if ch == nil {
+		return nil, subscriptionAbandoned
+	}
+
+	return ch, subscriptionWaiting
+}
+
+// deliver passes resp to whoever is waiting for id, and reports the cases where nobody is.
+// It closes the subscription channel for an error, as nothing can follow one.
+func (c *Channel) deliver(id uint32, resp Response) {
+	ch, sub := c.removeResponseChannel(id)
+	switch sub {
+	case subscriptionWaiting:
+		ch <- resp
+		if resp.Error != nil {
+			close(ch)
+		}
+	case subscriptionAbandoned:
+		c.l.Debugf("Response for ID %d arrived after its sender stopped waiting for it.", id)
+	case subscriptionUnknown:
+		c.l.Errorf("No subscriber for ID %d.", id)
+	case subscriptionClosed:
+	}
 }
 
 // cancel sends an error to the subscriber and closes the subscription channel.
 func (c *Channel) cancel(id uint32, err error) {
-	if ch := c.removeResponseChannel(id); ch != nil {
-		ch <- Response{Error: err}
-		close(ch)
-	}
+	c.deliver(id, Response{Error: err})
 }
 
 func (c *Channel) subscribe(id uint32) chan Response {
@@ -401,9 +475,7 @@ func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentv1.Se
 		return
 	}
 
-	if ch := c.removeResponseChannel(id); ch != nil {
-		ch <- Response{Payload: resp}
-	}
+	c.deliver(id, Response{Payload: resp})
 }
 
 // Describe implements prometheus.Collector.

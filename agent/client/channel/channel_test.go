@@ -26,6 +26,8 @@ import (
 
 	"github.com/percona/exporter_shared/helpers"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -465,6 +467,83 @@ func TestSendAndWaitResponseCanceled(t *testing.T) {
 	assert.Nil(t, resp)
 	require.ErrorIs(t, err, context.Canceled)
 	close(asserted)
+}
+
+func TestAbandon(t *testing.T) {
+	t.Parallel()
+
+	// The interleaving that matters cannot be forced through the gRPC harness, so drive the
+	// primitives directly: only `responses` and `l` are touched by the paths under test.
+	newChannel := func() *Channel {
+		return &Channel{
+			responses: make(map[uint32]chan Response),
+			l:         logrus.WithField("test", t.Name()),
+		}
+	}
+
+	t.Run("marks a request that is still tracked", func(t *testing.T) {
+		t.Parallel()
+
+		c := newChannel()
+		c.subscribe(1)
+
+		assert.True(t, c.abandon(1))
+		// Tracked as abandoned rather than dropped, so a late response is recognized.
+		assert.Len(t, c.responses, 1)
+		assert.Nil(t, c.responses[1])
+	})
+
+	t.Run("does not resurrect an entry the publisher already took", func(t *testing.T) {
+		t.Parallel()
+
+		// The waiter sees ctx expire, then the publisher removes the entry and delivers
+		// before the waiter marks it. Marking it anyway would leave an entry that no future
+		// response can ever clear, because the response was already published.
+		c := newChannel()
+		ch := c.subscribe(1)
+
+		c.publish(1, nil, &agentv1.Pong{CurrentTime: timestamppb.Now()})
+
+		assert.False(t, c.abandon(1))
+		assert.Empty(t, c.responses)
+
+		// The response the publisher delivered is still there to be collected, which is
+		// what SendAndWaitResponse falls back to rather than reporting a timeout.
+		resp := <-ch
+		require.NoError(t, resp.Error)
+		assert.IsType(t, &agentv1.Pong{}, resp.Payload)
+	})
+
+	t.Run("is a no-op once the channel is closed", func(t *testing.T) {
+		t.Parallel()
+
+		c := newChannel()
+		c.subscribe(1)
+		c.responses = nil
+
+		assert.False(t, c.abandon(1))
+	})
+
+	t.Run("reports a response that arrives after the sender gave up", func(t *testing.T) {
+		t.Parallel()
+
+		l, hook := logrustest.NewNullLogger()
+		l.SetLevel(logrus.DebugLevel)
+		c := newChannel()
+		c.l = l.WithField("test", t.Name())
+
+		c.subscribe(1)
+		require.True(t, c.abandon(1))
+
+		// No subscriber left, so this must neither block nor be reported as a response
+		// to an ID the agent never sent.
+		c.publish(1, nil, &agentv1.Pong{CurrentTime: timestamppb.Now()})
+
+		assert.Empty(t, c.responses)
+		entries := hook.AllEntries()
+		require.Len(t, entries, 1)
+		assert.Equal(t, logrus.DebugLevel, entries[0].Level)
+	})
 }
 
 func TestServerExitsWithGRPCError(t *testing.T) {
