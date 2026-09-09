@@ -18,11 +18,11 @@ GET /nodes/
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `external_id` | string | — | Return only the node with this PMM node ID |
-| `source` | string | — | Filter by source. Currently only `pmm` is supported |
-| `node_type` | string | — | Filter by node type |
-| `search` | string | — | Case-insensitive search across node names and other searchable columns |
-| `include_retired` | boolean | `false` | Include retired (soft-deleted) nodes |
+| `external_id` | string | none | Return only the node with this PMM node ID |
+| `source` | string | none | Filter by source. Only `pmm` is currently supported |
+| `node_type` | string | none | Filter by node type |
+| `search` | string | none | Case-insensitive search across node names and other searchable columns |
+| `include_retired` | boolean | `false` | Include retired nodes |
 | `offset` | integer | 0 | Pagination offset |
 | `limit` | integer | 50 | Results per page (max 200) |
 | `sort` | string | `name` | Sort key. Prefix with `-` for descending. Options: `created_at`, `name` |
@@ -40,7 +40,7 @@ curl -sk "https://<pmm-server>/sep-inventory/nodes/?search=db-host" \
 GET /nodes/{node_id}
 ```
 
-Returns the full record for a node, including its nested services.
+Returns the full record for a node, including its services.
 
 ## Get inventory summary
 
@@ -48,7 +48,7 @@ Returns the full record for a node, including its nested services.
 GET /summary/
 ```
 
-Returns a count of each entity type in the inventory — a quick snapshot of how many nodes, services, schemas, and tables are registered.
+Returns how many nodes, services, schemas, and tables are currently registered in the inventory.
 
 ## Retire a node
 
@@ -56,7 +56,7 @@ Returns a count of each entity type in the inventory — a quick snapshot of how
 DELETE /nodes/{node_id}
 ```
 
-Soft-deletes the node and cascades to all its services, schemas, and tables. The rows remain resolvable. Returns HTTP 204.
+Retires the node and all its services, schemas, and tables. The records are kept and can be restored. Returns HTTP 204.
 
 ## Revive a node
 
@@ -64,27 +64,27 @@ Soft-deletes the node and cascades to all its services, schemas, and tables. The
 POST /nodes/{node_id}/revive
 ```
 
-Restores a retired node. Its services remain retired — revive them separately if needed. Returns HTTP 409 if an active node already holds the same unique key.
+Restores a retired node. Its services stay retired. Revive them separately if needed. Returns HTTP 409 if an active node already uses the same identifier.
 
-## Node identity management
+## Duplicate node records
 
-When PMM re-registers a host with a different node ID, SEP may detect the predecessor and successor as separate nodes. The identity endpoints let you resolve the pairing.
+When PMM re-registers a host with a new node ID, SEP may create a second node record for the same physical host. The identity endpoints let you identify and resolve these duplicates.
 
-### List identity candidates
+### List duplicate candidates
 
 ```
 GET /nodes/identity-candidates
 ```
 
-Lists node pairs that a PMM re-registration may have split. Each result shows the `predecessor`, `successor`, and the fields they `matched_on`.
+Lists node pairs that may represent the same physical host. Each result shows both records and the fields they matched on.
 
-### Confirm, reject, or reverse a pairing
+### Resolve a duplicate
 
 ```
 POST /nodes/{node_id}/identity-link
 ```
 
-The path identifies the predecessor. Supply your decision in the request body:
+Pass the ID of the original node in the path. Supply your decision in the request body:
 
 ```json
 {
@@ -95,14 +95,14 @@ The path identifies the predecessor. Supply your decision in the request body:
 
 | Decision | Effect |
 |----------|--------|
-| `confirmed` | Merges successor into predecessor; future syncs treat them as the same node |
-| `rejected` | Records that the pairing was reviewed and is not a match |
-| `reversed` | Undoes a previous confirmation |
+| `confirmed` | Merges the new record into the original. Future syncs treat them as the same node. |
+| `rejected` | Records that the pairing was reviewed and is not a match. |
+| `reversed` | Undoes a previous confirmation. |
 
-### List identity aliases
+### List node ID history
 
 ```
 GET /nodes/{node_id}/identity-aliases
 ```
 
-Lists all upstream identifiers this node has answered for, oldest first. Useful for auditing which PMM node IDs have been associated with a given SEP node over time.
+Lists all PMM node IDs this node has been associated with, oldest first. Useful for auditing how a host's identity has changed over time.
