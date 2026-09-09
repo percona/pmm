@@ -63,9 +63,13 @@ func LookupBool(key string) (*bool, error) {
 	if !ok {
 		return nil, nil //nolint:nilnil
 	}
-	b, err := strconv.ParseBool(v)
+	// Lowercased to match envvars.ParseEnvVars, which lowercases every value before parsing
+	// (managed/utils/envvars/parser.go). Without it the two disagree on spellings that
+	// strconv.ParseBool does not accept verbatim, such as "TRue", and a value this rejects can
+	// still start PMM Server.
+	b, err := strconv.ParseBool(strings.ToLower(v))
 	if err != nil {
-		return nil, fmt.Errorf("invalid value %q for environment variable %s", v, key)
+		return nil, fmt.Errorf("invalid value '%s' for environment variable %s", v, key)
 	}
 	return &b, nil
 }

@@ -1144,7 +1144,7 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
 			`QAN for PMM's internal PostgreSQL server is configured via an environment variable: `+
-				`invalid value "not-a-bool" for environment variable PMM_ENABLE_INTERNAL_PG_QAN.`), err)
+				`invalid value 'not-a-bool' for environment variable PMM_ENABLE_INTERNAL_PG_QAN.`), err)
 
 		stored, err := models.FindAgentByID(as.db.Querier, agent.AgentID)
 		require.NoError(t, err)
@@ -1171,6 +1171,173 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, changed.GetQanPostgresqlPgstatementsAgent().Disabled)
 	})
+}
+
+// TestChangeAgentExpectedTypes pins the expectedType argument that every Change*Agent method hands
+// to executeAgentChange. That argument restates what the method's own type assertion on the result
+// already says, and the compiler cannot tie the two together: a wrong constant turns every valid
+// request to that method into InvalidArgument while the suite stays green.
+//
+// Each method is pointed at an agent of a known different type, and the rejection names the type the
+// method expects -- which is the value under test. Doing it in the reject direction keeps one shared
+// probe agent from the fixtures instead of building an agent of all seventeen types, and fails on
+// exactly the same drift. No mocks: the type check is the first thing executeAgentChange does, so
+// nothing reaches the registry or the state updater.
+func TestChangeAgentExpectedTypes(t *testing.T) {
+	_, as, _, teardown, ctx, _ := setup(t) //nolint:dogsled
+	t.Cleanup(func() { teardown(t) })
+
+	probe := func(t *testing.T, agentType models.AgentType) *models.Agent {
+		t.Helper()
+
+		agents, err := models.FindAgents(as.db.Querier, models.AgentFilters{
+			PMMAgentID: models.PMMServerAgentID,
+			AgentType:  &agentType,
+		})
+		require.NoError(t, err)
+		require.Len(t, agents, 1)
+
+		return agents[0]
+	}
+
+	for _, tc := range []struct {
+		want   models.AgentType
+		change func(agentID string) error
+	}{
+		{
+			want: models.NodeExporterType,
+			change: func(agentID string) error {
+				_, err := as.ChangeNodeExporter(ctx, agentID, &inventoryv1.ChangeNodeExporterParams{})
+				return err
+			},
+		},
+		{
+			want: models.MySQLdExporterType,
+			change: func(agentID string) error {
+				_, err := as.ChangeMySQLdExporter(ctx, agentID, &inventoryv1.ChangeMySQLdExporterParams{})
+				return err
+			},
+		},
+		{
+			want: models.MongoDBExporterType,
+			change: func(agentID string) error {
+				_, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{})
+				return err
+			},
+		},
+		{
+			want: models.QANMySQLPerfSchemaAgentType,
+			change: func(agentID string) error {
+				_, err := as.ChangeQANMySQLPerfSchemaAgent(ctx, agentID, &inventoryv1.ChangeQANMySQLPerfSchemaAgentParams{})
+				return err
+			},
+		},
+		{
+			want: models.QANMySQLSlowlogAgentType,
+			change: func(agentID string) error {
+				_, err := as.ChangeQANMySQLSlowlogAgent(ctx, agentID, &inventoryv1.ChangeQANMySQLSlowlogAgentParams{})
+				return err
+			},
+		},
+		{
+			want: models.PostgresExporterType,
+			change: func(agentID string) error {
+				_, err := as.ChangePostgresExporter(ctx, agentID, &inventoryv1.ChangePostgresExporterParams{})
+				return err
+			},
+		},
+		{
+			want: models.ValkeyExporterType,
+			change: func(agentID string) error {
+				_, err := as.ChangeValkeyExporter(ctx, agentID, &inventoryv1.ChangeValkeyExporterParams{})
+				return err
+			},
+		},
+		{
+			want: models.QANMongoDBProfilerAgentType,
+			change: func(agentID string) error {
+				_, err := as.ChangeQANMongoDBProfilerAgent(ctx, agentID, &inventoryv1.ChangeQANMongoDBProfilerAgentParams{})
+				return err
+			},
+		},
+		{
+			want: models.QANMongoDBMongologAgentType,
+			change: func(agentID string) error {
+				_, err := as.ChangeQANMongoDBMongologAgent(ctx, agentID, &inventoryv1.ChangeQANMongoDBMongologAgentParams{})
+				return err
+			},
+		},
+		{
+			want: models.ProxySQLExporterType,
+			change: func(agentID string) error {
+				_, err := as.ChangeProxySQLExporter(ctx, agentID, &inventoryv1.ChangeProxySQLExporterParams{})
+				return err
+			},
+		},
+		{
+			want: models.QANPostgreSQLPgStatementsAgentType,
+			change: func(agentID string) error {
+				_, err := as.ChangeQANPostgreSQLPgStatementsAgent(ctx, agentID, &inventoryv1.ChangeQANPostgreSQLPgStatementsAgentParams{})
+				return err
+			},
+		},
+		{
+			want: models.QANPostgreSQLPgStatMonitorAgentType,
+			change: func(agentID string) error {
+				_, err := as.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agentID, &inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams{})
+				return err
+			},
+		},
+		{
+			want: models.RDSExporterType,
+			change: func(agentID string) error {
+				_, err := as.ChangeRDSExporter(ctx, agentID, &inventoryv1.ChangeRDSExporterParams{})
+				return err
+			},
+		},
+		{
+			want: models.ExternalExporterType,
+			change: func(agentID string) error {
+				_, err := as.ChangeExternalExporter(ctx, agentID, &inventoryv1.ChangeExternalExporterParams{})
+				return err
+			},
+		},
+		{
+			want: models.AzureDatabaseExporterType,
+			change: func(agentID string) error {
+				_, err := as.ChangeAzureDatabaseExporter(ctx, agentID, &inventoryv1.ChangeAzureDatabaseExporterParams{})
+				return err
+			},
+		},
+		{
+			want: models.NomadAgentType,
+			change: func(agentID string) error {
+				_, err := as.ChangeNomadAgent(ctx, agentID, &inventoryv1.ChangeNomadAgentParams{})
+				return err
+			},
+		},
+		{
+			want: models.RTAMongoDBAgentType,
+			change: func(agentID string) error {
+				_, err := as.ChangeRTAMongoDBAgent(ctx, agentID, &inventoryv1.ChangeRTAMongoDBAgentParams{})
+				return err
+			},
+		},
+	} {
+		t.Run(string(tc.want), func(t *testing.T) {
+			// The fixtures give PMM Server one node_exporter and one postgres_exporter; either
+			// serves as an agent of the wrong type for every method but its own.
+			probeType := models.NodeExporterType
+			if tc.want == models.NodeExporterType {
+				probeType = models.PostgresExporterType
+			}
+			agent := probe(t, probeType)
+
+			err := tc.change(agent.AgentID)
+			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, fmt.Sprintf(
+				"Agent with ID %s has type %s, expected %s.", agent.AgentID, probeType, tc.want)), err)
+		})
+	}
 }
 
 func TestChangeAgentRejectsAgentOfAnotherType(t *testing.T) {

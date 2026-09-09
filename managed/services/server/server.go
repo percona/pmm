@@ -424,6 +424,7 @@ func (s *Server) GetSettings(ctx context.Context, _ *serverv1.GetSettingsRequest
 		internalPgQanAgent, err := models.FindInternalPgQANAgent(dbCtx)
 		if err != nil {
 			// if we can't get the agent, log the error and set it to disabled.
+			disabledInternalPgQan = true
 			s.l.Errorf("failed to get internal pgQAN agent: %v", err)
 		} else {
 			disabledInternalPgQan = internalPgQanAgent.Disabled
@@ -640,9 +641,12 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 		return true, nil
 	}
 
+	// Returned unwrapped: FindInternalPgQANAgent returns a gRPC status, and status.FromError
+	// unwraps through %w and then replaces the message with the whole wrapped string, so a wrap
+	// here would put "rpc error: code = ... desc = ..." in front of the client.
 	internalQanAgent, err := models.FindInternalPgQANAgent(q)
 	if err != nil {
-		return false, fmt.Errorf("failed to get QAN agent: %w", err)
+		return false, err
 	}
 
 	newAgent, err := models.ApplyAgentChange(q, internalQanAgent, &models.ChangeAgentParams{
