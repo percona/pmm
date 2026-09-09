@@ -84,6 +84,15 @@ interface BaseField {
   requires?: FieldGate[];
   /** Self-cardinality gates: when matched, the field is forbidden. */
   forbidden?: FieldGate[];
+  /**
+   * Consequence text for a field whose enabled or set state irreversibly
+   * destroys user data. Presence is the mark — there is no separate boolean,
+   * so `if (field.destructive)` is the check, and the string is what a
+   * confirmation displays. Unmarked fields either omit the key or send it as
+   * null, depending on whether the serving route excludes nulls, so test
+   * truthiness rather than presence.
+   */
+  destructive?: string | null;
 }
 
 // ── Choice option ─────────────────────────────────────────────────────────
@@ -329,6 +338,8 @@ export interface ListColumn {
     | 'code'
     | 'actions'
     | 'schedule';
+  /** Optional map from a raw cell value to the text to display in its place. Absent when the app declares no labels; a value missing from the map renders as-is. */
+  value_labels?: Record<string, string>;
 }
 
 export interface ListView {
@@ -358,6 +369,8 @@ export interface DetailField {
   label: string;
   /** Optional syntax-highlighter hint; mirrors the backend ``DetailHighlightLanguage`` enum. */
   highlight?: 'sql' | 'json' | 'bash' | 'yaml';
+  /** Optional map from a raw resolved value to the text to display in its place. Absent when the app declares no labels; a value missing from the map renders as-is. */
+  value_labels?: Record<string, string>;
 }
 
 /** One titled section rendered on the task detail page. */
@@ -383,6 +396,11 @@ export interface PluginEntitySchema {
   /** Optional detail-view syntax hints keyed by field name; mirrors the backend
    * ``DetailHighlightLanguage`` enum. */
   detail_highlights?: Partial<Record<string, 'sql' | 'json' | 'bash' | 'yaml'>>;
+  /** What one record of this entity is called, in mid-sentence form — capitalise
+   * the first character when it opens a label. */
+  item_display_name: string;
+  /** What several records of this entity are called, same convention. */
+  item_display_name_plural: string;
 }
 
 // ── Related apps (sibling tabs) ─────────────────────────────────────────
@@ -398,6 +416,23 @@ export interface RelatedApp {
   label: string;
   /** Sub-path segment under the parent's `route_base` (for example `restores`). */
   route_segment: string;
+}
+
+// ── Task status vocabulary ──────────────────────────────────────────────
+
+/**
+ * One task-status value and whether it ends a run. A client polling a task to
+ * completion re-reads until the row reaches a status whose `terminal` is true.
+ */
+export interface TaskStatusDescriptor {
+  /** A `TaskHistoryStatusEnum` member, deliberately widened to `string` here
+   * rather than typed as a literal union like `ColumnFormat`: the point of
+   * publishing this list is that a client discovers the vocabulary at runtime
+   * instead of hardcoding it. The generated client in `generated/sep.ts`
+   * narrows the same field to a union of the current members, so a consumer
+   * that wants runtime discovery should read this type rather than that one. */
+  value: string;
+  terminal: boolean;
 }
 
 // ── Top-level schema ────────────────────────────────────────────────────
@@ -421,4 +456,11 @@ export interface PluginSchema {
   fail_when?: FailRule[];
   /** Separately registered apps rendered as sibling tabs in the React shell. */
   related_apps?: RelatedApp[];
+  /** What one record this app's create form produces is called, in mid-sentence
+   * form — capitalise the first character when it opens a label. */
+  item_display_name: string;
+  /** What several such records are called, same convention. */
+  item_display_name_plural: string;
+  /** Status vocabulary for task-style apps; omitted when `entities` is set. */
+  task_statuses?: TaskStatusDescriptor[];
 }

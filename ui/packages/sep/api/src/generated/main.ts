@@ -257,7 +257,6 @@ export interface paths {
      * @description List users.
      *
      *     :return: The list of users.
-     *     :rtype: list[User]
      */
     get: operations['users_list_users_api_users__get'];
     put?: never;

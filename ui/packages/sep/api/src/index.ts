@@ -136,6 +136,7 @@ export type {
   CardinalityRule,
   FailRule,
   RelatedApp,
+  TaskStatusDescriptor,
 } from './types/plugin-schema';
 
 // Hooks
