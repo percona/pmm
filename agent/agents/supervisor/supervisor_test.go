@@ -518,8 +518,21 @@ func TestStopAll(t *testing.T) {
 		s.stopAll()
 
 		// Still open, so the send the forwarder is parked on cannot bring the agent down.
-		_, more := <-s.Changes()
-		assert.True(t, more)
+		// Asserted on the empty channels, not on Changes(): fillChanges left changesBufferSize
+		// items buffered, and a closed buffered channel still yields more == true until it is
+		// drained, so a receive there cannot tell open from closed. On these two a receive can
+		// only succeed if stopAll closed them.
+		select {
+		case _, more := <-s.QANRequests():
+			assert.True(t, more, "QANRequests() was closed")
+		default:
+		}
+
+		select {
+		case _, more := <-s.RTARequests():
+			assert.True(t, more, "RTARequests() was closed")
+		default:
+		}
 	})
 }
 

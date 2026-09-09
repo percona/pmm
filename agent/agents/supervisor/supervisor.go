@@ -279,7 +279,16 @@ func (s *Supervisor) RestartAgents() {
 
 	deadline := time.Now().Add(s.agentsStopTimeout)
 
-	for id, agent := range s.agentProcesses {
+	// Iterate a snapshot of the keys: the give-up branch below deletes the entry and
+	// tryStartProcess re-inserts the same key, and an entry created during a range may be
+	// produced again by that range.
+	ids := make([]string, 0, len(s.agentProcesses))
+	for id := range s.agentProcesses {
+		ids = append(ids, id)
+	}
+
+	for _, id := range ids {
+		agent := s.agentProcesses[id]
 		agent.cancel()
 		port := agent.listenPort
 		if !s.waitAgentStopped(id, agent.done, deadline) {
@@ -555,7 +564,8 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 	var err error
 	for range processRetryCount {
 		if port == 0 {
-			_port, err := s.portsRegistry.Reserve()
+			var _port uint16
+			_port, err = s.portsRegistry.Reserve()
 			if err != nil {
 				s.l.Errorf("Failed to reserve port: %s.", err)
 				continue
@@ -661,11 +671,16 @@ func (s *Supervisor) handleNomadAgent(
 	s.storeLastStatus(agentID, status)
 	l.Warn("Cannot start Nomad Agent: cgroups are not writable.")
 	l.Infof("Sending status: %s (port %d).", status, processInfo.listenPort)
-	s.changes <- &agentv1.StateChangedRequest{
+	// Bounded: this runs with s.rw held for writing, so parking on a full channel would
+	// block every later SetState, AgentsList and stopAll for good. See PMM-15431.
+	select {
+	case s.changes <- &agentv1.StateChangedRequest{
 		AgentId:         agentID,
 		Status:          status,
 		ListenPort:      uint32(processInfo.listenPort),
 		ProcessExecPath: processInfo.processExecPath,
+	}:
+	case <-s.ctx.Done():
 	}
 
 	close(done)

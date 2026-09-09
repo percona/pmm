@@ -145,9 +145,15 @@ func (c *Channel) close(err error) {
 		c.responses = nil // prevent future subscriptions
 		c.m.Unlock()
 
+		// Signal the close before taking sendM: send holds sendM across the blocking
+		// c.s.Send, so a sender parked on an exhausted flow control window would keep close
+		// from ever reaching close(c.closeWait) - wedging Wait, runReceiver and the reconnect
+		// that waits on them. send re-checks closeWait under sendM, so a sender that has not
+		// started yet gives up instead of racing past this.
+		close(c.closeWait)
+
 		c.sendM.Lock()
 		_ = c.s.CloseSend()
-		close(c.closeWait)
 		c.sendM.Unlock()
 	})
 }
