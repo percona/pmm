@@ -337,6 +337,24 @@ func TestKeepRegistration(t *testing.T) {
 		assert.Equal(t, "admin", cfg.Server.Username)
 		assert.Equal(t, "admin", cfg.Server.Password)
 	})
+
+	t.Run("credentials which were not used are reported", func(t *testing.T) {
+		t.Parallel()
+
+		// A password which the Agent never gets to try, a mistyped one among them, must not pass for
+		// accepted just because the stored token still works.
+		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "WRONG"}}
+		fileCfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "service_token", Password: "glsa_token"}}
+		assert.Equal(t, []string{"--server-username", "--server-password"}, unappliedCredentials(cfg, fileCfg))
+	})
+
+	t.Run("credentials equal to the stored ones are not reported", func(t *testing.T) {
+		t.Parallel()
+
+		stored := config.Server{Username: "service_token", Password: "glsa_token"}
+		cfg := &config.Config{ID: testAgentID, Server: stored}
+		assert.Empty(t, unappliedCredentials(cfg, &config.Config{ID: testAgentID, Server: stored}))
+	})
 }
 
 func TestUnappliedSetupFlags(t *testing.T) {
@@ -345,4 +363,8 @@ func TestUnappliedSetupFlags(t *testing.T) {
 	assert.Empty(t, unappliedSetupFlags(&config.Setup{NodeName: "host", MetricsMode: "auto"}))
 	assert.Equal(t, []string{"--region", "--custom-labels", "--expose-exporter"},
 		unappliedSetupFlags(&config.Setup{Region: "eu", CustomLabels: "env=prod", ExposeExporter: true}))
+
+	// These describe the Node on PMM Server just as the rest do, and are only applied by registering.
+	assert.Equal(t, []string{"--container-id", "--container-name"},
+		unappliedSetupFlags(&config.Setup{ContainerID: "abc123", ContainerName: "mysql"}))
 }

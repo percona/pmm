@@ -27,6 +27,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
@@ -151,8 +152,14 @@ var errCredentialsRejected = errors.New("credentials rejected")
 // serverNode describes the Node which PMM Server has an Agent registered on.
 type serverNode struct {
 	Name    string
+	Type    string
 	Address string
 }
+
+// registrationCheckTimeout bounds the registration check as a whole. The check asks PMM Server twice,
+// and the per-request default would let an unresponsive server hold the setup for twice as long as the
+// one request an operator would expect to wait for. A variable so that tests can shorten it.
+var registrationCheckTimeout = 30 * time.Second
 
 // serverNodeOfAgent returns the Node which PMM Server has the Agent registered on.
 // The errors errAgentNotFound and errCredentialsRejected mean that the Node has to be registered again. Any other
@@ -161,8 +168,13 @@ type serverNode struct {
 //
 // This method is not thread-safe.
 func serverNodeOfAgent(agentID string) (serverNode, error) {
-	// The constructors bound the requests with the default timeout, so a hung PMM Server cannot stall the setup.
-	agent, err := inventoryClient.Default.AgentsService.GetAgent(aservice.NewGetAgentParams().WithAgentID(agentID))
+	// One deadline for both requests, so that the setup gives up on an unresponsive PMM Server after
+	// registrationCheckTimeout rather than after that much per request.
+	ctx, cancel := context.WithTimeout(context.Background(), registrationCheckTimeout)
+	defer cancel()
+
+	agent, err := inventoryClient.Default.AgentsService.GetAgent(
+		aservice.NewGetAgentParams().WithAgentID(agentID).WithContext(ctx))
 	if err != nil {
 		return serverNode{}, lookupError(err)
 	}
@@ -171,7 +183,8 @@ func serverNodeOfAgent(agentID string) (serverNode, error) {
 		return serverNode{}, errAgentNotFound
 	}
 
-	node, err := inventoryClient.Default.NodesService.GetNode(nservice.NewGetNodeParams().WithNodeID(agent.Payload.PMMAgent.RunsOnNodeID))
+	node, err := inventoryClient.Default.NodesService.GetNode(
+		nservice.NewGetNodeParams().WithNodeID(agent.Payload.PMMAgent.RunsOnNodeID).WithContext(ctx))
 	if err != nil {
 		return serverNode{}, lookupError(err)
 	}
@@ -225,15 +238,19 @@ func lookupError(err error) error {
 func nodeOf(node *nservice.GetNodeOKBody) (serverNode, error) {
 	switch {
 	case node.Generic != nil:
-		return serverNode{Name: node.Generic.NodeName, Address: node.Generic.Address}, nil
+		return serverNode{Name: node.Generic.NodeName, Type: "generic", Address: node.Generic.Address}, nil
 	case node.Container != nil:
-		return serverNode{Name: node.Container.NodeName, Address: node.Container.Address}, nil
+		return serverNode{Name: node.Container.NodeName, Type: "container", Address: node.Container.Address}, nil
 	case node.Remote != nil:
-		return serverNode{Name: node.Remote.NodeName, Address: node.Remote.Address}, nil
+		return serverNode{Name: node.Remote.NodeName, Type: "remote", Address: node.Remote.Address}, nil
 	case node.RemoteRDS != nil:
-		return serverNode{Name: node.RemoteRDS.NodeName, Address: node.RemoteRDS.Address}, nil
+		return serverNode{Name: node.RemoteRDS.NodeName, Type: "remote_rds", Address: node.RemoteRDS.Address}, nil
 	case node.RemoteAzureDatabase != nil:
-		return serverNode{Name: node.RemoteAzureDatabase.NodeName, Address: node.RemoteAzureDatabase.Address}, nil
+		return serverNode{
+			Name:    node.RemoteAzureDatabase.NodeName,
+			Type:    "remote_azure_database",
+			Address: node.RemoteAzureDatabase.Address,
+		}, nil
 	default:
 		return serverNode{}, errors.New("PMM Server answered with a Node type this pmm-agent does not know")
 	}

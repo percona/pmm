@@ -97,24 +97,33 @@ func checkRegistration(cfg *config.Config, lookup agentLookup) registrationState
 			cfg.Server.Address, cfg.ID, node.Name, cfg.Setup.NodeName, node.Name, cfg.Setup.NodeName, node.Name)
 		return registrationConflict
 	default:
-		reportNodeAddress(cfg, node)
+		reportRegisteredNode(cfg, node)
 		return registrationConfirmed
 	}
 }
 
-// reportNodeAddress reports an address of the Node which no longer matches the one detected locally.
-// The address of a Node is only set when it is registered, and nothing updates it afterwards, so it is
-// what PMM Server keeps scraping in pull metrics mode.
-func reportNodeAddress(cfg *config.Config, node serverNode) {
-	if node.Address == "" || cfg.Setup.Address == "" || node.Address == cfg.Setup.Address {
-		return
+// reportRegisteredNode reports what PMM Server holds about the Node where it no longer matches what
+// setup was given. Both the address and the type of a Node are only set when it is registered, and
+// nothing updates them afterwards, so a difference is kept rather than applied.
+func reportRegisteredNode(cfg *config.Config, node serverNode) {
+	// The address is what PMM Server keeps scraping in pull metrics mode.
+	if node.Address != "" && cfg.Setup.Address != "" && node.Address != cfg.Setup.Address {
+		fmt.Printf("Node %s is registered with address %s, not %s. The registered address is kept;"+
+			" it is the address PMM Server scrapes in pull metrics mode.\n"+
+			"Use --force to register the Node with %s, which removes the registered Node together with every"+
+			" Service on it.\n",
+			node.Name, node.Address, cfg.Setup.Address, cfg.Setup.Address)
 	}
 
-	fmt.Printf("Node %s is registered with address %s, not %s. The registered address is kept;"+
-		" it is the address PMM Server scrapes in pull metrics mode.\n"+
-		"Use --force to register the Node with %s, which removes the registered Node together with every"+
-		" Service on it.\n",
-		node.Name, node.Address, cfg.Setup.Address, cfg.Setup.Address)
+	// The type is a positional argument with a default, so it is always given and cannot be reported as
+	// an unapplied flag. Saying nothing would let an operator read the exit code as the type having
+	// changed.
+	if node.Type != "" && cfg.Setup.NodeType != "" && node.Type != cfg.Setup.NodeType {
+		fmt.Printf("Node %s is registered as a %s Node, not %s. The registered type is kept.\n"+
+			"Use --force to register the Node as %s, which removes the registered Node together with every"+
+			" Service on it.\n",
+			node.Name, node.Type, cfg.Setup.NodeType, cfg.Setup.NodeType)
+	}
 }
 
 // registrationOf reports what `pmm-agent setup` is to do about the Node registration. An Agent which
@@ -171,15 +180,27 @@ func registeredConfig(configFilepath string, cfg *config.Config) (*config.Config
 // serve to register, which replaces them with a service token. It also reports the settings which
 // describe the Node on PMM Server, because they are only applied when the Node is registered.
 func keepRegistration(cfg, fileCfg *config.Config) {
+	flags := append(unappliedSetupFlags(&cfg.Setup), unappliedCredentials(cfg, fileCfg)...)
+
 	if fileCfg.Server.Password != "" {
 		cfg.Server.Username = fileCfg.Server.Username
 		cfg.Server.Password = fileCfg.Server.Password
 	}
 
-	flags := unappliedSetupFlags(&cfg.Setup)
 	if len(flags) > 0 {
 		fmt.Printf("Settings %s only take effect when the Node is registered.\n", strings.Join(flags, ", "))
 	}
+}
+
+// unappliedCredentials names the credentials given to setup which the Agent is not going to use, because
+// the service token it already holds is what reaches PMM Server. Keeping them is right, and saying so is
+// what stops a mistyped password from passing for an accepted one.
+func unappliedCredentials(cfg, fileCfg *config.Config) []string {
+	if fileCfg.Server.Password == "" || cfg.Server.Password == "" || cfg.Server.Password == fileCfg.Server.Password {
+		return nil
+	}
+
+	return []string{"--server-username", "--server-password"}
 }
 
 // storesConfig reports whether the configuration `pmm-agent setup` assembled is the one to store. It
@@ -206,6 +227,8 @@ func unappliedSetupFlags(s *config.Setup) []string {
 		{"--custom-labels", s.CustomLabels != ""},
 		{"--agent-password", s.AgentPassword != ""},
 		{"--expose-exporter", s.ExposeExporter},
+		{"--container-id", s.ContainerID != ""},
+		{"--container-name", s.ContainerName != ""},
 	} {
 		if f.given {
 			flags = append(flags, f.name)
@@ -288,7 +311,14 @@ func Setup() {
 				cfg.Server.Address, cfg.ID)
 			keepRegistration(cfg, fileCfg)
 		case registrationUnverified:
-			fmt.Printf("Keeping the registration, pmm-agent ID is %s. Use --force to register the Node again.\n", cfg.ID)
+			// Deliberately still a success: an Agent has to be able to set itself up while PMM Server has
+			// no leader yet, and failing here would take an installation down with the outage. It goes to
+			// stderr, and says what was not done, so that it does not read as a confirmed registration to
+			// whoever is watching the output.
+			fmt.Fprintf(os.Stderr, "WARNING: PMM Server at %s did not confirm that pmm-agent %s is registered."+
+				" Nothing was verified and nothing was changed; the existing registration is kept."+
+				" Re-run once PMM Server answers, or use --force to register the Node again.\n",
+				cfg.Server.Address, cfg.ID)
 			keepRegistration(cfg, fileCfg)
 		case registrationConflict:
 			// checkRegistrationOnServer reported which Node PMM Server has and what to do about it.

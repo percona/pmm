@@ -54,15 +54,21 @@ type Server struct {
 }
 
 // NormalizedAddress returns the PMM Server address with the default port added when it has none.
+// It is idempotent: two addresses which differ only in the default port normalize to the same string,
+// which is what makes it usable for telling one PMM Server from another.
 func (s *Server) NormalizedAddress() string {
 	if s.Address == "" {
 		return ""
 	}
 	_, _, err := net.SplitHostPort(s.Address)
-	if err != nil {
-		return net.JoinHostPort(s.Address, "443")
+	if err == nil {
+		return s.Address
 	}
-	return s.Address
+	// An IPv6 address may already carry the brackets JoinHostPort would add, and bracketing it again
+	// would make the method disagree with its own output.
+	host := strings.TrimSuffix(strings.TrimPrefix(s.Address, "["), "]")
+
+	return net.JoinHostPort(host, "443")
 }
 
 // URL returns base PMM Server URL for JSON APIs.

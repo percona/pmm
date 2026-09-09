@@ -48,6 +48,7 @@ func TestServerNodeOfAgent(t *testing.T) {
 		nodeCode    codes.Code
 		nodeBody    string
 		hangs       bool
+		boundedOnce bool
 		node        serverNode
 		err         error
 		unknowable  bool
@@ -56,7 +57,7 @@ func TestServerNodeOfAgent(t *testing.T) {
 			name:        "PMM Server knows the Agent",
 			agentStatus: http.StatusOK,
 			nodeStatus:  http.StatusOK,
-			node:        serverNode{Name: nodeName, Address: nodeAddress},
+			node:        serverNode{Name: nodeName, Type: "generic", Address: nodeAddress},
 		},
 		{
 			name:        "the ID belongs to another kind of Agent",
@@ -150,6 +151,13 @@ func TestServerNodeOfAgent(t *testing.T) {
 			hangs:      true,
 			unknowable: true,
 		},
+		{
+			// The check as a whole gives up, not each of its two requests on its own.
+			name:        "PMM Server hangs for longer than the check is allowed",
+			hangs:       true,
+			boundedOnce: true,
+			unknowable:  true,
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.hangs {
@@ -158,6 +166,21 @@ func TestServerNodeOfAgent(t *testing.T) {
 				httptransport.DefaultTimeout = 100 * time.Millisecond
 				t.Cleanup(func() { httptransport.DefaultTimeout = defaultTimeout })
 			}
+			if tc.boundedOnce {
+				// Leave the per-request timeout long, so that only the bound on the whole check can end
+				// this. Without it the two requests would run to the per-request timeout one after another.
+				httptransport.DefaultTimeout = time.Minute
+				checkTimeout := registrationCheckTimeout
+				registrationCheckTimeout = 100 * time.Millisecond
+				t.Cleanup(func() { registrationCheckTimeout = checkTimeout })
+			}
+
+			started := time.Now()
+			t.Cleanup(func() {
+				if tc.hangs {
+					assert.Less(t, time.Since(started), 30*time.Second, "the check has to give up on a hung PMM Server")
+				}
+			})
 
 			server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 				if tc.hangs {
