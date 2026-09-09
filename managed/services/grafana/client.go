@@ -573,7 +573,8 @@ type serviceAccountSearch struct {
 func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {
 	var res serviceAccountSearch
 	serviceAccountName := grafana.SanitizeSAName(fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName))
-	err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", "query="+serviceAccountName, authHeaders, nil, &res)
+	query := url.Values{"query": []string{serviceAccountName}}.Encode()
+	err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", query, authHeaders, nil, &res)
 	if err != nil {
 		return 0, err
 	}

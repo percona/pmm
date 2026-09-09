@@ -29,6 +29,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/services"
 	stringsgen "github.com/percona/pmm/utils/strings"
 )
 
@@ -475,6 +476,53 @@ func TestCurrentUserHTTPResponse(t *testing.T) {
 			assert.Equal(t, tc.wantMsg, body["message"])
 		})
 	}
+}
+
+func TestGetServiceAccountIDFromName(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	// Node names may hold spaces and other characters which are not valid in a query string.
+	const nodeName = "a node named with spaces & signs"
+	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
+
+	newServer := func(t *testing.T, accounts string) (*Client, *string) {
+		t.Helper()
+
+		var gotQuery string
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/api/serviceaccounts/search" {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			gotQuery = r.URL.Query().Get("query")
+			w.WriteHeader(http.StatusOK)
+			_, _ = fmt.Fprintf(w, `{"totalCount":1,"serviceAccounts":[%s]}`, accounts)
+		}))
+		t.Cleanup(ts.Close)
+
+		return NewClient(strings.TrimPrefix(ts.URL, "http://")), &gotQuery
+	}
+
+	t.Run("finds the account of a node whose name needs escaping", func(t *testing.T) {
+		t.Parallel()
+
+		c, gotQuery := newServer(t, fmt.Sprintf(`{"id":42,"name":%q}`, serviceAccountName))
+
+		id, err := c.getServiceAccountIDFromName(ctx, nodeName, http.Header{})
+		require.NoError(t, err)
+		assert.Equal(t, 42, id)
+		assert.Equal(t, serviceAccountName, *gotQuery)
+	})
+
+	t.Run("reports a node without an account as not found", func(t *testing.T) {
+		t.Parallel()
+
+		c, _ := newServer(t, `{"id":42,"name":"pmm-another-node"}`)
+
+		_, err := c.getServiceAccountIDFromName(ctx, nodeName, http.Header{})
+		assert.ErrorIs(t, err, services.ErrServiceAccountNotFound)
+	})
 }
 
 func TestClient(t *testing.T) {
