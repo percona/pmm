@@ -1,18 +1,11 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { enqueueSnackbar } from 'notistack';
-import { type ApiError, useResetSetting } from '@sep/api';
-import { Modal } from 'components/modal';
 import { Messages } from '../../Settings.messages';
 import { MAX_LABEL_WIDTH } from '../../Settings.constants';
-import {
-  DELIVERY_INPUTS_KEY,
-  SEP_SETTINGS_CLASS,
-} from './ServiceNowConnection.constants';
 import { StoredDeliveryInputs } from './ServiceNowConnection.types';
-import { sepErrorMessage } from './ServiceNowConnection.utils';
+import { ServiceNowDisconnect } from './ServiceNowDisconnect';
 
 interface Props {
   stored: StoredDeliveryInputs;
@@ -45,92 +38,37 @@ const ConnectionDetail: FC<{
  * ships rather than leaving itself empty.
  */
 export const ServiceNowConnected: FC<Props> = ({ stored, onRenew }) => {
-  const { mutateAsync: resetSetting, isPending: isDisconnecting } =
-    useResetSetting();
-  const [disconnectOpen, setDisconnectOpen] = useState(false);
   const { serviceNow } = Messages;
 
-  const onDisconnect = async () => {
-    try {
-      await resetSetting({
-        settingClass: SEP_SETTINGS_CLASS,
-        key: DELIVERY_INPUTS_KEY,
-      });
-      enqueueSnackbar(serviceNow.disconnectSuccess, { variant: 'success' });
-      setDisconnectOpen(false);
-    } catch (error) {
-      enqueueSnackbar(sepErrorMessage(error as ApiError), {
-        variant: 'error',
-      });
-    }
-  };
-
   return (
-    <>
+    <Stack
+      gap={3}
+      maxWidth={MAX_LABEL_WIDTH}
+      data-testid="servicenow-connected"
+    >
+      <Typography variant="h6">{serviceNow.connectedTitle}</Typography>
+
+      <ConnectionDetail
+        label={serviceNow.endpointDetailLabel}
+        value={stored.endpoint || serviceNow.defaultEndpoint}
+        testId="servicenow-connected-endpoint"
+      />
+
       <Stack
-        gap={3}
-        maxWidth={MAX_LABEL_WIDTH}
-        data-testid="servicenow-connected"
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        gap={2}
       >
-        <Typography variant="h6">{serviceNow.connectedTitle}</Typography>
-
-        <ConnectionDetail
-          label={serviceNow.endpointDetailLabel}
-          value={stored.endpoint || serviceNow.defaultEndpoint}
-          testId="servicenow-connected-endpoint"
-        />
-
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          gap={2}
+        <Button
+          variant="contained"
+          onClick={onRenew}
+          data-testid="servicenow-renew"
         >
-          <Button
-            variant="contained"
-            onClick={onRenew}
-            data-testid="servicenow-renew"
-          >
-            {serviceNow.renew}
-          </Button>
-          <Button
-            variant="text"
-            color="error"
-            data-testid="servicenow-disconnect"
-            onClick={() => setDisconnectOpen(true)}
-          >
-            {serviceNow.disconnect}
-          </Button>
-        </Stack>
+          {serviceNow.renew}
+        </Button>
+        <ServiceNowDisconnect />
       </Stack>
-
-      <Modal
-        open={disconnectOpen}
-        onClose={() => setDisconnectOpen(false)}
-        title={serviceNow.disconnectTitle}
-      >
-        <Stack gap={3}>
-          <Typography variant="body2">{serviceNow.disconnectBody}</Typography>
-          <Stack direction="row" gap={1} justifyContent="flex-end">
-            <Button
-              variant="text"
-              onClick={() => setDisconnectOpen(false)}
-              data-testid="servicenow-disconnect-cancel"
-            >
-              {serviceNow.disconnectCancel}
-            </Button>
-            <Button
-              variant="contained"
-              color="error"
-              disabled={isDisconnecting}
-              onClick={onDisconnect}
-              data-testid="servicenow-disconnect-confirm"
-            >
-              {serviceNow.disconnectConfirm}
-            </Button>
-          </Stack>
-        </Stack>
-      </Modal>
-    </>
+    </Stack>
   );
 };

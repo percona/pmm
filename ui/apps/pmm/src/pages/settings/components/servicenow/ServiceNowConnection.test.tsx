@@ -418,6 +418,49 @@ describe('ServiceNowConnection — disconnecting', () => {
     ).not.toBeInTheDocument();
   });
 
+  // The two states that render the form with an override still stored. Neither
+  // can reach 'configured', so Disconnect is the only route that clears them
+  // now that a blank save is refused.
+  it('is offered on the form when an image renamed a declared secret', () => {
+    mockList({
+      data: sepGroups(['sn_api_key', 'renamed_token'], {
+        sn_api_key: REDACTED_SECRET,
+        client_token: REDACTED_SECRET,
+      }),
+    } as Partial<ReturnType<typeof useSettingsList>>);
+
+    renderTab();
+
+    expect(screen.getByTestId('servicenow-drifted')).toBeInTheDocument();
+    expect(screen.getByTestId('servicenow-disconnect')).toBeInTheDocument();
+  });
+
+  it('is offered on the form when a stored credential is blank', () => {
+    mockList({
+      data: sepGroups(['sn_api_key', 'client_token'], {
+        sn_api_key: REDACTED_SECRET,
+        client_token: '',
+      }),
+    } as Partial<ReturnType<typeof useSettingsList>>);
+
+    renderTab();
+
+    expect(screen.getByTestId('servicenow-submit')).toBeInTheDocument();
+    expect(screen.getByTestId('servicenow-disconnect')).toBeInTheDocument();
+  });
+
+  it('is not offered while renewing, which has its own way back', () => {
+    mockConfigured();
+    renderTab();
+
+    fireEvent.click(screen.getByTestId('servicenow-renew'));
+
+    expect(screen.getByTestId('servicenow-cancel')).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('servicenow-disconnect')
+    ).not.toBeInTheDocument();
+  });
+
   it('confirms before clearing the stored inputs', async () => {
     mockConfigured();
     renderTab();

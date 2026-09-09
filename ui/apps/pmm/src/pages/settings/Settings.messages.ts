@@ -161,6 +161,8 @@ export const Messages = {
       "This PMM version doesn't include diagnostics delivery, so there's nothing to connect.",
     retry: 'Try again',
     disconnect: 'Disconnect',
+    disconnectStoredHint:
+      'PMM is still holding the credentials you saved before.',
     disconnectTitle: 'Disconnect ServiceNow?',
     disconnectBody:
       'PMM will forget the stored endpoint and credentials, and Support Diagnostics will stop sending results until they are supplied again.',
