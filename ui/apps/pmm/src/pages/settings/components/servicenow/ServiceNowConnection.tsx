@@ -113,7 +113,7 @@ export const ServiceNowConnection: FC = () => {
   };
 
   return (
-    <Stack gap={4} sx={{ width: '640px' }}>
+    <Stack gap={4} sx={{ width: '100%', maxWidth: '640px' }}>
       {!isConnected && (
         <SettingsFieldLabel
           label={serviceNow.label}
