@@ -16,6 +16,9 @@
  */
 
 import { useMemo, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { Theme } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
@@ -23,8 +26,11 @@ import IconButton from '@mui/material/IconButton';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import {
   MaterialReactTable,
+  MRT_GlobalFilterTextField,
+  MRT_ToolbarInternalButtons,
   type MRT_ColumnDef,
   type MRT_PaginationState,
+  type MRT_TableInstance,
 } from 'material-react-table';
 import {
   DEFAULT_PLUGIN_LIST_LIMIT,
@@ -104,7 +110,107 @@ interface SchemaListViewProps {
    * pagination over the full ``data`` prop).
    */
   pagination?: SchemaListServerPagination | null;
+  /**
+   * Portal target for the table's own toolbar controls (search, column filters,
+   * column visibility).
+   *
+   * Those controls otherwise occupy a row of their own above the column
+   * headers, holding a full row for three icons. Pass the element the page
+   * header renders for them and they move onto the header row next to its
+   * actions instead.
+   *
+   * Three states, and the difference between the last two is deliberate:
+   * omitted (``undefined``) keeps the table's own toolbar row; an element
+   * portals the controls into it; ``null`` — the element has not been
+   * committed yet — suppresses the row as well, so the default toolbar does
+   * not flash on first paint. A caller that passes ``null`` and never an
+   * element therefore renders no toolbar controls at all.
+   */
+  toolbarSlot?: HTMLElement | null;
 }
+
+/**
+ * Per-format column widths, in px.
+ *
+ * MaterialReactTable floors every column at ``max(size, minSize)`` and never
+ * shrinks it, so the sum of these is the table's real minimum width — the one
+ * lever that decides whether the list needs horizontal scrolling. Its own
+ * default is 180px for every column regardless of what the column holds, which
+ * puts an eight-column list past 1440px and so past the content width of a
+ * 1512px window. Sized by what the format actually renders instead, and paired
+ * with ``layoutMode: 'grid'`` below so a column still grows past its ``size``
+ * to take up whatever room is left — narrow columns cost nothing on a wide
+ * screen, they only stop a narrow one from scrolling.
+ */
+const COLUMN_SIZING: Record<
+  NonNullable<ListColumn['format']>,
+  { size: number; minSize: number }
+> = {
+  text: { size: 180, minSize: 110 },
+  code: { size: 180, minSize: 110 },
+  chip: { size: 110, minSize: 80 },
+  status: { size: 120, minSize: 100 },
+  date: { size: 120, minSize: 100 },
+  relative: { size: 130, minSize: 100 },
+  schedule: { size: 160, minSize: 130 },
+  actions: { size: 72, minSize: 72 },
+};
+
+/** A column with no declared format renders plain text. */
+const DEFAULT_COLUMN_FORMAT = 'text' satisfies NonNullable<
+  ListColumn['format']
+>;
+
+function columnSizing(format: ListColumn['format']) {
+  return COLUMN_SIZING[format ?? DEFAULT_COLUMN_FORMAT];
+}
+
+/**
+ * Hover text for a header whose label the column is too narrow to show. Empty
+ * labels (an ``actions`` column) get nothing rather than an empty tooltip.
+ */
+function headerTitleProps(label: string) {
+  return label ? { muiTableHeadCellProps: { title: label } } : {};
+}
+
+/**
+ * Truncation for a value that has no length limit of its own — a host name, a
+ * command line. ``minWidth: 0`` is what lets it shrink below its content: the
+ * cell is a flex container in grid layout, and a flex item defaults to its
+ * content's width.
+ */
+const truncatedTextSx = {
+  display: 'block',
+  width: '100%',
+  minWidth: 0,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+} as const;
+
+/** Keeps a chip inside its cell instead of setting the column's width. */
+const cellChipSx = { maxWidth: '100%' } as const;
+
+/**
+ * Chip sized for a table cell rather than for a page.
+ *
+ * MUI's ``size="small"`` chip is still 24px tall with 12px of label padding,
+ * which reads as a control in a compact row. Trimmed to the row's own scale so
+ * a type column costs the width of its label and little else.
+ *
+ * Not used for a ``status`` cell: a recognized status renders as
+ * {@link TaskHistoryStatusBadge}, which is shared with the task-history table
+ * and keeps MUI's own scale, so compacting only the unrecognized fallback
+ * would make one status column hold two chip heights.
+ */
+const compactChipSx = {
+  ...cellChipSx,
+  height: 20,
+  '& .MuiChip-label': {
+    px: 0.75,
+    fontSize: '0.6875rem',
+  },
+} as const;
 
 function formatCellValue(
   value: unknown,
@@ -124,14 +230,14 @@ function formatCellValue(
 
   switch (format) {
     case 'chip':
-      return <Chip label={str} size="small" />;
+      return <Chip label={str} size="small" sx={compactChipSx} />;
     case 'status':
       // Unrecognized values (no live backend producer) fall back to a plain
       // chip rather than indexing StatusBadge's STATUS_MAP with an unknown key.
       return isTaskHistoryStatus(str) ? (
         <TaskHistoryStatusBadge status={str} />
       ) : (
-        <Chip label={str} size="small" />
+        <Chip label={str} size="small" sx={cellChipSx} />
       );
     case 'date':
       return new Date(str).toLocaleDateString();
@@ -155,13 +261,24 @@ function formatCellValue(
       return (
         <Typography
           variant="body2"
-          sx={{ fontFamily: "'Roboto Mono', monospace" }}
+          title={str}
+          sx={{ fontFamily: "'Roboto Mono', monospace", ...truncatedTextSx }}
         >
           {str}
         </Typography>
       );
     default:
-      return str;
+      // Truncated rather than wrapped, with the full value on hover: a host
+      // name or a path is the column that would otherwise set the table's
+      // width for every other row. A native `title` rather than a MUI
+      // `Tooltip` — every cell of every text column would need one, and a
+      // tooltip is only keyboard-reachable on a focusable child, which a
+      // table cell must not become.
+      return (
+        <Box component="span" title={str} sx={truncatedTextSx}>
+          {str}
+        </Box>
+      );
   }
 }
 
@@ -177,6 +294,27 @@ const opaqueTableSurface = (theme: Theme) => ({
       ? theme.palette.background.default
       : theme.palette.common.white,
 });
+
+/**
+ * The table's own toolbar controls, rendered wherever the caller asks for them.
+ *
+ * Reuses MaterialReactTable's own buttons rather than reimplementing search,
+ * column filters and column visibility, so which controls appear still follows
+ * the ``enable*`` props below. The search field collapses itself when its
+ * toggle is off, so it costs nothing until it is asked for.
+ */
+function ListToolbarControls({
+  table,
+}: {
+  table: MRT_TableInstance<Record<string, unknown>>;
+}) {
+  return (
+    <Stack direction="row" spacing={0.5} alignItems="center">
+      <MRT_GlobalFilterTextField table={table} />
+      <MRT_ToolbarInternalButtons table={table} />
+    </Stack>
+  );
+}
 
 /** Stable empty lookup so plugins without a schedule column never re-key. */
 const EMPTY_SCHEDULE = new Map<string, PeriodicTaskResponse>();
@@ -257,6 +395,7 @@ function SchemaListViewCore({
   deletingRowId,
   renderListColumn,
   pagination,
+  toolbarSlot,
   scheduleByTask,
   scheduleLoading = false,
 }: SchemaListViewProps & {
@@ -286,6 +425,8 @@ function SchemaListViewCore({
               accessorKey: col.key,
               header: col.label,
               enableSorting: col.sortable ?? false,
+              ...columnSizing(col.format),
+              ...headerTitleProps(col.label),
               Cell: ({ row }) => {
                 const name = row.original.name;
                 // Trim to match how the detail summary derives its lookup key
@@ -307,7 +448,8 @@ function SchemaListViewCore({
               accessorKey: col.key,
               header: col.label,
               enableSorting: false,
-              size: 72,
+              ...columnSizing(col.format),
+              maxSize: COLUMN_SIZING.actions.size,
               Cell: ({ row }) => {
                 const id = row.original.id;
                 if (id === undefined || id === null || !onDeleteRow) {
@@ -335,6 +477,10 @@ function SchemaListViewCore({
             accessorKey: col.key,
             header: col.label,
             enableSorting: col.sortable ?? true,
+            ...columnSizing(col.format),
+            // A truncated header would otherwise be unreadable with no way
+            // back to it, unlike a truncated cell.
+            ...headerTitleProps(col.label),
             Cell: ({ cell, row }) => {
               const value = cell.getValue();
               const overridden = renderListColumn?.({
@@ -372,6 +518,22 @@ function SchemaListViewCore({
       enableColumnActions={false}
       enableDensityToggle={false}
       enableFullScreenToggle={false}
+      // Cells become flex items sized from the column's own `size`, so a
+      // column neither stretches to its widest value nor forces the table
+      // past its container — the two ways a semantic table ends up scrolling
+      // sideways.
+      layoutMode="grid"
+      renderTopToolbar={
+        toolbarSlot === undefined
+          ? undefined
+          : ({ table }) =>
+              toolbarSlot
+                ? createPortal(
+                    <ListToolbarControls table={table} />,
+                    toolbarSlot
+                  )
+                : null
+      }
       enablePagination
       manualPagination={manualPagination}
       rowCount={manualPagination ? serverPagination.total : undefined}
@@ -418,6 +580,27 @@ function SchemaListViewCore({
       }}
       muiTableContainerProps={{
         sx: opaqueTableSurface,
+      }}
+      muiTableHeadCellProps={{
+        sx: {
+          // The label, not the sort control: a long header would otherwise set
+          // the column's width for every row under it.
+          '& .Mui-TableHeadCell-Content-Wrapper': {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          },
+        },
+      }}
+      muiTableBodyCellProps={{
+        sx: {
+          // Grid layout already hides cell overflow, but `textOverflow` is
+          // inert without it — stated here so the rule cannot be read as
+          // doing something it does not.
+          overflow: 'hidden',
+          whiteSpace: 'nowrap',
+          textOverflow: 'ellipsis',
+        },
       }}
       muiTableBodyRowProps={
         onRowClick

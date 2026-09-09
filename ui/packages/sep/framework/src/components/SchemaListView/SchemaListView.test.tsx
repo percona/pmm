@@ -45,6 +45,7 @@ import {
   SchemaListView,
   type RenderListColumnOverride,
 } from './SchemaListView';
+import { SEP_TABLE_CLASS } from '../../constants';
 import type { PeriodicTaskResponse } from '../ScheduledTasksPanel';
 
 const listView: ListView = {
@@ -302,5 +303,156 @@ describe('SchemaListView — schedule-column glue', () => {
   it('issues no schedule fetch when a schedule column exists but no plugin name is given', () => {
     render(<SchemaListView listView={scheduleListView} data={rows} />);
     expect(useScheduledTasksForPluginMock).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * Toolbar rows inside the table paper. MUI's `TablePagination` renders a
+ * toolbar of its own inside the bottom row, so it has to be excluded or every
+ * row counts twice.
+ */
+const TOOLBAR_ROW_SELECTOR =
+  '.MuiToolbar-root:not(.MuiTablePagination-toolbar)';
+
+describe('SchemaListView — toolbar placement', () => {
+  let slot: HTMLDivElement;
+
+  beforeEach(() => {
+    slot = document.createElement('div');
+    document.body.append(slot);
+  });
+
+  afterEach(() => {
+    slot.remove();
+  });
+
+  it("renders the table's own controls into a supplied slot and no toolbar row", () => {
+    render(
+      <SchemaListView listView={listView} data={rows} toolbarSlot={slot} />
+    );
+
+    expect(slot.contains(screen.getByLabelText('Show/Hide columns'))).toBe(
+      true
+    );
+    // Not merely moved: the table itself holds none of them, and the only
+    // toolbar row left in it is the one carrying pagination. Asserted by what
+    // the paper contains rather than by child order, which is
+    // MaterialReactTable's own business.
+    const paper = document.querySelector(`.${SEP_TABLE_CLASS}`);
+    expect(paper).not.toContainElement(
+      screen.getByLabelText('Show/Hide columns')
+    );
+    expect(paper?.querySelectorAll(TOOLBAR_ROW_SELECTOR)).toHaveLength(1);
+  });
+
+  it('keeps its own toolbar row when no slot is supplied', () => {
+    render(<SchemaListView listView={listView} data={rows} />);
+
+    const paper = document.querySelector(`.${SEP_TABLE_CLASS}`);
+    expect(paper).toContainElement(screen.getByLabelText('Show/Hide columns'));
+    // Its own row, on top of the pagination one.
+    expect(paper?.querySelectorAll(TOOLBAR_ROW_SELECTOR)).toHaveLength(2);
+  });
+});
+
+/**
+ * Columns as the MySQL backups app declares them — the list the width budget
+ * below was measured against. The real schema is served by the side-car and
+ * is not reachable from this package, so this is a fixture: the guard is
+ * against `COLUMN_SIZING` regressions, not against the schema itself growing
+ * a column.
+ */
+const backupsListView: ListView = {
+  columns: [
+    { key: 'name', label: 'Name' },
+    { key: 'service', label: 'Service' },
+    { key: 'backup_type', label: 'Type', format: 'chip' },
+    { key: 'schedule', label: 'Schedule', format: 'schedule' },
+    { key: 'status', label: 'Status', format: 'status' },
+    { key: 'last_executed_at', label: 'Last Executed', format: 'relative' },
+    { key: 'actions', label: '', format: 'actions' },
+  ],
+};
+
+/**
+ * Room left for the list inside a 1512px window once Grafana's nav rail and
+ * the page's own padding are taken out. A column is floored at its declared
+ * ``size``, so the declared total is what decides whether the list scrolls
+ * sideways.
+ */
+const CONTENT_WIDTH_1512 = 1380;
+
+describe('SchemaListView — column widths', () => {
+  beforeEach(() => {
+    useScheduledTasksForPluginMock.mockReset();
+    useScheduledTasksForPluginMock.mockReturnValue({
+      periodicTasks: [],
+      isLoading: false,
+    });
+  });
+
+  it('declares a backups-shaped list narrow enough for a 1512px window', () => {
+    render(
+      <SchemaListView
+        listView={backupsListView}
+        data={[]}
+        pluginName="mysql_backups"
+        onDeleteRow={() => {}}
+        disableSchedulePolling
+      />
+    );
+
+    const table = document.querySelector('table');
+    const declaredWidth = backupsListView.columns.reduce(
+      (total, col) =>
+        total +
+        Number(table?.style.getPropertyValue(`--col-${col.key}-size`) ?? 0),
+      0
+    );
+
+    expect(declaredWidth).toBeGreaterThan(0);
+    expect(declaredWidth).toBeLessThanOrEqual(CONTENT_WIDTH_1512);
+  });
+
+  it('keeps a truncated header label reachable on hover', () => {
+    render(
+      <SchemaListView
+        listView={{
+          columns: [
+            { key: 'name', label: 'Name' },
+            { key: 'actions', label: '', format: 'actions' },
+          ],
+        }}
+        data={rows}
+        onDeleteRow={() => {}}
+      />
+    );
+
+    expect(screen.getByText('Name').closest('th')).toHaveAttribute(
+      'title',
+      'Name'
+    );
+    // An empty label gets no empty tooltip.
+    const headers = screen.getAllByRole('columnheader');
+    expect(headers.at(-1)).not.toHaveAttribute('title');
+  });
+
+  it('truncates a plain text cell and keeps the whole value on hover', () => {
+    render(
+      <SchemaListView
+        listView={listView}
+        data={[
+          {
+            id: 1,
+            name: 'mysql-primary.production.internal',
+            status: 'failed',
+          },
+        ]}
+      />
+    );
+
+    expect(
+      screen.getByText('mysql-primary.production.internal')
+    ).toHaveAttribute('title', 'mysql-primary.production.internal');
   });
 });
