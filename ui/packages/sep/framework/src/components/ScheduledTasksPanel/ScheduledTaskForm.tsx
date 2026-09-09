@@ -15,11 +15,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Link from '@mui/material/Link';
 import MenuItem from '@mui/material/MenuItem';
@@ -68,6 +72,12 @@ export interface ScheduledTaskFormProps {
   ) => Promise<void>;
   submitting?: boolean;
   errorMessage?: string;
+  /**
+   * Warning content to display in a confirmation dialog before scheduling.
+   * Use this for tasks with destructive settings (e.g., overwrite_tables).
+   * When provided, the user must confirm before the schedule is created/saved.
+   */
+  scheduleWarning?: ReactNode;
 }
 
 const CRON_PATTERN = /^\S+(?:\s+\S+){4}$/;
@@ -181,11 +191,18 @@ export function ScheduledTaskForm({
   onSubmit,
   submitting = false,
   errorMessage,
+  scheduleWarning,
 }: ScheduledTaskFormProps) {
   const defaults = useMemo(
     () => buildDefaults(initialValue, defaultTaskName),
     [initialValue, defaultTaskName]
   );
+
+  // Confirmation state: holds the pending submission body until confirmed
+  const [pendingSubmit, setPendingSubmit] = useState<{
+    body: PeriodicTaskCreate | PeriodicTaskUpdate;
+    taskName: string;
+  } | null>(null);
 
   const {
     control,
@@ -286,7 +303,20 @@ export function ScheduledTaskForm({
       execute_request,
     };
 
+    // If there's a warning for this task, show confirmation first
+    if (scheduleWarning) {
+      setPendingSubmit({ body, taskName: values.task });
+      return;
+    }
+
     await onSubmit(body, values.task);
+  };
+
+  const handleConfirmSchedule = async () => {
+    if (pendingSubmit) {
+      await onSubmit(pendingSubmit.body, pendingSubmit.taskName);
+      setPendingSubmit(null);
+    }
   };
 
   const taskField =
@@ -501,6 +531,37 @@ export function ScheduledTaskForm({
           {mode === 'create' ? 'Create' : 'Save'}
         </Button>
       </Stack>
+
+      {/* Confirmation dialog for tasks with destructive settings */}
+      <Dialog
+        open={pendingSubmit !== null}
+        onClose={() => {
+          if (!submitting) {
+            setPendingSubmit(null);
+          }
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Confirm scheduled task</DialogTitle>
+        <DialogContent>{scheduleWarning}</DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setPendingSubmit(null)}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmSchedule}
+            variant="contained"
+            disabled={submitting}
+            data-testid="schedule-confirm-button"
+          >
+            {mode === 'create' ? 'Create Schedule' : 'Save Schedule'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
