@@ -16,10 +16,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { collectParentNames, isFullRowField } from './fieldLayout';
+import { fieldIndex, isFullRowField } from './fieldLayout';
 import type { PluginField } from './types';
 
-describe('collectParentNames', () => {
+describe('fieldIndex', () => {
   it('gathers every name pointed at by a `parent`', () => {
     const fields: PluginField[] = [
       { type: 'bool', name: 'encrypt', label: 'Encrypt' },
@@ -28,15 +28,35 @@ describe('collectParentNames', () => {
       { type: 'string', name: 'memory', label: 'Memory', parent: 'prepare' },
       { type: 'string', name: 'loose', label: 'Loose' },
     ];
-    expect([...collectParentNames(fields)].sort()).toEqual([
+    expect([...fieldIndex(fields).parentNames].sort()).toEqual([
       'encrypt',
       'prepare',
     ]);
   });
 
+  it('indexes every field by name so a parent resolves to its label', () => {
+    const fields: PluginField[] = [
+      { type: 'bool', name: 'encrypt', label: 'Encrypt backup' },
+      { type: 'string', name: 'tmpdir', label: 'Tmpdir', parent: 'encrypt' },
+    ];
+    expect(fieldIndex(fields).byName.get('encrypt')?.label).toBe(
+      'Encrypt backup'
+    );
+  });
+
+  it('derives the index once per fields array', () => {
+    // Every slot in a form is handed the same array from context; recomputing
+    // per slot is the O(N^2) this cache exists to avoid.
+    const fields: PluginField[] = [
+      { type: 'bool', name: 'encrypt', label: 'Encrypt' },
+    ];
+    expect(fieldIndex(fields)).toBe(fieldIndex(fields));
+    expect(fieldIndex([...fields])).not.toBe(fieldIndex(fields));
+  });
+
   it('is empty for a schema with no parented fields', () => {
     expect(
-      collectParentNames([{ type: 'string', name: 'a', label: 'A' }]).size
+      fieldIndex([{ type: 'string', name: 'a', label: 'A' }]).parentNames.size
     ).toBe(0);
   });
 });

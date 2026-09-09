@@ -63,22 +63,41 @@ export function isFullRowField(
   return FULL_ROW_TYPES.has(field.type);
 }
 
+/** What one pass over a form's fields yields for the layout to read back. */
+interface FieldIndex {
+  /** Names some field declares as its `parent`. */
+  parentNames: ReadonlySet<string>;
+  /** Every field by name, for resolving a parent pointer to its label. */
+  byName: ReadonlyMap<string, PluginField>;
+}
+
+// Every slot in a form is handed the same fields array from context, so the
+// index is derived once per form rather than once per slot — a component-local
+// `useMemo` would still walk the whole form for each of its N fields.
+const indexCache = new WeakMap<readonly PluginField[], FieldIndex>();
+
 /**
- * The set of field names that some field in `fields` declares as its `parent`.
+ * Return the derived index for a form's fields, computing it at most once.
  *
  * Callers pass the whole form's fields rather than one section's. `parent` is
  * documented as same-section, but field names are payload keys and so unique
  * across the form, which makes the wider lookup equivalent and saves threading
  * section scope through every slot.
  */
-export function collectParentNames(
-  fields: readonly PluginField[]
-): ReadonlySet<string> {
-  const names = new Set<string>();
+export function fieldIndex(fields: readonly PluginField[]): FieldIndex {
+  const cached = indexCache.get(fields);
+  if (cached) {
+    return cached;
+  }
+  const parentNames = new Set<string>();
+  const byName = new Map<string, PluginField>();
   for (const field of fields) {
+    byName.set(field.name, field);
     if (field.parent) {
-      names.add(field.parent);
+      parentNames.add(field.parent);
     }
   }
-  return names;
+  const index: FieldIndex = { parentNames, byName };
+  indexCache.set(fields, index);
+  return index;
 }

@@ -25,7 +25,12 @@
  * bundle (Vite replaces `import.meta.env.DEV` statically).
  */
 
-const IS_DEV = import.meta.env.DEV;
+// The bare `import.meta.env.DEV` is left intact for that static replacement —
+// wrapping it in optional chaining would keep the warning machinery in the
+// production bundle. The guard costs nothing under Vite and stops the module
+// throwing at evaluation time under a bundler that defines no
+// `import.meta.env`, which would take the whole form renderer down with it.
+const IS_DEV = import.meta.env !== undefined && import.meta.env.DEV;
 
 // One line per distinct problem, however many times the form re-renders.
 const seen = new Set<string>();

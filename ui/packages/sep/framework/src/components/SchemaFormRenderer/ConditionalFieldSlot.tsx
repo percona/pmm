@@ -15,10 +15,10 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { memo, useMemo } from 'react';
+import { memo } from 'react';
 import Box from '@mui/material/Box';
 import { FieldRenderer } from './fields';
-import { collectParentNames, isFullRowField } from './fieldLayout';
+import { fieldIndex, isFullRowField } from './fieldLayout';
 import { useFormFields } from './formFieldsContext';
 import { useConditionalField } from './hooks/useConditionalField';
 import type { PluginField, RenderFieldOverride } from './types';
@@ -31,13 +31,9 @@ export const ConditionalFieldSlot = memo(function ConditionalFieldSlot({
   renderField?: RenderFieldOverride;
 }) {
   const { isHidden, isRequired, isDisabled } = useConditionalField(field);
-  const formFields = useFormFields();
-  const parentNames = useMemo(
-    () => collectParentNames(formFields),
-    [formFields]
-  );
+  const { parentNames, byName } = fieldIndex(useFormFields());
   const parentLabel = field.parent
-    ? (formFields.find((f) => f.name === field.parent)?.label ?? field.parent)
+    ? (byName.get(field.parent)?.label ?? field.parent)
     : undefined;
 
   if (isHidden) {
