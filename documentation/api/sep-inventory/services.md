@@ -31,14 +31,14 @@ GET /services/
 **List all MySQL services:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep-inventory/services/?service_type=mysql" \
+curl -sk "https://<pmm-server>/sep/services/?service_type=mysql" \
      -H "Authorization: Bearer <token>"
 ```
 
 **Look up a service by PMM service ID:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep-inventory/services/?external_id=svc-abc123" \
+curl -sk "https://<pmm-server>/sep/services/?external_id=svc-abc123" \
      -H "Authorization: Bearer <token>"
 ```
 

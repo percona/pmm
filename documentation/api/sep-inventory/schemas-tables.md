@@ -35,7 +35,7 @@ Returns schemas for a specific service. Pass `include_tables=1` to include table
 **Example:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep-inventory/services/7/schemas/?include_tables=1" \
+curl -sk "https://<pmm-server>/sep/services/7/schemas/?include_tables=1" \
      -H "Authorization: Bearer <token>"
 ```
 

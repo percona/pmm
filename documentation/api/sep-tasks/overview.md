@@ -41,10 +41,10 @@ All endpoints in this reference are relative to that base.
 Use the same PMM service account token you use for the PMM REST API. Pass it as a Bearer token:
 
 ```shell
-curl -sk https://<pmm-server>/sep/execute/mysql-backup-xtrabackup \
+curl -sk -X POST https://<pmm-server>/sep/api/apps/mysql-backups/mysql-backup-xtrabackup/execute \
      -H "Authorization: Bearer <token>" \
      -H "Content-Type: application/json" \
-     -d '{...}'
+     -d '{}'
 ```
 
 To generate a service account token, see [Authentication](ref:authentication) in the PMM API welcome section.

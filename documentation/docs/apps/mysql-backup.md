@@ -24,7 +24,7 @@ Complete the following steps before creating your first backup.
 
 1. Enable Nomad on PMM Server by starting it with both `PMM_ENABLE_NOMAD=1` and `PMM_PUBLIC_ADDRESS` set. See [Configure Nomad](../reference/nomad.md).
 
-2. Install PMM Client on the execution host with the Nomad client enabled. PMM Client ships the Nomad client so no separate Nomad installation is required.
+2. Install the Nomad client on the execution host. PMM Client ships with the Nomad client, so if you deploy PMM Client with Nomad enabled, it's already installed. PMM Client itself doesn't need to run on the execution host, only the Nomad client does.
 
 3. Install the tool for your backup type and make sure it is available on `$PATH`:
 
@@ -71,15 +71,28 @@ To run a MySQL backup:
 4. Under **Upload**, select one or more **Upload providers** and fill in the destination fields if uploading off-host.
 5. Optionally configure compression, encryption, or retention in the relevant sections of the form.
 6. Optionally check **Alert on failure** to receive an alert if the backup task fails.
-7. Click **Run** to start immediately, or set a schedule and click **Schedule**.
+7. Click **Run** to start the backup immediately. To run on a schedule instead, see [Schedule a backup](#schedule-a-backup).
 
 Completed XtraBackup and Mydumper runs are recorded in the backup catalog with their location, upload destination, size, and timestamps. Binlog runs are not catalogued.
 
 ### Schedule a backup
 
-When creating a backup task, set a schedule and click **Schedule** instead of **Run**. Scheduled tasks appear under **Schedules** on the **MySQL Backups** page.
+Scheduling is a two-step process: first define the backup task, then attach a recurrence to it.
+{.power-number}
 
-<!-- VERIFY: schedule field format (cron, UI picker, presets); minimum interval; overlap behavior when previous run is still in progress -->
+1. [Run a backup](#run-a-backup) to create the backup task, then click **Run**. This saves the task definition.
+
+2. On the **MySQL Backups** page, click **Schedules**, then click **Add new**.
+
+3. Select the task from the **Task** drop-down menu.
+
+4. Choose a recurrence type:
+    - **Interval**: repeat every N minutes, hours, or days.
+    - **Cron**: enter a cron expression and select a timezone.
+
+5. Click **Save**.
+
+Scheduled tasks appear in the **Schedules** list.
 
 ### Incremental XtraBackup backups
 
@@ -94,6 +107,7 @@ To manage your scheduled backup tasks, click **Schedules** on the **MySQL Backup
 
 - Enable or disable a schedule using the toggle.
 - Edit, delete, or copy a schedule using the actions menu.
+
 
 ## Restore from a backup
 
@@ -197,3 +211,21 @@ XtraBackup also supports **AES-256 encryption** via a keyfile, configured in the
 
 Task status and execution history are visible in the **Apps > MySQL Backups** list. Use the **Status** filter to narrow results.
 
+### Find and manage task logs                                                             
+                             
+Each backup and restore run captures `stdout` and `stderr` as task logs.                
+                                                                                          
+#### Find logs
+Check the `taskhistory_log` table in PMM's embedded PostgreSQL database (`sep`). Logs are not written to disk or Docker container logs.                         
+                                                                                          
+#### Configure retention
+Use the SEP API to set TASKS__LOG_RETENTION_DAYS and override the default 90-day retention period. The maximum is 365 days.
+
+A daily purge job removes log bodies for finished tasks older than the configured threshold. Task history records (who ran what, when, and final status) are never purged.      
+                                                                                        
+#### Handle large runs
+PMM caps each log stream at 100 MiB. If a run exceeds this limit, PMM drops the oldest log chunks. To retain all logs, keep runs under 100 MiB.
+
+#### Executor host logs
+Nomad allocation files on the execution host follow Nomad's own garbage collection, independent of `TASKS__LOG_RETENTION_DAYS`.
+                                                                      

@@ -30,7 +30,7 @@ GET /nodes/
 **Example:**
 
 ```shell
-curl -sk "https://<pmm-server>/sep-inventory/nodes/?search=db-host" \
+curl -sk "https://<pmm-server>/sep/nodes/?search=db-host" \
      -H "Authorization: Bearer <token>"
 ```
 

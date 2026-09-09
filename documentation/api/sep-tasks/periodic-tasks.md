@@ -57,12 +57,7 @@ Creates a new periodic task for the named task. Supply either an `interval` or a
   "task": "mysql-backup-xtrabackup",
   "enabled": true,
   "description": "Nightly XtraBackup",
-  "execute_request": {
-    "meta": {
-      "_target": "db-host-01",
-      "_backup_dir": "/backups/mysql"
-    }
-  },
+  "execute_request": {},
   "crontab": {
     "minute": "0",
     "hour": "2",

@@ -52,7 +52,7 @@ Every node and service carries sync health fields that show whether SEP is keepi
 The SEP Inventory API is proxied through PMM Server at:
 
 ```
-https://<pmm-server>/sep-inventory/
+https://<pmm-server>/sep/
 ```
 
 All endpoints in this reference are relative to that base.
@@ -62,6 +62,6 @@ All endpoints in this reference are relative to that base.
 Use the same PMM service account token as the Tasks API:
 
 ```shell
-curl -sk https://<pmm-server>/sep-inventory/nodes/ \
+curl -sk https://<pmm-server>/sep/nodes/ \
      -H "Authorization: Bearer <token>"
 ```
