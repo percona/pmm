@@ -17,6 +17,12 @@ import { SepAuthProvider } from './SepAuthProvider';
  * padding, width, auth gate, and footer. No `title` is passed: the SEP
  * plugins already render their own headings.
  *
+ * `surface="paper"` on every branch: SEP pages are form- and list-shaped like
+ * Settings, not widget-heavy like the dashboards the lighter stage surface a
+ * `Page` shows when it passes no `surface` is meant for. It has to be repeated
+ * in the loading and not-enabled branches too, or the page background shifts
+ * as settings resolve.
+ *
  * No `roles` restriction: every signed-in PMM user may open a SEP page, and
  * what they can do there is decided per control rather than per route. SEP's
  * API admits any authenticated session to its reads and holds every unsafe
@@ -41,7 +47,7 @@ export const SepPage: FC<PropsWithChildren> = ({ children }) => {
 
   if (isLoading || !settings) {
     return (
-      <Page maxWidth="full">
+      <Page maxWidth="full" surface="paper">
         <Stack alignItems="center" py={4}>
           <CircularProgress data-testid="sep-settings-loading" />
         </Stack>
@@ -51,7 +57,7 @@ export const SepPage: FC<PropsWithChildren> = ({ children }) => {
 
   if (!settings.sepEnabled) {
     return (
-      <Page maxWidth="full">
+      <Page maxWidth="full" surface="paper">
         <Alert severity="info">
           This feature is not enabled. Contact your administrator.
         </Alert>
@@ -60,7 +66,7 @@ export const SepPage: FC<PropsWithChildren> = ({ children }) => {
   }
 
   return (
-    <Page maxWidth="full">
+    <Page maxWidth="full" surface="paper">
       <Stack gap={3} sx={{ flex: 1 }}>
         <SepAuthProvider>
           <SepAuthGate>
