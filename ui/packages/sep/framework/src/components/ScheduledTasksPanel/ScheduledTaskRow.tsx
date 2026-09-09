@@ -63,6 +63,15 @@ export interface ScheduledTaskRowProps {
    * schedule readable. Set for sessions that may not mutate.
    */
   readOnly?: boolean;
+  /**
+   * Open the execution detail for this schedule's last run. Omit to leave the
+   * last-run cell inert, as it was before.
+   *
+   * Carries `last_run_at` as well as the name: the periodic-task API reports no
+   * `task_history_id`, so the timestamp is the only thing that identifies which
+   * run this row is describing.
+   */
+  onOpenLastRun?: (taskName: string, lastRunAt: string | null) => void;
 }
 
 export function ScheduledTaskRow({
@@ -78,6 +87,7 @@ export function ScheduledTaskRow({
   toggling,
   errorMessage,
   readOnly = false,
+  onOpenLastRun,
 }: ScheduledTaskRowProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const period = describePeriod(task);
@@ -120,6 +130,11 @@ export function ScheduledTaskRow({
             <LastRunStatus
               status={task.last_run_status}
               lastRunAt={task.last_run_at}
+              onOpenRun={
+                onOpenLastRun
+                  ? () => onOpenLastRun(task.task, task.last_run_at)
+                  : undefined
+              }
             />
             {task.last_run_at && (
               <Typography variant="body2" color="text.secondary">

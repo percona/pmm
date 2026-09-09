@@ -24,6 +24,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import HourglassDisabledIcon from '@mui/icons-material/HourglassDisabled';
 import ReportIcon from '@mui/icons-material/Report';
+import type { MouseEvent } from 'react';
 import Chip from '@mui/material/Chip';
 import type { TaskHistoryStatus } from '../../hooks/useTaskHistory';
 
@@ -87,9 +88,24 @@ export function isTaskHistoryStatus(
 
 export interface StatusBadgeProps {
   status: TaskHistoryStatus;
+  /**
+   * Makes the badge open that run's execution detail.
+   *
+   * Passed through to `Chip`, which gives a clicked badge a button role, focus
+   * ring and keyboard activation on its own — so the surfaces that turn a
+   * status into a way into the run (the list status column, a schedule's
+   * last-run cell) do not each hand-roll an affordance.
+   *
+   * The event is handed on: a badge inside a clickable row has to stop the
+   * click reaching the row, or one click both opens the run and follows the
+   * row somewhere else.
+   */
+  onClick?: (event: MouseEvent<HTMLDivElement>) => void;
+  /** Tooltip/label text for a clickable badge. */
+  title?: string;
 }
 
-export function StatusBadge({ status }: StatusBadgeProps) {
+export function StatusBadge({ status, onClick, title }: StatusBadgeProps) {
   const entry = STATUS_MAP[status];
   return (
     <Chip
@@ -99,6 +115,8 @@ export function StatusBadge({ status }: StatusBadgeProps) {
       label={entry.label}
       data-status={status}
       sx={entry.spin ? spinningIconSx : undefined}
+      onClick={onClick}
+      title={title}
     />
   );
 }

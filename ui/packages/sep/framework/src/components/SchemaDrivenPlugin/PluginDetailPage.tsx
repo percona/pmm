@@ -77,7 +77,11 @@ import {
   isTaskHistoryStatus,
   type TaskHistoryEntry,
 } from '../TaskHistoryTable';
-import { TaskLogViewer } from '../TaskLogViewer';
+import {
+  LastRunCard,
+  resolveOpenedRun,
+  TaskRunDetailDrawer,
+} from '../TaskRunDetailDrawer';
 import { ScheduleSummary } from '../ScheduleSummary';
 import { ChainBuilder, type ChainValue } from '../ChainBuilder';
 import {
@@ -418,9 +422,13 @@ function ConnectivityWarningAlert({
         sx={{ mb: 3, whiteSpace: 'pre-wrap' }}
         action={
           taskHistoryId !== null ? (
+            // An outlined button, not the inherit-coloured text button this
+            // replaces: on the warning Alert's tinted ground that rendered as
+            // low-contrast body text rather than something to click.
             <Button
               color="inherit"
               size="small"
+              variant="outlined"
               data-testid="connectivity-log-button"
               onClick={() => setLogOpen(true)}
             >
@@ -432,17 +440,12 @@ function ConnectivityWarningAlert({
         {message}
       </Alert>
       {taskHistoryId !== null && (
-        <Dialog
+        <TaskRunDetailDrawer
           open={logOpen}
           onClose={() => setLogOpen(false)}
-          fullWidth
-          maxWidth="lg"
-        >
-          <DialogTitle>Connectivity check log — #{taskHistoryId}</DialogTitle>
-          <DialogContent dividers sx={{ p: 0 }}>
-            <TaskLogViewer taskHistoryId={taskHistoryId} height={520} />
-          </DialogContent>
-        </Dialog>
+          taskHistoryId={taskHistoryId}
+          taskLabel="Connectivity check"
+        />
       )}
     </>
   );
@@ -465,6 +468,7 @@ function OverviewTab({
   } | null;
   const connectivityWarning =
     task.connectivity_warning ?? navState?.connectivityWarning;
+  const [lastRunOpen, setLastRunOpen] = useState(false);
   const taskName =
     typeof task.name === 'string' && task.name.trim()
       ? task.name.trim()
@@ -527,6 +531,30 @@ function OverviewTab({
             }
           />
         )}
+
+      {/* The last run sits above everything else on the Overview: when a
+          nightly backup fails, why it failed is the first thing the page owes
+          the reader. Before this the Overview said nothing about any run, and
+          the only failure signal was a banner riding router state that was
+          gone after a reload. */}
+      {taskName && (
+        <LastRunCard
+          taskNames={taskName}
+          onOpenRun={() => setLastRunOpen(true)}
+        />
+      )}
+
+      {/* Opened by name, not with the row the card is holding: the drawer then
+          keeps following the run, so one watched from here reaches its terminal
+          status in place. */}
+      {lastRunOpen && taskName && (
+        <TaskRunDetailDrawer
+          open
+          onClose={() => setLastRunOpen(false)}
+          taskNames={taskName}
+          taskLabel={taskName}
+        />
+      )}
 
       {/* Schedule / next-run sits first so it is visible without scrolling
           past the Task information card. Gate unchanged: plugins without the
@@ -618,7 +646,17 @@ interface LogsTabProps {
 function LogsTab({ taskNames }: LogsTabProps) {
   const historyQuery = useTaskHistoryByNames(taskNames);
   const stop = useStopTaskHistory();
-  const [logsEntry, setLogsEntry] = useState<TaskHistoryEntry | null>(null);
+  const [openedRow, setOpenedRow] = useState<TaskHistoryEntry | null>(null);
+  // Re-read the opened run out of the live query rather than showing the row as
+  // it looked when it was clicked: this query already polls while anything is
+  // running, so a backup watched from here flips to failed in place instead of
+  // counting elapsed time forever behind a drawer that has to be reopened.
+  // Falls back to the clicked row for a run with no id, and for one that has
+  // since paged out of the list.
+  const logsEntry = useMemo(
+    () => resolveOpenedRun(openedRow, historyQuery.data?.items),
+    [openedRow, historyQuery.data]
+  );
   const logsTaskName = logsEntry?.task?.name ?? taskNames[0] ?? 'task';
 
   return (
@@ -633,7 +671,7 @@ function LogsTab({ taskNames }: LogsTabProps) {
             data={historyQuery.data?.items ?? []}
             isLoading={historyQuery.isLoading}
             hideTaskNameColumn={taskNames.length <= 1}
-            onViewLogs={setLogsEntry}
+            onViewLogs={setOpenedRow}
             onStopTask={(entry) => {
               if (entry.id !== null && entry.id !== undefined) {
                 stop.mutate(entry.id);
@@ -646,28 +684,14 @@ function LogsTab({ taskNames }: LogsTabProps) {
         </Paper>
       )}
 
-      <Dialog
-        open={logsEntry !== null}
-        onClose={() => setLogsEntry(null)}
-        fullWidth
-        maxWidth="lg"
-      >
-        <DialogTitle>
-          Logs — {logsTaskName}
-          {logsEntry?.id !== null && logsEntry?.id !== undefined
-            ? ` #${logsEntry.id}`
-            : ''}
-        </DialogTitle>
-        <DialogContent dividers sx={{ p: 0 }}>
-          {logsEntry?.id !== null && logsEntry?.id !== undefined && (
-            <TaskLogViewer
-              taskHistoryId={logsEntry.id}
-              taskStatus={logsEntry.status}
-              height={520}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      {logsEntry !== null && (
+        <TaskRunDetailDrawer
+          open
+          onClose={() => setOpenedRow(null)}
+          entry={logsEntry}
+          taskLabel={logsTaskName}
+        />
+      )}
     </>
   );
 }

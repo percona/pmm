@@ -517,4 +517,29 @@ describe('ScheduledTasksPanel — write access', () => {
       within(screen.getByTestId('scheduled-task-row-1')).getByText('Enabled')
     ).toBeInTheDocument();
   });
+
+  it('opens the execution detail from the last-run cell', async () => {
+    // The periodic-task API reports a last-run status but no task history id,
+    // so the cell has to open the run by task name. It was inert before, which
+    // left the schedules table as much of a dead end as the history row.
+    setup([
+      makePeriodic({
+        id: 1,
+        task: 'plugin-task',
+        last_run_status: 'failed',
+        last_run_at: '2026-09-07T02:00:00Z',
+      }),
+    ]);
+
+    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+    const chip = await waitFor(() =>
+      screen.getByRole('button', { name: /Failed/ })
+    );
+    await userEvent.click(chip);
+
+    expect(
+      await screen.findByRole('button', { name: 'Close run details' })
+    ).toBeInTheDocument();
+  });
 });

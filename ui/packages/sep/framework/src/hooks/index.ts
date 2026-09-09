@@ -31,6 +31,7 @@ export type {
   ExecutionEventsState,
 } from './useExecutionEvents';
 
+export { useElapsedSeconds } from './useElapsedSeconds';
 export { useLogDownload } from './useLogDownload';
 export type { DownloadLog } from './useLogDownload';
 
@@ -57,6 +58,7 @@ export {
   useTaskHistory,
   useTaskHistoryByName,
   useTaskHistoryByNames,
+  useLatestTaskRun,
   useStopTaskHistory,
   useExecuteTask,
   isRunningStatus,
@@ -66,6 +68,8 @@ export type {
   TaskHistoryStatus,
   TaskHistoryEntry,
   PaginatedTaskHistory,
+  LatestTaskRun,
+  UseLatestTaskRunOptions,
   UseTaskHistoryOptions,
   TaskExecuteBody,
 } from './useTaskHistory';

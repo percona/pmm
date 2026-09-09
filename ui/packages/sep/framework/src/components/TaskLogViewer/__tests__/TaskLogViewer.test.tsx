@@ -52,6 +52,9 @@ vi.mock('@sep/api', () => ({
   emitUnauthorized: vi.fn(),
   apiClient: { get: vi.fn(), defaults: {} },
   SEP_BASE_PATH: '/sep',
+  // Mirrors the real module: the viewer probes this set to decide whether a run
+  // is still going, and `pending` counts as running.
+  RUNNING_STATUSES: new Set(['running', 'pending']),
 }));
 
 describe('TaskLogViewer', () => {

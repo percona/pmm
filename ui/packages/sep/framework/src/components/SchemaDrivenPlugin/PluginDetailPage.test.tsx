@@ -65,6 +65,8 @@ let mockCanMutate = true;
 // Manual factory keeps axios out of the resolution graph.
 vi.mock('@sep/api', () => ({
   useAuth: () => ({ isAdmin: mockCanMutate, canMutate: mockCanMutate }),
+  // Mirrors the real module: the embedded log viewer probes this set.
+  RUNNING_STATUSES: new Set(['running', 'pending']),
   usePluginTask: (...args: unknown[]) => mockUsePluginTask(...args),
   // Consumed by ScheduleSummary (via useScheduledTasksForPlugin) and by
   // ActionBar when capabilities.chaining is set. Default empty list keeps the
