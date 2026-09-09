@@ -71,10 +71,16 @@ export interface paths {
      *     :param session: The sub-app's database session.
      *     :param remote_api: The client for remote settings classes (``None`` when
      *         the router wires none).
+     *     :param actor: The calling admin's username, recorded on every row the
+     *         batch writes and reported back on each response.
      *     :return: One :class:`SettingResponse` per applied key, in input order.
      *     :raises HTTPNotFoundException: If the class isn't exposed.
      *     :raises HTTPUnprocessableEntityException: If any key fails validation;
      *         no rows are written.
+     *     :raises HTTPBadGatewayException: For a remote class, when the owning
+     *         sub-app returns a server error (status >= 500) or is unreachable.
+     *     :raises IntegrityError: When the replay of a batch that lost the
+     *         unique-index race conflicts again, which leaves nothing written.
      */
     patch: operations['settings_patch_settings_admin_settings__setting_class__patch'];
     trace?: never;
@@ -2171,8 +2177,13 @@ export interface components {
      *         (``SecretStr`` / ``SecretBytes``) at any depth.
      *     :param is_complex: Whether the field's annotation is or contains a Pydantic
      *         ``BaseModel`` subclass (true for nested submodels).
-     *     :param has_override: Whether a row exists in the ``settingoverride`` table
-     *         for this ``(setting_class, key)`` pair, regardless of ``is_active``.
+     *     :param has_override: Whether an **active** row in the ``settingoverride``
+     *         table applies to this ``(setting_class, key)`` pair. An inactive row is
+     *         skipped by the cache loader, so the served value falls back to the
+     *         declared default and reporting it as overridden would tell the UI a
+     *         field is overridden while showing it that default. A nested row also
+     *         marks every canonical prefix of its chain, so a parent reports ``True``
+     *         when only a deeper leaf carries a row.
      *     :param is_advanced: Whether the setting is flagged ``advanced`` so the UI can
      *         present it separately from everyday settings. Display-only:
      *         it does not affect PATCH/DELETE eligibility.
@@ -2182,6 +2193,18 @@ export interface components {
      *         PATCH/DELETE server-side; the runtime gate is the real enforcement.
      *     :param options: Selectable enum members for dropdown UIs, or ``None`` when
      *         the field is not an ``Enum`` annotation. Aliased members are excluded.
+     *     :param updated_at: When the override applying to this key was last saved,
+     *         falling back to the row's creation time for a row written before the
+     *         stamp was recorded. ``None`` when ``has_override`` is ``False``.
+     *         Timestamps carry second granularity.
+     *     :param updated_by: The username that last saved that override, or ``None``
+     *         both when no override applies and when the row predates the actor
+     *         column. A key can draw on several rows (a nested parent reporting on its
+     *         leaves), in which case the pair comes from the row carrying the latest
+     *         timestamp. Two writes landing within the same second are
+     *         indistinguishable by timestamp, and the pair reported is then whichever
+     *         contributing row was created later, which need not be the one written
+     *         later.
      */
     SettingResponse: {
       /** Default Value */
@@ -2215,6 +2238,10 @@ export interface components {
       setting_class: string;
       /** Type */
       type: string;
+      /** Updated At */
+      updated_at?: string | null;
+      /** Updated By */
+      updated_by?: string | null;
       /** Value */
       value: unknown;
     };

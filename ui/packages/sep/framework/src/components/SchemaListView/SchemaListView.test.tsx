@@ -190,6 +190,8 @@ function makePeriodic(
     enabled: true,
     description: '',
     start_time: null,
+    next_runs: [],
+    timezone: 'UTC',
     last_run_at: null,
     date_changed: null,
     total_run_count: 0,
