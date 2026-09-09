@@ -176,6 +176,30 @@ describe('SchemaListView — renderListColumn override', () => {
     // empty rather than showing a placeholder for a time that never happened.
     expect(screen.getAllByText('—').length).toBe(2);
   });
+
+  it('renders "Not run yet" chip for null status', () => {
+    const statusListView: ListView = {
+      columns: [
+        { key: 'name', label: 'Name' },
+        { key: 'status', label: 'Status', format: 'status' },
+      ],
+    };
+    // A restore task that was created but never executed has null status.
+    render(
+      <SchemaListView
+        listView={statusListView}
+        data={[
+          { id: 1, name: 'restore-1', status: null },
+          { id: 2, name: 'restore-2', status: 'success' },
+        ]}
+      />
+    );
+
+    // Null status renders as "Not run yet" chip, not em-dash
+    expect(screen.getByTestId('not-run-chip')).toHaveTextContent('Not run yet');
+    // Non-null status still renders normally
+    expect(screen.getByText('Done')).toBeInTheDocument();
+  });
 });
 
 const NOW = new Date('2026-06-18T12:00:00Z');
