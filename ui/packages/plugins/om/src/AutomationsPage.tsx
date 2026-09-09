@@ -16,6 +16,7 @@
  */
 
 import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -25,6 +26,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
+import { bootstrapRunDisplayStatus } from './api';
 import { BOOTSTRAP_RUN_COLOR, BOOTSTRAP_RUN_LABEL } from './constants';
 import { OmHeader } from './components/OmHeader';
 import { RunProgress } from './components/RunProgress';
@@ -38,15 +40,19 @@ import type { OmGetBootstrapRunResponse } from './types';
 
 const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
   {
-    accessorKey: 'status',
+    accessorFn: (row) => bootstrapRunDisplayStatus(row),
+    id: 'status',
     header: 'Status',
-    Cell: ({ row: { original } }) => (
-      <Chip
-        size="small"
-        label={BOOTSTRAP_RUN_LABEL[original.status] ?? original.status}
-        color={BOOTSTRAP_RUN_COLOR[original.status] ?? 'default'}
-      />
-    ),
+    Cell: ({ row: { original } }) => {
+      const status = bootstrapRunDisplayStatus(original);
+      return (
+        <Chip
+          size="small"
+          label={BOOTSTRAP_RUN_LABEL[status] ?? status}
+          color={BOOTSTRAP_RUN_COLOR[status] ?? 'default'}
+        />
+      );
+    },
   },
   {
     accessorKey: 'replica_set_name',
@@ -92,18 +98,25 @@ const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
  * each expandable in place to the same step-by-step progress the wizard shows
  * live.
  *
- * Exists so a run started from {@link BootstrapWizardDialog} is never lost by
- * closing the dialog -- the wizard is a launcher, not the only place a run's
+ * Exists so a run started from {@link BootstrapPage} is never lost by
+ * navigating away -- the wizard is a launcher, not the only place a run's
  * progress can be read back.
+ *
+ * `?expand=<run_id>` unfolds that run's row on landing -- BootstrapPage
+ * navigates here with it set the moment a run is accepted, so triggering a
+ * bootstrap goes straight to watching it live rather than to a page that
+ * still requires an extra click to find the run just started.
  */
-export const OperationsPage = () => {
+export const AutomationsPage = () => {
   const { data: runs, isLoading, error } = useOmBootstrapRuns();
   const rows = useMemo(() => runs ?? [], [runs]);
+  const [params] = useSearchParams();
+  const expandRunId = params.get('expand');
 
   return (
     <Stack gap={2}>
       <OmHeader
-        title="Operations"
+        title="Automations"
         subtitle={
           <Typography variant="body2" color="text.secondary">
             Every bootstrap run this server has driven, newest first. Expand a
@@ -126,7 +139,7 @@ export const OperationsPage = () => {
         <Alert severity="info">No bootstrap runs yet.</Alert>
       ) : (
         <Table
-          tableName="om-operations-runs"
+          tableName="om-automations-runs"
           columns={RUN_COLUMNS}
           data={rows}
           getRowId={(row) => row.run_id}
@@ -136,6 +149,9 @@ export const OperationsPage = () => {
           enablePagination={false}
           enableStickyHeader
           enableExpanding
+          initialState={
+            expandRunId ? { expanded: { [expandRunId]: true } } : undefined
+          }
           renderDetailPanel={({ row }) => <RunProgress run={row.original} />}
         />
       )}

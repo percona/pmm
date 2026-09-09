@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -40,8 +41,8 @@ import {
   HOST_DATABASE_STATE_COLOR,
   HOST_DATABASE_STATE_LABEL,
   HOST_DATABASE_STATE_PHRASE,
+  OM_ROUTE_BOOTSTRAP,
 } from './constants';
-import { BootstrapWizardDialog } from './components/BootstrapWizard';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
 import { formatCompactDuration } from './format';
@@ -49,10 +50,12 @@ import { ageSeconds, isFailing, toHostRows } from './inventory';
 import {
   useForgetHost,
   useIsEstateRefreshing,
+  useOmBootstrapRuns,
   useOmInventoryHosts,
   useRefreshInventory,
 } from './inventoryHooks';
-import { OmApiError } from './api';
+import { isBootstrapRunActive, OmApiError } from './api';
+import { useOmBase } from './useOmBase';
 import type { OmHostRow } from './types';
 
 /** Identifiers and long text the table carries but does not open with. */
@@ -165,13 +168,33 @@ const ExecutorCell = ({ row }: { row: OmHostRow }) => {
  * as "Ready" and this cell would not. The blocked reasons are the server's
  * own explanation, not re-derived here, so this cell can never disagree with
  * why the row actually says what it says.
+ *
+ * `busy` takes priority over both: a host mid-bootstrap is not available for
+ * a *second* one regardless of what `automation_eligible` says about it -
+ * PMM's own inventory has no notion of an in-flight om_bootstrap run at all
+ * (see `busyExecutorHosts` in `HostsPage`), so this is the one signal that
+ * comes from outside the row itself.
  */
-const AutomationCell = ({ row }: { row: OmHostRow }) => {
+const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
+  if (busy) {
+    return (
+      <Tooltip title="Already part of a bootstrap run in progress.">
+        <Chip size="small" color="info" label="Bootstrapping" />
+      </Tooltip>
+    );
+  }
   if (row.automation_eligible) {
-    return <Chip size="small" color="success" variant="outlined" label="Ready" />;
+    return (
+      <Chip size="small" color="success" variant="outlined" label="Ready" />
+    );
   }
   return (
-    <Tooltip title={row.automation_blocked_reasons.join('; ') || 'Not eligible for automation.'}>
+    <Tooltip
+      title={
+        row.automation_blocked_reasons.join('; ') ||
+        'Not eligible for automation.'
+      }
+    >
       <Chip size="small" color="warning" label="Needs attention" />
     </Tooltip>
   );
@@ -238,7 +261,9 @@ const DatabaseCell = ({ row }: { row: OmHostRow }) => {
   );
 };
 
-function useColumns(): MRT_ColumnDef<OmHostRow>[] {
+function useColumns(
+  busyExecutorHosts: Set<string>
+): MRT_ColumnDef<OmHostRow>[] {
   return useMemo(
     () => [
       { accessorKey: 'name', header: 'Host' },
@@ -271,9 +296,22 @@ function useColumns(): MRT_ColumnDef<OmHostRow>[] {
       },
       {
         id: 'automation_eligible',
-        accessorFn: (row) => (row.automation_eligible ? 'Ready' : 'Needs attention'),
+        accessorFn: (row) =>
+          row.executor_host && busyExecutorHosts.has(row.executor_host)
+            ? 'Bootstrapping'
+            : row.automation_eligible
+              ? 'Ready'
+              : 'Needs attention',
         header: 'Automation',
-        Cell: ({ row: { original } }) => <AutomationCell row={original} />,
+        Cell: ({ row: { original } }) => (
+          <AutomationCell
+            row={original}
+            busy={Boolean(
+              original.executor_host &&
+              busyExecutorHosts.has(original.executor_host)
+            )}
+          />
+        ),
       },
       {
         id: 'repo',
@@ -335,7 +373,7 @@ function useColumns(): MRT_ColumnDef<OmHostRow>[] {
           original.executor_host ?? <Unavailable reason="not_applicable" />,
       },
     ],
-    []
+    [busyExecutorHosts]
   );
 }
 
@@ -548,14 +586,36 @@ export const HostsPage = () => {
   // against a host that sweep already holds. The refetch when a sweep lands is the
   // estate query's own business now, so this page no longer arranges it.
   const refreshing = useIsEstateRefreshing();
+  const navigate = useNavigate();
+  const omBase = useOmBase();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
-  const [bootstrapping, setBootstrapping] = useState<OmHostRow[]>([]);
   const [hostFilter, setHostFilter] = useState<HostFilter>('all');
   // Keyed by node_id (this table's getRowId), independent of which filter is
   // active — switching filters does not silently drop a selection made under a
   // different one.
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
-  const columns = useColumns();
+  const bootstrapRuns = useOmBootstrapRuns();
+  // Keyed by executor host, not node id: a bootstrap run's own `hosts` field
+  // is the Nomad executor hostname (TriggerHostBootstrap's own doc comment on
+  // why), which is what `OmHostRow.executor_host` carries too. PMM's own
+  // inventory has no notion of an in-flight om_bootstrap run at all -- the
+  // two apps don't share state -- so this is computed here by joining the
+  // two queries rather than read off either row directly.
+  const busyExecutorHosts = useMemo(() => {
+    const busy = new Set<string>();
+    for (const run of bootstrapRuns.data ?? []) {
+      if (!isBootstrapRunActive(run)) {
+        continue;
+      }
+      for (const host of run.hosts) {
+        busy.add(host.host);
+      }
+    }
+    return busy;
+  }, [bootstrapRuns.data]);
+  const isHostBusy = (row: OmHostRow) =>
+    Boolean(row.executor_host && busyExecutorHosts.has(row.executor_host));
+  const columns = useColumns(busyExecutorHosts);
   const rows = useMemo(() => toHostRows(data), [data]);
   // Filtered for the table only — the counts below stay whole-estate so switching
   // filters does not make the headline numbers look like they changed too.
@@ -602,7 +662,9 @@ export const HostsPage = () => {
     enableDensityToggle: false,
     enableExpanding: true,
     enableRowActions: true,
-    enableRowSelection: true,
+    // A host already part of an in-flight bootstrap run cannot be selected
+    // for another one -- see `busyExecutorHosts`'s own comment.
+    enableRowSelection: (row) => !isHostBusy(row.original),
     positionActionsColumn: 'last',
     onRowSelectionChange: setRowSelection,
     state: { rowSelection },
@@ -625,16 +687,24 @@ export const HostsPage = () => {
         </Tooltip>
         <Tooltip
           title={
-            row.original.automation_eligible
-              ? 'Install MongoDB on this host and initialize a single-member replica set (PoC).'
-              : row.original.automation_blocked_reasons.join('; ')
+            isHostBusy(row.original)
+              ? 'Already part of a bootstrap run in progress.'
+              : row.original.automation_eligible
+                ? 'Install MongoDB on this host and initialize a single-member replica set (PoC).'
+                : row.original.automation_blocked_reasons.join('; ')
           }
         >
           <Box component="span">
             <Button
               size="small"
-              disabled={!row.original.automation_eligible}
-              onClick={() => setBootstrapping([row.original])}
+              disabled={
+                !row.original.automation_eligible || isHostBusy(row.original)
+              }
+              onClick={() =>
+                navigate(
+                  `${omBase}/${OM_ROUTE_BOOTSTRAP}?hosts=${row.original.node_id}`
+                )
+              }
             >
               Bootstrap
             </Button>
@@ -772,9 +842,11 @@ export const HostsPage = () => {
             title={
               selectedRows.length !== 1 && selectedRows.length !== 3
                 ? 'Select exactly one host for a single-member replica set, or three for a three-member one.'
-                : selectedRows.some((row) => !row.automation_eligible)
-                  ? 'Every selected host must be eligible for automation.'
-                  : 'Install MongoDB on the selected hosts and initialize them as one replica set (PoC).'
+                : selectedRows.some((row) => isHostBusy(row))
+                  ? 'A selected host is already part of a bootstrap run in progress.'
+                  : selectedRows.some((row) => !row.automation_eligible)
+                    ? 'Every selected host must be eligible for automation.'
+                    : 'Install MongoDB on the selected hosts and initialize them as one replica set (PoC).'
             }
           >
             <Box component="span">
@@ -783,9 +855,16 @@ export const HostsPage = () => {
                 variant="outlined"
                 disabled={
                   (selectedRows.length !== 1 && selectedRows.length !== 3) ||
-                  selectedRows.some((row) => !row.automation_eligible)
+                  selectedRows.some((row) => !row.automation_eligible) ||
+                  selectedRows.some((row) => isHostBusy(row))
                 }
-                onClick={() => setBootstrapping(selectedRows)}
+                onClick={() =>
+                  navigate(
+                    `${omBase}/${OM_ROUTE_BOOTSTRAP}?hosts=${selectedRows
+                      .map((row) => row.node_id)
+                      .join(',')}`
+                  )
+                }
               >
                 Bootstrap selected
               </Button>
@@ -810,16 +889,6 @@ export const HostsPage = () => {
           setRowSelection({});
         }}
       />
-      {bootstrapping.length > 0 && (
-        <BootstrapWizardDialog
-          hosts={bootstrapping}
-          onClose={() => setBootstrapping([])}
-          onBootstrapped={() => {
-            setBootstrapping([]);
-            setRowSelection({});
-          }}
-        />
-      )}
     </Box>
   );
 };

@@ -36,6 +36,7 @@
 
 import type {
   OmBootstrapHost,
+  OmBootstrapRunStatus,
   OmGetBootstrapRunResponse,
   OmTopologyRunStatus,
 } from './types';
@@ -103,10 +104,26 @@ export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
 }
 
 /**
+ * True while any host's confirm_monitoring finalize step (PMM's own, appended
+ * to finalize_steps -- see its own proto comment) has not yet reached a
+ * terminal state. Shared by {@link isBootstrapRunActive} (should we keep
+ * polling) and {@link bootstrapRunDisplayStatus} (what should the badge say)
+ * -- both are asking the same underlying question of the same field.
+ */
+function hasUnconfirmedMonitoring(
+  hosts: OmGetBootstrapRunResponse['hosts']
+): boolean {
+  return hosts.some((host) =>
+    host.finalize_steps.some(
+      (step) => step.name === 'confirm_monitoring' && step.status === 'running'
+    )
+  );
+}
+
+/**
  * True while a bootstrap run is still worth polling: SEP's own status has not
- * reached a terminal value, or it has but a host's confirm_monitoring step
- * (PMM's own, appended to finalize_steps -- see its own proto comment) has not
- * caught up yet.
+ * reached a terminal value, or it has but a host's confirm_monitoring step has
+ * not caught up yet.
  *
  * SEP's status alone understates "done": om_bootstrap marks a run succeeded the
  * moment every step it dispatched has succeeded, before PMM's inventory sweep
@@ -126,11 +143,41 @@ export function isBootstrapRunActive(
   if (run.status !== 'succeeded') {
     return false;
   }
-  return run.hosts.some((host) =>
-    host.finalize_steps.some(
-      (step) => step.name === 'confirm_monitoring' && step.status === 'running'
-    )
-  );
+  return hasUnconfirmedMonitoring(run.hosts);
+}
+
+/**
+ * The status a run's own badge should show -- not necessarily SEP's raw
+ * `status`. A run SEP reports `succeeded` still reads as `running` here while
+ * confirm_monitoring hasn't caught up on every host, for the same reason
+ * {@link isBootstrapRunActive} keeps polling through it: from the operator's
+ * point of view the run isn't actually done, the service isn't monitored yet,
+ * and a green "Succeeded" badge at that point is simply wrong.
+ */
+export function bootstrapRunDisplayStatus(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'>
+): OmBootstrapRunStatus {
+  if (run.status === 'succeeded' && hasUnconfirmedMonitoring(run.hosts)) {
+    return 'running';
+  }
+  return run.status;
+}
+
+/**
+ * True while a run can still be cancelled.
+ *
+ * Checks `status` directly rather than {@link bootstrapRunDisplayStatus}'s
+ * reinterpreted one: SEP's own `:cancel` route 409s the instant its `status`
+ * has left `running`, including the moment it flips to `succeeded` but
+ * `confirm_monitoring` hasn't caught up yet - the case where the display
+ * status still reads "running" for a different reason. Also false once
+ * `cancel_requested` is already set - see `useCancelBootstrapRun`'s own
+ * idempotency note; there is nothing left for a second click to request.
+ */
+export function canCancelBootstrapRun(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'cancel_requested'>
+): boolean {
+  return run.status === 'running' && !run.cancel_requested;
 }
 
 /**

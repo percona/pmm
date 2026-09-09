@@ -495,6 +495,19 @@ export interface OmInventoryRunAccepted {
 }
 
 /**
+ * One host's replica-set election settings, for
+ * `TriggerHostBootstrapRequest.member_configs` - keyed by node id there, one
+ * entry per host that needs something other than MongoDB's own defaults
+ * (priority 1, votes on, not hidden, no delay).
+ */
+export interface OmBootstrapMemberConfig {
+  priority: number;
+  votes: boolean;
+  hidden: boolean;
+  delay_secs: number;
+}
+
+/**
  * A bootstrap run accepted by the app, from
  * `POST /v1/om/inventory/hosts:bootstrap`.
  *
@@ -572,6 +585,13 @@ export interface OmGetBootstrapRunResponse {
   finished_at?: string | null;
   environment?: string | null;
   cluster?: string | null;
+  /**
+   * Whether an operator has asked this run to stop - see `useCancelBootstrapRun`.
+   * Once set, PMM's own stepper rolls back every host, the same as a step that
+   * exhausted its retries, so a reader can show a run as "aborting" rather than
+   * simply "running" while that rollback is still in flight.
+   */
+  cancel_requested: boolean;
 }
 
 /** The bootstrap run history, from `GET /v1/om/inventory/bootstrap-runs`. */

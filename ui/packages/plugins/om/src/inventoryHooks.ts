@@ -45,6 +45,7 @@ import { useEffect, useRef } from 'react';
 import { isBootstrapRunActive, isRunActive, request } from './api';
 import { periodSince, type OmRunPeriod } from './inventory';
 import type {
+  OmBootstrapMemberConfig,
   OmGetBootstrapRunResponse,
   OmHostBootstrapAccepted,
   OmInventoryHost,
@@ -386,6 +387,11 @@ export function useTriggerHostBootstrap() {
       mongodbVersion: string;
       environment?: string;
       cluster?: string;
+      dataPath: string;
+      logPath: string;
+      port: number;
+      bindIp: string;
+      memberConfigs?: Record<string, OmBootstrapMemberConfig>;
     }
   >({
     mutationFn: ({
@@ -394,6 +400,11 @@ export function useTriggerHostBootstrap() {
       mongodbVersion,
       environment,
       cluster,
+      dataPath,
+      logPath,
+      port,
+      bindIp,
+      memberConfigs,
     }) =>
       request<OmHostBootstrapAccepted>('/inventory/hosts:bootstrap', {
         method: 'POST',
@@ -406,8 +417,42 @@ export function useTriggerHostBootstrap() {
           // itself draws (see its own proto comment).
           ...(environment ? { environment } : {}),
           ...(cluster ? { cluster } : {}),
+          data_path: dataPath,
+          log_path: logPath,
+          port,
+          bind_ip: bindIp,
+          // Omitted rather than sent as {} -- an empty map and a missing field
+          // read the same way server-side (every host gets MongoDB's own
+          // defaults), so there is nothing to gain from always sending it.
+          ...(memberConfigs && Object.keys(memberConfigs).length > 0
+            ? { member_configs: memberConfigs }
+            : {}),
         }),
       }),
+  });
+}
+
+/**
+ * Ask a running bootstrap run to stop and roll back every host, from
+ * `POST /inventory/bootstrap-runs/{id}:cancel`.
+ *
+ * Idempotent on the server while the run is still running - a caller does not
+ * need to guard against clicking Abort twice. Invalidates
+ * {@link useOmBootstrapRuns}/{@link useBootstrapRun} rather than relying on
+ * their own poll to notice: an operator who just clicked Abort should see
+ * `cancel_requested` reflected immediately, not up to REFRESH_POLL_MS later.
+ */
+export function useCancelBootstrapRun() {
+  const queryClient = useQueryClient();
+  return useMutation<OmGetBootstrapRunResponse, Error, string>({
+    mutationFn: (runId) =>
+      request<OmGetBootstrapRunResponse>(
+        `/inventory/bootstrap-runs/${encodeURIComponent(runId)}:cancel`,
+        { method: 'POST' }
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BOOTSTRAP_RUNS_KEY });
+    },
   });
 }
 
@@ -435,6 +480,10 @@ export function useBootstrapRun(runId: string | null) {
     // mid-verify, a run-level step still pending) well after the real run has
     // actually succeeded or failed.
     refetchIntervalInBackground: true,
+    // Overrides the app-wide `retry: false` default (App.tsx) -- see
+    // useOmBootstrapRuns's own comment on this same override, one function
+    // below, for why this specific request needs it.
+    retry: 3,
   });
 }
 
@@ -464,6 +513,19 @@ export function useOmBootstrapRuns(limit?: number) {
     // polling entirely otherwise, with no other mechanism to unstick it.
     refetchIntervalInBackground: true,
     placeholderData: keepPreviousData,
+    // Overrides the app-wide `retry: false` default (App.tsx). Observed in
+    // practice: this page's very first load sometimes lands in the few-second
+    // window right after pmm-managed or Grafana restarts, where `fetch` fails
+    // at the network level ("Failed to fetch", not a completed 401/5xx
+    // response -- `request` in api.ts only ever throws OmApiError for those)
+    // before either has finished coming back up. `retry: false` elsewhere in
+    // the app is deliberate -- most queries want a fast, honest error rather
+    // than a spinner masking a real failure -- but this one specific race is
+    // routine, self-resolving within seconds, and unrelated to anything the
+    // run history itself did wrong, so a bounded, automatic retry rides it
+    // out instead of surfacing a hard error the user can do nothing about but
+    // reload the page.
+    retry: 3,
   });
 }
 
