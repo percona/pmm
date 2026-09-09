@@ -1264,6 +1264,13 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 // Callers that already had to load the row to inspect it before changing it (e.g. to check its
 // type or a precondition) pass it here directly, so the row is not fetched twice.
 func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,gocognit,maintidx
+	// Applied to a copy: the caller's row must not end up carrying the requested values when
+	// the change does not become durable, e.g. when a connection check later in the same
+	// transaction fails and rolls it back. Every assignment below replaces a field rather than
+	// writing through a pointer or a shared slice, so a shallow copy is enough.
+	rowCopy := *row
+	row = &rowCopy
+
 	var err error
 
 	// Handle common fields first

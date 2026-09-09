@@ -1055,7 +1055,11 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 
 		// The inventory API picks the Change*Agent method from the request payload and not from the
 		// type of the agent being changed, so any of them can be pointed at the internal QAN agent.
-		// Such a request is refused outright, before the change is applied.
+		// The type precheck gets there first and refuses the request for any agent, internal or
+		// not, so the env guard below it is never consulted -- what this pins is that the internal
+		// agent cannot be reached through another type's params, and that nothing is applied. The
+		// variable is still set because the fixtures read it to decide the agent's initial state,
+		// which the assertions below depend on.
 		_, err := as.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agent.AgentID, &inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams{
 			Enable:   new(false),
 			LogLevel: inventoryv1.LogLevel_LOG_LEVEL_DEBUG.Enum(),

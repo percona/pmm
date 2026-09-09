@@ -20,10 +20,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestLookupBool(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
 		name     string
 		envValue string
 		set      bool
@@ -74,11 +76,14 @@ func TestLookupBool(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			const key = "TEST_LOOKUP_BOOL"
 			if tt.set {
 				t.Setenv(key, tt.envValue)
+			} else {
+				// "not set" has to mean not set, whatever the surrounding environment exports.
+				tests.UnsetEnv(t, key)
 			}
 
 			result, err := LookupBool(key)
@@ -95,7 +100,7 @@ func TestLookupBool(t *testing.T) {
 }
 
 func TestGetBool(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
 		name     string
 		envKey   string
 		envValue string
@@ -138,7 +143,7 @@ func TestGetBool(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
 				t.Setenv(tt.envKey, tt.envValue)
@@ -150,7 +155,7 @@ func TestGetBool(t *testing.T) {
 }
 
 func TestGetStringSlice(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
 		name     string
 		envKey   string
 		envValue string
@@ -199,7 +204,7 @@ func TestGetStringSlice(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
 				t.Setenv(tt.envKey, tt.envValue)

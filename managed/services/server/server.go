@@ -656,7 +656,9 @@ func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier,
 		return false, fmt.Errorf("failed to change QAN agent state: %w", err)
 	}
 
-	s.agentsState.RequestStateUpdate(ctx, internalQanAgent.AgentID)
+	// The argument is a pmm-agent ID, not the changed agent's own ID -- the same value the
+	// inventory path passes.
+	s.agentsState.RequestStateUpdate(ctx, pointer.GetString(internalQanAgent.PMMAgentID))
 	return newAgent.Disabled, nil
 }
 

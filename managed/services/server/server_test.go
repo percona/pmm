@@ -33,6 +33,7 @@ import (
 
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -281,6 +282,102 @@ func TestServer(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
+	})
+}
+
+// TestInternalPgQANSettings covers the two call sites in this package that now key the internal QAN
+// agent off the Service name through models.FindInternalPgQANAgent: GetSettings and
+// handleInternalQANToggle. TestServer above opens its database with models.SkipFixtures, so
+// pmm-server-postgresql never exists there and both paths only ever take the NotFound branch.
+func TestInternalPgQANSettings(t *testing.T) {
+	// The fixtures read PMM_ENABLE_INTERNAL_PG_QAN to decide the agent's initial state, so unset it
+	// for a known starting point rather than inheriting the developer's or CI's environment.
+	tests.UnsetEnv(t, env.EnableInternalPgQAN)
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	var supervisord mockSupervisordService
+	supervisord.Test(t)
+	supervisord.On("UpdateConfiguration", mock.Anything).Return(nil)
+
+	var vmdb mockPrometheusService
+	vmdb.Test(t)
+	vmdb.On("RequestConfigurationUpdate").Return(nil)
+
+	var vmalert mockPrometheusService
+	vmalert.Test(t)
+	vmalert.On("RequestConfigurationUpdate").Return(nil)
+
+	state := &mockAgentsStateUpdater{}
+	state.Test(t)
+	state.On("UpdateAgentsState", context.TODO()).Return(nil)
+	state.On("RequestStateUpdate", context.TODO(), models.PMMServerAgentID)
+
+	var templatesService mockTemplatesService
+	templatesService.Test(t)
+	templatesService.On("CollectTemplates", context.TODO()).Return(nil)
+
+	var checksService mockChecksService
+	checksService.Test(t)
+	checksService.On("UpdateAdvisorsList", context.TODO()).Return(nil)
+
+	var externalRules mockVmAlertExternalRules
+	externalRules.Test(t)
+	externalRules.On("ReadRules").Return("", nil)
+
+	var telemetry mockTelemetryService
+	telemetry.Test(t)
+	telemetry.On("GetSummaries").Return(nil)
+
+	var nomad mockNomadService
+	nomad.Test(t)
+	nomad.On("UpdateConfiguration", mock.Anything).Return(nil)
+
+	var ha mockHaService
+	ha.Test(t)
+	ha.On("IsLeader").Return(true)
+	ha.On("Params").Return(&models.HAParams{Enabled: false})
+
+	s, err := NewServer(&Params{
+		DB:                   db,
+		VMDB:                 &vmdb,
+		VMAlert:              &vmalert,
+		ChecksService:        &checksService,
+		TemplatesService:     &templatesService,
+		AgentsStateUpdater:   state,
+		Supervisord:          &supervisord,
+		VMAlertExternalRules: &externalRules,
+		TelemetryService:     &telemetry,
+		Nomad:                &nomad,
+		HAService:            &ha,
+	})
+	require.NoError(t, err)
+
+	ctx := context.TODO()
+
+	agent, err := models.FindInternalPgQANAgent(db.Querier)
+	require.NoError(t, err)
+	require.True(t, agent.Disabled, "the fixtures create the agent disabled when the variable is unset")
+
+	t.Run("GetSettingsReportsTheAgentState", func(t *testing.T) {
+		resp, err := s.GetSettings(ctx, &serverv1.GetSettingsRequest{})
+		require.NoError(t, err)
+		assert.False(t, resp.Settings.EnableInternalPgQan)
+	})
+
+	t.Run("ChangeSettingsTogglesTheAgent", func(t *testing.T) {
+		resp, err := s.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
+			EnableInternalPgQan: new(true),
+		})
+		require.NoError(t, err)
+		assert.True(t, resp.Settings.EnableInternalPgQan)
+
+		// The toggle has to reach the row the Service-keyed lookup finds, not just the response.
+		stored, err := models.FindInternalPgQANAgent(db.Querier)
+		require.NoError(t, err)
+		assert.False(t, stored.Disabled)
 	})
 }
 
