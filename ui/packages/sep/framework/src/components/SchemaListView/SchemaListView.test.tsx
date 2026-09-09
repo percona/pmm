@@ -304,6 +304,14 @@ describe('SchemaListView — schedule-column glue', () => {
   });
 });
 
+/**
+ * Toolbar rows inside the table paper. MUI's `TablePagination` renders a
+ * toolbar of its own inside the bottom row, so it has to be excluded or every
+ * row counts twice.
+ */
+const TOOLBAR_ROW_SELECTOR =
+  '.MuiToolbar-root:not(.MuiTablePagination-toolbar)';
+
 describe('SchemaListView — toolbar placement', () => {
   let slot: HTMLDivElement;
 
@@ -324,18 +332,24 @@ describe('SchemaListView — toolbar placement', () => {
     expect(slot.contains(screen.getByLabelText('Show/Hide columns'))).toBe(
       true
     );
-    // The paper opens straight onto the table: nothing sits between it and the
-    // column headers.
+    // Not merely moved: the table itself holds none of them, and the only
+    // toolbar row left in it is the one carrying pagination. Asserted by what
+    // the paper contains rather than by child order, which is
+    // MaterialReactTable's own business.
     const paper = document.querySelector(`.${SEP_TABLE_CLASS}`);
-    expect(paper?.firstElementChild).toHaveClass('MuiTableContainer-root');
+    expect(paper).not.toContainElement(
+      screen.getByLabelText('Show/Hide columns')
+    );
+    expect(paper?.querySelectorAll(TOOLBAR_ROW_SELECTOR)).toHaveLength(1);
   });
 
   it('keeps its own toolbar row when no slot is supplied', () => {
     render(<SchemaListView listView={listView} data={rows} />);
 
-    expect(screen.getByLabelText('Show/Hide columns')).toBeInTheDocument();
     const paper = document.querySelector(`.${SEP_TABLE_CLASS}`);
-    expect(paper?.firstElementChild).toHaveClass('MuiToolbar-root');
+    expect(paper).toContainElement(screen.getByLabelText('Show/Hide columns'));
+    // Its own row, on top of the pagination one.
+    expect(paper?.querySelectorAll(TOOLBAR_ROW_SELECTOR)).toHaveLength(2);
   });
 });
 

@@ -188,16 +188,24 @@ const truncatedTextSx = {
   whiteSpace: 'nowrap',
 } as const;
 
+/** Keeps a chip inside its cell instead of setting the column's width. */
+const cellChipSx = { maxWidth: '100%' } as const;
+
 /**
  * Chip sized for a table cell rather than for a page.
  *
  * MUI's ``size="small"`` chip is still 24px tall with 12px of label padding,
  * which reads as a control in a compact row. Trimmed to the row's own scale so
- * a type or status column costs the width of its label and little else.
+ * a type column costs the width of its label and little else.
+ *
+ * Not used for a ``status`` cell: a recognized status renders as
+ * {@link TaskHistoryStatusBadge}, which is shared with the task-history table
+ * and keeps MUI's own scale, so compacting only the unrecognized fallback
+ * would make one status column hold two chip heights.
  */
 const compactChipSx = {
+  ...cellChipSx,
   height: 20,
-  maxWidth: '100%',
   '& .MuiChip-label': {
     px: 0.75,
     fontSize: '0.6875rem',
@@ -229,7 +237,7 @@ function formatCellValue(
       return isTaskHistoryStatus(str) ? (
         <TaskHistoryStatusBadge status={str} />
       ) : (
-        <Chip label={str} size="small" sx={compactChipSx} />
+        <Chip label={str} size="small" sx={cellChipSx} />
       );
     case 'date':
       return new Date(str).toLocaleDateString();
