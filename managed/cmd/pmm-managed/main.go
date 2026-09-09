@@ -842,7 +842,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	nodes := parseHAPeers(*haPeers)
+	nodes := parseHAPeers(l, *haPeers)
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
 		NodeID:            *haNodeID,
@@ -1299,7 +1299,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 // every node in the cluster, including this one, and its length is reported as
 // pmm_ha_expected_nodes. A trailing comma or a padded list would otherwise inflate that
 // count and make the node-unreachable and quorum alerts fire on a healthy cluster.
-func parseHAPeers(peers string) []string {
+func parseHAPeers(l *logrus.Entry, peers string) []string {
 	var nodes []string
 	seen := make(map[string]struct{})
 
@@ -1309,7 +1309,7 @@ func parseHAPeers(peers string) []string {
 			continue
 		}
 		if _, ok := seen[node]; ok {
-			logrus.Warnf("Ignoring duplicate entry %s in PMM_HA_PEERS.", node)
+			l.WithField("peer", node).Warn("Ignoring duplicate entry in PMM_HA_PEERS.")
 			continue
 		}
 		seen[node] = struct{}{}

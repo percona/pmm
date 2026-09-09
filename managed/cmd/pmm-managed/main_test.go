@@ -18,6 +18,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"slices"
@@ -25,6 +26,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/tools/go/packages"
@@ -36,6 +38,11 @@ var updateF = flag.Bool("update", false, "update "+dotFile)
 
 func TestParseHAPeers(t *testing.T) {
 	t.Parallel()
+
+	// The duplicate case logs a warning; keep it out of the test output.
+	logger := logrus.New()
+	logger.Out = io.Discard
+	l := logrus.NewEntry(logger)
 
 	for _, tt := range []struct {
 		name  string
@@ -56,7 +63,7 @@ func TestParseHAPeers(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tt.want, parseHAPeers(tt.peers))
+			assert.Equal(t, tt.want, parseHAPeers(l, tt.peers))
 		})
 	}
 }

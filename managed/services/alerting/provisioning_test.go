@@ -263,6 +263,8 @@ func TestProvisionerDoesNothingWhenNothingChanged(t *testing.T) {
 	assert.Equal(t, first, f.fileContent(t))
 }
 
+// TestProvisionerRestartsGrafanaWhenRequested is the leader's side of a change at runtime: once a
+// node is leader, a tick that changes the content restarts its Grafana.
 func TestProvisionerRestartsGrafanaWhenRequested(t *testing.T) {
 	t.Parallel()
 
@@ -274,7 +276,7 @@ func TestProvisionerRestartsGrafanaWhenRequested(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(nil)
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(context.Background(), triggerTick)
 }
 
 // TestProvisionerTickWaitsForTheLeader is the guard against a settings change bouncing Grafana on
@@ -292,6 +294,95 @@ func TestProvisionerTickWaitsForTheLeader(t *testing.T) {
 		f.provisioner.reconcile(context.Background(), triggerTick)
 	}
 	f.supervisord.AssertNotCalled(t, "RestartSupervisedService", mock.Anything, grafanaProgramName)
+}
+
+// TestProvisionerStartupRestartsWithoutWaitingForTheLeader covers the boot of an HA node, where the
+// leader gate cannot be the answer: leadership is only established after the startup reconcile, so
+// every node deferred and nobody applied, and no other node can see that this one's Grafana started
+// on the previous file. The new rules then only reached the cluster when some Grafana happened to
+// restart.
+func TestProvisionerStartupRestartsWithoutWaitingForTheLeader(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(1, true)
+
+	// Deliberately no leader stub: a call would fail the test.
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+
+	f.provisioner.ProvisionAtStartup(context.Background())
+
+	assert.False(t, f.provisioner.startupApplyOwed, "a restart settles the boot's debt")
+	assert.Zero(t, errorCount(t, f.provisioner, stageApply))
+	assert.Equal(t, stateWritten, bundleState(t, f.provisioner, haBundleID))
+}
+
+// TestProvisionerStartupDebtSurvivesARenderFailure is the case the boot exemption exists for. A
+// render that fails at boot leaves Grafana running on the previous file; the retry that finishes
+// the recovery is the one that writes, and it must restart without a leader just as the startup
+// reconcile would have, or the recovery ends with a file nobody has read.
+func TestProvisionerStartupDebtSurvivesARenderFailure(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	for range 2 {
+		f.dbMock.ExpectQuery("SELECT settings FROM settings").
+			WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(settingsJSON(true)))
+	}
+
+	// Grafana's database is unreachable at boot and back for the retry.
+	dsDB, dsMock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = dsDB.Close() })
+	dsMock.ExpectQuery("SELECT uid FROM data_source").WillReturnError(errors.New("connection refused"))
+	dsMock.ExpectQuery("SELECT uid FROM data_source").
+		WillReturnRows(sqlmock.NewRows([]string{"uid"}).AddRow(deriveMetricsDatasourceUID()))
+	dsMock.ExpectQuery("FROM alert_rule").WillReturnRows(sqlmock.NewRows([]string{"uid", "provenance"}))
+	f.provisioner.grafanaDB = newGrafanaReader("dsn-not-used", logrus.WithField("test", t.Name()))
+	f.provisioner.grafanaDB.db = dsDB
+
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+
+	f.provisioner.ProvisionAtStartup(context.Background())
+	require.True(t, f.provisioner.startupApplyOwed, "a boot that wrote nothing still owes its restart")
+	require.Positive(t, f.provisioner.retryBackoff, "the datasource failure arms a retry")
+
+	f.provisioner.reconcile(context.Background(), triggerRetry)
+
+	assert.False(t, f.provisioner.startupApplyOwed)
+	assert.Zero(t, f.provisioner.retryBackoff)
+	assert.Zero(t, errorCount(t, f.provisioner, stageApply))
+	assert.Equal(t, stateWritten, bundleState(t, f.provisioner, haBundleID))
+}
+
+// TestProvisionerBootExemptionEndsWithTheBoot guards the tick side: once the boot's debt is settled,
+// a change at runtime on a follower is left to the leader as before, because the leader sees the
+// same change and applies it for the cluster.
+func TestProvisionerBootExemptionEndsWithTheBoot(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(1, true)
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(true))
+	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+
+	f.provisioner.ProvisionAtStartup(context.Background())
+	require.False(t, f.provisioner.startupApplyOwed)
+
+	// Percona Alerting switched off changes the content, on a node that is not the leader.
+	f.expectSettings(1, false)
+	f.leader.On("IsLeader").Return(false).Once()
+
+	f.provisioner.reconcile(context.Background(), triggerTick)
+
+	f.supervisord.AssertNumberOfCalls(t, "RestartSupervisedService", 1)
+	assert.Zero(t, errorCount(t, f.provisioner, stageApply), "a deferral is still not a failure")
+	assert.False(t, f.provisioner.applyPending)
 }
 
 // TestProvisionerRollsBackAFailedRestart proves the promise the whole design rests on: PMM must
@@ -315,7 +406,7 @@ func TestProvisionerRollsBackAFailedRestart(t *testing.T) {
 	f.supervisord.On("RestartSupervisedService", mock.Anything, grafanaProgramName).Return(nil)
 	f.grafana.On("IsReady", mock.Anything).Return(errors.New("connection refused"))
 
-	f.provisioner.reconcile(context.Background(), triggerStartup)
+	f.provisioner.reconcile(context.Background(), triggerTick)
 
 	assert.Equal(t, good, f.fileContent(t), "the file Grafana last started from must be restored")
 }
@@ -543,6 +634,35 @@ func TestProvisionerRetriesAnApplyItOwes(t *testing.T) {
 
 	f.supervisord.AssertNumberOfCalls(t, "StartSupervisedService", 2)
 	assert.False(t, f.provisioner.applyPending, "a successful retry clears the debt")
+	assert.Equal(t, stateWritten, bundleState(t, f.provisioner, haBundleID))
+}
+
+// TestProvisionerApplyRetryBacksOff checks that a failing apply is retried on the same growing
+// backoff as a failing render. The backoff used to be cleared right after the write, before the
+// apply, so a start that failed straight away was retried every two seconds for good.
+func TestProvisionerApplyRetryBacksOff(t *testing.T) {
+	t.Parallel()
+
+	f := newProvisionerFixture(t, true)
+	f.expectSettings(3, true)
+
+	f.supervisord.On("ProgramState", mock.Anything, grafanaProgramName).Return(new(false))
+	f.supervisord.On("StartSupervisedService", grafanaProgramName).
+		Return(errors.New("boom")).Times(2)
+	f.supervisord.On("StartSupervisedService", grafanaProgramName).Return(nil).Once()
+	f.grafana.On("IsReady", mock.Anything).Return(nil).Once()
+
+	f.provisioner.reconcile(context.Background(), triggerStartup)
+	assert.Equal(t, datasourceRetryInitial, f.provisioner.retryBackoff)
+
+	f.provisioner.reconcile(context.Background(), triggerRetry)
+	assert.Equal(t, datasourceRetryInitial*datasourceRetryFactor, f.provisioner.retryBackoff,
+		"a second failure must grow the backoff rather than start over")
+
+	f.provisioner.reconcile(context.Background(), triggerRetry)
+	assert.Zero(t, f.provisioner.retryBackoff, "a successful apply clears the backoff")
+	assert.False(t, f.provisioner.applyPending)
+	assert.InDelta(t, 2, errorCount(t, f.provisioner, stageApply), 0)
 	assert.Equal(t, stateWritten, bundleState(t, f.provisioner, haBundleID))
 }
 

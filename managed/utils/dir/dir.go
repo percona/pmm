@@ -42,9 +42,12 @@ func CreateDataDir(path string, perm os.FileMode) error {
 }
 
 // WriteFileAtomic writes a file so that a reader never observes a partial one: the content goes to
-// a temporary file in the same directory, which is then renamed over the destination. Needed where
-// another process may read the file at any moment, such as Grafana scanning its provisioning
-// directory while pmm-managed rewrites it.
+// a temporary file in the same directory, which is synced and then renamed over the destination.
+// Needed where another process may read the file at any moment, such as Grafana scanning its
+// provisioning directory while pmm-managed rewrites it. The sync makes the content durable before
+// the rename, so a crash leaves either the previous file or the complete new one, never a truncated
+// one. The directory itself is not synced: a rename lost to a crash leaves the previous, valid file
+// behind, which is safe for every caller here.
 func WriteFileAtomic(path string, data []byte, perm os.FileMode) error {
 	dir, name := filepath.Split(path)
 	if dir == "" {
@@ -75,6 +78,12 @@ func WriteFileAtomic(path string, data []byte, perm os.FileMode) error {
 	if err != nil {
 		tmp.Close() //nolint:errcheck,gosec
 		return fmt.Errorf("cannot chmod '%s': %w", path, err)
+	}
+
+	err = tmp.Sync()
+	if err != nil {
+		tmp.Close() //nolint:errcheck,gosec
+		return fmt.Errorf("cannot sync '%s': %w", path, err)
 	}
 
 	err = tmp.Close()

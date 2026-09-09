@@ -103,15 +103,17 @@ const (
 	// triggerStartup runs while pmm-managed starts, and by then Grafana is normally already
 	// running: setup() writes grafana.ini and starts it from UpdateSettingsFromEnv, before this
 	// runs. Applying therefore usually does mean restarting Grafana - once, on the boot where the
-	// content changed, and not at all on a restart that renders the same file.
+	// content changed, and not at all on a restart that renders the same file. That restart does
+	// not wait for a leader: it settles a debt only this node can see, recorded in startupApplyOwed.
 	triggerStartup provisioningTrigger = iota
 	// TriggerTick is the periodic reconcile. It never restarts Grafana except as the last-resort
 	// leader fallback.
 	triggerTick
 	// TriggerRetry is the fast follow-up to a reconcile that could not finish: an unresolvable
-	// datasource UID, a squatted rule UID, or an apply action that failed. It carries the tick's
-	// restart permission: a shared Grafana database coming back reaches every node at once, so this
-	// needs the gate that elects one of them to act.
+	// datasource UID, a squatted rule UID, or an apply action that failed. It carries no restart
+	// permission of its own: whether it may restart without the leader depends on whose work it is
+	// finishing. A boot whose render failed still owes its restart, while a shared Grafana database
+	// coming back at runtime reaches every node at once and needs the gate that elects one to act.
 	triggerRetry
 )
 
@@ -169,11 +171,22 @@ type Provisioner struct {
 	// retryBackoff is how long to wait before trying again after a reconcile that could not finish:
 	// an unresolvable datasource UID, a squatted rule UID, or an apply action that failed. Zero
 	// means no retry is owed. It is held through the recovery that follows, so the whole recovery
-	// runs on the fast cadence instead of handing the last step back to the five-minute tick.
+	// runs on the fast cadence instead of handing the last step back to the five-minute tick, and
+	// it keeps growing across consecutive failures of any stage, an apply included: it is cleared
+	// only once a reconcile ends with nothing owed.
 	retryBackoff time.Duration
 	// applyPending records that an apply action PMM performs itself failed, so the next reconcile
 	// must try again even though the file on disk is already the content it would write.
 	applyPending bool
+	// startupApplyOwed records that this process has started but has not yet established that its
+	// own Grafana runs on the file currently on disk. Grafana starts before the first reconcile and
+	// reads its provisioning only then, so a boot that changes the content owes a restart of the
+	// local Grafana whatever this node's role: no node is leader yet at that point, a starting node
+	// serves no traffic, and no other node can tell that this one's Grafana is behind. Cleared once
+	// a reconcile finds the file unchanged or applies it, so the debt survives a render that fails
+	// at boot and is settled by the retry that finishes the recovery. From then on only the leader
+	// restarts: a later change is visible to every node, and the leader applies it for all.
+	startupApplyOwed bool
 }
 
 // ProvisionerParams holds Provisioner configuration.
@@ -321,7 +334,9 @@ func jitter(d time.Duration) time.Duration {
 //
 // Grafana is normally already running by this point, on a fresh container as well as an existing
 // one: setup() writes grafana.ini and starts it from UpdateSettingsFromEnv, before this runs. So
-// this may restart Grafana - once, on the boot where the content changed.
+// this may restart Grafana - once, on the boot where the content changed. That restart does not
+// wait for a leader, and the debt survives a render that fails here: the retry that finishes the
+// recovery settles it. See startupApplyOwed.
 func (p *Provisioner) ProvisionAtStartup(ctx context.Context) {
 	p.reconcile(ctx, triggerStartup)
 }
@@ -338,6 +353,11 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 		return
 	}
 	defer p.m.Unlock()
+
+	if trigger == triggerStartup {
+		// Nothing has shown yet that this node's Grafana runs on the file currently on disk.
+		p.startupApplyOwed = true
+	}
 
 	content, bundles, err := p.render(ctx)
 	if err != nil {
@@ -375,11 +395,13 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 
 	p.metrics.setRendered(hash, bundles)
 	p.metrics.setWritten(hash)
-	p.retryBackoff = 0
 
 	if !changed && !p.applyPending {
 		// The file on disk is already the content we would write, and PMM owes no apply of its own,
-		// so there is nothing to do. This is the ordinary case on every restart.
+		// so there is nothing to do. This is the ordinary case on every restart: Grafana started
+		// after the file was last written and read exactly this content.
+		p.retryBackoff = 0
+		p.startupApplyOwed = false
 		return
 	}
 
@@ -388,12 +410,16 @@ func (p *Provisioner) reconcile(ctx context.Context, trigger provisioningTrigger
 	case err == nil:
 		p.applyPending = false
 		p.metrics.setApplyPending(false)
+		p.retryBackoff = 0
+		p.startupApplyOwed = false
 
 	case errors.Is(err, errDeferredToLeader):
-		// Not a failure and not this node's work to retry: the leader applies, or Grafana reads the
-		// file itself as it starts. Counting this would make every healthy follower look broken.
+		// Not a failure and not this node's work to retry: the change is visible to every node, and
+		// the leader applies it for the cluster. Counting this would make every healthy follower
+		// look broken.
 		p.applyPending = false
 		p.metrics.setApplyPending(false)
+		p.retryBackoff = 0
 		p.l.Debugf("Alert rules written; %s.", err)
 
 	default:
@@ -575,7 +601,14 @@ func (p *Provisioner) apply(ctx context.Context, trigger provisioningTrigger, pr
 		// PMM HA is active-passive, HAProxy routes to the leader alone, and the standbys serve
 		// nobody. Leadership is the only single-actor primitive the cluster has, and IsLeader
 		// reports true on a standalone server.
-		if !p.leader.IsLeader() {
+		//
+		// The boot is the exception. Grafana started before this file was written and read the
+		// previous one, and no other node can see that: the leader renders the same content from
+		// the same shared state and finds its own file unchanged, so it applies nothing. Nor is
+		// anyone leader yet while this node starts. A starting node serves no traffic, so
+		// restarting its Grafana costs nothing, and it is the only way the new rules reach the
+		// cluster before some Grafana happens to restart.
+		if !p.startupApplyOwed && !p.leader.IsLeader() {
 			return fmt.Errorf("%w on %s", errDeferredToLeader, trigger)
 		}
 
