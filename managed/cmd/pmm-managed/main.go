@@ -1178,13 +1178,6 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		return nil
 	}))
 
-	// Leader-only: every replica shares one database, so several sweeps would duplicate
-	// the same deletions and race each other.
-	haService.AddLeaderService(ha.NewContextService("alert-rule-reconciler", func(ctx context.Context) error {
-		alertingService.RunReconciler(ctx)
-		return nil
-	}))
-
 	wg.Go(func() {
 		updater.Run(ctx)
 	})

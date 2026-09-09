@@ -175,7 +175,10 @@ func thresholdFromResolved(ruleID, paramName string, param models.AlertRuleParam
 }
 
 // ListThresholds returns per-target threshold overrides.
-func (s *Service) ListThresholds(_ context.Context, req *alerting.ListThresholdsRequest) (*alerting.ListThresholdsResponse, error) {
+//
+// As a side effect, throttled to once per reconcileInterval, this also triggers an async
+// sweep that reaps alert-rule registry rows whose Grafana rule no longer exists.
+func (s *Service) ListThresholds(ctx context.Context, req *alerting.ListThresholdsRequest) (*alerting.ListThresholdsResponse, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -219,6 +222,8 @@ func (s *Service) ListThresholds(_ context.Context, req *alerting.ListThresholds
 	}
 
 	sortThresholds(thresholds)
+
+	s.maybeReconcile(ctx)
 
 	return &alerting.ListThresholdsResponse{Thresholds: thresholds}, nil
 }

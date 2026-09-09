@@ -19,43 +19,69 @@ import (
 	"context"
 	"time"
 
+	"google.golang.org/grpc/metadata"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
 )
 
 const (
-	// How often orphaned registry rows are reaped. Orphans are inert rather than
-	// harmful - the collector emits nothing for a rule that is gone - so this trades
-	// promptness for staying out of the way.
+	// Minimum gap between sweeps. Orphans are inert rather than harmful - the collector
+	// emits nothing for a rule that is gone - so this trades promptness for staying out
+	// of the way of the request that triggers it.
 	reconcileInterval = 15 * time.Minute
 
 	// Keeps a freshly created row safe from the sweep. CreateRule writes the registry
 	// row before the rule exists in Grafana, so without this a sweep landing in that
 	// window would delete the row of a rule being created successfully.
 	reconcileGracePeriod = 10 * time.Minute
+
+	// Bounds the Grafana ruler-API call a triggered sweep makes. ListPMMRuleIDs's
+	// underlying http.Client has no Timeout of its own, so this is the only deadline on
+	// that call; it does not bound the sweep's DB transaction, which runs on *reform.DB's
+	// own long-lived context same as every other query.
+	reconcileTimeout = 30 * time.Second
 )
 
-// RunReconciler reaps registry rows whose Grafana rule no longer exists, until the
-// context is cancelled.
+// maybeReconcile runs the sweep at most once per reconcileInterval, off the goroutine
+// serving the request that triggered it.
 //
-// It must run leader-only: every replica shares one database, so several sweeps would
-// duplicate the same deletions and race each other.
-func (s *Service) RunReconciler(ctx context.Context) {
-	ticker := time.NewTicker(reconcileInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case <-ticker.C:
-			err := s.ReconcileAlertRules(ctx)
-			if err != nil {
-				s.l.WithError(err).Warn("Failed to reconcile alert rule registry")
-			}
-		}
+// A request handler is the trigger because it's the one place with a real, authenticated
+// context to give ListPMMRuleIDs - a background ticker never gets one (see
+// auth.GetHeadersFromContext). The metadata is copied onto a fresh, longer-lived context
+// so the sweep survives the triggering request returning its response.
+//
+//nolint:contextcheck // the sweep intentionally does not inherit ctx: it must outlive the request that triggered it
+func (s *Service) maybeReconcile(ctx context.Context) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return
 	}
+
+	s.sweepMu.Lock()
+	if s.sweeping || time.Since(s.lastSweep) < reconcileInterval {
+		s.sweepMu.Unlock()
+		return
+	}
+	s.sweeping, s.lastSweep = true, time.Now()
+	s.sweepMu.Unlock()
+
+	sweepCtx, cancel := context.WithTimeout(context.Background(), reconcileTimeout)
+	sweepCtx = metadata.NewIncomingContext(sweepCtx, md)
+
+	go func() {
+		defer cancel()
+		defer func() {
+			s.sweepMu.Lock()
+			s.sweeping = false
+			s.sweepMu.Unlock()
+		}()
+
+		err := s.ReconcileAlertRules(sweepCtx)
+		if err != nil {
+			s.l.WithError(err).Warn("Failed to reconcile alert rule registry")
+		}
+	}()
 }
 
 // ReconcileAlertRules deletes registry rows for rules that are no longer in Grafana,

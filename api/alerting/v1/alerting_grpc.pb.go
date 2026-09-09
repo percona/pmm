@@ -48,6 +48,9 @@ type AlertingServiceClient interface {
 	// CreateRule creates alerting rule from the given template.
 	CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error)
 	// ListThresholds returns per-target threshold overrides.
+	//
+	// As a side effect, throttled to once per reconcileInterval, this also triggers an async
+	// sweep that reaps alert-rule registry rows whose Grafana rule no longer exists.
 	ListThresholds(ctx context.Context, in *ListThresholdsRequest, opts ...grpc.CallOption) (*ListThresholdsResponse, error)
 	// SetThreshold overrides one rule parameter for one target.
 	SetThreshold(ctx context.Context, in *SetThresholdRequest, opts ...grpc.CallOption) (*SetThresholdResponse, error)
@@ -173,6 +176,9 @@ type AlertingServiceServer interface {
 	// CreateRule creates alerting rule from the given template.
 	CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error)
 	// ListThresholds returns per-target threshold overrides.
+	//
+	// As a side effect, throttled to once per reconcileInterval, this also triggers an async
+	// sweep that reaps alert-rule registry rows whose Grafana rule no longer exists.
 	ListThresholds(context.Context, *ListThresholdsRequest) (*ListThresholdsResponse, error)
 	// SetThreshold overrides one rule parameter for one target.
 	SetThreshold(context.Context, *SetThresholdRequest) (*SetThresholdResponse, error)

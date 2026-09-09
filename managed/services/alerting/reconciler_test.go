@@ -16,6 +16,7 @@
 package alerting
 
 import (
+	"context"
 	"errors"
 	"testing"
 	"time"
@@ -23,6 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -141,5 +143,50 @@ func TestReconcileAlertRules(t *testing.T) {
 		rules, err := models.FindAlertRules(db.Querier)
 		require.NoError(t, err)
 		require.Len(t, rules, 1, "an unreachable Grafana must never look like an empty one")
+	})
+}
+
+// incomingCtx builds a context carrying gRPC incoming metadata, the way a real request
+// through grpc-gateway would - the shape maybeReconcile's metadata.FromIncomingContext
+// check requires.
+func incomingCtx(ctx context.Context) context.Context {
+	return metadata.NewIncomingContext(ctx, metadata.New(map[string]string{"authorization": "Bearer test"}))
+}
+
+func TestMaybeReconcile(t *testing.T) {
+	t.Run("no incoming metadata: never reaches the mock", func(t *testing.T) {
+		svc, m, _ := setupReconciler(t)
+
+		svc.maybeReconcile(t.Context())
+
+		m.AssertNotCalled(t, "ListPMMRuleIDs", mock.Anything)
+	})
+
+	t.Run("sweeps once on a detached context, throttles an immediate second call", func(t *testing.T) {
+		svc, m, db := setupReconciler(t)
+		createRegistryRow(t, db, "gone-rule", time.Hour)
+
+		reqCtx, cancel := context.WithCancel(t.Context())
+		m.On("ListPMMRuleIDs", mock.Anything).Return(map[string]struct{}{}, nil)
+
+		svc.maybeReconcile(incomingCtx(reqCtx))
+		// The triggering request finishes and cancels its own context immediately - the
+		// sweep must keep running on its detached context, not the request's, or this
+		// would never complete.
+		cancel()
+
+		require.Eventually(t, func() bool {
+			rules, err := models.FindAlertRules(db.Querier)
+			return err == nil && len(rules) == 0
+		}, 2*time.Second, 10*time.Millisecond, "sweep did not complete on its detached context")
+
+		// lastSweep is set synchronously before the first call's goroutine is even
+		// spawned, so this is deterministic regardless of whether that goroutine has
+		// finished: it must not reach the mock a second time. If it ever did,
+		// mockGrafanaClient's t.Cleanup(mock.AssertExpectations) would fail from a
+		// background goroutine, which testify does not support safely - the throttle
+		// ordering in maybeReconcile is what has to prevent that, not this assertion.
+		svc.maybeReconcile(incomingCtx(t.Context()))
+		m.AssertNumberOfCalls(t, "ListPMMRuleIDs", 1)
 	})
 }

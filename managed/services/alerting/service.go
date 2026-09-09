@@ -73,6 +73,12 @@ type Service struct {
 	// path need not parse/convert per request. These protos are shared across
 	// concurrent responses and MUST be treated as immutable by consumers.
 	convertedTemplates map[string]*alerting.Template
+
+	// sweepMu guards sweeping/lastSweep, the reconciler's throttle state. Separate from rw,
+	// which guards unrelated template state.
+	sweepMu   sync.Mutex
+	lastSweep time.Time
+	sweeping  bool
 }
 
 // NewService creates a new Service.

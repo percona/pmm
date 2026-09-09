@@ -345,6 +345,9 @@ service AlertingService {
     };
   }
   // ListThresholds returns per-target threshold overrides.
+  //
+  // As a side effect, throttled to once per reconcileInterval, this also triggers an async
+  // sweep that reaps alert-rule registry rows whose Grafana rule no longer exists.
   rpc ListThresholds(ListThresholdsRequest) returns (ListThresholdsResponse) {
     option (google.api.http) = {get: "/v1/alerting/thresholds"};
   }

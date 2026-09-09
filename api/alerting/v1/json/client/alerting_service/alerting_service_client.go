@@ -325,7 +325,11 @@ func (a *Client) ListTemplates(params *ListTemplatesParams, opts ...ClientOption
 }
 
 /*
-ListThresholds lists thresholds returns per target threshold overrides
+	ListThresholds lists thresholds returns per target threshold overrides
+
+	As a side effect, throttled to once per reconcileInterval, this also triggers an async
+
+sweep that reaps alert-rule registry rows whose Grafana rule no longer exists.
 */
 func (a *Client) ListThresholds(params *ListThresholdsParams, opts ...ClientOption) (*ListThresholdsOK, error) {
 	// NOTE: parameters are not validated before sending
