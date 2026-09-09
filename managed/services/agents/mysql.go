@@ -244,7 +244,7 @@ const myCnfTemplate = `[client]
 {{if .CertFile}}ssl-cert={{ .CertFile }}{{end}}
 {{if .KeyFile}}ssl-key={{ .KeyFile }}{{end}}
 {{if .EnableClearTextPassword}}enable-cleartext-plugin{{end}}
-{{if .InitCommand}}init-command={{ .InitCommand }}{{end}}
+{{if .TimeZone}}time_zone={{ .TimeZone }}{{end}}
 `
 
 // buildMyCnfConfig builds my.cnf configuration for MySQL connection.
@@ -267,7 +267,7 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		CertFile                string
 		KeyFile                 string
 		EnableClearTextPassword bool
-		InitCommand             string
+		TimeZone                string
 		MyCnfPath               string
 	}{
 		User:           pointer.GetString(agent.Username),
@@ -296,7 +296,10 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 			myCnfParams.EnableClearTextPassword = true
 		}
 		if tz, ok := agent.MySQLOptions.ExtraDSNParams["time_zone"]; ok && tz != "" {
-			myCnfParams.InitCommand = fmt.Sprintf(`"SET time_zone=%s"`, tz)
+			// Double-quote the value so the exporter's go-ini my.cnf parser
+			// strips only the outer quotes and keeps the inner ones the
+			// driver needs for SET time_zone='...'.
+			myCnfParams.TimeZone = fmt.Sprintf(`"%s"`, tz)
 		}
 	}
 	err = tmpl.Execute(&configBuffer, myCnfParams)
