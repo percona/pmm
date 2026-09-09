@@ -30,12 +30,13 @@ export function BoolField({ field }: BoolFieldProps) {
   return (
     <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
       <Box sx={{ minWidth: 0 }}>
-        <SwitchInput
-          name={field.name}
-          label={field.label}
-          labelCaption={field.description}
-          control={control}
-        />
+        {/*
+          The description reaches the reader through the help icon beside the
+          switch, the same way every other field type surfaces it. Repeating it
+          as a caption cost a line of height under every toggle — the bulk of
+          an expert-heavy section.
+        */}
+        <SwitchInput name={field.name} label={field.label} control={control} />
       </Box>
       {field.description ? (
         <FieldHelpIcon description={field.description} label={field.label} />

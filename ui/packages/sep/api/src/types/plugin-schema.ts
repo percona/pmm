@@ -93,6 +93,24 @@ interface BaseField {
    * truthiness rather than presence.
    */
   destructive?: string | null;
+  /**
+   * Name of a sibling `bool` field in the same section that this field
+   * parameterises. The renderer draws the field indented beneath that parent
+   * and keeps it non-interactive until the parent is on, instead of hiding it
+   * — a reader can see what enabling the parent will offer.
+   *
+   * Presentation only, and the renderer takes it on trust: the disable state
+   * comes from the named field's truthiness alone. Enforcement stays with the
+   * backend, through this field's own `forbidden` gate on the parent being
+   * falsy — which the renderer recognises structurally and consumes as the
+   * disable condition rather than applying it as a hide. Every other gate on
+   * the field keeps hiding it as usual, so declaring `parent` without that
+   * companion gate leaves the value unguarded server-side; a dev build warns.
+   *
+   * Must name a `bool` field in the same section, declared before this one.
+   * Chains and cycles are unsupported — a cycle leaves both toggles inert.
+   */
+  parent?: string;
 }
 
 // ── Choice option ─────────────────────────────────────────────────────────
@@ -304,6 +322,15 @@ export interface FormSection {
   title: string;
   description?: string;
   fields: SectionField[];
+  /**
+   * Heading of the collapsible group this section belongs to (for example
+   * `Advanced`). Runs of adjacent sections carrying the same value render
+   * inside one collapsed shell titled by it, so a form with many secondary
+   * sections costs one row instead of one per section. A section keeps its own
+   * `collapsible` / `collapsed_by_default` behaviour inside the group. Unset
+   * (the default) renders the section on its own, as before.
+   */
+  group?: string;
   /** Whether the section is wrapped in an expandable/collapsible shell. */
   collapsible?: boolean;
   /** Initial expansion state when collapsible is enabled. */

@@ -23,6 +23,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
 import type { OneOfGroup } from '@sep/api';
 import { ConditionalFieldSlot } from './ConditionalFieldSlot';
+import { SECTION_GRID_SX } from './fieldLayout';
 import type { RenderFieldOverride } from './types';
 
 export interface OneOfGroupSlotProps {
@@ -78,7 +79,10 @@ export const OneOfGroupSlot = memo(function OneOfGroupSlot({
   };
 
   return (
-    <Box sx={{ mb: 2 }} data-testid={`one-of-${group.name}`}>
+    <Box
+      sx={{ mb: 2, gridColumn: '1 / -1' }}
+      data-testid={`one-of-${group.name}`}
+    >
       <Typography
         component="div"
         variant="subtitle2"
@@ -109,13 +113,15 @@ export const OneOfGroupSlot = memo(function OneOfGroupSlot({
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
-      {activeBranch.fields.map((field) => (
-        <ConditionalFieldSlot
-          key={field.name}
-          field={field}
-          renderField={renderField}
-        />
-      ))}
+      <Box sx={SECTION_GRID_SX}>
+        {activeBranch.fields.map((field) => (
+          <ConditionalFieldSlot
+            key={field.name}
+            field={field}
+            renderField={renderField}
+          />
+        ))}
+      </Box>
     </Box>
   );
 });

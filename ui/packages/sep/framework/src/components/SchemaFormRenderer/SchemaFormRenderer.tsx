@@ -55,12 +55,19 @@ import {
   ALERT_ON_FAIL_FIELD_NAME,
 } from '../AlertOnFailField';
 import { ConditionalFieldSlot } from './ConditionalFieldSlot';
+import { useFieldPayloadCleanup } from './hooks/useConditionalField';
+import { SECTION_GRID_SX } from './fieldLayout';
 import { OneOfGroupSlot } from './OneOfGroupSlot';
-import { useConditionalSection } from './hooks/useConditionalSection';
+import {
+  useConditionalSections,
+  useUnregisterHiddenSections,
+} from './hooks/useConditionalSection';
 import { useCardinalityRules } from './hooks/useCardinalityRules';
 import { useFailRules } from './hooks/useFailRules';
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard';
 import { coerceFormValues } from './utils/validationMapper';
+import { fieldDefault } from './utils/fieldDefault';
+import { warnSchema } from './utils/schemaWarnings';
 import { getAtPath, setAtPath } from './utils/fieldPath';
 import {
   collectOneOfGroups,
@@ -68,32 +75,6 @@ import {
   isOneOfGroup,
 } from './utils/flattenSectionFields';
 import type { FormSection, PluginField, RenderFieldOverride } from './types';
-
-function fieldDefault(field: PluginField): unknown {
-  switch (field.type) {
-    case 'bool':
-      return field.default ?? false;
-    case 'integer':
-    case 'float':
-      return field.default ?? '';
-    case 'multi_choice':
-      return field.default ?? [];
-    case 'file':
-      return undefined;
-    case 'service':
-    case 'schema':
-    case 'table':
-    case 'host':
-      return field.default ?? '';
-    case 'remote_choice':
-      // Mirror the selector's empty commit (`null`), not `''` — an empty string
-      // passes some client checks yet fails the backend NonEmptyStr with
-      // "String should have at least 1 character".
-      return field.default ?? null;
-    default:
-      return field.default ?? '';
-  }
-}
 
 function flattenFields(sections: FormSection[]): PluginField[] {
   return flattenSectionFields(sections);
@@ -149,21 +130,73 @@ function buildFormDefaults(
   return defaults;
 }
 
+/** One section paired with its position in the schema's own section list. */
+interface SectionEntry {
+  section: FormSection;
+  index: number;
+}
+
+/**
+ * A run of adjacent sections sharing a `group`, or a single ungrouped section.
+ * Grouping is positional so a schema controls membership by section order,
+ * the same way it already controls section order itself.
+ */
+type SectionRenderItem =
+  | { kind: 'section'; entry: SectionEntry }
+  | { kind: 'group'; title: string; entries: SectionEntry[] };
+
+function groupAdjacentSections(
+  entries: SectionEntry[],
+  // Shared across the before- and after-submit passes: a group whose members
+  // straddle that boundary is adjacent by the documented rule yet renders as
+  // two shells, which is exactly what this warns about.
+  opened: Set<string>
+): SectionRenderItem[] {
+  const items: SectionRenderItem[] = [];
+  for (const entry of entries) {
+    const group = entry.section.group;
+    if (!group) {
+      items.push({ kind: 'section', entry });
+      continue;
+    }
+    const last = items[items.length - 1];
+    if (last?.kind === 'group' && last.title === group) {
+      last.entries.push(entry);
+      continue;
+    }
+    if (opened.has(group)) {
+      // Two shells with the same heading is never what an author meant; it
+      // means a section was inserted into the middle of the run.
+      warnSchema(
+        `section '${entry.section.title}' rejoins group '${group}' after a ` +
+          `section outside it, so the group renders as two separate shells. ` +
+          `Group members have to be adjacent in the schema's section order.`
+      );
+    }
+    opened.add(group);
+    items.push({ kind: 'group', title: group, entries: [entry] });
+  }
+  return items;
+}
+
 interface SectionRendererProps {
   section: FormSection;
   idx: number;
+  isHidden: boolean;
   violations: Array<{ message: string }>;
   renderField?: RenderFieldOverride;
+  /** Rendered inside a group shell: drop the outer chrome the group provides. */
+  nested?: boolean;
 }
 
 const SectionRenderer = memo(function SectionRenderer({
   section,
   idx,
+  isHidden,
   violations,
   renderField,
+  nested = false,
 }: SectionRendererProps) {
-  const { isHidden } = useConditionalSection(section);
-
   if (isHidden) {
     return null;
   }
@@ -180,31 +213,42 @@ const SectionRenderer = memo(function SectionRenderer({
           {v.message}
         </Alert>
       ))}
-      {section.fields.map((field) =>
-        isOneOfGroup(field) ? (
-          <OneOfGroupSlot
-            key={field.name}
-            group={field}
-            renderField={renderField}
-          />
-        ) : (
-          <ConditionalFieldSlot
-            key={field.name}
-            field={field}
-            renderField={renderField}
-          />
-        )
-      )}
+      <Box sx={SECTION_GRID_SX}>
+        {section.fields.map((field) =>
+          isOneOfGroup(field) ? (
+            <OneOfGroupSlot
+              key={field.name}
+              group={field}
+              renderField={renderField}
+            />
+          ) : (
+            <ConditionalFieldSlot
+              key={field.name}
+              field={field}
+              renderField={renderField}
+            />
+          )
+        )}
+      </Box>
     </>
   );
 
+  // A collapsed shell already draws its own rule, and stacking several of them
+  // is the bulk of an expert-heavy form's resting height — so no divider above
+  // one, and a tighter gap between them.
+  const showDivider = !nested && idx > 0 && !section.collapsible;
+
   return (
-    <Box component="fieldset" sx={{ border: 0, p: 0, mb: 3 }}>
-      {idx > 0 && <Divider sx={{ mb: 2 }} />}
+    <Box
+      component="fieldset"
+      sx={{ border: 0, p: 0, mb: section.collapsible || nested ? 1 : 3 }}
+    >
+      {showDivider && <Divider sx={{ mb: 2 }} />}
       {section.collapsible ? (
         <Accordion
           defaultExpanded={!section.collapsed_by_default}
           disableGutters
+          variant={nested ? 'outlined' : undefined}
           slotProps={{ transition: { unmountOnExit: true } }}
         >
           <AccordionSummary
@@ -230,7 +274,11 @@ const SectionRenderer = memo(function SectionRenderer({
         </Accordion>
       ) : (
         <>
-          <Typography component="legend" variant="h6" sx={{ mb: 1, px: 0 }}>
+          <Typography
+            component="legend"
+            variant={nested ? 'subtitle1' : 'h6'}
+            sx={{ mb: 1, px: 0, fontWeight: nested ? 600 : undefined }}
+          >
             {section.title}
           </Typography>
           {sectionContent}
@@ -239,6 +287,79 @@ const SectionRenderer = memo(function SectionRenderer({
     </Box>
   );
 });
+
+interface SectionGroupProps {
+  title: string;
+  entries: SectionEntry[];
+  /** Hidden flags positionally matching {@link entries}. */
+  hidden: boolean[];
+  /** Section violations positionally matching {@link entries}. */
+  violations: Array<Array<{ message: string }>>;
+  renderField?: RenderFieldOverride;
+}
+
+/**
+ * One collapsed shell over a run of sections.
+ *
+ * When every member is hidden the shell is skipped rather than left standing
+ * empty. Members are still rendered in that case so the tree shape does not
+ * change; they each return null. Note that a *collapsed* shell mounts no
+ * members at all (`unmountOnExit`), which is why nothing here may be
+ * responsible for keeping gated-out values out of the payload — the form body
+ * owns that, for sections and fields alike.
+ */
+function SectionGroup({
+  title,
+  entries,
+  hidden,
+  violations,
+  renderField,
+}: SectionGroupProps) {
+  const members = entries.map((entry, i) => (
+    <SectionRenderer
+      key={`${entry.section.title}-${entry.index}`}
+      section={entry.section}
+      idx={i}
+      isHidden={hidden[i] ?? false}
+      violations={violations[i] ?? []}
+      renderField={renderField}
+      nested
+    />
+  ));
+
+  if (hidden.every(Boolean)) {
+    return <>{members}</>;
+  }
+
+  return (
+    <Box component="fieldset" sx={{ border: 0, p: 0, mb: 1 }}>
+      <Accordion
+        defaultExpanded={false}
+        disableGutters
+        slotProps={{ transition: { unmountOnExit: true } }}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          sx={{
+            pl: 2,
+            pr: 1,
+            minHeight: 48,
+            '& .MuiAccordionSummary-content': { my: 1 },
+          }}
+        >
+          <Typography
+            component="legend"
+            variant="subtitle1"
+            sx={{ fontWeight: 600 }}
+          >
+            {title}
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ pl: 2, pr: 2 }}>{members}</AccordionDetails>
+      </Accordion>
+    </Box>
+  );
+}
 
 export interface SchemaFormRendererProps {
   sections: FormSection[];
@@ -352,14 +473,28 @@ function SchemaFormBody({
   const isGuarded = useUnsavedChangesGuard(submitError);
   const inDataRouter = Boolean(useContext(UNSAFE_DataRouterContext));
   const allFields = useMemo(() => flattenFields(sections), [sections]);
-  const beforeSubmitSections = useMemo(
-    () => sections.filter((section) => !section.render_after_submit),
-    [sections]
-  );
-  const afterSubmitSections = useMemo(
-    () => sections.filter((section) => section.render_after_submit),
-    [sections]
-  );
+  // Evaluated once for every section, so a group shell can know whether all of
+  // its members are gated out before it renders.
+  const hiddenSections = useConditionalSections(sections);
+  // Both owned here, not by the section or field components: anything inside a
+  // collapsed shell never mounts, so it cannot drop its own values when it is
+  // gated out, and `buildFormDefaults` has already seeded them.
+  useUnregisterHiddenSections(sections, hiddenSections);
+  useFieldPayloadCleanup(allFields);
+  const [beforeSubmitItems, afterSubmitItems] = useMemo(() => {
+    const entries = sections.map((section, index) => ({ section, index }));
+    const opened = new Set<string>();
+    return [
+      groupAdjacentSections(
+        entries.filter(({ section }) => !section.render_after_submit),
+        opened
+      ),
+      groupAdjacentSections(
+        entries.filter(({ section }) => section.render_after_submit),
+        opened
+      ),
+    ];
+  }, [sections]);
   const cardinalityViolations = useCardinalityRules(sections);
   const failViolations = useFailRules(sections);
 
@@ -380,6 +515,38 @@ function SchemaFormBody({
     [violationsBySection]
   );
   const hasInlineErrors = Object.keys(formState.errors).length > 0;
+
+  const renderItem = (
+    item: SectionRenderItem,
+    idx: number,
+    keyPrefix: string
+  ) => {
+    if (item.kind === 'group') {
+      return (
+        <SectionGroup
+          key={`${keyPrefix}-group-${item.title}-${idx}`}
+          title={item.title}
+          entries={item.entries}
+          hidden={item.entries.map((e) => hiddenSections[e.index] ?? false)}
+          violations={item.entries.map(
+            (e) => violationsBySection.get(e.section) ?? []
+          )}
+          renderField={renderField}
+        />
+      );
+    }
+    const { entry } = item;
+    return (
+      <SectionRenderer
+        key={`${keyPrefix}-${entry.section.title}-${entry.index}`}
+        section={entry.section}
+        idx={idx}
+        isHidden={hiddenSections[entry.index] ?? false}
+        violations={violationsBySection.get(entry.section) ?? []}
+        renderField={renderField}
+      />
+    );
+  };
 
   const handleFormSubmit: SubmitHandler<Record<string, unknown>> = (values) => {
     onSubmit(coerceFormValues(values, allFields));
@@ -449,15 +616,7 @@ function SchemaFormBody({
           </Alert>
         )}
 
-        {beforeSubmitSections.map((section, idx) => (
-          <SectionRenderer
-            key={`${section.title}-${idx}`}
-            section={section}
-            idx={idx}
-            violations={violationsBySection.get(section) ?? []}
-            renderField={renderField}
-          />
-        ))}
+        {beforeSubmitItems.map((item, idx) => renderItem(item, idx, 'before'))}
 
         {capabilities?.alert_on_fail && (
           <Box sx={{ mb: 2 }}>
@@ -476,17 +635,11 @@ function SchemaFormBody({
           {submitLabel}
         </Button>
 
-        {afterSubmitSections.length > 0 ? (
+        {afterSubmitItems.length > 0 ? (
           <Box sx={{ mt: 3 }}>
-            {afterSubmitSections.map((section, idx) => (
-              <SectionRenderer
-                key={`${section.title}-after-${idx}`}
-                section={section}
-                idx={idx}
-                violations={violationsBySection.get(section) ?? []}
-                renderField={renderField}
-              />
-            ))}
+            {afterSubmitItems.map((item, idx) =>
+              renderItem(item, idx, 'after')
+            )}
           </Box>
         ) : null}
       </Box>

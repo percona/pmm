@@ -15,7 +15,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest';
+import {
+  beforeEach,
+  describe,
+  expect,
+  it,
+  onTestFinished,
+  vi,
+  type MockInstance,
+} from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -28,6 +36,7 @@ import {
   coerceFormValues,
 } from './utils/validationMapper';
 import { evaluatePredicate, isPresent } from './utils/predicateEvaluator';
+import { resetSchemaWarnings } from './utils/schemaWarnings';
 import type { FormSection, RenderFieldOverride } from './types';
 
 const useAlertConfigMock = vi.fn();
@@ -2723,5 +2732,664 @@ describe('SchemaFormRenderer — one_of groups', () => {
     expect(payload).toMatchObject({ include_target: false });
     expect(payload).not.toHaveProperty('target');
     expect(payload).not.toHaveProperty('target_mode');
+  });
+});
+
+// ── Section groups (PMM-15451) ───────────────────────────────────────────────
+//
+// A run of adjacent sections sharing `group` collapses into one shell, so a
+// form with many expert sections costs one row at rest instead of one per
+// section. Membership is positional, and a group whose members are all gated
+// out must not leave an empty accordion behind.
+
+describe('SchemaFormRenderer — section groups', () => {
+  const grouped: FormSection[] = [
+    {
+      title: 'Task',
+      fields: [
+        {
+          type: 'string',
+          name: 'task_name',
+          label: 'Task name',
+          required: true,
+        },
+      ],
+    },
+    {
+      title: 'General',
+      group: 'Advanced',
+      collapsible: true,
+      collapsed_by_default: true,
+      fields: [{ type: 'string', name: 'logging_dir', label: 'Logging dir' }],
+    },
+    {
+      title: 'Upload',
+      group: 'Advanced',
+      collapsible: true,
+      collapsed_by_default: true,
+      fields: [{ type: 'string', name: 's3_bucket', label: 'S3 bucket' }],
+    },
+  ];
+
+  it('renders one shell for a run of sections sharing a group', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <SchemaFormRenderer sections={grouped} onSubmit={() => {}} />
+    );
+
+    // At rest the two member sections cost a single row.
+    expect(screen.getByText('Advanced')).toBeInTheDocument();
+    expect(screen.queryByText('General')).toBeNull();
+    expect(screen.queryByText('Upload')).toBeNull();
+
+    await user.click(screen.getByText('Advanced'));
+
+    expect(await screen.findByText('General')).toBeInTheDocument();
+    expect(screen.getByText('Upload')).toBeInTheDocument();
+  });
+
+  it('leaves an ungrouped schema rendering exactly as before', () => {
+    const ungrouped = grouped.map(({ group: _group, ...section }) => section);
+    renderWithProviders(
+      <SchemaFormRenderer sections={ungrouped} onSubmit={() => {}} />
+    );
+
+    expect(screen.queryByText('Advanced')).toBeNull();
+    expect(screen.getByText('General')).toBeInTheDocument();
+    expect(screen.getByText('Upload')).toBeInTheDocument();
+  });
+
+  it('starts two shells for the same group name when the run is broken', () => {
+    const split: FormSection[] = [
+      grouped[0],
+      grouped[1],
+      { title: 'Encryption', fields: [] },
+      grouped[2],
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={split} onSubmit={() => {}} />
+    );
+
+    expect(screen.getAllByText('Advanced')).toHaveLength(2);
+  });
+
+  it('skips the shell when every member is gated out', async () => {
+    const user = userEvent.setup();
+    const gated: FormSection[] = [
+      {
+        title: 'Mode',
+        fields: [
+          {
+            type: 'choice',
+            name: 'backup_type',
+            label: 'Backup Type',
+            choices: [
+              { label: 'Mydumper backup', value: 'M' },
+              { label: 'XtraBackup backup', value: 'X' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Mydumper',
+        group: 'Advanced',
+        forbidden: [{ when: { not_equals: { backup_type: 'M' } } }],
+        fields: [
+          {
+            type: 'string',
+            name: 'mydumper_extra_args',
+            label: 'Mydumper args',
+          },
+        ],
+      },
+      {
+        title: 'XtraBackup',
+        group: 'Advanced',
+        forbidden: [{ when: { not_equals: { backup_type: 'X' } } }],
+        fields: [
+          {
+            type: 'string',
+            name: 'xtrabackup_extra_args',
+            label: 'XtraBackup args',
+          },
+        ],
+      },
+    ];
+
+    renderWithProviders(
+      <SchemaFormRenderer sections={gated} onSubmit={() => {}} />
+    );
+
+    // Nothing picked yet, so both members are hidden and the shell is skipped.
+    expect(screen.queryByText('Advanced')).toBeNull();
+
+    await user.click(screen.getByTestId('radio-option-M'));
+
+    // One surviving member is enough to bring the shell back.
+    expect(await screen.findByText('Advanced')).toBeInTheDocument();
+  });
+
+  it('still drops the fields of a gated-out member from the payload', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    const gated: FormSection[] = [
+      {
+        title: 'Mode',
+        fields: [
+          {
+            type: 'choice',
+            name: 'backup_type',
+            label: 'Backup Type',
+            choices: [
+              { label: 'Mydumper backup', value: 'M' },
+              { label: 'XtraBackup backup', value: 'X' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Mydumper',
+        group: 'Advanced',
+        forbidden: [{ when: { not_equals: { backup_type: 'M' } } }],
+        fields: [
+          {
+            type: 'string',
+            name: 'mydumper_extra_args',
+            label: 'Mydumper args',
+          },
+        ],
+      },
+      {
+        title: 'XtraBackup',
+        group: 'Advanced',
+        forbidden: [{ when: { not_equals: { backup_type: 'X' } } }],
+        fields: [
+          {
+            type: 'string',
+            name: 'xtrabackup_extra_args',
+            label: 'XtraBackup args',
+          },
+        ],
+      },
+    ];
+
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={gated}
+        onSubmit={onSubmit}
+        defaultValues={{
+          backup_type: 'M',
+          mydumper_extra_args: 'kept',
+          xtrabackup_extra_args: 'should-not-ship',
+        }}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+
+    const payload = onSubmit.mock.calls[0]?.[0];
+    expect(payload).toMatchObject({ mydumper_extra_args: 'kept' });
+    expect(payload).not.toHaveProperty('xtrabackup_extra_args');
+  });
+});
+
+// ── Parented fields (PMM-15451) ──────────────────────────────────────────────
+//
+// A field carrying `parent` renders indented beneath that toggle and inert
+// until it is on, rather than vanishing. The backend keeps its own
+// `forbidden` gate on the parent being falsy — `Ui(parent=...)` is
+// presentation-only — so the renderer has to consume that one gate as the
+// disable condition while every other gate on the field still hides it.
+
+describe('SchemaFormRenderer — parented fields', () => {
+  const sections: FormSection[] = [
+    {
+      title: 'Encryption',
+      fields: [
+        { type: 'bool', name: 'encrypt', label: 'Encrypt backup' },
+        {
+          type: 'bool',
+          name: 'post_run_encrypt',
+          label: 'Encrypt after backup',
+        },
+        {
+          type: 'string',
+          name: 'encrypt_tmpdir',
+          label: 'Encrypt using tmpdir',
+          parent: 'encrypt',
+          forbidden: [
+            // The parent gate — consumed as the disable condition.
+            { when: { falsy: 'encrypt' } },
+            // A genuine exclusion — still hides the field.
+            { when: { truthy: 'post_run_encrypt' } },
+          ],
+        },
+      ],
+    },
+  ];
+
+  it('shows the child disabled while its parent is off', () => {
+    renderWithProviders(
+      <SchemaFormRenderer sections={sections} onSubmit={() => {}} />
+    );
+
+    const child = screen.getByLabelText('Encrypt using tmpdir');
+    expect(child).toBeInTheDocument();
+    expect(child).toBeDisabled();
+  });
+
+  it('makes the child interactive once the parent is on', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <SchemaFormRenderer sections={sections} onSubmit={() => {}} />
+    );
+
+    await user.click(screen.getByLabelText('Encrypt backup'));
+
+    const child = screen.getByLabelText('Encrypt using tmpdir');
+    await waitFor(() => expect(child).toBeEnabled());
+    await user.type(child, '/tmp/enc');
+    expect((child as HTMLInputElement).value).toBe('/tmp/enc');
+  });
+
+  it('nests the child under its parent for assistive tech', () => {
+    renderWithProviders(
+      <SchemaFormRenderer sections={sections} onSubmit={() => {}} />
+    );
+
+    const slot = document.querySelector('[data-field-name="encrypt_tmpdir"]');
+    expect(slot?.tagName).toBe('FIELDSET');
+    expect(slot).toHaveAttribute('data-parent-field', 'encrypt');
+    expect(slot).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('still hides the child on a gate that is not the parent gate', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(
+      <SchemaFormRenderer sections={sections} onSubmit={() => {}} />
+    );
+
+    await user.click(screen.getByLabelText('Encrypt backup'));
+    await waitFor(() =>
+      expect(screen.getByLabelText('Encrypt using tmpdir')).toBeEnabled()
+    );
+
+    await user.click(screen.getByLabelText('Encrypt after backup'));
+    await waitFor(() =>
+      expect(screen.queryByLabelText('Encrypt using tmpdir')).toBeNull()
+    );
+  });
+
+  it('clears a disabled child so its value never ships', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={sections}
+        onSubmit={onSubmit}
+        defaultValues={{ encrypt: false, encrypt_tmpdir: '/stale' }}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+
+    expect(onSubmit.mock.calls[0]?.[0]).toMatchObject({ encrypt_tmpdir: '' });
+  });
+
+  it('clears the child again when the parent is switched back off', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer sections={sections} onSubmit={onSubmit} />
+    );
+
+    await user.click(screen.getByLabelText('Encrypt backup'));
+    const child = screen.getByLabelText('Encrypt using tmpdir');
+    await waitFor(() => expect(child).toBeEnabled());
+    await user.type(child, '/tmp/enc');
+    await user.click(screen.getByLabelText('Encrypt backup'));
+
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+
+    expect(onSubmit.mock.calls[0]?.[0]).toMatchObject({ encrypt_tmpdir: '' });
+  });
+
+  it('does not let a disabled required child block submission', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    const requiredChild: FormSection[] = [
+      {
+        title: 'Replication',
+        fields: [
+          {
+            type: 'bool',
+            name: 'slave_from_master',
+            label: 'Slave from master',
+          },
+          {
+            type: 'string',
+            name: 'master_ip',
+            label: 'Master IP',
+            required: true,
+            parent: 'slave_from_master',
+            forbidden: [{ when: { falsy: 'slave_from_master' } }],
+          },
+        ],
+      },
+    ];
+
+    renderWithProviders(
+      <SchemaFormRenderer sections={requiredChild} onSubmit={onSubmit} />
+    );
+
+    expect(screen.getByLabelText(/Master IP/)).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+  });
+});
+
+// ── Malformed-schema diagnostics (PMM-15451) ─────────────────────────────────
+//
+// A schema arrives from the side-car at runtime, so neither this package's
+// types nor its tests can catch an authoring mistake in it. These cases pin
+// the graceful-degradation behaviour and assert the dev warning that makes the
+// mistake findable.
+
+describe('SchemaFormRenderer — malformed parent/group schemas', () => {
+  let warn: MockInstance<(...args: unknown[]) => void>;
+
+  beforeEach(() => {
+    resetSchemaWarnings();
+    warn = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {}) as unknown as MockInstance<
+      (...args: unknown[]) => void
+    >;
+    onTestFinished(() => warn.mockRestore());
+  });
+
+  function warnings(): string {
+    return warn.mock.calls.map((c) => String(c[0])).join('\n');
+  }
+
+  it('leaves a field disabled, not crashed, when its parent does not exist', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Broken',
+            fields: [
+              {
+                type: 'string',
+                name: 'orphan',
+                label: 'Orphan',
+                parent: 'nope',
+                forbidden: [{ when: { falsy: 'nope' } }],
+              },
+            ],
+          },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(screen.getByLabelText('Orphan')).toBeDisabled();
+    expect(warnings()).toContain("names parent 'nope', which is not a field");
+  });
+
+  it('warns when the parent is not a bool', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Broken',
+            fields: [
+              { type: 'string', name: 'host', label: 'Host' },
+              {
+                type: 'string',
+                name: 'child',
+                label: 'Child',
+                parent: 'host',
+                forbidden: [{ when: { falsy: 'host' } }],
+              },
+            ],
+          },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(warnings()).toContain("which is a 'string' field");
+  });
+
+  it('warns when a parented field carries no companion forbidden gate', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Broken',
+            fields: [
+              { type: 'bool', name: 'enable', label: 'Enable' },
+              {
+                type: 'string',
+                name: 'child',
+                label: 'Child',
+                parent: 'enable',
+              },
+            ],
+          },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(warnings()).toContain('carries no forbidden gate');
+  });
+
+  it('warns on a parent cycle, which leaves both toggles inert', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Cycle',
+            fields: [
+              {
+                type: 'bool',
+                name: 'a',
+                label: 'A',
+                parent: 'b',
+                forbidden: [{ when: { falsy: 'b' } }],
+              },
+              {
+                type: 'bool',
+                name: 'b',
+                label: 'B',
+                parent: 'a',
+                forbidden: [{ when: { falsy: 'a' } }],
+              },
+            ],
+          },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(warnings()).toContain('Chained parents are not supported');
+    expect(screen.getByLabelText('A')).toBeDisabled();
+    expect(screen.getByLabelText('B')).toBeDisabled();
+  });
+
+  it('warns when a group run is broken by an outside section', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          { title: 'General', group: 'Advanced', fields: [] },
+          { title: 'Middle', fields: [] },
+          { title: 'Upload', group: 'Advanced', fields: [] },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(warnings()).toContain("rejoins group 'Advanced'");
+  });
+});
+
+// ── Payload hygiene inside collapsed shells (PMM-15451) ──────────────────────
+//
+// `buildFormDefaults` seeds every leaf in the schema, and a collapsed
+// accordion mounts none of its children (`unmountOnExit`). So the effects that
+// keep a gated-out value out of the payload cannot live in the field or
+// section components — they live in the form body, and these cases prove it.
+
+describe('SchemaFormRenderer — collapsed shells and the payload', () => {
+  const gatedInsideCollapsed: FormSection[] = [
+    {
+      title: 'Mode',
+      fields: [
+        {
+          type: 'choice',
+          name: 'mode',
+          label: 'Mode',
+          choices: [
+            { label: 'Simple', value: 'simple' },
+            { label: 'Full', value: 'full' },
+          ],
+          default: 'simple',
+        },
+      ],
+    },
+    {
+      title: 'Advanced',
+      group: 'Extras',
+      collapsible: true,
+      collapsed_by_default: true,
+      fields: [
+        {
+          type: 'string',
+          name: 'full_only',
+          label: 'Full only',
+          // A gated field that still carries a schema default is the shape
+          // that leaks: the default is seeded whether or not the slot mounts.
+          default: 'seeded-default',
+          forbidden: [{ when: { not_equals: { mode: 'full' } } }],
+        },
+        { type: 'string', name: 'always', label: 'Always' },
+      ],
+    },
+  ];
+
+  it('drops a gated field inside a never-expanded group from the payload', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer sections={gatedInsideCollapsed} onSubmit={onSubmit} />
+    );
+
+    // Never expand anything — the group is collapsed, so the field never mounts.
+    expect(screen.queryByLabelText('Full only')).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+
+    expect(onSubmit.mock.calls[0]?.[0]).not.toHaveProperty('full_only');
+  });
+
+  it('keeps the field once its gate stops firing, still unexpanded', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={gatedInsideCollapsed}
+        onSubmit={onSubmit}
+        defaultValues={{ mode: 'full' }}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+
+    expect(onSubmit.mock.calls[0]?.[0]).toMatchObject({
+      full_only: 'seeded-default',
+    });
+  });
+
+  it('clears an unmounted parent-off child rather than shipping its default', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Advanced',
+            group: 'Extras',
+            collapsible: true,
+            collapsed_by_default: true,
+            fields: [
+              { type: 'bool', name: 'enable', label: 'Enable' },
+              {
+                type: 'string',
+                name: 'tuning',
+                label: 'Tuning',
+                default: 'seeded-default',
+                parent: 'enable',
+                forbidden: [{ when: { falsy: 'enable' } }],
+              },
+            ],
+          },
+        ]}
+        onSubmit={onSubmit}
+      />
+    );
+
+    expect(screen.queryByLabelText('Tuning')).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+
+    expect(onSubmit.mock.calls[0]?.[0]).toMatchObject({ tuning: '' });
+  });
+
+  it('unregisters rather than clears when a child is both hidden and parent-off', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Encryption',
+            fields: [
+              { type: 'bool', name: 'encrypt', label: 'Encrypt' },
+              { type: 'bool', name: 'post_run', label: 'Post run' },
+              {
+                type: 'string',
+                name: 'tmpdir',
+                label: 'Tmpdir',
+                parent: 'encrypt',
+                forbidden: [
+                  { when: { falsy: 'encrypt' } },
+                  { when: { truthy: 'post_run' } },
+                ],
+              },
+            ],
+          },
+        ]}
+        onSubmit={onSubmit}
+        defaultValues={{ encrypt: false, post_run: true }}
+      />
+    );
+
+    // The non-parent gate hides it; the parent gate would otherwise clear it
+    // straight back into the payload.
+    expect(screen.queryByLabelText('Tmpdir')).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+
+    expect(onSubmit.mock.calls[0]?.[0]).not.toHaveProperty('tmpdir');
   });
 });
