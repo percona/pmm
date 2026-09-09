@@ -10,7 +10,7 @@ import {
  * What SEP currently holds for ServiceNow delivery, read once and derived.
  *
  * SEP holds `GET /sep/admin/settings` to administrators, reads included, so
- * every caller must already be admin-only — today that is the settings form.
+ * every caller must already be admin-only.
  */
 export const useServiceNowConnection = () => {
   const {

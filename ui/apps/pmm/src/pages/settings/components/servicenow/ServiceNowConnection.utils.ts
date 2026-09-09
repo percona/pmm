@@ -112,7 +112,9 @@ export const toFormValues = (
  * `endpoint` is dropped when blank so SEP keeps the receiver its image bakes
  * in — that is also how a previously entered endpoint is reverted. The secrets
  * are whatever the operator typed: the form requires every declared one, so
- * there is no mask to restore and no empty value to send.
+ * there is no mask to restore. A declared name the form rendered no field for
+ * is the one remaining empty value, and SEP is the authority on whether it is
+ * acceptable.
  */
 export const buildDeliveryInputsPatch = (
   values: ServiceNowFormValues,

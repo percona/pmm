@@ -12,8 +12,9 @@ import { ServiceNowConnected } from './ServiceNowConnected';
 import { ServiceNowConnectionForm } from './ServiceNowConnectionForm';
 
 /**
- * The ServiceNow connection tab: a heading that always renders, and one of five
- * bodies under it.
+ * The ServiceNow connection tab: one of five bodies, under a heading every one
+ * of them carries except the connected screen, which names the connection
+ * itself.
  *
  * The connection is optional, so its state is told by the body itself rather
  * than by a standing banner — a configured deployment sees what it has, an

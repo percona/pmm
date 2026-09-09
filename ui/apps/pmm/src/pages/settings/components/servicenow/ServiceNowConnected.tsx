@@ -40,8 +40,9 @@ const ConnectionDetail: FC<{
  * Only the endpoint is shown. PMM stores no author or timestamp for a saved
  * setting — SEP answers whether an override exists, not who wrote it — so the
  * rest of the design's detail row waits on a SEP endpoint that can answer it.
- * A blank stored endpoint means SEP is using the receiver its image bakes in,
- * which is the default this reports rather than an empty row.
+ * A blank stored endpoint means SEP is using the receiver its image bakes in.
+ * PMM does not know which one that is, so the row names the receiver Percona
+ * ships rather than leaving itself empty.
  */
 export const ServiceNowConnected: FC<Props> = ({ stored, onRenew }) => {
   const { mutateAsync: resetSetting, isPending: isDisconnecting } =
