@@ -32,5 +32,7 @@ export const serviceNowSchema = z.object({
     .refine((value) => value.trim() === '' || isAbsoluteUrl(value.trim()), {
       message: invalidUrl,
     }),
-  secrets: z.array(z.string().min(1, { message: required })),
+  secrets: z.array(
+    z.string().refine((value) => value.trim() !== '', { message: required })
+  ),
 });

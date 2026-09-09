@@ -320,19 +320,39 @@ describe('ServiceNowConnection — saving', () => {
     });
   });
 
+  // Both of these clear the credential after reaching an enabled submit: the
+  // button starts disabled, so a `waitFor` for disabled passes on its first
+  // tick — before the resolver has run — and would hold over a form that never
+  // validated at all.
   it('holds the submit until every declared credential is supplied', async () => {
     renderTab();
 
-    type('servicenow-secret-sn_api_key', 'key-1');
+    fillCredentials();
+
+    await waitFor(() =>
+      expect(screen.getByTestId('servicenow-submit')).toBeEnabled()
+    );
+
+    type('servicenow-secret-client_token', '');
 
     await waitFor(() =>
       expect(screen.getByTestId('servicenow-submit')).toBeDisabled()
     );
+  });
 
-    type('servicenow-secret-client_token', 'token-1');
+  it('counts a whitespace-only credential as unsupplied', async () => {
+    renderTab();
+
+    fillCredentials();
 
     await waitFor(() =>
       expect(screen.getByTestId('servicenow-submit')).toBeEnabled()
+    );
+
+    type('servicenow-secret-client_token', '   ');
+
+    await waitFor(() =>
+      expect(screen.getByTestId('servicenow-submit')).toBeDisabled()
     );
   });
 
