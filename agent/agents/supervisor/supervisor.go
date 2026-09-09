@@ -63,12 +63,12 @@ const (
 	// and the client waits for each to be acknowledged - so left unbounded they took the whole
 	// supervisor down with a wedged connection, s.rw included, and with it every SetState and
 	// the local status API. Giving up risks only reporting a stopped Agent's last statuses out
-	// of order, or clearing its temporary directory and reusing its port while it is still
-	// shutting down, in which case starting its replacement is retried on another port. It also
-	// leaves a forwarder that stopAll must not close the channels under, hence the count of
-	// them below. The budget covers the whole call rather than each
-	// Agent so that a batch of them cannot hold s.rw for N times as long; it is sized well
-	// above process.killT, so a normal SIGTERM/SIGKILL stop never eats into it. See PMM-15431.
+	// of order: an abandoned Agent keeps what it owns until it does stop (see
+	// releaseAgentResources), and its replacement starts on a port of its own. It also leaves a
+	// forwarder that stopAll must not close the channels under, hence the count of them below.
+	// The budget covers the whole call rather than each Agent so that a batch of them cannot
+	// hold s.rw for N times as long; it is sized well above process.killT, so a normal
+	// SIGTERM/SIGKILL stop never eats into it. See PMM-15431.
 	agentsStopTimeout = 60 * time.Second
 )
 
@@ -281,9 +281,15 @@ func (s *Supervisor) RestartAgents() {
 
 	for id, agent := range s.agentProcesses {
 		agent.cancel()
-		s.waitAgentStopped(id, agent.done, deadline)
+		port := agent.listenPort
+		if !s.waitAgentStopped(id, agent.done, deadline) {
+			// See the same branch in setAgentProcesses.
+			delete(s.agentProcesses, id)
+			s.releaseAgentResources(id, agent.done, port, "")
+			port = 0
+		}
 
-		err := s.tryStartProcess(id, agent.requestedState, agent.listenPort)
+		err := s.tryStartProcess(id, agent.requestedState, port)
 		if err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
 		}
@@ -300,14 +306,16 @@ func (s *Supervisor) RestartAgents() {
 	}
 }
 
-// waitAgentStopped waits for a canceled Agent's status forwarder to finish, until deadline.
-func (s *Supervisor) waitAgentStopped(agentID string, done <-chan struct{}, deadline time.Time) {
+// waitAgentStopped waits for a canceled Agent's status forwarder to finish, until deadline. It
+// reports whether the Agent stopped; an abandoned one is still running, so everything that assumes
+// it is gone has to wait for it instead - see releaseAgentResources.
+func (s *Supervisor) waitAgentStopped(agentID string, done <-chan struct{}, deadline time.Time) bool {
 	// Take the answer if it is already there. Once the budget is spent both cases below are
 	// ready, and select would pick between them at random - reporting a timeout for every
 	// other Agent that had in fact stopped cleanly.
 	select {
 	case <-done:
-		return
+		return true
 	default:
 	}
 
@@ -316,8 +324,54 @@ func (s *Supervisor) waitAgentStopped(agentID string, done <-chan struct{}, dead
 
 	select {
 	case <-done:
+		return true
 	case <-t.C:
 		s.l.Errorf("Agent %s did not report itself stopped, proceeding without it.", agentID)
+		return false
+	}
+}
+
+// releaseAgentResources gives back what an Agent owned: its port reservation, and its temporary
+// directory unless agentTmp is empty. A built-in Agent has no port, hence port 0.
+//
+// Both need the Agent actually gone, which one that outlived the stop budget is not, so it is
+// waited for in a goroutine of its own instead - off s.rw, and off the call that gave up on it.
+// Releasing a port a live exporter still listens on fails and keeps the reservation for good,
+// since the Agent that held it is already forgotten and nothing is left to retry it, and clearing
+// the directory takes files out from under a running Agent. See PMM-15431.
+func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{}, port uint16, agentTmp string) {
+	select {
+	case <-done:
+		s.releasePortAndTempDir(agentID, port, agentTmp)
+	default:
+		s.l.Warnf("Agent %s is still running, freeing what it owns once it stops.", agentID)
+		go func() {
+			select {
+			case <-done:
+				s.releasePortAndTempDir(agentID, port, agentTmp)
+			case <-s.ctx.Done():
+				// pmm-agent is on its way out: the OS takes the port back, and
+				// the temporary directory is cleaned on the next start.
+			}
+		}()
+	}
+}
+
+func (s *Supervisor) releasePortAndTempDir(agentID string, port uint16, agentTmp string) {
+	if port != 0 {
+		err := s.portsRegistry.Release(port)
+		if err != nil {
+			s.l.Errorf("Failed to release port %d of Agent %s: %s.", port, agentID, err)
+		}
+	}
+
+	if agentTmp == "" {
+		return
+	}
+
+	err := os.RemoveAll(agentTmp)
+	if err != nil {
+		s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
 	}
 }
 
@@ -360,27 +414,28 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 		agent.cancel()
 		s.waitAgentStopped(agentID, agent.done, deadline)
 
-		err := s.portsRegistry.Release(agent.listenPort)
-		if err != nil {
-			s.l.Errorf("Failed to release port: %s.", err)
-		}
-
 		delete(s.agentProcesses, agentID)
 
 		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, trimPrefix(agent.requestedState.Type.String()), agentID)
-		err = os.RemoveAll(agentTmp)
-		if err != nil {
-			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
-		}
+		s.releaseAgentResources(agentID, agent.done, agent.listenPort, agentTmp)
 	}
 
 	// restart while preserving port
 	for _, agentID := range toRestart {
 		agent := s.agentProcesses[agentID]
 		agent.cancel()
-		s.waitAgentStopped(agentID, agent.done, deadline)
+		port := agent.listenPort
+		if !s.waitAgentStopped(agentID, agent.done, deadline) {
+			// It may still be listening, so let the replacement have a port of its
+			// own and hand this one back once it is free. Forget the Agent either
+			// way: it has been canceled, so if starting the replacement fails, a
+			// later SetState has to treat it as gone rather than as still running.
+			delete(s.agentProcesses, agentID)
+			s.releaseAgentResources(agentID, agent.done, port, "")
+			port = 0
+		}
 
-		err := s.tryStartProcess(agentID, agentProcesses[agentID], agent.listenPort)
+		err := s.tryStartProcess(agentID, agentProcesses[agentID], port)
 		if err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
@@ -426,10 +481,7 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 		delete(s.builtinAgents, agentID)
 
 		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, trimPrefix(agent.requestedState.Type.String()), agentID)
-		err := os.RemoveAll(agentTmp)
-		if err != nil {
-			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
-		}
+		s.releaseAgentResources(agentID, agent.done, 0, agentTmp)
 	}
 
 	// restart
