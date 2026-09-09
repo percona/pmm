@@ -174,7 +174,8 @@ func serverNodeOfAgent(agentID string) (serverNode, error) {
 	defer cancel()
 
 	agent, err := inventoryClient.Default.AgentsService.GetAgent(
-		aservice.NewGetAgentParams().WithAgentID(agentID).WithContext(ctx))
+		aservice.NewGetAgentParams().WithAgentID(agentID).WithContext(ctx),
+	)
 	if err != nil {
 		return serverNode{}, lookupError(err)
 	}
@@ -184,7 +185,8 @@ func serverNodeOfAgent(agentID string) (serverNode, error) {
 	}
 
 	node, err := inventoryClient.Default.NodesService.GetNode(
-		nservice.NewGetNodeParams().WithNodeID(agent.Payload.PMMAgent.RunsOnNodeID).WithContext(ctx))
+		nservice.NewGetNodeParams().WithNodeID(agent.Payload.PMMAgent.RunsOnNodeID).WithContext(ctx),
+	)
 	if err != nil {
 		return serverNode{}, lookupError(err)
 	}
