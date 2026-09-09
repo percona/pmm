@@ -125,21 +125,23 @@ In some places, we have used variables themselves to solve the problem. In other
 
 ## Icons
 
-Currently, we use two different sets of icons:
+We use a single set of icons: the ones bundled with the Mkdocs Material theme. It offers 10,000+ icons, which is more than sufficient for all our documentation needs, and it covers four families:
 
-- Native Mkdocs Material icons and emojis
-- FontAwesome Icons
+| Family | Shortcode prefix | Example |
+| ------ | ---------------- | ------- |
+| Material Design Icons | `:material-` | `:material-cog:` |
+| Font Awesome | `:fontawesome-brands-`, `:fontawesome-solid-`, `:fontawesome-regular-` | `:fontawesome-brands-github:` |
+| Octicons | `:octicons-` | `:octicons-alert-16:` |
+| Simple Icons | `:simple-` | `:simple-docker:` |
 
-The preference should be given to Mkdocs Material icons, since they were initially designed for `mkdocs` project and work very well with it, and they follow the light/dark colour scheme. FontAwesome icons do not play well with Mkdocs, so use them with caution and don't forget to apply additional CSS styles in case they don't render well in PDF.
+Prefer Material Design Icons unless another family has a markedly better match — brand logos, for instance, usually come from Font Awesome or Simple Icons.
 
-Ideally, we should migrate to using just the first set, which offers 10,000+ icons, that are more than sufficient for all our documentation needs.
+To add an icon, go to <https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/>, search for one, select it, and copy the shortcode here. Every family renders as inline SVG that inherits the surrounding text colour, so icons follow the light/dark colour scheme automatically and need no extra CSS.
 
-We used to also use Iconscout Unicons (`uil-` prefix), the set that the PMM UI (Grafana) itself uses. These are gone: they were plain font glyphs that rendered poorly in both the light and the dark theme. Don't reintroduce them — pick the closest Mkdocs Material equivalent instead.
+Two icon sets used to be loaded from external stylesheets and have both been removed. Don't reintroduce either:
 
-How to add an icon:
-
-- For Material Theme Icons (`:` prefix and suffix), go to <https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/>, find an icon, select it and copy the code here.
-- For Font Awesome (`fa-` prefix), use HTML: go to <https://fontawesome.com/icons>, find an icon, copy the code.
+- **Iconscout Unicons** (`uil-` prefix), the set the PMM UI (Grafana) itself uses. They were plain font glyphs that rendered poorly in both the light and the dark theme.
+- **Font Awesome 4.4.0** (`fa-` prefix), loaded as raw HTML. It had no remaining usages, and the version was long past end of life. Use the `:fontawesome-*:` shortcodes above instead — the theme bundles the icons, so there is no external version to keep in sync.
 
 Note: the following list is WIP and will be updated as we go along.
 

@@ -51,7 +51,6 @@ theme:
     - content.action.view
 
 extra_css:
-  - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
   - css/nocopy.css
   - css/design.css
   - css/osano.css
