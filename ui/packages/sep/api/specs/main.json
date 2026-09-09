@@ -544,7 +544,7 @@
     },
     "/api/users/": {
       "get": {
-        "description": "List users.\n\n:return: The list of users.\n:rtype: list[User]",
+        "description": "List users.\n\n:return: The list of users.",
         "operationId": "users_list_users_api_users__get",
         "responses": {
           "200": {

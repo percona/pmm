@@ -20,21 +20,22 @@ import type { TaskHistoryEntry } from '../../hooks/useTaskHistory';
 /**
  * Field names a failure reason may arrive under.
  *
- * `TaskHistoryResponse` carries no error field today — status, started_at,
- * finished_at, duration, has_logs and log_capture, and nothing else. SEP-2000
- * adds one; until it lands every candidate here is absent and
+ * The bet this file was written as has now settled: `TaskHistoryResponse`
+ * carries `failure_reason`, and the vendored spec has been synced to a
+ * side-car that serves it. An older side-car still sends none of these, and
  * {@link runFailureReason} returns null, which the UI renders as a pointer to
  * the log rather than as an empty error.
  *
- * Several names are accepted rather than one so the frontend does not have to
- * ship in lockstep with whichever name the side-car settles on. Order is
- * preference: the most specific name wins if two are ever populated.
+ * Order is preference, and it is now load-bearing in a way it was not when
+ * every name was hypothetical: `error_message` sorts ahead of the real field,
+ * so a side-car populating both would be read on the wrong one.
  *
- * TODO(SEP-2000): once the side-car has shipped a field, narrow this to that
- * one name and drop the tracking fallback. This file is a bet on a shape
- * nobody has committed to yet, and it lives in vendored code — leaving three
- * guesses in place after the real name is known is how it ends up silently
- * matching the wrong thing through a future sync.
+ * TODO: narrow this to `failure_reason` and drop the tracking fallback. The
+ * condition the original note put this off until — the side-car shipping a
+ * field — is met; what remains is rewriting the cases in
+ * `runFailureReason.test.ts` that are built around the multi-key and
+ * tracking-bag behaviour, which belongs with the drawer rather than with a
+ * sync.
  */
 const FAILURE_REASON_KEYS = [
   'error_message',

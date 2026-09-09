@@ -89,6 +89,8 @@ beforeEach(() => {
 const schema: PluginSchema = {
   name: 'sched',
   display_name: 'Sched',
+  item_display_name: 'sched',
+  item_display_name_plural: 'scheds',
   capabilities: { scheduling: true },
   list_view: { columns: [{ key: 'name', label: 'Name' }] },
 };

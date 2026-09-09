@@ -32,6 +32,12 @@ function makePeriodic(
     enabled: true,
     description: '',
     start_time: null,
+    next_runs: [
+      '2026-06-18T14:00:00Z',
+      '2026-06-18T15:00:00Z',
+      '2026-06-18T16:00:00Z',
+    ],
+    timezone: 'UTC',
     last_run_at: null,
     date_changed: null,
     total_run_count: 0,
