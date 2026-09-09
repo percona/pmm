@@ -229,7 +229,7 @@ describe('TaskHistoryTable actions', () => {
     expect(stopButtons).toHaveLength(1);
   });
 
-  it('calls onViewLogs when view-logs clicked', async () => {
+  it('calls onViewLogs when the run-details control is clicked', async () => {
     const onViewLogs = vi.fn();
     const data = [makeEntry(1, 'success')];
     render(
@@ -237,9 +237,123 @@ describe('TaskHistoryTable actions', () => {
         <TaskHistoryTable data={data} disablePolling onViewLogs={onViewLogs} />
       </Wrapper>
     );
-    await userEvent.click(screen.getByRole('button', { name: 'View logs' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'View run details' })
+    );
     expect(onViewLogs).toHaveBeenCalledOnce();
     expect(onViewLogs.mock.calls[0][0].id).toBe(1);
+  });
+
+  it('opens the run from a click anywhere on the row', async () => {
+    // The row was inert before, which read as a dead end to anyone who
+    // clicked it rather than hunting for the icon.
+    const onViewLogs = vi.fn();
+    render(
+      <Wrapper client={client}>
+        <TaskHistoryTable
+          data={[makeEntry(4, 'failed')]}
+          disablePolling
+          onViewLogs={onViewLogs}
+        />
+      </Wrapper>
+    );
+
+    await userEvent.click(screen.getByText('host-4'));
+
+    expect(onViewLogs).toHaveBeenCalledOnce();
+    expect(onViewLogs.mock.calls[0][0].id).toBe(4);
+  });
+
+  it('reports the run once when the control inside the row is clicked', async () => {
+    const onViewLogs = vi.fn();
+    render(
+      <Wrapper client={client}>
+        <TaskHistoryTable
+          data={[makeEntry(5, 'success')]}
+          disablePolling
+          onViewLogs={onViewLogs}
+        />
+      </Wrapper>
+    );
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'View run details' })
+    );
+
+    // The row handler would otherwise fire on the same click.
+    expect(onViewLogs).toHaveBeenCalledOnce();
+  });
+
+  it('does not open the run when a control in the row is used instead', async () => {
+    // Every control in the actions cell acts on the run without opening it;
+    // the row handler must not fire underneath them.
+    const onViewLogs = vi.fn();
+    const onStopTask = vi.fn();
+    render(
+      <Wrapper client={client}>
+        <TaskHistoryTable
+          data={[makeEntry(7, 'running')]}
+          disablePolling
+          onViewLogs={onViewLogs}
+          onStopTask={onStopTask}
+          actionError={null}
+        />
+      </Wrapper>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Stop task' }));
+
+    expect(onViewLogs).not.toHaveBeenCalled();
+  });
+
+  it('does not open the run when a chain link is followed', async () => {
+    const onViewLogs = vi.fn();
+    const onChainItemClick = vi.fn();
+    render(
+      <Wrapper client={client}>
+        <TaskHistoryTable
+          data={[
+            makeEntry(8, 'success', {
+              execution_request: {
+                task: 'task-8',
+                target: 'host-8',
+                meta: { _chain_task_names: ['next-task'], _chain_depth: 1 },
+                tracking: {},
+              } as TaskHistoryEntry['execution_request'],
+            }),
+          ]}
+          disablePolling
+          onViewLogs={onViewLogs}
+          onChainItemClick={onChainItemClick}
+        />
+      </Wrapper>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'next-task' }));
+
+    expect(onChainItemClick).toHaveBeenCalledOnce();
+    expect(onViewLogs).not.toHaveBeenCalled();
+  });
+
+  it('offers the run of a terminal execution that recorded no log', async () => {
+    // The detail carries status, timing and failure reason as well as the log,
+    // so a log-less run is exactly the one a reader needs to open — it used to
+    // be the one case the control was greyed out for.
+    const onViewLogs = vi.fn();
+    render(
+      <Wrapper client={client}>
+        <TaskHistoryTable
+          data={[makeEntry(6, 'success', { has_logs: false })]}
+          disablePolling
+          onViewLogs={onViewLogs}
+        />
+      </Wrapper>
+    );
+
+    const control = screen.getByRole('button', { name: 'View run details' });
+    expect(control).toBeEnabled();
+    await userEvent.click(control);
+    expect(onViewLogs).toHaveBeenCalledOnce();
   });
 
   it('opens confirm dialog and invokes onStopTask on Stop click', async () => {
@@ -721,9 +835,9 @@ describe('TaskHistoryTable — write access', () => {
     expect(
       screen.queryByRole('button', { name: 'Stop task' })
     ).not.toBeInTheDocument();
-    // Reads stay: the row and its log viewer remain available.
+    // Reads stay: the row and its execution detail remain available.
     expect(
-      screen.getByRole('button', { name: 'View logs' })
+      screen.getByRole('button', { name: 'View run details' })
     ).toBeInTheDocument();
   });
 });

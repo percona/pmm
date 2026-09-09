@@ -33,6 +33,13 @@ export interface LastRunStatusProps {
    * "ran, but the result could not be resolved" when `status` is absent.
    */
   lastRunAt: PeriodicTaskResponse['last_run_at'];
+  /**
+   * Makes a recognized outcome open that run's execution detail.
+   *
+   * Only the badge branch is clickable: the "Not yet run" and "Unknown"
+   * branches describe the absence of a run, so there is nothing to open.
+   */
+  onOpenRun?: () => void;
 }
 
 const mutedChipSx = { color: 'text.disabled', borderColor: 'divider' } as const;
@@ -53,9 +60,19 @@ const mutedChipSx = { color: 'text.disabled', borderColor: 'divider' } as const;
  * status is shown verbatim rather than dropped, matching the fallback used by
  * the list/detail status columns.
  */
-export function LastRunStatus({ status, lastRunAt }: LastRunStatusProps) {
+export function LastRunStatus({
+  status,
+  lastRunAt,
+  onOpenRun,
+}: LastRunStatusProps) {
   if (isTaskHistoryStatus(status)) {
-    return <TaskHistoryStatusBadge status={status} />;
+    return (
+      <TaskHistoryStatusBadge
+        status={status}
+        onClick={onOpenRun}
+        title={onOpenRun ? 'View the last run' : undefined}
+      />
+    );
   }
 
   if (status !== null && status !== undefined) {

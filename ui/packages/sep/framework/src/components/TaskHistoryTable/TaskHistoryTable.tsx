@@ -42,6 +42,8 @@ import { useTaskHistoryFiles } from '../../hooks/useTaskHistoryFiles';
 import { SEP_TABLE_CLASS } from '../../constants';
 import { ChainDisplay } from './ChainDisplay';
 import { StatusBadge } from './StatusBadge';
+import Box from '@mui/material/Box';
+import { formatDuration } from '../../utils/formatDuration';
 import { TaskFilesDialog } from './TaskFilesDialog';
 import type {
   TaskHistoryEntry,
@@ -59,19 +61,6 @@ function formatDateTime(value?: string | null): string {
   }
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? value : d.toLocaleString();
-}
-
-function formatDuration(seconds: number | null | undefined): string {
-  if (seconds === null || seconds === undefined) {
-    return '—';
-  }
-  if (seconds < 60) {
-    return `${seconds.toFixed(1)}s`;
-  }
-  const total = Math.round(seconds);
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return `${m}m ${s}s`;
 }
 
 interface MetaShape {
@@ -237,15 +226,20 @@ function TaskHistoryTableView({
         Cell: ({ row }) => {
           const meta = readMeta(row.original);
           return (
-            <ChainDisplay
-              chainNames={meta._chain_task_names}
-              chainDepth={meta._chain_depth}
-              onChainItemClick={
-                onChainItemClick
-                  ? (name, index) => onChainItemClick(name, index, row.original)
-                  : undefined
-              }
-            />
+            // A chain chip navigates to another task, so it must not also open
+            // this run's detail.
+            <Box component="span" onClick={(event) => event.stopPropagation()}>
+              <ChainDisplay
+                chainNames={meta._chain_task_names}
+                chainDepth={meta._chain_depth}
+                onChainItemClick={
+                  onChainItemClick
+                    ? (name, index) =>
+                        onChainItemClick(name, index, row.original)
+                    : undefined
+                }
+              />
+            </Box>
           );
         },
       },
@@ -291,13 +285,27 @@ function TaskHistoryTableView({
           const entry = row.original;
           const running = isRunningStatus(entry.status);
           return (
-            <Stack direction="row" spacing={0.5}>
-              <Tooltip title="View logs">
+            // Every control in this cell acts on the run without opening it, so
+            // the cell swallows the click rather than each button repeating a
+            // stopPropagation the next one added would forget.
+            <Stack
+              direction="row"
+              spacing={0.5}
+              onClick={(event) => event.stopPropagation()}
+            >
+              {/*
+                Enabled whenever a handler exists, including for a run with no
+                log: the execution detail also carries the status, timing and
+                failure reason, which is the only way to establish that a run
+                marked Done produced nothing. It used to be greyed out for
+                exactly the log-less runs a reader most needs to inspect.
+              */}
+              <Tooltip title="View run details">
                 <span>
                   <IconButton
                     size="small"
-                    aria-label="View logs"
-                    disabled={!onViewLogs || (!entry.has_logs && !running)}
+                    aria-label="View run details"
+                    disabled={!onViewLogs}
                     onClick={() => onViewLogs?.(entry)}
                   >
                     <VisibilityIcon fontSize="small" />
@@ -375,14 +383,25 @@ function TaskHistoryTableView({
             row.id ?? `${row.task?.name ?? 'row'}-${row.started_at ?? index}`
           )
         }
-        muiTableBodyRowProps={({ row }) =>
-          isRunningStatus(row.original.status)
+        muiTableBodyRowProps={({ row }) => {
+          const running = isRunningStatus(row.original.status);
+          // The whole row opens the run, not just the icon: the row was inert
+          // before, which read as a dead end to anyone who clicked it.
+          const clickable = onViewLogs
             ? {
-                'data-running': 'true',
-                sx: { backgroundColor: 'action.hover' },
+                onClick: () => onViewLogs(row.original),
+                sx: { cursor: 'pointer' },
               }
-            : {}
-        }
+            : {};
+
+          return running
+            ? {
+                ...clickable,
+                'data-running': 'true',
+                sx: { ...clickable.sx, backgroundColor: 'action.hover' },
+              }
+            : clickable;
+        }}
         renderEmptyRowsFallback={() => (
           <Typography
             variant="body2"
