@@ -244,6 +244,7 @@ const myCnfTemplate = `[client]
 {{if .CertFile}}ssl-cert={{ .CertFile }}{{end}}
 {{if .KeyFile}}ssl-key={{ .KeyFile }}{{end}}
 {{if .EnableClearTextPassword}}enable-cleartext-plugin{{end}}
+{{if .InitCommand}}init-command={{ .InitCommand }}{{end}}
 `
 
 // buildMyCnfConfig builds my.cnf configuration for MySQL connection.
@@ -266,6 +267,7 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 		CertFile                string
 		KeyFile                 string
 		EnableClearTextPassword bool
+		InitCommand             string
 		MyCnfPath               string
 	}{
 		User:           pointer.GetString(agent.Username),
@@ -292,6 +294,9 @@ func buildMyCnfConfig(service *models.Service, agent *models.Agent, files map[st
 	if agent.MySQLOptions.ExtraDSNParams != nil {
 		if val, ok := agent.MySQLOptions.ExtraDSNParams["allowCleartextPasswords"]; ok && (val == "1" || val == "true") {
 			myCnfParams.EnableClearTextPassword = true
+		}
+		if tz, ok := agent.MySQLOptions.ExtraDSNParams["time_zone"]; ok && tz != "" {
+			myCnfParams.InitCommand = fmt.Sprintf(`"SET time_zone=%s"`, tz)
 		}
 	}
 	err = tmpl.Execute(&configBuffer, myCnfParams)
