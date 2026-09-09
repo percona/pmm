@@ -323,7 +323,7 @@ func TestNodeService(t *testing.T) {
 				Nodes: []*managementv1.UniversalNode{
 					{
 						NodeId:          "pmm-server",
-						NodeType:        "generic",
+						NodeType:        "container",
 						NodeName:        "pmm-server",
 						MachineId:       "",
 						Distro:          "",
@@ -401,7 +401,7 @@ func TestNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
 			res, err := s.ListNodes(ctx, &managementv1.ListNodesRequest{
-				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
+				NodeType: inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE,
 			})
 			require.NoError(t, err)
 
@@ -409,7 +409,7 @@ func TestNodeService(t *testing.T) {
 				Nodes: []*managementv1.UniversalNode{
 					{
 						NodeId:          "pmm-server",
-						NodeType:        "generic",
+						NodeType:        "container",
 						NodeName:        "pmm-server",
 						MachineId:       "",
 						Distro:          "",
@@ -590,7 +590,7 @@ func TestNodeService(t *testing.T) {
 			expected := &managementv1.GetNodeResponse{
 				Node: &managementv1.UniversalNode{
 					NodeId:          "pmm-server",
-					NodeType:        "generic",
+					NodeType:        "container",
 					NodeName:        "pmm-server",
 					MachineId:       "",
 					Distro:          "",
