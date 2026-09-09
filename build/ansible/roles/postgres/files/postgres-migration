@@ -3,6 +3,7 @@ set -o errexit
 set -o pipefail
 
 declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:?must be exported by the entrypoint}"
+declare POSTGRES_OLD_DATA_DIR="${POSTGRES_OLD_DATA_DIR:?must be exported by the entrypoint}"
 declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:?must be exported by the entrypoint}"
 declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:?must be exported by the entrypoint}"
 
@@ -49,7 +50,7 @@ create_pg_stat_statements() {
 # Runs once when /srv/postgres14 exists and /srv/postgres18 does not.
 # Requires both pg14 and pg18 binaries in the image (shipped through PMM 3.12.x).
 upgrade_pg14_to_pg18() {
-    local PG14_DATA="/srv/postgres14"
+    local PG14_DATA="$POSTGRES_OLD_DATA_DIR"
     local PG14_BIN="/usr/pgsql-14/bin"
     local BACKUP_DIR="/srv/backup"
     local STAGE_DIR="${POSTGRES_DATA_DIR}.new"

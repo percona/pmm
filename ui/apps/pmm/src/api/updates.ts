@@ -1,4 +1,4 @@
-import { AxiosResponse } from 'axios';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import {
   GetChangeLogsResponse,
   GetUpdateStatusBody,
@@ -11,9 +11,11 @@ import {
 import { api } from './api';
 
 export const checkForUpdates = async (
-  params: GetUpdatesParams = { force: false }
+  params: GetUpdatesParams = { force: false },
+  config?: AxiosRequestConfig
 ) => {
   const res = await api.get<GetUpdatesResponse>('/server/updates', {
+    ...config,
     params,
   });
   return res.data;
