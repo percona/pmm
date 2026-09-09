@@ -264,9 +264,9 @@ func (c *Client) Run(ctx context.Context) error {
 //  1. processActionResults and processJobsResults send action and job results from the runner to
 //     the channel. They exit when the runner is stopped by cancelling ctx.
 //
-//  2. processSupervisorRequests sends status changes, QAN and RTA data from the supervisor to the
-//     channel. It exits when the caller stops the supervisor, which it does once Run has returned
-//     and the gRPC connection is closed.
+//  2. processSupervisorRequests reports the actual statuses and then sends status changes, QAN and
+//     RTA data from the supervisor to the channel. It exits when the caller stops the supervisor,
+//     which it does once Run has returned and the gRPC connection is closed.
 //
 //  3. processChannelRequests reads requests from the channel and processes them; processPings
 //     answers Ping from a queue of its own. Both exit when the channel is closed.
@@ -274,8 +274,9 @@ func (c *Client) Run(ctx context.Context) error {
 // TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 // https://jira.percona.com/browse/PMM-4245
 func (c *Client) runProcessors(ctx context.Context) {
+	// The statuses those buffered changes describe are reported by processSupervisorRequests
+	// from the actual state instead, which is why they can be dropped here.
 	c.supervisor.ClearChangesChannel()
-	c.SendActualStatuses(ctx)
 
 	// Kept out of the accounting below as well as off the request loop: applying a state can
 	// take as long as the agents it replaces take to stop, and Done() gates the reconnect that
@@ -384,6 +385,14 @@ func (c *Client) processJobsResults(ctx context.Context) {
 }
 
 func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocognit
+	// Here rather than in runProcessors, which would hold up every processor below: asking the
+	// supervisor for its Agents list takes its lock, and a SetState from the connection before
+	// this one can still be holding it for as long as the Agents it is replacing take to stop.
+	// The request loop and pings have to be answering by then, or the server sees a connection
+	// that says nothing at all and drops it as stale. Before the forwarding below so that a
+	// change the supervisor reports next is not overtaken by this snapshot. See PMM-15431.
+	c.SendActualStatuses(ctx)
+
 	var wg sync.WaitGroup
 
 	wg.Go(func() {

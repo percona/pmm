@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"sync"
 	"testing"
 	"time"
 
@@ -374,6 +375,78 @@ func TestSetStateDoesNotBlockRequestLoop(t *testing.T) {
 	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	require.NoError(t, client.Run(context.Background()))
 	<-releaseState
+	s.AssertExpectations(t)
+}
+
+// TestActualStatusesDoNotBlockPings covers the other half of PMM-15431: reporting the actual
+// statuses starts by asking the supervisor for its Agents list, and a SetState from the connection
+// before this one can still be holding that lock for as long as the Agents it replaces take to
+// stop. A freshly connected agent that answers nothing meanwhile is dropped as stale.
+func TestActualStatusesDoNotBlockPings(t *testing.T) {
+	serverMD := &agentv1.ServerConnectMetadata{
+		ServerVersion: t.Name(),
+	}
+
+	listing := make(chan struct{})
+	release := make(chan struct{})
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		// establish the connection
+		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
+		require.NoError(t, err)
+		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		err = agentv1.SendServerConnectMetadata(stream, serverMD)
+		require.NoError(t, err)
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, msg.GetPing())
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      msg.Id,
+			Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+		})
+		require.NoError(t, err)
+
+		// while the supervisor cannot even be asked what it is running
+		<-listing
+		err = stream.Send(&agentv1.ServerMessage{
+			Id:      4242,
+			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
+		})
+		require.NoError(t, err)
+		msg, err = stream.Recv()
+		require.NoError(t, err)
+		assert.EqualValues(t, 4242, msg.Id)
+		require.NotNil(t, msg.GetPong())
+
+		close(release)
+		return nil
+	}
+	port, teardown := setup(t, connect)
+	defer teardown()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		ID: "agent_id",
+		Server: config.Server{
+			Address:    fmt.Sprintf("127.0.0.1:%d", port),
+			WithoutTLS: true,
+		},
+	})
+
+	s := &mockSupervisor{}
+	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
+	s.On("RTARequests").Return(make(<-chan *rtav1.CollectRequest))
+	s.On("ClearChangesChannel").Return()
+	listed := sync.OnceFunc(func() { close(listing) })
+	s.On("AgentsList").Run(func(mock.Arguments) {
+		listed()
+		<-release
+	}).Return([]*agentlocal.AgentInfo{})
+
+	r := runner.New(cfgStorage.Get().RunnerCapacity, cfgStorage.Get().RunnerMaxConnectionsPerService)
+	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	require.NoError(t, client.Run(context.Background()))
+	<-release
 	s.AssertExpectations(t)
 }
 
