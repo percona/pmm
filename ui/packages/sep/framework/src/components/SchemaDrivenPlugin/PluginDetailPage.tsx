@@ -108,7 +108,14 @@ export interface TaskExecuteAction {
   label: string;
   taskName: string;
   testId?: string;
+  /** Plain-text confirmation message (use `confirmContent` for rich formatting). */
   confirmMessage?: string;
+  /**
+   * Rich confirmation content (ReactNode). Takes precedence over `confirmMessage`.
+   * Use this to display structured details like source, target, and overwrite
+   * behavior for destructive operations like restore.
+   */
+  confirmContent?: ReactNode;
   executeBody?: TaskExecuteBody;
 }
 
@@ -924,10 +931,12 @@ function ActionBar({
           {pendingExecute?.label ?? 'Execute'} {schema.display_name} task?
         </DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            {pendingExecute?.confirmMessage ??
-              `Are you sure you want to execute the task ${pendingExecute?.taskName ?? taskName} now?`}
-          </DialogContentText>
+          {pendingExecute?.confirmContent ?? (
+            <DialogContentText>
+              {pendingExecute?.confirmMessage ??
+                `Are you sure you want to execute the task ${pendingExecute?.taskName ?? taskName} now?`}
+            </DialogContentText>
+          )}
           {chainingEnabled && pendingExecute && (
             <Box sx={{ mt: 2 }}>
               {pluginTasksLoading ? (
