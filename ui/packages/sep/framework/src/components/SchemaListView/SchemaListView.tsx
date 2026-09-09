@@ -123,7 +123,9 @@ function formatCellValue(
       return null;
     }
     if (format === 'status') {
-      return <Chip label="Not run yet" size="small" data-testid="not-run-chip" />;
+      return (
+        <Chip label="Not run yet" size="small" data-testid="not-run-chip" />
+      );
     }
     return '—';
   }

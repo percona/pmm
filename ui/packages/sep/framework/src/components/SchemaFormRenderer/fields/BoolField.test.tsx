@@ -56,7 +56,9 @@ describe('BoolField', () => {
       label: 'Overwrite Tables',
       destructive: 'This will overwrite existing data on the target database.',
     };
-    render(<Harness field={field} defaultValues={{ overwrite_tables: false }} />);
+    render(
+      <Harness field={field} defaultValues={{ overwrite_tables: false }} />
+    );
 
     expect(screen.queryByTestId('destructive-warning')).not.toBeInTheDocument();
   });
@@ -87,7 +89,9 @@ describe('BoolField', () => {
       label: 'Overwrite Tables',
       destructive: 'This will overwrite existing data on the target database.',
     };
-    render(<Harness field={field} defaultValues={{ overwrite_tables: true }} />);
+    render(
+      <Harness field={field} defaultValues={{ overwrite_tables: true }} />
+    );
 
     // Warning should be visible initially
     expect(screen.getByTestId('destructive-warning')).toBeInTheDocument();

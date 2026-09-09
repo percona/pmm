@@ -546,10 +546,7 @@ export function ScheduledTaskForm({
         <DialogTitle>Confirm scheduled task</DialogTitle>
         <DialogContent>{scheduleWarning}</DialogContent>
         <DialogActions>
-          <Button
-            onClick={() => setPendingSubmit(null)}
-            disabled={submitting}
-          >
+          <Button onClick={() => setPendingSubmit(null)} disabled={submitting}>
             Cancel
           </Button>
           <Button

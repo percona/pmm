@@ -1208,7 +1208,11 @@ export function PluginDetailPage({
               <Chip label={task.status} size="small" />
             ) : (
               // Null/undefined status means the task was created but never run.
-              <Chip label="Not run yet" size="small" data-testid="not-run-chip" />
+              <Chip
+                label="Not run yet"
+                size="small"
+                data-testid="not-run-chip"
+              />
             )}
             {multi && !browseOnly && canMutate && (
               <>

@@ -46,7 +46,11 @@ export function BoolField({ field }: BoolFieldProps) {
         ) : null}
       </Box>
       {field.destructive && value && (
-        <Alert severity="warning" sx={{ mt: 1 }} data-testid="destructive-warning">
+        <Alert
+          severity="warning"
+          sx={{ mt: 1 }}
+          data-testid="destructive-warning"
+        >
           {field.destructive}
         </Alert>
       )}
