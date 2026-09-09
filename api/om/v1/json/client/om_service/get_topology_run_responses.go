@@ -102,7 +102,6 @@ func (o *GetTopologyRunOK) GetPayload() *GetTopologyRunOKBody {
 }
 
 func (o *GetTopologyRunOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetTopologyRunOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *GetTopologyRunDefault) GetPayload() *GetTopologyRunDefaultBody {
 }
 
 func (o *GetTopologyRunDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetTopologyRunDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ GetTopologyRunDefaultBody get topology run default body
 swagger:model GetTopologyRunDefaultBody
 */
 type GetTopologyRunDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *GetTopologyRunDefaultBody) ContextValidate(ctx context.Context, formats
 }
 
 func (o *GetTopologyRunDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *GetTopologyRunDefaultBody) contextValidateDetails(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -313,7 +307,6 @@ GetTopologyRunDefaultBodyDetailsItems0 get topology run default body details ite
 swagger:model GetTopologyRunDefaultBodyDetailsItems0
 */
 type GetTopologyRunDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -325,7 +318,6 @@ type GetTopologyRunDefaultBodyDetailsItems0 struct {
 func (o *GetTopologyRunDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -363,7 +355,6 @@ func (o *GetTopologyRunDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) erro
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetTopologyRunDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -427,7 +418,6 @@ GetTopologyRunOKBody GetTopologyRunResponse returns one collection run.
 swagger:model GetTopologyRunOKBody
 */
 type GetTopologyRunOKBody struct {
-
 	// run
 	Run *GetTopologyRunOKBodyRun `json:"run,omitempty"`
 }
@@ -484,7 +474,6 @@ func (o *GetTopologyRunOKBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *GetTopologyRunOKBody) contextValidateRun(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Run != nil {
 
 		if swag.IsZero(o.Run) { // not required
@@ -531,7 +520,6 @@ GetTopologyRunOKBodyRun TopologyRun represents one collection run.
 swagger:model GetTopologyRunOKBodyRun
 */
 type GetTopologyRunOKBodyRun struct {
-
 	// The run's ID, also the snapshot key.
 	RunID string `json:"run_id,omitempty"`
 
@@ -794,9 +782,7 @@ func (o *GetTopologyRunOKBodyRun) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *GetTopologyRunOKBodyRun) contextValidateErrors(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Errors); i++ {
-
 		if o.Errors[i] != nil {
 
 			if swag.IsZero(o.Errors[i]) { // not required
@@ -816,16 +802,13 @@ func (o *GetTopologyRunOKBodyRun) contextValidateErrors(ctx context.Context, for
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *GetTopologyRunOKBodyRun) contextValidateSources(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Sources); i++ {
-
 		if o.Sources[i] != nil {
 
 			if swag.IsZero(o.Sources[i]) { // not required
@@ -845,14 +828,12 @@ func (o *GetTopologyRunOKBodyRun) contextValidateSources(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *GetTopologyRunOKBodyRun) contextValidateCounts(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Counts != nil {
 
 		if swag.IsZero(o.Counts) { // not required
@@ -899,7 +880,6 @@ GetTopologyRunOKBodyRunCounts TopologyRunCounts counts what one collection run s
 swagger:model GetTopologyRunOKBodyRunCounts
 */
 type GetTopologyRunOKBodyRunCounts struct {
-
 	// MongoDB services inventory reported.
 	TotalServices int32 `json:"total_services,omitempty"`
 
@@ -949,7 +929,6 @@ GetTopologyRunOKBodyRunErrorsItems0 TopologyRunError describes one thing that we
 swagger:model GetTopologyRunOKBodyRunErrorsItems0
 */
 type GetTopologyRunOKBodyRunErrorsItems0 struct {
-
 	// What the error is about, e.g. "run" or "query".
 	Scope string `json:"scope,omitempty"`
 
@@ -1000,7 +979,6 @@ GetTopologyRunOKBodyRunSourcesItems0 SourceReport says how completely one collec
 swagger:model GetTopologyRunOKBodyRunSourcesItems0
 */
 type GetTopologyRunOKBodyRunSourcesItems0 struct {
-
 	// The source key, e.g. "inventory", "metrics" or "probe". An open set on purpose: a
 	// source is named by whatever produced it, so this stays a string where the statuses
 	// beside it are enums.

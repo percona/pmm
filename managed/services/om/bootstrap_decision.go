@@ -30,6 +30,13 @@ import "slices"
 // two members up and one torn down is not a valid state to leave running. So once
 // any host (or any run-level step) exhausts its retries, every host starts rolling
 // back, including ones that had already fully succeeded.
+//
+// An operator's own abort request (PMM-15347/plan.md §6 Phase B) is the third
+// trigger alongside those two, not a separate code path: runNeedsRollback treats
+// GetBootstrapRun's cancel_requested exactly like a step that exhausted its
+// retries, so every downstream decision (which hosts roll back, when the run is
+// done) falls out of the same logic with no cancellation-specific branch anywhere
+// else in this file.
 
 // bootstrapMaxAttempts caps a step's attempt_count before its failure is treated as
 // permanent: attempt_count counts every dispatch including the first, so 2 means the
@@ -195,11 +202,15 @@ func runStepsExhaustedRetries(run sepBootstrapRun) bool {
 	return false
 }
 
-// runNeedsRollback reports whether run has just now exhausted retries somewhere --
-// a host's forward step, or a run-level step -- and should start rolling every host
-// back. Does not itself check whether rollback has already started; see
-// runIsRollingBack, which callers use instead.
+// runNeedsRollback reports whether run should start rolling every host back:
+// an operator requested cancellation, or something has just now exhausted
+// retries -- a host's forward step, or a run-level step. Does not itself check
+// whether rollback has already started; see runIsRollingBack, which callers use
+// instead.
 func runNeedsRollback(run sepBootstrapRun) bool {
+	if run.CancelRequested {
+		return true
+	}
 	if slices.ContainsFunc(run.Hosts, hostExhaustedRetries) {
 		return true
 	}

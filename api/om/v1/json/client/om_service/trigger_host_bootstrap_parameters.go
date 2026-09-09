@@ -57,7 +57,6 @@ TriggerHostBootstrapParams contains all the parameters to send to the API endpoi
 	Typically these are written to a http.Request.
 */
 type TriggerHostBootstrapParams struct {
-
 	/* Body.
 
 	   TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.
@@ -130,7 +129,6 @@ func (o *TriggerHostBootstrapParams) SetBody(body TriggerHostBootstrapBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *TriggerHostBootstrapParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

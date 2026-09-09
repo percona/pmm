@@ -57,7 +57,6 @@ DeleteInventoryConfigOverrideParams contains all the parameters to send to the A
 	Typically these are written to a http.Request.
 */
 type DeleteInventoryConfigOverrideParams struct {
-
 	/* Key.
 
 	     The field whose override to remove, putting it back to its deployed value. Also the
@@ -131,7 +130,6 @@ func (o *DeleteInventoryConfigOverrideParams) SetKey(key string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *DeleteInventoryConfigOverrideParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

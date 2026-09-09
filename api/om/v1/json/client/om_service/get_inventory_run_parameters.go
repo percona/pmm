@@ -57,7 +57,6 @@ GetInventoryRunParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type GetInventoryRunParams struct {
-
 	/* RunID.
 
 	   The run's ID.
@@ -130,7 +129,6 @@ func (o *GetInventoryRunParams) SetRunID(runID string) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *GetInventoryRunParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

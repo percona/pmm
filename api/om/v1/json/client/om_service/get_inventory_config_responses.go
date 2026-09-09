@@ -102,7 +102,6 @@ func (o *GetInventoryConfigOK) GetPayload() *GetInventoryConfigOKBody {
 }
 
 func (o *GetInventoryConfigOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetInventoryConfigOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *GetInventoryConfigDefault) GetPayload() *GetInventoryConfigDefaultBody 
 }
 
 func (o *GetInventoryConfigDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetInventoryConfigDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ GetInventoryConfigDefaultBody get inventory config default body
 swagger:model GetInventoryConfigDefaultBody
 */
 type GetInventoryConfigDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *GetInventoryConfigDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *GetInventoryConfigDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *GetInventoryConfigDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -313,7 +307,6 @@ GetInventoryConfigDefaultBodyDetailsItems0 get inventory config default body det
 swagger:model GetInventoryConfigDefaultBodyDetailsItems0
 */
 type GetInventoryConfigDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -325,7 +318,6 @@ type GetInventoryConfigDefaultBodyDetailsItems0 struct {
 func (o *GetInventoryConfigDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -363,7 +355,6 @@ func (o *GetInventoryConfigDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) 
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o GetInventoryConfigDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -427,7 +418,6 @@ GetInventoryConfigOKBody GetInventoryConfigResponse returns the inventory app's 
 swagger:model GetInventoryConfigOKBody
 */
 type GetInventoryConfigOKBody struct {
-
 	// Every field, whether or not it is overridden.
 	Settings []*GetInventoryConfigOKBodySettingsItems0 `json:"settings"`
 }
@@ -491,9 +481,7 @@ func (o *GetInventoryConfigOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *GetInventoryConfigOKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Settings); i++ {
-
 		if o.Settings[i] != nil {
 
 			if swag.IsZero(o.Settings[i]) { // not required
@@ -513,7 +501,6 @@ func (o *GetInventoryConfigOKBody) contextValidateSettings(ctx context.Context, 
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -542,7 +529,6 @@ GetInventoryConfigOKBodySettingsItems0 InventorySetting is one of the inventory 
 swagger:model GetInventoryConfigOKBodySettingsItems0
 */
 type GetInventoryConfigOKBodySettingsItems0 struct {
-
 	// The field name. Nested fields arrive `__`-delimited, e.g. SCHEDULE__every.
 	Key string `json:"key,omitempty"`
 

@@ -217,6 +217,14 @@ func TestRunNeedsRollback(t *testing.T) {
 		}
 		assert.True(t, runNeedsRollback(run))
 	})
+
+	t.Run("true once an operator has requested cancellation, even with nothing failed", func(t *testing.T) {
+		run := sepBootstrapRun{
+			CancelRequested: true,
+			Hosts:           []sepBootstrapHost{{Steps: []sepBootstrapStep{step("pre_check", bootstrapStepRunning, 1)}}},
+		}
+		assert.True(t, runNeedsRollback(run))
+	})
 }
 
 func TestRunIsRollingBack(t *testing.T) {

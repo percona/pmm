@@ -102,7 +102,6 @@ func (o *ListInventoryServicesOK) GetPayload() *ListInventoryServicesOKBody {
 }
 
 func (o *ListInventoryServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListInventoryServicesOKBody)
 
 	// response payload
@@ -176,7 +175,6 @@ func (o *ListInventoryServicesDefault) GetPayload() *ListInventoryServicesDefaul
 }
 
 func (o *ListInventoryServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListInventoryServicesDefaultBody)
 
 	// response payload
@@ -192,7 +190,6 @@ ListInventoryServicesDefaultBody list inventory services default body
 swagger:model ListInventoryServicesDefaultBody
 */
 type ListInventoryServicesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -262,9 +259,7 @@ func (o *ListInventoryServicesDefaultBody) ContextValidate(ctx context.Context, 
 }
 
 func (o *ListInventoryServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 
 			if swag.IsZero(o.Details[i]) { // not required
@@ -284,7 +279,6 @@ func (o *ListInventoryServicesDefaultBody) contextValidateDetails(ctx context.Co
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -313,7 +307,6 @@ ListInventoryServicesDefaultBodyDetailsItems0 list inventory services default bo
 swagger:model ListInventoryServicesDefaultBodyDetailsItems0
 */
 type ListInventoryServicesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 
@@ -325,7 +318,6 @@ type ListInventoryServicesDefaultBodyDetailsItems0 struct {
 func (o *ListInventoryServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -363,7 +355,6 @@ func (o *ListInventoryServicesDefaultBodyDetailsItems0) UnmarshalJSON(data []byt
 // MarshalJSON marshals this object with additional properties into a JSON object
 func (o ListInventoryServicesDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
-
 		// at type
 		AtType string `json:"@type,omitempty"`
 	}
@@ -427,7 +418,6 @@ ListInventoryServicesOKBody ListInventoryServicesResponse returns the services O
 swagger:model ListInventoryServicesOKBody
 */
 type ListInventoryServicesOKBody struct {
-
 	// The services.
 	Services []*ListInventoryServicesOKBodyServicesItems0 `json:"services"`
 }
@@ -491,9 +481,7 @@ func (o *ListInventoryServicesOKBody) ContextValidate(ctx context.Context, forma
 }
 
 func (o *ListInventoryServicesOKBody) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Services); i++ {
-
 		if o.Services[i] != nil {
 
 			if swag.IsZero(o.Services[i]) { // not required
@@ -513,7 +501,6 @@ func (o *ListInventoryServicesOKBody) contextValidateServices(ctx context.Contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -549,7 +536,6 @@ ListInventoryServicesOKBodyServicesItems0 InventoryService is one MongoDB servic
 swagger:model ListInventoryServicesOKBodyServicesItems0
 */
 type ListInventoryServicesOKBodyServicesItems0 struct {
-
 	// PMM's service ID. The join key against the topology document.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -650,7 +636,6 @@ func (o *ListInventoryServicesOKBodyServicesItems0) ContextValidate(ctx context.
 }
 
 func (o *ListInventoryServicesOKBodyServicesItems0) contextValidateFreshness(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Freshness != nil {
 
 		if swag.IsZero(o.Freshness) { // not required
@@ -703,7 +688,6 @@ ListInventoryServicesOKBodyServicesItems0Freshness InventoryFreshness says how c
 swagger:model ListInventoryServicesOKBodyServicesItems0Freshness
 */
 type ListInventoryServicesOKBodyServicesItems0Freshness struct {
-
 	// When OM first wrote a row for this entity.
 	// Format: date-time
 	FirstSeenAt strfmt.DateTime `json:"first_seen_at,omitempty"`

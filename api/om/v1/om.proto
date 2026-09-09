@@ -846,6 +846,41 @@ message TriggerHostBootstrapRequest {
   optional string environment = 4;
   // The cluster to label the resulting service with, same terms as `environment`.
   optional string cluster = 5;
+  // Where mongod stores its data on every host, e.g. "/var/lib/mongo".
+  string data_path = 6 [(validate.rules).string.min_len = 1];
+  // Where mongod writes its log file on every host.
+  string log_path = 7 [(validate.rules).string.min_len = 1];
+  // The port mongod listens on, on every host.
+  uint32 port = 8 [(validate.rules).uint32 = {
+    gte: 1
+    lte: 65535
+  }];
+  // The interface(s) mongod listens on, on every host, e.g. "0.0.0.0".
+  string bind_ip = 9 [(validate.rules).string.min_len = 1];
+  // Per-host replica-set election settings, keyed by entries of node_ids. A
+  // host missing from this map -- including every host, when this is left
+  // empty -- gets MongoDB's own defaults (priority 1, votes on, not hidden,
+  // no delay), the phase-A behavior before per-member settings existed
+  // (PMM-15347/plan.md §6 Phase B). A key outside node_ids is rejected.
+  map<string, BootstrapMemberConfig> member_configs = 10;
+}
+
+// BootstrapMemberConfig is one host's replica-set election settings, for
+// TriggerHostBootstrapRequest.member_configs.
+message BootstrapMemberConfig {
+  // Relative election priority. 0 means this member can never become
+  // primary; MongoDB's own default for an unlisted member is 1.
+  uint32 priority = 1 [(validate.rules).uint32.lte = 1000];
+  // Whether this member gets a vote in elections.
+  bool votes = 2;
+  // Whether this member is hidden from client read preference and
+  // db.hello()'s own output.
+  bool hidden = 3;
+  // Seconds this member's data intentionally lags the primary
+  // (secondaryDelaySecs). 0 means no delay. MongoDB requires priority 0 and
+  // votes off whenever this is nonzero -- TriggerHostBootstrap rejects a
+  // request that sets this without also setting those.
+  uint32 delay_secs = 4;
 }
 
 // TriggerHostBootstrapResponse acknowledges a queued bootstrap run.
@@ -944,6 +979,18 @@ message GetBootstrapRunResponse {
   // The cluster this run's service will be (or was) labelled with, same terms
   // as `environment`.
   optional string cluster = 11;
+  // Whether an operator has asked this run to stop -- see CancelBootstrapRun.
+  // Once set, PMM's own stepper rolls back every host, the same as a step that
+  // exhausted its retries (bootstrap_decision.go's runNeedsRollback), so a
+  // caller can show a run as "aborting" rather than simply "running" while
+  // that rollback is still in flight.
+  bool cancel_requested = 12;
+}
+
+// CancelBootstrapRunRequest is the request for CancelBootstrapRun.
+message CancelBootstrapRunRequest {
+  // The run to cancel, from TriggerHostBootstrapResponse.run_id.
+  string run_id = 1 [(validate.rules).string.min_len = 1];
 }
 
 // ListBootstrapRunsRequest is the request for ListBootstrapRuns.
@@ -1192,6 +1239,27 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "List bootstrap runs (PoC)"
       description: "Returns the recorded bootstrap runs, newest first, each in the same full detail GetBootstrapRun answers with."
+    };
+  }
+
+  // CancelBootstrapRun asks a running bootstrap run to stop and roll back
+  // every host.
+  //
+  // Proxies to SEP's om_bootstrap POST /runs/{id}:cancel, which records the
+  // request and best-effort stops whatever step is currently dispatching so
+  // its Nomad allocation doesn't keep running for however long it would
+  // otherwise take to time out. Actually rolling every host back from there
+  // is PMM's own stepper's job, exactly like every other rollback trigger --
+  // see bootstrap_decision.go's runNeedsRollback, which treats
+  // GetBootstrapRunResponse.cancel_requested the same as a step that
+  // exhausted its retries. Idempotent while the run is still running;
+  // returns as soon as the request is recorded, not once rollback finishes --
+  // poll GetBootstrapRun to watch it happen.
+  rpc CancelBootstrapRun(CancelBootstrapRunRequest) returns (GetBootstrapRunResponse) {
+    option (google.api.http) = {post: "/v1/om/inventory/bootstrap-runs/{run_id}:cancel"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Cancel a bootstrap run (PoC)"
+      description: "Requests that a running bootstrap run stop and roll back every host. Returns as soon as the request is recorded; PMM's own stepper drives the rollback forward in the background. Idempotent while the run is still running."
     };
   }
 
