@@ -986,16 +986,21 @@ telemetry:
       - metric_name: "pmm_server_ha_vm_url"
         column: "PMM_VM_URL"
 
-  # Deployment environment. PMM_INSTALL_METHOD is set by the pmm and pmm-ha Helm charts from the
-  # app.kubernetes.io/managed-by pod annotation, so its value is "Helm" for chart-based installs.
-  # KUBERNETES_SERVICE_HOST is injected by kubelet into every Pod, so it also covers Kubernetes
-  # deployments that do not go through Helm; StripValues keeps the presence flag and drops the
-  # cluster address. Both are absent on Docker, OVF, AMI and Azure, where the variables are unset.
-  - id: PMMServerInstallMethod
+  # Deployment environment, reported as presence flags. Only the pmm and pmm-ha Helm charts set
+  # PMM_INSTALL_METHOD, so its presence means "installed with Helm"; KUBERNETES_SERVICE_HOST is
+  # injected by kubelet into every Pod (even when enableServiceLinks is false), so it also covers
+  # Kubernetes deployments that skip Helm. StripValues reports presence only: both values are
+  # external input that a deployment can set to anything, and neither is needed beyond the flag.
+  # Should PMM_INSTALL_METHOD ever carry more than one value, report it through a bounded
+  # allowlist rather than verbatim. All are absent on Docker, OVF, AMI and Azure, where the
+  # variables are unset.
+  - id: PMMServerInstalledWithHelm
     source: ENV_VARS
-    summary: "How PMM Server was installed"
+    transform:
+      type: StripValues
+    summary: "PMM Server was installed with the Helm chart"
     data:
-      - metric_name: "pmm_server_install_method"
+      - metric_name: "pmm_server_installed_with_helm"
         column: "PMM_INSTALL_METHOD"
 
   - id: PMMServerInKubernetes
