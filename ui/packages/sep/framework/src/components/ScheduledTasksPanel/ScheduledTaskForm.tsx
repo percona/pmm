@@ -73,15 +73,8 @@ export interface ScheduledTaskFormProps {
   submitting?: boolean;
   errorMessage?: string;
   /**
-   * Warning content to display in a confirmation dialog before scheduling.
-   * Use this for tasks with destructive settings (e.g., overwrite_tables).
-   * When provided, the user must confirm before the schedule is created/saved.
-   * Prefer {@link getScheduleWarning} when the notice depends on the selected task.
-   */
-  scheduleWarning?: ReactNode;
-  /**
    * Resolve confirmation content from the selected plugin task name.
-   * Takes precedence over {@link scheduleWarning} when it returns a node.
+   * When it returns a node, the user must confirm before the schedule is saved.
    */
   getScheduleWarning?: (taskName: string) => ReactNode | undefined;
 }
@@ -197,7 +190,6 @@ export function ScheduledTaskForm({
   onSubmit,
   submitting = false,
   errorMessage,
-  scheduleWarning,
   getScheduleWarning,
 }: ScheduledTaskFormProps) {
   const defaults = useMemo(
@@ -205,7 +197,6 @@ export function ScheduledTaskForm({
     [initialValue, defaultTaskName]
   );
 
-  // Confirmation state: holds the pending submission body until confirmed
   const [pendingSubmit, setPendingSubmit] = useState<{
     body: PeriodicTaskCreate | PeriodicTaskUpdate;
     taskName: string;
@@ -311,9 +302,7 @@ export function ScheduledTaskForm({
       execute_request,
     };
 
-    // If there's a warning for this task, show confirmation first
-    const warning =
-      getScheduleWarning?.(values.task) ?? scheduleWarning ?? undefined;
+    const warning = getScheduleWarning?.(values.task);
     if (warning) {
       setPendingSubmit({ body, taskName: values.task, warning });
       return;
@@ -542,7 +531,6 @@ export function ScheduledTaskForm({
         </Button>
       </Stack>
 
-      {/* Confirmation dialog for tasks with destructive settings */}
       <Dialog
         open={pendingSubmit !== null}
         onClose={() => {

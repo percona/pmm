@@ -54,11 +54,9 @@ export function isMysqlRestoreTask(
     return true;
   }
   const form = getStoredForm(task);
-  if (form && ('overwrite_tables' in form || 'backup_source' in form)) {
-    return true;
-  }
-  // PMM-15480 / newer RestoresResponse may surface overwrite on the task itself
-  return 'overwrite_tables' in task && 'backup_source' in task;
+  return Boolean(
+    form && ('overwrite_tables' in form || 'backup_source' in form)
+  );
 }
 
 export interface MysqlRestoreConfirmDetails {
@@ -96,10 +94,7 @@ export function getMysqlRestoreConfirmDetails(
 ): MysqlRestoreConfirmDetails {
   const form = getStoredForm(task);
 
-  const source =
-    asDisplayString(form?.backup_source) ??
-    asDisplayString(task.backup_source) ??
-    UNKNOWN;
+  const source = asDisplayString(form?.backup_source) ?? UNKNOWN;
 
   // `host` / `port` are the restore destination (RestoresResponse / DEST_*).
   // `hostname` is the executor (pmm-agent) — never show it as "Target host".
@@ -113,9 +108,7 @@ export function getMysqlRestoreConfirmDetails(
     asDisplayString(form?.port);
   const targetHost = host && port ? `${host}:${port}` : (host ?? UNKNOWN);
 
-  const overwriteTables = asOptionalBoolean(
-    form?.overwrite_tables ?? task.overwrite_tables
-  );
+  const overwriteTables = asOptionalBoolean(form?.overwrite_tables);
 
   return {
     source,

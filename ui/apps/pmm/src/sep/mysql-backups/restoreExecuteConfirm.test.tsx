@@ -44,14 +44,14 @@ describe('isMysqlRestoreTask', () => {
     ).toBe(true);
   });
 
-  it('detects restores via top-level overwrite + backup_source', () => {
+  it('does not read restore fields off the task response itself', () => {
     expect(
       isMysqlRestoreTask({
         name: 'r1',
         backup_source: '/b',
         overwrite_tables: true,
       })
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('ignores backup tasks without restore fields', () => {
