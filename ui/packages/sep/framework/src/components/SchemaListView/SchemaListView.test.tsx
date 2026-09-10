@@ -177,7 +177,7 @@ describe('SchemaListView — renderListColumn override', () => {
     expect(screen.getAllByText('—').length).toBe(2);
   });
 
-  it('renders "Not run yet" chip for null status', () => {
+  it('renders "Created, not run yet" chip for null status', () => {
     const statusListView: ListView = {
       columns: [
         { key: 'name', label: 'Name' },
@@ -195,8 +195,10 @@ describe('SchemaListView — renderListColumn override', () => {
       />
     );
 
-    // Null status renders as "Not run yet" chip, not em-dash
-    expect(screen.getByTestId('not-run-chip')).toHaveTextContent('Not run yet');
+    // Null status renders as "Created, not run yet" chip, not em-dash
+    expect(screen.getByTestId('not-run-chip')).toHaveTextContent(
+      'Created, not run yet'
+    );
     // Non-null status still renders normally
     expect(screen.getByText('Done')).toBeInTheDocument();
   });

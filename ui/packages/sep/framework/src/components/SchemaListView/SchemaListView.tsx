@@ -116,15 +116,19 @@ function formatCellValue(
   if (value === null || value === undefined) {
     // Time-based columns render an absent value as an empty cell — a
     // never-executed task has no Last Executed time, and an em-dash there would
-    // read as a misleading placeholder. Status columns show "Not run yet" to
-    // indicate the task exists but hasn't executed. Other formats keep the
-    // em-dash to signal "no value".
+    // read as a misleading placeholder. Status columns show "Created, not run
+    // yet" to indicate the task exists but hasn't executed (PMM-15380). Other
+    // formats keep the em-dash to signal "no value".
     if (format === 'relative' || format === 'date') {
       return null;
     }
     if (format === 'status') {
       return (
-        <Chip label="Not run yet" size="small" data-testid="not-run-chip" />
+        <Chip
+          label="Created, not run yet"
+          size="small"
+          data-testid="not-run-chip"
+        />
       );
     }
     return '—';

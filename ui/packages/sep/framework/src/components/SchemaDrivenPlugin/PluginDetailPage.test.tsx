@@ -1371,7 +1371,7 @@ describe('PluginDetailPage — tabs', () => {
 });
 
 describe('PluginDetailPage — null status rendering', () => {
-  it('renders "Not run yet" chip when task status is null', () => {
+  it('renders "Created, not run yet" chip when task status is null', () => {
     mockUsePluginTask.mockReturnValue({
       data: { id: 1, name: 'restore-task', status: null },
       isLoading: false,
@@ -1379,7 +1379,9 @@ describe('PluginDetailPage — null status rendering', () => {
 
     renderAt('/apps/checksums/task/restore-task');
 
-    expect(screen.getByTestId('not-run-chip')).toHaveTextContent('Not run yet');
+    expect(screen.getByTestId('not-run-chip')).toHaveTextContent(
+      'Created, not run yet'
+    );
   });
 
   it('renders status badge for non-null status', () => {
