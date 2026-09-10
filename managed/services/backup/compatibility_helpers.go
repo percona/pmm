@@ -137,12 +137,12 @@ const (
 	mysqlXtrabackupBand80Universal
 	mysqlXtrabackupBand80Aligned
 	mysqlXtrabackupBandLegacy
-	// mysqlXtrabackupBandUnsupported is not reachable from
-	// mysqlXtrabackupBandFor: the bands above partition every version, with
-	// mysqlXtrabackupBandAligned taking everything from 8.5.0 up and
-	// mysqlXtrabackupBandLegacy everything below 8.0.22. It is kept as the
-	// switch default so that a future band that does not cover its whole range
-	// fails closed rather than silently reporting compatible.
+	// This band is not reachable from mysqlXtrabackupBandFor: the bands above
+	// partition every version, with mysqlXtrabackupBandAligned taking
+	// everything from 8.5.0 up and mysqlXtrabackupBandLegacy everything below
+	// 8.0.22. It is kept as the switch default so that a future band that does
+	// not cover its whole range fails closed rather than silently reporting
+	// compatible.
 	mysqlXtrabackupBandUnsupported
 )
 
