@@ -32,6 +32,11 @@ Set up PMM Client by deploying it as a Docker container and registering it with 
 
 Deploy and register PMM Client to start monitoring your node. 
 
+PMM identifies a Node by name, and the identity that PMM Server issues to the pmm-agent is stored in its configuration file. Keep both stable, a fixed `PMM_AGENT_SETUP_NODE_NAME` and a volume for the configuration, and the Node together with the Services you add survives a restart, a re-created container, or an image upgrade.
+
+!!! caution alert alert-warning "Requires PMM Client 3.10.0 or later"
+    Earlier versions register the Node again on every container start, and PMM Server answers a re-registration by removing the Node together with every Service configured on it. On those versions the Services you add to a restarted container are lost regardless of the volume you give it.
+
 Registration gives PMM Server permission to collect metrics from your infrastructure and display them in monitoring dashboards. PMM supports two authentication methods: service account tokens (recommended) and username/password credentials. 
 
 To deploy and register PMM Client using Docker:
@@ -78,21 +83,19 @@ To deploy and register PMM Client using Docker:
             -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
             -e PMM_AGENT_SETUP=1 \
             -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-            -e PMM_AGENT_SETUP_FORCE=1 \
-            -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
-            -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
+            -v pmm-client-config:/usr/local/percona/pmm/config \
             percona/pmm-client:3
             ```
     
             **Parameters explained:**
     
-            - `PMM_AGENT_SETUP_NODE_NAME` - (Optional) Descriptive name for the node
+            - `PMM_AGENT_SETUP_NODE_NAME` - Name of the Node in PMM. Keep it fixed: it defaults to the hostname, which a re-created container does not keep, and `pmm-agent setup` stops when PMM Server has the pmm-agent registered under another name
+            - `pmm-client-config` - Named volume holding `pmm-agent.yaml` with the identity PMM Server issued to the pmm-agent. Without it a re-created container has nothing to keep, and registering the same Node name again fails
             - `PMM_AGENT_SETUP_NODE_TYPE` - (Optional) Node type: generic, container, etc.
             - `PMM_AGENT_SERVER_ADDRESS` - Your PMM Server’s IP address or hostname
             - `service_token` - Use this exact string as the username (not a placeholder!)
             - `YOUR_GLSA_TOKEN` - The token you copied (starts with `glsa_`)
             - `PMM_AGENT_SERVER_INSECURE_TLS` - Skip certificate validation (remove for production with valid certificates)
-            - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) Path to a script inside the container that runs after registration. Mount your script using `-v ./your-script.sh:/opt/percona/pmm-prerun.sh`. See [Monitoring services](#add-monitoring-services). 
 
             You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
     
@@ -111,19 +114,17 @@ To deploy and register PMM Client using Docker:
         -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
         -e PMM_AGENT_SETUP=1 \
         -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
-        -e PMM_AGENT_SETUP_FORCE=1 \
-        -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
-        -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
+        -v pmm-client-config:/usr/local/percona/pmm/config \
         percona/pmm-client:3
         ```
     
         **Parameters explained:**
    
-        - `PMM_AGENT_SETUP_NODE_NAME` - (Optional) Descriptive name for the node
+        - `PMM_AGENT_SETUP_NODE_NAME` - Name of the Node in PMM. Keep it fixed: it defaults to the hostname, which a re-created container does not keep, and `pmm-agent setup` stops when PMM Server has the pmm-agent registered under another name
+        - `pmm-client-config` - Named volume holding `pmm-agent.yaml` with the identity PMM Server issued to the pmm-agent. Without it a re-created container has nothing to keep, and registering the same Node name again fails
         - `PMM_AGENT_SETUP_NODE_TYPE` - (Optional) Node type: generic, container, etc.
         - `PMM_AGENT_SERVER_ADDRESS` - Your PMM Server’s IP address or hostname
         - `admin`/`admin` - Default PMM Server username and password (change this immediately after first login)
-        - `PMM_AGENT_PRERUN_SCRIPT` - (Optional) See [Monitoring services](#add-monitoring-services)
         
         You can find a complete list of compatible environment variables [here](../../use/commands/pmm-agent.md).
 
@@ -138,6 +139,9 @@ To deploy and register PMM Client using Docker:
 
 !!! hint alert-success "Important"
     If you get `Failed to register pmm-agent on PMM Server: connection refused`, this typically means that the IP address is incorrect or the PMM Server is unreachable.
+
+!!! caution alert alert-warning "Recovering a Node after losing the volume"
+    If the volume is deleted while the Node still exists in PMM, the Client cannot register that Node name again and the container exits. Add `-e PMM_AGENT_SETUP_FORCE=1` for one start to take the name over. PMM Server then removes the old Node together with every Service on it, so drop the variable again afterwards.
     
 ## Verify the connection
 
@@ -161,9 +165,13 @@ To confirm your node is being monitored:
 
 ## Add monitoring services
 
-After installing PMM Client, you add database services to monitor with the [`pmm-admin`](../../use/commands/pmm-admin/pmm-admin.md) command. 
+After installing PMM Client, you add database services to monitor with the [`pmm-admin`](../../use/commands/pmm-admin/pmm-admin.md) command. Run it in the container once; the Node keeps the Services you add across restarts:
 
-When running PMM Client in Docker, use the `PMM_AGENT_PRERUN_SCRIPT` argument to pass a script containing any required `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]` commands. The `pmm-agent` runs the script automatically after registering with PMM Server. For example:
+```bash
+docker exec -t pmm-client pmm-admin add mysql --username=pmm --password=pass --query-source=perfschema --host=mysql-host
+```
+
+If you would rather declare the Services together with the container, use the `PMM_AGENT_PRERUN_SCRIPT` argument to pass a script with the `pmm-admin add DATABASE [FLAGS] [NAME] [ADDRESS]` commands. The pmm-agent runs the script on every start, after setup. `pmm-admin add` reports a Service which exists already as an error, and a failing script stops the container, so make the script tolerate the Services it added on an earlier start, for example by appending `|| true` to each command. For example:
 
 ```bash
  docker run \
@@ -176,7 +184,7 @@ When running PMM Client in Docker, use the `PMM_AGENT_PRERUN_SCRIPT` argument to
  -e PMM_AGENT_SERVER_INSECURE_TLS=1 \
  -e PMM_AGENT_SETUP=1 \
  -e PMM_AGENT_CONFIG_FILE=config/pmm-agent.yaml \
- -e PMM_AGENT_SETUP_FORCE=1 \
+ -v pmm-client-config:/usr/local/percona/pmm/config \
  -e PMM_AGENT_PRERUN_SCRIPT=/opt/percona/pmm-prerun.sh \
  -v ./pmm-prerun.sh:/opt/percona/pmm-prerun.sh \
  percona/pmm-client:3

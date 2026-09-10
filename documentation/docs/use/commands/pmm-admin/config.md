@@ -22,6 +22,16 @@ Set the PMM Server URL and credentials that pmm-agent uses to communicate with t
 
 Run this after installing PMM Client or when changing server connection details.
 
+Running it again for a registered pmm-agent keeps its registration, along with the Node and every Service on it:
+
+- The Node is registered again only when the PMM Server address changed, when PMM Server no longer knows the pmm-agent on that Node, or with `--force`.
+- If PMM Server has the pmm-agent on a Node with another name, the command stops. Re-run it with that name as the Node name argument to keep that Node together with its Services, or use `--force` to register the name you gave as a new Node instead, which leaves the other Node and its Services on PMM Server with nothing monitoring them.
+- Settings which describe the Node, such as `--custom-labels` or the Node type, only take effect when the Node is registered. The command lists the ones it did not apply, and reports a registered Node address or type which differs from the one you gave.
+- The credentials in `--server-url` only serve to register the Node. A registered pmm-agent keeps its service token, and the command says so when the credentials you gave were not the ones used.
+- The configuration file is left unchanged, so settings it holds which have no `pmm-admin config` flag, such as the ports range or the path to `/proc/mounts`, are kept.
+- If PMM Server cannot be reached, or answers something pmm-agent cannot interpret, the registration is kept, a warning is written to standard error and the command still succeeds, so that a Client can be configured while PMM Server is unavailable.
+- If the configuration file is encrypted, set `PMM_AGENT_CONFIG_FILE_KEY_FILE` in the environment. Without the key the command cannot tell whether the pmm-agent is registered, and stops instead of guessing. See [Encrypt the PMM Client configuration file](../../../admin/security/client_config_encryption.md).
+
 ### Syntax
 
 ```bash
@@ -47,6 +57,8 @@ pmm-admin config [<node-address> [<node-type> [<node-name>]]] [FLAGS]
 - `--paths-base=dir`:   Base path for PMM client binaries, tools, and collectors
 
 - `--agent-password=password`:   Custom agent password
+
+- `--force`:   Register the Node even if this pmm-agent is registered already, removing the Node with that name together with all dependent Services and Agents
 
 ### Examples
 
