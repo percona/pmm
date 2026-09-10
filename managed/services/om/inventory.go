@@ -17,6 +17,7 @@ package om
 
 import (
 	"context"
+	"maps"
 	"math"
 	"net/http"
 	"net/url"
@@ -91,9 +92,16 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 		query.Set("executor", strconv.FormatBool(req.GetExecutor()))
 	}
 
-	hosts := []sepHost{}
-	call := inventoryCall{method: http.MethodGet, path: "hosts", query: query}
-	err = probe.call(ctx, call, &hosts)
+	hosts, err := fetchAllPages(func(offset, limit int) (sepPage[sepHost], error) {
+		pageQuery := url.Values{}
+		maps.Copy(pageQuery, query)
+		pageQuery.Set("offset", strconv.Itoa(offset))
+		pageQuery.Set("limit", strconv.Itoa(limit))
+		page := sepPage[sepHost]{}
+		call := inventoryCall{method: http.MethodGet, path: "hosts", query: pageQuery}
+		err := probe.call(ctx, call, &page)
+		return page, err
+	})
 	if err != nil {
 		return nil, err
 	}
