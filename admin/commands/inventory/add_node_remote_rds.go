@@ -26,6 +26,7 @@ Node ID  : {{ .Node.NodeID }}
 Node name: {{ .Node.NodeName }}
 
 Address       : {{ .Node.Address }}
+Instance ID   : {{ .Node.InstanceID }}
 Model         : {{ .Node.NodeModel }}
 Custom labels : {{ .Node.CustomLabels }}
 
@@ -47,6 +48,7 @@ func (res *addNodeRemoteRDSResult) String() string {
 type AddNodeRemoteRDSCommand struct {
 	NodeName     string            `arg:"" optional:"" name:"name" help:"Node name"`
 	Address      string            `help:"Address"`
+	InstanceID   string            `help:"AWS DB instance identifier (required)"`
 	NodeModel    string            `help:"Node mddel"`
 	Region       string            `help:"Node region"`
 	Az           string            `help:"Node availability zone"`
@@ -61,6 +63,7 @@ func (cmd *AddNodeRemoteRDSCommand) RunCmd() (commands.Result, error) {
 			RemoteRDS: &nodes.AddNodeParamsBodyRemoteRDS{
 				NodeName:     cmd.NodeName,
 				Address:      cmd.Address,
+				InstanceID:   cmd.InstanceID,
 				NodeModel:    cmd.NodeModel,
 				Region:       cmd.Region,
 				Az:           cmd.Az,

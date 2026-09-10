@@ -7623,7 +7623,7 @@ type AddServiceOKBodyRDSNode struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// DB instance identifier.
+	// Node address. For RDS this is the instance endpoint, not the DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.

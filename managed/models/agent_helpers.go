@@ -963,6 +963,14 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		if !compatibleNodeAndAgent(node.NodeType, agentType) {
 			return nil, status.Errorf(codes.FailedPrecondition, "invalid combination of node type %s and agent type %s", node.NodeType, agentType)
 		}
+
+		// An rds_exporter uses the Node's DB instance identifier as the CloudWatch
+		// DBInstanceIdentifier dimension. Without it the exporter starts, reports RUNNING
+		// and silently scrapes nothing, so refuse rather than create a dead agent.
+		if node.NodeType == RemoteRDSNodeType && agentType == RDSExporterType && node.InstanceID == "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"node %s has no DB instance identifier; rds_exporter would have nothing to scrape", node.NodeID)
+		}
 	}
 
 	if params.ServiceID != "" {

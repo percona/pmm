@@ -194,9 +194,10 @@ func AddRemoteRDSNode(t *testing.T, nodeName string) *nodes.AddNodeOKBodyRemoteR
 
 	body := &nodes.AddNodeBody{
 		RemoteRDS: &nodes.AddNodeParamsBodyRemoteRDS{
-			NodeName: nodeName,
-			Address:  TestString(t, "rds-address"),
-			Region:   TestString(t, "rds-region"),
+			NodeName:   nodeName,
+			Address:    TestString(t, "rds-address"),
+			Region:     TestString(t, "rds-region"),
+			InstanceID: TestString(t, "rds-instance-id"),
 		},
 	}
 	return AddNode(t, body).RemoteRDS

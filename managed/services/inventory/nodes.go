@@ -238,6 +238,7 @@ func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventoryv1.Ad
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
+		InstanceID:   req.InstanceId,
 		NodeModel:    req.NodeModel,
 		Region:       pointer.ToStringOrNil(req.Region),
 		AZ:           req.Az,

@@ -90,7 +90,7 @@ message RemoteRDSNode {
   string node_id = 1;
   // Unique across all Nodes user-defined name.
   string node_name = 2;
-  // DB instance identifier.
+  // Node address. For RDS this is the instance endpoint, not the DB instance identifier.
   string address = 3;
   // Node model.
   string node_model = 4;
@@ -242,7 +242,7 @@ message AddRemoteNodeParams {
 message AddRemoteRDSNodeParams {
   // Unique across all Nodes user-defined name.
   string node_name = 1 [(validate.rules).string.min_len = 1];
-  // DB instance identifier.
+  // Node address. For RDS this is the instance endpoint, not the DB instance identifier.
   string address = 2 [(validate.rules).string.min_len = 1];
   // Node model.
   string node_model = 3;
@@ -252,6 +252,9 @@ message AddRemoteRDSNodeParams {
   string az = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 6;
+  // AWS DB instance identifier. Required: rds_exporter uses it as the CloudWatch
+  // DBInstanceIdentifier dimension, and cannot scrape without it.
+  string instance_id = 7;
 }
 
 // Add Remote Azure database
