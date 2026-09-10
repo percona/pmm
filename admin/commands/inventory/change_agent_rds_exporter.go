@@ -28,6 +28,7 @@ RDS Exporter agent configuration updated.
 Agent ID                   : {{ .Agent.AgentID }}
 PMM-Agent ID               : {{ .Agent.PMMAgentID }}
 Node ID                    : {{ .Agent.NodeID }}
+AWS role ARN               : {{ .Agent.AWSRoleArn }}
 Listen port                : {{ .Agent.ListenPort }}
 Push metrics enabled       : {{ .Agent.PushMetricsEnabled }}
 
@@ -72,6 +73,7 @@ type ChangeAgentRDSExporterCommand struct {
 	// AWS credentials
 	AWSAccessKey *string `help:"AWS access key"`
 	AWSSecretKey *string `help:"AWS secret key"`
+	AWSRoleARN   *string `name:"aws-role-arn" help:"AWS IAM role ARN to assume using the pmm-agent's ambient credentials; pass an empty value to clear it"`
 
 	// RDS-specific options
 	DisableBasicMetrics    *bool `help:"Disable basic metrics"`
@@ -95,6 +97,7 @@ func (cmd *ChangeAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 		Enable:                 cmd.Enable,
 		AWSAccessKey:           cmd.AWSAccessKey,
 		AWSSecretKey:           cmd.AWSSecretKey,
+		AWSRoleArn:             cmd.AWSRoleARN,
 		DisableBasicMetrics:    cmd.DisableBasicMetrics,
 		DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
 		EnablePushMetrics:      cmd.PushMetrics,
@@ -133,6 +136,13 @@ func (cmd *ChangeAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 	}
 	if cmd.AWSSecretKey != nil {
 		changes = append(changes, "updated AWS secret key")
+	}
+	if cmd.AWSRoleARN != nil {
+		if *cmd.AWSRoleARN == "" {
+			changes = append(changes, "cleared AWS role ARN")
+		} else {
+			changes = append(changes, "updated AWS role ARN")
+		}
 	}
 	if cmd.DisableBasicMetrics != nil {
 		if *cmd.DisableBasicMetrics {

@@ -84,6 +84,71 @@ func TestRoster(t *testing.T) {
 		assert.Equal(t, []string{}, agentIDs)
 	})
 
+	t.Run("GetFallbackMatchesOnlyItsOwnGroup", func(t *testing.T) {
+		r, teardown := setup(t)
+		defer teardown(t)
+
+		node, err := models.CreateNode(r.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
+			NodeName:   "rds-node",
+			Address:    "rds.example.com",
+			Region:     new("us-east-1"),
+			InstanceID: "rds-instance",
+		})
+		require.NoError(t, err)
+
+		staticAgent, err := models.CreateAgent(r.db.Querier, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID:          models.PMMServerAgentID,
+			NodeID:              node.NodeID,
+			AWSOptions:          models.AWSOptions{AWSAccessKey: "AKIAONE", AWSSecretKey: "secret"},
+			SkipConnectionCheck: true,
+		})
+		require.NoError(t, err)
+
+		ambientAgent, err := models.CreateAgent(r.db.Querier, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID:          models.PMMServerAgentID,
+			NodeID:              node.NodeID,
+			SkipConnectionCheck: true,
+		})
+		require.NoError(t, err)
+
+		// The static-key group must resolve to its own member, despite the access key
+		// being encrypted at rest.
+		_, agentIDs, err := r.get(models.PMMServerAgentID + ":" + rdsPrefix + "AKIAONE")
+		require.NoError(t, err)
+		assert.Equal(t, []string{staticAgent.AgentID}, agentIDs)
+
+		// The ambient group must not pick up the static-key agent.
+		_, agentIDs, err = r.get(models.PMMServerAgentID + ":" + rdsPrefix)
+		require.NoError(t, err)
+		assert.Equal(t, []string{ambientAgent.AgentID}, agentIDs)
+	})
+
+	t.Run("GetFallbackHandlesRoleARN", func(t *testing.T) {
+		r, teardown := setup(t)
+		defer teardown(t)
+
+		node, err := models.CreateNode(r.db.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
+			NodeName:   "rds-node",
+			Address:    "rds.example.com",
+			Region:     new("us-east-1"),
+			InstanceID: "rds-instance",
+		})
+		require.NoError(t, err)
+
+		roleOptions := models.AWSOptions{AWSRoleARN: "arn:aws:iam::123456789012:role/pmm"}
+		roleAgent, err := models.CreateAgent(r.db.Querier, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID:          models.PMMServerAgentID,
+			NodeID:              node.NodeID,
+			AWSOptions:          roleOptions,
+			SkipConnectionCheck: true,
+		})
+		require.NoError(t, err)
+
+		_, agentIDs, err := r.get(models.PMMServerAgentID + ":" + rdsPrefix + roleOptions.CredentialsKey())
+		require.NoError(t, err)
+		assert.Equal(t, []string{roleAgent.AgentID}, agentIDs)
+	})
+
 	t.Run("Clear", func(t *testing.T) {
 		r, teardown := setup(t)
 		defer teardown(t)

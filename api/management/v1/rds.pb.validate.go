@@ -180,6 +180,19 @@ func (m *DiscoverRDSRequest) validate(all bool) error {
 
 	// no validation rules for AwsSecretKey
 
+	if m.GetAwsRoleArn() != "" {
+		if !_DiscoverRDSRequest_AwsRoleArn_Pattern.MatchString(m.GetAwsRoleArn()) {
+			err := DiscoverRDSRequestValidationError{
+				field:  "AwsRoleArn",
+				reason: "value does not match regex pattern \"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\"",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
 	if len(errors) > 0 {
 		return DiscoverRDSRequestMultiError(errors)
 	}
@@ -260,6 +273,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = DiscoverRDSRequestValidationError{}
+
+var _DiscoverRDSRequest_AwsRoleArn_Pattern = regexp.MustCompile("^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$")
 
 // Validate checks the field values on DiscoverRDSResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -563,6 +578,19 @@ func (m *AddRDSServiceParams) validate(all bool) error {
 		}
 	}
 
+	if m.GetAwsRoleArn() != "" {
+		if !_AddRDSServiceParams_AwsRoleArn_Pattern.MatchString(m.GetAwsRoleArn()) {
+			err := AddRDSServiceParamsValidationError{
+				field:  "AwsRoleArn",
+				reason: "value does not match regex pattern \"^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\"",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+	}
+
 	if len(errors) > 0 {
 		return AddRDSServiceParamsMultiError(errors)
 	}
@@ -643,6 +671,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddRDSServiceParamsValidationError{}
+
+var _AddRDSServiceParams_AwsRoleArn_Pattern = regexp.MustCompile("^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$")
 
 // Validate checks the field values on RDSServiceResult with the rules defined
 // in the proto definition for this message. If any rules are violated, the

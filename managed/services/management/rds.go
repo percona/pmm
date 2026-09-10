@@ -24,10 +24,13 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/arn"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/credentials/stscreds"
 	"github.com/aws/aws-sdk-go-v2/service/rds"
 	"github.com/aws/aws-sdk-go-v2/service/rds/types"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 	"github.com/aws/smithy-go"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -149,6 +152,18 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		return nil, err
 	}
 
+	awsOptions := models.AWSOptions{
+		AWSAccessKey: req.AwsAccessKey,
+		AWSSecretKey: req.AwsSecretKey,
+		AWSRoleARN:   req.AwsRoleArn,
+	}
+	err = awsOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	regions := listRegions(settings.AWSPartitions)
+
 	// use given credentials, or default credential chain
 	var creds aws.CredentialsProvider
 	if req.AwsAccessKey != "" && req.AwsSecretKey != "" {
@@ -168,13 +183,34 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		return nil, fmt.Errorf("failed to load RDS default config: %w", err)
 	}
 
+	// A session token from any region's STS endpoint is valid across the whole partition, so
+	// the role is assumed once, rather than once per region, against the partition's default region.
+	if req.AwsRoleArn != "" {
+		stsRegion, err := stsRegionForRoleARN(req.AwsRoleArn)
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		}
+
+		roleCfg := cfg
+		roleCfg.Region = stsRegion
+		provider := assumeRoleProvider(roleCfg, req.AwsRoleArn)
+
+		_, err = provider.Retrieve(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.FailedPrecondition, "Failed to assume role %s: %s.", req.AwsRoleArn, err)
+		}
+
+		cfg.Credentials = provider
+	}
+
 	// do not break our API if some AWS region is slow or down
 	ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)
 	defer cancel()
+
 	var wg errgroup.Group
 	instances := make(chan *managementv1.DiscoverRDSInstance)
 
-	for _, region := range listRegions(settings.AWSPartitions) {
+	for _, region := range regions {
 		wg.Go(func() error {
 			regInstances, err := discoverRDSRegion(ctx, cfg, region)
 			if err != nil {
@@ -319,6 +355,7 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 				AWSOptions: models.AWSOptions{
 					AWSAccessKey:               req.AwsAccessKey,
 					AWSSecretKey:               req.AwsSecretKey,
+					AWSRoleARN:                 req.AwsRoleArn,
 					RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
 					RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 				},
@@ -535,4 +572,36 @@ func (s *ManagementService) addRDS(ctx context.Context, req *managementv1.AddRDS
 		},
 	}
 	return res, nil
+}
+
+// assumeRoleProvider returns a credentials provider that assumes roleARN using the
+// credentials and region already resolved in cfg. The provider is cache-wrapped so the SDK
+// refreshes the assumed credentials before they expire.
+func assumeRoleProvider(cfg aws.Config, roleARN string) aws.CredentialsProvider { //nolint:ireturn
+	return aws.NewCredentialsCache(stscreds.NewAssumeRoleProvider(sts.NewFromConfig(cfg), roleARN))
+}
+
+// stsDefaultRegion maps an AWS partition to a region always enabled in that partition,
+// used to reach STS once for a role instead of once per scanned region. A session
+// token issued in this region is valid across every region in the partition.
+var stsDefaultRegion = map[string]string{
+	"aws":        "us-east-1",
+	"aws-cn":     "cn-north-1",
+	"aws-us-gov": "us-gov-west-1",
+	"aws-iso":    "us-iso-east-1",
+}
+
+// stsRegionForRoleARN returns the STS region to use for assuming roleARN, based on its partition.
+func stsRegionForRoleARN(roleARN string) (string, error) {
+	parsed, err := arn.Parse(roleARN)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse AWS role ARN %q: %w", roleARN, err)
+	}
+
+	region, ok := stsDefaultRegion[parsed.Partition]
+	if !ok {
+		return "", fmt.Errorf("unsupported AWS partition %q in role ARN %q", parsed.Partition, roleARN)
+	}
+
+	return region, nil
 }

@@ -191,7 +191,10 @@ type DiscoverRDSRequest struct {
 	// AWS Access key. Optional.
 	AwsAccessKey string `protobuf:"bytes,1,opt,name=aws_access_key,json=awsAccessKey,proto3" json:"aws_access_key,omitempty"`
 	// AWS Secret key. Optional.
-	AwsSecretKey  string `protobuf:"bytes,2,opt,name=aws_secret_key,json=awsSecretKey,proto3" json:"aws_secret_key,omitempty"`
+	AwsSecretKey string `protobuf:"bytes,2,opt,name=aws_secret_key,json=awsSecretKey,proto3" json:"aws_secret_key,omitempty"`
+	// AWS IAM role ARN to assume using the server's ambient credentials. Optional.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AwsRoleArn    string `protobuf:"bytes,3,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -236,6 +239,13 @@ func (x *DiscoverRDSRequest) GetAwsAccessKey() string {
 func (x *DiscoverRDSRequest) GetAwsSecretKey() string {
 	if x != nil {
 		return x.AwsSecretKey
+	}
+	return ""
+}
+
+func (x *DiscoverRDSRequest) GetAwsRoleArn() string {
+	if x != nil {
+		return x.AwsRoleArn
 	}
 	return ""
 }
@@ -365,8 +375,11 @@ type AddRDSServiceParams struct {
 	// List of collector names to disable in the PostgreSQL database exporter.
 	// Applies only when engine is DISCOVER_RDS_ENGINE_POSTGRESQL, otherwise it is ignored.
 	PostgresqlDisableCollectors []string `protobuf:"bytes,37,rep,name=postgresql_disable_collectors,json=postgresqlDisableCollectors,proto3" json:"postgresql_disable_collectors,omitempty"`
-	unknownFields               protoimpl.UnknownFields
-	sizeCache                   protoimpl.SizeCache
+	// AWS IAM role ARN to assume using the pmm-agent's ambient credentials.
+	// Mutually exclusive with aws_access_key and aws_secret_key.
+	AwsRoleArn    string `protobuf:"bytes,38,opt,name=aws_role_arn,json=awsRoleArn,proto3" json:"aws_role_arn,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AddRDSServiceParams) Reset() {
@@ -658,6 +671,13 @@ func (x *AddRDSServiceParams) GetPostgresqlDisableCollectors() []string {
 	return nil
 }
 
+func (x *AddRDSServiceParams) GetAwsRoleArn() string {
+	if x != nil {
+		return x.AwsRoleArn
+	}
+	return ""
+}
+
 type RDSServiceResult struct {
 	state                     protoimpl.MessageState             `protogen:"open.v1"`
 	Node                      *v1.RemoteRDSNode                  `protobuf:"bytes,1,opt,name=node,proto3" json:"node,omitempty"`
@@ -773,12 +793,14 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"\aaddress\x18\x05 \x01(\tR\aaddress\x12\x12\n" +
 	"\x04port\x18\x06 \x01(\rR\x04port\x128\n" +
 	"\x06engine\x18\a \x01(\x0e2 .management.v1.DiscoverRDSEngineR\x06engine\x12%\n" +
-	"\x0eengine_version\x18\b \x01(\tR\rengineVersion\"l\n" +
+	"\x0eengine_version\x18\b \x01(\tR\rengineVersion\"\xc7\x01\n" +
 	"\x12DiscoverRDSRequest\x12*\n" +
 	"\x0eaws_access_key\x18\x01 \x01(\tB\x04\x88\xb5\x18\x01R\fawsAccessKey\x12*\n" +
-	"\x0eaws_secret_key\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\"^\n" +
+	"\x0eaws_secret_key\x18\x02 \x01(\tB\x04\x88\xb5\x18\x01R\fawsSecretKey\x12Y\n" +
+	"\faws_role_arn\x18\x03 \x01(\tB7\xfaB4r22-^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\xd0\x01\x01R\n" +
+	"awsRoleArn\"^\n" +
 	"\x13DiscoverRDSResponse\x12G\n" +
-	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\x8c\x0e\n" +
+	"\rrds_instances\x18\x01 \x03(\v2\".management.v1.DiscoverRDSInstanceR\frdsInstances\"\xe7\x0e\n" +
 	"\x13AddRDSServiceParams\x12\x1f\n" +
 	"\x06region\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x02 \x01(\tR\x02az\x12(\n" +
@@ -820,7 +842,9 @@ const file_management_v1_rds_proto_rawDesc = "" +
 	"#max_postgresql_exporter_connections\x18! \x01(\x05R maxPostgresqlExporterConnections\x12R\n" +
 	"\x12connection_timeout\x18# \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x128\n" +
 	"\x18mysql_disable_collectors\x18$ \x03(\tR\x16mysqlDisableCollectors\x12B\n" +
-	"\x1dpostgresql_disable_collectors\x18% \x03(\tR\x1bpostgresqlDisableCollectors\x1a?\n" +
+	"\x1dpostgresql_disable_collectors\x18% \x03(\tR\x1bpostgresqlDisableCollectors\x12Y\n" +
+	"\faws_role_arn\x18& \x01(\tB7\xfaB4r22-^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role/.+$\xd0\x01\x01R\n" +
+	"awsRoleArn\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd3\x04\n" +

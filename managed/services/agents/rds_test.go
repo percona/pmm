@@ -136,3 +136,50 @@ instances:
 	require.Equal(t, expected.TextFiles["config"], actual.TextFiles["config"])
 	require.Equal(t, expected, actual)
 }
+
+func TestRDSExporterConfigRoleARN(t *testing.T) {
+	pmmAgentVersion := version.MustParse("2.28.0")
+
+	node := &models.Node{
+		NodeID:     "node1",
+		NodeType:   models.RemoteRDSNodeType,
+		NodeName:   "prod-mysql56",
+		NodeModel:  "db.t2.micro",
+		Region:     new("us-east-1"),
+		AZ:         "us-east-1c",
+		Address:    "rds-mysql56.xyzzy.us-east-1.rds.amazonaws.com",
+		InstanceID: "rds-mysql56",
+	}
+	agent := &models.Agent{
+		AgentID:   "agent1",
+		AgentType: models.RDSExporterType,
+		NodeID:    &node.NodeID,
+		AWSOptions: models.AWSOptions{
+			AWSRoleARN: "arn:aws:iam::123456789012:role/pmm-monitoring",
+		},
+	}
+
+	actual, err := rdsExporterConfig(map[*models.Node]*models.Agent{node: agent}, redactSecrets, pmmAgentVersion)
+	require.NoError(t, err)
+
+	expected := strings.TrimSpace(`
+---
+instances:
+    - region: us-east-1
+      instance: rds-mysql56
+      aws_role_arn: arn:aws:iam::123456789012:role/pmm-monitoring
+      disable_basic_metrics: false
+      disable_enhanced_metrics: false
+      labels:
+        agent_id: agent1
+        agent_type: rds_exporter
+        az: us-east-1c
+        node_id: node1
+        node_model: db.t2.micro
+        node_name: prod-mysql56
+        node_type: remote_rds
+	`) + "\n"
+
+	require.Equal(t, expected, actual.TextFiles["config"])
+	require.Equal(t, []string{}, actual.RedactWords)
+}

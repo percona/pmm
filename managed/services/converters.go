@@ -495,6 +495,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 			NodeId:                  nodeID,
 			Disabled:                agent.Disabled,
 			AwsAccessKey:            agent.AWSOptions.AWSAccessKey,
+			AwsRoleArn:              agent.AWSOptions.AWSRoleARN,
 			Status:                  inventoryv1.AgentStatus(inventoryv1.AgentStatus_value[agent.Status]),
 			ListenPort:              uint32(pointer.GetUint16(agent.ListenPort)),
 			CustomLabels:            labels,
