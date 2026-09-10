@@ -25,3 +25,12 @@ export const waitForVisible = (selector: string, timeout = 5000) =>
       subtree: true,
     });
   });
+
+/**
+ * Reloads the page. nginx serves the PMM UI with `Cache-control: no-cache`, so a
+ * plain reload revalidates index.html and picks up the new content-hashed assets;
+ * `location.reload(true)` is deprecated and ignored by current browsers.
+ */
+export const reloadPage = () => {
+  window.location.reload();
+};
