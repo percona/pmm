@@ -286,6 +286,12 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 			"/graph/api/ds/query":        true,
 			"/v1/qan/metrics:getFilters": true,
 			"/v1/qan/query:exists":       true,
+			// Every data source proxy form must be filtered, whatever the id and sub-path.
+			"/graph/api/datasources/proxy/1/api/v1/query":                     true,
+			"/graph/api/datasources/proxy/137/api/v1/query":                   true,
+			"/graph/api/datasources/proxy/uid/PA58DA793C7250F1B/api/v1/query": true,
+			"/graph/api/datasources/proxy/1/api/v1/export":                    true,
+			"/graph/api/datasources/proxy/1/snapshot/create":                  true,
 		} {
 			for _, userID := range []int{0, 1337, 1338} {
 				t.Run(fmt.Sprintf("uri=%s userID=%d", uri, userID), func(t *testing.T) {

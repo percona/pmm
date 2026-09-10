@@ -148,8 +148,9 @@ var lbacPrefixes = []string{
 	// "/graph/api/v1/labels", // Note: this path appears not to be used in Grafana
 	"/prometheus/api/v1/",
 	"/v1/qan/",
-	// https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
-	"/graph/api/datasources/proxy/1/api/v1/",
+	// Grafana serves the data source proxy under both /proxy/<id>/ and /proxy/uid/<uid>/,
+	// so match the whole family: a narrower prefix leaves the other forms unfiltered.
+	"/graph/api/datasources/proxy/",
 }
 
 const lbacHeaderName = "X-Proxy-Filter"
