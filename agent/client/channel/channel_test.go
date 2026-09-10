@@ -26,6 +26,8 @@ import (
 
 	"github.com/percona/exporter_shared/helpers"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -143,7 +145,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		},
 		Mysql: &agentv1.MetricsBucket_MySQL{},
 	}}
-	resp, err := channel.SendAndWaitResponse(&request)
+	resp, err := channel.SendAndWaitResponse(t.Context(), &request)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
@@ -155,7 +157,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		},
 		Mysql: &agentv1.MetricsBucket_MySQL{},
 	}}
-	resp, err = channel.SendAndWaitResponse(&request)
+	resp, err = channel.SendAndWaitResponse(t.Context(), &request)
 	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
@@ -185,7 +187,7 @@ func TestAgentRequest(t *testing.T) {
 	t.Cleanup(teardown)
 
 	for i := uint32(1); i <= count; i++ {
-		resp, err := channel.SendAndWaitResponse(&agentv1.QANCollectRequest{})
+		resp, err := channel.SendAndWaitResponse(t.Context(), &agentv1.QANCollectRequest{})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 	}
@@ -232,12 +234,45 @@ func TestServerRequest(t *testing.T) {
 		for i := uint32(1); i <= count; i++ {
 			err := stream.Send(&agentv1.ServerMessage{
 				Id:      i,
-				Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
+				Payload: (&agentv1.SetStateRequest{}).ServerMessageRequestPayload(),
 			})
 			require.NoError(t, err)
 		}
 
 		for i := uint32(1); i <= count; i++ {
+			msg, err := stream.Recv()
+			require.NoError(t, err)
+			assert.Equal(t, i, msg.Id)
+			require.NotNil(t, msg.GetSetState())
+		}
+
+		return nil
+	}
+
+	channel, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
+	t.Cleanup(teardown)
+
+	for req := range channel.Requests() {
+		assert.IsType(t, &agentv1.SetStateRequest{}, req.Payload)
+
+		channel.Send(&AgentResponse{
+			ID:      req.ID,
+			Payload: &agentv1.SetStateResponse{},
+		})
+	}
+}
+
+func TestServerPing(t *testing.T) {
+	const count = 50
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		for i := uint32(1); i <= count; i++ {
+			err := stream.Send(&agentv1.ServerMessage{
+				Id:      i,
+				Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
+			})
+			require.NoError(t, err)
+
 			msg, err := stream.Recv()
 			require.NoError(t, err)
 			assert.Equal(t, i, msg.Id)
@@ -252,7 +287,7 @@ func TestServerRequest(t *testing.T) {
 	channel, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
 	t.Cleanup(teardown)
 
-	for req := range channel.Requests() {
+	for req := range channel.Pings() {
 		assert.IsType(t, &agentv1.Ping{}, req.Payload)
 
 		channel.Send(&AgentResponse{
@@ -262,6 +297,253 @@ func TestServerRequest(t *testing.T) {
 			},
 		})
 	}
+}
+
+// TestServerPingWhileRequestsPileUp covers half of PMM-15431: a busy consumer of Requests() used
+// to delay every pong behind the requests it had not got to yet.
+func TestServerPingWhileRequestsPileUp(t *testing.T) {
+	const count = serverRequestsCap - 1
+
+	pongReceived := make(chan struct{})
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		// Nobody reads Requests() in this test, so these just pile up in the queue.
+		for i := uint32(1); i <= count; i++ {
+			err := stream.Send(&agentv1.ServerMessage{
+				Id:      i,
+				Payload: (&agentv1.SetStateRequest{}).ServerMessageRequestPayload(),
+			})
+			require.NoError(t, err)
+		}
+
+		err := stream.Send(&agentv1.ServerMessage{
+			Id:      count + 1,
+			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
+		})
+		require.NoError(t, err)
+
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		assert.EqualValues(t, count+1, msg.Id)
+		require.NotNil(t, msg.GetPong())
+		close(pongReceived)
+
+		return nil
+	}
+
+	channel, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
+	t.Cleanup(teardown)
+
+	req := <-channel.Pings()
+	require.NotNil(t, req)
+	assert.EqualValues(t, count+1, req.ID)
+	channel.Send(&AgentResponse{
+		ID: req.ID,
+		Payload: &agentv1.Pong{
+			CurrentTime: timestamppb.Now(),
+		},
+	})
+
+	<-pongReceived
+}
+
+// TestFullRequestQueueDoesNotWedgeReceiver covers the other half of PMM-15431: once the queue was
+// full, runReceiver parked on a bare channel send that nothing could interrupt, so closing the
+// channel left it - and the only goroutine able to deliver a response - stuck for good.
+func TestFullRequestQueueDoesNotWedgeReceiver(t *testing.T) {
+	const count = serverRequestsCap + 5
+
+	errClosed := errors.New("closed while the request queue was full")
+	queueFilled := make(chan struct{})
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		// Nobody reads Requests() in this test, so these overflow the queue and park
+		// runReceiver on the send of the first one that does not fit.
+		for i := uint32(1); i <= count; i++ {
+			err := stream.Send(&agentv1.ServerMessage{
+				Id:      i,
+				Payload: (&agentv1.SetStateRequest{}).ServerMessageRequestPayload(),
+			})
+			require.NoError(t, err)
+		}
+		close(queueFilled)
+
+		_, err := stream.Recv()
+		require.Error(t, err)
+
+		return nil
+	}
+
+	channel, _, teardown := setup(t, connect, errClosed)
+	t.Cleanup(teardown)
+
+	<-queueFilled
+	requireQueueFull(t, channel)
+
+	channel.close(errClosed)
+
+	assertReceiverStopped(t, channel)
+}
+
+// TestFullRequestQueueGivesUpOnConnection covers the recovery path: a consumer that never resumes
+// draining leaves runReceiver parked, and only giving up on the connection gets the agent back -
+// nothing else can, since Run does not return while its goroutines are all still parked.
+func TestFullRequestQueueGivesUpOnConnection(t *testing.T) {
+	const count = serverRequestsCap + 5
+
+	restore := requestQueueStuckTimeout
+	requestQueueStuckTimeout = 200 * time.Millisecond
+	t.Cleanup(func() { requestQueueStuckTimeout = restore })
+
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		// Nobody reads Requests() in this test, so these overflow the queue.
+		for i := uint32(1); i <= count; i++ {
+			err := stream.Send(&agentv1.ServerMessage{
+				Id:      i,
+				Payload: (&agentv1.SetStateRequest{}).ServerMessageRequestPayload(),
+			})
+			require.NoError(t, err)
+		}
+
+		_, err := stream.Recv()
+		require.Error(t, err)
+
+		return nil
+	}
+
+	channel, _, teardown := setup(t, connect, errors.New("request queue full for"))
+	t.Cleanup(teardown)
+
+	requireQueueFull(t, channel)
+
+	// Nothing is drained and nothing is closed from this side, so the only way Wait returns is
+	// the receiver giving up on the connection by itself.
+	require.ErrorContains(t, channel.Wait(), "request queue full for")
+	assertReceiverStopped(t, channel)
+}
+
+func requireQueueFull(t *testing.T, channel *Channel) {
+	t.Helper()
+
+	require.Eventually(t, func() bool {
+		return len(channel.requests) == serverRequestsCap
+	}, 3*time.Second, 10*time.Millisecond)
+}
+
+// assertReceiverStopped drains the queue runReceiver owns and asserts that it closed it, which it
+// does only on its way out.
+func assertReceiverStopped(t *testing.T, channel *Channel) {
+	t.Helper()
+
+	for range serverRequestsCap {
+		require.NotNil(t, <-channel.Requests())
+	}
+	_, more := <-channel.Requests()
+	assert.False(t, more)
+	_, more = <-channel.Pings()
+	assert.False(t, more)
+}
+
+func TestSendAndWaitResponseCanceled(t *testing.T) {
+	asserted := make(chan struct{})
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		// Receive the request, but never answer it.
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		require.NotNil(t, msg.GetQanCollect())
+
+		// Keep the channel open until the caller has given up on its own, so that giving up
+		// is the only thing that can unblock it.
+		<-asserted
+
+		return nil
+	}
+
+	channel, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
+	t.Cleanup(teardown)
+
+	ctx, cancel := context.WithCancel(t.Context())
+	cancel()
+
+	resp, err := channel.SendAndWaitResponse(ctx, &agentv1.QANCollectRequest{})
+	assert.Nil(t, resp)
+	require.ErrorIs(t, err, context.Canceled)
+	close(asserted)
+}
+
+func TestAbandon(t *testing.T) {
+	t.Parallel()
+
+	// The interleaving that matters cannot be forced through the gRPC harness, so drive the
+	// primitives directly: only `responses` and `l` are touched by the paths under test.
+	newChannel := func() *Channel {
+		return &Channel{
+			responses: make(map[uint32]chan Response),
+			l:         logrus.WithField("test", t.Name()),
+		}
+	}
+
+	t.Run("marks a request that is still tracked", func(t *testing.T) {
+		t.Parallel()
+
+		c := newChannel()
+		c.subscribe(1)
+
+		assert.True(t, c.abandon(1))
+		// Tracked as abandoned rather than dropped, so a late response is recognized.
+		assert.Len(t, c.responses, 1)
+		assert.Nil(t, c.responses[1])
+	})
+
+	t.Run("does not resurrect an entry the publisher already took", func(t *testing.T) {
+		t.Parallel()
+
+		// The waiter sees ctx expire, then the publisher removes the entry and delivers
+		// before the waiter marks it. Marking it anyway would leave an entry that no future
+		// response can ever clear, because the response was already published.
+		c := newChannel()
+		ch := c.subscribe(1)
+
+		c.publish(1, nil, &agentv1.Pong{CurrentTime: timestamppb.Now()})
+
+		assert.False(t, c.abandon(1))
+		assert.Empty(t, c.responses)
+
+		// The response the publisher delivered is still there to be collected, which is
+		// what SendAndWaitResponse falls back to rather than reporting a timeout.
+		resp := <-ch
+		require.NoError(t, resp.Error)
+		assert.IsType(t, &agentv1.Pong{}, resp.Payload)
+	})
+
+	t.Run("is a no-op once the channel is closed", func(t *testing.T) {
+		t.Parallel()
+
+		c := newChannel()
+		c.subscribe(1)
+		c.responses = nil
+
+		assert.False(t, c.abandon(1))
+	})
+
+	t.Run("reports a response that arrives after the sender gave up", func(t *testing.T) {
+		t.Parallel()
+
+		l, hook := logrustest.NewNullLogger()
+		l.SetLevel(logrus.DebugLevel)
+		c := newChannel()
+		c.l = l.WithField("test", t.Name())
+
+		c.subscribe(1)
+		require.True(t, c.abandon(1))
+
+		// No subscriber left, so this must neither block nor be reported as a response
+		// to an ID the agent never sent.
+		c.publish(1, nil, &agentv1.Pong{CurrentTime: timestamppb.Now()})
+
+		assert.Empty(t, c.responses)
+		entries := hook.AllEntries()
+		require.Len(t, entries, 1)
+		assert.Equal(t, logrus.DebugLevel, entries[0].Level)
+	})
 }
 
 func TestServerExitsWithGRPCError(t *testing.T) {
@@ -278,7 +560,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	channel, _, teardown := setup(t, connect, errUnimplemented)
 	t.Cleanup(teardown)
 
-	resp, err := channel.SendAndWaitResponse(&agentv1.QANCollectRequest{})
+	resp, err := channel.SendAndWaitResponse(t.Context(), &agentv1.QANCollectRequest{})
 	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
@@ -296,7 +578,7 @@ func TestServerExitsWithUnknownError(t *testing.T) {
 	channel, _, teardown := setup(t, connect, status.Error(codes.Unknown, "EOF"))
 	t.Cleanup(teardown)
 
-	resp, err := channel.SendAndWaitResponse(&agentv1.QANCollectRequest{})
+	resp, err := channel.SendAndWaitResponse(t.Context(), &agentv1.QANCollectRequest{})
 	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
@@ -319,7 +601,7 @@ func TestAgentClosesStream(t *testing.T) {
 	channel, _, teardown := setup(t, connect, io.EOF)
 	t.Cleanup(teardown)
 
-	req := <-channel.Requests()
+	req := <-channel.Pings()
 	require.NotNil(t, req)
 	assert.IsType(t, &agentv1.Ping{}, req.Payload)
 
@@ -355,7 +637,7 @@ func TestAgentClosesConnection(t *testing.T) {
 	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing, errConnClosed) //nolint:varnamelen
 	t.Cleanup(teardown)
 
-	req := <-channel.Requests()
+	req := <-channel.Pings()
 	require.NotNil(t, req)
 	assert.IsType(t, &agentv1.Ping{}, req.Payload)
 
@@ -391,7 +673,7 @@ func TestUnexpectedResponseIDFromServer(t *testing.T) {
 
 	<-unexpectedIDSent
 	// Get the ping message and send pong response, channel stays open after message with unexpected id.
-	msg := <-channel.Requests()
+	msg := <-channel.Pings()
 	assert.NotNil(t, msg)
 	channel.send(&agentv1.AgentMessage{
 		Id:      1,
@@ -422,7 +704,7 @@ func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
 	}
 	channel, _, teardown := setup(t, connect, io.EOF)
 	t.Cleanup(teardown)
-	req := <-channel.Requests()
+	req := <-channel.Pings()
 	channel.Send(&AgentResponse{
 		ID: req.ID,
 		Payload: &agentv1.Pong{

@@ -15,6 +15,7 @@
 package agentlocal
 
 import (
+	"context"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -27,7 +28,7 @@ import (
 // We use it instead of real type for testing and to avoid dependency cycle.
 type client interface {
 	GetServerConnectMetadata() *agentv1.ServerConnectMetadata
-	GetNetworkInformation() (latency, clockDrift time.Duration, err error)
+	GetNetworkInformation(ctx context.Context) (latency, clockDrift time.Duration, err error)
 	// Collector added to use client as Prometheus collector
 	prometheus.Collector
 	GetConnectionUpTime() float32
