@@ -17,7 +17,6 @@
 
 import { useFormContext } from 'react-hook-form';
 import { TextInput } from '@percona/peak-ui';
-import { FieldLabelWithHelp } from '../FieldLabelWithHelp';
 import type { IntegerField as IntegerFieldType } from '../types';
 import { buildValidationRules } from '../utils/validationMapper';
 
@@ -34,12 +33,6 @@ export function IntegerField({ field }: IntegerFieldProps) {
       isRequired={field.required}
       control={control}
       textFieldProps={{
-        label: (
-          <FieldLabelWithHelp
-            label={field.label}
-            description={field.description}
-          />
-        ),
         type: 'number',
         helperText: field.description,
         fullWidth: true,
