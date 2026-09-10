@@ -124,6 +124,9 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PMM_ENABLE_SEP", "PMM_SEP_POSTGRES_PASSWORD":
 			// skip env variables consumed by the entrypoint to expose postgres to SEP
 			continue
+		case "PMM_SEP_URL", "PMM_SEP_TOKEN":
+			// skip SEP connection settings, parsed separately
+			continue
 		case "PERCONA_TELEMETRY_DISABLE":
 			// skip the Pillars telemetry environment variable
 			continue
@@ -334,6 +337,12 @@ var secretEnvVarMarkers = []string{"PASSWORD", "SECRET", "TOKEN", "KEY"}
 
 // redactSecretEnvVar replaces the value of a credential-bearing environment variable.
 func redactSecretEnvVar(key, value string) string {
+	if key == "PMM_SEP_URL" {
+		// A URL can carry credentials in its userinfo, and none of the markers below
+		// match "URL".
+		return "<redacted>"
+	}
+
 	for _, marker := range secretEnvVarMarkers {
 		if strings.Contains(key, marker) {
 			return "<redacted>"
