@@ -942,7 +942,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, err
 	}
 
-	_, err = FindAgentByID(q, params.PMMAgentID)
+	pmmAgent, err := FindAgentByID(q, params.PMMAgentID)
 	if err != nil {
 		return nil, err
 	}
@@ -1030,6 +1030,12 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	err = row.AWSOptions.Validate()
 	if err != nil {
 		return nil, err
+	}
+
+	if row.AWSOptions.AWSRoleARN != "" {
+		if err := IsAgentSupported(pmmAgent, "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN); err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
 	}
 
 	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
@@ -1471,6 +1477,12 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	err = row.AWSOptions.Validate()
 	if err != nil {
 		return nil, err
+	}
+
+	if row.AWSOptions.AWSRoleARN != "" {
+		if err := PMMAgentSupported(q, pointer.GetString(row.PMMAgentID), "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN); err != nil {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
 	}
 
 	// need to encrypt Agent's sensitive data before update
