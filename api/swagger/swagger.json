@@ -2199,6 +2199,7 @@
     },
     "/v1/alerting/thresholds": {
       "get": {
+        "description": "As a side effect, throttled to once per reconcileInterval, this also triggers an async\nsweep that reaps alert-rule registry rows whose Grafana rule no longer exists.",
         "tags": [
           "AlertingService"
         ],
