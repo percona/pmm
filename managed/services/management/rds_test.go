@@ -455,30 +455,35 @@ func TestSTSRegionForRoleARN(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name       string
-		roleARN    string
-		wantRegion string
-		wantErr    bool
+		name          string
+		roleARN       string
+		wantRegion    string
+		wantPartition string
+		wantErr       bool
 	}{
 		{
-			name:       "aws partition",
-			roleARN:    "arn:aws:iam::123456789012:role/pmm-monitoring",
-			wantRegion: "us-east-1",
+			name:          "aws partition",
+			roleARN:       "arn:aws:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "us-east-1",
+			wantPartition: "aws",
 		},
 		{
-			name:       "aws-cn partition",
-			roleARN:    "arn:aws-cn:iam::123456789012:role/pmm-monitoring",
-			wantRegion: "cn-north-1",
+			name:          "aws-cn partition",
+			roleARN:       "arn:aws-cn:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "cn-north-1",
+			wantPartition: "aws-cn",
 		},
 		{
-			name:       "aws-us-gov partition",
-			roleARN:    "arn:aws-us-gov:iam::123456789012:role/pmm-monitoring",
-			wantRegion: "us-gov-west-1",
+			name:          "aws-us-gov partition",
+			roleARN:       "arn:aws-us-gov:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "us-gov-west-1",
+			wantPartition: "aws-us-gov",
 		},
 		{
-			name:       "aws-iso partition",
-			roleARN:    "arn:aws-iso:iam::123456789012:role/pmm-monitoring",
-			wantRegion: "us-iso-east-1",
+			name:          "aws-iso partition",
+			roleARN:       "arn:aws-iso:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "us-iso-east-1",
+			wantPartition: "aws-iso",
 		},
 		{
 			name:    "unsupported partition",
@@ -496,13 +501,14 @@ func TestSTSRegionForRoleARN(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			region, err := stsRegionForRoleARN(tt.roleARN)
+			region, partition, err := stsRegionForRoleARN(tt.roleARN)
 			if tt.wantErr {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
 			assert.Equal(t, tt.wantRegion, region)
+			assert.Equal(t, tt.wantPartition, partition)
 		})
 	}
 }

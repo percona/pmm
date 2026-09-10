@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"sort"
 	"time"
 
@@ -172,7 +173,7 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 
 	opts := []func(*config.LoadOptions) error{
 		config.WithCredentialsProvider(creds),
-		config.WithHTTPClient(&http.Client{}),
+		config.WithHTTPClient(&http.Client{Timeout: awsDiscoverTimeout}),
 	}
 	if l.Logger != nil && l.Logger.Level >= logrus.DebugLevel {
 		opts = append(opts, config.WithClientLogMode(aws.LogRetries|aws.LogRequestWithBody|aws.LogResponseWithBody))
@@ -186,16 +187,29 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 	// A session token from any region's STS endpoint is valid across the whole partition, so
 	// the role is assumed once, rather than once per region, against the partition's default region.
 	if req.AwsRoleArn != "" {
-		stsRegion, err := stsRegionForRoleARN(req.AwsRoleArn)
+		stsRegion, partition, err := stsRegionForRoleARN(req.AwsRoleArn)
 		if err != nil {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
+		}
+
+		// The role's partition must be one PMM is configured to scan; otherwise the assumed
+		// credentials cannot work in any scanned region and discovery would fail region by region
+		// with a misleading error, or silently return nothing. Reject up front, before any network.
+		if !slices.Contains(settings.AWSPartitions, partition) {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"Role %s belongs to AWS partition %q, which is not enabled in PMM settings.", req.AwsRoleArn, partition)
 		}
 
 		roleCfg := cfg
 		roleCfg.Region = stsRegion
 		provider := assumeRoleProvider(roleCfg, req.AwsRoleArn)
 
-		_, err = provider.Retrieve(ctx)
+		// Bound the assume-role call with its own deadline. It is the first AWS network call in
+		// this handler, and the region-scan timeout below does not cover it, so without this a
+		// slow or unreachable STS endpoint would hang DiscoverRDS far past awsDiscoverTimeout.
+		assumeCtx, assumeCancel := context.WithTimeout(ctx, awsDiscoverTimeout)
+		_, err = provider.Retrieve(assumeCtx)
+		assumeCancel()
 		if err != nil {
 			return nil, status.Errorf(codes.FailedPrecondition, "Failed to assume role %s: %s.", req.AwsRoleArn, err)
 		}
@@ -591,17 +605,18 @@ var stsDefaultRegion = map[string]string{
 	"aws-iso":    "us-iso-east-1",
 }
 
-// stsRegionForRoleARN returns the STS region to use for assuming roleARN, based on its partition.
-func stsRegionForRoleARN(roleARN string) (string, error) {
+// stsRegionForRoleARN returns the STS region to use for assuming roleARN and the ARN's AWS
+// partition, based on that partition.
+func stsRegionForRoleARN(roleARN string) (region, partition string, err error) {
 	parsed, err := arn.Parse(roleARN)
 	if err != nil {
-		return "", fmt.Errorf("failed to parse AWS role ARN %q: %w", roleARN, err)
+		return "", "", fmt.Errorf("failed to parse AWS role ARN %q: %w", roleARN, err)
 	}
 
 	region, ok := stsDefaultRegion[parsed.Partition]
 	if !ok {
-		return "", fmt.Errorf("unsupported AWS partition %q in role ARN %q", parsed.Partition, roleARN)
+		return "", "", fmt.Errorf("unsupported AWS partition %q in role ARN %q", parsed.Partition, roleARN)
 	}
 
-	return region, nil
+	return region, parsed.Partition, nil
 }
