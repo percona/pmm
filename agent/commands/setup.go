@@ -28,6 +28,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	agent_local "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
 	mservice "github.com/percona/pmm/api/management/v1/json/client/management_service"
+	"github.com/percona/pmm/utils/servererror"
 )
 
 // Setup implements `pmm-agent setup` command.
@@ -132,6 +133,33 @@ func checkStatus(configFilepath string, l *logrus.Entry) (string, bool) {
 	}
 }
 
+// registerErrorMessage explains why registering on PMM Server failed. The host argument is the
+// PMM Server host name the TLS certificate was checked against, and insecureTLS reports whether
+// that check was disabled.
+func registerErrorMessage(err error, host string, insecureTLS bool) string {
+	// Point the user at --server-insecure-tls when PMM Server presents a certificate we
+	// cannot verify - its shipped certificate is issued for localhost only - and append
+	// NginxHint if nginx answered instead of the API.
+	err = servererror.Explain(err, host, insecureTLS)
+
+	msg := err.Error()
+
+	e, ok := errors.AsType[*mservice.RegisterNodeDefault](err)
+	if ok {
+		msg = e.Payload.Message
+		if e.Code() == http.StatusConflict {
+			msg += " If you want override node, use --force option"
+		}
+		// The HTTP status alone cannot tell an authentication failure apart from an
+		// internal one, since PMM Server maps several gRPC codes onto HTTP 401.
+		if hint := servererror.AuthHint(e.Code(), e.Payload.Code); hint != "" {
+			msg += "\n" + hint
+		}
+	}
+
+	return msg
+}
+
 func register(cfg *config.Config, l *logrus.Entry) {
 	fmt.Printf("Registering pmm-agent on PMM Server...\n")
 
@@ -145,22 +173,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	agentID, token, err := serverRegister(&cfg.Setup)
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
-		msg := err.Error()
-		e, ok := errors.AsType[*mservice.RegisterNodeDefault](err)
-		if ok {
-			msg = e.Payload.Message + ""
-			switch e.Code() {
-			case http.StatusConflict:
-				msg += " If you want override node, use --force option"
-			case http.StatusUnauthorized, http.StatusForbidden:
-				msg += "\nPlease check username and password"
-			}
-		}
-		if _, ok := err.(nginxError); ok { //nolint:errorlint
-			msg += ".\nPlease check pmm-managed logs."
-		}
-
-		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", msg)
+		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", registerErrorMessage(err, u.Hostname(), cfg.Server.InsecureTLS))
 		os.Exit(1)
 	}
 	cfg.ID = agentID

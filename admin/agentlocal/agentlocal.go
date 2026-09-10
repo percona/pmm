@@ -17,10 +17,8 @@ package agentlocal
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -31,6 +29,7 @@ import (
 
 	"github.com/percona/pmm/api/agentlocal/v1/json/client"
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
+	"github.com/percona/pmm/utils/apitransport"
 )
 
 // SetTransport configures transport for accessing local pmm-agent API.
@@ -40,9 +39,9 @@ func SetTransport(debug bool, port uint32) {
 	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
 	transport.SetDebug(debug)
 
-	// disable HTTP/2
-	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
-	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
+	// disable HTTP/2 on a transport of our own: go-openapi hands out http.DefaultTransport,
+	// and disabling it there would do so for every other HTTP client in the process
+	apitransport.ConfigureLocal(transport)
 
 	client.Default.SetTransport(transport)
 }

@@ -29,6 +29,7 @@ import (
 	"github.com/percona/pmm/admin/commands/inventory"
 	"github.com/percona/pmm/admin/commands/management"
 	"github.com/percona/pmm/admin/pkg/flags"
+	"github.com/percona/pmm/utils/servererror"
 )
 
 // GlobalFlagsGetter supports retrieving GlobalFlags.
@@ -137,7 +138,25 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 		}
 	}
 
-	return err
+	// Transport-level failures never reach the cases above; they are returned for the
+	// caller to print. The hints added to them address a human reading the terminal, so
+	// --json output, whose consumers match on the error text, keeps the error as it came.
+	if opts.JSON {
+		return err
+	}
+
+	return explainTransportError(opts, err)
+}
+
+// explainTransportError appends a hint to the failures which never reach PMM Server's API, and
+// returns every other error unchanged.
+func explainTransportError(opts *flags.GlobalFlags, err error) error {
+	var host string
+	if opts.ServerURL != nil {
+		host = opts.ServerURL.Hostname()
+	}
+
+	return servererror.Explain(err, host, opts.SkipTLSCertificateCheck)
 }
 
 func printSuccessResult(opts *flags.GlobalFlags, res commands.Result) {
@@ -164,11 +183,7 @@ func printErrorResponse(opts *flags.GlobalFlags, err commands.ErrorResponse) {
 		}
 		fmt.Printf("%s\n", b) //nolint:forbidigo
 	} else {
-		msg := e.Error
-		if e.Code == 401 { //nolint:mnd
-			msg += ". Please check username and password."
-		}
-		fmt.Println(msg) //nolint:forbidigo
+		fmt.Println(commands.ServerErrorMessage(e)) //nolint:forbidigo
 	}
 }
 
