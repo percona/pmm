@@ -70,7 +70,6 @@ Use the matrix below to check which permissions users have based on their assign
     View backups | ✗ | ✗ | ✓
     Manage backups | ✗ | ✗ | ✓
     View update status | ✗ | ✗ | ✓
-    Start updates | ✗ | ✗ | ✓
 
 === "Data sources"
     Permission | Viewer | Editor | Admin
@@ -92,7 +91,6 @@ Use the matrix below to check which permissions users have based on their assign
     `/v1/management/` | Admin | Server management functions
     `/v1/management/Jobs` | Viewer | View management jobs
     `/v1/server/updates` | Viewer | Check for updates
-    `/v1/server/updates:start` | Admin | Start update process
     `/v1/server/settings/readonly` | Viewer | View read-only settings
     `/v1/server/settings` | Admin | Configure server settings
     `/v1/platform:` | Admin | Platform management

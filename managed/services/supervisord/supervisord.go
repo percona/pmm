@@ -18,6 +18,7 @@ package supervisord
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io/fs"
@@ -147,12 +148,42 @@ func (s *Service) UpdateConfiguration(settings *models.Settings) error {
 
 // StartSupervisedService starts given service.
 func (s *Service) StartSupervisedService(serviceName string) error {
-	return s.supervisorctl("start", serviceName)
+	_, err := s.supervisorctl(context.Background(), "start", serviceName)
+	return err
 }
 
 // StopSupervisedService stops given service.
 func (s *Service) StopSupervisedService(serviceName string) error {
-	return s.supervisorctl("stop", serviceName)
+	_, err := s.supervisorctl(context.Background(), "stop", serviceName)
+	return err
+}
+
+// ProgramRunning returns true if the given supervisord program is running or is going to be
+// restarted, false if it is not running, has exited, or has failed for good.
+func (s *Service) ProgramRunning(ctx context.Context, program string) bool {
+	// See http://supervisord.org/subprocess.html#process-states
+	b, err := s.supervisorctl(ctx, "status", program)
+	if err != nil {
+		// supervisorctl exits with a non-zero code when the program is not running,
+		// so the output is still worth parsing.
+		s.l.Debugf("Status command for '%s' failed: %s", program, err)
+	}
+
+	f := strings.Fields(string(b))
+	if len(f) < 2 { //nolint:mnd
+		s.l.Debugf("Cannot parse status of '%s': %s", program, b)
+		return false
+	}
+
+	switch status := f[1]; status {
+	case "STARTING", "RUNNING", "BACKOFF", "STOPPING":
+		return true
+	case "STOPPED", "EXITED", "FATAL", "UNKNOWN":
+		return false
+	default:
+		s.l.Debugf("Unhandled status '%s' of '%s', assuming it is not running.", status, program)
+		return false
+	}
 }
 
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
@@ -184,7 +215,7 @@ autostart = {{ not .ExternalVM }}
 startretries = 10
 startsecs = 1
 stopsignal = INT
-stopwaitsecs = 300
+stopwaitsecs = 30
 stdout_logfile = /srv/logs/victoriametrics.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
@@ -210,7 +241,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = INT
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/vmalert.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
@@ -231,7 +262,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = INT
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/vmproxy.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
@@ -297,7 +328,7 @@ autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = TERM
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/grafana.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2
@@ -313,7 +344,7 @@ autostart = {{ .NomadEnabled }}
 startretries = 10
 startsecs = 1
 stopsignal = INT
-stopwaitsecs = 300
+stopwaitsecs = 10
 stdout_logfile = /srv/logs/nomad-server.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
@@ -321,25 +352,25 @@ redirect_stderr = true
 {{end}}
 `))
 
-func (s *Service) supervisorctl(args ...string) error {
+func (s *Service) supervisorctl(ctx context.Context, args ...string) ([]byte, error) {
 	if s.supervisorctlPath == "" {
-		return errors.New("supervisorctl not found")
+		return nil, errors.New("supervisorctl not found")
 	}
 
-	cmd := exec.Command(s.supervisorctlPath, args...) //nolint:gosec,noctx
+	cmd := exec.CommandContext(ctx, s.supervisorctlPath, args...) //nolint:gosec
 	cmdLine := strings.Join(cmd.Args, " ")
 	s.l.Debugf("Running %q...", cmdLine)
 	pdeathsig.Set(cmd, unix.SIGKILL)
-	_, err := cmd.Output()
+	b, err := cmd.Output()
 	if err != nil {
-		return fmt.Errorf("%s failed: %w", cmdLine, err)
+		return b, fmt.Errorf("%s failed: %w", cmdLine, err)
 	}
-	return nil
+	return b, nil
 }
 
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
-	err := s.supervisorctl("reread")
+	_, err := s.supervisorctl(context.Background(), "reread")
 	if err != nil {
 		s.l.Warn(err)
 	}
@@ -351,7 +382,8 @@ func (s *Service) reload(name string) error {
 		return nil
 	}
 
-	return s.supervisorctl("update", name)
+	_, err = s.supervisorctl(context.Background(), "update", name)
+	return err
 }
 
 // marshalConfig marshals supervisord program configuration.
