@@ -95,6 +95,13 @@ type Supervisor struct {
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventoryv1.AgentStatus
+	// instances names the current instance of each Agent ID. An Agent abandoned by
+	// waitAgentStopped keeps running under an ID its replacement now owns, and its late
+	// statuses would otherwise speak for that replacement - a DONE among them deletes the
+	// replacement's status outright, leaving a running Agent reported as stopped with nothing
+	// to correct it. See PMM-15431.
+	instances    map[string]uint64
+	nextInstance uint64
 
 	// forwarders counts the running Agent status forwarders, so that stopAll never closes the
 	// channels they send to while one of them is still able to send. See PMM-15431.
@@ -146,6 +153,7 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
 		lastStatuses:   make(map[string]inventoryv1.AgentStatus),
+		instances:      make(map[string]uint64),
 
 		agentsStopTimeout: agentsStopTimeout,
 	}
@@ -384,16 +392,58 @@ func (s *Supervisor) releasePortAndTempDir(agentID string, port uint16, agentTmp
 	}
 }
 
-func (s *Supervisor) storeLastStatus(agentID string, status inventoryv1.AgentStatus) {
+// forward sends v to ch, and gives up only if the Supervisor is stopping and ch has no room.
+// Nothing drains these channels once the client is gone, so parking on a full one leaks the
+// forwarder and keeps stopAll from closing them; preferring the send keeps the final statuses of a
+// normal shutdown, which the client is still draining. See PMM-15431.
+func forward[T any](ctx context.Context, ch chan<- T, v T) bool {
+	select {
+	case ch <- v:
+		return true
+	default:
+	}
+
+	select {
+	case ch <- v:
+		return true
+	case <-ctx.Done():
+		return false
+	}
+}
+
+// startInstance makes a new instance of agentID the current one and returns its token.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) startInstance(agentID string) uint64 {
 	s.arw.Lock()
 	defer s.arw.Unlock()
 
+	s.nextInstance++
+	s.instances[agentID] = s.nextInstance
+
+	return s.nextInstance
+}
+
+// storeLastStatus records status against agentID and reports whether it did. It does not, and the
+// caller must report nothing either, once instance is no longer the current one for that ID: the
+// checking and the storing share a lock precisely so that a replacement cannot slip in between.
+func (s *Supervisor) storeLastStatus(agentID string, instance uint64, status inventoryv1.AgentStatus) bool {
+	s.arw.Lock()
+	defer s.arw.Unlock()
+
+	if s.instances[agentID] != instance {
+		return false
+	}
+
 	if status == inventoryv1.AgentStatus_AGENT_STATUS_DONE {
 		delete(s.lastStatuses, agentID)
-		return
+		delete(s.instances, agentID)
+
+		return true
 	}
 
 	s.lastStatuses[agentID] = status
+
+	return true
 }
 
 // setAgentProcesses starts/restarts/stops Agent processes.
@@ -610,22 +660,32 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	}
 
 	done := make(chan struct{})
+	instance := s.startInstance(agentID)
 	s.forwarders.Add(1)
 	go func() {
+		defer func() {
+			// Before done, so that an observed done implies this forwarder is out of
+			// the count. Deferred so that giving up below still accounts for it.
+			s.forwarders.Add(-1)
+			close(done)
+		}()
+
 		for status := range processWrapper.Changes() {
-			s.storeLastStatus(agentID, status)
+			if !s.storeLastStatus(agentID, instance, status) {
+				// Abandoned: a replacement owns this ID now.
+				continue
+			}
 			l.Infof("Sending status: %s (port %d).", status, port)
-			s.changes <- &agentv1.StateChangedRequest{
+			if !forward(s.ctx, s.changes, &agentv1.StateChangedRequest{
 				AgentId:         agentID,
 				Status:          status,
 				ListenPort:      uint32(port),
 				ProcessExecPath: processParams.Path,
 				Version:         version,
+			}) {
+				return
 			}
 		}
-		// Before done, so that an observed done implies this forwarder is out of the count.
-		s.forwarders.Add(-1)
-		close(done)
 	}()
 
 	processInfo := &agentProcessInfo{ //nolint:forcetypeassert
@@ -644,7 +704,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		if !isInitialized {
 			// TODO: handle initialization error for nomad agent
 			if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT {
-				s.handleNomadAgent(agentID, processInfo, l)
+				s.handleNomadAgent(agentID, instance, processInfo, l)
 				return nil
 			}
 			defer cancel()
@@ -661,6 +721,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 //nolint:funcorder
 func (s *Supervisor) handleNomadAgent(
 	agentID string,
+	instance uint64,
 	processInfo *agentProcessInfo,
 	l *logrus.Entry,
 ) {
@@ -668,7 +729,7 @@ func (s *Supervisor) handleNomadAgent(
 	s.agentProcesses[agentID] = processInfo
 
 	status := inventoryv1.AgentStatus_AGENT_STATUS_DONE
-	s.storeLastStatus(agentID, status)
+	s.storeLastStatus(agentID, instance, status)
 	l.Warn("Cannot start Nomad Agent: cgroups are not writable.")
 	l.Infof("Sending status: %s (port %d).", status, processInfo.listenPort)
 	// Bounded: this runs with s.rw held for writing, so parking on a full channel would
@@ -806,23 +867,38 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
+	instance := s.startInstance(agentID)
 	s.forwarders.Add(1)
 	go func() {
+		defer func() {
+			// Before done, so that an observed done implies this forwarder is out of
+			// the count. Deferred so that giving up below still accounts for it.
+			s.forwarders.Add(-1)
+			close(done)
+		}()
+
 		rtaBucketLastCollectTime := timestamppb.New(time.Now()).AsTime()
 
 		for change := range agent.Changes() {
 			if change.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
-				s.storeLastStatus(agentID, change.Status)
+				if !s.storeLastStatus(agentID, instance, change.Status) {
+					// Abandoned: a replacement owns this ID now.
+					continue
+				}
 				l.Infof("Sending status: %s.", change.Status)
-				s.changes <- &agentv1.StateChangedRequest{
+				if !forward(s.ctx, s.changes, &agentv1.StateChangedRequest{
 					AgentId: agentID,
 					Status:  change.Status,
+				}) {
+					return
 				}
 			}
 			if change.MetricsBucket != nil {
 				l.Infof("Sending %d metrics buckets.", len(change.MetricsBucket))
-				s.qanRequests <- &agentv1.QANCollectRequest{
+				if !forward(s.ctx, s.qanRequests, &agentv1.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
+				}) {
+					return
 				}
 			}
 
@@ -841,14 +917,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 
 				rtaBucketLastCollectTime = currentBucketCollectTime
 
-				s.rtaRequests <- &rtav1.CollectRequest{
+				if !forward(s.ctx, s.rtaRequests, &rtav1.CollectRequest{
 					Queries: change.RTAQueriesBucket,
+				}) {
+					return
 				}
 			}
 		}
-		// Before done, so that an observed done implies this forwarder is out of the count.
-		s.forwarders.Add(-1)
-		close(done)
 	}()
 
 	//nolint:forcetypeassert

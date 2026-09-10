@@ -534,6 +534,76 @@ func TestStopAll(t *testing.T) {
 		default:
 		}
 	})
+
+	t.Run("StuckForwarderGivesUpOnShutdown", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := context.WithCancel(t.Context())
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths:         config.Paths{TempDir: t.TempDir()},
+			Ports:         config.Ports{Min: 65200, Max: 65299},
+			LogLinesCount: 1,
+		})
+		s := NewSupervisor(ctx, nil, cfgStorage)
+		s.agentsStopTimeout = 200 * time.Millisecond
+		s.SetState(sleeper)
+
+		fillChanges(s)
+
+		// The real shutdown path: Run waits for the context and only then calls stopAll, so
+		// a forwarder parked on a full channel is parked with the context already done.
+		cancel()
+		s.stopAll()
+
+		// It gave up rather than staying parked, so nothing can send any more and the
+		// channels are closed. Leaving them open here would leak the forwarder and all three
+		// channels on every config reload, which run.go survives by building a fresh
+		// Supervisor. See PMM-15431.
+		select {
+		case _, more := <-s.QANRequests():
+			assert.False(t, more, "QANRequests() should be closed")
+		default:
+			t.Error("QANRequests() was left open by a forwarder that never gave up")
+		}
+	})
+}
+
+// TestAbandonedInstanceCannotReportForItsReplacement covers the cost of giving up on a stopping
+// Agent: it keeps running under an ID its replacement now owns, and a DONE from it used to delete
+// the replacement's status, leaving a live Agent reported as stopped with nothing to correct it.
+// See PMM-15431.
+func TestAbandonedInstanceCannotReportForItsReplacement(t *testing.T) {
+	t.Parallel()
+
+	cfgStorage := config.NewStorage(&config.Config{Ports: config.Ports{Min: 65500, Max: 65535}})
+	s := NewSupervisor(t.Context(), nil, cfgStorage)
+
+	const agentID = "sleep1"
+
+	abandoned := s.startInstance(agentID)
+	require.True(t, s.storeLastStatus(agentID, abandoned, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING))
+
+	// The stop budget ran out, so the Agent above is still running when its replacement takes
+	// the ID over.
+	replacement := s.startInstance(agentID)
+	require.True(t, s.storeLastStatus(agentID, replacement, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING))
+
+	// Whatever the abandoned one has left to say is no longer about this ID.
+	assert.False(t, s.storeLastStatus(agentID, abandoned, inventoryv1.AgentStatus_AGENT_STATUS_STOPPING))
+	assert.False(t, s.storeLastStatus(agentID, abandoned, inventoryv1.AgentStatus_AGENT_STATUS_DONE))
+
+	s.arw.RLock()
+	status := s.lastStatuses[agentID]
+	s.arw.RUnlock()
+	assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, status,
+		"the replacement is running and must still be reported as running")
+
+	// The replacement's own DONE still lands.
+	assert.True(t, s.storeLastStatus(agentID, replacement, inventoryv1.AgentStatus_AGENT_STATUS_DONE))
+	s.arw.RLock()
+	_, ok := s.lastStatuses[agentID]
+	s.arw.RUnlock()
+	assert.False(t, ok)
 }
 
 func TestStartProcessFail(t *testing.T) {
