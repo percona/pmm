@@ -193,11 +193,13 @@ func TestThresholdOverrideLifecycle(t *testing.T) {
 	// tombstone so the emitted series keeps existing and merely changes value, but that
 	// is invisible from here - what the API must report is "not overridden".
 	_, err = f.client.ClearThreshold(&alerting.ClearThresholdParams{
-		Scope:     new(scopeNode),
-		Target:    new(f.nodeID),
-		RuleID:    new(f.ruleID),
-		ParamName: new("threshold"),
-		Context:   pmmapitests.Context,
+		Body: alerting.ClearThresholdBody{
+			Scope:     new(scopeNode),
+			Target:    f.nodeID,
+			RuleID:    f.ruleID,
+			ParamName: "threshold",
+		},
+		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
 

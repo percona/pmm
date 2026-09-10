@@ -57,24 +57,8 @@ ClearThresholdParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ClearThresholdParams struct {
-	// ParamName.
-	ParamName *string
-
-	// RuleID.
-	RuleID *string
-
-	/* Scope.
-
-	     - THRESHOLD_SCOPE_NODE: Target is a Node ID.
-	- THRESHOLD_SCOPE_SERVICE: Target is a Service ID.
-	- THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.
-
-	    Default: "THRESHOLD_SCOPE_UNSPECIFIED"
-	*/
-	Scope *string
-
-	// Target.
-	Target *string
+	// Body.
+	Body ClearThresholdBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -93,16 +77,7 @@ func (o *ClearThresholdParams) WithDefaults() *ClearThresholdParams {
 //
 // All values with no default are reset to their zero value.
 func (o *ClearThresholdParams) SetDefaults() {
-	scopeDefault := string("THRESHOLD_SCOPE_UNSPECIFIED")
-
-	val := ClearThresholdParams{
-		Scope: &scopeDefault,
-	}
-
-	val.timeout = o.timeout
-	val.Context = o.Context
-	val.HTTPClient = o.HTTPClient
-	*o = val
+	// no default values defined for this parameter
 }
 
 // WithTimeout adds the timeout to the clear threshold params
@@ -138,48 +113,15 @@ func (o *ClearThresholdParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithParamName adds the paramName to the clear threshold params
-func (o *ClearThresholdParams) WithParamName(paramName *string) *ClearThresholdParams {
-	o.SetParamName(paramName)
+// WithBody adds the body to the clear threshold params
+func (o *ClearThresholdParams) WithBody(body ClearThresholdBody) *ClearThresholdParams {
+	o.SetBody(body)
 	return o
 }
 
-// SetParamName adds the paramName to the clear threshold params
-func (o *ClearThresholdParams) SetParamName(paramName *string) {
-	o.ParamName = paramName
-}
-
-// WithRuleID adds the ruleID to the clear threshold params
-func (o *ClearThresholdParams) WithRuleID(ruleID *string) *ClearThresholdParams {
-	o.SetRuleID(ruleID)
-	return o
-}
-
-// SetRuleID adds the ruleId to the clear threshold params
-func (o *ClearThresholdParams) SetRuleID(ruleID *string) {
-	o.RuleID = ruleID
-}
-
-// WithScope adds the scope to the clear threshold params
-func (o *ClearThresholdParams) WithScope(scope *string) *ClearThresholdParams {
-	o.SetScope(scope)
-	return o
-}
-
-// SetScope adds the scope to the clear threshold params
-func (o *ClearThresholdParams) SetScope(scope *string) {
-	o.Scope = scope
-}
-
-// WithTarget adds the target to the clear threshold params
-func (o *ClearThresholdParams) WithTarget(target *string) *ClearThresholdParams {
-	o.SetTarget(target)
-	return o
-}
-
-// SetTarget adds the target to the clear threshold params
-func (o *ClearThresholdParams) SetTarget(target *string) {
-	o.Target = target
+// SetBody adds the body to the clear threshold params
+func (o *ClearThresholdParams) SetBody(body ClearThresholdBody) {
+	o.Body = body
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -188,69 +130,8 @@ func (o *ClearThresholdParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 		return err
 	}
 	var res []error
-
-	if o.ParamName != nil {
-
-		// query param param_name
-		var qrParamName string
-
-		if o.ParamName != nil {
-			qrParamName = *o.ParamName
-		}
-		qParamName := qrParamName
-		if qParamName != "" {
-			if err := r.SetQueryParam("param_name", qParamName); err != nil {
-				return err
-			}
-		}
-	}
-
-	if o.RuleID != nil {
-
-		// query param rule_id
-		var qrRuleID string
-
-		if o.RuleID != nil {
-			qrRuleID = *o.RuleID
-		}
-		qRuleID := qrRuleID
-		if qRuleID != "" {
-			if err := r.SetQueryParam("rule_id", qRuleID); err != nil {
-				return err
-			}
-		}
-	}
-
-	if o.Scope != nil {
-
-		// query param scope
-		var qrScope string
-
-		if o.Scope != nil {
-			qrScope = *o.Scope
-		}
-		qScope := qrScope
-		if qScope != "" {
-			if err := r.SetQueryParam("scope", qScope); err != nil {
-				return err
-			}
-		}
-	}
-
-	if o.Target != nil {
-
-		// query param target
-		var qrTarget string
-
-		if o.Target != nil {
-			qrTarget = *o.Target
-		}
-		qTarget := qrTarget
-		if qTarget != "" {
-			if err := r.SetQueryParam("target", qTarget); err != nil {
-				return err
-			}
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

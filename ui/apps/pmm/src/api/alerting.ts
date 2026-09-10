@@ -79,7 +79,7 @@ export const setThreshold = async (update: Required<ThresholdUpdate>) => {
 export const clearThreshold = async (
   update: Omit<ThresholdUpdate, 'value'>
 ) => {
-  const res = await api.delete('alerting/thresholds', { params: update });
+  const res = await api.post('alerting/thresholds:clear', update);
   return res.data;
 };
 

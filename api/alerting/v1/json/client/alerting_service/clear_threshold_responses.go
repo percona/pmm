@@ -14,6 +14,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // ClearThresholdReader is a Reader for the ClearThreshold structure.
@@ -88,12 +89,12 @@ func (o *ClearThresholdOK) Code() int {
 
 func (o *ClearThresholdOK) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /v1/alerting/thresholds][%d] clearThresholdOk %s", 200, payload)
+	return fmt.Sprintf("[POST /v1/alerting/thresholds:clear][%d] clearThresholdOk %s", 200, payload)
 }
 
 func (o *ClearThresholdOK) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /v1/alerting/thresholds][%d] clearThresholdOk %s", 200, payload)
+	return fmt.Sprintf("[POST /v1/alerting/thresholds:clear][%d] clearThresholdOk %s", 200, payload)
 }
 
 func (o *ClearThresholdOK) GetPayload() any {
@@ -159,12 +160,12 @@ func (o *ClearThresholdDefault) Code() int {
 
 func (o *ClearThresholdDefault) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /v1/alerting/thresholds][%d] ClearThreshold default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /v1/alerting/thresholds:clear][%d] ClearThreshold default %s", o._statusCode, payload)
 }
 
 func (o *ClearThresholdDefault) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[DELETE /v1/alerting/thresholds][%d] ClearThreshold default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /v1/alerting/thresholds:clear][%d] ClearThreshold default %s", o._statusCode, payload)
 }
 
 func (o *ClearThresholdDefault) GetPayload() *ClearThresholdDefaultBody {
@@ -179,6 +180,114 @@ func (o *ClearThresholdDefault) readResponse(response runtime.ClientResponse, co
 		return err
 	}
 
+	return nil
+}
+
+/*
+ClearThresholdBody clear threshold body
+swagger:model ClearThresholdBody
+*/
+type ClearThresholdBody struct {
+	// ThresholdScope says what a threshold override's target refers to.
+	//
+	//  - THRESHOLD_SCOPE_NODE: Target is a Node ID.
+	//  - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.
+	//  - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.
+	// Enum: ["THRESHOLD_SCOPE_UNSPECIFIED","THRESHOLD_SCOPE_NODE","THRESHOLD_SCOPE_SERVICE","THRESHOLD_SCOPE_CLUSTER"]
+	Scope *string `json:"scope,omitempty"`
+
+	// target
+	Target string `json:"target,omitempty"`
+
+	// rule id
+	RuleID string `json:"rule_id,omitempty"`
+
+	// param name
+	ParamName string `json:"param_name,omitempty"`
+}
+
+// Validate validates this clear threshold body
+func (o *ClearThresholdBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateScope(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var clearThresholdBodyTypeScopePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["THRESHOLD_SCOPE_UNSPECIFIED","THRESHOLD_SCOPE_NODE","THRESHOLD_SCOPE_SERVICE","THRESHOLD_SCOPE_CLUSTER"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		clearThresholdBodyTypeScopePropEnum = append(clearThresholdBodyTypeScopePropEnum, v)
+	}
+}
+
+const (
+
+	// ClearThresholdBodyScopeTHRESHOLDSCOPEUNSPECIFIED captures enum value "THRESHOLD_SCOPE_UNSPECIFIED"
+	ClearThresholdBodyScopeTHRESHOLDSCOPEUNSPECIFIED string = "THRESHOLD_SCOPE_UNSPECIFIED"
+
+	// ClearThresholdBodyScopeTHRESHOLDSCOPENODE captures enum value "THRESHOLD_SCOPE_NODE"
+	ClearThresholdBodyScopeTHRESHOLDSCOPENODE string = "THRESHOLD_SCOPE_NODE"
+
+	// ClearThresholdBodyScopeTHRESHOLDSCOPESERVICE captures enum value "THRESHOLD_SCOPE_SERVICE"
+	ClearThresholdBodyScopeTHRESHOLDSCOPESERVICE string = "THRESHOLD_SCOPE_SERVICE"
+
+	// ClearThresholdBodyScopeTHRESHOLDSCOPECLUSTER captures enum value "THRESHOLD_SCOPE_CLUSTER"
+	ClearThresholdBodyScopeTHRESHOLDSCOPECLUSTER string = "THRESHOLD_SCOPE_CLUSTER"
+)
+
+// prop value enum
+func (o *ClearThresholdBody) validateScopeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, clearThresholdBodyTypeScopePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ClearThresholdBody) validateScope(formats strfmt.Registry) error {
+	if swag.IsZero(o.Scope) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateScopeEnum("body"+"."+"scope", "body", *o.Scope); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this clear threshold body based on context it is used
+func (o *ClearThresholdBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ClearThresholdBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ClearThresholdBody) UnmarshalBinary(b []byte) error {
+	var res ClearThresholdBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }
 

@@ -2500,82 +2500,6 @@
             }
           }
         }
-      },
-      "delete": {
-        "tags": [
-          "AlertingService"
-        ],
-        "summary": "ClearThreshold removes an override so the target falls back to the rule's default,\nor to a broader override still covering it.",
-        "operationId": "ClearThreshold",
-        "parameters": [
-          {
-            "enum": [
-              "THRESHOLD_SCOPE_UNSPECIFIED",
-              "THRESHOLD_SCOPE_NODE",
-              "THRESHOLD_SCOPE_SERVICE",
-              "THRESHOLD_SCOPE_CLUSTER"
-            ],
-            "type": "string",
-            "default": "THRESHOLD_SCOPE_UNSPECIFIED",
-            "description": " - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
-            "name": "scope",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "target",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "rule_id",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "param_name",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": {}
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/v1/alerting/thresholds:batchUpdate": {
@@ -2717,6 +2641,90 @@
                   "x-order": 0
                 }
               }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/alerting/thresholds:clear": {
+      "post": {
+        "tags": [
+          "AlertingService"
+        ],
+        "summary": "ClearThreshold removes an override so the target falls back to the rule's default,\nor to a broader override still covering it.",
+        "operationId": "ClearThreshold",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "scope": {
+                  "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                  "type": "string",
+                  "default": "THRESHOLD_SCOPE_UNSPECIFIED",
+                  "enum": [
+                    "THRESHOLD_SCOPE_UNSPECIFIED",
+                    "THRESHOLD_SCOPE_NODE",
+                    "THRESHOLD_SCOPE_SERVICE",
+                    "THRESHOLD_SCOPE_CLUSTER"
+                  ],
+                  "x-order": 0
+                },
+                "target": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "rule_id": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "param_name": {
+                  "type": "string",
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
             }
           },
           "default": {

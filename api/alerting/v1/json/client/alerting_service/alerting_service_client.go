@@ -124,8 +124,8 @@ func (a *Client) ClearThreshold(params *ClearThresholdParams, opts ...ClientOpti
 	}
 	op := &runtime.ClientOperation{
 		ID:                 "ClearThreshold",
-		Method:             "DELETE",
-		PathPattern:        "/v1/alerting/thresholds",
+		Method:             "POST",
+		PathPattern:        "/v1/alerting/thresholds:clear",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

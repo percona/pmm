@@ -57,10 +57,10 @@ Removes an override, returning the target to the rule's default or to a broader 
 still covers it.
 
 ```shell
-curl --insecure -X DELETE \
+curl --insecure -X POST \
      --header 'Authorization: Bearer XXXXX' \
      --header 'Content-Type: application/json' \
-     --url https://127.0.0.1/v1/alerting/thresholds \
+     --url https://127.0.0.1/v1/alerting/thresholds:clear \
      --data '
 {
   "scope": "THRESHOLD_SCOPE_NODE",
@@ -71,8 +71,8 @@ curl --insecure -X DELETE \
 '
 ```
 
-Clearing is idempotent: clearing a threshold that is not overridden succeeds and changes
-nothing.
+Clearing an override that has already been cleared succeeds and changes nothing. Clearing a
+parameter that was never overridden returns `404 Not Found` — there is no override to clear.
 
 > 🚧 Clear rather than write the default back
 > 

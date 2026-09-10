@@ -2320,7 +2320,7 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\x1bTHRESHOLD_SCOPE_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14THRESHOLD_SCOPE_NODE\x10\x01\x12\x1b\n" +
 	"\x17THRESHOLD_SCOPE_SERVICE\x10\x02\x12\x1b\n" +
-	"\x17THRESHOLD_SCOPE_CLUSTER\x10\x032\x90\t\n" +
+	"\x17THRESHOLD_SCOPE_CLUSTER\x10\x032\x9a\t\n" +
 	"\x0fAlertingService\x12v\n" +
 	"\rListTemplates\x12!.alerting.v1.ListTemplatesRequest\x1a\".alerting.v1.ListTemplatesResponse\"\x1e\x82\xd3\xe4\x93\x02\x18\x12\x16/v1/alerting/templates\x12|\n" +
 	"\x0eCreateTemplate\x12\".alerting.v1.CreateTemplateRequest\x1a#.alerting.v1.CreateTemplateResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/v1/alerting/templates\x12\x83\x01\n" +
@@ -2329,8 +2329,8 @@ const file_alerting_v1_alerting_proto_rawDesc = "" +
 	"\n" +
 	"CreateRule\x12\x1e.alerting.v1.CreateRuleRequest\x1a\x1f.alerting.v1.CreateRuleResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/v1/alerting/rules\x12z\n" +
 	"\x0eListThresholds\x12\".alerting.v1.ListThresholdsRequest\x1a#.alerting.v1.ListThresholdsResponse\"\x1f\x82\xd3\xe4\x93\x02\x19\x12\x17/v1/alerting/thresholds\x12w\n" +
-	"\fSetThreshold\x12 .alerting.v1.SetThresholdRequest\x1a!.alerting.v1.SetThresholdResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/alerting/thresholds\x12z\n" +
-	"\x0eClearThreshold\x12\".alerting.v1.ClearThresholdRequest\x1a#.alerting.v1.ClearThresholdResponse\"\x1f\x82\xd3\xe4\x93\x02\x19*\x17/v1/alerting/thresholds\x12\x9e\x01\n" +
+	"\fSetThreshold\x12 .alerting.v1.SetThresholdRequest\x1a!.alerting.v1.SetThresholdResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/v1/alerting/thresholds\x12\x83\x01\n" +
+	"\x0eClearThreshold\x12\".alerting.v1.ClearThresholdRequest\x1a#.alerting.v1.ClearThresholdResponse\"(\x82\xd3\xe4\x93\x02\":\x01*\"\x1d/v1/alerting/thresholds:clear\x12\x9e\x01\n" +
 	"\x15BatchUpdateThresholds\x12).alerting.v1.BatchUpdateThresholdsRequest\x1a*.alerting.v1.BatchUpdateThresholdsResponse\".\x82\xd3\xe4\x93\x02(:\x01*\"#/v1/alerting/thresholds:batchUpdateB\xa0\x01\n" +
 	"\x0fcom.alerting.v1B\rAlertingProtoP\x01Z1github.com/percona/pmm/api/alerting/v1;alertingv1\xa2\x02\x03AXX\xaa\x02\vAlerting.V1\xca\x02\vAlerting\\V1\xe2\x02\x17Alerting\\V1\\GPBMetadata\xea\x02\fAlerting::V1b\x06proto3"
 

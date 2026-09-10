@@ -361,7 +361,10 @@ service AlertingService {
   // ClearThreshold removes an override so the target falls back to the rule's default,
   // or to a broader override still covering it.
   rpc ClearThreshold(ClearThresholdRequest) returns (ClearThresholdResponse) {
-    option (google.api.http) = {delete: "/v1/alerting/thresholds"};
+    option (google.api.http) = {
+      post: "/v1/alerting/thresholds:clear"
+      body: "*"
+    };
   }
   // BatchUpdateThresholds applies several set and clear operations in one transaction.
   rpc BatchUpdateThresholds(BatchUpdateThresholdsRequest) returns (BatchUpdateThresholdsResponse) {
