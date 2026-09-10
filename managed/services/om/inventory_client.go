@@ -146,6 +146,47 @@ type extensionsError struct {
 	Detail any `json:"detail"`
 }
 
+// extensionsPage is one page of a paginated PMM Extensions list endpoint -- the wire shape of
+// PMM Extensions' own app.core.pagination.PaginatedResponse envelope
+// (app/core/pagination/models.py). GET /hosts and GET /services both answer
+// this now (PMM-15326: "Bound the estate listings"), rather than a bare
+// array of T: total counts every row matching the request's filters, not
+// just this page, so a caller can tell "this is the whole estate" from
+// "this is the first page of it" without a second request.
+type extensionsPage[T any] struct {
+	Items  []T `json:"items"`
+	Total  int `json:"total"`
+	Offset int `json:"offset"`
+	Limit  int `json:"limit"`
+}
+
+// extensionsPageSize is the limit requested on each page fetchAllPages walks --
+// PMM Extensions' own MAX_PAGINATION_LIMIT (app/core/pagination/models.py), so a full
+// estate takes as few round-trips as PMM Extensions itself allows in one request.
+const extensionsPageSize = 200
+
+// fetchAllPages walks a paginated PMM Extensions endpoint via fetchPage, which must
+// return the page at the given offset/limit, until every row extensionsPage.Total
+// reports has been read. Parametrized over how one page is actually
+// fetched, not over extensionsApp.call directly, because callers want different
+// request mechanics and error mappings for the same page shape -- see
+// probeSource.fetch's own comment on why its errors are not gRPC statuses.
+func fetchAllPages[T any](fetchPage func(offset, limit int) (extensionsPage[T], error)) ([]T, error) {
+	all := make([]T, 0)
+	offset := 0
+	for {
+		page, err := fetchPage(offset, extensionsPageSize)
+		if err != nil {
+			return nil, err
+		}
+		all = append(all, page.Items...)
+		offset += len(page.Items)
+		if len(page.Items) == 0 || offset >= page.Total {
+			return all, nil
+		}
+	}
+}
+
 // inventoryCall describes one proxied request.
 type inventoryCall struct {
 	method string
