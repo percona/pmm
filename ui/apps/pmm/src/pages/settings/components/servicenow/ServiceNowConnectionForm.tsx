@@ -30,7 +30,6 @@ import {
   toFormValues,
 } from './ServiceNowConnection.utils';
 import { SecretField } from './SecretField';
-import { ServiceNowDisconnect } from './ServiceNowDisconnect';
 
 interface Props {
   declaredNames: string[];
@@ -43,9 +42,7 @@ interface Props {
 }
 
 /**
- * The two steps walked to supply the credentials — because nothing is stored,
- * because the stored values no longer satisfy the plan, or because the operator
- * asked to renew a connection that works.
+ * The two steps an operator without a working connection has to walk.
  *
  * Step 1 exists because the credentials cannot be self-served: Percona Support
  * issues them per instance, and a form that only asks for them leaves anyone
@@ -211,13 +208,6 @@ export const ServiceNowConnectionForm: FC<Props> = ({
             </Button>
           )}
         </Stack>
-
-        {/* Only where the form is not the operator's own detour: a renewal has
-            Cancel back to the connection it came from, so the way out of it is
-            already on screen. */}
-        {stored.hasOverride && !onCancel && (
-          <ServiceNowDisconnect hint={serviceNow.disconnectStoredHint} />
-        )}
       </Stack>
     </FormProvider>
   );

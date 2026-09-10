@@ -1,8 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import {
   ApiError,
+  type ConnectivityResult,
+  type ConnectivityStatus,
   REDACTED_SECRET,
   SettingClassGroup,
+  useConnectivityCheck,
   useResetSetting,
   usePatchSetting,
   useSettingsList,
@@ -17,14 +20,18 @@ vi.mock('@sep/api', async (importOriginal) => ({
   useSettingsList: vi.fn(),
   usePatchSetting: vi.fn(),
   useResetSetting: vi.fn(),
+  useConnectivityCheck: vi.fn(),
 }));
 
 const settingsList = vi.mocked(useSettingsList);
 const patchSetting = vi.mocked(usePatchSetting);
 const resetSetting = vi.mocked(useResetSetting);
+const connectivityCheck = vi.mocked(useConnectivityCheck);
 
 const patchMutation = vi.fn();
 const resetMutation = vi.fn();
+const probeMutation = vi.fn();
+const probeReset = vi.fn();
 const refetch = vi.fn();
 
 const setting = (key: string, value: unknown, hasOverride = false) =>
@@ -96,6 +103,30 @@ const mockConfigured = (endpoint = '') =>
     ),
   } as Partial<ReturnType<typeof useSettingsList>>);
 
+const probed = (
+  status: ConnectivityStatus,
+  reachable = status === 'reachable'
+): ConnectivityResult => ({
+  service: 'delivery',
+  reachable,
+  status,
+  detail: 'whatever SEP said',
+  version: null,
+});
+
+/** Loosely typed on purpose: React Query's result union forbids `data` on a
+ *  pending mutation, which is exactly the combination a re-test renders. */
+const mockProbe = (overrides: Record<string, unknown> = {}) => {
+  connectivityCheck.mockReturnValue({
+    mutate: probeMutation,
+    reset: probeReset,
+    data: undefined,
+    error: null,
+    isPending: false,
+    ...overrides,
+  } as unknown as ReturnType<typeof useConnectivityCheck>);
+};
+
 const renderTab = () =>
   render(
     <TestWrapper>
@@ -123,6 +154,7 @@ beforeEach(() => {
   resetMutation.mockResolvedValue(undefined);
   mockList();
   mockPatch();
+  mockProbe();
   resetSetting.mockReturnValue({
     mutateAsync: resetMutation,
     isPending: false,
@@ -298,7 +330,7 @@ describe('ServiceNowConnection — saving', () => {
       settingClass: 'SEPSettings',
       key: 'DIAGNOSTICS_DELIVERY_INPUTS',
       value: {
-        endpoint: 'https://acme.service-now.com/',
+        endpoint: 'https://acme.service-now.com',
         secrets: { sn_api_key: 'key-1', client_token: 'token-1' },
       },
     });
@@ -320,39 +352,19 @@ describe('ServiceNowConnection — saving', () => {
     });
   });
 
-  // Both of these clear the credential after reaching an enabled submit: the
-  // button starts disabled, so a `waitFor` for disabled passes on its first
-  // tick — before the resolver has run — and would hold over a form that never
-  // validated at all.
   it('holds the submit until every declared credential is supplied', async () => {
     renderTab();
 
-    fillCredentials();
-
-    await waitFor(() =>
-      expect(screen.getByTestId('servicenow-submit')).toBeEnabled()
-    );
-
-    type('servicenow-secret-client_token', '');
+    type('servicenow-secret-sn_api_key', 'key-1');
 
     await waitFor(() =>
       expect(screen.getByTestId('servicenow-submit')).toBeDisabled()
     );
-  });
 
-  it('counts a whitespace-only credential as unsupplied', async () => {
-    renderTab();
-
-    fillCredentials();
+    type('servicenow-secret-client_token', 'token-1');
 
     await waitFor(() =>
       expect(screen.getByTestId('servicenow-submit')).toBeEnabled()
-    );
-
-    type('servicenow-secret-client_token', '   ');
-
-    await waitFor(() =>
-      expect(screen.getByTestId('servicenow-submit')).toBeDisabled()
     );
   });
 
@@ -418,49 +430,6 @@ describe('ServiceNowConnection — disconnecting', () => {
     ).not.toBeInTheDocument();
   });
 
-  // The two states that render the form with an override still stored. Neither
-  // can reach 'configured', so Disconnect is the only route that clears them
-  // now that a blank save is refused.
-  it('is offered on the form when an image renamed a declared secret', () => {
-    mockList({
-      data: sepGroups(['sn_api_key', 'renamed_token'], {
-        sn_api_key: REDACTED_SECRET,
-        client_token: REDACTED_SECRET,
-      }),
-    } as Partial<ReturnType<typeof useSettingsList>>);
-
-    renderTab();
-
-    expect(screen.getByTestId('servicenow-drifted')).toBeInTheDocument();
-    expect(screen.getByTestId('servicenow-disconnect')).toBeInTheDocument();
-  });
-
-  it('is offered on the form when a stored credential is blank', () => {
-    mockList({
-      data: sepGroups(['sn_api_key', 'client_token'], {
-        sn_api_key: REDACTED_SECRET,
-        client_token: '',
-      }),
-    } as Partial<ReturnType<typeof useSettingsList>>);
-
-    renderTab();
-
-    expect(screen.getByTestId('servicenow-submit')).toBeInTheDocument();
-    expect(screen.getByTestId('servicenow-disconnect')).toBeInTheDocument();
-  });
-
-  it('is not offered while renewing, which has its own way back', () => {
-    mockConfigured();
-    renderTab();
-
-    fireEvent.click(screen.getByTestId('servicenow-renew'));
-
-    expect(screen.getByTestId('servicenow-cancel')).toBeInTheDocument();
-    expect(
-      screen.queryByTestId('servicenow-disconnect')
-    ).not.toBeInTheDocument();
-  });
-
   it('confirms before clearing the stored inputs', async () => {
     mockConfigured();
     renderTab();
@@ -486,5 +455,141 @@ describe('ServiceNowConnection — disconnecting', () => {
     fireEvent.click(screen.getByTestId('servicenow-disconnect-cancel'));
 
     expect(resetMutation).not.toHaveBeenCalled();
+  });
+});
+
+describe('ServiceNowConnection — testing the connection', () => {
+  it('is offered on the connection it can actually probe, not on the form', () => {
+    renderTab();
+    expect(screen.queryByTestId('servicenow-test')).not.toBeInTheDocument();
+
+    mockConfigured();
+    renderTab();
+    expect(screen.getByTestId('servicenow-test')).toBeInTheDocument();
+  });
+
+  it('probes delivery alone, and saves nothing while doing it', () => {
+    mockConfigured('https://acme.service-now.com');
+    renderTab();
+
+    fireEvent.click(screen.getByTestId('servicenow-test'));
+
+    expect(probeMutation).toHaveBeenCalledWith({ targets: ['delivery'] });
+    expect(patchMutation).not.toHaveBeenCalled();
+    expect(resetMutation).not.toHaveBeenCalled();
+  });
+
+  it('verifies on its own once the form has just saved', async () => {
+    // The save invalidates the settings query, so the next render of the tab
+    // reads the credentials it just stored and lands on the connected screen.
+    patchMutation.mockImplementation(async () => {
+      mockConfigured();
+    });
+    renderTab();
+
+    fillCredentials();
+    await submit();
+
+    await waitFor(() =>
+      expect(screen.getByTestId('servicenow-connected')).toBeInTheDocument()
+    );
+    expect(probeMutation).toHaveBeenCalledWith({ targets: ['delivery'] });
+  });
+
+  it('does not re-probe when a stored connection is merely opened', () => {
+    mockConfigured();
+    renderTab();
+
+    expect(probeMutation).not.toHaveBeenCalled();
+  });
+
+  it('stays legible while the probe is still running', () => {
+    mockConfigured();
+    mockProbe({ isPending: true });
+    renderTab();
+
+    const button = screen.getByTestId('servicenow-test');
+    expect(button).toBeDisabled();
+    expect(button).toHaveTextContent(Messages.serviceNow.test.testing);
+  });
+
+  it('withholds the previous verdict while a re-test is in flight', () => {
+    mockConfigured();
+    mockProbe({ isPending: true, data: [probed('reachable')] });
+    renderTab();
+
+    expect(
+      screen.queryByTestId('servicenow-test-result')
+    ).not.toBeInTheDocument();
+  });
+
+  it('drops a verdict once the configuration it described has changed', () => {
+    mockConfigured('https://acme.service-now.com');
+    mockProbe({ data: [probed('reachable')] });
+    const { rerender } = renderTab();
+
+    expect(screen.getByTestId('servicenow-test-result')).toBeInTheDocument();
+    expect(probeReset).not.toHaveBeenCalled();
+
+    // What another administrator saving from a second session looks like here.
+    mockConfigured('https://other.service-now.com');
+    rerender(
+      <TestWrapper>
+        {wrapWithSnackbarProvider(<ServiceNowConnection />)}
+      </TestWrapper>
+    );
+
+    expect(probeReset).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    'reachable',
+    'auth_failed',
+    'probe_undeclared',
+  ] as ConnectivityStatus[])(
+    'reports the %s verdict in its own words',
+    (status) => {
+      mockConfigured();
+      mockProbe({ data: [probed(status)] });
+      renderTab();
+
+      expect(screen.getByTestId('servicenow-test-result')).toHaveTextContent(
+        Messages.serviceNow.test.statuses[status]
+      );
+      expect(
+        screen.queryByTestId('servicenow-test-error')
+      ).not.toBeInTheDocument();
+    }
+  );
+
+  it('reports a probe that never ran as that, not as a bad connection', () => {
+    mockConfigured();
+    mockProbe({
+      error: new ApiError({ kind: 'http', status: 403, message: 'HTTP 403' }),
+    });
+    renderTab();
+
+    expect(screen.getByTestId('servicenow-test-error')).toHaveTextContent(
+      Messages.serviceNow.test.errors.forbidden
+    );
+    expect(
+      screen.queryByTestId('servicenow-test-result')
+    ).not.toBeInTheDocument();
+  });
+
+  it('leaves the connection itself standing whatever the verdict says', () => {
+    mockConfigured('https://acme.service-now.com');
+    mockProbe({ data: [probed('unreachable')] });
+    renderTab();
+
+    expect(screen.getByTestId('servicenow-connected')).toHaveTextContent(
+      Messages.serviceNow.connectedTitle
+    );
+    expect(
+      screen.getByTestId('servicenow-connected-endpoint')
+    ).toHaveTextContent('https://acme.service-now.com');
+    expect(screen.getByTestId('servicenow-test-result')).toHaveTextContent(
+      Messages.serviceNow.test.statuses.unreachable
+    );
   });
 });

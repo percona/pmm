@@ -86,3 +86,12 @@ export type {
 export { useConfigExport } from './useConfigExport';
 export { useAppInfo, APP_INFO_QUERY_KEY } from './useAppInfo';
 export type { AppInfo } from './useAppInfo';
+export {
+  useConnectivityCheck,
+  CONNECTIVITY_CHECK_PATH,
+} from './useConnectivityCheck';
+export type {
+  ConnectivityCheckRequest,
+  ConnectivityResult,
+  ConnectivityStatus,
+} from './useConnectivityCheck';
