@@ -530,4 +530,85 @@ func TestRDSExporter(t *testing.T) {
 
 		assert.Equal(t, expectedGetAgent, getAgentRes.Payload.RDSExporter)
 	})
+
+	t.Run("WithRoleARN", func(t *testing.T) {
+		t.Parallel()
+
+		const roleARN = "arn:aws:iam::123456789012:role/pmm-monitoring"
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		nodeID := pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for role ARN")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
+
+		rdsExporter := pmmapitests.AddAgent(t, agents.AddAgentBody{
+			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
+				NodeID:              nodeID,
+				PMMAgentID:          pmmAgentID,
+				AWSRoleArn:          roleARN,
+				SkipConnectionCheck: true,
+			},
+		})
+		agentID := rdsExporter.RDSExporter.AgentID
+
+		assert.Equal(t, roleARN, rdsExporter.RDSExporter.AWSRoleArn)
+
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
+			AgentID: agentID,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, roleARN, getAgentRes.Payload.RDSExporter.AWSRoleArn)
+	})
+
+	t.Run("RoleARNAndKeysAreMutuallyExclusive", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		nodeID := pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for exclusivity")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
+
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
+					NodeID:              nodeID,
+					PMMAgentID:          pmmAgentID,
+					AWSRoleArn:          "arn:aws:iam::123456789012:role/pmm-monitoring",
+					AWSAccessKey:        "AKIAIOSFODNN7EXAMPLE",
+					AWSSecretKey:        "secret",
+					SkipConnectionCheck: true,
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
+			"Both AWS role ARN and AWS access key/secret key are set; they are mutually exclusive.")
+		if !assert.Nil(t, res) {
+			pmmapitests.RemoveAgents(t, res.Payload.RDSExporter.AgentID)
+		}
+	})
+
+	t.Run("MalformedRoleARNIsRejected", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		nodeID := pmmapitests.AddRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for bad ARN")).NodeID
+		pmmAgentID := pmmapitests.AddPMMAgent(t, genericNodeID).AgentID
+
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
+					NodeID:              nodeID,
+					PMMAgentID:          pmmAgentID,
+					AWSRoleArn:          "not-an-arn",
+					SkipConnectionCheck: true,
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
+			"invalid AddRDSExporterParams.AwsRoleArn: value does not match regex pattern")
+		if !assert.Nil(t, res) {
+			pmmapitests.RemoveAgents(t, res.Payload.RDSExporter.AgentID)
+		}
+	})
 }
