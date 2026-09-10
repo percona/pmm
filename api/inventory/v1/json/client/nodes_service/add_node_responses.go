@@ -1332,7 +1332,7 @@ type AddNodeOKBodyRemoteRDS struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// DB instance identifier.
+	// Node address. For RDS this is the instance endpoint, not the DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
@@ -1610,7 +1610,7 @@ type AddNodeParamsBodyRemoteRDS struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// DB instance identifier.
+	// Node address. For RDS this is the instance endpoint, not the DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
@@ -1624,6 +1624,10 @@ type AddNodeParamsBodyRemoteRDS struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AWS DB instance identifier. Required: rds_exporter uses it as the CloudWatch
+	// DBInstanceIdentifier dimension, and cannot scrape without it.
+	InstanceID string `json:"instance_id,omitempty"`
 }
 
 // Validate validates this add node params body remote RDS

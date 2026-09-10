@@ -28,7 +28,8 @@ func TestAddNodeRemoteRDS(t *testing.T) {
 		Node: &nodes.AddNodeOKBodyRemoteRDS{
 			NodeID:       "1",
 			NodeName:     "rds1",
-			Address:      "rds-mysql57",
+			Address:      "rds-mysql57.abcdef.us-east-1.rds.amazonaws.com",
+			InstanceID:   "rds-mysql57",
 			NodeModel:    "db.t3.micro",
 			Region:       "us-east-1",
 			Az:           "us-east-1b",
@@ -40,7 +41,8 @@ Remote RDS Node added.
 Node ID  : 1
 Node name: rds1
 
-Address       : rds-mysql57
+Address       : rds-mysql57.abcdef.us-east-1.rds.amazonaws.com
+Instance ID   : rds-mysql57
 Model         : db.t3.micro
 Custom labels : map[foo:bar]
 
