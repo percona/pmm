@@ -49,6 +49,15 @@ func TestLookupBool(t *testing.T) {
 			expected: new(false),
 		},
 		{
+			// The reason LookupBool lowercases: envvars.ParseEnvVars does, and strconv.ParseBool
+			// does not accept this spelling verbatim, so without it the two disagree and a value
+			// that starts PMM Server is rejected here.
+			name:     "mixed case",
+			envValue: "TRue",
+			set:      true,
+			expected: new(true),
+		},
+		{
 			name:     "1",
 			envValue: "1",
 			set:      true,

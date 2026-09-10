@@ -362,23 +362,25 @@ func IsInternalPgQANAgent(q *reform.Querier, agent *Agent) (bool, error) {
 // It returns NotFound when PMM Server has no such Service, which is the normal state in HA mode
 // where PMM Server runs against an external PostgreSQL and the fixtures do not create it.
 func FindInternalPgQANAgent(q *reform.Querier) (*Agent, error) {
-	service, err := FindServiceByName(q, PMMServerPostgreSQLServiceName)
+	// One statement: the Service is matched by name in a subquery rather than fetched first, so
+	// this costs the same single round trip as the pmm_agent_id lookup it replaced. A subquery
+	// rather than a JOIN because reform selects unqualified columns, and service_id and node_id
+	// exist on both tables.
+	row := &Agent{}
+	tail := "WHERE agent_type = $1 AND service_id = (SELECT service_id FROM services WHERE service_name = $2) " +
+		"ORDER BY agent_id LIMIT 1"
+
+	err := q.SelectOneTo(row, tail, QANPostgreSQLPgStatementsAgentType, PMMServerPostgreSQLServiceName)
 	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			// Also the HA case, where PMM Server runs against an external PostgreSQL and the
+			// fixtures never create this Service.
+			return nil, status.Errorf(codes.NotFound, "QAN Agent for the '%s' Service not found.", PMMServerPostgreSQLServiceName)
+		}
 		return nil, err
 	}
 
-	// Queried directly rather than through FindAgents, which re-validates a ServiceID filter with
-	// FindServiceByID -- a third round trip for the Service row just loaded above.
-	structs, err := q.SelectAllFrom(AgentTable, "WHERE service_id = $1 AND agent_type = $2 ORDER BY agent_id",
-		service.ServiceID, QANPostgreSQLPgStatementsAgentType)
-	if err != nil {
-		return nil, err
-	}
-	if len(structs) == 0 {
-		return nil, status.Errorf(codes.NotFound, "QAN Agent for the '%s' Service not found.", PMMServerPostgreSQLServiceName)
-	}
-
-	agent := DecryptAgent(*structs[0].(*Agent)) //nolint:forcetypeassert
+	agent := DecryptAgent(*row)
 
 	return &agent, nil
 }
@@ -1263,13 +1265,27 @@ func (p *ChangeAgentParams) AffectsConnection() bool {
 //
 // Callers that already had to load the row to inspect it before changing it (e.g. to check its
 // type or a precondition) pass it here directly, so the row is not fetched twice.
+//
+// The row must be decrypted, i.e. loaded through FindAgentByID, FindAgents or another helper that
+// runs DecryptAgent -- not read straight out of AgentTable. This function encrypts before writing,
+// so a still-encrypted row would have its credentials encrypted twice, and agentEncryption only
+// logs a failure rather than returning one.
 func ApplyAgentChange(q *reform.Querier, row *Agent, params *ChangeAgentParams) (*Agent, error) { //nolint:cyclop,gocognit,maintidx
-	// Applied to a copy: the caller's row must not end up carrying the requested values when
-	// the change does not become durable, e.g. when a connection check later in the same
-	// transaction fails and rolls it back. Every assignment below replaces a field rather than
-	// writing through a pointer or a shared slice, so a shallow copy is enough.
+	// Applied to a copy: the caller's row must not end up carrying the requested values when the
+	// change does not become durable, e.g. when a connection check later in the same transaction
+	// fails and rolls it back.
+	//
+	// The *Options fields are value structs, so copying the Agent copies them too, and the
+	// reference-typed fields inside them (DisabledCollectors, StatsCollections,
+	// ConnectionTimeout) are replaced wholesale rather than written into. MetricsResolutions is
+	// the exception: it is a pointer, and the block below assigns to its HR/MR/LR fields, so it
+	// needs a copy of its own or those writes would reach the caller's row.
 	rowCopy := *row
 	row = &rowCopy
+	if row.ExporterOptions.MetricsResolutions != nil {
+		resolutions := *row.ExporterOptions.MetricsResolutions
+		row.ExporterOptions.MetricsResolutions = &resolutions
+	}
 
 	var err error
 

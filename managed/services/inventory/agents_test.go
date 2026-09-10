@@ -1060,10 +1060,11 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		// agent cannot be reached through another type's params, and that nothing is applied. The
 		// variable is still set because the fixtures read it to decide the agent's initial state,
 		// which the assertions below depend on.
-		_, err := as.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agent.AgentID, &inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams{
+		changed, err := as.ChangeQANPostgreSQLPgStatMonitorAgent(ctx, agent.AgentID, &inventoryv1.ChangeQANPostgreSQLPgStatMonitorAgentParams{
 			Enable:   new(false),
 			LogLevel: inventoryv1.LogLevel_LOG_LEVEL_DEBUG.Enum(),
 		})
+		assert.Nil(t, changed)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, fmt.Sprintf("Agent with ID %s has type %s, expected %s.",
 			agent.AgentID, models.QANPostgreSQLPgStatementsAgentType, models.QANPostgreSQLPgStatMonitorAgentType)), err)
 
@@ -1148,7 +1149,8 @@ func TestChangeQANPostgreSQLPgStatementsAgentWithEnvVar(t *testing.T) {
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition,
 			`QAN for PMM's internal PostgreSQL server is configured via an environment variable: `+
-				`invalid value 'not-a-bool' for environment variable PMM_ENABLE_INTERNAL_PG_QAN.`), err)
+				`invalid value 'not-a-bool' for environment variable PMM_ENABLE_INTERNAL_PG_QAN: `+
+				`strconv.ParseBool: parsing "not-a-bool": invalid syntax.`), err)
 
 		stored, err := models.FindAgentByID(as.db.Querier, agent.AgentID)
 		require.NoError(t, err)

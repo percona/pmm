@@ -69,7 +69,7 @@ func LookupBool(key string) (*bool, error) {
 	// still start PMM Server.
 	b, err := strconv.ParseBool(strings.ToLower(v))
 	if err != nil {
-		return nil, fmt.Errorf("invalid value '%s' for environment variable %s", v, key)
+		return nil, fmt.Errorf("invalid value '%s' for environment variable %s: %w", v, key, err)
 	}
 	return &b, nil
 }

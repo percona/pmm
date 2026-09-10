@@ -33,8 +33,18 @@ func UnsetEnv(t *testing.T, key string) {
 		return
 	}
 
-	// Registers the cleanup that puts the original value back, then drops it for this test.
-	t.Setenv(key, value)
+	// The restore is registered directly rather than borrowing t.Setenv's cleanup, which panics in
+	// a test that has called t.Parallel() -- that would make this helper's parallel-safety depend
+	// on whether the variable happens to be set, which is the ambient state it exists to neutralise.
+	t.Cleanup(func() {
+		// usetesting suggests t.Setenv here, which is the thing this helper exists to avoid: it
+		// panics in a test that has called t.Parallel().
+		err := os.Setenv(key, value) //nolint:usetesting
+		if err != nil {
+			t.Errorf("failed to restore %s: %s", key, err)
+		}
+	})
+
 	err := os.Unsetenv(key)
 	if err != nil {
 		t.Fatalf("failed to unset %s: %s", key, err)
