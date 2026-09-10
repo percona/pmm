@@ -26,11 +26,33 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"path"
 	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
 )
+
+// readOnlyPaths are the VictoriaMetrics endpoints reachable through the proxy. The proxy is
+// the only route Grafana's Metrics data source has to VictoriaMetrics, and Grafana forwards
+// whatever sub-path it is given, so anything not listed here -- snapshots, the admin and
+// debug surface, ingestion -- would otherwise be reachable by any user who can query a
+// dashboard. Admins reach the rest through the admin-gated /prometheus location in nginx,
+// which does not pass through the proxy.
+//
+// Label values are matched separately by isLabelValuesPath.
+var readOnlyPaths = map[string]struct{}{
+	"/api/v1/query":            {},
+	"/api/v1/query_range":      {},
+	"/api/v1/query_exemplars":  {},
+	"/api/v1/series":           {},
+	"/api/v1/labels":           {},
+	"/api/v1/metadata":         {},
+	"/api/v1/rules":            {},
+	"/api/v1/alerts":           {},
+	"/api/v1/status/buildinfo": {},
+	"/api/v1/export":           {},
+}
 
 // Config defines options for starting proxy.
 type Config struct {
@@ -83,12 +105,68 @@ func getHandler(cfg Config) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		logrus.Debugf("%s: %s", req.Method, req.URL)
 
+		if failOnDisallowedPath(rw, req) {
+			return
+		}
+
 		if failOnInvalidHeader(rw, req, cfg.HeaderName) {
 			return
 		}
 
 		rProxy.ServeHTTP(rw, req)
 	}
+}
+
+func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request) bool {
+	if isReadOnlyPath(req.URL.Path) {
+		return false
+	}
+
+	// Logged so a legitimate path missing from the allow-list can be found from the
+	// logs of whoever reports the broken panel.
+	logrus.WithFields(logrus.Fields{
+		"method": req.Method,
+		"path":   req.URL.Path,
+	}).Warn("Refusing request to a path outside the read-only allow-list")
+
+	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	rw.WriteHeader(http.StatusForbidden)
+	io.WriteString(rw, "Path is not allowed through the VictoriaMetrics proxy") //nolint:errcheck,gosec
+
+	return true
+}
+
+// isReadOnlyPath reports whether the path may be forwarded to VictoriaMetrics.
+func isReadOnlyPath(p string) bool {
+	// nginx passes the original URI for the /prometheus/api/v1 location and rewrites it for
+	// /victoriametrics/, and Grafana's data source sends it unprefixed, so the same endpoint
+	// arrives in both shapes. Clean first so that traversal cannot walk out of a listed path.
+	cleaned := path.Clean(p)
+	if cleaned == "/prometheus" || strings.HasPrefix(cleaned, "/prometheus/") {
+		cleaned = strings.TrimPrefix(cleaned, "/prometheus")
+	}
+
+	if _, ok := readOnlyPaths[cleaned]; ok {
+		return true
+	}
+
+	return isLabelValuesPath(cleaned)
+}
+
+// isLabelValuesPath reports whether the path is /api/v1/label/<name>/values, which carries
+// the label name as a path segment and so cannot be matched literally.
+func isLabelValuesPath(p string) bool {
+	name, ok := strings.CutPrefix(p, "/api/v1/label/")
+	if !ok {
+		return false
+	}
+
+	name, ok = strings.CutSuffix(name, "/values")
+	if !ok {
+		return false
+	}
+
+	return name != "" && !strings.Contains(name, "/")
 }
 
 func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName string) bool {
@@ -104,7 +182,7 @@ func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName s
 			}).Warn("Rejecting request with unparsable filter header")
 			rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			rw.WriteHeader(http.StatusPreconditionFailed)
-			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName)) //nolint:errcheck
+			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName)) //nolint:errcheck,gosec
 			return true
 		}
 	}
