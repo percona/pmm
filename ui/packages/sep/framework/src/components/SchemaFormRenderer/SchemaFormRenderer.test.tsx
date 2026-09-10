@@ -3202,19 +3202,23 @@ describe('SchemaFormRenderer — malformed parent/group schemas', () => {
     expect(warnings()).toContain("which is a 'string' field");
   });
 
-  it('warns when a parented field carries no companion forbidden gate', () => {
+  it('warns when a parent-off gate pairs with a present default', () => {
+    // The one combination the reset cannot satisfy: while the parent is off
+    // the child resets to its default, and that default trips its own gate.
     renderWithProviders(
       <SchemaFormRenderer
         sections={[
           {
-            title: 'Broken',
+            title: 'Replication',
             fields: [
               { type: 'bool', name: 'enable', label: 'Enable' },
               {
-                type: 'string',
-                name: 'child',
-                label: 'Child',
+                type: 'integer',
+                name: 'port',
+                label: 'Port',
+                default: 3306,
                 parent: 'enable',
+                forbidden: [{ when: { falsy: 'enable' } }],
               },
             ],
           },
@@ -3223,7 +3227,29 @@ describe('SchemaFormRenderer — malformed parent/group schemas', () => {
       />
     );
 
-    expect(warnings()).toContain('carries no forbidden gate');
+    expect(warnings()).toContain('a default the backend reads as present');
+  });
+
+  it('accepts a parented field with no gate at all', () => {
+    // `Ui(parent=...)` is presentation-only on the backend, so most parented
+    // fields carry no forbidden gate; that must not warn.
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Replication',
+            fields: [
+              { type: 'bool', name: 'enable', label: 'Enable' },
+              { type: 'string', name: 'host', label: 'Host', parent: 'enable' },
+            ],
+          },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(warnings()).not.toContain('forbidden');
+    expect(screen.getByLabelText('Host')).toBeDisabled();
   });
 
   it('warns on a parent cycle, which leaves both toggles inert', () => {
@@ -3339,7 +3365,7 @@ describe('SchemaFormRenderer — collapsed shells and the payload', () => {
     });
   });
 
-  it('clears an unmounted parent-off child rather than shipping its default', async () => {
+  it('resets an unmounted parent-off child to its default, not a stale value', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
     renderWithProviders(
@@ -3372,7 +3398,12 @@ describe('SchemaFormRenderer — collapsed shells and the payload', () => {
     await user.click(screen.getByRole('button', { name: /Run/ }));
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
 
-    expect(onSubmit.mock.calls[0]?.[0]).toMatchObject({ tuning: '' });
+    // The schema default, not blank: a greyed control shows what it would
+    // submit once its parent is on. What must not survive is a value someone
+    // typed while the parent was on and then switched off.
+    expect(onSubmit.mock.calls[0]?.[0]).toMatchObject({
+      tuning: 'seeded-default',
+    });
   });
 
   it('unregisters rather than clears when a child is both hidden and parent-off', async () => {
@@ -3513,5 +3544,79 @@ describe('SchemaFormRenderer — optional marker', () => {
 
     expect(screen.getByLabelText('Four')).toBeInTheDocument();
     expect(screen.queryByLabelText('Four (optional)')).toBeNull();
+  });
+});
+
+// ── Parent-off children show their default (PMM-15451) ───────────────────────
+
+describe('SchemaFormRenderer — a disabled child shows its default', () => {
+  it('greys a defaulted child at its default rather than blank', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Replication',
+            fields: [
+              { type: 'bool', name: 'slave', label: 'Slave from master' },
+              {
+                type: 'integer',
+                name: 'master_port',
+                label: 'Master port',
+                default: 3306,
+                parent: 'slave',
+              },
+            ],
+          },
+        ]}
+        onSubmit={onSubmit}
+      />
+    );
+
+    const port = screen.getByLabelText('Master port');
+    expect(port).toBeDisabled();
+    expect(port).toHaveValue(3306);
+
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit.mock.calls[0]?.[0]).toMatchObject({ master_port: 3306 });
+  });
+
+  it('drops a value typed while the parent was on, once it goes off', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Replication',
+            fields: [
+              { type: 'bool', name: 'slave', label: 'Slave from master' },
+              {
+                type: 'integer',
+                name: 'master_port',
+                label: 'Master port',
+                default: 3306,
+                parent: 'slave',
+              },
+            ],
+          },
+        ]}
+        onSubmit={onSubmit}
+      />
+    );
+
+    await user.click(screen.getByLabelText('Slave from master'));
+    const port = screen.getByLabelText('Master port');
+    await waitFor(() => expect(port).toBeEnabled());
+    await user.clear(port);
+    await user.type(port, '5306');
+    await user.click(screen.getByLabelText('Slave from master'));
+
+    await waitFor(() => expect(port).toBeDisabled());
+    await user.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
+    expect(onSubmit.mock.calls[0]?.[0]).toMatchObject({ master_port: 3306 });
   });
 });

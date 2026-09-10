@@ -100,15 +100,20 @@ interface BaseField {
    * — a reader can see what enabling the parent will offer.
    *
    * Presentation only, and the renderer takes it on trust: the disable state
-   * comes from the named field's truthiness alone. Enforcement stays with the
-   * backend, through this field's own `forbidden` gate on the parent being
-   * falsy — which the renderer recognises structurally and consumes as the
-   * disable condition rather than applying it as a hide. Every other gate on
-   * the field keeps hiding it as usual, so declaring `parent` without that
-   * companion gate leaves the value unguarded server-side; a dev build warns.
+   * comes from the named field's truthiness alone. A parented field *may* also
+   * carry a `forbidden` gate on the parent being falsy, and where it does the
+   * renderer recognises that gate structurally and consumes it as the disable
+   * condition rather than applying it as a hide. It is not required — the
+   * backend treats the pointer as presentation, so most parented fields carry
+   * no gate at all. Every other gate on the field keeps hiding it as usual.
    *
-   * Must name a `bool` field in the same section, declared before this one.
-   * Chains and cycles are unsupported — a cycle leaves both toggles inert.
+   * While the parent is off the child is reset to its schema `default`, not
+   * blanked, so the greyed control shows what it would submit once the parent
+   * is on. A field that pairs the parent-off gate with a default the backend
+   * reads as present cannot satisfy both; a dev build warns.
+   *
+   * Must name a `bool` field in the same section. Chains and cycles are
+   * unsupported — a cycle leaves both toggles inert.
    */
   parent?: string;
   /**

@@ -19,11 +19,12 @@ import { useEffect, useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import type { FieldGate, PluginField, Predicate } from '../types';
 import { useFormFields } from '../formFieldsContext';
-import { emptyFieldValue } from '../utils/fieldDefault';
+import { fieldDefault } from '../utils/fieldDefault';
 import { warnSchema } from '../utils/schemaWarnings';
 import {
   evaluatePredicate,
   getGateFieldNames,
+  isPresent,
 } from '../utils/predicateEvaluator';
 import { watchValuesByName } from '../utils/watchValuesByName';
 
@@ -120,18 +121,22 @@ export function useConditionalField(field: PluginField): ConditionalFieldState {
           `'${target.type}' field. Only a bool can be a parent toggle.`
       );
     }
+    const parentOffGate = (field.forbidden ?? []).some((g) =>
+      isParentOffGate(g.when, parent)
+    );
+    if (parentOffGate && isPresent(fieldDefault(field))) {
+      warnSchema(
+        `field '${field.name}' pairs a forbidden gate on '${parent}' being ` +
+          `falsy with a default the backend reads as present, so the value it ` +
+          `resets to while disabled is one that gate rejects. Drop the gate or ` +
+          `the default.`
+      );
+    }
     if (target.parent) {
       warnSchema(
         `field '${field.name}' names parent '${parent}', which is itself ` +
           `parented to '${target.parent}'. Chained parents are not supported ` +
           `and a cycle leaves both toggles permanently inert.`
-      );
-    }
-    if (!(field.forbidden ?? []).some((g) => isParentOffGate(g.when, parent))) {
-      warnSchema(
-        `field '${field.name}' names parent '${parent}' but carries no ` +
-          `forbidden gate on that parent being falsy. The renderer disables ` +
-          `the field, but nothing stops the backend accepting a value for it.`
       );
     }
   }, [field, parent, formFields]);
@@ -203,7 +208,12 @@ export function useConditionalField(field: PluginField): ConditionalFieldState {
  * user submitted without expanding the section.
  *
  * Hidden wins over disabled: a hidden field is unregistered, which drops the
- * key entirely, so clearing it afterwards would only put it back.
+ * key entirely, so resetting it afterwards would only put it back.
+ *
+ * A disabled child is reset to its schema default rather than blanked, so the
+ * greyed control shows what it would submit if the parent were switched on —
+ * `master_port` reads 3306 rather than empty. What it must not keep is a value
+ * someone typed while the parent was on and then switched off.
  */
 export function useFieldPayloadCleanup(fields: PluginField[]): void {
   const { control, unregister, setValue } = useFormContext();
@@ -256,7 +266,7 @@ export function useFieldPayloadCleanup(fields: PluginField[]): void {
       unregister(name);
     }
     for (const field of clear) {
-      setValue(field.name, emptyFieldValue(field), {
+      setValue(field.name, fieldDefault(field), {
         shouldDirty: false,
         shouldValidate: false,
       });
