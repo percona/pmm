@@ -87,6 +87,7 @@ describe('getMysqlRestoreConfirmDetails', () => {
       })
     ).toEqual({
       source: 's3://bucket/run-1',
+      executorHost: 'executor-node',
       targetHost: '10.30.50.130:3306',
       targetDatabase: 'Unknown (inventory ID 9)',
       targetSchema: { serviceId: 4, schemaId: 9 },
@@ -108,6 +109,7 @@ describe('getMysqlRestoreConfirmDetails', () => {
       })
     ).toEqual({
       source: '/local/backup',
+      executorHost: 'Not set',
       targetHost: 'Not set',
       targetDatabase: 'orders',
       overwriteTables: false,
@@ -129,6 +131,7 @@ describe('getMysqlRestoreConfirmDetails', () => {
       })
     ).toEqual({
       source: '/b',
+      executorHost: 'executor-node',
       targetHost: 'Not set',
       targetDatabase: 'Same databases as in the backup',
       overwriteTables: true,
@@ -170,10 +173,21 @@ describe('getMysqlRestoreConfirmDetails', () => {
       })
     ).toEqual({
       source: 'Not set',
+      executorHost: 'Not set',
       targetHost: 'db.example:3306',
       targetDatabase: 'Not set',
       overwriteTables: undefined,
     });
+  });
+  it('reads the backup type and the executor host off the response', () => {
+    const details = getMysqlRestoreConfirmDetails({
+      name: 'r1',
+      backup_type: 'X',
+      hostname: 'db-node-1',
+      data: { _form: { backup_source: '/b', overwrite_tables: false } },
+    });
+    expect(details.backupType).toBe('X');
+    expect(details.executorHost).toBe('db-node-1');
   });
 });
 
@@ -296,6 +310,7 @@ describe('MysqlRestoreConfirmContent', () => {
     render(
       <MysqlRestoreConfirmContent
         details={{
+          executorHost: 'executor-node',
           source: '/backups/latest',
           targetHost: '10.30.50.130:3306',
           targetDatabase: 'demo',
@@ -318,6 +333,7 @@ describe('MysqlRestoreConfirmContent', () => {
     render(
       <MysqlRestoreConfirmContent
         details={{
+          executorHost: 'executor-node',
           source: '/b',
           targetHost: 'h',
           targetDatabase: 'd',
@@ -341,6 +357,7 @@ describe('MysqlRestoreConfirmContent', () => {
     render(
       <MysqlRestoreConfirmContent
         details={{
+          executorHost: 'executor-node',
           source: 'Not set',
           targetHost: 'h',
           targetDatabase: 'Not set',
@@ -372,6 +389,7 @@ describe('MysqlRestoreConfirmContent', () => {
     render(
       <MysqlRestoreConfirmContent
         details={{
+          executorHost: 'executor-node',
           source: '/b',
           targetHost: 'h:3306',
           targetDatabase: 'Unknown (inventory ID 9)',
@@ -387,12 +405,61 @@ describe('MysqlRestoreConfirmContent', () => {
     ).toHaveTextContent('Target database: orders');
   });
 
+  it('names the executor host and warns of the datadir wipe for XtraBackup', () => {
+    render(
+      <MysqlRestoreConfirmContent
+        details={{
+          source: '/backups/xb/20260901',
+          backupType: 'X',
+          executorHost: 'db-node-1',
+          targetHost: 'Not set',
+          targetDatabase: 'Same databases as in the backup',
+          overwriteTables: false,
+        }}
+      />
+    );
+
+    const root = screen.getByTestId('mysql-restore-execute-confirm');
+    expect(root).toHaveTextContent('Target host: db-node-1');
+    expect(root).not.toHaveTextContent('Overwrite tables');
+    expect(root).not.toHaveTextContent('Target database');
+    expect(screen.getByTestId('mysql-restore-datadir-alert')).toHaveTextContent(
+      'data directory is replaced'
+    );
+  });
+
+  it('names the executor host for a Binlog restore', () => {
+    render(
+      <MysqlRestoreConfirmContent
+        details={{
+          source: '/backups/binlog',
+          backupType: 'B',
+          executorHost: 'db-node-1',
+          targetHost: 'Not set',
+          targetDatabase: 'Same databases as in the backup',
+          overwriteTables: undefined,
+        }}
+      />
+    );
+
+    expect(
+      screen.getByTestId('mysql-restore-execute-confirm')
+    ).toHaveTextContent('Target host: db-node-1');
+    expect(
+      screen.getByTestId('mysql-restore-binlog-alert')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('mysql-restore-overwrite-unknown-alert')
+    ).not.toBeInTheDocument();
+  });
+
   it('keeps the inventory ID when the schema no longer resolves', () => {
     mockUseSchemas.mockReturnValue({ data: [], isLoading: false });
 
     render(
       <MysqlRestoreConfirmContent
         details={{
+          executorHost: 'executor-node',
           source: '/b',
           targetHost: 'h:3306',
           targetDatabase: 'Unknown (inventory ID 9)',

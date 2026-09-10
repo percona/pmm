@@ -11,6 +11,8 @@ import {
 const UNKNOWN = 'Not set';
 const SAME_AS_BACKUP = 'Same databases as in the backup';
 
+type BackupType = 'M' | 'X' | 'B';
+
 function asDisplayString(value: unknown): string | undefined {
   if (value === null || value === undefined || value === '') {
     return undefined;
@@ -33,6 +35,10 @@ function asDisplayString(value: unknown): string | undefined {
 
 function asOptionalBoolean(value: unknown): boolean | undefined {
   return typeof value === 'boolean' ? value : undefined;
+}
+
+function asBackupType(value: unknown): BackupType | undefined {
+  return value === 'M' || value === 'X' || value === 'B' ? value : undefined;
 }
 
 function asInventoryId(value: unknown): number | undefined {
@@ -61,6 +67,8 @@ export function isMysqlRestoreTask(
 
 export interface MysqlRestoreConfirmDetails {
   source: string;
+  backupType?: BackupType;
+  executorHost: string;
   targetHost: string;
   targetDatabase: string;
   targetSchema?: { serviceId: number; schemaId: number };
@@ -95,9 +103,14 @@ export function getMysqlRestoreConfirmDetails(
   const form = getStoredForm(task);
 
   const source = asDisplayString(form?.backup_source) ?? UNKNOWN;
+  const backupType = asBackupType(task.backup_type ?? form?.backup_type);
 
-  // `host` / `port` are the restore destination (RestoresResponse / DEST_*).
-  // `hostname` is the executor (pmm-agent) — never show it as "Target host".
+  // `host` / `port` are the MyDumper destination (RestoresResponse / DEST_*).
+  // `hostname` is the executor (pmm-agent), where XtraBackup and Binlog restore.
+  const executorHost =
+    asDisplayString(task.hostname) ??
+    asDisplayString(form?.hostname) ??
+    UNKNOWN;
   const host =
     asDisplayString(task.host) ??
     asDisplayString(form?.host) ??
@@ -112,6 +125,8 @@ export function getMysqlRestoreConfirmDetails(
 
   return {
     source,
+    backupType,
+    executorHost,
     targetHost,
     ...resolveTargetDatabase(form),
     overwriteTables,
@@ -154,6 +169,62 @@ function overwriteLabel(overwriteTables: boolean | undefined): string {
   return overwriteTables ? 'Yes' : 'No';
 }
 
+function MydumperTargetRows({
+  details,
+}: {
+  details: MysqlRestoreConfirmDetails;
+}) {
+  return (
+    <>
+      <ConfirmRow label="Target host" value={details.targetHost} />
+      <ConfirmRow
+        label="Target database"
+        value={
+          details.targetSchema ? (
+            <InventoryDatabaseName
+              serviceId={details.targetSchema.serviceId}
+              schemaId={details.targetSchema.schemaId}
+              fallback={details.targetDatabase}
+            />
+          ) : (
+            details.targetDatabase
+          )
+        }
+      />
+      <ConfirmRow
+        label="Overwrite tables"
+        value={overwriteLabel(details.overwriteTables)}
+      />
+    </>
+  );
+}
+
+function MydumperWarnings({
+  overwriteTables,
+}: {
+  overwriteTables: boolean | undefined;
+}) {
+  if (overwriteTables === true) {
+    return (
+      <Alert severity="warning" data-testid="mysql-restore-overwrite-alert">
+        Existing tables on the target database will be overwritten.
+      </Alert>
+    );
+  }
+  if (overwriteTables === undefined) {
+    return (
+      <Alert
+        severity="warning"
+        data-testid="mysql-restore-overwrite-unknown-alert"
+      >
+        Could not determine whether existing tables on the target database will
+        be overwritten. Treat this restore as destructive.
+      </Alert>
+    );
+  }
+  return null;
+}
+
 /** Rich confirm body naming source, target, and overwrite behaviour. */
 export function MysqlRestoreConfirmContent({
   details,
@@ -170,46 +241,35 @@ export function MysqlRestoreConfirmContent({
     mode === 'schedule'
       ? 'mysql-restore-schedule-confirm'
       : 'mysql-restore-execute-confirm';
+  const restoresOnExecutor =
+    details.backupType === 'X' || details.backupType === 'B';
 
   return (
     <Stack spacing={1.5} data-testid={testId}>
       <Typography variant="body2">{intro}</Typography>
       <Stack spacing={0.5}>
         <ConfirmRow label="Source backup" value={details.source} />
-        <ConfirmRow label="Target host" value={details.targetHost} />
-        <ConfirmRow
-          label="Target database"
-          value={
-            details.targetSchema ? (
-              <InventoryDatabaseName
-                serviceId={details.targetSchema.serviceId}
-                schemaId={details.targetSchema.schemaId}
-                fallback={details.targetDatabase}
-              />
-            ) : (
-              details.targetDatabase
-            )
-          }
-        />
-        <ConfirmRow
-          label="Overwrite tables"
-          value={overwriteLabel(details.overwriteTables)}
-        />
+        {restoresOnExecutor ? (
+          <ConfirmRow label="Target host" value={details.executorHost} />
+        ) : (
+          <MydumperTargetRows details={details} />
+        )}
       </Stack>
-      {details.overwriteTables === true ? (
-        <Alert severity="warning" data-testid="mysql-restore-overwrite-alert">
-          Existing tables on the target database will be overwritten.
+      {details.backupType === 'X' ? (
+        <Alert severity="warning" data-testid="mysql-restore-datadir-alert">
+          MySQL on the target host is stopped and its data directory is replaced
+          with the backup. Every database on that server is overwritten.
         </Alert>
       ) : null}
-      {details.overwriteTables === undefined ? (
-        <Alert
-          severity="warning"
-          data-testid="mysql-restore-overwrite-unknown-alert"
-        >
-          Could not determine whether existing tables on the target database
-          will be overwritten. Treat this restore as destructive.
+      {details.backupType === 'B' ? (
+        <Alert severity="warning" data-testid="mysql-restore-binlog-alert">
+          The backup&apos;s binary logs are replayed into the MySQL server on
+          the target host.
         </Alert>
       ) : null}
+      {restoresOnExecutor ? null : (
+        <MydumperWarnings overwriteTables={details.overwriteTables} />
+      )}
     </Stack>
   );
 }
@@ -243,8 +303,8 @@ export function getMysqlBackupsTaskExecuteActions(
 }
 
 /**
- * Schedule confirmation for MySQL Restores (product decision: restores stay
- * schedulable, with the same source/target/overwrite confirm as Execute).
+ * Schedule confirmation for MySQL Restores, with the same
+ * source/target/overwrite confirm as Execute.
  */
 export function getMysqlBackupsScheduleWarning(
   taskName: string,
