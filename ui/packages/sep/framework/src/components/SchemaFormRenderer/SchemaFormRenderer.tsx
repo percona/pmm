@@ -170,11 +170,6 @@ const SectionRenderer = memo(function SectionRenderer({
 
   const sectionContent = (
     <>
-      {section.description && (
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          {section.description}
-        </Typography>
-      )}
       {violations.map((v, i) => (
         <Alert key={i} severity="error" sx={{ mb: 1 }}>
           {v.message}
