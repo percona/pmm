@@ -1339,7 +1339,8 @@ func TestChangeAgentExpectedTypes(t *testing.T) {
 
 			err := tc.change(agent.AgentID)
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, fmt.Sprintf(
-				"Agent with ID %s has type %s, expected %s.", agent.AgentID, probeType, tc.want)), err)
+				"Agent with ID %s has type %s, expected %s.", agent.AgentID, probeType, tc.want,
+			)), err)
 		})
 	}
 }
