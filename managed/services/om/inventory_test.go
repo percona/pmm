@@ -36,14 +36,16 @@ import (
 	omv1 "github.com/percona/pmm/api/om/v1"
 )
 
-// hostsBody is one om_inventory GET /hosts answer.
+// hostsBody is one om_inventory GET /hosts answer, wrapped in SEP's own
+// paginated envelope (PMM-15326: "Bound the estate listings" --
+// app/core/pagination/models.py's PaginatedResponse) rather than a bare array.
 //
 // Two hosts on purpose, because the pair is the whole reason the host table exists.
 // `n1` runs a registered database and reports an unregistered mongod beside it -- the
 // arbiter case, which PMM registers no service for, so nothing else in OM would mention
 // the process. `n2` carries a PMM client and no database at all, which is the case a
 // service-keyed inventory cannot represent.
-const hostsBody = `[
+const hostsBody = `{"items": [
   {
     "node_id": "n1", "name": "db00", "address": "10.0.0.1", "executor_host": "db00",
     "observed": {
@@ -85,7 +87,7 @@ const hostsBody = `[
     "consecutive_failures": 3, "last_error": "no executor host",
     "services": []
   }
-]`
+], "total": 2, "offset": 0, "limit": 200}`
 
 // configBody is one om_inventory GET /config answer, trimmed to the two rows that make
 // the point: a nested schedule leaf and a field the deployment owns outright.
@@ -292,7 +294,7 @@ func TestListInventoryHosts(t *testing.T) {
 	t.Run("passes the filters through", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `[]`)
+		stub := newSEPStub(t, http.StatusOK, `{"items": [], "total": 0, "offset": 0, "limit": 200}`)
 
 		// Addressable locals rather than a helper: these are proto3 `optional` bools, so
 		// what the request carries is a plain *bool, and false has to be distinguishable
@@ -320,12 +322,14 @@ func TestListInventoryHosts(t *testing.T) {
 		// has_service=false means "only hosts with no database", which is a very
 		// different listing from the default. Sending it because the caller said nothing
 		// would silently hide every host that has one.
-		stub := newSEPStub(t, http.StatusOK, `[]`)
+		stub := newSEPStub(t, http.StatusOK, `{"items": [], "total": 0, "offset": 0, "limit": 200}`)
 
 		_, err := stub.service(t).ListInventoryHosts(t.Context(), &omv1.ListInventoryHostsRequest{})
 
 		require.NoError(t, err)
-		assert.Empty(t, stub.query)
+		assert.NotContains(t, stub.query, "has_service")
+		assert.NotContains(t, stub.query, "failing")
+		assert.NotContains(t, stub.query, "executor")
 	})
 }
 
@@ -806,7 +810,7 @@ func TestInventoryBearerIsSent(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		seen = r.Header.Get("Authorization")
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`{"items": [], "total": 0, "offset": 0, "limit": 200}`))
 	}))
 	t.Cleanup(server.Close)
 
@@ -829,13 +833,25 @@ func mustParseTime(t *testing.T, stamp string) time.Time {
 func TestInventoryFixturesAreValid(t *testing.T) {
 	t.Parallel()
 
-	for name, body := range map[string]string{"hosts": hostsBody, "config": configBody} {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
+	// hosts is checked separately from config: it is wrapped in SEP's own
+	// paginated envelope (PMM-15326: "Bound the estate listings") and config
+	// deliberately is not -- see sepPage's own comment on which endpoints
+	// changed shape and which stayed a bare array.
+	t.Run("hosts", func(t *testing.T) {
+		t.Parallel()
 
-			var parsed []map[string]any
-			require.NoError(t, json.Unmarshal([]byte(body), &parsed))
-			assert.NotEmpty(t, parsed)
-		})
-	}
+		var parsed struct {
+			Items []map[string]any `json:"items"`
+		}
+		require.NoError(t, json.Unmarshal([]byte(hostsBody), &parsed))
+		assert.NotEmpty(t, parsed.Items)
+	})
+
+	t.Run("config", func(t *testing.T) {
+		t.Parallel()
+
+		var parsed []map[string]any
+		require.NoError(t, json.Unmarshal([]byte(configBody), &parsed))
+		assert.NotEmpty(t, parsed)
+	})
 }
