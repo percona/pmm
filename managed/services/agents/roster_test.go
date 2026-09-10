@@ -135,6 +135,14 @@ func TestRoster(t *testing.T) {
 		})
 		require.NoError(t, err)
 
+		// The built-in pmm-server agent reports the server version once it connects. Give it a
+		// version at or above the role-ARN minimum, as any running 3.4.0+ server would have, so the
+		// version gate does not reject a role-based exporter on the management/UI path.
+		pmmServer, err := models.FindAgentByID(r.db.Querier, models.PMMServerAgentID)
+		require.NoError(t, err)
+		pmmServer.Version = new("3.4.0")
+		require.NoError(t, r.db.Querier.Update(pmmServer))
+
 		roleOptions := models.AWSOptions{AWSRoleARN: "arn:aws:iam::123456789012:role/pmm"}
 		roleAgent, err := models.CreateAgent(r.db.Querier, models.RDSExporterType, &models.CreateAgentParams{
 			PMMAgentID:          models.PMMServerAgentID,
