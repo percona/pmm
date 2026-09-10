@@ -2,9 +2,14 @@ import { ReactNode } from 'react';
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { getStoredForm, type TaskExecuteAction } from '@sep/framework';
+import {
+  getStoredForm,
+  useSchemas,
+  type TaskExecuteAction,
+} from '@sep/framework';
 
 const UNKNOWN = 'Not set';
+const SAME_AS_BACKUP = 'Same databases as in the backup';
 
 function asDisplayString(value: unknown): string | undefined {
   if (value === null || value === undefined || value === '') {
@@ -26,8 +31,18 @@ function asDisplayString(value: unknown): string | undefined {
   return undefined;
 }
 
-function asBoolean(value: unknown): boolean {
-  return value === true;
+function asOptionalBoolean(value: unknown): boolean | undefined {
+  return typeof value === 'boolean' ? value : undefined;
+}
+
+function asInventoryId(value: unknown): number | undefined {
+  const id =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string' && /^\d+$/.test(value)
+        ? Number(value)
+        : undefined;
+  return id !== undefined && Number.isInteger(id) && id > 0 ? id : undefined;
 }
 
 /** True when this plugin (or task payload) is a MySQL restore. */
@@ -50,17 +65,39 @@ export interface MysqlRestoreConfirmDetails {
   source: string;
   targetHost: string;
   targetDatabase: string;
-  overwriteTables: boolean;
+  targetSchema?: { serviceId: number; schemaId: number };
+  overwriteTables: boolean | undefined;
+}
+
+function resolveTargetDatabase(
+  form: Record<string, unknown> | undefined
+): Pick<MysqlRestoreConfirmDetails, 'targetDatabase' | 'targetSchema'> {
+  if (!form) {
+    return { targetDatabase: UNKNOWN };
+  }
+  const schemaId = asInventoryId(form.schema_id);
+  if (schemaId === undefined) {
+    const hydratedName =
+      typeof form.schema_id === 'object'
+        ? asDisplayString(form.schema_id)
+        : undefined;
+    return { targetDatabase: hydratedName ?? SAME_AS_BACKUP };
+  }
+  const targetDatabase = `Unknown (inventory ID ${schemaId})`;
+  const serviceId = asInventoryId(form.service_id);
+  return serviceId === undefined
+    ? { targetDatabase }
+    : { targetDatabase, targetSchema: { serviceId, schemaId } };
 }
 
 /** Pull source / target / overwrite facts from the task detail + stored form. */
 export function getMysqlRestoreConfirmDetails(
   task: Record<string, unknown>
 ): MysqlRestoreConfirmDetails {
-  const form = getStoredForm(task) ?? {};
+  const form = getStoredForm(task);
 
   const source =
-    asDisplayString(form.backup_source) ??
+    asDisplayString(form?.backup_source) ??
     asDisplayString(task.backup_source) ??
     UNKNOWN;
 
@@ -68,30 +105,27 @@ export function getMysqlRestoreConfirmDetails(
   // `hostname` is the executor (pmm-agent) — never show it as "Target host".
   const host =
     asDisplayString(task.host) ??
-    asDisplayString(form.host) ??
-    asDisplayString(form.dest_host);
+    asDisplayString(form?.host) ??
+    asDisplayString(form?.dest_host);
   const port =
     asDisplayString(task.port) ??
-    asDisplayString(form.dest_port) ??
-    asDisplayString(form.port);
-  const targetHost =
-    host && port ? `${host}:${port}` : (host ?? port ?? UNKNOWN);
+    asDisplayString(form?.dest_port) ??
+    asDisplayString(form?.port);
+  const targetHost = host && port ? `${host}:${port}` : (host ?? UNKNOWN);
 
-  const targetDatabase =
-    asDisplayString(form.schema_id) ??
-    asDisplayString(form.database) ??
-    asDisplayString(task.database) ??
-    asDisplayString(task.schema_id) ??
-    UNKNOWN;
-
-  const overwriteTables = asBoolean(
-    form.overwrite_tables ?? task.overwrite_tables
+  const overwriteTables = asOptionalBoolean(
+    form?.overwrite_tables ?? task.overwrite_tables
   );
 
-  return { source, targetHost, targetDatabase, overwriteTables };
+  return {
+    source,
+    targetHost,
+    ...resolveTargetDatabase(form),
+    overwriteTables,
+  };
 }
 
-function ConfirmRow({ label, value }: { label: string; value: string }) {
+function ConfirmRow({ label, value }: { label: string; value: ReactNode }) {
   return (
     <Typography component="div" variant="body2">
       <Typography component="span" variant="body2" color="text.secondary">
@@ -100,6 +134,31 @@ function ConfirmRow({ label, value }: { label: string; value: string }) {
       {value}
     </Typography>
   );
+}
+
+function InventoryDatabaseName({
+  serviceId,
+  schemaId,
+  fallback,
+}: {
+  serviceId: number;
+  schemaId: number;
+  fallback: string;
+}) {
+  const { data, isLoading } = useSchemas({ serviceId });
+  if (isLoading) {
+    return <>Loading…</>;
+  }
+  return (
+    <>{data?.find((schema) => schema.id === schemaId)?.name ?? fallback}</>
+  );
+}
+
+function overwriteLabel(overwriteTables: boolean | undefined): string {
+  if (overwriteTables === undefined) {
+    return 'Unknown';
+  }
+  return overwriteTables ? 'Yes' : 'No';
 }
 
 /** Rich confirm body naming source, target, and overwrite behaviour. */
@@ -125,15 +184,37 @@ export function MysqlRestoreConfirmContent({
       <Stack spacing={0.5}>
         <ConfirmRow label="Source backup" value={details.source} />
         <ConfirmRow label="Target host" value={details.targetHost} />
-        <ConfirmRow label="Target database" value={details.targetDatabase} />
+        <ConfirmRow
+          label="Target database"
+          value={
+            details.targetSchema ? (
+              <InventoryDatabaseName
+                serviceId={details.targetSchema.serviceId}
+                schemaId={details.targetSchema.schemaId}
+                fallback={details.targetDatabase}
+              />
+            ) : (
+              details.targetDatabase
+            )
+          }
+        />
         <ConfirmRow
           label="Overwrite tables"
-          value={details.overwriteTables ? 'Yes' : 'No'}
+          value={overwriteLabel(details.overwriteTables)}
         />
       </Stack>
-      {details.overwriteTables ? (
+      {details.overwriteTables === true ? (
         <Alert severity="warning" data-testid="mysql-restore-overwrite-alert">
           Existing tables on the target database will be overwritten.
+        </Alert>
+      ) : null}
+      {details.overwriteTables === undefined ? (
+        <Alert
+          severity="warning"
+          data-testid="mysql-restore-overwrite-unknown-alert"
+        >
+          Could not determine whether existing tables on the target database
+          will be overwritten. Treat this restore as destructive.
         </Alert>
       ) : null}
     </Stack>

@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getMysqlBackupsScheduleWarning,
   getMysqlBackupsTaskExecuteActions,
@@ -7,6 +7,17 @@ import {
   isMysqlRestoreTask,
   MysqlRestoreConfirmContent,
 } from './restoreExecuteConfirm';
+
+const { mockUseSchemas } = vi.hoisted(() => ({ mockUseSchemas: vi.fn() }));
+
+vi.mock('@sep/framework', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@sep/framework')>()),
+  useSchemas: (...args: unknown[]) => mockUseSchemas(...args),
+}));
+
+beforeEach(() => {
+  mockUseSchemas.mockReset();
+});
 
 describe('isMysqlRestoreTask', () => {
   it('detects restores via related-app plugin name', () => {
@@ -57,7 +68,7 @@ describe('isMysqlRestoreTask', () => {
 });
 
 describe('getMysqlRestoreConfirmDetails', () => {
-  it('prefers stored form source/database and response host:port', () => {
+  it('prefers stored form source, response host:port and the inventory schema', () => {
     expect(
       getMysqlRestoreConfirmDetails({
         name: 'r1',
@@ -67,7 +78,8 @@ describe('getMysqlRestoreConfirmDetails', () => {
         data: {
           _form: {
             backup_source: 's3://bucket/run-1',
-            schema_id: 'app_db',
+            service_id: '4',
+            schema_id: '9',
             overwrite_tables: true,
             hostname: 'executor-node',
           },
@@ -76,7 +88,8 @@ describe('getMysqlRestoreConfirmDetails', () => {
     ).toEqual({
       source: 's3://bucket/run-1',
       targetHost: '10.30.50.130:3306',
-      targetDatabase: 'app_db',
+      targetDatabase: 'Unknown (inventory ID 9)',
+      targetSchema: { serviceId: 4, schemaId: 9 },
       overwriteTables: true,
     });
   });
@@ -117,8 +130,49 @@ describe('getMysqlRestoreConfirmDetails', () => {
     ).toEqual({
       source: '/b',
       targetHost: 'Not set',
-      targetDatabase: 'Not set',
+      targetDatabase: 'Same databases as in the backup',
       overwriteTables: true,
+    });
+  });
+
+  it('reads a typed database name as the backup databases, as the restore does', () => {
+    expect(
+      getMysqlRestoreConfirmDetails({
+        name: 'r1',
+        data: {
+          _form: {
+            backup_source: '/b',
+            service_id: '4',
+            schema_id: 'app_db',
+            overwrite_tables: false,
+          },
+        },
+      }).targetDatabase
+    ).toBe('Same databases as in the backup');
+  });
+
+  it('does not show a bare port as the target host', () => {
+    expect(
+      getMysqlRestoreConfirmDetails({
+        name: 'r1',
+        port: 3306,
+        data: { _form: { backup_source: '/b', overwrite_tables: false } },
+      }).targetHost
+    ).toBe('Not set');
+  });
+
+  it('reports overwrite as unknown when the task has no stored form', () => {
+    expect(
+      getMysqlRestoreConfirmDetails({
+        name: 'r1',
+        host: 'db.example',
+        port: 3306,
+      })
+    ).toEqual({
+      source: 'Not set',
+      targetHost: 'db.example:3306',
+      targetDatabase: 'Not set',
+      overwriteTables: undefined,
     });
   });
 });
@@ -278,5 +332,78 @@ describe('MysqlRestoreConfirmContent', () => {
     expect(
       screen.queryByTestId('mysql-restore-overwrite-alert')
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('mysql-restore-overwrite-unknown-alert')
+    ).not.toBeInTheDocument();
+  });
+
+  it('warns instead of reading an unrecorded overwrite as No', () => {
+    render(
+      <MysqlRestoreConfirmContent
+        details={{
+          source: 'Not set',
+          targetHost: 'h',
+          targetDatabase: 'Not set',
+          overwriteTables: undefined,
+        }}
+      />
+    );
+
+    expect(
+      screen.getByTestId('mysql-restore-execute-confirm')
+    ).toHaveTextContent('Overwrite tables: Unknown');
+    expect(
+      screen.getByTestId('mysql-restore-overwrite-unknown-alert')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('mysql-restore-overwrite-alert')
+    ).not.toBeInTheDocument();
+  });
+
+  it('names the target database resolved from inventory', () => {
+    mockUseSchemas.mockReturnValue({
+      data: [
+        { id: 8, name: 'billing' },
+        { id: 9, name: 'orders' },
+      ],
+      isLoading: false,
+    });
+
+    render(
+      <MysqlRestoreConfirmContent
+        details={{
+          source: '/b',
+          targetHost: 'h:3306',
+          targetDatabase: 'Unknown (inventory ID 9)',
+          targetSchema: { serviceId: 4, schemaId: 9 },
+          overwriteTables: false,
+        }}
+      />
+    );
+
+    expect(mockUseSchemas).toHaveBeenCalledWith({ serviceId: 4 });
+    expect(
+      screen.getByTestId('mysql-restore-execute-confirm')
+    ).toHaveTextContent('Target database: orders');
+  });
+
+  it('keeps the inventory ID when the schema no longer resolves', () => {
+    mockUseSchemas.mockReturnValue({ data: [], isLoading: false });
+
+    render(
+      <MysqlRestoreConfirmContent
+        details={{
+          source: '/b',
+          targetHost: 'h:3306',
+          targetDatabase: 'Unknown (inventory ID 9)',
+          targetSchema: { serviceId: 4, schemaId: 9 },
+          overwriteTables: false,
+        }}
+      />
+    );
+
+    expect(
+      screen.getByTestId('mysql-restore-execute-confirm')
+    ).toHaveTextContent('Target database: Unknown (inventory ID 9)');
   });
 });
