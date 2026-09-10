@@ -303,7 +303,7 @@ describe('SchemaFormRenderer — field rendering', () => {
     expect(legend.tagName.toLowerCase()).toBe('legend');
   });
 
-  it('shows a help icon only when a field has a description', () => {
+  it('shows field description as helper text, not as a help icon', () => {
     const helpSections: FormSection[] = [
       {
         title: 'Basics',
@@ -322,14 +322,40 @@ describe('SchemaFormRenderer — field rendering', () => {
       <SchemaFormRenderer sections={helpSections} onSubmit={() => {}} />
     );
 
-    // Notched-outline clone is aria-hidden; pin count + require a visible <label> hit.
+    expect(screen.getByText('A title')).toBeInTheDocument();
     expect(document.querySelectorAll('[data-help-for="Title"]')).toHaveLength(
-      2
+      0
     );
-    expect(
-      document.querySelectorAll('label [data-help-for="Title"]')
-    ).toHaveLength(1);
     expect(document.querySelectorAll('[data-help-for="Code"]')).toHaveLength(0);
+  });
+
+  it('does not render section.description prose', () => {
+    const sectionsWithProse: FormSection[] = [
+      {
+        title: 'Encryption',
+        description:
+          "Pick an Encryption format first; the fields below are that format's parameters.",
+        fields: [
+          {
+            type: 'bool',
+            name: 'encrypt',
+            label: 'Encrypt backup',
+            description: 'Encrypt the backup stream before upload.',
+          },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={sectionsWithProse} onSubmit={() => {}} />
+    );
+
+    expect(screen.getByText('Encryption')).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Pick an Encryption format first/)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Encrypt the backup stream before upload.')
+    ).toBeInTheDocument();
   });
 });
 

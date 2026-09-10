@@ -25,7 +25,6 @@ import type {
   FieldError,
   FieldValues,
 } from 'react-hook-form';
-import { FieldLabelWithHelp } from './FieldLabelWithHelp';
 
 export interface SchemaSelectShellProps {
   /**
@@ -40,7 +39,7 @@ export interface SchemaSelectShellProps {
   required?: boolean;
   /** rhf field error; presence flips `aria-invalid` and the outline color. */
   error?: FieldError;
-  /** Helper text and tooltip body for the label help icon; shown as helper text when there is no error. */
+  /** Helper text under the field; shown when there is no error. */
   description?: string;
   /** Render a multi-select (value is an array). */
   multiple?: boolean;
@@ -72,7 +71,7 @@ export function SchemaSelectShell({
   return (
     <FormControl fullWidth size="small" error={!!error}>
       <InputLabel id={labelId} shrink required={required}>
-        <FieldLabelWithHelp label={label} description={description} />
+        {label}
       </InputLabel>
       <Select
         {...field}
