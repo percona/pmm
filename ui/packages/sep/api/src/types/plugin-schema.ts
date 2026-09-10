@@ -111,6 +111,25 @@ interface BaseField {
    * Chains and cycles are unsupported — a cycle leaves both toggles inert.
    */
   parent?: string;
+  /**
+   * Where the field's `description` is shown.
+   *
+   * `inline` puts it under the input, where a format hint belongs — visible
+   * while someone is typing into the field it describes. `tooltip` puts it
+   * behind a help icon beside the label, which keeps prose from dominating a
+   * form that has a lot of it.
+   *
+   * Unset (the default) decides by length: a description that fits roughly one
+   * line renders inline, a longer one goes behind the icon. Set this when the
+   * default reads wrong for a particular field — a terse-but-secondary note, or
+   * a long one someone needs in front of them while they type.
+   *
+   * Reference and selector fields (`service`, `host`, `schema`, `table`,
+   * `remote_choice`) are always inline: their label is a plain string the
+   * renderer also uses in validation messages, so there is no node to hang a
+   * help icon from.
+   */
+  help_placement?: 'tooltip' | 'inline';
 }
 
 // ── Choice option ─────────────────────────────────────────────────────────

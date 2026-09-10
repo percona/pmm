@@ -230,10 +230,22 @@ const SectionRenderer = memo(function SectionRenderer({
 
   // Mark the odd optional field out in a section that is otherwise required —
   // the absence of an asterisk is easy to miss when every neighbour has one.
-  const markOptional = useMemo(() => {
+  //
+  // Deliberately narrow: one unfilled field among required ones. Two or more
+  // and the section is a mix, where the asterisks already read as the
+  // exception; and a field carrying a default is not blank-optional but
+  // pre-filled, so "(optional)" would suggest a choice that has been made for
+  // the reader already.
+  const optionalNames = useMemo(() => {
     const leaves = section.fields.filter((f) => !isOneOfGroup(f));
-    const required = leaves.filter((f) => f.required).length;
-    return required > leaves.length - required;
+    const required = leaves.filter((f) => f.required);
+    const optional = leaves.filter((f) => !f.required);
+    if (required.length < 2 || optional.length !== 1) {
+      return new Set<string>();
+    }
+    const [only] = optional;
+    const seeded = only.default !== undefined && only.default !== null;
+    return seeded ? new Set<string>() : new Set([only.name]);
   }, [section.fields]);
 
   if (isHidden) {
@@ -264,7 +276,7 @@ const SectionRenderer = memo(function SectionRenderer({
             key={field.name}
             field={field}
             renderField={renderField}
-            markOptional={markOptional}
+            markOptional={optionalNames.has(field.name)}
           />
         )
       )}

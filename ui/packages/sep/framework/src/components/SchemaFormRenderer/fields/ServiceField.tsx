@@ -28,6 +28,7 @@ export function ServiceField({ field }: ServiceFieldProps) {
     <ServiceSelector
       name={field.name}
       label={field.label}
+      helperText={field.description}
       required={field.required}
       serviceTypes={field.service_types as readonly ServiceType[]}
       allowCustom={field.allow_custom}

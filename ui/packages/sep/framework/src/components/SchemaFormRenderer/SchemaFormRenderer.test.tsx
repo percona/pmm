@@ -35,6 +35,7 @@ import {
   buildValidationRules,
   coerceFormValues,
 } from './utils/validationMapper';
+import { INLINE_HELP_MAX_LENGTH } from './fieldHelp';
 import { evaluatePredicate, isPresent } from './utils/predicateEvaluator';
 import { resetSchemaWarnings } from './utils/schemaWarnings';
 import type { FormSection, RenderFieldOverride } from './types';
@@ -312,16 +313,41 @@ describe('SchemaFormRenderer — field rendering', () => {
     expect(legend.tagName.toLowerCase()).toBe('legend');
   });
 
-  it('shows a help icon only when a field has a description', () => {
+  it('places help by length, and honours an explicit placement', () => {
+    const longProse = `prose ${'x'.repeat(INLINE_HELP_MAX_LENGTH)}`;
+    const longForced = `forced ${'y'.repeat(INLINE_HELP_MAX_LENGTH)}`;
     const helpSections: FormSection[] = [
       {
         title: 'Basics',
         fields: [
+          // Short enough to sit on one line: stays visible under the input.
           {
             type: 'string',
             name: 'title',
             label: 'Title',
             description: 'A title',
+          },
+          // Prose: behind the icon, so it cannot dominate the form.
+          {
+            type: 'string',
+            name: 'notes',
+            label: 'Notes',
+            description: longProse,
+          },
+          // The schema overriding the default, in both directions.
+          {
+            type: 'string',
+            name: 'pinned',
+            label: 'Pinned',
+            description: 'Short but secondary',
+            help_placement: 'tooltip',
+          },
+          {
+            type: 'string',
+            name: 'shown',
+            label: 'Shown',
+            description: longForced,
+            help_placement: 'inline',
           },
           { type: 'string', name: 'code', label: 'Code' },
         ],
@@ -331,13 +357,22 @@ describe('SchemaFormRenderer — field rendering', () => {
       <SchemaFormRenderer sections={helpSections} onSubmit={() => {}} />
     );
 
-    // Notched-outline clone is aria-hidden; pin count + require a visible <label> hit.
-    expect(document.querySelectorAll('[data-help-for="Title"]')).toHaveLength(
-      2
-    );
-    expect(
-      document.querySelectorAll('label [data-help-for="Title"]')
-    ).toHaveLength(1);
+    const icon = (label: string) =>
+      document.querySelectorAll(`label [data-help-for="${label}"]`).length;
+
+    expect(icon('Title')).toBe(0);
+    expect(screen.getByText('A title')).toBeInTheDocument();
+
+    expect(icon('Notes')).toBe(1);
+    expect(screen.queryByText(longProse)).toBeNull();
+
+    expect(icon('Pinned')).toBe(1);
+    expect(screen.queryByText('Short but secondary')).toBeNull();
+
+    expect(icon('Shown')).toBe(0);
+    expect(screen.getByText(longForced)).toBeInTheDocument();
+
+    // A field with no description gets neither.
     expect(document.querySelectorAll('[data-help-for="Code"]')).toHaveLength(0);
   });
 });
@@ -3423,5 +3458,60 @@ describe('SchemaFormRenderer — optional marker', () => {
 
     expect(screen.getByLabelText('Two')).toBeInTheDocument();
     expect(screen.queryByLabelText('Two (optional)')).toBeNull();
+  });
+
+  it('leaves a defaulted lone optional field unmarked', () => {
+    // A field carrying a default is pre-filled, not blank-optional; calling it
+    // "(optional)" suggests a choice nobody has made yet.
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Task',
+            fields: [
+              { type: 'string', name: 'a', label: 'Task name', required: true },
+              { type: 'string', name: 'b', label: 'Host', required: true },
+              {
+                type: 'choice',
+                name: 'c',
+                label: 'Transport',
+                default: 'local',
+                choices: [
+                  { label: 'Local', value: 'local' },
+                  { label: 'SSH', value: 'ssh' },
+                ],
+              },
+            ],
+          },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(screen.getByText('Transport')).toBeInTheDocument();
+    expect(screen.queryByText(/Transport \(optional\)/)).toBeNull();
+  });
+
+  it('leaves two optional fields unmarked, where the asterisks already read', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Task',
+            fields: [
+              { type: 'string', name: 'a', label: 'One', required: true },
+              { type: 'string', name: 'b', label: 'Two', required: true },
+              { type: 'string', name: 'c', label: 'Three', required: true },
+              { type: 'string', name: 'd', label: 'Four' },
+              { type: 'string', name: 'e', label: 'Five' },
+            ],
+          },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(screen.getByLabelText('Four')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Four (optional)')).toBeNull();
   });
 });

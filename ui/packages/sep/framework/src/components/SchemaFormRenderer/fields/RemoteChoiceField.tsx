@@ -27,6 +27,7 @@ export function RemoteChoiceField({ field }: RemoteChoiceFieldProps) {
     <RemoteChoiceSelector
       name={field.name}
       label={field.label}
+      description={field.description}
       required={field.required}
       endpointUrl={field.endpoint_url}
       dependsOn={field.depends_on}

@@ -19,6 +19,7 @@ import { useFormContext } from 'react-hook-form';
 import Box from '@mui/material/Box';
 import { SwitchInput } from '@percona/peak-ui';
 import { FieldHelpIcon } from '../FieldLabelWithHelp';
+import { fieldHelp } from '../fieldHelp';
 import type { BoolField as BoolFieldType } from '../types';
 
 interface BoolFieldProps {
@@ -27,19 +28,19 @@ interface BoolFieldProps {
 
 export function BoolField({ field }: BoolFieldProps) {
   const { control } = useFormContext();
+  const help = fieldHelp(field);
   return (
     <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5 }}>
       <Box sx={{ minWidth: 0 }}>
-        {/*
-          The description reaches the reader through the help icon beside the
-          switch, the same way every other field type surfaces it. Repeating it
-          as a caption cost a line of height under every toggle — the bulk of
-          an expert-heavy section.
-        */}
-        <SwitchInput name={field.name} label={field.label} control={control} />
+        <SwitchInput
+          name={field.name}
+          label={field.label}
+          labelCaption={help.inline}
+          control={control}
+        />
       </Box>
-      {field.description ? (
-        <FieldHelpIcon description={field.description} label={field.label} />
+      {help.tooltip ? (
+        <FieldHelpIcon description={help.tooltip} label={field.label} />
       ) : null}
     </Box>
   );
