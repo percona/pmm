@@ -334,7 +334,7 @@ describe('SchemaFormRenderer — field rendering', () => {
       {
         title: 'Encryption',
         description:
-          'Pick an Encryption format first; the fields below are that format\'s parameters.',
+          "Pick an Encryption format first; the fields below are that format's parameters.",
         fields: [
           {
             type: 'bool',
