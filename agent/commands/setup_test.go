@@ -16,6 +16,7 @@ package commands
 
 import (
 	"errors"
+	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
@@ -25,6 +26,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/config"
+	aservice "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 const (
@@ -36,14 +38,14 @@ const (
 
 // answer makes PMM Server answer the registration check with the given state.
 func answer(state registrationState) registrationCheck {
-	return func(*config.Config, *logrus.Entry) registrationState { return state }
+	return func(*config.Config, *config.Config, *logrus.Entry) registrationState { return state }
 }
 
 // notAsked fails the test if PMM Server is asked about the registration at all.
 func notAsked(t *testing.T) registrationCheck {
 	t.Helper()
 
-	return func(*config.Config, *logrus.Entry) registrationState {
+	return func(*config.Config, *config.Config, *logrus.Entry) registrationState {
 		t.Errorf("PMM Server should not be asked about the registration")
 		return registrationMissing
 	}
@@ -148,6 +150,109 @@ func TestRunningCredentials(t *testing.T) {
 		cfg := &config.Config{ID: testAgentID, Server: config.Server{Username: "admin", Password: "admin"}}
 		assert.Same(t, cfg, runningCredentials(cfg, &config.Config{ID: testAgentID}))
 	})
+}
+
+// The subtests configure the package level API clients, so they cannot run in parallel.
+func TestWithGivenCredentials(t *testing.T) {
+	registeredNode := serverNode{Name: testNodeName, Address: testNodeAddress}
+	// PMM Server answers 401 for a token it no longer accepts, with a gRPC code which says no more than
+	// that. Removing a Node deletes the service account the token of its Agent belongs to.
+	refused := aservice.NewGetAgentDefault(http.StatusUnauthorized)
+
+	// answers replies to consecutive lookups, and fails the test on a lookup it has no answer for.
+	answers := func(t *testing.T, results ...func(string) (serverNode, error)) (agentLookup, *int) {
+		t.Helper()
+
+		calls := 0
+		return func(agentID string) (serverNode, error) {
+			calls++
+			if calls > len(results) {
+				t.Errorf("PMM Server was asked %d times, expected %d", calls, len(results))
+				return serverNode{}, errors.New("asked too many times")
+			}
+			return results[calls-1](agentID)
+		}, &calls
+	}
+
+	for _, tc := range []struct {
+		name string
+		// given holds the credentials setup was given, defaulting to those of a full command line
+		given   *config.Config
+		results []func(string) (serverNode, error)
+		calls   int
+		node    serverNode
+		err     error
+	}{
+		{
+			name:    "an answer PMM Server gave is the answer",
+			results: []func(string) (serverNode, error){found(registeredNode)},
+			calls:   1,
+			node:    registeredNode,
+		},
+		{
+			name:    "a Node PMM Server does not know is not asked about twice",
+			results: []func(string) (serverNode, error){failed(errAgentNotFound)},
+			calls:   1,
+			err:     errAgentNotFound,
+		},
+		{
+			name:    "a refused token is asked about again, and the Node is gone",
+			results: []func(string) (serverNode, error){failed(refused), failed(errAgentNotFound)},
+			calls:   2,
+			err:     errAgentNotFound,
+		},
+		{
+			// Registering again would remove that Node together with every Service on it.
+			name:    "a refused token does not register a Node which is still there",
+			results: []func(string) (serverNode, error){failed(refused), found(registeredNode)},
+			calls:   2,
+			err:     refused,
+		},
+		{
+			name:    "a refusal is kept when the credentials given to setup answer no better",
+			results: []func(string) (serverNode, error){failed(refused), failed(refused)},
+			calls:   2,
+			err:     refused,
+		},
+		{
+			name:    "the credentials the Agent runs with are not tried twice",
+			given:   &config.Config{Server: config.Server{Address: testServerAddress, Username: "service_token", Password: "glsa_token"}},
+			results: []func(string) (serverNode, error){failed(refused)},
+			calls:   1,
+			err:     refused,
+		},
+		{
+			name:    "there is nothing to ask again without a PMM Server address",
+			given:   &config.Config{Server: config.Server{Username: "admin", Password: "admin"}},
+			results: []func(string) (serverNode, error){failed(refused)},
+			calls:   1,
+			err:     refused,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			running := &config.Config{
+				ID:     testAgentID,
+				Server: config.Server{Address: testServerAddress, Username: "service_token", Password: "glsa_token"},
+			}
+			given := tc.given
+			if given == nil {
+				given = &config.Config{
+					ID:     testAgentID,
+					Server: config.Server{Address: testServerAddress, Username: "admin", Password: "admin"},
+				}
+			}
+
+			lookup, calls := answers(t, tc.results...)
+			node, err := withGivenCredentials(lookup, running, given, logrus.WithField("test", t.Name()))(testAgentID)
+			assert.Equal(t, tc.calls, *calls)
+			assert.Equal(t, tc.node, node)
+			if tc.err == nil {
+				require.NoError(t, err)
+				return
+			}
+			assert.ErrorIs(t, err, tc.err)
+		})
+	}
 }
 
 func TestRegistrationOf(t *testing.T) {

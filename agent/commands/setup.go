@@ -49,22 +49,66 @@ const (
 	registrationConflict
 )
 
-// registrationCheck asks PMM Server about the registration of the Agent described by cfg.
-type registrationCheck func(cfg *config.Config, l *logrus.Entry) registrationState
+// registrationCheck asks PMM Server about the registration of the Agent described by running, which
+// holds the credentials the Agent runs with, and falls back to those in given when PMM Server does not
+// accept them.
+type registrationCheck func(running, given *config.Config, l *logrus.Entry) registrationState
 
 // agentLookup returns the Node which PMM Server has the given Agent registered on.
 type agentLookup func(agentID string) (serverNode, error)
 
 // checkRegistrationOnServer asks PMM Server whether it knows this Agent on this Node.
-func checkRegistrationOnServer(cfg *config.Config, l *logrus.Entry) registrationState {
-	u := cfg.Server.URL()
+func checkRegistrationOnServer(running, given *config.Config, l *logrus.Entry) registrationState {
+	u := running.Server.URL()
 	if u == nil {
 		// register reports the missing server address with an actionable message
 		return registrationMissing
 	}
-	setServerTransport(u, cfg.Server.InsecureTLS, l)
+	setServerTransport(u, running.Server.InsecureTLS, l)
 
-	return checkRegistration(cfg, serverNodeOfAgent)
+	return checkRegistration(running, withGivenCredentials(serverNodeOfAgent, running, given, l))
+}
+
+// withGivenCredentials asks PMM Server again with the credentials given to setup when it does not accept
+// the ones the Agent runs with. Removing a Node deletes the Grafana service account its token belongs
+// to, so the Agent of a Node someone removed holds a token PMM Server refuses - and a refused token says
+// nothing about the registration, which would leave the Agent running with an ID the server no longer
+// knows. The credentials given to setup can still get an answer.
+//
+// Only a clear "PMM Server does not know this Agent" counts from the second lookup, because that is the
+// answer the refused credentials could not give. Anything else keeps the first answer, so that a Node
+// which is still registered is never registered again - which would remove it together with every
+// Service on it - over an answer about credentials.
+//
+// This method is not thread-safe.
+func withGivenCredentials(lookup agentLookup, running, given *config.Config, l *logrus.Entry) agentLookup {
+	return func(agentID string) (serverNode, error) {
+		node, err := lookup(agentID)
+		if !serverRefused(err) || sameCredentials(running, given) {
+			return node, err
+		}
+
+		u := given.Server.URL()
+		if u == nil {
+			return node, err
+		}
+
+		fmt.Printf("PMM Server at %s does not accept the credentials pmm-agent %s runs with,"+
+			" checking the registration with the credentials given to setup.\n", given.Server.Address, agentID)
+		setServerTransport(u, given.Server.InsecureTLS, l)
+
+		_, e := lookup(agentID)
+		if errors.Is(e, errAgentNotFound) {
+			return serverNode{}, e
+		}
+
+		return node, err
+	}
+}
+
+// sameCredentials reports whether asking again would ask with the credentials PMM Server just refused.
+func sameCredentials(a, b *config.Config) bool {
+	return a.Server.Username == b.Server.Username && a.Server.Password == b.Server.Password
 }
 
 // checkRegistration turns what PMM Server says about the Agent into the state of its registration. The
@@ -140,7 +184,7 @@ func registrationOf(cfg, fileCfg *config.Config, check registrationCheck, l *log
 		return registrationMissing
 	}
 
-	return check(runningCredentials(cfg, fileCfg), l)
+	return check(runningCredentials(cfg, fileCfg), cfg, l)
 }
 
 // runningCredentials returns cfg holding the credentials the Agent runs with, so that the registration

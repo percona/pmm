@@ -215,6 +215,27 @@ func serverCode(err error) codes.Code {
 	return codes.Code(code)
 }
 
+// serverStatus returns the HTTP status PMM Server answered a failed inventory request with, or 0 when
+// the error is not such an answer.
+func serverStatus(err error) int {
+	switch e := err.(type) { //nolint:errorlint
+	case *aservice.GetAgentDefault:
+		return e.Code()
+	case *nservice.GetNodeDefault:
+		return e.Code()
+	}
+
+	return 0
+}
+
+// serverRefused reports whether PMM Server did not accept the credentials of the lookup. It answers 401
+// for a failure of its own as much as for a credential it rejected, and only the credentials it names
+// invalid carry codes.Unauthenticated, which lookupError has already taken. What is left is grounds for
+// asking again with other credentials, and for nothing else: it says nothing about the registration.
+func serverRefused(err error) bool {
+	return serverStatus(err) == http.StatusUnauthorized
+}
+
 // lookupError maps a failed inventory lookup to what it says about the registration. Only PMM Server's
 // own answer says anything: a proxy whose path rules predate this call answers 404 just the same, and
 // PMM Server maps a failure of its own to 401 exactly as it does a credential it rejected. The gRPC code

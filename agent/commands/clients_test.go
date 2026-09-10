@@ -52,6 +52,8 @@ func TestServerNodeOfAgent(t *testing.T) {
 		node        serverNode
 		err         error
 		unknowable  bool
+		// refused marks the answers which are grounds for asking again with other credentials
+		refused bool
 	}{
 		{
 			name:        "PMM Server knows the Agent",
@@ -92,11 +94,20 @@ func TestServerNodeOfAgent(t *testing.T) {
 			unknowable:  true,
 		},
 		{
-			// PMM Server answers 401 for a failure of its own, a Grafana restart among them.
-			name:        "PMM Server failed while authenticating",
+			// PMM Server answers 401 for a failure of its own, a Grafana restart among them, and for a
+			// service token it no longer accepts - the token an Agent whose Node was removed holds.
+			name:        "PMM Server did not accept the credentials",
 			agentStatus: http.StatusUnauthorized,
 			agentCode:   codes.Internal,
 			unknowable:  true,
+			refused:     true,
+		},
+		{
+			// A proxy in front of PMM Server demanding credentials of its own answers this.
+			name:        "the 401 is not PMM Server's",
+			agentStatus: http.StatusUnauthorized,
+			unknowable:  true,
+			refused:     true,
 		},
 		{
 			// A proxy whose path rules predate this call answers the same status with a body of its own.
@@ -244,6 +255,7 @@ func TestServerNodeOfAgent(t *testing.T) {
 			default:
 				require.NoError(t, err)
 			}
+			assert.Equal(t, tc.refused, serverRefused(err), "whether to ask again with other credentials")
 			assert.Equal(t, tc.node, node)
 		})
 	}
