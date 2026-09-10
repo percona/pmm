@@ -17,7 +17,6 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import MenuItem from '@mui/material/MenuItem';
 import type {
   ControllerRenderProps,
@@ -115,33 +114,24 @@ describe('SchemaSelectShell', () => {
     expect(screen.getByText('Pick one')).toBeInTheDocument();
   });
 
-  it('shows an info-icon tooltip when description is set', async () => {
-    const user = userEvent.setup();
+  it('does not render a help icon for the description', () => {
     renderShell({ description: 'Pick one' });
 
-    const help = screen.getByLabelText('Help for Fruit');
-    expect(help).toHaveAttribute('data-help-for', 'Fruit');
-    await user.hover(help);
-    expect(await screen.findByRole('tooltip')).toHaveTextContent('Pick one');
-  });
-
-  it('omits the info icon when description is missing', () => {
-    renderShell();
-
     expect(screen.queryByLabelText('Help for Fruit')).not.toBeInTheDocument();
+    expect(document.querySelectorAll('[data-help-for="Fruit"]')).toHaveLength(
+      0
+    );
   });
 
-  it('keeps the info icon when an error replaces the helper text', () => {
+  it('replaces helper text with the error and still omits the help icon', () => {
     renderShell({
       description: 'Pick one',
       error: { type: 'required', message: 'Fruit is required' },
     });
 
     expect(screen.getByText('Fruit is required')).toBeInTheDocument();
-    expect(screen.getByLabelText('Help for Fruit')).toHaveAttribute(
-      'data-help-for',
-      'Fruit'
-    );
+    expect(screen.queryByText('Pick one')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Help for Fruit')).not.toBeInTheDocument();
   });
 
   it('renders a required asterisk in the label', () => {

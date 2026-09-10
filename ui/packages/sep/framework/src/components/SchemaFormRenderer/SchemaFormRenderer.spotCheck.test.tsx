@@ -20,9 +20,8 @@
  *
  * Direct consumers: mysql_backups (via SchemaDrivenPlugin) and atw
  * (CollectPane); SnippetExecutionAccordion covers the synthesised
- * snippet-parameter path. Confirms help icons appear only on described fields
- * and core inputs still mount — a regression guard for the framework-global
- * label change.
+ * snippet-parameter path. Confirms field descriptions appear once as helper
+ * text (never as a restating help icon) and core inputs still mount.
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -50,23 +49,14 @@ function escapeAttrSelectorValue(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
-function expectHelp(label: string, present: boolean) {
-  // Ignore the notched-outline legend clone so a legend-only render fails.
-  // Bool icons sit outside <label>, so we cannot scope to label alone.
+/** Assert a field never paints description as a help-icon tooltip. */
+function expectNoHelpIcon(label: string) {
   const selector = `[data-help-for="${escapeAttrSelectorValue(label)}"]`;
-  const matches = [...document.querySelectorAll(selector)];
-  const visible = matches.filter(
-    (el) => !el.closest('.MuiOutlinedInput-notchedOutline')
-  );
-  if (present) {
-    expect(visible.length).toBeGreaterThan(0);
-  } else {
-    expect(matches).toHaveLength(0);
-  }
+  expect(document.querySelectorAll(selector)).toHaveLength(0);
 }
 
-describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
-  it('mysql_backups-like create form: icons on described fields only', () => {
+describe('SchemaFormRenderer — cross-plugin helper-text spot-check', () => {
+  it('mysql_backups-like create form: helper text on described fields only', () => {
     const sections: FormSection[] = [
       {
         title: 'Task',
@@ -135,12 +125,24 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
       screen.getByTestId('text-input-xtrabackup_kill_queries_timeout')
     ).toBeInTheDocument();
 
-    expectHelp('Database Host', true);
-    expectHelp('Server Alias', false);
-    expectHelp('Compress backup data', true);
-    expectHelp('Logging directory', false);
-    expectHelp('Safe replica backup', true);
-    expectHelp('Kill-queries timeout (s)', false);
+    expect(
+      screen.getByText('Host the backup connects to on the executor node.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Compress the backup stream as it is written.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Passes --safe-slave-backup so xtrabackup pauses the replica SQL thread during the backup.'
+      )
+    ).toBeInTheDocument();
+
+    expectNoHelpIcon('Database Host');
+    expectNoHelpIcon('Server Alias');
+    expectNoHelpIcon('Compress backup data');
+    expectNoHelpIcon('Logging directory');
+    expectNoHelpIcon('Safe replica backup');
+    expectNoHelpIcon('Kill-queries timeout (s)');
   });
 
   it('atw CollectPane-like form: shared section plus namespaced per-snippet overrides', () => {
@@ -199,6 +201,8 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
     expect(screen.getByTestId('switch-input-sudo')).toBeInTheDocument();
     expect(screen.getByTestId('text-input-minutes')).toBeInTheDocument();
     expect(screen.getByTestId('text-input-note')).toBeInTheDocument();
+    // Collapsible section starts expanded only when collapsed_by_default is unset;
+    // this fixture leaves it open so override fields mount.
     expect(
       screen.getByTestId('text-input-overrides.snip0.path')
     ).toBeInTheDocument();
@@ -206,16 +210,32 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
       screen.getByTestId('text-input-overrides.snip0.threshold')
     ).toBeInTheDocument();
 
-    expectHelp('Execution Host', false);
-    expectHelp('Run with sudo', true);
-    expectHelp('Lookback minutes', true);
-    expectHelp('Operator note', false);
-    expectHelp('Path', true);
-    expectHelp('Threshold %', false);
+    expect(
+      screen.getByText(
+        'Prepend sudo to the interpreter when the snippet is executed.'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Shared window applied to every selected snippet.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Filesystem path to inspect for this snippet only.')
+    ).toBeInTheDocument();
+    // Section prose must not restate field help.
+    expect(
+      screen.queryByText('Reports free space on the executor host.')
+    ).not.toBeInTheDocument();
+
+    expectNoHelpIcon('Execution Host');
+    expectNoHelpIcon('Run with sudo');
+    expectNoHelpIcon('Lookback minutes');
+    expectNoHelpIcon('Operator note');
+    expectNoHelpIcon('Path');
+    expectNoHelpIcon('Threshold %');
   });
 
-  it('snippet-execution form: user-authored params drive help icons', () => {
-    // SnippetExecutionAccordion: user-authored params + Execution (sudo described, host not).
+  it('snippet-execution form: user-authored params drive helper text once', () => {
+    // SnippetExecutionAccordion: user-authored params + Execution.
     const sections: FormSection[] = [
       {
         title: 'Parameters',
@@ -232,7 +252,7 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
             name: 'format',
             label: 'Output format',
             description: 'How to render the snippet result.',
-            // >3 choices use the select shell (help icon); ≤3 use radios + caption.
+            // >3 choices use the select shell; ≤3 use radios + caption.
             choices: [
               { label: 'Plain text', value: 'text' },
               { label: 'JSON', value: 'json' },
@@ -281,12 +301,25 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
     expect(screen.getByLabelText(/Execution Host/i)).toBeInTheDocument();
     expect(screen.getByTestId('switch-input-sudo')).toBeInTheDocument();
 
-    expectHelp('Table Name', true);
-    expectHelp('Database Name', false);
-    expectHelp('Output format', true);
-    expectHelp('Verbose', true);
-    expectHelp('Row limit', false);
-    expectHelp('Execution Host', false);
-    expectHelp('Run with sudo', true);
+    expect(
+      screen.getByText('Table to inspect on the executor host.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('How to render the snippet result.')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Increase output verbosity.')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Prepend sudo to the interpreter when the snippet is executed.'
+      )
+    ).toBeInTheDocument();
+
+    expectNoHelpIcon('Table Name');
+    expectNoHelpIcon('Database Name');
+    expectNoHelpIcon('Output format');
+    expectNoHelpIcon('Verbose');
+    expectNoHelpIcon('Row limit');
+    expectNoHelpIcon('Execution Host');
+    expectNoHelpIcon('Run with sudo');
   });
 });

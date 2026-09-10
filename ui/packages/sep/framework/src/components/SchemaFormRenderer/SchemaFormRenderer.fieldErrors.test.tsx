@@ -81,19 +81,13 @@ describe('SchemaFormRenderer field errors', () => {
     // Integer (helperText) field also surfaces its mapped error.
     expect(screen.getByText('must be positive')).toBeInTheDocument();
     expect(screen.queryByText('Max rows')).not.toBeInTheDocument();
-    // Help icons remain while helperText shows the error; pin count + visible <label>.
+    // Description is helper text only — no restating help icon while errors show.
     expect(document.querySelectorAll('[data-help-for="Title"]')).toHaveLength(
-      2
+      0
     );
     expect(
-      document.querySelectorAll('label [data-help-for="Title"]')
-    ).toHaveLength(1);
-    expect(
       document.querySelectorAll('[data-help-for="Row Limit"]')
-    ).toHaveLength(2);
-    expect(
-      document.querySelectorAll('label [data-help-for="Row Limit"]')
-    ).toHaveLength(1);
+    ).toHaveLength(0);
     // The persistent banner is rendered.
     expect(screen.getByText(/Failed/)).toBeInTheDocument();
   });
@@ -173,7 +167,6 @@ describe('SchemaFormRenderer field errors', () => {
 
     // Empty the required title field, then resubmit: the client-side gate blocks
     // the submit, so the eager clear must not drop `limit`'s inline highlight.
-    // Prefer role+name: getByLabelText(/Title/) also matches "Help for Title".
     await user.clear(screen.getByRole('textbox', { name: /Title/ }));
     await user.click(screen.getByRole('button', { name: 'Run' }));
 
