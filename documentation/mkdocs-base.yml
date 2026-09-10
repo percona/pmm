@@ -51,8 +51,6 @@ theme:
     - content.action.view
 
 extra_css:
-  - https://unicons.iconscout.com/release/v4.0.8/css/line.css
-  - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
   - css/nocopy.css
   - css/design.css
   - css/osano.css
@@ -130,8 +128,6 @@ plugins:
 extra:
   version:
     provider: mike
-  edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
-  updated_text: '<i class="uil uil-refresh"></i> Page updated'
 
 # Common navigation for percona.com, render.com and PDFnav:
 nav:

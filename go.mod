@@ -18,7 +18,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.46.0
 	github.com/aws/aws-sdk-go-v2/config v1.33.2
 	github.com/aws/aws-sdk-go-v2/credentials v1.20.2
-	github.com/aws/aws-sdk-go-v2/service/rds v1.127.0
+	github.com/aws/aws-sdk-go-v2/service/rds v1.128.0
 	github.com/aws/smithy-go v1.28.1
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.28.0
@@ -76,7 +76,7 @@ require (
 	golang.org/x/tools v0.49.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260803160001-6ac0973c030d
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260803160001-6ac0973c030d
-	google.golang.org/grpc v1.83.1
+	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/mgo.v2 v2.0.0-20190816093944-a6b53ec6cb22
 	gopkg.in/reform.v1 v1.5.1
@@ -119,11 +119,11 @@ require (
 	github.com/apache/skywalking-eyes v0.8.0 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.19.1 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.1 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.1 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.5.2 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.8.2 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.5.1 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.13.19 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.1 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.14.2 // indirect
 	github.com/aws/aws-sdk-go-v2/service/signin v1.8.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/sso v1.36.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.41.0 // indirect
