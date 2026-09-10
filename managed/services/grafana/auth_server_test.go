@@ -343,15 +343,21 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 
 	//nolint:paralleltest
 	t.Run("shall not add any filters if at least one role has full access", func(t *testing.T) {
-		rw := httptest.NewRecorder()
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
-		require.NoError(t, err)
+		for _, uri := range []string{
+			"/prometheus/api/v1/",
+			"/graph/api/datasources/proxy/1/api/v1/query",
+			"/graph/api/datasources/proxy/uid/PA58DA793C7250F1B/api/v1/query",
+		} {
+			rw := httptest.NewRecorder()
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+			require.NoError(t, err)
 
-		err = s.maybeAddLBACFilters(ctx, rw, req, 1339, logrus.WithField("test", t.Name()))
-		require.NoError(t, err)
+			err = s.maybeAddLBACFilters(ctx, rw, req, 1339, logrus.WithField("test", t.Name()))
+			require.NoError(t, err)
 
-		headerString := rw.Header().Get(lbacHeaderName)
-		require.Empty(t, headerString)
+			headerString := rw.Header().Get(lbacHeaderName)
+			require.Emptyf(t, headerString, "uri=%s", uri)
+		}
 	})
 }
 
