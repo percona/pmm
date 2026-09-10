@@ -18,7 +18,7 @@
 import { memo } from 'react';
 import Box from '@mui/material/Box';
 import { FieldRenderer } from './fields';
-import { fieldIndex, isFullRowField } from './fieldLayout';
+import { fieldIndex } from './fieldLayout';
 import { useFormFields } from './formFieldsContext';
 import { useConditionalField } from './hooks/useConditionalField';
 import type { PluginField, RenderFieldOverride } from './types';
@@ -26,12 +26,19 @@ import type { PluginField, RenderFieldOverride } from './types';
 export const ConditionalFieldSlot = memo(function ConditionalFieldSlot({
   field,
   renderField,
+  markOptional = false,
 }: {
   field: PluginField;
   renderField?: RenderFieldOverride;
+  /**
+   * Spell out "(optional)" on a field that is not required. Set by the section
+   * when its required fields outnumber its optional ones, where a missing
+   * asterisk is the only thing distinguishing them and is easy to miss.
+   */
+  markOptional?: boolean;
 }) {
   const { isHidden, isRequired, isDisabled } = useConditionalField(field);
-  const { parentNames, byName } = fieldIndex(useFormFields());
+  const { byName } = fieldIndex(useFormFields());
   const parentLabel = field.parent
     ? (byName.get(field.parent)?.label ?? field.parent)
     : undefined;
@@ -40,19 +47,22 @@ export const ConditionalFieldSlot = memo(function ConditionalFieldSlot({
     return null;
   }
 
+  const showOptional = markOptional && !isRequired;
   const resolvedField =
-    Boolean(field.required) !== isRequired
-      ? { ...field, required: isRequired }
+    Boolean(field.required) !== isRequired || showOptional
+      ? {
+          ...field,
+          required: isRequired,
+          label: showOptional ? `${field.label} (optional)` : field.label,
+        }
       : field;
   const renderDefault = () => <FieldRenderer field={resolvedField} />;
   const content =
     renderField?.({ field: resolvedField, renderDefault }) ?? renderDefault();
 
-  const gridColumn = isFullRowField(field, parentNames) ? '1 / -1' : 'auto';
-
   if (!field.parent) {
     return (
-      <Box sx={{ mb: 2, gridColumn }} data-field-name={field.name}>
+      <Box sx={{ mb: 2 }} data-field-name={field.name}>
         {content}
       </Box>
     );
@@ -70,7 +80,6 @@ export const ConditionalFieldSlot = memo(function ConditionalFieldSlot({
       data-field-name={field.name}
       data-parent-field={field.parent}
       sx={{
-        gridColumn,
         m: 0,
         mb: 2,
         ml: 1,

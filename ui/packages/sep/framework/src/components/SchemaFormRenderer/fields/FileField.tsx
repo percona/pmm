@@ -54,7 +54,7 @@ export function FileField({ field }: FileFieldProps) {
           size="small"
           value={rhf.value instanceof File ? rhf.value.name : ''}
           error={!!error}
-          helperText={error ? error.message : field.description}
+          helperText={error?.message}
           slotProps={{
             input: {
               readOnly: true,

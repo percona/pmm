@@ -43,7 +43,6 @@ export function YamlField({ field }: YamlFieldProps) {
         multiline: true,
         rows: field.rows ?? 8,
         placeholder: field.placeholder,
-        helperText: field.description,
         fullWidth: true,
         inputProps: {
           style: { fontFamily: "'Roboto Mono', monospace", fontSize: 13 },

@@ -2735,15 +2735,14 @@ describe('SchemaFormRenderer — one_of groups', () => {
   });
 });
 
-// ── Section groups (PMM-15451) ───────────────────────────────────────────────
+// ── Advanced sections (PMM-15451) ────────────────────────────────────────────
 //
-// A run of adjacent sections sharing `group` collapses into one shell, so a
-// form with many expert sections costs one row at rest instead of one per
-// section. Membership is positional, and a group whose members are all gated
-// out must not leave an empty accordion behind.
+// Expert sections are withheld behind one "Show advanced options" control so
+// the common case fits a screen. The control must never hide something the
+// reader has already put a value in, or an error they have to fix.
 
-describe('SchemaFormRenderer — section groups', () => {
-  const grouped: FormSection[] = [
+describe('SchemaFormRenderer — advanced sections', () => {
+  const sections: FormSection[] = [
     {
       title: 'Task',
       fields: [
@@ -2757,119 +2756,112 @@ describe('SchemaFormRenderer — section groups', () => {
     },
     {
       title: 'General',
-      group: 'Advanced',
+      advanced: true,
       collapsible: true,
       collapsed_by_default: true,
       fields: [{ type: 'string', name: 'logging_dir', label: 'Logging dir' }],
     },
     {
       title: 'Upload',
-      group: 'Advanced',
+      advanced: true,
       collapsible: true,
       collapsed_by_default: true,
       fields: [{ type: 'string', name: 's3_bucket', label: 'S3 bucket' }],
     },
   ];
 
-  it('renders one shell for a run of sections sharing a group', async () => {
+  it('withholds advanced sections behind a single control', async () => {
     const user = userEvent.setup();
     renderWithProviders(
-      <SchemaFormRenderer sections={grouped} onSubmit={() => {}} />
+      <SchemaFormRenderer sections={sections} onSubmit={() => {}} />
     );
 
-    // At rest the two member sections cost a single row.
-    expect(screen.getByText('Advanced')).toBeInTheDocument();
     expect(screen.queryByText('General')).toBeNull();
     expect(screen.queryByText('Upload')).toBeNull();
 
-    await user.click(screen.getByText('Advanced'));
+    await user.click(screen.getByTestId('show-advanced-options'));
 
+    // Revealed as ordinary top-level sections, not nested in a wrapper.
     expect(await screen.findByText('General')).toBeInTheDocument();
     expect(screen.getByText('Upload')).toBeInTheDocument();
+    expect(screen.queryByTestId('show-advanced-options')).toBeNull();
   });
 
-  it('leaves an ungrouped schema rendering exactly as before', () => {
-    const ungrouped = grouped.map(({ group: _group, ...section }) => section);
+  it('renders no control when the schema marks nothing advanced', () => {
+    const plain = sections.map(
+      ({ advanced: _advanced, ...section }) => section
+    );
     renderWithProviders(
-      <SchemaFormRenderer sections={ungrouped} onSubmit={() => {}} />
+      <SchemaFormRenderer sections={plain} onSubmit={() => {}} />
     );
 
-    expect(screen.queryByText('Advanced')).toBeNull();
+    expect(screen.queryByTestId('show-advanced-options')).toBeNull();
     expect(screen.getByText('General')).toBeInTheDocument();
     expect(screen.getByText('Upload')).toBeInTheDocument();
   });
 
-  it('starts two shells for the same group name when the run is broken', () => {
-    const split: FormSection[] = [
-      grouped[0],
-      grouped[1],
-      { title: 'Encryption', fields: [] },
-      grouped[2],
-    ];
-    renderWithProviders(
-      <SchemaFormRenderer sections={split} onSubmit={() => {}} />
-    );
-
-    expect(screen.getAllByText('Advanced')).toHaveLength(2);
-  });
-
-  it('skips the shell when every member is gated out', async () => {
+  it('collects advanced sections wherever they appear, after the rest', async () => {
     const user = userEvent.setup();
-    const gated: FormSection[] = [
-      {
-        title: 'Mode',
-        fields: [
-          {
-            type: 'choice',
-            name: 'backup_type',
-            label: 'Backup Type',
-            choices: [
-              { label: 'Mydumper backup', value: 'M' },
-              { label: 'XtraBackup backup', value: 'X' },
-            ],
-          },
-        ],
-      },
-      {
-        title: 'Mydumper',
-        group: 'Advanced',
-        forbidden: [{ when: { not_equals: { backup_type: 'M' } } }],
-        fields: [
-          {
-            type: 'string',
-            name: 'mydumper_extra_args',
-            label: 'Mydumper args',
-          },
-        ],
-      },
-      {
-        title: 'XtraBackup',
-        group: 'Advanced',
-        forbidden: [{ when: { not_equals: { backup_type: 'X' } } }],
-        fields: [
-          {
-            type: 'string',
-            name: 'xtrabackup_extra_args',
-            label: 'XtraBackup args',
-          },
-        ],
-      },
-    ];
-
+    // Advanced first in the schema, an ordinary section after it.
+    const interleaved: FormSection[] = [sections[1], sections[0], sections[2]];
     renderWithProviders(
-      <SchemaFormRenderer sections={gated} onSubmit={() => {}} />
+      <SchemaFormRenderer sections={interleaved} onSubmit={() => {}} />
     );
 
-    // Nothing picked yet, so both members are hidden and the shell is skipped.
-    expect(screen.queryByText('Advanced')).toBeNull();
+    await user.click(screen.getByTestId('show-advanced-options'));
 
-    await user.click(screen.getByTestId('radio-option-M'));
-
-    // One surviving member is enough to bring the shell back.
-    expect(await screen.findByText('Advanced')).toBeInTheDocument();
+    const headings = (await screen.findAllByRole('group')).map(
+      (el) => el.querySelector('legend')?.textContent
+    );
+    expect(headings).toEqual(['Task', 'General', 'Upload']);
   });
 
-  it('still drops the fields of a gated-out member from the payload', async () => {
+  it('reveals and expands a section that arrives with a value in it', async () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={sections}
+        onSubmit={() => {}}
+        defaultValues={{ s3_bucket: 'saved-bucket' }}
+      />
+    );
+
+    // No click: an edit form must not hide what the task already sets.
+    expect(screen.queryByTestId('show-advanced-options')).toBeNull();
+    const input = await screen.findByLabelText('S3 bucket');
+    expect(input).toHaveValue('saved-bucket');
+  });
+
+  it('leaves the control in place when seeded values match the defaults', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={sections}
+        onSubmit={() => {}}
+        defaultValues={{ s3_bucket: '' }}
+      />
+    );
+
+    expect(screen.getByTestId('show-advanced-options')).toBeInTheDocument();
+  });
+
+  it('reveals and expands a section a backend error points into', async () => {
+    // The realistic case. A required field inside a never-opened section is
+    // never registered, so client-side validation cannot flag it — the error
+    // that lands in an unrevealed section comes back from the server as a 422.
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={sections}
+        onSubmit={() => {}}
+        submitError={'Failed\n• S3 bucket: must not be blank'}
+        fieldErrors={[{ path: 's3_bucket', message: 'must not be blank' }]}
+      />
+    );
+
+    expect(await screen.findByLabelText('S3 bucket')).toBeInTheDocument();
+    expect(screen.queryByTestId('show-advanced-options')).toBeNull();
+    expect(screen.getByText('must not be blank')).toBeInTheDocument();
+  });
+
+  it('still drops a gated-out advanced section from the payload', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
     const gated: FormSection[] = [
@@ -2888,20 +2880,8 @@ describe('SchemaFormRenderer — section groups', () => {
         ],
       },
       {
-        title: 'Mydumper',
-        group: 'Advanced',
-        forbidden: [{ when: { not_equals: { backup_type: 'M' } } }],
-        fields: [
-          {
-            type: 'string',
-            name: 'mydumper_extra_args',
-            label: 'Mydumper args',
-          },
-        ],
-      },
-      {
         title: 'XtraBackup',
-        group: 'Advanced',
+        advanced: true,
         forbidden: [{ when: { not_equals: { backup_type: 'X' } } }],
         fields: [
           {
@@ -2919,7 +2899,6 @@ describe('SchemaFormRenderer — section groups', () => {
         onSubmit={onSubmit}
         defaultValues={{
           backup_type: 'M',
-          mydumper_extra_args: 'kept',
           xtrabackup_extra_args: 'should-not-ship',
         }}
       />
@@ -2928,9 +2907,31 @@ describe('SchemaFormRenderer — section groups', () => {
     await user.click(screen.getByRole('button', { name: /Run/ }));
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
 
-    const payload = onSubmit.mock.calls[0]?.[0];
-    expect(payload).toMatchObject({ mydumper_extra_args: 'kept' });
-    expect(payload).not.toHaveProperty('xtrabackup_extra_args');
+    expect(onSubmit.mock.calls[0]?.[0]).not.toHaveProperty(
+      'xtrabackup_extra_args'
+    );
+  });
+
+  it('hides the control when every advanced section is gated out', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Mode',
+            fields: [{ type: 'bool', name: 'expert', label: 'Expert' }],
+          },
+          {
+            title: 'Extras',
+            advanced: true,
+            forbidden: [{ when: { falsy: 'expert' } }],
+            fields: [{ type: 'string', name: 'extra', label: 'Extra' }],
+          },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(screen.queryByTestId('show-advanced-options')).toBeNull();
   });
 });
 
@@ -3222,21 +3223,6 @@ describe('SchemaFormRenderer — malformed parent/group schemas', () => {
     expect(screen.getByLabelText('A')).toBeDisabled();
     expect(screen.getByLabelText('B')).toBeDisabled();
   });
-
-  it('warns when a group run is broken by an outside section', () => {
-    renderWithProviders(
-      <SchemaFormRenderer
-        sections={[
-          { title: 'General', group: 'Advanced', fields: [] },
-          { title: 'Middle', fields: [] },
-          { title: 'Upload', group: 'Advanced', fields: [] },
-        ]}
-        onSubmit={() => {}}
-      />
-    );
-
-    expect(warnings()).toContain("rejoins group 'Advanced'");
-  });
 });
 
 // ── Payload hygiene inside collapsed shells (PMM-15451) ──────────────────────
@@ -3265,7 +3251,7 @@ describe('SchemaFormRenderer — collapsed shells and the payload', () => {
     },
     {
       title: 'Advanced',
-      group: 'Extras',
+      advanced: true,
       collapsible: true,
       collapsed_by_default: true,
       fields: [
@@ -3326,7 +3312,7 @@ describe('SchemaFormRenderer — collapsed shells and the payload', () => {
         sections={[
           {
             title: 'Advanced',
-            group: 'Extras',
+            advanced: true,
             collapsible: true,
             collapsed_by_default: true,
             fields: [
@@ -3391,5 +3377,51 @@ describe('SchemaFormRenderer — collapsed shells and the payload', () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
 
     expect(onSubmit.mock.calls[0]?.[0]).not.toHaveProperty('tmpdir');
+  });
+});
+
+// ── Marking the odd optional field out (PMM-15451) ───────────────────────────
+
+describe('SchemaFormRenderer — optional marker', () => {
+  it('spells out "(optional)" in a section that is otherwise required', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'Task',
+            fields: [
+              { type: 'string', name: 'a', label: 'Task name', required: true },
+              { type: 'string', name: 'b', label: 'Host', required: true },
+              { type: 'string', name: 'c', label: 'Alias' },
+            ],
+          },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(screen.getByLabelText('Alias (optional)')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Task name/)).toBeInTheDocument();
+  });
+
+  it('marks nothing when optional fields are not the exception', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={[
+          {
+            title: 'General',
+            fields: [
+              { type: 'string', name: 'a', label: 'One', required: true },
+              { type: 'string', name: 'b', label: 'Two' },
+              { type: 'string', name: 'c', label: 'Three' },
+            ],
+          },
+        ]}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(screen.getByLabelText('Two')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Two (optional)')).toBeNull();
   });
 });

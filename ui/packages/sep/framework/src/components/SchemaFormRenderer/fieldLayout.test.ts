@@ -16,7 +16,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { fieldIndex, isFullRowField } from './fieldLayout';
+import { fieldIndex } from './fieldLayout';
 import type { PluginField } from './types';
 
 describe('fieldIndex', () => {
@@ -58,36 +58,5 @@ describe('fieldIndex', () => {
     expect(
       fieldIndex([{ type: 'string', name: 'a', label: 'A' }]).parentNames.size
     ).toBe(0);
-  });
-});
-
-describe('isFullRowField', () => {
-  const scalar: PluginField = { type: 'string', name: 'a', label: 'A' };
-
-  it('puts an ordinary scalar field in one column', () => {
-    expect(isFullRowField(scalar)).toBe(false);
-  });
-
-  it.each(['textarea', 'yaml', 'script_preview', 'multi_choice', 'file'])(
-    'gives %s the whole row',
-    (type) => {
-      expect(
-        isFullRowField({ ...scalar, type } as unknown as PluginField)
-      ).toBe(true);
-    }
-  );
-
-  it('gives a parented child the whole row so it starts a fresh line', () => {
-    expect(isFullRowField({ ...scalar, parent: 'encrypt' })).toBe(true);
-  });
-
-  it('gives a toggle that has children the whole row', () => {
-    const parents = new Set(['encrypt']);
-    expect(
-      isFullRowField({ type: 'bool', name: 'encrypt', label: 'E' }, parents)
-    ).toBe(true);
-    expect(
-      isFullRowField({ type: 'bool', name: 'other', label: 'O' }, parents)
-    ).toBe(false);
   });
 });

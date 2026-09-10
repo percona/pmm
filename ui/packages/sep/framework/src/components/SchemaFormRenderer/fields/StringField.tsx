@@ -41,7 +41,6 @@ export function StringField({ field }: StringFieldProps) {
           />
         ),
         placeholder: field.placeholder,
-        helperText: field.description,
         fullWidth: true,
       }}
       controllerProps={{ rules: buildValidationRules(field) }}

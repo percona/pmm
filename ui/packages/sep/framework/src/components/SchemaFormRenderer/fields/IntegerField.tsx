@@ -41,7 +41,6 @@ export function IntegerField({ field }: IntegerFieldProps) {
           />
         ),
         type: 'number',
-        helperText: field.description,
         fullWidth: true,
         inputProps: {
           min: field.ge,

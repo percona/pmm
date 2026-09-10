@@ -41,7 +41,6 @@ export function DateTimeField({ field }: DateTimeFieldProps) {
           />
         ),
         type: 'datetime-local',
-        helperText: field.description,
         fullWidth: true,
         InputLabelProps: { shrink: true },
       }}

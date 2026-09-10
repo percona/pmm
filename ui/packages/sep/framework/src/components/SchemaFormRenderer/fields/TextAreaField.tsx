@@ -43,7 +43,6 @@ export function TextAreaField({ field }: TextAreaFieldProps) {
         multiline: true,
         rows: field.rows ?? 4,
         placeholder: field.placeholder,
-        helperText: field.description,
         fullWidth: true,
       }}
       controllerProps={{ rules: buildValidationRules(field) }}

@@ -323,14 +323,23 @@ export interface FormSection {
   description?: string;
   fields: SectionField[];
   /**
-   * Heading of the collapsible group this section belongs to (for example
-   * `Advanced`). Runs of adjacent sections carrying the same value render
-   * inside one collapsed shell titled by it, so a form with many secondary
-   * sections costs one row instead of one per section. A section keeps its own
-   * `collapsible` / `collapsed_by_default` behaviour inside the group. Unset
-   * (the default) renders the section on its own, as before.
+   * Whether this section holds expert options rather than the common case.
+   *
+   * Advanced sections are withheld behind a single "Show advanced options"
+   * control rendered after the ordinary ones, so a form with many expert
+   * sections costs one row at rest instead of one per section. Revealing them
+   * renders each as an ordinary top-level section — deliberately not nested
+   * inside a wrapper, which reads as one disclosure level too many.
+   *
+   * The renderer reveals them on its own, and expands the section concerned,
+   * whenever one holds a value other than its schema default or a field
+   * carrying a validation error: an option someone has already set must never
+   * be hidden from them. In practice the error case means a backend 422 — a
+   * field inside a section that was never opened is never registered, so
+   * client-side validation cannot flag it. Order is preserved, and advanced
+   * sections render after the ordinary ones wherever they sit in `forms`.
    */
-  group?: string;
+  advanced?: boolean;
   /** Whether the section is wrapped in an expandable/collapsible shell. */
   collapsible?: boolean;
   /** Initial expansion state when collapsible is enabled. */

@@ -41,7 +41,6 @@ export function FloatField({ field }: FloatFieldProps) {
           />
         ),
         type: 'number',
-        helperText: field.description,
         fullWidth: true,
         inputProps: {
           min: field.ge,

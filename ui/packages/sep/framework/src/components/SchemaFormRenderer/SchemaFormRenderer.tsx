@@ -22,6 +22,7 @@ import {
   useEffect,
   useMemo,
   useRef,
+  useState,
   type FormEvent,
 } from 'react';
 import {
@@ -56,7 +57,6 @@ import {
 } from '../AlertOnFailField';
 import { ConditionalFieldSlot } from './ConditionalFieldSlot';
 import { useFieldPayloadCleanup } from './hooks/useConditionalField';
-import { SECTION_GRID_SX } from './fieldLayout';
 import { OneOfGroupSlot } from './OneOfGroupSlot';
 import {
   useConditionalSections,
@@ -67,7 +67,6 @@ import { useFailRules } from './hooks/useFailRules';
 import { useUnsavedChangesGuard } from './hooks/useUnsavedChangesGuard';
 import { coerceFormValues } from './utils/validationMapper';
 import { fieldDefault } from './utils/fieldDefault';
-import { warnSchema } from './utils/schemaWarnings';
 import { getAtPath, setAtPath } from './utils/fieldPath';
 import {
   collectOneOfGroups,
@@ -137,46 +136,63 @@ interface SectionEntry {
 }
 
 /**
- * A run of adjacent sections sharing a `group`, or a single ungrouped section.
- * Grouping is positional so a schema controls membership by section order,
- * the same way it already controls section order itself.
+ * Split sections into the ones a form opens on and the expert ones withheld
+ * behind the reveal control, preserving each group's own order.
+ *
+ * Advanced sections are collected wherever they appear rather than having to be
+ * adjacent, so a schema controls membership with one flag and nothing depends
+ * on where the fields happen to be declared on the model.
  */
-type SectionRenderItem =
-  | { kind: 'section'; entry: SectionEntry }
-  | { kind: 'group'; title: string; entries: SectionEntry[] };
-
-function groupAdjacentSections(
-  entries: SectionEntry[],
-  // Shared across the before- and after-submit passes: a group whose members
-  // straddle that boundary is adjacent by the documented rule yet renders as
-  // two shells, which is exactly what this warns about.
-  opened: Set<string>
-): SectionRenderItem[] {
-  const items: SectionRenderItem[] = [];
+function partitionAdvanced(entries: SectionEntry[]): {
+  standard: SectionEntry[];
+  advanced: SectionEntry[];
+} {
+  const standard: SectionEntry[] = [];
+  const advanced: SectionEntry[] = [];
   for (const entry of entries) {
-    const group = entry.section.group;
-    if (!group) {
-      items.push({ kind: 'section', entry });
-      continue;
-    }
-    const last = items[items.length - 1];
-    if (last?.kind === 'group' && last.title === group) {
-      last.entries.push(entry);
-      continue;
-    }
-    if (opened.has(group)) {
-      // Two shells with the same heading is never what an author meant; it
-      // means a section was inserted into the middle of the run.
-      warnSchema(
-        `section '${entry.section.title}' rejoins group '${group}' after a ` +
-          `section outside it, so the group renders as two separate shells. ` +
-          `Group members have to be adjacent in the schema's section order.`
-      );
-    }
-    opened.add(group);
-    items.push({ kind: 'group', title: group, entries: [entry] });
+    (entry.section.advanced ? advanced : standard).push(entry);
   }
-  return items;
+  return { standard, advanced };
+}
+
+/**
+ * Whether a section holds a value that differs from what the schema would have
+ * pre-filled, judged against the values the form opened with.
+ *
+ * Read once, from the caller's `defaultValues`, rather than watched: this
+ * decides whether an *unopened* advanced section has something in it worth
+ * revealing, and a value the user has just typed means they opened it already.
+ */
+function sectionHasNonDefaultValue(
+  section: FormSection,
+  defaultValues: Record<string, unknown> | undefined
+): boolean {
+  if (!defaultValues) {
+    return false;
+  }
+  return flattenSectionFields([section]).some((field) => {
+    const seeded = getAtPath(defaultValues, field.name);
+    if (seeded === undefined) {
+      return false;
+    }
+    return !Object.is(seeded, fieldDefault(field));
+  });
+}
+
+/**
+ * Whether any field in a section currently carries a validation error.
+ *
+ * In an unrevealed section that means a backend error applied through
+ * `setError`: an unmounted field is never registered, so react-hook-form's own
+ * validation has nothing to run against it.
+ */
+function sectionHasError(
+  section: FormSection,
+  errors: FieldErrors<Record<string, unknown>>
+): boolean {
+  return flattenSectionFields([section]).some((field) =>
+    Boolean(get(errors, field.name))
+  );
 }
 
 interface SectionRendererProps {
@@ -185,8 +201,13 @@ interface SectionRendererProps {
   isHidden: boolean;
   violations: Array<{ message: string }>;
   renderField?: RenderFieldOverride;
-  /** Rendered inside a group shell: drop the outer chrome the group provides. */
-  nested?: boolean;
+  /**
+   * Open a collapsible section that would otherwise start collapsed, because
+   * it holds something the reader needs to see. Raising this later — when a
+   * submit puts an error inside a collapsed section — opens it then; the
+   * reader can still collapse it again afterwards.
+   */
+  forceExpanded?: boolean;
 }
 
 const SectionRenderer = memo(function SectionRenderer({
@@ -195,8 +216,26 @@ const SectionRenderer = memo(function SectionRenderer({
   isHidden,
   violations,
   renderField,
-  nested = false,
+  forceExpanded = false,
 }: SectionRendererProps) {
+  const [expanded, setExpanded] = useState(
+    !section.collapsed_by_default || forceExpanded
+  );
+
+  useEffect(() => {
+    if (forceExpanded) {
+      setExpanded(true);
+    }
+  }, [forceExpanded]);
+
+  // Mark the odd optional field out in a section that is otherwise required —
+  // the absence of an asterisk is easy to miss when every neighbour has one.
+  const markOptional = useMemo(() => {
+    const leaves = section.fields.filter((f) => !isOneOfGroup(f));
+    const required = leaves.filter((f) => f.required).length;
+    return required > leaves.length - required;
+  }, [section.fields]);
+
   if (isHidden) {
     return null;
   }
@@ -213,42 +252,41 @@ const SectionRenderer = memo(function SectionRenderer({
           {v.message}
         </Alert>
       ))}
-      <Box sx={SECTION_GRID_SX}>
-        {section.fields.map((field) =>
-          isOneOfGroup(field) ? (
-            <OneOfGroupSlot
-              key={field.name}
-              group={field}
-              renderField={renderField}
-            />
-          ) : (
-            <ConditionalFieldSlot
-              key={field.name}
-              field={field}
-              renderField={renderField}
-            />
-          )
-        )}
-      </Box>
+      {section.fields.map((field) =>
+        isOneOfGroup(field) ? (
+          <OneOfGroupSlot
+            key={field.name}
+            group={field}
+            renderField={renderField}
+          />
+        ) : (
+          <ConditionalFieldSlot
+            key={field.name}
+            field={field}
+            renderField={renderField}
+            markOptional={markOptional}
+          />
+        )
+      )}
     </>
   );
 
   // A collapsed shell already draws its own rule, and stacking several of them
   // is the bulk of an expert-heavy form's resting height — so no divider above
   // one, and a tighter gap between them.
-  const showDivider = !nested && idx > 0 && !section.collapsible;
+  const showDivider = idx > 0 && !section.collapsible;
 
   return (
     <Box
       component="fieldset"
-      sx={{ border: 0, p: 0, mb: section.collapsible || nested ? 1 : 3 }}
+      sx={{ border: 0, p: 0, mb: section.collapsible ? 1 : 3 }}
     >
       {showDivider && <Divider sx={{ mb: 2 }} />}
       {section.collapsible ? (
         <Accordion
-          defaultExpanded={!section.collapsed_by_default}
+          expanded={expanded}
+          onChange={(_, isExpanded) => setExpanded(isExpanded)}
           disableGutters
-          variant={nested ? 'outlined' : undefined}
           slotProps={{ transition: { unmountOnExit: true } }}
         >
           <AccordionSummary
@@ -274,11 +312,7 @@ const SectionRenderer = memo(function SectionRenderer({
         </Accordion>
       ) : (
         <>
-          <Typography
-            component="legend"
-            variant={nested ? 'subtitle1' : 'h6'}
-            sx={{ mb: 1, px: 0, fontWeight: nested ? 600 : undefined }}
-          >
+          <Typography component="legend" variant="h6" sx={{ mb: 1, px: 0 }}>
             {section.title}
           </Typography>
           {sectionContent}
@@ -288,75 +322,29 @@ const SectionRenderer = memo(function SectionRenderer({
   );
 });
 
-interface SectionGroupProps {
-  title: string;
-  entries: SectionEntry[];
-  /** Hidden flags positionally matching {@link entries}. */
-  hidden: boolean[];
-  /** Section violations positionally matching {@link entries}. */
-  violations: Array<Array<{ message: string }>>;
-  renderField?: RenderFieldOverride;
-}
-
 /**
- * One collapsed shell over a run of sections.
+ * The control that reveals a form's advanced sections.
  *
- * When every member is hidden the shell is skipped rather than left standing
- * empty. Members are still rendered in that case so the tree shape does not
- * change; they each return null. Note that a *collapsed* shell mounts no
- * members at all (`unmountOnExit`), which is why nothing here may be
- * responsible for keeping gated-out values out of the payload — the form body
- * owns that, for sections and fields alike.
+ * A link-style button rather than another accordion: the sections it reveals
+ * are themselves collapsible, and wrapping them in a further shell puts the
+ * common case two disclosures deep. Once revealed it stays out of the way —
+ * there is no "hide again", because collapsing a section the reader has
+ * already put a value in is the behaviour this whole control exists to avoid.
  */
-function SectionGroup({
-  title,
-  entries,
-  hidden,
-  violations,
-  renderField,
-}: SectionGroupProps) {
-  const members = entries.map((entry, i) => (
-    <SectionRenderer
-      key={`${entry.section.title}-${entry.index}`}
-      section={entry.section}
-      idx={i}
-      isHidden={hidden[i] ?? false}
-      violations={violations[i] ?? []}
-      renderField={renderField}
-      nested
-    />
-  ));
-
-  if (hidden.every(Boolean)) {
-    return <>{members}</>;
-  }
-
+function AdvancedReveal({ onReveal }: { onReveal: () => void }) {
   return (
-    <Box component="fieldset" sx={{ border: 0, p: 0, mb: 1 }}>
-      <Accordion
-        defaultExpanded={false}
-        disableGutters
-        slotProps={{ transition: { unmountOnExit: true } }}
+    <Box sx={{ mb: 3 }}>
+      <Button
+        type="button"
+        variant="text"
+        size="small"
+        onClick={onReveal}
+        startIcon={<ExpandMoreIcon />}
+        data-testid="show-advanced-options"
+        sx={{ px: 0.5 }}
       >
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          sx={{
-            pl: 2,
-            pr: 1,
-            minHeight: 48,
-            '& .MuiAccordionSummary-content': { my: 1 },
-          }}
-        >
-          <Typography
-            component="legend"
-            variant="subtitle1"
-            sx={{ fontWeight: 600 }}
-          >
-            {title}
-          </Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ pl: 2, pr: 2 }}>{members}</AccordionDetails>
-      </Accordion>
+        Show advanced options
+      </Button>
     </Box>
   );
 }
@@ -437,6 +425,7 @@ function SchemaFormBody({
   onSubmit,
   submitLabel = 'Run',
   loading = false,
+  defaultValues,
   submitError,
   fieldErrors,
   capabilities,
@@ -481,20 +470,52 @@ function SchemaFormBody({
   // gated out, and `buildFormDefaults` has already seeded them.
   useUnregisterHiddenSections(sections, hiddenSections);
   useFieldPayloadCleanup(allFields);
-  const [beforeSubmitItems, afterSubmitItems] = useMemo(() => {
-    const entries = sections.map((section, index) => ({ section, index }));
-    const opened = new Set<string>();
-    return [
-      groupAdjacentSections(
-        entries.filter(({ section }) => !section.render_after_submit),
-        opened
+  const { standardEntries, advancedEntries, afterSubmitEntries } =
+    useMemo(() => {
+      const entries = sections.map((section, index) => ({ section, index }));
+      const { standard, advanced } = partitionAdvanced(
+        entries.filter(({ section }) => !section.render_after_submit)
+      );
+      return {
+        standardEntries: standard,
+        advancedEntries: advanced,
+        afterSubmitEntries: entries.filter(
+          ({ section }) => section.render_after_submit
+        ),
+      };
+    }, [sections]);
+
+  // An advanced section arriving with a value already in it — an edit form, or
+  // a task cloned from another — must not be hidden behind the reveal.
+  const seededAdvanced = useMemo(
+    () =>
+      new Set(
+        advancedEntries
+          .filter(({ section }) =>
+            sectionHasNonDefaultValue(section, defaultValues)
+          )
+          .map(({ index }) => index)
       ),
-      groupAdjacentSections(
-        entries.filter(({ section }) => section.render_after_submit),
-        opened
+    [advancedEntries, defaultValues]
+  );
+  const erroredAdvanced = useMemo(
+    () =>
+      new Set(
+        advancedEntries
+          .filter(({ section }) => sectionHasError(section, formState.errors))
+          .map(({ index }) => index)
       ),
-    ];
-  }, [sections]);
+    [advancedEntries, formState.errors]
+  );
+  const [advancedRevealed, setAdvancedRevealed] = useState(false);
+  // Reveal, never re-hide: a submit that puts an error in an advanced section
+  // has to show it, and pulling the section back once the reader fixes it
+  // would move the ground under them.
+  const showAdvanced =
+    advancedRevealed || seededAdvanced.size > 0 || erroredAdvanced.size > 0;
+  const visibleAdvanced = advancedEntries.filter(
+    ({ index }) => !(hiddenSections[index] ?? false)
+  );
   const cardinalityViolations = useCardinalityRules(sections);
   const failViolations = useFailRules(sections);
 
@@ -516,37 +537,23 @@ function SchemaFormBody({
   );
   const hasInlineErrors = Object.keys(formState.errors).length > 0;
 
-  const renderItem = (
-    item: SectionRenderItem,
+  const renderSection = (
+    entry: SectionEntry,
     idx: number,
     keyPrefix: string
-  ) => {
-    if (item.kind === 'group') {
-      return (
-        <SectionGroup
-          key={`${keyPrefix}-group-${item.title}-${idx}`}
-          title={item.title}
-          entries={item.entries}
-          hidden={item.entries.map((e) => hiddenSections[e.index] ?? false)}
-          violations={item.entries.map(
-            (e) => violationsBySection.get(e.section) ?? []
-          )}
-          renderField={renderField}
-        />
-      );
-    }
-    const { entry } = item;
-    return (
-      <SectionRenderer
-        key={`${keyPrefix}-${entry.section.title}-${entry.index}`}
-        section={entry.section}
-        idx={idx}
-        isHidden={hiddenSections[entry.index] ?? false}
-        violations={violationsBySection.get(entry.section) ?? []}
-        renderField={renderField}
-      />
-    );
-  };
+  ) => (
+    <SectionRenderer
+      key={`${keyPrefix}-${entry.section.title}-${entry.index}`}
+      section={entry.section}
+      idx={idx}
+      isHidden={hiddenSections[entry.index] ?? false}
+      violations={violationsBySection.get(entry.section) ?? []}
+      renderField={renderField}
+      forceExpanded={
+        seededAdvanced.has(entry.index) || erroredAdvanced.has(entry.index)
+      }
+    />
+  );
 
   const handleFormSubmit: SubmitHandler<Record<string, unknown>> = (values) => {
     onSubmit(coerceFormValues(values, allFields));
@@ -616,7 +623,18 @@ function SchemaFormBody({
           </Alert>
         )}
 
-        {beforeSubmitItems.map((item, idx) => renderItem(item, idx, 'before'))}
+        {standardEntries.map((entry, idx) =>
+          renderSection(entry, idx, 'standard')
+        )}
+
+        {visibleAdvanced.length > 0 &&
+          (showAdvanced ? (
+            visibleAdvanced.map((entry, idx) =>
+              renderSection(entry, standardEntries.length + idx, 'advanced')
+            )
+          ) : (
+            <AdvancedReveal onReveal={() => setAdvancedRevealed(true)} />
+          ))}
 
         {capabilities?.alert_on_fail && (
           <Box sx={{ mb: 2 }}>
@@ -635,10 +653,10 @@ function SchemaFormBody({
           {submitLabel}
         </Button>
 
-        {afterSubmitItems.length > 0 ? (
+        {afterSubmitEntries.length > 0 ? (
           <Box sx={{ mt: 3 }}>
-            {afterSubmitItems.map((item, idx) =>
-              renderItem(item, idx, 'after')
+            {afterSubmitEntries.map((entry, idx) =>
+              renderSection(entry, idx, 'after')
             )}
           </Box>
         ) : null}

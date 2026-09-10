@@ -17,52 +17,6 @@
 
 import type { PluginField } from './types';
 
-/**
- * Sections lay their fields out on a two-column grid above `md`, which is the
- * difference between a form the common case can read at a glance and one that
- * scrolls. Single-column below that, so the layout still works in a narrow
- * pane.
- */
-export const SECTION_GRID_SX = {
-  display: 'grid',
-  gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
-  columnGap: 2,
-} as const;
-
-/**
- * Field types that read badly at half width — long free text, a code pane, or
- * a chip list that wraps as soon as it is narrowed.
- */
-const FULL_ROW_TYPES: ReadonlySet<PluginField['type']> = new Set([
-  'textarea',
-  'yaml',
-  'script_preview',
-  'multi_choice',
-  'file',
-]);
-
-/**
- * Whether a field claims the whole grid row rather than one column.
- *
- * `parentNames` are the fields some other field points at with `parent`; a
- * toggle with children takes a full row so its children land directly beneath
- * it rather than under whatever happened to share its row.
- */
-export function isFullRowField(
-  field: PluginField,
-  parentNames?: ReadonlySet<string>
-): boolean {
-  // A nested child sits under its parent, so it has to start on a fresh row —
-  // half of one would read as a sibling of whatever shares the row.
-  if (field.parent) {
-    return true;
-  }
-  if (parentNames?.has(field.name)) {
-    return true;
-  }
-  return FULL_ROW_TYPES.has(field.type);
-}
-
 /** What one pass over a form's fields yields for the layout to read back. */
 interface FieldIndex {
   /** Names some field declares as its `parent`. */
