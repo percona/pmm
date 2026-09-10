@@ -1,17 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import {
+  getMysqlBackupsScheduleWarning,
   getMysqlBackupsTaskExecuteActions,
   getMysqlRestoreConfirmDetails,
   isMysqlRestoreTask,
-  MysqlRestoreExecuteConfirmContent,
+  MysqlRestoreConfirmContent,
 } from './restoreExecuteConfirm';
 
 describe('isMysqlRestoreTask', () => {
   it('detects restores via related-app plugin name', () => {
-    expect(
-      isMysqlRestoreTask({ name: 'r1' }, 'mysql_backups/restore')
-    ).toBe(true);
+    expect(isMysqlRestoreTask({ name: 'r1' }, 'mysql_backups/restore')).toBe(
+      true
+    );
   });
 
   it('detects restores via stored overwrite_tables', () => {
@@ -154,10 +155,53 @@ describe('getMysqlBackupsTaskExecuteActions', () => {
   });
 });
 
-describe('MysqlRestoreExecuteConfirmContent', () => {
+describe('getMysqlBackupsScheduleWarning', () => {
+  it('returns undefined for non-restore plugins', () => {
+    expect(
+      getMysqlBackupsScheduleWarning('backup-1', {
+        pluginName: 'mysql_backups',
+        tasks: [{ name: 'backup-1' }],
+      })
+    ).toBeUndefined();
+  });
+
+  it('returns schedule confirm content for restore plugin tasks', () => {
+    const warning = getMysqlBackupsScheduleWarning('test-myloader', {
+      pluginName: 'mysql_backups/restore',
+      tasks: [
+        {
+          name: 'test-myloader',
+          host: '10.30.50.130',
+          port: 3306,
+          data: {
+            _form: {
+              backup_source: '/backups/latest',
+              schema_id: 'demo',
+              overwrite_tables: true,
+            },
+          },
+        },
+      ],
+    });
+
+    expect(warning).toBeTruthy();
+    render(<>{warning}</>);
+    expect(
+      screen.getByTestId('mysql-restore-schedule-confirm')
+    ).toHaveTextContent('schedule this restore');
+    expect(
+      screen.getByTestId('mysql-restore-schedule-confirm')
+    ).toHaveTextContent('Source backup: /backups/latest');
+    expect(
+      screen.getByTestId('mysql-restore-overwrite-alert')
+    ).toBeInTheDocument();
+  });
+});
+
+describe('MysqlRestoreConfirmContent', () => {
   it('renders source, target, and overwrite warning when overwriting', () => {
     render(
-      <MysqlRestoreExecuteConfirmContent
+      <MysqlRestoreConfirmContent
         details={{
           source: '/backups/latest',
           targetHost: '10.30.50.130:3306',
@@ -179,7 +223,7 @@ describe('MysqlRestoreExecuteConfirmContent', () => {
 
   it('omits overwrite alert when overwrite is off', () => {
     render(
-      <MysqlRestoreExecuteConfirmContent
+      <MysqlRestoreConfirmContent
         details={{
           source: '/b',
           targetHost: 'h',

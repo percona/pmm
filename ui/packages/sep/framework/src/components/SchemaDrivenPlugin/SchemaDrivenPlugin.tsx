@@ -86,6 +86,17 @@ interface SchemaDrivenPluginProps {
     task: Record<string, unknown>,
     context: { pluginName: string }
   ) => TaskExecuteAction[] | undefined;
+  /**
+   * Resolve schedule confirmation content for a selected plugin task.
+   * Threaded to the schedule page when the plugin opts into scheduling.
+   */
+  getScheduleWarning?: (
+    taskName: string,
+    context: {
+      pluginName: string;
+      tasks: Record<string, unknown>[];
+    }
+  ) => ReactNode | undefined;
   /** Task names whose execution history should appear on the Execution History tab. */
   getTaskHistoryNames?: (task: Record<string, unknown>) => string[] | undefined;
   /** Extra overview content on single-task detail pages. */
@@ -306,6 +317,7 @@ export function SchemaDrivenPlugin({
   browseOnly = false,
   suppressDetailKeys,
   getTaskExecuteActions,
+  getScheduleWarning,
   getTaskHistoryNames,
   renderTaskDetailChildren,
   hideEntityTabs = false,
@@ -429,6 +441,7 @@ export function SchemaDrivenPlugin({
     browseOnly,
     suppressDetailKeys,
     getTaskExecuteActions,
+    getScheduleWarning,
     getTaskHistoryNames,
     renderTaskDetailChildren,
     hideEntityTabs,
@@ -492,7 +505,12 @@ export function SchemaDrivenPlugin({
       {schema.capabilities?.scheduling && (
         <Route
           path="schedule"
-          element={<PluginSchedulePage pluginName={pluginName} />}
+          element={
+            <PluginSchedulePage
+              pluginName={pluginName}
+              getScheduleWarning={getScheduleWarning}
+            />
+          }
         />
       )}
       {showDetailRoutes && (

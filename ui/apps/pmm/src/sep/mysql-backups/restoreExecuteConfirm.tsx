@@ -101,17 +101,26 @@ function ConfirmRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-/** Rich execute-dialog body naming source, target, and overwrite behaviour. */
-export function MysqlRestoreExecuteConfirmContent({
+/** Rich confirm body naming source, target, and overwrite behaviour. */
+export function MysqlRestoreConfirmContent({
   details,
+  mode = 'execute',
 }: {
   details: MysqlRestoreConfirmDetails;
+  mode?: 'execute' | 'schedule';
 }): ReactNode {
+  const intro =
+    mode === 'schedule'
+      ? 'You are about to schedule this restore. Confirm the target before continuing.'
+      : 'You are about to run this restore. Confirm the target before continuing.';
+  const testId =
+    mode === 'schedule'
+      ? 'mysql-restore-schedule-confirm'
+      : 'mysql-restore-execute-confirm';
+
   return (
-    <Stack spacing={1.5} data-testid="mysql-restore-execute-confirm">
-      <Typography variant="body2">
-        You are about to run this restore. Confirm the target before continuing.
-      </Typography>
+    <Stack spacing={1.5} data-testid={testId}>
+      <Typography variant="body2">{intro}</Typography>
       <Stack spacing={0.5}>
         <ConfirmRow label="Source backup" value={details.source} />
         <ConfirmRow label="Target host" value={details.targetHost} />
@@ -151,7 +160,32 @@ export function getMysqlBackupsTaskExecuteActions(
       label: 'Execute',
       taskName,
       testId: 'mysql-restore-execute',
-      confirmContent: <MysqlRestoreExecuteConfirmContent details={details} />,
+      confirmContent: (
+        <MysqlRestoreConfirmContent details={details} mode="execute" />
+      ),
     },
   ];
+}
+
+/**
+ * Schedule confirmation for MySQL Restores (product decision: restores stay
+ * schedulable, with the same source/target/overwrite confirm as Execute).
+ */
+export function getMysqlBackupsScheduleWarning(
+  taskName: string,
+  context: {
+    pluginName: string;
+    tasks: Record<string, unknown>[];
+  }
+): ReactNode | undefined {
+  if (!context.pluginName.includes('restore')) {
+    return undefined;
+  }
+
+  const task =
+    context.tasks.find((t) => t.name === taskName) ??
+    ({ name: taskName } as Record<string, unknown>);
+  const details = getMysqlRestoreConfirmDetails(task);
+
+  return <MysqlRestoreConfirmContent details={details} mode="schedule" />;
 }
