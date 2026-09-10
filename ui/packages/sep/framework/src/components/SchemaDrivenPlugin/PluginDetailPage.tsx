@@ -1207,14 +1207,7 @@ export function PluginDetailPage({
               // a plain chip so status never silently disappears, matching
               // SchemaListView's status-cell fallback.
               <Chip label={task.status} size="small" />
-            ) : (
-              // Null/undefined status means the task was created but never run.
-              <Chip
-                label="Created, not run yet"
-                size="small"
-                data-testid="not-run-chip"
-              />
-            )}
+            ) : null}
             {multi && !browseOnly && canMutate && (
               <>
                 <Button

@@ -1395,6 +1395,50 @@ describe('PluginDetailPage — null status rendering', () => {
     expect(screen.queryByTestId('not-run-chip')).not.toBeInTheDocument();
     expect(screen.getByText('Done')).toBeInTheDocument();
   });
+
+  it('renders no status chip on an entity detail without status', () => {
+    const entitySchema = {
+      pluginName: 'inventory',
+      display_name: 'Inventory',
+      description: 'Test',
+      capabilities: {},
+      entities: [
+        {
+          name: 'nodes',
+          display_name: 'Nodes',
+          forms: [],
+          list_view: { columns: [{ key: 'name', label: 'Name' }] },
+        },
+      ],
+    } as unknown as PluginSchema;
+    mockUsePluginEntityDetail.mockReturnValue({
+      data: { id: 5, name: 'node-a' },
+      isLoading: false,
+    });
+
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <SnackbarProvider>
+          <MemoryRouter initialEntries={['/apps/inventory/nodes/5']}>
+            <Routes>
+              <Route
+                path="/apps/inventory/:entityName/:id"
+                element={
+                  <PluginDetailPage
+                    schema={entitySchema}
+                    pluginName="inventory"
+                  />
+                }
+              />
+            </Routes>
+          </MemoryRouter>
+        </SnackbarProvider>
+      </QueryClientProvider>
+    );
+
+    expect(screen.getByText('Nodes #5')).toBeInTheDocument();
+    expect(screen.queryByTestId('not-run-chip')).not.toBeInTheDocument();
+  });
 });
 
 describe('PluginDetailPage — Execution History tab stop wiring', () => {
