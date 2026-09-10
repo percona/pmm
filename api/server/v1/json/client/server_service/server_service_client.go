@@ -93,6 +93,8 @@ type ClientService interface {
 
 	Readiness(params *ReadinessParams, opts ...ClientOption) (*ReadinessOK, error)
 
+	UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) (*UpdateStatusOK, error)
+
 	Version(params *VersionParams, opts ...ClientOption) (*VersionOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
@@ -446,6 +448,50 @@ func (a *Client) Readiness(params *ReadinessParams, opts ...ClientOption) (*Read
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ReadinessDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UpdateStatus updates status
+
+Returns PMM Server initialization status.
+*/
+func (a *Client) UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) (*UpdateStatusOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewUpdateStatusParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UpdateStatus",
+		Method:             "POST",
+		PathPattern:        "/v1/server/updates:getStatus",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateStatusReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*UpdateStatusOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*UpdateStatusDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
