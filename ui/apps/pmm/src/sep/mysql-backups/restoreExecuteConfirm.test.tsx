@@ -100,6 +100,27 @@ describe('getMysqlRestoreConfirmDetails', () => {
       overwriteTables: false,
     });
   });
+
+  it('does not treat executor hostname as the target host', () => {
+    expect(
+      getMysqlRestoreConfirmDetails({
+        name: 'r1',
+        hostname: 'executor-node',
+        data: {
+          _form: {
+            backup_source: '/b',
+            hostname: 'executor-node',
+            overwrite_tables: true,
+          },
+        },
+      })
+    ).toEqual({
+      source: '/b',
+      targetHost: 'Not set',
+      targetDatabase: 'Not set',
+      overwriteTables: true,
+    });
+  });
 });
 
 describe('getMysqlBackupsTaskExecuteActions', () => {
@@ -195,6 +216,24 @@ describe('getMysqlBackupsScheduleWarning', () => {
     expect(
       screen.getByTestId('mysql-restore-overwrite-alert')
     ).toBeInTheDocument();
+  });
+
+  it('warns when the selected restore is missing from the task list', () => {
+    const warning = getMysqlBackupsScheduleWarning('missing-restore', {
+      pluginName: 'mysql_backups/restore',
+      tasks: [{ name: 'other-restore' }],
+    });
+
+    expect(warning).toBeTruthy();
+    render(<>{warning}</>);
+    expect(
+      screen.getByTestId('mysql-restore-schedule-confirm-incomplete')
+    ).toHaveTextContent(
+      "Could not load details for restore task 'missing-restore'"
+    );
+    expect(
+      screen.queryByTestId('mysql-restore-schedule-confirm')
+    ).not.toBeInTheDocument();
   });
 });
 

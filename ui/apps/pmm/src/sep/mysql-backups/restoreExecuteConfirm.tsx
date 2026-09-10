@@ -64,15 +64,16 @@ export function getMysqlRestoreConfirmDetails(
     asDisplayString(task.backup_source) ??
     UNKNOWN;
 
+  // `host` / `port` are the restore destination (RestoresResponse / DEST_*).
+  // `hostname` is the executor (pmm-agent) — never show it as "Target host".
   const host =
     asDisplayString(task.host) ??
     asDisplayString(form.host) ??
-    asDisplayString(task.hostname) ??
-    asDisplayString(form.hostname);
+    asDisplayString(form.dest_host);
   const port =
     asDisplayString(task.port) ??
-    asDisplayString(form.port) ??
-    asDisplayString(form.dest_port);
+    asDisplayString(form.dest_port) ??
+    asDisplayString(form.port);
   const targetHost =
     host && port ? `${host}:${port}` : (host ?? port ?? UNKNOWN);
 
@@ -182,10 +183,24 @@ export function getMysqlBackupsScheduleWarning(
     return undefined;
   }
 
-  const task =
-    context.tasks.find((t) => t.name === taskName) ??
-    ({ name: taskName } as Record<string, unknown>);
-  const details = getMysqlRestoreConfirmDetails(task);
+  const task = context.tasks.find((t) => t.name === taskName);
+  if (!task) {
+    // Incomplete poll / stale list: still block on confirm, but do not invent
+    // a safe-looking "Overwrite: No" / "Not set" summary.
+    return (
+      <Stack
+        spacing={1.5}
+        data-testid="mysql-restore-schedule-confirm-incomplete"
+      >
+        <Alert severity="warning">
+          Could not load details for restore task &apos;{taskName}&apos;. Open
+          the task and verify the target host, database, and overwrite setting
+          before scheduling.
+        </Alert>
+      </Stack>
+    );
+  }
 
+  const details = getMysqlRestoreConfirmDetails(task);
   return <MysqlRestoreConfirmContent details={details} mode="schedule" />;
 }
