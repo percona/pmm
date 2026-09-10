@@ -145,7 +145,7 @@ func TestRDSExporterChangeAgent(t *testing.T) {
 			assert.NotNil(t, result)
 
 			assert.Contains(t, capturedRequestBody, `"aws_role_arn":""`)
-			assert.Contains(t, result.String(), "cleared AWS role ARN")
+			assert.Contains(t, result.String(), "cleared AWS role ARN (the exporter will use the pmm-agent host's ambient AWS credentials)")
 		})
 	})
 
