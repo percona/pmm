@@ -132,7 +132,8 @@ export interface PluginDetailPageProps {
   suppressDetailKeys?: string[];
   /** Replace the default single Execute button with plugin-specific execute targets. */
   getTaskExecuteActions?: (
-    task: Record<string, unknown>
+    task: Record<string, unknown>,
+    context: { pluginName: string }
   ) => TaskExecuteAction[] | undefined;
   /** Task names whose execution history should appear on the Execution History tab. */
   getTaskHistoryNames?: (task: Record<string, unknown>) => string[] | undefined;
@@ -1316,7 +1317,8 @@ export function PluginDetailPage({
   const hasStoredForm = Boolean(getStoredForm(task as Record<string, unknown>));
   const detailBase = `${routeBase}/task/${encodeURIComponent(id)}`;
   const taskExecuteActions = getTaskExecuteActions?.(
-    task as Record<string, unknown>
+    task as Record<string, unknown>,
+    { pluginName }
   );
   const taskHistoryNames =
     getTaskHistoryNames?.(task as Record<string, unknown>) ??

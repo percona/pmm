@@ -1159,7 +1159,8 @@ function renderWithSchema(
     path?: string;
     pluginName?: string;
     getTaskExecuteActions?: (
-      task: Record<string, unknown>
+      task: Record<string, unknown>,
+      context: { pluginName: string }
     ) => TaskExecuteAction[] | undefined;
   } = {}
 ) {
