@@ -67,8 +67,9 @@ const (
 	// releaseAgentResources), and its replacement starts on a port of its own. It also leaves a
 	// forwarder that stopAll must not close the channels under, hence the count of them below.
 	// The budget covers the whole call rather than each Agent so that a batch of them cannot
-	// hold s.rw for N times as long; it is sized well above process.killT, so a normal
-	// SIGTERM/SIGKILL stop never eats into it. See PMM-15431.
+	// hold s.rw for N times as long; they are all canceled before any of them is waited on, so
+	// they spend it concurrently rather than one after another. It is sized well above
+	// process.killT, so a normal SIGTERM/SIGKILL stop never eats into it. See PMM-15431.
 	agentsStopTimeout = 60 * time.Second
 )
 
@@ -295,9 +296,13 @@ func (s *Supervisor) RestartAgents() {
 		ids = append(ids, id)
 	}
 
+	// Cancel them all first - see setAgentProcesses.
+	for _, id := range ids {
+		s.agentProcesses[id].cancel()
+	}
+
 	for _, id := range ids {
 		agent := s.agentProcesses[id]
-		agent.cancel()
 		port := agent.listenPort
 		if !s.waitAgentStopped(id, agent.done, deadline) {
 			// See the same branch in setAgentProcesses.
@@ -312,8 +317,11 @@ func (s *Supervisor) RestartAgents() {
 		}
 	}
 
-	for id, agent := range s.builtinAgents {
+	for _, agent := range s.builtinAgents {
 		agent.cancel()
+	}
+
+	for id, agent := range s.builtinAgents {
 		s.waitAgentStopped(id, agent.done, deadline)
 
 		err := s.startBuiltin(id, agent.requestedState)
@@ -355,7 +363,9 @@ func (s *Supervisor) waitAgentStopped(agentID string, done <-chan struct{}, dead
 // waited for in a goroutine of its own instead - off s.rw, and off the call that gave up on it.
 // Releasing a port a live exporter still listens on fails and keeps the reservation for good,
 // since the Agent that held it is already forgotten and nothing is left to retry it, and clearing
-// the directory takes files out from under a running Agent. See PMM-15431.
+// the directory takes files out from under a running Agent. Only the port is given back that way:
+// by then the ID may belong to a replacement, and the directory is the replacement's. See
+// PMM-15431.
 func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{}, port uint16, agentTmp string) {
 	select {
 	case <-done:
@@ -365,7 +375,13 @@ func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{},
 		go func() {
 			select {
 			case <-done:
-				s.releasePortAndTempDir(agentID, port, agentTmp)
+				// Deliberately not agentTmp: an Agent with this ID may have been
+				// re-created while this one was stopping, and removing it now
+				// would take the replacement's TLS certificates and text files
+				// with it. A directory left behind is cleaned on the next start
+				// (see cleanupTmp), and reused as-is if the ID comes back before
+				// that.
+				s.releasePortAndTempDir(agentID, port, "")
 			case <-s.ctx.Done():
 				// pmm-agent is on its way out: the OS takes the port back, and
 				// the temporary directory is cleaned on the next start.
@@ -465,12 +481,22 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 
 	// We have to wait for Agents to terminate before starting a new ones to send all state updates,
 	// and to reuse ports.
-	// If that place is slow, we can cancel them all in parallel, but then we still have to wait.
+
+	// Cancel them all first, so that they stop concurrently and the budget spent on the first
+	// one to hang is time the rest are already using. Canceling one at a time left every Agent
+	// after a hung one with no budget at all, so Agents that stop normally were abandoned too -
+	// and an abandoned one being restarted gives up its port for a new one and overlaps its
+	// replacement. See PMM-15431.
+	for _, agentID := range toStop {
+		s.agentProcesses[agentID].cancel()
+	}
+	for _, agentID := range toRestart {
+		s.agentProcesses[agentID].cancel()
+	}
 
 	// stop first to avoid extra load
 	for _, agentID := range toStop {
 		agent := s.agentProcesses[agentID]
-		agent.cancel()
 		s.waitAgentStopped(agentID, agent.done, deadline)
 
 		delete(s.agentProcesses, agentID)
@@ -482,7 +508,6 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 	// restart while preserving port
 	for _, agentID := range toRestart {
 		agent := s.agentProcesses[agentID]
-		agent.cancel()
 		port := agent.listenPort
 		if !s.waitAgentStopped(agentID, agent.done, deadline) {
 			// It may still be listening, so let the replacement have a port of its
@@ -529,12 +554,18 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 	s.l.Infof("Starting %d, restarting %d, and stopping %d built-in agents.", len(toStart), len(toRestart), len(toStop))
 
 	// We have to wait for Agents to terminate before starting a new ones to send all state updates.
-	// If that place is slow, we can cancel them all in parallel, but then we still have to wait.
+
+	// Cancel them all first - see setAgentProcesses.
+	for _, agentID := range toStop {
+		s.builtinAgents[agentID].cancel()
+	}
+	for _, agentID := range toRestart {
+		s.builtinAgents[agentID].cancel()
+	}
 
 	// stop first to avoid extra load
 	for _, agentID := range toStop {
 		agent := s.builtinAgents[agentID]
-		agent.cancel()
 		s.waitAgentStopped(agentID, agent.done, deadline)
 
 		delete(s.builtinAgents, agentID)
@@ -546,7 +577,6 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 	// restart
 	for _, agentID := range toRestart {
 		agent := s.builtinAgents[agentID]
-		agent.cancel()
 		s.waitAgentStopped(agentID, agent.done, deadline)
 
 		err := s.startBuiltin(agentID, builtinAgents[agentID])

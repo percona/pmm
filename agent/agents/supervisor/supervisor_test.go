@@ -387,6 +387,9 @@ func TestReleaseAgentResources(t *testing.T) {
 		// directory. Releasing a port it may still be listening on fails and loses the
 		// reservation for good, as the Agent it belonged to is already forgotten. See
 		// PMM-15431.
+		//
+		// The port comes back once it stops; the directory never does, because by then
+		// the ID may belong to a replacement whose files those are.
 		s, port, agentTmp := setup(t, 65512, 65523)
 		done := make(chan struct{})
 
@@ -398,14 +401,74 @@ func TestReleaseAgentResources(t *testing.T) {
 		close(done)
 
 		assert.Eventually(t, func() bool {
-			if reserved(s, port) {
-				return false
-			}
-			_, err := os.Stat(agentTmp)
+			return !reserved(s, port)
+		}, time.Second, 10*time.Millisecond, "port was never released")
 
-			return os.IsNotExist(err)
-		}, time.Second, 10*time.Millisecond, "port and directory were never released")
+		assert.DirExists(t, agentTmp, "temporary directory of a re-created Agent was removed")
 	})
+
+	t.Run("StillRunningKeepsDirectoryOfRecreatedAgent", func(t *testing.T) {
+		t.Parallel()
+
+		// The regression this guards: the Agent is abandoned, its ID is re-created while
+		// it is still stopping, and the replacement renders its TLS certificates and text
+		// files into the directory of the same name. Removing it when the old Agent
+		// finally stops takes them out from under the replacement. See PMM-15431.
+		s, port, agentTmp := setup(t, 65488, 65499)
+		done := make(chan struct{})
+
+		s.releaseAgentResources("recreated", done, port, agentTmp)
+
+		replacement := filepath.Join(agentTmp, "ca.crt")
+		require.NoError(t, os.WriteFile(replacement, []byte("certificate"), 0o600))
+
+		close(done)
+
+		assert.Eventually(t, func() bool {
+			return !reserved(s, port)
+		}, time.Second, 10*time.Millisecond, "port was never released")
+
+		assert.FileExists(t, replacement, "replacement Agent's files were removed with the directory")
+	})
+}
+
+// TestStopCancelsBeforeWaiting is the regression test for a stop budget that covers the whole call
+// being spent entirely on the first Agent to hang: the Agents after it were canceled only once it
+// was gone, so one that stops normally was given no time at all and abandoned too. See PMM-15431.
+func TestStopCancelsBeforeWaiting(t *testing.T) {
+	t.Parallel()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		Paths: config.Paths{TempDir: t.TempDir()},
+		Ports: config.Ports{Min: 65100, Max: 65199},
+	})
+	s := NewSupervisor(t.Context(), nil, cfgStorage)
+	logger, hook := logrustest.NewNullLogger()
+	s.l = logger.WithField("component", "supervisor")
+
+	// "hung" never reports itself stopped and eats the whole budget. "slow" takes a moment
+	// after being canceled, as an Agent that has to be SIGKILLed does; sorted after "hung",
+	// so it is the one that used to be left with nothing.
+	slow := make(chan struct{})
+	s.agentProcesses = map[string]*agentProcessInfo{
+		"hung": {
+			cancel:         func() {},
+			done:           make(chan struct{}),
+			requestedState: &agentv1.SetStateRequest_AgentProcess{Type: typeTestSleep},
+		},
+		"slow": {
+			cancel:         func() { time.AfterFunc(10*time.Millisecond, func() { close(slow) }) },
+			done:           slow,
+			requestedState: &agentv1.SetStateRequest_AgentProcess{Type: typeTestSleep},
+		},
+	}
+
+	s.setAgentProcesses(nil, time.Now().Add(200*time.Millisecond))
+
+	for _, entry := range hook.AllEntries() {
+		assert.NotContains(t, entry.Message, "slow", "an Agent that stopped normally was abandoned")
+	}
+	assert.Empty(t, s.agentProcesses)
 }
 
 // TestStopKeepsPortOfRunningAgent is the regression test for the same in SetState, which used to
