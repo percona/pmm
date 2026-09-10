@@ -125,70 +125,71 @@ In some places, we have used variables themselves to solve the problem. In other
 
 ## Icons
 
-Currently, we use three different sets of icons:
+We use a single set of icons: the ones bundled with the Mkdocs Material theme. It offers 10,000+ icons, which is more than sufficient for all our documentation needs, and it covers four families:
 
-- Native Mkdocs Material icons and emojis
-- Iconscount Unicons
-- FontAwesome Icons
+| Family | Shortcode prefix | Example |
+| ------ | ---------------- | ------- |
+| Material Design Icons | `:material-` | `:material-cog:` |
+| Font Awesome | `:fontawesome-brands-`, `:fontawesome-solid-`, `:fontawesome-regular-` | `:fontawesome-brands-github:` |
+| Octicons | `:octicons-` | `:octicons-alert-16:` |
+| Simple Icons | `:simple-` | `:simple-docker:` |
 
-The preference should be given to Mkdocs Material icons, since they were initially designed for `mkdocs` project and work very well with it. In rare cases, when an icon cannot be found in Mkdocs Material, you can find a suitable one on Iconscout. FontAwesome icons do not play well with Mkdocs, so use them with caution and don't forget to apply additional CSS styles in case they don't render well in PDF.
+Prefer Material Design Icons unless another family has a markedly better match — brand logos, for instance, usually come from Font Awesome or Simple Icons.
 
-Ideally, we should migrate to using just the first set, which offers 10,000+ icons, that are more than sufficient for all our documentation needs.
+To add an icon, go to <https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/>, search for one, select it, and copy the shortcode here. Every family renders as inline SVG that inherits the surrounding text colour, so icons follow the light/dark colour scheme automatically and need no extra CSS.
 
-Use HTML for icons:
+Two icon sets used to be loaded from external stylesheets and have both been removed. Don't reintroduce either:
 
-- For Material Theme Icons (`:` prefix and suffix), go to <https://squidfunk.github.io/mkdocs-material/reference/icons-emojis/>, find an icon, select it and copy the code here.
-- For PMM UI (Grafana) icons (`uil-` prefix), go to <https://iconscout.com/unicons/explore/line>, find an icon, select 'Font' and copy the code here.
-- For Font Awesome (`fa-` prefix), go to <https://fontawesome.com/icons>, find an icon, copy the code.
+- **Iconscout Unicons** (`uil-` prefix), the set the PMM UI (Grafana) itself uses. They were plain font glyphs that rendered poorly in both the light and the dark theme.
+- **Font Awesome 4.4.0** (`fa-` prefix), loaded as raw HTML. It had no remaining usages, and the version was long past end of life. Use the `:fontawesome-*:` shortcodes above instead — the theme bundles the icons, so there is no external version to keep in sync.
 
 Note: the following list is WIP and will be updated as we go along.
 
-| Unicons icon code                            | Description                        | Used where                           |
-| -------------------------------------------- | ---------------------------------- | ------------------------------------ |
-| <i class="uil uil-angle-down"></i>           | Down chevron                       | PMM UI                               |
-| <i class="uil uil-apps"></i>                 | Four boxes in square               | PMM UI - QAN                         |
-| <i class="uil uil-arrow-left"></i>           | Left arrow                         | PMM UI                               |
-| <i class="uil uil-bars"></i>                 | 3 horizontal lines                 | PMM UI - HA dashboards               |
-| <i class="uil uil-bell"></i>                 | Bell                               | PMM UI - Alerting                    |
-| <i class="uil uil-bolt"></i>                 | Lightening flash/bolt              | PMM UI - Nodes compare               |
-| <i class="uil uil-caret-right"></i>          | Right caret                        | General                              |
-| <i class="uil uil-clock-nine"></i>           | Clock (at nine)                    | PMM UI - Time range selector         |
-| :material-cog:                               | Cog wheel                          | PMM UI Configuration                 |
-| :material-cog-outline:                       | Cog wheel                          | PMM UI Configuration->Settings       |
-| :material-clipboard-list-outline:            | Clipboard list                     | PMM UI - Inventory                   |
-| :material-dots-horizontal:                   | Triple dots, aligned horizontally  | PMM UI - Backup in progress          |
-| :material-magnify-expand:                    | Advisors                           | PMM UI - Advisors                    |
-| :material-view-dashboard:                    | Abstract blocks assembly           | PMM UI - Dashboards                  |
-| :material-dots-circle:                       | A circle surrounded by smaller ones| PMM UI - Node dashboards             |
-| <i class="uil uil-comment-alt-share"></i>    | Share comment symbol               | PMM UI - Share dashboard image       |
-| <i class="uil uil-compass"></i>              | Compass                            | PMM UI - Explore                     |
-| <i class="uil uil-copy"></i>                 | Copy                               | PMM UI - Copy (e.g. backup schedule) |
-| <i class="uil uil-cube"></i>                 | Cube                               | PMM UI                               |
-| <i class="uil uil-ellipsis-v"></i>           | Vertical ellipsis                  | PMM UI column menus                  |
-| <i class="uil uil-exclamation-triangle"></i> | Exclamation mark in triangle       | PMM UI - Warnings                    |
-| <i class="uil uil-eye-slash"></i>            | Eye with slash                     | PMM UI Password hide                 |
-| <i class="uil uil-eye"></i>                  | Eye                                | PMM UI Password reveal               |
-| <i class="uil uil-file-alt"></i>             | File symbol                        | PMM UI - Home dashboard              |
-| <i class="uil uil-graph-bar"></i>            | 3-bar chart                        | PMM UI link to dashboard             |
-| <i class="uil uil-history"></i>              | Backward arrow circle around clock | PMM UI - Backups and checks          |
-| <i class="uil uil-list-ul"></i>              | List                               | PMM UI - Alert rules                 |
-| <i class="uil uil-monitor"></i>              | Computer monitor                   | PMM UI - Cycle view mode             |
-| <i class="uil uil-pen"></i>                  | Pen                                | PMM UI - Edit                        |
-| <i class="uil uil-plus-circle"></i>          | Plus within circle                 | PMM UI Inventory->Add Instance       |
-| <i class="uil uil-plus-square"></i>          | Plus within square                 | PMM UI - Add                         |
-| <i class="uil uil-question-circle"></i>      | Question mark in circle            | PMM UI - Help                        |
-| <i class="uil uil-search-minus"></i>         | Minus in magnifying glass          | PMM UI - Time range zoom out         |
-| <i class="uil uil-search"></i>               | Magnifying glass                   | PMM UI - Search                      |
-| <i class="uil uil-share-alt"></i>            | Share symbol                       | PMM UI - Share dashboard             |
-| <i class="uil uil-shield"></i>               | Shield                             | PMM UI - Server admin                |
-| <i class="uil uil-star"></i>                 | Star                               | PMM UI - Dashboard favourites        |
-| <i class="uil uil-sync"></i>                 | Twin backward arrows               | PMM UI - Refresh dashboard           |
-| <i class="uil uil-thumbs-down"></i>          | Hand, thumbs down                  | For Benefits/Drawbacks tables        |
-| <i class="uil uil-thumbs-up"></i>            | Hand, thumbs up                    | For Benefits/Drawbacks tables        |
-| <i class="uil uil-times"></i>                | Large 'X'                          | PMM UI                               |
-| <i class="uil uil-toggle-off"></i>           | Toggle (off)                       | PMM UI - Toggle switch               |
-| <i class="uil uil-toggle-on"></i>            | Toggle (on)                        | PMM UI - Toggle switch               |
-| <i class="uil uil-trash-alt"></i>            | Trash can                          | PMM UI - Various 'Delete' operation  |
+| Icon code                             | Description                        | Used where                           |
+| ------------------------------------- | ---------------------------------- | ------------------------------------ |
+| :material-alert-outline:              | Exclamation mark in triangle       | PMM UI - Warnings                    |
+| :material-arrow-left:                 | Left arrow                         | PMM UI                               |
+| :material-bell-outline:               | Bell                               | PMM UI - Alerting                    |
+| :material-chart-bar:                  | 3-bar chart                        | PMM UI link to dashboard             |
+| :material-chevron-down:               | Down chevron                       | PMM UI                               |
+| :material-clipboard-list-outline:     | Clipboard list                     | PMM UI - Inventory                   |
+| :material-clock-time-nine-outline:    | Clock (at nine)                    | PMM UI - Time range selector         |
+| :material-close:                      | Large 'X'                          | PMM UI                               |
+| :material-cog:                        | Cog wheel                          | PMM UI Configuration                 |
+| :material-cog-outline:                | Cog wheel                          | PMM UI Configuration->Settings       |
+| :material-compass-outline:            | Compass                            | PMM UI - Explore                     |
+| :material-content-copy:               | Copy                               | PMM UI - Copy (e.g. backup schedule) |
+| :material-cube-outline:               | Cube                               | PMM UI                               |
+| :material-dots-circle:                | A circle surrounded by smaller ones| PMM UI - Node dashboards             |
+| :material-dots-horizontal:            | Triple dots, aligned horizontally  | PMM UI - Backup in progress          |
+| :material-dots-vertical:              | Vertical ellipsis                  | PMM UI column menus                  |
+| :material-eye:                        | Eye                                | PMM UI Password reveal               |
+| :material-eye-off:                    | Eye with slash                     | PMM UI Password hide                 |
+| :material-file-document-outline:      | File symbol                        | PMM UI - Home dashboard              |
+| :material-format-list-bulleted:       | List                               | PMM UI - Alert rules                 |
+| :material-help-circle-outline:        | Question mark in circle            | PMM UI - Help                        |
+| :material-history:                    | Backward arrow circle around clock | PMM UI - Backups and checks          |
+| :material-lightning-bolt:             | Lightening flash/bolt              | PMM UI - Nodes compare               |
+| :material-magnify:                    | Magnifying glass                   | PMM UI - Search                      |
+| :material-magnify-expand:             | Advisors                           | PMM UI - Advisors                    |
+| :material-magnify-minus-outline:      | Minus in magnifying glass          | PMM UI - Time range zoom out         |
+| :material-menu:                       | 3 horizontal lines                 | PMM UI - HA dashboards               |
+| :material-menu-right:                 | Right caret                        | General                              |
+| :material-message-arrow-right-outline:| Share comment symbol               | PMM UI - Share dashboard image       |
+| :material-monitor:                    | Computer monitor                   | PMM UI - Cycle view mode             |
+| :material-pencil-outline:             | Pen                                | PMM UI - Edit                        |
+| :material-plus-box-outline:           | Plus within square                 | PMM UI - Add                         |
+| :material-plus-circle-outline:        | Plus within circle                 | PMM UI Inventory->Add Instance       |
+| :material-share-variant:              | Share symbol                       | PMM UI - Share dashboard             |
+| :material-shield-outline:             | Shield                             | PMM UI - Server admin                |
+| :material-star-outline:               | Star                               | PMM UI - Dashboard favourites        |
+| :material-sync:                       | Twin backward arrows               | PMM UI - Refresh dashboard           |
+| :material-thumb-down-outline:         | Hand, thumbs down                  | For Benefits/Drawbacks tables        |
+| :material-thumb-up-outline:           | Hand, thumbs up                    | For Benefits/Drawbacks tables        |
+| :material-toggle-switch-off-outline:  | Toggle (off)                       | PMM UI - Toggle switch               |
+| :material-toggle-switch-outline:      | Toggle (on)                        | PMM UI - Toggle switch               |
+| :material-trash-can-outline:          | Trash can                          | PMM UI - Various 'Delete' operation  |
+| :material-view-dashboard:             | Abstract blocks assembly           | PMM UI - Dashboards                  |
 
 ## Symbols
 
