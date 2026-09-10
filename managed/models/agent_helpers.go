@@ -18,6 +18,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -46,14 +47,26 @@ type MySQLOptionsParams interface { //nolint:iface
 	GetExtraDsnParams() map[string]string
 }
 
+// validMySQLTimeZone matches a single-quoted MySQL time zone literal: an offset
+// like '+05:30', a named zone like 'Europe/London', or 'SYSTEM'. The surrounding
+// quotes are required (the value is interpolated into SET time_zone=<value>), and
+// the restricted character set rejects anything that could inject a second session
+// assignment (commas, semicolons, quotes, whitespace, CR/LF).
+var validMySQLTimeZone = regexp.MustCompile(`\A'[A-Za-z0-9_+:/-]+'\z`)
+
 // MySQLOptionsFromRequest creates MySQLOptions object from request.
 func MySQLOptionsFromRequest(params MySQLOptionsParams) (MySQLOptions, error) {
 	if params.GetExtraDsnParams() != nil {
 		// keep a list of "supported" parameters and fail early if there are unsupported ones.
 		// this prevents unsupported parameters from being passed to the mysql config.
-		for k := range params.GetExtraDsnParams() {
+		for k, v := range params.GetExtraDsnParams() {
 			switch k {
-			case "allowCleartextPasswords", "time_zone":
+			case "allowCleartextPasswords":
+				continue
+			case "time_zone":
+				if !validMySQLTimeZone.MatchString(v) {
+					return MySQLOptions{}, status.Errorf(codes.InvalidArgument, "Invalid time_zone value: '%s'", v)
+				}
 				continue
 			default:
 				return MySQLOptions{}, status.Errorf(codes.InvalidArgument, "Unsupported DSN parameter: %s", k)
