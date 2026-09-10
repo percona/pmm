@@ -73,7 +73,7 @@ type ChangeAgentRDSExporterCommand struct {
 	// AWS credentials
 	AWSAccessKey *string `help:"AWS access key"`
 	AWSSecretKey *string `help:"AWS secret key"`
-	AWSRoleARN   *string `name:"aws-role-arn" help:"AWS IAM role ARN to assume using the pmm-agent's ambient credentials; pass an empty value to clear it"`
+	AWSRoleARN   *string `name:"aws-role-arn" help:"AWS IAM role ARN to assume using the pmm-agent's ambient credentials; cannot be combined with an access/secret key, so clear both in the same call when migrating; pass an empty value to clear it, which reverts the exporter to the host's ambient credentials"`
 
 	// RDS-specific options
 	DisableBasicMetrics    *bool `help:"Disable basic metrics"`
@@ -139,7 +139,13 @@ func (cmd *ChangeAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 	}
 	if cmd.AWSRoleARN != nil {
 		if *cmd.AWSRoleARN == "" {
-			changes = append(changes, "cleared AWS role ARN")
+			// Clearing the role ARN without also setting keys leaves the exporter on the
+			// pmm-agent host's ambient credentials. Say so, so the identity change is not silent.
+			if cmd.AWSAccessKey != nil && *cmd.AWSAccessKey != "" {
+				changes = append(changes, "cleared AWS role ARN")
+			} else {
+				changes = append(changes, "cleared AWS role ARN (the exporter will use the pmm-agent host's ambient AWS credentials)")
+			}
 		} else {
 			changes = append(changes, "updated AWS role ARN")
 		}
