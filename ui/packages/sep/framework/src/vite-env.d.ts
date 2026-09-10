@@ -15,23 +15,20 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { ServiceSelector } from '../../ServiceSelector';
-import type { ServiceType } from '../../../hooks/useServices';
-import type { ServiceField as ServiceFieldType } from '../types';
+// Minimal ImportMeta declaration so @sep/framework can read
+// `import.meta.env.DEV` without depending on Vite directly, mirroring the
+// same file in @sep/api. Consuming apps pull in the full `vite/client` types
+// through their own vite-env.d.ts.
+declare global {
+  interface ImportMetaEnv {
+    readonly DEV: boolean;
+    readonly PROD: boolean;
+    readonly MODE: string;
+  }
 
-interface ServiceFieldProps {
-  field: ServiceFieldType;
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
 }
 
-export function ServiceField({ field }: ServiceFieldProps) {
-  return (
-    <ServiceSelector
-      name={field.name}
-      label={field.label}
-      helperText={field.description}
-      required={field.required}
-      serviceTypes={field.service_types as readonly ServiceType[]}
-      allowCustom={field.allow_custom}
-    />
-  );
-}
+export {};

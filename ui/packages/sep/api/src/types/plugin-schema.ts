@@ -93,6 +93,48 @@ interface BaseField {
    * truthiness rather than presence.
    */
   destructive?: string | null;
+  /**
+   * Name of a sibling `bool` field in the same section that this field
+   * parameterises. The renderer draws the field indented beneath that parent
+   * and keeps it non-interactive until the parent is on, instead of hiding it
+   * — a reader can see what enabling the parent will offer.
+   *
+   * Presentation only, and the renderer takes it on trust: the disable state
+   * comes from the named field's truthiness alone. A parented field *may* also
+   * carry a `forbidden` gate on the parent being falsy, and where it does the
+   * renderer recognises that gate structurally and consumes it as the disable
+   * condition rather than applying it as a hide. It is not required — the
+   * backend treats the pointer as presentation, so most parented fields carry
+   * no gate at all. Every other gate on the field keeps hiding it as usual.
+   *
+   * While the parent is off the child is reset to its schema `default`, not
+   * blanked, so the greyed control shows what it would submit once the parent
+   * is on. A field that pairs the parent-off gate with a default the backend
+   * reads as present cannot satisfy both; a dev build warns.
+   *
+   * Must name a `bool` field in the same section. Chains and cycles are
+   * unsupported — a cycle leaves both toggles inert.
+   */
+  parent?: string;
+  /**
+   * Where the field's `description` is shown.
+   *
+   * `inline` puts it under the input, where a format hint belongs — visible
+   * while someone is typing into the field it describes. `tooltip` puts it
+   * behind a help icon beside the label, which keeps prose from dominating a
+   * form that has a lot of it.
+   *
+   * Unset (the default) decides by length: a description that fits roughly one
+   * line renders inline, a longer one goes behind the icon. Set this when the
+   * default reads wrong for a particular field — a terse-but-secondary note, or
+   * a long one someone needs in front of them while they type.
+   *
+   * Reference and selector fields (`service`, `host`, `schema`, `table`,
+   * `remote_choice`) are always inline: their label is a plain string the
+   * renderer also uses in validation messages, so there is no node to hang a
+   * help icon from.
+   */
+  help_placement?: 'tooltip' | 'inline';
 }
 
 // ── Choice option ─────────────────────────────────────────────────────────
@@ -304,6 +346,24 @@ export interface FormSection {
   title: string;
   description?: string;
   fields: SectionField[];
+  /**
+   * Whether this section holds expert options rather than the common case.
+   *
+   * Advanced sections are withheld behind a single "Show advanced options"
+   * control rendered after the ordinary ones, so a form with many expert
+   * sections costs one row at rest instead of one per section. Revealing them
+   * renders each as an ordinary top-level section — deliberately not nested
+   * inside a wrapper, which reads as one disclosure level too many.
+   *
+   * The renderer reveals them on its own, and expands the section concerned,
+   * whenever one holds a value other than its schema default or a field
+   * carrying a validation error: an option someone has already set must never
+   * be hidden from them. In practice the error case means a backend 422 — a
+   * field inside a section that was never opened is never registered, so
+   * client-side validation cannot flag it. Order is preserved, and advanced
+   * sections render after the ordinary ones wherever they sit in `forms`.
+   */
+  advanced?: boolean;
   /** Whether the section is wrapped in an expandable/collapsible shell. */
   collapsible?: boolean;
   /** Initial expansion state when collapsible is enabled. */

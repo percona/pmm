@@ -22,6 +22,7 @@ import ListItemText from '@mui/material/ListItemText';
 import MenuItem from '@mui/material/MenuItem';
 import { SchemaSelectShell } from '../SchemaSelectShell';
 import type { MultiChoiceField as MultiChoiceFieldType } from '../types';
+import { fieldHelp } from '../fieldHelp';
 import { buildValidationRules } from '../utils/validationMapper';
 import { renderChoiceLabel } from './choiceLabel';
 
@@ -31,6 +32,7 @@ interface MultiChoiceFieldProps {
 
 export function MultiChoiceField({ field }: MultiChoiceFieldProps) {
   const { control } = useFormContext();
+  const help = fieldHelp(field);
   const selected =
     (useWatch({ control, name: field.name }) as string[] | undefined) ?? [];
   const labelId = `${field.name}-label`;
@@ -47,7 +49,8 @@ export function MultiChoiceField({ field }: MultiChoiceFieldProps) {
           label={field.label}
           required={field.required}
           error={error}
-          description={field.description}
+          tooltip={help.tooltip}
+          inline={help.inline}
           multiple
           renderValue={(value) => {
             const values = (value as string[] | undefined) ?? [];
