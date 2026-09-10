@@ -6,7 +6,7 @@ To restore a backup:
 {.power-number}
 
 1. Go to :material-history: **Backup > All backups** and find the backup that you want to restore.
-2. Click the arrow in the **Actions** column to check all the information for the backup, then click ![](../../images/dots-three-vertical.png) **Restore from backup**.
+2. Click the arrow in the **Actions** column to check all the information for the backup, then click :material-dots-vertical: **Restore from backup**.
 This opens the **Restore from backup** dialog, with the **Same service** option automatically preselected. This is because MongoDB backups can only be restored to the originating service, and only if the MongoDB version has not changed since the backup was created.
 3. If you are restoring a PITR backup, select the point for the date and time that you want to restore the database to.
 4. Click **Restore** then go to the **Restores** tab to check the status of the restored backup.
