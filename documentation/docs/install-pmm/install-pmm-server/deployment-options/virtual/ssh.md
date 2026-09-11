@@ -9,12 +9,18 @@ When you run PMM Server as an AWS AMI instance, you can upload your public SSH k
 
 ## Configure SSH access
 
+PMM Server stores a single SSH key. Applying changes on this tab overwrites the whole `authorized_keys` file, so the key you submit replaces the previously configured one, which can no longer be used to log in.
+
 To configure SSH access:
 {.power-number}
 
 1. Go to **Configuration > Settings > SSH key**.
 2. Enter your public key in the **SSH key** field.
 3. Click **Apply changes**.
+
+!!! caution alert alert-warning "Important"
+    Double-check the key before applying it. A truncated key, or the public key of a private key you no longer hold, silently replaces your working key and locks you out of future SSH sessions.
+
 
 ## Connect via SSH
 
