@@ -134,6 +134,8 @@ func getHandler(cfg Config) http.HandlerFunc {
 	}
 }
 
+// failOnDisallowedPath answers the request with 403 and reports whether it did, so the
+// caller returns instead of proxying a path VictoriaMetrics must not be asked for.
 func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request, adminHeaderName string) bool {
 	if isPathAllowed(req.URL.Path, isAdminRequest(req, adminHeaderName)) {
 		return false
