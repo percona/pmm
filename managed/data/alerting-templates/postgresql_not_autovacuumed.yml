@@ -3,6 +3,7 @@ templates:
   - name: pmm_postgresql_not_autovacuumed
     version: 1
     summary: PostgreSQL tables not auto vacuumed
+    category: postgresql
     expr: |-
       (pg_stat_user_tables_last_autovacuum > 0) and (time() - pg_stat_user_tables_last_autovacuum) > 60 * 60 * 24 * 10
     for: 1h

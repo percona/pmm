@@ -1188,6 +1188,11 @@ var databaseSchema = [][]string{
 		`ALTER TABLE dumps ADD COLUMN encrypted boolean NOT NULL DEFAULT false`,
 		`UPDATE dumps SET encrypted = false`,
 	},
+	119: {
+		`ALTER TABLE alert_rule_templates
+			ADD COLUMN category VARCHAR NOT NULL CHECK (category <> '') DEFAULT 'unknown'`,
+		`ALTER TABLE alert_rule_templates ALTER COLUMN category DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

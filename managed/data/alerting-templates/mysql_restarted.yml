@@ -3,6 +3,7 @@ templates:
   - name: pmm_mysql_restarted
     version: 1
     summary: MySQL restarted
+    category: mysql
     expr: |-
       mysql_global_status_uptime
       < bool [[ .threshold ]]

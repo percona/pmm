@@ -224,6 +224,7 @@ func createTemplateParams(name string) *models.CreateTemplateParams {
 			}},
 			For:         promconfig.Duration(7 * time.Second),
 			Severity:    common.Warning,
+			Category:    alert.CategoryMySQL,
 			Labels:      map[string]string{"foo": "bar"},
 			Annotations: nil,
 		},
@@ -247,8 +248,11 @@ func changeTemplateParams(name string) *models.ChangeTemplateParams {
 				Range:   []any{float64(10), float64(100)},
 				Value:   float64(50),
 			}},
-			For:         promconfig.Duration(gofakeit.Number(1, 100)),
-			Severity:    common.Warning,
+			For:      promconfig.Duration(gofakeit.Number(1, 100)),
+			Severity: common.Warning,
+			// Deliberately differs from createTemplateParams so the change subtest
+			// catches ChangeTemplate dropping or ignoring the category.
+			Category:    alert.CategoryPostgreSQL,
 			Labels:      map[string]string{"foo": "bar"},
 			Annotations: nil,
 		},

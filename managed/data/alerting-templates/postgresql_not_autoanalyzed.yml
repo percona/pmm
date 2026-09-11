@@ -3,6 +3,7 @@ templates:
   - name: pmm_postgresql_not_autoanalyzed
     version: 1
     summary: PostgreSQL tables not auto analyzed
+    category: postgresql
     expr: |-
       (pg_stat_user_tables_last_autoanalyze > 0) and (time() - pg_stat_user_tables_last_autoanalyze) > 24 * 60 * 60 * 10
     for: 1h

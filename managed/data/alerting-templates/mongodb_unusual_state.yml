@@ -3,6 +3,7 @@ templates:
   - name: pmm_mongodb_unusual_state
     version: 1
     summary: MongoDB member is in Unusual state
+    category: mongodb
     expr: |-
       group(mongodb_rs_members_state != 1 and mongodb_rs_members_state != 2 and mongodb_rs_members_state != 7 and mongodb_rs_members_state != 8) by (cluster,member_idx,member_state,rs_nm)
     for: 1m

@@ -64,6 +64,21 @@ enum TemplateSource {
   TEMPLATE_SOURCE_USER_API = 4;
 }
 
+// TemplateCategory defines the technology an alert template applies to.
+enum TemplateCategory {
+  // Invalid, unknown or absent.
+  TEMPLATE_CATEGORY_UNSPECIFIED = 0;
+  // PMM's own components, such as agents and backups.
+  TEMPLATE_CATEGORY_PMM = 1;
+  TEMPLATE_CATEGORY_MONGODB = 2;
+  TEMPLATE_CATEGORY_MYSQL = 3;
+  TEMPLATE_CATEGORY_NODE = 4;
+  TEMPLATE_CATEGORY_POSTGRESQL = 5;
+  TEMPLATE_CATEGORY_PROXYSQL = 6;
+  TEMPLATE_CATEGORY_VALKEY = 7;
+  TEMPLATE_CATEGORY_HAPROXY = 8;
+}
+
 // TemplateQuery represents a PromQL query step in a multi-query alert template.
 message TemplateQuery {
   // Reference ID of the query (e.g. "A").
@@ -112,6 +127,8 @@ message Template {
   repeated TemplateExpression expressions = 13;
   // Reference ID of the step used as the alert condition (e.g. "C"). Empty for single-expression templates.
   string condition = 14;
+  // Technology the template applies to. TEMPLATE_CATEGORY_UNSPECIFIED when the template declares no category.
+  TemplateCategory category = 15;
 }
 
 message ListTemplatesRequest {

@@ -3,6 +3,7 @@ templates:
   - name: pmm_mysql_too_many_connections
     version: 1
     summary: MySQL connections in use
+    category: mysql
     expr: |-
       max_over_time(mysql_global_status_threads_connected[5m]) / ignoring (job)
       mysql_global_variables_max_connections
