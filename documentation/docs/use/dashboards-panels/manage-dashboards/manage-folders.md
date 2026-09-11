@@ -6,7 +6,7 @@ This section describes how to delete multiple dashboards, move dashboards from o
 
 To delete multiple dashboards at once:
 
-From the side menu, go to <i class="uil uil-apps"></i> **Dashboards**, browse for the dashboards that you want to delete, and click **Delete**.
+From the side menu, go to :material-view-dashboard: **Dashboards**, browse for the dashboards that you want to delete, and click **Delete**.
 {.power-number}
 
 ![!image](../../../images/PMM_Delete_multiple_dashboards.png)
@@ -17,7 +17,7 @@ From the side menu, go to <i class="uil uil-apps"></i> **Dashboards**, browse fo
 
 You can move dashboards from one folder to another in the following two ways:
 
-1. From the side menu, go to <i class="uil uil-apps"></i> **Dashboards**, select the dashboards that you want to move then click **Move**.
+1. From the side menu, go to :material-view-dashboard: **Dashboards**, select the dashboards that you want to move then click **Move**.
 
 The other way of moving dashboards from one folder to another is:
 {.power-number}
@@ -33,7 +33,7 @@ The other way of moving dashboards from one folder to another is:
 To navigate to a dashboard folder page to assign permissions:
 {.power-number}
 
-1. From the side menu, go to <i class="uil uil-apps"></i> **Dashboards** and click on the main folder whose permissions you want to set.
+1. From the side menu, go to :material-view-dashboard: **Dashboards** and click on the main folder whose permissions you want to set.
 2. Click the **Folder actions > Manage permissions** button at the top-right of the page and select the requisite permission from the drop-down for the various roles.
 
     ![!image](../../../images/PMM_Permissions_dashboards_folder.png)
