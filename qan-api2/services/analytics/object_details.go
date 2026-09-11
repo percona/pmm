@@ -21,6 +21,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	qanpb "github.com/percona/pmm/api/qan/v1"
 	"github.com/percona/pmm/qan-api2/models"
@@ -36,6 +38,9 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 		return nil, fmt.Errorf("period_start_to is required: %v", in.PeriodStartTo)
 	}
 	periodStartToSec := in.PeriodStartTo.Seconds
+	if periodStartFromSec > periodStartToSec {
+		return nil, status.Errorf(codes.InvalidArgument, "from-date %v cannot be later then to-date %v", in.PeriodStartFrom, in.PeriodStartTo)
+	}
 
 	labels := make(map[string][]string)
 	dimensions := make(map[string][]string)
@@ -103,7 +108,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.GetMetricsRequest) (
 	// Get totals for given filter
 	totals := totalsList[totalLen-1]
 
-	durationSec := periodStartToSec - periodStartFromSec
+	// See the note in profile.go: a single-instant request must not divide by zero.
+	durationSec := max(periodStartToSec-periodStartFromSec, 1)
 
 	// skip on TOTAL request.
 	if !in.Totals {

@@ -25,6 +25,34 @@ import (
 
 const queryTimeout = 30 * time.Second
 
+// sparklinePoints works out how a sparkline period is divided into points, returning
+// how many points to return and how many seconds each one covers. Both bounds must already be
+// aligned to a whole minute, which makes their difference a whole number of minutes.
+//
+// A period of less than a minute -- both bounds inside the same minute, or a reversed
+// range -- leaves no minutes to spread across points, which would make every divisor
+// here zero. Such a period is reported as a single one-minute point instead.
+func sparklinePoints(periodStartFromSec, periodStartToSec int64) (int64, int64) {
+	timePeriod := max(periodStartToSec-periodStartFromSec, secondsPerMinute)
+
+	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
+	// Otherwise amount of sparklines points is equal to minutes in time range to not mess up calculation.
+	amountOfPoints := int64(optimalAmountOfPoint)
+	// reduce amount of point if period less then 2h.
+	if timePeriod < int64(minFullTimeFrame.Seconds()) {
+		// minimum point is 1 minute
+		amountOfPoints = timePeriod / secondsPerMinute
+	}
+
+	// how many full minutes we can fit into given amount of points.
+	minutesInPoint := timePeriod / secondsPerMinute / amountOfPoints
+	// we need aditional point to show this minutes
+	remainder := (timePeriod / secondsPerMinute) % amountOfPoints
+	amountOfPoints += remainder / minutesInPoint
+
+	return amountOfPoints, minutesInPoint * secondsPerMinute
+}
+
 var sparklinePointAllFields = []string{
 	"point",
 	"timestamp",

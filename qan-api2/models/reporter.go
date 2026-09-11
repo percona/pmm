@@ -215,7 +215,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	}{
 		PeriodStartFrom:     periodStartFromSec,
 		PeriodStartTo:       periodStartToSec,
-		PeriodDuration:      periodStartToSec - periodStartFromSec,
+		PeriodDuration:      max(periodStartToSec-periodStartFromSec, 1), // the query divides by it
 		Dimensions:          escapeColonsInMap(dimensions),
 		Labels:              escapeColonsInMap(labels),
 		Group:               group,
@@ -324,25 +324,10 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	group string, column string, isTotal bool,
 ) ([]*qanpbv1.Point, error) {
 	// Align to minutes
-	periodStartToSec = periodStartToSec / 60 * 60     //nolint:mnd
-	periodStartFromSec = periodStartFromSec / 60 * 60 //nolint:mnd
+	periodStartToSec = periodStartToSec / secondsPerMinute * secondsPerMinute
+	periodStartFromSec = periodStartFromSec / secondsPerMinute * secondsPerMinute
 
-	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
-	// Otherwise amount of sparklines points is equal to minutes in time range to not mess up calculation.
-	amountOfPoints := int64(optimalAmountOfPoint)
-	timePeriod := periodStartToSec - periodStartFromSec
-	// reduce amount of point if period less then 2h.
-	if timePeriod < int64(minFullTimeFrame.Seconds()) {
-		// minimum point is 1 minute
-		amountOfPoints = timePeriod / 60 //nolint:mnd
-	}
-
-	// how many full minutes we can fit into given amount of points.
-	minutesInPoint := (periodStartToSec - periodStartFromSec) / 60 / amountOfPoints //nolint:mnd
-	// we need aditional point to show this minutes
-	remainder := ((periodStartToSec - periodStartFromSec) / 60) % amountOfPoints //nolint:mnd
-	amountOfPoints += remainder / minutesInPoint
-	timeFrame := minutesInPoint * 60 //nolint:mnd
+	amountOfPoints, timeFrame := sparklinePoints(periodStartFromSec, periodStartToSec)
 
 	arg := map[string]any{
 		"dimension_val":     dimensionVal,
@@ -584,7 +569,10 @@ func (r *Reporter) SelectFilters(
 func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 	periodStartToSec int64, dimensionName, mainMetricName string, tmplQueryFilter *template.Template, queryDimensions, queryLabels map[string][]string,
 ) ([]*customLabel, float32, error) {
-	durationSec := periodStartToSec - periodStartFromSec
+	// A single-instant request would divide the per-second rates below by zero, giving
+	// +Inf -- and then Inf/Inf = NaN where the percentage is worked out. See the note
+	// in services/analytics/profile.go.
+	durationSec := max(periodStartToSec-periodStartFromSec, 1)
 	var labels []*customLabel
 
 	lbacFilter, err := headersToLbacFilter(ctx)
