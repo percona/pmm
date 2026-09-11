@@ -54,15 +54,11 @@ var readOnlyPaths = map[string]struct{}{
 	"/api/v1/status/buildinfo": {},
 	"/api/v1/export":           {},
 
-	// Documented admin diagnostics, reached through the admin-gated /prometheus and
-	// /victoriametrics nginx locations, which also cross this proxy. They stay open
-	// because refusing them breaks a documented feature while protecting nothing: the
-	// labels they expose are the same ones every dashboard user already enumerates
-	// through /api/v1/label/<name>/values, which template variables depend on. Neither
-	// carries credentials. The scrape configuration is not among them: it names every
-	// target and its listen port, and stays admin-only.
-	"/targets":            {},
-	"/api/v1/targets":     {},
+	// Cardinality diagnostics. VictoriaMetrics applies extra_filters[] here, so a
+	// restricted viewer sees only the series their own filters select. The scrape target
+	// endpoints behave the opposite way -- VictoriaMetrics ignores the filters and hands
+	// back every target with its listen port -- so they are not listed, and an admin
+	// reaches them through the marker below.
 	"/api/v1/status/tsdb": {},
 }
 

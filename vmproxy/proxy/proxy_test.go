@@ -238,9 +238,7 @@ func TestProxy(t *testing.T) {
 			"/api/v1/alerts",
 			"/api/v1/status/buildinfo",
 			"/api/v1/export",
-			// Documented admin diagnostics.
-			"/targets",
-			"/api/v1/targets",
+			// Cardinality diagnostics, which VictoriaMetrics filters like any query.
 			"/api/v1/status/tsdb",
 			// nginx passes the original URI for the /prometheus/api/v1 location.
 			"/prometheus/api/v1/query",
@@ -255,8 +253,13 @@ func TestProxy(t *testing.T) {
 			"/api/v1/admin/tsdb/delete_series",
 			"/api/v1/write",
 			"/api/v1/import",
-			// The whole scrape configuration, unlike the diagnostics allowed above.
+			// The scrape configuration, whole or per target: VictoriaMetrics ignores
+			// extra_filters[] on these, so a restricted viewer would read every target
+			// and its listen port.
 			"/api/v1/status/config",
+			"/targets",
+			"/api/v1/targets",
+			"/prometheus/api/v1/targets",
 			"/metrics",
 			"/flags",
 			"/debug/pprof/heap",
@@ -291,6 +294,11 @@ func TestProxy(t *testing.T) {
 			"/debug/pprof/heap",
 			"/metrics",
 			"/flags",
+			// The documented scrape target diagnostics, reached through the
+			// admin-gated /prometheus and /victoriametrics nginx locations.
+			"/targets",
+			"/api/v1/targets",
+			"/prometheus/api/v1/targets",
 		} {
 			assert.Truef(t, isPathAllowed(p, true), "expected %s to be allowed for an admin", p)
 			assert.Falsef(t, isPathAllowed(p, false), "expected %s to be refused without the marker", p)
