@@ -358,6 +358,152 @@ describe('PluginDetailPage — detail_view sections', () => {
     expect(execIdx).toBeLessThan(chainIdx);
   });
 
+  describe('configuration view', () => {
+    /** A schema with a form, one plain detail section and one document section. */
+    function configSchema(): PluginSchema {
+      return {
+        pluginName: 'checksums',
+        display_name: 'Checksum',
+        capabilities: {},
+        list_view: { columns: [{ key: 'name', label: 'Name' }] },
+        forms: [
+          {
+            title: 'Task',
+            fields: [
+              {
+                name: 'backup_type',
+                label: 'Backup Type',
+                type: 'choice',
+                choices: [
+                  { value: 'M', label: 'Mydumper' },
+                  { value: 'X', label: 'XtraBackup' },
+                ],
+              },
+              { name: 'backup_dir', label: 'Backup Directory', type: 'string' },
+              {
+                name: 'compress',
+                label: 'Compress',
+                type: 'bool',
+                default: false,
+              },
+            ],
+          },
+        ],
+        detail_view: {
+          sections: [
+            {
+              title: 'Restore Target',
+              fields: [{ path: 'host', label: 'Destination Host' }],
+            },
+            {
+              title: 'Backup Configuration',
+              fields: [
+                {
+                  path: 'data.meta.config',
+                  label: 'Config (YAML)',
+                  highlight: 'yaml',
+                },
+              ],
+            },
+          ],
+        },
+      } as unknown as PluginSchema;
+    }
+
+    function taskWithForm(form: Record<string, unknown> | undefined) {
+      return {
+        id: 1,
+        name: 'FECHK',
+        status: 'completed',
+        host: 'db01',
+        data: {
+          meta: { config: 'a: 1' },
+          ...(form ? { _form: form } : {}),
+        },
+      };
+    }
+
+    it('lists only the settings that differ from default, under form labels', () => {
+      mockUsePluginTask.mockReturnValue({
+        data: taskWithForm({
+          backup_type: 'M',
+          backup_dir: '/backups',
+          compress: false,
+        }),
+        isLoading: false,
+      });
+
+      renderWithSchema(configSchema());
+
+      expect(screen.getByText('Backup Directory')).toBeInTheDocument();
+      expect(screen.getByText('/backups')).toBeInTheDocument();
+      // Labelled through the field's own choices, not shown as the stored code.
+      expect(screen.getByText('Mydumper')).toBeInTheDocument();
+      // Left at its default, so it is not part of what someone configured.
+      expect(screen.queryByText('Compress')).toBeNull();
+    });
+
+    it('keeps a plain detail section visible and collapses only the document one', async () => {
+      const user = userEvent.setup();
+      mockUsePluginTask.mockReturnValue({
+        data: taskWithForm({ backup_dir: '/backups' }),
+        isLoading: false,
+      });
+
+      renderWithSchema(configSchema());
+
+      // An app's ordinary declared fields are primary content and stay put.
+      // `getAllByText` for the value: the generic Task information card also
+      // renders the record's own `host` key, which is pre-existing duplication
+      // between that card and a detail section declaring the same path.
+      expect(screen.getByText('Destination Host')).toBeInTheDocument();
+      expect(screen.getAllByText('db01').length).toBeGreaterThan(0);
+
+      // The rendered document is behind the disclosure.
+      expect(screen.queryByTestId('detail-syntax-highlighter')).toBeNull();
+      await user.click(screen.getByTestId('raw-configuration-toggle'));
+      // Resolved with `find`: the highlighter is lazy, so it arrives a tick
+      // after the disclosure opens.
+      expect(
+        await screen.findByTestId('detail-syntax-highlighter')
+      ).toBeInTheDocument();
+    });
+
+    it('leaves the document expanded when the task configured nothing beyond defaults', async () => {
+      mockUsePluginTask.mockReturnValue({
+        // A stored form exists, but every value in it matches the schema
+        // default, so there is no configuration summary to promote over the
+        // document. Collapsing on "a stored form exists" alone would leave the
+        // page showing a lone toggle and no configuration at all.
+        data: taskWithForm({ compress: false }),
+        isLoading: false,
+      });
+
+      renderWithSchema(configSchema());
+
+      expect(
+        await screen.findByTestId('detail-syntax-highlighter')
+      ).toBeInTheDocument();
+      expect(screen.queryByTestId('raw-configuration-toggle')).toBeNull();
+    });
+
+    it('leaves the document expanded for a task with no stored form', async () => {
+      mockUsePluginTask.mockReturnValue({
+        data: taskWithForm(undefined),
+        isLoading: false,
+      });
+
+      renderWithSchema(configSchema());
+
+      // Nothing better to show, so the only account of the config stays open
+      // and there is no disclosure to discover.
+      expect(
+        await screen.findByTestId('detail-syntax-highlighter')
+      ).toBeInTheDocument();
+      expect(screen.queryByTestId('raw-configuration-toggle')).toBeNull();
+    });
+  });
+
   it('does not render any section cards when detail_view is undefined', () => {
     mockUsePluginTask.mockReturnValue({
       data: {
@@ -1580,6 +1726,63 @@ describe('PluginDetailPage — overview_hidden_fields', () => {
     // Unrelated extra field still renders
     expect(screen.getByText('extra_visible')).toBeInTheDocument();
     expect(screen.getByText('hello')).toBeInTheDocument();
+  });
+
+  it('labels an entity detail column through its value_labels map', () => {
+    const customSchema = {
+      pluginName: 'inventory',
+      display_name: 'Inventory',
+      capabilities: {},
+      entities: [
+        {
+          name: 'services',
+          display_name: 'Services',
+          forms: [],
+          list_view: {
+            columns: [
+              { key: 'name', label: 'Name' },
+              {
+                key: 'backup_type',
+                label: 'Type',
+                value_labels: { M: 'Mydumper', X: 'XtraBackup' },
+              },
+            ],
+          },
+        },
+      ],
+      list_view: { columns: [{ key: 'name', label: 'Name' }] },
+    } as unknown as PluginSchema;
+
+    mockUsePluginEntityDetail.mockReturnValue({
+      data: { id: 1, name: 'mysql-01', backup_type: 'M' },
+      isLoading: false,
+      error: null,
+    });
+
+    render(
+      <QueryClientProvider client={makeClient()}>
+        <SnackbarProvider>
+          <MemoryRouter initialEntries={['/apps/inventory/services/1']}>
+            <Routes>
+              <Route
+                path="/apps/:plugin/:entityName/:id/*"
+                element={
+                  <PluginDetailPage
+                    schema={customSchema}
+                    pluginName="inventory"
+                  />
+                }
+              />
+            </Routes>
+          </MemoryRouter>
+        </SnackbarProvider>
+      </QueryClientProvider>
+    );
+
+    // The entity detail path renders list_view columns too, and must agree with
+    // the task overview about how a labelled value reads.
+    expect(screen.getByText('Mydumper')).toBeInTheDocument();
+    expect(screen.queryByText('M')).toBeNull();
   });
 });
 

@@ -177,6 +177,86 @@ describe('SchemaListView — renderListColumn override', () => {
     // empty rather than showing a placeholder for a time that never happened.
     expect(screen.getAllByText('—').length).toBe(2);
   });
+
+  it('renders a labelled value through the column value_labels map', () => {
+    const labelled: ListView = {
+      columns: [
+        {
+          key: 'backup_type',
+          label: 'Type',
+          format: 'chip',
+          value_labels: { M: 'Mydumper', X: 'XtraBackup' },
+        },
+      ],
+    };
+    render(
+      <SchemaListView
+        listView={labelled}
+        data={[{ id: 1, backup_type: 'M' }]}
+      />
+    );
+
+    expect(screen.getByText('Mydumper')).toBeInTheDocument();
+    expect(screen.queryByText('M')).toBeNull();
+  });
+
+  it('leaves a value the label map does not mention unchanged', () => {
+    const labelled: ListView = {
+      columns: [
+        {
+          key: 'backup_type',
+          label: 'Type',
+          value_labels: { M: 'Mydumper' },
+        },
+      ],
+    };
+    render(
+      <SchemaListView
+        listView={labelled}
+        data={[{ id: 1, backup_type: 'B' }]}
+      />
+    );
+
+    expect(screen.getByText('B')).toBeInTheDocument();
+  });
+
+  it('renders both time formats relatively, with the full timestamp on hover', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-18T12:00:00Z'));
+    try {
+      const timed: ListView = {
+        columns: [
+          { key: 'created_at', label: 'Created', format: 'date' },
+          { key: 'seen_at', label: 'Seen', format: 'relative' },
+        ],
+      };
+      render(
+        <SchemaListView
+          listView={timed}
+          data={[
+            {
+              id: 1,
+              created_at: '2026-06-15T12:00:00Z',
+              seen_at: '2026-06-15T12:00:00Z',
+            },
+          ]}
+        />
+      );
+
+      // One rule for both declared formats: the `date` column no longer renders
+      // a bare locale date while `relative` renders a hand-rolled age.
+      const cells = screen.getAllByText('3 days ago');
+      expect(cells).toHaveLength(2);
+      for (const cell of cells) {
+        expect(cell).toHaveAttribute(
+          'title',
+          new Date('2026-06-15T12:00:00Z').toLocaleString()
+        );
+      }
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
 
 const NOW = new Date('2026-06-18T12:00:00Z');

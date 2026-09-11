@@ -18,6 +18,14 @@
 import cronstrue from 'cronstrue';
 import type { PeriodicTaskResponse } from './hooks';
 
+// Both moved to `utils/formatTimestamp`, which is now the single implementation
+// of either, and are re-exported from here because the scheduled-task
+// surfaces, the schedule cell and two test files import them from this path.
+export {
+  formatAbsoluteTime,
+  formatRelativeTime,
+} from '../../utils/formatTimestamp';
+
 /** Plain-language description of a periodic task's recurrence. */
 export interface PeriodDescription {
   /** Human-readable recurrence (for example, "every 1 hours" or a cron phrase). */
@@ -53,52 +61,6 @@ export function describePeriod(task: PeriodicTaskResponse): PeriodDescription {
     return { display: `every ${task.interval.every} ${task.interval.period}` };
   }
   return { display: task.period || '—' };
-}
-
-const RELATIVE_DIVISIONS: {
-  amount: number;
-  unit: Intl.RelativeTimeFormatUnit;
-}[] = [
-  { amount: 60, unit: 'seconds' },
-  { amount: 60, unit: 'minutes' },
-  { amount: 24, unit: 'hours' },
-  { amount: 7, unit: 'days' },
-  { amount: 4.34524, unit: 'weeks' },
-  { amount: 12, unit: 'months' },
-  { amount: Number.POSITIVE_INFINITY, unit: 'years' },
-];
-
-/**
- * Format an ISO timestamp as a signed relative time (for example, "in 2 hours"
- * or "3 days ago"). Returns the raw input unchanged when it is not a valid
- * date. `now` is injectable so tests stay deterministic.
- */
-export function formatRelativeTime(
-  value: string,
-  now: number = Date.now()
-): string {
-  const target = new Date(value).getTime();
-  if (Number.isNaN(target)) {
-    return value;
-  }
-  const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
-  let duration = (target - now) / 1000;
-  for (const division of RELATIVE_DIVISIONS) {
-    if (Math.abs(duration) < division.amount) {
-      return rtf.format(Math.round(duration), division.unit);
-    }
-    duration /= division.amount;
-  }
-  return value;
-}
-
-/** Format an ISO timestamp as a locale absolute date-time, or `—` when absent. */
-export function formatAbsoluteTime(value: string | null | undefined): string {
-  if (!value) {
-    return '—';
-  }
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? value : d.toLocaleString();
 }
 
 /**
