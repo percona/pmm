@@ -927,7 +927,7 @@
                     },
                     "pluginVersion": "4.4.0",
                     "queryType": "table",
-                    "rawSql": "SELECT argMaxIf(period_start, m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) as time, \r\nservice_name \"Service\", username, fingerprint \"Query\", sum(num_queries) \"Calls\", avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) AND (service_name IN ($service_name)) GROUP BY service_name, username, fingerprint ORDER BY Execution_time DESC LIMIT 500",
+                    "rawSql": "SELECT argMaxIf(period_start, m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) as time, \r\nservice_name \"Service\", username, fingerprint \"Query\", sum(num_queries) \"Calls\", sum(m_query_time_sum) / nullIf(sum(m_query_time_cnt), 0) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) AND (service_name IN ($service_name)) GROUP BY service_name, username, fingerprint ORDER BY Execution_time DESC LIMIT 500",
                     "refId": "A"
                 }
             ],
