@@ -97,6 +97,13 @@ interface SchemaDrivenPluginProps {
       tasks: Record<string, unknown>[];
     }
   ) => ReactNode | undefined;
+  /**
+   * Force-hide scheduling UI and the `/schedule` route even when the live
+   * schema still advertises `capabilities.scheduling`. Accepts a predicate so
+   * a parent mount (e.g. MySQL Backups) can disable scheduling only for a
+   * related app such as Restore until that app stops declaring the capability.
+   */
+  disableScheduling?: boolean | ((pluginName: string) => boolean);
   /** Task names whose execution history should appear on the Execution History tab. */
   getTaskHistoryNames?: (task: Record<string, unknown>) => string[] | undefined;
   /** Extra overview content on single-task detail pages. */
@@ -307,6 +314,26 @@ function PluginEditPage({
   );
 }
 
+function isSchedulingDisabled(
+  disableScheduling: boolean | ((pluginName: string) => boolean) | undefined,
+  pluginName: string
+): boolean {
+  if (typeof disableScheduling === 'function') {
+    return disableScheduling(pluginName);
+  }
+  return Boolean(disableScheduling);
+}
+
+function withSchedulingDisabled(schema: PluginSchema): PluginSchema {
+  if (!schema.capabilities?.scheduling) {
+    return schema;
+  }
+  return {
+    ...schema,
+    capabilities: { ...schema.capabilities, scheduling: false },
+  };
+}
+
 export function SchemaDrivenPlugin({
   pluginName,
   routeBase,
@@ -318,6 +345,7 @@ export function SchemaDrivenPlugin({
   suppressDetailKeys,
   getTaskExecuteActions,
   getScheduleWarning,
+  disableScheduling,
   getTaskHistoryNames,
   renderTaskDetailChildren,
   hideEntityTabs = false,
@@ -331,10 +359,17 @@ export function SchemaDrivenPlugin({
 }: SchemaDrivenPluginProps) {
   const { pathname } = useLocation();
   const {
-    data: schema,
+    data: loadedSchema,
     isLoading,
     error,
   } = usePluginSchema(pluginName, mockSchema);
+  const schedulingOff = isSchedulingDisabled(disableScheduling, pluginName);
+  const schema = useMemo(() => {
+    if (!loadedSchema) {
+      return undefined;
+    }
+    return schedulingOff ? withSchedulingDisabled(loadedSchema) : loadedSchema;
+  }, [loadedSchema, schedulingOff]);
   const showMutationRoutes = !listOnly && !browseOnly;
   const showDetailRoutes = !listOnly;
   const resolvedRouteBase = resolvePluginRouteBase(
@@ -442,6 +477,7 @@ export function SchemaDrivenPlugin({
     suppressDetailKeys,
     getTaskExecuteActions,
     getScheduleWarning,
+    disableScheduling,
     getTaskHistoryNames,
     renderTaskDetailChildren,
     hideEntityTabs,

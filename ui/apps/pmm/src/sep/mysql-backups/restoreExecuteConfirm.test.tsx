@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  getMysqlBackupsScheduleWarning,
   getMysqlBackupsTaskExecuteActions,
   getMysqlRestoreConfirmDetails,
+  isMysqlRestorePluginName,
   isMysqlRestoreTask,
   MysqlRestoreConfirmContent,
 } from './restoreExecuteConfirm';
@@ -17,6 +17,13 @@ vi.mock('@sep/framework', async (importOriginal) => ({
 
 beforeEach(() => {
   mockUseSchemas.mockReset();
+});
+
+describe('isMysqlRestorePluginName', () => {
+  it('matches restore related-app keys', () => {
+    expect(isMysqlRestorePluginName('mysql_backups/restore')).toBe(true);
+    expect(isMysqlRestorePluginName('mysql_backups')).toBe(false);
+  });
 });
 
 describe('isMysqlRestoreTask', () => {
@@ -241,67 +248,6 @@ describe('getMysqlBackupsTaskExecuteActions', () => {
       testId: 'mysql-restore-execute',
     });
     expect(actions?.[0].confirmContent).toBeTruthy();
-  });
-});
-
-describe('getMysqlBackupsScheduleWarning', () => {
-  it('returns undefined for non-restore plugins', () => {
-    expect(
-      getMysqlBackupsScheduleWarning('backup-1', {
-        pluginName: 'mysql_backups',
-        tasks: [{ name: 'backup-1' }],
-      })
-    ).toBeUndefined();
-  });
-
-  it('returns schedule confirm content for restore plugin tasks', () => {
-    const warning = getMysqlBackupsScheduleWarning('test-myloader', {
-      pluginName: 'mysql_backups/restore',
-      tasks: [
-        {
-          name: 'test-myloader',
-          host: '10.30.50.130',
-          port: 3306,
-          data: {
-            _form: {
-              backup_source: '/backups/latest',
-              schema_id: 'demo',
-              overwrite_tables: true,
-            },
-          },
-        },
-      ],
-    });
-
-    expect(warning).toBeTruthy();
-    render(<>{warning}</>);
-    expect(
-      screen.getByTestId('mysql-restore-schedule-confirm')
-    ).toHaveTextContent('schedule this restore');
-    expect(
-      screen.getByTestId('mysql-restore-schedule-confirm')
-    ).toHaveTextContent('Source backup: /backups/latest');
-    expect(
-      screen.getByTestId('mysql-restore-overwrite-alert')
-    ).toBeInTheDocument();
-  });
-
-  it('warns when the selected restore is missing from the task list', () => {
-    const warning = getMysqlBackupsScheduleWarning('missing-restore', {
-      pluginName: 'mysql_backups/restore',
-      tasks: [{ name: 'other-restore' }],
-    });
-
-    expect(warning).toBeTruthy();
-    render(<>{warning}</>);
-    expect(
-      screen.getByTestId('mysql-restore-schedule-confirm-incomplete')
-    ).toHaveTextContent(
-      "Could not load details for restore task 'missing-restore'"
-    );
-    expect(
-      screen.queryByTestId('mysql-restore-schedule-confirm')
-    ).not.toBeInTheDocument();
   });
 });
 

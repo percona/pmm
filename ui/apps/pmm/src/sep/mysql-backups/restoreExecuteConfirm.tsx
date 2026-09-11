@@ -51,12 +51,17 @@ function asInventoryId(value: unknown): number | undefined {
   return id !== undefined && Number.isInteger(id) && id > 0 ? id : undefined;
 }
 
+/** True when this plugin name is a MySQL restore related app. */
+export function isMysqlRestorePluginName(pluginName: string): boolean {
+  return pluginName.includes('restore');
+}
+
 /** True when this plugin (or task payload) is a MySQL restore. */
 export function isMysqlRestoreTask(
   task: Record<string, unknown>,
   pluginName?: string
 ): boolean {
-  if (pluginName?.includes('restore')) {
+  if (pluginName && isMysqlRestorePluginName(pluginName)) {
     return true;
   }
   const form = getStoredForm(task);
@@ -228,25 +233,17 @@ function MydumperWarnings({
 /** Rich confirm body naming source, target, and overwrite behaviour. */
 export function MysqlRestoreConfirmContent({
   details,
-  mode = 'execute',
 }: {
   details: MysqlRestoreConfirmDetails;
-  mode?: 'execute' | 'schedule';
 }): ReactNode {
-  const intro =
-    mode === 'schedule'
-      ? 'You are about to schedule this restore. Confirm the target before continuing.'
-      : 'You are about to run this restore. Confirm the target before continuing.';
-  const testId =
-    mode === 'schedule'
-      ? 'mysql-restore-schedule-confirm'
-      : 'mysql-restore-execute-confirm';
   const restoresOnExecutor =
     details.backupType === 'X' || details.backupType === 'B';
 
   return (
-    <Stack spacing={1.5} data-testid={testId}>
-      <Typography variant="body2">{intro}</Typography>
+    <Stack spacing={1.5} data-testid="mysql-restore-execute-confirm">
+      <Typography variant="body2">
+        You are about to run this restore. Confirm the target before continuing.
+      </Typography>
       <Stack spacing={0.5}>
         <ConfirmRow label="Source backup" value={details.source} />
         {restoresOnExecutor ? (
@@ -295,46 +292,7 @@ export function getMysqlBackupsTaskExecuteActions(
       label: 'Execute',
       taskName,
       testId: 'mysql-restore-execute',
-      confirmContent: (
-        <MysqlRestoreConfirmContent details={details} mode="execute" />
-      ),
+      confirmContent: <MysqlRestoreConfirmContent details={details} />,
     },
   ];
-}
-
-/**
- * Schedule confirmation for MySQL Restores, with the same
- * source/target/overwrite confirm as Execute.
- */
-export function getMysqlBackupsScheduleWarning(
-  taskName: string,
-  context: {
-    pluginName: string;
-    tasks: Record<string, unknown>[];
-  }
-): ReactNode | undefined {
-  if (!context.pluginName.includes('restore')) {
-    return undefined;
-  }
-
-  const task = context.tasks.find((t) => t.name === taskName);
-  if (!task) {
-    // Incomplete poll / stale list: still block on confirm, but do not invent
-    // a safe-looking "Overwrite: No" / "Not set" summary.
-    return (
-      <Stack
-        spacing={1.5}
-        data-testid="mysql-restore-schedule-confirm-incomplete"
-      >
-        <Alert severity="warning">
-          Could not load details for restore task &apos;{taskName}&apos;. Open
-          the task and verify the target host, database, and overwrite setting
-          before scheduling.
-        </Alert>
-      </Stack>
-    );
-  }
-
-  const details = getMysqlRestoreConfirmDetails(task);
-  return <MysqlRestoreConfirmContent details={details} mode="schedule" />;
 }

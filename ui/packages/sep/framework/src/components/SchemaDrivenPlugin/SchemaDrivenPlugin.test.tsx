@@ -89,6 +89,7 @@ const restoreSchema: PluginSchema = {
     },
   ],
   list_view: { columns: [{ key: 'name', label: 'Name' }] },
+  capabilities: { scheduling: true },
 } as unknown as PluginSchema;
 
 const taskRecord = {
@@ -296,6 +297,41 @@ describe('SchemaDrivenPlugin — related_apps routing', () => {
     );
     expect(screen.getByText('list:mysql_backups/restore')).toBeInTheDocument();
     expect(screen.queryByText('list:mysql_backups')).toBeNull();
+  });
+
+  it('keeps the restore schedule route when scheduling is not disabled', () => {
+    activeSchema = backupsSchema;
+    renderBackupsPlugin('/apps/mysql_backups/restores/schedule');
+
+    expect(screen.getByText('schedule')).toBeInTheDocument();
+  });
+
+  it('hides the restore schedule route when disableScheduling matches', () => {
+    activeSchema = backupsSchema;
+    render(
+      <SnackbarProvider>
+        <MemoryRouter
+          initialEntries={['/apps/mysql_backups/restores/schedule']}
+        >
+          <Routes>
+            <Route
+              path="/apps/mysql_backups/*"
+              element={
+                <SchemaDrivenPlugin
+                  pluginName="mysql_backups"
+                  routeBase="/apps/mysql_backups"
+                  disableScheduling={(name) => name.includes('restore')}
+                />
+              }
+            />
+          </Routes>
+        </MemoryRouter>
+      </SnackbarProvider>
+    );
+
+    expect(screen.queryByText('schedule')).toBeNull();
+    // Tab bar still mounts for the related-app shell; only the schedule page is gone.
+    expect(screen.getByRole('tab', { name: 'Restore' })).toBeInTheDocument();
   });
 });
 

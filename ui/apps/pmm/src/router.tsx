@@ -22,8 +22,8 @@ import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@sep/plugins-atw';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import {
-  getMysqlBackupsScheduleWarning,
   getMysqlBackupsTaskExecuteActions,
+  isMysqlRestorePluginName,
 } from './sep/mysql-backups/restoreExecuteConfirm';
 import { SepPage } from './sep/SepPage';
 
@@ -124,7 +124,9 @@ const router = createBrowserRouter(
                     pluginName="mysql_backups"
                     routeBase={SEP_MYSQL_BACKUPS_PATH}
                     getTaskExecuteActions={getMysqlBackupsTaskExecuteActions}
-                    getScheduleWarning={getMysqlBackupsScheduleWarning}
+                    // Restores are not schedulable (PMM-15450). Force-off until
+                    // the restore app stops advertising capabilities.scheduling.
+                    disableScheduling={isMysqlRestorePluginName}
                   />
                 </SepPage>
               ),
