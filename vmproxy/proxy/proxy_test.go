@@ -238,9 +238,14 @@ func TestProxy(t *testing.T) {
 			"/api/v1/alerts",
 			"/api/v1/status/buildinfo",
 			"/api/v1/export",
+			// Documented admin diagnostics.
+			"/targets",
+			"/api/v1/targets",
+			"/api/v1/status/tsdb",
 			// nginx passes the original URI for the /prometheus/api/v1 location.
 			"/prometheus/api/v1/query",
 			"/prometheus/api/v1/label/node_name/values",
+			"/prometheus/api/v1/status/tsdb",
 		}
 		refused := []string{
 			"/",
@@ -250,9 +255,8 @@ func TestProxy(t *testing.T) {
 			"/api/v1/admin/tsdb/delete_series",
 			"/api/v1/write",
 			"/api/v1/import",
+			// The whole scrape configuration, unlike the diagnostics allowed above.
 			"/api/v1/status/config",
-			"/api/v1/status/tsdb",
-			"/api/v1/targets",
 			"/metrics",
 			"/flags",
 			"/debug/pprof/heap",

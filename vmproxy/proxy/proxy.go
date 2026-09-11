@@ -52,6 +52,17 @@ var readOnlyPaths = map[string]struct{}{
 	"/api/v1/alerts":           {},
 	"/api/v1/status/buildinfo": {},
 	"/api/v1/export":           {},
+
+	// Documented admin diagnostics, reached through the admin-gated /prometheus and
+	// /victoriametrics nginx locations, which also cross this proxy. They stay open
+	// because refusing them breaks a documented feature while protecting nothing: the
+	// labels they expose are the same ones every dashboard user already enumerates
+	// through /api/v1/label/<name>/values, which template variables depend on. Neither
+	// carries credentials. /api/v1/status/config is deliberately not among them -- it
+	// renders the whole scrape configuration.
+	"/targets":            {},
+	"/api/v1/targets":     {},
+	"/api/v1/status/tsdb": {},
 }
 
 // Config defines options for starting proxy.
