@@ -213,20 +213,37 @@ export function selectConfiguredSettings(
 }
 
 /**
- * A field's default as the form would apply it.
+ * A field's default as the form would actually apply it.
  *
- * Only bools differ from what the schema literally declares: an undeclared
- * boolean default means "off", because that is what the unchecked control the
- * form renders submits. Without this a bool field whose schema omits a default
- * would count as configured on every task that ever submitted the form, and
- * list `No` under its label forever. Every other type keeps its declared
- * default, absent included — a set value against no default is a real choice.
+ * `SchemaFormRenderer`'s own `fieldDefault` is the authority on what an
+ * omitted default seeds, and this has to agree with it or a field the form
+ * never touched reads back as configured. Two of its cases need mirroring
+ * here: an undeclared `bool` seeds `false` (what an unchecked box submits) and
+ * an undeclared `multi_choice` seeds `[]` (an empty selection). Without the
+ * first, a bool field whose schema omits a default would list `No` under its
+ * label on every task that ever submitted the form; without the second, an
+ * untouched empty selection would list as configured with nothing to show.
+ *
+ * Its remaining cases need no mirroring: they all seed `''`, `null` or
+ * `undefined`, which {@link isDefaultValue} already treats as blank and so as
+ * default. Every other type keeps its declared default, absent included — a
+ * set value against no default is a real choice.
+ *
+ * PMM-15451 extracts that helper to a shared util; import it here instead once
+ * the two branches meet, and delete this.
  */
 function effectiveDefault(field: PluginField): unknown {
-  if (field.type === 'bool' && field.default === undefined) {
-    return false;
+  if (field.default !== undefined) {
+    return field.default;
   }
-  return field.default;
+  switch (field.type) {
+    case 'bool':
+      return false;
+    case 'multi_choice':
+      return [];
+    default:
+      return undefined;
+  }
 }
 
 /**

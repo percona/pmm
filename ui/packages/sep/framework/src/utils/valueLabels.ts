@@ -36,7 +36,14 @@ export function applyValueLabel(
   if (!valueLabels || value === null || value === undefined) {
     return value;
   }
-  // Keyed by the value's string form: the wire carries the map's keys as
-  // strings even where the column holds numbers or booleans.
-  return valueLabels[String(value)] ?? value;
+  // Own properties only. A bare `valueLabels[key]` reads through the prototype,
+  // so a value that happens to spell `constructor`, `toString` or `__proto__`
+  // would resolve to an inherited function or object, defeat the `??` fallback,
+  // and hand React something it cannot render — a crash for a cell whose only
+  // sin is its text. Keyed by the value's string form because the wire carries
+  // the map's keys as strings even where the column holds numbers or booleans.
+  const key = String(value);
+  return Object.prototype.hasOwnProperty.call(valueLabels, key)
+    ? valueLabels[key]
+    : value;
 }

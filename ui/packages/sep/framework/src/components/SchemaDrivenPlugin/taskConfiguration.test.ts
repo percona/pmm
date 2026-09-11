@@ -177,6 +177,33 @@ describe('selectConfiguredSettings', () => {
     expect(on[0].settings.map((s) => s.name)).toEqual(['verbose']);
   });
 
+  it('treats an undeclared multi-choice default as an empty selection', () => {
+    const sections: FormSection[] = [
+      {
+        title: 'Task',
+        fields: [
+          {
+            name: 'databases',
+            label: 'Databases',
+            type: 'multi_choice',
+            choices: [
+              { value: 'a', label: 'A' },
+              { value: 'b', label: 'B' },
+            ],
+          },
+        ],
+      },
+    ];
+
+    // The form seeds an omitted multi-choice default as `[]`, so an untouched
+    // selection comes back as `[]` and must not read as configured — it would
+    // list the label above an empty value.
+    expect(selectConfiguredSettings(sections, { databases: [] })).toEqual([]);
+
+    const picked = selectConfiguredSettings(sections, { databases: ['a'] });
+    expect(picked[0].settings[0].value).toEqual(['a']);
+  });
+
   it('keeps a falsy-but-declared default distinct from a set value', () => {
     const sections: FormSection[] = [
       {
