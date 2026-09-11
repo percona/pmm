@@ -1097,7 +1097,7 @@ We are aware of the following issues in this Tech Preview version and plan to fi
 
 | Issue | Impact | Workaround |
 |-------|--------|------------|
-| **[PMM-14704](https://perconadev.atlassian.net/browse/PMM-14704)**: PostgreSQL nodes in dropdown | Node selector shows database instances alongside PMM nodes | Select only nodes named `pmm-ha-0`, `pmm-ha-1`, `pmm-ha-2` |
+| **[PMM-14704](https://perconadev.atlassian.net/browse/PMM-14704)**: PostgreSQL nodes in dropdown | Node selector still shows the PostgreSQL database instance nodes as monitoring delegates | Don't select them - they're dedicated to PMM's own storage. The PMM Server nodes (`pmm-ha-0`, `pmm-ha-1`, `pmm-ha-2`) are no longer selectable either; [connect a separate PMM Client](#connect-monitoring-clients) instead |
 | **[PMM-14705](https://perconadev.atlassian.net/browse/PMM-14705)**: CLI-added services show no metrics | Services from `pmm-admin` appear as UNSPECIFIED, dashboards empty (QAN works) | Add services via PMM UI instead |
 | **[PMM-14706](https://perconadev.atlassian.net/browse/PMM-14706)**: Extra 'pmm-' prefix | PostgreSQL nodes show as `pmm-pmm-ha-pg-...` | Cosmetic only - no action needed |
 | **[PMM-14707](https://perconadev.atlassian.net/browse/PMM-14707)**: Wrong PostgreSQL status | Inventory shows FAILED/UNSPECIFIED despite working metrics | Check dashboards to verify metrics flow |
