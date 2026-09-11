@@ -63,6 +63,19 @@ func TestAgentHelpers(t *testing.T) {
 				NodeType: models.GenericNodeType,
 				NodeName: "N2 with PushMetrics",
 			},
+			&models.Node{
+				NodeID:     "N3",
+				NodeType:   models.RemoteRDSNodeType,
+				NodeName:   "RDS node with an instance identifier",
+				Address:    "rds1.abcdef.eu-north-1.rds.amazonaws.com",
+				InstanceID: "rds1",
+			},
+			&models.Node{
+				NodeID:   "N4",
+				NodeType: models.RemoteRDSNodeType,
+				NodeName: "RDS node missing its instance identifier",
+				Address:  "rds2.abcdef.eu-north-1.rds.amazonaws.com",
+			},
 
 			&models.Service{
 				ServiceID:   "S1",
@@ -256,6 +269,27 @@ func TestAgentHelpers(t *testing.T) {
 			AWSOptions: models.AWSOptions{AWSAccessKey: "AKIA", AWSSecretKey: "secret"},
 		})
 		require.NoError(t, err)
+	})
+
+	t.Run("CreateAgentRDSExporterRequiresNodeInstanceID", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		// N3 carries a DB instance identifier, so the exporter has something to scrape.
+		agent, err := models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "A1",
+			NodeID:     "N3",
+		})
+		require.NoError(t, err)
+		assert.Equal(t, models.RDSExporterType, agent.AgentType)
+
+		// N4 does not. rds_exporter would start, report RUNNING and scrape nothing,
+		// so creation must be refused rather than producing a dead agent.
+		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "A1",
+			NodeID:     "N4",
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, `node N4 has no DB instance identifier`, err)
 	})
 
 	t.Run("AgentsForNode", func(t *testing.T) {

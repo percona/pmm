@@ -454,7 +454,7 @@ type RemoteRDSNode struct {
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Unique across all Nodes user-defined name.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// DB instance identifier.
+	// Node address. For RDS this is the instance endpoint, not the DB instance identifier.
 	Address string `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
 	// Node model.
 	NodeModel string `protobuf:"bytes,4,opt,name=node_model,json=nodeModel,proto3" json:"node_model,omitempty"`
@@ -1531,7 +1531,7 @@ type AddRemoteRDSNodeParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Unique across all Nodes user-defined name.
 	NodeName string `protobuf:"bytes,1,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// DB instance identifier.
+	// Node address. For RDS this is the instance endpoint, not the DB instance identifier.
 	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
 	// Node model.
 	NodeModel string `protobuf:"bytes,3,opt,name=node_model,json=nodeModel,proto3" json:"node_model,omitempty"`
@@ -1540,7 +1540,10 @@ type AddRemoteRDSNodeParams struct {
 	// Node availability zone.
 	Az string `protobuf:"bytes,5,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
-	CustomLabels  map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	CustomLabels map[string]string `protobuf:"bytes,6,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// AWS DB instance identifier. Required: rds_exporter uses it as the CloudWatch
+	// DBInstanceIdentifier dimension, and cannot scrape without it.
+	InstanceId    string `protobuf:"bytes,7,opt,name=instance_id,json=instanceId,proto3" json:"instance_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1615,6 +1618,13 @@ func (x *AddRemoteRDSNodeParams) GetCustomLabels() map[string]string {
 		return x.CustomLabels
 	}
 	return nil
+}
+
+func (x *AddRemoteRDSNodeParams) GetInstanceId() string {
+	if x != nil {
+		return x.InstanceId
+	}
+	return ""
 }
 
 type AddRemoteAzureNodeParams struct {
@@ -1950,7 +1960,7 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"\rcustom_labels\x18\x06 \x03(\v23.inventory.v1.AddRemoteNodeParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xcf\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf0\x02\n" +
 	"\x16AddRemoteRDSNodeParams\x12$\n" +
 	"\tnode_name\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\bnodeName\x12!\n" +
 	"\aaddress\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\aaddress\x12\x1d\n" +
@@ -1958,7 +1968,9 @@ const file_inventory_v1_nodes_proto_rawDesc = "" +
 	"node_model\x18\x03 \x01(\tR\tnodeModel\x12\x1f\n" +
 	"\x06region\x18\x04 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x06region\x12\x0e\n" +
 	"\x02az\x18\x05 \x01(\tR\x02az\x12[\n" +
-	"\rcustom_labels\x18\x06 \x03(\v26.inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntryR\fcustomLabels\x1a?\n" +
+	"\rcustom_labels\x18\x06 \x03(\v26.inventory.v1.AddRemoteRDSNodeParams.CustomLabelsEntryR\fcustomLabels\x12\x1f\n" +
+	"\vinstance_id\x18\a \x01(\tR\n" +
+	"instanceId\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xd3\x02\n" +
