@@ -2,11 +2,9 @@ import { render, waitFor } from '@testing-library/react';
 import { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { UpdatesProvider } from './updates.provider';
 import { SettingsContext, type SettingsContextProps } from 'contexts/settings';
-import {
-  api,
-  addApiErrorInterceptor,
-  removeApiErrorInterceptor,
-} from 'api/api';
+import { api } from 'api/api';
+// registers the error-notification interceptor on the axios instance above
+import 'api/api.interceptors';
 import {
   wrapWithQueryProvider,
   wrapWithSettings,
@@ -40,6 +38,8 @@ const INSTALLED_ONLY_BODY = {
   latest_news_url: '',
   last_check: null,
 };
+
+const originalApiAdapter = api.defaults.adapter;
 
 let seenParams: Record<string, unknown>[] = [];
 
@@ -104,11 +104,10 @@ describe('UpdatesProvider (PMM-15274)', () => {
     vi.clearAllMocks();
     seenParams = [];
     api.defaults.adapter = updatesDisabledAdapter;
-    addApiErrorInterceptor();
   });
 
   afterEach(() => {
-    removeApiErrorInterceptor();
+    api.defaults.adapter = originalApiAdapter;
   });
 
   it('raises no error toast when updates are disabled', async () => {
