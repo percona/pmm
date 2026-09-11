@@ -48,15 +48,23 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 
 		// The flag names come from oliver006/redis_exporter, shipped as valkey_exporter;
 		// all four have been stable since v1.72.1, the build the first Valkey release used.
-		tlsFileFlags := []struct{ file, flag string }{
-			{models.TLSCaFileName, "--tls-ca-cert-file"},
-			{models.TLSCertFileName, "--tls-client-cert-file"},
-			{models.TLSKeyFileName, "--tls-client-key-file"},
+		fileFlag := func(file, flag string) string {
+			return flag + "=" + tdp.Left + " .TextFiles." + file + " " + tdp.Right
 		}
-		for _, f := range tlsFileFlags {
-			if _, ok := textFiles[f.file]; ok {
-				args = append(args, f.flag+"="+tdp.Left+" .TextFiles."+f.file+" "+tdp.Right)
-			}
+
+		if _, ok := textFiles[models.TLSCaFileName]; ok {
+			args = append(args, fileFlag(models.TLSCaFileName, "--tls-ca-cert-file"))
+		}
+
+		// The exporter's validateTLSClientConfig calls log.Fatal when one half of the client key
+		// pair is missing, so half a pair would crash-loop the process. Degrade to server
+		// authentication only instead.
+		_, hasCert := textFiles[models.TLSCertFileName]
+		_, hasKey := textFiles[models.TLSKeyFileName]
+		if hasCert && hasKey {
+			args = append(args,
+				fileFlag(models.TLSCertFileName, "--tls-client-cert-file"),
+				fileFlag(models.TLSKeyFileName, "--tls-client-key-file"))
 		}
 	}
 
