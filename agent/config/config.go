@@ -53,6 +53,24 @@ type Server struct {
 	WithoutTLS bool `yaml:"without-tls,omitempty"` // for development and testing
 }
 
+// NormalizedAddress returns the PMM Server address with the default port added when it has none.
+// It is idempotent: two addresses which differ only in the default port normalize to the same string,
+// which is what makes it usable for telling one PMM Server from another.
+func (s *Server) NormalizedAddress() string {
+	if s.Address == "" {
+		return ""
+	}
+	_, _, err := net.SplitHostPort(s.Address)
+	if err == nil {
+		return s.Address
+	}
+	// An IPv6 address may already carry the brackets JoinHostPort would add, and bracketing it again
+	// would make the method disagree with its own output.
+	host := strings.TrimSuffix(strings.TrimPrefix(s.Address, "["), "]")
+
+	return net.JoinHostPort(host, "443")
+}
+
 // URL returns base PMM Server URL for JSON APIs.
 func (s *Server) URL() *url.URL {
 	if s.Address == "" {
@@ -306,13 +324,9 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 			l.Infof("Using %s as a path to %s", *sp, n)
 		}
 
-		if cfg.Server.Address != "" {
-			_, _, e := net.SplitHostPort(cfg.Server.Address)
-			if e != nil {
-				host := cfg.Server.Address
-				cfg.Server.Address = net.JoinHostPort(host, "443")
-				l.Infof("Updating PMM Server address from %q to %q.", host, cfg.Server.Address)
-			}
+		if address := cfg.Server.NormalizedAddress(); address != cfg.Server.Address {
+			l.Infof("Updating PMM Server address from %s to %s.", cfg.Server.Address, address)
+			cfg.Server.Address = address
 		}
 
 		// enabled cross-component PMM_DEBUG and PMM_TRACE take priority
@@ -339,7 +353,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (string, error) { //nolint
 		return configFileF, err
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
-	fileCfg, err := loadFromFile(configFileF, &cfg.Encryption)
+	fileCfg, err := LoadFromFile(configFileF, &cfg.Encryption)
 	if err != nil {
 		return configFileF, err
 	}
@@ -512,7 +526,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	setupCmd.Flag("az", "Node availability zone [PMM_AGENT_SETUP_AZ]").
 		Envar("PMM_AGENT_SETUP_AZ").StringVar(&cfg.Setup.Az)
 
-	setupCmd.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist [PMM_AGENT_SETUP_FORCE]").
+	setupCmd.Flag("force", "Register the Node even if this pmm-agent is registered, removing any existing Node"+
+		" with that name and its Services and Agents [PMM_AGENT_SETUP_FORCE]").
 		Envar("PMM_AGENT_SETUP_FORCE").BoolVar(&cfg.Setup.Force)
 	setupCmd.Flag("skip-registration", "Skip registration on PMM Server [PMM_AGENT_SETUP_SKIP_REGISTRATION]").
 		Envar("PMM_AGENT_SETUP_SKIP_REGISTRATION").BoolVar(&cfg.Setup.SkipRegistration)
@@ -533,11 +548,12 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	return app, configFileF
 }
 
-// loadFromFile loads configuration from file.
+// LoadFromFile loads the configuration stored in the file at the given path,
+// ignoring both command-line flags and environment variables.
 // As a special case, if file does not exist, it returns ConfigFileDoesNotExistError.
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
-func loadFromFile(path string, enc *Encryption) (*Config, error) {
+func LoadFromFile(path string, enc *Encryption) (*Config, error) {
 	_, err := os.Stat(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)

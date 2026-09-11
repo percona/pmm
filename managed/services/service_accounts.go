@@ -1,0 +1,51 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package services
+
+import (
+	"context"
+	"errors"
+	"time"
+)
+
+// ErrServiceAccountNotFound reports that Grafana holds no service account for the Node. A Node which no
+// pmm-agent ever registered has none, so its removal meets this and is not a failure. Every other
+// failure leaves a live token behind and is, so the two must not look alike to the caller.
+var ErrServiceAccountNotFound = errors.New("service account not found")
+
+// serviceAccountCleanupTimeout bounds the Grafana calls of RemoveNodeServiceAccount, so that an
+// unresponsive Grafana holds neither the caller nor a transaction the caller runs this in.
+const serviceAccountCleanupTimeout = 10 * time.Second
+
+// ServiceAccountRemover deletes the Grafana service account of a Node.
+type ServiceAccountRemover interface {
+	DeleteServiceAccount(ctx context.Context, nodeName string, force bool) (string, error)
+}
+
+// RemoveNodeServiceAccount deletes the Grafana service account named after a Node being removed, so that
+// the token its pmm-agent authenticates with does not outlive the Node. The returned warning is what
+// Grafana reports when it keeps an account holding tokens pmm-agent did not create.
+//
+// Cancellation is the caller's to decide, and the two callers differ. A caller which can still abort the
+// removal passes ctx as it is, so that a client giving up takes the whole removal with it. A caller which
+// has already committed passes context.WithoutCancel(ctx), because by then the Node is gone and leaving
+// the account behind is the worse outcome; deriving from ctx keeps the auth headers Grafana needs.
+func RemoveNodeServiceAccount(ctx context.Context, c ServiceAccountRemover, nodeName string, force bool) (string, error) {
+	cleanupCtx, cancel := context.WithTimeout(ctx, serviceAccountCleanupTimeout)
+	defer cancel()
+
+	return c.DeleteServiceAccount(cleanupCtx, nodeName, force)
+}
