@@ -100,7 +100,6 @@ export function ChainBuilder({
   const { chain_task_names: chain, chain_on_failure: chainOnFailure } = value;
   const groupLabelId = useId();
   const selectId = useId();
-  const helperId = useId();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -161,10 +160,9 @@ export function ChainBuilder({
   };
 
   const hasChain = chain.length > 0;
-  const selectDisabled = disabled || !hasSelectableTask;
-  const selectHelper = !hasSelectableTask
-    ? 'No tasks available to chain'
-    : undefined;
+  if (!hasSelectableTask && !hasChain) {
+    return null;
+  }
 
   return (
     <Box
@@ -214,43 +212,34 @@ export function ChainBuilder({
         </DndContext>
       )}
 
-      <FormControl fullWidth size="small" disabled={selectDisabled}>
-        <InputLabel id={`${selectId}-label`}>Add task to chain…</InputLabel>
-        <Select
-          labelId={`${selectId}-label`}
-          id={selectId}
-          label="Add task to chain…"
-          value=""
-          displayEmpty={false}
-          onChange={handleAdd}
-          inputProps={
-            {
-              'data-testid': 'chain-add-select',
-              ...(selectHelper ? { 'aria-describedby': helperId } : {}),
-            } as React.InputHTMLAttributes<HTMLInputElement>
-          }
-        >
-          {availableTasks.map((t) => (
-            <MenuItem
-              key={t.name}
-              value={t.name}
-              disabled={disabledOptions.has(t.name)}
-            >
-              {t.name}
-            </MenuItem>
-          ))}
-        </Select>
-        {selectHelper && (
-          <Typography
-            id={helperId}
-            variant="caption"
-            color="text.secondary"
-            sx={{ mt: 0.5 }}
+      {hasSelectableTask && (
+        <FormControl fullWidth size="small" disabled={disabled}>
+          <InputLabel id={`${selectId}-label`}>Add task to chain…</InputLabel>
+          <Select
+            labelId={`${selectId}-label`}
+            id={selectId}
+            label="Add task to chain…"
+            value=""
+            displayEmpty={false}
+            onChange={handleAdd}
+            inputProps={
+              {
+                'data-testid': 'chain-add-select',
+              } as React.InputHTMLAttributes<HTMLInputElement>
+            }
           >
-            {selectHelper}
-          </Typography>
-        )}
-      </FormControl>
+            {availableTasks.map((t) => (
+              <MenuItem
+                key={t.name}
+                value={t.name}
+                disabled={disabledOptions.has(t.name)}
+              >
+                {t.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
 
       {hasChain && (
         <Tooltip title={FAILURE_TITLE} placement="top-start">
