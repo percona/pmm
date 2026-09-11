@@ -495,7 +495,12 @@ export function SchemaDrivenPlugin({
       {schema.capabilities?.scheduling && (
         <Route
           path="schedule"
-          element={<PluginSchedulePage pluginName={pluginName} />}
+          element={
+            <PluginSchedulePage
+              pluginName={pluginName}
+              displayName={schema.display_name}
+            />
+          }
         />
       )}
       {showDetailRoutes && (

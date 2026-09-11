@@ -113,6 +113,12 @@ export type {
   LastRunCardProps,
 } from './components/TaskRunDetailDrawer';
 export { formatDuration } from './utils/formatDuration';
+// `formatRelativeTime` / `formatAbsoluteTime` live here too, but keep their
+// existing public path through `./components/ScheduledTasksPanel` below rather
+// than being re-exported twice under one name.
+export { formatTimestamp } from './utils/formatTimestamp';
+export type { FormattedTimestamp } from './utils/formatTimestamp';
+export { applyValueLabel } from './utils/valueLabels';
 export { SnippetExecutionAccordion } from './components/SnippetExecutionAccordion';
 export type { SnippetExecutionAccordionProps } from './components/SnippetExecutionAccordion';
 export { ChainBuilder } from './components/ChainBuilder';

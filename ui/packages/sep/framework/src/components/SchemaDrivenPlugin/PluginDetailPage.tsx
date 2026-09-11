@@ -70,6 +70,7 @@ import {
   type SepComponents,
 } from '@sep/api';
 import { resolvePath } from '../../utils/resolvePath';
+import { applyValueLabel } from '../../utils/valueLabels';
 import { ActionErrorAlert, useActionError } from '../ActionErrorAlert';
 import {
   TaskHistoryTable,
@@ -97,6 +98,10 @@ import {
 } from './detailSyntaxStyles';
 import { resolvePluginRouteBase } from './routeBase';
 import { getStoredForm } from './storedForm';
+import {
+  selectConfiguredSettings,
+  type ConfiguredSection,
+} from './taskConfiguration';
 import { StatsCard } from './StatsCard';
 
 const DetailSyntaxHighlighter = lazy(() => import('./DetailSyntaxHighlighter'));
@@ -213,13 +218,16 @@ function JsonObjectPreview({ value }: { value: unknown }) {
 /** Compact label/value cell; wide content (JSON / syntax blocks) spans the full row. */
 function EntityDetailField({
   label,
-  value,
+  value: rawValue,
   highlightLanguage,
+  valueLabels,
 }: {
   label: string;
   value: unknown;
   highlightLanguage?: DetailSyntaxLanguage;
+  valueLabels?: Record<string, string>;
 }) {
+  const value = applyValueLabel(rawValue, valueLabels);
   if (value === null || value === undefined || value === '') {
     return null;
   }
@@ -313,11 +321,14 @@ export function resolveTabFromSplat(
 
 function TaskOverviewDetailField({
   label,
-  value,
+  value: rawValue,
+  valueLabels,
 }: {
   label: string;
   value: unknown;
+  valueLabels?: Record<string, string>;
 }) {
+  const value = applyValueLabel(rawValue, valueLabels);
   if (value === null || value === undefined || value === '') {
     return null;
   }
@@ -365,6 +376,94 @@ interface OverviewTabProps {
   children?: ReactNode;
 }
 
+/**
+ * The settings this task configured, under the create form's own labels.
+ *
+ * Rendered from the stored create-form body rather than from the generated
+ * config document: see {@link selectConfiguredSettings}. Renders nothing at all
+ * when the task left everything at its defaults — an empty card would claim
+ * something was configured — and the caller keeps the raw document reachable
+ * either way.
+ */
+function TaskConfigurationCard({
+  configured,
+}: {
+  configured: ConfiguredSection[];
+}) {
+  return (
+    <>
+      {configured.map((section) => (
+        <SectionCard key={section.title} title={section.title}>
+          <Grid container spacing={2}>
+            {section.settings.map((setting) => (
+              <TaskOverviewDetailField
+                key={setting.name}
+                label={setting.label}
+                // A multi-choice value is a list of stored members; label each
+                // and join, rather than handing an array to the JSON preview
+                // that the object branch would otherwise render it with.
+                value={
+                  Array.isArray(setting.value)
+                    ? setting.value
+                        .map((item) =>
+                          String(applyValueLabel(item, setting.valueLabels))
+                        )
+                        .join(', ')
+                    : setting.value
+                }
+                valueLabels={
+                  Array.isArray(setting.value) ? undefined : setting.valueLabels
+                }
+              />
+            ))}
+          </Grid>
+        </SectionCard>
+      ))}
+    </>
+  );
+}
+
+/**
+ * Holds the schema's own detail sections, collapsed once something better sits
+ * above them.
+ *
+ * `collapsed` is the decision, not the state: when it is false the children
+ * render bare, exactly as they did before this wrapper existed, so a plugin
+ * with no stored form sees no disclosure at all rather than one it must open to
+ * read the only configuration the page has.
+ */
+function RawDetailDisclosure({
+  collapsed,
+  children,
+}: {
+  collapsed: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+
+  if (!collapsed) {
+    return <>{children}</>;
+  }
+
+  return (
+    <Box sx={{ mb: 2 }}>
+      <Button
+        size="small"
+        variant="text"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        data-testid="raw-configuration-toggle"
+      >
+        {open ? 'Hide raw configuration' : 'Show raw configuration'}
+      </Button>
+      {/* Mounted only while open: the config blocks lazy-load a syntax
+          highlighter, and a collapsed-but-mounted block would pull that chunk
+          on every detail page for something nobody asked to see. */}
+      {open && <Box sx={{ mt: 1 }}>{children}</Box>}
+    </Box>
+  );
+}
+
 function DetailViewSectionCard({
   section,
   task,
@@ -392,6 +491,7 @@ function DetailViewSectionCard({
             label={field.label}
             value={value}
             highlightLanguage={field.highlight}
+            valueLabels={field.value_labels}
           />
         ))}
       </Grid>
@@ -520,6 +620,98 @@ function OverviewTab({
     ([key]) => !columns.some((c) => c.key === key) && !suppressedFields.has(key)
   );
 
+  // The create-form body the backend stamps on the task, when it has one. A
+  // legacy task (or one made through a still-live legacy form) carries none, so
+  // the configuration card is skipped and the raw document stays expanded.
+  const storedForm = getStoredForm(task);
+
+  // Entity schemas keep their form on the entity, not on the plugin; this
+  // Overview only renders for the single-task shape, so the top-level forms are
+  // the right source and their absence means there is nothing to join against.
+  const configurationSections = schema.forms;
+
+  // Whatever the header and the Task information card already put on screen.
+  // A setting is worth listing once; repeating the execution host three inches
+  // below the row that states it is noise, not confirmation.
+  // Split the schema's declared detail sections by what they hold. A section
+  // whose every field carries a syntax `highlight` is a rendered document — the
+  // emitted config — and is the only kind this page may demote. Sections of
+  // ordinary labelled fields (a restore's destination host and port, say) are
+  // primary content the app chose to declare, and stay where the schema put
+  // them: the framework does not get to decide an app's fields are secondary
+  // just because a stored form exists.
+  //
+  // `highlight` is an imperfect proxy for "generated": it says how to render a
+  // value, not whether the app considers it primary, so an app whose detail
+  // view is deliberately one highlighted block would be demoted against its
+  // author's intent. Demotion needs a non-empty configuration summary as well
+  // (below), which narrows that to an app that has one AND wants its single
+  // document kept first. The clean fix is for the section to declare intent —
+  // a `DetailSection.generated` flag set by the same backend code that decides
+  // `highlight`, defaulting to false so no existing schema changes behaviour —
+  // which is a side-car change rather than one this side can make alone.
+  const [plainDetailSections, rawDetailSections] = useMemo(() => {
+    const sections = schema.detail_view?.sections ?? [];
+    const plain: DetailSection[] = [];
+    const raw: DetailSection[] = [];
+    for (const section of sections) {
+      const isRaw =
+        section.fields.length > 0 &&
+        section.fields.every((field) => Boolean(field.highlight));
+      (isRaw ? raw : plain).push(section);
+    }
+    return [plain, raw];
+  }, [schema.detail_view]);
+
+  const configurationExcludedNames = useMemo(
+    () => {
+      // Exactly what the Task information card puts on screen: its visible
+      // columns plus the extra record keys, which is `columns ∪ task keys`
+      // minus the suppressed ones. Deliberately not the suppressed names
+      // themselves — those are hidden as *record* keys, and a form field that
+      // happens to share a name with internal plumbing is still a real setting
+      // that would otherwise disappear from this page altogether.
+      const rendered = [
+        ...columns.map((col) => col.key),
+        ...Object.keys(task),
+      ].filter((key) => !suppressedFields.has(key));
+      return new Set<string>([
+        ...rendered,
+        // The record spells it `name` and the form spells it `task_name`, so
+        // the key overlap above does not catch it. Every task-style app
+        // inherits the field from the framework's own task form model, which is
+        // what keeps naming it here app-agnostic.
+        //
+        // It is the only such mismatch today. A second one would want a
+        // declared record-key/form-field alias map rather than another literal
+        // here — the failure mode is a quietly duplicated field, which nothing
+        // types or tests would catch.
+        'task_name',
+      ]);
+    },
+    // Derived from the same inputs `extraEntries` is, rather than from
+    // `extraEntries` itself: that array is rebuilt every render, and depending
+    // on it would defeat the memo the configuration card keys off.
+    [suppressedFields, columns, task]
+  );
+
+  // Selected here rather than inside the card so the raw-document disclosure
+  // below can key off whether this produced anything. Collapsing on "a stored
+  // form exists" instead would leave a task that configured nothing beyond its
+  // defaults showing a lone "Show raw configuration" button and no summary at
+  // all — strictly worse than the always-visible sections this replaced.
+  const configuredSettings = useMemo(
+    () =>
+      configurationSections && storedForm
+        ? selectConfiguredSettings(
+            configurationSections,
+            storedForm,
+            configurationExcludedNames
+          )
+        : [],
+    [configurationSections, storedForm, configurationExcludedNames]
+  );
+
   return (
     <>
       {connectivityWarning !== null &&
@@ -578,6 +770,7 @@ function OverviewTab({
               key={col.key}
               label={col.label}
               value={task[col.key]}
+              valueLabels={col.value_labels}
             />
           ))}
           {extraEntries.map(([key, value]) => (
@@ -626,13 +819,36 @@ function OverviewTab({
         </SectionCard>
       )}
 
-      {schema.detail_view?.sections.map((section, idx) => (
+      {configuredSettings.length > 0 && (
+        <TaskConfigurationCard configured={configuredSettings} />
+      )}
+
+      {plainDetailSections.map((section, idx) => (
         <DetailViewSectionCard
           key={`${section.title}:${idx}`}
           section={section}
           task={task}
         />
       ))}
+
+      {rawDetailSections.length > 0 && (
+        // A section of nothing but highlighted documents is the generated
+        // config — authoritative, and the thing to read when the question is
+        // what was actually emitted, but not what someone checking a backup
+        // opens the page for. Demoted behind a disclosure once the
+        // configuration card above can answer that question instead, and left
+        // expanded for a task with no stored form, where it is the only account
+        // of the configuration there is.
+        <RawDetailDisclosure collapsed={configuredSettings.length > 0}>
+          {rawDetailSections.map((section, idx) => (
+            <DetailViewSectionCard
+              key={`${section.title}:${idx}`}
+              section={section}
+              task={task}
+            />
+          ))}
+        </RawDetailDisclosure>
+      )}
 
       {children}
     </>
@@ -1238,6 +1454,7 @@ export function PluginDetailPage({
                   highlightLanguage={entitySchema?.detail_highlights?.[col.key]}
                   label={col.label}
                   value={task[col.key]}
+                  valueLabels={col.value_labels}
                 />
               ))}
 

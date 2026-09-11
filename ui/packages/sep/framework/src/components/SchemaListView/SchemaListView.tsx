@@ -38,6 +38,8 @@ import {
   type ListView,
 } from '@sep/api';
 import { SEP_TABLE_CLASS } from '../../constants';
+import { formatTimestamp } from '../../utils/formatTimestamp';
+import { applyValueLabel } from '../../utils/valueLabels';
 import {
   TaskHistoryStatusBadge,
   isTaskHistoryStatus,
@@ -213,9 +215,14 @@ const compactChipSx = {
 } as const;
 
 function formatCellValue(
-  value: unknown,
-  format: ListColumn['format']
+  rawValue: unknown,
+  column: Pick<ListColumn, 'format' | 'value_labels'>
 ): ReactNode {
+  const format = column.format;
+  // Labels are applied before formatting, not after: a `chip` or `status` cell
+  // renders the label as its own text, and `date` / `relative` columns carry no
+  // labels to apply.
+  const value = applyValueLabel(rawValue, column.value_labels);
   // Columns come from a server-supplied schema, so a row can omit a declared
   // key entirely: `undefined` must be handled here too, or it renders as the
   // literal 'undefined' (and as 'Invalid Date' / 'NaNd ago' below).
@@ -239,23 +246,23 @@ function formatCellValue(
       ) : (
         <Chip label={str} size="small" sx={cellChipSx} />
       );
+    // Both time formats resolve through the same formatter. The schema's
+    // `date` / `relative` distinction predates it and no longer decides the
+    // rendering: which form a value takes now follows from how far from now it
+    // sits, so two columns on one row can't disagree about how to say
+    // "yesterday". The declared format still matters above, where it picks the
+    // empty-cell rule, and in `columnSizing`.
     case 'date':
-      return new Date(str).toLocaleDateString();
     case 'relative': {
-      const diff = Date.now() - new Date(str).getTime();
-      const mins = Math.floor(diff / 60000);
-      if (mins < 1) {
-        return 'just now';
+      const formatted = formatTimestamp(str);
+      if (!formatted) {
+        return null;
       }
-      if (mins < 60) {
-        return `${mins}m ago`;
-      }
-      const hours = Math.floor(mins / 60);
-      if (hours < 24) {
-        return `${hours}h ago`;
-      }
-      const days = Math.floor(hours / 24);
-      return `${days}d ago`;
+      return (
+        <Box component="span" title={formatted.title} sx={truncatedTextSx}>
+          {formatted.display}
+        </Box>
+      );
     }
     case 'code':
       return (
@@ -492,7 +499,7 @@ function SchemaListViewCore({
               // declined this column); `null` is honored so an override can
               // intentionally render an empty cell.
               return overridden === undefined
-                ? formatCellValue(value, col.format)
+                ? formatCellValue(value, col)
                 : overridden;
             },
           };

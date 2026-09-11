@@ -24,9 +24,14 @@ import { ScheduledTasksPanel } from '../ScheduledTasksPanel';
 
 interface PluginSchedulePageProps {
   pluginName: string;
+  /** The app's display name, for the panel's empty state. */
+  displayName?: string;
 }
 
-export function PluginSchedulePage({ pluginName }: PluginSchedulePageProps) {
+export function PluginSchedulePage({
+  pluginName,
+  displayName,
+}: PluginSchedulePageProps) {
   const navigate = useNavigate();
 
   return (
@@ -38,7 +43,7 @@ export function PluginSchedulePage({ pluginName }: PluginSchedulePageProps) {
         <Typography variant="h4">Schedules</Typography>
       </Box>
 
-      <ScheduledTasksPanel pluginName={pluginName} />
+      <ScheduledTasksPanel pluginName={pluginName} displayName={displayName} />
     </Box>
   );
 }

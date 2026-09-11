@@ -33,8 +33,25 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { LastRunStatus } from './LastRunStatus';
 import { ScheduledTaskForm } from './ScheduledTaskForm';
-import { describePeriod, formatAbsoluteTime } from './periods';
+import { describePeriod } from './periods';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 import type { AvailableTask } from '../ChainBuilder';
+
+/**
+ * One schedule timestamp, under the app's single rule: relative while the time
+ * is within a week, the date itself beyond that, full value on hover.
+ *
+ * The em-dash belongs here rather than to `formatTimestamp`: a schedule row
+ * always has a start time, and a blank cell in this table would read as a
+ * rendering fault rather than as "never run yet".
+ */
+function timestampCell(value: string | null | undefined) {
+  const formatted = formatTimestamp(value);
+  if (!formatted) {
+    return '—';
+  }
+  return <span title={formatted.title}>{formatted.display}</span>;
+}
 import type {
   PeriodicTaskCreate,
   PeriodicTaskResponse,
@@ -124,7 +141,7 @@ export function ScheduledTaskRow({
             period.display
           )}
         </TableCell>
-        <TableCell>{formatAbsoluteTime(task.start_time)}</TableCell>
+        <TableCell>{timestampCell(task.start_time)}</TableCell>
         <TableCell>
           <Stack spacing={0.5} alignItems="flex-start">
             <LastRunStatus
@@ -138,12 +155,12 @@ export function ScheduledTaskRow({
             />
             {task.last_run_at && (
               <Typography variant="body2" color="text.secondary">
-                {formatAbsoluteTime(task.last_run_at)}
+                {timestampCell(task.last_run_at)}
               </Typography>
             )}
           </Stack>
         </TableCell>
-        <TableCell>{formatAbsoluteTime(task.next_run_at)}</TableCell>
+        <TableCell>{timestampCell(task.next_run_at)}</TableCell>
         <TableCell>{task.total_run_count}</TableCell>
         <TableCell>
           {chainNames.length > 0 ? (
