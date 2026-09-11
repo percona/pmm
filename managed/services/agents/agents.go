@@ -118,6 +118,9 @@ func redactWords(agent *models.Agent) []string {
 	if s := agent.PostgreSQLOptions.SSLKey; s != "" {
 		words = append(words, s)
 	}
+	if s := agent.ValkeyOptions.SSLKey; s != "" {
+		words = append(words, s)
+	}
 
 	return words
 }

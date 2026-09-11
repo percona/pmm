@@ -40,13 +40,41 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
 	}
 
+	textFiles := exporter.Files()
+	if exporter.TLS {
+		if exporter.TLSSkipVerify {
+			args = append(args, "--skip-tls-verification")
+		}
+
+		// The flag names come from oliver006/redis_exporter, shipped as valkey_exporter;
+		// all four have been stable since v1.72.1, the build the first Valkey release used.
+		fileFlag := func(file, flag string) string {
+			return flag + "=" + tdp.Left + " .TextFiles." + file + " " + tdp.Right
+		}
+
+		if _, ok := textFiles[models.TLSCaFileName]; ok {
+			args = append(args, fileFlag(models.TLSCaFileName, "--tls-ca-cert-file"))
+		}
+
+		// The exporter's validateTLSClientConfig calls log.Fatal when one half of the client key
+		// pair is missing, so half a pair would crash-loop the process. Degrade to server
+		// authentication only instead.
+		_, hasCert := textFiles[models.TLSCertFileName]
+		_, hasKey := textFiles[models.TLSKeyFileName]
+		if hasCert && hasKey {
+			args = append(args,
+				fileFlag(models.TLSCertFileName, "--tls-client-cert-file"),
+				fileFlag(models.TLSKeyFileName, "--tls-client-key-file"))
+		}
+	}
+
 	dsnParams := models.DSNParams{}
 	connectionTimeout := exporter.EffectiveDialTimeout()
 
-	args = append(args, "--redis.addr="+exporter.DSN(service, dsnParams, nil, pmmAgentVersion))
+	args = append(args, "--redis.addr="+exporter.DSN(service, dsnParams, tdp, pmmAgentVersion))
 	args = append(args, "--connection-timeout="+connectionTimeout.String())
 	// valkey_exporter parses flags with the stdlib flag package, which rejects --log.level
-	// and has no fatal level (PMM-15201).
+	// and has no fatal level.
 	args = withLogLevelFlag(args, "--log-level", exporter.LogLevel, pmmAgentVersion, false)
 	sort.Strings(args)
 
@@ -55,7 +83,7 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
-		TextFiles:          exporter.Files(),
+		TextFiles:          textFiles,
 	}
 	if redactMode != exposeSecrets {
 		res.RedactWords = redactWords(exporter)
