@@ -16,6 +16,7 @@
 package grafana
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -387,6 +388,53 @@ func TestCleanPath(t *testing.T) {
 			cleanedPath, err := cleanPath(tt.path)
 			require.NoError(t, err)
 			assert.Equalf(t, tt.expected, cleanedPath, "cleanPath(%v)", tt.path)
+		})
+	}
+}
+
+// stubClient stands in for Grafana so the admin marker can be tested without one.
+type stubClient struct {
+	user authUser
+}
+
+func (s stubClient) getAuthUser(context.Context, http.Header, *logrus.Entry) (authUser, error) {
+	return s.user, nil
+}
+
+// The marker tells vmproxy that pmm-managed authenticated this caller as an admin, which is
+// what lets the admin-only VictoriaMetrics diagnostics through. Granting it to the wrong role
+// hands every dashboard user the scrape configuration.
+func TestAuthServerAdminHeader(t *testing.T) {
+	t.Parallel()
+
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() { assert.NoError(t, sqlDB.Close()) })
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	for _, tc := range []struct {
+		role     role
+		expected string
+	}{
+		{role: viewer, expected: ""},
+		{role: editor, expected: ""},
+		{role: admin, expected: "1"},
+		{role: grafanaAdmin, expected: "1"},
+	} {
+		t.Run(tc.role.String(), func(t *testing.T) {
+			t.Parallel()
+
+			s := NewAuthServer(stubClient{user: authUser{role: tc.role, userID: 1}}, db)
+
+			rw := httptest.NewRecorder()
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
+			// A path whose rule requires a role, so the user is actually resolved.
+			req.Header.Set("X-Original-Uri", "/prometheus/api/v1/status/config")
+			req.Header.Set("X-Original-Method", http.MethodGet)
+			req.SetBasicAuth("user", "password")
+
+			s.ServeHTTP(rw, req)
+
+			assert.Equal(t, tc.expected, rw.Header().Get(adminHeaderName))
 		})
 	}
 }

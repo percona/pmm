@@ -65,6 +65,17 @@ var readOnlyPaths = map[string]struct{}{
 	"/api/v1/status/tsdb": {},
 }
 
+// adminOnlyPaths are reachable only when pmm-managed has authenticated the caller as an
+// admin and nginx has passed that on. They expose materially more than readOnlyPaths --
+// the scrape configuration lists every monitored target, its internal listen port and the
+// shape of the credentials used to scrape it -- so they are gated rather than opened.
+var adminOnlyPaths = map[string]struct{}{
+	"/api/v1/status/config": {},
+}
+
+// adminHeaderValue is the only value the admin marker is honoured with; pmm-managed sets it.
+const adminHeaderValue = "1"
+
 // Config defines options for starting proxy.
 type Config struct {
 	// Name of the header to check for filters. Case insensitive.
@@ -73,6 +84,8 @@ type Config struct {
 	ListenAddress string
 	// Target URL to forward requests to
 	TargetURL *url.URL
+	// Name of the header marking a request as coming from an admin. Case insensitive.
+	AdminHeaderName string
 }
 
 // RunProxy starts proxy which adds extra filters based on configuration.
@@ -116,7 +129,7 @@ func getHandler(cfg Config) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		logrus.Debugf("%s: %s", req.Method, req.URL)
 
-		if failOnDisallowedPath(rw, req) {
+		if failOnDisallowedPath(rw, req, cfg.AdminHeaderName) {
 			return
 		}
 
@@ -128,8 +141,8 @@ func getHandler(cfg Config) http.HandlerFunc {
 	}
 }
 
-func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request) bool {
-	if isReadOnlyPath(req.URL.Path) {
+func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request, adminHeaderName string) bool {
+	if isPathAllowed(req.URL.Path, isAdminRequest(req, adminHeaderName)) {
 		return false
 	}
 
@@ -147,21 +160,50 @@ func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request) bool {
 	return true
 }
 
-// isReadOnlyPath reports whether the path may be forwarded to VictoriaMetrics.
-func isReadOnlyPath(p string) bool {
-	// nginx passes the original URI for the /prometheus/api/v1 location and rewrites it for
-	// /victoriametrics/, and Grafana's data source sends it unprefixed, so the same endpoint
-	// arrives in both shapes. Clean first so that traversal cannot walk out of a listed path.
-	cleaned := path.Clean(p)
-	if cleaned == "/prometheus" || strings.HasPrefix(cleaned, "/prometheus/") {
-		cleaned = strings.TrimPrefix(cleaned, "/prometheus")
-	}
+// isPathAllowed reports whether the path may be forwarded to VictoriaMetrics. Anything not
+// listed is refused, including for an admin, so a new VictoriaMetrics endpoint is unreachable
+// until it is added deliberately.
+func isPathAllowed(p string, isAdmin bool) bool {
+	cleaned := normalizePath(p)
 
 	if _, ok := readOnlyPaths[cleaned]; ok {
 		return true
 	}
 
-	return isLabelValuesPath(cleaned)
+	if isLabelValuesPath(cleaned) {
+		return true
+	}
+
+	if isAdmin {
+		_, ok := adminOnlyPaths[cleaned]
+		return ok
+	}
+
+	return false
+}
+
+// normalizePath reduces the shapes the same endpoint arrives in to one. The nginx config
+// passes the original URI for the /prometheus/api/v1 location and rewrites it for
+// /victoriametrics/, and Grafana's data source sends it unprefixed. Cleaning first stops
+// traversal walking out of a listed path.
+func normalizePath(p string) string {
+	cleaned := path.Clean(p)
+	if cleaned == "/prometheus" || strings.HasPrefix(cleaned, "/prometheus/") {
+		cleaned = strings.TrimPrefix(cleaned, "/prometheus")
+	}
+
+	return cleaned
+}
+
+// isAdminRequest reports whether pmm-managed authenticated this caller as an admin. The
+// header is not a credential: nginx overwrites it on every location that can reach the
+// proxy, so a client cannot supply one, and the proxy listens on loopback only.
+func isAdminRequest(req *http.Request, headerName string) bool {
+	if headerName == "" {
+		return false
+	}
+
+	return req.Header.Get(headerName) == adminHeaderValue
 }
 
 // isLabelValuesPath reports whether the path is /api/v1/label/<name>/values, which carries

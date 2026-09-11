@@ -155,6 +155,16 @@ var lbacPrefixes = []string{
 
 const lbacHeaderName = "X-Proxy-Filter"
 
+// adminHeaderName marks a request whose caller was authenticated here as an admin, letting
+// vmproxy allow the admin-only diagnostics it otherwise refuses. The nginx config sets it
+// from this response on every location that can reach vmproxy, so a client-supplied value
+// never survives. It is only set where a rule requires a role: paths mapped to none, /graph
+// among them, are not authenticated here and so are never marked.
+const (
+	adminHeaderName  = "X-Proxy-Admin"
+	adminHeaderValue = "1"
+)
+
 // nginx auth_request directive supports only 401 and 403 - every other code results in 500.
 // Our APIs can return codes.PermissionDenied which maps to 403 / http.StatusForbidden.
 // Our APIs MUST NOT return codes.Unauthenticated which maps to 401 / http.StatusUnauthorized
@@ -278,6 +288,10 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	var userID int
 	if authUser != nil {
 		userID = authUser.userID
+	}
+
+	if authUser != nil && authUser.role >= admin {
+		rw.Header().Set(adminHeaderName, adminHeaderValue)
 	}
 
 	errF := s.maybeAddLBACFilters(ctx, rw, req, userID, l)

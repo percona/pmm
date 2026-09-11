@@ -269,11 +269,94 @@ func TestProxy(t *testing.T) {
 		}
 
 		for _, p := range allowed {
-			assert.Truef(t, isReadOnlyPath(p), "expected %s to be allowed", p)
+			assert.Truef(t, isPathAllowed(p, false), "expected %s to be allowed", p)
 		}
 		for _, p := range refused {
-			assert.Falsef(t, isReadOnlyPath(p), "expected %s to be refused", p)
+			assert.Falsef(t, isPathAllowed(p, false), "expected %s to be refused", p)
 		}
+	})
+
+	t.Run("shall gate the admin-only diagnostics on the marker", func(t *testing.T) {
+		t.Parallel()
+
+		const adminPath = "/api/v1/status/config"
+
+		assert.False(t, isPathAllowed(adminPath, false), "must be refused without the marker")
+		assert.True(t, isPathAllowed(adminPath, true), "must be allowed with the marker")
+		assert.True(t, isPathAllowed("/prometheus"+adminPath, true), "nginx passes the prefixed form")
+
+		// The marker widens the allow-list, it does not disable it: an admin still cannot
+		// reach an endpoint nobody listed.
+		for _, p := range []string{"/snapshot/create", "/api/v1/admin/tsdb/delete_series", "/debug/pprof/heap"} {
+			assert.Falsef(t, isPathAllowed(p, true), "expected %s to stay refused for an admin", p)
+		}
+	})
+
+	t.Run("shall honour the marker only from the configured header", func(t *testing.T) {
+		t.Parallel()
+
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, requestURL, nil)
+		assert.False(t, isAdminRequest(req, "X-Proxy-Admin"), "absent header is not an admin")
+
+		req.Header.Set("X-Proxy-Admin", "1")
+		assert.True(t, isAdminRequest(req, "X-Proxy-Admin"))
+		assert.False(t, isAdminRequest(req, ""), "an unconfigured header name never matches")
+
+		req.Header.Set("X-Proxy-Admin", "true")
+		assert.False(t, isAdminRequest(req, "X-Proxy-Admin"), "only the exact value counts")
+	})
+
+	t.Run("shall serve an admin-only path when the marker is present", func(t *testing.T) {
+		t.Parallel()
+
+		proxied := false
+		server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+			proxied = true
+		}))
+		t.Cleanup(server.Close)
+
+		uri, err := url.Parse(server.URL)
+		require.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "http://127.0.0.1/api/v1/status/config", nil)
+		req.Header.Set("X-Proxy-Admin", "1")
+
+		getHandler(Config{HeaderName: headerName, AdminHeaderName: "X-Proxy-Admin", TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
+
+		require.Equal(t, http.StatusOK, resp.StatusCode)
+		require.True(t, proxied, "an admin request must reach VictoriaMetrics")
+	})
+
+	t.Run("shall refuse an admin-only path without the marker", func(t *testing.T) {
+		t.Parallel()
+
+		proxied := false
+		server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+			proxied = true
+		}))
+		t.Cleanup(server.Close)
+
+		uri, err := url.Parse(server.URL)
+		require.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "http://127.0.0.1/api/v1/status/config", nil)
+
+		getHandler(Config{HeaderName: headerName, AdminHeaderName: "X-Proxy-Admin", TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
+
+		require.Equal(t, http.StatusForbidden, resp.StatusCode)
+		require.False(t, proxied, "refused request must not reach VictoriaMetrics")
 	})
 
 	t.Run("shall answer a refused path with 403 without proxying", func(t *testing.T) {
