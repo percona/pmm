@@ -31,6 +31,11 @@ Client (Grafana / API)
   `/api/v1/label/<name>/values`) are forwarded; everything else gets `403 Forbidden` and a warn
   log naming the path. This is a capability gate, not a filter: it holds whether or not access
   control is enabled. See [Why the allow-list lives here](#why-the-allow-list-lives-here).
+- **Admin marker** — pmm-managed sets `X-Proxy-Admin` when it has authenticated the caller as an
+  admin, and nginx forwards it. A marked request skips the allow-list entirely. It is not a
+  credential: nginx overwrites the header on every location that can reach the proxy, so a client
+  cannot supply one, and the proxy listens on loopback only. Grafana's data source is never
+  marked — `/graph` requires no role, so pmm-managed never authenticates it.
 - Invalid headers (bad base64 or JSON) return `412 Precondition Failed`
 - `X-Forwarded-For` is stripped
 - Missing `User-Agent` is set to empty
@@ -43,9 +48,11 @@ given. Every route to that data source — `/graph/api/ds/query`, both
 this proxy, so this is the one place that sees them all. A gate in pmm-managed would instead have
 to enumerate Grafana's URL forms, which is what PMM-15379 showed to be fragile.
 
-Admins reach snapshots and the rest of the admin surface through the admin-gated `/prometheus/*`
-nginx location, which goes straight to VictoriaMetrics and does not cross this proxy. Metric
-ingestion likewise bypasses it via the exact-match `/victoriametrics/api/v1/write` location.
+Admins reach snapshots and the rest of the admin surface either through the admin-gated
+`/prometheus/*` nginx location, which goes straight to VictoriaMetrics without crossing this
+proxy, or through the marker described above — which is why restricting a marked request would
+remove capability without removing exposure. Metric ingestion bypasses the proxy entirely via the
+exact-match `/victoriametrics/api/v1/write` location.
 
 Adding a path here widens what any dashboard user can reach; check it is a read endpoint first.
 

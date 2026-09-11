@@ -276,19 +276,24 @@ func TestProxy(t *testing.T) {
 		}
 	})
 
-	t.Run("shall gate the admin-only diagnostics on the marker", func(t *testing.T) {
+	t.Run("shall gate the full surface on the marker", func(t *testing.T) {
 		t.Parallel()
 
-		const adminPath = "/api/v1/status/config"
-
-		assert.False(t, isPathAllowed(adminPath, false), "must be refused without the marker")
-		assert.True(t, isPathAllowed(adminPath, true), "must be allowed with the marker")
-		assert.True(t, isPathAllowed("/prometheus"+adminPath, true), "nginx passes the prefixed form")
-
-		// The marker widens the allow-list, it does not disable it: an admin still cannot
-		// reach an endpoint nobody listed.
-		for _, p := range []string{"/snapshot/create", "/api/v1/admin/tsdb/delete_series", "/debug/pprof/heap"} {
-			assert.Falsef(t, isPathAllowed(p, true), "expected %s to stay refused for an admin", p)
+		// An admin reaches these directly under /prometheus without crossing the proxy, so
+		// the marker restores the capability rather than granting a new one. Without it --
+		// which is every request Grafana's data source makes -- they stay refused.
+		for _, p := range []string{
+			"/api/v1/status/config",
+			"/prometheus/api/v1/status/config",
+			"/api/v1/admin/tsdb/delete_series",
+			"/snapshot/create",
+			"/snapshot/delete_all",
+			"/debug/pprof/heap",
+			"/metrics",
+			"/flags",
+		} {
+			assert.Truef(t, isPathAllowed(p, true), "expected %s to be allowed for an admin", p)
+			assert.Falsef(t, isPathAllowed(p, false), "expected %s to be refused without the marker", p)
 		}
 	})
 

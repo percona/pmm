@@ -58,19 +58,11 @@ var readOnlyPaths = map[string]struct{}{
 	// because refusing them breaks a documented feature while protecting nothing: the
 	// labels they expose are the same ones every dashboard user already enumerates
 	// through /api/v1/label/<name>/values, which template variables depend on. Neither
-	// carries credentials. /api/v1/status/config is deliberately not among them -- it
-	// renders the whole scrape configuration.
+	// carries credentials. The scrape configuration is not among them: it names every
+	// target and its listen port, and stays admin-only.
 	"/targets":            {},
 	"/api/v1/targets":     {},
 	"/api/v1/status/tsdb": {},
-}
-
-// adminOnlyPaths are reachable only when pmm-managed has authenticated the caller as an
-// admin and nginx has passed that on. They expose materially more than readOnlyPaths --
-// the scrape configuration lists every monitored target, its internal listen port and the
-// shape of the credentials used to scrape it -- so they are gated rather than opened.
-var adminOnlyPaths = map[string]struct{}{
-	"/api/v1/status/config": {},
 }
 
 // adminHeaderValue is the only value the admin marker is honoured with; pmm-managed sets it.
@@ -160,26 +152,25 @@ func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request, adminHeader
 	return true
 }
 
-// isPathAllowed reports whether the path may be forwarded to VictoriaMetrics. Anything not
-// listed is refused, including for an admin, so a new VictoriaMetrics endpoint is unreachable
-// until it is added deliberately.
+// isPathAllowed reports whether the path may be forwarded to VictoriaMetrics.
 func isPathAllowed(p string, isAdmin bool) bool {
+	// The allow-list exists to bound what a dashboard user reaches through Grafana's data
+	// source, which is never marked: /graph requires no role, so pmm-managed does not
+	// authenticate it and the marker is never set on it. An admin arrives only through the
+	// /prometheus and /victoriametrics locations, which already require an admin, and the
+	// same endpoints are reachable directly under /prometheus without crossing this proxy,
+	// so restricting admins here removes capability without removing any exposure.
+	if isAdmin {
+		return true
+	}
+
 	cleaned := normalizePath(p)
 
 	if _, ok := readOnlyPaths[cleaned]; ok {
 		return true
 	}
 
-	if isLabelValuesPath(cleaned) {
-		return true
-	}
-
-	if isAdmin {
-		_, ok := adminOnlyPaths[cleaned]
-		return ok
-	}
-
-	return false
+	return isLabelValuesPath(cleaned)
 }
 
 // normalizePath reduces the shapes the same endpoint arrives in to one. The nginx config
