@@ -98,6 +98,34 @@ func TestNodeExporterChangeAgent(t *testing.T) {
 		})
 	})
 
+	t.Run("DisableCollectorsAreTrimmed", func(t *testing.T) {
+		var capturedRequestBody string
+		mockResponse := `{
+			"node_exporter": {
+				"agent_id": "test-agent-trim",
+				"pmm_agent_id": "pmm-agent-123",
+				"listen_port": 9100
+			}
+		}`
+		cleanup := setupChangeAgentTestServer(t, "test-agent-trim", mockResponse, &capturedRequestBody)
+		defer cleanup()
+
+		var cmd ChangeAgentNodeExporterCommand
+		parser := kong.Must(&cmd)
+
+		_, err := parser.Parse([]string{"test-agent-trim", "--disable-collectors=cpu, meminfo, ,diskstats"})
+		require.NoError(t, err)
+
+		result, err := cmd.RunCmd()
+		require.NoError(t, err)
+
+		assert.JSONEq(t, `{"node_exporter": {"disable_collectors": ["cpu", "meminfo", "diskstats"]}}`, capturedRequestBody)
+
+		changeResult, ok := result.(*changeAgentNodeExporterResult)
+		require.True(t, ok)
+		assert.Equal(t, []string{"updated disabled collectors: [cpu meminfo diskstats]"}, changeResult.Changes)
+	})
+
 	t.Run("ComprehensiveAllFieldsValidation", func(t *testing.T) {
 		var capturedRequestBody string
 		// Mock a comprehensive API response with all fields populated
