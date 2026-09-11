@@ -28,16 +28,57 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
 	"github.com/percona/pmm/utils/logger"
 )
+
+// The health-check routes are the only ones that must answer without credentials, and their
+// paths live in the rules map above as hand-written strings. Nothing else ties those strings to
+// the proto: grpc-gateway binds each route to an unexported pattern, so a renamed path compiles
+// cleanly and the rule simply stops matching. The endpoint then falls through to admin, and
+// HAProxy can no longer pick a backend anywhere in an HA cluster, silently.
+//
+// So read the google.api.http annotation back off the generated descriptor and require that the
+// map still names the route the proto declares.
+func TestHealthCheckRulesMatchTheProto(t *testing.T) {
+	t.Parallel()
+
+	service := serverv1.File_server_v1_server_proto.Services().ByName("ServerService")
+	require.NotNil(t, service, "ServerService is missing from the descriptor")
+
+	for _, method := range []string{"Readiness", "LeaderHealthCheck"} {
+		t.Run(method, func(t *testing.T) {
+			t.Parallel()
+
+			m := service.Methods().ByName(protoreflect.Name(method))
+			require.NotNil(t, m, "%s is missing from ServerService", method)
+
+			// A descriptor that stopped carrying the annotation is itself the drift worth
+			// catching, so this fails rather than skipping.
+			rule, ok := proto.GetExtension(m.Options(), annotations.E_Http).(*annotations.HttpRule)
+			require.True(t, ok, "%s has no google.api.http annotation", method)
+			require.NotNil(t, rule)
+
+			path := rule.GetGet()
+			require.NotEmpty(t, path, "%s is no longer a GET route", method)
+
+			got, found := rules[path]
+			require.True(t, found, "%s serves %s, which the rules map does not name", method, path)
+			assert.Equal(t, none, got, "%s must stay reachable without authentication", path)
+		})
+	}
+}
 
 func TestNextPrefix(t *testing.T) {
 	for _, paths := range [][]string{

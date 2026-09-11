@@ -190,6 +190,13 @@ func (s *Settings) IsVictoriaMetricsCacheEnabled() bool {
 	return VictoriaMetricsCacheEnabledDefault
 }
 
+// DataRetentionDays returns the retention period in whole days, which is the unit both
+// VictoriaMetrics and qan-api2 take it in. Validation keeps DataRetention a whole number of
+// days, see validators.DataRetentionMultipleOf, so the truncation is a formality.
+func (s *Settings) DataRetentionDays() int {
+	return int(s.DataRetention.Hours() / 24) //nolint:mnd
+}
+
 // AdvisorsRunIntervals represents intervals between Advisors checks.
 type AdvisorsRunIntervals struct {
 	StandardInterval time.Duration `json:"standard_interval"`

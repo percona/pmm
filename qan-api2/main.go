@@ -63,11 +63,32 @@ import (
 )
 
 const (
-	shutdownTimeout                 = 3 * time.Second
+	shutdownTimeout = 3 * time.Second
+	defaultDsnF     = "clickhouse://%s:%s@%s/%s"
+	maxIdleConns    = 5
+	maxOpenConns    = 10
+)
+
+// Variables rather than constants so that tests can shrink them. Only ever read.
+var (
 	defaultDropOldPartitionInterval = 24 * time.Hour
-	defaultDsnF                     = "clickhouse://%s:%s@%s/%s"
-	maxIdleConns                    = 5
-	maxOpenConns                    = 10
+	// How soon to try again after a pass that failed. Short, so that a transient ClickHouse
+	// problem costs minutes rather than a whole day of retention.
+	retentionRetryInterval = 5 * time.Minute
+)
+
+// Outcome of one pass of the retention loop. A rising failed count is how an operator learns
+// that nothing is deleting anything, which otherwise only shows up much later as a full disk.
+var mRetentionPasses = prom.NewCounterVec(prom.CounterOpts{
+	Namespace: "qan_api2",
+	Subsystem: "retention",
+	Name:      "passes_total",
+	Help:      "Total number of data retention passes by outcome.",
+}, []string{"result"})
+
+const (
+	retentionApplied = "applied"
+	retentionFailed  = "failed"
 )
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -257,6 +278,58 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 	cancel()
 }
 
+// seedRetentionCounters gives every outcome a zero series from the start, so that an increase()
+// over a condition that has never happened reads as zero rather than as no data.
+func seedRetentionCounters() {
+	for _, result := range []string{retentionApplied, retentionFailed} {
+		mRetentionPasses.WithLabelValues(result)
+	}
+}
+
+// runRetentionLoop calls drop for partitions older than the retention period once a day,
+// until ctx is canceled.
+//
+// Every replica runs one of these against the same ClickHouse, all with the same retention
+// period: it is fixed at start-up, so they cannot disagree about which partitions are old.
+// DROP PARTITION is a no-op once the partition is gone, so the repeated work is harmless.
+//
+// Nothing here can fail loudly on its own: a node that never applies retention shows up much
+// later as a full disk. So every pass records its outcome in mRetentionPasses, and a failed drop
+// is retried in minutes rather than waited out for a day.
+func runRetentionLoop(ctx context.Context, drop func(context.Context) error) {
+	l := logrus.WithField("component", "retention")
+
+	for {
+		// Measured from the start of the iteration, so the cadence does not slip by however
+		// long the drop took.
+		start := time.Now()
+		delay := defaultDropOldPartitionInterval
+		result := retentionApplied
+
+		err := drop(ctx)
+		if ctx.Err() != nil {
+			// Our own shutdown cut the pass short. Reporting that as a retention problem
+			// would send an operator looking for a fault that is not there, and "will
+			// retry" would be a lie: the loop is about to return.
+			return
+		}
+		if err != nil {
+			result = retentionFailed
+			l.Errorf("Failed to apply data retention, will retry: %s.", err)
+			delay = retentionRetryInterval
+		}
+		mRetentionPasses.WithLabelValues(result).Inc()
+
+		t := time.NewTimer(time.Until(start.Add(delay)))
+		select {
+		case <-ctx.Done():
+			t.Stop()
+			return
+		case <-t.C:
+		}
+	}
+}
+
 func main() {
 	log.SetFlags(0)
 
@@ -311,6 +384,9 @@ func main() {
 	db := NewDB(dsn, maxIdleConns, maxOpenConns, *clickhouseIsClusterF, *clickhouseClusterNameF)
 	prom.MustRegister(sqlmetrics.NewCollector("clickhouse", "qan-api2", db.DB))
 
+	seedRetentionCounters()
+	prom.MustRegister(mRetentionPasses)
+
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
@@ -351,18 +427,9 @@ func main() {
 	})
 
 	wg.Go(func() {
-		ticker := time.NewTicker(defaultDropOldPartitionInterval)
-		defer ticker.Stop()
-		for {
-			// Drop old partitions once per interval.
-			DropOldPartition(db, *clickhouseDatabaseF, *dataRetentionF)
-			select {
-			case <-ctx.Done():
-				return
-			case <-ticker.C:
-				// nothing
-			}
-		}
+		runRetentionLoop(ctx, func(ctx context.Context) error {
+			return DropOldPartition(ctx, db, *clickhouseDatabaseF, *dataRetentionF)
+		})
 	})
 
 	wg.Wait()
