@@ -145,7 +145,7 @@ PMM HA uses several mechanisms to ensure continuous operation:
 ### Known issues
 
 - Only databases deployed in the same Kubernetes cluster can be added to monitoring. Remote database monitoring will be added in a future release.
-- **[PMM-14665](https://perconadev.atlassian.net/browse/PMM-14665)**: When adding a service, the node list incorrectly includes PostgreSQL database instance nodes alongside PMM HA nodes.
+- **[PMM-14665](https://perconadev.atlassian.net/browse/PMM-14665)**: When adding a service, the node list still includes PostgreSQL database instance nodes as monitoring delegates. Starting with PMM 3.10.0, the PMM HA server nodes themselves are no longer offered or accepted.
 - **[PMM-14678](https://perconadev.atlassian.net/browse/PMM-14678)**: Database dashboards don't display metrics for services added via pmm-admin, though they work correctly for services added through the UI.
 - **[PMM-14680](https://perconadev.atlassian.net/browse/PMM-14680)**: PostgreSQL database instance nodes and services display with an incorrect 'pmm-' prefix in their names.
 - **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: HA cluster status always displays as "Healthy" even when follower or leader pods are deleted or not ready.
