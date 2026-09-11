@@ -215,12 +215,13 @@ func TestValkeyExporterConfig(t *testing.T) {
 			require.Contains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
 		})
 
-		// An incomplete key pair is rejected by the exporter, not silently completed here.
+		// Half a client key pair makes the exporter call log.Fatal and crash-loop, so neither
+		// flag is emitted and the connection degrades to server authentication only.
 		t.Run("ClientCertificateWithoutKey", func(t *testing.T) {
 			t.Parallel()
 
 			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: models.ValkeyOptions{SSLCert: "cert-pem"}}), redactSecrets, pmmAgentVersion)
-			require.Contains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
+			require.NotContains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
 			require.NotContains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
 			require.Equal(t, map[string]string{"tlsCert": "cert-pem"}, actual.TextFiles)
 		})
@@ -229,9 +230,20 @@ func TestValkeyExporterConfig(t *testing.T) {
 			t.Parallel()
 
 			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: models.ValkeyOptions{SSLKey: "key-pem"}}), redactSecrets, pmmAgentVersion)
-			require.Contains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
+			require.NotContains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
 			require.NotContains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
 			require.Equal(t, map[string]string{"tlsKey": "key-pem"}, actual.TextFiles)
+		})
+
+		// A CA-only setup still gets the CA flag; only the client pair is withheld.
+		t.Run("CertificateAuthorityWithIncompleteKeyPair", func(t *testing.T) {
+			t.Parallel()
+
+			options := models.ValkeyOptions{SSLCa: "ca-pem", SSLCert: "cert-pem"}
+			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: options}), redactSecrets, pmmAgentVersion)
+			require.Contains(t, actual.Args, "--tls-ca-cert-file={{ .TextFiles.tlsCa }}")
+			require.NotContains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
+			require.NotContains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
 		})
 
 		// The files still reach the host, but nothing must point the exporter at them over a plaintext link.
@@ -314,9 +326,11 @@ func TestValkeyExporterConfig(t *testing.T) {
 				options  models.ValkeyOptions
 				expected string
 			}{
-				"ca":   {models.ValkeyOptions{SSLCa: "ca {{ pem"}, "--tls-ca-cert-file=[[ .TextFiles.tlsCa ]]"},
-				"cert": {models.ValkeyOptions{SSLCert: "cert {{ pem"}, "--tls-client-cert-file=[[ .TextFiles.tlsCert ]]"},
-				"key":  {models.ValkeyOptions{SSLKey: "key {{ pem"}, "--tls-client-key-file=[[ .TextFiles.tlsKey ]]"},
+				"ca": {models.ValkeyOptions{SSLCa: "ca {{ pem"}, "--tls-ca-cert-file=[[ .TextFiles.tlsCa ]]"},
+				// The key pair travels as a unit, so each half needs its counterpart present
+				// for the flag under test to be emitted at all.
+				"cert": {models.ValkeyOptions{SSLCert: "cert {{ pem", SSLKey: "key-pem"}, "--tls-client-cert-file=[[ .TextFiles.tlsCert ]]"},
+				"key":  {models.ValkeyOptions{SSLCert: "cert-pem", SSLKey: "key {{ pem"}, "--tls-client-key-file=[[ .TextFiles.tlsKey ]]"},
 			} {
 				t.Run(name, func(t *testing.T) {
 					t.Parallel()
