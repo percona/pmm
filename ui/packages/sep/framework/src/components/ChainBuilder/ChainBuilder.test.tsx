@@ -67,8 +67,28 @@ async function pickTaskFromDropdown(taskName: string) {
 }
 
 describe('ChainBuilder rendering', () => {
-  it('renders no chip sequence and no failure toggle when chain is empty', () => {
+  it('renders nothing when the chain is empty and no task can be chained', () => {
+    render(
+      <Harness
+        availableTasks={[{ name: 'task-self' }]}
+        currentTaskName="task-self"
+      />
+    );
+    expect(screen.queryByTestId('chain-builder')).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/no tasks available to chain/i)
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders nothing when availableTasks is empty and the chain is empty', () => {
+    render(<Harness availableTasks={[]} />);
+    expect(screen.queryByTestId('chain-builder')).not.toBeInTheDocument();
+  });
+
+  it('renders the add select when at least one task can be chained', () => {
     render(<Harness />);
+    expect(screen.getByTestId('chain-builder')).toBeInTheDocument();
     expect(screen.queryByTestId('chain-sequence')).not.toBeInTheDocument();
     expect(
       screen.queryByTestId('chain-on-failure-checkbox')
@@ -97,6 +117,29 @@ describe('ChainBuilder rendering', () => {
     expect(within(sequence).getByText('task-a')).toBeInTheDocument();
     expect(within(sequence).getByText('task-b')).toBeInTheDocument();
     expect(screen.getByTestId('chain-on-failure-checkbox')).toBeInTheDocument();
+  });
+
+  it('keeps an existing chain editable without the add select when nothing is left to add', () => {
+    render(
+      <Harness
+        availableTasks={[
+          { name: 'task-self' },
+          { name: 'task-a' },
+          { name: 'task-b' },
+        ]}
+        currentTaskName="task-self"
+        initial={{
+          chain_task_names: ['task-a', 'task-b'],
+          chain_on_failure: true,
+        }}
+      />
+    );
+    const sequence = screen.getByTestId('chain-sequence');
+    expect(within(sequence).getByText('task-a')).toBeInTheDocument();
+    expect(within(sequence).getByText('task-b')).toBeInTheDocument();
+    expect(screen.getByTestId('chain-on-failure-checkbox')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Remove task-a' })).toBeEnabled();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 });
 
@@ -136,22 +179,6 @@ describe('ChainBuilder add', () => {
     expect(option).toHaveAttribute('aria-disabled', 'true');
     const fresh = await screen.findByRole('option', { name: 'task-b' });
     expect(fresh).not.toHaveAttribute('aria-disabled', 'true');
-  });
-
-  it('disables the dropdown entirely when no selectable tasks remain', () => {
-    render(
-      <Harness
-        availableTasks={[{ name: 'task-self' }]}
-        currentTaskName="task-self"
-      />
-    );
-    expect(screen.getByRole('combobox')).toHaveAttribute(
-      'aria-disabled',
-      'true'
-    );
-    expect(
-      screen.getByText(/no tasks available to chain/i)
-    ).toBeInTheDocument();
   });
 });
 
@@ -201,6 +228,49 @@ describe('ChainBuilder remove', () => {
       chain_task_names: ['task-b', 'task-a'],
       chain_on_failure: false,
     });
+  });
+
+  it('restores the add select after removing a task that frees a selectable slot', async () => {
+    const user = userEvent.setup();
+    render(
+      <Harness
+        availableTasks={[
+          { name: 'task-self' },
+          { name: 'task-a' },
+          { name: 'task-b' },
+        ]}
+        currentTaskName="task-self"
+        initial={{
+          chain_task_names: ['task-a', 'task-b'],
+          chain_on_failure: false,
+        }}
+      />
+    );
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Remove task-b' }));
+
+    expect(screen.getByRole('combobox')).toBeInTheDocument();
+  });
+
+  it('hides the widget after removing a stale chained task when nothing remains selectable', async () => {
+    const user = userEvent.setup();
+    render(
+      <Harness
+        availableTasks={[{ name: 'task-self' }]}
+        currentTaskName="task-self"
+        initial={{
+          chain_task_names: ['gone-task'],
+          chain_on_failure: false,
+        }}
+      />
+    );
+    expect(screen.getByTestId('chain-builder')).toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Remove gone-task' }));
+
+    expect(screen.queryByTestId('chain-builder')).not.toBeInTheDocument();
   });
 });
 
