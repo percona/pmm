@@ -228,3 +228,50 @@ export interface GrafanaRulerRuleDTO {
   annotations?: GrafanaRulerAnnotations;
   labels?: GrafanaRulerLabels;
 }
+
+// Dynamic per-target alert thresholds (PMM backend /v1/alerting/thresholds API).
+// Field names are camelCase because the shared `api` client applies
+// axios-case-converter to the snake_case wire format.
+export type ThresholdScope =
+  | 'THRESHOLD_SCOPE_UNSPECIFIED'
+  | 'THRESHOLD_SCOPE_NODE'
+  | 'THRESHOLD_SCOPE_SERVICE'
+  | 'THRESHOLD_SCOPE_CLUSTER';
+
+// One overridable parameter of one rule, as it applies to one target.
+//
+// Numeric and boolean fields are optional because proto3 JSON omits zero values:
+// a threshold of 0, or a row that is not overridden, arrives with the field absent
+// rather than set to 0/false.
+export interface Threshold {
+  ruleId: string;
+  paramName: string;
+  summary?: string;
+  // ParamUnit enum string, e.g. "PARAM_UNIT_PERCENTAGE".
+  unit?: string;
+  defaultValue?: number;
+  // Effective value for the target: the winning override, otherwise the default.
+  effectiveValue?: number;
+  isOverridden?: boolean;
+  // Scope and target the winning override was set at; absent when not overridden.
+  scope?: ThresholdScope;
+  target?: string;
+}
+
+export interface ListThresholdsResponse {
+  thresholds?: Threshold[];
+}
+
+// One set-or-clear operation. Omitting `value` clears the override instead of
+// setting it, returning the target to the rule default or to a broader override.
+export interface ThresholdUpdate {
+  scope: ThresholdScope;
+  target: string;
+  ruleId: string;
+  paramName: string;
+  value?: number;
+}
+
+export interface BatchUpdateThresholdsResponse {
+  thresholds?: Threshold[];
+}

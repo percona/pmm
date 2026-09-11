@@ -31,7 +31,7 @@ func TestBuildGrafanaRuleDataSingleExpression(t *testing.T) {
 
 	data, condition, err := buildGrafanaRuleData(&alert.Template{
 		Expr: "up == 1",
-	}, "metrics-uid", nil, nil)
+	}, "metrics-uid", "", nil, nil)
 	require.NoError(t, err)
 	assert.Equal(t, "A", condition)
 	require.Len(t, data, 1)
@@ -53,7 +53,7 @@ func TestBuildGrafanaRuleDataMultiExpression(t *testing.T) {
 			Expression: "$A > $B",
 		}},
 		Condition: "C",
-	}, "metrics-uid", map[string]string{}, nil)
+	}, "metrics-uid", "", map[string]string{}, nil)
 	require.NoError(t, err)
 	assert.Equal(t, "C", condition)
 	require.Len(t, data, 3)
@@ -85,7 +85,7 @@ func TestBuildGrafanaRuleDataMultiExpressionWithParamsAndFilters(t *testing.T) {
 			Expression: "$A < $B",
 		}},
 		Condition: "C",
-	}, "metrics-uid", map[string]string{
+	}, "metrics-uid", "", map[string]string{
 		"window":    "[5m]",
 		"threshold": "80",
 	}, []*alertingv1.Filter{{
@@ -120,7 +120,7 @@ func TestBuildGrafanaRuleDataModelContract(t *testing.T) {
 		},
 		Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > $B"}},
 		Condition:   "C",
-	}, "metrics-uid", map[string]string{}, nil)
+	}, "metrics-uid", "", map[string]string{}, nil)
 	require.NoError(t, err)
 	require.Len(t, data, 3)
 
@@ -152,7 +152,7 @@ func TestBuildGrafanaRuleDataMismatchFilter(t *testing.T) {
 		Queries:     []alert.TemplateQuery{{RefID: "A", Expr: "up"}},
 		Expressions: []alert.TemplateExpression{{RefID: "C", Type: "math", Expression: "$A > 0"}},
 		Condition:   "C",
-	}, "metrics-uid", map[string]string{}, []*alertingv1.Filter{{
+	}, "metrics-uid", "", map[string]string{}, []*alertingv1.Filter{{
 		Type:   alertingv1.FilterType_FILTER_TYPE_MISMATCH,
 		Label:  "node_name",
 		Regexp: "staging.*",
@@ -205,7 +205,7 @@ func TestBuildGrafanaRuleDataMultiExpressionErrors(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, _, err := buildGrafanaRuleData(tc.tmpl, "metrics-uid", map[string]string{}, tc.filters)
+			_, _, err := buildGrafanaRuleData(tc.tmpl, "metrics-uid", "", map[string]string{}, tc.filters)
 			require.Error(t, err)
 			assert.Contains(t, err.Error(), tc.wantErr)
 		})

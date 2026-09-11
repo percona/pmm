@@ -25,6 +25,7 @@ import (
 
 type grafanaClient interface {
 	CreateAlertRule(ctx context.Context, folderUID, groupName, interval string, rule *services.Rule) error
+	ListPMMRuleIDs(ctx context.Context) (map[string]struct{}, error)
 	GetDatasourceUIDByName(ctx context.Context, name string) (string, error)
 	GetFolderByUID(ctx context.Context, uid string) (*models.Folder, error)
 }

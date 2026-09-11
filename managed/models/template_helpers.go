@@ -225,10 +225,15 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 	res := make(AlertExprParamsDefinitions, 0, len(params))
 	for _, param := range params {
 		p := AlertExprParamDefinition{
-			Name:    param.Name,
-			Summary: param.Summary,
-			Unit:    ParamUnit(param.Unit),
-			Type:    ParamType(param.Type),
+			Name:        param.Name,
+			Summary:     param.Summary,
+			Unit:        ParamUnit(param.Unit),
+			Type:        ParamType(param.Type),
+			Overridable: param.Overridable,
+		}
+
+		if param.Overridable {
+			p.OverrideScopes = param.GetOverrideScopes()
 		}
 
 		switch param.Type {

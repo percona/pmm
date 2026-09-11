@@ -767,6 +767,50 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderUID, groupName, inte
 	return nil
 }
 
+// ListPMMRuleIDs returns the identity label of every Grafana alert rule that carries one,
+// which is how PMM-created rules identify themselves.
+//
+// The label is read rather than the rule's UID because a copied rule gets a new UID while
+// keeping the label, so this reports which rules still exist in terms of the identity PMM
+// keys its threshold overrides on.
+func (c *Client) ListPMMRuleIDs(ctx context.Context) (map[string]struct{}, error) {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// The ruler returns every folder's groups keyed by folder title. Only the rule
+	// labels matter here, so the rest of the payload is left unmodelled.
+	type rulerRule struct {
+		Labels map[string]string `json:"labels"`
+	}
+
+	type rulerGroup struct {
+		Rules []rulerRule `json:"rules"`
+	}
+
+	var folders map[string][]rulerGroup
+
+	err = c.do(ctx, http.MethodGet, "/api/ruler/grafana/api/v1/rules", "", authHeaders, nil, &folders)
+	if err != nil {
+		return nil, err
+	}
+
+	ids := make(map[string]struct{})
+	for _, groups := range folders {
+		for _, group := range groups {
+			for _, rule := range group.Rules {
+				id := rule.Labels[services.PMMRuleIDLabel]
+				if id != "" {
+					ids[id] = struct{}{}
+				}
+			}
+		}
+	}
+
+	return ids, nil
+}
+
 func validateDurations(intervalD, forD string) error {
 	i, err := time.ParseDuration(intervalD)
 	if err != nil {
