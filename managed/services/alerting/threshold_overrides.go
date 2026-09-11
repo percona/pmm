@@ -190,12 +190,9 @@ func (s *Service) ListThresholds(ctx context.Context, req *alerting.ListThreshol
 
 	// Converted before the transaction opens: it only reads the request, and a bad scope
 	// should be rejected without taking a connection.
-	var scope models.ThresholdScope
-	if req.Target != "" {
-		scope, err = thresholdScopeFromAPI(req.Scope)
-		if err != nil {
-			return nil, err
-		}
+	scope, err := thresholdScopeFromAPI(req.Scope)
+	if err != nil {
+		return nil, err
 	}
 
 	var thresholds []*alerting.Threshold

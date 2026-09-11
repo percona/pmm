@@ -244,6 +244,22 @@ func TestListThresholds(t *testing.T) {
 		require.Len(t, res.Thresholds, 1)
 		assert.True(t, res.Thresholds[0].IsOverridden)
 	})
+
+	// An unsupported scope is refused whether or not a target narrows the listing. The
+	// scope goes unused without a target, but answering as though node scope had been
+	// asked for would report node overrides to a caller that asked about services.
+	t.Run("reports unimplemented scopes with no target", func(t *testing.T) {
+		svc, _, _ := setupThresholdAPI(t)
+
+		for _, scope := range []alerting.ThresholdScope{
+			alerting.ThresholdScope_THRESHOLD_SCOPE_SERVICE,
+			alerting.ThresholdScope_THRESHOLD_SCOPE_CLUSTER,
+		} {
+			_, err := svc.ListThresholds(ctx, &alerting.ListThresholdsRequest{Scope: scope})
+			require.Error(t, err, scope.String())
+			assert.Equal(t, codes.Unimplemented, status.Code(err), scope.String())
+		}
+	})
 }
 
 func TestBatchUpdateThresholds(t *testing.T) {
