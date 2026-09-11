@@ -737,7 +737,7 @@
                         "properties": [
                             {
                                 "id": "custom.minWidth",
-                                "value": 300
+                                "value": 200
                             },
                             {
                                 "id": "custom.align",
@@ -756,12 +756,12 @@
                         },
                         "properties": [
                             {
-                                "id": "custom.inspect",
-                                "value": true
+                                "id": "custom.minWidth",
+                                "value": 150
                             },
                             {
-                                "id": "custom.minWidth",
-                                "value": 300
+                                "id": "custom.inspect",
+                                "value": true
                             },
                             {
                                 "id": "custom.filterable",
@@ -776,6 +776,10 @@
                         },
                         "properties": [
                             {
+                                "id": "custom.minWidth",
+                                "value": 180
+                            },
+                            {
                                 "id": "custom.align",
                                 "value": "center"
                             },
@@ -785,10 +789,6 @@
                                     "mode": "basic",
                                     "type": "gauge"
                                 }
-                            },
-                            {
-                                "id": "custom.minWidth",
-                                "value": 150
                             }
                         ]
                     },
@@ -800,7 +800,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 110
+                                "value": 90
                             },
                             {
                                 "id": "custom.align",
@@ -815,8 +815,8 @@
                         },
                         "properties": [
                             {
-                                "id": "custom.minWidth",
-                                "value": 100
+                                "id": "custom.width",
+                                "value": 130
                             }
                         ]
                     }
