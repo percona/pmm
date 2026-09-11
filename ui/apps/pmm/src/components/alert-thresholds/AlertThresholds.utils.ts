@@ -13,9 +13,10 @@ import { UNIT_SYMBOLS } from './AlertThresholds.constants';
 export const formatUnit = (unit?: string): string =>
   (unit && UNIT_SYMBOLS[unit]) || '';
 
-// A rule can expose several overridable params, and two rules duplicated in Grafana
-// share a rule id, so neither part alone identifies a row. The index disambiguates
-// the duplicate case, which the API explicitly permits.
+// A rule can expose several overridable params, so the rule id alone does not identify a
+// row. Rule and parameter together do for the target-scoped listing this modal asks for,
+// but a target-less listing repeats a pair once per overridden target, so the index keeps
+// row ids distinct in that shape too.
 export const thresholdRowId = (t: Threshold, index: number): string =>
   `${t.ruleId}:${t.paramName}:${index}`;
 

@@ -1519,9 +1519,10 @@ func (x *CreateRuleResponse) GetRuleId() string {
 // Threshold is one overridable parameter of one rule, as it applies to one target.
 type Threshold struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Identifier PMM assigned to the rule. Not unique within a response: rules duplicated
-	// in Grafana share it, so two entries can carry the same rule_id and param_name and
-	// differ only in which rule they came from. Do not key a map on it.
+	// Identifier PMM assigned to the rule. Unique per parameter in a target-scoped listing,
+	// but a listing without a target reports one entry per overridden target, so there the
+	// same rule_id and param_name can repeat, differing in scope and target. Key on rule_id,
+	// param_name, scope and target together rather than on rule_id alone.
 	RuleId string `protobuf:"bytes,1,opt,name=rule_id,json=ruleId,proto3" json:"rule_id,omitempty"`
 	// Machine-readable name of the overridable parameter.
 	ParamName string `protobuf:"bytes,2,opt,name=param_name,json=paramName,proto3" json:"param_name,omitempty"`

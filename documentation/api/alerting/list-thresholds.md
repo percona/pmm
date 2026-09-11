@@ -70,9 +70,9 @@ curl --insecure -X GET \
      --url 'https://127.0.0.1/v1/alerting/thresholds?rule_id=1f8b2c34-5d6e-4a7b-8c9d-0e1f2a3b4c5d'
 ```
 
-> 🚧 Do not key a map on rule_id
+> 🚧 Do not key a map on rule_id alone
 > 
-> Rules duplicated in Grafana share a `rule_id`, so two entries can carry the same `rule_id` and `param_name` and differ only in which rule they came from.
+> With a target, `rule_id` and `param_name` together identify an entry. Without one, the response carries an entry per overridden target, so the same `rule_id` and `param_name` can repeat and differ only in `scope` and `target`. Key on all four.
 
 ### Reading zero values
 

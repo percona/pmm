@@ -82,14 +82,24 @@ describe('getRows', () => {
     expect(rows[1].ruleTitle).toBe('');
   });
 
-  // Two rules duplicated in Grafana share a rule id, which the API explicitly
-  // permits, so rule and parameter together do not identify a row. Colliding ids
+  // A listing with no target reports one entry per overridden target, so a rule and
+  // parameter pair repeats there, differing only in scope and target. Colliding ids
   // would make one form field drive two rows.
-  it('gives duplicated rules distinct row ids', () => {
+  it('gives repeated rule and parameter pairs distinct row ids', () => {
     const data = {
       thresholds: [
-        { ruleId: 'rule-1', paramName: 'threshold' },
-        { ruleId: 'rule-1', paramName: 'threshold' },
+        {
+          ruleId: 'rule-1',
+          paramName: 'threshold',
+          scope: NODE,
+          target: 'node-1',
+        },
+        {
+          ruleId: 'rule-1',
+          paramName: 'threshold',
+          scope: NODE,
+          target: 'node-2',
+        },
       ],
     } as ListThresholdsResponse;
 

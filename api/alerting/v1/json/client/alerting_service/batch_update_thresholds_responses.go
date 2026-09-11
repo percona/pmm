@@ -641,9 +641,10 @@ BatchUpdateThresholdsOKBodyThresholdsItems0 Threshold is one overridable paramet
 swagger:model BatchUpdateThresholdsOKBodyThresholdsItems0
 */
 type BatchUpdateThresholdsOKBodyThresholdsItems0 struct {
-	// Identifier PMM assigned to the rule. Not unique within a response: rules duplicated
-	// in Grafana share it, so two entries can carry the same rule_id and param_name and
-	// differ only in which rule they came from. Do not key a map on it.
+	// Identifier PMM assigned to the rule. Unique per parameter in a target-scoped listing,
+	// but a listing without a target reports one entry per overridden target, so there the
+	// same rule_id and param_name can repeat, differing in scope and target. Key on rule_id,
+	// param_name, scope and target together rather than on rule_id alone.
 	RuleID string `json:"rule_id,omitempty"`
 
 	// Machine-readable name of the overridable parameter.
