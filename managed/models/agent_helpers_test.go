@@ -250,6 +250,22 @@ func TestAgentHelpers(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, roleARN, agent.AWSOptions.AWSRoleARN)
 
+		// A pmm-agent that has not reported a version yet (never connected) is not blocked:
+		// the config is stored and the gate re-checks once the agent connects.
+		require.NoError(t, q.Insert(&models.Node{
+			NodeID: "RN2", NodeType: models.RemoteRDSNodeType, NodeName: "rds node for unknown-version gate",
+			Address: "rds2.example.com", InstanceID: "rds-inst-2",
+		}))
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-noversion", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"),
+		}))
+		agent, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-noversion", NodeID: "RN2",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, roleARN, agent.AWSOptions.AWSRoleARN)
+
 		// Static keys are unaffected by the gate; they work on the old agent.
 		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
 			PMMAgentID: "PA-old", NodeID: "RN",
