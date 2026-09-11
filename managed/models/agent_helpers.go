@@ -1033,7 +1033,12 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 
 	if row.AWSOptions.AWSRoleARN != "" {
-		if err := IsAgentSupported(pmmAgent, "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN); err != nil {
+		// Refuse only when the pmm-agent is known to be too old. A pmm-agent that has not
+		// reported a version yet (never connected) does not block storing the config; the
+		// gate re-checks on change once the agent connects.
+		err = IsAgentSupported(pmmAgent, "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN)
+		var agentNotSupported AgentNotSupportedError
+		if errors.As(err, &agentNotSupported) {
 			return nil, status.Error(codes.FailedPrecondition, err.Error())
 		}
 	}
@@ -1480,7 +1485,11 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	}
 
 	if row.AWSOptions.AWSRoleARN != "" {
-		if err := PMMAgentSupported(q, pointer.GetString(row.PMMAgentID), "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN); err != nil {
+		// Refuse only when the pmm-agent is known to be too old; an unknown version (agent
+		// not yet connected) does not block storing the config.
+		err = PMMAgentSupported(q, pointer.GetString(row.PMMAgentID), "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN)
+		var agentNotSupported AgentNotSupportedError
+		if errors.As(err, &agentNotSupported) {
 			return nil, status.Error(codes.FailedPrecondition, err.Error())
 		}
 	}
