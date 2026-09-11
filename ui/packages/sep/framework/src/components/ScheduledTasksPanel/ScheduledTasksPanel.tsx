@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import Alert from '@mui/material/Alert';
@@ -49,6 +49,17 @@ interface ScheduledTasksPanelProps {
   pluginName: string;
   /** Disable list polling. Used by stories/tests. */
   disablePolling?: boolean;
+  /**
+   * Resolve schedule confirmation content for a selected plugin task.
+   * When a node is returned, create/edit must be confirmed before save.
+   */
+  getScheduleWarning?: (
+    taskName: string,
+    context: {
+      pluginName: string;
+      tasks: Record<string, unknown>[];
+    }
+  ) => ReactNode | undefined;
 }
 
 const COLUMN_HEADERS = [
@@ -68,6 +79,7 @@ const ACTIONS_HEADER = 'Actions';
 export function ScheduledTasksPanel({
   pluginName,
   disablePolling = false,
+  getScheduleWarning,
 }: ScheduledTasksPanelProps) {
   const { canMutate } = useAuth();
   const { periodicTasks, pluginTasks, isLoading, isError, error } =
@@ -92,6 +104,17 @@ export function ScheduledTasksPanel({
     () => pluginTasks.map((t) => ({ name: t.name })),
     [pluginTasks]
   );
+
+  const resolveScheduleWarning = useMemo(() => {
+    if (!getScheduleWarning) {
+      return undefined;
+    }
+    return (taskName: string) =>
+      getScheduleWarning(taskName, {
+        pluginName,
+        tasks: pluginTasks as Record<string, unknown>[],
+      });
+  }, [getScheduleWarning, pluginName, pluginTasks]);
 
   const handleToggleEnabled = async (
     task: PeriodicTaskResponse,
@@ -265,6 +288,7 @@ export function ScheduledTasksPanel({
                   toggling={updateMut.isPending}
                   errorMessage={editingId === task.id ? formError : undefined}
                   readOnly={!canMutate}
+                  getScheduleWarning={resolveScheduleWarning}
                   onOpenLastRun={(taskName, lastRunAt) =>
                     setOpenedRun({ taskName, lastRunAt })
                   }
@@ -285,6 +309,7 @@ export function ScheduledTasksPanel({
             onSubmit={handleCreate}
             submitting={createMut.isPending}
             errorMessage={formError}
+            getScheduleWarning={resolveScheduleWarning}
           />
         </Box>
       )}

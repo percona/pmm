@@ -266,6 +266,48 @@ describe('ScheduledTasksPanel', () => {
     });
   });
 
+  it('blocks create on schedule warning until the dialog is confirmed', async () => {
+    setup([]);
+    apiMock.post.mockResolvedValue({ data: makePeriodic({ id: 44 }) });
+
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        getScheduleWarning={(taskName) => (
+          <div data-testid="schedule-warning-body">
+            Confirm schedule for {taskName}
+          </div>
+        )}
+      />
+    );
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByTestId('scheduled-tasks-add'));
+    const form = await screen.findByTestId('scheduled-task-form');
+    await user.click(within(form).getByRole('button', { name: /Create/i }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(
+      within(dialog).getByTestId('schedule-warning-body')
+    ).toHaveTextContent('Confirm schedule for plugin-task');
+    expect(apiMock.post).not.toHaveBeenCalled();
+
+    await user.click(within(dialog).getByRole('button', { name: /Cancel/i }));
+    expect(apiMock.post).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    );
+
+    await user.click(within(form).getByRole('button', { name: /Create/i }));
+    await user.click(await screen.findByTestId('schedule-confirm-button'));
+
+    await waitFor(() => expect(apiMock.post).toHaveBeenCalledTimes(1));
+    expect(apiMock.post).toHaveBeenCalledWith(
+      '/sep/periodic-tasks/plugin-task/',
+      expect.objectContaining({ task: 'plugin-task' })
+    );
+  });
+
   it('switches the create form to cron mode and submits a crontab body', async () => {
     setup([]);
     apiMock.post.mockResolvedValue({ data: makePeriodic({ id: 43 }) });
@@ -388,6 +430,45 @@ describe('ScheduledTasksPanel', () => {
       month_of_year: '*',
       day_of_week: '*',
     });
+  });
+
+  it('blocks an edit save on schedule warning until the dialog is confirmed', async () => {
+    setup([makePeriodic({ id: 21 })]);
+    apiMock.put.mockResolvedValue({ data: { id: 21 } });
+
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        getScheduleWarning={(taskName) => (
+          <div data-testid="schedule-warning-body">
+            Confirm schedule for {taskName}
+          </div>
+        )}
+      />
+    );
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByTestId('scheduled-task-edit-21'));
+    const form = await screen.findByTestId('scheduled-task-form');
+    await user.click(within(form).getByRole('button', { name: /Save/i }));
+
+    const dialog = await screen.findByRole('dialog');
+    expect(
+      within(dialog).getByTestId('schedule-warning-body')
+    ).toHaveTextContent('Confirm schedule for plugin-task');
+    expect(apiMock.put).not.toHaveBeenCalled();
+
+    await user.click(within(dialog).getByRole('button', { name: /Cancel/i }));
+    expect(apiMock.put).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    );
+
+    await user.click(within(form).getByRole('button', { name: /Save/i }));
+    await user.click(await screen.findByTestId('schedule-confirm-button'));
+
+    await waitFor(() => expect(apiMock.put).toHaveBeenCalledTimes(1));
+    expect(apiMock.put.mock.calls[0][0]).toBe('/sep/periodic-tasks/21');
   });
 
   it('submits chain_task_names in execute_request when a chain is configured', async () => {

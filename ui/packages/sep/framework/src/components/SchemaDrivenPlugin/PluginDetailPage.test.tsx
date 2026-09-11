@@ -622,6 +622,68 @@ describe('PluginDetailPage execute flow', () => {
     );
   });
 
+  it('renders confirmContent in the execute dialog when provided', async () => {
+    mockExecuteMutate.mockReset();
+    mockExecuteMutate.mockResolvedValue({ id: 99 });
+    mockUsePluginTask.mockReturnValue({
+      data: {
+        id: 1,
+        name: 'restore-task',
+        status: null,
+        overwrite_tables: true,
+        backup_source: 'backup-2026-09-01',
+        hostname: 'db-host:3306',
+      },
+      isLoading: false,
+    });
+
+    render(
+      <QueryClientProvider client={makeClient()}>
+        <SnackbarProvider>
+          <MemoryRouter
+            initialEntries={['/apps/mysql_backups_restore/task/restore-task']}
+          >
+            <Routes>
+              <Route
+                path="/apps/:plugin/task/:id/*"
+                element={
+                  <PluginDetailPage
+                    schema={schema}
+                    pluginName="mysql_backups_restore"
+                    getTaskExecuteActions={(task) => [
+                      {
+                        label: 'Execute',
+                        taskName: String(task.name),
+                        testId: 'restore-execute',
+                        confirmContent: (
+                          <div data-testid="restore-confirm-content">
+                            <p>Source: {String(task.backup_source)}</p>
+                            <p>Target: {String(task.hostname)}</p>
+                            <p>
+                              Overwrite: {task.overwrite_tables ? 'Yes' : 'No'}
+                            </p>
+                          </div>
+                        ),
+                      },
+                    ]}
+                  />
+                }
+              />
+            </Routes>
+          </MemoryRouter>
+        </SnackbarProvider>
+      </QueryClientProvider>
+    );
+
+    await userEvent.click(screen.getByTestId('restore-execute'));
+
+    const dialog = await screen.findByRole('dialog');
+    const content = within(dialog).getByTestId('restore-confirm-content');
+    expect(content).toHaveTextContent('Source: backup-2026-09-01');
+    expect(content).toHaveTextContent('Target: db-host:3306');
+    expect(content).toHaveTextContent('Overwrite: Yes');
+  });
+
   it('forwards executeBody from custom execute actions to the mutation', async () => {
     mockExecuteMutate.mockReset();
     mockExecuteMutate.mockResolvedValue({ id: 99 });
@@ -1097,7 +1159,8 @@ function renderWithSchema(
     path?: string;
     pluginName?: string;
     getTaskExecuteActions?: (
-      task: Record<string, unknown>
+      task: Record<string, unknown>,
+      context: { pluginName: string }
     ) => TaskExecuteAction[] | undefined;
   } = {}
 ) {
@@ -1304,6 +1367,77 @@ describe('PluginDetailPage — tabs', () => {
       screen.getByRole('tab', { name: 'Execution History' })
     ).toBeInTheDocument();
     expect(screen.queryByRole('tab', { name: 'Logs' })).toBeNull();
+  });
+});
+
+describe('PluginDetailPage — null status rendering', () => {
+  it('renders "Created, not run yet" chip when task status is null', () => {
+    mockUsePluginTask.mockReturnValue({
+      data: { id: 1, name: 'restore-task', status: null },
+      isLoading: false,
+    });
+
+    renderAt('/apps/checksums/task/restore-task');
+
+    expect(screen.getByTestId('not-run-chip')).toHaveTextContent(
+      'Created, not run yet'
+    );
+  });
+
+  it('renders status badge for non-null status', () => {
+    mockUsePluginTask.mockReturnValue({
+      data: { id: 1, name: 'FECHK', status: 'success' },
+      isLoading: false,
+    });
+
+    renderAt('/apps/checksums/task/FECHK');
+
+    expect(screen.queryByTestId('not-run-chip')).not.toBeInTheDocument();
+    expect(screen.getByText('Done')).toBeInTheDocument();
+  });
+
+  it('renders no status chip on an entity detail without status', () => {
+    const entitySchema = {
+      pluginName: 'inventory',
+      display_name: 'Inventory',
+      description: 'Test',
+      capabilities: {},
+      entities: [
+        {
+          name: 'nodes',
+          display_name: 'Nodes',
+          forms: [],
+          list_view: { columns: [{ key: 'name', label: 'Name' }] },
+        },
+      ],
+    } as unknown as PluginSchema;
+    mockUsePluginEntityDetail.mockReturnValue({
+      data: { id: 5, name: 'node-a' },
+      isLoading: false,
+    });
+
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <SnackbarProvider>
+          <MemoryRouter initialEntries={['/apps/inventory/nodes/5']}>
+            <Routes>
+              <Route
+                path="/apps/inventory/:entityName/:id"
+                element={
+                  <PluginDetailPage
+                    schema={entitySchema}
+                    pluginName="inventory"
+                  />
+                }
+              />
+            </Routes>
+          </MemoryRouter>
+        </SnackbarProvider>
+      </QueryClientProvider>
+    );
+
+    expect(screen.getByText('Nodes #5')).toBeInTheDocument();
+    expect(screen.queryByTestId('not-run-chip')).not.toBeInTheDocument();
   });
 });
 

@@ -108,7 +108,14 @@ export interface TaskExecuteAction {
   label: string;
   taskName: string;
   testId?: string;
+  /** Plain-text confirmation message (use `confirmContent` for rich formatting). */
   confirmMessage?: string;
+  /**
+   * Rich confirmation content (ReactNode). Takes precedence over `confirmMessage`.
+   * Use this to display structured details like source, target, and overwrite
+   * behavior for destructive operations like restore.
+   */
+  confirmContent?: ReactNode;
   executeBody?: TaskExecuteBody;
 }
 
@@ -125,7 +132,8 @@ export interface PluginDetailPageProps {
   suppressDetailKeys?: string[];
   /** Replace the default single Execute button with plugin-specific execute targets. */
   getTaskExecuteActions?: (
-    task: Record<string, unknown>
+    task: Record<string, unknown>,
+    context: { pluginName: string }
   ) => TaskExecuteAction[] | undefined;
   /** Task names whose execution history should appear on the Execution History tab. */
   getTaskHistoryNames?: (task: Record<string, unknown>) => string[] | undefined;
@@ -924,10 +932,12 @@ function ActionBar({
           {pendingExecute?.label ?? 'Execute'} {schema.display_name} task?
         </DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            {pendingExecute?.confirmMessage ??
-              `Are you sure you want to execute the task ${pendingExecute?.taskName ?? taskName} now?`}
-          </DialogContentText>
+          {pendingExecute?.confirmContent ?? (
+            <DialogContentText>
+              {pendingExecute?.confirmMessage ??
+                `Are you sure you want to execute the task ${pendingExecute?.taskName ?? taskName} now?`}
+            </DialogContentText>
+          )}
           {chainingEnabled && pendingExecute && (
             <Box sx={{ mt: 2 }}>
               {pluginTasksLoading ? (
@@ -1300,7 +1310,8 @@ export function PluginDetailPage({
   const hasStoredForm = Boolean(getStoredForm(task as Record<string, unknown>));
   const detailBase = `${routeBase}/task/${encodeURIComponent(id)}`;
   const taskExecuteActions = getTaskExecuteActions?.(
-    task as Record<string, unknown>
+    task as Record<string, unknown>,
+    { pluginName }
   );
   const taskHistoryNames =
     getTaskHistoryNames?.(task as Record<string, unknown>) ??
@@ -1328,7 +1339,13 @@ export function PluginDetailPage({
           // plain chip so status never silently disappears, matching
           // SchemaListView's status-cell fallback.
           <Chip label={task.status} size="small" />
-        ) : null}
+        ) : (
+          <Chip
+            label="Created, not run yet"
+            size="small"
+            data-testid="not-run-chip"
+          />
+        )}
       </Box>
 
       <ActionBar
