@@ -19,8 +19,7 @@ To configure SSH access:
 3. Click **Apply changes**.
 
 !!! caution alert alert-warning "Important"
-    Double-check the key before applying it. A truncated key, or the public key of a private key you no longer hold, silently replaces your working key and locks you out of future SSH sessions.
-
+    PMM rejects a malformed key before writing anything, but it accepts any valid key — even one whose private key you do not hold. Applying a key does not disconnect current sessions, so keep one open until you confirm the new key works.
 
 ## Connect via SSH
 
