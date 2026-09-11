@@ -143,16 +143,27 @@ var methodRules = map[string]role{
 }
 
 var lbacPrefixes = []string{
-	"/graph/api/datasources/uid",
 	"/graph/api/ds/query",
-	// "/graph/api/v1/labels", // Note: this path appears not to be used in Grafana
 	"/prometheus/api/v1/",
 	"/v1/qan/",
-	// https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
-	"/graph/api/datasources/proxy/1/api/v1/",
+	// Grafana reaches the same data source under four route shapes -- proxy/<id>/,
+	// proxy/uid/<uid>/, <id>/resources/ and uid/<uid>/resources/ -- so match the whole
+	// tree instead of enumerating them: every shape left out is served unfiltered, and
+	// /graph requires no role, so nothing else stands between a viewer and raw data.
+	"/graph/api/datasources/",
 }
 
 const lbacHeaderName = "X-Proxy-Filter"
+
+// adminHeaderName marks a request whose caller was authenticated here as an admin, letting
+// vmproxy allow the admin-only diagnostics it otherwise refuses. The nginx config sets it
+// from this response on every location that can reach vmproxy, so a client-supplied value
+// never survives. It is only set where a rule requires a role: paths mapped to none, /graph
+// among them, are not authenticated here and so are never marked.
+const (
+	adminHeaderName  = "X-Proxy-Admin"
+	adminHeaderValue = "1"
+)
 
 // nginx auth_request directive supports only 401 and 403 - every other code results in 500.
 // Our APIs can return codes.PermissionDenied which maps to 403 / http.StatusForbidden.
@@ -259,18 +270,22 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	l := s.l.WithField("req", fmt.Sprintf("%s %s", req.Method, req.URL.Path))
 	// TODO l := logger.Get(ctx) once we have it after https://jira.percona.com/browse/PMM-4326
 
+	// Unescape and clean the URI once, and decide everything below on that one value. The
+	// original URI arrives raw, so matching it here and the cleaned path there lets a
+	// single %2F authorize a request as one path and filter it as another.
+	cleanedPath, err := cleanPath(req.URL.Path)
+	if err != nil {
+		l.Warnf("Error while unescaping path %s: %s", req.URL.Path, err)
+		s.returnAuthError(rw, &authError{code: codes.Internal, message: "Internal server error."}, l)
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(req.Context(), authenticationTimeout)
 	defer cancel()
 
-	authUser, authErr := s.authenticate(ctx, req, l)
+	authUser, authErr := s.authenticate(ctx, req, cleanedPath, l)
 	if authErr != nil {
-		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]any{
-			"code":    int(authErr.code),
-			"error":   authErr.message,
-			"message": authErr.message, //nolint:goconst
-		}
-		s.returnError(rw, httpStatusForAuthError(authErr.code), m, l)
+		s.returnAuthError(rw, authErr, l)
 		return
 	}
 
@@ -279,19 +294,28 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		userID = authUser.userID
 	}
 
-	errF := s.maybeAddLBACFilters(ctx, rw, req, userID, l)
-	if errF != nil {
-		// copy grpc-gateway behavior: set correct codes, set both "error" and "message"
-		m := map[string]any{
-			"code":    int(codes.Internal),
-			"error":   "Internal server error.",
-			"message": "Internal server error.",
-		}
-		l.Errorf("Failed to add VMProxy filters: %s", errF)
+	if authUser != nil && authUser.role >= admin {
+		rw.Header().Set(adminHeaderName, adminHeaderValue)
+	}
 
-		s.returnError(rw, authenticationErrorCode, m, l)
+	errF := s.maybeAddLBACFilters(ctx, rw, req, cleanedPath, userID, l)
+	if errF != nil {
+		l.Errorf("Failed to add VMProxy filters: %s", errF)
+		s.returnAuthError(rw, &authError{code: codes.Internal, message: "Internal server error."}, l)
 		return
 	}
+}
+
+// returnAuthError renders an authError the way grpc-gateway does: the right code, and both
+// "error" and "message" set.
+func (s *AuthServer) returnAuthError(rw http.ResponseWriter, authErr *authError, l *logrus.Entry) {
+	m := map[string]any{
+		"code":    int(authErr.code),
+		"error":   authErr.message,
+		"message": authErr.message,
+	}
+
+	s.returnError(rw, httpStatusForAuthError(authErr.code), m, l)
 }
 
 // httpStatusForAuthError maps an authError code to the HTTP status nginx receives.
@@ -318,8 +342,9 @@ func (s *AuthServer) returnError(rw http.ResponseWriter, status int, msg map[str
 
 // maybeAddLBACFilters adds extra filters to requests proxied through VMProxy.
 // In case the request is not proxied through VMProxy, this is a no-op.
-func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, userID int, l *logrus.Entry) error {
-	if !s.shallAddLBACFilters(req) {
+// Matching happens on cleanedPath, the unescaped path the caller authenticated.
+func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWriter, req *http.Request, cleanedPath string, userID int, l *logrus.Entry) error {
+	if !s.shallAddLBACFilters(cleanedPath) {
 		l.Debugf("Skipping LBAC filters for non-proxied request.")
 		return nil
 	}
@@ -365,13 +390,15 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 }
 
 // shallAddLBACFilters decides if LBAC filters must be added to the outgoing request.
-func (s *AuthServer) shallAddLBACFilters(req *http.Request) bool {
+func (s *AuthServer) shallAddLBACFilters(cleanedPath string) bool {
 	if !s.accessControl.isEnabled() {
 		return false
 	}
 
 	for _, p := range lbacPrefixes {
-		if strings.HasPrefix(req.URL.Path, p) {
+		// Cleaning drops the trailing slash, so the directory itself is matched
+		// separately: a request for exactly the prefix must be filtered too.
+		if strings.HasPrefix(cleanedPath, p) || cleanedPath == strings.TrimSuffix(p, "/") {
 			return true
 		}
 	}
@@ -512,22 +539,12 @@ func isLocalAgentConnection(req *http.Request) bool {
 	return false
 }
 
-// authenticate checks if user has access to a specific path.
+// authenticate checks if user has access to a specific path, given as the unescaped
+// cleanedPath the caller also uses for LBAC.
 // It returns user information retrieved during authentication.
 // Paths which require no Grafana role return zero value for
 // some user fields such as authUser.userID.
-func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
-	// Unescape the URL-encoded parts of the path.
-	p := req.URL.Path
-	cleanedPath, err := cleanPath(p)
-	if err != nil {
-		l.Warnf("Error while unescaping path %s: %q", p, err)
-		return nil, &authError{
-			code:    codes.Internal,
-			message: "Internal server error.",
-		}
-	}
-
+func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, cleanedPath string, l *logrus.Entry) (*authUser, *authError) {
 	minRole, prefix := resolveRule(req.Method, cleanedPath, l)
 	l = l.WithField("prefix", prefix)
 

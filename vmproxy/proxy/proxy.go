@@ -26,11 +26,44 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"path"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
 )
+
+// readOnlyPaths are the VictoriaMetrics endpoints reachable through the proxy. The proxy is
+// the only route Grafana's Metrics data source has to VictoriaMetrics, and Grafana forwards
+// whatever sub-path it is given, so anything not listed here -- snapshots, the admin and
+// debug surface, ingestion -- would otherwise be reachable by any user who can query a
+// dashboard. Admins reach the rest through the admin-gated /prometheus location in nginx,
+// which does not pass through the proxy.
+//
+// Label values are matched separately by labelValuesPath.
+var readOnlyPaths = map[string]struct{}{
+	"/api/v1/query":            {},
+	"/api/v1/query_range":      {},
+	"/api/v1/query_exemplars":  {},
+	"/api/v1/series":           {},
+	"/api/v1/labels":           {},
+	"/api/v1/metadata":         {},
+	"/api/v1/rules":            {},
+	"/api/v1/alerts":           {},
+	"/api/v1/status/buildinfo": {},
+	"/api/v1/export":           {},
+
+	// Cardinality diagnostics. VictoriaMetrics applies extra_filters[] here, so a
+	// restricted viewer sees only the series their own filters select. The scrape target
+	// endpoints behave the opposite way -- VictoriaMetrics ignores the filters and hands
+	// back every target with its listen port -- so they are not listed, and an admin
+	// reaches them through the marker below.
+	"/api/v1/status/tsdb": {},
+}
+
+// adminHeaderValue is the only value the admin marker is honoured with; pmm-managed sets it.
+const adminHeaderValue = "1"
 
 // Config defines options for starting proxy.
 type Config struct {
@@ -40,6 +73,8 @@ type Config struct {
 	ListenAddress string
 	// Target URL to forward requests to
 	TargetURL *url.URL
+	// Name of the header marking a request as coming from an admin. Case insensitive.
+	AdminHeaderName string
 }
 
 // RunProxy starts proxy which adds extra filters based on configuration.
@@ -83,6 +118,10 @@ func getHandler(cfg Config) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		logrus.Debugf("%s: %s", req.Method, req.URL)
 
+		if failOnDisallowedPath(rw, req, cfg.AdminHeaderName) {
+			return
+		}
+
 		if failOnInvalidHeader(rw, req, cfg.HeaderName) {
 			return
 		}
@@ -90,6 +129,77 @@ func getHandler(cfg Config) http.HandlerFunc {
 		rProxy.ServeHTTP(rw, req)
 	}
 }
+
+// failOnDisallowedPath answers the request with 403 and reports whether it did, so the
+// caller returns instead of proxying a path VictoriaMetrics must not be asked for.
+func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request, adminHeaderName string) bool {
+	if isPathAllowed(req.URL.Path, isAdminRequest(req, adminHeaderName)) {
+		return false
+	}
+
+	// Logged so a legitimate path missing from the allow-list can be found from the
+	// logs of whoever reports the broken panel.
+	logrus.WithFields(logrus.Fields{
+		"method": req.Method,
+		"path":   req.URL.Path,
+	}).Warn("Refusing request to a path outside the read-only allow-list")
+
+	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	rw.WriteHeader(http.StatusForbidden)
+	io.WriteString(rw, "Path is not allowed through the VictoriaMetrics proxy") //nolint:errcheck,gosec
+
+	return true
+}
+
+// isPathAllowed reports whether the path may be forwarded to VictoriaMetrics.
+func isPathAllowed(p string, isAdmin bool) bool {
+	// The allow-list exists to bound what a dashboard user reaches through Grafana's data
+	// source, which is never marked: /graph requires no role, so pmm-managed does not
+	// authenticate it and the marker is never set on it. An admin arrives only through the
+	// /prometheus and /victoriametrics locations, which already require an admin, and the
+	// same endpoints are reachable directly under /prometheus without crossing this proxy,
+	// so restricting admins here removes capability without removing any exposure.
+	if isAdmin {
+		return true
+	}
+
+	cleaned := normalizePath(p)
+
+	if _, ok := readOnlyPaths[cleaned]; ok {
+		return true
+	}
+
+	return labelValuesPath.MatchString(cleaned)
+}
+
+// normalizePath reduces the shapes the same endpoint arrives in to one. The nginx config
+// passes the original URI for the /prometheus/api/v1 location and rewrites it for
+// /victoriametrics/, and Grafana's data source sends it unprefixed. Cleaning first stops
+// traversal walking out of a listed path.
+func normalizePath(p string) string {
+	cleaned := path.Clean(p)
+	if cleaned == "/prometheus" || strings.HasPrefix(cleaned, "/prometheus/") {
+		cleaned = strings.TrimPrefix(cleaned, "/prometheus")
+	}
+
+	return cleaned
+}
+
+// isAdminRequest reports whether pmm-managed authenticated this caller as an admin. The
+// header is not a credential: nginx overwrites it on every location that can reach the
+// proxy, so a client cannot supply one, and the proxy listens on loopback only.
+func isAdminRequest(req *http.Request, headerName string) bool {
+	if headerName == "" {
+		return false
+	}
+
+	return req.Header.Get(headerName) == adminHeaderValue
+}
+
+// labelValuesPath matches /api/v1/label/<name>/values, which carries the label name as a
+// path segment and so cannot be matched literally. The name is a single segment: it must be
+// present and must not span a slash.
+var labelValuesPath = regexp.MustCompile(`^/api/v1/label/[^/]+/values$`)
 
 func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName string) bool {
 	if filters := req.Header.Get(headerName); filters != "" {
@@ -104,7 +214,7 @@ func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName s
 			}).Warn("Rejecting request with unparsable filter header")
 			rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			rw.WriteHeader(http.StatusPreconditionFailed)
-			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName)) //nolint:errcheck
+			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName)) //nolint:errcheck,gosec
 			return true
 		}
 	}

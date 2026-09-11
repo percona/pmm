@@ -33,6 +33,9 @@ import (
 const (
 	headerName = "X-Test-Header"
 	targetURL  = "http://127.0.0.1"
+	// Requests must carry a path the proxy allows through, or the read-only
+	// allow-list refuses them before anything else under test runs.
+	requestURL = "http://127.0.0.1/api/v1/query"
 )
 
 func TestProxy(t *testing.T) {
@@ -68,7 +71,7 @@ func TestProxy(t *testing.T) {
 		handler := setup(t, nil, nil)
 
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, requestURL, nil)
 		uri, err := url.Parse(targetURL)
 		require.NoError(t, err)
 
@@ -92,6 +95,7 @@ func TestProxy(t *testing.T) {
 			expectedHeader  map[string]string
 			headerContent   string
 			name            string
+			requestURL      string
 			targetURL       string
 		}
 
@@ -113,7 +117,7 @@ func TestProxy(t *testing.T) {
 				expectedFilters: []string{"abc", "def"},
 				expectedStatus:  http.StatusOK,
 				headerContent:   base64.StdEncoding.EncodeToString([]byte(`["abc", "def"]`)),
-				targetURL:       "http://127.0.0.1/a?extra_filters[]=a&extra_filters[]=b",
+				requestURL:      "http://127.0.0.1/api/v1/query?extra_filters[]=a&extra_filters[]=b",
 			},
 			{
 				name:            "shall support empty JSON array with no filters",
@@ -141,7 +145,7 @@ func TestProxy(t *testing.T) {
 				},
 				expectedStatus: http.StatusOK,
 				headerContent:  base64.StdEncoding.EncodeToString([]byte(`["abc", "def"]`)),
-				targetURL:      "http://vmadmin:vmpass@127.0.0.1/a",
+				targetURL:      "http://vmadmin:vmpass@127.0.0.1",
 			},
 		}
 		for _, tc := range testCases {
@@ -153,10 +157,15 @@ func TestProxy(t *testing.T) {
 					testTargetURL = tc.targetURL
 				}
 
+				testRequestURL := requestURL
+				if tc.requestURL != "" {
+					testRequestURL = tc.requestURL
+				}
+
 				handler := setup(t, tc.expectedFilters, tc.expectedHeader)
 
 				rec := httptest.NewRecorder()
-				req := httptest.NewRequest(http.MethodGet, testTargetURL, nil)
+				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, testRequestURL, nil)
 
 				uri, err := url.Parse(testTargetURL)
 				require.NoError(t, err)
@@ -202,7 +211,7 @@ func TestProxy(t *testing.T) {
 				url, err := url.Parse(tc.targetURL)
 				require.NoError(t, err)
 				expectedHost := url.Host
-				req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, targetURL, nil)
 
 				prepareRequest(req, url, headerName)
 
@@ -210,6 +219,183 @@ func TestProxy(t *testing.T) {
 				require.Equal(t, expectedHost, req.Header[headerName][0])
 			})
 		}
+	})
+
+	t.Run("shall refuse paths outside the read-only allow-list", func(t *testing.T) {
+		t.Parallel()
+
+		// Grafana forwards arbitrary sub-paths to the data source, so the proxy is the
+		// only thing standing between a dashboard user and the rest of VictoriaMetrics.
+		allowed := []string{
+			"/api/v1/query",
+			"/api/v1/query_range",
+			"/api/v1/query_exemplars",
+			"/api/v1/series",
+			"/api/v1/labels",
+			"/api/v1/label/node_name/values",
+			"/api/v1/metadata",
+			"/api/v1/rules",
+			"/api/v1/alerts",
+			"/api/v1/status/buildinfo",
+			"/api/v1/export",
+			// Cardinality diagnostics, which VictoriaMetrics filters like any query.
+			"/api/v1/status/tsdb",
+			// nginx passes the original URI for the /prometheus/api/v1 location.
+			"/prometheus/api/v1/query",
+			"/prometheus/api/v1/label/node_name/values",
+			"/prometheus/api/v1/status/tsdb",
+		}
+		refused := []string{
+			"/",
+			"/snapshot/create",
+			"/snapshot/list",
+			"/prometheus/snapshot/create",
+			"/api/v1/admin/tsdb/delete_series",
+			"/api/v1/write",
+			"/api/v1/import",
+			// The scrape configuration, whole or per target: VictoriaMetrics ignores
+			// extra_filters[] on these, so a restricted viewer would read every target
+			// and its listen port.
+			"/api/v1/status/config",
+			"/targets",
+			"/api/v1/targets",
+			"/prometheus/api/v1/targets",
+			"/metrics",
+			"/flags",
+			"/debug/pprof/heap",
+			// Traversal must not walk out of an allowed prefix.
+			"/api/v1/query/../../snapshot/create",
+			"/api/v1/label/../../snapshot/create/values",
+			// The label name is a single segment, so these are not label lookups.
+			"/api/v1/label//values",
+			"/api/v1/label/a/b/values",
+		}
+
+		for _, p := range allowed {
+			assert.Truef(t, isPathAllowed(p, false), "expected %s to be allowed", p)
+		}
+		for _, p := range refused {
+			assert.Falsef(t, isPathAllowed(p, false), "expected %s to be refused", p)
+		}
+	})
+
+	t.Run("shall gate the full surface on the marker", func(t *testing.T) {
+		t.Parallel()
+
+		// An admin reaches these directly under /prometheus without crossing the proxy, so
+		// the marker restores the capability rather than granting a new one. Without it --
+		// which is every request Grafana's data source makes -- they stay refused.
+		for _, p := range []string{
+			"/api/v1/status/config",
+			"/prometheus/api/v1/status/config",
+			"/api/v1/admin/tsdb/delete_series",
+			"/snapshot/create",
+			"/snapshot/delete_all",
+			"/debug/pprof/heap",
+			"/metrics",
+			"/flags",
+			// The documented scrape target diagnostics, reached through the
+			// admin-gated /prometheus and /victoriametrics nginx locations.
+			"/targets",
+			"/api/v1/targets",
+			"/prometheus/api/v1/targets",
+		} {
+			assert.Truef(t, isPathAllowed(p, true), "expected %s to be allowed for an admin", p)
+			assert.Falsef(t, isPathAllowed(p, false), "expected %s to be refused without the marker", p)
+		}
+	})
+
+	t.Run("shall honour the marker only from the configured header", func(t *testing.T) {
+		t.Parallel()
+
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, requestURL, nil)
+		assert.False(t, isAdminRequest(req, "X-Proxy-Admin"), "absent header is not an admin")
+
+		req.Header.Set("X-Proxy-Admin", "1")
+		assert.True(t, isAdminRequest(req, "X-Proxy-Admin"))
+		assert.False(t, isAdminRequest(req, ""), "an unconfigured header name never matches")
+
+		req.Header.Set("X-Proxy-Admin", "true")
+		assert.False(t, isAdminRequest(req, "X-Proxy-Admin"), "only the exact value counts")
+	})
+
+	t.Run("shall serve an admin-only path when the marker is present", func(t *testing.T) {
+		t.Parallel()
+
+		proxied := false
+		server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+			proxied = true
+		}))
+		t.Cleanup(server.Close)
+
+		uri, err := url.Parse(server.URL)
+		require.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "http://127.0.0.1/api/v1/status/config", nil)
+		req.Header.Set("X-Proxy-Admin", "1")
+
+		getHandler(Config{HeaderName: headerName, AdminHeaderName: "X-Proxy-Admin", TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
+
+		require.Equal(t, http.StatusOK, resp.StatusCode)
+		require.True(t, proxied, "an admin request must reach VictoriaMetrics")
+	})
+
+	t.Run("shall refuse an admin-only path without the marker", func(t *testing.T) {
+		t.Parallel()
+
+		proxied := false
+		server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+			proxied = true
+		}))
+		t.Cleanup(server.Close)
+
+		uri, err := url.Parse(server.URL)
+		require.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "http://127.0.0.1/api/v1/status/config", nil)
+
+		getHandler(Config{HeaderName: headerName, AdminHeaderName: "X-Proxy-Admin", TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
+
+		require.Equal(t, http.StatusForbidden, resp.StatusCode)
+		require.False(t, proxied, "refused request must not reach VictoriaMetrics")
+	})
+
+	t.Run("shall answer a refused path with 403 without proxying", func(t *testing.T) {
+		t.Parallel()
+
+		proxied := false
+		server := httptest.NewServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+			proxied = true
+		}))
+		t.Cleanup(server.Close)
+
+		uri, err := url.Parse(server.URL)
+		require.NoError(t, err)
+
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "http://127.0.0.1/snapshot/create", nil)
+
+		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
+
+		resp := rec.Result()
+		t.Cleanup(func() {
+			assert.NoError(t, resp.Body.Close())
+		})
+
+		require.Equal(t, http.StatusForbidden, resp.StatusCode)
+		require.False(t, proxied, "refused request must not reach VictoriaMetrics")
 	})
 
 	t.Run("prepareRequest: add credentials to request", func(t *testing.T) {
@@ -222,7 +408,7 @@ func TestProxy(t *testing.T) {
 		password := "password"
 		uri.User = url.UserPassword(username, password)
 
-		req := httptest.NewRequest(http.MethodGet, targetURL, nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, targetURL, nil)
 		prepareRequest(req, uri, headerName)
 
 		require.Equal(t, "Basic dXNlcjpwYXNzd29yZA==", req.Header.Get("Authorization"))
@@ -254,7 +440,7 @@ func TestLogsFailuresAtWarn(t *testing.T) { //nolint:paralleltest
 		require.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, targetURL, nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, requestURL, nil)
 		req.Header.Set(headerName, "not-base64")
 
 		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
@@ -276,7 +462,7 @@ func TestLogsFailuresAtWarn(t *testing.T) { //nolint:paralleltest
 		require.NoError(t, err)
 
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, deadURL, nil)
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, deadURL+"/api/v1/query", nil)
 
 		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
 
@@ -302,7 +488,7 @@ func TestLogsFailuresAtWarn(t *testing.T) { //nolint:paralleltest
 		cancel()
 
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequestWithContext(ctx, http.MethodGet, deadURL, nil)
+		req := httptest.NewRequestWithContext(ctx, http.MethodGet, deadURL+"/api/v1/query", nil)
 		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
 
 		resp := rec.Result()
@@ -322,7 +508,7 @@ func TestLogsFailuresAtWarn(t *testing.T) { //nolint:paralleltest
 		defer cancel()
 
 		rec := httptest.NewRecorder()
-		req := httptest.NewRequestWithContext(ctx, http.MethodGet, "http://192.0.2.1:9", nil)
+		req := httptest.NewRequestWithContext(ctx, http.MethodGet, "http://192.0.2.1:9/api/v1/query", nil)
 		getHandler(Config{HeaderName: headerName, TargetURL: uri}).ServeHTTP(rec, req)
 
 		resp := rec.Result()
