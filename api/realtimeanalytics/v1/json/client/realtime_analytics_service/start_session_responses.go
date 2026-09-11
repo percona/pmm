@@ -580,6 +580,10 @@ type StartSessionOKBodySession struct {
 	//  - SESSION_STATUS_DOWN: Session has been stopped or disabled.
 	// Enum: ["SESSION_STATUS_UNSPECIFIED","SESSION_STATUS_ERROR","SESSION_STATUS_RUNNING","SESSION_STATUS_DOWN"]
 	Status *string `json:"status,omitempty"`
+
+	// ServiceType describes supported Service types.
+	// Enum: ["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_VALKEY_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]
+	ServiceType *string `json:"service_type,omitempty"`
 }
 
 // Validate validates this start session OK body session
@@ -591,6 +595,10 @@ func (o *StartSessionOKBodySession) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateServiceType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -654,6 +662,66 @@ func (o *StartSessionOKBodySession) validateStatus(formats strfmt.Registry) erro
 
 	// value enum
 	if err := o.validateStatusEnum("startSessionOk"+"."+"session"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var startSessionOkBodySessionTypeServiceTypePropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_VALKEY_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		startSessionOkBodySessionTypeServiceTypePropEnum = append(startSessionOkBodySessionTypeServiceTypePropEnum, v)
+	}
+}
+
+const (
+
+	// StartSessionOKBodySessionServiceTypeSERVICETYPEUNSPECIFIED captures enum value "SERVICE_TYPE_UNSPECIFIED"
+	StartSessionOKBodySessionServiceTypeSERVICETYPEUNSPECIFIED string = "SERVICE_TYPE_UNSPECIFIED"
+
+	// StartSessionOKBodySessionServiceTypeSERVICETYPEMYSQLSERVICE captures enum value "SERVICE_TYPE_MYSQL_SERVICE"
+	StartSessionOKBodySessionServiceTypeSERVICETYPEMYSQLSERVICE string = "SERVICE_TYPE_MYSQL_SERVICE"
+
+	// StartSessionOKBodySessionServiceTypeSERVICETYPEMONGODBSERVICE captures enum value "SERVICE_TYPE_MONGODB_SERVICE"
+	StartSessionOKBodySessionServiceTypeSERVICETYPEMONGODBSERVICE string = "SERVICE_TYPE_MONGODB_SERVICE"
+
+	// StartSessionOKBodySessionServiceTypeSERVICETYPEPOSTGRESQLSERVICE captures enum value "SERVICE_TYPE_POSTGRESQL_SERVICE"
+	StartSessionOKBodySessionServiceTypeSERVICETYPEPOSTGRESQLSERVICE string = "SERVICE_TYPE_POSTGRESQL_SERVICE"
+
+	// StartSessionOKBodySessionServiceTypeSERVICETYPEVALKEYSERVICE captures enum value "SERVICE_TYPE_VALKEY_SERVICE"
+	StartSessionOKBodySessionServiceTypeSERVICETYPEVALKEYSERVICE string = "SERVICE_TYPE_VALKEY_SERVICE"
+
+	// StartSessionOKBodySessionServiceTypeSERVICETYPEPROXYSQLSERVICE captures enum value "SERVICE_TYPE_PROXYSQL_SERVICE"
+	StartSessionOKBodySessionServiceTypeSERVICETYPEPROXYSQLSERVICE string = "SERVICE_TYPE_PROXYSQL_SERVICE"
+
+	// StartSessionOKBodySessionServiceTypeSERVICETYPEHAPROXYSERVICE captures enum value "SERVICE_TYPE_HAPROXY_SERVICE"
+	StartSessionOKBodySessionServiceTypeSERVICETYPEHAPROXYSERVICE string = "SERVICE_TYPE_HAPROXY_SERVICE"
+
+	// StartSessionOKBodySessionServiceTypeSERVICETYPEEXTERNALSERVICE captures enum value "SERVICE_TYPE_EXTERNAL_SERVICE"
+	StartSessionOKBodySessionServiceTypeSERVICETYPEEXTERNALSERVICE string = "SERVICE_TYPE_EXTERNAL_SERVICE"
+)
+
+// prop value enum
+func (o *StartSessionOKBodySession) validateServiceTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, startSessionOkBodySessionTypeServiceTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *StartSessionOKBodySession) validateServiceType(formats strfmt.Registry) error {
+	if swag.IsZero(o.ServiceType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateServiceTypeEnum("startSessionOk"+"."+"session"+"."+"service_type", "body", *o.ServiceType); err != nil {
 		return err
 	}
 

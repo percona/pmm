@@ -15,20 +15,34 @@ import {
 } from 'hooks/api/useRealtime';
 import { DOCS_URLS } from 'lib/constants';
 import { RealtimeSession } from 'types/rta.types';
-import { createRealtimeOverviewUrl } from 'utils/link.utils';
+import {
+  createRealtimeOverviewUrl,
+  createRealtimeSessionsUrl,
+} from 'utils/link.utils';
+import { sharedTechnology } from '../components/technology';
 import { RealtimeSelectionForm } from '../components/selection-form';
-import { ServiceType } from 'types/services.types';
 
 export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  // TODO: Add other service types when available
-  const { isLoading } = useAvailableServices([ServiceType.mongodb]);
+  // The set of RTA technologies is the hook's default, so this shares the one
+  // fetch with the selection form below rather than issuing a second one.
+  const { isLoading } = useAvailableServices();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
 
   const handleSuccess = (sessions: RealtimeSession[]) => {
     const serviceIds = sessions.map((s) => s.serviceId);
+
+    // Services of different technologies can be started together, but one view
+    // of live queries shows one technology. Rather than silently dropping half
+    // the selection, hand over to the session list and let the user pick which
+    // one to watch.
+    if (!sharedTechnology(sessions.map((s) => s.serviceType))) {
+      navigate(createRealtimeSessionsUrl(serviceIds));
+
+      return;
+    }
 
     navigate(createRealtimeOverviewUrl(serviceIds));
   };

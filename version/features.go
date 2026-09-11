@@ -25,6 +25,11 @@ var (
 	MysqlExporterPluginCollector  FeatureVersion = MustParse("2.36.0-0")
 	NomadAgentSupportVersion      FeatureVersion = MustParse("3.2.0-0")
 	MongoDBRtaAgentSupportVersion FeatureVersion = MustParse("3.7.0-0")
+	// MySQLRtaAgentSupportVersion is the first release that ships the MySQL RTA
+	// collector in pmm-agent. Gating MySQL RTA on this (rather than the MongoDB
+	// version) prevents enabling it against agents that would not understand the
+	// AGENT_TYPE_RTA_MYSQL_AGENT builtin and would dead-end in their supervisor.
+	MySQLRtaAgentSupportVersion FeatureVersion = MustParse("3.9.0-0")
 )
 
 // IsFeatureSupported checks if the feature is supported by the version.

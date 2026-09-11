@@ -60,6 +60,7 @@ digraph packages {
 	"/agents/supervisor" -> "/agents/mongodb/profiler";
 	"/agents/supervisor" -> "/agents/mongodb/realtimeanalytics";
 	"/agents/supervisor" -> "/agents/mysql/perfschema";
+	"/agents/supervisor" -> "/agents/mysql/realtimeanalytics";
 	"/agents/supervisor" -> "/agents/mysql/slowlog";
 	"/agents/supervisor" -> "/agents/noop";
 	"/agents/supervisor" -> "/agents/postgres/pgstatmonitor";

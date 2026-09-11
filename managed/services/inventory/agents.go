@@ -1732,6 +1732,96 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 	return res, nil
 }
 
+// AddRTAMySQLAgent adds MySQL Real-Time Analytics Agent.
+func (as *AgentsService) AddRTAMySQLAgent(ctx context.Context, p *inventoryv1.AddRTAMySQLAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	params := &models.CreateAgentParams{
+		PMMAgentID:    p.PmmAgentId,
+		ServiceID:     p.ServiceId,
+		Username:      p.Username,
+		Password:      p.Password,
+		CustomLabels:  p.CustomLabels,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		MySQLOptions: models.MySQLOptions{
+			TLSCa:   p.GetTlsCa(),
+			TLSCert: p.GetTlsCert(),
+			TLSKey:  p.GetTlsKey(),
+		},
+		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+		SkipConnectionCheck: p.SkipConnectionCheck,
+	}
+
+	// Set RTA options if provided
+	if p.RtaOptions != nil {
+		params.RTAOptions = *models.RTAOptionsFromRequest(p.RtaOptions)
+	}
+
+	agent, err := as.executeAgentAdd(ctx, models.RTAMySQLAgentType, params, true)
+	if err != nil {
+		return nil, err
+	}
+
+	rtaMySQLAgent, ok := agent.(*inventoryv1.RTAMySQLAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(agent)
+	}
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
+
+	res := &inventoryv1.AddAgentResponse{
+		Agent: &inventoryv1.AddAgentResponse_RtaMysqlAgent{
+			RtaMysqlAgent: rtaMySQLAgent,
+		},
+	}
+
+	return res, nil
+}
+
+// ChangeRTAMySQLAgent updates MySQL Real-Time Analytics Agent with given parameters.
+func (as *AgentsService) ChangeRTAMySQLAgent(
+	ctx context.Context, agentID string,
+	p *inventoryv1.ChangeRTAMySQLAgentParams,
+) (*inventoryv1.ChangeAgentResponse, error) {
+	changeParams := &models.ChangeAgentParams{
+		Enabled:       p.Enable,
+		Username:      p.Username,
+		Password:      p.Password,
+		TLS:           p.Tls,
+		TLSSkipVerify: p.TlsSkipVerify,
+		LogLevel:      convertLogLevel(p.LogLevel),
+		CustomLabels:  convertCustomLabels(p.CustomLabels),
+		MySQLOptions: &models.ChangeMySQLOptions{
+			TLSCa:   p.TlsCa,
+			TLSCert: p.TlsCert,
+			TLSKey:  p.TlsKey,
+		},
+		SkipConnectionCheck: p.GetSkipConnectionCheck(),
+	}
+
+	// Set RTA options if provided
+	if p.RtaOptions != nil {
+		changeParams.RTAOptions = models.RTAOptionsFromRequest(p.RtaOptions)
+	}
+
+	ag, err := as.executeAgentChange(ctx, agentID, changeParams)
+	if err != nil {
+		return nil, err
+	}
+
+	agent, ok := ag.(*inventoryv1.RTAMySQLAgent)
+	if !ok {
+		return nil, unexpectedAgentTypeError(ag)
+	}
+	as.state.RequestStateUpdate(ctx, agent.PmmAgentId)
+
+	res := &inventoryv1.ChangeAgentResponse{
+		Agent: &inventoryv1.ChangeAgentResponse_RtaMysqlAgent{
+			RtaMysqlAgent: agent,
+		},
+	}
+
+	return res, nil
+}
+
 // Remove removes Agent, and sends state update to pmm-agent, or kicks it.
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent

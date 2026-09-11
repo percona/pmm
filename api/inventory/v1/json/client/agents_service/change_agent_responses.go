@@ -238,6 +238,9 @@ type ChangeAgentBody struct {
 	// rta mongodb agent
 	RtaMongodbAgent *ChangeAgentParamsBodyRtaMongodbAgent `json:"rta_mongodb_agent,omitempty"`
 
+	// rta mysql agent
+	RtaMysqlAgent *ChangeAgentParamsBodyRtaMysqlAgent `json:"rta_mysql_agent,omitempty"`
+
 	// valkey exporter
 	ValkeyExporter *ChangeAgentParamsBodyValkeyExporter `json:"valkey_exporter,omitempty"`
 }
@@ -307,6 +310,10 @@ func (o *ChangeAgentBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRtaMongodbAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaMysqlAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -688,6 +695,29 @@ func (o *ChangeAgentBody) validateRtaMongodbAgent(formats strfmt.Registry) error
 	return nil
 }
 
+func (o *ChangeAgentBody) validateRtaMysqlAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaMysqlAgent) { // not required
+		return nil
+	}
+
+	if o.RtaMysqlAgent != nil {
+		if err := o.RtaMysqlAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mysql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mysql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentBody) validateValkeyExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ValkeyExporter) { // not required
 		return nil
@@ -776,6 +806,10 @@ func (o *ChangeAgentBody) ContextValidate(ctx context.Context, formats strfmt.Re
 	}
 
 	if err := o.contextValidateRtaMongodbAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaMysqlAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1173,6 +1207,30 @@ func (o *ChangeAgentBody) contextValidateRtaMongodbAgent(ctx context.Context, fo
 	return nil
 }
 
+func (o *ChangeAgentBody) contextValidateRtaMysqlAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaMysqlAgent != nil {
+
+		if swag.IsZero(o.RtaMysqlAgent) { // not required
+			return nil
+		}
+
+		if err := o.RtaMysqlAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mysql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mysql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentBody) contextValidateValkeyExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ValkeyExporter != nil {
 
@@ -1496,6 +1554,9 @@ type ChangeAgentOKBody struct {
 	// rta mongodb agent
 	RtaMongodbAgent *ChangeAgentOKBodyRtaMongodbAgent `json:"rta_mongodb_agent,omitempty"`
 
+	// rta mysql agent
+	RtaMysqlAgent *ChangeAgentOKBodyRtaMysqlAgent `json:"rta_mysql_agent,omitempty"`
+
 	// valkey exporter
 	ValkeyExporter *ChangeAgentOKBodyValkeyExporter `json:"valkey_exporter,omitempty"`
 }
@@ -1565,6 +1626,10 @@ func (o *ChangeAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateRtaMongodbAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaMysqlAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1946,6 +2011,29 @@ func (o *ChangeAgentOKBody) validateRtaMongodbAgent(formats strfmt.Registry) err
 	return nil
 }
 
+func (o *ChangeAgentOKBody) validateRtaMysqlAgent(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaMysqlAgent) { // not required
+		return nil
+	}
+
+	if o.RtaMysqlAgent != nil {
+		if err := o.RtaMysqlAgent.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeAgentOk" + "." + "rta_mysql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeAgentOk" + "." + "rta_mysql_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *ChangeAgentOKBody) validateValkeyExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ValkeyExporter) { // not required
 		return nil
@@ -2034,6 +2122,10 @@ func (o *ChangeAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := o.contextValidateRtaMongodbAgent(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaMysqlAgent(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -2422,6 +2514,30 @@ func (o *ChangeAgentOKBody) contextValidateRtaMongodbAgent(ctx context.Context, 
 			ce := new(errors.CompositeError)
 			if stderrors.As(err, &ce) {
 				return ce.ValidateName("changeAgentOk" + "." + "rta_mongodb_agent")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentOKBody) contextValidateRtaMysqlAgent(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaMysqlAgent != nil {
+
+		if swag.IsZero(o.RtaMysqlAgent) { // not required
+			return nil
+		}
+
+		if err := o.RtaMysqlAgent.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeAgentOk" + "." + "rta_mysql_agent")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeAgentOk" + "." + "rta_mysql_agent")
 			}
 
 			return err
@@ -6759,6 +6875,309 @@ func (o *ChangeAgentOKBodyRtaMongodbAgentRtaOptions) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentOKBodyRtaMongodbAgentRtaOptions) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentOKBodyRtaMongodbAgentRtaOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyRtaMysqlAgent RTAMySQLAgent runs within pmm-agent and sends MySQL Real-Time Query Analytics data to the PMM Server.
+swagger:model ChangeAgentOKBodyRtaMysqlAgent
+*/
+type ChangeAgentOKBodyRtaMysqlAgent struct {
+	// Unique agent identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for getting the currently running queries.
+	Username string `json:"username,omitempty"`
+
+	// Use TLS for database connections.
+	TLS bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	//
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_INITIALIZATION_ERROR: Agent encountered error when starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent has been stopped or disabled.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: ["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]
+	Status *string `json:"status,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// rta options
+	RtaOptions *ChangeAgentOKBodyRtaMysqlAgentRtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this change agent OK body rta mysql agent
+func (o *ChangeAgentOKBodyRtaMysqlAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var changeAgentOkBodyRtaMysqlAgentTypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_INITIALIZATION_ERROR","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentOkBodyRtaMysqlAgentTypeStatusPropEnum = append(changeAgentOkBodyRtaMysqlAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+
+	// ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+
+	// ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSINITIALIZATIONERROR captures enum value "AGENT_STATUS_INITIALIZATION_ERROR"
+	ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSINITIALIZATIONERROR string = "AGENT_STATUS_INITIALIZATION_ERROR"
+
+	// ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+
+	// ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+
+	// ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+
+	// ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+
+	// ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ChangeAgentOKBodyRtaMysqlAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+)
+
+// prop value enum
+func (o *ChangeAgentOKBodyRtaMysqlAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentOkBodyRtaMysqlAgentTypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyRtaMysqlAgent) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("changeAgentOk"+"."+"rta_mysql_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var changeAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum = append(changeAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeAgentOKBodyRtaMysqlAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeAgentOKBodyRtaMysqlAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentOkBodyRtaMysqlAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyRtaMysqlAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("changeAgentOk"+"."+"rta_mysql_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentOKBodyRtaMysqlAgent) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent OK body rta mysql agent based on the context it is used
+func (o *ChangeAgentOKBodyRtaMysqlAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentOKBodyRtaMysqlAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("changeAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("changeAgentOk" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyRtaMysqlAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyRtaMysqlAgent) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyRtaMysqlAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentOKBodyRtaMysqlAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model ChangeAgentOKBodyRtaMysqlAgentRtaOptions
+*/
+type ChangeAgentOKBodyRtaMysqlAgentRtaOptions struct {
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this change agent OK body rta mysql agent rta options
+func (o *ChangeAgentOKBodyRtaMysqlAgentRtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent OK body rta mysql agent rta options based on context it is used
+func (o *ChangeAgentOKBodyRtaMysqlAgentRtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentOKBodyRtaMysqlAgentRtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentOKBodyRtaMysqlAgentRtaOptions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentOKBodyRtaMysqlAgentRtaOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -12071,6 +12490,331 @@ func (o *ChangeAgentParamsBodyRtaMongodbAgentRtaOptions) MarshalBinary() ([]byte
 // UnmarshalBinary interface implementation
 func (o *ChangeAgentParamsBodyRtaMongodbAgentRtaOptions) UnmarshalBinary(b []byte) error {
 	var res ChangeAgentParamsBodyRtaMongodbAgentRtaOptions
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyRtaMysqlAgent change agent params body rta mysql agent
+swagger:model ChangeAgentParamsBodyRtaMysqlAgent
+*/
+type ChangeAgentParamsBodyRtaMysqlAgent struct {
+	// Enable this Agent. Agents are enabled by default when they get added.
+	Enable *bool `json:"enable,omitempty"`
+
+	// Log level for exporters
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: ["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]
+	LogLevel *string `json:"log_level,omitempty"`
+
+	// MySQL username for getting queries data.
+	Username *string `json:"username,omitempty"`
+
+	// MySQL password for getting queries data.
+	Password *string `json:"password,omitempty"`
+
+	// Use TLS for database connections.
+	TLS *bool `json:"tls,omitempty"`
+
+	// Skip TLS certificate and hostname validation.
+	TLSSkipVerify *bool `json:"tls_skip_verify,omitempty"`
+
+	// Certificate Authority certificate chain.
+	TLSCa *string `json:"tls_ca,omitempty"`
+
+	// Client certificate.
+	TLSCert *string `json:"tls_cert,omitempty"`
+
+	// Client key.
+	TLSKey *string `json:"tls_key,omitempty"`
+
+	// Skip connection check.
+	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
+	// custom labels
+	CustomLabels *ChangeAgentParamsBodyRtaMysqlAgentCustomLabels `json:"custom_labels,omitempty"`
+
+	// rta options
+	RtaOptions *ChangeAgentParamsBodyRtaMysqlAgentRtaOptions `json:"rta_options,omitempty"`
+}
+
+// Validate validates this change agent params body rta mysql agent
+func (o *ChangeAgentParamsBodyRtaMysqlAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogLevel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateCustomLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRtaOptions(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var changeAgentParamsBodyRtaMysqlAgentTypeLogLevelPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		changeAgentParamsBodyRtaMysqlAgentTypeLogLevelPropEnum = append(changeAgentParamsBodyRtaMysqlAgentTypeLogLevelPropEnum, v)
+	}
+}
+
+const (
+
+	// ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+
+	// ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+
+	// ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+
+	// ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+
+	// ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+
+	// ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeAgentParamsBodyRtaMysqlAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+)
+
+// prop value enum
+func (o *ChangeAgentParamsBodyRtaMysqlAgent) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, changeAgentParamsBodyRtaMysqlAgentTypeLogLevelPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRtaMysqlAgent) validateLogLevel(formats strfmt.Registry) error {
+	if swag.IsZero(o.LogLevel) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateLogLevelEnum("body"+"."+"rta_mysql_agent"+"."+"log_level", "body", *o.LogLevel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRtaMysqlAgent) validateCustomLabels(formats strfmt.Registry) error {
+	if swag.IsZero(o.CustomLabels) { // not required
+		return nil
+	}
+
+	if o.CustomLabels != nil {
+		if err := o.CustomLabels.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mysql_agent" + "." + "custom_labels")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mysql_agent" + "." + "custom_labels")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRtaMysqlAgent) validateRtaOptions(formats strfmt.Registry) error {
+	if swag.IsZero(o.RtaOptions) { // not required
+		return nil
+	}
+
+	if o.RtaOptions != nil {
+		if err := o.RtaOptions.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ContextValidate validate this change agent params body rta mysql agent based on the context it is used
+func (o *ChangeAgentParamsBodyRtaMysqlAgent) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateCustomLabels(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateRtaOptions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRtaMysqlAgent) contextValidateCustomLabels(ctx context.Context, formats strfmt.Registry) error {
+	if o.CustomLabels != nil {
+
+		if swag.IsZero(o.CustomLabels) { // not required
+			return nil
+		}
+
+		if err := o.CustomLabels.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mysql_agent" + "." + "custom_labels")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mysql_agent" + "." + "custom_labels")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *ChangeAgentParamsBodyRtaMysqlAgent) contextValidateRtaOptions(ctx context.Context, formats strfmt.Registry) error {
+	if o.RtaOptions != nil {
+
+		if swag.IsZero(o.RtaOptions) { // not required
+			return nil
+		}
+
+		if err := o.RtaOptions.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("body" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("body" + "." + "rta_mysql_agent" + "." + "rta_options")
+			}
+
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMysqlAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMysqlAgent) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyRtaMysqlAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyRtaMysqlAgentCustomLabels A wrapper for map[string]string. This type allows to distinguish between an empty map and a null value.
+swagger:model ChangeAgentParamsBodyRtaMysqlAgentCustomLabels
+*/
+type ChangeAgentParamsBodyRtaMysqlAgentCustomLabels struct {
+	// values
+	Values map[string]string `json:"values,omitempty"`
+}
+
+// Validate validates this change agent params body rta mysql agent custom labels
+func (o *ChangeAgentParamsBodyRtaMysqlAgentCustomLabels) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body rta mysql agent custom labels based on context it is used
+func (o *ChangeAgentParamsBodyRtaMysqlAgentCustomLabels) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMysqlAgentCustomLabels) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMysqlAgentCustomLabels) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyRtaMysqlAgentCustomLabels
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeAgentParamsBodyRtaMysqlAgentRtaOptions RTAOptions holds Real-Time Query Analytics agent options.
+swagger:model ChangeAgentParamsBodyRtaMysqlAgentRtaOptions
+*/
+type ChangeAgentParamsBodyRtaMysqlAgentRtaOptions struct {
+	// Query collect interval (default 2s is set by server).
+	CollectInterval string `json:"collect_interval,omitempty"`
+}
+
+// Validate validates this change agent params body rta mysql agent rta options
+func (o *ChangeAgentParamsBodyRtaMysqlAgentRtaOptions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change agent params body rta mysql agent rta options based on context it is used
+func (o *ChangeAgentParamsBodyRtaMysqlAgentRtaOptions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMysqlAgentRtaOptions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAgentParamsBodyRtaMysqlAgentRtaOptions) UnmarshalBinary(b []byte) error {
+	var res ChangeAgentParamsBodyRtaMysqlAgentRtaOptions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
