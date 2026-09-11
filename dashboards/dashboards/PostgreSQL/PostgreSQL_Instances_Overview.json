@@ -713,8 +713,8 @@
                         },
                         "properties": [
                             {
-                                "id": "custom.minWidth",
-                                "value": 150
+                                "id": "custom.width",
+                                "value": 190
                             },
                             {
                                 "id": "custom.cellOptions",
@@ -737,7 +737,7 @@
                         "properties": [
                             {
                                 "id": "custom.minWidth",
-                                "value": 200
+                                "value": 300
                             },
                             {
                                 "id": "custom.align",
@@ -795,12 +795,16 @@
                     {
                         "matcher": {
                             "id": "byName",
-                            "options": "fingerprint"
+                            "options": "Calls"
                         },
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 704
+                                "value": 110
+                            },
+                            {
+                                "id": "custom.align",
+                                "value": "center"
                             }
                         ]
                     },
@@ -819,7 +823,7 @@
                 ]
             },
             "gridPos": {
-                "h": 10,
+                "h": 20,
                 "w": 24,
                 "x": 0,
                 "y": 17
@@ -923,11 +927,11 @@
                     },
                     "pluginVersion": "4.4.0",
                     "queryType": "table",
-                    "rawSql": "SELECT $__timeInterval(period_start) as time, \r\nservice_name \"Service\", username, fingerprint \"Query\", avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) AND (service_name IN ($service_name)) GROUP BY service_name, username, fingerprint , m_query_time_sum, time ORDER BY time DESC LIMIT 10000",
+                    "rawSql": "SELECT argMaxIf(period_start, m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) as time, \r\nservice_name \"Service\", username, fingerprint \"Query\", sum(num_queries) \"Calls\", avgIf(m_query_time_sum/m_query_time_cnt, m_query_time_cnt > 0) \"Execution_time\" FROM pmm.\"metrics\" WHERE ( period_start  >= $__fromTime AND period_start <= $__toTime ) AND ( service_type LIKE '%$service_type%' ) AND (service_name IN ($service_name)) GROUP BY service_name, username, fingerprint ORDER BY Execution_time DESC LIMIT 500",
                     "refId": "A"
                 }
             ],
-            "title": "Queries",
+            "title": "Top slow queries",
             "transformations": [
                 {
                     "id": "organize",
@@ -937,7 +941,7 @@
                         "indexByName": {},
                         "renameByName": {
                             "Execution_time": "Execution Time",
-                            "time": "Time",
+                            "time": "Slowest at",
                             "username": "Username"
                         }
                     }
