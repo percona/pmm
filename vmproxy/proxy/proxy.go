@@ -27,6 +27,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"path"
+	"regexp"
 	"strings"
 	"time"
 
@@ -40,7 +41,7 @@ import (
 // dashboard. Admins reach the rest through the admin-gated /prometheus location in nginx,
 // which does not pass through the proxy.
 //
-// Label values are matched separately by isLabelValuesPath.
+// Label values are matched separately by labelValuesPath.
 var readOnlyPaths = map[string]struct{}{
 	"/api/v1/query":            {},
 	"/api/v1/query_range":      {},
@@ -170,7 +171,7 @@ func isPathAllowed(p string, isAdmin bool) bool {
 		return true
 	}
 
-	return isLabelValuesPath(cleaned)
+	return labelValuesPath.MatchString(cleaned)
 }
 
 // normalizePath reduces the shapes the same endpoint arrives in to one. The nginx config
@@ -197,21 +198,10 @@ func isAdminRequest(req *http.Request, headerName string) bool {
 	return req.Header.Get(headerName) == adminHeaderValue
 }
 
-// isLabelValuesPath reports whether the path is /api/v1/label/<name>/values, which carries
-// the label name as a path segment and so cannot be matched literally.
-func isLabelValuesPath(p string) bool {
-	name, ok := strings.CutPrefix(p, "/api/v1/label/")
-	if !ok {
-		return false
-	}
-
-	name, ok = strings.CutSuffix(name, "/values")
-	if !ok {
-		return false
-	}
-
-	return name != "" && !strings.Contains(name, "/")
-}
+// labelValuesPath matches /api/v1/label/<name>/values, which carries the label name as a
+// path segment and so cannot be matched literally. The name is a single segment: it must be
+// present and must not span a slash.
+var labelValuesPath = regexp.MustCompile(`^/api/v1/label/[^/]+/values$`)
 
 func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName string) bool {
 	if filters := req.Header.Get(headerName); filters != "" {
