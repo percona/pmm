@@ -5,6 +5,7 @@ import type {
 import type { AlertThresholdRow } from './AlertThresholds.types';
 import {
   buildThresholdUpdates,
+  getInitialValues,
   getRows,
   getRuleTitles,
 } from './AlertThresholds.utils';
@@ -99,6 +100,43 @@ describe('getRows', () => {
 
   it('returns nothing when the response carries no thresholds', () => {
     expect(getRows(undefined, new Map())).toEqual([]);
+  });
+});
+
+describe('getInitialValues', () => {
+  const data = {
+    thresholds: [
+      { ruleId: 'rule-1', paramName: 'threshold', effectiveValue: 90 },
+      { ruleId: 'rule-2', paramName: 'threshold' },
+    ],
+  } as ListThresholdsResponse;
+
+  // The whole point of seeding from the response alone is that the fields line up with
+  // the rows the table renders. If these two ever diverge, edits drive the wrong row.
+  it('keys one field per row, by the row id the table uses', () => {
+    expect(Object.keys(getInitialValues(data))).toEqual(
+      getRows(data).map((r) => r.id)
+    );
+  });
+
+  it('reads an omitted effective value as 0, not undefined', () => {
+    const values = getInitialValues(data);
+
+    expect(values['rule-1:threshold:0']).toBe(90);
+    expect(values['rule-2:threshold:1']).toBe(0);
+  });
+
+  // Rule titles are display-only, and they arrive from a query that can land late and
+  // re-poll. Seeding must not depend on them, or a rules response discards live edits.
+  it('does not depend on rule titles', () => {
+    expect(getInitialValues(data)).toEqual(getInitialValues(data));
+    expect(Object.keys(getInitialValues(data))).toEqual(
+      getRows(data, new Map([['rule-1', 'CPU load']])).map((r) => r.id)
+    );
+  });
+
+  it('returns nothing when the response carries no thresholds', () => {
+    expect(getInitialValues(undefined)).toEqual({});
   });
 });
 

@@ -25,6 +25,7 @@ import type {
 } from 'types/alerting.types';
 import {
   buildThresholdUpdates,
+  getInitialValues,
   getRows,
   getRuleTitles,
 } from './AlertThresholds.utils';
@@ -54,13 +55,10 @@ const AlertThresholds = () => {
     [data, ruleTitles]
   );
 
+  // Depends on `data` only - deliberately not on `rows`, which carries rule titles.
   const initialValues = useMemo<AlertThresholdsFormValues>(
-    () =>
-      rows.reduce((acc, row) => {
-        acc[row.id] = row.effectiveValue;
-        return acc;
-      }, {} as AlertThresholdsFormValues),
-    [rows]
+    () => getInitialValues(data as ListThresholdsResponse),
+    [data]
   );
 
   const methods = useForm<AlertThresholdsFormValues>({
@@ -70,9 +68,15 @@ const AlertThresholds = () => {
     nodeId ?? ''
   );
 
+  // The form is seeded here rather than through useForm's defaultValues: this component
+  // is always mounted and only returns null while closed, so defaultValues sees the empty
+  // object once, at app start.
+  //
+  // `nodeId` is a dependency in its own right - handleClose clears it, so reopening, even
+  // for the same node, re-seeds and drops edits left behind by a cancelled session.
   useEffect(() => {
     methods.reset(initialValues);
-  }, [initialValues, methods]);
+  }, [nodeId, initialValues, methods]);
 
   // Deliberately has no dependency array, so it re-subscribes after every render.
   //
@@ -170,7 +174,7 @@ const AlertThresholds = () => {
             <Button
               type="submit"
               variant="contained"
-              disabled={rows.length === 0}
+              disabled={rows.length === 0 || methods.formState.isSubmitting}
             >
               {Messages.actions.submit}
             </Button>

@@ -38,9 +38,11 @@ export const getRuleTitles = (
   return titles;
 };
 
+// Rule titles are display-only decoration, so a caller that needs only row identity and
+// values can omit them.
 export const getRows = (
   data: ListThresholdsResponse | undefined,
-  ruleTitles: Map<string, string>
+  ruleTitles?: Map<string, string>
 ) =>
   (data?.thresholds ?? []).map((t, index) => ({
     ...t,
@@ -49,8 +51,23 @@ export const getRows = (
     effectiveValue: t.effectiveValue ?? 0,
     isOverridden: t.isOverridden ?? false,
     id: thresholdRowId(t, index),
-    ruleTitle: ruleTitles.get(t.ruleId) ?? '',
+    ruleTitle: ruleTitles?.get(t.ruleId) ?? '',
   }));
+
+// Seeds the form: one field per row, keyed by the row id the table renders.
+//
+// Derived from the thresholds response alone. Rule titles come from a separate Grafana
+// query that can land after the table is editable, and that re-polls every few seconds
+// while the alerts page is mounted; were they on this path, every rules response would
+// re-seed the form over whatever the operator had typed. Routed through getRows so row
+// ids and zero-coercion stay defined in one place.
+export const getInitialValues = (
+  data: ListThresholdsResponse | undefined
+): AlertThresholdsFormValues =>
+  getRows(data).reduce((acc, row) => {
+    acc[row.id] = row.effectiveValue;
+    return acc;
+  }, {} as AlertThresholdsFormValues);
 
 // Turns the submitted form into the smallest set of changes that expresses it.
 //
