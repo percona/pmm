@@ -560,9 +560,13 @@ type ListThresholdsOKBodyThresholdsItems0 struct {
 
 	// ThresholdScope says what a threshold override's target refers to.
 	//
+	// Only THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and
+	// cluster already, but every RPC rejects them with Unimplemented for now.
+	//
+	//  - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.
 	//  - THRESHOLD_SCOPE_NODE: Target is a Node ID.
-	//  - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.
-	//  - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.
+	//  - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.
+	//  - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.
 	// Enum: ["THRESHOLD_SCOPE_UNSPECIFIED","THRESHOLD_SCOPE_NODE","THRESHOLD_SCOPE_SERVICE","THRESHOLD_SCOPE_CLUSTER"]
 	Scope *string `json:"scope,omitempty"`
 

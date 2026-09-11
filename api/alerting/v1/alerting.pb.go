@@ -139,15 +139,19 @@ func (FilterType) EnumDescriptor() ([]byte, []int) {
 }
 
 // ThresholdScope says what a threshold override's target refers to.
+//
+// Only THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and
+// cluster already, but every RPC rejects them with Unimplemented for now.
 type ThresholdScope int32
 
 const (
+	// Treated as node.
 	ThresholdScope_THRESHOLD_SCOPE_UNSPECIFIED ThresholdScope = 0
 	// Target is a Node ID.
 	ThresholdScope_THRESHOLD_SCOPE_NODE ThresholdScope = 1
-	// Target is a Service ID.
+	// Target is a Service ID. Not implemented yet.
 	ThresholdScope_THRESHOLD_SCOPE_SERVICE ThresholdScope = 2
-	// Target is a cluster label value.
+	// Target is a cluster label value. Not implemented yet.
 	ThresholdScope_THRESHOLD_SCOPE_CLUSTER ThresholdScope = 3
 )
 
@@ -1639,7 +1643,7 @@ func (x *Threshold) GetTarget() string {
 
 type ListThresholdsRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
-	// Scope of the target to report thresholds for. Must be set together with target.
+	// Scope of the target to report thresholds for.
 	Scope ThresholdScope `protobuf:"varint,1,opt,name=scope,proto3,enum=alerting.v1.ThresholdScope" json:"scope,omitempty"`
 	// Target to report thresholds for. When set, every overridable parameter is returned
 	// for that target, overridden or not. When empty, only existing overrides are

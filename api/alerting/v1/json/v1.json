@@ -744,7 +744,7 @@
             ],
             "type": "string",
             "default": "THRESHOLD_SCOPE_UNSPECIFIED",
-            "description": "Scope of the target to report thresholds for. Must be set together with target.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+            "description": "Scope of the target to report thresholds for.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
             "name": "scope",
             "in": "query"
           },
@@ -817,7 +817,7 @@
                         "x-order": 6
                       },
                       "scope": {
-                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
                         "type": "string",
                         "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                         "enum": [
@@ -888,7 +888,7 @@
               "type": "object",
               "properties": {
                 "scope": {
-                  "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                  "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
                   "type": "string",
                   "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                   "enum": [
@@ -975,7 +975,7 @@
                       "x-order": 6
                     },
                     "scope": {
-                      "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                      "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
                       "type": "string",
                       "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                       "enum": [
@@ -1054,7 +1054,7 @@
                     "type": "object",
                     "properties": {
                       "scope": {
-                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
                         "type": "string",
                         "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                         "enum": [
@@ -1149,7 +1149,7 @@
                         "x-order": 6
                       },
                       "scope": {
-                        "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                        "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
                         "type": "string",
                         "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                         "enum": [
@@ -1222,7 +1222,7 @@
               "type": "object",
               "properties": {
                 "scope": {
-                  "description": "ThresholdScope says what a threshold override's target refers to.\n\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value.",
+                  "description": "ThresholdScope says what a threshold override's target refers to.\n\nOnly THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and\ncluster already, but every RPC rejects them with Unimplemented for now.\n\n - THRESHOLD_SCOPE_UNSPECIFIED: Treated as node.\n - THRESHOLD_SCOPE_NODE: Target is a Node ID.\n - THRESHOLD_SCOPE_SERVICE: Target is a Service ID. Not implemented yet.\n - THRESHOLD_SCOPE_CLUSTER: Target is a cluster label value. Not implemented yet.",
                   "type": "string",
                   "default": "THRESHOLD_SCOPE_UNSPECIFIED",
                   "enum": [

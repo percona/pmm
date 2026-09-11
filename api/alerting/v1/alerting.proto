@@ -221,13 +221,17 @@ message CreateRuleResponse {
 }
 
 // ThresholdScope says what a threshold override's target refers to.
+//
+// Only THRESHOLD_SCOPE_NODE is implemented. The schema and the resolver carry service and
+// cluster already, but every RPC rejects them with Unimplemented for now.
 enum ThresholdScope {
+  // Treated as node.
   THRESHOLD_SCOPE_UNSPECIFIED = 0;
   // Target is a Node ID.
   THRESHOLD_SCOPE_NODE = 1;
-  // Target is a Service ID.
+  // Target is a Service ID. Not implemented yet.
   THRESHOLD_SCOPE_SERVICE = 2;
-  // Target is a cluster label value.
+  // Target is a cluster label value. Not implemented yet.
   THRESHOLD_SCOPE_CLUSTER = 3;
 }
 
@@ -257,7 +261,7 @@ message Threshold {
 }
 
 message ListThresholdsRequest {
-  // Scope of the target to report thresholds for. Must be set together with target.
+  // Scope of the target to report thresholds for.
   ThresholdScope scope = 1;
   // Target to report thresholds for. When set, every overridable parameter is returned
   // for that target, overridden or not. When empty, only existing overrides are
