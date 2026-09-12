@@ -187,6 +187,16 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 	}
 }
 
+// vmAgentDeployment describes what selects the remote-write path of the vmagent run by the given
+// pmm-agent: whether this PMM Server is clustered, and whether the pmm-agent is this PMM Server
+// instance's built-in agent (each HA pod has one).
+func (u *StateUpdater) vmAgentDeployment(pmmAgentID string) vmAgentDeployment {
+	return vmAgentDeployment{
+		haEnabled:     u.r.haService.Params().Enabled,
+		isServerAgent: pmmAgentID == models.PMMServerAgentID,
+	}
+}
+
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
 func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:gocognit,cyclop,maintidx
 	l := logger.Get(ctx).WithField("component", loggerComponentNameStateUpdater)
@@ -267,7 +277,11 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return fmt.Errorf("cannot get agent scrape config for agent %s: %w", agent.id, err)
 			}
-			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
+			process, err := vmAgentConfig(l.WithField("agent_id", agent.id), string(scrapeCfg), u.vmParams, u.vmAgentDeployment(agent.id))
+			if err != nil {
+				return fmt.Errorf("cannot build vmagent configuration for agent %s: %w", agent.id, err)
+			}
+			agentProcesses[row.AgentID] = process
 		case models.NomadAgentType:
 			node, err := getNode(pointer.GetString(row.NodeID))
 			if err != nil {

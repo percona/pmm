@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -221,6 +222,132 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Equal(t, expectedWarns, gotWarns)
 	})
 
+	t.Run("VMAGENT_remoteWrite_url without credentials warns", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write"}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		require.Len(t, gotWarns, 1)
+		assert.Contains(t, gotWarns[0], "VMAGENT_remoteWrite_url redirects the metric writes")
+	})
+
+	t.Run("VMAGENT_remoteWrite_url with credentials does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_remoteWrite_basicAuth_username=collector",
+			"VMAGENT_remoteWrite_basicAuth_password=secret",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("VMAGENT credentials without a remote-write URL do not warn", func(t *testing.T) {
+		t.Parallel()
+
+		// Credentials without a URL override (what HA charts injected before the PMM_HA_VM_* keys).
+		envs := []string{
+			"VMAGENT_remoteWrite_basicAuth_username=victoriametrics_pmm",
+			"VMAGENT_remoteWrite_basicAuth_password=vm-password",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("VMAGENT_remoteWrite_url set but empty is an error", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VMAGENT_remoteWrite_url="})
+		require.Len(t, gotErrs, 1)
+		assert.Contains(t, gotErrs[0].Error(), "set but empty")
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("VMAGENT_remoteWrite_url with half a basic-auth pair warns about the pair", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_remoteWrite_basicAuth_username=collector",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		require.Len(t, gotWarns, 1)
+		assert.Contains(t, gotWarns[0], "only one of")
+	})
+
+	t.Run("VMAGENT_remoteWrite_url with credentials in the URL does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VMAGENT_remoteWrite_url=https://collector:secret@collector.example.com/api/v1/write"})
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("VMAGENT_remoteWrite_url with a bearer token does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_remoteWrite_bearerToken=abc",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("an upper-cased VMAGENT_REMOTEWRITE_URL is inert and does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VMAGENT_REMOTEWRITE_URL=https://collector.example.com/api/v1/write"})
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("a URL override among other variables produces exactly one warning", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_ENABLE_UPDATES=true",
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_loggerLevel=INFO",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		assert.Len(t, gotWarns, 1)
+	})
+
+	t.Run("half a basic-auth pair warns even without a remote-write URL", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VMAGENT_remoteWrite_basicAuth_password=vm-password"})
+		assert.Nil(t, gotErrs)
+		require.Len(t, gotWarns, 1)
+		assert.Contains(t, gotWarns[0], "only one of")
+	})
+
+	t.Run("PMM_VM_URL must be an http or https URL with a host", func(t *testing.T) {
+		t.Parallel()
+
+		for _, bad := range []string{"vm:8428", "//vm:8428/", "vm.example.com", "ftp://vm:8428"} {
+			_, gotErrs, _ := ParseEnvVars([]string{"PMM_VM_URL=" + bad})
+			assert.Len(t, gotErrs, 1, bad)
+		}
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"PMM_VM_URL=http://user:pass@vm:8428"})
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("Parse Platform API Timeout", func(t *testing.T) {
 		t.Parallel()
 
@@ -307,12 +434,41 @@ func TestRedactSecretEnvVar(t *testing.T) {
 		{key: "AWS_SECRET_KEY", value: "s3cret", expected: "<redacted>"},
 		{key: "PMM_CLICKHOUSE_DATASOURCE_USER", value: "grafana", expected: "grafana"},
 		{key: "PMM_DATA_RETENTION", value: "72h", expected: "72h"},
+		{key: "PMM_VM_URL", value: "http://victoriametrics_pmm:vm-password@vmauth:8427/", expected: "http://<redacted>@vmauth:8427/"},
+		{key: "PMM_VM_URL", value: "http://vmauth:8427/", expected: "http://vmauth:8427/"},
+		{key: "VMAGENT_remoteWrite_url", value: "https://user:p%40ss@collector.example.com/api/v1/write", expected: "https://<redacted>@collector.example.com/api/v1/write"},
+		{key: "PMM_PUBLIC_ADDRESS", value: "pmm.example.com", expected: "pmm.example.com"},
 	}
 	for _, tt := range tests {
-		t.Run(tt.key, func(t *testing.T) {
+		t.Run(tt.key+"="+tt.value, func(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, tt.expected, redactSecretEnvVar(tt.key, tt.value))
+		})
+	}
+}
+
+func TestVMAgentRemoteWriteAuthFromEnv(t *testing.T) {
+	t.Parallel()
+
+	testCases := []struct {
+		name string
+		env  map[string]string
+		want VMAgentRemoteWriteAuth
+	}{
+		{name: "nothing", env: map[string]string{"VMAGENT_loggerLevel": "INFO"}, want: VMAgentRemoteWriteAuthNone},
+		{name: "username only", env: map[string]string{EnvVMAgentRemoteWriteUsername: "u"}, want: VMAgentRemoteWriteAuthPartial},
+		{name: "password only", env: map[string]string{EnvVMAgentRemoteWritePassword: "p"}, want: VMAgentRemoteWriteAuthPartial},
+		{name: "basic-auth pair", env: map[string]string{EnvVMAgentRemoteWriteUsername: "u", EnvVMAgentRemoteWritePassword: "p"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "username with a password file", env: map[string]string{EnvVMAgentRemoteWriteUsername: "u", "VMAGENT_remoteWrite_basicAuth_passwordFile": "/run/secrets/p"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "bearer token", env: map[string]string{"VMAGENT_remoteWrite_bearerToken": "t"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "custom headers", env: map[string]string{"VMAGENT_remoteWrite_headers": "X-Auth: t"}, want: VMAgentRemoteWriteAuthComplete},
+		{name: "upper-cased names are inert", env: map[string]string{"VMAGENT_REMOTEWRITE_BASICAUTH_USERNAME": "u", "VMAGENT_REMOTEWRITE_BASICAUTH_PASSWORD": "p"}, want: VMAgentRemoteWriteAuthNone},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.want, VMAgentRemoteWriteAuthFromEnv(tc.env))
 		})
 	}
 }
