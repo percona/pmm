@@ -10,12 +10,12 @@ import Logout from '@mui/icons-material/Logout';
 import MemoryOutlined from '@mui/icons-material/MemoryOutlined';
 import NorthEast from '@mui/icons-material/NorthEast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
-import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
 import Search from '@mui/icons-material/Search';
 import Security from '@mui/icons-material/Security';
 import SettingsApplicationsOutlined from '@mui/icons-material/SettingsApplicationsOutlined';
 import SettingsBackupRestore from '@mui/icons-material/SettingsBackupRestore';
 import SettingsOutlined from '@mui/icons-material/SettingsOutlined';
+import PageviewOutlined from '@mui/icons-material/PageviewOutlined';
 import {
   CirclesExtIcon,
   Graph4Icon,
@@ -822,13 +822,14 @@ export const NAV_HIGH_AVAILABILITY: NavItem = {
   id: 'high-availability',
   icon: CirclesExtIcon,
   text: 'PMM HA',
-  url: `${PMM_NEW_NAV_GRAFANA_PATH}/high-availability`,
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
 };
 
-export const NAV_HIGH_AVAILABILITY_LEADER: NavItem = {
-  id: 'high-availability-leader',
-  text: 'Leader:',
-  type: 'menu-text',
+export const NAV_HIGH_AVAILABILITY_OVERVIEW: NavItem = {
+  id: 'high-availability-overview',
+  icon: PageviewOutlined,
+  text: 'Overview',
+  url: `${PMM_NEW_NAV_GRAFANA_PATH}/d/pmm-ha-health-overview/pmm-ha-health-overview`,
 };
 
 export const NAV_HIGH_AVAILABILITY_NODES: NavItem = {

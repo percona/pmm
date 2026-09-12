@@ -419,6 +419,9 @@ swagger:model StatusOKBody
 type StatusOKBody struct {
 	// Status of HA mode: "Enabled" or "Disabled".
 	Status string `json:"status,omitempty"`
+
+	// Kubernetes namespace this instance is running in.
+	Namespace string `json:"namespace,omitempty"`
 }
 
 // Validate validates this status OK body

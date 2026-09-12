@@ -505,6 +505,8 @@ func (m *StatusResponse) validate(all bool) error {
 
 	// no validation rules for Status
 
+	// no validation rules for Namespace
+
 	if len(errors) > 0 {
 		return StatusResponseMultiError(errors)
 	}
