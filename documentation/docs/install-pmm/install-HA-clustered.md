@@ -727,6 +727,13 @@ pmmEnv:
   # Add other environment variables as needed
 ```
 
+!!! note "Data retention is declared, not clicked, in HA"
+    In an HA cluster, data retention is owned by `values.yaml`, not by the UI. Every replica enforces retention against the same VictoriaMetrics and ClickHouse but renders its own configuration at start-up, so a value that could move at runtime is a value the replicas would disagree about.
+
+    **Configuration > Settings > Advanced Settings** therefore shows **Data retention** as read-only, and `PUT /v1/server/settings` rejects a change to it. To change retention, update `PMM_DATA_RETENTION` and run `helm upgrade`; the rollout restarts every replica on the new value.
+
+    Set `victoriaMetrics.vmstorage.retentionPeriod` to the same period so metrics and Query Analytics expire together.
+
 For all available variables, see [PMM environment variables](../install-pmm/install-pmm-server/deployment-options/docker/env_var.md).
 
 #### Common customizations
@@ -1102,7 +1109,7 @@ We are aware of the following issues in this Tech Preview version and plan to fi
 | **[PMM-14706](https://perconadev.atlassian.net/browse/PMM-14706)**: Extra 'pmm-' prefix | PostgreSQL nodes show as `pmm-pmm-ha-pg-...` | Cosmetic only - no action needed |
 | **[PMM-14707](https://perconadev.atlassian.net/browse/PMM-14707)**: Wrong PostgreSQL status | Inventory shows FAILED/UNSPECIFIED despite working metrics | Check dashboards to verify metrics flow |
 | **[PMM-14734](https://perconadev.atlassian.net/browse/PMM-14734)**: Incorrect status | HA badge on PMM Home Dashboard may not reflect true cluster health | Use Inventory view or kubectl commands to check actual cluster status |                                   
-| **[PMM-14709](https://perconadev.atlassian.net/browse/PMM-14709)**: Data retention does not work on HA | Changing data retention under **Configuration > Settings > Advanced Settings** has no effect and older metrics remain available despite the new retention value. | Technical Preview only: The UI-based data retention setting does not work in HA clusters. To implement retention, configure it directly in ClickHouse using `ALTER TABLE ... TTL` instead of relying on this UI option to remove old metrics. |
+| **[PMM-14709](https://perconadev.atlassian.net/browse/PMM-14709)**: Data retention cannot be changed from the UI on HA | **Data retention** under **Configuration > Settings > Advanced Settings** is read-only, and the API rejects a change to it. | By design: retention is declared in `values.yaml`. See [Adjust data retention and other settings](#adjust-data-retention-and-other-settings). |
 
 ### Scaling limitations
 

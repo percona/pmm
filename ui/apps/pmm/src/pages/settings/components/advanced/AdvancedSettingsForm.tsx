@@ -76,6 +76,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   };
 
   const m = Messages.advanced;
+  const retentionReadonly = settings.dataRetentionReadonly ?? false;
 
   return (
     <FormProvider {...methods}>
@@ -135,6 +136,8 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               name="retention"
               textFieldProps={{
                 type: 'number',
+                disabled: retentionReadonly,
+                helperText: retentionReadonly ? m.retentionReadonly : undefined,
                 slotProps: {
                   htmlInput: {
                     min: MIN_DAYS,
