@@ -1194,6 +1194,10 @@ message ChangeMongoDBExporterParams {
   }];
   // Enable collecting histogram bucket metrics from getDiagnosticData.
   optional bool enable_diagnostic_data_histograms = 23;
+  // Replace environment variable names passed to the exporter.
+  // Values will be resolved from pmm-agent's environment when starting the exporter.
+  // An empty list removes all previously set environment variable names.
+  optional common.StringArray environment_variable_names = 24;
 }
 
 // Add/Change PostgresExporter

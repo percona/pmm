@@ -1026,6 +1026,295 @@ func TestChangeRTAMongoDBAgent(t *testing.T) {
 	})
 }
 
+func TestChangeMongoDBExporterEnvironmentVariableNames(t *testing.T) {
+	// Adds a pmm-agent, a MongoDB service and a mongodb_exporter with the given environment
+	// variable names, and returns the exporter's agent ID.
+	addMongoDBExporter := func(t *testing.T, ss *ServicesService, as *AgentsService, ctx context.Context, envVarNames []string) string {
+		t.Helper()
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", mock.Anything).Return(true)
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, mock.Anything)
+
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mongo-env-vars",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
+		})
+		require.NoError(t, err)
+
+		agent, err := as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
+			PmmAgentId:               pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:                ms.ServiceId,
+			Username:                 "username",
+			EnvironmentVariableNames: envVarNames,
+			SkipConnectionCheck:      true,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, envVarNames, agent.GetMongodbExporter().EnvironmentVariableNames)
+
+		return agent.GetMongodbExporter().AgentId
+	}
+
+	t.Run("Set", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, nil)
+
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"KRB5_KTNAME", "KRB5_CONFIG"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_KTNAME", "KRB5_CONFIG"}, resp.GetMongodbExporter().EnvironmentVariableNames)
+
+		agent, err := as.Get(ctx, agentID)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_KTNAME", "KRB5_CONFIG"}, agent.(*inventoryv1.MongoDBExporter).EnvironmentVariableNames)
+	})
+
+	t.Run("Replace", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"KRB5_CONFIG"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5_CONFIG"}, resp.GetMongodbExporter().EnvironmentVariableNames)
+	})
+
+	t.Run("RemoveWithEmptyArray", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{},
+		})
+		require.NoError(t, err)
+		assert.Empty(t, resp.GetMongodbExporter().EnvironmentVariableNames)
+	})
+
+	t.Run("KeepWhenNotSet", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		// Another parameter is changed, environment variable names must be left untouched.
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			Enable: new(false),
+		})
+		require.NoError(t, err)
+		assert.True(t, resp.GetMongodbExporter().Disabled)
+		assert.Equal(t, []string{"KRB5_KTNAME"}, resp.GetMongodbExporter().EnvironmentVariableNames)
+	})
+
+	t.Run("RejectsReservedNameRegardlessOfCaseOrPadding", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", mock.Anything).Return(true)
+
+		// AddMongoDBExporter below fails validation before it ever calls RequestStateUpdate, so
+		// unlike the subtests above, no expectation is set up for it here.
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mongo-env-vars-reserved",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
+		})
+		require.NoError(t, err)
+
+		// Padded and mixed-case: a caller bypassing pmm-admin's own trimming must still be rejected.
+		_, err = as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
+			PmmAgentId:               pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:                ms.ServiceId,
+			Username:                 "username",
+			EnvironmentVariableNames: []string{" mongodb_uri "},
+			SkipConnectionCheck:      true,
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+
+	t.Run("RejectsMalformedNameWithInvalidArgument", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", mock.Anything).Return(true)
+
+		// AddMongoDBExporter below fails validation before it ever calls RequestStateUpdate, so
+		// unlike the subtests above, no expectation is set up for it here.
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
+		require.NoError(t, err)
+
+		ms, err := ss.AddMongoDB(ctx, &models.AddDBMSServiceParams{
+			ServiceName: "test-mongo-env-vars-malformed",
+			NodeID:      models.PMMServerNodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(27017)),
+		})
+		require.NoError(t, err)
+
+		// Not reserved, but syntactically invalid: this fails inside models.CreateAgent, several
+		// layers below the reserved-name check, and must still surface as InvalidArgument rather
+		// than the codes.Unknown a plain, unwrapped error would produce.
+		_, err = as.AddMongoDBExporter(ctx, &inventoryv1.AddMongoDBExporterParams{
+			PmmAgentId:               pmmAgent.GetPmmAgent().AgentId,
+			ServiceId:                ms.ServiceId,
+			Username:                 "username",
+			EnvironmentVariableNames: []string{"KRB5-KTNAME"},
+			SkipConnectionCheck:      true,
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+
+	t.Run("RetainsAGrandfatheredReservedNameOnReplace", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		// Simulate an exporter that stored the reserved name before this check existed: the
+		// mongodb-specific reserved-name check lives above models.CreateAgent/ChangeAgent, so it
+		// cannot be exercised through SetEnvironmentVariableNames directly.
+		agent, err := models.FindAgentByID(as.db.Querier, agentID)
+		require.NoError(t, err)
+		require.NoError(t, agent.SetEnvironmentVariableNames([]string{"MONGODB_URI"}))
+		require.NoError(t, models.UpdateAgent(as.db.Querier, agent))
+
+		// Resending the grandfathered name alongside a new, valid one must not fail: the caller
+		// only intended to add KRB5_CONFIG, and this field is full-replace.
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"MONGODB_URI", "KRB5_CONFIG"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"MONGODB_URI", "KRB5_CONFIG"}, resp.GetMongodbExporter().EnvironmentVariableNames)
+	})
+
+	t.Run("GrandfatheringIsCaseSensitive", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, []string{"KRB5_KTNAME"})
+
+		// A lowercase "mongodb_uri" is a different OS environment variable from the reserved
+		// "MONGODB_URI"; simulate an exporter that stored it before this check existed.
+		agent, err := models.FindAgentByID(as.db.Querier, agentID)
+		require.NoError(t, err)
+		require.NoError(t, agent.SetEnvironmentVariableNames([]string{"mongodb_uri"}))
+		require.NoError(t, models.UpdateAgent(as.db.Querier, agent))
+
+		// Resending the exact stored name must still succeed: it is grandfathered.
+		resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"mongodb_uri"}},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, []string{"mongodb_uri"}, resp.GetMongodbExporter().EnvironmentVariableNames)
+
+		// Switching case to the actual reserved name must not be let through by grandfathering:
+		// it is a genuinely different, newly-selected name, not the one already stored.
+		_, err = as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"MONGODB_URI"}},
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+
+	t.Run("ConcurrentClearInvalidatesAnInFlightGrandfatheredReplace", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		agentID := addMongoDBExporter(t, ss, as, ctx, nil)
+
+		// Simulate an exporter that stored the reserved name before this check existed.
+		agent, err := models.FindAgentByID(as.db.Querier, agentID)
+		require.NoError(t, err)
+		require.NoError(t, agent.SetEnvironmentVariableNames([]string{"MONGODB_URI"}))
+		require.NoError(t, models.UpdateAgent(as.db.Querier, agent))
+
+		// Hold the agent's row locked on a separate connection, standing in for a concurrent
+		// request that is about to clear MONGODB_URI.
+		lockTx, err := as.db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() { _ = lockTx.Rollback() })
+
+		locked, err := models.FindAgentByIDForUpdate(lockTx.Querier, agentID)
+		require.NoError(t, err)
+
+		// Start a Change that resends the grandfathered MONGODB_URI; it must block on the lock
+		// above before it can read the row, not decide from a read taken before the block.
+		type result struct {
+			resp *inventoryv1.ChangeAgentResponse
+			err  error
+		}
+		done := make(chan result, 1)
+		go func() {
+			resp, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+				EnvironmentVariableNames: &common.StringArray{Values: []string{"MONGODB_URI"}},
+			})
+			done <- result{resp, err}
+		}()
+
+		// Wait until the Change above is actually blocked waiting for the lock, rather than
+		// racing it with a fixed sleep.
+		require.Eventually(t, func() bool {
+			var waiting int
+			err := as.db.Querier.QueryRow(
+				"SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock'",
+			).Scan(&waiting)
+			return err == nil && waiting > 0
+		}, 5*time.Second, 10*time.Millisecond, "Change never blocked on the locked row")
+
+		// Now clear MONGODB_URI, as the concurrent request holding the lock would, and release it.
+		require.NoError(t, locked.SetEnvironmentVariableNames(nil))
+		require.NoError(t, models.UpdateAgent(lockTx.Querier, locked))
+		require.NoError(t, lockTx.Commit())
+
+		// The blocked Change must see the row as it is after that commit, not as it was when it
+		// started: MONGODB_URI is no longer grandfathered, so resending it must now be rejected.
+		select {
+		case r := <-done:
+			require.Error(t, r.err)
+			assert.Equal(t, codes.InvalidArgument, status.Code(r.err))
+		case <-time.After(5 * time.Second):
+			t.Fatal("ChangeMongoDBExporter did not return after the lock was released")
+		}
+	})
+
+	t.Run("RejectsUngrandfatheredReservedNameOnReplace", func(t *testing.T) {
+		ss, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		// An exporter that never had MONGODB_URI stored must still be rejected for submitting it
+		// on a later Change: grandfathering only preserves pre-existing state, not new violations.
+		agentID := addMongoDBExporter(t, ss, as, ctx, nil)
+		_, err := as.ChangeMongoDBExporter(ctx, agentID, &inventoryv1.ChangeMongoDBExporterParams{
+			EnvironmentVariableNames: &common.StringArray{Values: []string{"MONGODB_URI"}},
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+	})
+}
+
 func TestChangeAgentConnectionCheck(t *testing.T) {
 	// Adds a pmm-agent, a PostgreSQL service and a postgres_exporter (without connection check)
 	// and returns the exporter's agent ID. Expects stateUpdates calls to RequestStateUpdate:

@@ -340,12 +340,41 @@ func FindAgentByID(q *reform.Querier, id string) (*Agent, error) {
 	agent := &Agent{AgentID: id}
 	err := q.Reload(agent)
 	if err != nil {
-		if errors.Is(err, reform.ErrNoRows) {
-			return nil, status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
-		}
-		return nil, err
+		return nil, agentLookupError(err, id)
 	}
 	return new(DecryptAgent(*agent)), nil
+}
+
+// FindAgentByIDForUpdate finds Agent by ID and locks its row (SELECT ... FOR UPDATE) for the
+// duration of the caller's transaction. Use this instead of FindAgentByID when the caller reads
+// the row to decide whether a subsequent write in the same transaction is allowed: without the
+// lock, a concurrent transaction could commit a conflicting write in between, so the decision
+// would be based on data that is no longer current by the time it is acted on.
+//
+// It cannot reuse FindAgentByID's q.Reload: Reload builds the whole statement itself and leaves
+// nowhere to append FOR UPDATE, so the locking read needs its own SelectOneFrom.
+func FindAgentByIDForUpdate(q *reform.Querier, id string) (*Agent, error) {
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Agent ID.")
+	}
+
+	row, err := q.SelectOneFrom(AgentTable, "WHERE agent_id = $1 FOR UPDATE", id)
+	if err != nil {
+		return nil, agentLookupError(err, id)
+	}
+
+	agent := row.(*Agent) //nolint:forcetypeassert
+	return new(DecryptAgent(*agent)), nil
+}
+
+// agentLookupError maps a failed single-agent lookup to the error both finders above return, so
+// the not-found status stays defined in one place.
+func agentLookupError(err error, id string) error {
+	if errors.Is(err, reform.ErrNoRows) {
+		return status.Errorf(codes.NotFound, "Agent with ID %s not found.", id)
+	}
+
+	return err
 }
 
 // FindAgentsByIDs finds Agents by IDs.
@@ -1010,7 +1039,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 	err = row.SetEnvironmentVariableNames(params.EnvironmentVariableNames)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	switch agentType {
@@ -1135,8 +1164,9 @@ type ChangeValkeyOptions struct {
 // ChangeAgentParams contains parameters that can be changed for all Agent types.
 type ChangeAgentParams struct {
 	// Common fields for all agents
-	Enabled      *bool              // true - enable, false - disable, nil - no change
-	CustomLabels *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
+	Enabled                  *bool              // true - enable, false - disable, nil - no change
+	CustomLabels             *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
+	EnvironmentVariableNames *[]string          // empty slice - remove all environment variable names, non-empty - change, nil - no change
 
 	// Database connection fields
 	Username      *string
@@ -1230,6 +1260,14 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 			if err != nil {
 				return nil, err
 			}
+		}
+	}
+
+	// An empty slice removes all environment variable names, SetEnvironmentVariableNames treats it the same as nil.
+	if params.EnvironmentVariableNames != nil {
+		err = row.SetEnvironmentVariableNames(*params.EnvironmentVariableNames)
+		if err != nil {
+			return nil, status.Error(codes.InvalidArgument, err.Error())
 		}
 	}
 

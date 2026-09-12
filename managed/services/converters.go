@@ -21,6 +21,7 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
@@ -328,6 +329,17 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		exporter.CollectionsLimit = agent.MongoDBOptions.CollectionsLimit
 		exporter.EnableAllCollectors = agent.MongoDBOptions.EnableAllCollectors
 		exporter.EnableDiagnosticDataHistograms = agent.MongoDBOptions.EnableDiagnosticDataHistograms
+
+		// A stored value that cannot be decoded (hand-edited row, failed migration, an older
+		// writer) must not fail the conversion: ListAgents calls ToAPIAgent once per row, so
+		// propagating the error would drop the entire inventory listing because of one unrelated
+		// column on one agent. Report the field as empty and log instead; sending a new list
+		// repairs the row.
+		envVarNames, err := agent.GetEnvironmentVariableNames()
+		if err != nil {
+			logrus.Warnf("Ignoring undecodable environment variable names of agent %s: %s.", agent.AgentID, err)
+		}
+		exporter.EnvironmentVariableNames = envVarNames
 
 		return exporter, nil
 

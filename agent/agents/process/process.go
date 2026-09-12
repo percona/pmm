@@ -73,9 +73,14 @@ type Process struct {
 // Params represent Agent process parameters: command path, command-line arguments/flags, process environment,
 // agent type, template renderer and template params. Last 3 params are passed to be able regenerate config during restarting.
 type Params struct {
-	Path             string
-	Args             []string
-	Env              []string
+	Path string
+	Args []string
+	Env  []string
+	// ResolvedEnvNames holds the subset of Env entries whose value was resolved from pmm-agent's
+	// own environment at the user's request (see supervisor.resolveEnvVariableNames), as opposed
+	// to values computed by pmm-managed. Their shape is unknown and cannot be assumed safe to log,
+	// so String always redacts them fully rather than relying on DSN-shape detection.
+	ResolvedEnvNames []string
 	Type             inventoryv1.AgentType
 	TemplateRenderer *templates.TemplateRenderer
 	TemplateParams   map[string]any
@@ -84,8 +89,20 @@ type Params struct {
 func (p *Params) String() string {
 	res := p.Path + " " + strings.Join(p.Args, " ")
 	if len(p.Env) != 0 {
+		resolved := make(map[string]struct{}, len(p.ResolvedEnvNames))
+		for _, name := range p.ResolvedEnvNames {
+			resolved[name] = struct{}{}
+		}
+
 		printEnv := make([]string, len(p.Env))
 		for i, item := range p.Env {
+			name, _, ok := strings.Cut(item, "=")
+			if ok {
+				if _, isResolved := resolved[name]; isResolved {
+					printEnv[i] = name + "=" + logger.RedactString(item, extensionsv1.RedactType_REDACT_TYPE_FULL)
+					continue
+				}
+			}
 			printEnv[i] = logger.RedactString(item, extensionsv1.RedactType_REDACT_TYPE_DSN)
 		}
 		res += " (environment: " + strings.Join(printEnv, ", ") + ")"

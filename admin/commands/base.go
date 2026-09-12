@@ -24,12 +24,13 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"regexp"
 	"sort"
 	"strings"
 	"text/template"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm/utils/envvars"
 )
 
 var (
@@ -139,8 +140,9 @@ func GetError(err ErrorResponse) Error {
 // ParseTemplate parses the input text into a template.Template.
 func ParseTemplate(text string) *template.Template {
 	funcMap := template.FuncMap{
-		"formatLogLevel":     FormatLogLevel,
-		"formatCustomLabels": FormatCustomLabels,
+		"formatLogLevel":                 FormatLogLevel,
+		"formatCustomLabels":             FormatCustomLabels,
+		"formatEnvironmentVariableNames": FormatEnvironmentVariableNames,
 	}
 	t := template.New("").Funcs(funcMap).Option("missingkey=error")
 	return template.Must(t.Parse(strings.TrimSpace(text)))
@@ -195,29 +197,12 @@ func ParseDisableCollectors(collectors []string) []string {
 	return disableCollectors
 }
 
-// ValidateEnvironmentVariableNames validates environment variable names.
+// ValidateEnvironmentVariableNames validates environment variable names. Names are trimmed and
+// duplicates are collapsed, keeping the first occurrence. This check is client-side only: the API
+// applies the same policy server-side (see utils/envvars), so a name rejected here would also be
+// rejected there.
 func ValidateEnvironmentVariableNames(varNames []string) ([]string, error) {
-	if len(varNames) == 0 {
-		return nil, nil
-	}
-
-	result := make([]string, 0, len(varNames))
-	validNamePattern := regexp.MustCompile(`^[A-Z_][A-Z0-9_]*$`)
-
-	for _, name := range varNames {
-		name = strings.TrimSpace(name)
-		if name == "" {
-			return nil, errors.New("environment variable name cannot be empty")
-		}
-
-		if !validNamePattern.MatchString(name) {
-			return nil, fmt.Errorf("invalid environment variable name: %s (must match [A-Z_][A-Z0-9_]*)", name)
-		}
-
-		result = append(result, name)
-	}
-
-	return result, nil
+	return envvars.NormalizeNames(varNames)
 }
 
 // ReadFile reads file from filepath if filepath is not empty.
@@ -268,6 +253,15 @@ func FormatCustomLabels(labels any) string {
 	}
 
 	return fmt.Sprintf("%v", labels)
+}
+
+// FormatEnvironmentVariableNames formats environment variable names for display in a user-friendly way.
+func FormatEnvironmentVariableNames(names []string) string {
+	if len(names) == 0 {
+		return "(none)"
+	}
+
+	return strings.Join(names, ", ")
 }
 
 // UsageTemplate is default kingping's usage template with tweaks:

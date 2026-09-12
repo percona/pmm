@@ -46,6 +46,86 @@ func TestAgent(t *testing.T) {
 		require.Equal(t, expected, actual)
 	})
 
+	t.Run("EnvironmentVariableNames", func(t *testing.T) {
+		t.Run("round-trips valid names", func(t *testing.T) {
+			agent := &models.Agent{}
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_KTNAME", "https_proxy"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"KRB5_KTNAME", "https_proxy"}, names)
+		})
+
+		t.Run("empty slice clears stored names", func(t *testing.T) {
+			agent := &models.Agent{}
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_KTNAME"}))
+			require.NoError(t, agent.SetEnvironmentVariableNames(nil))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Empty(t, names)
+		})
+
+		t.Run("rejects pmm-agent's own reserved namespace", func(t *testing.T) {
+			agent := &models.Agent{}
+			err := agent.SetEnvironmentVariableNames([]string{"PMM_AGENT_SERVER_PASSWORD"})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "reserved for pmm-agent")
+			assert.Nil(t, agent.EnvironmentVariables)
+		})
+
+		t.Run("rejects malformed names", func(t *testing.T) {
+			agent := &models.Agent{}
+			err := agent.SetEnvironmentVariableNames([]string{"KRB5-KTNAME"})
+			require.Error(t, err)
+			assert.Nil(t, agent.EnvironmentVariables)
+		})
+
+		t.Run("duplicate input round-trips as one stored name", func(t *testing.T) {
+			agent := &models.Agent{}
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_KTNAME", " KRB5_KTNAME "}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"KRB5_KTNAME"}, names)
+		})
+
+		t.Run("grandfathers an already-stored name that would now fail validation", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`["krb5-ktname"]`)}
+
+			// Resending the pre-existing (now-invalid) name alongside a new, valid one must not
+			// fail: the caller only intended to add KRB5_CONFIG, and this field is full-replace.
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"krb5-ktname", "KRB5_CONFIG"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"krb5-ktname", "KRB5_CONFIG"}, names)
+		})
+
+		t.Run("grandfathers a whitespace-padded legacy name stored before validation existed", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`[" krb5-ktname "]`)}
+
+			// The stored name carries whitespace from before any validation trimmed it; resending
+			// it trimmed (as any normal caller would) must still match the grandfathered value.
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"krb5-ktname", "KRB5_CONFIG"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"krb5-ktname", "KRB5_CONFIG"}, names)
+		})
+
+		t.Run("still rejects a new invalid name even with a grandfathered one present", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`["krb5-ktname"]`)}
+
+			err := agent.SetEnvironmentVariableNames([]string{"krb5-ktname", "also-bad"})
+			require.Error(t, err)
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"krb5-ktname"}, names, "a rejected update must not overwrite the stored value")
+		})
+	})
+
 	t.Run("DSN", func(t *testing.T) {
 		agent := &models.Agent{
 			Username:          new("username"),

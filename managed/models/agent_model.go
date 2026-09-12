@@ -34,6 +34,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/utils/crypto/bcrypt"
+	"github.com/percona/pmm/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
@@ -457,11 +458,24 @@ func (a *Agent) GetEnvironmentVariableNames() ([]string, error) {
 	return names, nil
 }
 
-// SetEnvironmentVariableNames encodes shared environment variable names.
+// SetEnvironmentVariableNames encodes shared environment variable names. Names already stored
+// (e.g. from before this validation existed, or under since-tightened rules) are carried forward
+// as-is: this is a full-replace field, so a caller resending an existing name alongside a new one
+// must not be rejected because of a name it did not intend to change.
 func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	if len(names) == 0 {
 		a.EnvironmentVariables = nil
 		return nil
+	}
+
+	grandfathered, err := a.GrandfatheredEnvironmentVariableNames()
+	if err != nil {
+		return err
+	}
+
+	names, err = envvars.NormalizeNamesAllowing(names, grandfathered)
+	if err != nil {
+		return err
 	}
 
 	b, err := json.Marshal(names)
@@ -470,6 +484,25 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 	}
 	a.EnvironmentVariables = b
 	return nil
+}
+
+// GrandfatheredEnvironmentVariableNames returns the agent's currently-stored environment variable
+// names as the set the grandfathering checks compare against, normalized the same way
+// NormalizeNamesAllowing normalizes its input. Callers that use it to decide whether an update is
+// allowed must read the agent within the same transaction as that update, so the names it
+// grandfathers cannot go stale before the update applies them.
+func (a *Agent) GrandfatheredEnvironmentVariableNames() (map[string]struct{}, error) {
+	existing, err := a.GetEnvironmentVariableNames()
+	if err != nil {
+		return nil, err
+	}
+
+	grandfathered := make(map[string]struct{}, len(existing))
+	for _, name := range existing {
+		grandfathered[strings.TrimSpace(name)] = struct{}{}
+	}
+
+	return grandfathered, nil
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.
