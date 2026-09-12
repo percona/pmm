@@ -3349,6 +3349,22 @@
             "id": 391,
             "panels": [
                 {
+                    "gridPos": {
+                        "h": 3,
+                        "w": 24,
+                        "x": 0,
+                        "y": 33
+                    },
+                    "id": 9003,
+                    "options": {
+                        "content": "ℹ️ **Query Cache was removed in Oracle MySQL 8.0 and Percona Server 8.0, so empty charts are expected there. MariaDB still ships a query cache, but it is disabled by default, so charts stay empty unless `query_cache_type` is enabled.**",
+                        "mode": "markdown"
+                    },
+                    "pluginVersion": "8.3.5",
+                    "transparent": true,
+                    "type": "text"
+                },
+                {
                     "aliasColors": {},
                     "bars": false,
                     "dashLength": 10,
@@ -3376,7 +3392,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 35
+                        "y": 36
                     },
                     "hiddenSeries": false,
                     "id": 46,
@@ -3503,7 +3519,7 @@
                         "h": 8,
                         "w": 24,
                         "x": 0,
-                        "y": 43
+                        "y": 44
                     },
                     "height": "",
                     "hiddenSeries": false,
