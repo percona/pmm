@@ -605,6 +605,12 @@ func (s *Service) Params() *models.HAParams {
 	return s.params
 }
 
+// expectedNodes returns the number of PMM Server nodes declared for this cluster.
+// Defaults to 1 for a single-node deployment where no peers are configured.
+func (s *Service) expectedNodes() int {
+	return max(len(s.params.Nodes), 1)
+}
+
 // Metrics holds HA-related Prometheus metric values for this node.
 type Metrics struct {
 	// Enabled indicates whether HA mode is active.
@@ -614,15 +620,20 @@ type Metrics struct {
 	// RaftTerm is the current Raft consensus term. Rapid increases indicate
 	// an unstable leader or frequent elections (leader flapping).
 	RaftTerm uint64
-	// IsVoter is true when this node participates in Raft leader elections.
-	// Nonvoter nodes replicate logs but never vote.
+	// IsVoter is true when this node is in the current Raft configuration and votes
+	// in leader elections. It is false when the node is absent from that configuration,
+	// and also when the configuration could not be read. PMM never adds true Raft
+	// non-voting members, so a false value always means "not in the configuration".
 	IsVoter bool
+	// ExpectedNodes is the number of nodes configured for this cluster.
+	ExpectedNodes int
 }
 
 // GetMetrics returns current HA Raft metrics for this node. The returned
 // values are intended to be exposed as Prometheus gauges so that VictoriaMetrics
-// can evaluate cluster-health alerting rules such as PMMHALeaderMissing,
-// PMMHASplitBrain, PMMHALeaderFlapping and PMMHAQuorumAtRisk.
+// can evaluate the built-in cluster-health alert templates: pmm_ha_no_leader,
+// pmm_ha_split_brain, pmm_ha_leader_flapping, pmm_ha_node_unreachable and
+// pmm_ha_quorum_at_risk.
 //
 // When HA is disabled, Enabled is false and all other fields are zero values.
 func (s *Service) GetMetrics() Metrics {
@@ -630,13 +641,15 @@ func (s *Service) GetMetrics() Metrics {
 		return Metrics{Enabled: false}
 	}
 
+	expectedNodes := s.expectedNodes()
+
 	s.rw.RLock()
 	raftNode := s.raftNode
 	s.rw.RUnlock()
 
 	if raftNode == nil {
 		// HA enabled but Raft not yet initialised (early startup).
-		return Metrics{Enabled: true}
+		return Metrics{Enabled: true, ExpectedNodes: expectedNodes}
 	}
 
 	isLeader := raftNode.State() == raft.Leader
@@ -662,9 +675,10 @@ func (s *Service) GetMetrics() Metrics {
 	}
 
 	return Metrics{
-		Enabled:  true,
-		IsLeader: isLeader,
-		RaftTerm: term,
-		IsVoter:  isVoter,
+		Enabled:       true,
+		IsLeader:      isLeader,
+		RaftTerm:      term,
+		IsVoter:       isVoter,
+		ExpectedNodes: expectedNodes,
 	}
 }

@@ -1,0 +1,28 @@
+---
+templates:
+  - name: pmm_ha_split_brain
+    version: 1
+    summary: PMM HA split-brain detected
+    # last_over_time stops a departing leader's final sample being counted alongside the
+    # new leader. Keep this window shorter than 'for', or an ordinary failover will fire.
+    # max by(node_id) collapses any duplicate series for one node, so a single node cannot
+    # be counted twice and raise a split brain on its own.
+    expr: 'sum(max by(node_id) (last_over_time(pmm_ha_leader_status[2m]))) > bool 1'
+    for: 3m
+    severity: critical
+    annotations:
+      summary: PMM HA split-brain detected, more than one node claims leadership
+      description: |-
+        More than one PMM Server node reports itself as the Raft leader at the same time.
+        Raft never allows two leaders within one cluster, so this means the nodes have formed
+        separate clusters instead of one. Every node bootstraps its own single-node cluster at
+        startup and then relies on peer discovery to merge into the others; when that discovery
+        fails, each node stays the leader of a cluster of one.
+        Leader-only work may run more than once and diverging writes are possible.
+
+        Remediation steps:
+          1. Open the High Availability page to see which nodes claim leadership, and compare the peers each one knows about. A node that formed its own cluster lists only itself.
+          2. Check that PMM_HA_PEERS is identical on every node and that PMM_HA_NODE_ID is unique. A node missing from the peer lists is never discovered.
+          3. Check that the nodes could reach each other at startup on the configured gossip and Raft ports (PMM_HA_GOSSIP_PORT and PMM_HA_RAFT_PORT; the Helm chart sets these to values other than the defaults), and look for firewall, security group, iptables or network policy rules blocking them.
+          4. Inspect the pmm-managed logs on each node from startup onwards, for failures to join the peer list and for nodes entering the leader state.
+          5. Separate Raft clusters do not merge on their own. Once the cause is fixed, restart pmm-managed on the nodes that should not be leaders so they rejoin. If a node keeps re-forming its own cluster, stop it and remove its Raft state directory (/srv/ha/<node_id>) before restarting; that directory holds only cluster membership state.

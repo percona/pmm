@@ -1,0 +1,179 @@
+{
+  "apiVersion": 1,
+  "groups": [
+    {
+      "orgId": 1,
+      "name": "PMM Managed",
+      "folder": "PMM Server",
+      "interval": "1m",
+      "rules": [
+        {
+          "uid": "pmm-victoriametrics-down",
+          "title": "PMM VictoriaMetrics is down",
+          "condition": "A",
+          "for": "5m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "critical",
+            "template_name": "pmm_victoriametrics_down"
+          },
+          "annotations": {
+            "description": "The VictoriaMetrics component '{{ $labels.job }}' on '{{ $labels.instance }}' is not responding.\nDepending on which component is affected, PMM may stop storing new metrics, stop answering\nqueries, or both. Dashboards and metric-based alerts become unreliable while this lasts.\n\nRemediation steps:\n  1. Check the process or pod for that component and restart it if it has stopped.\n  2. Check free disk space. VictoriaMetrics stops accepting writes when its storage fills up.\n  3. Review the component's logs for out-of-memory kills, which are the most common cause under load.\n  4. Confirm PMM Server can reach the address configured in PMM_VM_URL.\n  5. Once it is back, confirm metrics are arriving again on any dashboard.",
+            "summary": "PMM VictoriaMetrics component '{{ $labels.job }}' is down on '{{ $labels.instance }}'"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "last_over_time(up{job=~\"victoriametrics|vmselect|vminsert|vmstorage|vmagent\"}[2m]) == bool 0",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        },
+        {
+          "uid": "pmm-clickhouse-down",
+          "title": "PMM ClickHouse is down",
+          "condition": "A",
+          "for": "5m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "critical",
+            "template_name": "pmm_clickhouse_down"
+          },
+          "annotations": {
+            "description": "The ClickHouse instance '{{ $labels.instance }}' that PMM Server stores Query Analytics data in is not responding.\nQuery Analytics stops collecting and existing QAN data cannot be read while this lasts. Metrics are unaffected.\n\nRemediation steps:\n  1. Check the ClickHouse process or pod on that node and restart it if it has stopped.\n  2. Check free disk space. ClickHouse refuses writes and can shut down when its data directory fills up.\n  3. Review the ClickHouse logs for startup failures, corrupted parts or out-of-memory kills.\n  4. Confirm PMM Server can reach the configured address in PMM_CLICKHOUSE_ADDR.\n  5. Once it is back, confirm new data is arriving on the Query Analytics page.",
+            "summary": "PMM ClickHouse is down on '{{ $labels.instance }}'"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "last_over_time(up{job=\"clickhouse\"}[2m]) == bool 0",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        },
+        {
+          "uid": "pmm-grafana-down",
+          "title": "PMM Grafana is down",
+          "condition": "A",
+          "for": "5m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "critical",
+            "template_name": "pmm_grafana_down"
+          },
+          "annotations": {
+            "description": "The Grafana instance on '{{ $labels.instance }}' is not responding.\nThe PMM user interface, dashboards and alert rule evaluation all depend on it. Data collection\ncontinues, so no metrics are lost, but nobody can see them and alerts on that node do not run.\n\nRemediation steps:\n  1. Check the Grafana process or pod on that node and restart it if it has stopped.\n  2. Review the Grafana logs for startup failures. A failed database migration after an upgrade is a common cause.\n  3. Confirm Grafana can reach the PMM PostgreSQL database that holds its configuration.\n  4. Check free disk space and memory on the node.\n  5. Once it is back, confirm the PMM user interface loads and the alert rules are evaluating.",
+            "summary": "PMM Grafana is down on '{{ $labels.instance }}'"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "last_over_time(up{job=\"grafana\"}[2m]) == bool 0",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        },
+        {
+          "uid": "pmm-qan-api2-down",
+          "title": "PMM Query Analytics API is down",
+          "condition": "A",
+          "for": "5m",
+          "noDataState": "OK",
+          "execErrState": "OK",
+          "labels": {
+            "percona_alerting": "1",
+            "pmm_provisioned": "1",
+            "severity": "warning",
+            "template_name": "pmm_qan_api2_down"
+          },
+          "annotations": {
+            "description": "The Query Analytics API (qan-api2) on '{{ $labels.instance }}' is not responding.\nQuery Analytics stops accepting new query data from PMM Clients and the Query Analytics page\ncannot load. Metric collection and dashboards are unaffected.\n\nRemediation steps:\n  1. Check the qan-api2 process or pod on that node and restart it if it has stopped.\n  2. Check whether ClickHouse is reachable. qan-api2 fails to start when it cannot connect to its data store.\n  3. Review the qan-api2 logs for startup failures and database migration errors.\n  4. Check free disk space and memory on the node.\n  5. Once it is back, confirm new data is arriving on the Query Analytics page.",
+            "summary": "PMM Query Analytics API is down on '{{ $labels.instance }}'"
+          },
+          "data": [
+            {
+              "refId": "A",
+              "datasourceUid": "PA58DA793C7250F1B",
+              "relativeTimeRange": {
+                "from": 600,
+                "to": 0
+              },
+              "model": {
+                "expr": "last_over_time(up{job=\"qan-api2\"}[2m]) == bool 0",
+                "refId": "A",
+                "instant": true,
+                "hide": false,
+                "intervalMs": 1000,
+                "maxDataPoints": 43200
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "deleteRules": [
+    {
+      "orgId": 1,
+      "uid": "pmm-ha-no-leader"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-ha-split-brain"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-ha-quorum-at-risk"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-ha-leader-flapping"
+    },
+    {
+      "orgId": 1,
+      "uid": "pmm-ha-node-unreachable"
+    }
+  ]
+}

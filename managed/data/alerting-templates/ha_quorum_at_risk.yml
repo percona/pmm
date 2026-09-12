@@ -1,0 +1,28 @@
+---
+templates:
+  - name: pmm_ha_quorum_at_risk
+    version: 1
+    summary: PMM HA quorum at risk
+    # last_over_time drops nodes that stopped reporting out of the voter count, instead of
+    # waiting out the metrics database's longer staleness window.
+    expr: |-
+      (count(max by(node_id) (last_over_time(pmm_ha_up{role="voter"}[2m]))) <= bool floor(max(last_over_time(pmm_ha_expected_nodes[2m])) / 2 + 1))
+      and on() (max(last_over_time(pmm_ha_expected_nodes[2m])) > 2)
+    for: 3m
+    severity: critical
+    annotations:
+      summary: PMM HA quorum at risk, the cluster has no spare voters left
+      description: |-
+        The number of live Raft voters has fallen to or below the smallest majority that still forms a quorum.
+        At the boundary the cluster still works, but one more node failure will make it impossible to elect a
+        leader. Below the boundary leader election has already stopped, and leader-only work such as advisor
+        checks, backups and scheduled tasks has stopped with it. The High Availability page shows which of the
+        two applies.
+
+        Remediation steps:
+          1. If a PMM_HA_PEERS change is being rolled out, this alert can fire while the nodes still disagree on the cluster size. Confirm the rollout has finished before treating it as a failure.
+          2. Restore the failed nodes now. Do not restart or drain any of the remaining nodes until the cluster has a spare again.
+          3. Check the status of the PMM Server container or pod and the pmm-managed logs on every node.
+          4. Check network connectivity between nodes on the configured Raft and gossip ports (PMM_HA_RAFT_PORT and PMM_HA_GOSSIP_PORT).
+          5. Check that the shared PostgreSQL, VictoriaMetrics and ClickHouse storage is reachable from the surviving nodes.
+          6. Confirm recovery on the High Availability page once all nodes are back.
