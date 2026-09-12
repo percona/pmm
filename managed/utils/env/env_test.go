@@ -19,10 +19,97 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm/managed/utils/tests"
 )
 
+func TestLookupBool(t *testing.T) {
+	testCases := []struct {
+		name     string
+		envValue string
+		set      bool
+		expected *bool
+		wantErr  bool
+	}{
+		{
+			name:     "not set",
+			expected: nil,
+		},
+		{
+			name:     "true",
+			envValue: "true",
+			set:      true,
+			expected: new(true),
+		},
+		{
+			name:     "false",
+			envValue: "false",
+			set:      true,
+			expected: new(false),
+		},
+		{
+			// The reason LookupBool lowercases: envvars.ParseEnvVars does, and strconv.ParseBool
+			// does not accept this spelling verbatim, so without it the two disagree and a value
+			// that starts PMM Server is rejected here.
+			name:     "mixed case",
+			envValue: "TRue",
+			set:      true,
+			expected: new(true),
+		},
+		{
+			name:     "1",
+			envValue: "1",
+			set:      true,
+			expected: new(true),
+		},
+		{
+			name:     "0",
+			envValue: "0",
+			set:      true,
+			expected: new(false),
+		},
+		{
+			// Set but empty is a misconfiguration, not the same as unset: envvars.ParseEnvVars
+			// reports it as a configuration error too.
+			name:     "set to empty string",
+			envValue: "",
+			set:      true,
+			wantErr:  true,
+		},
+		{
+			name:     "not a boolean",
+			envValue: "yes",
+			set:      true,
+			wantErr:  true,
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			const key = "TEST_LOOKUP_BOOL"
+			if tt.set {
+				t.Setenv(key, tt.envValue)
+			} else {
+				// "not set" has to mean not set, whatever the surrounding environment exports.
+				tests.UnsetEnv(t, key)
+			}
+
+			result, err := LookupBool(key)
+			if tt.wantErr {
+				require.Error(t, err)
+				assert.Nil(t, result)
+				return
+			}
+
+			require.NoError(t, err)
+			assert.Equal(t, tt.expected, result)
+		})
+	}
+}
+
 func TestGetBool(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
 		name     string
 		envKey   string
 		envValue string
@@ -65,7 +152,7 @@ func TestGetBool(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
 				t.Setenv(tt.envKey, tt.envValue)
@@ -77,7 +164,7 @@ func TestGetBool(t *testing.T) {
 }
 
 func TestGetStringSlice(t *testing.T) {
-	tests := []struct {
+	testCases := []struct {
 		name     string
 		envKey   string
 		envValue string
@@ -126,7 +213,7 @@ func TestGetStringSlice(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range testCases {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
 				t.Setenv(tt.envKey, tt.envValue)

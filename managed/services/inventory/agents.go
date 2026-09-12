@@ -18,7 +18,6 @@ package inventory
 
 import (
 	"context"
-	"os"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -234,7 +233,7 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.NodeExporterType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -334,7 +333,7 @@ func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, agentID strin
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.MySQLdExporterType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -438,7 +437,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.MongoDBExporterType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -541,7 +540,7 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANMySQLPerfSchemaAgentType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -647,7 +646,7 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANMySQLSlowlogAgentType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -741,7 +740,7 @@ func (as *AgentsService) ChangePostgresExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.PostgresExporterType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -832,7 +831,7 @@ func (as *AgentsService) ChangeValkeyExporter(ctx context.Context, agentID strin
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.ValkeyExporterType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -929,7 +928,7 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANMongoDBProfilerAgentType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1026,7 +1025,7 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANMongoDBMongologAgentType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1113,7 +1112,7 @@ func (as *AgentsService) ChangeProxySQLExporter(
 		ConnectionTimeout:  duration.OptionalFromProto(p.ConnectionTimeout),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.ProxySQLExporterType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1210,24 +1209,9 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANPostgreSQLPgStatementsAgentType, params)
 	if err != nil {
 		return nil, err
-	}
-	// Check if we're trying to modify the internal PostgreSQL QAN agent and if the environment variable is set
-	envVar, exists := os.LookupEnv(env.EnableInternalPgQAN)
-	if exists && envVar != "" {
-		a, err := models.FindAgentByID(as.db.Querier, agentID)
-		if err != nil {
-			return nil, status.Errorf(codes.NotFound, "agent with ID %q not found", agentID)
-		}
-		if pointer.GetString(a.PMMAgentID) == models.PMMServerAgentID {
-			return nil, status.Errorf(
-				codes.FailedPrecondition,
-				"QAN for PMM's internal PostgreSQL server is set to %s via an environment variable.",
-				envVar,
-			)
-		}
 	}
 
 	pgStatementsAgent, ok := agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent)
@@ -1324,7 +1308,7 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatMonitorAgent(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.QANPostgreSQLPgStatMonitorAgentType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1409,7 +1393,7 @@ func (as *AgentsService) ChangeRDSExporter(ctx context.Context, agentID string, 
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.RDSExporterType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1506,7 +1490,7 @@ func (as *AgentsService) ChangeExternalExporter(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.ExternalExporterType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1593,7 +1577,7 @@ func (as *AgentsService) ChangeAzureDatabaseExporter(
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, params)
+	agent, err := as.executeAgentChange(ctx, agentID, models.AzureDatabaseExporterType, params)
 	if err != nil {
 		return nil, err
 	}
@@ -1621,7 +1605,7 @@ func (as *AgentsService) ChangeNomadAgent(ctx context.Context, agentID string, p
 		SkipConnectionCheck: true,
 	}
 
-	agent, err := as.executeAgentChange(ctx, agentID, changeParams)
+	agent, err := as.executeAgentChange(ctx, agentID, models.NomadAgentType, changeParams)
 	if err != nil {
 		return nil, err
 	}
@@ -1712,7 +1696,7 @@ func (as *AgentsService) ChangeRTAMongoDBAgent(
 		changeParams.RTAOptions = models.RTAOptionsFromRequest(p.RtaOptions)
 	}
 
-	ag, err := as.executeAgentChange(ctx, agentID, changeParams)
+	ag, err := as.executeAgentChange(ctx, agentID, models.RTAMongoDBAgentType, changeParams)
 	if err != nil {
 		return nil, err
 	}
@@ -1768,6 +1752,51 @@ func unexpectedAgentTypeError(agent inventoryv1.Agent) error {
 	return status.Errorf(codes.Internal, "unexpected agent type %T", agent)
 }
 
+// checkInternalPgQANEnvOverride rejects a request that would flip the enabled state of the QAN agent
+// of PMM's internal PostgreSQL server away from the state pinned by the PMM_ENABLE_INTERNAL_PG_QAN
+// environment variable.
+//
+// The agent argument is the stored row, before the requested change is applied.
+//
+// The guard deliberately stays in the service layer rather than moving into
+// models.ApplyAgentChange: Server.handleInternalQANToggle is the legitimate actor for this exact
+// state and calls ApplyAgentChange directly, so a guard down there would make the settings API trip
+// over its own pin.
+func checkInternalPgQANEnvOverride(q *reform.Querier, agent *models.Agent, enable *bool) error {
+	// Only a request that actually flips the enabled state can contradict the variable.
+	if enable == nil || *enable == !agent.Disabled {
+		return nil
+	}
+
+	// Read before IsInternalPgQANAgent, which costs a query: with the variable unset -- the default
+	// -- nothing is pinned and there is nothing to check.
+	enabledByEnv, lookupErr := env.LookupBool(env.EnableInternalPgQAN)
+	if enabledByEnv == nil && lookupErr == nil {
+		return nil
+	}
+
+	internal, err := models.IsInternalPgQANAgent(q, agent)
+	if err != nil || !internal {
+		return err
+	}
+
+	if lookupErr != nil {
+		// pmm-managed-init rejects an unparsable value before PMM Server starts, so reaching here
+		// means that validation was bypassed. The intent to pin is clear even though the value is
+		// not, so refuse rather than silently unpin.
+		return status.Errorf(codes.FailedPrecondition, "QAN for PMM's internal PostgreSQL server is configured via an environment variable: %s.", lookupErr)
+	}
+	if *enable == *enabledByEnv {
+		return nil
+	}
+
+	return status.Errorf(
+		codes.FailedPrecondition,
+		"QAN for PMM's internal PostgreSQL server is set to %t via an environment variable.",
+		*enabledByEnv,
+	)
+}
+
 // Helper function to convert custom labels from protobuf to model format.
 func convertCustomLabels(customLabels *common.StringMap) *map[string]string {
 	if customLabels != nil {
@@ -1814,11 +1843,36 @@ func convertMetricsResolutions(mrs *common.MetricsResolutions) *models.ChangeMet
 }
 
 // Helper function to execute agent change and build response.
-func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn
+//
+// The expectedType argument is the agent type that the calling Change*Agent method knows how to
+// convert. The inventory API picks that method from the request payload and not from the type of the
+// agent being changed, so a request can name an agent of any type. Checking the type here, inside
+// the transaction, turns that into a rejected request; without it the change is committed and only
+// then fails the type assertion in the caller, leaving the agent modified, pmm-agent not notified
+// and the client with an internal error.
+//
+// The expectedType argument restates what the caller's own type assertion on the result already says, and the
+// compiler cannot tie the two together: keep them in sync, or a valid request becomes InvalidArgument.
+func (as *AgentsService) executeAgentChange(ctx context.Context, agentID string, expectedType models.AgentType, params *models.ChangeAgentParams) (inventoryv1.Agent, error) { //nolint:ireturn,lll
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		updatedAgent, err := models.ChangeAgent(tx.Querier, agentID, params)
+		// Returning an error rolls the transaction back, so a rejected request leaves the agent untouched.
+		currentAgent, err := models.FindAgentByID(tx.Querier, agentID)
+		if err != nil {
+			return err
+		}
+
+		if currentAgent.AgentType != expectedType {
+			return status.Errorf(codes.InvalidArgument, "Agent with ID %s has type %s, expected %s.", agentID, currentAgent.AgentType, expectedType)
+		}
+
+		err = checkInternalPgQANEnvOverride(tx.Querier, currentAgent, params.Enabled)
+		if err != nil {
+			return err
+		}
+
+		updatedAgent, err := models.ApplyAgentChange(tx.Querier, currentAgent, params)
 		if err != nil {
 			return err
 		}

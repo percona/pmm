@@ -416,19 +416,7 @@ func (s *Server) GetSettings(ctx context.Context, _ *serverv1.GetSettingsRequest
 		return nil, err
 	}
 
-	var disabledInternalPgQan bool
-	if s.haService.Params().Enabled {
-		// In HA mode, internal QAN is always disabled as PostgreSQL is external
-		disabledInternalPgQan = true
-	} else {
-		internalPgQanAgent, err := s.getInternalPgQANAgent(dbCtx)
-		if err != nil {
-			// if we can't get the agent, log the error and set it to disabled.
-			s.l.Errorf("failed to get internal pgQAN agent: %v", err)
-		} else {
-			disabledInternalPgQan = internalPgQanAgent.Disabled
-		}
-	}
+	disabledInternalPgQan := s.internalPgQANDisabled(dbCtx)
 
 	return &serverv1.GetSettingsResponse{
 		Settings: s.convertSettings(settings, disabledInternalPgQan),
@@ -515,6 +503,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 	var newSettings, oldSettings *models.Settings
 	var disableInternalPgQan bool
+	var internalPgQANAgentID string
 	errTX := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		var err error
 		oldSettings, err = models.GetSettings(tx)
@@ -575,11 +564,16 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 		// if QAN for internal PostgreSQL is toggled, we need to update the agent's disabled status
 		if req.EnableInternalPgQan != nil {
-			disabled, err := s.handleInternalQANToggle(ctx, tx.Querier, req.EnableInternalPgQan)
+			disabled, pmmAgentID, err := s.handleInternalQANToggle(tx.Querier, req.EnableInternalPgQan)
 			if err != nil {
 				return err
 			}
 			disableInternalPgQan = disabled
+			internalPgQANAgentID = pmmAgentID
+		} else {
+			// Report the state as stored. Left at its zero value it would say "enabled" on every
+			// request that omits the field.
+			disableInternalPgQan = s.internalPgQANDisabled(tx.Querier)
 		}
 
 		return nil
@@ -587,6 +581,14 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	if errTX != nil {
 		return nil, errTX
 	}
+
+	// Signalled after the transaction commits, the way the inventory path does it: the handler
+	// reads agent state a second later, so a signal sent from inside the transaction can be built
+	// from pre-commit state.
+	if internalPgQANAgentID != "" {
+		s.agentsState.RequestStateUpdate(ctx, internalPgQANAgentID)
+	}
+
 	err = s.UpdateConfigurations(ctx)
 	if err != nil {
 		return nil, err
@@ -630,47 +632,56 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}, nil
 }
 
-func (s *Server) getInternalPgQANAgent(q *reform.Querier) (*models.Agent, error) {
-	agents, err := models.FindAgents(q, models.AgentFilters{
-		PMMAgentID: models.PMMServerAgentID,
-		AgentType:  new(models.QANPostgreSQLPgStatementsAgentType),
-	})
+// handleInternalQANToggle applies the requested state to the QAN Agent of PMM Server's own
+// PostgreSQL and reports the resulting disabled state, plus the pmm-agent that the caller should
+// signal once the transaction has committed.
+// Reports whether QAN on PMM Server's own PostgreSQL is currently off (internalPgQANDisabled).
+//
+// It defaults to true when that cannot be determined: the Service may not exist at all, which is
+// the normal state in HA mode, and reporting QAN as enabled in that case is the wrong way to be
+// wrong -- a UI rendering the toggle from the response would show it on.
+func (s *Server) internalPgQANDisabled(q *reform.Querier) bool {
+	if s.haService.Params().Enabled {
+		// In HA mode, internal QAN is always disabled as PostgreSQL is external.
+		return true
+	}
+
+	agent, err := models.FindInternalPgQANAgent(q)
 	if err != nil {
-		return nil, fmt.Errorf("failed to find agents: %w", err)
+		s.l.Errorf("failed to get internal pgQAN agent: %v", err)
+
+		return true
 	}
-	if len(agents) == 0 {
-		return nil, errors.New("internal pgQAN agent not found")
-	}
-	return agents[0], nil
+
+	return agent.Disabled
 }
 
-func (s *Server) handleInternalQANToggle(ctx context.Context, q *reform.Querier, enableInternalPgQan *bool) (bool, error) {
+func (s *Server) handleInternalQANToggle(q *reform.Querier, enableInternalPgQan *bool) (bool, string, error) {
 	if s.haService.Params().Enabled {
 		if *enableInternalPgQan {
-			return false, status.Error(codes.FailedPrecondition, "Enabling QAN on PMM's own database is not supported in HA mode.")
+			return false, "", status.Error(codes.FailedPrecondition, "Enabling QAN on PMM's own database is not supported in HA mode.")
 		}
 
 		// If trying to disable in HA mode, it's already disabled, so just skip
-		return true, nil
+		return true, "", nil
 	}
 
-	internalQanAgent, err := s.getInternalPgQANAgent(q)
+	// Returned unwrapped: FindInternalPgQANAgent returns a gRPC status, and status.FromError
+	// unwraps through %w and then replaces the message with the whole wrapped string, so a wrap
+	// here would put "rpc error: code = ... desc = ..." in front of the client.
+	internalQanAgent, err := models.FindInternalPgQANAgent(q)
 	if err != nil {
-		return false, fmt.Errorf("failed to get QAN agent: %w", err)
-	}
-	if internalQanAgent == nil {
-		return false, errors.New("internal QAN agent not found")
+		return false, "", err
 	}
 
-	newAgent, err := models.ChangeAgent(q, internalQanAgent.AgentID, &models.ChangeAgentParams{
+	newAgent, err := models.ApplyAgentChange(q, internalQanAgent, &models.ChangeAgentParams{
 		Enabled: enableInternalPgQan,
 	})
 	if err != nil {
-		return false, fmt.Errorf("failed to change QAN agent state: %w", err)
+		return false, "", fmt.Errorf("failed to change QAN agent state: %w", err)
 	}
 
-	s.agentsState.RequestStateUpdate(ctx, internalQanAgent.AgentID)
-	return newAgent.Disabled, nil
+	return newAgent.Disabled, pointer.GetString(internalQanAgent.PMMAgentID), nil
 }
 
 // UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
