@@ -1,31 +1,33 @@
+/** Grafana's sub-path on PMM Server (it runs with serve_from_sub_path). */
+export const GRAFANA_SUB_PATH = '/graph';
+
 /**
- * Grafana routes that must keep the /graph prefix and never be pulled into the PMM UI shell: the
- * REST API, the image renderer and the auth/account pages. Kept in sync with the redirect
- * exclusion regex in build/ansible/roles/nginx/files/conf.d/pmm.conf (location /graph) — nginx
- * exempts these server-side, and neither the compat plugin nor the shell may undo that.
+ * Grafana routes that keep the /graph prefix instead of being pulled into the PMM UI shell: the
+ * REST API, the image renderer and the auth/account pages.
  *
- * Test it against a path only, never a path plus query string — nginx matches on $uri for the
- * same reason.
+ * Single source for the redirect contract. The nginx exclusion regex in
+ * build/ansible/roles/nginx/files/conf.d/pmm.conf is built from the same alternation and
+ * nginxParity.test.ts fails the build if they drift.
  */
-export const GRAFANA_DIRECT_PATH_PATTERN =
-  /^\/graph\/(api|render|login|logout|signup|invite|verify|user\/password\/(send-reset-email|reset))(\/|$)/;
+export const GRAFANA_DIRECT_PATH_SEGMENTS = [
+  'api',
+  'render',
+  'login',
+  'logout',
+  'signup',
+  'invite',
+  'verify',
+  'user/password/(send-reset-email|reset)',
+  // Grafana navigates here as a top-level document when the session expiry lapses. The shell has
+  // no such route, so pulling it in rotates the token inside the iframe while the address bar
+  // stays pinned to the rotate URL.
+  'user/auth-tokens/rotate',
+] as const;
 
-/**
- * Match the way nginx normalises $uri before testing its exclusions: percent-decode, then collapse
- * duplicate slashes. window.location.pathname does neither, so without this /graph/%6Cogin is
- * exempted server-side yet unrecognised here — and the shell would pull a Grafana auth page in.
- * ".." needs no handling: the browser resolves it before it reaches location.pathname.
- */
-export const isGrafanaDirectPath = (pathname: string) => {
-  let normalized: string;
+/** The alternation body shared verbatim with the nginx regex. */
+export const GRAFANA_DIRECT_PATH_ALTERNATION =
+  GRAFANA_DIRECT_PATH_SEGMENTS.join('|');
 
-  try {
-    normalized = decodeURIComponent(pathname);
-  } catch {
-    // Malformed escapes never reach the app — nginx answers those with 400 — so fall back to the
-    // raw value rather than throwing out of a redirect guard.
-    normalized = pathname;
-  }
-
-  return GRAFANA_DIRECT_PATH_PATTERN.test(normalized.replace(/\/{2,}/g, '/'));
-};
+export const GRAFANA_DIRECT_PATH_PATTERN = new RegExp(
+  `^${GRAFANA_SUB_PATH}/(${GRAFANA_DIRECT_PATH_ALTERNATION})(/|$)`
+);

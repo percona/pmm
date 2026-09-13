@@ -15,6 +15,11 @@ jest.mock('@grafana/data', () => ({
 }));
 jest.mock('@grafana/ui', () => ({}));
 
+import {
+  GRAFANA_DIRECT_PATHS,
+  GRAFANA_DIRECT_PATHS_OBFUSCATED,
+  GRAFANA_SHELL_PATHS,
+} from '@pmm/shared/fixtures';
 import { initialize } from './compat';
 
 describe('compat', () => {
@@ -69,42 +74,28 @@ describe('compat', () => {
     expect(replaceMock).toHaveBeenCalled();
   });
 
-  // These must stay in step with the nginx exclusion regex in
-  // build/ansible/roles/nginx/files/conf.d/pmm.conf: nginx lets them through to Grafana, and the
-  // plugin must not pull them into the shell afterwards.
-  it.each([
-    '/graph/api/datasources',
-    '/graph/render/d/some-dashboard',
-    '/graph/login',
-    '/graph/login/generic_oauth',
-    '/graph/logout',
-    '/graph/signup',
-    '/graph/invite/abc123',
-    '/graph/verify',
-    '/graph/user/password/send-reset-email',
-    '/graph/user/password/reset',
-    // percent-encoded forms: nginx exempts these (it matches decoded $uri), so the plugin must too
-    '/graph/%6Cogin',
-    '/graph/%61pi/datasources',
-    '/graph/user/password/%72eset',
-  ])('does not redirect %s into the PMM UI', (pathname) => {
-    setLocation('', pathname);
+  // nginx lets these through to Grafana, and the plugin must not pull them into the shell
+  // afterwards. The lists live in @pmm/shared so nginx, the shell and this plugin cannot drift
+  // apart; the obfuscated forms matter because nginx matches a decoded $uri.
+  it.each([...GRAFANA_DIRECT_PATHS, ...GRAFANA_DIRECT_PATHS_OBFUSCATED])(
+    'does not redirect %s into the PMM UI',
+    (pathname) => {
+      setLocation('', pathname);
 
-    initialize();
+      initialize();
 
-    expect(replaceMock).not.toHaveBeenCalled();
-  });
+      expect(replaceMock).not.toHaveBeenCalled();
+    }
+  );
 
-  it.each([
-    '/graph/d/some-dashboard',
-    '/graph/apidocs',
-    '/graph/logins',
-    '/graph/',
-  ])('redirects %s into the PMM UI', (pathname) => {
-    setLocation('', pathname);
+  it.each(GRAFANA_SHELL_PATHS.filter((path) => path.startsWith('/graph/')))(
+    'redirects %s into the PMM UI',
+    (pathname) => {
+      setLocation('', pathname);
 
-    initialize();
+      initialize();
 
-    expect(replaceMock).toHaveBeenCalled();
-  });
+      expect(replaceMock).toHaveBeenCalled();
+    }
+  );
 });

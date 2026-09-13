@@ -1,3 +1,5 @@
+import { GRAFANA_SUB_PATH } from '@pmm/shared';
+
 export const PAGE_LOCATORS = {
   qan: 'body.grafana-compat-page-d-pmm-qan-pmm-query-analytics',
 };
@@ -17,7 +19,7 @@ export const LOCATORS = {
   qanPageCanvasWrapper: `${PAGE_LOCATORS.qan} [class*="canvas-wrapper"] > div`,
 };
 
-export const GRAFANA_SUB_PATH = '/graph';
+export { GRAFANA_SUB_PATH };
 export const GRAFANA_DOCKED_MENU_OPEN_LOCAL_STORAGE_KEY =
   'grafana.navigation.open';
 export const GRAFANA_DOCKED_LOCAL_STORAGE_KEY = 'grafana.navigation.docked';
