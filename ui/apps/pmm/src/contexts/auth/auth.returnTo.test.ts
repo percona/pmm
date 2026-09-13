@@ -4,7 +4,11 @@ import {
   isRestorableReturnTo,
   saveReturnTo,
 } from './auth.returnTo';
-import { AUTH_RETURN_TO_TTL_MS } from 'lib/constants';
+import {
+  AUTH_RETURN_TO_LOOP_WINDOW_MS,
+  AUTH_RETURN_TO_TTL_MS,
+} from 'lib/constants';
+import { GRAFANA_DIRECT_PATHS } from '@pmm/shared/fixtures';
 
 const RETURN_TO_KEY = 'pmm-ui.auth.returnTo';
 const GRAFANA_REDIRECT_TO_KEY = 'redirectTo';
@@ -17,6 +21,7 @@ const at = (pathname: string, search = '', hash = '') => ({
 
 describe('auth.returnTo', () => {
   const originalLocation = window.location;
+  const originalSessionStorage = window.sessionStorage;
 
   afterEach(() => {
     sessionStorage.clear();
@@ -54,21 +59,15 @@ describe('auth.returnTo', () => {
     }
   );
 
-  it.each([
-    '/pmm-ui/graph/login',
-    '/pmm-ui/graph/logout',
-    '/pmm-ui/graph/api/datasources',
-    '/pmm-ui/graph/render/d/x',
-    '/pmm-ui/graph/signup',
-    '/pmm-ui/graph/invite/abc123',
-    '/pmm-ui/graph/verify',
-    '/pmm-ui/graph/user/password/send-reset-email',
-    '/pmm-ui/graph/user/password/reset',
-  ])('does not save Grafana direct route %s', (pathname) => {
-    saveReturnTo(at(pathname));
+  // Shared with nginx and the compat plugin via @pmm/shared, so the three cannot drift apart.
+  it.each(GRAFANA_DIRECT_PATHS.map((path) => `/pmm-ui${path}`))(
+    'does not save Grafana direct route %s',
+    (pathname) => {
+      saveReturnTo(at(pathname));
 
-    expect(consumeReturnTo()).toBeNull();
-  });
+      expect(consumeReturnTo()).toBeNull();
+    }
+  );
 
   it('does not save while the image renderer is driving', () => {
     Object.defineProperty(window, 'location', {
@@ -129,6 +128,16 @@ describe('auth.returnTo', () => {
     '/graph/login',
     '/graph',
     '/graph?orgId=1',
+    // Only reveal their shape once decoded, so the raw same-origin checks cannot see them.
+    '/%2F%2Fevil.com',
+    '/%5Cevil.com',
+    '/%2e%2e/x',
+    // Malformed escapes have no single meaning, so there is nothing safe to classify.
+    '/graph/d/%zz',
+    '/graph/d/%',
+    // Percent-encoded and slash-padded Grafana routes: nginx exempts these, so must we.
+    '/graph/%6Cogin',
+    '/graph//login',
   ])('rejects %s as a restorable target', (target) => {
     expect(isRestorableReturnTo(target)).toBe(false);
   });
@@ -175,10 +184,66 @@ describe('auth.returnTo', () => {
     expect(consumeReturnTo()).toBeNull();
   });
 
+  describe('when sessionStorage is unavailable', () => {
+    // Blocked-site-data policies throw on the accessor itself, not just on setItem.
+    const breakStorage = () => {
+      Object.defineProperty(window, 'sessionStorage', {
+        get() {
+          throw new DOMException('The operation is insecure.', 'SecurityError');
+        },
+        configurable: true,
+      });
+    };
+
+    afterEach(() => {
+      Object.defineProperty(window, 'sessionStorage', {
+        value: originalSessionStorage,
+        configurable: true,
+        writable: true,
+      });
+    });
+
+    it('does not throw while saving', () => {
+      breakStorage();
+
+      expect(() => saveReturnTo(at('/pmm-ui/graph/d/node-cpu'))).not.toThrow();
+    });
+
+    it('does not throw while consuming, and restores nothing', () => {
+      breakStorage();
+
+      expect(() => consumeReturnTo()).not.toThrow();
+      expect(consumeReturnTo()).toBeNull();
+    });
+  });
+
   it('does not re-save the target it just restored', () => {
     saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
     expect(consumeReturnTo()).toBe('/graph/d/node-cpu');
 
+    saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
+
+    expect(consumeReturnTo()).toBeNull();
+  });
+
+  it('remembers the restored page again once the loop window has passed', () => {
+    // Restore a deep link, work there a while, then have the session expire on that same page.
+    vi.useFakeTimers();
+    saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
+    expect(consumeReturnTo()).toBe('/graph/d/node-cpu');
+
+    vi.advanceTimersByTime(AUTH_RETURN_TO_LOOP_WINDOW_MS + 1);
+    saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
+
+    expect(consumeReturnTo()).toBe('/graph/d/node-cpu');
+  });
+
+  it('still refuses an immediate bounce back off the restored page', () => {
+    vi.useFakeTimers();
+    saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
+    expect(consumeReturnTo()).toBe('/graph/d/node-cpu');
+
+    vi.advanceTimersByTime(AUTH_RETURN_TO_LOOP_WINDOW_MS - 1);
     saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
 
     expect(consumeReturnTo()).toBeNull();
@@ -193,13 +258,15 @@ describe('auth.returnTo', () => {
     expect(consumeReturnTo()).toBe('/graph/d/node-memory');
   });
 
-  it('clears the loop guard once it has refused, so a later visit works again', () => {
+  it('reaches the same verdict however many times it is called', () => {
+    // AuthProvider calls this once per render, so the verdict must not depend on the render count.
     saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
     consumeReturnTo();
-    saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
 
     saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
+    saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
+    saveReturnTo(at('/pmm-ui/graph/d/node-cpu'));
 
-    expect(consumeReturnTo()).toBe('/graph/d/node-cpu');
+    expect(consumeReturnTo()).toBeNull();
   });
 });

@@ -1,7 +1,9 @@
-import { isGrafanaDirectPath, isRenderingServer } from '@pmm/shared';
+import { GRAFANA_DIRECT_PATH_PATTERN, isRenderingServer } from '@pmm/shared';
+import { safeSessionStorage } from 'utils/storage.utils';
 import {
+  AUTH_RETURN_TO_LOOP_WINDOW_MS,
   AUTH_RETURN_TO_TTL_MS,
-  GRAFANA_SUB_PATH,
+  GRAFANA_HOME_PATHS,
   PMM_BASE_PATH,
 } from 'lib/constants';
 
@@ -9,49 +11,65 @@ const RETURN_TO_KEY = 'pmm-ui.auth.returnTo';
 const RETURN_TO_LAST_KEY = 'pmm-ui.auth.returnTo.last';
 
 /**
- * Grafana's own post-login target, stashed by its app init when it sees ?redirectTo= or when its
- * token rotation fails inside our iframe. The shell owns post-login navigation, so we always drop
- * it: a leftover value makes the iframe navigate itself after login and desync the browser URL.
+ * Grafana's own post-login target. The shell owns post-login navigation, so this is always
+ * dropped: a leftover value makes the iframe navigate itself and desync the browser URL.
  */
 const GRAFANA_REDIRECT_TO_KEY = 'redirectTo';
 
-type StoredReturnTo = {
+/** Timestamped: an untimed marker outlives its restore and drops the deep link on the next login. */
+type StoredPath = {
   path: string;
   at: number;
 };
 
-const NOTHING_TO_RESTORE = ['/', GRAFANA_SUB_PATH, `${GRAFANA_SUB_PATH}/`];
+const NOTHING_TO_RESTORE = ['/', ...GRAFANA_HOME_PATHS];
 
-/**
- * Targets are shell-relative (no /pmm-ui), so they can be handed straight to react-router's
- * navigate() under basename /pmm-ui. Both Grafana routes (/graph/d/...) and native PMM UI pages
- * (/settings/advanced, /help) qualify.
- */
+/** Targets are shell-relative (no /pmm-ui), ready to hand to navigate() under that basename. */
 export const isRestorableReturnTo = (target: string) => {
-  // Exactly one leading slash keeps this a same-origin path: rejects //evil.com and absolute URLs.
+  // Raw, before any normalisation: collapsing slashes first would launder //evil.com into
+  // /evil.com.
   if (!target.startsWith('/') || target.startsWith('//')) {
     return false;
   }
 
-  // Validate the path portion only: nginx matches its exclusions on $uri for the same reason, the
-  // home-path check has to agree with useFirstLoginRedirect's pathname check, and a query value may
-  // legitimately contain '..' (Grafana template variables such as ?var-version=1..2).
-  const path = target.split(/[?#]/)[0];
+  // Path only: a Grafana template variable may legitimately put '..' or a backslash in the query
+  // (?var-version=1..2, ?var-node=/^web\d+$/).
+  const rawPath = target.split(/[?#]/)[0];
 
-  if (path.includes('\\') || path.includes('..')) {
+  // Still raw - browsers fold /\evil.com into //evil.com.
+  if (rawPath.includes('\\')) {
     return false;
   }
 
-  if (NOTHING_TO_RESTORE.includes(path)) {
+  let decoded: string;
+
+  try {
+    decoded = decodeURIComponent(rawPath);
+  } catch {
+    // A malformed escape has no single meaning, so there is nothing safe to classify.
     return false;
   }
 
-  // Never store a target that itself bounces back out of the shell.
-  return !isGrafanaDirectPath(path);
+  // /%2F%2Fevil.com and /%5Cevil.com only show their shape once decoded.
+  if (decoded.startsWith('//') || decoded.includes('\\')) {
+    return false;
+  }
+
+  // What nginx sees. Collapsing any earlier would have hidden the '//' checked above.
+  const path = decoded.replace(/\/{2,}/g, '/');
+
+  if (path.includes('..') || NOTHING_TO_RESTORE.includes(path)) {
+    return false;
+  }
+
+  // Never store a target that bounces back out of the shell. The pattern, not
+  // isGrafanaDirectPath(): `path` is already normalised, and decoding twice would judge
+  // /graph/%2561pi more strictly than nginx, which decodes $uri once.
+  return !GRAFANA_DIRECT_PATH_PATTERN.test(path);
 };
 
 const dropGrafanaReturnTo = () => {
-  sessionStorage.removeItem(GRAFANA_REDIRECT_TO_KEY);
+  safeSessionStorage.removeItem(GRAFANA_REDIRECT_TO_KEY);
 };
 
 const toShellRelative = ({
@@ -67,11 +85,36 @@ const toShellRelative = ({
   return relative + search + hash;
 };
 
+const readStoredPath = (key: string): StoredPath | null => {
+  const raw = safeSessionStorage.getItem(key);
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const stored = JSON.parse(raw) as StoredPath;
+
+    if (typeof stored?.path !== 'string' || typeof stored?.at !== 'number') {
+      return null;
+    }
+
+    return stored;
+  } catch {
+    return null;
+  }
+};
+
+const writeStoredPath = (key: string, path: string) => {
+  const stored: StoredPath = { path, at: Date.now() };
+
+  safeSessionStorage.setItem(key, JSON.stringify(stored));
+};
+
 /**
- * Remember where the user was before we bounce them to Grafana's login page. sessionStorage is
- * per-tab and survives the cross-document hop to /graph/login and back, which is exactly the
- * lifetime we need. It also stays clear of the localStorage keys that
- * ensureClientSessionListener() watches, so writing here cannot kick the client-session store.
+ * Remember where the user was before bouncing them to Grafana's login page. sessionStorage is
+ * per-tab and survives the cross-document hop, and stays clear of the localStorage keys
+ * ensureClientSessionListener() watches.
  */
 export const saveReturnTo = (
   location: Pick<Location, 'pathname' | 'search' | 'hash'> = window.location
@@ -89,49 +132,47 @@ export const saveReturnTo = (
     return;
   }
 
-  // Loop guard: a target we just restored and immediately bounced off of is not worth retrying.
-  if (sessionStorage.getItem(RETURN_TO_LAST_KEY) === target) {
-    sessionStorage.removeItem(RETURN_TO_LAST_KEY);
+  // Bounce guard: don't retry a target we just restored and immediately bounced off. Windowed, so
+  // a session that expires hours later on that page is still remembered. The marker is left in
+  // place, not consumed - consuming it made this non-idempotent, and AuthProvider calls it once
+  // per render.
+  const marker = readStoredPath(RETURN_TO_LAST_KEY);
+
+  if (
+    marker?.path === target &&
+    Date.now() - marker.at <= AUTH_RETURN_TO_LOOP_WINDOW_MS
+  ) {
     return;
   }
 
-  const stored: StoredReturnTo = { path: target, at: Date.now() };
-  sessionStorage.setItem(RETURN_TO_KEY, JSON.stringify(stored));
+  writeStoredPath(RETURN_TO_KEY, target);
 };
 
-/** Read and discard the pending target. Destructive, so it can only ever be acted on once. */
+export const clearReturnTo = () => {
+  dropGrafanaReturnTo();
+  safeSessionStorage.removeItem(RETURN_TO_KEY);
+  safeSessionStorage.removeItem(RETURN_TO_LAST_KEY);
+};
+
+/** Read and discard the pending target, so it can only ever be acted on once. */
 export const consumeReturnTo = (): string | null => {
   dropGrafanaReturnTo();
 
-  const raw = sessionStorage.getItem(RETURN_TO_KEY);
-  sessionStorage.removeItem(RETURN_TO_KEY);
+  const stored = readStoredPath(RETURN_TO_KEY);
 
-  if (!raw) {
-    sessionStorage.removeItem(RETURN_TO_LAST_KEY);
+  // Cleared up front so no early return below can leave a stale marker behind.
+  safeSessionStorage.removeItem(RETURN_TO_KEY);
+  safeSessionStorage.removeItem(RETURN_TO_LAST_KEY);
+
+  if (
+    !stored ||
+    !isRestorableReturnTo(stored.path) ||
+    Date.now() - stored.at > AUTH_RETURN_TO_TTL_MS
+  ) {
     return null;
   }
 
-  let stored: StoredReturnTo;
-
-  try {
-    stored = JSON.parse(raw) as StoredReturnTo;
-  } catch {
-    sessionStorage.removeItem(RETURN_TO_LAST_KEY);
-    return null;
-  }
-
-  const isUsable =
-    typeof stored?.path === 'string' &&
-    typeof stored?.at === 'number' &&
-    isRestorableReturnTo(stored.path) &&
-    Date.now() - stored.at <= AUTH_RETURN_TO_TTL_MS;
-
-  if (!isUsable) {
-    sessionStorage.removeItem(RETURN_TO_LAST_KEY);
-    return null;
-  }
-
-  sessionStorage.setItem(RETURN_TO_LAST_KEY, stored.path);
+  writeStoredPath(RETURN_TO_LAST_KEY, stored.path);
 
   return stored.path;
 };

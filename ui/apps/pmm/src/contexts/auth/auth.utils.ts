@@ -37,9 +37,11 @@ export const getSessionExpiryCookie = () =>
 
 export const redirectToLogin = () => {
   // Single choke point for every bounce to login, so the requested URL is always remembered.
-  // Grafana's own ?redirectTo= is deliberately not used: it is replayed client-side on a later
-  // page load, which under the /pmm-ui redirect happens inside the Grafana iframe and would leave
-  // the shell's URL behind.
+  // Grafana's own ?redirectTo= is not used: it replays client-side on a later page load, which
+  // under the /pmm-ui redirect happens inside the iframe and leaves the shell's URL behind.
+  //
+  // Safe to call repeatedly - AuthProvider calls it once per render until the browser navigates,
+  // and saveReturnTo() is idempotent.
   saveReturnTo();
   window.location.replace(PMM_LOGIN_URL);
 };
