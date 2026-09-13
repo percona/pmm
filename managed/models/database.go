@@ -46,6 +46,9 @@ const (
 	// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
 	// - minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
+	// The embedded cluster moves to PostgreSQL 18, but the client stays compatible with older
+	// servers, so the floor stays at 14: raising it would make PMM refuse to start against an
+	// external PostgreSQL 14 that its owner has not been able to migrate yet.
 	minPGVersion float64 = 14
 	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
@@ -1281,7 +1284,7 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 		if params.HANodeID != "" {
 			return nil, fmt.Errorf("cannot auto-provision database in HA mode: %w", errCV)
 		}
-		err := initWithRoot(params)
+		err := initWithRoot(ctx, params)
 		if err != nil {
 			return nil, err
 		}
@@ -1296,6 +1299,8 @@ func SetupDB(ctx context.Context, sqlDB *sql.DB, params SetupDBParams) (*reform.
 	if err != nil {
 		return nil, err
 	}
+
+	removeStaleHANodes(ctx, db, params.HANodeID, params.HAPeers)
 
 	return db, nil
 }
@@ -1385,7 +1390,7 @@ func checkVersion(ctx context.Context, db reform.DBTXContext) error {
 }
 
 // initWithRoot tries to create the user and the database.
-func initWithRoot(params SetupDBParams) error {
+func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	if params.Logf != nil {
 		params.Logf("Creating database %s and role %s", params.Name, params.Username)
 	}
@@ -1404,45 +1409,48 @@ func initWithRoot(params SetupDBParams) error {
 	}
 	defer db.Close() //nolint:errcheck
 
-	var countDatabases int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&countDatabases)
+	var roleCount int
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&roleCount)
 	if err != nil {
 		return fmt.Errorf("failed to select records from the database: %w", err)
 	}
 
-	if countDatabases == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE DATABASE "%s"`, params.Name))
-		if err != nil {
-			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
-		}
-	}
+	// CREATE USER, ALTER USER and CREATE DATABASE accept no bind parameters, so the name and
+	// the password are quoted instead. Interpolating them raw lets either one close its quote
+	// and append further statements, which run as the postgres superuser.
+	quotedUser := pq.QuoteIdentifier(params.Username)
 
-	var countRoles int
-	err = db.QueryRow(`SELECT COUNT(*) FROM pg_roles WHERE rolname=$1`, params.Username).Scan(&countRoles)
-	if err != nil {
-		return fmt.Errorf("failed to select records from the database: %w", err)
-	}
-
-	if countRoles == 0 {
-		_, err = db.Exec(fmt.Sprintf(`CREATE USER "%s" LOGIN PASSWORD '%s'`, params.Username, params.Password))
+	if roleCount == 0 {
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER %s LOGIN PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
-		}
-
-		_, err = db.Exec(`GRANT ALL PRIVILEGES ON DATABASE $1 TO $2`, params.Name, params.Username)
-		if err != nil {
-			return fmt.Errorf("failed to grant privileges to user %s on database %s: %w", params.Username, params.Name, err)
 		}
 	} else {
 		// Role exists but authentication failed (e.g. pg_hba.conf switched from trust to
 		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
 		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
 		// password to the currently configured value is OK.
-		_, err = db.Exec(fmt.Sprintf(`ALTER USER "%s" WITH PASSWORD '%s'`, params.Username, params.Password))
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER %s WITH PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
 	}
+
+	var dbCount int
+	err = db.QueryRowContext(ctx, `SELECT COUNT(*) FROM pg_database WHERE datname = $1`, params.Name).Scan(&dbCount)
+	if err != nil {
+		return fmt.Errorf("failed to select records from the database: %w", err)
+	}
+
+	if dbCount == 0 {
+		// The role owns the database: since PostgreSQL 15 the public schema belongs to
+		// pg_database_owner, so ownership is what lets the role create tables in it.
+		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE DATABASE %s OWNER %s`, pq.QuoteIdentifier(params.Name), quotedUser))
+		if err != nil {
+			return fmt.Errorf("failed to create database %s: %w", params.Name, err)
+		}
+	}
+
 	return nil
 }
 
@@ -1517,6 +1525,58 @@ func migrateDB(db *reform.DB, params SetupDBParams) error {
 	})
 }
 
+// removeStaleHANodes drops the Inventory Nodes of HA replicas that were scaled away. Those rows are
+// cosmetic, so failures are only logged and never returned: tidying them up must not take a replica
+// with it.
+//
+// It runs at startup on every replica, deliberately not on the elected leader. PMM_HA_PEERS is
+// fixed into a process's environment when the pod starts and cannot be re-read, so only at startup
+// is it guaranteed to describe the current cluster - the pod was just created from the current
+// StatefulSet template. Leadership can be acquired much later: a rolling update recreates the
+// leader, forcing an election that a not-yet-updated pod can win, and that pod would then sweep
+// with a peer list older than the cluster. On a scale-up that deletes the new replica's Node and
+// Agents, which was reproduced on a 2 -> 3 scale-up. It also has to work without a leader at all,
+// since a replica scaled down to one cannot reach quorum.
+//
+// Replicas racing each other is harmless: each Node is removed in a transaction of its own, and one
+// that another replica already took is tolerated.
+//
+// The localHANodeID argument is the calling replica's own PMM_HA_NODE_ID; see FindStaleHANodes.
+func removeStaleHANodes(ctx context.Context, db *reform.DB, localHANodeID string, haPeers []string) {
+	if localHANodeID == "" {
+		return
+	}
+
+	l := logrus.WithFields(logrus.Fields{"component": "ha", "ha_node_id": localHANodeID})
+
+	nodes, err := FindStaleHANodes(db.WithContext(ctx), localHANodeID, haPeers)
+	if err != nil {
+		l.WithError(err).Warn("Failed to look for stale HA nodes.")
+		return
+	}
+
+	for _, node := range nodes {
+		nodeL := l.WithFields(logrus.Fields{"node_id": node.NodeID, "node_name": node.NodeName})
+
+		// A transaction per Node: a failure rolls that Node back whole instead of leaving it
+		// half-removed, and leaves the Nodes this sweep hasn't reached yet alone.
+		err := db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+			return RemoveStaleHANode(tx.Querier, node.NodeID)
+		})
+		switch {
+		case err == nil:
+			nodeL.Info("Removed stale HA node, it is not a part of the cluster anymore.")
+		case errors.Is(err, reform.ErrNoRows), status.Code(err) == codes.NotFound:
+			nodeL.WithError(err).Info("Stale HA node was already removed by another replica.")
+		case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
+			nodeL.WithError(err).Info("Startup was cancelled, stopping the removal of stale HA nodes.")
+			return
+		default:
+			nodeL.WithError(err).Warn("Failed to remove a stale HA node, keeping it.")
+		}
+	}
+}
+
 type agentConfig struct {
 	ID string `yaml:"id"`
 }
@@ -1577,7 +1637,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		"environment": "pmm",
 	}
 
-	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
+	node, err := createNodeWithID(q, nodeID, ContainerNodeType, &CreateNodeParams{
 		NodeName:        params.HANodeID,
 		Address:         LocalhostAddr,
 		CustomLabels:    labels,
@@ -1609,7 +1669,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 
 func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
-	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
+	node, err := createNodeWithID(q, PMMServerNodeID, ContainerNodeType, &CreateNodeParams{
 		NodeName:        "pmm-server",
 		Address:         LocalhostAddr,
 		IsPMMServerNode: true,

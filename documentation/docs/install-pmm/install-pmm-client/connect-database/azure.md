@@ -10,7 +10,7 @@ The Microsoft Azure feature is turned off by default. To turn it on:
 
 1. Go to **Configuration > Settings > Advanced Settings**.
 
-2. Click the <i class="uil uil-toggle-off"></i> toggle in the **Technical preview features** section of the page.
+2. Click the :material-toggle-switch-off-outline: toggle in the **Technical preview features** section of the page.
 
 ## Prerequisites
 
