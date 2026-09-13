@@ -18,6 +18,7 @@ package inventory
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"strings"
 
@@ -243,6 +244,17 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 	if !ok {
 		return nil, unexpectedAgentTypeError(agent)
 	}
+
+	// Changing the disabled collectors changes the set of collectors node_exporter accepts in
+	// collect[] parameters, and it rejects the whole scrape with 400 for an unknown one. Force an
+	// immediate synchronous config update so that VictoriaMetrics never scrapes the restarted
+	// exporter with the stale collector list, the same way port changes are handled in
+	// agents.Handler.stateChanged (PMM-14267).
+	err = as.vmdb.ForceConfigurationUpdate(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to force configuration update: %w", err)
+	}
+
 	as.state.RequestStateUpdate(ctx, nodeExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{

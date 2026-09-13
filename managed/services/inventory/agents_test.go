@@ -106,6 +106,8 @@ func TestAgents(t *testing.T) {
 		})
 
 		t.Run("ChangeNodeExporterAndRemoveCustomLabels", func(t *testing.T) {
+			as.vmdb.(*mockPrometheusService).On("ForceConfigurationUpdate", ctx).Return(nil)
+
 			actualNodeExporter, err := as.ChangeNodeExporter(
 				ctx,
 				"00000000-0000-4000-8000-000000000006",
