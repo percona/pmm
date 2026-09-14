@@ -161,7 +161,7 @@ func TestExplainTool(t *testing.T) {
 
 		fake, _ := actionRoutes(t, "action_start_explain.json", "action_running.json")
 		s := newQANService(t, fake, true)
-		s.actionTimeout = 700 * time.Millisecond
+		s.actionTimeout = func() time.Duration { return 700 * time.Millisecond }
 		session := connect(t, s)
 
 		text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": "svc-1", "queryid": "QID-AAA"})

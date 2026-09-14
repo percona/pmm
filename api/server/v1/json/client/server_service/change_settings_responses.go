@@ -222,6 +222,9 @@ type ChangeSettingsBody struct {
 	// Enable Query Analytics for PMM's internal PG database.
 	EnableInternalPgQAN *bool `json:"enable_internal_pg_qan,omitempty"`
 
+	// Enable the Model Context Protocol endpoint (/mcp).
+	EnableMcp *bool `json:"enable_mcp,omitempty"`
+
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsParamsBodyAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`
 
@@ -982,6 +985,9 @@ type ChangeSettingsOKBodySettings struct {
 
 	// True if Query Analytics for PMM's internal PG database is enabled.
 	EnableInternalPgQAN bool `json:"enable_internal_pg_qan,omitempty"`
+
+	// True if the Model Context Protocol endpoint (/mcp) is enabled.
+	EnableMcp bool `json:"enable_mcp,omitempty"`
 
 	// advisor run intervals
 	AdvisorRunIntervals *ChangeSettingsOKBodySettingsAdvisorRunIntervals `json:"advisor_run_intervals,omitempty"`

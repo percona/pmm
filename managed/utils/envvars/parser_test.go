@@ -57,6 +57,30 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
+	t.Run("MCP env variables", func(t *testing.T) {
+		t.Parallel()
+
+		envs := []string{
+			"PMM_ENABLE_MCP=false",
+			"PMM_MCP_RAW_SQL=0",
+			"PMM_MCP_ACTION_TIMEOUT=30s",
+			"PMM_DEV_MCP_LOOPBACK_URL=http://127.0.0.1:8080/",
+		}
+		expectedEnvVars := &models.ChangeSettingsParams{
+			EnableMCP:        new(false),
+			EnableMCPRawSQL:  new(false),
+			MCPActionTimeout: 30 * time.Second,
+		}
+
+		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+
+		_, gotErrs, _ = ParseEnvVars([]string{"PMM_ENABLE_MCP=maybe", "PMM_MCP_ACTION_TIMEOUT=-1s"})
+		assert.Len(t, gotErrs, 2)
+	})
+
 	t.Run("Unknown env variables", func(t *testing.T) {
 		t.Parallel()
 

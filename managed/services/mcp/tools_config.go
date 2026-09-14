@@ -47,12 +47,12 @@ func (s *Service) registerConfigTools(server *mcp.Server) {
 			"metrics, as SHOW GLOBAL VARIABLES-style name<TAB>value lines plus the server version. Limitation: " +
 			"exporters publish numeric variables only; string-valued knobs such as sql_mode are not in metrics.",
 		Annotations: readOnly("Database configuration"),
-	}, s.config)
+	}, handle(s, "pmm_get_config", s.config))
 }
 
-func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in configInput) (*mcp.CallToolResult, any, error) {
+func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in configInput) (*mcp.CallToolResult, error) {
 	if in.ServiceName == "" {
-		return nil, nil, newToolError(codeInvalidInput, "service_name is required")
+		return nil, newToolError(codeInvalidInput, "service_name is required")
 	}
 	engine := in.Engine
 	if engine == "" {
@@ -60,18 +60,18 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	}
 	prefix, ok := configMetrics[engine]
 	if !ok {
-		return nil, nil, newToolError(codeInvalidInput, "engine must be mysql or postgresql; got '%s'", in.Engine)
+		return nil, newToolError(codeInvalidInput, "engine must be mysql or postgresql; got '%s'", in.Engine)
 	}
 	at, err := parseTime(in.At, s.now())
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
 	samples, err := s.queryMetrics(ctx, auth,
 		`{__name__=~"`+prefix+`.+", service_name="`+escapeLabel(in.ServiceName)+`"}`, at)
 	if err != nil {
-		return nil, nil, s.fail("pmm_get_config", err)
+		return nil, err
 	}
 
 	variables := map[string]string{}
@@ -93,7 +93,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	}
 	sort.Strings(names)
 	if len(names) == 0 {
-		return textResult("No configuration variables found for that service (check service_name and that metrics are being collected)."), nil, nil
+		return textResult("No configuration variables found for that service (check service_name and that metrics are being collected)."), nil
 	}
 
 	version := s.serviceVersion(ctx, auth, engine, in.ServiceName)
@@ -108,7 +108,7 @@ func (s *Service) config(ctx context.Context, req *mcp.CallToolRequest, in confi
 	}
 	text := strings.Join(lines, "\n")
 	text += "\n\n" + link("View this service in PMM", qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), in.ServiceName, at.Add(-hourWindow), at))
-	return textResult(text), nil, nil
+	return textResult(text), nil
 }
 
 // formatMetricValue renders integers without an exponent and keeps other

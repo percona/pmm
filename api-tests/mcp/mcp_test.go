@@ -32,6 +32,8 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	"github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -146,6 +148,14 @@ func TestListTools(t *testing.T) {
 	}
 }
 
+func TestReadOnlySettingsReportMCP(t *testing.T) {
+	t.Parallel()
+
+	res, err := serverClient.Default.ServerService.GetReadOnlySettings(&server_service.GetReadOnlySettingsParams{Context: pmmapitests.Context})
+	require.NoError(t, err)
+	assert.True(t, res.Payload.Settings.EnableMcp, "the branch defaults PMM_ENABLE_MCP to true")
+}
+
 func TestVersion(t *testing.T) {
 	t.Parallel()
 
@@ -181,7 +191,8 @@ func topQueryID(t *testing.T, session *mcp.ClientSession, engine string) (string
 
 	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"service_name": serviceName, "period_from": "now-12h", "limit": 3})
 	require.False(t, isError, text)
-	m := regexp.MustCompile(`\[([0-9A-Fa-f]+)\]`).FindStringSubmatch(text)
+	// MySQL queryids are hex digests, PostgreSQL ones signed decimals.
+	m := regexp.MustCompile(`\[(-?[0-9A-Za-z]+)\]`).FindStringSubmatch(text)
 	if m == nil {
 		t.Skipf("no QAN data for %s yet", serviceName)
 	}

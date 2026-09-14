@@ -16,6 +16,7 @@
 package mcp
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -212,22 +213,24 @@ func (c *client) ListNodes(ctx context.Context, auth callerAuth) (*nodes_service
 	return res.Payload, nil
 }
 
-func (c *client) GetReport(ctx context.Context, auth callerAuth, body qan_service.GetReportBody) (*qan_service.GetReportOKBody, error) {
-	params := qan_service.NewGetReportParamsWithContext(ctx).WithTimeout(callTimeout).WithBody(body)
-	res, err := c.qan.QANService.GetReport(params, auth.option())
+// GetReport and GetMetrics bypass the generated client: qan-api2 encodes NaN
+// sparkline values as strings, which the swagger types reject (see lenientFloat).
+func (c *client) GetReport(ctx context.Context, auth callerAuth, body qan_service.GetReportBody) (*qanReport, error) {
+	var out qanReport
+	err := c.postJSON(ctx, auth, "v1/qan/metrics:getReport", body, &out)
 	if err != nil {
 		return nil, err
 	}
-	return res.Payload, nil
+	return &out, nil
 }
 
-func (c *client) GetMetrics(ctx context.Context, auth callerAuth, body qan_service.GetMetricsBody) (*qan_service.GetMetricsOKBody, error) {
-	params := qan_service.NewGetMetricsParamsWithContext(ctx).WithTimeout(callTimeout).WithBody(body)
-	res, err := c.qan.QANService.GetMetrics(params, auth.option())
+func (c *client) GetMetrics(ctx context.Context, auth callerAuth, body qan_service.GetMetricsBody) (*queryMetrics, error) {
+	var out queryMetrics
+	err := c.postJSON(ctx, auth, "v1/qan:getMetrics", body, &out)
 	if err != nil {
 		return nil, err
 	}
-	return res.Payload, nil
+	return &out, nil
 }
 
 func (c *client) GetQueryExample(ctx context.Context, auth callerAuth, body qan_service.GetQueryExampleBody) (*qan_service.GetQueryExampleOKBody, error) {
@@ -328,6 +331,19 @@ func (c *client) QueryInstant(ctx context.Context, auth callerAuth, datasourceUI
 // getJSON performs an authenticated GET on a path relative to the base URL and
 // decodes the JSON response.
 func (c *client) getJSON(ctx context.Context, auth callerAuth, path string, query url.Values, out any) error {
+	return c.doJSON(ctx, auth, http.MethodGet, path, query, nil, out)
+}
+
+// postJSON performs an authenticated POST with a JSON body and decodes the response.
+func (c *client) postJSON(ctx context.Context, auth callerAuth, path string, body, out any) error {
+	b, err := json.Marshal(body)
+	if err != nil {
+		return fmt.Errorf("encoding request for POST %s: %w", path, err)
+	}
+	return c.doJSON(ctx, auth, http.MethodPost, path, nil, b, out)
+}
+
+func (c *client) doJSON(ctx context.Context, auth callerAuth, method, path string, query url.Values, body []byte, out any) error {
 	ctx, cancel := context.WithTimeout(ctx, callTimeout)
 	defer cancel()
 
@@ -336,11 +352,18 @@ func (c *client) getJSON(ctx context.Context, auth callerAuth, path string, quer
 		u.RawQuery = query.Encode()
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	var reader io.Reader
+	if body != nil {
+		reader = bytes.NewReader(body)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), reader)
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Accept", "application/json")
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
 	auth.apply(req)
 
 	resp, err := c.http.Do(req)
@@ -351,7 +374,7 @@ func (c *client) getJSON(ctx context.Context, auth callerAuth, path string, quer
 
 	err = json.NewDecoder(resp.Body).Decode(out)
 	if err != nil {
-		return fmt.Errorf("decoding response of GET %s: %w", path, err)
+		return fmt.Errorf("decoding response of %s %s: %w", method, path, err)
 	}
 	return nil
 }

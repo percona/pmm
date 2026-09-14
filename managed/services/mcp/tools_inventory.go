@@ -68,7 +68,7 @@ func (s *Service) registerInventoryTools(server *mcp.Server) {
 		Description: "Return the PMM Server version. Use it first to confirm the connection and " +
 			"that the caller's token is accepted.",
 		Annotations: readOnly("PMM Server version"),
-	}, s.version)
+	}, handle(s, "pmm_version", s.version))
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:  "pmm_inventory",
@@ -76,33 +76,33 @@ func (s *Service) registerInventoryTools(server *mcp.Server) {
 		Description: "List database services monitored by PMM, with engine and version. Use this to " +
 			"discover a service_id / service_name and the exact engine version before analysing a query.",
 		Annotations: readOnly("List monitored services"),
-	}, s.inventory)
+	}, handle(s, "pmm_inventory", s.inventory))
 }
 
-func (s *Service) version(ctx context.Context, req *mcp.CallToolRequest, _ versionInput) (*mcp.CallToolResult, any, error) {
+func (s *Service) version(ctx context.Context, req *mcp.CallToolRequest, _ versionInput) (*mcp.CallToolResult, error) {
 	auth := callerAuthFromHeader(req.Extra.Header)
 
 	v, err := s.api.Version(ctx, auth)
 	if err != nil {
-		return nil, nil, s.fail("pmm_version", err)
+		return nil, err
 	}
 
 	text := "PMM Server " + v.Version
 	if v.Managed != nil && v.Managed.FullVersion != "" {
 		text += fmt.Sprintf(" (pmm-managed %s)", v.Managed.FullVersion)
 	}
-	return textResult(text), nil, nil
+	return textResult(text), nil
 }
 
-func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in inventoryInput) (*mcp.CallToolResult, any, error) {
+func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in inventoryInput) (*mcp.CallToolResult, error) {
 	if in.Engine != "" && !slices.Contains([]string{engineMySQL, enginePostgreSQL, engineMongoDB}, in.Engine) {
-		return nil, nil, newToolError(codeInvalidInput, "engine must be one of mysql, postgresql, mongodb; got '%s'", in.Engine)
+		return nil, newToolError(codeInvalidInput, "engine must be one of mysql, postgresql, mongodb; got '%s'", in.Engine)
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
 	services, err := s.listServices(ctx, auth)
 	if err != nil {
-		return nil, nil, s.fail("pmm_inventory", err)
+		return nil, err
 	}
 
 	s.enrichVersions(ctx, auth, services)
@@ -118,7 +118,7 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 		out = append(out, svc)
 	}
 	if len(out) == 0 {
-		return textResult("No monitored services found."), nil, nil
+		return textResult("No monitored services found."), nil
 	}
 
 	lines := make([]string, 0, len(out)+1)
@@ -136,7 +136,7 @@ func (s *Service) inventory(ctx context.Context, req *mcp.CallToolRequest, in in
 		}
 		lines = append(lines, row)
 	}
-	return textResult(strings.Join(lines, "\n")), nil, nil
+	return textResult(strings.Join(lines, "\n")), nil
 }
 
 // listServices fetches the inventory and resolves node names. Node lookup

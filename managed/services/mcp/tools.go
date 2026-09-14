@@ -16,8 +16,41 @@
 package mcp
 
 import (
+	"context"
+	"time"
+
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
+
+// toolTimeoutSlack is added to the action timeout to bound a whole tool call:
+// the backing API calls have their own per-request deadline as well.
+const toolTimeoutSlack = 45 * time.Second
+
+// toolHandler is a tool implementation before it is wrapped by handle.
+type toolHandler[In any] func(ctx context.Context, req *mcp.CallToolRequest, in In) (*mcp.CallToolResult, error)
+
+// handle adapts a toolHandler to the SDK: it bounds the call, logs it with
+// component=mcp and the tool name, and maps failures to the contract's typed
+// errors. Log lines never carry tokens or SQL; the message goes out at Debug.
+func handle[In any](s *Service, name string, fn toolHandler[In]) mcp.ToolHandlerFor[In, any] {
+	return func(ctx context.Context, req *mcp.CallToolRequest, in In) (*mcp.CallToolResult, any, error) {
+		l := s.l.WithField("tool", name)
+		start := time.Now()
+
+		ctx, cancel := context.WithTimeout(ctx, s.actionTimeout()+toolTimeoutSlack)
+		defer cancel()
+
+		res, err := fn(ctx, req, in)
+		if err != nil {
+			te := mapError(err)
+			l.WithField("code", string(te.code)).WithField("duration", time.Since(start)).Warn("Tool call failed.")
+			l.Debugf("Tool call failed: %s.", te.message)
+			return nil, nil, te
+		}
+		l.WithField("duration", time.Since(start)).Debug("Tool call succeeded.")
+		return res, nil, nil
+	}
+}
 
 // readOnly returns the annotations every PMM tool carries: read-only,
 // non-destructive, idempotent, and closed-world (PMM only).
@@ -37,12 +70,4 @@ func textResult(text string) *mcp.CallToolResult {
 	return &mcp.CallToolResult{
 		Content: []mcp.Content{&mcp.TextContent{Text: text}},
 	}
-}
-
-// fail maps an error to the contract's typed error and logs it. Messages may
-// carry PMM's own error text but never tokens or SQL.
-func (s *Service) fail(tool string, err error) *toolError {
-	te := mapError(err)
-	s.l.WithField("tool", tool).WithField("code", string(te.code)).Warnf("Tool call failed: %s.", te.message)
-	return te
 }

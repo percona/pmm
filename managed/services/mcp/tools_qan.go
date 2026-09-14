@@ -66,7 +66,7 @@ func (s *Service) registerQANTools(server *mcp.Server) {
 			"Returns query fingerprints with load and timing metrics. Pass a returned queryid to " +
 			"pmm_query_detail or pmm_get_explain.",
 		Annotations: readOnly("Top queries by load"),
-	}, s.topQueries)
+	}, handle(s, "pmm_top_queries", s.topQueries))
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:  "pmm_query_detail",
@@ -74,28 +74,28 @@ func (s *Service) registerQANTools(server *mcp.Server) {
 		Description: "Fetch the fingerprint, schema, engine and key diagnostic metrics (rows examined/sent, " +
 			"no_index_used, full_scan, filesort) plus an example statement for a single query, by queryid.",
 		Annotations: readOnly("Query detail"),
-	}, s.queryDetail)
+	}, handle(s, "pmm_query_detail", s.queryDetail))
 }
 
-func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in topQueriesInput) (*mcp.CallToolResult, any, error) {
+func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in topQueriesInput) (*mcp.CallToolResult, error) {
 	orderBy := in.OrderBy
 	if orderBy == "" {
 		orderBy = "load"
 	}
 	metric, ok := orderMetrics[orderBy]
 	if !ok {
-		return nil, nil, newToolError(codeInvalidInput, "order_by must be one of load, total_query_time, avg_query_time, count; got '%s'", orderBy)
+		return nil, newToolError(codeInvalidInput, "order_by must be one of load, total_query_time, avg_query_time, count; got '%s'", orderBy)
 	}
 	limit := in.Limit
 	if limit == 0 {
 		limit = defaultLimit
 	}
 	if limit < 1 || limit > maxLimit {
-		return nil, nil, newToolError(codeInvalidInput, "limit must be between 1 and %d; got %d", maxLimit, limit)
+		return nil, newToolError(codeInvalidInput, "limit must be between 1 and %d; got %d", maxLimit, limit)
 	}
 	from, to, err := parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
@@ -119,7 +119,7 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 
 	report, err := s.api.GetReport(ctx, auth, body)
 	if err != nil {
-		return nil, nil, s.fail("pmm_top_queries", err)
+		return nil, err
 	}
 
 	// Confirmed against PMM 3.8.1: queryid is Row.dimension; rows[0] is the
@@ -130,25 +130,25 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 	var lines []string
 	rank := 0
 	for _, row := range report.Rows {
-		if row == nil || row.Dimension == "" {
+		if row.Dimension == "" {
 			continue
 		}
 		rank++
-		numQueries := float64(row.NumQueries)
-		load := float64(row.Load)
+		numQueries := finite(row.NumQueries)
+		load := finite(row.Load)
 		var total, avg float64
 		if qt, ok := row.Metrics["query_time"]; ok && qt.Stats != nil {
-			total = float64(qt.Stats.Sum)
-			avg = float64(qt.Stats.Avg)
+			total = finite(qt.Stats.Sum)
+			avg = finite(qt.Stats.Avg)
 			if avg == 0 && numQueries > 0 {
 				avg = total / numQueries
 			}
 		}
 		if nq, ok := row.Metrics["num_queries"]; ok && nq.Stats != nil && numQueries == 0 {
-			numQueries = float64(nq.Stats.Sum)
+			numQueries = finite(nq.Stats.Sum)
 		}
 		if ld, ok := row.Metrics["load"]; ok && ld.Stats != nil && load == 0 {
-			load = float64(ld.Stats.SumPerSec)
+			load = finite(ld.Stats.SumPerSec)
 		}
 		fingerprint := row.Fingerprint
 		if fingerprint == "" {
@@ -158,30 +158,30 @@ func (s *Service) topQueries(ctx context.Context, req *mcp.CallToolRequest, in t
 			rank, row.Dimension, fmtNum3(load), fmtNum(numQueries), fmtSeconds(total), fmtSeconds(avg), fingerprint))
 	}
 	if len(lines) == 0 {
-		return textResult("No queries found for that service / time window."), nil, nil
+		return textResult("No queries found for that service / time window."), nil
 	}
 
 	text := fmt.Sprintf("Top %d queries (order_by=%s):\n\n%s", len(lines), orderBy, strings.Join(lines, "\n"))
 	text += "\n\n" + link("Open this workload in PMM QAN", qanOverviewURL(s.publicBaseURL(ctx, req.Extra.Header), in.ServiceName, from, to))
-	return textResult(text), nil, nil
+	return textResult(text), nil
 }
 
-func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in queryDetailInput) (*mcp.CallToolResult, any, error) {
+func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in queryDetailInput) (*mcp.CallToolResult, error) {
 	if in.QueryID == "" {
-		return nil, nil, newToolError(codeInvalidInput, "queryid is required")
+		return nil, newToolError(codeInvalidInput, "queryid is required")
 	}
 	from, to, err := parseWindow(in.PeriodFrom, in.PeriodTo, s.now())
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
 	d, err := s.fetchQueryDetail(ctx, auth, in, from, to)
 	if err != nil {
-		return nil, nil, s.fail("pmm_query_detail", err)
+		return nil, err
 	}
 	if d.metrics == nil && d.example == nil || d.fingerprint == "" && d.example == nil && len(d.metrics.Metrics) == 0 {
-		return nil, nil, newToolError(codeNotFound,
+		return nil, newToolError(codeNotFound,
 			"no data for queryid '%s' in the selected window; widen period_from or check the id with pmm_top_queries", in.QueryID)
 	}
 	if d.engine != "" {
@@ -189,7 +189,7 @@ func (s *Service) queryDetail(ctx context.Context, req *mcp.CallToolRequest, in 
 	}
 
 	base := s.publicBaseURL(ctx, req.Extra.Header)
-	return textResult(d.render(s.rawSQL, base, from, to)), nil, nil
+	return textResult(d.render(s.rawSQL(), base, from, to)), nil
 }
 
 // queryDetail is the merged view of qan:getMetrics and qan/query:getExample
@@ -202,7 +202,7 @@ type queryDetail struct {
 	schema      string
 	fingerprint string
 	tables      []string
-	metrics     *qan_service.GetMetricsOKBody
+	metrics     *queryMetrics
 	example     *qan_service.GetQueryExampleOKBodyQueryExamplesItems0
 }
 
@@ -315,9 +315,9 @@ func (d *queryDetail) render(rawSQL bool, base string, from, to time.Time) strin
 }
 
 // keyMetrics summarizes the diagnostic metrics the triage cares about.
-func keyMetrics(m map[string]qan_service.GetMetricsOKBodyMetricsAnon) string {
+func keyMetrics(m map[string]metricStats) string {
 	var out []string
-	add := func(name, label string, pick func(qan_service.GetMetricsOKBodyMetricsAnon) float64, skipZero bool) {
+	add := func(name, label string, pick func(metricStats) float64, skipZero bool) {
 		v, ok := m[name]
 		if !ok {
 			return
@@ -328,8 +328,8 @@ func keyMetrics(m map[string]qan_service.GetMetricsOKBodyMetricsAnon) string {
 		}
 		out = append(out, label+"="+fmtNum3(f))
 	}
-	sum := func(v qan_service.GetMetricsOKBodyMetricsAnon) float64 { return float64(v.Sum) }
-	avg := func(v qan_service.GetMetricsOKBodyMetricsAnon) float64 { return float64(v.Avg) }
+	sum := func(v metricStats) float64 { return finite(v.Sum) }
+	avg := func(v metricStats) float64 { return finite(v.Avg) }
 	add("num_queries", "calls", sum, false)
 	add("query_time", "query_time_sum", sum, false)
 	add("query_time", "query_time_avg", avg, false)

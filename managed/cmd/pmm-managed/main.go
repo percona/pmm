@@ -1156,19 +1156,20 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	authServer := grafana.NewAuthServer(grafanaClient, db)
 
+	mcpSettings := func() *models.Settings {
+		settings, err := models.GetSettings(db)
+		if err != nil {
+			logrus.WithField("component", "mcp").Warnf("Failed to get settings: %s.", err)
+			return &models.Settings{}
+		}
+		return settings
+	}
 	mcpService, err := mcp.New(mcp.Params{
-		Enabled:       envvars.GetMCPEnabled,
+		Enabled:       func() bool { return mcpSettings().IsMCPEnabled() },
 		LoopbackURL:   envvars.GetEnv(pkgenv.MCPLoopbackURL, mcp.DefaultLoopbackURL),
-		RawSQL:        envvars.GetMCPRawSQL(),
-		ActionTimeout: envvars.GetMCPActionTimeout(mcp.DefaultActionTimeout),
-		PublicAddress: func(ctx context.Context) string {
-			settings, err := models.GetSettings(db)
-			if err != nil {
-				logrus.WithField("component", "mcp").Warnf("Failed to get settings: %s.", err)
-				return ""
-			}
-			return settings.PMMPublicAddress
-		},
+		RawSQL:        func() bool { return mcpSettings().IsMCPRawSQLEnabled() },
+		ActionTimeout: func() time.Duration { return mcpSettings().MCPActionTimeout() },
+		PublicAddress: func(context.Context) string { return mcpSettings().PMMPublicAddress },
 	})
 	if err != nil {
 		l.Fatalf("Failed to create MCP service: %+v.", err)

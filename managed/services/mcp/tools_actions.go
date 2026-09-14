@@ -68,7 +68,7 @@ func (s *Service) registerActionTools(server *mcp.Server) {
 			"produced live by the PMM agent with a non-executing EXPLAIN (never EXPLAIN ANALYZE). If a MySQL " +
 			"fingerprint has ? placeholders and no query example is stored, pass placeholders and database.",
 		Annotations: readOnly("Execution plan"),
-	}, s.explain)
+	}, handle(s, "pmm_get_explain", s.explain))
 
 	mcp.AddTool(server, &mcp.Tool{
 		Name:  "pmm_get_schema",
@@ -76,22 +76,22 @@ func (s *Service) registerActionTools(server *mcp.Server) {
 		Description: "Return SHOW CREATE TABLE (MySQL or PostgreSQL) for a table via the PMM agent, " +
 			"optionally with its indexes.",
 		Annotations: readOnly("Table DDL"),
-	}, s.schema)
+	}, handle(s, "pmm_get_schema", s.schema))
 }
 
-func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in explainInput) (*mcp.CallToolResult, any, error) {
+func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in explainInput) (*mcp.CallToolResult, error) {
 	if in.ServiceID == "" {
-		return nil, nil, newToolError(codeInvalidInput, "service_id is required")
+		return nil, newToolError(codeInvalidInput, "service_id is required")
 	}
 	if in.QueryID == "" && in.Query == "" {
-		return nil, nil, newToolError(codeInvalidInput, "queryid or query is required")
+		return nil, newToolError(codeInvalidInput, "queryid or query is required")
 	}
 	format := in.Format
 	if format == "" {
 		format = formatJSON
 	}
 	if format != formatJSON && format != formatTraditional {
-		return nil, nil, newToolError(codeInvalidInput, "format must be json or traditional; got '%s'", in.Format)
+		return nil, newToolError(codeInvalidInput, "format must be json or traditional; got '%s'", in.Format)
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 	base := s.publicBaseURL(ctx, req.Extra.Header)
@@ -106,20 +106,20 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		} else if plan != nil && plan.QueryPlan != "" {
 			text := "Stored plan (pg_stat_monitor, planid " + plan.Planid + "):\n```\n" + plan.QueryPlan + "\n```"
 			text += "\n\n" + link("View this query in PMM", qanQueryURL(base, in.QueryID, "", now.Add(-time.Hour), now, "explain"))
-			return textResult(text), nil, nil
+			return textResult(text), nil
 		}
 	}
 
 	svc, err := s.engineOf(ctx, auth, in.ServiceID)
 	if err != nil {
-		return nil, nil, s.fail("pmm_get_explain", err)
+		return nil, err
 	}
 
 	var body actions_service.StartServiceActionBody
 	switch svc.Engine {
 	case engineMySQL:
 		if in.QueryID == "" {
-			return nil, nil, newToolError(codeInvalidInput, "MySQL EXPLAIN is addressed by queryid; pass the queryid from pmm_top_queries")
+			return nil, newToolError(codeInvalidInput, "MySQL EXPLAIN is addressed by queryid; pass the queryid from pmm_top_queries")
 		}
 		// PMM resolves the placeholder values from the stored query example, so
 		// service_id + queryid (+ database) is enough; explicit placeholders
@@ -139,28 +139,28 @@ func (s *Service) explain(ctx context.Context, req *mcp.CallToolRequest, in expl
 		if query == "" {
 			query, err = s.storedExample(ctx, auth, in.QueryID, in.ServiceID, now)
 			if err != nil {
-				return nil, nil, s.fail("pmm_get_explain", err)
+				return nil, err
 			}
 		}
 		body.MongodbExplain = &actions_service.StartServiceActionParamsBodyMongodbExplain{ServiceID: in.ServiceID, Query: query}
 	case enginePostgreSQL:
-		return nil, nil, newToolError(codeNotFound,
+		return nil, newToolError(codeNotFound,
 			"no stored plan for queryid '%s' and PMM has no live EXPLAIN action for PostgreSQL. Monitor the service with "+
 				"pg_stat_monitor and pg_stat_monitor.pgsm_enable_query_plan=on so plans are captured, then retry", in.QueryID)
 	default:
-		return nil, nil, newToolError(codeInvalidInput, "EXPLAIN is not available for engine '%s'", svc.Engine)
+		return nil, newToolError(codeInvalidInput, "EXPLAIN is not available for engine '%s'", svc.Engine)
 	}
 
 	output, err := s.runAction(ctx, auth, body)
 	if err != nil {
-		return nil, nil, s.fail("pmm_get_explain", err)
+		return nil, err
 	}
 
-	text := fmt.Sprintf("EXPLAIN (%s, %s %s):\n```\n%s\n```", format, svc.Engine, svc.ServiceName, decodeExplainOutput(output, s.rawSQL))
+	text := fmt.Sprintf("EXPLAIN (%s, %s %s):\n```\n%s\n```", format, svc.Engine, svc.ServiceName, decodeExplainOutput(output, s.rawSQL()))
 	if in.QueryID != "" {
 		text += "\n\n" + link("View this query in PMM", qanQueryURL(base, in.QueryID, svc.ServiceName, now.Add(-time.Hour), now, "explain"))
 	}
-	return textResult(text), nil, nil
+	return textResult(text), nil
 }
 
 // storedExample returns the stored example statement for a queryid, which is
@@ -190,19 +190,19 @@ func (s *Service) storedExample(ctx context.Context, auth callerAuth, queryID, s
 	return res.QueryExamples[0].Example, nil
 }
 
-func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schemaInput) (*mcp.CallToolResult, any, error) {
+func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schemaInput) (*mcp.CallToolResult, error) {
 	table := in.Table
 	if table == "" {
 		table = in.TableName
 	}
 	if in.ServiceID == "" || in.Database == "" || table == "" {
-		return nil, nil, newToolError(codeInvalidInput, "service_id, database and table are required")
+		return nil, newToolError(codeInvalidInput, "service_id, database and table are required")
 	}
 	auth := callerAuthFromHeader(req.Extra.Header)
 
 	svc, err := s.engineOf(ctx, auth, in.ServiceID)
 	if err != nil {
-		return nil, nil, s.fail("pmm_get_schema", err)
+		return nil, err
 	}
 
 	var ddlBody, indexBody actions_service.StartServiceActionBody
@@ -222,26 +222,26 @@ func (s *Service) schema(ctx context.Context, req *mcp.CallToolRequest, in schem
 			ServiceID: in.ServiceID, Database: in.Database, TableName: table,
 		}
 	default:
-		return nil, nil, newToolError(codeInvalidInput, "SHOW CREATE TABLE is not available for engine '%s'", svc.Engine)
+		return nil, newToolError(codeInvalidInput, "SHOW CREATE TABLE is not available for engine '%s'", svc.Engine)
 	}
 
 	ddl, err := s.runAction(ctx, auth, ddlBody)
 	if err != nil {
-		return nil, nil, s.fail("pmm_get_schema", err)
+		return nil, err
 	}
 	if strings.TrimSpace(ddl) == "" {
-		return textResult("No DDL returned for that table."), nil, nil
+		return textResult("No DDL returned for that table."), nil
 	}
 	text := "```sql\n" + strings.TrimRight(ddl, "\n") + "\n```"
 
 	if in.IncludeIndexes {
 		indexes, err := s.runAction(ctx, auth, indexBody)
 		if err != nil {
-			return nil, nil, s.fail("pmm_get_schema", err)
+			return nil, err
 		}
 		text += "\n\nindexes:\n```\n" + strings.TrimRight(indexes, "\n") + "\n```"
 	}
-	return textResult(text), nil, nil
+	return textResult(text), nil
 }
 
 // runAction starts a service action and polls it with 300 ms -> 2 s backoff
@@ -256,7 +256,8 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 		return "", newToolError(codePMMUnavailable, "no action_id returned by startServiceAction")
 	}
 
-	deadline := time.Now().Add(s.actionTimeout)
+	timeout := s.actionTimeout()
+	deadline := time.Now().Add(timeout)
 	delay := pollInitialDelay
 	for {
 		res, err := s.api.GetAction(ctx, auth, actionID)
@@ -270,7 +271,7 @@ func (s *Service) runAction(ctx context.Context, auth callerAuth, body actions_s
 			return res.Output, nil
 		}
 		if time.Now().After(deadline) {
-			return "", newToolError(codeTimeout, "action %s did not complete within %s (PMM_MCP_ACTION_TIMEOUT)", actionID, s.actionTimeout)
+			return "", newToolError(codeTimeout, "action %s did not complete within %s (PMM_MCP_ACTION_TIMEOUT)", actionID, timeout)
 		}
 		select {
 		case <-ctx.Done():

@@ -65,6 +65,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PMM_DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - PMM_ENABLE_AZURE_DISCOVER enables Azure Discover;
 //   - PMM_ENABLE_ACCESS_CONTROL enables Access control;
+//   - PMM_ENABLE_MCP enables the MCP endpoint; PMM_MCP_RAW_SQL and PMM_MCP_ACTION_TIMEOUT tune it;
 //   - the environment variables prefixed with GF_ are related to Grafana.
 //   - the environment variables related to proxies
 //   - the environment variable set by podman
@@ -248,23 +249,35 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// Development only; read at startup by pmm-managed, not persisted.
 			continue
 
-		case pkgenv.EnableMCP, pkgenv.MCPRawSQL:
-			_, err := strconv.ParseBool(v)
+		case pkgenv.EnableMCP:
+			b, err := strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 				errs = append(errs, err)
+				continue
 			}
-			// Read at startup by GetMCPEnabled / GetMCPRawSQL; not persisted in settings.
-			continue
+
+			envSettings.EnableMCP = &b
+
+		case pkgenv.MCPRawSQL:
+			b, err := strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+
+			envSettings.EnableMCPRawSQL = &b
 
 		case pkgenv.MCPActionTimeout:
-			_, err := time.ParseDuration(v)
-			if err != nil {
+			d, err := time.ParseDuration(v)
+			if err != nil || d <= 0 {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 				errs = append(errs, err)
+				continue
 			}
-			// Read at startup by GetMCPActionTimeout; not persisted in settings.
-			continue
+
+			envSettings.MCPActionTimeout = d
 
 		case pkgenv.PlatformAddress:
 			// This variable is not part of the settings and is parsed separately.
@@ -425,44 +438,6 @@ func GetPlatformInsecure() bool {
 // GetInterfaceToBind retrieves the network interface to bind based on environment variables.
 func GetInterfaceToBind() string {
 	return GetEnv(pkgenv.InterfaceToBind, "127.0.0.1")
-}
-
-// GetMCPEnabled reports whether the MCP endpoint is enabled. It defaults to true;
-// only an explicit false-like value disables it.
-func GetMCPEnabled() bool {
-	return boolEnvDefaultTrue(pkgenv.EnableMCP)
-}
-
-// GetMCPRawSQL reports whether MCP tool output may include statements with
-// literal values. It defaults to true.
-func GetMCPRawSQL() bool {
-	return boolEnvDefaultTrue(pkgenv.MCPRawSQL)
-}
-
-// GetMCPActionTimeout returns the polling deadline for agent actions run by the
-// MCP tools; fallback is returned when the variable is unset or invalid.
-func GetMCPActionTimeout(fallback time.Duration) time.Duration {
-	v, ok := os.LookupEnv(pkgenv.MCPActionTimeout)
-	if !ok || v == "" {
-		return fallback
-	}
-	d, err := time.ParseDuration(v)
-	if err != nil || d <= 0 {
-		return fallback
-	}
-	return d
-}
-
-func boolEnvDefaultTrue(key string) bool {
-	v, ok := os.LookupEnv(key)
-	if !ok || v == "" {
-		return true
-	}
-	b, err := strconv.ParseBool(v)
-	if err != nil {
-		return true
-	}
-	return b
 }
 
 // GetEnv returns env with fallback option.

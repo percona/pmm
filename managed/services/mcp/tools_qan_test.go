@@ -48,7 +48,7 @@ func newQANService(t *testing.T, fake *fakePMM, rawSQL bool) *Service {
 	t.Helper()
 
 	s := newTestService(t, fake)
-	s.rawSQL = rawSQL
+	s.rawSQL = func() bool { return rawSQL }
 	s.now = func() time.Time { return testNow }
 	s.publicAddress = func(_ context.Context) string { return "pmm.example.com" }
 	return s

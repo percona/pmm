@@ -53,14 +53,17 @@ All tools are read-only. EXPLAIN is never EXPLAIN ANALYZE. Errors come back as
 // hourWindow is the default look-back for deep links that have no window of their own.
 const hourWindow = time.Hour
 
+// maxRequestBodyBytes bounds one MCP request body; tool arguments are tiny.
+const maxRequestBodyBytes = 1 << 20
+
 // Service serves PMM's MCP endpoint.
 type Service struct {
 	l             *logrus.Entry
 	enabled       func() bool
 	api           pmmAPI
 	handler       http.Handler
-	rawSQL        bool
-	actionTimeout time.Duration
+	rawSQL        func() bool
+	actionTimeout func() time.Duration
 	publicAddress func(context.Context) string
 	now           func() time.Time
 
@@ -79,13 +82,13 @@ type Params struct {
 	LoopbackURL string
 	// API overrides the PMM API client; tests use it to inject fakes.
 	API pmmAPI
-	// RawSQL allows tool output to include statements with literal values
-	// (query examples, the explained statement on EXPLAIN output). When false,
-	// only normalized text is emitted. Defaults to false here; the caller
-	// passes the PMM_MCP_RAW_SQL setting (default true).
-	RawSQL bool
-	// ActionTimeout bounds EXPLAIN / SHOW CREATE TABLE polling. Defaults to DefaultActionTimeout.
-	ActionTimeout time.Duration
+	// RawSQL reports whether tool output may include statements with literal
+	// values (query examples, the explained statement on EXPLAIN output).
+	// When it returns false, only normalized text is emitted. Defaults to true.
+	RawSQL func() bool
+	// ActionTimeout returns the EXPLAIN / SHOW CREATE TABLE polling deadline.
+	// Defaults to DefaultActionTimeout.
+	ActionTimeout func() time.Duration
 	// PublicAddress returns settings.PMMPublicAddress (may be empty); used for "View in PMM" links.
 	PublicAddress func(context.Context) string
 }
@@ -104,8 +107,11 @@ func New(params Params) (*Service, error) {
 	if s.enabled == nil {
 		s.enabled = func() bool { return true }
 	}
-	if s.actionTimeout <= 0 {
-		s.actionTimeout = DefaultActionTimeout
+	if s.rawSQL == nil {
+		s.rawSQL = func() bool { return true }
+	}
+	if s.actionTimeout == nil {
+		s.actionTimeout = func() time.Duration { return DefaultActionTimeout }
 	}
 	if s.api == nil {
 		loopback := params.LoopbackURL
@@ -139,6 +145,7 @@ func New(params Params) (*Service, error) {
 		// with the upstream name as Host header. The SDK's DNS-rebinding guard
 		// would reject every such request; nginx auth_request is the guard here.
 		DisableLocalhostProtection: true,
+		MaxRequestBodyBytes:        maxRequestBodyBytes,
 	})
 
 	return s, nil

@@ -51,23 +51,23 @@ func (_m *mockPmmAPI) GetAction(ctx context.Context, auth callerAuth, actionID s
 }
 
 // GetMetrics provides a mock function with given fields: ctx, auth, body
-func (_m *mockPmmAPI) GetMetrics(ctx context.Context, auth callerAuth, body qan_service.GetMetricsBody) (*qan_service.GetMetricsOKBody, error) {
+func (_m *mockPmmAPI) GetMetrics(ctx context.Context, auth callerAuth, body qan_service.GetMetricsBody) (*queryMetrics, error) {
 	ret := _m.Called(ctx, auth, body)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetMetrics")
 	}
 
-	var r0 *qan_service.GetMetricsOKBody
+	var r0 *queryMetrics
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, qan_service.GetMetricsBody) (*qan_service.GetMetricsOKBody, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, qan_service.GetMetricsBody) (*queryMetrics, error)); ok {
 		return rf(ctx, auth, body)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, qan_service.GetMetricsBody) *qan_service.GetMetricsOKBody); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, qan_service.GetMetricsBody) *queryMetrics); ok {
 		r0 = rf(ctx, auth, body)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*qan_service.GetMetricsOKBody)
+			r0 = ret.Get(0).(*queryMetrics)
 		}
 	}
 
@@ -141,23 +141,23 @@ func (_m *mockPmmAPI) GetQueryPlan(ctx context.Context, auth callerAuth, queryID
 }
 
 // GetReport provides a mock function with given fields: ctx, auth, body
-func (_m *mockPmmAPI) GetReport(ctx context.Context, auth callerAuth, body qan_service.GetReportBody) (*qan_service.GetReportOKBody, error) {
+func (_m *mockPmmAPI) GetReport(ctx context.Context, auth callerAuth, body qan_service.GetReportBody) (*qanReport, error) {
 	ret := _m.Called(ctx, auth, body)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetReport")
 	}
 
-	var r0 *qan_service.GetReportOKBody
+	var r0 *qanReport
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, qan_service.GetReportBody) (*qan_service.GetReportOKBody, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, qan_service.GetReportBody) (*qanReport, error)); ok {
 		return rf(ctx, auth, body)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, qan_service.GetReportBody) *qan_service.GetReportOKBody); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, callerAuth, qan_service.GetReportBody) *qanReport); ok {
 		r0 = rf(ctx, auth, body)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*qan_service.GetReportOKBody)
+			r0 = ret.Get(0).(*qanReport)
 		}
 	}
 

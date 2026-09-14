@@ -35,6 +35,14 @@ their phase is reached.
   `GET /v1/inventory/nodes/{id}` too**, because `resolveRule` walks prefixes:
   a Viewer can read one service or node as well as the list. The fields are the
   same as in the list; writes and `GET /v1/inventory/agents` stay admin (tested).
+- **`qan:getMetrics` and `qan/metrics:getReport` are decoded leniently, not with
+  the generated go-swagger client.** Live on the demo (PMM 3.8.1-based image),
+  qan-api2 answers sparkline fields with the strings `"NaN"` / `"Infinity"`
+  (protojson's encoding of non-finite floats), which the swagger types reject
+  (`cannot unmarshal string into ... float32`), so every `pmm_query_detail` call
+  failed. The two calls now go through a raw POST into types whose floats accept
+  numeric strings; sparklines are ignored. Worth a PMM-side fix (the Swagger spec
+  declares `number`), listed under open items for Percona.
 - **Branch name** `pmm-sixta` was chosen by the author (D1) rather than the
   repo's `PMM-XXXX-description` form; rename together with the PR when Percona
   issues a Jira key.
