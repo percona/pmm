@@ -63,7 +63,10 @@ import {
 import { resolvePluginRouteBase } from './routeBase';
 import type { RenderFormSlot } from './types';
 import type { RenderListColumnOverride } from '../SchemaListView';
-import { capitalizeItemLabel } from '../../utils/itemLabels';
+import {
+  capitalizeItemLabel,
+  resolveItemDisplayName,
+} from '../../utils/itemLabels';
 
 interface SchemaDrivenPluginProps {
   pluginName: string;
@@ -169,7 +172,7 @@ function PluginEditPage({
   );
 
   const title = entitySchema?.display_name ?? schema.display_name;
-  const itemName = entitySchema?.item_display_name ?? schema.item_display_name;
+  const itemName = resolveItemDisplayName(entitySchema ?? schema);
   const sections = entitySchema?.forms ?? schema.forms!;
 
   const [{ submitError, fieldErrors }, setSubmitErrorState] =

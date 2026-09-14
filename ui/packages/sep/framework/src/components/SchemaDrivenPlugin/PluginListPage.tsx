@@ -49,7 +49,10 @@ import {
 } from '../TaskHistoryTable';
 import { TaskRunDetailDrawer } from '../TaskRunDetailDrawer';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
-import { capitalizeItemLabel } from '../../utils/itemLabels';
+import {
+  capitalizeItemLabel,
+  resolveItemDisplayName,
+} from '../../utils/itemLabels';
 
 interface PluginListPageProps {
   schema: PluginSchema;
@@ -183,9 +186,7 @@ export function PluginListPage({
   // be absent here — guarded below once every hook has run.
   const listView = multi ? entitySchema!.list_view : schema.list_view;
   const title = multi ? entitySchema!.display_name : schema.display_name;
-  const itemName = multi
-    ? entitySchema!.item_display_name
-    : schema.item_display_name;
+  const itemName = resolveItemDisplayName(multi ? entitySchema! : schema);
   const description = multi ? entitySchema?.description : schema.description;
 
   // Which columns render a task status, so the chip in them can become the way
@@ -452,9 +453,7 @@ export function PluginListPage({
           onClose={() => setRunTaskName(null)}
           taskNames={runTaskName}
           taskLabel={runTaskName}
-          itemName={
-            multi ? entitySchema!.item_display_name : schema.item_display_name
-          }
+          itemName={resolveItemDisplayName(multi ? entitySchema! : schema)}
         />
       )}
     </Box>

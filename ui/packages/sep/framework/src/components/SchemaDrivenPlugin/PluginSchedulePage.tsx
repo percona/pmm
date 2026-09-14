@@ -22,6 +22,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
 import type { PluginSchema } from '@sep/api';
 import { ScheduledTasksPanel } from '../ScheduledTasksPanel';
+import {
+  resolveItemDisplayName,
+  resolveItemDisplayNamePlural,
+} from '../../utils/itemLabels';
 
 interface PluginSchedulePageProps {
   pluginName: string;
@@ -45,8 +49,8 @@ export function PluginSchedulePage({
 
       <ScheduledTasksPanel
         pluginName={pluginName}
-        itemName={schema.item_display_name}
-        itemNamePlural={schema.item_display_name_plural}
+        itemName={resolveItemDisplayName(schema)}
+        itemNamePlural={resolveItemDisplayNamePlural(schema)}
       />
     </Box>
   );

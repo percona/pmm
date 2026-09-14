@@ -98,7 +98,11 @@ import {
 import { resolvePluginRouteBase } from './routeBase';
 import { getStoredForm } from './storedForm';
 import { StatsCard } from './StatsCard';
-import { capitalizeItemLabel } from '../../utils/itemLabels';
+import {
+  capitalizeItemLabel,
+  resolveItemDisplayName,
+  resolveItemDisplayNamePlural,
+} from '../../utils/itemLabels';
 
 const DetailSyntaxHighlighter = lazy(() => import('./DetailSyntaxHighlighter'));
 
@@ -531,7 +535,7 @@ function OverviewTab({
         connectivityWarning !== undefined &&
         typeof connectivityWarning === 'object' && (
           <ConnectivityWarningAlert
-            itemName={schema.item_display_name}
+            itemName={resolveItemDisplayName(schema)}
             warning={
               connectivityWarning as SepComponents['schemas']['framework__ConnectivityWarning']
             }
@@ -546,7 +550,7 @@ function OverviewTab({
       {taskName && (
         <LastRunCard
           taskNames={taskName}
-          itemName={schema.item_display_name}
+          itemName={resolveItemDisplayName(schema)}
           onOpenRun={() => setLastRunOpen(true)}
         />
       )}
@@ -560,7 +564,7 @@ function OverviewTab({
           onClose={() => setLastRunOpen(false)}
           taskNames={taskName}
           taskLabel={taskName}
-          itemName={schema.item_display_name}
+          itemName={resolveItemDisplayName(schema)}
         />
       )}
 
@@ -580,7 +584,7 @@ function OverviewTab({
         )}
 
       <SectionCard
-        title={`${capitalizeItemLabel(schema.item_display_name)} information`}
+        title={`${capitalizeItemLabel(resolveItemDisplayName(schema))} information`}
       >
         <Grid container spacing={2}>
           {visibleColumns.map((col) => (
@@ -747,9 +751,9 @@ function ActionBar({
   const [chainActionKey, setChainActionKey] = useState<string | null>(null);
 
   const chainingEnabled = !!schema.capabilities?.chaining;
-  const itemName = schema.item_display_name;
+  const itemName = resolveItemDisplayName(schema);
   const itemLabel = capitalizeItemLabel(itemName);
-  const itemPlural = schema.item_display_name_plural;
+  const itemPlural = resolveItemDisplayNamePlural(schema);
   const {
     data: pluginTasksData,
     isLoading: pluginTasksLoading,
@@ -1306,7 +1310,7 @@ export function PluginDetailPage({
     return (
       <Box>
         <Typography variant="h5">
-          {capitalizeItemLabel(schema.item_display_name)} not found
+          {capitalizeItemLabel(resolveItemDisplayName(schema))} not found
         </Typography>
       </Box>
     );
@@ -1400,7 +1404,7 @@ export function PluginDetailPage({
           element={
             <LogsTab
               taskNames={taskHistoryNames}
-              itemName={schema.item_display_name}
+              itemName={resolveItemDisplayName(schema)}
             />
           }
         />

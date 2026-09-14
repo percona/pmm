@@ -43,7 +43,11 @@ import type {
 } from '../SchemaFormRenderer/types';
 import type { RenderFormSlot } from './types';
 import { getStoredForm } from './storedForm';
-import { capitalizeItemLabel } from '../../utils/itemLabels';
+import {
+  capitalizeItemLabel,
+  resolveItemDisplayName,
+  resolveItemDisplayNamePlural,
+} from '../../utils/itemLabels';
 import {
   EMPTY_SUBMIT_ERROR,
   mapSubmitError,
@@ -131,8 +135,9 @@ export function PluginTaskEditPage({
   const { enqueueSnackbar } = useSnackbar();
   const updateTask = useUpdatePluginTask(pluginName, mockTasks);
   const { data: task, isLoading } = usePluginTask(pluginName, id, mockTasks);
-  const itemName = schema.item_display_name;
+  const itemName = resolveItemDisplayName(schema);
   const itemLabel = capitalizeItemLabel(itemName);
+  const itemPlural = resolveItemDisplayNamePlural(schema);
 
   const storedForm = getStoredForm(task);
 
@@ -215,7 +220,7 @@ export function PluginTaskEditPage({
           </Typography>
         </Box>
         <ReadOnlyNotice
-          action={`edit ${schema.item_display_name_plural}`}
+          action={`edit ${itemPlural}`}
           testId="plugin-task-edit-read-only"
         />
       </Box>

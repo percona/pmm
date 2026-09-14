@@ -36,7 +36,7 @@ import {
 } from '../SchemaFormRenderer';
 import type { RenderFieldOverride } from '../SchemaFormRenderer/types';
 import type { RenderFormSlot } from './types';
-import { capitalizeItemLabel } from '../../utils/itemLabels';
+import { capitalizeItemLabel, resolveItemDisplayName } from '../../utils/itemLabels';
 import {
   EMPTY_SUBMIT_ERROR,
   mapSubmitError,
@@ -79,11 +79,8 @@ export function PluginCreatePage({
   );
 
   const create = multi ? createEntity : createTask;
-  // List/app title for back chrome; item noun for New/Create/created (PMM-15455).
   const screenTitle = multi ? entitySchema!.display_name : schema.display_name;
-  const itemName = multi
-    ? entitySchema!.item_display_name
-    : schema.item_display_name;
+  const itemName = resolveItemDisplayName(multi ? entitySchema! : schema);
   const sections = multi ? entitySchema!.forms : schema.forms!;
   const capabilities = multi ? undefined : schema.capabilities;
 
