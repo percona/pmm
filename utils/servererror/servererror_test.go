@@ -139,7 +139,7 @@ func TestWrapTLSError(t *testing.T) {
 		msg := wrapped.Error()
 		// The original error stays first so existing output remains greppable.
 		assert.True(t, strings.HasPrefix(msg, certErr.Error()+"."), msg)
-		assert.Contains(t, msg, `not valid for host "pmm-server-second"`)
+		assert.Contains(t, msg, `not valid for host 'pmm-server-second'`)
 		assert.Contains(t, msg, InsecureTLSFlag)
 		// The wrapped error must stay inspectable.
 		require.ErrorIs(t, wrapped, certErr)

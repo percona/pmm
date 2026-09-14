@@ -107,10 +107,10 @@ func TestConfigureLocal(t *testing.T) {
 	assert.NotNil(t, configured.TLSNextProto)
 	assert.Empty(t, configured.TLSNextProto)
 
-	if c := configured.TLSClientConfig; c != nil {
-		assert.Empty(t, c.ServerName)
-		assert.False(t, c.InsecureSkipVerify)
-	}
+	// Nil rather than merely empty: Clone inherits DefaultTransport's ["h2", "http/1.1"]
+	// ALPN list, which an emptied TLSNextProto does not clear - see
+	// TestNoTLSConfigurationLeavesNoALPNAdvertisement.
+	assert.Nil(t, configured.TLSClientConfig)
 
 	assertDefaultTransportUntouched(t, def)
 }
@@ -126,9 +126,41 @@ func TestConfigureHTTPSchemeSkipsTLS(t *testing.T) {
 	configured, ok := rt.Transport.(*http.Transport)
 	require.True(t, ok)
 
-	if c := configured.TLSClientConfig; c != nil {
-		assert.Empty(t, c.ServerName)
-		assert.False(t, c.InsecureSkipVerify)
+	// Nil rather than merely empty: Clone inherits DefaultTransport's ["h2", "http/1.1"]
+	// ALPN list, which an emptied TLSNextProto does not clear - see
+	// TestNoTLSConfigurationLeavesNoALPNAdvertisement.
+	assert.Nil(t, configured.TLSClientConfig)
+}
+
+// TestNoTLSConfigurationLeavesNoALPNAdvertisement is the guard for the ALPN half of disabling
+// HTTP/2. Clone runs DefaultTransport's lazy HTTP/2 setup first, which puts an
+// ["h2", "http/1.1"] NextProtos list on its TLS config; the clone inherits it, and emptying
+// TLSNextProto does not remove it. A transport left in that state offers h2 with no handler
+// registered for it, so a server which accepts h2 - reachable from an http:// URL that
+// redirects to https - would be spoken to in HTTP/1.1 framing over an h2 connection.
+func TestNoTLSConfigurationLeavesNoALPNAdvertisement(t *testing.T) {
+	t.Parallel()
+
+	for name, configure := range map[string]func(*httptransport.Runtime){
+		"ConfigureLocal": ConfigureLocal,
+		"Configure(http)": func(rt *httptransport.Runtime) {
+			Configure(rt, "http", "pmm-server", false)
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			rt := httptransport.New("pmm-server:80", "/", []string{"http"})
+			configure(rt)
+
+			configured, ok := rt.Transport.(*http.Transport)
+			require.True(t, ok)
+			assert.Empty(t, configured.TLSNextProto)
+
+			if c := configured.TLSClientConfig; c != nil {
+				assert.NotContains(t, c.NextProtos, "h2")
+			}
+		})
 	}
 }
 

@@ -203,7 +203,7 @@ func TestChangeAgentAgainstMismatchedCertificate(t *testing.T) {
 		msg := wrapped.Error()
 		assert.True(t, servererror.IsTLSCertificateError(wrapped), msg)
 		assert.Contains(t, msg, "PMM Server TLS certificate could not be verified")
-		assert.Contains(t, msg, `not valid for host "pmm-server-second"`)
+		assert.Contains(t, msg, `not valid for host 'pmm-server-second'`)
 		assert.Contains(t, msg, servererror.InsecureTLSFlag)
 	})
 

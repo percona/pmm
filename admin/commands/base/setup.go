@@ -30,7 +30,6 @@ import (
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/utils/apitransport"
-	"github.com/percona/pmm/utils/dsnutils"
 	"github.com/percona/pmm/utils/servererror"
 )
 
@@ -57,25 +56,37 @@ func normalizeServerURL(u *url.URL) error {
 	return nil
 }
 
-// credentialPattern matches a URL userinfo component - "user:password@" - occurring anywhere in
-// a string. It is a defensive final pass applied on top of structured parsing: url.URL.Redacted
-// only recognises userinfo in a properly structured "scheme://user:pass@host" URL. A URL typed
+// credentialPattern matches a URL userinfo component - "user:password@" - at the start of a
+// string. It is the fallback for the shapes url.URL.Redacted cannot reach: Redacted only
+// recognises userinfo in a properly structured "scheme://user:pass@host" URL. A URL typed
 // without "//" - a missing scheme being exactly the kind of mistake this code has to diagnose -
 // parses as opaque instead, with "user:password" sitting in Opaque, in cleartext, which
 // Redacted does not look at; a URL that fails to parse at all is not touched by it either.
 //
+// The match is anchored, and the pattern is deliberately not applied to URLs Redacted already
+// handles: an "@" is legal in a path, and treating a later one as a userinfo terminator
+// mangled the host, port and path of the very URL the caller is being asked to fix.
+//
 // The password half deliberately allows "/": a scheme prefix such as "https:" would otherwise
 // also satisfy "name:" and swallow it into the match, but the password can legitimately contain
 // a slash, and excluding it let such a password slip through unredacted.
-var credentialPattern = regexp.MustCompile(`([^/@:\s]+):(?:[^/@\s][^@\s]*)?@`)
+var credentialPattern = regexp.MustCompile(`^((?:[a-zA-Z][a-zA-Z0-9+.-]*://)?[^/@:\s]+):(?:[^/@\s][^@\s]*)?@`)
 
 // redactedServerURL returns raw with any password it carries replaced by a placeholder, so a
 // PMM Server URL can be logged without leaking its credentials - however malformed the URL
-// turns out to be. RedactDSN (utils/dsnutils) handles a well-formed URL cleanly; credentialPattern
-// is a defensive final pass over its result, for the opaque and unparseable cases RedactDSN
-// leaves untouched.
+// turns out to be.
 func redactedServerURL(raw string) string {
-	return credentialPattern.ReplaceAllString(dsnutils.RedactDSN(raw), "$1:xxxxx@")
+	// A URL with a proper authority: Redacted covers its userinfo exactly, and one without
+	// userinfo has nothing to redact. Either way credentialPattern must not run on top, or
+	// an "@" later in the path would be mistaken for a userinfo terminator.
+	u, err := url.Parse(raw)
+	if err == nil && u.Opaque == "" {
+		return u.Redacted()
+	}
+
+	// Opaque ("user:pass@host", no "//") and unparseable URLs never reach Redacted's
+	// userinfo handling, so any credentials here are still in cleartext.
+	return credentialPattern.ReplaceAllString(raw, "$1:xxxxx@")
 }
 
 // sanitizeURLError returns a safe-to-log form of err: url.Parse embeds the exact string it
@@ -132,7 +143,7 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 		if err != nil {
 			// status.ServerURL and err may both carry a password - reported by pmm-agent
 			// in the first case, embedded by url.Parse's own error text in the second.
-			logrus.Fatalf("Invalid PMM Server URL %q reported by local pmm-agent: %s.\n"+
+			logrus.Fatalf("Invalid PMM Server URL '%s' reported by local pmm-agent: %s.\n"+
 				"Please use --server-url flag to specify PMM Server URL.",
 				redactedServerURL(status.ServerURL), sanitizeURLError(err))
 		}
@@ -142,7 +153,7 @@ func SetupClients(globalFlags *flags.GlobalFlags) {
 			// globalFlags.ServerURL comes from kong's own url.Parse of --server-url, so a
 			// scheme-less value (exactly what triggers this branch) hits the same opaque-URL
 			// gap redactedServerURL exists for - hence going through it rather than Redacted.
-			logrus.Fatalf("Invalid PMM Server URL %q: %s.",
+			logrus.Fatalf("Invalid PMM Server URL '%s': %s.",
 				redactedServerURL(globalFlags.ServerURL.String()), sanitizeURLError(err))
 		}
 	}

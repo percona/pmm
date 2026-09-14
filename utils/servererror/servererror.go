@@ -79,7 +79,7 @@ func WrapTLSError(err error, host string, insecureTLS bool) error {
 	reason := "PMM Server TLS certificate could not be verified: it is either self-signed or not valid for the requested host."
 	if host != "" {
 		reason = fmt.Sprintf(
-			"PMM Server TLS certificate could not be verified: it is either self-signed or not valid for host %q.",
+			"PMM Server TLS certificate could not be verified: it is either self-signed or not valid for host '%s'.",
 			host,
 		)
 	}
@@ -182,6 +182,12 @@ func NginxConsumer() runtime.ConsumerFunc {
 		truncated := len(b) > maxNginxBodySize
 		if truncated {
 			b = b[:maxNginxBodySize]
+
+			// net/http only returns a connection to the keep-alive pool once its body
+			// has been read to the end. Abandoning an oversized body mid-read would cost
+			// a fresh handshake for every such response - irrelevant to a one-shot CLI,
+			// but these consumers are installed on the api-tests transport too.
+			_, _ = io.Copy(io.Discard, reader)
 		}
 
 		msg := strings.TrimSpace(string(b))

@@ -101,7 +101,7 @@ func TestRegisterErrorMessage(t *testing.T) {
 
 		msg := registerErrorMessage(certErr, "pmm-server", false)
 		assert.Contains(t, msg, "PMM Server TLS certificate could not be verified")
-		assert.Contains(t, msg, `not valid for host "pmm-server"`)
+		assert.Contains(t, msg, `not valid for host 'pmm-server'`)
 		assert.Contains(t, msg, servererror.InsecureTLSFlag)
 	})
 

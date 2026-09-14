@@ -137,6 +137,9 @@ func TestRedactedServerURL(t *testing.T) {
 	for name, tc := range map[string]struct {
 		raw           string
 		wantSubstring string
+		// want, when set, is the exact expected output: the cases below which carry it
+		// are about what redaction must leave alone, not about what it must hide.
+		want string
 	}{
 		"host missing, credentials present": {
 			// url.URL.Redacted handles this shape directly: a well-formed "scheme://user:pass@host".
@@ -160,6 +163,19 @@ func TestRedactedServerURL(t *testing.T) {
 			raw:           "admin:hunter2/2@pmm-server:8443",
 			wantSubstring: "admin:xxxxx@pmm-server:8443",
 		},
+		"no credentials, @ in the path": {
+			// An "@" is legal in a path. The redaction fallback used to treat this one as a
+			// userinfo terminator and rewrite the host, port and path of the very URL the
+			// user is being asked to fix.
+			raw:  "https://pmm-server:8443/v1/x@y",
+			want: "https://pmm-server:8443/v1/x@y",
+		},
+		"credentials and an @ in the path": {
+			// Redacted already handles the userinfo here; the fallback used to run on top of
+			// its output and substitute a second, bogus "user:xxxxx@" over the path.
+			raw:  "https://admin:hunter2@pmm-server:8443/a@b",
+			want: "https://admin:xxxxx@pmm-server:8443/a@b",
+		},
 		"host invalid because of a slash in the password": {
 			// The slash makes url.Parse itself misread the URL ("hunter2" ends up looking like
 			// an invalid port), so this exercises the raw-string fallback path, not Redacted.
@@ -173,6 +189,11 @@ func TestRedactedServerURL(t *testing.T) {
 			got := redactedServerURL(tc.raw)
 
 			assert.NotContains(t, got, "hunter2")
+			if tc.want != "" {
+				assert.Equal(t, tc.want, got)
+
+				return
+			}
 			assert.Contains(t, got, tc.wantSubstring)
 		})
 	}

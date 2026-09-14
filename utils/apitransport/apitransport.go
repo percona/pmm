@@ -85,5 +85,12 @@ func clone(rt *httptransport.Runtime) *http.Transport {
 	// precedence over the ForceAttemptHTTP2 that Clone carries over from the default.
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
+	// Clone runs http.DefaultTransport's lazy HTTP/2 setup first, which leaves an
+	// ["h2", "http/1.1"] ALPN list on the TLS config the clone then inherits. Emptying
+	// TLSNextProto above does not clear it, so the clone would still offer h2 with no
+	// handler installed for it: a server accepting h2 would then be spoken to in HTTP/1.1
+	// framing. Callers which need TLS replace this config wholesale.
+	httpTransport.TLSClientConfig = nil
+
 	return httpTransport
 }
