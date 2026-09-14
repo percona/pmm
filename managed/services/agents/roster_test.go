@@ -141,7 +141,7 @@ func TestRoster(t *testing.T) {
 		pmmServer, err := models.FindAgentByID(r.db.Querier, models.PMMServerAgentID)
 		require.NoError(t, err)
 		pmmServer.Version = new("3.4.0")
-		require.NoError(t, r.db.Querier.Update(pmmServer))
+		require.NoError(t, r.db.Update(pmmServer))
 
 		roleOptions := models.AWSOptions{AWSRoleARN: "arn:aws:iam::123456789012:role/pmm"}
 		roleAgent, err := models.CreateAgent(r.db.Querier, models.RDSExporterType, &models.CreateAgentParams{

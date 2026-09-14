@@ -73,7 +73,7 @@ type ChangeAgentRDSExporterCommand struct {
 	// AWS credentials
 	AWSAccessKey *string `help:"AWS access key"`
 	AWSSecretKey *string `help:"AWS secret key"`
-	AWSRoleARN   *string `name:"aws-role-arn" help:"AWS IAM role ARN to assume using the pmm-agent's ambient credentials; cannot be combined with an access/secret key, so clear both in the same call when migrating; pass an empty value to clear it, which reverts the exporter to the host's ambient credentials"`
+	AWSRoleARN   *string `name:"aws-role-arn" help:"AWS IAM role ARN to assume with the pmm-agent ambient credentials; excludes access/secret key; empty clears it"`
 
 	// RDS-specific options
 	DisableBasicMetrics    *bool `help:"Disable basic metrics"`

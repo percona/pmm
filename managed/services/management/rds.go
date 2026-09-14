@@ -607,7 +607,7 @@ var stsDefaultRegion = map[string]string{
 
 // stsRegionForRoleARN returns the STS region to use for assuming roleARN and the ARN's AWS
 // partition, based on that partition.
-func stsRegionForRoleARN(roleARN string) (region, partition string, err error) {
+func stsRegionForRoleARN(roleARN string) (string, string, error) {
 	parsed, err := arn.Parse(roleARN)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to parse AWS role ARN %q: %w", roleARN, err)
