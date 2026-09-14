@@ -16,7 +16,13 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -561,5 +567,192 @@ describe('ScheduledTasksPanel — write access', () => {
     expect(
       await screen.findByRole('button', { name: 'Close run details' })
     ).toBeInTheDocument();
+  });
+
+  // PMM-15454: the screen has to say which zone it is talking about. Two
+  // different zones are on it at once - the one a schedule fires in, and the
+  // one its timestamps are rendered in - and neither number means anything
+  // until the screen names them.
+  describe('stating the timezone in force', () => {
+    it('names the zone each schedule fires in, from the backend', async () => {
+      setup([
+        makePeriodic({
+          id: 31,
+          interval: null,
+          timezone: 'Europe/Lisbon',
+          crontab: {
+            minute: '0',
+            hour: '2',
+            day_of_month: '*',
+            month_of_year: '*',
+            day_of_week: '*',
+            timezone: 'Europe/Lisbon',
+          },
+          period: '0 2 * * *',
+        }),
+      ]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+      expect(
+        await screen.findByTestId('scheduled-task-timezone-31')
+      ).toHaveTextContent('Europe/Lisbon');
+    });
+
+    it('states UTC for an interval schedule, which has no zone of its own', async () => {
+      setup([makePeriodic({ id: 32, timezone: 'UTC' })]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+      expect(
+        await screen.findByTestId('scheduled-task-timezone-32')
+      ).toHaveTextContent('UTC');
+    });
+
+    it('names the zone the table renders its timestamps in', async () => {
+      setup([makePeriodic({ id: 33 })]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+      const notice = await screen.findByTestId(
+        'scheduled-tasks-display-timezone'
+      );
+      expect(notice).toHaveTextContent(
+        `Times shown in ${Intl.DateTimeFormat().resolvedOptions().timeZone}`
+      );
+    });
+
+    it('omits the display-zone notice when there is nothing to read', async () => {
+      setup([]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+      await screen.findByText(/No scheduled tasks for myplugin/i);
+      expect(
+        screen.queryByTestId('scheduled-tasks-display-timezone')
+      ).not.toBeInTheDocument();
+    });
+
+    it('states UTC on the create form and labels the start-time field with it', async () => {
+      setup([]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+      await user.click(await screen.findByTestId('scheduled-tasks-add'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      expect(
+        within(form).getByTestId('sched-form-timezone-notice')
+      ).toHaveTextContent('Runs in UTC');
+      expect(within(form).getByLabelText(/Start time \(UTC\)/i)).toBeVisible();
+    });
+
+    it('tracks the picked zone in cron mode', async () => {
+      setup([]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+      await user.click(await screen.findByTestId('scheduled-tasks-add'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      await user.click(within(form).getByTestId('sched-form-toggle-mode'));
+
+      const picker = within(form).getByTestId('sched-form-timezone');
+      await user.clear(picker);
+      await user.type(picker, 'Europe/Lisbon');
+      await user.click(
+        await screen.findByRole('option', { name: 'Europe/Lisbon' })
+      );
+
+      await waitFor(() =>
+        expect(
+          within(form).getByTestId('sched-form-timezone-notice')
+        ).toHaveTextContent('Runs in Europe/Lisbon')
+      );
+    });
+
+    it('sends the start time as the UTC wall clock that was typed', async () => {
+      setup([]);
+      apiMock.post.mockResolvedValue({ data: makePeriodic({ id: 60 }) });
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+      await user.click(await screen.findByTestId('scheduled-tasks-add'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      fireEvent.change(within(form).getByTestId('sched-form-start-time'), {
+        target: { value: '2026-03-01T02:30' },
+      });
+      await user.click(within(form).getByRole('button', { name: /Create/i }));
+
+      await waitFor(() => expect(apiMock.post).toHaveBeenCalledTimes(1));
+      const [, body] = apiMock.post.mock.calls[0];
+      // Not shifted by the runner's zone: what the field said is what is sent.
+      expect(body.start_time).toBe('2026-03-01T02:30:00.000Z');
+    });
+
+    it('round-trips a stored start time back into the field unshifted', async () => {
+      setup([makePeriodic({ id: 61, start_time: '2026-03-01T02:30:00Z' })]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByTestId('scheduled-task-edit-61'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      expect(within(form).getByTestId('sched-form-start-time')).toHaveValue(
+        '2026-03-01T02:30'
+      );
+    });
+  });
+
+  // PMM-15454: chaining is not wired up for these apps, so the column was an
+  // unbroken run of em dashes advertising something the reader cannot use.
+  describe('the Chain column', () => {
+    it('is hidden while no schedule carries a chain', async () => {
+      setup([
+        makePeriodic({ id: 41 }),
+        makePeriodic({ id: 42, task: 'plugin-task' }),
+      ]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+      await screen.findByTestId('scheduled-task-row-41');
+      expect(
+        screen.queryByRole('columnheader', { name: 'Chain' })
+      ).not.toBeInTheDocument();
+    });
+
+    it('keeps the row width matching the header when it is hidden', async () => {
+      setup([makePeriodic({ id: 43 })]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+      const row = await screen.findByTestId('scheduled-task-row-43');
+      expect(within(row).getAllByRole('cell')).toHaveLength(
+        screen.getAllByRole('columnheader').length
+      );
+    });
+
+    it('returns as soon as one schedule carries a chain', async () => {
+      setup([
+        makePeriodic({ id: 44 }),
+        makePeriodic({
+          id: 45,
+          execute_request: {
+            meta: {},
+            chain_task_names: ['other-plugin-task'],
+            chain_on_failure: false,
+          },
+        }),
+      ]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+      expect(
+        await screen.findByRole('columnheader', { name: 'Chain' })
+      ).toBeInTheDocument();
+      expect(screen.getByText('other-plugin-task')).toBeInTheDocument();
+    });
   });
 });

@@ -35,6 +35,13 @@ import {
   type AvailableTask,
   type ChainValue,
 } from '../ChainBuilder';
+import {
+  INTERVAL_TIMEZONE,
+  TIMEZONES,
+  defaultPickerTimezone,
+  utcInputToIso,
+  utcIsoToUtcInput,
+} from './timezones';
 import type {
   CrontabSchedule,
   IntervalSchedule,
@@ -77,43 +84,6 @@ export interface ScheduledTaskFormProps {
 
 const CRON_PATTERN = /^\S+(?:\s+\S+){4}$/;
 
-const TIMEZONES = (() => {
-  type IntlWithTz = typeof Intl & {
-    supportedValuesOf?: (key: string) => string[];
-  };
-  const intl = Intl as IntlWithTz;
-  if (typeof intl.supportedValuesOf === 'function') {
-    try {
-      return intl.supportedValuesOf('timeZone');
-    } catch {
-      return ['UTC'];
-    }
-  }
-  return ['UTC'];
-})();
-
-function detectBrowserTimezone(): string {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return tz && TIMEZONES.includes(tz) ? tz : 'UTC';
-  } catch {
-    return 'UTC';
-  }
-}
-
-// `datetime-local` reads/writes as local wall-clock with no timezone.
-// Backend `start_time` is UTC ISO. Format the UTC instant in the browser's
-// local zone for display; parse the local input back through `Date` (which
-// interprets it as local) before serializing to UTC.
-function utcIsoToLocalInput(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) {
-    return '';
-  }
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 function cronToExpression(c: CrontabSchedule): string {
   return `${c.minute} ${c.hour} ${c.day_of_month} ${c.month_of_year} ${c.day_of_week}`;
 }
@@ -153,10 +123,8 @@ function buildDefaults(
       intervalEvery: initial.interval?.every ?? 1,
       intervalPeriod: (initial.interval?.period as IntervalUnit) ?? 'hours',
       cronExpression: initial.crontab ? cronToExpression(initial.crontab) : '',
-      cronTimezone: initial.crontab?.timezone ?? detectBrowserTimezone(),
-      startTime: initial.start_time
-        ? utcIsoToLocalInput(initial.start_time)
-        : '',
+      cronTimezone: initial.crontab?.timezone ?? defaultPickerTimezone(),
+      startTime: initial.start_time ? utcIsoToUtcInput(initial.start_time) : '',
       enabled: initial.enabled,
       chain: {
         chain_task_names: initial.execute_request?.chain_task_names ?? [],
@@ -170,7 +138,7 @@ function buildDefaults(
     intervalEvery: 1,
     intervalPeriod: 'hours',
     cronExpression: '',
-    cronTimezone: detectBrowserTimezone(),
+    cronTimezone: defaultPickerTimezone(),
     startTime: '',
     enabled: true,
     chain: { chain_task_names: [], chain_on_failure: false },
@@ -206,6 +174,7 @@ export function ScheduledTaskForm({
 
   const scheduleMode = watch('scheduleMode');
   const cronExpression = watch('cronExpression');
+  const cronTimezone = watch('cronTimezone');
   const taskName = watch('task');
   const chain = watch('chain');
 
@@ -268,10 +237,10 @@ export function ScheduledTaskForm({
       ? null
       : { every: everyNum, period: values.intervalPeriod };
 
-    const start_time =
-      !isCron && values.startTime
-        ? new Date(values.startTime).toISOString()
-        : null;
+    // The start-time field is labelled UTC and carries UTC wall clock, so it
+    // reads back as UTC. Cron mode asks no start time; that half of the finding
+    // is parked for a design pass (PMM-15454).
+    const start_time = isCron ? null : utcInputToIso(values.startTime);
 
     const hasChain = values.chain.chain_task_names.length > 0;
     const execute_request = hasChain
@@ -442,8 +411,11 @@ export function ScheduledTaskForm({
           <TextField
             type="datetime-local"
             size="small"
-            label="Start time"
-            slotProps={{ inputLabel: { shrink: true } }}
+            label={`Start time (${INTERVAL_TIMEZONE})`}
+            slotProps={{
+              inputLabel: { shrink: true },
+              htmlInput: { 'data-testid': 'sched-form-start-time' },
+            }}
             {...register('startTime')}
             sx={{ width: 220 }}
           />
@@ -471,6 +443,18 @@ export function ScheduledTaskForm({
           )}
         />
       </Stack>
+
+      <Box sx={{ mb: 1 }}>
+        <Typography
+          variant="caption"
+          color="text.secondary"
+          data-testid="sched-form-timezone-notice"
+        >
+          {scheduleMode === 'cron'
+            ? `Runs in ${cronTimezone}.`
+            : `Runs in ${INTERVAL_TIMEZONE} — an interval schedule has no timezone of its own.`}
+        </Typography>
+      </Box>
 
       <Box sx={{ mb: 1 }}>
         <Link
