@@ -98,6 +98,7 @@ import {
 import { resolvePluginRouteBase } from './routeBase';
 import { getStoredForm } from './storedForm';
 import { StatsCard } from './StatsCard';
+import { capitalizeItemLabel } from '../../utils/itemLabels';
 
 const DetailSyntaxHighlighter = lazy(() => import('./DetailSyntaxHighlighter'));
 
@@ -407,12 +408,15 @@ function DetailViewSectionCard({
  */
 function ConnectivityWarningAlert({
   warning,
+  itemName,
 }: {
   warning: SepComponents['schemas']['framework__ConnectivityWarning'];
+  itemName: string;
 }) {
   const [logOpen, setLogOpen] = useState(false);
   const message =
-    warning.message || 'Connectivity check returned a warning for this task.';
+    warning.message ||
+    `Connectivity check returned a warning for this ${itemName}.`;
   const taskHistoryId = warning.task_history_id ?? null;
 
   return (
@@ -526,6 +530,7 @@ function OverviewTab({
         connectivityWarning !== undefined &&
         typeof connectivityWarning === 'object' && (
           <ConnectivityWarningAlert
+            itemName={schema.item_display_name}
             warning={
               connectivityWarning as SepComponents['schemas']['framework__ConnectivityWarning']
             }
@@ -571,7 +576,7 @@ function OverviewTab({
           />
         )}
 
-      <SectionCard title="Task information">
+      <SectionCard title={`${capitalizeItemLabel(schema.item_display_name)} information`}>
         <Grid container spacing={2}>
           {visibleColumns.map((col) => (
             <TaskOverviewDetailField
@@ -641,9 +646,10 @@ function OverviewTab({
 
 interface LogsTabProps {
   taskNames: string[];
+  itemName: string;
 }
 
-function LogsTab({ taskNames }: LogsTabProps) {
+function LogsTab({ taskNames, itemName }: LogsTabProps) {
   const historyQuery = useTaskHistoryByNames(taskNames);
   const stop = useStopTaskHistory();
   const [openedRow, setOpenedRow] = useState<TaskHistoryEntry | null>(null);
@@ -657,7 +663,7 @@ function LogsTab({ taskNames }: LogsTabProps) {
     () => resolveOpenedRun(openedRow, historyQuery.data?.items),
     [openedRow, historyQuery.data]
   );
-  const logsTaskName = logsEntry?.task?.name ?? taskNames[0] ?? 'task';
+  const logsTaskName = logsEntry?.task?.name ?? taskNames[0] ?? itemName;
 
   return (
     <>
@@ -734,6 +740,9 @@ function ActionBar({
   const [chainActionKey, setChainActionKey] = useState<string | null>(null);
 
   const chainingEnabled = !!schema.capabilities?.chaining;
+  const itemName = schema.item_display_name;
+  const itemLabel = capitalizeItemLabel(itemName);
+  const itemPlural = schema.item_display_name_plural;
   const {
     data: pluginTasksData,
     isLoading: pluginTasksLoading,
@@ -793,7 +802,7 @@ function ActionBar({
         : { taskName: pendingExecute.taskName };
       await executeTask.mutateAsync(executeArgs);
       enqueueSnackbar(
-        `${schema.display_name} task "${pendingExecute.taskName}" started`,
+        `${itemLabel} "${pendingExecute.taskName}" started`,
         {
           variant: 'success',
         }
@@ -811,7 +820,7 @@ function ActionBar({
     actionError.clearError();
     try {
       await deleteTask.mutateAsync(taskName);
-      enqueueSnackbar(`${schema.display_name} task deleted`, {
+      enqueueSnackbar(`${itemLabel} deleted`, {
         variant: 'success',
       });
       // Anchor to the plugin root explicitly. Relative `..` chains depend
@@ -826,7 +835,7 @@ function ActionBar({
   };
 
   const editUnavailable =
-    "Editing isn't available for this task — it has no saved form input.";
+    `Editing isn't available for this ${itemName} — it has no saved form input.`;
 
   // Every action here is a mutation except Schedule (navigation), so a
   // read-only session with no scheduling capability is left with no bar at all.
@@ -921,12 +930,12 @@ function ActionBar({
         maxWidth="sm"
       >
         <DialogTitle>
-          {pendingExecute?.label ?? 'Execute'} {schema.display_name} task?
+          {pendingExecute?.label ?? 'Execute'} {itemName}?
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
             {pendingExecute?.confirmMessage ??
-              `Are you sure you want to execute the task ${pendingExecute?.taskName ?? taskName} now?`}
+              `Are you sure you want to execute the ${itemName} ${pendingExecute?.taskName ?? taskName} now?`}
           </DialogContentText>
           {chainingEnabled && pendingExecute && (
             <Box sx={{ mt: 2 }}>
@@ -939,7 +948,7 @@ function ActionBar({
                 </Box>
               ) : pluginTasksError ? (
                 <Alert severity="error" data-testid="chain-tasks-error">
-                  Couldn&apos;t load tasks available to chain
+                  Couldn&apos;t load {itemPlural} available to chain
                   {pluginTasksLoadError instanceof Error
                     ? `: ${pluginTasksLoadError.message}`
                     : ''}
@@ -975,11 +984,11 @@ function ActionBar({
       </Dialog>
 
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <DialogTitle>Delete {schema.display_name} task?</DialogTitle>
+        <DialogTitle>Delete {itemName}?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This will permanently remove the task definition. Past run history
-            is unaffected.
+            This will permanently remove the {itemName} definition. Past run
+            history is unaffected.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -1291,7 +1300,9 @@ export function PluginDetailPage({
   if (!task || !id) {
     return (
       <Box>
-        <Typography variant="h5">Task not found</Typography>
+        <Typography variant="h5">
+          {capitalizeItemLabel(schema.item_display_name)} not found
+        </Typography>
       </Box>
     );
   }
@@ -1379,7 +1390,15 @@ export function PluginDetailPage({
             </OverviewTab>
           }
         />
-        <Route path="logs" element={<LogsTab taskNames={taskHistoryNames} />} />
+        <Route
+          path="logs"
+          element={
+            <LogsTab
+              taskNames={taskHistoryNames}
+              itemName={schema.item_display_name}
+            />
+          }
+        />
       </Routes>
     </Box>
   );

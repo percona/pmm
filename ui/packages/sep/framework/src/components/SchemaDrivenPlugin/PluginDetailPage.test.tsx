@@ -171,6 +171,8 @@ vi.mock('./DetailSyntaxHighlighter', () => ({
 const schema: PluginSchema = {
   pluginName: 'checksums',
   display_name: 'Checksum',
+  item_display_name: 'checksum',
+  item_display_name_plural: 'checksums',
   description: 'Test',
   capabilities: { scheduling: true },
   list_view: {
@@ -216,6 +218,8 @@ describe('PluginDetailPage — detail_view sections', () => {
     return {
       pluginName: 'checksums',
       display_name: 'Checksum',
+      item_display_name: 'checksum',
+      item_display_name_plural: 'checksums',
       description: 'Test',
       capabilities: {},
       list_view: {
@@ -1132,6 +1136,8 @@ function makeSchema(
   return {
     pluginName: 'checksums',
     display_name: 'Checksum',
+    item_display_name: 'checksum',
+    item_display_name_plural: 'checksums',
     description: 'Test',
     capabilities,
     list_view: {
@@ -1272,7 +1278,7 @@ describe('PluginDetailPage — StatsCard integration', () => {
     expect(screen.queryByText('Executions')).toBeNull();
   });
 
-  it('keeps the Task information section when stats query errors', () => {
+  it('keeps the item information section when stats query errors', () => {
     mockUsePluginTask.mockReturnValue({
       data: { id: 1, name: 'FECHK', status: 'completed' },
       isLoading: false,
@@ -1284,7 +1290,7 @@ describe('PluginDetailPage — StatsCard integration', () => {
       error: new Error('boom'),
     });
     renderWithSchema(makeSchema({ stats: true }));
-    expect(screen.getByText('Task information')).toBeInTheDocument();
+    expect(screen.getByText('Checksum information')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent(
       'Could not load execution stats'
     );
@@ -1450,6 +1456,8 @@ describe('PluginDetailPage — overview_hidden_fields', () => {
     return {
       pluginName: 'checksums',
       display_name: 'Checksum',
+      item_display_name: 'checksum',
+      item_display_name_plural: 'checksums',
       description: 'Test',
       capabilities: {},
       list_view: {
@@ -1770,6 +1778,8 @@ describe('PluginDetailPage — write access', () => {
   const taskSchema: PluginSchema = {
     pluginName: 'checksums',
     display_name: 'Checksum',
+    item_display_name: 'checksum',
+    item_display_name_plural: 'checksums',
     description: 'Test',
     capabilities: { scheduling: true },
     list_view: {
@@ -1899,6 +1909,8 @@ describe('PluginDetailPage — write access', () => {
   const taskSchema: PluginSchema = {
     pluginName: 'checksums',
     display_name: 'Checksum',
+    item_display_name: 'checksum',
+    item_display_name_plural: 'checksums',
     description: 'Test',
     capabilities: { scheduling: true },
     list_view: {
