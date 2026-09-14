@@ -72,4 +72,11 @@ describe('resolveItemDisplayName / resolveItemDisplayNamePlural', () => {
       })
     ).toBe('Checksum');
   });
+
+  it('never returns blank when both item and display names are missing', () => {
+    expect(resolveItemDisplayName({})).toBe('item');
+    expect(resolveItemDisplayName({ display_name: '' })).toBe('item');
+    expect(resolveItemDisplayNamePlural({})).toBe('items');
+    expect(resolveItemDisplayNamePlural({ display_name: null })).toBe('items');
+  });
 });

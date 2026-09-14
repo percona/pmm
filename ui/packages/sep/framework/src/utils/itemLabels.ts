@@ -31,25 +31,36 @@ export function capitalizeItemLabel(name: string | null | undefined): string {
 }
 
 type ItemNameSource = {
-  display_name: string;
+  display_name?: string | null;
   item_display_name?: string | null;
   item_display_name_plural?: string | null;
 };
 
-/**
- * Singular item noun from the schema. Falls back to `display_name` when
- * `item_display_name` is missing (same default the backend documents).
- */
-export function resolveItemDisplayName(schema: ItemNameSource): string {
-  const name = schema.item_display_name;
-  return typeof name === 'string' && name.length > 0 ? name : schema.display_name;
+function nonEmptyString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
 }
 
 /**
- * Plural item noun from the schema. Falls back to `display_name` when
- * `item_display_name_plural` is missing.
+ * Singular item noun from the schema. Falls back to `display_name`, then
+ * `'item'`, so JSX like `New {itemName}` never silently renders as `New `
+ * when the field is missing (React drops `undefined` without showing it).
+ */
+export function resolveItemDisplayName(schema: ItemNameSource): string {
+  return (
+    nonEmptyString(schema.item_display_name) ??
+    nonEmptyString(schema.display_name) ??
+    'item'
+  );
+}
+
+/**
+ * Plural item noun from the schema. Falls back to `display_name`, then
+ * `'items'`.
  */
 export function resolveItemDisplayNamePlural(schema: ItemNameSource): string {
-  const name = schema.item_display_name_plural;
-  return typeof name === 'string' && name.length > 0 ? name : schema.display_name;
+  return (
+    nonEmptyString(schema.item_display_name_plural) ??
+    nonEmptyString(schema.display_name) ??
+    'items'
+  );
 }

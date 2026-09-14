@@ -291,6 +291,32 @@ describe('PluginListPage — item display name', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('falls back to display_name on New when item_display_name is missing', () => {
+    // React drops undefined children, so `New {undefined}` would render as
+    // the silent label "New " — resolveItemDisplayName must keep a noun.
+    render(
+      <SnackbarProvider>
+        <MemoryRouter>
+          <PluginListPage
+            schema={
+              {
+                name: 'legacy',
+                display_name: 'Legacy App',
+                list_view: { columns: [{ key: 'name', label: 'Name' }] },
+              } as unknown as PluginSchema
+            }
+            pluginName="legacy"
+          />
+        </MemoryRouter>
+      </SnackbarProvider>
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'New Legacy App' })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^New\s*$/ })).toBeNull();
+  });
+
   it('keeps Restores list title aligned with New restore (PMM-15455)', () => {
     // Tab label comes from related_apps[].label and must match display_name;
     // the create CTA uses item_display_name. Sidecar owns those three strings.
