@@ -398,6 +398,45 @@ func TestListInventoryHosts(t *testing.T) {
 	})
 }
 
+func TestListInventoryServices(t *testing.T) {
+	t.Parallel()
+
+	t.Run("projects both services, read from the paginated envelope", func(t *testing.T) {
+		t.Parallel()
+
+		// GET /services answers the same PaginatedResponse envelope GET /hosts does
+		// (PMM-15326: "Bound the estate listings") -- a bare array here would be the
+		// same decode bug ListInventoryHosts already guards against.
+		stub := newSEPStub(t, http.StatusOK, `{"items": [
+		  {"service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": "PRIMARY"},
+		  {"service_id": "s2", "node_id": "n2", "name": "mongo-2", "port": 27017, "role": null}
+		], "total": 2, "offset": 0, "limit": 200}`)
+
+		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, response.GetServices(), 2)
+		assert.Equal(t, "s1", response.GetServices()[0].GetServiceId())
+		assert.Equal(t, "/api/apps/om_inventory/services", stub.path)
+	})
+
+	t.Run("walks every page until total is reached", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(t, http.StatusOK,
+			`{"items": [{"service_id": "s1", "node_id": "n1", "name": "mongo-1"}], "total": 2, "offset": 0, "limit": 1}`,
+			`{"items": [{"service_id": "s2", "node_id": "n2", "name": "mongo-2"}], "total": 2, "offset": 1, "limit": 1}`)
+
+		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 2)
+		require.Len(t, response.GetServices(), 2)
+		assert.Equal(t, "s1", response.GetServices()[0].GetServiceId())
+		assert.Equal(t, "s2", response.GetServices()[1].GetServiceId())
+	})
+}
+
 func TestAutomationEligibility(t *testing.T) {
 	t.Parallel()
 
@@ -933,10 +972,13 @@ func TestGetBootstrapRun(t *testing.T) {
 				],
 				"run_steps": []
 			}`,
-			`[
-				{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]},
-				{"node_id": "node-2", "executor_host": "n2", "services": []}
-			]`)
+			`{
+				"items": [
+					{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]},
+					{"node_id": "node-2", "executor_host": "n2", "services": []}
+				],
+				"total": 2
+			}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		response, err := svc.GetBootstrapRun(t.Context(),
@@ -1056,7 +1098,7 @@ func TestListBootstrapRuns(t *testing.T) {
 			// The second response: confirmMonitoringLookup's own GET /hosts, fetched
 			// once because run-abc is "succeeded" -- run-def being "running" would
 			// never trigger it on its own. n1 already has a service.
-			`[{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]}]`)
+			`{"items": [{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]}], "total": 1}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		response, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{})
@@ -1100,10 +1142,13 @@ func TestNodeIDForExecutorHost(t *testing.T) {
 	t.Run("finds the node id whose executor matches", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `[
-			{"node_id": "c58168e8-...", "executor_host": "pmm-client-node00"},
-			{"node_id": "other-node", "executor_host": "pmm-client-node01"}
-		]`)
+		stub := newSEPStub(t, http.StatusOK, `{
+			"items": [
+				{"node_id": "c58168e8-...", "executor_host": "pmm-client-node00"},
+				{"node_id": "other-node", "executor_host": "pmm-client-node01"}
+			],
+			"total": 2
+		}`)
 		svc := stub.service(t)
 
 		nodeID, err := svc.nodeIDForExecutorHost(t.Context(), "pmm-client-node00")
@@ -1116,7 +1161,7 @@ func TestNodeIDForExecutorHost(t *testing.T) {
 	t.Run("answers NotFound when no host has that executor", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `[{"node_id": "n1", "executor_host": "pmm-client-node00"}]`)
+		stub := newSEPStub(t, http.StatusOK, `{"items": [{"node_id": "n1", "executor_host": "pmm-client-node00"}], "total": 1}`)
 		svc := stub.service(t)
 
 		_, err := svc.nodeIDForExecutorHost(t.Context(), "no-such-executor")

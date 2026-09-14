@@ -208,9 +208,16 @@ func (s *Service) ListInventoryServices(ctx context.Context, req *omv1.ListInven
 		query.Set("failing", strconv.FormatBool(req.GetFailing()))
 	}
 
-	services := []sepService{}
-	call := inventoryCall{method: http.MethodGet, path: "services", query: query}
-	err = probe.call(ctx, call, &services)
+	services, err := fetchAllPages(func(offset, limit int) (sepPage[sepService], error) {
+		pageQuery := url.Values{}
+		maps.Copy(pageQuery, query)
+		pageQuery.Set("offset", strconv.Itoa(offset))
+		pageQuery.Set("limit", strconv.Itoa(limit))
+		page := sepPage[sepService]{}
+		call := inventoryCall{method: http.MethodGet, path: "services", query: pageQuery}
+		err := probe.call(ctx, call, &page)
+		return page, err
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -531,9 +538,15 @@ func (s *Service) inventoryHostsByExecutor(ctx context.Context) (map[string]sepH
 	if err != nil {
 		return nil, err
 	}
-	hosts := []sepHost{}
-	call := inventoryCall{method: http.MethodGet, path: "hosts"}
-	err = probe.call(ctx, call, &hosts)
+	hosts, err := fetchAllPages(func(offset, limit int) (sepPage[sepHost], error) {
+		query := url.Values{}
+		query.Set("offset", strconv.Itoa(offset))
+		query.Set("limit", strconv.Itoa(limit))
+		page := sepPage[sepHost]{}
+		call := inventoryCall{method: http.MethodGet, path: "hosts", query: query}
+		err := probe.call(ctx, call, &page)
+		return page, err
+	})
 	if err != nil {
 		return nil, err
 	}
