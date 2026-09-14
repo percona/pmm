@@ -1,12 +1,12 @@
 # Peak UI — guide for AI coding agents
 
-You are probably reading this from `node_modules/@percona/peak-ui`. It explains how to use Peak UI correctly inside an app that depends on it. Rules and boundaries only; the component catalog lives in Storybook.
+THis guide explains how to use Peak UI correctly inside an app that depends on it. It contains rules and boundaries only; the component catalog lives in Storybook.
 
-Working on Peak UI itself (the `percona/peak-ui` repository)? Read `CONTRIBUTING.md` instead.
+Working on Peak UI itself (the `percona/peak-ui` repository), i.e., contributing to it? Then read the `CONTRIBUTING.md` file instead.
 
 ## What Peak UI is
 
-`@percona/peak-ui` is Percona's React component library built on **MUI v7**. It ships:
+`@percona/peak-ui` is Percona's React component library built on top of **MUI**. It ships:
 
 - a Percona theme (light + dark) with design tokens,
 - a theme wrapper every app must mount once,
@@ -18,8 +18,8 @@ Storybook is the definitive, coded source of truth: **https://percona.github.io/
 ## Where Peak UI ends and MUI begins
 
 - **Peak UI does not re-export MUI.** Buttons, layout (`Box`, `Stack`, `Grid`), `Typography`, menus, alerts, etc. come from `@mui/material`; icons from `@mui/icons-material`. Use path imports: `import Button from '@mui/material/Button'`.
-- **Peak UI exports only what adds value over MUI.** Before writing a component, check whether `@percona/peak-ui` already exports it. If it does, use it. If not, use MUI directly — the Peak UI theme already styles every MUI component to look like Percona.
-- **Never hand-style MUI to "look like Percona".** No hex colors, no custom fonts, no border radius tweaks. If something looks off, the theme is wrong or missing; do not patch it locally.
+- **Peak UI exports only what adds value over MUI.** Before writing a component, check whether `@percona/peak-ui` already exports it. If it does, use it. If not, use MUI directly — the Peak UI theme already styles every MUI component to "look like Percona".
+- **Never hand-style MUI to "look like Percona".** No hex colors, no custom fonts, no border radius tweaks. If something looks off, the theme is wrong or missing; do not patch it locally but ask user what to do or help them file an issue.
 - **Import from the package root only:** `import { TextInput } from '@percona/peak-ui'`. Never deep-import from `@percona/peak-ui/dist/...`.
 - **Customise through the exposed surface.** Every Peak UI component accepts `sx` and/or dedicated `*Props` pass-through props for the MUI component it wraps (for example `textFieldProps`). Do not target internal class names or wrap a Peak UI component just to restyle it.
 - **Respect the Storybook maturity tag** on each component: `stable` — build on it freely; `experimental` — API may change; `needs-review` — use with care; `deprecated` — do not use for new work.
@@ -101,4 +101,4 @@ Add a date adapter (e.g. `date-fns`) if you use date/time inputs.
 - Storybook (components, tokens, usage): https://percona.github.io/peak-ui/
 - Source and issues: https://github.com/percona/peak-ui
 - Figma kit (design intent): https://www.figma.com/design/08jGF3GZAUGmazlQtk0UQk/Peak-Design-Kit
-- MUI v7 docs: https://mui.com/material-ui/
+- MUI docs: https://mui.com/material-ui/
