@@ -48,7 +48,7 @@ func (res *addNodeRemoteRDSResult) String() string {
 type AddNodeRemoteRDSCommand struct {
 	NodeName     string            `arg:"" optional:"" name:"name" help:"Node name"`
 	Address      string            `help:"Address"`
-	InstanceID   string            `help:"AWS DB instance identifier (required)"`
+	InstanceID   string            `required:"" help:"AWS DB instance identifier"`
 	NodeModel    string            `help:"Node mddel"`
 	Region       string            `help:"Node region"`
 	Az           string            `help:"Node availability zone"`
