@@ -35,6 +35,12 @@ const (
 	// EnableMCP is used to enable the Model Context Protocol endpoint (/mcp). Defaults to true.
 	EnableMCP = "PMM_ENABLE_MCP"
 
+	// MCPRawSQL allows MCP tool output to include statements with literal values. Defaults to true.
+	MCPRawSQL = "PMM_MCP_RAW_SQL"
+
+	// MCPActionTimeout bounds EXPLAIN / SHOW CREATE TABLE polling in the MCP tools. Defaults to 15s.
+	MCPActionTimeout = "PMM_MCP_ACTION_TIMEOUT"
+
 	// MCPLoopbackURL overrides the base URL the MCP tools use to call PMM's own REST API
 	// (default http://127.0.0.1:8080/, nginx inside the container). Development only.
 	MCPLoopbackURL = "PMM_DEV_MCP_LOOPBACK_URL"

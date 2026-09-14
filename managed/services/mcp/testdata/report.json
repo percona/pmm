@@ -1,0 +1,10 @@
+{
+  "total_rows": 3,
+  "offset": 0,
+  "limit": 10,
+  "rows": [
+    {"rank": 0, "dimension": "", "database": "", "metrics": {"load": {"stats": {"sum_per_sec": 0.6}}, "num_queries": {"stats": {"sum": 1397, "sum_per_sec": 0.39}}, "query_time": {"stats": {"sum": 128.5, "avg": 0.092}}}, "sparkline": [], "fingerprint": "", "num_queries": 1397, "qps": 0.39, "load": 0.6},
+    {"rank": 1, "dimension": "QID-AAA", "database": "", "metrics": {"load": {"stats": {"sum_per_sec": 0.42}}, "num_queries": {"stats": {"sum": 1200, "sum_per_sec": 3.1}}, "query_time": {"stats": {"sum": 88.5, "avg": 0.073}}}, "sparkline": [], "fingerprint": "SELECT * FROM `customers` WHERE `email` = ?", "num_queries": 1200, "qps": 3.1, "load": 0.42},
+    {"rank": 2, "dimension": "QID-BBB", "database": "", "metrics": {"load": {"stats": {"sum_per_sec": 0.18}}, "num_queries": {"stats": {"sum": 197}}, "query_time": {"stats": {"sum": 40.0}}}, "sparkline": [], "fingerprint": "SELECT * FROM `orders` ORDER BY `RAND` ( ) LIMIT ?", "num_queries": 197, "qps": 0.05, "load": 0.18}
+  ]
+}

@@ -14,9 +14,9 @@ their phase is reached.
 | D4 | Phase 4 scope (Access-Role permissions, service-account user IDs, UI) | Out of scope; §5.4 of the plan is shipped as a design proposal in `docs/` only | Keeps the branch small and reviewable; the RBAC direction is Percona's to set. |
 | D5 | Default state of `PMM_ENABLE_MCP` | On in this branch; surfaced in `GET /v1/server/settings/readonly` | The endpoint is the thing under review; Percona decides the GA default. |
 | D6 | Test/demo environment | Railway project (`pmm-mcp/demo/railway/`): `pmm-server` built from a multi-stage Dockerfile that compiles pmm-managed from this branch and layers it plus the nginx conf into `percona/pmm-server:3`; `percona-server` (MySQL 8); PostgreSQL with `pg_stat_monitor` and `pgsm_enable_query_plan=on`; `pmm-client` in push metrics mode; a workload loop | PMM Server has no arm64 build; Railway builds on x86_64, terminates TLS in front of nginx's plain 8080 listener, and is driven with the Railway CLI plus the PMM API instead of SSH. Fallback: an x86_64 VM. |
-| D7 | Metrics path for `pmm_get_config` | _asked in Phase 2_ | |
+| D7 | Metrics path for `pmm_get_config` and the inventory version enrichment (asked at Phase 1, since enrichment needs it) | `GET /graph/api/datasources/proxy/uid/{uid}/api/v1/query`, uid discovered once from `GET /graph/api/datasources`; `"/graph/api/datasources/proxy/uid/"` added to `lbacPrefixes` | Plain Prometheus response, Viewer-accessible (the raw `/prometheus` path is admin), live-verified on 3.8.1; the `lbacPrefixes` entry makes LBAC filters apply to it. Upstream `main` lists `/graph/api/datasources/uid` and the numeric proxy path, not the uid proxy path. |
 | D8 | Streamable HTTP response mode | _asked in Phase 0 only if a client misbehaves behind nginx; SDK default (SSE) otherwise_ | |
-| D9 | Redaction default (`PMM_MCP_RAW_SQL`) | _asked in Phase 2_ | |
+| D9 | Redaction default (`PMM_MCP_RAW_SQL`) | `true` (raw examples allowed); `false` documented | Matches PMM's own QAN behaviour: examples are visible to the same role in the UI. `false` restricts output to normalized text; EXPLAIN plan bodies can still embed literals either way, so operators needing a hard guarantee disable examples in PMM. |
 
 ## Implementation notes that are decisions in their own right
 
@@ -28,6 +28,13 @@ their phase is reached.
   is the front door and port 7772 is not reachable from outside the container.
 - **`Stateless: true`**: no session table in pmm-managed, nothing to replicate
   in HA mode, restart-safe. GET/DELETE on `/mcp` answer 405 by SDK design.
+- **Loopback override is `PMM_DEV_MCP_LOOPBACK_URL`**, not `PMM_MCP_LOOPBACK_URL`:
+  the repo reserves the `PMM_DEV_*` prefix for development-only variables and
+  `PMM_*` for GA functionality, and this override exists only for development.
+- **Read-only inventory rules widen `GET /v1/inventory/services/{id}` and
+  `GET /v1/inventory/nodes/{id}` too**, because `resolveRule` walks prefixes:
+  a Viewer can read one service or node as well as the list. The fields are the
+  same as in the list; writes and `GET /v1/inventory/agents` stay admin (tested).
 - **Branch name** `pmm-sixta` was chosen by the author (D1) rather than the
   repo's `PMM-XXXX-description` form; rename together with the PR when Percona
   issues a Jira key.

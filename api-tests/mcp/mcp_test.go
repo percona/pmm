@@ -21,6 +21,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -64,8 +65,12 @@ func httpClient(withAuth bool) *http.Client {
 	return &http.Client{Transport: rt}
 }
 
+// endpoint returns the /mcp URL without the userinfo of the test server URL:
+// net/http would otherwise turn it into basic auth on its own.
 func endpoint() string {
-	return pmmapitests.BaseURL.ResolveReference(&url.URL{Path: "mcp"}).String()
+	u := pmmapitests.BaseURL.ResolveReference(&url.URL{Path: "mcp"})
+	u.User = nil
+	return u.String()
 }
 
 // connect opens an authenticated MCP session against the server under test.
@@ -147,6 +152,88 @@ func TestVersion(t *testing.T) {
 	text, isError := callText(t, connect(t), "pmm_version", nil)
 	assert.False(t, isError)
 	assert.True(t, strings.HasPrefix(text, "PMM Server 3."), text)
+}
+
+// topQueryID returns a service and one of its queryids from QAN, skipping the
+// test when the server has no QAN data yet.
+func topQueryID(t *testing.T, session *mcp.ClientSession, engine string) (string, string, string) {
+	t.Helper()
+
+	res, err := inventoryClient.Default.ServicesService.ListServices(&services_service.ListServicesParams{Context: pmmapitests.Context})
+	require.NoError(t, err)
+	var serviceID, serviceName string
+	switch engine {
+	case "mysql":
+		for _, svc := range res.Payload.Mysql {
+			serviceID, serviceName = svc.ServiceID, svc.ServiceName
+		}
+	case "postgresql":
+		for _, svc := range res.Payload.Postgresql {
+			if svc.ServiceName == "pmm-server-postgresql" {
+				continue
+			}
+			serviceID, serviceName = svc.ServiceID, svc.ServiceName
+		}
+	}
+	if serviceID == "" {
+		t.Skipf("no %s service registered", engine)
+	}
+
+	text, isError := callText(t, session, "pmm_top_queries", map[string]any{"service_name": serviceName, "period_from": "now-12h", "limit": 3})
+	require.False(t, isError, text)
+	m := regexp.MustCompile(`\[([0-9A-Fa-f]+)\]`).FindStringSubmatch(text)
+	if m == nil {
+		t.Skipf("no QAN data for %s yet", serviceName)
+	}
+	return serviceID, serviceName, m[1]
+}
+
+func TestTopQueriesAndDetail(t *testing.T) {
+	t.Parallel()
+
+	session := connect(t)
+	for _, engine := range []string{"mysql", "postgresql"} {
+		t.Run(engine, func(t *testing.T) {
+			t.Parallel()
+
+			serviceID, serviceName, queryID := topQueryID(t, session, engine)
+
+			text, isError := callText(t, session, "pmm_query_detail", map[string]any{"queryid": queryID, "service_id": serviceID, "period_from": "now-12h"})
+			require.False(t, isError, text)
+			assert.Contains(t, text, "queryid: "+queryID)
+			assert.Contains(t, text, "engine: "+engine)
+			assert.Contains(t, text, "service: "+serviceName)
+			assert.Contains(t, text, "fingerprint:")
+			assert.Contains(t, text, "filter_by="+queryID)
+		})
+	}
+
+	t.Run("InvalidWindow", func(t *testing.T) {
+		t.Parallel()
+
+		text, isError := callText(t, session, "pmm_top_queries", map[string]any{"period_from": "yesterday"})
+		assert.True(t, isError)
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input"), text)
+	})
+}
+
+func TestExplainStoredPlanProbe(t *testing.T) {
+	t.Parallel()
+
+	session := connect(t)
+
+	// A MySQL queryid has no stored plan: the probe answers 200 {} and the tool
+	// falls through to the live mysql_explain_json action.
+	serviceID, _, queryID := topQueryID(t, session, "mysql")
+	text, isError := callText(t, session, "pmm_get_explain", map[string]any{"service_id": serviceID, "queryid": queryID})
+	assert.NotContains(t, text, "Stored plan")
+	if isError {
+		// Without a stored example the fingerprint's placeholders make MySQL
+		// answer 1064, which is mapped to invalid_input with remediation text.
+		assert.True(t, strings.HasPrefix(text, "error: invalid_input") || strings.HasPrefix(text, "error: no_query_source"), text)
+	} else {
+		assert.Contains(t, text, "EXPLAIN (json, mysql")
+	}
 }
 
 func TestInventory(t *testing.T) {

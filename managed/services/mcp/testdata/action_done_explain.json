@@ -1,0 +1,7 @@
+{
+  "action_id": "/action_id/explain-1",
+  "pmm_agent_id": "/agent_id/agent-1",
+  "output": "{\"explain_result\": \"ewogICJxdWVyeV9ibG9jayI6IHsKICAgICJzZWxlY3RfaWQiOiAxLAogICAgImNvc3RfaW5mbyI6IHsKICAgICAgInF1ZXJ5X2Nvc3QiOiAiMjAxNC4yNSIKICAgIH0sCiAgICAidGFibGUiOiB7CiAgICAgICJ0YWJsZV9uYW1lIjogImN1c3RvbWVycyIsCiAgICAgICJhY2Nlc3NfdHlwZSI6ICJBTEwiLAogICAgICAicm93c19leGFtaW5lZF9wZXJfc2NhbiI6IDIwMDAwLAogICAgICAiYXR0YWNoZWRfY29uZGl0aW9uIjogIihgc2hvcGAuYGN1c3RvbWVyc2AuYGVtYWlsYCA9ICd1c2VyNDJAZXhhbXBsZS5jb20nKSIKICAgIH0KICB9Cn0=\", \"explained_query\": \"SELECT * FROM customers WHERE email = 'user42@example.com'\", \"is_dml\": false}",
+  "done": true,
+  "error": ""
+}

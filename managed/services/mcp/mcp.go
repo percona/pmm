@@ -16,9 +16,11 @@
 package mcp
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/sirupsen/logrus"
@@ -48,12 +50,19 @@ diagnostics through these tools. Recommended order for a slow-query triage:
 All tools are read-only. EXPLAIN is never EXPLAIN ANALYZE. Errors come back as
 "error: <code>" followed by a remediation message; act on the message.`
 
+// hourWindow is the default look-back for deep links that have no window of their own.
+const hourWindow = time.Hour
+
 // Service serves PMM's MCP endpoint.
 type Service struct {
-	l       *logrus.Entry
-	enabled func() bool
-	api     pmmAPI
-	handler http.Handler
+	l             *logrus.Entry
+	enabled       func() bool
+	api           pmmAPI
+	handler       http.Handler
+	rawSQL        bool
+	actionTimeout time.Duration
+	publicAddress func(context.Context) string
+	now           func() time.Time
 
 	// dsUID caches the uid of the Grafana metrics datasource.
 	dsMu  sync.Mutex
@@ -70,17 +79,33 @@ type Params struct {
 	LoopbackURL string
 	// API overrides the PMM API client; tests use it to inject fakes.
 	API pmmAPI
+	// RawSQL allows tool output to include statements with literal values
+	// (query examples, the explained statement on EXPLAIN output). When false,
+	// only normalized text is emitted. Defaults to false here; the caller
+	// passes the PMM_MCP_RAW_SQL setting (default true).
+	RawSQL bool
+	// ActionTimeout bounds EXPLAIN / SHOW CREATE TABLE polling. Defaults to DefaultActionTimeout.
+	ActionTimeout time.Duration
+	// PublicAddress returns settings.PMMPublicAddress (may be empty); used for "View in PMM" links.
+	PublicAddress func(context.Context) string
 }
 
 // New creates a new MCP service.
 func New(params Params) (*Service, error) {
 	s := &Service{
-		l:       logrus.WithField("component", "mcp"),
-		enabled: params.Enabled,
-		api:     params.API,
+		l:             logrus.WithField("component", "mcp"),
+		enabled:       params.Enabled,
+		api:           params.API,
+		rawSQL:        params.RawSQL,
+		actionTimeout: params.ActionTimeout,
+		publicAddress: params.PublicAddress,
+		now:           time.Now,
 	}
 	if s.enabled == nil {
 		s.enabled = func() bool { return true }
+	}
+	if s.actionTimeout <= 0 {
+		s.actionTimeout = DefaultActionTimeout
 	}
 	if s.api == nil {
 		loopback := params.LoopbackURL
@@ -133,4 +158,7 @@ func (s *Service) Handler() http.Handler {
 // registerTools adds every tool to the server.
 func (s *Service) registerTools(server *mcp.Server) {
 	s.registerInventoryTools(server)
+	s.registerQANTools(server)
+	s.registerActionTools(server)
+	s.registerConfigTools(server)
 }

@@ -248,13 +248,22 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// Development only; read at startup by pmm-managed, not persisted.
 			continue
 
-		case pkgenv.EnableMCP:
+		case pkgenv.EnableMCP, pkgenv.MCPRawSQL:
 			_, err := strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 				errs = append(errs, err)
 			}
-			// Read at startup by GetMCPEnabled; not persisted in settings.
+			// Read at startup by GetMCPEnabled / GetMCPRawSQL; not persisted in settings.
+			continue
+
+		case pkgenv.MCPActionTimeout:
+			_, err := time.ParseDuration(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+			}
+			// Read at startup by GetMCPActionTimeout; not persisted in settings.
 			continue
 
 		case pkgenv.PlatformAddress:
@@ -421,7 +430,31 @@ func GetInterfaceToBind() string {
 // GetMCPEnabled reports whether the MCP endpoint is enabled. It defaults to true;
 // only an explicit false-like value disables it.
 func GetMCPEnabled() bool {
-	v, ok := os.LookupEnv(pkgenv.EnableMCP)
+	return boolEnvDefaultTrue(pkgenv.EnableMCP)
+}
+
+// GetMCPRawSQL reports whether MCP tool output may include statements with
+// literal values. It defaults to true.
+func GetMCPRawSQL() bool {
+	return boolEnvDefaultTrue(pkgenv.MCPRawSQL)
+}
+
+// GetMCPActionTimeout returns the polling deadline for agent actions run by the
+// MCP tools; fallback is returned when the variable is unset or invalid.
+func GetMCPActionTimeout(fallback time.Duration) time.Duration {
+	v, ok := os.LookupEnv(pkgenv.MCPActionTimeout)
+	if !ok || v == "" {
+		return fallback
+	}
+	d, err := time.ParseDuration(v)
+	if err != nil || d <= 0 {
+		return fallback
+	}
+	return d
+}
+
+func boolEnvDefaultTrue(key string) bool {
+	v, ok := os.LookupEnv(key)
 	if !ok || v == "" {
 		return true
 	}
