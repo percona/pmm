@@ -280,7 +280,9 @@ describe('PluginListPage — item display name', () => {
       </SnackbarProvider>
     );
 
-    expect(screen.getByRole('heading', { name: 'MySQL Backups' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'MySQL Backups' })
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'New backup' })
     ).toBeInTheDocument();
@@ -311,7 +313,9 @@ describe('PluginListPage — item display name', () => {
       </SnackbarProvider>
     );
 
-    expect(screen.getByRole('heading', { name: 'Restores' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'Restores' })
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'New restore' })
     ).toBeInTheDocument();

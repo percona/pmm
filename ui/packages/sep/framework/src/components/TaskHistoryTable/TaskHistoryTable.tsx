@@ -424,9 +424,7 @@ function TaskHistoryTableView({
         onClose={cancelStop}
         aria-labelledby="task-history-stop-title"
       >
-        <DialogTitle id="task-history-stop-title">
-          Stop {itemName}
-        </DialogTitle>
+        <DialogTitle id="task-history-stop-title">Stop {itemName}</DialogTitle>
         <DialogContent>
           <DialogContentText>
             {pendingStopEntry

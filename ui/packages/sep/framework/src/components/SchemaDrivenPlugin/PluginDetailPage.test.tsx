@@ -1432,7 +1432,7 @@ describe('PluginDetailPage — PII Anonymization section', () => {
     ).toBeNull();
   });
 
-  it('suppresses anonymize_mask and anonymized_entities from the Task information extras', () => {
+  it('suppresses anonymize_mask and anonymized_entities from the item information extras', () => {
     mockUsePluginTask.mockReturnValue({
       data: {
         id: 1,
@@ -1522,12 +1522,16 @@ describe('PluginDetailPage — overview_hidden_fields', () => {
       return {
         pluginName: 'inventory',
         display_name: 'Inventory',
+        item_display_name: 'inventory',
+        item_display_name_plural: 'inventories',
         description: 'Test',
         capabilities: {},
         entities: [
           {
             name: 'services',
             display_name: 'Services',
+            item_display_name: 'service',
+            item_display_name_plural: 'services',
             description: 'Service entities',
             forms: [],
             list_view: {
@@ -1688,12 +1692,16 @@ describe('PluginDetailPage entity delete flow', () => {
   const entitySchema = {
     pluginName: 'inventory',
     display_name: 'Inventory',
+    item_display_name: 'inventory',
+    item_display_name_plural: 'inventories',
     description: 'Test',
     capabilities: {},
     entities: [
       {
         name: 'nodes',
         display_name: 'Nodes',
+        item_display_name: 'node',
+        item_display_name_plural: 'nodes',
         forms: [],
         list_view: { columns: [{ key: 'name', label: 'Name' }] },
       },
@@ -1795,12 +1803,16 @@ describe('PluginDetailPage — write access', () => {
   const entitySchema = {
     pluginName: 'inventory',
     display_name: 'Inventory',
+    item_display_name: 'inventory',
+    item_display_name_plural: 'inventories',
     description: 'Test',
     capabilities: {},
     entities: [
       {
         name: 'services',
         display_name: 'Services',
+        item_display_name: 'service',
+        item_display_name_plural: 'services',
         forms: [],
         list_view: {
           columns: [{ key: 'name', label: 'Name' }],
@@ -1926,12 +1938,16 @@ describe('PluginDetailPage — write access', () => {
   const entitySchema = {
     pluginName: 'inventory',
     display_name: 'Inventory',
+    item_display_name: 'inventory',
+    item_display_name_plural: 'inventories',
     description: 'Test',
     capabilities: {},
     entities: [
       {
         name: 'services',
         display_name: 'Services',
+        item_display_name: 'service',
+        item_display_name_plural: 'services',
         forms: [],
         list_view: {
           columns: [{ key: 'name', label: 'Name' }],

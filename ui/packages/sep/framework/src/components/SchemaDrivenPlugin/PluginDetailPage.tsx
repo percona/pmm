@@ -579,7 +579,9 @@ function OverviewTab({
           />
         )}
 
-      <SectionCard title={`${capitalizeItemLabel(schema.item_display_name)} information`}>
+      <SectionCard
+        title={`${capitalizeItemLabel(schema.item_display_name)} information`}
+      >
         <Grid container spacing={2}>
           {visibleColumns.map((col) => (
             <TaskOverviewDetailField
@@ -806,12 +808,9 @@ function ActionBar({
         ? { taskName: pendingExecute.taskName, executeBody }
         : { taskName: pendingExecute.taskName };
       await executeTask.mutateAsync(executeArgs);
-      enqueueSnackbar(
-        `${itemLabel} "${pendingExecute.taskName}" started`,
-        {
-          variant: 'success',
-        }
-      );
+      enqueueSnackbar(`${itemLabel} "${pendingExecute.taskName}" started`, {
+        variant: 'success',
+      });
     } catch (e) {
       actionError.reportError(e);
     } finally {
@@ -839,8 +838,7 @@ function ActionBar({
     }
   };
 
-  const editUnavailable =
-    `Editing isn't available for this ${itemName} — it has no saved form input.`;
+  const editUnavailable = `Editing isn't available for this ${itemName} — it has no saved form input.`;
 
   // Every action here is a mutation except Schedule (navigation), so a
   // read-only session with no scheduling capability is left with no bar at all.

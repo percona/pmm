@@ -136,7 +136,9 @@ export function ScheduledTasksPanel({
       await updateMut.mutateAsync({ id: task.id, body });
     } catch (e) {
       setActionError(
-        e instanceof Error ? e.message : `Failed to toggle scheduled ${itemName}`
+        e instanceof Error
+          ? e.message
+          : `Failed to toggle scheduled ${itemName}`
       );
     }
   };
@@ -147,7 +149,9 @@ export function ScheduledTasksPanel({
       await deleteMut.mutateAsync(task.id);
     } catch (e) {
       setActionError(
-        e instanceof Error ? e.message : `Failed to delete scheduled ${itemName}`
+        e instanceof Error
+          ? e.message
+          : `Failed to delete scheduled ${itemName}`
       );
     }
   };
@@ -165,7 +169,9 @@ export function ScheduledTasksPanel({
       setCreating(false);
     } catch (e) {
       setFormError(
-        e instanceof Error ? e.message : `Failed to create scheduled ${itemName}`
+        e instanceof Error
+          ? e.message
+          : `Failed to create scheduled ${itemName}`
       );
     }
   };
@@ -204,12 +210,11 @@ export function ScheduledTasksPanel({
   const headerRow = (
     <TableHead>
       <TableRow>
-        {(canMutate
-          ? [...columnHeaders, ACTIONS_HEADER]
-          : columnHeaders
-        ).map((h) => (
-          <TableCell key={h}>{h}</TableCell>
-        ))}
+        {(canMutate ? [...columnHeaders, ACTIONS_HEADER] : columnHeaders).map(
+          (h) => (
+            <TableCell key={h}>{h}</TableCell>
+          )
+        )}
       </TableRow>
     </TableHead>
   );

@@ -169,8 +169,7 @@ function PluginEditPage({
   );
 
   const title = entitySchema?.display_name ?? schema.display_name;
-  const itemName =
-    entitySchema?.item_display_name ?? schema.item_display_name;
+  const itemName = entitySchema?.item_display_name ?? schema.item_display_name;
   const sections = entitySchema?.forms ?? schema.forms!;
 
   const [{ submitError, fieldErrors }, setSubmitErrorState] =
