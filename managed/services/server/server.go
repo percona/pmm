@@ -632,10 +632,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}, nil
 }
 
-// handleInternalQANToggle applies the requested state to the QAN Agent of PMM Server's own
-// PostgreSQL and reports the resulting disabled state, plus the pmm-agent that the caller should
-// signal once the transaction has committed.
-// Reports whether QAN on PMM Server's own PostgreSQL is currently off (internalPgQANDisabled).
+// internalPgQANDisabled reports whether QAN on PMM Server's own PostgreSQL is currently off.
 //
 // It defaults to true when that cannot be determined: the Service may not exist at all, which is
 // the normal state in HA mode, and reporting QAN as enabled in that case is the wrong way to be
@@ -656,6 +653,9 @@ func (s *Server) internalPgQANDisabled(q *reform.Querier) bool {
 	return agent.Disabled
 }
 
+// handleInternalQANToggle applies the requested state to the QAN Agent of PMM Server's own
+// PostgreSQL and reports the resulting disabled state, plus the pmm-agent that the caller should
+// signal once the transaction has committed.
 func (s *Server) handleInternalQANToggle(q *reform.Querier, enableInternalPgQan *bool) (bool, string, error) {
 	if s.haService.Params().Enabled {
 		if *enableInternalPgQan {

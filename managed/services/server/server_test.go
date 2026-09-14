@@ -39,9 +39,11 @@ import (
 )
 
 // newTestServer builds a Server with every dependency mocked, for tests that drive the real
-// GetSettings/ChangeSettings paths. The state updater is permissive about which pmm-agent gets
-// signalled; a caller that cares can assert on it.
-func newTestServer(t *testing.T, db *reform.DB) *Server {
+// GetSettings/ChangeSettings paths. It returns the state updater alongside the Server so a caller
+// can assert on the pmm-agent that gets signalled: the only one this package ever signals is PMM
+// Server's own, and passing the changed agent's own ID instead was the bug fixed here, so the
+// expectation is pinned to models.PMMServerAgentID and any other argument panics the test.
+func newTestServer(t *testing.T, db *reform.DB) (*Server, *mockAgentsStateUpdater) {
 	t.Helper()
 
 	var supervisord mockSupervisordService
@@ -59,7 +61,7 @@ func newTestServer(t *testing.T, db *reform.DB) *Server {
 	state := &mockAgentsStateUpdater{}
 	state.Test(t)
 	state.On("UpdateAgentsState", context.TODO()).Return(nil)
-	state.On("RequestStateUpdate", context.TODO(), mock.Anything).Return(nil)
+	state.On("RequestStateUpdate", context.TODO(), models.PMMServerAgentID).Return(nil)
 
 	var templatesService mockTemplatesService
 	templatesService.Test(t)
@@ -101,7 +103,7 @@ func newTestServer(t *testing.T, db *reform.DB) *Server {
 	})
 	require.NoError(t, err)
 
-	return s
+	return s, state
 }
 
 func TestServer(t *testing.T) {
@@ -110,7 +112,9 @@ func TestServer(t *testing.T) {
 	newServer := func(t *testing.T) *Server {
 		t.Helper()
 
-		return newTestServer(t, reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)))
+		s, _ := newTestServer(t, reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)))
+
+		return s
 	}
 
 	t.Run("UpdateSettingsFromEnv", func(t *testing.T) {
@@ -310,7 +314,7 @@ func TestInternalPgQANSettings(t *testing.T) {
 	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	s := newTestServer(t, db)
+	s, state := newTestServer(t, db)
 	ctx := context.TODO()
 
 	agent, err := models.FindInternalPgQANAgent(db.Querier)
@@ -334,6 +338,9 @@ func TestInternalPgQANSettings(t *testing.T) {
 		stored, err := models.FindInternalPgQANAgent(db.Querier)
 		require.NoError(t, err)
 		assert.False(t, stored.Disabled)
+
+		// RequestStateUpdate takes a pmm-agent ID, not the ID of the agent that changed.
+		state.AssertCalled(t, "RequestStateUpdate", ctx, models.PMMServerAgentID)
 	})
 }
 
@@ -351,7 +358,7 @@ func TestInternalPgQANSettingsWithEnvPin(t *testing.T) {
 	t.Cleanup(func() { require.NoError(t, sqlDB.Close()) })
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	s := newTestServer(t, db)
+	s, _ := newTestServer(t, db)
 	ctx := context.TODO()
 
 	agent, err := models.FindInternalPgQANAgent(db.Querier)
