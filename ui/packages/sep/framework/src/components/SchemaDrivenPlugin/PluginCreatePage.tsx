@@ -36,6 +36,7 @@ import {
 } from '../SchemaFormRenderer';
 import type { RenderFieldOverride } from '../SchemaFormRenderer/types';
 import type { RenderFormSlot } from './types';
+import { capitalizeItemLabel } from '../../utils/itemLabels';
 import {
   EMPTY_SUBMIT_ERROR,
   mapSubmitError,
@@ -78,7 +79,11 @@ export function PluginCreatePage({
   );
 
   const create = multi ? createEntity : createTask;
-  const title = multi ? entitySchema!.display_name : schema.display_name;
+  // List/app title for back chrome; item noun for New/Create/created (PMM-15455).
+  const screenTitle = multi ? entitySchema!.display_name : schema.display_name;
+  const itemName = multi
+    ? entitySchema!.item_display_name
+    : schema.item_display_name;
   const sections = multi ? entitySchema!.forms : schema.forms!;
   const capabilities = multi ? undefined : schema.capabilities;
 
@@ -95,7 +100,9 @@ export function PluginCreatePage({
     // path, which has already coerced.
     create.mutate(coerceFormValues(data, flattenSectionFields(sections)), {
       onSuccess: (created) => {
-        enqueueSnackbar(`${title} created`, { variant: 'success' });
+        enqueueSnackbar(`${capitalizeItemLabel(itemName)} created`, {
+          variant: 'success',
+        });
         // A post-create connectivity check only rides the create response; the
         // detail/list model omits it. When present, land on the new task's
         // detail page and carry the warning via navigation state so it surfaces
@@ -134,14 +141,14 @@ export function PluginCreatePage({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
           <IconButton
             onClick={() => navigate('..', { relative: 'path' })}
-            aria-label={`Back to ${title}`}
+            aria-label={`Back to ${screenTitle}`}
           >
             <ArrowBackIcon />
           </IconButton>
-          <Typography variant="h4">New {title}</Typography>
+          <Typography variant="h4">New {itemName}</Typography>
         </Box>
         <ReadOnlyNotice
-          action={`create ${title}`}
+          action={`create ${itemName}`}
           testId="plugin-create-read-only"
         />
       </Box>
@@ -154,7 +161,7 @@ export function PluginCreatePage({
         <IconButton onClick={() => navigate('..', { relative: 'path' })}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h4">New {title}</Typography>
+        <Typography variant="h4">New {itemName}</Typography>
       </Box>
 
       {renderCreateForm?.({
@@ -170,7 +177,7 @@ export function PluginCreatePage({
           sections={sections}
           onSubmit={handleSubmit}
           loading={create.isPending}
-          submitLabel={`Create ${title}`}
+          submitLabel={`Create ${itemName}`}
           submitError={submitError}
           fieldErrors={fieldErrors}
           capabilities={capabilities}

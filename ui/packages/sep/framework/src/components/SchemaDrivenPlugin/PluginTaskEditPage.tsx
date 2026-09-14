@@ -43,6 +43,7 @@ import type {
 } from '../SchemaFormRenderer/types';
 import type { RenderFormSlot } from './types';
 import { getStoredForm } from './storedForm';
+import { capitalizeItemLabel } from '../../utils/itemLabels';
 import {
   EMPTY_SUBMIT_ERROR,
   mapSubmitError,
@@ -130,6 +131,8 @@ export function PluginTaskEditPage({
   const { enqueueSnackbar } = useSnackbar();
   const updateTask = useUpdatePluginTask(pluginName, mockTasks);
   const { data: task, isLoading } = usePluginTask(pluginName, id, mockTasks);
+  const itemName = schema.item_display_name;
+  const itemLabel = capitalizeItemLabel(itemName);
 
   const storedForm = getStoredForm(task);
 
@@ -177,7 +180,7 @@ export function PluginTaskEditPage({
       },
       {
         onSuccess: () => {
-          enqueueSnackbar(`${schema.display_name} task updated`, {
+          enqueueSnackbar(`${itemLabel} updated`, {
             variant: 'success',
           });
           navigate('..', { relative: 'path' });
@@ -208,11 +211,11 @@ export function PluginTaskEditPage({
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h4">
-            {schema.display_name}: {id}
+            {itemLabel}: {id}
           </Typography>
         </Box>
         <ReadOnlyNotice
-          action={`edit ${schema.display_name} tasks`}
+          action={`edit ${schema.item_display_name_plural}`}
           testId="plugin-task-edit-read-only"
         />
       </Box>
@@ -250,7 +253,7 @@ export function PluginTaskEditPage({
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h4">
-          Edit {schema.display_name}: {id}
+          Edit {itemName}: {id}
         </Typography>
       </Box>
 

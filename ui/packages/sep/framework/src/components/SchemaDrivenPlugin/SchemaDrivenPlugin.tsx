@@ -63,6 +63,7 @@ import {
 import { resolvePluginRouteBase } from './routeBase';
 import type { RenderFormSlot } from './types';
 import type { RenderListColumnOverride } from '../SchemaListView';
+import { capitalizeItemLabel } from '../../utils/itemLabels';
 
 interface SchemaDrivenPluginProps {
   pluginName: string;
@@ -168,6 +169,8 @@ function PluginEditPage({
   );
 
   const title = entitySchema?.display_name ?? schema.display_name;
+  const itemName =
+    entitySchema?.item_display_name ?? schema.item_display_name;
   const sections = entitySchema?.forms ?? schema.forms!;
 
   const [{ submitError, fieldErrors }, setSubmitErrorState] =
@@ -190,7 +193,9 @@ function PluginEditPage({
       },
       {
         onSuccess: () => {
-          enqueueSnackbar(`${title} updated`, { variant: 'success' });
+          enqueueSnackbar(`${capitalizeItemLabel(itemName)} updated`, {
+            variant: 'success',
+          });
           navigate('..', { relative: 'path' });
         },
         onError: (error: unknown) => {
@@ -219,11 +224,11 @@ function PluginEditPage({
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h4">
-            {title} #{id}
+            {capitalizeItemLabel(itemName)} #{id}
           </Typography>
         </Box>
         <ReadOnlyNotice
-          action={`edit ${title}`}
+          action={`edit ${itemName}`}
           testId="plugin-entity-edit-read-only"
         />
       </Box>
@@ -266,7 +271,7 @@ function PluginEditPage({
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h4">
-          Edit {title} #{id}
+          Edit {itemName} #{id}
         </Typography>
       </Box>
 
@@ -284,7 +289,7 @@ function PluginEditPage({
           sections={sections}
           onSubmit={handleSubmit}
           loading={updateEntity.isPending}
-          submitLabel={`Save ${title}`}
+          submitLabel={`Save ${itemName}`}
           submitError={submitError}
           fieldErrors={fieldErrors}
           defaultValues={defaultValues}

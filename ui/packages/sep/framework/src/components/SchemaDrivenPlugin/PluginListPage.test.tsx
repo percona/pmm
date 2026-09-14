@@ -168,6 +168,8 @@ describe('PluginListPage — status column opens the last run', () => {
   const statusSchema: PluginSchema = {
     name: 'sched',
     display_name: 'Sched',
+    item_display_name: 'sched',
+    item_display_name_plural: 'scheds',
     list_view: {
       columns: [
         { key: 'name', label: 'Name' },
@@ -221,6 +223,8 @@ describe('PluginListPage — status column opens the last run', () => {
                         {
                           name: 'inventory',
                           display_name: 'Inventory',
+                          item_display_name: 'item',
+                          item_display_name_plural: 'items',
                           list_view: statusSchema.list_view,
                         },
                       ],
@@ -255,15 +259,50 @@ describe('PluginListPage — status column opens the last run', () => {
   });
 });
 
+describe('PluginListPage — item display name', () => {
+  it('uses item_display_name for New, not the plural app title', () => {
+    render(
+      <SnackbarProvider>
+        <MemoryRouter>
+          <PluginListPage
+            schema={
+              {
+                name: 'mysql_backups',
+                display_name: 'MySQL Backups',
+                item_display_name: 'backup',
+                item_display_name_plural: 'backups',
+                list_view: { columns: [{ key: 'name', label: 'Name' }] },
+              } as unknown as PluginSchema
+            }
+            pluginName="mysql_backups"
+          />
+        </MemoryRouter>
+      </SnackbarProvider>
+    );
+
+    expect(screen.getByRole('heading', { name: 'MySQL Backups' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'New backup' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'New MySQL Backups' })
+    ).not.toBeInTheDocument();
+  });
+});
+
 describe('PluginListPage — write access', () => {
   const deletableEntitySchema = {
     name: 'inventory',
     display_name: 'Inventory',
+    item_display_name: 'inventory',
+    item_display_name_plural: 'inventories',
     capabilities: { scheduling: false },
     entities: [
       {
         name: 'nodes',
         display_name: 'Nodes',
+        item_display_name: 'node',
+        item_display_name_plural: 'nodes',
         forms: [],
         list_view: {
           columns: [
@@ -305,7 +344,7 @@ describe('PluginListPage — write access', () => {
   it('renders the create button and wires row delete for a session that may mutate', () => {
     renderPage();
     expect(
-      screen.getByRole('button', { name: 'New Sched' })
+      screen.getByRole('button', { name: 'New sched' })
     ).toBeInTheDocument();
 
     renderDeletableEntityList();
@@ -317,7 +356,7 @@ describe('PluginListPage — write access', () => {
 
     renderPage();
     expect(
-      screen.queryByRole('button', { name: 'New Sched' })
+      screen.queryByRole('button', { name: 'New sched' })
     ).not.toBeInTheDocument();
     // Reads stay: the list itself and the Schedules link are unaffected.
     expect(screen.getByTestId('plugin-schedule-link')).toBeInTheDocument();
@@ -331,11 +370,15 @@ describe('PluginListPage — delete failure reporting', () => {
   const deletableEntitySchema = {
     name: 'inventory',
     display_name: 'Inventory',
+    item_display_name: 'inventory',
+    item_display_name_plural: 'inventories',
     capabilities: { scheduling: false },
     entities: [
       {
         name: 'nodes',
         display_name: 'Nodes',
+        item_display_name: 'node',
+        item_display_name_plural: 'nodes',
         forms: [],
         list_view: {
           columns: [

@@ -49,6 +49,7 @@ import {
 } from '../TaskHistoryTable';
 import { TaskRunDetailDrawer } from '../TaskRunDetailDrawer';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
+import { capitalizeItemLabel } from '../../utils/itemLabels';
 
 interface PluginListPageProps {
   schema: PluginSchema;
@@ -182,6 +183,9 @@ export function PluginListPage({
   // be absent here — guarded below once every hook has run.
   const listView = multi ? entitySchema!.list_view : schema.list_view;
   const title = multi ? entitySchema!.display_name : schema.display_name;
+  const itemName = multi
+    ? entitySchema!.item_display_name
+    : schema.item_display_name;
   const description = multi ? entitySchema?.description : schema.description;
 
   // Which columns render a task status, so the chip in them can become the way
@@ -279,7 +283,9 @@ export function PluginListPage({
     deleteError.clearError();
     deleteEntity.mutate(sid, {
       onSuccess: () => {
-        enqueueSnackbar(`${title} deleted`, { variant: 'success' });
+        enqueueSnackbar(`${capitalizeItemLabel(itemName)} deleted`, {
+          variant: 'success',
+        });
       },
       // Reported by the list's own alert rather than a toast: the confirm
       // dialog is already closed, and the alert does not depend on the host
@@ -373,7 +379,7 @@ export function PluginListPage({
                   startIcon={<AddIcon />}
                   onClick={() => navigate('new', { relative: 'path' })}
                 >
-                  New {multi ? title : schema.display_name}
+                  New {itemName}
                 </Button>
               )}
             </>
@@ -389,8 +395,8 @@ export function PluginListPage({
         description={
           pendingDelete
             ? pendingDelete.name
-              ? `Permanently delete ${title} "${pendingDelete.name}" (id ${pendingDelete.id}) from ${schema.display_name}? This cannot be undone.`
-              : `Permanently delete ${title} (id ${pendingDelete.id}) from ${schema.display_name}? This cannot be undone.`
+              ? `Permanently delete ${itemName} "${pendingDelete.name}" (id ${pendingDelete.id}) from ${schema.display_name}? This cannot be undone.`
+              : `Permanently delete ${itemName} (id ${pendingDelete.id}) from ${schema.display_name}? This cannot be undone.`
             : ''
         }
       />
