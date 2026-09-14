@@ -16,7 +16,9 @@
 package mcp
 
 import (
+	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/sirupsen/logrus"
@@ -50,7 +52,12 @@ All tools are read-only. EXPLAIN is never EXPLAIN ANALYZE. Errors come back as
 type Service struct {
 	l       *logrus.Entry
 	enabled func() bool
+	api     pmmAPI
 	handler http.Handler
+
+	// dsUID caches the uid of the Grafana metrics datasource.
+	dsMu  sync.Mutex
+	dsUID string
 }
 
 // Params holds the dependencies and configuration of the MCP service.
@@ -58,16 +65,33 @@ type Params struct {
 	// Enabled reports whether the endpoint is switched on. When it returns
 	// false, the handler answers 404 so that the feature is invisible.
 	Enabled func() bool
+	// LoopbackURL is the base URL of PMM's REST API as seen from inside the
+	// server (nginx's plain-HTTP listener). Defaults to DefaultLoopbackURL.
+	LoopbackURL string
+	// API overrides the PMM API client; tests use it to inject fakes.
+	API pmmAPI
 }
 
 // New creates a new MCP service.
-func New(params Params) *Service {
+func New(params Params) (*Service, error) {
 	s := &Service{
 		l:       logrus.WithField("component", "mcp"),
 		enabled: params.Enabled,
+		api:     params.API,
 	}
 	if s.enabled == nil {
 		s.enabled = func() bool { return true }
+	}
+	if s.api == nil {
+		loopback := params.LoopbackURL
+		if loopback == "" {
+			loopback = DefaultLoopbackURL
+		}
+		c, err := newClient(loopback, s.l)
+		if err != nil {
+			return nil, fmt.Errorf("mcp: %w", err)
+		}
+		s.api = c
 	}
 
 	server := mcp.NewServer(&mcp.Implementation{
@@ -92,7 +116,7 @@ func New(params Params) *Service {
 		DisableLocalhostProtection: true,
 	})
 
-	return s
+	return s, nil
 }
 
 // Handler returns the HTTP handler to mount at /mcp and /mcp/.
@@ -106,6 +130,7 @@ func (s *Service) Handler() http.Handler {
 	})
 }
 
-// registerTools adds every tool to the server. Tools are added in later
-// phases; the server already answers initialize and tools/list.
-func (s *Service) registerTools(_ *mcp.Server) {}
+// registerTools adds every tool to the server.
+func (s *Service) registerTools(server *mcp.Server) {
+	s.registerInventoryTools(server)
+}

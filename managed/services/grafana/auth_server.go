@@ -145,6 +145,14 @@ var methodRules = map[string]role{
 	http.MethodPost + " /v1/alerting/templates":    editor,
 	http.MethodPut + " /v1/alerting/templates/":    editor,
 	http.MethodDelete + " /v1/alerting/templates/": editor,
+
+	// Read-only inventory for any authenticated user: viewers already see every
+	// service and node name on dashboards and in QAN filters, and the MCP's
+	// pmm_inventory relies on it. Writes stay admin through the "/v1/inventory"
+	// rule, as does GET /v1/inventory/agents (agent records carry connection
+	// configuration).
+	http.MethodGet + " /v1/inventory/services": viewer,
+	http.MethodGet + " /v1/inventory/nodes":    viewer,
 }
 
 var lbacPrefixes = []string{
@@ -155,6 +163,8 @@ var lbacPrefixes = []string{
 	"/v1/qan/",
 	// https://github.com/grafana/grafana/blob/146c3120a79e71e9a4836ddf1e1dc104854c7851/public/app/core/utils/query.ts#L35
 	"/graph/api/datasources/proxy/1/api/v1/",
+	// uid-based datasource proxy path, used by the MCP tools for metrics queries.
+	"/graph/api/datasources/proxy/uid/",
 }
 
 const lbacHeaderName = "X-Proxy-Filter"

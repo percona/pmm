@@ -108,6 +108,7 @@ import (
 	"github.com/percona/pmm/managed/services/vmalert"
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/distribution"
+	pkgenv "github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
@@ -1155,9 +1156,13 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	authServer := grafana.NewAuthServer(grafanaClient, db)
 
-	mcpService := mcp.New(mcp.Params{
-		Enabled: envvars.GetMCPEnabled,
+	mcpService, err := mcp.New(mcp.Params{
+		Enabled:     envvars.GetMCPEnabled,
+		LoopbackURL: envvars.GetEnv(pkgenv.MCPLoopbackURL, mcp.DefaultLoopbackURL),
 	})
+	if err != nil {
+		l.Fatalf("Failed to create MCP service: %+v.", err)
+	}
 
 	l.Info("Starting services...")
 	var wg sync.WaitGroup

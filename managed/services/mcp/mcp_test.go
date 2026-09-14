@@ -21,31 +21,16 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// connect starts an httptest server around the handler and opens an MCP client
-// session against it.
-func connect(t *testing.T, s *Service) *mcp.ClientSession {
-	t.Helper()
-
-	srv := httptest.NewServer(s.Handler())
-	t.Cleanup(srv.Close)
-
-	client := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "0"}, nil)
-	session, err := client.Connect(t.Context(), &mcp.StreamableClientTransport{Endpoint: srv.URL + "/mcp"}, nil)
-	require.NoError(t, err)
-	t.Cleanup(func() { _ = session.Close() })
-
-	return session
-}
-
 func TestInitializeAndListTools(t *testing.T) {
 	t.Parallel()
 
-	session := connect(t, New(Params{}))
+	s, err := New(Params{})
+	require.NoError(t, err)
+	session := connect(t, s)
 
 	init := session.InitializeResult()
 	require.NotNil(t, init)
@@ -54,19 +39,23 @@ func TestInitializeAndListTools(t *testing.T) {
 
 	res, err := session.ListTools(t.Context(), nil)
 	require.NoError(t, err)
+	names := make([]string, 0, len(res.Tools))
 	for _, tool := range res.Tools {
+		names = append(names, tool.Name)
 		assert.True(t, strings.HasPrefix(tool.Name, "pmm_"), "tool %s", tool.Name)
 		require.NotNil(t, tool.Annotations, "tool %s", tool.Name)
 		assert.True(t, tool.Annotations.ReadOnlyHint, "tool %s", tool.Name)
 		require.NotNil(t, tool.Annotations.DestructiveHint, "tool %s", tool.Name)
 		assert.False(t, *tool.Annotations.DestructiveHint, "tool %s", tool.Name)
 	}
+	assert.Equal(t, []string{"pmm_inventory", "pmm_version"}, names)
 }
 
 func TestDisabled(t *testing.T) {
 	t.Parallel()
 
-	s := New(Params{Enabled: func() bool { return false }})
+	s, err := New(Params{Enabled: func() bool { return false }})
+	require.NoError(t, err)
 	srv := httptest.NewServer(s.Handler())
 	t.Cleanup(srv.Close)
 

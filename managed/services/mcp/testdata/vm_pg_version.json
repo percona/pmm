@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {
+        "metric": {"__name__": "pg_static", "service_name": "shop-postgres", "short_version": "17.6.0", "version": "PostgreSQL 17.6 - Percona Distribution on x86_64-pc-linux-gnu, compiled by gcc"},
+        "value": [1782379897, "1"]
+      },
+      {
+        "metric": {"__name__": "pg_static", "service_name": "pmm-server-postgresql", "short_version": "14.23.0", "version": "PostgreSQL 14.23 on x86_64-pc-linux-gnu"},
+        "value": [1782379897, "1"]
+      }
+    ]
+  }
+}

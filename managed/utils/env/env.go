@@ -35,6 +35,10 @@ const (
 	// EnableMCP is used to enable the Model Context Protocol endpoint (/mcp). Defaults to true.
 	EnableMCP = "PMM_ENABLE_MCP"
 
+	// MCPLoopbackURL overrides the base URL the MCP tools use to call PMM's own REST API
+	// (default http://127.0.0.1:8080/, nginx inside the container). Development only.
+	MCPLoopbackURL = "PMM_DEV_MCP_LOOPBACK_URL"
+
 	// PlatformAPITimeout specifies the timeout for Percona Platform API requests.
 	PlatformAPITimeout = "PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT"
 

@@ -76,6 +76,18 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
 		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
 		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		// Inventory reads are viewer; everything else under /v1/inventory stays admin.
+		{http.MethodGet, "/v1/inventory/services", viewer},
+		{http.MethodGet, "/v1/inventory/services/svc-1", viewer},
+		{http.MethodGet, "/v1/inventory/services:getTypes", viewer},
+		{http.MethodPost, "/v1/inventory/services", admin},
+		{http.MethodPut, "/v1/inventory/services/svc-1", admin},
+		{http.MethodDelete, "/v1/inventory/services/svc-1", admin},
+		{http.MethodGet, "/v1/inventory/nodes", viewer},
+		{http.MethodPost, "/v1/inventory/nodes", admin},
+		{http.MethodDelete, "/v1/inventory/nodes/node-1", admin},
+		{http.MethodGet, "/v1/inventory/agents", admin},
+		{http.MethodGet, "/v1/inventory/servicesX", admin},
 		// MCP endpoint is Viewer for any method; the prefix must not leak to /mcpX.
 		{http.MethodPost, "/mcp", viewer},
 		{http.MethodPost, "/mcp/", viewer},

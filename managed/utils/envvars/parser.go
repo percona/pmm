@@ -244,6 +244,10 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
+		case pkgenv.MCPLoopbackURL:
+			// Development only; read at startup by pmm-managed, not persisted.
+			continue
+
 		case pkgenv.EnableMCP:
 			_, err := strconv.ParseBool(v)
 			if err != nil {
