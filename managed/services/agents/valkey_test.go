@@ -78,6 +78,33 @@ func TestValkeyExporterConfig(t *testing.T) {
 		require.Contains(t, actual.Args, "--redis.addr=redis://username:secret@1.2.3.4:6379")
 	})
 
+	t.Run("TLS", func(t *testing.T) {
+		t.Parallel()
+		exporter := &models.Agent{
+			AgentID:       "agent-id",
+			AgentType:     models.ValkeyExporterType,
+			Username:      new("username"),
+			Password:      new("secret"),
+			TLS:           true,
+			TLSSkipVerify: true,
+		}
+		exporter.ValkeyOptions.SSLCa = "ca-cert"
+		exporter.ValkeyOptions.SSLCert = "client-cert"
+		exporter.ValkeyOptions.SSLKey = "client-key"
+
+		actual := valkeyExporterConfig(node, service, exporter, redactSecrets, pmmAgentVersion)
+		require.Contains(t, actual.Args, "--redis.addr=rediss://username:secret@1.2.3.4:6379")
+		require.Contains(t, actual.Args, "--tls-ca-cert-file={{ .TextFiles.tlsCa }}")
+		require.Contains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
+		require.Contains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
+		require.Contains(t, actual.Args, "--skip-tls-verification")
+		require.Equal(t, map[string]string{
+			"tlsCa":   "ca-cert",
+			"tlsCert": "client-cert",
+			"tlsKey":  "client-key",
+		}, actual.TextFiles)
+	})
+
 	// PMM-15201: valkey_exporter only knows --log-level. Passing --log.level made it print
 	// its usage, exit with code 2 and land the agent in the DONE state.
 	t.Run("LogLevel", func(t *testing.T) {
