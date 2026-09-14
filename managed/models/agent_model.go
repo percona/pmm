@@ -468,12 +468,7 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 		return nil
 	}
 
-	grandfathered, err := a.GrandfatheredEnvironmentVariableNames()
-	if err != nil {
-		return err
-	}
-
-	names, err = envvars.NormalizeNamesAllowing(names, grandfathered)
+	names, err := envvars.NormalizeNamesAllowing(names, a.GrandfatheredEnvironmentVariableNames())
 	if err != nil {
 		return err
 	}
@@ -491,18 +486,30 @@ func (a *Agent) SetEnvironmentVariableNames(names []string) error {
 // NormalizeNamesAllowing normalizes its input. Callers that use it to decide whether an update is
 // allowed must read the agent within the same transaction as that update, so the names it
 // grandfathers cannot go stale before the update applies them.
-func (a *Agent) GrandfatheredEnvironmentVariableNames() (map[string]struct{}, error) {
+//
+// Two stored values yield no grandfathering rather than an error. A column that cannot be decoded
+// holds nothing worth carrying forward, and failing here would make the row permanently unwritable:
+// every non-empty update would be rejected, contradicting the repair path ToAPIAgent documents. An
+// empty or whitespace-only entry is skipped for a related reason — grandfathering it would let the
+// empty string be written back for good, and pmm-agent can only skip it and warn on every state
+// update. Neither can be fixed by the caller, so neither is reported to them.
+func (a *Agent) GrandfatheredEnvironmentVariableNames() map[string]struct{} {
 	existing, err := a.GetEnvironmentVariableNames()
 	if err != nil {
-		return nil, err
+		return nil
 	}
 
 	grandfathered := make(map[string]struct{}, len(existing))
 	for _, name := range existing {
-		grandfathered[strings.TrimSpace(name)] = struct{}{}
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+
+		grandfathered[name] = struct{}{}
 	}
 
-	return grandfathered, nil
+	return grandfathered
 }
 
 // GetAgentPassword returns agent password, if it is empty then agent ID.

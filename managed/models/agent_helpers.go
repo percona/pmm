@@ -30,6 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm/utils/envvars"
 	"github.com/percona/pmm/version"
 )
 
@@ -37,6 +38,20 @@ const (
 	pushMetricsTrue  = "((exporter_options ? 'push_metrics') AND (exporter_options->>'push_metrics')::boolean = true)"
 	pushMetricsFalse = "(NOT (exporter_options ? 'push_metrics') OR (exporter_options->>'push_metrics')::boolean = false)"
 )
+
+// environmentVariableNamesError maps a SetEnvironmentVariableNames failure onto a gRPC status. Only
+// a name the caller actually sent is the caller's fault; anything else is a server-side failure and
+// must not be returned as InvalidArgument, which would have the caller retry different names
+// forever without ever succeeding. The wrapped error is preserved in that case so errors.Is and
+// errors.As keep matching upstream.
+func environmentVariableNamesError(err error) error {
+	var invalid *envvars.InvalidNameError
+	if errors.As(err, &invalid) {
+		return status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return err
+}
 
 // MySQLOptionsParams contains methods to create MySQLOptions object.
 type MySQLOptionsParams interface { //nolint:iface
@@ -1039,7 +1054,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 	err = row.SetEnvironmentVariableNames(params.EnvironmentVariableNames)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return nil, environmentVariableNamesError(err)
 	}
 
 	switch agentType {
@@ -1164,9 +1179,10 @@ type ChangeValkeyOptions struct {
 // ChangeAgentParams contains parameters that can be changed for all Agent types.
 type ChangeAgentParams struct {
 	// Common fields for all agents
-	Enabled                  *bool              // true - enable, false - disable, nil - no change
-	CustomLabels             *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
-	EnvironmentVariableNames *[]string          // empty slice - remove all environment variable names, non-empty - change, nil - no change
+	Enabled      *bool              // true - enable, false - disable, nil - no change
+	CustomLabels *map[string]string // empty map - remove all custom labels, non-empty - change, nil - no change
+	// empty slice - remove all environment variable names, non-empty - change, nil - no change
+	EnvironmentVariableNames *[]string
 
 	// Database connection fields
 	Username      *string
@@ -1267,7 +1283,7 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 	if params.EnvironmentVariableNames != nil {
 		err = row.SetEnvironmentVariableNames(*params.EnvironmentVariableNames)
 		if err != nil {
-			return nil, status.Error(codes.InvalidArgument, err.Error())
+			return nil, environmentVariableNamesError(err)
 		}
 	}
 

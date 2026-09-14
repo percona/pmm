@@ -37,9 +37,36 @@ const (
 // namePattern is the POSIX portable environment variable name set.
 var namePattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
+// InvalidNameError reports a name, or a list of names, that this package's policy rejects. It marks
+// the failure as the caller's own bad input, so a service layer can map it to codes.InvalidArgument
+// while letting server-side failures surface as themselves instead of being blamed on the caller.
+type InvalidNameError struct {
+	Err error
+}
+
+// Error implements the error interface.
+func (e *InvalidNameError) Error() string {
+	return e.Err.Error()
+}
+
+// Unwrap returns the underlying error.
+func (e *InvalidNameError) Unwrap() error {
+	return e.Err
+}
+
 // ValidateName reports whether name is an acceptable environment variable name for pass-through:
 // syntactically valid, within length bounds, and outside pmm-agent's own reserved namespace.
+// A rejected name is reported as *InvalidNameError.
 func ValidateName(name string) error {
+	err := validateName(name)
+	if err != nil {
+		return &InvalidNameError{Err: err}
+	}
+
+	return nil
+}
+
+func validateName(name string) error {
 	if name == "" {
 		return errors.New("environment variable name cannot be empty")
 	}
@@ -78,11 +105,18 @@ func NormalizeNamesAllowing(names []string, grandfathered map[string]struct{}) (
 
 	result := make([]string, 0, len(names))
 	seen := make(map[string]struct{}, len(names))
+	carried := 0
 
 	for _, name := range names {
 		name = strings.TrimSpace(name)
 
-		if _, ok := grandfathered[name]; !ok {
+		// The empty string is never carried forward, whatever the caller's set holds: pmm-agent
+		// cannot resolve it, so grandfathering it would store a name that can only ever be skipped
+		// with a warning on every state update.
+		_, isGrandfathered := grandfathered[name]
+		isGrandfathered = isGrandfathered && name != ""
+
+		if !isGrandfathered {
 			err := ValidateName(name)
 			if err != nil {
 				return nil, err
@@ -94,18 +128,24 @@ func NormalizeNamesAllowing(names []string, grandfathered map[string]struct{}) (
 		}
 		seen[name] = struct{}{}
 
+		if isGrandfathered {
+			carried++
+		}
+
 		result = append(result, name)
 	}
 
 	// An agent may already store more than MaxNames names: this bound did not exist before it was
 	// introduced alongside the rest of this policy. Applying it unconditionally would leave such a
 	// list uneditable forever, since the field is full-replace — the owner could not even remove a
-	// name without first truncating to MaxNames and losing the rest. Take the stored count as the
-	// effective bound instead, so an oversized list can only shrink toward MaxNames, never grow.
-	limit := max(MaxNames, len(grandfathered))
+	// name without first truncating to MaxNames and losing the rest. Raise the bound only by the
+	// number of already-stored names this request actually carries forward, never by the stored
+	// count alone: an oversized list can then shrink toward MaxNames, but it cannot grow, and it
+	// cannot be swapped wholesale for new names that keep it at the same oversized length.
+	limit := max(MaxNames, carried)
 
 	if len(result) > limit {
-		return nil, fmt.Errorf("too many environment variable names: %d (max %d)", len(result), limit)
+		return nil, &InvalidNameError{Err: fmt.Errorf("too many environment variable names: %d (max %d)", len(result), limit)}
 	}
 
 	return result, nil
