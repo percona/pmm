@@ -44,10 +44,13 @@ func TestCompleteSucceededRun(t *testing.T) {
 		stub := newSEPStubSeq(
 			t, http.StatusOK,
 			fmt.Sprintf(
-				`[
-					{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1"}]},
-					{"node_id": %q, "executor_host": "node01", "services": []}
-				]`, node00, node01,
+				`{
+					"items": [
+						{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1"}]},
+						{"node_id": %q, "executor_host": "node01", "services": []}
+					],
+					"total": 2
+				}`, node00, node01,
 			),
 			`{}`,
 		)
@@ -89,7 +92,7 @@ func TestCompleteSucceededRun(t *testing.T) {
 		}))
 
 		stub := newSEPStub(t, http.StatusOK,
-			fmt.Sprintf(`[{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1"}]}]`, node00))
+			fmt.Sprintf(`{"items": [{"node_id": %q, "executor_host": "node00", "services": [{"service_id": "s1"}]}], "total": 1}`, node00))
 		svc := (&Service{db: db, l: logrus.WithField("test", t.Name())}).
 			WithProbeSource(stub.server.URL, "test-token")
 
