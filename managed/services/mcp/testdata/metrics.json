@@ -73,7 +73,7 @@
   "fingerprint": "SELECT * FROM `customers` WHERE `email` = ?",
   "metadata": {
     "service_name": "shop-mysql",
-    "database": "",
+    "database": "shop_db",
     "schema": "shop",
     "username": "root",
     "replication_set": "",

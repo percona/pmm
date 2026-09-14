@@ -143,6 +143,7 @@ func TestQueryDetailTool(t *testing.T) {
 			"queryid: QID-AAA",
 			"engine: mysql 8.0.46-37",
 			"service: shop-mysql",
+			"database: shop_db",
 			"schema: shop",
 			"tables: customers",
 			"fingerprint:",

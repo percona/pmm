@@ -199,6 +199,7 @@ type queryDetail struct {
 	engine      string
 	version     string
 	serviceName string
+	database    string
 	schema      string
 	fingerprint string
 	tables      []string
@@ -248,6 +249,7 @@ func (s *Service) fetchQueryDetail(ctx context.Context, auth callerAuth, in quer
 	if metrics != nil {
 		d.fingerprint = metrics.Fingerprint
 		if metrics.Metadata != nil {
+			d.database = metrics.Metadata.Database
 			d.schema = metrics.Metadata.Schema
 			d.serviceName = metrics.Metadata.ServiceName
 			d.engine = metrics.Metadata.ServiceType
@@ -278,6 +280,10 @@ func (d *queryDetail) render(rawSQL bool, base string, from, to time.Time) strin
 	}
 	if d.serviceName != "" {
 		parts = append(parts, "service: "+d.serviceName)
+	}
+	// QAN fills database for PostgreSQL and MongoDB, schema for MySQL.
+	if d.database != "" {
+		parts = append(parts, "database: "+d.database)
 	}
 	if d.schema != "" {
 		parts = append(parts, "schema: "+d.schema)
