@@ -211,6 +211,9 @@ func (s *ManagementService) DiscoverRDS(ctx context.Context, req *managementv1.D
 		_, err = provider.Retrieve(assumeCtx)
 		assumeCancel()
 		if err != nil {
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				return nil, status.Errorf(codes.DeadlineExceeded, "Timed out assuming role %s.", req.AwsRoleArn)
+			}
 			return nil, status.Errorf(codes.FailedPrecondition, "Failed to assume role %s: %s.", req.AwsRoleArn, err)
 		}
 

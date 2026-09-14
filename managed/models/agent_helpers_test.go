@@ -300,6 +300,16 @@ func TestAgentHelpers(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, roleARN, agent.AWSOptions.AWSRoleARN)
 
+		// A pmm-agent whose version is present but unparseable is refused (unlike a nil version).
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-bad", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"), Version: new("not-a-version"),
+		}))
+		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-bad", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "failed to parse", err)
+
 		// Static keys are unaffected by the gate; they work on the old agent.
 		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
 			PMMAgentID: "PA-old", NodeID: "RN",
