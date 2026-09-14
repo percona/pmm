@@ -33,6 +33,7 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { useAuth } from '@sep/api';
 import { capitalize } from '@sep/shared';
+import { scheduleColumnHeaders } from './columns';
 import { browserTimezone } from './timezones';
 import { ScheduledTaskForm } from './ScheduledTaskForm';
 import { TaskRunDetailDrawer } from '../TaskRunDetailDrawer';
@@ -62,33 +63,6 @@ interface ScheduledTasksPanelProps {
   itemName?: string;
   /** Mid-sentence plural noun (e.g. `backups`). */
   itemNamePlural?: string;
-}
-
-/**
- * Column headers in render order.
- *
- * `Chain` is dropped while nothing is chained (PMM-15454). These apps expose a
- * single chainable task, so no schedule can carry a chain and the column was an
- * unbroken run of em dashes advertising something the reader could not use. It
- * returns on its own the moment any schedule carries a chain. `Actions` is
- * dropped for a session that may not mutate.
- */
-function getColumnHeaders(
-  itemLabel: string,
-  showChain: boolean,
-  showActions: boolean
-): string[] {
-  return [
-    itemLabel,
-    'Period',
-    'Start Time',
-    'Last Run',
-    'Next Run',
-    'Runs',
-    ...(showChain ? ['Chain'] : []),
-    'Enabled',
-    ...(showActions ? ['Actions'] : []),
-  ];
 }
 
 export function ScheduledTasksPanel({
@@ -250,7 +224,7 @@ export function ScheduledTasksPanel({
   const headerRow = (
     <TableHead>
       <TableRow>
-        {getColumnHeaders(itemLabel, showChain, canMutate).map((h) => (
+        {scheduleColumnHeaders(showChain, canMutate, itemLabel).map((h) => (
           <TableCell key={h}>{h}</TableCell>
         ))}
       </TableRow>
