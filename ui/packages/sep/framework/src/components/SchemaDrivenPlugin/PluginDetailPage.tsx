@@ -449,6 +449,7 @@ function ConnectivityWarningAlert({
           onClose={() => setLogOpen(false)}
           taskHistoryId={taskHistoryId}
           taskLabel="Connectivity check"
+          itemName={itemName}
         />
       )}
     </>
@@ -545,6 +546,7 @@ function OverviewTab({
       {taskName && (
         <LastRunCard
           taskNames={taskName}
+          itemName={schema.item_display_name}
           onOpenRun={() => setLastRunOpen(true)}
         />
       )}
@@ -558,6 +560,7 @@ function OverviewTab({
           onClose={() => setLastRunOpen(false)}
           taskNames={taskName}
           taskLabel={taskName}
+          itemName={schema.item_display_name}
         />
       )}
 
@@ -677,6 +680,7 @@ function LogsTab({ taskNames, itemName }: LogsTabProps) {
             data={historyQuery.data?.items ?? []}
             isLoading={historyQuery.isLoading}
             hideTaskNameColumn={taskNames.length <= 1}
+            itemName={itemName}
             onViewLogs={setOpenedRow}
             onStopTask={(entry) => {
               if (entry.id !== null && entry.id !== undefined) {
@@ -696,6 +700,7 @@ function LogsTab({ taskNames, itemName }: LogsTabProps) {
           onClose={() => setOpenedRow(null)}
           entry={logsEntry}
           taskLabel={logsTaskName}
+          itemName={itemName}
         />
       )}
     </>
@@ -960,6 +965,8 @@ function ActionBar({
                   value={chain}
                   onChange={setChain}
                   disabled={executeTask.isPending}
+                  itemName={itemName}
+                  itemNamePlural={itemPlural}
                 />
               )}
             </Box>

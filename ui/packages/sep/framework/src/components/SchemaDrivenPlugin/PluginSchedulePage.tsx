@@ -20,13 +20,18 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate } from 'react-router-dom';
+import type { PluginSchema } from '@sep/api';
 import { ScheduledTasksPanel } from '../ScheduledTasksPanel';
 
 interface PluginSchedulePageProps {
   pluginName: string;
+  schema: PluginSchema;
 }
 
-export function PluginSchedulePage({ pluginName }: PluginSchedulePageProps) {
+export function PluginSchedulePage({
+  pluginName,
+  schema,
+}: PluginSchedulePageProps) {
   const navigate = useNavigate();
 
   return (
@@ -38,7 +43,11 @@ export function PluginSchedulePage({ pluginName }: PluginSchedulePageProps) {
         <Typography variant="h4">Schedules</Typography>
       </Box>
 
-      <ScheduledTasksPanel pluginName={pluginName} />
+      <ScheduledTasksPanel
+        pluginName={pluginName}
+        itemName={schema.item_display_name}
+        itemNamePlural={schema.item_display_name_plural}
+      />
     </Box>
   );
 }

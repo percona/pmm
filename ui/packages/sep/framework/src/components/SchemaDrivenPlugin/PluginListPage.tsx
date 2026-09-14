@@ -452,6 +452,9 @@ export function PluginListPage({
           onClose={() => setRunTaskName(null)}
           taskNames={runTaskName}
           taskLabel={runTaskName}
+          itemName={
+            multi ? entitySchema!.item_display_name : schema.item_display_name
+          }
         />
       )}
     </Box>
