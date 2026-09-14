@@ -76,6 +76,10 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPut, "/v1/alerting/templates/foo", editor},    // UpdateTemplate
 		{http.MethodDelete, "/v1/alerting/templates/foo", editor}, // DeleteTemplate
 		{http.MethodPost, "/v1/alerting/rules", editor},           // CreateRule
+		// MCP endpoint is Viewer for any method; the prefix must not leak to /mcpX.
+		{http.MethodPost, "/mcp", viewer},
+		{http.MethodPost, "/mcp/", viewer},
+		{http.MethodGet, "/mcpx", grafanaAdmin},
 		// No matching rule falls back to grafanaAdmin.
 		{http.MethodGet, "/v1/unknown", grafanaAdmin},
 	} {

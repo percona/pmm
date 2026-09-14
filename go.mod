@@ -48,6 +48,7 @@ require (
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.12.3
 	github.com/minio/minio-go/v7 v7.3.0
+	github.com/modelcontextprotocol/go-sdk v1.8.0
 	github.com/percona/exporter_shared v0.7.5
 	github.com/percona/go-mysql v0.0.0-20260721111653-2a02c0e64767
 	github.com/percona/percona-toolkit v0.0.0-20251217124347-6b3e5ed485dd
@@ -208,6 +209,7 @@ require (
 	github.com/google/go-github/v28 v28.1.1 // indirect
 	github.com/google/go-github/v33 v33.0.0 // indirect
 	github.com/google/go-querystring v1.2.0 // indirect
+	github.com/google/jsonschema-go v0.4.3 // indirect
 	github.com/google/licensecheck v0.3.1 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/grafana/regexp v0.0.0-20250905093917-f7b3be9d1853 // indirect
@@ -313,6 +315,7 @@ require (
 	github.com/xdg-go/scram v1.2.0 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
+	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go.etcd.io/bbolt v1.3.5 // indirect
 	go.lsp.dev/jsonrpc2 v0.10.0 // indirect
@@ -335,6 +338,7 @@ require (
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/perf v0.0.0-20260409210113-8e83ce0f7b1c // indirect
 	golang.org/x/term v0.46.0 // indirect
+	golang.org/x/time v0.15.0 // indirect
 	google.golang.org/appengine v1.6.8-0.20221117013220-504804fb50de // indirect
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.0 // indirect
 	gopkg.in/ini.v1 v1.67.3 // indirect

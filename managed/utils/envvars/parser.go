@@ -244,6 +244,15 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			// This variable is not part of the settings and is parsed separately.
 			continue
 
+		case pkgenv.EnableMCP:
+			_, err := strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+			}
+			// Read at startup by GetMCPEnabled; not persisted in settings.
+			continue
+
 		case pkgenv.PlatformAddress:
 			// This variable is not part of the settings and is parsed separately.
 			continue
@@ -403,6 +412,20 @@ func GetPlatformInsecure() bool {
 // GetInterfaceToBind retrieves the network interface to bind based on environment variables.
 func GetInterfaceToBind() string {
 	return GetEnv(pkgenv.InterfaceToBind, "127.0.0.1")
+}
+
+// GetMCPEnabled reports whether the MCP endpoint is enabled. It defaults to true;
+// only an explicit false-like value disables it.
+func GetMCPEnabled() bool {
+	v, ok := os.LookupEnv(pkgenv.EnableMCP)
+	if !ok || v == "" {
+		return true
+	}
+	b, err := strconv.ParseBool(v)
+	if err != nil {
+		return true
+	}
+	return b
 }
 
 // GetEnv returns env with fallback option.

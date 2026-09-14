@@ -93,6 +93,7 @@ import (
 	"github.com/percona/pmm/managed/services/management/common"
 	managementdump "github.com/percona/pmm/managed/services/management/dump"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
+	"github.com/percona/pmm/managed/services/mcp"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/nomad"
 	"github.com/percona/pmm/managed/services/qan"
@@ -381,6 +382,7 @@ type http1ServerDeps struct {
 	logs               *server.Logs
 	authServer         *grafana.AuthServer
 	currentUserHandler http.Handler
+	mcpHandler         http.Handler
 }
 
 // runHTTP1Server runs grpc-gateway and other HTTP 1.1 APIs (like auth_request and logs.zip)
@@ -464,6 +466,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	mux.Handle("/auth_request", deps.authServer)
 	mux.Handle("/v1/users/current/orgs", deps.currentUserHandler)
 	mux.Handle("/v1/users/current", deps.currentUserHandler)
+	mux.Handle("/mcp", deps.mcpHandler)
+	mux.Handle("/mcp/", deps.mcpHandler)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{ //nolint:gosec
@@ -1151,6 +1155,10 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	authServer := grafana.NewAuthServer(grafanaClient, db)
 
+	mcpService := mcp.New(mcp.Params{
+		Enabled: envvars.GetMCPEnabled,
+	})
+
 	l.Info("Starting services...")
 	var wg sync.WaitGroup
 
@@ -1236,6 +1244,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 			logs:               logs,
 			authServer:         authServer,
 			currentUserHandler: user.NewCurrentHTTPHandler(grafanaClient),
+			mcpHandler:         mcpService.Handler(),
 		})
 	})
 

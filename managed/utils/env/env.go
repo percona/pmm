@@ -32,6 +32,9 @@ const (
 	// EnableAccessControl is used to enable Access Control in PMM.
 	EnableAccessControl = "PMM_ENABLE_ACCESS_CONTROL"
 
+	// EnableMCP is used to enable the Model Context Protocol endpoint (/mcp). Defaults to true.
+	EnableMCP = "PMM_ENABLE_MCP"
+
 	// PlatformAPITimeout specifies the timeout for Percona Platform API requests.
 	PlatformAPITimeout = "PMM_DEV_PERCONA_PLATFORM_API_TIMEOUT"
 

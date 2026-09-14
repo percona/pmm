@@ -114,6 +114,11 @@ var rules = map[string]role{
 
 	"/v1/server/logs.zip": admin,
 
+	// Model Context Protocol endpoint (managed/services/mcp). Every tool call
+	// re-enters nginx with the caller's credentials, so each backing API path
+	// is authorized by its own rule; Viewer is the floor for the endpoint itself.
+	"/mcp": viewer,
+
 	// kept for backwards compatibility with PMM v2
 	"/v1/readyz":  none,   // redirects to /v1/server/readyz
 	"/v1/version": viewer, // redirects to /v1/server/version
