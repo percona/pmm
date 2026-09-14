@@ -288,6 +288,37 @@ describe('PluginListPage — item display name', () => {
       screen.queryByRole('button', { name: 'New MySQL Backups' })
     ).not.toBeInTheDocument();
   });
+
+  it('keeps Restores list title aligned with New restore (PMM-15455)', () => {
+    // Tab label comes from related_apps[].label and must match display_name;
+    // the create CTA uses item_display_name. Sidecar owns those three strings.
+    render(
+      <SnackbarProvider>
+        <MemoryRouter>
+          <PluginListPage
+            schema={
+              {
+                name: 'mysql_backups/restore',
+                display_name: 'Restores',
+                item_display_name: 'restore',
+                item_display_name_plural: 'restores',
+                list_view: { columns: [{ key: 'name', label: 'Name' }] },
+              } as unknown as PluginSchema
+            }
+            pluginName="mysql_backups/restore"
+          />
+        </MemoryRouter>
+      </SnackbarProvider>
+    );
+
+    expect(screen.getByRole('heading', { name: 'Restores' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'New restore' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'New Restores' })
+    ).not.toBeInTheDocument();
+  });
 });
 
 describe('PluginListPage — write access', () => {

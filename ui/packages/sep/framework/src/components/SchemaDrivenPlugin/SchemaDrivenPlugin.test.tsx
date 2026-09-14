@@ -81,7 +81,7 @@ const backupsSchema: PluginSchema = {
   related_apps: [
     {
       app_key: 'mysql_backups/restore',
-      label: 'Restore',
+      label: 'Restores',
       route_segment: 'restores',
     },
   ],
@@ -89,7 +89,7 @@ const backupsSchema: PluginSchema = {
 
 const restoreSchema: PluginSchema = {
   name: 'mysql_backups_restore',
-  display_name: 'Restore',
+  display_name: 'Restores',
   item_display_name: 'restore',
   item_display_name_plural: 'restores',
   forms: [
@@ -289,7 +289,7 @@ describe('SchemaDrivenPlugin — related_apps routing', () => {
       'aria-selected',
       'true'
     );
-    expect(screen.getByRole('tab', { name: 'Restore' })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: 'Restores' })).toHaveAttribute(
       'aria-selected',
       'false'
     );
@@ -300,7 +300,7 @@ describe('SchemaDrivenPlugin — related_apps routing', () => {
     activeSchema = backupsSchema;
     renderBackupsPlugin('/apps/mysql_backups/restores');
 
-    expect(screen.getByRole('tab', { name: 'Restore' })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: 'Restores' })).toHaveAttribute(
       'aria-selected',
       'true'
     );
