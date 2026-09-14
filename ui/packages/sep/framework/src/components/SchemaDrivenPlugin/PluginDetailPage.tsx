@@ -1074,6 +1074,7 @@ export function PluginDetailPage({
   const { data: task, isLoading } = multi ? entityQuery : taskQuery;
   const listView = multi ? entitySchema!.list_view : schema.list_view!;
   const title = multi ? entitySchema!.display_name : schema.display_name;
+  const itemName = resolveItemDisplayName(multi ? entitySchema! : schema);
   const headingWhenChromeHidden = useMemo(
     () =>
       hideDetailChrome && multi
@@ -1163,8 +1164,8 @@ export function PluginDetailPage({
           title={`Delete from ${schema.display_name}?`}
           description={
             recordName
-              ? `Permanently delete ${title} "${recordName}" (id ${id}) from ${schema.display_name}? This cannot be undone.`
-              : `Permanently delete ${title} (id ${id}) from ${schema.display_name}? This cannot be undone.`
+              ? `Permanently delete ${itemName} "${recordName}" (id ${id}) from ${schema.display_name}? This cannot be undone.`
+              : `Permanently delete ${itemName} (id ${id}) from ${schema.display_name}? This cannot be undone.`
           }
         />
 
