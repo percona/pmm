@@ -480,6 +480,30 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.NotContains(t, actual.Args, "--no-collector.textfile.hr")
 	})
 
+	// DisabledCollectors is stored as it arrives, so the same collector can be named twice. kingpin
+	// rejects a repeated flag, which would make node_exporter exit on startup.
+	t.Run("LinuxDuplicateDisabledCollectors", func(t *testing.T) {
+		t.Parallel()
+		node := &models.Node{}
+		exporter := &models.Agent{
+			AgentID:   "agent-id",
+			AgentType: models.NodeExporterType,
+			ExporterOptions: models.ExporterOptions{
+				// cpu is default-on and passed by us, arp is default-on and disabled by us already
+				DisabledCollectors: []string{"cpu", "cpu", "arp", "arp"},
+			},
+		}
+		agentVersion := version.MustParse("3.0.0")
+
+		actual, err := nodeExporterConfig(node, exporter, agentVersion)
+		require.NoError(t, err, "Unable to build node exporter config")
+
+		// requireNoDuplicateFlags fails on a repeated flag, including its "--no-" form
+		requireNoDuplicateFlags(t, actual.Args)
+		require.Contains(t, actual.Args, "--no-collector.cpu")
+		require.Contains(t, actual.Args, "--no-collector.arp")
+	})
+
 	t.Run("MacOSDisabledCollectors", func(t *testing.T) {
 		t.Parallel()
 		node := &models.Node{

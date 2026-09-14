@@ -198,9 +198,11 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 				exporter.ExporterOptions.DisabledCollectors,
 			)
 			for _, arg := range disableArgs {
-				// some collectors are in the "disabled" block above already
+				// some collectors are in the "disabled" block above already, and DisabledCollectors may
+				// name the same collector twice - kingpin rejects a repeated flag and node_exporter exits
 				if _, ok := present[arg]; !ok {
 					args = append(args, arg)
+					present[arg] = struct{}{}
 				}
 			}
 		}
