@@ -35,6 +35,27 @@ export function useFormFields(): readonly PluginField[] {
 }
 
 /**
+ * Return the label of the upstream field named ``dependsOn``, for a cascaded
+ * widget that has to tell someone which field to fill in first.
+ *
+ * A cascade's disabled state is only actionable if it names the control that
+ * releases it: "Select a value first" leaves a reader hunting the form for
+ * which value, on a form where several fields could plausibly be it. Returns
+ * ``undefined`` when there is no parent or it declares no label, so the caller
+ * can fall back to the generic wording rather than render an empty phrase.
+ */
+export function parentLabelForDependsOn(
+  fields: readonly PluginField[],
+  dependsOn: string | undefined
+): string | undefined {
+  if (!dependsOn) {
+    return undefined;
+  }
+  const parent = fields.find((field) => field.name === dependsOn);
+  return parent?.label || undefined;
+}
+
+/**
  * Return the ``service_types`` declared on the upstream service field named
  * ``dependsOn``, if any. Used to bound host-cascade ``useServices`` fetches to
  * the same type filter as the parent selector (and to share its query cache).

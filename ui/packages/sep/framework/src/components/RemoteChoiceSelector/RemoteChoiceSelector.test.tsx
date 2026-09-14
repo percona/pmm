@@ -22,6 +22,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { FormProvider, useForm } from 'react-hook-form';
 import type { PropsWithChildren } from 'react';
 import { RemoteChoiceSelector } from './RemoteChoiceSelector';
+import { FormFieldsProvider } from '../SchemaFormRenderer/formFieldsContext';
 
 vi.mock('@sep/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@sep/api')>()),
@@ -226,6 +227,46 @@ describe('RemoteChoiceSelector', () => {
       expect(screen.getByLabelText('Backup')).toBeDisabled();
       expect(screen.getByText('Select a value first')).toBeInTheDocument();
       expect(mocked.get).not.toHaveBeenCalled();
+    });
+
+    it('names the parent field when the form publishes its label', () => {
+      render(
+        <Wrapper client={makeClient()}>
+          <FormFieldsProvider
+            value={[
+              {
+                name: 'cluster',
+                label: 'Destination Database Service',
+                type: 'service',
+                service_types: ['mysql'],
+              },
+            ]}
+          >
+            <Harness dependsOn="cluster" initialParent={null} />
+          </FormFieldsProvider>
+        </Wrapper>
+      );
+
+      // Pedro's finding: the old text said "Select a value first" without
+      // saying which value, on a form where several fields could be it.
+      expect(
+        screen.getByText('Select "Destination Database Service" first')
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('Select a value first')
+      ).not.toBeInTheDocument();
+    });
+
+    it('falls back to the generic wording when the parent has no label', () => {
+      render(
+        <Wrapper client={makeClient()}>
+          <FormFieldsProvider value={[]}>
+            <Harness dependsOn="cluster" initialParent={null} />
+          </FormFieldsProvider>
+        </Wrapper>
+      );
+
+      expect(screen.getByText('Select a value first')).toBeInTheDocument();
     });
 
     it('fetches with the parent value as a query param once the parent is set', async () => {
