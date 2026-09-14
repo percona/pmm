@@ -175,8 +175,26 @@ function sectionHasNonDefaultValue(
     if (seeded === undefined) {
       return false;
     }
-    return !Object.is(seeded, fieldDefault(field));
+    return !isFieldDefaultValue(field, seeded);
   });
+}
+
+/**
+ * Whether `seeded` is what the schema would have pre-filled for `field`.
+ *
+ * Multi-value fields default to a fresh array, so identity would call every
+ * seeded `[]` a change — which an edit form echoing a stored body supplies for
+ * each of them, revealing the section the control exists to keep shut.
+ */
+function isFieldDefaultValue(field: PluginField, seeded: unknown): boolean {
+  const base = fieldDefault(field);
+  if (Array.isArray(base) && Array.isArray(seeded)) {
+    return (
+      base.length === seeded.length &&
+      base.every((v, i) => Object.is(v, seeded[i]))
+    );
+  }
+  return Object.is(seeded, base);
 }
 
 /**

@@ -2822,6 +2822,33 @@ describe('SchemaFormRenderer — advanced sections', () => {
     expect(screen.queryByTestId('show-advanced-options')).toBeNull();
   });
 
+  it('stays shut when an edit form seeds a multi-value field with its default', () => {
+    const withMulti: FormSection[] = [
+      sections[0],
+      {
+        ...sections[1],
+        fields: [
+          {
+            type: 'multi_choice',
+            name: 'tags',
+            label: 'Tags',
+            choices: [{ value: 'a', label: 'A' }],
+          },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={withMulti}
+        defaultValues={{ task_name: 'nightly', tags: [] }}
+        onSubmit={() => {}}
+      />
+    );
+
+    expect(screen.getByTestId('show-advanced-options')).toBeInTheDocument();
+    expect(screen.queryByText('General')).toBeNull();
+  });
+
   it('renders no control when the schema marks nothing advanced', () => {
     const plain = sections.map(
       ({ advanced: _advanced, ...section }) => section
