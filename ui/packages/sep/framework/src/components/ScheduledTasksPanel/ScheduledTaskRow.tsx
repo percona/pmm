@@ -35,6 +35,7 @@ import { LastRunStatus } from './LastRunStatus';
 import { ScheduledTaskForm } from './ScheduledTaskForm';
 import { describePeriod } from './periods';
 import { RunTime } from '../TaskRunDetailDrawer/RunTime';
+import { scheduleTimezone } from './timezones';
 import type { AvailableTask } from '../ChainBuilder';
 import type {
   PeriodicTaskCreate,
@@ -42,7 +43,14 @@ import type {
   PeriodicTaskUpdate,
 } from './hooks';
 
-const COLUMN_COUNT = 9;
+/**
+ * Width of the row, for the edit form's `colSpan`. Must track `columnHeaders`
+ * in `ScheduledTasksPanel`: Task, Period, Start Time, Last Run, Next Run, Runs,
+ * Enabled, plus Chain and Actions when those are shown.
+ */
+function columnCount(showChain: boolean, showActions: boolean): number {
+  return 7 + (showChain ? 1 : 0) + (showActions ? 1 : 0);
+}
 
 export interface ScheduledTaskRowProps {
   task: PeriodicTaskResponse;
@@ -77,6 +85,12 @@ export interface ScheduledTaskRowProps {
   itemName?: string;
   /** Mid-sentence plural noun (e.g. `backups`). */
   itemNamePlural?: string;
+  /**
+   * Render the Chain cell. The panel drops the column while no schedule carries
+   * a chain (PMM-15454); the row must drop the matching cell or the table
+   * shears.
+   */
+  showChain?: boolean;
 }
 
 export function ScheduledTaskRow({
@@ -95,15 +109,19 @@ export function ScheduledTaskRow({
   onOpenLastRun,
   itemName = 'task',
   itemNamePlural = 'tasks',
+  showChain = true,
 }: ScheduledTaskRowProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const period = describePeriod(task);
   const chainNames = task.execute_request?.chain_task_names ?? [];
+  // The zone the schedule actually fires in, which is not the zone its
+  // timestamps are rendered in - the panel names that one once for the table.
+  const firesIn = scheduleTimezone(task);
 
   if (isEditing) {
     return (
       <TableRow>
-        <TableCell colSpan={COLUMN_COUNT} sx={{ p: 0 }}>
+        <TableCell colSpan={columnCount(showChain, !readOnly)} sx={{ p: 0 }}>
           <ScheduledTaskForm
             mode="edit"
             initialValue={task}
@@ -125,13 +143,22 @@ export function ScheduledTaskRow({
       <TableRow data-testid={`scheduled-task-row-${task.id}`}>
         <TableCell>{task.task}</TableCell>
         <TableCell>
-          {period.tooltip ? (
-            <Tooltip title={period.tooltip}>
+          <Stack spacing={0.25} alignItems="flex-start">
+            {period.tooltip ? (
+              <Tooltip title={period.tooltip}>
+                <span>{period.display}</span>
+              </Tooltip>
+            ) : (
               <span>{period.display}</span>
-            </Tooltip>
-          ) : (
-            period.display
-          )}
+            )}
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              data-testid={`scheduled-task-timezone-${task.id}`}
+            >
+              {firesIn}
+            </Typography>
+          </Stack>
         </TableCell>
         <TableCell>
           <RunTime value={task.start_time} />
@@ -158,15 +185,17 @@ export function ScheduledTaskRow({
           <RunTime value={task.next_run_at} />
         </TableCell>
         <TableCell>{task.total_run_count}</TableCell>
-        <TableCell>
-          {chainNames.length > 0 ? (
-            <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-              {chainNames.join(' → ')}
-            </Typography>
-          ) : (
-            '—'
-          )}
-        </TableCell>
+        {showChain && (
+          <TableCell>
+            {chainNames.length > 0 ? (
+              <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                {chainNames.join(' → ')}
+              </Typography>
+            ) : (
+              '—'
+            )}
+          </TableCell>
+        )}
         <TableCell>
           {readOnly ? (
             <Typography variant="body2">

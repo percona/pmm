@@ -33,6 +33,7 @@ import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { useAuth } from '@sep/api';
 import { capitalize } from '@sep/shared';
+import { browserTimezone } from './timezones';
 import { ScheduledTaskForm } from './ScheduledTaskForm';
 import { TaskRunDetailDrawer } from '../TaskRunDetailDrawer';
 import { ScheduledTaskRow } from './ScheduledTaskRow';
@@ -63,8 +64,32 @@ interface ScheduledTasksPanelProps {
   itemNamePlural?: string;
 }
 
-/** Trailing header for the row edit/delete cell, dropped for read-only sessions. */
-const ACTIONS_HEADER = 'Actions';
+/**
+ * Column headers in render order.
+ *
+ * `Chain` is dropped while nothing is chained (PMM-15454). These apps expose a
+ * single chainable task, so no schedule can carry a chain and the column was an
+ * unbroken run of em dashes advertising something the reader could not use. It
+ * returns on its own the moment any schedule carries a chain. `Actions` is
+ * dropped for a session that may not mutate.
+ */
+function getColumnHeaders(
+  itemLabel: string,
+  showChain: boolean,
+  showActions: boolean
+): string[] {
+  return [
+    itemLabel,
+    'Period',
+    'Start Time',
+    'Last Run',
+    'Next Run',
+    'Runs',
+    ...(showChain ? ['Chain'] : []),
+    'Enabled',
+    ...(showActions ? ['Actions'] : []),
+  ];
+}
 
 export function ScheduledTasksPanel({
   pluginName,
@@ -76,23 +101,6 @@ export function ScheduledTasksPanel({
   const { canMutate } = useAuth();
   const itemLabel = capitalize(itemName);
   const itemPluralLabel = capitalize(itemNamePlural);
-  const columnHeaders = useMemo(
-    () => [
-      itemLabel,
-      'Period',
-      'Start Time',
-      'Last Run',
-      'Next Run',
-      'Runs',
-      'Chain',
-      'Enabled',
-    ],
-    [itemLabel]
-  );
-  const tableHeaders = useMemo(
-    () => (canMutate ? [...columnHeaders, ACTIONS_HEADER] : columnHeaders),
-    [canMutate, columnHeaders]
-  );
   const { periodicTasks, pluginTasks, isLoading, isError, error } =
     useScheduledTasksForPlugin(pluginName, { disablePolling });
 
@@ -115,6 +123,23 @@ export function ScheduledTasksPanel({
     () => pluginTasks.map((t) => ({ name: t.name })),
     [pluginTasks]
   );
+
+  // Show the Chain column only once something is actually chained. Derived from
+  // the rows rather than a capability flag: the column's job is to display a
+  // chain, so the presence of one is the honest condition.
+  const showChain = useMemo(
+    () =>
+      periodicTasks.some(
+        (t) => (t.execute_request?.chain_task_names?.length ?? 0) > 0
+      ),
+    [periodicTasks]
+  );
+
+  // Every absolute time in this table goes through `toLocaleString()`, so it is
+  // rendered in the reader's zone — not the zone the schedule fires in, which
+  // each row states for itself. Naming it here is what keeps the two readable
+  // side by side (PMM-15454).
+  const displayZone = browserTimezone();
 
   const handleToggleEnabled = async (
     task: PeriodicTaskResponse,
@@ -225,7 +250,7 @@ export function ScheduledTasksPanel({
   const headerRow = (
     <TableHead>
       <TableRow>
-        {tableHeaders.map((h) => (
+        {getColumnHeaders(itemLabel, showChain, canMutate).map((h) => (
           <TableCell key={h}>{h}</TableCell>
         ))}
       </TableRow>
@@ -256,6 +281,16 @@ export function ScheduledTasksPanel({
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <ScheduleIcon fontSize="small" />
         <Typography variant="h6">Scheduled {itemPluralLabel}</Typography>
+        {!isEmpty && (
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ ml: 'auto' }}
+            data-testid="scheduled-tasks-display-timezone"
+          >
+            Times shown in {displayZone}
+          </Typography>
+        )}
       </Box>
 
       {actionError && (
@@ -297,6 +332,7 @@ export function ScheduledTasksPanel({
                   toggling={updateMut.isPending}
                   errorMessage={editingId === task.id ? formError : undefined}
                   readOnly={!canMutate}
+                  showChain={showChain}
                   onOpenLastRun={(taskName, lastRunAt) =>
                     setOpenedRun({ taskName, lastRunAt })
                   }
