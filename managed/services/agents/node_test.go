@@ -307,6 +307,10 @@ func TestNodeExporterConfig(t *testing.T) {
 				// netstat.fields is a flag of the netstat collector, not a collector
 				DisabledCollectors: []string{"cpu", "netstat", "netstat.fields", "vmstat", "meminfo", "arp", "dmi"},
 			},
+			// FilterOutCollectors matches whole flag names, so a tuning flag such as
+			// "--collector.vmstat.fields" outlives its collector unless it is named too - the way
+			// "netstat.fields" is here and "vmstat.fields" deliberately is not. Leaving it behind is
+			// harmless, kingpin accepts the flag of a collector that is off.
 		}
 		agentVersion := version.MustParse("3.0.0")
 
@@ -503,6 +507,7 @@ func TestNodeExporterConfig(t *testing.T) {
 			"--web.config.file={{ .TextFiles.webConfig }}",
 		}
 
+		requireNoDuplicateFlags(t, actual.Args)
 		require.Equal(t, expected, actual.Args)
 	})
 

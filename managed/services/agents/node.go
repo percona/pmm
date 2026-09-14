@@ -16,7 +16,6 @@
 package agents
 
 import (
-	"slices"
 	"sort"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
@@ -183,25 +182,31 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 				"|unevictable|mlock|mapped|bounce|page_table_pages|kernel_stack)|drop_slab|slabs_scanned|pgd?e?activate"+
 				"|pgpg(in|out)|pswp(in|out)|pgm?a?j?fault)$",
 		)
-	}
 
-	args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
+		// Dropping "--collector.<name>" is not enough for a collector node_exporter enables on its own,
+		// it takes "--no-collector.<name>". Older pmm-agents ship node_exporter builds that do not know
+		// all of those flags and would exit, hence the version gate.
+		if agentVersion.IsFeatureSupported(version.NodeExporterV1_8) {
+			present := make(map[string]struct{}, len(args))
+			for _, arg := range args {
+				present[arg] = struct{}{}
+			}
 
-	// Collectors are not tweaked on macOS, where node_exporter enables a different set by default.
-	// Older pmm-agents ship node_exporter builds that do not know all of the flags below and would exit.
-	if node.Distro != "darwin" && agentVersion.IsFeatureSupported(version.NodeExporterV1_8) {
-		disableArgs := collectors.DisableDefaultEnabledCollectors(
-			"--no-collector.",
-			defaultEnabledNodeExporterCollectors,
-			exporter.ExporterOptions.DisabledCollectors,
-		)
-		for _, arg := range disableArgs {
-			// some collectors are already disabled above
-			if !slices.Contains(args, arg) {
-				args = append(args, arg)
+			disableArgs := collectors.DisableDefaultEnabledCollectors(
+				"--no-collector.",
+				defaultEnabledNodeExporterCollectors,
+				exporter.ExporterOptions.DisabledCollectors,
+			)
+			for _, arg := range disableArgs {
+				// some collectors are in the "disabled" block above already
+				if _, ok := present[arg]; !ok {
+					args = append(args, arg)
+				}
 			}
 		}
 	}
+
+	args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
 
 	if exporter.ExporterOptions.MetricsPath != "" {
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
