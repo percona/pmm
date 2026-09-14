@@ -15,7 +15,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { browserTimezone } from '../../utils/formatTimestamp';
 import type { PeriodicTaskResponse } from './hooks';
+
+// Re-exported so this module stays the one import for "which zone?" on the
+// schedules screen, while `formatTimestamp` remains its single definition.
+export { browserTimezone };
 
 /**
  * Two different zones are in play on a schedules screen, and conflating them is
@@ -57,20 +62,6 @@ export const TIMEZONES: string[] = (() => {
 })();
 
 /**
- * The reader's own zone — what every absolute timestamp on the screen is
- * rendered in. Reported as resolved, not constrained to {@link TIMEZONES}:
- * `toLocaleString()` uses the real zone whether or not the picker can offer it,
- * so narrowing here would name a zone the screen is not actually using.
- */
-export function browserTimezone(): string {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
-  } catch {
-    return 'UTC';
-  }
-}
-
-/**
  * The cron picker's default. Same zone as {@link browserTimezone} whenever it
  * is selectable, and UTC otherwise — an option the picker cannot list is an
  * option the user could never restore after changing it.
@@ -106,9 +97,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
  *
  * `datetime-local` carries no zone, so the value shown is whatever wall clock
  * is written into it. Writing the instant's UTC parts means the field reads
- * back the same numbers the backend stores — which is only honest as long as
- * the field is labelled UTC (PMM-15454). The reverse is
- * {@link utcInputToIso}.
+ * back the same wall clock the backend stores — which is only honest as long as
+ * the field is labelled UTC (PMM-15454). The reverse is {@link utcInputToIso}.
+ *
+ * Minute precision, matching the input: a stored `start_time` carrying seconds
+ * is truncated to the minute the moment the edit form mounts, and saving any
+ * field writes the truncated value back. That predates this function (the local
+ * conversion it replaced truncated identically) and no schedule is written at
+ * second precision, so it is left alone rather than fixed behind the user.
  */
 export function utcIsoToUtcInput(iso: string): string {
   const d = new Date(iso);

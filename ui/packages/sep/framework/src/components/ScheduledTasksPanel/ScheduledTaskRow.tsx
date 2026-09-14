@@ -31,10 +31,12 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import { capitalize } from '@sep/shared';
 import { LastRunStatus } from './LastRunStatus';
 import { ScheduledTaskForm } from './ScheduledTaskForm';
 import { describePeriod } from './periods';
 import { RunTime } from '../TaskRunDetailDrawer/RunTime';
+import { scheduleColumnHeaders } from './columns';
 import { scheduleTimezone } from './timezones';
 import type { AvailableTask } from '../ChainBuilder';
 import type {
@@ -42,15 +44,6 @@ import type {
   PeriodicTaskResponse,
   PeriodicTaskUpdate,
 } from './hooks';
-
-/**
- * Width of the row, for the edit form's `colSpan`. Must track `columnHeaders`
- * in `ScheduledTasksPanel`: Task, Period, Start Time, Last Run, Next Run, Runs,
- * Enabled, plus Chain and Actions when those are shown.
- */
-function columnCount(showChain: boolean, showActions: boolean): number {
-  return 7 + (showChain ? 1 : 0) + (showActions ? 1 : 0);
-}
 
 export interface ScheduledTaskRowProps {
   task: PeriodicTaskResponse;
@@ -121,7 +114,13 @@ export function ScheduledTaskRow({
   if (isEditing) {
     return (
       <TableRow>
-        <TableCell colSpan={columnCount(showChain, !readOnly)} sx={{ p: 0 }}>
+        <TableCell
+          colSpan={
+            scheduleColumnHeaders(showChain, !readOnly, capitalize(itemName))
+              .length
+          }
+          sx={{ p: 0 }}
+        >
           <ScheduledTaskForm
             mode="edit"
             initialValue={task}
@@ -156,7 +155,7 @@ export function ScheduledTaskRow({
               color="text.secondary"
               data-testid={`scheduled-task-timezone-${task.id}`}
             >
-              {firesIn}
+              Runs in {firesIn}
             </Typography>
           </Stack>
         </TableCell>
