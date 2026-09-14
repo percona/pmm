@@ -442,3 +442,73 @@ func TestRDSService(t *testing.T) {
 		assert.Equal(t, prototext.Format(expected), prototext.Format(resp)) // for better diffs
 	})
 }
+
+func TestAssumeRoleProvider(t *testing.T) {
+	t.Parallel()
+
+	provider := assumeRoleProvider(aws.Config{Region: "eu-west-1"}, "arn:aws:iam::123456789012:role/pmm-monitoring")
+	require.NotNil(t, provider)
+	assert.IsType(t, &aws.CredentialsCache{}, provider)
+}
+
+func TestSTSRegionForRoleARN(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		roleARN       string
+		wantRegion    string
+		wantPartition string
+		wantErr       bool
+	}{
+		{
+			name:          "aws partition",
+			roleARN:       "arn:aws:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "us-east-1",
+			wantPartition: "aws",
+		},
+		{
+			name:          "aws-cn partition",
+			roleARN:       "arn:aws-cn:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "cn-north-1",
+			wantPartition: "aws-cn",
+		},
+		{
+			name:          "aws-us-gov partition",
+			roleARN:       "arn:aws-us-gov:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "us-gov-west-1",
+			wantPartition: "aws-us-gov",
+		},
+		{
+			name:          "aws-iso partition",
+			roleARN:       "arn:aws-iso:iam::123456789012:role/pmm-monitoring",
+			wantRegion:    "us-iso-east-1",
+			wantPartition: "aws-iso",
+		},
+		{
+			name:    "unsupported partition",
+			roleARN: "arn:aws-iso-b:iam::123456789012:role/pmm-monitoring",
+			wantErr: true,
+		},
+		{
+			name:    "malformed ARN",
+			roleARN: "not-an-arn",
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			region, partition, err := stsRegionForRoleARN(tt.roleARN)
+			if tt.wantErr {
+				require.Error(t, err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.wantRegion, region)
+			assert.Equal(t, tt.wantPartition, partition)
+		})
+	}
+}

@@ -229,6 +229,7 @@ func (s *ManagementService) agentToAPI(agent *models.Agent) (*managementv1.Unive
 	case models.RDSExporterType:
 		ua.IsAwsSecretKeySet = agent.AWSOptions.AWSAccessKey != ""
 		ua.AwsAccessKey = agent.AWSOptions.AWSAccessKey
+		ua.AwsRoleArn = agent.AWSOptions.AWSRoleARN
 		ua.RdsBasicMetricsDisabled = agent.AWSOptions.RDSBasicMetricsDisabled
 		ua.RdsEnhancedMetricsDisabled = agent.AWSOptions.RDSEnhancedMetricsDisabled
 	default:
