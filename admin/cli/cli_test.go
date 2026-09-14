@@ -32,31 +32,13 @@ import (
 
 	"github.com/percona/pmm/admin/commands/base"
 	"github.com/percona/pmm/admin/commands/inventory"
+	"github.com/percona/pmm/admin/pkg/clienttest"
 	"github.com/percona/pmm/admin/pkg/flags"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
-	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/utils/servererror"
 )
 
-// restoreClients puts the package-level PMM Server API clients back the way they were once the
-// test is done. SetupClients reconfigures them for the whole test binary, and this test points
-// them at a server of its own, so without this a later test would dial a closed port.
-func restoreClients(t *testing.T) {
-	t.Helper()
-
-	inventory := inventoryClient.Default.Transport
-	management := managementClient.Default.Transport
-	server := serverClient.Default.Transport
-
-	t.Cleanup(func() {
-		inventoryClient.Default.SetTransport(inventory)
-		managementClient.Default.SetTransport(management)
-		serverClient.Default.SetTransport(server)
-	})
-}
-
-func TestPrintResponseTLSError(t *testing.T) {
+func TestExplainTransportErrorTLS(t *testing.T) {
 	t.Parallel()
 
 	serverURL, err := url.Parse("https://admin:admin@pmm-server-second:8443/")
@@ -73,7 +55,7 @@ func TestPrintResponseTLSError(t *testing.T) {
 
 		opts := &flags.GlobalFlags{ServerURL: serverURL} //nolint:exhaustruct
 
-		wrapped := printResponse(opts, nil, certErr)
+		wrapped := explainTransportError(opts, certErr)
 		require.Error(t, wrapped)
 		assert.Contains(t, wrapped.Error(), servererror.InsecureTLSFlag)
 	})
@@ -83,7 +65,7 @@ func TestPrintResponseTLSError(t *testing.T) {
 
 		opts := &flags.GlobalFlags{ServerURL: serverURL, SkipTLSCertificateCheck: true} //nolint:exhaustruct
 
-		assert.Equal(t, certErr, printResponse(opts, nil, certErr))
+		assert.Equal(t, certErr, explainTransportError(opts, certErr))
 	})
 
 	t.Run("unrelated errors are untouched", func(t *testing.T) {
@@ -92,7 +74,7 @@ func TestPrintResponseTLSError(t *testing.T) {
 		opts := &flags.GlobalFlags{ServerURL: serverURL} //nolint:exhaustruct
 		other := errors.New("connection refused")
 
-		assert.Equal(t, other, printResponse(opts, nil, other))
+		assert.Equal(t, other, explainTransportError(opts, other))
 	})
 
 	t.Run("no hint in JSON mode", func(t *testing.T) {
@@ -102,14 +84,14 @@ func TestPrintResponseTLSError(t *testing.T) {
 		// for a human reading the terminal would change that documented output.
 		opts := &flags.GlobalFlags{ServerURL: serverURL, JSON: true} //nolint:exhaustruct
 
-		assert.Equal(t, certErr, printResponse(opts, nil, certErr))
+		assert.Equal(t, certErr, explainTransportError(opts, certErr))
 	})
 }
 
-// TestPrintResponseNginxError covers the responses served by nginx instead of by PMM Server's
+// TestExplainTransportErrorNginx covers the responses served by nginx instead of by PMM Server's
 // API: they carry no gRPC code and are not a commands.ErrorResponse, so ServerErrorMessage
 // never sees them and pmm-admin used to print the bare nginx page.
-func TestPrintResponseNginxError(t *testing.T) {
+func TestExplainTransportErrorNginx(t *testing.T) {
 	t.Parallel()
 
 	nginxErr := servererror.NginxError("<html><body><h1>401 Authorization Required</h1></body></html>")
@@ -119,7 +101,7 @@ func TestPrintResponseNginxError(t *testing.T) {
 
 		opts := &flags.GlobalFlags{} //nolint:exhaustruct
 
-		wrapped := printResponse(opts, nil, nginxErr)
+		wrapped := explainTransportError(opts, nginxErr)
 		require.Error(t, wrapped)
 		assert.Contains(t, wrapped.Error(), nginxErr.Error())
 		assert.Contains(t, wrapped.Error(), servererror.NginxHint)
@@ -132,7 +114,7 @@ func TestPrintResponseNginxError(t *testing.T) {
 
 		opts := &flags.GlobalFlags{JSON: true} //nolint:exhaustruct
 
-		assert.Equal(t, nginxErr, printResponse(opts, nil, nginxErr))
+		assert.Equal(t, nginxErr, explainTransportError(opts, nginxErr))
 	})
 }
 
@@ -161,7 +143,7 @@ func redirectToTestServer(t *testing.T, srv *httptest.Server) {
 // fail with a message naming --server-insecure-tls, and must succeed once that flag is set.
 func TestChangeAgentAgainstMismatchedCertificate(t *testing.T) {
 	// Not parallel: SetupClients configures the package-level API clients.
-	restoreClients(t)
+	clienttest.RestoreDefaults(t)
 
 	const agentID = "722fbfc8-8497-4acc-839b-ec53983cf398"
 
@@ -197,7 +179,7 @@ func TestChangeAgentAgainstMismatchedCertificate(t *testing.T) {
 		_, cmdErr := cmd.RunCmd()
 		require.Error(t, cmdErr)
 
-		wrapped := printResponse(opts, nil, cmdErr)
+		wrapped := explainTransportError(opts, cmdErr)
 		require.Error(t, wrapped)
 
 		msg := wrapped.Error()

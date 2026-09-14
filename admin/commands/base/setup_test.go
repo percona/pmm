@@ -25,28 +25,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/pkg/clienttest"
 	"github.com/percona/pmm/admin/pkg/flags"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
-	managementClient "github.com/percona/pmm/api/management/v1/json/client"
-	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 )
-
-// restoreClients puts the package-level PMM Server API clients back the way they were once the
-// test is done. SetupClients reconfigures them for the whole test binary, so without this a
-// later test would talk to whatever server this one pointed them at.
-func restoreClients(t *testing.T) {
-	t.Helper()
-
-	inventory := inventoryClient.Default.Transport
-	management := managementClient.Default.Transport
-	server := serverClient.Default.Transport
-
-	t.Cleanup(func() {
-		inventoryClient.Default.SetTransport(inventory)
-		managementClient.Default.SetTransport(management)
-		serverClient.Default.SetTransport(server)
-	})
-}
 
 func TestApplyAgentServerParams(t *testing.T) {
 	t.Parallel()
@@ -242,7 +224,7 @@ func serverTransport(t *testing.T) *http.Transport {
 // must keep validating certificates without it.
 func TestSetupClientsServerURL(t *testing.T) {
 	// Not parallel: SetupClients configures the package-level API clients.
-	restoreClients(t)
+	clienttest.RestoreDefaults(t)
 
 	for name, tc := range map[string]struct {
 		serverURL   string
@@ -313,7 +295,7 @@ func TestSetupClientsAddsTrailingPath(t *testing.T) {
 	u, err := url.Parse("https://admin:admin@pmm-server-second:8443")
 	require.NoError(t, err)
 
-	restoreClients(t)
+	clienttest.RestoreDefaults(t)
 
 	globals := &flags.GlobalFlags{ServerURL: u, SkipTLSCertificateCheck: true} //nolint:exhaustruct
 	SetupClients(globals)
@@ -326,7 +308,7 @@ func TestSetupClientsAddsTrailingPath(t *testing.T) {
 // into every other HTTP client in the process - and, in tests, into every later test in the binary.
 func TestSetupClientsClonesTransport(t *testing.T) {
 	// Not parallel: SetupClients configures the package-level API clients.
-	restoreClients(t)
+	clienttest.RestoreDefaults(t)
 
 	def, ok := http.DefaultTransport.(*http.Transport)
 	require.True(t, ok)

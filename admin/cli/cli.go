@@ -139,18 +139,23 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 	}
 
 	// Transport-level failures never reach the cases above; they are returned for the
-	// caller to print. The hints added to them address a human reading the terminal, so
-	// --json output, whose consumers match on the error text, keeps the error as it came.
-	if opts.JSON {
-		return err
-	}
-
+	// caller to print.
 	return explainTransportError(opts, err)
 }
 
 // explainTransportError appends a hint to the failures which never reach PMM Server's API, and
-// returns every other error unchanged.
+// returns every other error unchanged. It is the whole of what printResponse does with such an
+// error, kept apart from printResponse's os.Exit calls so that it can be tested directly: a
+// test driving printResponse would exit the test binary the moment a fixture produced a
+// commands.ErrorResponse instead of a transport failure.
+//
+// The hints address a human reading the terminal, so --json output, whose consumers match on
+// the error text, keeps the error as it came.
 func explainTransportError(opts *flags.GlobalFlags, err error) error {
+	if opts.JSON {
+		return err
+	}
+
 	var host string
 	if opts.ServerURL != nil {
 		host = opts.ServerURL.Hostname()
