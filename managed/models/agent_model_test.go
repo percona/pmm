@@ -114,6 +114,35 @@ func TestAgent(t *testing.T) {
 			assert.Equal(t, []string{"krb5-ktname", "KRB5_CONFIG"}, names)
 		})
 
+		t.Run("an undecodable stored value is repaired by sending a new list", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`{"not":"an array"}`)}
+
+			// ToAPIAgent reports an undecodable column as empty and documents that sending a new
+			// list repairs the row; grandfathering must not turn that into a permanent failure.
+			require.NoError(t, agent.SetEnvironmentVariableNames([]string{"KRB5_CONFIG"}))
+
+			names, err := agent.GetEnvironmentVariableNames()
+			require.NoError(t, err)
+			assert.Equal(t, []string{"KRB5_CONFIG"}, names)
+		})
+
+		t.Run("an undecodable stored value grandfathers nothing", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`{"not":"an array"}`)}
+
+			err := agent.SetEnvironmentVariableNames([]string{"krb5-ktname"})
+			require.Error(t, err)
+		})
+
+		t.Run("a blank stored name is not grandfathered", func(t *testing.T) {
+			agent := &models.Agent{EnvironmentVariables: []byte(`["   ", "KRB5_KTNAME"]`)}
+
+			// A blank entry written before validation existed must not let the empty string be
+			// stored again: pmm-agent cannot resolve it and warns on every state update.
+			err := agent.SetEnvironmentVariableNames([]string{"   ", "KRB5_CONFIG"})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "cannot be empty")
+		})
+
 		t.Run("still rejects a new invalid name even with a grandfathered one present", func(t *testing.T) {
 			agent := &models.Agent{EnvironmentVariables: []byte(`["krb5-ktname"]`)}
 

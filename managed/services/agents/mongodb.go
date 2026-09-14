@@ -42,6 +42,19 @@ var (
 	v3_10_0                    = version.MustParse("3.10.0-0")
 )
 
+// mongoDBURIEnvVar is the environment variable mongodbExporterConfig below sets on the exporter
+// process itself, from the service's DSN.
+const mongoDBURIEnvVar = "MONGODB_URI"
+
+// MongoDBExporterReservedEnvVars are the environment variable names mongodbExporterConfig sets for
+// mongodb_exporter itself. This is the authoritative set: pmm-agent's supervisor skips a
+// user-selected name that collides with one of these, to avoid overriding the computed value, so
+// the API rejects such a name up front instead. Anything added to the env slice below belongs here
+// too, which is why both are declared together rather than restated in the validating package.
+var MongoDBExporterReservedEnvVars = map[string]struct{}{
+	mongoDBURIEnvVar: {},
+}
+
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
 func mongodbExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
@@ -66,7 +79,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	}
 	connectionTimeout := exporter.EffectiveDialTimeout()
 	env := []string{
-		"MONGODB_URI=" + exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: database}, tdp, pmmAgentVersion),
+		mongoDBURIEnvVar + "=" + exporter.DSN(service, models.DSNParams{DialTimeout: connectionTimeout, Database: database}, tdp, pmmAgentVersion),
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{

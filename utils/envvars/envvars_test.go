@@ -205,6 +205,83 @@ func TestNormalizeNamesAllowing(t *testing.T) {
 		assert.Nil(t, names)
 	})
 
+	t.Run("an oversized stored list cannot be swapped wholesale for new names", func(t *testing.T) {
+		t.Parallel()
+
+		// The bound follows the names this request carries forward, not the stored count: an
+		// oversized list must converge on MaxNames rather than stay oversized forever.
+		stored := make([]string, MaxNames+8)
+		for i := range stored {
+			stored[i] = fmt.Sprintf("VAR%d", i)
+		}
+
+		fresh := make([]string, len(stored))
+		for i := range fresh {
+			fresh[i] = fmt.Sprintf("BRAND_NEW%d", i)
+		}
+
+		names, err := NormalizeNamesAllowing(fresh, grandfatheredSet(stored...))
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "too many environment variable names")
+		assert.Nil(t, names)
+	})
+
+	t.Run("an oversized stored list cannot add a new name while staying oversized", func(t *testing.T) {
+		t.Parallel()
+
+		stored := make([]string, MaxNames+8)
+		for i := range stored {
+			stored[i] = fmt.Sprintf("VAR%d", i)
+		}
+
+		// Drop one stored name and add a new one: the length does not grow, but it does not shrink
+		// either, so the request is rejected.
+		swapped := make([]string, 0, len(stored))
+		swapped = append(swapped, stored[1:]...)
+		swapped = append(swapped, "BRAND_NEW")
+
+		names, err := NormalizeNamesAllowing(swapped, grandfatheredSet(stored...))
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "too many environment variable names")
+		assert.Nil(t, names)
+	})
+
+	t.Run("the empty string is never grandfathered", func(t *testing.T) {
+		t.Parallel()
+
+		// A blank name stored before validation existed must not be able to grandfather itself
+		// back in, however the grandfathered set was built.
+		names, err := NormalizeNamesAllowing([]string{"   ", "KRB5_CONFIG"}, map[string]struct{}{"": {}})
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "cannot be empty")
+		assert.Nil(t, names)
+	})
+
+	t.Run("a rejected list is reported as InvalidNameError", func(t *testing.T) {
+		t.Parallel()
+
+		names := make([]string, MaxNames+1)
+		for i := range names {
+			names[i] = fmt.Sprintf("VAR%d", i)
+		}
+
+		_, err := NormalizeNames(names)
+		require.Error(t, err)
+
+		var invalid *InvalidNameError
+		assert.ErrorAs(t, err, &invalid)
+	})
+
+	t.Run("a rejected name is reported as InvalidNameError", func(t *testing.T) {
+		t.Parallel()
+
+		err := ValidateName("PMM_AGENT_SERVER_PASSWORD")
+		require.Error(t, err)
+
+		var invalid *InvalidNameError
+		assert.ErrorAs(t, err, &invalid)
+	})
+
 	t.Run("a list within MaxNames is bounded by MaxNames, not by the stored count", func(t *testing.T) {
 		t.Parallel()
 

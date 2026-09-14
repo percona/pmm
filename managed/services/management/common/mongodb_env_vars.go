@@ -20,21 +20,9 @@ import (
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-)
 
-// mongoDBExporterReservedEnvVars are environment variable names pmm-agent's supervisor always
-// sets itself for mongodb_exporter (see mongodbExporterConfig in managed/services/agents/mongodb.go).
-// A user-selected name here would never take effect: the supervisor skips it to avoid overriding
-// the computed value on the agent side. Rejecting it here instead gives the caller an actionable
-// error at request time.
-//
-// HTTP_AUTH is deliberately absent even though ensureAuthParams (managed/services/agents/agents.go)
-// also injects it: it does so only for pmm-agent older than 2.28.0, so listing it here would reject
-// a name that nothing sets for every current agent. For those old agents the supervisor still skips
-// it and logs a warning, which is the lesser of the two failures.
-var mongoDBExporterReservedEnvVars = map[string]struct{}{
-	"MONGODB_URI": {},
-}
+	"github.com/percona/pmm/managed/services/agents"
+)
 
 // ValidateMongoDBExporterEnvVarNames rejects environment variable names that pmm-agent reserves
 // for mongodb_exporter itself, except for names already present in grandfathered: this field is
@@ -47,13 +35,24 @@ var mongoDBExporterReservedEnvVars = map[string]struct{}{
 // It lives in this cross-service package (rather than services/inventory, where the check
 // originated) so both the inventory API and ManagementService.addMongoDB can apply the same check
 // without either service importing the other.
+//
+// The reserved set comes from agents.MongoDBExporterReservedEnvVars, the config builder that
+// actually sets those variables, rather than being restated here: a hand-kept copy would drift the
+// moment mongodbExporterConfig computes another variable, and this check would then accept a name
+// that pmm-agent skips with only a warning — exactly the failure it exists to prevent.
+//
+// HTTP_AUTH is deliberately not in that set even though ensureAuthParams
+// (managed/services/agents/agents.go) also injects it: it does so only for pmm-agent older than
+// 2.28.0, so reserving it would reject a name that nothing sets for every current agent. For those
+// old agents the supervisor still skips it and logs a warning, which is the lesser of the two
+// failures.
 func ValidateMongoDBExporterEnvVarNames(names []string, grandfathered map[string]struct{}) error {
 	for _, name := range names {
 		trimmed := strings.TrimSpace(name)
 		if _, ok := grandfathered[trimmed]; ok {
 			continue
 		}
-		if _, ok := mongoDBExporterReservedEnvVars[strings.ToUpper(trimmed)]; ok {
+		if _, ok := agents.MongoDBExporterReservedEnvVars[strings.ToUpper(trimmed)]; ok {
 			return status.Errorf(codes.InvalidArgument,
 				"environment variable name '%s' is reserved for mongodb_exporter, which pmm-agent configures itself, and cannot be selected", name)
 		}

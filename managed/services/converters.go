@@ -30,6 +30,11 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
+// convertersL logs rows this package has to convert around rather than reject. These converters are
+// pure functions with no request-scoped entry to thread in — ToAPIAgent alone has 25 call sites — so
+// they use a component-scoped entry, the same shape the rest of pmm-managed names its loggers with.
+var convertersL = logrus.WithField("component", "converters")
+
 // ToAPINode converts Node database model to API model.
 func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 	labels, err := node.GetCustomLabels()
@@ -337,7 +342,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventoryv1.Agent, erro
 		// repairs the row.
 		envVarNames, err := agent.GetEnvironmentVariableNames()
 		if err != nil {
-			logrus.Warnf("Ignoring undecodable environment variable names of agent %s: %s.", agent.AgentID, err)
+			convertersL.WithField("agent_id", agent.AgentID).Warnf("Ignoring undecodable environment variable names: %s.", err)
 		}
 		exporter.EnvironmentVariableNames = envVarNames
 

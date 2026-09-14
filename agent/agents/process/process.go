@@ -99,7 +99,9 @@ func (p *Params) String() string {
 			name, _, ok := strings.Cut(item, "=")
 			if ok {
 				if _, isResolved := resolved[name]; isResolved {
-					printEnv[i] = name + "=" + logger.RedactString(item, extensionsv1.RedactType_REDACT_TYPE_FULL)
+					// REDACT_TYPE_FULL replaces the whole value with a constant, so the value is
+					// not passed in: nothing about it shapes the output, unlike the DSN case below.
+					printEnv[i] = name + "=" + logger.RedactString("", extensionsv1.RedactType_REDACT_TYPE_FULL)
 					continue
 				}
 			}

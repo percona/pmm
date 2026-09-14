@@ -416,12 +416,7 @@ func (as *AgentsService) ChangeMongoDBExporter(
 	var checkEnvVarNames func(current *models.Agent) error
 	if names := p.GetEnvironmentVariableNames().GetValues(); len(names) > 0 {
 		checkEnvVarNames = func(current *models.Agent) error {
-			grandfathered, err := current.GrandfatheredEnvironmentVariableNames()
-			if err != nil {
-				return err
-			}
-
-			return mgmtcommon.ValidateMongoDBExporterEnvVarNames(names, grandfathered)
+			return mgmtcommon.ValidateMongoDBExporterEnvVarNames(names, current.GrandfatheredEnvironmentVariableNames())
 		}
 	}
 
