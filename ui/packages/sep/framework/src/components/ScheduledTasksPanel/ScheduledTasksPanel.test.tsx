@@ -54,6 +54,7 @@ vi.mock('@sep/api', async (importOriginal) => ({
 vi.mock('@sep/api/src/client', () => ({ apiClient: apiMock }));
 
 import { DEFAULT_PLUGIN_LIST_LIMIT } from '@sep/api';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 import { ScheduledTasksPanel } from './ScheduledTasksPanel';
 import type { PeriodicTaskResponse } from './hooks';
 
@@ -609,6 +610,31 @@ describe('ScheduledTasksPanel — write access', () => {
       ).toHaveTextContent('UTC');
     });
 
+    it('names the render zone on the timestamp itself, not only in the header', async () => {
+      setup([
+        makePeriodic({
+          id: 34,
+          timezone: 'Europe/Lisbon',
+          next_run_at: '2026-03-01T02:30:00Z',
+        }),
+      ]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+      const row = await screen.findByTestId('scheduled-task-row-34');
+      // The row names Lisbon beside the recurrence; the timestamps next to it
+      // are still the reader's zone, and have to say so where they are read.
+      expect(
+        within(row).getByTestId('scheduled-task-timezone-34')
+      ).toHaveTextContent('Runs in Europe/Lisbon');
+
+      const formatted = formatTimestamp('2026-03-01T02:30:00Z');
+      expect(within(row).getByTitle(formatted!.title)).toBeInTheDocument();
+      expect(formatted!.title).toContain(
+        `(${Intl.DateTimeFormat().resolvedOptions().timeZone})`
+      );
+    });
+
     it('names the zone the table renders its timestamps in', async () => {
       setup([makePeriodic({ id: 33 })]);
 
@@ -691,6 +717,89 @@ describe('ScheduledTasksPanel — write access', () => {
       expect(body.start_time).toBe('2026-03-01T02:30:00.000Z');
     });
 
+    it('leaves a stored start time byte-identical when an unrelated field is edited', async () => {
+      // The field carries minutes; the stored value carries seconds. Saving an
+      // edit to the interval must not round the schedule's first fire down.
+      setup([makePeriodic({ id: 62, start_time: '2026-03-01T02:30:45.123Z' })]);
+      apiMock.put.mockResolvedValue({ data: { id: 62 } });
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByTestId('scheduled-task-edit-62'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      const every = within(form).getByTestId('sched-form-interval-every');
+      await user.clear(every);
+      await user.type(every, '6');
+      await user.click(within(form).getByRole('button', { name: /Save/i }));
+
+      await waitFor(() => expect(apiMock.put).toHaveBeenCalledTimes(1));
+      const [, body] = apiMock.put.mock.calls[0];
+      expect(body.interval).toMatchObject({ every: 6 });
+      expect(body.start_time).toBe('2026-03-01T02:30:45.123Z');
+    });
+
+    it('sends the edited start time when the field itself is changed', async () => {
+      setup([makePeriodic({ id: 63, start_time: '2026-03-01T02:30:45.123Z' })]);
+      apiMock.put.mockResolvedValue({ data: { id: 63 } });
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByTestId('scheduled-task-edit-63'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      fireEvent.change(within(form).getByTestId('sched-form-start-time'), {
+        target: { value: '2026-04-02T07:15' },
+      });
+      await user.click(within(form).getByRole('button', { name: /Save/i }));
+
+      await waitFor(() => expect(apiMock.put).toHaveBeenCalledTimes(1));
+      const [, body] = apiMock.put.mock.calls[0];
+      expect(body.start_time).toBe('2026-04-02T07:15:00.000Z');
+    });
+
+    it('offers a stored zone the runtime does not list, so it can be restored', async () => {
+      // The backend accepts aliases such as `US/Eastern` that
+      // `Intl.supportedValuesOf` omits; the picker must still hold them.
+      setup([
+        makePeriodic({
+          id: 64,
+          interval: null,
+          timezone: 'US/Eastern',
+          crontab: {
+            minute: '0',
+            hour: '2',
+            day_of_month: '*',
+            month_of_year: '*',
+            day_of_week: '*',
+            timezone: 'US/Eastern',
+          },
+          period: '0 2 * * *',
+        }),
+      ]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByTestId('scheduled-task-edit-64'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      const picker = within(form).getByTestId('sched-form-timezone');
+      expect(picker).toHaveValue('US/Eastern');
+      expect(
+        within(form).getByTestId('sched-form-timezone-notice')
+      ).toHaveTextContent('Runs in US/Eastern');
+
+      // Displaying the value is not enough: MUI shows an off-list value while
+      // refusing to offer it, so changing zone would be a one-way door.
+      await user.click(picker);
+      expect(
+        await screen.findByRole('option', { name: 'US/Eastern' })
+      ).toBeInTheDocument();
+    });
+
     it('round-trips a stored start time back into the field unshifted', async () => {
       setup([makePeriodic({ id: 61, start_time: '2026-03-01T02:30:00Z' })]);
 
@@ -729,6 +838,18 @@ describe('ScheduledTasksPanel — write access', () => {
       renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
 
       const row = await screen.findByTestId('scheduled-task-row-43');
+      expect(within(row).getAllByRole('cell')).toHaveLength(
+        screen.getAllByRole('columnheader').length
+      );
+    });
+
+    it('keeps the row width matching the header for a read-only session', async () => {
+      authMock.canMutate = false;
+      setup([makePeriodic({ id: 46 })]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+      const row = await screen.findByTestId('scheduled-task-row-46');
       expect(within(row).getAllByRole('cell')).toHaveLength(
         screen.getAllByRole('columnheader').length
       );

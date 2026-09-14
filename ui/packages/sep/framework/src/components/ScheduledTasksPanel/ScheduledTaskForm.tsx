@@ -84,6 +84,25 @@ export interface ScheduledTaskFormProps {
 
 const CRON_PATTERN = /^\S+(?:\s+\S+){4}$/;
 
+/**
+ * The `start_time` to send.
+ *
+ * The field carries minutes, so round-tripping a stored value through it drops
+ * any seconds that value had. Send the stored instant back verbatim while the
+ * field still shows it unchanged, so saving an edit to an unrelated field —
+ * the interval, the enable toggle — cannot quietly move a schedule's first fire
+ * by up to a minute (PMM-15454).
+ */
+function startTimeToSubmit(
+  fieldValue: string,
+  stored: string | null | undefined
+): string | null {
+  if (stored && fieldValue === utcIsoToUtcInput(stored)) {
+    return stored;
+  }
+  return utcInputToIso(fieldValue);
+}
+
 function cronToExpression(c: CrontabSchedule): string {
   return `${c.minute} ${c.hour} ${c.day_of_month} ${c.month_of_year} ${c.day_of_week}`;
 }
@@ -175,6 +194,13 @@ export function ScheduledTaskForm({
   const scheduleMode = watch('scheduleMode');
   const cronExpression = watch('cronExpression');
   const cronTimezone = watch('cronTimezone');
+  const timezoneOptions = useMemo(
+    () =>
+      cronTimezone && !TIMEZONES.includes(cronTimezone)
+        ? [cronTimezone, ...TIMEZONES]
+        : TIMEZONES,
+    [cronTimezone]
+  );
   const taskName = watch('task');
   const chain = watch('chain');
 
@@ -240,7 +266,9 @@ export function ScheduledTaskForm({
     // The start-time field is labelled UTC and carries UTC wall clock, so it
     // reads back as UTC. Cron mode asks no start time; that half of the finding
     // is parked for a design pass (PMM-15454).
-    const start_time = isCron ? null : utcInputToIso(values.startTime);
+    const start_time = isCron
+      ? null
+      : startTimeToSubmit(values.startTime, initialValue?.start_time);
 
     const hasChain = values.chain.chain_task_names.length > 0;
     const execute_request = hasChain
@@ -375,7 +403,7 @@ export function ScheduledTaskForm({
                 render={({ field }) => (
                   <Autocomplete
                     size="small"
-                    options={TIMEZONES}
+                    options={timezoneOptions}
                     value={field.value}
                     onChange={(_, v) => field.onChange(v ?? 'UTC')}
                     sx={{ width: 220 }}
