@@ -31,8 +31,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { MaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
 import { useAuth } from '@sep/api';
+import { capitalize } from '@sep/shared';
 import { ActionErrorAlert } from '../ActionErrorAlert';
-import { capitalizeItemLabel } from '../../utils/itemLabels';
 import {
   isRunningStatus,
   useStopTaskHistory,
@@ -180,7 +180,7 @@ function TaskHistoryTableView({
   onDismissActionError,
 }: ViewProps) {
   const { canMutate } = useAuth();
-  const itemLabel = capitalizeItemLabel(itemName);
+  const itemLabel = capitalize(itemName);
   const [pendingStopEntry, setPendingStopEntry] =
     useState<TaskHistoryEntry | null>(null);
   const [pendingFilesEntry, setPendingFilesEntry] =

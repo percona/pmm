@@ -66,3 +66,14 @@ export const ROUTES = {
 // ── App-wide constants ────────────────────────────────────────────────
 export const APP_NAME = 'Services Enablement Platform';
 export const APP_SHORT_NAME = 'SEP';
+
+/**
+ * Capitalise only the first character. Empty / nullish input returns `''`
+ * so missing labels cannot throw at render time.
+ */
+export function capitalize(text: string | null | undefined): string {
+  if (typeof text !== 'string' || text.length === 0) {
+    return '';
+  }
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}

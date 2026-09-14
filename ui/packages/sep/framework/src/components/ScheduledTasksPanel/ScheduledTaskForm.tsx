@@ -29,12 +29,12 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import cronstrue from 'cronstrue';
+import { capitalize } from '@sep/shared';
 import {
   ChainBuilder,
   type AvailableTask,
   type ChainValue,
 } from '../ChainBuilder';
-import { capitalizeItemLabel } from '../../utils/itemLabels';
 import type {
   CrontabSchedule,
   IntervalSchedule,
@@ -189,7 +189,7 @@ export function ScheduledTaskForm({
   itemName = 'task',
   itemNamePlural = 'tasks',
 }: ScheduledTaskFormProps) {
-  const itemLabel = capitalizeItemLabel(itemName);
+  const itemLabel = capitalize(itemName);
   const defaults = useMemo(
     () => buildDefaults(initialValue, defaultTaskName),
     [initialValue, defaultTaskName]

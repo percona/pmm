@@ -63,10 +63,8 @@ import {
 import { resolvePluginRouteBase } from './routeBase';
 import type { RenderFormSlot } from './types';
 import type { RenderListColumnOverride } from '../SchemaListView';
-import {
-  capitalizeItemLabel,
-  resolveItemDisplayName,
-} from '../../utils/itemLabels';
+import { capitalize } from '@sep/shared';
+import { resolveItemDisplayName } from '../../utils/itemLabels';
 
 interface SchemaDrivenPluginProps {
   pluginName: string;
@@ -172,8 +170,9 @@ function PluginEditPage({
   );
 
   const title = entitySchema?.display_name ?? schema.display_name;
-  const itemName = resolveItemDisplayName(entitySchema ?? schema);
-  const sections = entitySchema?.forms ?? schema.forms!;
+  const recordSchema = entitySchema ?? schema;
+  const itemName = resolveItemDisplayName(recordSchema);
+  const sections = recordSchema.forms ?? schema.forms!;
 
   const [{ submitError, fieldErrors }, setSubmitErrorState] =
     useState<SubmitErrorState>(EMPTY_SUBMIT_ERROR);
@@ -195,7 +194,7 @@ function PluginEditPage({
       },
       {
         onSuccess: () => {
-          enqueueSnackbar(`${capitalizeItemLabel(itemName)} updated`, {
+          enqueueSnackbar(`${capitalize(itemName)} updated`, {
             variant: 'success',
           });
           navigate('..', { relative: 'path' });
@@ -226,7 +225,7 @@ function PluginEditPage({
             <ArrowBackIcon />
           </IconButton>
           <Typography variant="h4">
-            {capitalizeItemLabel(itemName)} #{id}
+            {capitalize(itemName)} #{id}
           </Typography>
         </Box>
         <ReadOnlyNotice

@@ -58,8 +58,6 @@ interface TaskHistoryTableBaseProps {
   hideTaskNameColumn?: boolean;
   /** Mid-sentence singular noun for one record (e.g. `backup`). */
   itemName?: string;
-  /** Mid-sentence plural noun (e.g. `backups`). */
-  itemNamePlural?: string;
 }
 
 /**

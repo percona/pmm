@@ -98,8 +98,8 @@ import {
 import { resolvePluginRouteBase } from './routeBase';
 import { getStoredForm } from './storedForm';
 import { StatsCard } from './StatsCard';
+import { capitalize } from '@sep/shared';
 import {
-  capitalizeItemLabel,
   resolveItemDisplayName,
   resolveItemDisplayNamePlural,
 } from '../../utils/itemLabels';
@@ -584,7 +584,7 @@ function OverviewTab({
         )}
 
       <SectionCard
-        title={`${capitalizeItemLabel(resolveItemDisplayName(schema))} information`}
+        title={`${capitalize(resolveItemDisplayName(schema))} information`}
       >
         <Grid container spacing={2}>
           {visibleColumns.map((col) => (
@@ -752,7 +752,7 @@ function ActionBar({
 
   const chainingEnabled = !!schema.capabilities?.chaining;
   const itemName = resolveItemDisplayName(schema);
-  const itemLabel = capitalizeItemLabel(itemName);
+  const itemLabel = capitalize(itemName);
   const itemPlural = resolveItemDisplayNamePlural(schema);
   const {
     data: pluginTasksData,
@@ -1072,9 +1072,10 @@ export function PluginDetailPage({
   );
 
   const { data: task, isLoading } = multi ? entityQuery : taskQuery;
+  const recordSchema = multi ? entitySchema! : schema;
   const listView = multi ? entitySchema!.list_view : schema.list_view!;
-  const title = multi ? entitySchema!.display_name : schema.display_name;
-  const itemName = resolveItemDisplayName(multi ? entitySchema! : schema);
+  const title = recordSchema.display_name;
+  const itemName = resolveItemDisplayName(recordSchema);
   const headingWhenChromeHidden = useMemo(
     () =>
       hideDetailChrome && multi
@@ -1311,7 +1312,7 @@ export function PluginDetailPage({
     return (
       <Box>
         <Typography variant="h5">
-          {capitalizeItemLabel(resolveItemDisplayName(schema))} not found
+          {capitalize(resolveItemDisplayName(schema))} not found
         </Typography>
       </Box>
     );

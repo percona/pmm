@@ -33,8 +33,8 @@ import { useElapsedSeconds } from '../../hooks/useElapsedSeconds';
 import { formatDuration } from '../../utils/formatDuration';
 import { TaskHistoryStatusBadge } from '../TaskHistoryTable';
 import { TaskLogViewer } from '../TaskLogViewer';
+import { capitalize } from '@sep/shared';
 import { formatAbsoluteTime } from '../ScheduledTasksPanel/periods';
-import { capitalizeItemLabel } from '../../utils/itemLabels';
 import { runFailureReason } from './runFailureReason';
 
 /**
@@ -184,7 +184,7 @@ export function TaskRunDetailDrawer({
     run?.display_name ||
     run?.task?.name ||
     taskLabel ||
-    `${capitalizeItemLabel(itemName)} run`;
+    `${capitalize(itemName)} run`;
   const failureReason = runFailureReason(run);
   const nonFailureNote = run
     ? NON_FAILURE_TERMINAL_NOTES[run.status]

@@ -32,7 +32,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { useAuth } from '@sep/api';
-import { capitalizeItemLabel } from '../../utils/itemLabels';
+import { capitalize } from '@sep/shared';
 import { ScheduledTaskForm } from './ScheduledTaskForm';
 import { TaskRunDetailDrawer } from '../TaskRunDetailDrawer';
 import { ScheduledTaskRow } from './ScheduledTaskRow';
@@ -66,18 +66,25 @@ export function ScheduledTasksPanel({
   itemNamePlural = 'tasks',
 }: ScheduledTasksPanelProps) {
   const { canMutate } = useAuth();
-  const itemLabel = capitalizeItemLabel(itemName);
-  const itemPluralLabel = capitalizeItemLabel(itemNamePlural);
-  const columnHeaders = [
-    itemLabel,
-    'Period',
-    'Start Time',
-    'Last Run',
-    'Next Run',
-    'Runs',
-    'Chain',
-    'Enabled',
-  ];
+  const itemLabel = capitalize(itemName);
+  const itemPluralLabel = capitalize(itemNamePlural);
+  const columnHeaders = useMemo(
+    () => [
+      itemLabel,
+      'Period',
+      'Start Time',
+      'Last Run',
+      'Next Run',
+      'Runs',
+      'Chain',
+      'Enabled',
+    ],
+    [itemLabel]
+  );
+  const tableHeaders = useMemo(
+    () => (canMutate ? [...columnHeaders, ACTIONS_HEADER] : columnHeaders),
+    [canMutate, columnHeaders]
+  );
   const { periodicTasks, pluginTasks, isLoading, isError, error } =
     useScheduledTasksForPlugin(pluginName, { disablePolling });
 
@@ -210,11 +217,9 @@ export function ScheduledTasksPanel({
   const headerRow = (
     <TableHead>
       <TableRow>
-        {(canMutate ? [...columnHeaders, ACTIONS_HEADER] : columnHeaders).map(
-          (h) => (
-            <TableCell key={h}>{h}</TableCell>
-          )
-        )}
+        {tableHeaders.map((h) => (
+          <TableCell key={h}>{h}</TableCell>
+        ))}
       </TableRow>
     </TableHead>
   );

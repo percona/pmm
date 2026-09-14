@@ -43,8 +43,8 @@ import type {
 } from '../SchemaFormRenderer/types';
 import type { RenderFormSlot } from './types';
 import { getStoredForm } from './storedForm';
+import { capitalize } from '@sep/shared';
 import {
-  capitalizeItemLabel,
   resolveItemDisplayName,
   resolveItemDisplayNamePlural,
 } from '../../utils/itemLabels';
@@ -136,7 +136,7 @@ export function PluginTaskEditPage({
   const updateTask = useUpdatePluginTask(pluginName, mockTasks);
   const { data: task, isLoading } = usePluginTask(pluginName, id, mockTasks);
   const itemName = resolveItemDisplayName(schema);
-  const itemLabel = capitalizeItemLabel(itemName);
+  const itemLabel = capitalize(itemName);
   const itemPlural = resolveItemDisplayNamePlural(schema);
 
   const storedForm = getStoredForm(task);

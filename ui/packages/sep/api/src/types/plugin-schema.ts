@@ -408,15 +408,11 @@ export interface PluginEntitySchema {
 /**
  * A separately registered app the parent plugin surfaces as a sibling tab
  * (for example `mysql_backups/restore` nested under MySQL Backups).
- *
- * `label` must match the related app's own `display_name` so the tab, list
- * page title, and create CTA stem from one vocabulary (PMM-15455). The FE
- * does not rewrite this string.
  */
 export interface RelatedApp {
   /** Scoped registry key (for example `mysql_backups/restore`). */
   app_key: string;
-  /** Tab label shown in the React shell; keep in sync with the child app's `display_name`. */
+  /** Tab label shown in the React shell (for example `Restores`). */
   label: string;
   /** Sub-path segment under the parent's `route_base` (for example `restores`). */
   route_segment: string;

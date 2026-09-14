@@ -15,21 +15,6 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-/**
- * Capitalise only the first character so sentence-start labels match the
- * OpenAPI contract for `item_display_name` / `item_display_name_plural`
- * (stored mid-sentence; the UI capitalises when the word opens a label).
- *
- * Nullish / non-string input returns `''` so a missing schema field cannot
- * throw at render or snackbar time.
- */
-export function capitalizeItemLabel(name: string | null | undefined): string {
-  if (typeof name !== 'string' || name.length === 0) {
-    return '';
-  }
-  return name.charAt(0).toUpperCase() + name.slice(1);
-}
-
 type ItemNameSource = {
   display_name?: string | null;
   item_display_name?: string | null;

@@ -16,31 +16,31 @@
  */
 
 import { describe, expect, it } from 'vitest';
+import { capitalize } from '@sep/shared';
 import {
-  capitalizeItemLabel,
   resolveItemDisplayName,
   resolveItemDisplayNamePlural,
 } from './itemLabels';
 
-describe('capitalizeItemLabel', () => {
+describe('capitalize (@sep/shared)', () => {
   it('capitalises the first character of a mid-sentence noun', () => {
-    expect(capitalizeItemLabel('backup')).toBe('Backup');
-    expect(capitalizeItemLabel('restore')).toBe('Restore');
+    expect(capitalize('backup')).toBe('Backup');
+    expect(capitalize('restore')).toBe('Restore');
   });
 
   it('leaves the rest of the string unchanged', () => {
-    expect(capitalizeItemLabel('mySQL backup')).toBe('MySQL backup');
-    expect(capitalizeItemLabel('Backup')).toBe('Backup');
+    expect(capitalize('mySQL backup')).toBe('MySQL backup');
+    expect(capitalize('Backup')).toBe('Backup');
   });
 
   it('handles a single character and the empty string', () => {
-    expect(capitalizeItemLabel('b')).toBe('B');
-    expect(capitalizeItemLabel('')).toBe('');
+    expect(capitalize('b')).toBe('B');
+    expect(capitalize('')).toBe('');
   });
 
   it('does not throw on nullish or non-string input', () => {
-    expect(capitalizeItemLabel(undefined)).toBe('');
-    expect(capitalizeItemLabel(null)).toBe('');
+    expect(capitalize(undefined)).toBe('');
+    expect(capitalize(null)).toBe('');
   });
 });
 
@@ -56,9 +56,9 @@ describe('resolveItemDisplayName / resolveItemDisplayNamePlural', () => {
   });
 
   it('falls back to display_name when item fields are missing or empty', () => {
-    expect(
-      resolveItemDisplayName({ display_name: 'Checksum' })
-    ).toBe('Checksum');
+    expect(resolveItemDisplayName({ display_name: 'Checksum' })).toBe(
+      'Checksum'
+    );
     expect(
       resolveItemDisplayName({
         display_name: 'Checksum',

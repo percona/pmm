@@ -48,10 +48,8 @@ import {
 } from '../TaskHistoryTable';
 import { TaskLogViewer } from '../TaskLogViewer';
 import { useStopTaskHistory } from '../../hooks';
-import {
-  capitalizeItemLabel,
-  resolveItemDisplayName,
-} from '../../utils/itemLabels';
+import { capitalize } from '@sep/shared';
+import { resolveItemDisplayName } from '../../utils/itemLabels';
 
 /** Fields excluded from the snippet `args` payload (handled at top level instead). */
 const ARGS_EXCLUDED_FIELDS = new Set([
@@ -176,7 +174,7 @@ export function SnippetExecutionAccordion({
   const itemName = schemaQuery.data
     ? resolveItemDisplayName(schemaQuery.data)
     : 'task';
-  const itemLabel = capitalizeItemLabel(itemName);
+  const itemLabel = capitalize(itemName);
 
   const hoistingHost = Boolean(executorHost);
   const filteredSections = (schemaQuery.data?.forms ?? []).map((section) => ({

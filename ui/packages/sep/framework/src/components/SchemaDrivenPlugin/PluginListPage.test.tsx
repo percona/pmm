@@ -318,8 +318,8 @@ describe('PluginListPage — item display name', () => {
   });
 
   it('keeps Restores list title aligned with New restore (PMM-15455)', () => {
-    // Tab label comes from related_apps[].label and must match display_name;
-    // the create CTA uses item_display_name. Sidecar owns those three strings.
+    // List chrome uses display_name for the page title and item_display_name
+    // for the create CTA — those are independent schema fields.
     render(
       <SnackbarProvider>
         <MemoryRouter>
