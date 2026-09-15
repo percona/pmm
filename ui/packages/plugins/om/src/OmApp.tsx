@@ -17,20 +17,22 @@
 
 import { Route, Routes } from 'react-router-dom';
 import {
+  OM_ROUTE_AUTOMATIONS,
+  OM_ROUTE_BOOTSTRAP,
   OM_ROUTE_INVENTORY,
   OM_ROUTE_HOSTS,
-  OM_ROUTE_OPERATIONS,
   OM_ROUTE_SERVICES,
 } from './constants';
+import { AutomationsPage } from './AutomationsPage';
+import { BootstrapPage } from './BootstrapPage';
 import { InventoryPage } from './InventoryPage';
 import { HostsPage } from './HostsPage';
-import { OperationsPage } from './OperationsPage';
 import { OverviewPage } from './OverviewPage';
 import { ServicesPage } from './ServicesPage';
 
 /**
  * OM app router. The shell mounts this at ``om/*``; the cluster overview is the
- * index route, with the service, host, refresh and operations pages beside it.
+ * index route, with the service, host, refresh and automations pages beside it.
  *
  * **The estate pages all mount here now.** Discovery used to live on its own route wrapped in
  * ``SepPage``, because it read SEP's app directly and needed a bearer minted from the
@@ -39,9 +41,11 @@ import { ServicesPage } from './ServicesPage';
  * unconfigured or refusing the exchange blanked the page entirely rather than letting
  * it render its own error.
  *
- * There is no per-cluster, per-host or per-run route: every table renders what it
- * holds and expands in place, so a detail page would only re-show rows the reader
- * already has.
+ * There is no per-cluster or per-run route: every table renders what it holds and
+ * expands in place, so a detail page would only re-show rows the reader already has.
+ * `bootstrap` is the one exception -- it needs the host selection `HostsPage` made,
+ * carried across as a `?hosts=` query param rather than duplicated as a second
+ * selection UI (see {@link BootstrapPage}'s own doc comment).
  */
 export const OmApp = () => {
   return (
@@ -49,8 +53,9 @@ export const OmApp = () => {
       <Route index element={<OverviewPage />} />
       <Route path={OM_ROUTE_SERVICES} element={<ServicesPage />} />
       <Route path={OM_ROUTE_HOSTS} element={<HostsPage />} />
+      <Route path={OM_ROUTE_BOOTSTRAP} element={<BootstrapPage />} />
       <Route path={OM_ROUTE_INVENTORY} element={<InventoryPage />} />
-      <Route path={OM_ROUTE_OPERATIONS} element={<OperationsPage />} />
+      <Route path={OM_ROUTE_AUTOMATIONS} element={<AutomationsPage />} />
     </Routes>
   );
 };

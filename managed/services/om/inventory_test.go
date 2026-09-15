@@ -398,6 +398,45 @@ func TestListInventoryHosts(t *testing.T) {
 	})
 }
 
+func TestListInventoryServices(t *testing.T) {
+	t.Parallel()
+
+	t.Run("projects both services, read from the paginated envelope", func(t *testing.T) {
+		t.Parallel()
+
+		// GET /services answers the same PaginatedResponse envelope GET /hosts does
+		// (PMM-15326: "Bound the estate listings") -- a bare array here would be the
+		// same decode bug ListInventoryHosts already guards against.
+		stub := newSEPStub(t, http.StatusOK, `{"items": [
+		  {"service_id": "s1", "node_id": "n1", "name": "mongo-1", "port": 27017, "role": "PRIMARY"},
+		  {"service_id": "s2", "node_id": "n2", "name": "mongo-2", "port": 27017, "role": null}
+		], "total": 2, "offset": 0, "limit": 200}`)
+
+		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, response.GetServices(), 2)
+		assert.Equal(t, "s1", response.GetServices()[0].GetServiceId())
+		assert.Equal(t, "/api/apps/om_inventory/services", stub.path)
+	})
+
+	t.Run("walks every page until total is reached", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(t, http.StatusOK,
+			`{"items": [{"service_id": "s1", "node_id": "n1", "name": "mongo-1"}], "total": 2, "offset": 0, "limit": 1}`,
+			`{"items": [{"service_id": "s2", "node_id": "n2", "name": "mongo-2"}], "total": 2, "offset": 1, "limit": 1}`)
+
+		response, err := stub.service(t).ListInventoryServices(t.Context(), &omv1.ListInventoryServicesRequest{})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 2)
+		require.Len(t, response.GetServices(), 2)
+		assert.Equal(t, "s1", response.GetServices()[0].GetServiceId())
+		assert.Equal(t, "s2", response.GetServices()[1].GetServiceId())
+	})
+}
+
 func TestAutomationEligibility(t *testing.T) {
 	t.Parallel()
 
@@ -553,6 +592,10 @@ func TestTriggerHostBootstrap(t *testing.T) {
 				NodeIds:        []string{"n1"},
 				ReplicaSetName: "rs-orders-prod",
 				MongodbVersion: "7.0.8",
+				DataPath:       "/var/lib/mongo",
+				LogPath:        "/var/log/mongodb/mongod.log",
+				Port:           27017,
+				BindIp:         "0.0.0.0",
 			})
 
 		require.NoError(t, err)
@@ -564,7 +607,9 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		// TriggerHostBootstrap's own doc comment on why they can differ, even
 		// though this fixture happens to give them the same value.
 		assert.JSONEq(t,
-			`{"hosts": ["n1"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod"}`,
+			`{"hosts": ["n1"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8",
+			  "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo",
+			  "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0"}`,
 			stub.calls[1].body)
 	})
 
@@ -584,6 +629,27 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "no known OS")
+	})
+
+	t.Run("a host running an unsupported OS answers FailedPrecondition, not a run that starts and fails", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `{"node_id": "n1", "executor_host": "n1", "observed": {"os_id": "windows"}}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "does not support")
+		// Just the host lookup -- rejected before ever reaching om_bootstrap,
+		// not a second call that would be the actual trigger request.
+		require.Len(t, stub.calls, 1)
 	})
 
 	t.Run("a host with no usable executor answers FailedPrecondition, not 500", func(t *testing.T) {
@@ -626,13 +692,19 @@ func TestTriggerHostBootstrap(t *testing.T) {
 				NodeIds:        []string{"n1", "n2", "n3"},
 				ReplicaSetName: "rs-orders-prod",
 				MongodbVersion: "7.0.8",
+				DataPath:       "/var/lib/mongo",
+				LogPath:        "/var/log/mongodb/mongod.log",
+				Port:           27017,
+				BindIp:         "0.0.0.0",
 			})
 
 		require.NoError(t, err)
 		assert.Equal(t, "run-abc", response.GetRunId())
 		require.Len(t, stub.calls, 4)
 		assert.JSONEq(t,
-			`{"hosts": ["n1", "n2", "n3"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod"}`,
+			`{"hosts": ["n1", "n2", "n3"], "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8",
+			  "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo",
+			  "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0"}`,
 			stub.calls[3].body)
 	})
 
@@ -675,6 +747,84 @@ func TestTriggerHostBootstrap(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, codes.InvalidArgument, status.Code(err))
 		assert.Contains(t, status.Convert(err).Message(), "mixed-OS")
+	})
+
+	t.Run("rejects member_configs naming a host outside node_ids", func(t *testing.T) {
+		t.Parallel()
+
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithProbeSource("http://unused.invalid", "").
+			WithBootstrapSource("http://unused.invalid", "")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				MemberConfigs:  map[string]*omv1.BootstrapMemberConfig{"n2": {}},
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "not in node_ids")
+	})
+
+	t.Run("rejects a delayed member that still has priority or a vote", func(t *testing.T) {
+		t.Parallel()
+
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithProbeSource("http://unused.invalid", "").
+			WithBootstrapSource("http://unused.invalid", "")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
+					"n1": {DelaySecs: 300, Priority: 1, Votes: true},
+				},
+			})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.InvalidArgument, status.Code(err))
+		assert.Contains(t, status.Convert(err).Message(), "priority 0 and votes off")
+	})
+
+	t.Run("translates member_configs from node id to executor host", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStubSeq(
+			t, http.StatusOK,
+			`{"node_id": "n1", "executor_host": "exec-n1", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n2", "executor_host": "exec-n2", "observed": {"os_id": "ubuntu"}}`,
+			`{"node_id": "n3", "executor_host": "exec-n3", "observed": {"os_id": "ubuntu"}}`,
+			`{"id": "run-abc", "status": "running", "install_method": "packages", "os": "ubuntu", "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "started_at": "2026-01-01T00:00:00Z", "hosts": [], "run_steps": []}`,
+		)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.TriggerHostBootstrap(t.Context(),
+			&omv1.TriggerHostBootstrapRequest{
+				NodeIds:        []string{"n1", "n2", "n3"},
+				ReplicaSetName: "rs-orders-prod",
+				MongodbVersion: "7.0.8",
+				DataPath:       "/var/lib/mongo",
+				LogPath:        "/var/log/mongodb/mongod.log",
+				Port:           27017,
+				BindIp:         "0.0.0.0",
+				MemberConfigs: map[string]*omv1.BootstrapMemberConfig{
+					"n2": {Priority: 0, Votes: false, Hidden: true, DelaySecs: 300},
+				},
+			})
+
+		require.NoError(t, err)
+		require.Len(t, stub.calls, 4)
+		assert.JSONEq(t,
+			`{"hosts": ["exec-n1", "exec-n2", "exec-n3"], "install_method": "packages", "os": "ubuntu",
+			  "mongodb_version": "7.0.8", "replica_set_name": "rs-orders-prod", "data_path": "/var/lib/mongo",
+			  "log_path": "/var/log/mongodb/mongod.log", "port": 27017, "bind_ip": "0.0.0.0",
+			  "member_configs": {"exec-n2": {"priority": 0, "votes": false, "hidden": true, "delay_secs": 300}}}`,
+			stub.calls[3].body)
 	})
 
 	t.Run("persists environment and cluster, and echoes them back through GetBootstrapRun", func(t *testing.T) {
@@ -822,10 +972,13 @@ func TestGetBootstrapRun(t *testing.T) {
 				],
 				"run_steps": []
 			}`,
-			`[
-				{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]},
-				{"node_id": "node-2", "executor_host": "n2", "services": []}
-			]`)
+			`{
+				"items": [
+					{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]},
+					{"node_id": "node-2", "executor_host": "n2", "services": []}
+				],
+				"total": 2
+			}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		response, err := svc.GetBootstrapRun(t.Context(),
@@ -854,6 +1007,60 @@ func TestGetBootstrapRun(t *testing.T) {
 
 		require.Error(t, err)
 		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+}
+
+func TestCancelBootstrapRun(t *testing.T) {
+	t.Parallel()
+
+	t.Run("proxies to SEP's :cancel route and reports cancel_requested", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `{
+			"id": "run-abc",
+			"status": "running",
+			"install_method": "packages",
+			"os": "ubuntu",
+			"mongodb_version": "7.0.8",
+			"replica_set_name": "rs-orders-prod",
+			"started_at": "2026-01-01T00:00:00Z",
+			"hosts": [],
+			"run_steps": [],
+			"cancel_requested": true
+		}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		response, err := svc.CancelBootstrapRun(t.Context(),
+			&omv1.CancelBootstrapRunRequest{RunId: "run-abc"})
+
+		require.NoError(t, err)
+		assert.Equal(t, "run-abc", response.GetRun().GetRunId())
+		assert.True(t, response.GetRun().GetCancelRequested())
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:cancel", stub.path)
+	})
+
+	t.Run("a run nobody created answers NotFound, not 500", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusNotFound, `{"detail": "Bootstrap run run-missing not found"}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.CancelBootstrapRun(t.Context(), &omv1.CancelBootstrapRunRequest{RunId: "run-missing"})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.NotFound, status.Code(err))
+	})
+
+	t.Run("an already-terminal run answers the conflict SEP reports", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusConflict, `{"detail": "Run run-abc is already rolled_back"}`)
+		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
+
+		_, err := svc.CancelBootstrapRun(t.Context(), &omv1.CancelBootstrapRunRequest{RunId: "run-abc"})
+
+		require.Error(t, err)
+		assert.Equal(t, codes.Aborted, status.Code(err))
 	})
 }
 
@@ -891,7 +1098,7 @@ func TestListBootstrapRuns(t *testing.T) {
 			// The second response: confirmMonitoringLookup's own GET /hosts, fetched
 			// once because run-abc is "succeeded" -- run-def being "running" would
 			// never trigger it on its own. n1 already has a service.
-			`[{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]}]`)
+			`{"items": [{"node_id": "node-1", "executor_host": "n1", "services": [{"service_id": "s1"}]}], "total": 1}`)
 		svc := stub.service(t).WithBootstrapSource(stub.server.URL, "test-token")
 
 		response, err := svc.ListBootstrapRuns(t.Context(), &omv1.ListBootstrapRunsRequest{})
@@ -935,10 +1142,13 @@ func TestNodeIDForExecutorHost(t *testing.T) {
 	t.Run("finds the node id whose executor matches", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `[
-			{"node_id": "c58168e8-...", "executor_host": "pmm-client-node00"},
-			{"node_id": "other-node", "executor_host": "pmm-client-node01"}
-		]`)
+		stub := newSEPStub(t, http.StatusOK, `{
+			"items": [
+				{"node_id": "c58168e8-...", "executor_host": "pmm-client-node00"},
+				{"node_id": "other-node", "executor_host": "pmm-client-node01"}
+			],
+			"total": 2
+		}`)
 		svc := stub.service(t)
 
 		nodeID, err := svc.nodeIDForExecutorHost(t.Context(), "pmm-client-node00")
@@ -951,7 +1161,7 @@ func TestNodeIDForExecutorHost(t *testing.T) {
 	t.Run("answers NotFound when no host has that executor", func(t *testing.T) {
 		t.Parallel()
 
-		stub := newSEPStub(t, http.StatusOK, `[{"node_id": "n1", "executor_host": "pmm-client-node00"}]`)
+		stub := newSEPStub(t, http.StatusOK, `{"items": [{"node_id": "n1", "executor_host": "pmm-client-node00"}], "total": 1}`)
 		svc := stub.service(t)
 
 		_, err := svc.nodeIDForExecutorHost(t.Context(), "no-such-executor")
