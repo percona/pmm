@@ -119,6 +119,36 @@ describe('PluginListPage — generic Schedules button', () => {
   });
 });
 
+describe('PluginListPage — table toolbar in the header row', () => {
+  it('hands the list the header element to render its toolbar controls into', () => {
+    renderPage();
+
+    const slot = screen.getByTestId('plugin-list-toolbar-slot');
+    const props = schemaListViewMock.mock.calls.at(-1)?.[0] as {
+      toolbarSlot?: HTMLElement | null;
+    };
+    expect(props.toolbarSlot).toBe(slot);
+    // Same row as the header's own actions, rather than a row of its own above
+    // the column headers.
+    expect(slot.parentElement).toContainElement(
+      screen.getByTestId('plugin-schedule-link')
+    );
+  });
+
+  it('still offers the slot on a list with no header actions of its own', () => {
+    // `listOnly` withholds every header button; the toolbar controls still
+    // need somewhere to go.
+    renderPage({ listOnly: true });
+
+    const props = schemaListViewMock.mock.calls.at(-1)?.[0] as {
+      toolbarSlot?: HTMLElement | null;
+    };
+    expect(props.toolbarSlot).toBe(
+      screen.getByTestId('plugin-list-toolbar-slot')
+    );
+  });
+});
+
 describe('PluginListPage — status column opens the last run', () => {
   const renderWithClient = (ui: ReactNode) =>
     render(

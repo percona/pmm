@@ -109,6 +109,11 @@ export function PluginListPage({
     name?: string;
   } | null>(null);
   const [runTaskName, setRunTaskName] = useState<string | null>(null);
+  // The table's search / filter / column-visibility controls are rendered into
+  // this element instead of into a toolbar row of their own above the column
+  // headers. State rather than a ref: the portal can only be created once the
+  // element is committed, and that has to re-render.
+  const [toolbarSlot, setToolbarSlot] = useState<HTMLDivElement | null>(null);
   const { entityName: entityNameParam } = useParams<{ entityName?: string }>();
   const entityName = entityNameOverride ?? entityNameParam;
   const entitySchema = useMemo(
@@ -344,29 +349,36 @@ export function PluginListPage({
             </Typography>
           )}
         </Box>
-        {!listOnly && (
-          <Stack direction="row" spacing={1}>
-            {!hideScheduleButton && schema.capabilities?.scheduling && (
-              <Button
-                variant="outlined"
-                startIcon={<ScheduleIcon />}
-                onClick={() => navigate('schedule', { relative: 'path' })}
-                data-testid="plugin-schedule-link"
-              >
-                Schedules
-              </Button>
-            )}
-            {!hideCreate && canMutate && (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => navigate('new', { relative: 'path' })}
-              >
-                New {multi ? title : schema.display_name}
-              </Button>
-            )}
-          </Stack>
-        )}
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Box
+            ref={setToolbarSlot}
+            sx={{ display: 'flex', alignItems: 'center' }}
+            data-testid="plugin-list-toolbar-slot"
+          />
+          {!listOnly && (
+            <>
+              {!hideScheduleButton && schema.capabilities?.scheduling && (
+                <Button
+                  variant="outlined"
+                  startIcon={<ScheduleIcon />}
+                  onClick={() => navigate('schedule', { relative: 'path' })}
+                  data-testid="plugin-schedule-link"
+                >
+                  Schedules
+                </Button>
+              )}
+              {!hideCreate && canMutate && (
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={() => navigate('new', { relative: 'path' })}
+                >
+                  New {multi ? title : schema.display_name}
+                </Button>
+              )}
+            </>
+          )}
+        </Stack>
       </Box>
 
       <DeleteConfirmDialog
@@ -422,6 +434,7 @@ export function PluginListPage({
         onDeleteRow={onDeleteRow}
         deletingRowId={deleteEntity.isPending ? deleteEntity.variables : null}
         renderListColumn={renderListColumnWithRunAccess}
+        toolbarSlot={toolbarSlot}
       />
 
       {/* Mounted only while open: the drawer resolves the run it shows with a
