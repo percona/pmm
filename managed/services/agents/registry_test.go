@@ -29,9 +29,17 @@ import (
 
 const testAgentID = "/agent_id/00000000-0000-4000-8000-000000000001"
 
-type haServiceStub struct{}
+// haServiceStub stands in for the HA service; nil params means HA is disabled.
+type haServiceStub struct {
+	params *models.HAParams
+}
 
-func (haServiceStub) Params() *models.HAParams { return &models.HAParams{} }
+func (s haServiceStub) Params() *models.HAParams {
+	if s.params == nil {
+		return &models.HAParams{}
+	}
+	return s.params
+}
 
 func newTestConn() *pmmAgentInfo {
 	return &pmmAgentInfo{
