@@ -422,6 +422,24 @@ export interface OmInventoryHost {
   freshness: OmInventoryFreshness;
   /** The services on it. Empty is a meaningful answer, not a gap. */
   services: OmInventoryService[];
+  /**
+   * Whether PMM's own agent registry currently has a connected pmm-agent for
+   * this node - independent of `executor`, which is Nomad/SEP's own signal.
+   * This is the "PMM-Client installed and healthy" half of automation
+   * eligibility that `executor` alone cannot answer: a node can be a known,
+   * probed host in OM's estate while its agent has since disconnected.
+   */
+  pmm_agent_connected: boolean;
+  /**
+   * Whether this host is eligible for OM automation (a probe today;
+   * provisioning in a later phase): `pmm_agent_connected` is true and
+   * `executor` reports reachable and driver-healthy. Computed server-side so
+   * every consumer agrees on one definition - see `automation_blocked_reasons`
+   * for why not, when this is false.
+   */
+  automation_eligible: boolean;
+  /** Every unmet condition behind `automation_eligible: false`. Empty when true. */
+  automation_blocked_reasons: string[];
 }
 
 /** Whether a host can fetch packages, and why not when it cannot. */
@@ -474,6 +492,19 @@ export interface OmInventoryRunAccepted {
   start_time?: string | null;
   /** The hosts it will cover. Empty means the whole estate. */
   scope: string[];
+}
+
+/**
+ * A single-host bootstrap accepted by the app, from
+ * `POST /v1/om/inventory/hosts/{node_id}:bootstrap`.
+ *
+ * PMM-15347 PoC only. Carries no credentials: the run's generated MongoDB user
+ * is created only once every host is up, minutes after this response - see
+ * `run_id`'s own comment for why there is nothing to show here yet.
+ */
+export interface OmHostBootstrapAccepted {
+  /** The om_bootstrap run's id. Nothing here polls it for progress yet. */
+  run_id: string;
 }
 
 /**
