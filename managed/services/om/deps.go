@@ -50,3 +50,14 @@ type haChecker interface {
 type agentConnectionChecker interface {
 	IsConnected(pmmAgentID string) bool
 }
+
+// agentStateUpdater tells a pmm-agent to refresh its own state -- a subset of
+// *agents.StateUpdater's exported surface. Every RPC that creates an Agent row
+// directly (addMongoDB and its siblings in services/management) calls this
+// immediately after, since pmm-agent otherwise has no way to learn a new
+// exporter it should be running exists -- it only starts one in response to
+// this exact push. See registerBootstrapHost's own doc comment for why it
+// needs the same call.
+type agentStateUpdater interface {
+	RequestStateUpdate(ctx context.Context, pmmAgentID string)
+}

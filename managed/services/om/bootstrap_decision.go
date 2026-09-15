@@ -15,6 +15,8 @@
 
 package om
 
+import "slices"
+
 // This file is pure decision logic for the bootstrap stepper (stepper.go): given a
 // run's current state (as om_bootstrap's own API reports it), what should happen
 // next. No network, no database, no clock -- every function here is a plain
@@ -30,8 +32,8 @@ package om
 // back, including ones that had already fully succeeded.
 
 // bootstrapMaxAttempts caps a step's attempt_count before its failure is treated as
-// permanent. attempt_count counts every dispatch including the first, so 2 means
-// "the first attempt failed, and so did the one retry."
+// permanent: attempt_count counts every dispatch including the first, so 2 means the
+// first attempt failed, and so did the one retry.
 const bootstrapMaxAttempts = 2
 
 // stepAction names one step the stepper has decided to dispatch next.
@@ -45,6 +47,30 @@ type stepAction struct {
 // run-level rollback decision, not this host's own -- see runNeedsRollback).
 func nextHostAction(host sepBootstrapHost) *stepAction {
 	for _, step := range host.Steps {
+		switch step.Status {
+		case bootstrapStepRunning:
+			return nil
+		case bootstrapStepPending:
+			return &stepAction{name: step.Name}
+		case bootstrapStepFailed:
+			if step.AttemptCount < bootstrapMaxAttempts {
+				return &stepAction{name: step.Name}
+			}
+			return nil
+		}
+	}
+	return nil
+}
+
+// nextFinalizeAction returns the next finalize step to dispatch for host, or nil
+// when there is nothing to do: a finalize step is already running, every
+// finalize step has succeeded or been skipped, or one has failed with retries
+// exhausted (that failure is a run-level rollback decision, not this host's
+// own -- see runNeedsRollback). Callers only call this once runStepsSucceeded
+// is true -- see advanceRunningRun -- so a host whose finalize steps are still
+// all pending waiting on that gate is not this function's concern.
+func nextFinalizeAction(host sepBootstrapHost) *stepAction {
+	for _, step := range host.FinalizeSteps {
 		switch step.Status {
 		case bootstrapStepRunning:
 			return nil
@@ -123,10 +149,34 @@ func hostSucceeded(host sepBootstrapHost) bool {
 	return true
 }
 
-// hostExhaustedRetries reports whether host has a forward step that failed with no
-// retries left.
+// runStepsSucceeded reports whether every one of run's run-level steps succeeded
+// or was skipped -- the gate advanceRunningRun applies before dispatching any
+// finalize step, mirroring how nextRunStepAction gates run-level steps on
+// hostSucceeded. Finalize steps (enabling MongoDB authorization, concretely)
+// have to run after create_pmm_monitoring_user has actually succeeded, not
+// before -- see om_bootstrap's own InstallStrategy.plan_finalize_steps doc
+// comment for why that ordering exists at all.
+func runStepsSucceeded(run sepBootstrapRun) bool {
+	for _, step := range run.RunSteps {
+		if step.Status != bootstrapStepSucceeded && step.Status != bootstrapStepSkipped {
+			return false
+		}
+	}
+	return true
+}
+
+// hostExhaustedRetries reports whether host has a forward or finalize step that
+// failed with no retries left. Finalize steps count the same as forward ones
+// here: a host that installed cleanly but never got authorization enabled is as
+// unusable -- and as much a rollback trigger -- as one that never finished
+// installing.
 func hostExhaustedRetries(host sepBootstrapHost) bool {
 	for _, step := range host.Steps {
+		if step.Status == bootstrapStepFailed && step.AttemptCount >= bootstrapMaxAttempts {
+			return true
+		}
+	}
+	for _, step := range host.FinalizeSteps {
 		if step.Status == bootstrapStepFailed && step.AttemptCount >= bootstrapMaxAttempts {
 			return true
 		}
@@ -150,10 +200,8 @@ func runStepsExhaustedRetries(run sepBootstrapRun) bool {
 // back. Does not itself check whether rollback has already started; see
 // runIsRollingBack, which callers use instead.
 func runNeedsRollback(run sepBootstrapRun) bool {
-	for _, host := range run.Hosts {
-		if hostExhaustedRetries(host) {
-			return true
-		}
+	if slices.ContainsFunc(run.Hosts, hostExhaustedRetries) {
+		return true
 	}
 	return runStepsExhaustedRetries(run)
 }
@@ -187,10 +235,8 @@ func hostRollbackDone(host sepBootstrapHost) bool {
 // step anywhere in the run -- see the module doc comment on why "roll back" means
 // every host, not just the one that failed.
 func runIsRollingBack(run sepBootstrapRun) bool {
-	for _, host := range run.Hosts {
-		if hostRollbackStarted(host) {
-			return true
-		}
+	if slices.ContainsFunc(run.Hosts, hostRollbackStarted) {
+		return true
 	}
 	return runNeedsRollback(run)
 }

@@ -36,6 +36,15 @@ const bootstrapPollInterval = 15 * time.Second
 // PMM-15347/questions.md Q7).
 const bootstrapMongoDBUsername = "admin"
 
+// bootstrapPasswordBytes and bootstrapKeyFileBytes size the two secrets
+// ensureBootstrapSecret generates -- the created MongoDB user's password, and the
+// replica set's keyFile content. 756 sits in MongoDB's own recommended 6-1024
+// byte range for a keyFile; see generateBootstrapSecret's own doc comment.
+const (
+	bootstrapPasswordBytes = 24
+	bootstrapKeyFileBytes  = 756
+)
+
 // RunBootstrapStepper drives every in-flight, and every just-succeeded but not yet
 // PMM-registered, bootstrap run forward until ctx is cancelled.
 //
@@ -75,7 +84,7 @@ func (s *Service) RunBootstrapStepper(ctx context.Context) {
 // stepBootstrapRuns discovers every run worth a look this tick and drives each one.
 func (s *Service) stepBootstrapRuns(ctx context.Context) {
 	for _, runStatus := range [...]string{bootstrapRunRunning, bootstrapRunSucceeded} {
-		runs, err := s.bootstrap.listRuns(ctx, runStatus)
+		runs, err := s.bootstrap.listRuns(ctx, runStatus, 0)
 		if err != nil {
 			s.l.Warnf("failed to list %s bootstrap runs: %s", runStatus, err)
 			continue
@@ -135,6 +144,13 @@ func (s *Service) advanceRunningRun(ctx context.Context, run *sepBootstrapRun) {
 	if action := nextRunStepAction(*run); action != nil {
 		s.dispatchRunStep(ctx, run, action.name)
 	}
+	if runStepsSucceeded(*run) {
+		for _, host := range run.Hosts {
+			if action := nextFinalizeAction(host); action != nil {
+				s.dispatchFinalize(ctx, run, host.Host, action.name)
+			}
+		}
+	}
 }
 
 // dispatchHost dispatches one host's forward step, resolving whatever secret
@@ -148,6 +164,22 @@ func (s *Service) dispatchHost(ctx context.Context, run *sepBootstrapRun, host, 
 	_, err = s.bootstrap.dispatchStep(ctx, run.ID, host, stepName, params)
 	if err != nil {
 		s.l.Warnf("bootstrap run %s: failed to dispatch %s on %s: %s", run.ID, stepName, host, err)
+	}
+}
+
+// dispatchFinalize dispatches one host's finalize step, resolving whatever
+// secret params it needs first -- the same shape as dispatchHost, just against
+// om_bootstrap's finalize route. Only ever called once runStepsSucceeded is
+// true; see advanceRunningRun.
+func (s *Service) dispatchFinalize(ctx context.Context, run *sepBootstrapRun, host, stepName string) {
+	params, err := s.paramsForStep(ctx, run.ID, stepName)
+	if err != nil {
+		s.l.Warnf("bootstrap run %s: failed to prepare finalize step %s on %s: %s", run.ID, stepName, host, err)
+		return
+	}
+	_, err = s.bootstrap.dispatchFinalizeStep(ctx, run.ID, host, stepName, params)
+	if err != nil {
+		s.l.Warnf("bootstrap run %s: failed to dispatch finalize step %s on %s: %s", run.ID, stepName, host, err)
 	}
 }
 
@@ -189,7 +221,7 @@ func (s *Service) finishBootstrapRun(ctx context.Context, run *sepBootstrapRun, 
 // silently skipped: it means the secret disappeared after being used, not that
 // nothing needs registering.
 //
-// run.Hosts is keyed on Nomad executor host (TriggerHostBootstrap's own doc
+// The run's Hosts field is keyed on Nomad executor host (TriggerHostBootstrap's own doc
 // comment), not the node id PMM's own inventory needs -- nodeIDForExecutorHost
 // resolves each one back before registering it.
 func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun) {
@@ -204,7 +236,7 @@ func (s *Service) completeSucceededRun(ctx context.Context, run *sepBootstrapRun
 			s.l.Warnf("bootstrap run %s: failed to resolve executor %s to a node id: %s", run.ID, host.Host, err)
 			continue
 		}
-		err = s.registerBootstrapHost(ctx, nodeID, run.ReplicaSetName, secret.MongoDBUsername, secret.MongoDBPassword)
+		err = s.registerBootstrapHost(ctx, nodeID, host.Host, run.ReplicaSetName, secret.MongoDBUsername, secret.MongoDBPassword)
 		if err != nil {
 			s.l.Warnf("bootstrap run %s: failed to register %s with PMM: %s", run.ID, host.Host, err)
 		}
@@ -248,11 +280,11 @@ func (s *Service) ensureBootstrapSecret(_ context.Context, runID string) (*model
 		return nil, fmt.Errorf("failed to look up the stored secret: %w", err)
 	}
 
-	password, err := generateBootstrapSecret(24)
+	password, err := generateBootstrapSecret(bootstrapPasswordBytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate a password: %w", err)
 	}
-	keyFile, err := generateBootstrapSecret(756)
+	keyFile, err := generateBootstrapSecret(bootstrapKeyFileBytes)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate a keyFile: %w", err)
 	}

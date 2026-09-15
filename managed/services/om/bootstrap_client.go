@@ -19,6 +19,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -62,6 +63,7 @@ type sepBootstrapHost struct {
 	Host          string             `json:"host"`
 	Steps         []sepBootstrapStep `json:"steps"`
 	RollbackSteps []sepBootstrapStep `json:"rollback_steps"`
+	FinalizeSteps []sepBootstrapStep `json:"finalize_steps"`
 }
 
 // sepBootstrapRun is one row of GET /runs, and the full body of GET /runs/{id}
@@ -129,14 +131,18 @@ type bootstrapClient struct {
 }
 
 // listRuns returns every run in the given status, newest first. An empty status
-// returns runs regardless of status.
-func (c *bootstrapClient) listRuns(ctx context.Context, runStatus string) ([]sepBootstrapRun, error) {
+// returns runs regardless of status. A limit of 0 leaves SEP's own default in
+// place.
+func (c *bootstrapClient) listRuns(ctx context.Context, runStatus string, limit int) ([]sepBootstrapRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
 	defer cancel()
 
 	query := url.Values{}
 	if runStatus != "" {
 		query.Set("status", runStatus)
+	}
+	if limit > 0 {
+		query.Set("limit", strconv.Itoa(limit))
 	}
 	runs := []sepBootstrapRun{}
 	call := inventoryCall{method: http.MethodGet, path: "runs", query: query}
@@ -194,6 +200,26 @@ func (c *bootstrapClient) dispatchStep(ctx context.Context, runID, host, stepNam
 	return run, nil
 }
 
+// dispatchFinalizeStep dispatches one host's named finalize step, optionally
+// carrying params -- the same shape as dispatchStep, just against
+// om_bootstrap's finalize route rather than its forward-step one.
+func (c *bootstrapClient) dispatchFinalizeStep(ctx context.Context, runID, host, stepName string, params map[string]string) (*sepBootstrapRun, error) {
+	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
+	defer cancel()
+
+	run := &sepBootstrapRun{}
+	call := inventoryCall{
+		method: http.MethodPost,
+		path:   inventoryPath("runs", runID, "hosts", host, "finalize", stepName+":dispatch"),
+		body:   sepDispatchStepRequest{Params: params},
+	}
+	err := c.app.call(ctx, call, run)
+	if err != nil {
+		return nil, err
+	}
+	return run, nil
+}
+
 // dispatchRunStep dispatches one run-level step, targeting the run's seed host.
 func (c *bootstrapClient) dispatchRunStep(ctx context.Context, runID, stepName string, params map[string]string) (*sepBootstrapRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
@@ -231,10 +257,10 @@ func (c *bootstrapClient) dispatchRollbackStep(ctx context.Context, runID, host,
 }
 
 // finishRun records the stepper's own decision that a run is done -- failed, with
-// retries exhausted, or rolled back. runStatus must be bootstrapRunFailed or
-// bootstrapRunRolledBack; SUCCEEDED is never requested here, since om_bootstrap
-// infers it on its own the moment every step actually succeeds (see
-// reconcile.py's module docstring).
+// retries exhausted, or rolled back. Its runStatus argument must be
+// bootstrapRunFailed or bootstrapRunRolledBack; SUCCEEDED is never requested here,
+// since om_bootstrap infers it on its own the moment every step actually succeeds
+// (see reconcile.py's module docstring).
 func (c *bootstrapClient) finishRun(ctx context.Context, runID, runStatus string, detail *string) (*sepBootstrapRun, error) {
 	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
 	defer cancel()

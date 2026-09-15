@@ -1095,6 +1095,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	omService.WithProbeSource(*sepURLF, *sepTokenF)
 	omService.WithBootstrapSource(*sepURLF, *sepTokenF)
 	omService.WithAgentRegistry(agentsRegistry)
+	omService.WithStateUpdater(agentsStateUpdater)
 	prom.MustRegister(om.NewMetricsCollector(omService))
 
 	serverParams := &server.Params{
