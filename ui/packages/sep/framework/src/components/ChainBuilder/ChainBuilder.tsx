@@ -27,6 +27,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import type { SxProps, Theme } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import {
@@ -63,6 +64,8 @@ export interface ChainBuilderProps {
   onChange: (next: ChainValue) => void;
   label?: string;
   disabled?: boolean;
+  /** Applied to the widget's own root, so the spacing disappears with it. */
+  sx?: SxProps<Theme>;
 }
 
 const DEFAULT_LABEL = 'Chain tasks after execution (optional)';
@@ -89,6 +92,12 @@ function wouldCreateCycle(
   return name === currentTaskName || chain.includes(name);
 }
 
+/**
+ * Build the chain of tasks to run after this one.
+ *
+ * Renders nothing when no task can be chained and the chain is empty, so it can
+ * sit unconditionally in a layout.
+ */
 export function ChainBuilder({
   availableTasks,
   currentTaskName,
@@ -96,6 +105,7 @@ export function ChainBuilder({
   onChange,
   label = DEFAULT_LABEL,
   disabled = false,
+  sx,
 }: ChainBuilderProps) {
   const { chain_task_names: chain, chain_on_failure: chainOnFailure } = value;
   const groupLabelId = useId();
@@ -169,6 +179,7 @@ export function ChainBuilder({
       role="group"
       aria-labelledby={groupLabelId}
       data-testid="chain-builder"
+      sx={sx}
     >
       <Typography
         id={groupLabelId}

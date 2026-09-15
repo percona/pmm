@@ -19,7 +19,11 @@ import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ChainBuilder, type ChainValue } from './ChainBuilder';
+import {
+  ChainBuilder,
+  type ChainBuilderProps,
+  type ChainValue,
+} from './ChainBuilder';
 
 const TASKS = [
   { name: 'task-a' },
@@ -34,6 +38,7 @@ interface HarnessProps {
   availableTasks?: { name: string }[];
   onChangeSpy?: (v: ChainValue) => void;
   disabled?: boolean;
+  sx?: ChainBuilderProps['sx'];
 }
 
 function Harness({
@@ -42,6 +47,7 @@ function Harness({
   availableTasks = TASKS,
   onChangeSpy,
   disabled,
+  sx,
 }: HarnessProps) {
   const [value, setValue] = useState<ChainValue>(initial);
   return (
@@ -54,6 +60,7 @@ function Harness({
         setValue(next);
       }}
       disabled={disabled}
+      sx={sx}
     />
   );
 }
@@ -94,6 +101,22 @@ describe('ChainBuilder rendering', () => {
       screen.queryByTestId('chain-on-failure-checkbox')
     ).not.toBeInTheDocument();
     expect(screen.getByRole('combobox')).toBeInTheDocument();
+  });
+
+  it('carries its own outer spacing, so it leaves no gap when hidden', () => {
+    const { rerender } = render(<Harness sx={{ mb: 2 }} />);
+    expect(screen.getByTestId('chain-builder')).toHaveStyle({
+      marginBottom: '16px',
+    });
+
+    rerender(
+      <Harness
+        availableTasks={[{ name: 'task-self' }]}
+        currentTaskName="task-self"
+        sx={{ mb: 2 }}
+      />
+    );
+    expect(screen.queryByTestId('chain-builder')).not.toBeInTheDocument();
   });
 
   it('exposes the widget as a labelled group', () => {
