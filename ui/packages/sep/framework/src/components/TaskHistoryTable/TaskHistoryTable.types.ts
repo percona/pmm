@@ -56,6 +56,8 @@ interface TaskHistoryTableBaseProps {
   ) => void;
   /** Hide the Task Name column (useful when scoped to a single task). */
   hideTaskNameColumn?: boolean;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
 }
 
 /**

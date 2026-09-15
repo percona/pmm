@@ -72,6 +72,10 @@ export interface ScheduledTaskRowProps {
    * run this row is describing.
    */
   onOpenLastRun?: (taskName: string, lastRunAt: string | null) => void;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
+  /** Mid-sentence plural noun (e.g. `backups`). */
+  itemNamePlural?: string;
 }
 
 export function ScheduledTaskRow({
@@ -88,6 +92,8 @@ export function ScheduledTaskRow({
   errorMessage,
   readOnly = false,
   onOpenLastRun,
+  itemName = 'task',
+  itemNamePlural = 'tasks',
 }: ScheduledTaskRowProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const period = describePeriod(task);
@@ -101,6 +107,8 @@ export function ScheduledTaskRow({
             mode="edit"
             initialValue={task}
             availableTasks={availableTasks}
+            itemName={itemName}
+            itemNamePlural={itemNamePlural}
             onCancel={onCancelEdit}
             onSubmit={onSubmitEdit}
             submitting={submitting}
@@ -206,11 +214,11 @@ export function ScheduledTaskRow({
         aria-labelledby={`scheduled-task-delete-title-${task.id}`}
       >
         <DialogTitle id={`scheduled-task-delete-title-${task.id}`}>
-          Delete periodic task
+          Delete periodic {itemName}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {`Delete the periodic task for "${task.task}" (${period.display})?`}
+            {`Delete the periodic ${itemName} for "${task.task}" (${period.display})?`}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

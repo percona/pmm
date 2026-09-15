@@ -171,6 +171,8 @@ vi.mock('./DetailSyntaxHighlighter', () => ({
 const schema: PluginSchema = {
   pluginName: 'checksums',
   display_name: 'Checksum',
+  item_display_name: 'checksum',
+  item_display_name_plural: 'checksums',
   description: 'Test',
   capabilities: { scheduling: true },
   list_view: {
@@ -216,6 +218,8 @@ describe('PluginDetailPage — detail_view sections', () => {
     return {
       pluginName: 'checksums',
       display_name: 'Checksum',
+      item_display_name: 'checksum',
+      item_display_name_plural: 'checksums',
       description: 'Test',
       capabilities: {},
       list_view: {
@@ -1195,6 +1199,8 @@ function makeSchema(
   return {
     pluginName: 'checksums',
     display_name: 'Checksum',
+    item_display_name: 'checksum',
+    item_display_name_plural: 'checksums',
     description: 'Test',
     capabilities,
     list_view: {
@@ -1335,7 +1341,7 @@ describe('PluginDetailPage — StatsCard integration', () => {
     expect(screen.queryByText('Executions')).toBeNull();
   });
 
-  it('keeps the Task information section when stats query errors', () => {
+  it('keeps the item information section when stats query errors', () => {
     mockUsePluginTask.mockReturnValue({
       data: { id: 1, name: 'FECHK', status: 'completed' },
       isLoading: false,
@@ -1347,7 +1353,7 @@ describe('PluginDetailPage — StatsCard integration', () => {
       error: new Error('boom'),
     });
     renderWithSchema(makeSchema({ stats: true }));
-    expect(screen.getByText('Task information')).toBeInTheDocument();
+    expect(screen.getByText('Checksum information')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent(
       'Could not load execution stats'
     );
@@ -1560,7 +1566,7 @@ describe('PluginDetailPage — PII Anonymization section', () => {
     ).toBeNull();
   });
 
-  it('suppresses anonymize_mask and anonymized_entities from the Task information extras', () => {
+  it('suppresses anonymize_mask and anonymized_entities from the item information extras', () => {
     mockUsePluginTask.mockReturnValue({
       data: {
         id: 1,
@@ -1584,6 +1590,8 @@ describe('PluginDetailPage — overview_hidden_fields', () => {
     return {
       pluginName: 'checksums',
       display_name: 'Checksum',
+      item_display_name: 'checksum',
+      item_display_name_plural: 'checksums',
       description: 'Test',
       capabilities: {},
       list_view: {
@@ -1648,12 +1656,16 @@ describe('PluginDetailPage — overview_hidden_fields', () => {
       return {
         pluginName: 'inventory',
         display_name: 'Inventory',
+        item_display_name: 'inventory',
+        item_display_name_plural: 'inventories',
         description: 'Test',
         capabilities: {},
         entities: [
           {
             name: 'services',
             display_name: 'Services',
+            item_display_name: 'service',
+            item_display_name_plural: 'services',
             description: 'Service entities',
             forms: [],
             list_view: {
@@ -1814,12 +1826,16 @@ describe('PluginDetailPage entity delete flow', () => {
   const entitySchema = {
     pluginName: 'inventory',
     display_name: 'Inventory',
+    item_display_name: 'inventory',
+    item_display_name_plural: 'inventories',
     description: 'Test',
     capabilities: {},
     entities: [
       {
         name: 'nodes',
         display_name: 'Nodes',
+        item_display_name: 'node',
+        item_display_name_plural: 'nodes',
         forms: [],
         list_view: { columns: [{ key: 'name', label: 'Name' }] },
       },
@@ -1904,6 +1920,8 @@ describe('PluginDetailPage — write access', () => {
   const taskSchema: PluginSchema = {
     pluginName: 'checksums',
     display_name: 'Checksum',
+    item_display_name: 'checksum',
+    item_display_name_plural: 'checksums',
     description: 'Test',
     capabilities: { scheduling: true },
     list_view: {
@@ -1919,12 +1937,16 @@ describe('PluginDetailPage — write access', () => {
   const entitySchema = {
     pluginName: 'inventory',
     display_name: 'Inventory',
+    item_display_name: 'inventory',
+    item_display_name_plural: 'inventories',
     description: 'Test',
     capabilities: {},
     entities: [
       {
         name: 'services',
         display_name: 'Services',
+        item_display_name: 'service',
+        item_display_name_plural: 'services',
         forms: [],
         list_view: {
           columns: [{ key: 'name', label: 'Name' }],
@@ -2033,6 +2055,8 @@ describe('PluginDetailPage — write access', () => {
   const taskSchema: PluginSchema = {
     pluginName: 'checksums',
     display_name: 'Checksum',
+    item_display_name: 'checksum',
+    item_display_name_plural: 'checksums',
     description: 'Test',
     capabilities: { scheduling: true },
     list_view: {
@@ -2048,12 +2072,16 @@ describe('PluginDetailPage — write access', () => {
   const entitySchema = {
     pluginName: 'inventory',
     display_name: 'Inventory',
+    item_display_name: 'inventory',
+    item_display_name_plural: 'inventories',
     description: 'Test',
     capabilities: {},
     entities: [
       {
         name: 'services',
         display_name: 'Services',
+        item_display_name: 'service',
+        item_display_name_plural: 'services',
         forms: [],
         list_view: {
           columns: [{ key: 'name', label: 'Name' }],

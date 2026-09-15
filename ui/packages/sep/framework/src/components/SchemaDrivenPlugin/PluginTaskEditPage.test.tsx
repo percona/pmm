@@ -70,6 +70,8 @@ vi.mock('@sep/api', () => ({
 const schema: PluginSchema = {
   pluginName: 'checksums',
   display_name: 'Checksum',
+  item_display_name: 'checksum',
+  item_display_name_plural: 'checksums',
   description: 'Test',
   capabilities: {},
   list_view: { columns: [{ key: 'name', label: 'Name' }] },
@@ -132,7 +134,7 @@ describe('PluginTaskEditPage', () => {
 
     renderAt();
 
-    expect(screen.getByText('Edit Checksum: check1')).toBeInTheDocument();
+    expect(screen.getByText('Edit checksum: check1')).toBeInTheDocument();
     expect(screen.getByLabelText('Title')).toHaveValue('hello');
   });
 
@@ -143,7 +145,7 @@ describe('PluginTaskEditPage', () => {
 
     // The immutable identity is shown in the header, never as an editable field.
     expect(screen.queryByLabelText('Task Name')).toBeNull();
-    expect(screen.getByText('Edit Checksum: check1')).toBeInTheDocument();
+    expect(screen.getByText('Edit checksum: check1')).toBeInTheDocument();
   });
 
   it('submits coerced values and pins task_name to the route id', async () => {
@@ -223,7 +225,7 @@ describe('PluginTaskEditPage', () => {
     renderAt();
 
     expect(screen.getByText('detail page')).toBeInTheDocument();
-    expect(screen.queryByText('Edit Checksum: check1')).toBeNull();
+    expect(screen.queryByText('Edit checksum: check1')).toBeNull();
   });
 
   it('threads capabilities so a stored alert_on_fail survives an edit', async () => {
@@ -288,6 +290,8 @@ describe('PluginTaskEditPage', () => {
     const uploadSchema: PluginSchema = {
       pluginName: 'mysql_backups',
       display_name: 'MySQL Backup',
+      item_display_name: 'backup',
+      item_display_name_plural: 'backups',
       description: 'Test',
       capabilities: {},
       list_view: { columns: [{ key: 'name', label: 'Name' }] },

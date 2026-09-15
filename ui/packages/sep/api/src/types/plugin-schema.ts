@@ -412,7 +412,7 @@ export interface PluginEntitySchema {
 export interface RelatedApp {
   /** Scoped registry key (for example `mysql_backups/restore`). */
   app_key: string;
-  /** Tab label shown in the React shell (for example `Restore`). */
+  /** Tab label shown in the React shell (for example `Restores`). */
   label: string;
   /** Sub-path segment under the parent's `route_base` (for example `restores`). */
   route_segment: string;

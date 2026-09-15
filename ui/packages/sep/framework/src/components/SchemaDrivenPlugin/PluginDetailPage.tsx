@@ -98,6 +98,11 @@ import {
 import { resolvePluginRouteBase } from './routeBase';
 import { getStoredForm } from './storedForm';
 import { StatsCard } from './StatsCard';
+import { capitalize } from '@sep/shared';
+import {
+  resolveItemDisplayName,
+  resolveItemDisplayNamePlural,
+} from '../../utils/itemLabels';
 
 const DetailSyntaxHighlighter = lazy(() => import('./DetailSyntaxHighlighter'));
 
@@ -415,12 +420,15 @@ function DetailViewSectionCard({
  */
 function ConnectivityWarningAlert({
   warning,
+  itemName,
 }: {
   warning: SepComponents['schemas']['framework__ConnectivityWarning'];
+  itemName: string;
 }) {
   const [logOpen, setLogOpen] = useState(false);
   const message =
-    warning.message || 'Connectivity check returned a warning for this task.';
+    warning.message ||
+    `Connectivity check returned a warning for this ${itemName}.`;
   const taskHistoryId = warning.task_history_id ?? null;
 
   return (
@@ -453,6 +461,7 @@ function ConnectivityWarningAlert({
           onClose={() => setLogOpen(false)}
           taskHistoryId={taskHistoryId}
           taskLabel="Connectivity check"
+          itemName={itemName}
         />
       )}
     </>
@@ -534,6 +543,7 @@ function OverviewTab({
         connectivityWarning !== undefined &&
         typeof connectivityWarning === 'object' && (
           <ConnectivityWarningAlert
+            itemName={resolveItemDisplayName(schema)}
             warning={
               connectivityWarning as SepComponents['schemas']['framework__ConnectivityWarning']
             }
@@ -548,6 +558,7 @@ function OverviewTab({
       {taskName && (
         <LastRunCard
           taskNames={taskName}
+          itemName={resolveItemDisplayName(schema)}
           onOpenRun={() => setLastRunOpen(true)}
         />
       )}
@@ -561,6 +572,7 @@ function OverviewTab({
           onClose={() => setLastRunOpen(false)}
           taskNames={taskName}
           taskLabel={taskName}
+          itemName={resolveItemDisplayName(schema)}
         />
       )}
 
@@ -579,7 +591,9 @@ function OverviewTab({
           />
         )}
 
-      <SectionCard title="Task information">
+      <SectionCard
+        title={`${capitalize(resolveItemDisplayName(schema))} information`}
+      >
         <Grid container spacing={2}>
           {visibleColumns.map((col) => (
             <TaskOverviewDetailField
@@ -649,9 +663,10 @@ function OverviewTab({
 
 interface LogsTabProps {
   taskNames: string[];
+  itemName: string;
 }
 
-function LogsTab({ taskNames }: LogsTabProps) {
+function LogsTab({ taskNames, itemName }: LogsTabProps) {
   const historyQuery = useTaskHistoryByNames(taskNames);
   const stop = useStopTaskHistory();
   const [openedRow, setOpenedRow] = useState<TaskHistoryEntry | null>(null);
@@ -665,7 +680,7 @@ function LogsTab({ taskNames }: LogsTabProps) {
     () => resolveOpenedRun(openedRow, historyQuery.data?.items),
     [openedRow, historyQuery.data]
   );
-  const logsTaskName = logsEntry?.task?.name ?? taskNames[0] ?? 'task';
+  const logsTaskName = logsEntry?.task?.name ?? taskNames[0] ?? itemName;
 
   return (
     <>
@@ -679,6 +694,7 @@ function LogsTab({ taskNames }: LogsTabProps) {
             data={historyQuery.data?.items ?? []}
             isLoading={historyQuery.isLoading}
             hideTaskNameColumn={taskNames.length <= 1}
+            itemName={itemName}
             onViewLogs={setOpenedRow}
             onStopTask={(entry) => {
               if (entry.id !== null && entry.id !== undefined) {
@@ -698,6 +714,7 @@ function LogsTab({ taskNames }: LogsTabProps) {
           onClose={() => setOpenedRow(null)}
           entry={logsEntry}
           taskLabel={logsTaskName}
+          itemName={itemName}
         />
       )}
     </>
@@ -742,6 +759,9 @@ function ActionBar({
   const [chainActionKey, setChainActionKey] = useState<string | null>(null);
 
   const chainingEnabled = !!schema.capabilities?.chaining;
+  const itemName = resolveItemDisplayName(schema);
+  const itemLabel = capitalize(itemName);
+  const itemPlural = resolveItemDisplayNamePlural(schema);
   const {
     data: pluginTasksData,
     isLoading: pluginTasksLoading,
@@ -800,12 +820,9 @@ function ActionBar({
         ? { taskName: pendingExecute.taskName, executeBody }
         : { taskName: pendingExecute.taskName };
       await executeTask.mutateAsync(executeArgs);
-      enqueueSnackbar(
-        `${schema.display_name} task "${pendingExecute.taskName}" started`,
-        {
-          variant: 'success',
-        }
-      );
+      enqueueSnackbar(`${itemLabel} "${pendingExecute.taskName}" started`, {
+        variant: 'success',
+      });
     } catch (e) {
       actionError.reportError(e);
     } finally {
@@ -819,7 +836,7 @@ function ActionBar({
     actionError.clearError();
     try {
       await deleteTask.mutateAsync(taskName);
-      enqueueSnackbar(`${schema.display_name} task deleted`, {
+      enqueueSnackbar(`${itemLabel} deleted`, {
         variant: 'success',
       });
       // Anchor to the plugin root explicitly. Relative `..` chains depend
@@ -833,8 +850,7 @@ function ActionBar({
     }
   };
 
-  const editUnavailable =
-    "Editing isn't available for this task — it has no saved form input.";
+  const editUnavailable = `Editing isn't available for this ${itemName} — it has no saved form input.`;
 
   // Every action here is a mutation except Schedule (navigation), so a
   // read-only session with no scheduling capability is left with no bar at all.
@@ -929,13 +945,13 @@ function ActionBar({
         maxWidth="sm"
       >
         <DialogTitle>
-          {pendingExecute?.label ?? 'Execute'} {schema.display_name} task?
+          {pendingExecute?.label ?? 'Execute'} {itemName}?
         </DialogTitle>
         <DialogContent>
           {pendingExecute?.confirmContent ?? (
             <DialogContentText>
               {pendingExecute?.confirmMessage ??
-                `Are you sure you want to execute the task ${pendingExecute?.taskName ?? taskName} now?`}
+                `Are you sure you want to execute the ${itemName} ${pendingExecute?.taskName ?? taskName} now?`}
             </DialogContentText>
           )}
           {chainingEnabled && pendingExecute && (
@@ -949,7 +965,7 @@ function ActionBar({
                 </Box>
               ) : pluginTasksError ? (
                 <Alert severity="error" data-testid="chain-tasks-error">
-                  Couldn&apos;t load tasks available to chain
+                  Couldn&apos;t load {itemPlural} available to chain
                   {pluginTasksLoadError instanceof Error
                     ? `: ${pluginTasksLoadError.message}`
                     : ''}
@@ -961,6 +977,8 @@ function ActionBar({
                   value={chain}
                   onChange={setChain}
                   disabled={executeTask.isPending}
+                  itemName={itemName}
+                  itemNamePlural={itemPlural}
                 />
               )}
             </Box>
@@ -985,11 +1003,11 @@ function ActionBar({
       </Dialog>
 
       <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
-        <DialogTitle>Delete {schema.display_name} task?</DialogTitle>
+        <DialogTitle>Delete {itemName}?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            This will permanently remove the task definition. Past run history
-            is unaffected.
+            This will permanently remove the {itemName} definition. Past run
+            history is unaffected.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -1064,8 +1082,10 @@ export function PluginDetailPage({
   );
 
   const { data: task, isLoading } = multi ? entityQuery : taskQuery;
+  const recordSchema = multi ? entitySchema! : schema;
   const listView = multi ? entitySchema!.list_view : schema.list_view!;
-  const title = multi ? entitySchema!.display_name : schema.display_name;
+  const title = recordSchema.display_name;
+  const itemName = resolveItemDisplayName(recordSchema);
   const headingWhenChromeHidden = useMemo(
     () =>
       hideDetailChrome && multi
@@ -1155,8 +1175,8 @@ export function PluginDetailPage({
           title={`Delete from ${schema.display_name}?`}
           description={
             recordName
-              ? `Permanently delete ${title} "${recordName}" (id ${id}) from ${schema.display_name}? This cannot be undone.`
-              : `Permanently delete ${title} (id ${id}) from ${schema.display_name}? This cannot be undone.`
+              ? `Permanently delete ${itemName} "${recordName}" (id ${id}) from ${schema.display_name}? This cannot be undone.`
+              : `Permanently delete ${itemName} (id ${id}) from ${schema.display_name}? This cannot be undone.`
           }
         />
 
@@ -1301,7 +1321,9 @@ export function PluginDetailPage({
   if (!task || !id) {
     return (
       <Box>
-        <Typography variant="h5">Task not found</Typography>
+        <Typography variant="h5">
+          {capitalize(resolveItemDisplayName(schema))} not found
+        </Typography>
       </Box>
     );
   }
@@ -1396,7 +1418,15 @@ export function PluginDetailPage({
             </OverviewTab>
           }
         />
-        <Route path="logs" element={<LogsTab taskNames={taskHistoryNames} />} />
+        <Route
+          path="logs"
+          element={
+            <LogsTab
+              taskNames={taskHistoryNames}
+              itemName={resolveItemDisplayName(schema)}
+            />
+          }
+        />
       </Routes>
     </Box>
   );

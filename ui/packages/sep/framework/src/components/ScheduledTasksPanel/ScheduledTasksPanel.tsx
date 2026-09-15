@@ -32,6 +32,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { useAuth } from '@sep/api';
+import { capitalize } from '@sep/shared';
 import { ScheduledTaskForm } from './ScheduledTaskForm';
 import { TaskRunDetailDrawer } from '../TaskRunDetailDrawer';
 import { ScheduledTaskRow } from './ScheduledTaskRow';
@@ -49,18 +50,11 @@ interface ScheduledTasksPanelProps {
   pluginName: string;
   /** Disable list polling. Used by stories/tests. */
   disablePolling?: boolean;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
+  /** Mid-sentence plural noun (e.g. `backups`). */
+  itemNamePlural?: string;
 }
-
-const COLUMN_HEADERS = [
-  'Task',
-  'Period',
-  'Start Time',
-  'Last Run',
-  'Next Run',
-  'Runs',
-  'Chain',
-  'Enabled',
-];
 
 /** Trailing header for the row edit/delete cell, dropped for read-only sessions. */
 const ACTIONS_HEADER = 'Actions';
@@ -68,8 +62,29 @@ const ACTIONS_HEADER = 'Actions';
 export function ScheduledTasksPanel({
   pluginName,
   disablePolling = false,
+  itemName = 'task',
+  itemNamePlural = 'tasks',
 }: ScheduledTasksPanelProps) {
   const { canMutate } = useAuth();
+  const itemLabel = capitalize(itemName);
+  const itemPluralLabel = capitalize(itemNamePlural);
+  const columnHeaders = useMemo(
+    () => [
+      itemLabel,
+      'Period',
+      'Start Time',
+      'Last Run',
+      'Next Run',
+      'Runs',
+      'Chain',
+      'Enabled',
+    ],
+    [itemLabel]
+  );
+  const tableHeaders = useMemo(
+    () => (canMutate ? [...columnHeaders, ACTIONS_HEADER] : columnHeaders),
+    [canMutate, columnHeaders]
+  );
   const { periodicTasks, pluginTasks, isLoading, isError, error } =
     useScheduledTasksForPlugin(pluginName, { disablePolling });
 
@@ -128,7 +143,9 @@ export function ScheduledTasksPanel({
       await updateMut.mutateAsync({ id: task.id, body });
     } catch (e) {
       setActionError(
-        e instanceof Error ? e.message : 'Failed to toggle scheduled task'
+        e instanceof Error
+          ? e.message
+          : `Failed to toggle scheduled ${itemName}`
       );
     }
   };
@@ -139,7 +156,9 @@ export function ScheduledTasksPanel({
       await deleteMut.mutateAsync(task.id);
     } catch (e) {
       setActionError(
-        e instanceof Error ? e.message : 'Failed to delete scheduled task'
+        e instanceof Error
+          ? e.message
+          : `Failed to delete scheduled ${itemName}`
       );
     }
   };
@@ -157,7 +176,9 @@ export function ScheduledTasksPanel({
       setCreating(false);
     } catch (e) {
       setFormError(
-        e instanceof Error ? e.message : 'Failed to create scheduled task'
+        e instanceof Error
+          ? e.message
+          : `Failed to create scheduled ${itemName}`
       );
     }
   };
@@ -173,7 +194,9 @@ export function ScheduledTasksPanel({
         setEditingId(null);
       } catch (e) {
         setFormError(
-          e instanceof Error ? e.message : 'Failed to update scheduled task'
+          e instanceof Error
+            ? e.message
+            : `Failed to update scheduled ${itemName}`
         );
       }
     };
@@ -194,11 +217,9 @@ export function ScheduledTasksPanel({
   const headerRow = (
     <TableHead>
       <TableRow>
-        {(canMutate ? [...COLUMN_HEADERS, ACTIONS_HEADER] : COLUMN_HEADERS).map(
-          (h) => (
-            <TableCell key={h}>{h}</TableCell>
-          )
-        )}
+        {tableHeaders.map((h) => (
+          <TableCell key={h}>{h}</TableCell>
+        ))}
       </TableRow>
     </TableHead>
   );
@@ -214,7 +235,8 @@ export function ScheduledTasksPanel({
   if (isError) {
     return (
       <Alert severity="error">
-        Failed to load scheduled tasks{error ? `: ${error.message}` : ''}
+        Failed to load scheduled {itemNamePlural}
+        {error ? `: ${error.message}` : ''}
       </Alert>
     );
   }
@@ -225,7 +247,7 @@ export function ScheduledTasksPanel({
     <Paper variant="outlined" data-testid="scheduled-tasks-panel">
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <ScheduleIcon fontSize="small" />
-        <Typography variant="h6">Scheduled Tasks</Typography>
+        <Typography variant="h6">Scheduled {itemPluralLabel}</Typography>
       </Box>
 
       {actionError && (
@@ -242,7 +264,7 @@ export function ScheduledTasksPanel({
       {isEmpty ? (
         <Box sx={{ p: 3, textAlign: 'center' }}>
           <Typography variant="body2" color="text.secondary">
-            No scheduled tasks for {pluginName}.
+            No scheduled {itemNamePlural} for {pluginName}.
           </Typography>
         </Box>
       ) : (
@@ -255,6 +277,8 @@ export function ScheduledTasksPanel({
                   key={task.id}
                   task={task}
                   availableTasks={availableTasks}
+                  itemName={itemName}
+                  itemNamePlural={itemNamePlural}
                   isEditing={editingId === task.id}
                   onStartEdit={() => startEdit(task.id)}
                   onCancelEdit={() => setEditingId(null)}
@@ -281,6 +305,8 @@ export function ScheduledTasksPanel({
             mode="create"
             availableTasks={availableTasks}
             defaultTaskName={availableTasks[0]?.name}
+            itemName={itemName}
+            itemNamePlural={itemNamePlural}
             onCancel={() => setCreating(false)}
             onSubmit={handleCreate}
             submitting={createMut.isPending}
@@ -313,6 +339,7 @@ export function ScheduledTasksPanel({
           taskNames={openedRun.taskName}
           at={openedRun.lastRunAt}
           taskLabel={openedRun.taskName}
+          itemName={itemName}
         />
       )}
     </Paper>
