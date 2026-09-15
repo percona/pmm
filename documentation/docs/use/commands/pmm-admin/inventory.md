@@ -1,6 +1,6 @@
 # Manage inventory with pmm-admin inventory
 
-Use `pmm-admin inventory` from the command line to list registered services and agents, and modify agent configurations without removing and re-adding services.
+Use `pmm-admin inventory` from the command line to list registered services and agents, add or remove individual agents, and modify agent configurations without removing and re-adding services.
 
 To manage inventory in the UI, go to **Configuration > Inventory**. For programmatic access, see the [PMM API](../../../api/index.md).
 
@@ -8,6 +8,12 @@ To manage inventory in the UI, go to **Configuration > Inventory**. For programm
 
 - [`pmm-admin inventory list agents|nodes|services`](#pmm-admin-inventory-list)
 :   Shows registered agents, nodes, or services
+
+- [`pmm-admin inventory add agent rta-mongodb-agent`](#pmm-admin-inventory-add-agent-rta-mongodb-agent)
+:   Starts Real-Time Analytics (RTA) on a MongoDB service.
+
+- [`pmm-admin inventory remove agent`](#pmm-admin-inventory-remove-agent)
+:   Removes an agent from PMM inventory. To stop RTA on a MongoDB service, remove its `rta-mongodb-agent` with this command.
 
 - [`pmm-admin inventory change agent`](#pmm-admin-inventory-change-agent)
 :   Modifies agent configuration without removing the service
@@ -40,6 +46,170 @@ pmm-admin inventory list services
 
     ```bash
     pmm-admin inventory list services
+    ```
+
+## pmm-admin inventory add agent rta-mongodb-agent
+
+Starts Real-Time Analytics (RTA) on a MongoDB service. Live operations appear in **Query Analytics > Real-time** as they execute. Make sure to register the service with PMM first using [`pmm-admin add mongodb`](add.md#add-mongodb).
+
+### Syntax
+
+```bash
+pmm-admin inventory add agent rta-mongodb-agent <pmm-agent-id> <service-id> [<username>] [flags]
+```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `<pmm-agent-id>` | ID of the PMM Agent running on the monitored host. Get it from `pmm-admin status` or `pmm-admin inventory list agents`. |
+| `<service-id>` | ID of the MongoDB service to monitor. Get it from `pmm-admin inventory list services`. |
+| `<username>` | (Optional) MongoDB username. If omitted, RTA reuses the credentials from the existing MongoDB exporter. |
+
+### Flags
+
+#### Connection and authentication
+
+- `--password`
+:   MongoDB password.
+
+- `--authentication-mechanism`
+:   Authentication mechanism. Default is empty. Use `MONGODB-X509` for SSL certificate authentication.
+
+- `--tls`
+:   Enable TLS for the connection.
+
+- `--tls-skip-verify`
+:   Skip TLS certificate verification.
+
+- `--tls-certificate-key-file`
+:   Path to the TLS certificate/key PEM file.
+
+- `--tls-certificate-key-file-password`
+:   Password for the TLS certificate/key file.
+
+- `--tls-ca-file`
+:   Path to the CA certificate file.
+
+- `--skip-connection-check`
+:   Skip connection validation before saving the agent.
+
+#### Collection
+
+- `--collect-interval`
+:   How often RTA polls MongoDB for live operations. Accepts a duration string (for example, `2s`, `5s`). Defaults to the server-defined value of 2 seconds.
+
+#### Agent management
+
+- `--custom-labels`
+:   Custom user-assigned labels in `key=value,key=value` format.
+
+- `--log-level`
+:   Agent log level: `fatal`, `error`, `warn`, `info`, or `debug`.
+
+### Examples
+
+- Start RTA using existing MongoDB exporter credentials:
+
+    ```bash
+    # 1. Get the PMM Agent ID from the monitored host
+    pmm-admin status
+
+    # 2. Get the MongoDB service ID
+    pmm-admin inventory list services
+
+    # 3. Start RTA
+    pmm-admin inventory add agent rta-mongodb-agent \
+      <pmm-agent-id> \
+      <service-id>
+    ```
+
+- Start RTA with explicit credentials:
+
+    ```bash
+    pmm-admin inventory add agent rta-mongodb-agent \
+      <pmm-agent-id> \
+      <service-id> \
+      pmm_user \
+      --password=pmm_pass
+    ```
+
+- Start RTA with a custom poll interval:
+
+    ```bash
+    pmm-admin inventory add agent rta-mongodb-agent \
+      <pmm-agent-id> \
+      <service-id> \
+      --collect-interval=5s
+    ```
+
+- Start RTA with TLS:
+
+    ```bash
+    pmm-admin inventory add agent rta-mongodb-agent \
+      <pmm-agent-id> \
+      <service-id> \
+      pmm_user \
+      --password=pmm_pass \
+      --tls \
+      --tls-ca-file=/path/to/ca.pem
+    ```
+
+The command prints the agent ID. Note it down as you will need it to stop RTA later:
+
+```
+Real-Time Analytics MongoDB agent added.
+Agent ID              : /agent_id/abc123...
+PMM-Agent ID          : /agent_id/xyz456...
+Service ID            : /service_id/def789...
+Username              : pmm_user
+TLS enabled           : false
+Skip TLS verification : false
+Disabled              : false
+Custom labels         : {}
+Collect interval      : 2s
+Log level             : fatal
+```
+
+## pmm-admin inventory remove agent
+
+Removes an agent from PMM inventory. To stop RTA on a MongoDB service, remove its `rta-mongodb-agent`. This stops RTA for that service but does not affect the MongoDB exporter or stored QAN metrics. 
+
+To start RTA again, use `pmm-admin inventory add agent rta-mongodb-agent`.
+
+### Syntax
+
+```bash
+pmm-admin inventory remove agent [<agent-id>] [flags]
+```
+
+### Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `<agent-id>` | ID of the agent to remove. Get the RTA agent ID from `pmm-admin inventory list agents` or from the output of `pmm-admin inventory add agent rta-mongodb-agent`. |
+
+### Flags
+
+- `--force`
+:   Remove the agent and all its dependencies.
+
+### Examples
+
+- Stop RTA by removing the RTA agent:
+
+    ```bash
+    # 1. Find the RTA agent ID
+    pmm-admin inventory list agents
+
+    # 2. Remove it
+    pmm-admin inventory remove agent /agent_id/abc123...
+    ```
+
+- Force-remove an agent with all dependencies:
+
+    ```bash
+    pmm-admin inventory remove agent /agent_id/abc123... --force
     ```
 
 ## pmm-admin inventory change agent

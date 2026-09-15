@@ -24,6 +24,10 @@ For details on PMM roles, see [Standard role permissions](../../admin/roles/inde
 
 ## Start an RTA session
 
+You can start RTA from the PMM UI or from the command line.
+
+### From the UI
+
 To start monitoring a MongoDB service:
 {.power-number}
 
@@ -34,6 +38,52 @@ To start monitoring a MongoDB service:
 The live operations table appears and begins updating automatically:
 
 ![RTA live table](../../images/RTA_live.png)
+
+### From the command line
+
+Use `pmm-admin inventory add agent rta-mongodb-agent` to start RTA on a specific MongoDB service:
+
+```bash
+pmm-admin inventory add agent rta-mongodb-agent <pmm-agent-id> <service-id>
+```
+
+Get the required IDs with:
+
+```bash
+# Get your PMM Agent ID
+pmm-admin status
+
+# Get the MongoDB service ID
+pmm-admin inventory list services
+```
+
+Make sure to [add the MongoDB service](../commands/pmm-admin/add.md#add-mongodb) first if you haven't already. 
+
+The output includes the RTA agent ID. Save it, as you will need it to stop RTA later. For the full flag reference, see [pmm-admin inventory add agent rta-mongodb-agent](../commands/pmm-admin/inventory.md#pmm-admin-inventory-add-agent-rta-mongodb-agent).
+
+## Stop an RTA session
+
+### From the UI
+
+To stop an RTA session, click **All sessions** in the **Real-time** view and click **Stop** next to the session, or click **Stop all sessions** to stop all at once.
+
+### From the command line
+
+Remove the RTA agent to stop Real-Time Analytics for that service:
+
+```bash
+# 1. Find the RTA agent ID
+pmm-admin inventory list agents
+
+# 2. Remove it
+pmm-admin inventory remove agent <rta-agent-id>
+```
+
+For the full flag reference, see [pmm-admin inventory remove agent](../commands/pmm-admin/inventory.md#pmm-admin-inventory-remove-agent).
+
+
+This stops Real-Time Analytics for that service but does not affect the MongoDB exporter or stored QAN metrics. To restart RTA, use `pmm-admin inventory add agent rta-mongodb-agent`.
+
 ## Explore the Real-time view
 
 ### Filter by service
