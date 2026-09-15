@@ -590,22 +590,31 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, cleane
 	return nil, &authError{code: codes.PermissionDenied, message: "Access denied"}
 }
 
-func cleanPath(p string) (string, error) {
-	unescaped, err := url.PathUnescape(p)
+// cleanPath returns the unescaped, normalized path of the original URI, without its query
+// string.
+func cleanPath(uri string) (string, error) {
+	// Cut the query string off before anything else. Cleaning it together with the path
+	// lets a "../" inside it walk the path segments, so
+	// /prometheus/api/v1/query?x=/../../../../ping authenticates as /ping -- no role, no
+	// filters, and nginx forwards the original URI to VictoriaMetrics regardless. The
+	// fragment goes the same way; neither is part of what nginx matched a location on.
+	if i := strings.IndexAny(uri, "?#"); i >= 0 {
+		uri = uri[:i]
+	}
+
+	unescaped, err := url.PathUnescape(uri)
 	if err != nil {
 		return "", err
 	}
 
 	cleanedPath := path.Clean(unescaped)
-
-	cleanedPath = strings.ReplaceAll(cleanedPath, "\n", " ")
-
-	u, err := url.Parse(cleanedPath)
-	if err != nil {
-		return "", err
+	// Clean drops a trailing slash, which separates a collection from a member for the
+	// method rules, so put it back.
+	if cleanedPath != "/" && strings.HasSuffix(unescaped, "/") {
+		cleanedPath += "/"
 	}
-	u.RawQuery = ""
-	return u.String(), nil
+
+	return strings.ReplaceAll(cleanedPath, "\n", " "), nil
 }
 
 func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
