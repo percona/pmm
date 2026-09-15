@@ -105,3 +105,41 @@ func TestCompleteSucceededRun(t *testing.T) {
 		assert.Equal(t, "/api/apps/om_inventory/hosts", stub.calls[0].path)
 	})
 }
+
+func TestAdvanceRunningRunRollbackReason(t *testing.T) {
+	t.Parallel()
+
+	t.Run("credits retry exhaustion over a cancellation requested after rollback was already needed", func(t *testing.T) {
+		t.Parallel()
+
+		stub := newSEPStub(t, http.StatusOK, `{}`)
+		svc := (&Service{l: logrus.WithField("test", t.Name())}).
+			WithBootstrapSource(stub.server.URL, "test-token")
+
+		// node00 already exhausted its retries -- rollback is underway for that
+		// reason alone -- and an operator also clicked cancel while it was still
+		// in flight. Empty RollbackSteps means hostRollbackDone trivially agrees
+		// every host's rollback already finished, so this run is ready to be
+		// recorded as ROLLED_BACK on this tick.
+		run := &sepBootstrapRun{
+			ID:              "run-abc",
+			Status:          bootstrapRunRunning,
+			CancelRequested: true,
+			Hosts: []sepBootstrapHost{
+				{
+					Host: "node00",
+					Steps: []sepBootstrapStep{
+						{Name: "install_package", Status: bootstrapStepFailed, AttemptCount: bootstrapMaxAttempts},
+					},
+				},
+			},
+		}
+		svc.advanceRunningRun(t.Context(), run)
+
+		require.Len(t, stub.calls, 1)
+		assert.Equal(t, "/api/apps/om_bootstrap/runs/run-abc:finish", stub.calls[0].path)
+		assert.JSONEq(t,
+			`{"status": "rolled_back", "error": "a step exhausted its retries; every host was rolled back"}`,
+			stub.calls[0].body)
+	})
+}

@@ -69,26 +69,42 @@ type sepBootstrapHost struct {
 // sepBootstrapRun is one row of GET /runs, and the full body of GET /runs/{id}
 // and every dispatch/finish response.
 type sepBootstrapRun struct {
-	ID             string             `json:"id"`
-	Status         string             `json:"status"`
-	InstallMethod  string             `json:"install_method"`
-	OS             string             `json:"os"`
-	MongoDBVersion string             `json:"mongodb_version"`
-	ReplicaSetName string             `json:"replica_set_name"`
-	StartedAt      time.Time          `json:"started_at"`
-	FinishedAt     *time.Time         `json:"finished_at"`
-	Hosts          []sepBootstrapHost `json:"hosts"`
-	RunSteps       []sepBootstrapStep `json:"run_steps"`
-	Error          *string            `json:"error"`
+	ID              string             `json:"id"`
+	Status          string             `json:"status"`
+	InstallMethod   string             `json:"install_method"`
+	OS              string             `json:"os"`
+	MongoDBVersion  string             `json:"mongodb_version"`
+	ReplicaSetName  string             `json:"replica_set_name"`
+	StartedAt       time.Time          `json:"started_at"`
+	FinishedAt      *time.Time         `json:"finished_at"`
+	Hosts           []sepBootstrapHost `json:"hosts"`
+	RunSteps        []sepBootstrapStep `json:"run_steps"`
+	Error           *string            `json:"error"`
+	CancelRequested bool               `json:"cancel_requested"`
 }
 
 // sepTriggerBootstrapRunRequest is the body POST /runs takes.
 type sepTriggerBootstrapRunRequest struct {
-	Hosts          []string `json:"hosts"`
-	InstallMethod  string   `json:"install_method"`
-	OS             string   `json:"os"`
-	MongoDBVersion string   `json:"mongodb_version"`
-	ReplicaSetName string   `json:"replica_set_name"`
+	Hosts          []string                   `json:"hosts"`
+	InstallMethod  string                     `json:"install_method"`
+	OS             string                     `json:"os"`
+	MongoDBVersion string                     `json:"mongodb_version"`
+	ReplicaSetName string                     `json:"replica_set_name"`
+	DataPath       string                     `json:"data_path"`
+	LogPath        string                     `json:"log_path"`
+	Port           uint32                     `json:"port"`
+	BindIP         string                     `json:"bind_ip"`
+	MemberConfigs  map[string]sepMemberConfig `json:"member_configs,omitempty"`
+}
+
+// sepMemberConfig is one host's replica-set election settings, matching
+// om_bootstrap's own MemberConfig exactly -- see TriggerHostBootstrap's own
+// doc comment for the node-id-to-executor-host translation this sits behind.
+type sepMemberConfig struct {
+	Priority  uint32 `json:"priority"`
+	Votes     bool   `json:"votes"`
+	Hidden    bool   `json:"hidden"`
+	DelaySecs uint32 `json:"delay_secs"`
 }
 
 // sepDispatchStepRequest is the optional body every :dispatch route takes -- the
@@ -248,6 +264,25 @@ func (c *bootstrapClient) dispatchRollbackStep(ctx context.Context, runID, host,
 	call := inventoryCall{
 		method: http.MethodPost,
 		path:   inventoryPath("runs", runID, "hosts", host, "rollback", stepName+":dispatch"),
+	}
+	err := c.app.call(ctx, call, run)
+	if err != nil {
+		return nil, err
+	}
+	return run, nil
+}
+
+// cancelRun asks SEP to flag runID for cancellation and best-effort stop whatever
+// step is currently dispatching. Idempotent: calling this again once cancellation
+// was already requested is a no-op on SEP's side, not an error.
+func (c *bootstrapClient) cancelRun(ctx context.Context, runID string) (*sepBootstrapRun, error) {
+	ctx, cancel := context.WithTimeout(ctx, bootstrapRequestTimeout)
+	defer cancel()
+
+	run := &sepBootstrapRun{}
+	call := inventoryCall{
+		method: http.MethodPost,
+		path:   inventoryPath("runs", runID) + ":cancel",
 	}
 	err := c.app.call(ctx, call, run)
 	if err != nil {
