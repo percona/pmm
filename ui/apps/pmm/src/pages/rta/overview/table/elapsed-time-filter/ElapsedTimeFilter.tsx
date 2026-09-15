@@ -9,7 +9,10 @@ import {
 import TextField from '@mui/material/TextField';
 import type { MRT_Column } from 'material-react-table';
 import type { QueryData } from 'types/rta.types';
-import { isElapsedTimeBound } from '../OverviewTable.utils';
+import {
+  isElapsedTimeBoundInput,
+  toElapsedTimeBound,
+} from '../OverviewTable.utils';
 import { Messages } from './ElapsedTimeFilter.messages';
 
 export interface Props {
@@ -30,9 +33,7 @@ const readRange = (value: unknown): [string, string] =>
 const ElapsedTimeFilter: FC<Props> = ({ column, rangeFilterIndex = 0 }) => {
   const label = rangeFilterIndex === 1 ? Messages.max : Messages.min;
   const committed = readRange(column.getFilterValue())[rangeFilterIndex];
-  const [value, setValue] = useState(() =>
-    isElapsedTimeBound(committed) ? committed : ''
-  );
+  const [value, setValue] = useState(() => toElapsedTimeBound(committed));
   const lastCommitted = useRef<string | undefined>(undefined);
 
   const commit = useCallback(
@@ -52,22 +53,22 @@ const ElapsedTimeFilter: FC<Props> = ({ column, rangeFilterIndex = 0 }) => {
       return;
     }
     lastCommitted.current = committed;
-    if (isElapsedTimeBound(committed)) {
-      setValue(committed);
-    } else {
+    const bound = toElapsedTimeBound(committed);
+    setValue(bound);
+    if (bound !== committed) {
       // A hand-edited or bookmarked URL can carry a bound that filters nothing
       // yet still marks the column as filtered.
-      commit('');
+      commit(bound);
     }
   }, [committed, commit]);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const next = event.target.value;
-    if (!isElapsedTimeBound(next)) {
+    if (!isElapsedTimeBoundInput(next)) {
       return;
     }
     setValue(next);
-    commit(next);
+    commit(toElapsedTimeBound(next));
   };
 
   return (

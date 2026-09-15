@@ -1,24 +1,43 @@
 import type { MRT_Row } from 'material-react-table';
 import type { QueryData } from 'types/rta.types';
-import { filterElapsedTime, isElapsedTimeBound } from './OverviewTable.utils';
+import {
+  filterElapsedTime,
+  isElapsedTimeBoundInput,
+  toElapsedTimeBound,
+} from './OverviewTable.utils';
 
 const row = (seconds: number | null) =>
   ({ getValue: () => seconds }) as unknown as MRT_Row<QueryData>;
 
 const ID = 'queryExecutionDurationMs';
 
-describe('isElapsedTimeBound', () => {
-  it.each(['', '0', '1', '30', '1.', '.5', '1.5', '1.50'])(
+describe('isElapsedTimeBoundInput', () => {
+  it.each(['', '.', '0', '1', '30', '1.', '.5', '1.5', '1.50'])(
     'accepts %s',
     (value) => {
-      expect(isElapsedTimeBound(value)).toBe(true);
+      expect(isElapsedTimeBoundInput(value)).toBe(true);
     }
   );
 
   it.each(['abc', '1a', 'a1', '1.5x', ' 1', '1 ', '-1', '+1', '1e3', '1.2.3'])(
     'rejects %s',
     (value) => {
-      expect(isElapsedTimeBound(value)).toBe(false);
+      expect(isElapsedTimeBoundInput(value)).toBe(false);
+    }
+  );
+});
+
+describe('toElapsedTimeBound', () => {
+  it.each(['0', '1', '30', '1.', '.5', '1.5', '1.50'])('keeps %s', (value) => {
+    expect(toElapsedTimeBound(value)).toBe(value);
+  });
+
+  // '' and '.' are legal to be typing but are not a number of seconds, and
+  // parseFloat is too lenient to tell '1.5x' apart from a bound.
+  it.each(['', '.', 'abc', '1.5x', '-1', '1e3', '1.2.3'])(
+    'drops %s',
+    (value) => {
+      expect(toElapsedTimeBound(value)).toBe('');
     }
   );
 });

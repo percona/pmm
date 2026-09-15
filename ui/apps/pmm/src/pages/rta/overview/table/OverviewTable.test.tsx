@@ -138,6 +138,18 @@ describe('OverviewTable Elapsed time filter', () => {
     await waitFor(() => expect(visibleRows()).toEqual(['query-fast-row']));
   });
 
+  it('does not filter on a lone decimal point', async () => {
+    renderTable(TEST_TIMED_QUERIES);
+    showFilters();
+
+    type('Min', '.');
+
+    expect(bound('Min').value).toBe('.');
+    await waitFor(() =>
+      expect(visibleRows()).toEqual(['query-fast-row', 'query-slow-row'])
+    );
+  });
+
   it('restores the rows when the bound is emptied', async () => {
     renderTable(TEST_TIMED_QUERIES);
     showFilters();
