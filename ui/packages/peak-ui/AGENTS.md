@@ -84,17 +84,7 @@ const methods = useForm<Values>({ defaultValues: { host: '' } });
 
 ## Peer dependencies
 
-Peak UI does not bundle these; the app must install them:
-
-```bash
-pnpm add @percona/peak-ui \
-  react react-dom \
-  @mui/material @mui/icons-material @mui/utils @mui/x-date-pickers \
-  @emotion/react @emotion/styled \
-  notistack react-hook-form
-```
-
-Add a date adapter (e.g. `date-fns`) if you use date/time inputs.
+Peak UI does not bundle React, MUI, Emotion, notistack, or react-hook-form; the app installs them. The install command lives in the package `README.md` (also in `node_modules/@percona/peak-ui`) and the authoritative list is `peerDependencies` in `package.json`. Add a date adapter (e.g. `date-fns`) if you use date/time inputs.
 
 ## Links
 
