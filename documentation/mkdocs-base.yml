@@ -118,9 +118,6 @@ plugins:
   # https://pypi.org/project/mkdocs-exclude/
   exclude:
     glob:
-      # Release-note fragments are assembled into the version page at release
-      # time and are never published on their own.
-      - "release-notes/next/*.md"
       # - "install-pmm/install-pmm-client/docker.md"
   mike:
     version_selector: true

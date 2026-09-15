@@ -12,7 +12,7 @@ Every rule below was checked against the published corpus (387 pages under `docs
 | Path | What it is | Who writes it |
 |------|-----------|---------------|
 | `documentation/docs/` | User documentation, MkDocs Material | The developer shipping the change (PMM-15502); `@percona/pmm-docs` approves via CODEOWNERS |
-| `documentation/docs/release-notes/` | One page per released version | Assembled from fragments; scaffolded by the `pmm-rn-create` skill |
+| `documentation/docs/release-notes/` | One page per released version | Scaffolded by the `pmm-rn-create` skill, filled in on the release branch |
 | `documentation/api/` | Public API reference, synced to a separate product by `.github/workflows/api-docs.yml` | Update when endpoints change; not governed by the style rules below |
 | `documentation/mkdocs-base.yml` | Site config **and the `nav:` tree** | Anyone adding or moving a page |
 | `documentation/variables.yml` | `{{release}}`, `{{version}}`, `{{release_date}}` macros | Release process only |
@@ -141,9 +141,7 @@ For the version a change landed in, write "Starting with PMM X.Y.Z" — it leads
 
 ## Release notes
 
-Every user-facing PR carries its own release-note line, as a fragment file, so concurrent PRs never conflict (PMM-15470).
-
-Create `documentation/docs/release-notes/next/PMM-12345.md`, one file per ticket, containing the section heading and the finished entry — exactly as it will read on the published page:
+Every user-facing change gets one release-note entry on the page for the version it ships in. Write it in the form it will publish in:
 
 ```markdown
 ## Fixed issues
@@ -153,13 +151,11 @@ Create `documentation/docs/release-notes/next/PMM-12345.md`, one file per ticket
 
 Rules for the entry:
 
-- The section heading is one of `## Improvements` (Feature and Improvement tickets), `## Fixed issues` (Bug tickets) or `## Known issues` (a defect you are shipping knowingly).
+- It goes under one of `## Improvements` (Feature and Improvement tickets), `## Fixed issues` (Bug tickets) or `## Known issues` (a defect you are shipping knowingly).
 - Improvements and fixed issues are a single bullet opening with the linked ticket key: `- [PMM-XXXXX](https://perconadev.atlassian.net/browse/PMM-XXXXX): `.
 - Known issues take a `### Title ([PMM-XXXXX](url))` heading followed by prose — what the reader sees, and what to do about it.
 - Write the user-visible effect, not the implementation. If the fix changes something the reader already did, say what they have to redo.
 - Link to the documentation page that covers it, relative from `release-notes/` (`../reference/nomad.md`).
-
-The `next/` directory is excluded from the site build, so a fragment never publishes as a page of its own. The stage that assembles fragments into the version file and clears `next/` after GA ships with PMM-15470; until then the fragment is still the one place the entry is written.
 
 The version page itself — the release summary, highlights, security updates and the `nav`/`variables.yml` bump — is scaffolded by the `pmm-rn-create` skill and written by the doc team on the release branch. Don't hand-create `documentation/docs/release-notes/X.Y.Z.md`.
 
@@ -190,7 +186,7 @@ These come up repeatedly — from general technical-writing advice and from the 
 | Release-note bug entries read `- Fixed an issue where … ([PMM-XXXXX](url))` | Published entries open with the linked key: `- [PMM-XXXXX](url): …`. |
 | Use "Before you start", not "Prerequisites" | Reversed since [`WRITERS-NOTES.md`](WRITERS-NOTES.md) was written; `Prerequisites` now leads 29 to 12. |
 | Check the Percona Software Support Lifecycle page on every change | Zero pages reference it. It is an external percona.com page, and only a platform-support change touches it. |
-| Scaffold a release-notes page as part of writing docs | Owned by the `pmm-rn-create` skill and the release branch. A feature PR adds a fragment, nothing else. |
+| Scaffold a release-notes page as part of writing docs | Owned by the `pmm-rn-create` skill and the release branch. |
 | Add `alert alert-*` classes to admonitions | Inert — no stylesheet in this repo defines them. |
 | Read a `doc-style-guide/` sibling repo before writing | No such repo is checked out or referenced by this one. This guide is the style guide. |
 
