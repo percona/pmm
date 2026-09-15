@@ -71,6 +71,7 @@ var rules = map[string]role{
 
 	"/v1/alerting":                    viewer,
 	"/v1/alerting/rules":              editor,
+	"/v1/alerting/thresholds":         admin,
 	"/v1/advisors":                    editor,
 	"/v1/advisors/checks:":            editor,
 	"/v1/advisors/failedServices":     editor,

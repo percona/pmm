@@ -416,6 +416,8 @@ func (m *ParamDefinition) validate(all bool) error {
 
 	// no validation rules for Type
 
+	// no validation rules for Overridable
+
 	switch v := m.Value.(type) {
 	case *ParamDefinition_Bool:
 		if v == nil {
@@ -2571,6 +2573,8 @@ func (m *CreateRuleResponse) validate(all bool) error {
 
 	var errors []error
 
+	// no validation rules for RuleId
+
 	if len(errors) > 0 {
 		return CreateRuleResponseMultiError(errors)
 	}
@@ -2651,3 +2655,1307 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = CreateRuleResponseValidationError{}
+
+// Validate checks the field values on Threshold with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Threshold) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Threshold with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ThresholdMultiError, or nil
+// if none found.
+func (m *Threshold) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Threshold) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for RuleId
+
+	// no validation rules for ParamName
+
+	// no validation rules for Summary
+
+	// no validation rules for Unit
+
+	// no validation rules for DefaultValue
+
+	// no validation rules for EffectiveValue
+
+	// no validation rules for IsOverridden
+
+	// no validation rules for Scope
+
+	// no validation rules for Target
+
+	if len(errors) > 0 {
+		return ThresholdMultiError(errors)
+	}
+
+	return nil
+}
+
+// ThresholdMultiError is an error wrapping multiple validation errors returned
+// by Threshold.ValidateAll() if the designated constraints aren't met.
+type ThresholdMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ThresholdMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ThresholdMultiError) AllErrors() []error { return m }
+
+// ThresholdValidationError is the validation error returned by
+// Threshold.Validate if the designated constraints aren't met.
+type ThresholdValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ThresholdValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ThresholdValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ThresholdValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ThresholdValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ThresholdValidationError) ErrorName() string { return "ThresholdValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ThresholdValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sThreshold.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ThresholdValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ThresholdValidationError{}
+
+// Validate checks the field values on ListThresholdsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListThresholdsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListThresholdsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListThresholdsRequestMultiError, or nil if none found.
+func (m *ListThresholdsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListThresholdsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Scope
+
+	// no validation rules for Target
+
+	// no validation rules for RuleId
+
+	if len(errors) > 0 {
+		return ListThresholdsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListThresholdsRequestMultiError is an error wrapping multiple validation
+// errors returned by ListThresholdsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ListThresholdsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListThresholdsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListThresholdsRequestMultiError) AllErrors() []error { return m }
+
+// ListThresholdsRequestValidationError is the validation error returned by
+// ListThresholdsRequest.Validate if the designated constraints aren't met.
+type ListThresholdsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListThresholdsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListThresholdsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListThresholdsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListThresholdsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListThresholdsRequestValidationError) ErrorName() string {
+	return "ListThresholdsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListThresholdsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListThresholdsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListThresholdsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListThresholdsRequestValidationError{}
+
+// Validate checks the field values on ListThresholdsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListThresholdsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListThresholdsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListThresholdsResponseMultiError, or nil if none found.
+func (m *ListThresholdsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListThresholdsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetThresholds() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListThresholdsResponseValidationError{
+						field:  fmt.Sprintf("Thresholds[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListThresholdsResponseValidationError{
+						field:  fmt.Sprintf("Thresholds[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListThresholdsResponseValidationError{
+					field:  fmt.Sprintf("Thresholds[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ListThresholdsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListThresholdsResponseMultiError is an error wrapping multiple validation
+// errors returned by ListThresholdsResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ListThresholdsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListThresholdsResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListThresholdsResponseMultiError) AllErrors() []error { return m }
+
+// ListThresholdsResponseValidationError is the validation error returned by
+// ListThresholdsResponse.Validate if the designated constraints aren't met.
+type ListThresholdsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListThresholdsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListThresholdsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListThresholdsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListThresholdsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListThresholdsResponseValidationError) ErrorName() string {
+	return "ListThresholdsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListThresholdsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListThresholdsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListThresholdsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListThresholdsResponseValidationError{}
+
+// Validate checks the field values on SetThresholdRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetThresholdRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetThresholdRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetThresholdRequestMultiError, or nil if none found.
+func (m *SetThresholdRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetThresholdRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Scope
+
+	if utf8.RuneCountInString(m.GetTarget()) < 1 {
+		err := SetThresholdRequestValidationError{
+			field:  "Target",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetRuleId()) < 1 {
+		err := SetThresholdRequestValidationError{
+			field:  "RuleId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetParamName()) < 1 {
+		err := SetThresholdRequestValidationError{
+			field:  "ParamName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Value
+
+	if len(errors) > 0 {
+		return SetThresholdRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetThresholdRequestMultiError is an error wrapping multiple validation
+// errors returned by SetThresholdRequest.ValidateAll() if the designated
+// constraints aren't met.
+type SetThresholdRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetThresholdRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetThresholdRequestMultiError) AllErrors() []error { return m }
+
+// SetThresholdRequestValidationError is the validation error returned by
+// SetThresholdRequest.Validate if the designated constraints aren't met.
+type SetThresholdRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetThresholdRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetThresholdRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetThresholdRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetThresholdRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetThresholdRequestValidationError) ErrorName() string {
+	return "SetThresholdRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetThresholdRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetThresholdRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = SetThresholdRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetThresholdRequestValidationError{}
+
+// Validate checks the field values on SetThresholdResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SetThresholdResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SetThresholdResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SetThresholdResponseMultiError, or nil if none found.
+func (m *SetThresholdResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SetThresholdResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetThreshold()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SetThresholdResponseValidationError{
+					field:  "Threshold",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SetThresholdResponseValidationError{
+					field:  "Threshold",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetThreshold()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SetThresholdResponseValidationError{
+				field:  "Threshold",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return SetThresholdResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// SetThresholdResponseMultiError is an error wrapping multiple validation
+// errors returned by SetThresholdResponse.ValidateAll() if the designated
+// constraints aren't met.
+type SetThresholdResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SetThresholdResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SetThresholdResponseMultiError) AllErrors() []error { return m }
+
+// SetThresholdResponseValidationError is the validation error returned by
+// SetThresholdResponse.Validate if the designated constraints aren't met.
+type SetThresholdResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SetThresholdResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SetThresholdResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SetThresholdResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SetThresholdResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SetThresholdResponseValidationError) ErrorName() string {
+	return "SetThresholdResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SetThresholdResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSetThresholdResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = SetThresholdResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SetThresholdResponseValidationError{}
+
+// Validate checks the field values on ClearThresholdRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ClearThresholdRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ClearThresholdRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ClearThresholdRequestMultiError, or nil if none found.
+func (m *ClearThresholdRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ClearThresholdRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Scope
+
+	if utf8.RuneCountInString(m.GetTarget()) < 1 {
+		err := ClearThresholdRequestValidationError{
+			field:  "Target",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetRuleId()) < 1 {
+		err := ClearThresholdRequestValidationError{
+			field:  "RuleId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetParamName()) < 1 {
+		err := ClearThresholdRequestValidationError{
+			field:  "ParamName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return ClearThresholdRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ClearThresholdRequestMultiError is an error wrapping multiple validation
+// errors returned by ClearThresholdRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ClearThresholdRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ClearThresholdRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ClearThresholdRequestMultiError) AllErrors() []error { return m }
+
+// ClearThresholdRequestValidationError is the validation error returned by
+// ClearThresholdRequest.Validate if the designated constraints aren't met.
+type ClearThresholdRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ClearThresholdRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ClearThresholdRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ClearThresholdRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ClearThresholdRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ClearThresholdRequestValidationError) ErrorName() string {
+	return "ClearThresholdRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ClearThresholdRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sClearThresholdRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ClearThresholdRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ClearThresholdRequestValidationError{}
+
+// Validate checks the field values on ClearThresholdResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ClearThresholdResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ClearThresholdResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ClearThresholdResponseMultiError, or nil if none found.
+func (m *ClearThresholdResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ClearThresholdResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ClearThresholdResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ClearThresholdResponseMultiError is an error wrapping multiple validation
+// errors returned by ClearThresholdResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ClearThresholdResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ClearThresholdResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ClearThresholdResponseMultiError) AllErrors() []error { return m }
+
+// ClearThresholdResponseValidationError is the validation error returned by
+// ClearThresholdResponse.Validate if the designated constraints aren't met.
+type ClearThresholdResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ClearThresholdResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ClearThresholdResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ClearThresholdResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ClearThresholdResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ClearThresholdResponseValidationError) ErrorName() string {
+	return "ClearThresholdResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ClearThresholdResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sClearThresholdResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ClearThresholdResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ClearThresholdResponseValidationError{}
+
+// Validate checks the field values on ThresholdUpdate with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *ThresholdUpdate) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ThresholdUpdate with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ThresholdUpdateMultiError, or nil if none found.
+func (m *ThresholdUpdate) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ThresholdUpdate) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Scope
+
+	if utf8.RuneCountInString(m.GetTarget()) < 1 {
+		err := ThresholdUpdateValidationError{
+			field:  "Target",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetRuleId()) < 1 {
+		err := ThresholdUpdateValidationError{
+			field:  "RuleId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetParamName()) < 1 {
+		err := ThresholdUpdateValidationError{
+			field:  "ParamName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.Value != nil {
+		// no validation rules for Value
+	}
+
+	if len(errors) > 0 {
+		return ThresholdUpdateMultiError(errors)
+	}
+
+	return nil
+}
+
+// ThresholdUpdateMultiError is an error wrapping multiple validation errors
+// returned by ThresholdUpdate.ValidateAll() if the designated constraints
+// aren't met.
+type ThresholdUpdateMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ThresholdUpdateMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ThresholdUpdateMultiError) AllErrors() []error { return m }
+
+// ThresholdUpdateValidationError is the validation error returned by
+// ThresholdUpdate.Validate if the designated constraints aren't met.
+type ThresholdUpdateValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ThresholdUpdateValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ThresholdUpdateValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ThresholdUpdateValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ThresholdUpdateValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ThresholdUpdateValidationError) ErrorName() string { return "ThresholdUpdateValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ThresholdUpdateValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sThresholdUpdate.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ThresholdUpdateValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ThresholdUpdateValidationError{}
+
+// Validate checks the field values on BatchUpdateThresholdsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *BatchUpdateThresholdsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BatchUpdateThresholdsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// BatchUpdateThresholdsRequestMultiError, or nil if none found.
+func (m *BatchUpdateThresholdsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BatchUpdateThresholdsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(m.GetUpdates()) < 1 {
+		err := BatchUpdateThresholdsRequestValidationError{
+			field:  "Updates",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	for idx, item := range m.GetUpdates() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, BatchUpdateThresholdsRequestValidationError{
+						field:  fmt.Sprintf("Updates[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, BatchUpdateThresholdsRequestValidationError{
+						field:  fmt.Sprintf("Updates[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return BatchUpdateThresholdsRequestValidationError{
+					field:  fmt.Sprintf("Updates[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return BatchUpdateThresholdsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// BatchUpdateThresholdsRequestMultiError is an error wrapping multiple
+// validation errors returned by BatchUpdateThresholdsRequest.ValidateAll() if
+// the designated constraints aren't met.
+type BatchUpdateThresholdsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BatchUpdateThresholdsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BatchUpdateThresholdsRequestMultiError) AllErrors() []error { return m }
+
+// BatchUpdateThresholdsRequestValidationError is the validation error returned
+// by BatchUpdateThresholdsRequest.Validate if the designated constraints
+// aren't met.
+type BatchUpdateThresholdsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BatchUpdateThresholdsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BatchUpdateThresholdsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BatchUpdateThresholdsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BatchUpdateThresholdsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BatchUpdateThresholdsRequestValidationError) ErrorName() string {
+	return "BatchUpdateThresholdsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e BatchUpdateThresholdsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBatchUpdateThresholdsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = BatchUpdateThresholdsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BatchUpdateThresholdsRequestValidationError{}
+
+// Validate checks the field values on BatchUpdateThresholdsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *BatchUpdateThresholdsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BatchUpdateThresholdsResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// BatchUpdateThresholdsResponseMultiError, or nil if none found.
+func (m *BatchUpdateThresholdsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BatchUpdateThresholdsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetThresholds() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, BatchUpdateThresholdsResponseValidationError{
+						field:  fmt.Sprintf("Thresholds[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, BatchUpdateThresholdsResponseValidationError{
+						field:  fmt.Sprintf("Thresholds[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return BatchUpdateThresholdsResponseValidationError{
+					field:  fmt.Sprintf("Thresholds[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return BatchUpdateThresholdsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// BatchUpdateThresholdsResponseMultiError is an error wrapping multiple
+// validation errors returned by BatchUpdateThresholdsResponse.ValidateAll()
+// if the designated constraints aren't met.
+type BatchUpdateThresholdsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BatchUpdateThresholdsResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BatchUpdateThresholdsResponseMultiError) AllErrors() []error { return m }
+
+// BatchUpdateThresholdsResponseValidationError is the validation error
+// returned by BatchUpdateThresholdsResponse.Validate if the designated
+// constraints aren't met.
+type BatchUpdateThresholdsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BatchUpdateThresholdsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BatchUpdateThresholdsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BatchUpdateThresholdsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BatchUpdateThresholdsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BatchUpdateThresholdsResponseValidationError) ErrorName() string {
+	return "BatchUpdateThresholdsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e BatchUpdateThresholdsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBatchUpdateThresholdsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = BatchUpdateThresholdsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BatchUpdateThresholdsResponseValidationError{}

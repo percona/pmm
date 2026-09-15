@@ -110,6 +110,12 @@ type AlertExprParamDefinition struct {
 	FloatParam *FloatParam `json:"float_param"`
 	// BoolParam   *BoolParam   `json:"bool_param"`
 	// StringParam *StringParam `json:"string_param"`
+
+	// Overridable reports whether a per-target threshold override may be set for this
+	// parameter without rewriting the alert rule.
+	Overridable bool `json:"overridable,omitempty"`
+	// OverrideScopes lists the scopes an override may be set at. Empty means node.
+	OverrideScopes []string `json:"override_scopes,omitempty"`
 }
 
 // ParamType represents parameter type.
