@@ -21,6 +21,10 @@ import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@sep/plugins-atw';
 import { SchemaDrivenPlugin } from '@sep/framework';
+import {
+  getMysqlBackupsTaskExecuteActions,
+  isMysqlRestorePluginName,
+} from './sep/mysql-backups/restoreExecuteConfirm';
 import { SepPage } from './sep/SepPage';
 
 // Route paths below are relative to the `PMM_NEW_NAV_PATH` parent, while the
@@ -119,6 +123,8 @@ const router = createBrowserRouter(
                   <SchemaDrivenPlugin
                     pluginName="mysql_backups"
                     routeBase={SEP_MYSQL_BACKUPS_PATH}
+                    getTaskExecuteActions={getMysqlBackupsTaskExecuteActions}
+                    disableScheduling={isMysqlRestorePluginName}
                   />
                 </SepPage>
               ),
