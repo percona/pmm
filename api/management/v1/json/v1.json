@@ -5892,7 +5892,7 @@
                           "x-order": 1
                         },
                         "address": {
-                          "description": "DB instance identifier.",
+                          "description": "Node address. For RDS this is the instance endpoint, not the DB instance identifier.",
                           "type": "string",
                           "x-order": 2
                         },
