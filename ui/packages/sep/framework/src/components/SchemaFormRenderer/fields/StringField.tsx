@@ -18,6 +18,7 @@
 import { useFormContext } from 'react-hook-form';
 import { TextInput } from '@percona/peak-ui';
 import { FieldLabelWithHelp } from '../FieldLabelWithHelp';
+import { fieldHelp } from '../fieldHelp';
 import type { StringField as StringFieldType } from '../types';
 import { buildValidationRules } from '../utils/validationMapper';
 
@@ -27,6 +28,7 @@ interface StringFieldProps {
 
 export function StringField({ field }: StringFieldProps) {
   const { control } = useFormContext();
+  const help = fieldHelp(field);
   return (
     <TextInput
       name={field.name}
@@ -35,13 +37,10 @@ export function StringField({ field }: StringFieldProps) {
       control={control}
       textFieldProps={{
         label: (
-          <FieldLabelWithHelp
-            label={field.label}
-            description={field.description}
-          />
+          <FieldLabelWithHelp label={field.label} description={help.tooltip} />
         ),
+        helperText: help.inline,
         placeholder: field.placeholder,
-        helperText: field.description,
         fullWidth: true,
       }}
       controllerProps={{ rules: buildValidationRules(field) }}
