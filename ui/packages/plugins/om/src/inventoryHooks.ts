@@ -42,9 +42,10 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { isRunActive, request } from './api';
+import { isBootstrapRunActive, isRunActive, request } from './api';
 import { periodSince, type OmRunPeriod } from './inventory';
 import type {
+  OmGetBootstrapRunResponse,
   OmHostBootstrapAccepted,
   OmInventoryHost,
   OmInventoryRun,
@@ -52,12 +53,14 @@ import type {
   OmInventoryRunDetail,
   OmInventoryService,
   OmInventorySetting,
+  OmListBootstrapRunsResponse,
 } from './types';
 
 const HOSTS_KEY = ['om', 'inventory', 'hosts'] as const;
 const SERVICES_KEY = ['om', 'inventory', 'services'] as const;
 const RUNS_KEY = ['om', 'inventory', 'runs'] as const;
 const CONFIG_KEY = ['om', 'inventory', 'config'] as const;
+const BOOTSTRAP_RUNS_KEY = ['om', 'inventory', 'bootstrap-runs'] as const;
 
 /** Poll cadence while a refresh is in flight (ms). */
 const REFRESH_POLL_MS = 3000;
@@ -388,6 +391,35 @@ export function useTriggerHostBootstrap() {
           }),
         }
       ),
+  });
+}
+
+/**
+ * Bootstrap run history, newest first, from `GET /inventory/bootstrap-runs`.
+ *
+ * Every run in full detail -- SEP's own GET /runs already returns each row's hosts
+ * and steps, so there is nothing cheaper to ask for and nothing more to fetch once
+ * a row is expanded. Polls fast while any run in the page is still active, same as
+ * {@link useOmInventoryRuns}, and slowly otherwise.
+ */
+export function useOmBootstrapRuns(limit?: number) {
+  return useQuery<OmGetBootstrapRunResponse[]>({
+    queryKey: [...BOOTSTRAP_RUNS_KEY, limit],
+    queryFn: async () => {
+      const query = limit ? `?limit=${limit}` : '';
+      const { runs } = await request<OmListBootstrapRunsResponse>(
+        `/inventory/bootstrap-runs${query}`
+      );
+      return runs ?? [];
+    },
+    refetchInterval: (query) =>
+      (query.state.data ?? []).some((run) => isBootstrapRunActive(run))
+        ? REFRESH_POLL_MS
+        : ESTATE_POLL_MS,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it.
+    refetchIntervalInBackground: true,
+    placeholderData: keepPreviousData,
   });
 }
 
