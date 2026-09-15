@@ -550,6 +550,41 @@ func local_request_OmService_GetBootstrapRun_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
+var filter_OmService_ListBootstrapRuns_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+
+func request_OmService_ListBootstrapRuns_0(ctx context.Context, marshaler runtime.Marshaler, client OmServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListBootstrapRunsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OmService_ListBootstrapRuns_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.ListBootstrapRuns(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_OmService_ListBootstrapRuns_0(ctx context.Context, marshaler runtime.Marshaler, server OmServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq ListBootstrapRunsRequest
+		metadata runtime.ServerMetadata
+	)
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OmService_ListBootstrapRuns_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	msg, err := server.ListBootstrapRuns(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_OmService_GetInventoryConfig_0(ctx context.Context, marshaler runtime.Marshaler, client OmServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetInventoryConfigRequest
@@ -943,6 +978,26 @@ func RegisterOmServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		}
 		forward_OmService_GetBootstrapRun_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_OmService_ListBootstrapRuns_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/om.v1.OmService/ListBootstrapRuns", runtime.WithHTTPPathPattern("/v1/om/inventory/bootstrap-runs"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_OmService_ListBootstrapRuns_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_OmService_ListBootstrapRuns_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_OmService_GetInventoryConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1298,6 +1353,23 @@ func RegisterOmServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, 
 		}
 		forward_OmService_GetBootstrapRun_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodGet, pattern_OmService_ListBootstrapRuns_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/om.v1.OmService/ListBootstrapRuns", runtime.WithHTTPPathPattern("/v1/om/inventory/bootstrap-runs"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_OmService_ListBootstrapRuns_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_OmService_ListBootstrapRuns_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_OmService_GetInventoryConfig_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1368,6 +1440,7 @@ var (
 	pattern_OmService_TriggerInventoryRefresh_0       = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "runs"}, "trigger"))
 	pattern_OmService_TriggerHostBootstrap_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "hosts"}, "bootstrap"))
 	pattern_OmService_GetBootstrapRun_0               = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"v1", "om", "inventory", "bootstrap-runs", "run_id"}, ""))
+	pattern_OmService_ListBootstrapRuns_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "bootstrap-runs"}, ""))
 	pattern_OmService_GetInventoryConfig_0            = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "config"}, ""))
 	pattern_OmService_UpdateInventoryConfig_0         = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "om", "inventory", "config"}, ""))
 	pattern_OmService_DeleteInventoryConfigOverride_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"v1", "om", "inventory", "config", "overrides", "key"}, ""))
@@ -1389,6 +1462,7 @@ var (
 	forward_OmService_TriggerInventoryRefresh_0       = runtime.ForwardResponseMessage
 	forward_OmService_TriggerHostBootstrap_0          = runtime.ForwardResponseMessage
 	forward_OmService_GetBootstrapRun_0               = runtime.ForwardResponseMessage
+	forward_OmService_ListBootstrapRuns_0             = runtime.ForwardResponseMessage
 	forward_OmService_GetInventoryConfig_0            = runtime.ForwardResponseMessage
 	forward_OmService_UpdateInventoryConfig_0         = runtime.ForwardResponseMessage
 	forward_OmService_DeleteInventoryConfigOverride_0 = runtime.ForwardResponseMessage
