@@ -567,6 +567,15 @@ type ListBootstrapRunsOKBodyRunsItems0 struct {
 	// When this run reached a terminal status. Unset while it is still going.
 	// Format: date-time
 	FinishedAt *strfmt.DateTime `json:"finished_at,omitempty"`
+
+	// The monitoring environment this run's service will be (or was) labelled
+	// with, from TriggerHostBootstrapRequest.environment. Unset means the caller
+	// left it blank, or triggered this run before PMM tracked the field at all.
+	Environment *string `json:"environment,omitempty"`
+
+	// The cluster this run's service will be (or was) labelled with, same terms
+	// as `environment`.
+	Cluster *string `json:"cluster,omitempty"`
 }
 
 // Validate validates this list bootstrap runs OK body runs items0
@@ -788,6 +797,11 @@ type ListBootstrapRunsOKBodyRunsItems0HostsItems0 struct {
 	// create_pmm_monitoring_user step has created the first user. See
 	// om_bootstrap's own HostBootstrapState doc comment for why these are a
 	// distinct phase from `steps` rather than appended to them.
+	//
+	// The last entry, named "confirm_monitoring", is PMM's own -- SEP never
+	// dispatches it. It stays "pending" until the run itself has succeeded, then
+	// "running" until PMM's inventory app notices the registered service, then
+	// "succeeded".
 	FinalizeSteps []*ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0 `json:"finalize_steps"`
 }
 

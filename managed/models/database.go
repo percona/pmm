@@ -1244,6 +1244,18 @@ var databaseSchema = [][]string{
 			created_at       TIMESTAMP NOT NULL
 		)`,
 	},
+	121: {
+		// The environment and cluster a bootstrap run was triggered with -- see
+		// OmBootstrapRunConfig's own doc comment for why these live in PMM's own
+		// database rather than round-tripping through SEP, which has no use for
+		// them.
+		`CREATE TABLE om_bootstrap_run_configs (
+			run_id      VARCHAR PRIMARY KEY,
+			environment VARCHAR NOT NULL,
+			cluster     VARCHAR NOT NULL,
+			created_at  TIMESTAMP NOT NULL
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
