@@ -2,7 +2,7 @@
 
 Contributor guide for anyone working on this repository (humans, Claude Code, Cursor, Codex, etc.). This is the single source of truth for repo conventions; `CLAUDE.md` imports it.
 
-Not to be confused with the root `AGENTS.md`: that file is the **consumer-facing** guide shipped inside the npm package (listed in `package.json` `files`) so AI tools that install Peak UI know how to use it. When the public API, peer dependencies, theme wrapper, or usage rules change, update `AGENTS.md` too. `src/package-manifest.spec.ts` fails if it stops being published.
+Not to be confused with the root `AGENTS.md`: that file is the **consumer-facing** guide shipped inside the npm package (listed in `package.json` `files`) so AI tools that install Peak UI know how to use it. When the public API, peer dependencies, theme wrapper, or usage rules change, update `AGENTS.md` too. `src/package-manifest.spec.ts` fails if it stops being published, or if the guides drift from `package.json` (README install command vs. peer dependencies, `pnpm` commands, theme option names).
 
 PEAK UI (`@percona/peak-ui`) is a React + MUI v7 component library published as an npm package (themed components, design tokens, form inputs). Zero infrastructure: no DB/Docker/services needed to build, test, or run Storybook.
 
