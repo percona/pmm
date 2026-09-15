@@ -257,6 +257,34 @@ describe('RemoteChoiceSelector', () => {
       ).not.toBeInTheDocument();
     });
 
+    it('names the parent field in the free-text wording too', () => {
+      // allow_custom takes a different branch of the same sentence, so the
+      // label has to be threaded through both or one of them silently keeps
+      // the old unnamed copy.
+      render(
+        <Wrapper client={makeClient()}>
+          <FormFieldsProvider
+            value={[
+              {
+                name: 'cluster',
+                label: 'Destination Database Service',
+                type: 'service',
+                service_types: ['mysql'],
+              },
+            ]}
+          >
+            <Harness dependsOn="cluster" initialParent={null} allowCustom />
+          </FormFieldsProvider>
+        </Wrapper>
+      );
+
+      expect(
+        screen.getByText(
+          'Select "Destination Database Service" first to list options, or type one'
+        )
+      ).toBeInTheDocument();
+    });
+
     it('falls back to the generic wording when the parent has no label', () => {
       render(
         <Wrapper client={makeClient()}>
