@@ -33,6 +33,7 @@ const (
 	OmService_ListInventoryRuns_FullMethodName             = "/om.v1.OmService/ListInventoryRuns"
 	OmService_GetInventoryRun_FullMethodName               = "/om.v1.OmService/GetInventoryRun"
 	OmService_TriggerInventoryRefresh_FullMethodName       = "/om.v1.OmService/TriggerInventoryRefresh"
+	OmService_TriggerHostBootstrap_FullMethodName          = "/om.v1.OmService/TriggerHostBootstrap"
 	OmService_GetInventoryConfig_FullMethodName            = "/om.v1.OmService/GetInventoryConfig"
 	OmService_UpdateInventoryConfig_FullMethodName         = "/om.v1.OmService/UpdateInventoryConfig"
 	OmService_DeleteInventoryConfigOverride_FullMethodName = "/om.v1.OmService/DeleteInventoryConfigOverride"
@@ -70,6 +71,18 @@ type OmServiceClient interface {
 	GetInventoryRun(ctx context.Context, in *GetInventoryRunRequest, opts ...grpc.CallOption) (*GetInventoryRunResponse, error)
 	// TriggerInventoryRefresh probes the estate, or named hosts within it.
 	TriggerInventoryRefresh(ctx context.Context, in *TriggerInventoryRefreshRequest, opts ...grpc.CallOption) (*TriggerInventoryRefreshResponse, error)
+	// TriggerHostBootstrap plans installing MongoDB on one host and initializing
+	// it as a single-member replica set, monitored by PMM once it comes up.
+	//
+	// PMM-15347 PoC, not the shipped feature: one host, one member, keyFile
+	// auth, TLS off, no project/cluster, no live progress UI yet. Proxies to
+	// SEP's om_bootstrap app (not om_inventory, which stays read-only by
+	// design) and returns as soon as that app has planned the run -- PMM's own
+	// HA-leader-only stepper drives every step of it forward from there,
+	// including registering the mongod with PMM's inventory once it succeeds.
+	// See PMM-15347/plan.md §4 item 9 for that split, and
+	// PMM-15347/questions.md for what is and is not built.
+	TriggerHostBootstrap(ctx context.Context, in *TriggerHostBootstrapRequest, opts ...grpc.CallOption) (*TriggerHostBootstrapResponse, error)
 	// GetInventoryConfig returns the inventory app's configuration.
 	GetInventoryConfig(ctx context.Context, in *GetInventoryConfigRequest, opts ...grpc.CallOption) (*GetInventoryConfigResponse, error)
 	// UpdateInventoryConfig changes the inventory app's configuration.
@@ -228,6 +241,16 @@ func (c *omServiceClient) TriggerInventoryRefresh(ctx context.Context, in *Trigg
 	return out, nil
 }
 
+func (c *omServiceClient) TriggerHostBootstrap(ctx context.Context, in *TriggerHostBootstrapRequest, opts ...grpc.CallOption) (*TriggerHostBootstrapResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TriggerHostBootstrapResponse)
+	err := c.cc.Invoke(ctx, OmService_TriggerHostBootstrap_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *omServiceClient) GetInventoryConfig(ctx context.Context, in *GetInventoryConfigRequest, opts ...grpc.CallOption) (*GetInventoryConfigResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetInventoryConfigResponse)
@@ -290,6 +313,18 @@ type OmServiceServer interface {
 	GetInventoryRun(context.Context, *GetInventoryRunRequest) (*GetInventoryRunResponse, error)
 	// TriggerInventoryRefresh probes the estate, or named hosts within it.
 	TriggerInventoryRefresh(context.Context, *TriggerInventoryRefreshRequest) (*TriggerInventoryRefreshResponse, error)
+	// TriggerHostBootstrap plans installing MongoDB on one host and initializing
+	// it as a single-member replica set, monitored by PMM once it comes up.
+	//
+	// PMM-15347 PoC, not the shipped feature: one host, one member, keyFile
+	// auth, TLS off, no project/cluster, no live progress UI yet. Proxies to
+	// SEP's om_bootstrap app (not om_inventory, which stays read-only by
+	// design) and returns as soon as that app has planned the run -- PMM's own
+	// HA-leader-only stepper drives every step of it forward from there,
+	// including registering the mongod with PMM's inventory once it succeeds.
+	// See PMM-15347/plan.md §4 item 9 for that split, and
+	// PMM-15347/questions.md for what is and is not built.
+	TriggerHostBootstrap(context.Context, *TriggerHostBootstrapRequest) (*TriggerHostBootstrapResponse, error)
 	// GetInventoryConfig returns the inventory app's configuration.
 	GetInventoryConfig(context.Context, *GetInventoryConfigRequest) (*GetInventoryConfigResponse, error)
 	// UpdateInventoryConfig changes the inventory app's configuration.
@@ -368,6 +403,10 @@ func (UnimplementedOmServiceServer) GetInventoryRun(context.Context, *GetInvento
 
 func (UnimplementedOmServiceServer) TriggerInventoryRefresh(context.Context, *TriggerInventoryRefreshRequest) (*TriggerInventoryRefreshResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TriggerInventoryRefresh not implemented")
+}
+
+func (UnimplementedOmServiceServer) TriggerHostBootstrap(context.Context, *TriggerHostBootstrapRequest) (*TriggerHostBootstrapResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TriggerHostBootstrap not implemented")
 }
 
 func (UnimplementedOmServiceServer) GetInventoryConfig(context.Context, *GetInventoryConfigRequest) (*GetInventoryConfigResponse, error) {
@@ -636,6 +675,24 @@ func _OmService_TriggerInventoryRefresh_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OmService_TriggerHostBootstrap_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TriggerHostBootstrapRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).TriggerHostBootstrap(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_TriggerHostBootstrap_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).TriggerHostBootstrap(ctx, req.(*TriggerHostBootstrapRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OmService_GetInventoryConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetInventoryConfigRequest)
 	if err := dec(in); err != nil {
@@ -748,6 +805,10 @@ var OmService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TriggerInventoryRefresh",
 			Handler:    _OmService_TriggerInventoryRefresh_Handler,
+		},
+		{
+			MethodName: "TriggerHostBootstrap",
+			Handler:    _OmService_TriggerHostBootstrap_Handler,
 		},
 		{
 			MethodName: "GetInventoryConfig",

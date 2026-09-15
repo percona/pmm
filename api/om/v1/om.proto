@@ -533,6 +533,22 @@ message InventoryHost {
   InventoryFreshness freshness = 10;
   // The services on it. Empty is a meaningful answer, not a gap.
   repeated InventoryService services = 11;
+
+  // Whether PMM's own agent registry currently has a connected pmm-agent for this
+  // node, independent of anything the probe collected. This is the "PMM-Client
+  // installed and healthy" signal om_inventory has no way to answer on its own: a
+  // node existing in the inventory only means PMM registered it once, not that its
+  // agent is alive now.
+  bool pmm_agent_connected = 12;
+  // Whether this host is eligible for OM automation -- provisioning via
+  // TriggerHostBootstrap, not just probing: pmm_agent_connected is true, and
+  // executor reports reachable and driver-healthy. Computed once here so every
+  // consumer agrees on one definition rather than recomputing it from the
+  // fields above separately.
+  bool automation_eligible = 13;
+  // Why automation_eligible is false, one entry per unmet condition. Empty when it
+  // is true.
+  repeated string automation_blocked_reasons = 14;
 }
 
 // InventoryRunCounts is what one refresh saw.
@@ -660,6 +676,10 @@ message ListInventoryHostsRequest {
   // on. Not a client name: the app filters on whether one is matched at all, and
   // "which machines can nothing be dispatched to" is the question worth asking.
   optional bool executor = 3;
+  // When set, return only hosts that are (or are not) automation_eligible. Applied
+  // in pmm-managed, after executor's own filter: om_inventory has no notion of
+  // pmm_agent_connected to filter on itself.
+  optional bool automation_eligible = 4;
 }
 
 // ListInventoryHostsResponse returns the hosts OM knows about.
@@ -798,6 +818,36 @@ message TriggerInventoryRefreshResponse {
   google.protobuf.Timestamp start_time = 3;
   // The hosts it will refresh. Empty means the whole estate.
   repeated string scope = 4;
+}
+
+// TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.
+message TriggerHostBootstrapRequest {
+  // PMM's node ID for the host to bootstrap.
+  string node_id = 1 [(validate.rules).string.min_len = 1];
+  // The replica set's name.
+  string replica_set_name = 2 [(validate.rules).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  // The MongoDB version to install, e.g. "7.0.8". Only the major version
+  // selects the install source; PSMDB does not ship parallel repos per minor
+  // version.
+  string mongodb_version = 3 [(validate.rules).string.min_len = 1];
+}
+
+// TriggerHostBootstrapResponse acknowledges a queued single-host bootstrap.
+//
+// PMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Returned as
+// soon as SEP's om_bootstrap app has planned the run, not once it finishes --
+// PMM's own HA-leader-only stepper drives it forward from here
+// (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's generated
+// MongoDB user is created only once every host is up, minutes after this
+// response, and lives encrypted in PMM's own Postgres
+// (PMM-15347/questions.md Q7) -- there is nothing to hand back yet.
+message TriggerHostBootstrapResponse {
+  // The om_bootstrap run's id. Nothing here polls it for progress yet -- see
+  // PMM-15347/plan.md for the still-to-come Bootstrap step UI.
+  string run_id = 1;
 }
 
 // GetInventoryConfigRequest is the request for GetInventoryConfig.
@@ -980,6 +1030,30 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Refresh the inventory"
       description: "Dispatches an on-host probe per executor host and returns as soon as the refresh is accepted. Takes tens of seconds, unlike /v1/om/topology/runs. Pass node_ids to refresh only those hosts; 409 when another refresh already holds one of them."
+    };
+  }
+
+  // TriggerHostBootstrap plans installing MongoDB on one host and initializing
+  // it as a single-member replica set, monitored by PMM once it comes up.
+  //
+  // PMM-15347 PoC, not the shipped feature: one host, one member, keyFile
+  // auth, TLS off, no project/cluster, no live progress UI yet. Proxies to
+  // SEP's om_bootstrap app (not om_inventory, which stays read-only by
+  // design) and returns as soon as that app has planned the run -- PMM's own
+  // HA-leader-only stepper drives every step of it forward from there,
+  // including registering the mongod with PMM's inventory once it succeeds.
+  // See PMM-15347/plan.md §4 item 9 for that split, and
+  // PMM-15347/questions.md for what is and is not built.
+  rpc TriggerHostBootstrap(TriggerHostBootstrapRequest) returns (TriggerHostBootstrapResponse) {
+    // A custom method, matching TriggerInventoryRefresh: this returns an
+    // *accepted* run that finishes minutes later, not a completed one.
+    option (google.api.http) = {
+      post: "/v1/om/inventory/hosts/{node_id}:bootstrap"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Bootstrap a host (PoC)"
+      description: "Plans installing MongoDB on one host through the Nomad client and initializing it as a single-member replica set, monitored by PMM once it comes up. PMM-15347 proof-of-concept scope only. Returns as soon as the run is planned; PMM's own stepper drives it forward in the background."
     };
   }
 
