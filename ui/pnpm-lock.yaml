@@ -341,6 +341,9 @@ importers:
       '@rollup/plugin-typescript':
         specifier: ^11.1.5
         version: 11.1.6(rollup@4.62.4)(tslib@2.8.1)(typescript@5.5.4)
+      '@types/node':
+        specifier: ^20.8.7
+        version: 20.19.43
       '@types/react':
         specifier: ^18.2.15
         version: 18.3.31
