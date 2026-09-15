@@ -15,7 +15,9 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
+import Alert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
 import { SwitchInput } from '@percona/peak-ui';
 import type { BoolField as BoolFieldType } from '../types';
 
@@ -25,12 +27,25 @@ interface BoolFieldProps {
 
 export function BoolField({ field }: BoolFieldProps) {
   const { control } = useFormContext();
+  const value = useWatch({ control, name: field.name });
+
   return (
-    <SwitchInput
-      name={field.name}
-      label={field.label}
-      labelCaption={field.description}
-      control={control}
-    />
+    <Box>
+      <SwitchInput
+        name={field.name}
+        label={field.label}
+        labelCaption={field.description}
+        control={control}
+      />
+      {field.destructive && value && (
+        <Alert
+          severity="warning"
+          sx={{ mt: 1 }}
+          data-testid="destructive-warning"
+        >
+          {field.destructive}
+        </Alert>
+      )}
+    </Box>
   );
 }
