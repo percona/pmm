@@ -19,6 +19,7 @@ package inventory
 import (
 	"context"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/AlekSi/pointer"
@@ -215,6 +216,17 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, p *inventoryv1.Add
 	return res, nil
 }
 
+// hasNewDisabledCollectors reports whether next disables a collector that current does not.
+func hasNewDisabledCollectors(current, next []string) bool {
+	for _, collector := range next {
+		if !slices.Contains(current, collector) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // ChangeNodeExporter updates node_exporter Agent with given parameters.
 func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
@@ -234,6 +246,19 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
+	// node_exporter rejects the whole scrape with HTTP 400 when collect[] names a collector it does
+	// not know, so a collector that is being disabled has to leave the scrape config before the
+	// exporter restarts without it. Capture the current set to tell that direction from the opposite
+	// one, where the config must be rebuilt only after the restart.
+	var disablesMoreCollectors bool
+	if p.DisableCollectors != nil {
+		current, err := models.FindAgentByID(as.db.Querier, agentID)
+		if err != nil {
+			return nil, err
+		}
+		disablesMoreCollectors = hasNewDisabledCollectors(current.ExporterOptions.DisabledCollectors, p.DisableCollectors)
+	}
+
 	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
 		return nil, err
@@ -243,6 +268,21 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 	if !ok {
 		return nil, unexpectedAgentTypeError(agent)
 	}
+
+	if disablesMoreCollectors {
+		// Rebuild the configuration synchronously so that VictoriaMetrics never scrapes the restarted
+		// exporter with the stale collector list, the same way port changes are handled in
+		// agents.Handler.stateChanged (PMM-14267). Re-enabling a collector needs the opposite order and
+		// is left to the asynchronous update that stateChanged triggers once the exporter is back up.
+		err = as.vmdb.ForceConfigurationUpdate(ctx)
+		if err != nil {
+			// The change is committed at this point, so the exporter still has to be restarted below.
+			// The asynchronous path picks the configuration up; scrapes may see HTTP 400 until it does.
+			logger.Get(ctx).Warnf("Failed to force VictoriaMetrics configuration update: %s.", err)
+			as.vmdb.RequestConfigurationUpdate()
+		}
+	}
+
 	as.state.RequestStateUpdate(ctx, nodeExporter.PmmAgentId)
 
 	res := &inventoryv1.ChangeAgentResponse{

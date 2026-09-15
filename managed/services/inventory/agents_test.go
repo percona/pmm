@@ -17,6 +17,7 @@ package inventory
 
 import (
 	"context"
+	"errors"
 	"reflect"
 	"testing"
 	"time"
@@ -35,6 +36,18 @@ import (
 	"github.com/percona/pmm/managed/utils/env"
 	"github.com/percona/pmm/managed/utils/tests"
 )
+
+// countCalls returns how many times the given method was called on the mock so far.
+func countCalls(m *mockPrometheusService, method string) int {
+	var calls int
+	for _, call := range m.Calls {
+		if call.Method == method {
+			calls++
+		}
+	}
+
+	return calls
+}
 
 func TestAgents(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
@@ -133,6 +146,67 @@ func TestAgents(t *testing.T) {
 			actualAgent, err := as.Get(ctx, "00000000-0000-4000-8000-000000000006")
 			require.NoError(t, err)
 			assert.Equal(t, expectedNodeExporter, actualAgent.(*inventoryv1.NodeExporter))
+
+			// the disabled collectors did not change, so no synchronous rebuild was needed
+			as.vmdb.(*mockPrometheusService).AssertNotCalled(t, "ForceConfigurationUpdate", ctx)
+		})
+
+		// A collector added to the disabled set has to leave the scrape config before node_exporter
+		// restarts without it, so the configuration is rebuilt synchronously.
+		t.Run("ChangeNodeExporterDisableCollectors", func(t *testing.T) {
+			vmdb := as.vmdb.(*mockPrometheusService)
+			vmdb.On("ForceConfigurationUpdate", ctx).Return(nil).Once()
+
+			actualNodeExporter, err := as.ChangeNodeExporter(
+				ctx,
+				"00000000-0000-4000-8000-000000000006",
+				&inventoryv1.ChangeNodeExporterParams{
+					DisableCollectors: []string{"diskstats"},
+				},
+			)
+			require.NoError(t, err)
+			assert.Equal(t, []string{"diskstats"}, actualNodeExporter.GetNodeExporter().DisabledCollectors)
+			vmdb.AssertNumberOfCalls(t, "ForceConfigurationUpdate", 1)
+		})
+
+		// The change is committed before the rebuild, so a failing rebuild must neither fail the request
+		// nor skip the exporter restart; the asynchronous update picks the configuration up instead.
+		t.Run("ChangeNodeExporterDisableCollectorsWithFailingConfigurationUpdate", func(t *testing.T) {
+			vmdb := as.vmdb.(*mockPrometheusService)
+			vmdb.On("ForceConfigurationUpdate", ctx).Return(errors.New("VictoriaMetrics is not ready")).Once()
+			requestsBefore := countCalls(vmdb, "RequestConfigurationUpdate")
+
+			actualNodeExporter, err := as.ChangeNodeExporter(
+				ctx,
+				"00000000-0000-4000-8000-000000000006",
+				&inventoryv1.ChangeNodeExporterParams{
+					DisableCollectors: []string{"diskstats", "meminfo"},
+				},
+			)
+			require.NoError(t, err)
+			assert.Equal(t, []string{"diskstats", "meminfo"}, actualNodeExporter.GetNodeExporter().DisabledCollectors)
+			assert.Equal(t, requestsBefore+1, countCalls(vmdb, "RequestConfigurationUpdate"))
+			as.state.(*mockAgentsStateUpdater).AssertCalled(t, "RequestStateUpdate", ctx, "00000000-0000-4000-8000-000000000005")
+		})
+
+		// Re-enabling a collector needs the opposite order, so it is left to the asynchronous update
+		// that agents.Handler.stateChanged triggers once the exporter is back up.
+		t.Run("ChangeNodeExporterEnableCollectorsBack", func(t *testing.T) {
+			vmdb := as.vmdb.(*mockPrometheusService)
+
+			actualNodeExporter, err := as.ChangeNodeExporter(
+				ctx,
+				"00000000-0000-4000-8000-000000000006",
+				&inventoryv1.ChangeNodeExporterParams{
+					DisableCollectors: []string{},
+				},
+			)
+			require.NoError(t, err)
+			assert.Empty(t, actualNodeExporter.GetNodeExporter().DisabledCollectors)
+			vmdb.AssertNumberOfCalls(t, "ForceConfigurationUpdate", 2)
+
+			// clearing the list stores an empty slice, not nil; the subtests below reuse this expectation
+			expectedNodeExporter.DisabledCollectors = []string{}
 		})
 
 		t.Run("AddMySQLExporter", func(t *testing.T) {
