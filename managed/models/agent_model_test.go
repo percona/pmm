@@ -286,7 +286,11 @@ func TestPostgresAgentTLS(t *testing.T) {
 }
 
 func TestValkey(t *testing.T) {
+	t.Parallel()
+
 	t.Run("Redis DSN", func(t *testing.T) {
+		t.Parallel()
+
 		agent := &models.Agent{
 			Username:        new("username"),
 			Password:        new("s3cur3 p@$$w0r4."),
@@ -305,6 +309,8 @@ func TestValkey(t *testing.T) {
 	})
 
 	t.Run("Valkey DSN with TLS", func(t *testing.T) {
+		t.Parallel()
+
 		agent := &models.Agent{
 			Username:        new("username"),
 			Password:        new("s3cur3 p@$$w0r4."),
@@ -325,6 +331,48 @@ func TestValkey(t *testing.T) {
 		expected := "rediss://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345"
 
 		require.Equal(t, expected, agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: "database"}, nil, nil))
+	})
+
+	t.Run("Files", func(t *testing.T) {
+		t.Parallel()
+
+		for name, tc := range map[string]struct {
+			options  models.ValkeyOptions
+			expected map[string]string
+		}{
+			"all":  {models.ValkeyOptions{SSLCa: "aa", SSLCert: "bb", SSLKey: "cc"}, map[string]string{"tlsCa": "aa", "tlsCert": "bb", "tlsKey": "cc"}},
+			"ca":   {models.ValkeyOptions{SSLCa: "aa"}, map[string]string{"tlsCa": "aa"}},
+			"pair": {models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, map[string]string{"tlsCert": "bb", "tlsKey": "cc"}},
+			"none": {models.ValkeyOptions{}, nil},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: tc.options}
+
+				require.Equal(t, tc.expected, agent.Files())
+			})
+		}
+	})
+
+	t.Run("TemplateDelimiters avoid certificate content", func(t *testing.T) {
+		t.Parallel()
+
+		service := &models.Service{ServiceType: models.ValkeyServiceType, Address: new("1.2.3.4")}
+
+		for name, options := range map[string]models.ValkeyOptions{
+			"ca":   {SSLCa: "aa {{ bb"},
+			"cert": {SSLCert: "aa {{ bb"},
+			"key":  {SSLKey: "aa {{ bb"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: options}
+
+				require.Equal(t, &models.DelimiterPair{Left: "[[", Right: "]]"}, agent.TemplateDelimiters(service))
+			})
+		}
 	})
 }
 
