@@ -576,6 +576,13 @@ type ListBootstrapRunsOKBodyRunsItems0 struct {
 	// The cluster this run's service will be (or was) labelled with, same terms
 	// as `environment`.
 	Cluster *string `json:"cluster,omitempty"`
+
+	// Whether an operator has asked this run to stop -- see CancelBootstrapRun.
+	// Once set, PMM's own stepper rolls back every host, the same as a step that
+	// exhausted its retries (bootstrap_decision.go's runNeedsRollback), so a
+	// caller can show a run as "aborting" rather than simply "running" while
+	// that rollback is still in flight.
+	CancelRequested bool `json:"cancel_requested,omitempty"`
 }
 
 // Validate validates this list bootstrap runs OK body runs items0

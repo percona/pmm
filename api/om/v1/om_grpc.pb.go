@@ -36,6 +36,7 @@ const (
 	OmService_TriggerHostBootstrap_FullMethodName          = "/om.v1.OmService/TriggerHostBootstrap"
 	OmService_GetBootstrapRun_FullMethodName               = "/om.v1.OmService/GetBootstrapRun"
 	OmService_ListBootstrapRuns_FullMethodName             = "/om.v1.OmService/ListBootstrapRuns"
+	OmService_CancelBootstrapRun_FullMethodName            = "/om.v1.OmService/CancelBootstrapRun"
 	OmService_GetInventoryConfig_FullMethodName            = "/om.v1.OmService/GetInventoryConfig"
 	OmService_UpdateInventoryConfig_FullMethodName         = "/om.v1.OmService/UpdateInventoryConfig"
 	OmService_DeleteInventoryConfigOverride_FullMethodName = "/om.v1.OmService/DeleteInventoryConfigOverride"
@@ -92,6 +93,20 @@ type OmServiceClient interface {
 	GetBootstrapRun(ctx context.Context, in *GetBootstrapRunRequest, opts ...grpc.CallOption) (*GetBootstrapRunResponse, error)
 	// ListBootstrapRuns returns the bootstrap run history (PoC).
 	ListBootstrapRuns(ctx context.Context, in *ListBootstrapRunsRequest, opts ...grpc.CallOption) (*ListBootstrapRunsResponse, error)
+	// CancelBootstrapRun asks a running bootstrap run to stop and roll back
+	// every host.
+	//
+	// Proxies to SEP's om_bootstrap POST /runs/{id}:cancel, which records the
+	// request and best-effort stops whatever step is currently dispatching so
+	// its Nomad allocation doesn't keep running for however long it would
+	// otherwise take to time out. Actually rolling every host back from there
+	// is PMM's own stepper's job, exactly like every other rollback trigger --
+	// see bootstrap_decision.go's runNeedsRollback, which treats
+	// GetBootstrapRunResponse.cancel_requested the same as a step that
+	// exhausted its retries. Idempotent while the run is still running;
+	// returns as soon as the request is recorded, not once rollback finishes --
+	// poll GetBootstrapRun to watch it happen.
+	CancelBootstrapRun(ctx context.Context, in *CancelBootstrapRunRequest, opts ...grpc.CallOption) (*CancelBootstrapRunResponse, error)
 	// GetInventoryConfig returns the inventory app's configuration.
 	GetInventoryConfig(ctx context.Context, in *GetInventoryConfigRequest, opts ...grpc.CallOption) (*GetInventoryConfigResponse, error)
 	// UpdateInventoryConfig changes the inventory app's configuration.
@@ -280,6 +295,16 @@ func (c *omServiceClient) ListBootstrapRuns(ctx context.Context, in *ListBootstr
 	return out, nil
 }
 
+func (c *omServiceClient) CancelBootstrapRun(ctx context.Context, in *CancelBootstrapRunRequest, opts ...grpc.CallOption) (*CancelBootstrapRunResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CancelBootstrapRunResponse)
+	err := c.cc.Invoke(ctx, OmService_CancelBootstrapRun_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *omServiceClient) GetInventoryConfig(ctx context.Context, in *GetInventoryConfigRequest, opts ...grpc.CallOption) (*GetInventoryConfigResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetInventoryConfigResponse)
@@ -361,6 +386,20 @@ type OmServiceServer interface {
 	GetBootstrapRun(context.Context, *GetBootstrapRunRequest) (*GetBootstrapRunResponse, error)
 	// ListBootstrapRuns returns the bootstrap run history (PoC).
 	ListBootstrapRuns(context.Context, *ListBootstrapRunsRequest) (*ListBootstrapRunsResponse, error)
+	// CancelBootstrapRun asks a running bootstrap run to stop and roll back
+	// every host.
+	//
+	// Proxies to SEP's om_bootstrap POST /runs/{id}:cancel, which records the
+	// request and best-effort stops whatever step is currently dispatching so
+	// its Nomad allocation doesn't keep running for however long it would
+	// otherwise take to time out. Actually rolling every host back from there
+	// is PMM's own stepper's job, exactly like every other rollback trigger --
+	// see bootstrap_decision.go's runNeedsRollback, which treats
+	// GetBootstrapRunResponse.cancel_requested the same as a step that
+	// exhausted its retries. Idempotent while the run is still running;
+	// returns as soon as the request is recorded, not once rollback finishes --
+	// poll GetBootstrapRun to watch it happen.
+	CancelBootstrapRun(context.Context, *CancelBootstrapRunRequest) (*CancelBootstrapRunResponse, error)
 	// GetInventoryConfig returns the inventory app's configuration.
 	GetInventoryConfig(context.Context, *GetInventoryConfigRequest) (*GetInventoryConfigResponse, error)
 	// UpdateInventoryConfig changes the inventory app's configuration.
@@ -451,6 +490,10 @@ func (UnimplementedOmServiceServer) GetBootstrapRun(context.Context, *GetBootstr
 
 func (UnimplementedOmServiceServer) ListBootstrapRuns(context.Context, *ListBootstrapRunsRequest) (*ListBootstrapRunsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListBootstrapRuns not implemented")
+}
+
+func (UnimplementedOmServiceServer) CancelBootstrapRun(context.Context, *CancelBootstrapRunRequest) (*CancelBootstrapRunResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CancelBootstrapRun not implemented")
 }
 
 func (UnimplementedOmServiceServer) GetInventoryConfig(context.Context, *GetInventoryConfigRequest) (*GetInventoryConfigResponse, error) {
@@ -773,6 +816,24 @@ func _OmService_ListBootstrapRuns_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OmService_CancelBootstrapRun_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CancelBootstrapRunRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).CancelBootstrapRun(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_CancelBootstrapRun_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).CancelBootstrapRun(ctx, req.(*CancelBootstrapRunRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OmService_GetInventoryConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetInventoryConfigRequest)
 	if err := dec(in); err != nil {
@@ -897,6 +958,10 @@ var OmService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListBootstrapRuns",
 			Handler:    _OmService_ListBootstrapRuns_Handler,
+		},
+		{
+			MethodName: "CancelBootstrapRun",
+			Handler:    _OmService_CancelBootstrapRun_Handler,
 		},
 		{
 			MethodName: "GetInventoryConfig",
