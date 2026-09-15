@@ -267,7 +267,10 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return fmt.Errorf("cannot get agent scrape config for agent %s: %w", agent.id, err)
 			}
-			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
+			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams, vmAgentDeployment{
+				haEnabled:     u.r.haService.Params().Enabled,
+				isServerAgent: agent.id == models.PMMServerAgentID,
+			})
 		case models.NomadAgentType:
 			node, err := getNode(pointer.GetString(row.NodeID))
 			if err != nil {
