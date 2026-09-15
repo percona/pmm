@@ -272,10 +272,10 @@ func TestProxy(t *testing.T) {
 		}
 
 		for _, p := range allowed {
-			assert.Truef(t, isPathAllowed(p, false), "expected %s to be allowed", p)
+			assert.Truef(t, isPathAllowed(normalizePath(p), false), "expected %s to be allowed", p)
 		}
 		for _, p := range refused {
-			assert.Falsef(t, isPathAllowed(p, false), "expected %s to be refused", p)
+			assert.Falsef(t, isPathAllowed(normalizePath(p), false), "expected %s to be refused", p)
 		}
 	})
 
@@ -300,8 +300,8 @@ func TestProxy(t *testing.T) {
 			"/api/v1/targets",
 			"/prometheus/api/v1/targets",
 		} {
-			assert.Truef(t, isPathAllowed(p, true), "expected %s to be allowed for an admin", p)
-			assert.Falsef(t, isPathAllowed(p, false), "expected %s to be refused without the marker", p)
+			assert.Truef(t, isPathAllowed(normalizePath(p), true), "expected %s to be allowed for an admin", p)
+			assert.Falsef(t, isPathAllowed(normalizePath(p), false), "expected %s to be refused without the marker", p)
 		}
 	})
 
@@ -396,6 +396,96 @@ func TestProxy(t *testing.T) {
 
 		require.Equal(t, http.StatusForbidden, resp.StatusCode)
 		require.False(t, proxied, "refused request must not reach VictoriaMetrics")
+	})
+
+	// A percent-encoded separator reaches the handler decoded in req.URL.Path, so deriving
+	// the upstream path from it a second time reads the '#' or '?' as a delimiter and drops
+	// everything after it: /metrics%23/../api/v1/query passes the allow-list as
+	// /api/v1/query and would name /metrics upstream. Whatever the allow-list judged is
+	// what VictoriaMetrics must be asked for.
+	t.Run("shall ask for the path it checked, encoded separators included", func(t *testing.T) {
+		t.Parallel()
+
+		for _, tc := range []struct {
+			uri        string
+			wantStatus int
+			wantSeen   string
+		}{
+			{"/metrics%23/../api/v1/query", http.StatusOK, "/prometheus/api/v1/query"},
+			{"/metrics%3F/../api/v1/query", http.StatusOK, "/prometheus/api/v1/query"},
+			{"/flags%23/../api/v1/query", http.StatusOK, "/prometheus/api/v1/query"},
+			{"/debug/pprof/heap%23/../../../api/v1/query", http.StatusOK, "/prometheus/api/v1/query"},
+			{"/api/v1/status/config%23/../../../../api/v1/query", http.StatusOK, "/prometheus/api/v1/query"},
+			{"/api/v1/admin/tsdb/delete_series%23/../../../../../api/v1/query", http.StatusOK, "/prometheus/api/v1/query"},
+			{"/prometheus/metrics%23/../api/v1/query", http.StatusOK, "/prometheus/api/v1/query"},
+			// Cleans to /api/metrics, which is on no list, so it is refused outright.
+			{"/api/v1/query%23/../../metrics", http.StatusForbidden, ""},
+		} {
+			t.Run(tc.uri, func(t *testing.T) {
+				t.Parallel()
+
+				var seen string
+				server := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+					seen = r.URL.Path
+				}))
+				t.Cleanup(server.Close)
+
+				target, err := url.Parse(server.URL + "/prometheus/")
+				require.NoError(t, err)
+
+				rec := httptest.NewRecorder()
+				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, tc.uri, nil)
+
+				getHandler(Config{HeaderName: headerName, TargetURL: target}).ServeHTTP(rec, req)
+
+				resp := rec.Result()
+				t.Cleanup(func() {
+					assert.NoError(t, resp.Body.Close())
+				})
+
+				require.Equal(t, tc.wantStatus, resp.StatusCode)
+				require.Equal(t, tc.wantSeen, seen)
+			})
+		}
+	})
+
+	t.Run("shall forward the path it checked", func(t *testing.T) {
+		t.Parallel()
+
+		// The nginx /prometheus/api/v1 location passes the prefix on, /victoriametrics/
+		// strips it, and Grafana's data source sends it unprefixed. All three must reach
+		// the same endpoint under the target's own prefix, exactly once.
+		for uri, want := range map[string]string{
+			"/api/v1/query":                  "/prometheus/api/v1/query",
+			"/prometheus/api/v1/query":       "/prometheus/api/v1/query",
+			"/api/v1/label/node_name/values": "/prometheus/api/v1/label/node_name/values",
+		} {
+			t.Run(uri, func(t *testing.T) {
+				t.Parallel()
+
+				var seen string
+				server := httptest.NewServer(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
+					seen = r.URL.Path
+				}))
+				t.Cleanup(server.Close)
+
+				target, err := url.Parse(server.URL + "/prometheus/")
+				require.NoError(t, err)
+
+				rec := httptest.NewRecorder()
+				req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, uri, nil)
+
+				getHandler(Config{HeaderName: headerName, TargetURL: target}).ServeHTTP(rec, req)
+
+				resp := rec.Result()
+				t.Cleanup(func() {
+					assert.NoError(t, resp.Body.Close())
+				})
+
+				require.Equal(t, http.StatusOK, resp.StatusCode)
+				require.Equal(t, want, seen)
+			})
+		}
 	})
 
 	t.Run("prepareRequest: add credentials to request", func(t *testing.T) {

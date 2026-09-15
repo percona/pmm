@@ -118,7 +118,14 @@ func getHandler(cfg Config) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		logrus.Debugf("%s: %s", req.Method, req.URL)
 
-		if failOnDisallowedPath(rw, req, cfg.AdminHeaderName) {
+		// Normalize once and forward exactly what was checked. req.URL.Path is already
+		// percent-decoded, so deriving the upstream path from it a second time would let a
+		// %23 or %3F arrive here as a real '#' or '?' and truncate the path after the
+		// check: /metrics%23/../api/v1/query passes the allow-list as /api/v1/query and
+		// would reach VictoriaMetrics as /metrics.
+		cleanedPath := normalizePath(req.URL.Path)
+
+		if failOnDisallowedPath(rw, req, cleanedPath, cfg.AdminHeaderName) {
 			return
 		}
 
@@ -126,14 +133,20 @@ func getHandler(cfg Config) http.HandlerFunc {
 			return
 		}
 
+		req.URL.Path = cleanedPath
+		// RawPath is the encoding of the path we just replaced, so it must go: URL.EscapedPath
+		// re-encodes from Path once it is empty.
+		req.URL.RawPath = ""
+
 		rProxy.ServeHTTP(rw, req)
 	}
 }
 
 // failOnDisallowedPath answers the request with 403 and reports whether it did, so the
 // caller returns instead of proxying a path VictoriaMetrics must not be asked for.
-func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request, adminHeaderName string) bool {
-	if isPathAllowed(req.URL.Path, isAdminRequest(req, adminHeaderName)) {
+// The cleanedPath argument is the normalized path, and the one the caller must forward.
+func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request, cleanedPath, adminHeaderName string) bool {
+	if isPathAllowed(cleanedPath, isAdminRequest(req, adminHeaderName)) {
 		return false
 	}
 
@@ -141,7 +154,7 @@ func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request, adminHeader
 	// logs of whoever reports the broken panel.
 	logrus.WithFields(logrus.Fields{
 		"method": req.Method,
-		"path":   req.URL.Path,
+		"path":   cleanedPath,
 	}).Warn("Refusing request to a path outside the read-only allow-list")
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -151,8 +164,8 @@ func failOnDisallowedPath(rw http.ResponseWriter, req *http.Request, adminHeader
 	return true
 }
 
-// isPathAllowed reports whether the path may be forwarded to VictoriaMetrics.
-func isPathAllowed(p string, isAdmin bool) bool {
+// isPathAllowed reports whether the normalized path may be forwarded to VictoriaMetrics.
+func isPathAllowed(cleanedPath string, isAdmin bool) bool {
 	// The allow-list exists to bound what a dashboard user reaches through Grafana's data
 	// source, which is never marked: /graph requires no role, so pmm-managed does not
 	// authenticate it and the marker is never set on it. An admin arrives only through the
@@ -163,13 +176,11 @@ func isPathAllowed(p string, isAdmin bool) bool {
 		return true
 	}
 
-	cleaned := normalizePath(p)
-
-	if _, ok := readOnlyPaths[cleaned]; ok {
+	if _, ok := readOnlyPaths[cleanedPath]; ok {
 		return true
 	}
 
-	return labelValuesPath.MatchString(cleaned)
+	return labelValuesPath.MatchString(cleanedPath)
 }
 
 // normalizePath reduces the shapes the same endpoint arrives in to one. The nginx config
@@ -243,11 +254,10 @@ func prepareRequest(req *http.Request, target *url.URL, headerName string) {
 		req.Header.Set("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(target.User.String())))
 	}
 
-	rp, err := target.Parse(strings.TrimPrefix(req.URL.Path, "/"))
-	if err != nil {
-		logrus.Error(err)
-	}
-	req.URL.Path = rp.Path
+	// Joining keeps the path the handler checked. Parsing it as a URL reference instead
+	// would read it as one, and it has already been decoded once.
+	req.URL.Path = path.Join(target.Path, req.URL.Path)
+	req.URL.RawPath = ""
 
 	// Replace extra filters if present
 	if filters := req.Header.Get(headerName); filters != "" {
