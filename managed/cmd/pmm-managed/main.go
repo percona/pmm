@@ -912,10 +912,12 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	if *haEnabled {
 		models.AgentConfigFilePath = "/srv/pmm-agent/config/pmm-agent.yaml"
-		l.Info("HA mode: PMM Client vmagents write metrics to their PMM Server address at /victoriametrics/api/v1/write " +
-			"with PMM Server's remote-write credentials, taken from PMM_VM_URL unless VMAGENT_remoteWrite_basicAuth_* " +
-			"is set; the ingress in front of PMM Server must route that path to VictoriaMetrics.")
-		if warning := agents.HARemoteWriteWarning(vmParams); warning != "" {
+		info := agents.HARemoteWriteInfo(vmParams)
+		if info != "" {
+			l.Info(info)
+		}
+		warning := agents.HARemoteWriteWarning(vmParams)
+		if warning != "" {
 			l.Warn(warning)
 		}
 	}

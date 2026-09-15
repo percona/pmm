@@ -38,29 +38,42 @@ import "github.com/percona/pmm/managed/utils/envvars"
 // own /victoriametrics/ write endpoint with the client's PMM Server credentials. That only lands
 // metrics when nothing in front of PMM Server intercepts the path; HARemoteWriteWarning reports
 // the shape at startup.
-func haRemoteWrite(params victoriaMetricsParams, isServerAgent bool) (remoteWrite, error) {
+func haRemoteWrite(params victoriaMetricsParams, isServerAgent bool) remoteWrite {
 	if !params.ExternalVM() {
-		return serverProxyRemoteWrite(), nil
+		return serverProxyRemoteWrite()
 	}
 
-	rw, err := vmRemoteWrite(params.URL())
-	if err != nil {
-		return remoteWrite{}, err
-	}
+	rw := vmRemoteWrite(params.ParsedURL())
 	if isServerAgent {
-		return rw, nil
+		return rw
 	}
 
 	rw.url = serverProxyWriteURL
 
-	return rw, nil
+	return rw
+}
+
+// HARemoteWriteInfo describes, for the startup log, the write path PMM Client vmagents get in HA
+// mode. It is empty for the shape HARemoteWriteWarning reports instead.
+func HARemoteWriteInfo(params victoriaMetricsParams) string {
+	if !params.ExternalVM() {
+		return ""
+	}
+	if _, ok := injectedVMAgentEnv()[envRemoteWriteURL]; ok {
+		return "HA mode: VMAGENT_remoteWrite_url is set, so every vmagent PMM Server manages writes metrics to that endpoint " +
+			"instead of the PMM Server address"
+	}
+
+	return "HA mode: PMM Client vmagents write metrics to their PMM Server address at /victoriametrics/api/v1/write " +
+		"with the VictoriaMetrics credentials, taken from PMM_VM_URL unless VMAGENT_remoteWrite_* injects a credential; " +
+		"the ingress in front of PMM Server must route that path to VictoriaMetrics"
 }
 
 // HARemoteWriteWarning returns a startup warning when the HA remote-write configuration cannot
-// work as deployed, or "" when it can. The check is by shape only: an unparsable PMM_VM_URL and
-// half an injected basic-auth pair are reported by environment validation before this runs, and
-// so is an injected VMAGENT_remoteWrite_url, which replaces the write endpoint for every vmagent
-// and takes PMM_VM_URL out of the write path.
+// work as deployed, or "" when it can. The check is by shape only: half an injected basic-auth
+// pair is reported by environment validation before this runs, and so is an injected
+// VMAGENT_remoteWrite_url, which replaces the write endpoint for every vmagent and takes
+// PMM_VM_URL out of the write path.
 func HARemoteWriteWarning(params victoriaMetricsParams) string {
 	if !params.ExternalVM() {
 		return "HA mode with the built-in VictoriaMetrics is not supported: PMM_VM_URL must point at the cluster's VictoriaMetrics"
@@ -70,13 +83,18 @@ func HARemoteWriteWarning(params victoriaMetricsParams) string {
 	if _, ok := injected[envRemoteWriteURL]; ok {
 		return ""
 	}
-
-	_, username, password, err := splitURLCredentials(params.URL())
-	if err != nil || username != "" || password != "" {
-		return ""
-	}
 	if envvars.VMAgentRemoteWriteAuthFromEnv(injected) == envvars.VMAgentRemoteWriteAuthComplete {
 		return ""
+	}
+
+	_, username, password := splitUserinfo(params.ParsedURL())
+	switch {
+	case username != "" && password != "":
+		return ""
+	case username != "" || password != "":
+		return "PMM_VM_URL carries only half a credential, a username without a password or a password without a username: " +
+			"PMM Client metric writes will be rejected by VictoriaMetrics; " +
+			"store both VictoriaMetrics credentials in the PMM secret so that they reach PMM_VM_URL"
 	}
 
 	return "PMM_VM_URL carries no credentials and the VMAGENT_* environment does not configure a complete remote-write credential: " +

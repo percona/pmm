@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -39,36 +38,24 @@ func TestHARemoteWrite(t *testing.T) {
 	t.Run("clients write to their PMM Server address with the VM credential", func(t *testing.T) {
 		want := vmCreds
 		want.url = serverProxyWriteURL
-		rw, err := haRemoteWrite(newVMParams(t, testVMAuth), false)
-		require.NoError(t, err)
-		assert.Equal(t, want, rw)
+		assert.Equal(t, want, haRemoteWrite(newVMParams(t, testVMAuth), false))
 	})
 
 	t.Run("the server agent writes to vmauth directly", func(t *testing.T) {
 		want := vmCreds
 		want.url = testVMAuthWrite
-		rw, err := haRemoteWrite(newVMParams(t, testVMAuth), true)
-		require.NoError(t, err)
-		assert.Equal(t, want, rw)
+		assert.Equal(t, want, haRemoteWrite(newVMParams(t, testVMAuth), true))
 	})
 
 	t.Run("a VM URL without credentials yields pairs without any credential", func(t *testing.T) {
-		client, err := haRemoteWrite(newVMParams(t, testVMAuthNoCreds), false)
-		require.NoError(t, err)
-		assert.Equal(t, remoteWrite{url: serverProxyWriteURL, source: credentialNone}, client)
-		server, err := haRemoteWrite(newVMParams(t, testVMAuthNoCreds), true)
-		require.NoError(t, err)
-		assert.Equal(t, remoteWrite{url: testVMAuthWrite, source: credentialNone}, server)
+		assert.Equal(t, remoteWrite{url: serverProxyWriteURL, source: credentialNone}, haRemoteWrite(newVMParams(t, testVMAuthNoCreds), false))
+		assert.Equal(t, remoteWrite{url: testVMAuthWrite, source: credentialNone}, haRemoteWrite(newVMParams(t, testVMAuthNoCreds), true))
 	})
 
 	t.Run("an internal VM URL falls back to the standalone pair", func(t *testing.T) {
 		params := newVMParams(t, models.VMBaseURL)
-		client, err := haRemoteWrite(params, false)
-		require.NoError(t, err)
-		assert.Equal(t, serverProxyRemoteWrite(), client)
-		server, err := haRemoteWrite(params, true)
-		require.NoError(t, err)
-		assert.Equal(t, serverProxyRemoteWrite(), server)
+		assert.Equal(t, serverProxyRemoteWrite(), haRemoteWrite(params, false))
+		assert.Equal(t, serverProxyRemoteWrite(), haRemoteWrite(params, true))
 	})
 }
 
@@ -114,8 +101,38 @@ func TestHARemoteWriteWarning(t *testing.T) {
 		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))
 	})
 
-	t.Run("an unparsable URL is left to startup validation", func(t *testing.T) {
-		assert.Empty(t, HARemoteWriteWarning(fakeVMParams{externalVM: true, url: "http://[::1"}))
+	t.Run("a URL with only a username warns about the half credential", func(t *testing.T) {
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthUsernameOnly)), "only half a credential")
+	})
+
+	t.Run("a URL with only a password warns about the half credential", func(t *testing.T) {
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, "http://:vm-password@pmm-ha-vmauth.pmm.svc.cluster.local:8427/")), "only half a credential")
+	})
+
+	t.Run("injected credentials satisfy a half credential in the URL", func(t *testing.T) {
+		legacyChartCreds(t)
+		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthUsernameOnly)))
+	})
+}
+
+func TestHARemoteWriteInfo(t *testing.T) {
+	clearVMAgentEnv(t)
+
+	t.Run("internal VM URL is left to the warning", func(t *testing.T) {
+		assert.Empty(t, HARemoteWriteInfo(newVMParams(t, models.VMBaseURL)))
+	})
+
+	t.Run("external VM URL describes the PMM Server write path", func(t *testing.T) {
+		info := HARemoteWriteInfo(newVMParams(t, testVMAuth))
+		assert.Contains(t, info, "/victoriametrics/api/v1/write")
+		assert.NotContains(t, info, "vm-password")
+	})
+
+	t.Run("an injected write URL describes the redirect instead", func(t *testing.T) {
+		t.Setenv(envRemoteWriteURL, testInjectedURL)
+		info := HARemoteWriteInfo(newVMParams(t, testVMAuth))
+		assert.Contains(t, info, "VMAGENT_remoteWrite_url")
+		assert.NotContains(t, info, "/victoriametrics/api/v1/write")
 	})
 }
 
@@ -125,7 +142,7 @@ func TestVMAgentHA(t *testing.T) {
 	server := vmAgentDeployment{haEnabled: true, isServerAgent: true}
 	build := func(t *testing.T, vmURL string, d vmAgentDeployment) ([]string, []string) {
 		t.Helper()
-		actual := mustVMAgentConfig(t, "", newVMParams(t, vmURL), d)
+		actual := vmAgentConfig(testLogger(), "", newVMParams(t, vmURL), d)
 		return actual.Env, actual.Args
 	}
 
@@ -177,6 +194,13 @@ func TestVMAgentHA(t *testing.T) {
 		env, args := build(t, testVMAuth, client)
 		assertEnv(t, env, envRemoteWriteURL, serverProxyWriteURL)
 		assertCredentials(t, env, "other-user", "other-pass")
+		assertNotAnywhere(t, env, args, "vm-password")
+	})
+
+	t.Run("half an injected pair is sent alone, not completed with the VM credential", func(t *testing.T) {
+		t.Setenv(envRemoteWriteUsername, "other-user")
+		env, args := build(t, testVMAuth, client)
+		assertCredentials(t, env, "other-user", "")
 		assertNotAnywhere(t, env, args, "vm-password")
 	})
 

@@ -277,11 +277,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return fmt.Errorf("cannot get agent scrape config for agent %s: %w", agent.id, err)
 			}
-			process, err := vmAgentConfig(l.WithField("agent_id", agent.id), string(scrapeCfg), u.vmParams, u.vmAgentDeployment(agent.id))
-			if err != nil {
-				return fmt.Errorf("cannot build vmagent configuration for agent %s: %w", agent.id, err)
-			}
-			agentProcesses[row.AgentID] = process
+			agentProcesses[row.AgentID] = vmAgentConfig(l.WithField("agent_id", agent.id), string(scrapeCfg), u.vmParams, u.vmAgentDeployment(agent.id))
 		case models.NomadAgentType:
 			node, err := getNode(pointer.GetString(row.NodeID))
 			if err != nil {

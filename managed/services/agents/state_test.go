@@ -23,12 +23,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-type haServiceWithParams struct {
-	params *models.HAParams
-}
-
-func (s haServiceWithParams) Params() *models.HAParams { return s.params }
-
 func TestStateUpdaterVMAgentDeployment(t *testing.T) {
 	testCases := []struct {
 		name      string
@@ -43,7 +37,7 @@ func TestStateUpdaterVMAgentDeployment(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			u := &StateUpdater{r: &Registry{haService: haServiceWithParams{&models.HAParams{Enabled: tc.haEnabled}}}}
+			u := &StateUpdater{r: &Registry{haService: haServiceStub{params: &models.HAParams{Enabled: tc.haEnabled}}}}
 			assert.Equal(t, tc.want, u.vmAgentDeployment(tc.agentID))
 		})
 	}

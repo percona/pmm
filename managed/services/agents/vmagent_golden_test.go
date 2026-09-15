@@ -229,13 +229,56 @@ func TestVMAgentConfigGolden(t *testing.T) {
 				"VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write",
 			},
 		},
+		{
+			name:     "standalone, internal VM, half a basic-auth pair injected (PMM's half is withheld)",
+			vmURL:    internalVM,
+			injected: map[string]string{"VMAGENT_remoteWrite_basicAuth_username": "shared-user"},
+			wantEnv: []string{
+				"VMAGENT_loggerLevel=INFO",
+				"VMAGENT_promscrape_maxScrapeSize=64MiB",
+				"VMAGENT_remoteWrite_basicAuth_username=shared-user",
+				"VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824",
+				"VMAGENT_remoteWrite_tlsInsecureSkipVerify={{.server_insecure}}",
+				"VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write",
+			},
+		},
+		{
+			name:       "HA, client, tenant header injected (the VM credential stays)",
+			vmURL:      haVMAuth,
+			deployment: vmAgentDeployment{haEnabled: true},
+			injected:   map[string]string{"VMAGENT_remoteWrite_headers": "X-Scope-OrgID:1"},
+			wantEnv: []string{
+				"VMAGENT_loggerLevel=INFO",
+				"VMAGENT_promscrape_maxScrapeSize=64MiB",
+				"VMAGENT_remoteWrite_basicAuth_password=vm-password",
+				"VMAGENT_remoteWrite_basicAuth_username=victoriametrics_pmm",
+				"VMAGENT_remoteWrite_headers=X-Scope-OrgID:1",
+				"VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824",
+				"VMAGENT_remoteWrite_tlsInsecureSkipVerify={{.server_insecure}}",
+				"VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write",
+			},
+		},
+		{
+			name:       "HA, client, bearer token injected (the VM credential is withheld)",
+			vmURL:      haVMAuth,
+			deployment: vmAgentDeployment{haEnabled: true},
+			injected:   map[string]string{"VMAGENT_remoteWrite_bearerToken": "token"},
+			wantEnv: []string{
+				"VMAGENT_loggerLevel=INFO",
+				"VMAGENT_promscrape_maxScrapeSize=64MiB",
+				"VMAGENT_remoteWrite_bearerToken=token",
+				"VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824",
+				"VMAGENT_remoteWrite_tlsInsecureSkipVerify={{.server_insecure}}",
+				"VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write",
+			},
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			for k, v := range tc.injected {
 				t.Setenv(k, v)
 			}
-			actual := mustVMAgentConfig(t, "scrape_configs: []", newVMParams(t, tc.vmURL), tc.deployment)
+			actual := vmAgentConfig(testLogger(), "scrape_configs: []", newVMParams(t, tc.vmURL), tc.deployment)
 			assert.Equal(t, wantArgs, actual.Args)
 			assert.Equal(t, tc.wantEnv, actual.Env)
 			assert.Equal(t, map[string]string{"vmagentscrapecfg": "scrape_configs: []"}, actual.TextFiles)

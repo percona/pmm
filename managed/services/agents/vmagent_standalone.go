@@ -26,10 +26,10 @@ package agents
 // the user documentation): PMM Clients and the server's own agent write straight to it,
 // authenticated with the credentials carried by PMM_VM_URL, if any. The documented
 // VMAGENT_remoteWrite_basicAuth_* variables override those through the passthrough.
-func standaloneRemoteWrite(params victoriaMetricsParams) (remoteWrite, error) {
+func standaloneRemoteWrite(params victoriaMetricsParams) remoteWrite {
 	if params.ExternalVM() {
-		return vmRemoteWrite(params.URL())
+		return vmRemoteWrite(params.ParsedURL())
 	}
 
-	return serverProxyRemoteWrite(), nil
+	return serverProxyRemoteWrite()
 }

@@ -137,6 +137,12 @@ func (vmp *VictoriaMetricsParams) URL() string {
 	return vmp.url.String()
 }
 
+// ParsedURL returns a copy of the parsed base URL for VictoriaMetrics. Callers may modify the copy.
+func (vmp *VictoriaMetricsParams) ParsedURL() *url.URL {
+	u := *vmp.url
+	return &u
+}
+
 // URLFor returns the URL for a specific path in VictoriaMetrics.
 func (vmp *VictoriaMetricsParams) URLFor(path string) (*url.URL, error) {
 	if path == "" {

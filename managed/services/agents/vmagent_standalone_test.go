@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 )
@@ -27,22 +26,16 @@ import (
 func TestStandaloneRemoteWrite(t *testing.T) {
 	t.Run("internal VM: clients write through the server with their own credentials", func(t *testing.T) {
 		for _, vmURL := range []string{models.VMBaseURL, "http://localhost:9090/prometheus/"} {
-			rw, err := standaloneRemoteWrite(newVMParams(t, vmURL))
-			require.NoError(t, err)
-			assert.Equal(t, serverProxyRemoteWrite(), rw, vmURL)
+			assert.Equal(t, serverProxyRemoteWrite(), standaloneRemoteWrite(newVMParams(t, vmURL)), vmURL)
 		}
 	})
 
 	t.Run("external VM: write directly, no credentials", func(t *testing.T) {
-		rw, err := standaloneRemoteWrite(newVMParams(t, testExternalVM))
-		require.NoError(t, err)
-		assert.Equal(t, remoteWrite{url: testExternalVMWrite, source: credentialNone}, rw)
+		assert.Equal(t, remoteWrite{url: testExternalVMWrite, source: credentialNone}, standaloneRemoteWrite(newVMParams(t, testExternalVM)))
 	})
 
 	t.Run("external VM: credentials come from PMM_VM_URL", func(t *testing.T) {
-		rw, err := standaloneRemoteWrite(newVMParams(t, testExternalVMAuth))
-		require.NoError(t, err)
-		assert.Equal(t, remoteWrite{url: testExternalVMWrite, username: "vmuser", password: "vmpass", source: credentialVMURL}, rw)
+		assert.Equal(t, remoteWrite{url: testExternalVMWrite, username: "vmuser", password: "vmpass", source: credentialVMURL}, standaloneRemoteWrite(newVMParams(t, testExternalVMAuth)))
 	})
 }
 
@@ -51,7 +44,7 @@ func TestVMAgentStandaloneInternalVM(t *testing.T) {
 	clearVMAgentEnv(t)
 	build := func(t *testing.T) []string {
 		t.Helper()
-		return mustVMAgentConfig(t, "", newVMParams(t, models.VMBaseURL), vmAgentDeployment{}).Env
+		return vmAgentConfig(testLogger(), "", newVMParams(t, models.VMBaseURL), vmAgentDeployment{}).Env
 	}
 
 	t.Run("clients write through the server with their own credentials", func(t *testing.T) {
@@ -67,6 +60,15 @@ func TestVMAgentStandaloneInternalVM(t *testing.T) {
 		env := build(t)
 		assertEnv(t, env, envRemoteWriteURL, serverProxyWriteURL)
 		assertCredentials(t, env, "shared-user", "shared-pass")
+		assertNoServerCredentialTemplates(t, env)
+	})
+
+	t.Run("half an injected pair withholds the server credentials", func(t *testing.T) {
+		// A foreign username paired with each client's own PMM password authenticates nowhere;
+		// the lone half is sent alone and environment validation warns about it.
+		t.Setenv(envRemoteWriteUsername, "shared-user")
+		env := build(t)
+		assertCredentials(t, env, "shared-user", "")
 		assertNoServerCredentialTemplates(t, env)
 	})
 
@@ -104,7 +106,7 @@ func TestVMAgentStandaloneExternalVM(t *testing.T) {
 	clearVMAgentEnv(t)
 	build := func(t *testing.T, vmURL string, d vmAgentDeployment) ([]string, []string) {
 		t.Helper()
-		actual := mustVMAgentConfig(t, "", newVMParams(t, vmURL), d)
+		actual := vmAgentConfig(testLogger(), "", newVMParams(t, vmURL), d)
 		return actual.Env, actual.Args
 	}
 

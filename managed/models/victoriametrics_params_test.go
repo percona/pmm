@@ -32,6 +32,14 @@ func TestVictoriaMetricsParams(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, []string{"--rule=/srv/external_rules/rul1.yml", "--rule=/srv/external_rules/rule2.yml", "--evaluationInterval=10s"}, vmp.VMAlertFlags)
 	})
+	t.Run("ParsedURL returns a copy", func(t *testing.T) {
+		vmp, err := NewVictoriaMetricsParams(BasePrometheusConfigPath, "https://user:pass@vm:8428/")
+		require.NoError(t, err)
+		u := vmp.ParsedURL()
+		u.User = nil
+		assert.Equal(t, "https://vm:8428/", u.String())
+		assert.Equal(t, "https://user:pass@vm:8428/", vmp.URL())
+	})
 	t.Run("check external VM", func(t *testing.T) {
 		tests := []struct {
 			url  string
