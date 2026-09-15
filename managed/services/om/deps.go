@@ -37,3 +37,16 @@ type haChecker interface {
 	IsLeader() bool
 	LeaderID() string
 }
+
+// agentConnectionChecker reports whether a pmm-agent is currently connected. A subset
+// of *agents.Registry's exported surface -- the "PMM-Client installed and healthy"
+// signal ListInventoryHosts needs, which om_inventory has no way to answer for itself:
+// a node existing in its estate only means PMM registered it once, not that the agent
+// on it is alive now. See inventory.go's automationEligibility.
+//
+// Optional like probe and ha: a Service built without one treats every host as
+// disconnected, which is the fail-closed default for something that gates automation
+// eligibility.
+type agentConnectionChecker interface {
+	IsConnected(pmmAgentID string) bool
+}
