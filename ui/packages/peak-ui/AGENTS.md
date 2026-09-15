@@ -11,7 +11,7 @@ Working on Peak UI itself (the `percona/peak-ui` repository), i.e., contributing
 - a Percona theme (light + dark) with design tokens,
 - a theme wrapper every app must mount once,
 - form inputs pre-wired to **react-hook-form**,
-- a small set of composite components that add behaviour on top of MUI.
+- a small set of composite components that add behavior on top of MUI.
 
 Storybook is the definitive, coded source of truth: **https://percona.github.io/peak-ui/**. Search it before building anything.
 
@@ -19,9 +19,9 @@ Storybook is the definitive, coded source of truth: **https://percona.github.io/
 
 - **Peak UI does not re-export MUI.** Buttons, layout (`Box`, `Stack`, `Grid`), `Typography`, menus, alerts, etc. come from `@mui/material`; icons from `@mui/icons-material`. Use path imports: `import Button from '@mui/material/Button'`.
 - **Peak UI exports only what adds value over MUI.** Before writing a component, check whether `@percona/peak-ui` already exports it. If it does, use it. If not, use MUI directly — the Peak UI theme already styles every MUI component to "look like Percona".
-- **Never hand-style MUI to "look like Percona".** No hex colors, no custom fonts, no border radius tweaks. If something looks off, the theme is wrong or missing; do not patch it locally but ask user what to do or help them file an issue.
-- **Import from the package root only:** `import { TextInput } from '@percona/peak-ui'`. Never deep-import from `@percona/peak-ui/dist/...`.
-- **Customise through the exposed surface.** Every Peak UI component accepts `sx` and/or dedicated `*Props` pass-through props for the MUI component it wraps (for example `textFieldProps`). Do not target internal class names or wrap a Peak UI component just to restyle it.
+- **Never hand-style MUI to "look like Percona".** No hex colors, no custom fonts, no border radius tweaks. If something looks off, the theme is wrong or missing; do not patch it locally; ask the user what to do or help them file an issue against Peak UI.
+- **Import from the package root only:** `import { TextInput } from '@percona/peak-ui'`. Never deep-import from `@percona/peak-ui/dist/...`. The package is published as ESM only (`"type": "module"`); there is no CommonJS build.
+- **Customize through the exposed surface.** Peak UI components expose dedicated `*Props` slot props for the MUI component they wrap (for example `textFieldProps`), and some also accept `sx`; many expose only the slots, so check the props type. Do not target internal class names or wrap a Peak UI component just to restyle it.
 - **Respect the Storybook maturity tag** on each component: `stable` — build on it freely; `experimental` — API may change; `needs-review` — use with care; `deprecated` — do not use for new work.
 
 ## Theme wrapper (required, exactly once)
@@ -40,7 +40,7 @@ export const Root = () => (
 - Pick one theme option: `baseThemeOptions` (Percona default), `pmmThemeOptions` (Percona Monitoring and Management), `sepThemeOptions` (SEP). Each is a function of the palette mode, `(mode: 'light' | 'dark') => ThemeOptions`; pass the function itself, do not call it.
 - Toggle or read the color mode via `ColorModeContext`: `const { colorMode, toggleColorMode } = useContext(ColorModeContext)`. `saveColorModeOnLocalStorage` persists the choice.
 - Read design values from the theme (`useTheme()`, or `sx={{ color: 'text.secondary', p: 2 }}`), never from hard-coded literals. Spacing is in theme units (`gap: 2` = 16px).
-- Avoid overriding the theme in the app. If a token or variant is missing, open an issue against Peak UI rather than patching locally.
+- Avoid overriding the theme in the app; missing tokens or variants belong in Peak UI (see above).
 - **Fonts are not loaded for you.** The theme names Poppins (weights 400, 500, 600, 700) and Roboto Mono (weight 450, so use the variable font). Load them once at your app entry: install the font packages yourself (e.g. `@fontsource/poppins` and `@fontsource-variable/roboto-mono`) or add a Google Fonts `<link>`. Do not import Peak UI's own `@fontsource/*` dependencies; they are not part of its public contract and resolve only on hoisted installs.
 - **Date/time inputs** need MUI X's `LocalizationProvider` with a date adapter (e.g. `AdapterDateFnsV3`) above them. Peak UI does not provide it.
 - **Snackbars:** notistack is a peer dependency. Register `NotistackMuiSnackbar` as the notistack `Components` renderer so toasts use MUI `Alert`.
