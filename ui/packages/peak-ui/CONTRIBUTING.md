@@ -49,7 +49,7 @@ Every documented story carries exactly **one** maturity status on its meta (defa
 
 ## Tech Stack (beyond what package.json shows)
 
-React 18 + TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with sourcemaps; peer deps (MUI, Emotion, React, `react-hook-form`) are externalized. Fonts via `@fontsource` (Poppins, Roboto, Roboto Mono).
+React 18 + TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with sourcemaps; peer deps (MUI, Emotion, React, `react-hook-form`) are externalized. The theme names Poppins and Roboto Mono; the `@fontsource/*` dependencies are declared but not imported, so consumers load fonts themselves (see `AGENTS.md`).
 
 ## Path Aliases
 
