@@ -15,7 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -28,7 +29,6 @@ import {
   DialogTitle,
   LinearProgress,
   Stack,
-  TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
@@ -41,6 +41,7 @@ import {
   HOST_DATABASE_STATE_COLOR,
   HOST_DATABASE_STATE_LABEL,
   HOST_DATABASE_STATE_PHRASE,
+  OM_ROUTE_BOOTSTRAP,
 } from './constants';
 import { OmHeader } from './components/OmHeader';
 import { Unavailable } from './components/Unavailable';
@@ -49,12 +50,13 @@ import { ageSeconds, isFailing, toHostRows } from './inventory';
 import {
   useForgetHost,
   useIsEstateRefreshing,
+  useOmBootstrapRuns,
   useOmInventoryHosts,
   useRefreshInventory,
-  useTriggerHostBootstrap,
 } from './inventoryHooks';
-import { OmApiError } from './api';
-import type { OmHostBootstrapAccepted, OmHostRow } from './types';
+import { isBootstrapRunActive, OmApiError } from './api';
+import { useOmBase } from './useOmBase';
+import type { OmHostRow } from './types';
 
 /** Identifiers and long text the table carries but does not open with. */
 const HIDDEN_BY_DEFAULT = {
@@ -177,8 +179,21 @@ const automationBlockedTitle = (reasons: string[]) =>
  * as "Ready" and this cell would not. The blocked reasons are the server's
  * own explanation, not re-derived here, so this cell can never disagree with
  * why the row actually says what it says.
+ *
+ * `busy` takes priority over both: a host mid-bootstrap is not available for
+ * a *second* one regardless of what `automation_eligible` says about it -
+ * PMM's own inventory has no notion of an in-flight om_bootstrap run at all
+ * (see `busyExecutorHosts` in `HostsPage`), so this is the one signal that
+ * comes from outside the row itself.
  */
-const AutomationCell = ({ row }: { row: OmHostRow }) => {
+const AutomationCell = ({ row, busy }: { row: OmHostRow; busy: boolean }) => {
+  if (busy) {
+    return (
+      <Tooltip title="Already part of a bootstrap run in progress.">
+        <Chip size="small" color="info" label="Bootstrapping" />
+      </Tooltip>
+    );
+  }
   if (row.automation_eligible) {
     return (
       <Chip size="small" color="success" variant="outlined" label="Ready" />
@@ -252,7 +267,9 @@ const DatabaseCell = ({ row }: { row: OmHostRow }) => {
   );
 };
 
-function useColumns(): MRT_ColumnDef<OmHostRow>[] {
+function useColumns(
+  busyExecutorHosts: Set<string>
+): MRT_ColumnDef<OmHostRow>[] {
   return useMemo(
     () => [
       { accessorKey: 'name', header: 'Host' },
@@ -286,9 +303,21 @@ function useColumns(): MRT_ColumnDef<OmHostRow>[] {
       {
         id: 'automation_eligible',
         accessorFn: (row) =>
-          row.automation_eligible ? 'Ready' : 'Needs attention',
+          row.executor_host && busyExecutorHosts.has(row.executor_host)
+            ? 'Bootstrapping'
+            : row.automation_eligible
+              ? 'Ready'
+              : 'Needs attention',
         header: 'Automation',
-        Cell: ({ row: { original } }) => <AutomationCell row={original} />,
+        Cell: ({ row: { original } }) => (
+          <AutomationCell
+            row={original}
+            busy={Boolean(
+              original.executor_host &&
+              busyExecutorHosts.has(original.executor_host)
+            )}
+          />
+        ),
       },
       {
         id: 'repo',
@@ -350,7 +379,7 @@ function useColumns(): MRT_ColumnDef<OmHostRow>[] {
           original.executor_host ?? <Unavailable reason="not_applicable" />,
       },
     ],
-    []
+    [busyExecutorHosts]
   );
 }
 
@@ -548,150 +577,6 @@ const ForgetDialog = ({
   );
 };
 
-const DEFAULT_MONGODB_VERSION = '7.0';
-
-/**
- * Configure and trigger a single-host bootstrap.
- *
- * PMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Two panes in
- * one dialog rather than a form that redirects on submit, so there is somewhere
- * to show the accepted run before the dialog closes. Carries no credentials --
- * the run's generated MongoDB user is created only once every host is up,
- * minutes later, by PMM's own stepper (PMM-15347/plan.md §4 item 9), so there
- * is nothing for this dialog to show yet. Closing the dialog (`onClose`) is
- * available throughout; only a successful bootstrap calls `onBootstrapped`,
- * which is what clears the row selection the way `ForgetDialog`'s
- * `onForgotten` does.
- */
-const BootstrapDialog = ({
-  row,
-  onClose,
-  onBootstrapped,
-}: {
-  row: OmHostRow | null;
-  onClose: () => void;
-  onBootstrapped: () => void;
-}) => {
-  const bootstrap = useTriggerHostBootstrap();
-  const [replicaSetName, setReplicaSetName] = useState('');
-  const [mongodbVersion, setMongodbVersion] = useState(DEFAULT_MONGODB_VERSION);
-  const [result, setResult] = useState<OmHostBootstrapAccepted | null>(null);
-
-  // The dialog stays mounted across row changes (only its content toggles on
-  // `row`), so a slow mutateAsync from a previously open host can still
-  // resolve after the dialog has moved on to a different one. Read at
-  // resolution time in handleSubmit below to tell "still this host" from
-  // "already showing another one" -- a plain closure over `row` would only
-  // ever see the host that was open when the request was submitted.
-  const currentNodeIdRef = useRef(row?.node_id);
-  currentNodeIdRef.current = row?.node_id;
-
-  // A fresh row (a new open, not a re-render of the same one) resets the form and
-  // any previous result -- opening the dialog on a different host must not carry
-  // over the last one's credentials or an in-flight mutation's error.
-  useEffect(() => {
-    setReplicaSetName('');
-    setMongodbVersion(DEFAULT_MONGODB_VERSION);
-    setResult(null);
-    bootstrap.reset();
-    // bootstrap is a fresh object every render (useMutation), so it is deliberately
-    // left out of the dependency list -- including it would reset the form on every
-    // keystroke-triggered re-render, not just on a genuinely new row.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [row]);
-
-  if (!row) {
-    return null;
-  }
-
-  const handleSubmit = async () => {
-    const nodeId = row.node_id;
-    const accepted = await bootstrap.mutateAsync({
-      nodeId,
-      replicaSetName,
-      mongodbVersion,
-    });
-    // The dialog may have already moved on to a different host by the time this
-    // resolves -- see currentNodeIdRef's own comment. Showing host A's accepted
-    // run as if it were host B's would be worse than showing nothing.
-    if (currentNodeIdRef.current === nodeId) {
-      setResult(accepted);
-    }
-  };
-
-  return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Bootstrap {row.name}</DialogTitle>
-      <DialogContent>
-        {result ? (
-          <Stack spacing={2}>
-            <Alert severity="success">
-              Bootstrap run {result.run_id} planned. Installing MongoDB,
-              initializing the replica set, and registering it with PMM takes a
-              few minutes; the host&apos;s next probe will show the new service
-              once it lands.
-            </Alert>
-          </Stack>
-        ) : (
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <DialogContentText>
-              Installs MongoDB on {row.name} through the Nomad client and
-              initializes it as a single-member replica set. Proof-of-concept
-              scope only -- keyFile auth, TLS off, no project or cluster yet.
-            </DialogContentText>
-            <TextField
-              label="Replica set name"
-              value={replicaSetName}
-              onChange={(event) => setReplicaSetName(event.target.value)}
-              required
-              autoFocus
-              fullWidth
-            />
-            <TextField
-              label="MongoDB version"
-              value={mongodbVersion}
-              onChange={(event) => setMongodbVersion(event.target.value)}
-              required
-              fullWidth
-              helperText="Only the major version selects the install source, e.g. 7.0."
-            />
-            {bootstrap.isError && (
-              <Alert severity="error">{bootstrap.error.message}</Alert>
-            )}
-          </Stack>
-        )}
-      </DialogContent>
-      <DialogActions>
-        {result ? (
-          <Button
-            variant="contained"
-            onClick={() => {
-              onBootstrapped();
-            }}
-          >
-            Done
-          </Button>
-        ) : (
-          <>
-            <Button onClick={onClose}>Cancel</Button>
-            <Button
-              variant="contained"
-              disabled={
-                bootstrap.isPending ||
-                !replicaSetName.trim() ||
-                !mongodbVersion.trim()
-              }
-              onClick={handleSubmit}
-            >
-              Bootstrap
-            </Button>
-          </>
-        )}
-      </DialogActions>
-    </Dialog>
-  );
-};
-
 /**
  * One row per host OM keeps, whether or not a database runs on it.
  *
@@ -707,14 +592,36 @@ export const HostsPage = () => {
   // against a host that sweep already holds. The refetch when a sweep lands is the
   // estate query's own business now, so this page no longer arranges it.
   const refreshing = useIsEstateRefreshing();
+  const navigate = useNavigate();
+  const omBase = useOmBase();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
-  const [bootstrapping, setBootstrapping] = useState<OmHostRow | null>(null);
   const [hostFilter, setHostFilter] = useState<HostFilter>('all');
   // Keyed by node_id (this table's getRowId), independent of which filter is
   // active — switching filters does not silently drop a selection made under a
   // different one.
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
-  const columns = useColumns();
+  const bootstrapRuns = useOmBootstrapRuns();
+  // Keyed by executor host, not node id: a bootstrap run's own `hosts` field
+  // is the Nomad executor hostname (TriggerHostBootstrap's own doc comment on
+  // why), which is what `OmHostRow.executor_host` carries too. PMM's own
+  // inventory has no notion of an in-flight om_bootstrap run at all -- the
+  // two apps don't share state -- so this is computed here by joining the
+  // two queries rather than read off either row directly.
+  const busyExecutorHosts = useMemo(() => {
+    const busy = new Set<string>();
+    for (const run of bootstrapRuns.data ?? []) {
+      if (!isBootstrapRunActive(run)) {
+        continue;
+      }
+      for (const host of run.hosts) {
+        busy.add(host.host);
+      }
+    }
+    return busy;
+  }, [bootstrapRuns.data]);
+  const isHostBusy = (row: OmHostRow) =>
+    Boolean(row.executor_host && busyExecutorHosts.has(row.executor_host));
+  const columns = useColumns(busyExecutorHosts);
   const rows = useMemo(() => toHostRows(data), [data]);
   // Filtered for the table only — the counts below stay whole-estate so switching
   // filters does not make the headline numbers look like they changed too.
@@ -761,7 +668,9 @@ export const HostsPage = () => {
     enableDensityToggle: false,
     enableExpanding: true,
     enableRowActions: true,
-    enableRowSelection: true,
+    // A host already part of an in-flight bootstrap run cannot be selected
+    // for another one -- see `busyExecutorHosts`'s own comment.
+    enableRowSelection: (row) => !isHostBusy(row.original),
     positionActionsColumn: 'last',
     onRowSelectionChange: setRowSelection,
     state: { rowSelection },
@@ -784,16 +693,26 @@ export const HostsPage = () => {
         </Tooltip>
         <Tooltip
           title={
-            row.original.automation_eligible
-              ? 'Install MongoDB on this host and initialize a single-member replica set (PoC).'
-              : automationBlockedTitle(row.original.automation_blocked_reasons)
+            isHostBusy(row.original)
+              ? 'Already part of a bootstrap run in progress.'
+              : row.original.automation_eligible
+                ? 'Install MongoDB on this host and initialize a single-member replica set (PoC).'
+                : automationBlockedTitle(
+                    row.original.automation_blocked_reasons
+                  )
           }
         >
           <Box component="span">
             <Button
               size="small"
-              disabled={!row.original.automation_eligible}
-              onClick={() => setBootstrapping(row.original)}
+              disabled={
+                !row.original.automation_eligible || isHostBusy(row.original)
+              }
+              onClick={() =>
+                navigate(
+                  `${omBase}/${OM_ROUTE_BOOTSTRAP}?hosts=${row.original.node_id}`
+                )
+              }
             >
               Bootstrap
             </Button>
@@ -927,6 +846,38 @@ export const HostsPage = () => {
               </Button>
             </Box>
           </Tooltip>
+          <Tooltip
+            title={
+              selectedRows.length !== 1 && selectedRows.length !== 3
+                ? 'Select exactly one host for a single-member replica set, or three for a three-member one.'
+                : selectedRows.some((row) => isHostBusy(row))
+                  ? 'A selected host is already part of a bootstrap run in progress.'
+                  : selectedRows.some((row) => !row.automation_eligible)
+                    ? 'Every selected host must be eligible for automation.'
+                    : 'Install MongoDB on the selected hosts and initialize them as one replica set (PoC).'
+            }
+          >
+            <Box component="span">
+              <Button
+                size="small"
+                variant="outlined"
+                disabled={
+                  (selectedRows.length !== 1 && selectedRows.length !== 3) ||
+                  selectedRows.some((row) => !row.automation_eligible) ||
+                  selectedRows.some((row) => isHostBusy(row))
+                }
+                onClick={() =>
+                  navigate(
+                    `${omBase}/${OM_ROUTE_BOOTSTRAP}?hosts=${selectedRows
+                      .map((row) => row.node_id)
+                      .join(',')}`
+                  )
+                }
+              >
+                Bootstrap selected
+              </Button>
+            </Box>
+          </Tooltip>
           <Button
             size="small"
             variant="outlined"
@@ -945,11 +896,6 @@ export const HostsPage = () => {
           setForgetting([]);
           setRowSelection({});
         }}
-      />
-      <BootstrapDialog
-        row={bootstrapping}
-        onClose={() => setBootstrapping(null)}
-        onBootstrapped={() => setBootstrapping(null)}
       />
     </Box>
   );

@@ -51,6 +51,8 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	CancelBootstrapRun(params *CancelBootstrapRunParams, opts ...ClientOption) (*CancelBootstrapRunOK, error)
+
 	DeleteInventoryConfigOverride(params *DeleteInventoryConfigOverrideParams, opts ...ClientOption) (*DeleteInventoryConfigOverrideOK, error)
 
 	DeleteInventoryHost(params *DeleteInventoryHostParams, opts ...ClientOption) (*DeleteInventoryHostOK, error)
@@ -90,6 +92,50 @@ type ClientService interface {
 	UpdateInventoryConfig(params *UpdateInventoryConfigParams, opts ...ClientOption) (*UpdateInventoryConfigOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+CancelBootstrapRun cancels a bootstrap run po c
+
+Requests that a running bootstrap run stop and roll back every host. Returns as soon as the request is recorded; PMM's own stepper drives the rollback forward in the background. Idempotent while the run is still running.
+*/
+func (a *Client) CancelBootstrapRun(params *CancelBootstrapRunParams, opts ...ClientOption) (*CancelBootstrapRunOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewCancelBootstrapRunParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "CancelBootstrapRun",
+		Method:             "POST",
+		PathPattern:        "/v1/om/inventory/bootstrap-runs/{run_id}:cancel",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &CancelBootstrapRunReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*CancelBootstrapRunOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*CancelBootstrapRunDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
