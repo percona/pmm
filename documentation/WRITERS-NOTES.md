@@ -1,16 +1,12 @@
 # Writer's Notes
 
-## Formatting
-
-**Line wrapping**
-
-Most files don't use line wrapping. Each paragraph or sentence is a complete string of text without newline characters. The rationale is that most viewers and editors have configurable soft-wrap abilities, and every author tends to choose a different hard-wrap column.
+This file holds the reference tables — admonition colours, icons, symbols. The rules for writing a page (voice, structure, Markdown conventions, release notes) are in [AGENTS.md](AGENTS.md), which is where they live for both people and assistants. Where the two disagree, AGENTS.md is current.
 
 ## Admonitions
 
-Admonitions use an MkDocs definition to get acceptable rendering on Render.com.
-
 Material for MkDocs theme: https://squidfunk.github.io/mkdocs-material/reference/admonitions/#supported-types
+
+The `alert alert-*` classes in the examples below date from a pre-Material theme and no longer do anything — no stylesheet in this repo defines them. Write new admonitions without them (`!!! note ""`, `!!! caution "Important"`); the examples are kept because they show which type to reach for and what colour it renders.
 
 **General advice**
 
@@ -204,7 +200,8 @@ While MkDocs will automatically replace certain strings with symbols, it's prefe
 We have attempted to eschew traditional terminology used in software manuals. Some examples:
 
 - "Setting up" instead of "installation and configuration"
-- "Before you start" instead of "Prerequisites"
+
+This no longer holds for "Before you start" over "Prerequisites". The reworked chapters settled on "Prerequisites", which now leads across the docs by 29 headings to 12.
 
 There are no "introduction" or "overview" sections. These texts are just there under the title.
 
@@ -212,25 +209,4 @@ Section titles are deliberately short. For example, in Setting up/Server/Docker,
 
 ## Numbered lists
 
-Most Markdown processors automatically number lists when they are like this:
-
-```md
-1. Item
-1. Item
-1. Item
-   ...
-```
-
-But to make the raw Markdown easier to read, we recommend explicitly numbering items:
-
-```md
-1. Item
-2. Item
-3. Item
-   ...
-```
-
-Other advantages:
-
-- contents can be reused in source code comments by developers;
-- encourages authors to pay attention to the order and number of steps in a recipe.
+Number items explicitly (`1.`, `2.`, `3.`) rather than repeating `1.`, and put `{.power-number}` above the list — see [AGENTS.md](AGENTS.md#markdown-conventions). Explicit numbers keep the raw Markdown readable, let developers reuse the steps in source code comments, and make authors pay attention to the order and number of steps in a recipe.
