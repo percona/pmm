@@ -41,7 +41,7 @@ export const Root = () => (
 - Toggle or read the color mode via `ColorModeContext`: `const { colorMode, toggleColorMode } = useContext(ColorModeContext)`. `saveColorModeOnLocalStorage` persists the choice.
 - Read design values from the theme (`useTheme()`, or `sx={{ color: 'text.secondary', p: 2 }}`), never from hard-coded literals. Spacing is in theme units (`gap: 2` = 16px).
 - Avoid overriding the theme in the app. If a token or variant is missing, open an issue against Peak UI rather than patching locally.
-- **Fonts are not loaded for you.** The theme uses Poppins (400/500/600), Roboto, and Roboto Mono. Load them once at your app entry, e.g. `import '@fontsource/poppins/500.css'` (the `@fontsource/*` packages are installed with Peak UI) or a Google Fonts `<link>`.
+- **Fonts are not loaded for you.** The theme names Poppins (weights 400, 500, 600, 700) and Roboto Mono (weight 450, so use the variable font). Load them once at your app entry: install the font packages yourself (e.g. `@fontsource/poppins` and `@fontsource-variable/roboto-mono`) or add a Google Fonts `<link>`. Do not import Peak UI's own `@fontsource/*` dependencies; they are not part of its public contract and resolve only on hoisted installs.
 - **Date/time inputs** need MUI X's `LocalizationProvider` with a date adapter (e.g. `AdapterDateFnsV3`) above them. Peak UI does not provide it.
 - **Snackbars:** notistack is a peer dependency. Register `NotistackMuiSnackbar` as the notistack `Components` renderer so toasts use MUI `Alert`.
 
@@ -73,7 +73,7 @@ const methods = useForm<Values>({ defaultValues: { host: '' } });
 - **Validation belongs to react-hook-form:** `controllerProps={{ rules }}` or a resolver (zod, yup). Errors render automatically as helper text. `isRequired` only adds the asterisk and `required` attribute; it does not validate.
 - Props for the wrapped MUI component go through its slot prop (`textFieldProps`, `selectFieldProps`, `slotProps`, ...), never spread onto the Peak UI component.
 - Inputs are generic over your form values; type them (`<TextInput<Values> name="host" />`) so `name` is checked.
-- Inputs render a `data-testid` derived from the kebab-cased `name`. Reuse it in tests instead of adding your own.
+- Inputs render a `data-testid` built from the kebab-cased `name` with a prefix that varies per input (for example `text-input-host`); `RadioGroup` uses the option value instead. Read the exact id in Storybook or the DOM and reuse it rather than adding your own.
 
 ## Naming and layout conventions
 
