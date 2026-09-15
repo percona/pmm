@@ -33,7 +33,10 @@ const mongodExporterPort = 27017
 // inventory, as a MongoDB service monitored by that node's pmm-agent, authenticating
 // with the one user the stepper generated for this run (RunBootstrapStepper's own
 // doc comment; both the customer's root user and PMM's monitoring credential --
-// PMM-15347/questions.md Q7).
+// PMM-15347/questions.md Q7). Its environment and cluster arguments label the
+// service the same way ManagementService.AddService's own fields do -- see
+// completeSucceededRun's own doc comment on where they come from; either may be
+// empty, same as adding a service without them today.
 //
 // Deliberately not routed through ManagementService.AddService: that entry point is
 // shaped for a live, user-initiated gRPC request (an operator's own auth/RBAC
@@ -66,7 +69,7 @@ const mongodExporterPort = 27017
 // mongodb_exporter agent sat at AGENT_STATUS_UNKNOWN and the service showed
 // Down in PMM's own UI forever, even though mongod itself was up, secured,
 // and reachable the whole time.
-func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, replicaSetName, username, password string) error {
+func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, replicaSetName, environment, cluster, username, password string) error {
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, nodeID)
 	if err != nil {
 		return fmt.Errorf("failed to find a pmm-agent on node %s: %w", nodeID, err)
@@ -106,6 +109,8 @@ func (s *Service) registerBootstrapHost(ctx context.Context, nodeID, host, repli
 		service, err := models.AddNewService(tx.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 			ServiceName:    host + "-mongod",
 			NodeID:         nodeID,
+			Environment:    environment,
+			Cluster:        cluster,
 			ReplicationSet: replicaSetName,
 			Address:        &address,
 			Port:           new(uint16(mongodExporterPort)),
