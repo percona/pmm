@@ -715,12 +715,25 @@ You can't swap these databases for ones you run yourself, like an existing Click
 
 If you're used to standalone PMM, note that `PMM_DISABLE_BUILTIN_CLICKHOUSE` and `PMM_DISABLE_BUILTIN_POSTGRES` work differently here. In standalone, they let you switch to your own database. In HA, they're part of the internal setup and must stay set to `1`.
 
+### Built-in alert rules
+
+A clustered deployment creates its own alert rules on first start: five covering the cluster itself, in the **PMM High Availability** folder, and four covering PMM's own components, in the **PMM Server** folder. See [Alert templates](../alert/templates_list.md#pmm_ha_alerts) for what each one detects. Configure a [contact point](../alert/contact_points.md) and they will reach you; nothing else is needed.
+
+To start a cluster without them, add either of these to `pmmEnv`:
+
+```yaml
+pmmEnv:
+  PMM_ENABLE_HA_ALERTS: "false"          # do not create the High Availability rules
+  PMM_ENABLE_COMPONENT_ALERTS: "false"   # do not create the PMM component rules
+```
+
+During a rolling upgrade the nodes briefly run different PMM versions. If a release changes one of these rules, it can alternate between the old and the new definition until every node has been rolled, which is expected and resolves itself once the rollout finishes.
+
 #### Adjust data retention and other settings
 
 Set customizable variables in your `values.yaml` to match your monitoring requirements. 
 
 Choose a retention period that matches your compliance requirements and storage capacity. For example, `720h` keeps 30 days of data and `4320h` keeps 180 days:
-
 ```yaml
 pmmEnv:
   PMM_DATA_RETENTION: "2160h"  # Adjust based on your retention policy (default: 90 days)
@@ -837,6 +850,12 @@ View detailed role and health information for all PMM nodes in one place.
     - **Leader** status: which node is currently active
     - **Follower** status: which nodes are on standby
     - **Health** status: whether each node is responding
+
+### Get alerted about cluster problems
+
+Checking the High Availability page tells you the state of the cluster right now, but it does not notify you when that state changes. PMM creates and maintains alert rules for the failure modes of an HA cluster: no active leader, split-brain, a flapping leader, an unreachable node, and a quorum at risk.
+
+There is nothing to create: configure a [contact point](../alert/contact_points.md) so the notifications reach you. To turn the rules off, set `PMM_ENABLE_HA_ALERTS=false` and recreate the server. For the template list and the coverage limitations, see [PMM High Availability templates](../alert/templates_list.md#pmm_ha_alerts).
 
 ### Scale your deployment
 
