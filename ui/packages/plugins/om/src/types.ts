@@ -507,6 +507,75 @@ export interface OmHostBootstrapAccepted {
   run_id: string;
 }
 
+/** One step's progress - a host's own, one of its rollback steps, or a run's own. */
+export type OmBootstrapStepStatus =
+  | 'pending'
+  | 'running'
+  | 'succeeded'
+  | 'failed'
+  | 'skipped';
+
+/**
+ * One step, wherever it appears - a host's `steps`, its `rollback_steps`, or a
+ * run's own `run_steps`. One shape for all three, matching om_bootstrap's own
+ * StepRecord (see its doc comment): none of the three contexts needs a field
+ * the others don't.
+ */
+export interface OmBootstrapStep {
+  name: string;
+  status: OmBootstrapStepStatus;
+  detail?: string | null;
+  attempt_count: number;
+}
+
+/** One host's progress within a bootstrap run. */
+export interface OmBootstrapHost {
+  host: string;
+  /** This host's own install steps, in the order they run. */
+  steps: OmBootstrapStep[];
+  /**
+   * This host's teardown steps, planned up front alongside `steps`. Every
+   * entry stays `pending` unless the run actually rolls this host back - see
+   * `isHostRollingBack` in `api.ts`.
+   */
+  rollback_steps: OmBootstrapStep[];
+  /**
+   * This host's post-install steps, dispatched only once every run-level step
+   * has succeeded - e.g. enabling MongoDB authorization once the run's own
+   * create_pmm_monitoring_user step has created the first user.
+   */
+  finalize_steps: OmBootstrapStep[];
+}
+
+/** A bootstrap run's overall lifecycle state, from om_bootstrap's own BootstrapRunStatus. */
+export type OmBootstrapRunStatus =
+  | 'running'
+  | 'succeeded'
+  | 'failed'
+  | 'rolled_back';
+
+/**
+ * One bootstrap run, in full, from `GET /v1/om/inventory/bootstrap-runs/{run_id}`.
+ *
+ * Reconciled against its in-flight dispatches as of the call that fetched it -
+ * polling this is enough to see a step's real outcome, not a stale snapshot.
+ */
+export interface OmGetBootstrapRunResponse {
+  run_id: string;
+  status: OmBootstrapRunStatus;
+  hosts: OmBootstrapHost[];
+  run_steps: OmBootstrapStep[];
+  error?: string | null;
+  replica_set_name: string;
+  mongodb_version: string;
+  started_at: string;
+  finished_at?: string | null;
+}
+
+/** The bootstrap run history, from `GET /v1/om/inventory/bootstrap-runs`. */
+export interface OmListBootstrapRunsResponse {
+  runs: OmGetBootstrapRunResponse[];
+}
 /**
  * What one refresh reached.
  *

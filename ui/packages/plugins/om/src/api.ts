@@ -34,7 +34,11 @@
  *   `EmitUnpopulated`, and `types.ts` describes exactly that shape.
  */
 
-import type { OmTopologyRunStatus } from './types';
+import type {
+  OmBootstrapHost,
+  OmGetBootstrapRunResponse,
+  OmTopologyRunStatus,
+} from './types';
 
 const OM_BASE = '/v1/om';
 
@@ -96,4 +100,48 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
  */
 export function isRunActive(status: OmTopologyRunStatus | undefined): boolean {
   return status === 'RUN_STATUS_RUNNING';
+}
+
+/**
+ * True while a bootstrap run is still worth polling: SEP's own status has not
+ * reached a terminal value, or it has but a host's confirm_monitoring step
+ * (PMM's own, appended to finalize_steps -- see its own proto comment) has not
+ * caught up yet.
+ *
+ * SEP's status alone understates "done": om_bootstrap marks a run succeeded the
+ * moment every step it dispatched has succeeded, before PMM's inventory sweep
+ * has necessarily noticed the newly-registered service. Stopping on SEP's status
+ * alone left confirm_monitoring showing "Running" forever once nothing was
+ * polling to see it flip to "Succeeded" a few seconds later.
+ */
+export function isBootstrapRunActive(
+  run: Pick<OmGetBootstrapRunResponse, 'status' | 'hosts'> | undefined
+): boolean {
+  if (!run) {
+    return false;
+  }
+  if (run.status === 'running') {
+    return true;
+  }
+  if (run.status !== 'succeeded') {
+    return false;
+  }
+  return run.hosts.some((host) =>
+    host.finalize_steps.some(
+      (step) => step.name === 'confirm_monitoring' && step.status === 'running'
+    )
+  );
+}
+
+/**
+ * True once any of a host's rollback steps has been dispatched.
+ *
+ * Every rollback step is planned `pending` up front alongside the host's
+ * forward steps (om_bootstrap's own HostBootstrapState doc comment) and stays
+ * that way for the entire life of a run that never needed rollback - so "not
+ * still all pending" is "rollback actually started," the same test
+ * PMM-15347's stepper itself uses (bootstrap_decision.go's hostRollbackStarted).
+ */
+export function isHostRollingBack(host: OmBootstrapHost): boolean {
+  return host.rollback_steps.some((step) => step.status !== 'pending');
 }
