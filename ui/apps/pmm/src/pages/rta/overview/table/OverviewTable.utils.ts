@@ -1,6 +1,13 @@
 import { type MRT_Row } from 'material-react-table';
 import { QueryData } from 'types/rta.types';
 
+// An elapsed time bound is a non-negative number of seconds. The empty string
+// and partial values like '1.' or '.5' pass so the user can keep typing.
+const ELAPSED_TIME_BOUND = /^\d*\.?\d*$/;
+
+export const isElapsedTimeBound = (value: string) =>
+  ELAPSED_TIME_BOUND.test(value);
+
 export const filterElapsedTime = (
   row: MRT_Row<QueryData>,
   id: string,
