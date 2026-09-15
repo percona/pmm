@@ -25,5 +25,13 @@ Shows average query execution time trends for your PostgreSQL services over time
 
 Watch for services with increasing execution times. Rising trends indicate performance degradation that needs investigation and optimization.
 
-## Queries
-Shows a detailed table of recent queries across all your PostgreSQL services with execution times, sorted by performance. Focus optimization efforts on queries with the highest execution times. This cross-service view helps you identify the most impactful slow queries across your entire infrastructure.
+## Top slow queries
+Shows the slowest queries across all your PostgreSQL services, ranked by average execution time. Each row is a single query aggregated over the whole selected time range, rather than one row per time interval, so the table stays short enough to scan.
+
+Alongside the query text, the table shows:
+
+- **Slowest at** — when that query was at its slowest within the time range, which helps you correlate a spike with a deployment or a load event.
+- **Calls** — how many times the query ran. This separates a one-off outlier from sustained load: a query with a high average and a single call is usually less urgent than a slightly faster one that runs thousands of times.
+- **Execution Time** — the average time per call, weighted by the number of calls.
+
+Focus optimization efforts on queries with the highest execution times, then use **Calls** to judge which of them actually affect your workload. This cross-service view helps you identify the most impactful slow queries across your entire infrastructure.
