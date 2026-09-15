@@ -362,17 +362,28 @@ func (s *Service) TriggerInventoryRefresh(ctx context.Context, req *omv1.Trigger
 	return response, nil
 }
 
-// TriggerHostBootstrap plans installing MongoDB on one host and initializing it
-// as a single-member replica set.
+// TriggerHostBootstrap plans installing MongoDB on one or three hosts and
+// initializing them as one replica set.
 //
 // PMM-15347 PoC only -- see the RPC's own proto comment and PMM-15347/plan.md for
-// scope. Reads the host's own os_id from om_inventory (a general inventory fact,
-// PMM-15326: Surface the host's machine-readable OS id) rather than asking the
-// caller for it, then hands off to SEP's om_bootstrap app -- not om_inventory,
-// which stays read-only by design -- which does the real planning
-// (install_method fixed to "packages", the only strategy implemented yet).
-// PMM's own HA-leader-only stepper (stepper.go) drives the returned run forward
-// from here; this handler's job ends at planning it.
+// scope. Reads every host's own os_id from om_inventory (a general inventory
+// fact, PMM-15326: Surface the host's machine-readable OS id) rather than
+// asking the caller for it, then hands off to SEP's om_bootstrap app -- not
+// om_inventory, which stays read-only by design -- which does the real
+// planning (install_method fixed to "packages", the only strategy implemented
+// yet). PMM's own HA-leader-only stepper (stepper.go) drives the returned run
+// forward from here; this handler's job ends at planning it.
+//
+// om_bootstrap's own "host" identity is the Nomad *executor* host (the name
+// its own dispatch route passes straight through as the Tasks API's
+// target -- see dispatch.go's own doc comment on SEP's side), not PMM's node
+// id: the two are different strings for the same machine (a node id is a
+// UUID PMM minted; the executor host is whatever name the Nomad client
+// registered under, e.g. "pmm-client-node00"), and Nomad only knows the
+// latter. GetBootstrapRun passes the executor host straight through --
+// arguably more readable for a progress display than a bare UUID -- and only
+// registerBootstrapHost (nodeIDForExecutorHost) ever needs the node id back,
+// since PMM's own inventory is keyed on that instead.
 func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHostBootstrapRequest) (*omv1.TriggerHostBootstrapResponse, error) {
 	probe, err := s.inventoryProbe()
 	if err != nil {
@@ -382,21 +393,42 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, status.Error(codes.FailedPrecondition,
 			"SEP is not configured; set PMM_SEP_URL and PMM_SEP_TOKEN to reach the bootstrap app")
 	}
-
-	host := sepHost{}
-	call := inventoryCall{method: http.MethodGet, path: inventoryPath("hosts", req.GetNodeId())}
-	err = probe.call(ctx, call, &host)
-	if err != nil {
-		return nil, err
+	nodeIDs := req.GetNodeIds()
+	if len(nodeIDs) != 1 && len(nodeIDs) != 3 {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"node_ids must have exactly one or three entries, got %d", len(nodeIDs))
 	}
-	osID, _ := host.Observed["os_id"].(string)
-	if osID == "" {
-		return nil, status.Errorf(codes.FailedPrecondition,
-			"host %s has no known OS yet; wait for its next inventory probe and try again", req.GetNodeId())
+
+	osID := ""
+	executorHosts := make([]string, 0, len(nodeIDs))
+	for _, nodeID := range nodeIDs {
+		host := sepHost{}
+		call := inventoryCall{method: http.MethodGet, path: inventoryPath("hosts", nodeID)}
+		err = probe.call(ctx, call, &host)
+		if err != nil {
+			return nil, err
+		}
+		if host.ExecutorHost == nil || *host.ExecutorHost == "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"host %s has no usable Nomad executor", nodeID)
+		}
+		hostOSID, _ := host.Observed["os_id"].(string)
+		if hostOSID == "" {
+			return nil, status.Errorf(codes.FailedPrecondition,
+				"host %s has no known OS yet; wait for its next inventory probe and try again", nodeID)
+		}
+		if osID == "" {
+			osID = hostOSID
+		} else if osID != hostOSID {
+			return nil, status.Errorf(codes.InvalidArgument,
+				"host %s runs %s, but %s was already selected; a mixed-OS replica set is out of phase-1 scope",
+				nodeID, hostOSID, osID)
+		}
+		executorHosts = append(executorHosts, *host.ExecutorHost)
 	}
 
 	run, err := s.bootstrap.triggerRun(ctx, sepTriggerBootstrapRunRequest{
-		Hosts:          []string{req.GetNodeId()},
+		Hosts:          executorHosts,
 		InstallMethod:  "packages",
 		OS:             osID,
 		MongoDBVersion: req.GetMongodbVersion(),
@@ -407,6 +439,104 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 	}
 
 	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID}, nil
+}
+
+// nodeIDForExecutorHost resolves a Nomad executor host name back to the PMM
+// node id it belongs to -- the reverse of TriggerHostBootstrap's own
+// resolution, needed wherever a bootstrap run's progress (keyed on executor
+// host, see TriggerHostBootstrap's own doc comment) has to reach PMM's own
+// inventory, which is keyed on node id.
+//
+// Fetches the whole estate rather than a filtered query: om_inventory's own
+// GET /hosts has no "find by executor_host" filter, and the estate size this
+// phase targets (a handful of hosts in one replica set) makes one full fetch
+// no real cost -- see ListInventoryHosts's own similar fetch-then-filter
+// shape.
+func (s *Service) nodeIDForExecutorHost(ctx context.Context, executorHost string) (string, error) {
+	probe, err := s.inventoryProbe()
+	if err != nil {
+		return "", err
+	}
+	hosts := []sepHost{}
+	call := inventoryCall{method: http.MethodGet, path: "hosts"}
+	err = probe.call(ctx, call, &hosts)
+	if err != nil {
+		return "", err
+	}
+	for _, host := range hosts {
+		if host.ExecutorHost != nil && *host.ExecutorHost == executorHost {
+			return host.NodeID, nil
+		}
+	}
+	return "", status.Errorf(codes.NotFound,
+		"no host in the inventory has executor %q", executorHost)
+}
+
+// bootstrapProbe returns the configured om_bootstrap client, or an error saying
+// it is not -- the same FailedPrecondition treatment inventoryProbe gives
+// om_inventory, for the same reason: this is a deployment nobody has pointed at
+// SEP yet, not a missing feature.
+func (s *Service) bootstrapProbe() (*bootstrapClient, error) {
+	if s.bootstrap == nil {
+		return nil, status.Error(codes.FailedPrecondition,
+			"SEP is not configured; set PMM_SEP_URL and PMM_SEP_TOKEN to reach the bootstrap app")
+	}
+	return s.bootstrap, nil
+}
+
+// GetBootstrapRun returns one bootstrap run's current progress.
+//
+// A thin proxy onto SEP's om_bootstrap GET /runs/{id}, like every other read in
+// this file -- reconciling the run's in-flight dispatches happens on SEP's own
+// side (see om_bootstrap's own doc comment on that route), not here.
+func (s *Service) GetBootstrapRun(ctx context.Context, req *omv1.GetBootstrapRunRequest) (*omv1.GetBootstrapRunResponse, error) {
+	bootstrap, err := s.bootstrapProbe()
+	if err != nil {
+		return nil, err
+	}
+
+	run, err := bootstrap.getRun(ctx, req.GetRunId())
+	if err != nil {
+		return nil, err
+	}
+
+	return bootstrapRunToProto(run), nil
+}
+
+// bootstrapRunToProto projects a sepBootstrapRun onto the wire shape
+// GetBootstrapRun answers with.
+func bootstrapRunToProto(run *sepBootstrapRun) *omv1.GetBootstrapRunResponse {
+	hosts := make([]*omv1.BootstrapHost, 0, len(run.Hosts))
+	for _, host := range run.Hosts {
+		hosts = append(hosts, &omv1.BootstrapHost{
+			Host:          host.Host,
+			Steps:         bootstrapStepsToProto(host.Steps),
+			RollbackSteps: bootstrapStepsToProto(host.RollbackSteps),
+		})
+	}
+	return &omv1.GetBootstrapRunResponse{
+		RunId:    run.ID,
+		Status:   run.Status,
+		Hosts:    hosts,
+		RunSteps: bootstrapStepsToProto(run.RunSteps),
+		Error:    run.Error,
+	}
+}
+
+// bootstrapStepsToProto projects a slice of sepBootstrapStep onto the wire
+// shape shared by a host's own steps, its rollback steps, and a run's
+// run-level steps.
+func bootstrapStepsToProto(steps []sepBootstrapStep) []*omv1.BootstrapStep {
+	proto := make([]*omv1.BootstrapStep, 0, len(steps))
+	for _, step := range steps {
+		proto = append(proto, &omv1.BootstrapStep{
+			Name:         step.Name,
+			Status:       step.Status,
+			Detail:       step.Detail,
+			AttemptCount: int32(step.AttemptCount), //nolint:gosec // an attempt count never approaches int32's range
+		})
+	}
+	return proto
 }
 
 // GetInventoryConfig returns the inventory app's configuration.

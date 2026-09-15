@@ -29072,6 +29072,197 @@
         }
       }
     },
+    "/v1/om/inventory/bootstrap-runs/{run_id}": {
+      "get": {
+        "description": "Returns one bootstrap run's current status and every host's step-by-step progress, reconciled against its in-flight dispatches as of this call. Poll this to watch a run started by TriggerHostBootstrap.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get a bootstrap run's progress (PoC)",
+        "operationId": "GetBootstrapRun",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The run to fetch, from TriggerHostBootstrapResponse.run_id.",
+            "name": "run_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetBootstrapRunResponse is one run, in full, as of this call.\n\nA thin proxy onto SEP's om_bootstrap GET /runs/{id}, which reconciles the\nrun's in-flight dispatches before answering -- so polling this is enough to\nsee a step's real outcome, not a stale snapshot.",
+              "type": "object",
+              "properties": {
+                "run_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "status": {
+                  "description": "\"running\", \"succeeded\", \"failed\", or \"rolled_back\" -- SEP's own\nBootstrapRunStatus values, passed through verbatim.",
+                  "type": "string",
+                  "x-order": 1
+                },
+                "hosts": {
+                  "description": "Every host's progress, in the order the run was created with.",
+                  "type": "array",
+                  "items": {
+                    "description": "BootstrapHost is one host's progress within a run.",
+                    "type": "object",
+                    "properties": {
+                      "host": {
+                        "description": "The node id this progress belongs to.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "steps": {
+                        "description": "This host's own install steps, in the order they run.",
+                        "type": "array",
+                        "items": {
+                          "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "status": {
+                              "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "detail": {
+                              "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 2
+                            },
+                            "attempt_count": {
+                              "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 1
+                      },
+                      "rollback_steps": {
+                        "description": "This host's teardown steps, planned up front alongside `steps` -- see\nom_bootstrap's own HostBootstrapState doc comment. Every entry stays\n\"pending\" unless the run actually rolls this host back.",
+                        "type": "array",
+                        "items": {
+                          "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "status": {
+                              "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "detail": {
+                              "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 2
+                            },
+                            "attempt_count": {
+                              "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                              "type": "integer",
+                              "format": "int32",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 2
+                },
+                "run_steps": {
+                  "description": "The run-level steps (rs.initiate, creating PMM's monitoring user) -- see\nBootstrapStep's own doc comment for why these share its shape.",
+                  "type": "array",
+                  "items": {
+                    "description": "BootstrapStep is one step's progress -- a host's own, one of its rollback\nsteps, or one of the run's run-level steps. One shape for all three, the\nsame way om_bootstrap's own StepRecord is (see its doc comment): none of\nthe three contexts needs a field the others don't.",
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "description": "The step's name, e.g. \"pre_check\", \"rs_initiate\", \"stop_service\". Not a\nfixed enum -- the step list itself is per-strategy (only \"packages\" exists\nyet) and per-spec, so a reader renders whatever names actually came back.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "status": {
+                        "description": "\"pending\", \"running\", \"succeeded\", \"failed\", or \"skipped\" -- SEP's own\nStepStatus values, passed through verbatim rather than re-enumerated here,\nsince this proto has no logic of its own to gate on them.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "detail": {
+                        "description": "A human-readable outcome, set once the step reaches a terminal status.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 2
+                      },
+                      "attempt_count": {
+                        "description": "How many times this step has been dispatched, including the current or\nmost recent attempt.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 3
+                      }
+                    }
+                  },
+                  "x-order": 3
+                },
+                "error": {
+                  "description": "Set when the run itself failed outside any single step -- e.g. SEP\nrejected the request before planning anything.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 4
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/om/inventory/config": {
       "get": {
         "description": "Returns every configuration field of the inventory app, its effective value, and whether an override is in effect.",
@@ -30186,23 +30377,17 @@
         }
       }
     },
-    "/v1/om/inventory/hosts/{node_id}:bootstrap": {
+    "/v1/om/inventory/hosts:bootstrap": {
       "post": {
-        "description": "Plans installing MongoDB on one host through the Nomad client and initializing it as a single-member replica set, monitored by PMM once it comes up. PMM-15347 proof-of-concept scope only. Returns as soon as the run is planned; PMM's own stepper drives it forward in the background.",
+        "description": "Plans installing MongoDB on one or three hosts through the Nomad client and initializing them as one replica set, monitored by PMM once it comes up. PMM-15347 proof-of-concept scope only. Returns as soon as the run is planned; PMM's own stepper drives it forward in the background.",
         "tags": [
           "OmService"
         ],
-        "summary": "Bootstrap a host (PoC)",
+        "summary": "Bootstrap one or three hosts (PoC)",
         "operationId": "TriggerHostBootstrap",
         "parameters": [
           {
-            "type": "string",
-            "description": "PMM's node ID for the host to bootstrap.",
-            "name": "node_id",
-            "in": "path",
-            "required": true
-          },
-          {
+            "description": "TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -30210,15 +30395,23 @@
               "description": "TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.",
               "type": "object",
               "properties": {
+                "node_ids": {
+                  "description": "PMM's node IDs for the hosts to bootstrap into one replica set. Adamo's\ndecided phase-1 scope (PMM-15347/questions.md Q5/Q12): exactly one or\nthree, checked server-side since protoc-gen-validate has no \"one of these\ncounts\" rule to state it declaratively.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
                 "replica_set_name": {
                   "description": "The replica set's name.",
                   "type": "string",
-                  "x-order": 0
+                  "x-order": 1
                 },
                 "mongodb_version": {
                   "description": "The MongoDB version to install, e.g. \"7.0.8\". Only the major version\nselects the install source; PSMDB does not ship parallel repos per minor\nversion.",
                   "type": "string",
-                  "x-order": 1
+                  "x-order": 2
                 }
               }
             }
@@ -30228,11 +30421,11 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "TriggerHostBootstrapResponse acknowledges a queued single-host bootstrap.\n\nPMM-15347 PoC only: one host, one member, keyFile auth, TLS off. Returned as\nsoon as SEP's om_bootstrap app has planned the run, not once it finishes --\nPMM's own HA-leader-only stepper drives it forward from here\n(PMM-15347/plan.md §4 item 9). Carries no credentials: the run's generated\nMongoDB user is created only once every host is up, minutes after this\nresponse, and lives encrypted in PMM's own Postgres\n(PMM-15347/questions.md Q7) -- there is nothing to hand back yet.",
+              "description": "TriggerHostBootstrapResponse acknowledges a queued bootstrap run.\n\nPMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS\noff. Returned as soon as SEP's om_bootstrap app has planned the run, not\nonce it finishes -- PMM's own HA-leader-only stepper drives it forward from\nhere (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's\ngenerated MongoDB user is created only once every host is up, minutes after\nthis response, and lives encrypted in PMM's own Postgres\n(PMM-15347/questions.md Q7) -- there is nothing to hand back yet.",
               "type": "object",
               "properties": {
                 "run_id": {
-                  "description": "The om_bootstrap run's id. Nothing here polls it for progress yet -- see\nPMM-15347/plan.md for the still-to-come Bootstrap step UI.",
+                  "description": "The om_bootstrap run's id. Poll GetBootstrapRun for its progress.",
                   "type": "string",
                   "x-order": 0
                 }
