@@ -44,6 +44,7 @@ import { ChainDisplay } from './ChainDisplay';
 import { StatusBadge } from './StatusBadge';
 import Box from '@mui/material/Box';
 import { formatDuration } from '../../utils/formatDuration';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 import { TaskFilesDialog } from './TaskFilesDialog';
 import type {
   TaskHistoryEntry,
@@ -55,12 +56,18 @@ import type {
 /** Cache file-list probes across history-table poll ticks. */
 const DOWNLOADABLE_FILES_STALE_TIME_MS = 30_000;
 
-function formatDateTime(value?: string | null): string {
-  if (!value) {
-    return '—';
-  }
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? value : d.toLocaleString();
+/**
+ * The em-dash belongs to this column rather than to {@link formatTimestamp}: a
+ * history row always represents a run that started, so an absent `started_at`
+ * is missing data worth marking, not the legitimately-empty cell a
+ * never-executed task's list row has.
+ */
+function startedAtCell(value?: string | null): {
+  display: string;
+  title?: string;
+} {
+  const formatted = formatTimestamp(value);
+  return formatted ? formatted : { display: '—' };
 }
 
 interface MetaShape {
@@ -249,11 +256,18 @@ function TaskHistoryTableView({
         size: 160,
         accessorFn: (row) => row.started_at ?? '',
         sortingFn: 'datetime',
-        Cell: ({ row }) => (
-          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-            {formatDateTime(row.original.started_at)}
-          </Typography>
-        ),
+        Cell: ({ row }) => {
+          // Plain body text, not the monospace this column used to set: the
+          // value is a rendered phrase ("3 hours ago") rather than a fixed-width
+          // machine string, and the monospace made it a fifth date format on a
+          // page that already had four.
+          const { display, title } = startedAtCell(row.original.started_at);
+          return (
+            <Typography variant="body2" title={title}>
+              {display}
+            </Typography>
+          );
+        },
       },
       {
         id: 'duration',

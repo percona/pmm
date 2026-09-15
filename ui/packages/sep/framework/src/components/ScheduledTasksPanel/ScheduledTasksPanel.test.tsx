@@ -120,6 +120,25 @@ describe('ScheduledTasksPanel', () => {
     });
   });
 
+  it('names the app rather than its registry key when given a display name', async () => {
+    setup([]);
+    // A nested app is mounted under a scoped key (`mysql_backups/restore`),
+    // which is what used to reach the screen here.
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="mysql_backups/restore"
+        displayName="MySQL Restores"
+      />
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/No scheduled tasks for MySQL Restores/i)
+      ).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/mysql_backups\/restore/)).toBeNull();
+  });
+
   it('renders each plugin task with period and run count', async () => {
     setup([
       makePeriodic({ id: 1, task: 'plugin-task', total_run_count: 3 }),
