@@ -17,22 +17,22 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// ListBootstrapRunsReader is a Reader for the ListBootstrapRuns structure.
-type ListBootstrapRunsReader struct {
+// CancelBootstrapRunReader is a Reader for the CancelBootstrapRun structure.
+type CancelBootstrapRunReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListBootstrapRunsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
+func (o *CancelBootstrapRunReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
-		result := NewListBootstrapRunsOK()
+		result := NewCancelBootstrapRunOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewListBootstrapRunsDefault(response.Code())
+		result := NewCancelBootstrapRunDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -43,66 +43,66 @@ func (o *ListBootstrapRunsReader) ReadResponse(response runtime.ClientResponse, 
 	}
 }
 
-// NewListBootstrapRunsOK creates a ListBootstrapRunsOK with default headers values
-func NewListBootstrapRunsOK() *ListBootstrapRunsOK {
-	return &ListBootstrapRunsOK{}
+// NewCancelBootstrapRunOK creates a CancelBootstrapRunOK with default headers values
+func NewCancelBootstrapRunOK() *CancelBootstrapRunOK {
+	return &CancelBootstrapRunOK{}
 }
 
 /*
-ListBootstrapRunsOK describes a response with status code 200, with default header values.
+CancelBootstrapRunOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
-type ListBootstrapRunsOK struct {
-	Payload *ListBootstrapRunsOKBody
+type CancelBootstrapRunOK struct {
+	Payload *CancelBootstrapRunOKBody
 }
 
-// IsSuccess returns true when this list bootstrap runs Ok response has a 2xx status code
-func (o *ListBootstrapRunsOK) IsSuccess() bool {
+// IsSuccess returns true when this cancel bootstrap run Ok response has a 2xx status code
+func (o *CancelBootstrapRunOK) IsSuccess() bool {
 	return true
 }
 
-// IsRedirect returns true when this list bootstrap runs Ok response has a 3xx status code
-func (o *ListBootstrapRunsOK) IsRedirect() bool {
+// IsRedirect returns true when this cancel bootstrap run Ok response has a 3xx status code
+func (o *CancelBootstrapRunOK) IsRedirect() bool {
 	return false
 }
 
-// IsClientError returns true when this list bootstrap runs Ok response has a 4xx status code
-func (o *ListBootstrapRunsOK) IsClientError() bool {
+// IsClientError returns true when this cancel bootstrap run Ok response has a 4xx status code
+func (o *CancelBootstrapRunOK) IsClientError() bool {
 	return false
 }
 
-// IsServerError returns true when this list bootstrap runs Ok response has a 5xx status code
-func (o *ListBootstrapRunsOK) IsServerError() bool {
+// IsServerError returns true when this cancel bootstrap run Ok response has a 5xx status code
+func (o *CancelBootstrapRunOK) IsServerError() bool {
 	return false
 }
 
-// IsCode returns true when this list bootstrap runs Ok response a status code equal to that given
-func (o *ListBootstrapRunsOK) IsCode(code int) bool {
+// IsCode returns true when this cancel bootstrap run Ok response a status code equal to that given
+func (o *CancelBootstrapRunOK) IsCode(code int) bool {
 	return code == 200
 }
 
-// Code gets the status code for the list bootstrap runs Ok response
-func (o *ListBootstrapRunsOK) Code() int {
+// Code gets the status code for the cancel bootstrap run Ok response
+func (o *CancelBootstrapRunOK) Code() int {
 	return 200
 }
 
-func (o *ListBootstrapRunsOK) Error() string {
+func (o *CancelBootstrapRunOK) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[GET /v1/om/inventory/bootstrap-runs][%d] listBootstrapRunsOk %s", 200, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/bootstrap-runs/{run_id}:cancel][%d] cancelBootstrapRunOk %s", 200, payload)
 }
 
-func (o *ListBootstrapRunsOK) String() string {
+func (o *CancelBootstrapRunOK) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[GET /v1/om/inventory/bootstrap-runs][%d] listBootstrapRunsOk %s", 200, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/bootstrap-runs/{run_id}:cancel][%d] cancelBootstrapRunOk %s", 200, payload)
 }
 
-func (o *ListBootstrapRunsOK) GetPayload() *ListBootstrapRunsOKBody {
+func (o *CancelBootstrapRunOK) GetPayload() *CancelBootstrapRunOKBody {
 	return o.Payload
 }
 
-func (o *ListBootstrapRunsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(ListBootstrapRunsOKBody)
+func (o *CancelBootstrapRunOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(CancelBootstrapRunOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
@@ -112,70 +112,70 @@ func (o *ListBootstrapRunsOK) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-// NewListBootstrapRunsDefault creates a ListBootstrapRunsDefault with default headers values
-func NewListBootstrapRunsDefault(code int) *ListBootstrapRunsDefault {
-	return &ListBootstrapRunsDefault{
+// NewCancelBootstrapRunDefault creates a CancelBootstrapRunDefault with default headers values
+func NewCancelBootstrapRunDefault(code int) *CancelBootstrapRunDefault {
+	return &CancelBootstrapRunDefault{
 		_statusCode: code,
 	}
 }
 
 /*
-ListBootstrapRunsDefault describes a response with status code -1, with default header values.
+CancelBootstrapRunDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
-type ListBootstrapRunsDefault struct {
+type CancelBootstrapRunDefault struct {
 	_statusCode int
 
-	Payload *ListBootstrapRunsDefaultBody
+	Payload *CancelBootstrapRunDefaultBody
 }
 
-// IsSuccess returns true when this list bootstrap runs default response has a 2xx status code
-func (o *ListBootstrapRunsDefault) IsSuccess() bool {
+// IsSuccess returns true when this cancel bootstrap run default response has a 2xx status code
+func (o *CancelBootstrapRunDefault) IsSuccess() bool {
 	return o._statusCode/100 == 2
 }
 
-// IsRedirect returns true when this list bootstrap runs default response has a 3xx status code
-func (o *ListBootstrapRunsDefault) IsRedirect() bool {
+// IsRedirect returns true when this cancel bootstrap run default response has a 3xx status code
+func (o *CancelBootstrapRunDefault) IsRedirect() bool {
 	return o._statusCode/100 == 3
 }
 
-// IsClientError returns true when this list bootstrap runs default response has a 4xx status code
-func (o *ListBootstrapRunsDefault) IsClientError() bool {
+// IsClientError returns true when this cancel bootstrap run default response has a 4xx status code
+func (o *CancelBootstrapRunDefault) IsClientError() bool {
 	return o._statusCode/100 == 4
 }
 
-// IsServerError returns true when this list bootstrap runs default response has a 5xx status code
-func (o *ListBootstrapRunsDefault) IsServerError() bool {
+// IsServerError returns true when this cancel bootstrap run default response has a 5xx status code
+func (o *CancelBootstrapRunDefault) IsServerError() bool {
 	return o._statusCode/100 == 5
 }
 
-// IsCode returns true when this list bootstrap runs default response a status code equal to that given
-func (o *ListBootstrapRunsDefault) IsCode(code int) bool {
+// IsCode returns true when this cancel bootstrap run default response a status code equal to that given
+func (o *CancelBootstrapRunDefault) IsCode(code int) bool {
 	return o._statusCode == code
 }
 
-// Code gets the status code for the list bootstrap runs default response
-func (o *ListBootstrapRunsDefault) Code() int {
+// Code gets the status code for the cancel bootstrap run default response
+func (o *CancelBootstrapRunDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *ListBootstrapRunsDefault) Error() string {
+func (o *CancelBootstrapRunDefault) Error() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[GET /v1/om/inventory/bootstrap-runs][%d] ListBootstrapRuns default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/bootstrap-runs/{run_id}:cancel][%d] CancelBootstrapRun default %s", o._statusCode, payload)
 }
 
-func (o *ListBootstrapRunsDefault) String() string {
+func (o *CancelBootstrapRunDefault) String() string {
 	payload, _ := json.Marshal(o.Payload)
-	return fmt.Sprintf("[GET /v1/om/inventory/bootstrap-runs][%d] ListBootstrapRuns default %s", o._statusCode, payload)
+	return fmt.Sprintf("[POST /v1/om/inventory/bootstrap-runs/{run_id}:cancel][%d] CancelBootstrapRun default %s", o._statusCode, payload)
 }
 
-func (o *ListBootstrapRunsDefault) GetPayload() *ListBootstrapRunsDefaultBody {
+func (o *CancelBootstrapRunDefault) GetPayload() *CancelBootstrapRunDefaultBody {
 	return o.Payload
 }
 
-func (o *ListBootstrapRunsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(ListBootstrapRunsDefaultBody)
+func (o *CancelBootstrapRunDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(CancelBootstrapRunDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && !stderrors.Is(err, io.EOF) {
@@ -186,10 +186,10 @@ func (o *ListBootstrapRunsDefault) readResponse(response runtime.ClientResponse,
 }
 
 /*
-ListBootstrapRunsDefaultBody list bootstrap runs default body
-swagger:model ListBootstrapRunsDefaultBody
+CancelBootstrapRunDefaultBody cancel bootstrap run default body
+swagger:model CancelBootstrapRunDefaultBody
 */
-type ListBootstrapRunsDefaultBody struct {
+type CancelBootstrapRunDefaultBody struct {
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -197,11 +197,11 @@ type ListBootstrapRunsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*ListBootstrapRunsDefaultBodyDetailsItems0 `json:"details"`
+	Details []*CancelBootstrapRunDefaultBodyDetailsItems0 `json:"details"`
 }
 
-// Validate validates this list bootstrap runs default body
-func (o *ListBootstrapRunsDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel bootstrap run default body
+func (o *CancelBootstrapRunDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -214,7 +214,7 @@ func (o *ListBootstrapRunsDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListBootstrapRunsDefaultBody) validateDetails(formats strfmt.Registry) error {
+func (o *CancelBootstrapRunDefaultBody) validateDetails(formats strfmt.Registry) error {
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -228,11 +228,11 @@ func (o *ListBootstrapRunsDefaultBody) validateDetails(formats strfmt.Registry) 
 			if err := o.Details[i].Validate(formats); err != nil {
 				ve := new(errors.Validation)
 				if stderrors.As(err, &ve) {
-					return ve.ValidateName("ListBootstrapRuns default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("CancelBootstrapRun default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				ce := new(errors.CompositeError)
 				if stderrors.As(err, &ce) {
-					return ce.ValidateName("ListBootstrapRuns default" + "." + "details" + "." + strconv.Itoa(i))
+					return ce.ValidateName("CancelBootstrapRun default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 
 				return err
@@ -244,8 +244,8 @@ func (o *ListBootstrapRunsDefaultBody) validateDetails(formats strfmt.Registry) 
 	return nil
 }
 
-// ContextValidate validate this list bootstrap runs default body based on the context it is used
-func (o *ListBootstrapRunsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this cancel bootstrap run default body based on the context it is used
+func (o *CancelBootstrapRunDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateDetails(ctx, formats); err != nil {
@@ -258,7 +258,7 @@ func (o *ListBootstrapRunsDefaultBody) ContextValidate(ctx context.Context, form
 	return nil
 }
 
-func (o *ListBootstrapRunsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+func (o *CancelBootstrapRunDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
 
@@ -269,11 +269,11 @@ func (o *ListBootstrapRunsDefaultBody) contextValidateDetails(ctx context.Contex
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				ve := new(errors.Validation)
 				if stderrors.As(err, &ve) {
-					return ve.ValidateName("ListBootstrapRuns default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("CancelBootstrapRun default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				ce := new(errors.CompositeError)
 				if stderrors.As(err, &ce) {
-					return ce.ValidateName("ListBootstrapRuns default" + "." + "details" + "." + strconv.Itoa(i))
+					return ce.ValidateName("CancelBootstrapRun default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 
 				return err
@@ -285,7 +285,7 @@ func (o *ListBootstrapRunsDefaultBody) contextValidateDetails(ctx context.Contex
 }
 
 // MarshalBinary interface implementation
-func (o *ListBootstrapRunsDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *CancelBootstrapRunDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -293,8 +293,8 @@ func (o *ListBootstrapRunsDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListBootstrapRunsDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ListBootstrapRunsDefaultBody
+func (o *CancelBootstrapRunDefaultBody) UnmarshalBinary(b []byte) error {
+	var res CancelBootstrapRunDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -303,19 +303,19 @@ func (o *ListBootstrapRunsDefaultBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListBootstrapRunsDefaultBodyDetailsItems0 list bootstrap runs default body details items0
-swagger:model ListBootstrapRunsDefaultBodyDetailsItems0
+CancelBootstrapRunDefaultBodyDetailsItems0 cancel bootstrap run default body details items0
+swagger:model CancelBootstrapRunDefaultBodyDetailsItems0
 */
-type ListBootstrapRunsDefaultBodyDetailsItems0 struct {
+type CancelBootstrapRunDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 
-	// list bootstrap runs default body details items0
-	ListBootstrapRunsDefaultBodyDetailsItems0 map[string]any `json:"-"`
+	// cancel bootstrap run default body details items0
+	CancelBootstrapRunDefaultBodyDetailsItems0 map[string]any `json:"-"`
 }
 
 // UnmarshalJSON unmarshals this object with additional properties from JSON
-func (o *ListBootstrapRunsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
+func (o *CancelBootstrapRunDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) error {
 	// stage 1, bind the properties
 	var stage1 struct {
 		// at type
@@ -324,7 +324,7 @@ func (o *ListBootstrapRunsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 	if err := json.Unmarshal(data, &stage1); err != nil {
 		return err
 	}
-	var rcv ListBootstrapRunsDefaultBodyDetailsItems0
+	var rcv CancelBootstrapRunDefaultBodyDetailsItems0
 
 	rcv.AtType = stage1.AtType
 	*o = rcv
@@ -346,14 +346,14 @@ func (o *ListBootstrapRunsDefaultBodyDetailsItems0) UnmarshalJSON(data []byte) e
 			}
 			result[k] = toadd
 		}
-		o.ListBootstrapRunsDefaultBodyDetailsItems0 = result
+		o.CancelBootstrapRunDefaultBodyDetailsItems0 = result
 	}
 
 	return nil
 }
 
 // MarshalJSON marshals this object with additional properties into a JSON object
-func (o ListBootstrapRunsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
+func (o CancelBootstrapRunDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error) {
 	var stage1 struct {
 		// at type
 		AtType string `json:"@type,omitempty"`
@@ -367,12 +367,12 @@ func (o ListBootstrapRunsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error)
 		return nil, err
 	}
 
-	if len(o.ListBootstrapRunsDefaultBodyDetailsItems0) == 0 { // no additional properties
+	if len(o.CancelBootstrapRunDefaultBodyDetailsItems0) == 0 { // no additional properties
 		return props, nil
 	}
 
 	// make JSON object for the additional properties
-	additional, err := json.Marshal(o.ListBootstrapRunsDefaultBodyDetailsItems0)
+	additional, err := json.Marshal(o.CancelBootstrapRunDefaultBodyDetailsItems0)
 	if err != nil {
 		return nil, err
 	}
@@ -385,18 +385,18 @@ func (o ListBootstrapRunsDefaultBodyDetailsItems0) MarshalJSON() ([]byte, error)
 	return swag.ConcatJSON(props, additional), nil
 }
 
-// Validate validates this list bootstrap runs default body details items0
-func (o *ListBootstrapRunsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel bootstrap run default body details items0
+func (o *CancelBootstrapRunDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this list bootstrap runs default body details items0 based on context it is used
-func (o *ListBootstrapRunsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this cancel bootstrap run default body details items0 based on context it is used
+func (o *CancelBootstrapRunDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListBootstrapRunsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *CancelBootstrapRunDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -404,8 +404,8 @@ func (o *ListBootstrapRunsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, err
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListBootstrapRunsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
-	var res ListBootstrapRunsDefaultBodyDetailsItems0
+func (o *CancelBootstrapRunDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res CancelBootstrapRunDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -414,22 +414,19 @@ func (o *ListBootstrapRunsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) er
 }
 
 /*
-ListBootstrapRunsOKBody ListBootstrapRunsResponse returns the bootstrap run history, newest first.
-swagger:model ListBootstrapRunsOKBody
+CancelBootstrapRunOKBody CancelBootstrapRunResponse is the response for CancelBootstrapRun.
+swagger:model CancelBootstrapRunOKBody
 */
-type ListBootstrapRunsOKBody struct {
-	// Each run in the same full shape GetBootstrapRun answers with, not a
-	// trimmed summary -- PMM Extensions' own GET /runs already returns every host's steps
-	// per row (see bootstrapRunToProto's doc comment), so there is no cheaper
-	// shape to ask it for.
-	Runs []*ListBootstrapRunsOKBodyRunsItems0 `json:"runs"`
+type CancelBootstrapRunOKBody struct {
+	// run
+	Run *CancelBootstrapRunOKBodyRun `json:"run,omitempty"`
 }
 
-// Validate validates this list bootstrap runs OK body
-func (o *ListBootstrapRunsOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel bootstrap run OK body
+func (o *CancelBootstrapRunOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateRuns(formats); err != nil {
+	if err := o.validateRun(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -439,41 +436,34 @@ func (o *ListBootstrapRunsOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBody) validateRuns(formats strfmt.Registry) error {
-	if swag.IsZero(o.Runs) { // not required
+func (o *CancelBootstrapRunOKBody) validateRun(formats strfmt.Registry) error {
+	if swag.IsZero(o.Run) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.Runs); i++ {
-		if swag.IsZero(o.Runs[i]) { // not required
-			continue
-		}
-
-		if o.Runs[i] != nil {
-			if err := o.Runs[i].Validate(formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
-					return ve.ValidateName("listBootstrapRunsOk" + "." + "runs" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
-					return ce.ValidateName("listBootstrapRunsOk" + "." + "runs" + "." + strconv.Itoa(i))
-				}
-
-				return err
+	if o.Run != nil {
+		if err := o.Run.Validate(formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("cancelBootstrapRunOk" + "." + "run")
 			}
-		}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("cancelBootstrapRunOk" + "." + "run")
+			}
 
+			return err
+		}
 	}
 
 	return nil
 }
 
-// ContextValidate validate this list bootstrap runs OK body based on the context it is used
-func (o *ListBootstrapRunsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this cancel bootstrap run OK body based on the context it is used
+func (o *CancelBootstrapRunOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidateRuns(ctx, formats); err != nil {
+	if err := o.contextValidateRun(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -483,26 +473,24 @@ func (o *ListBootstrapRunsOKBody) ContextValidate(ctx context.Context, formats s
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBody) contextValidateRuns(ctx context.Context, formats strfmt.Registry) error {
-	for i := 0; i < len(o.Runs); i++ {
-		if o.Runs[i] != nil {
+func (o *CancelBootstrapRunOKBody) contextValidateRun(ctx context.Context, formats strfmt.Registry) error {
+	if o.Run != nil {
 
-			if swag.IsZero(o.Runs[i]) { // not required
-				return nil
+		if swag.IsZero(o.Run) { // not required
+			return nil
+		}
+
+		if err := o.Run.ContextValidate(ctx, formats); err != nil {
+			ve := new(errors.Validation)
+			if stderrors.As(err, &ve) {
+				return ve.ValidateName("cancelBootstrapRunOk" + "." + "run")
+			}
+			ce := new(errors.CompositeError)
+			if stderrors.As(err, &ce) {
+				return ce.ValidateName("cancelBootstrapRunOk" + "." + "run")
 			}
 
-			if err := o.Runs[i].ContextValidate(ctx, formats); err != nil {
-				ve := new(errors.Validation)
-				if stderrors.As(err, &ve) {
-					return ve.ValidateName("listBootstrapRunsOk" + "." + "runs" + "." + strconv.Itoa(i))
-				}
-				ce := new(errors.CompositeError)
-				if stderrors.As(err, &ce) {
-					return ce.ValidateName("listBootstrapRunsOk" + "." + "runs" + "." + strconv.Itoa(i))
-				}
-
-				return err
-			}
+			return err
 		}
 	}
 
@@ -510,7 +498,7 @@ func (o *ListBootstrapRunsOKBody) contextValidateRuns(ctx context.Context, forma
 }
 
 // MarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBody) MarshalBinary() ([]byte, error) {
+func (o *CancelBootstrapRunOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -518,8 +506,8 @@ func (o *ListBootstrapRunsOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBody) UnmarshalBinary(b []byte) error {
-	var res ListBootstrapRunsOKBody
+func (o *CancelBootstrapRunOKBody) UnmarshalBinary(b []byte) error {
+	var res CancelBootstrapRunOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -528,14 +516,14 @@ func (o *ListBootstrapRunsOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListBootstrapRunsOKBodyRunsItems0 GetBootstrapRunResponse is one run, in full, as of this call.
+CancelBootstrapRunOKBodyRun GetBootstrapRunResponse is one run, in full, as of this call.
 //
 // A thin proxy onto PMM Extensions' om_bootstrap GET /runs/{id}, which reconciles the
 // run's in-flight dispatches before answering -- so polling this is enough to
 // see a step's real outcome, not a stale snapshot.
-swagger:model ListBootstrapRunsOKBodyRunsItems0
+swagger:model CancelBootstrapRunOKBodyRun
 */
-type ListBootstrapRunsOKBodyRunsItems0 struct {
+type CancelBootstrapRunOKBodyRun struct {
 	// run id
 	RunID string `json:"run_id,omitempty"`
 
@@ -544,11 +532,11 @@ type ListBootstrapRunsOKBodyRunsItems0 struct {
 	Status string `json:"status,omitempty"`
 
 	// Every host's progress, in the order the run was created with.
-	Hosts []*ListBootstrapRunsOKBodyRunsItems0HostsItems0 `json:"hosts"`
+	Hosts []*CancelBootstrapRunOKBodyRunHostsItems0 `json:"hosts"`
 
 	// The run-level steps (rs.initiate, creating PMM's monitoring user) -- see
 	// BootstrapStep's own doc comment for why these share its shape.
-	RunSteps []*ListBootstrapRunsOKBodyRunsItems0RunStepsItems0 `json:"run_steps"`
+	RunSteps []*CancelBootstrapRunOKBodyRunRunStepsItems0 `json:"run_steps"`
 
 	// Set when the run itself failed outside any single step -- e.g. PMM Extensions
 	// rejected the request before planning anything.
@@ -585,8 +573,8 @@ type ListBootstrapRunsOKBodyRunsItems0 struct {
 	CancelRequested bool `json:"cancel_requested,omitempty"`
 }
 
-// Validate validates this list bootstrap runs OK body runs items0
-func (o *ListBootstrapRunsOKBodyRunsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel bootstrap run OK body run
+func (o *CancelBootstrapRunOKBodyRun) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateHosts(formats); err != nil {
@@ -611,7 +599,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0) validateHosts(formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRun) validateHosts(formats strfmt.Registry) error {
 	if swag.IsZero(o.Hosts) { // not required
 		return nil
 	}
@@ -625,11 +613,11 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) validateHosts(formats strfmt.Registr
 			if err := o.Hosts[i].Validate(formats); err != nil {
 				ve := new(errors.Validation)
 				if stderrors.As(err, &ve) {
-					return ve.ValidateName("hosts" + "." + strconv.Itoa(i))
+					return ve.ValidateName("cancelBootstrapRunOk" + "." + "run" + "." + "hosts" + "." + strconv.Itoa(i))
 				}
 				ce := new(errors.CompositeError)
 				if stderrors.As(err, &ce) {
-					return ce.ValidateName("hosts" + "." + strconv.Itoa(i))
+					return ce.ValidateName("cancelBootstrapRunOk" + "." + "run" + "." + "hosts" + "." + strconv.Itoa(i))
 				}
 
 				return err
@@ -641,7 +629,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) validateHosts(formats strfmt.Registr
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0) validateRunSteps(formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRun) validateRunSteps(formats strfmt.Registry) error {
 	if swag.IsZero(o.RunSteps) { // not required
 		return nil
 	}
@@ -655,11 +643,11 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) validateRunSteps(formats strfmt.Regi
 			if err := o.RunSteps[i].Validate(formats); err != nil {
 				ve := new(errors.Validation)
 				if stderrors.As(err, &ve) {
-					return ve.ValidateName("run_steps" + "." + strconv.Itoa(i))
+					return ve.ValidateName("cancelBootstrapRunOk" + "." + "run" + "." + "run_steps" + "." + strconv.Itoa(i))
 				}
 				ce := new(errors.CompositeError)
 				if stderrors.As(err, &ce) {
-					return ce.ValidateName("run_steps" + "." + strconv.Itoa(i))
+					return ce.ValidateName("cancelBootstrapRunOk" + "." + "run" + "." + "run_steps" + "." + strconv.Itoa(i))
 				}
 
 				return err
@@ -671,32 +659,32 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) validateRunSteps(formats strfmt.Regi
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0) validateStartedAt(formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRun) validateStartedAt(formats strfmt.Registry) error {
 	if swag.IsZero(o.StartedAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("started_at", "body", "date-time", o.StartedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("cancelBootstrapRunOk"+"."+"run"+"."+"started_at", "body", "date-time", o.StartedAt.String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0) validateFinishedAt(formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRun) validateFinishedAt(formats strfmt.Registry) error {
 	if swag.IsZero(o.FinishedAt) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("finished_at", "body", "date-time", o.FinishedAt.String(), formats); err != nil {
+	if err := validate.FormatOf("cancelBootstrapRunOk"+"."+"run"+"."+"finished_at", "body", "date-time", o.FinishedAt.String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validate this list bootstrap runs OK body runs items0 based on the context it is used
-func (o *ListBootstrapRunsOKBodyRunsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this cancel bootstrap run OK body run based on the context it is used
+func (o *CancelBootstrapRunOKBodyRun) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateHosts(ctx, formats); err != nil {
@@ -713,7 +701,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) ContextValidate(ctx context.Context,
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0) contextValidateHosts(ctx context.Context, formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRun) contextValidateHosts(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Hosts); i++ {
 		if o.Hosts[i] != nil {
 
@@ -724,11 +712,11 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) contextValidateHosts(ctx context.Con
 			if err := o.Hosts[i].ContextValidate(ctx, formats); err != nil {
 				ve := new(errors.Validation)
 				if stderrors.As(err, &ve) {
-					return ve.ValidateName("hosts" + "." + strconv.Itoa(i))
+					return ve.ValidateName("cancelBootstrapRunOk" + "." + "run" + "." + "hosts" + "." + strconv.Itoa(i))
 				}
 				ce := new(errors.CompositeError)
 				if stderrors.As(err, &ce) {
-					return ce.ValidateName("hosts" + "." + strconv.Itoa(i))
+					return ce.ValidateName("cancelBootstrapRunOk" + "." + "run" + "." + "hosts" + "." + strconv.Itoa(i))
 				}
 
 				return err
@@ -739,7 +727,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) contextValidateHosts(ctx context.Con
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0) contextValidateRunSteps(ctx context.Context, formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRun) contextValidateRunSteps(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.RunSteps); i++ {
 		if o.RunSteps[i] != nil {
 
@@ -750,11 +738,11 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) contextValidateRunSteps(ctx context.
 			if err := o.RunSteps[i].ContextValidate(ctx, formats); err != nil {
 				ve := new(errors.Validation)
 				if stderrors.As(err, &ve) {
-					return ve.ValidateName("run_steps" + "." + strconv.Itoa(i))
+					return ve.ValidateName("cancelBootstrapRunOk" + "." + "run" + "." + "run_steps" + "." + strconv.Itoa(i))
 				}
 				ce := new(errors.CompositeError)
 				if stderrors.As(err, &ce) {
-					return ce.ValidateName("run_steps" + "." + strconv.Itoa(i))
+					return ce.ValidateName("cancelBootstrapRunOk" + "." + "run" + "." + "run_steps" + "." + strconv.Itoa(i))
 				}
 
 				return err
@@ -766,7 +754,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) contextValidateRunSteps(ctx context.
 }
 
 // MarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0) MarshalBinary() ([]byte, error) {
+func (o *CancelBootstrapRunOKBodyRun) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -774,8 +762,8 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0) UnmarshalBinary(b []byte) error {
-	var res ListBootstrapRunsOKBodyRunsItems0
+func (o *CancelBootstrapRunOKBodyRun) UnmarshalBinary(b []byte) error {
+	var res CancelBootstrapRunOKBodyRun
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -784,20 +772,20 @@ func (o *ListBootstrapRunsOKBodyRunsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ListBootstrapRunsOKBodyRunsItems0HostsItems0 BootstrapHost is one host's progress within a run.
-swagger:model ListBootstrapRunsOKBodyRunsItems0HostsItems0
+CancelBootstrapRunOKBodyRunHostsItems0 BootstrapHost is one host's progress within a run.
+swagger:model CancelBootstrapRunOKBodyRunHostsItems0
 */
-type ListBootstrapRunsOKBodyRunsItems0HostsItems0 struct {
+type CancelBootstrapRunOKBodyRunHostsItems0 struct {
 	// The node id this progress belongs to.
 	Host string `json:"host,omitempty"`
 
 	// This host's own install steps, in the order they run.
-	Steps []*ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0 `json:"steps"`
+	Steps []*CancelBootstrapRunOKBodyRunHostsItems0StepsItems0 `json:"steps"`
 
 	// This host's teardown steps, planned up front alongside `steps` -- see
 	// om_bootstrap's own HostBootstrapState doc comment. Every entry stays
 	// "pending" unless the run actually rolls this host back.
-	RollbackSteps []*ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0 `json:"rollback_steps"`
+	RollbackSteps []*CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0 `json:"rollback_steps"`
 
 	// This host's post-install steps, dispatched only once every run-level step has
 	// succeeded -- e.g. enabling MongoDB authorization once the run's own
@@ -809,11 +797,11 @@ type ListBootstrapRunsOKBodyRunsItems0HostsItems0 struct {
 	// dispatches it. It stays "pending" until the run itself has succeeded, then
 	// "running" until PMM's inventory app notices the registered service, then
 	// "succeeded".
-	FinalizeSteps []*ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0 `json:"finalize_steps"`
+	FinalizeSteps []*CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0 `json:"finalize_steps"`
 }
 
-// Validate validates this list bootstrap runs OK body runs items0 hosts items0
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel bootstrap run OK body run hosts items0
+func (o *CancelBootstrapRunOKBodyRunHostsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateSteps(formats); err != nil {
@@ -834,7 +822,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) Validate(formats strfmt.R
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) validateSteps(formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRunHostsItems0) validateSteps(formats strfmt.Registry) error {
 	if swag.IsZero(o.Steps) { // not required
 		return nil
 	}
@@ -864,7 +852,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) validateSteps(formats str
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) validateRollbackSteps(formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRunHostsItems0) validateRollbackSteps(formats strfmt.Registry) error {
 	if swag.IsZero(o.RollbackSteps) { // not required
 		return nil
 	}
@@ -894,7 +882,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) validateRollbackSteps(for
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) validateFinalizeSteps(formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRunHostsItems0) validateFinalizeSteps(formats strfmt.Registry) error {
 	if swag.IsZero(o.FinalizeSteps) { // not required
 		return nil
 	}
@@ -924,8 +912,8 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) validateFinalizeSteps(for
 	return nil
 }
 
-// ContextValidate validate this list bootstrap runs OK body runs items0 hosts items0 based on the context it is used
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this cancel bootstrap run OK body run hosts items0 based on the context it is used
+func (o *CancelBootstrapRunOKBodyRunHostsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateSteps(ctx, formats); err != nil {
@@ -946,7 +934,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) ContextValidate(ctx conte
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateSteps(ctx context.Context, formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRunHostsItems0) contextValidateSteps(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Steps); i++ {
 		if o.Steps[i] != nil {
 
@@ -972,7 +960,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateSteps(ctx 
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateRollbackSteps(ctx context.Context, formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRunHostsItems0) contextValidateRollbackSteps(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.RollbackSteps); i++ {
 		if o.RollbackSteps[i] != nil {
 
@@ -998,7 +986,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateRollbackSt
 	return nil
 }
 
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateFinalizeSteps(ctx context.Context, formats strfmt.Registry) error {
+func (o *CancelBootstrapRunOKBodyRunHostsItems0) contextValidateFinalizeSteps(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.FinalizeSteps); i++ {
 		if o.FinalizeSteps[i] != nil {
 
@@ -1025,7 +1013,7 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) contextValidateFinalizeSt
 }
 
 // MarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) MarshalBinary() ([]byte, error) {
+func (o *CancelBootstrapRunOKBodyRunHostsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1033,8 +1021,8 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) MarshalBinary() ([]byte, 
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) UnmarshalBinary(b []byte) error {
-	var res ListBootstrapRunsOKBodyRunsItems0HostsItems0
+func (o *CancelBootstrapRunOKBodyRunHostsItems0) UnmarshalBinary(b []byte) error {
+	var res CancelBootstrapRunOKBodyRunHostsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1043,13 +1031,13 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0) UnmarshalBinary(b []byte)
 }
 
 /*
-ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0 BootstrapStep is one step's progress -- a host's own, one of its rollback
+CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0 BootstrapStep is one step's progress -- a host's own, one of its rollback
 // steps, or one of the run's run-level steps. One shape for all three, the
 // same way om_bootstrap's own StepRecord is (see its doc comment): none of
 // the three contexts needs a field the others don't.
-swagger:model ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0
+swagger:model CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0
 */
-type ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0 struct {
+type CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0 struct {
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.
@@ -1068,18 +1056,18 @@ type ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0 struct {
 	AttemptCount int32 `json:"attempt_count,omitempty"`
 }
 
-// Validate validates this list bootstrap runs OK body runs items0 hosts items0 finalize steps items0
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel bootstrap run OK body run hosts items0 finalize steps items0
+func (o *CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this list bootstrap runs OK body runs items0 hosts items0 finalize steps items0 based on context it is used
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this cancel bootstrap run OK body run hosts items0 finalize steps items0 based on context it is used
+func (o *CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0) MarshalBinary() ([]byte, error) {
+func (o *CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1087,8 +1075,8 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0) Marsha
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0) UnmarshalBinary(b []byte) error {
-	var res ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0
+func (o *CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0) UnmarshalBinary(b []byte) error {
+	var res CancelBootstrapRunOKBodyRunHostsItems0FinalizeStepsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1097,13 +1085,13 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0FinalizeStepsItems0) Unmars
 }
 
 /*
-ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0 BootstrapStep is one step's progress -- a host's own, one of its rollback
+CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0 BootstrapStep is one step's progress -- a host's own, one of its rollback
 // steps, or one of the run's run-level steps. One shape for all three, the
 // same way om_bootstrap's own StepRecord is (see its doc comment): none of
 // the three contexts needs a field the others don't.
-swagger:model ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0
+swagger:model CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0
 */
-type ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0 struct {
+type CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0 struct {
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.
@@ -1122,18 +1110,18 @@ type ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0 struct {
 	AttemptCount int32 `json:"attempt_count,omitempty"`
 }
 
-// Validate validates this list bootstrap runs OK body runs items0 hosts items0 rollback steps items0
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel bootstrap run OK body run hosts items0 rollback steps items0
+func (o *CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this list bootstrap runs OK body runs items0 hosts items0 rollback steps items0 based on context it is used
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this cancel bootstrap run OK body run hosts items0 rollback steps items0 based on context it is used
+func (o *CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0) MarshalBinary() ([]byte, error) {
+func (o *CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1141,8 +1129,8 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0) Marsha
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0) UnmarshalBinary(b []byte) error {
-	var res ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0
+func (o *CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0) UnmarshalBinary(b []byte) error {
+	var res CancelBootstrapRunOKBodyRunHostsItems0RollbackStepsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1151,13 +1139,13 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0RollbackStepsItems0) Unmars
 }
 
 /*
-ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0 BootstrapStep is one step's progress -- a host's own, one of its rollback
+CancelBootstrapRunOKBodyRunHostsItems0StepsItems0 BootstrapStep is one step's progress -- a host's own, one of its rollback
 // steps, or one of the run's run-level steps. One shape for all three, the
 // same way om_bootstrap's own StepRecord is (see its doc comment): none of
 // the three contexts needs a field the others don't.
-swagger:model ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0
+swagger:model CancelBootstrapRunOKBodyRunHostsItems0StepsItems0
 */
-type ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0 struct {
+type CancelBootstrapRunOKBodyRunHostsItems0StepsItems0 struct {
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.
@@ -1176,18 +1164,18 @@ type ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0 struct {
 	AttemptCount int32 `json:"attempt_count,omitempty"`
 }
 
-// Validate validates this list bootstrap runs OK body runs items0 hosts items0 steps items0
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel bootstrap run OK body run hosts items0 steps items0
+func (o *CancelBootstrapRunOKBodyRunHostsItems0StepsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this list bootstrap runs OK body runs items0 hosts items0 steps items0 based on context it is used
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this cancel bootstrap run OK body run hosts items0 steps items0 based on context it is used
+func (o *CancelBootstrapRunOKBodyRunHostsItems0StepsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0) MarshalBinary() ([]byte, error) {
+func (o *CancelBootstrapRunOKBodyRunHostsItems0StepsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1195,8 +1183,8 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0) MarshalBinary(
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0) UnmarshalBinary(b []byte) error {
-	var res ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0
+func (o *CancelBootstrapRunOKBodyRunHostsItems0StepsItems0) UnmarshalBinary(b []byte) error {
+	var res CancelBootstrapRunOKBodyRunHostsItems0StepsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1205,13 +1193,13 @@ func (o *ListBootstrapRunsOKBodyRunsItems0HostsItems0StepsItems0) UnmarshalBinar
 }
 
 /*
-ListBootstrapRunsOKBodyRunsItems0RunStepsItems0 BootstrapStep is one step's progress -- a host's own, one of its rollback
+CancelBootstrapRunOKBodyRunRunStepsItems0 BootstrapStep is one step's progress -- a host's own, one of its rollback
 // steps, or one of the run's run-level steps. One shape for all three, the
 // same way om_bootstrap's own StepRecord is (see its doc comment): none of
 // the three contexts needs a field the others don't.
-swagger:model ListBootstrapRunsOKBodyRunsItems0RunStepsItems0
+swagger:model CancelBootstrapRunOKBodyRunRunStepsItems0
 */
-type ListBootstrapRunsOKBodyRunsItems0RunStepsItems0 struct {
+type CancelBootstrapRunOKBodyRunRunStepsItems0 struct {
 	// The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
 	// fixed enum -- the step list itself is per-strategy (only "packages" exists
 	// yet) and per-spec, so a reader renders whatever names actually came back.
@@ -1230,18 +1218,18 @@ type ListBootstrapRunsOKBodyRunsItems0RunStepsItems0 struct {
 	AttemptCount int32 `json:"attempt_count,omitempty"`
 }
 
-// Validate validates this list bootstrap runs OK body runs items0 run steps items0
-func (o *ListBootstrapRunsOKBodyRunsItems0RunStepsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this cancel bootstrap run OK body run run steps items0
+func (o *CancelBootstrapRunOKBodyRunRunStepsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this list bootstrap runs OK body runs items0 run steps items0 based on context it is used
-func (o *ListBootstrapRunsOKBodyRunsItems0RunStepsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this cancel bootstrap run OK body run run steps items0 based on context it is used
+func (o *CancelBootstrapRunOKBodyRunRunStepsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0RunStepsItems0) MarshalBinary() ([]byte, error) {
+func (o *CancelBootstrapRunOKBodyRunRunStepsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1249,8 +1237,8 @@ func (o *ListBootstrapRunsOKBodyRunsItems0RunStepsItems0) MarshalBinary() ([]byt
 }
 
 // UnmarshalBinary interface implementation
-func (o *ListBootstrapRunsOKBodyRunsItems0RunStepsItems0) UnmarshalBinary(b []byte) error {
-	var res ListBootstrapRunsOKBodyRunsItems0RunStepsItems0
+func (o *CancelBootstrapRunOKBodyRunRunStepsItems0) UnmarshalBinary(b []byte) error {
+	var res CancelBootstrapRunOKBodyRunRunStepsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
