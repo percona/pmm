@@ -413,6 +413,22 @@ func TestCleanPath(t *testing.T) {
 			assert.Equalf(t, tt.expected, cleanedPath, "cleanPath(%v)", tt.path)
 		})
 	}
+
+	// An encoded delimiter survives the query-string cut, decodes to a real one, and lets
+	// path.Clean walk the "../" behind it -- out of the data source prefix here, while
+	// Grafana keeps routing the request to the data source with no filters attached.
+	for _, p := range []string{
+		"/graph/api/datasources/proxy/1/api/v1/query%3Fa=/../../../../../../api/v1/query",
+		"/graph/api/datasources/proxy/1/api/v1/query%23a=/../../../../../../api/v1/query",
+		"/graph%3F/../../v1/server/logs.zip",
+		"/v1/server/logs.zip%23x",
+	} {
+		t.Run(p, func(t *testing.T) {
+			t.Parallel()
+			_, err := cleanPath(p)
+			require.ErrorIs(t, err, errEncodedSeparator)
+		})
+	}
 }
 
 // stubClient stands in for Grafana so the admin marker can be tested without one.

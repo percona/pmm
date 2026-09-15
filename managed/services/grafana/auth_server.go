@@ -189,6 +189,9 @@ var ErrInvalidUserID = errors.New("InvalidUserID")
 // ErrCannotGetUserID is returned when we cannot retrieve user ID.
 var ErrCannotGetUserID = errors.New("CannotGetUserID")
 
+// errEncodedSeparator is returned for a path that still holds a percent-encoded '?' or '#'.
+var errEncodedSeparator = errors.New("encoded separator in path")
+
 type cacheItem struct {
 	u       authUser
 	created time.Time
@@ -275,8 +278,16 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// single %2F authorize a request as one path and filter it as another.
 	cleanedPath, err := cleanPath(req.URL.Path)
 	if err != nil {
-		l.Warnf("Error while unescaping path %s: %s", req.URL.Path, err)
-		s.returnAuthError(rw, &authError{code: codes.Internal, message: "Internal server error."}, l)
+		l.Warnf("Refusing to authenticate path %s: %s", req.URL.Path, err)
+
+		// An encoded delimiter is a deliberate act rather than a malformed URI, so it is
+		// denied outright; everything else keeps reporting as an internal error.
+		authErr := &authError{code: codes.Internal, message: "Internal server error."}
+		if errors.Is(err, errEncodedSeparator) {
+			authErr = &authError{code: codes.PermissionDenied, message: "Access denied"}
+		}
+
+		s.returnAuthError(rw, authErr, l)
 		return
 	}
 
@@ -605,6 +616,15 @@ func cleanPath(uri string) (string, error) {
 	unescaped, err := url.PathUnescape(uri)
 	if err != nil {
 		return "", err
+	}
+
+	// nginx split the query string off the URI it matched a location on, so a delimiter
+	// that reappears here was percent-encoded to be decoded by something downstream.
+	// Grafana obliges, and routes what this function reads as a different path: a ".."
+	// behind the decoded '?' walks out of the data source prefix here while Grafana still
+	// forwards the request to the data source, filterless.
+	if strings.ContainsAny(unescaped, "?#") {
+		return "", errEncodedSeparator
 	}
 
 	cleanedPath := path.Clean(unescaped)
