@@ -19,7 +19,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
+	logrustest "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -29,6 +31,20 @@ import (
 	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
+
+// fillChanges fills the state change channel, so that the next send of an Agent's status forwarder
+// parks on it and a bounded wait for that forwarder gives up.
+//
+// The forwarder fills the same channel, so this never blocks on a send: it can take the last slot
+// between the check and the send, and there is no consumer to free one.
+func fillChanges(s *Supervisor) {
+	for len(s.changes) < changesBufferSize {
+		select {
+		case s.changes <- &agentv1.StateChangedRequest{}:
+		default:
+		}
+	}
+}
 
 // assertChanges checks expected changes in any order.
 func assertChanges(t *testing.T, s *Supervisor, expected ...*agentv1.StateChangedRequest) {
@@ -258,6 +274,399 @@ func TestSupervisor(t *testing.T) {
 		)
 		require.Empty(t, s.AgentsList())
 	})
+}
+
+func TestWaitAgentStopped(t *testing.T) {
+	t.Parallel()
+
+	cfgStorage := config.NewStorage(&config.Config{Ports: config.Ports{Min: 65200, Max: 65299}})
+	s := NewSupervisor(t.Context(), nil, cfgStorage)
+	const budget = 100 * time.Millisecond
+
+	t.Run("Stopped", func(t *testing.T) {
+		t.Parallel()
+
+		done := make(chan struct{})
+		close(done)
+
+		start := time.Now()
+		assert.True(t, s.waitAgentStopped("stopped", done, start.Add(budget)))
+		assert.Less(t, time.Since(start), budget)
+	})
+
+	t.Run("Stuck", func(t *testing.T) {
+		t.Parallel()
+
+		// An Agent whose status forwarder cannot finish must not hold up SetState - and with
+		// it every other supervisor operation - forever. See PMM-15431.
+		start := time.Now()
+		assert.False(t, s.waitAgentStopped("stuck", make(chan struct{}), start.Add(budget)))
+		assert.GreaterOrEqual(t, time.Since(start), budget)
+	})
+
+	t.Run("StoppedAfterBudgetSpent", func(t *testing.T) {
+		t.Parallel()
+
+		// An Agent that had already stopped must not be reported as timed out just because
+		// an earlier one used up the budget. Both select cases are ready in that case, so
+		// without the fast path roughly half of these would be logged as a timeout.
+		logger, hook := logrustest.NewNullLogger()
+		spent := NewSupervisor(t.Context(), nil, cfgStorage)
+		spent.l = logger.WithField("component", "supervisor")
+
+		done := make(chan struct{})
+		close(done)
+
+		for range 100 {
+			assert.True(t, spent.waitAgentStopped("stopped", done, time.Now().Add(-time.Second)))
+		}
+
+		assert.Empty(t, hook.AllEntries())
+	})
+
+	t.Run("BudgetSharedByAllAgents", func(t *testing.T) {
+		t.Parallel()
+
+		// The budget is for the whole call, so a batch of stuck Agents cannot hold s.rw for
+		// a multiple of it.
+		start := time.Now()
+		deadline := start.Add(budget)
+		for range 5 {
+			s.waitAgentStopped("stuck", make(chan struct{}), deadline)
+		}
+		assert.Less(t, time.Since(start), 2*budget)
+	})
+}
+
+func TestReleaseAgentResources(t *testing.T) {
+	t.Parallel()
+
+	setup := func(t *testing.T, minPort, maxPort uint16) (*Supervisor, uint16, string) {
+		t.Helper()
+
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths: config.Paths{TempDir: t.TempDir()},
+			Ports: config.Ports{Min: minPort, Max: maxPort},
+		})
+		s := NewSupervisor(t.Context(), nil, cfgStorage)
+
+		port, err := s.portsRegistry.Reserve()
+		require.NoError(t, err)
+
+		agentTmp := filepath.Join(cfgStorage.Get().Paths.TempDir, "agent")
+		require.NoError(t, os.MkdirAll(agentTmp, 0o750))
+
+		return s, port, agentTmp
+	}
+
+	reserved := func(s *Supervisor, port uint16) bool {
+		s.portsRegistry.m.Lock()
+		defer s.portsRegistry.m.Unlock()
+		_, ok := s.portsRegistry.reserved[port]
+
+		return ok
+	}
+
+	t.Run("Stopped", func(t *testing.T) {
+		t.Parallel()
+
+		s, port, agentTmp := setup(t, 65500, 65511)
+		done := make(chan struct{})
+		close(done)
+
+		s.releaseAgentResources("stopped", done, port, agentTmp)
+
+		assert.False(t, reserved(s, port))
+		assert.NoDirExists(t, agentTmp)
+	})
+
+	t.Run("StillRunning", func(t *testing.T) {
+		t.Parallel()
+
+		// An Agent that outlived the stop budget still owns its port and its temporary
+		// directory. Releasing a port it may still be listening on fails and loses the
+		// reservation for good, as the Agent it belonged to is already forgotten. See
+		// PMM-15431.
+		//
+		// The port comes back once it stops; the directory never does, because by then
+		// the ID may belong to a replacement whose files those are.
+		s, port, agentTmp := setup(t, 65512, 65523)
+		done := make(chan struct{})
+
+		s.releaseAgentResources("stuck", done, port, agentTmp)
+
+		assert.True(t, reserved(s, port))
+		assert.DirExists(t, agentTmp)
+
+		close(done)
+
+		assert.Eventually(t, func() bool {
+			return !reserved(s, port)
+		}, time.Second, 10*time.Millisecond, "port was never released")
+
+		assert.DirExists(t, agentTmp, "temporary directory of a re-created Agent was removed")
+	})
+
+	t.Run("StillRunningKeepsDirectoryOfRecreatedAgent", func(t *testing.T) {
+		t.Parallel()
+
+		// The regression this guards: the Agent is abandoned, its ID is re-created while
+		// it is still stopping, and the replacement renders its TLS certificates and text
+		// files into the directory of the same name. Removing it when the old Agent
+		// finally stops takes them out from under the replacement. See PMM-15431.
+		s, port, agentTmp := setup(t, 65488, 65499)
+		done := make(chan struct{})
+
+		s.releaseAgentResources("recreated", done, port, agentTmp)
+
+		replacement := filepath.Join(agentTmp, "ca.crt")
+		require.NoError(t, os.WriteFile(replacement, []byte("certificate"), 0o600))
+
+		close(done)
+
+		assert.Eventually(t, func() bool {
+			return !reserved(s, port)
+		}, time.Second, 10*time.Millisecond, "port was never released")
+
+		assert.FileExists(t, replacement, "replacement Agent's files were removed with the directory")
+	})
+}
+
+// TestStopCancelsBeforeWaiting is the regression test for a stop budget that covers the whole call
+// being spent entirely on the first Agent to hang: the Agents after it were canceled only once it
+// was gone, so one that stops normally was given no time at all and abandoned too. See PMM-15431.
+func TestStopCancelsBeforeWaiting(t *testing.T) {
+	t.Parallel()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		Paths: config.Paths{TempDir: t.TempDir()},
+		Ports: config.Ports{Min: 65100, Max: 65199},
+	})
+	s := NewSupervisor(t.Context(), nil, cfgStorage)
+	logger, hook := logrustest.NewNullLogger()
+	s.l = logger.WithField("component", "supervisor")
+
+	// "hung" never reports itself stopped and eats the whole budget. "slow" takes a moment
+	// after being canceled, as an Agent that has to be SIGKILLed does; sorted after "hung",
+	// so it is the one that used to be left with nothing.
+	slow := make(chan struct{})
+	s.agentProcesses = map[string]*agentProcessInfo{
+		"hung": {
+			cancel:         func() {},
+			done:           make(chan struct{}),
+			requestedState: &agentv1.SetStateRequest_AgentProcess{Type: typeTestSleep},
+		},
+		"slow": {
+			cancel:         func() { time.AfterFunc(10*time.Millisecond, func() { close(slow) }) },
+			done:           slow,
+			requestedState: &agentv1.SetStateRequest_AgentProcess{Type: typeTestSleep},
+		},
+	}
+
+	s.setAgentProcesses(nil, time.Now().Add(200*time.Millisecond))
+
+	for _, entry := range hook.AllEntries() {
+		assert.NotContains(t, entry.Message, "slow", "an Agent that stopped normally was abandoned")
+	}
+	assert.Empty(t, s.agentProcesses)
+}
+
+// TestStopKeepsPortOfRunningAgent is the regression test for the same in SetState, which used to
+// release the port and clear the temporary directory of every Agent it gave up waiting for,
+// running or not.
+func TestStopKeepsPortOfRunningAgent(t *testing.T) {
+	t.Parallel()
+
+	cfgStorage := config.NewStorage(&config.Config{
+		Paths:         config.Paths{TempDir: t.TempDir()},
+		Ports:         config.Ports{Min: 65524, Max: 65535},
+		LogLinesCount: 1,
+	})
+	s := NewSupervisor(t.Context(), nil, cfgStorage)
+	s.agentsStopTimeout = 200 * time.Millisecond
+
+	s.SetState(&agentv1.SetStateRequest{
+		AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
+			"sleep1": {Type: typeTestSleep, Args: []string{"100"}},
+		},
+	})
+
+	agents := s.AgentsList()
+	require.Len(t, agents, 1)
+	port := uint16(agents[0].ListenPort)
+
+	// Nobody drains Changes(), so the wait for the stopping Agent below gives up on it.
+	fillChanges(s)
+
+	s.SetState(&agentv1.SetStateRequest{})
+
+	reserved := func() bool {
+		s.portsRegistry.m.Lock()
+		defer s.portsRegistry.m.Unlock()
+		_, ok := s.portsRegistry.reserved[port]
+
+		return ok
+	}
+	require.Empty(t, s.AgentsList())
+	assert.True(t, reserved(), "port of an Agent that has not stopped yet was released")
+
+	// Draining lets the forwarder finish, and the port goes back once it has.
+	go func() {
+		for range s.Changes() { //nolint:revive
+		}
+	}()
+
+	assert.Eventually(t, func() bool {
+		return !reserved()
+	}, 10*time.Second, 50*time.Millisecond, "port was never released")
+}
+
+func TestStopAll(t *testing.T) {
+	t.Parallel()
+
+	newSupervisor := func(t *testing.T, minPort, maxPort uint16) *Supervisor {
+		t.Helper()
+
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths:         config.Paths{TempDir: t.TempDir()},
+			Ports:         config.Ports{Min: minPort, Max: maxPort},
+			LogLinesCount: 1,
+		})
+		s := NewSupervisor(t.Context(), nil, cfgStorage)
+		s.agentsStopTimeout = 200 * time.Millisecond
+
+		return s
+	}
+
+	sleeper := &agentv1.SetStateRequest{
+		AgentProcesses: map[string]*agentv1.SetStateRequest_AgentProcess{
+			"sleep1": {Type: typeTestSleep, Args: []string{"100"}},
+		},
+	}
+
+	t.Run("ClosesChannels", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 65300, 65399)
+		s.SetState(sleeper)
+
+		// Drained throughout, so every forwarder finishes and the channels can be closed.
+		drained := make(chan struct{})
+		go func() {
+			for range s.Changes() { //nolint:revive
+			}
+			close(drained)
+		}()
+
+		s.stopAll()
+
+		<-drained
+		_, more := <-s.QANRequests()
+		assert.False(t, more)
+		_, more = <-s.RTARequests()
+		assert.False(t, more)
+	})
+
+	t.Run("StuckForwarderKeepsChannelsOpen", func(t *testing.T) {
+		t.Parallel()
+
+		s := newSupervisor(t, 65400, 65499)
+		s.SetState(sleeper)
+
+		// Nobody drains Changes(), so the forwarder's next send blocks and the bounded wait
+		// in stopAll gives up on it. Closing the channels then would panic the forwarder on
+		// a send to a closed channel. See PMM-15431.
+		fillChanges(s)
+
+		s.stopAll()
+
+		// Still open, so the send the forwarder is parked on cannot bring the agent down.
+		// Asserted on the empty channels, not on Changes(): fillChanges left changesBufferSize
+		// items buffered, and a closed buffered channel still yields more == true until it is
+		// drained, so a receive there cannot tell open from closed. On these two a receive can
+		// only succeed if stopAll closed them.
+		select {
+		case _, more := <-s.QANRequests():
+			assert.True(t, more, "QANRequests() was closed")
+		default:
+		}
+
+		select {
+		case _, more := <-s.RTARequests():
+			assert.True(t, more, "RTARequests() was closed")
+		default:
+		}
+	})
+
+	t.Run("StuckForwarderGivesUpOnShutdown", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := context.WithCancel(t.Context())
+		cfgStorage := config.NewStorage(&config.Config{
+			Paths:         config.Paths{TempDir: t.TempDir()},
+			Ports:         config.Ports{Min: 65200, Max: 65299},
+			LogLinesCount: 1,
+		})
+		s := NewSupervisor(ctx, nil, cfgStorage)
+		s.agentsStopTimeout = 200 * time.Millisecond
+		s.SetState(sleeper)
+
+		fillChanges(s)
+
+		// The real shutdown path: Run waits for the context and only then calls stopAll, so
+		// a forwarder parked on a full channel is parked with the context already done.
+		cancel()
+		s.stopAll()
+
+		// It gave up rather than staying parked, so nothing can send any more and the
+		// channels are closed. Leaving them open here would leak the forwarder and all three
+		// channels on every config reload, which run.go survives by building a fresh
+		// Supervisor. See PMM-15431.
+		select {
+		case _, more := <-s.QANRequests():
+			assert.False(t, more, "QANRequests() should be closed")
+		default:
+			t.Error("QANRequests() was left open by a forwarder that never gave up")
+		}
+	})
+}
+
+// TestAbandonedInstanceCannotReportForItsReplacement covers the cost of giving up on a stopping
+// Agent: it keeps running under an ID its replacement now owns, and a DONE from it used to delete
+// the replacement's status, leaving a live Agent reported as stopped with nothing to correct it.
+// See PMM-15431.
+func TestAbandonedInstanceCannotReportForItsReplacement(t *testing.T) {
+	t.Parallel()
+
+	cfgStorage := config.NewStorage(&config.Config{Ports: config.Ports{Min: 65500, Max: 65535}})
+	s := NewSupervisor(t.Context(), nil, cfgStorage)
+
+	const agentID = "sleep1"
+
+	abandoned := s.startInstance(agentID)
+	require.True(t, s.storeLastStatus(agentID, abandoned, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING))
+
+	// The stop budget ran out, so the Agent above is still running when its replacement takes
+	// the ID over.
+	replacement := s.startInstance(agentID)
+	require.True(t, s.storeLastStatus(agentID, replacement, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING))
+
+	// Whatever the abandoned one has left to say is no longer about this ID.
+	assert.False(t, s.storeLastStatus(agentID, abandoned, inventoryv1.AgentStatus_AGENT_STATUS_STOPPING))
+	assert.False(t, s.storeLastStatus(agentID, abandoned, inventoryv1.AgentStatus_AGENT_STATUS_DONE))
+
+	s.arw.RLock()
+	status := s.lastStatuses[agentID]
+	s.arw.RUnlock()
+	assert.Equal(t, inventoryv1.AgentStatus_AGENT_STATUS_RUNNING, status,
+		"the replacement is running and must still be reported as running")
+
+	// The replacement's own DONE still lands.
+	assert.True(t, s.storeLastStatus(agentID, replacement, inventoryv1.AgentStatus_AGENT_STATUS_DONE))
+	s.arw.RLock()
+	_, ok := s.lastStatuses[agentID]
+	s.arw.RUnlock()
+	assert.False(t, ok)
 }
 
 func TestStartProcessFail(t *testing.T) {

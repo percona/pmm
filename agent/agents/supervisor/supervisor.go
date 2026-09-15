@@ -25,6 +25,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -55,6 +56,21 @@ const (
 	changesBufferSize     = 100
 	qanRequestsBufferSize = 100
 	rtaRequestsBufferSize = 100
+
+	// Budget for waiting on stopped Agents' status forwarders in one call.
+	//
+	// Those waits reach the server - a stopping Agent's last statuses go out through Changes()
+	// and the client waits for each to be acknowledged - so left unbounded they took the whole
+	// supervisor down with a wedged connection, s.rw included, and with it every SetState and
+	// the local status API. Giving up risks only reporting a stopped Agent's last statuses out
+	// of order: an abandoned Agent keeps what it owns until it does stop (see
+	// releaseAgentResources), and its replacement starts on a port of its own. It also leaves a
+	// forwarder that stopAll must not close the channels under, hence the count of them below.
+	// The budget covers the whole call rather than each Agent so that a batch of them cannot
+	// hold s.rw for N times as long; they are all canceled before any of them is waited on, so
+	// they spend it concurrently rather than one after another. It is sized well above
+	// process.killT, so a normal SIGTERM/SIGKILL stop never eats into it. See PMM-15431.
+	agentsStopTimeout = 60 * time.Second
 )
 
 // configGetter allows for getting a config.
@@ -80,6 +96,20 @@ type Supervisor struct {
 
 	arw          sync.RWMutex
 	lastStatuses map[string]inventoryv1.AgentStatus
+	// instances names the current instance of each Agent ID. An Agent abandoned by
+	// waitAgentStopped keeps running under an ID its replacement now owns, and its late
+	// statuses would otherwise speak for that replacement - a DONE among them deletes the
+	// replacement's status outright, leaving a running Agent reported as stopped with nothing
+	// to correct it. See PMM-15431.
+	instances    map[string]uint64
+	nextInstance uint64
+
+	// forwarders counts the running Agent status forwarders, so that stopAll never closes the
+	// channels they send to while one of them is still able to send. See PMM-15431.
+	forwarders atomic.Int64
+
+	// for unit tests only
+	agentsStopTimeout time.Duration
 }
 
 // agentProcessInfo describes Agent process.
@@ -105,9 +135,11 @@ type builtinAgentInfo struct {
 // NewSupervisor creates new Supervisor object.
 //
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
-// Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
-// QAN data is sent to QANRequests() channel which must be read until it is closed.
-// RTA data is sent to RTARequests() channel which must be read until it is closed.
+// Changes of Agent statuses are reported via Changes() channel, QAN data via QANRequests(), and RTA
+// data via RTARequests(). All three must be read, under the same context that stops the Supervisor:
+// they are closed once it has stopped, but an Agent whose status forwarder outlives the stop budget
+// leaves them open rather than risk a send on a closed channel (see stopAll), so waiting only for
+// the close can wait forever.
 func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Supervisor {
 	return &Supervisor{
 		ctx:            ctx,
@@ -122,6 +154,9 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
 		lastStatuses:   make(map[string]inventoryv1.AgentStatus),
+		instances:      make(map[string]uint64),
+
+		agentsStopTimeout: agentsStopTimeout,
 	}
 }
 
@@ -241,8 +276,9 @@ func (s *Supervisor) SetState(state *agentv1.SetStateRequest) {
 		return
 	}
 
-	s.setAgentProcesses(state.AgentProcesses)
-	s.setBuiltinAgents(state.BuiltinAgents)
+	deadline := time.Now().Add(s.agentsStopTimeout)
+	s.setAgentProcesses(state.AgentProcesses, deadline)
+	s.setBuiltinAgents(state.BuiltinAgents, deadline)
 }
 
 // RestartAgents restarts all existing agents.
@@ -250,19 +286,43 @@ func (s *Supervisor) RestartAgents() {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
-	for id, agent := range s.agentProcesses {
-		agent.cancel()
-		<-agent.done
+	deadline := time.Now().Add(s.agentsStopTimeout)
 
-		err := s.tryStartProcess(id, agent.requestedState, agent.listenPort)
+	// Iterate a snapshot of the keys: the give-up branch below deletes the entry and
+	// tryStartProcess re-inserts the same key, and an entry created during a range may be
+	// produced again by that range.
+	ids := make([]string, 0, len(s.agentProcesses))
+	for id := range s.agentProcesses {
+		ids = append(ids, id)
+	}
+
+	// Cancel them all first - see setAgentProcesses.
+	for _, id := range ids {
+		s.agentProcesses[id].cancel()
+	}
+
+	for _, id := range ids {
+		agent := s.agentProcesses[id]
+		port := agent.listenPort
+		if !s.waitAgentStopped(id, agent.done, deadline) {
+			// See the same branch in setAgentProcesses.
+			delete(s.agentProcesses, id)
+			s.releaseAgentResources(id, agent.done, port, "")
+			port = 0
+		}
+
+		err := s.tryStartProcess(id, agent.requestedState, port)
 		if err != nil {
 			s.l.Errorf("Failed to restart Agent: %s.", err)
 		}
 	}
 
-	for id, agent := range s.builtinAgents {
+	for _, agent := range s.builtinAgents {
 		agent.cancel()
-		<-agent.done
+	}
+
+	for id, agent := range s.builtinAgents {
+		s.waitAgentStopped(id, agent.done, deadline)
 
 		err := s.startBuiltin(id, agent.requestedState)
 		if err != nil {
@@ -271,21 +331,140 @@ func (s *Supervisor) RestartAgents() {
 	}
 }
 
-func (s *Supervisor) storeLastStatus(agentID string, status inventoryv1.AgentStatus) {
-	s.arw.Lock()
-	defer s.arw.Unlock()
+// waitAgentStopped waits for a canceled Agent's status forwarder to finish, until deadline. It
+// reports whether the Agent stopped; an abandoned one is still running, so everything that assumes
+// it is gone has to wait for it instead - see releaseAgentResources.
+func (s *Supervisor) waitAgentStopped(agentID string, done <-chan struct{}, deadline time.Time) bool {
+	// Take the answer if it is already there. Once the budget is spent both cases below are
+	// ready, and select would pick between them at random - reporting a timeout for every
+	// other Agent that had in fact stopped cleanly.
+	select {
+	case <-done:
+		return true
+	default:
+	}
 
-	if status == inventoryv1.AgentStatus_AGENT_STATUS_DONE {
-		delete(s.lastStatuses, agentID)
+	t := time.NewTimer(time.Until(deadline))
+	defer t.Stop()
+
+	select {
+	case <-done:
+		return true
+	case <-t.C:
+		s.l.Errorf("Agent %s did not report itself stopped, proceeding without it.", agentID)
+		return false
+	}
+}
+
+// releaseAgentResources gives back what an Agent owned: its port reservation, and its temporary
+// directory unless agentTmp is empty. A built-in Agent has no port, hence port 0.
+//
+// Both need the Agent actually gone, which one that outlived the stop budget is not, so it is
+// waited for in a goroutine of its own instead - off s.rw, and off the call that gave up on it.
+// Releasing a port a live exporter still listens on fails and keeps the reservation for good,
+// since the Agent that held it is already forgotten and nothing is left to retry it, and clearing
+// the directory takes files out from under a running Agent. Only the port is given back that way:
+// by then the ID may belong to a replacement, and the directory is the replacement's. See
+// PMM-15431.
+func (s *Supervisor) releaseAgentResources(agentID string, done <-chan struct{}, port uint16, agentTmp string) {
+	select {
+	case <-done:
+		s.releasePortAndTempDir(agentID, port, agentTmp)
+	default:
+		s.l.Warnf("Agent %s is still running, freeing what it owns once it stops.", agentID)
+		go func() {
+			select {
+			case <-done:
+				// Deliberately not agentTmp: an Agent with this ID may have been
+				// re-created while this one was stopping, and removing it now
+				// would take the replacement's TLS certificates and text files
+				// with it. A directory left behind is cleaned on the next start
+				// (see cleanupTmp), and reused as-is if the ID comes back before
+				// that.
+				s.releasePortAndTempDir(agentID, port, "")
+			case <-s.ctx.Done():
+				// pmm-agent is on its way out: the OS takes the port back, and
+				// the temporary directory is cleaned on the next start.
+			}
+		}()
+	}
+}
+
+func (s *Supervisor) releasePortAndTempDir(agentID string, port uint16, agentTmp string) {
+	if port != 0 {
+		err := s.portsRegistry.Release(port)
+		if err != nil {
+			s.l.Errorf("Failed to release port %d of Agent %s: %s.", port, agentID, err)
+		}
+	}
+
+	if agentTmp == "" {
 		return
 	}
 
+	err := os.RemoveAll(agentTmp)
+	if err != nil {
+		s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
+	}
+}
+
+// forward sends v to ch, and gives up only if the Supervisor is stopping and ch has no room.
+// Nothing drains these channels once the client is gone, so parking on a full one leaks the
+// forwarder and keeps stopAll from closing them; preferring the send keeps the final statuses of a
+// normal shutdown, which the client is still draining. See PMM-15431.
+func forward[T any](ctx context.Context, ch chan<- T, v T) bool {
+	select {
+	case ch <- v:
+		return true
+	default:
+	}
+
+	select {
+	case ch <- v:
+		return true
+	case <-ctx.Done():
+		return false
+	}
+}
+
+// startInstance makes a new instance of agentID the current one and returns its token.
+// Must be called with s.rw held for writing.
+func (s *Supervisor) startInstance(agentID string) uint64 {
+	s.arw.Lock()
+	defer s.arw.Unlock()
+
+	s.nextInstance++
+	s.instances[agentID] = s.nextInstance
+
+	return s.nextInstance
+}
+
+// storeLastStatus records status against agentID and reports whether it did. It does not, and the
+// caller must report nothing either, once instance is no longer the current one for that ID: the
+// checking and the storing share a lock precisely so that a replacement cannot slip in between.
+func (s *Supervisor) storeLastStatus(agentID string, instance uint64, status inventoryv1.AgentStatus) bool {
+	s.arw.Lock()
+	defer s.arw.Unlock()
+
+	if s.instances[agentID] != instance {
+		return false
+	}
+
+	if status == inventoryv1.AgentStatus_AGENT_STATUS_DONE {
+		delete(s.lastStatuses, agentID)
+		delete(s.instances, agentID)
+
+		return true
+	}
+
 	s.lastStatuses[agentID] = status
+
+	return true
 }
 
 // setAgentProcesses starts/restarts/stops Agent processes.
 // Must be called with s.rw held for writing.
-func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetStateRequest_AgentProcess) {
+func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetStateRequest_AgentProcess, deadline time.Time) {
 	existingParams := make(map[string]agentv1.AgentParams)
 	for id, p := range s.agentProcesses {
 		existingParams[id] = p.requestedState
@@ -302,35 +481,45 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 
 	// We have to wait for Agents to terminate before starting a new ones to send all state updates,
 	// and to reuse ports.
-	// If that place is slow, we can cancel them all in parallel, but then we still have to wait.
+
+	// Cancel them all first, so that they stop concurrently and the budget spent on the first
+	// one to hang is time the rest are already using. Canceling one at a time left every Agent
+	// after a hung one with no budget at all, so Agents that stop normally were abandoned too -
+	// and an abandoned one being restarted gives up its port for a new one and overlaps its
+	// replacement. See PMM-15431.
+	for _, agentID := range toStop {
+		s.agentProcesses[agentID].cancel()
+	}
+	for _, agentID := range toRestart {
+		s.agentProcesses[agentID].cancel()
+	}
 
 	// stop first to avoid extra load
 	for _, agentID := range toStop {
 		agent := s.agentProcesses[agentID]
-		agent.cancel()
-		<-agent.done
-
-		err := s.portsRegistry.Release(agent.listenPort)
-		if err != nil {
-			s.l.Errorf("Failed to release port: %s.", err)
-		}
+		s.waitAgentStopped(agentID, agent.done, deadline)
 
 		delete(s.agentProcesses, agentID)
 
 		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, trimPrefix(agent.requestedState.Type.String()), agentID)
-		err = os.RemoveAll(agentTmp)
-		if err != nil {
-			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
-		}
+		s.releaseAgentResources(agentID, agent.done, agent.listenPort, agentTmp)
 	}
 
 	// restart while preserving port
 	for _, agentID := range toRestart {
 		agent := s.agentProcesses[agentID]
-		agent.cancel()
-		<-agent.done
+		port := agent.listenPort
+		if !s.waitAgentStopped(agentID, agent.done, deadline) {
+			// It may still be listening, so let the replacement have a port of its
+			// own and hand this one back once it is free. Forget the Agent either
+			// way: it has been canceled, so if starting the replacement fails, a
+			// later SetState has to treat it as gone rather than as still running.
+			delete(s.agentProcesses, agentID)
+			s.releaseAgentResources(agentID, agent.done, port, "")
+			port = 0
+		}
 
-		err := s.tryStartProcess(agentID, agentProcesses[agentID], agent.listenPort)
+		err := s.tryStartProcess(agentID, agentProcesses[agentID], port)
 		if err != nil {
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
@@ -349,7 +538,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetSta
 
 // setBuiltinAgents starts/restarts/stops built-in Agents.
 // Must be called with s.rw held for writing.
-func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetStateRequest_BuiltinAgent) {
+func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetStateRequest_BuiltinAgent, deadline time.Time) {
 	existingParams := make(map[string]agentv1.AgentParams)
 	for id, agent := range s.builtinAgents {
 		existingParams[id] = agent.requestedState
@@ -365,28 +554,30 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetState
 	s.l.Infof("Starting %d, restarting %d, and stopping %d built-in agents.", len(toStart), len(toRestart), len(toStop))
 
 	// We have to wait for Agents to terminate before starting a new ones to send all state updates.
-	// If that place is slow, we can cancel them all in parallel, but then we still have to wait.
+
+	// Cancel them all first - see setAgentProcesses.
+	for _, agentID := range toStop {
+		s.builtinAgents[agentID].cancel()
+	}
+	for _, agentID := range toRestart {
+		s.builtinAgents[agentID].cancel()
+	}
 
 	// stop first to avoid extra load
 	for _, agentID := range toStop {
 		agent := s.builtinAgents[agentID]
-		agent.cancel()
-		<-agent.done
+		s.waitAgentStopped(agentID, agent.done, deadline)
 
 		delete(s.builtinAgents, agentID)
 
 		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, trimPrefix(agent.requestedState.Type.String()), agentID)
-		err := os.RemoveAll(agentTmp)
-		if err != nil {
-			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
-		}
+		s.releaseAgentResources(agentID, agent.done, 0, agentTmp)
 	}
 
 	// restart
 	for _, agentID := range toRestart {
 		agent := s.builtinAgents[agentID]
-		agent.cancel()
-		<-agent.done
+		s.waitAgentStopped(agentID, agent.done, deadline)
 
 		err := s.startBuiltin(agentID, builtinAgents[agentID])
 		if err != nil {
@@ -453,7 +644,8 @@ func (s *Supervisor) tryStartProcess(agentID string, agentProcess *agentv1.SetSt
 	var err error
 	for range processRetryCount {
 		if port == 0 {
-			_port, err := s.portsRegistry.Reserve()
+			var _port uint16
+			_port, err = s.portsRegistry.Reserve()
 			if err != nil {
 				s.l.Errorf("Failed to reserve port: %s.", err)
 				continue
@@ -498,19 +690,32 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 	}
 
 	done := make(chan struct{})
+	instance := s.startInstance(agentID)
+	s.forwarders.Add(1)
 	go func() {
+		defer func() {
+			// Before done, so that an observed done implies this forwarder is out of
+			// the count. Deferred so that giving up below still accounts for it.
+			s.forwarders.Add(-1)
+			close(done)
+		}()
+
 		for status := range processWrapper.Changes() {
-			s.storeLastStatus(agentID, status)
+			if !s.storeLastStatus(agentID, instance, status) {
+				// Abandoned: a replacement owns this ID now.
+				continue
+			}
 			l.Infof("Sending status: %s (port %d).", status, port)
-			s.changes <- &agentv1.StateChangedRequest{
+			if !forward(s.ctx, s.changes, &agentv1.StateChangedRequest{
 				AgentId:         agentID,
 				Status:          status,
 				ListenPort:      uint32(port),
 				ProcessExecPath: processParams.Path,
 				Version:         version,
+			}) {
+				return
 			}
 		}
-		close(done)
 	}()
 
 	processInfo := &agentProcessInfo{ //nolint:forcetypeassert
@@ -529,7 +734,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 		if !isInitialized {
 			// TODO: handle initialization error for nomad agent
 			if agentProcess.Type == inventoryv1.AgentType_AGENT_TYPE_NOMAD_AGENT {
-				s.handleNomadAgent(agentID, processInfo, l)
+				s.handleNomadAgent(agentID, instance, processInfo, l)
 				return nil
 			}
 			defer cancel()
@@ -546,6 +751,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetState
 //nolint:funcorder
 func (s *Supervisor) handleNomadAgent(
 	agentID string,
+	instance uint64,
 	processInfo *agentProcessInfo,
 	l *logrus.Entry,
 ) {
@@ -553,14 +759,19 @@ func (s *Supervisor) handleNomadAgent(
 	s.agentProcesses[agentID] = processInfo
 
 	status := inventoryv1.AgentStatus_AGENT_STATUS_DONE
-	s.storeLastStatus(agentID, status)
+	s.storeLastStatus(agentID, instance, status)
 	l.Warn("Cannot start Nomad Agent: cgroups are not writable.")
 	l.Infof("Sending status: %s (port %d).", status, processInfo.listenPort)
-	s.changes <- &agentv1.StateChangedRequest{
+	// Bounded: this runs with s.rw held for writing, so parking on a full channel would
+	// block every later SetState, AgentsList and stopAll for good. See PMM-15431.
+	select {
+	case s.changes <- &agentv1.StateChangedRequest{
 		AgentId:         agentID,
 		Status:          status,
 		ListenPort:      uint32(processInfo.listenPort),
 		ProcessExecPath: processInfo.processExecPath,
+	}:
+	case <-s.ctx.Done():
 	}
 
 	close(done)
@@ -686,22 +897,38 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
+	instance := s.startInstance(agentID)
+	s.forwarders.Add(1)
 	go func() {
+		defer func() {
+			// Before done, so that an observed done implies this forwarder is out of
+			// the count. Deferred so that giving up below still accounts for it.
+			s.forwarders.Add(-1)
+			close(done)
+		}()
+
 		rtaBucketLastCollectTime := timestamppb.New(time.Now()).AsTime()
 
 		for change := range agent.Changes() {
 			if change.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
-				s.storeLastStatus(agentID, change.Status)
+				if !s.storeLastStatus(agentID, instance, change.Status) {
+					// Abandoned: a replacement owns this ID now.
+					continue
+				}
 				l.Infof("Sending status: %s.", change.Status)
-				s.changes <- &agentv1.StateChangedRequest{
+				if !forward(s.ctx, s.changes, &agentv1.StateChangedRequest{
 					AgentId: agentID,
 					Status:  change.Status,
+				}) {
+					return
 				}
 			}
 			if change.MetricsBucket != nil {
 				l.Infof("Sending %d metrics buckets.", len(change.MetricsBucket))
-				s.qanRequests <- &agentv1.QANCollectRequest{
+				if !forward(s.ctx, s.qanRequests, &agentv1.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
+				}) {
+					return
 				}
 			}
 
@@ -720,12 +947,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 
 				rtaBucketLastCollectTime = currentBucketCollectTime
 
-				s.rtaRequests <- &rtav1.CollectRequest{
+				if !forward(s.ctx, s.rtaRequests, &rtav1.CollectRequest{
 					Queries: change.RTAQueriesBucket,
+				}) {
+					return
 				}
 			}
 		}
-		close(done)
 	}()
 
 	//nolint:forcetypeassert
@@ -887,10 +1115,21 @@ func (s *Supervisor) stopAll() {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
-	s.setAgentProcesses(nil)
-	s.setBuiltinAgents(nil)
+	deadline := time.Now().Add(s.agentsStopTimeout)
+	s.setAgentProcesses(nil, deadline)
+	s.setBuiltinAgents(nil, deadline)
 
 	s.l.Infof("Done.")
+
+	// Closing these while a forwarder can still send panics, and the waits above are bounded,
+	// so a forwarder can outlive them. Leaving the channels open is the safe failure: their
+	// only consumer selects on its own context rather than reading them until they close, and
+	// the process is on its way out anyway. See PMM-15431.
+	if n := s.forwarders.Load(); n != 0 {
+		s.l.Errorf("%d Agent status forwarders are still running, leaving their channels open.", n)
+		return
+	}
+
 	close(s.qanRequests)
 	close(s.rtaRequests)
 	close(s.changes)

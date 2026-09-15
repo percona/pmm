@@ -66,6 +66,9 @@ const (
 	// and the client reconnects. See PMM-15200.
 	keepaliveTime    = 30 * time.Second
 	keepaliveTimeout = 15 * time.Second
+	// One slot is enough for the state queue: a SetStateRequest carries the whole desired
+	// state, so one that has not been applied yet is fully superseded by a newer one.
+	setStatesCap = 1
 )
 
 // configGetter allows to get a config.
@@ -250,67 +253,75 @@ func (c *Client) Run(ctx context.Context) error {
 	c.rtaChannel = rtaChannel
 	c.rw.Unlock()
 
-	// Once the client is connected, ctx cancellation is ignored by it.
-	//
-	// We start goroutines, and terminate the gRPC connection and exit Run when any of them exits:
-	//
-	// 1. processActionResults reads action results from action runner and sends them to the channel.
-	//    It exits when the action runner is stopped by cancelling ctx.
-	//
-	// 2. processSupervisorRequests reads requests (status changes and QAN data) from the supervisor and sends them to the channel.
-	//    It exits when the supervisor is stopped by the caller.
-	//    Caller stops supervisor when Run is left and gRPC connection is closed.
-	//
-	// 3. processChannelRequests reads requests from the channel and processes them.
-	//    It exits when an unexpected message is received from the channel, or when can't be received at all.
-	//    When Run is left, caller stops supervisor, and that allows processSupervisorRequests to exit.
-	//
-	// Done() channel is closed when all three goroutines exited.
-
-	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
-	// https://jira.percona.com/browse/PMM-4245
-
-	c.supervisor.ClearChangesChannel()
-	c.SendActualStatuses()
-
-	oneDone := make(chan struct{}, 4) //nolint:mnd
-	go func() {
-		c.processActionResults(ctx)
-		c.l.Debug("processActionResults is finished")
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processJobsResults(ctx)
-		c.l.Debug("processJobsResults is finished")
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processSupervisorRequests(ctx)
-		c.l.Debug("processSupervisorRequests is finished")
-		oneDone <- struct{}{}
-	}()
-	go func() {
-		c.processChannelRequests(ctx)
-		c.l.Debug("processChannelRequests is finished")
-		oneDone <- struct{}{}
-	}()
-
-	<-oneDone
-	go func() {
-		<-oneDone
-		<-oneDone
-		<-oneDone
-		c.l.Info("Done.")
-		close(c.done)
-	}()
+	c.runProcessors(ctx)
 	return nil
 }
 
+// runProcessors starts the goroutines that serve the connection and blocks until the first of them
+// exits - that is how Run reports the connection is finished. Done() closes once they have all
+// exited. Their ctx is cancelled only by Run's caller, after Run has returned.
+//
+//  1. processActionResults and processJobsResults send action and job results from the runner to
+//     the channel. They exit when the runner is stopped by cancelling ctx.
+//
+//  2. processSupervisorRequests reports the actual statuses and then sends status changes, QAN and
+//     RTA data from the supervisor to the channel. It exits when the caller stops the supervisor,
+//     which it does once Run has returned and the gRPC connection is closed.
+//
+//  3. processChannelRequests reads requests from the channel and processes them; processPings
+//     answers Ping from a queue of its own. Both exit when the channel is closed.
+//
+// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
+// https://jira.percona.com/browse/PMM-4245
+func (c *Client) runProcessors(ctx context.Context) {
+	// The statuses those buffered changes describe are reported by processSupervisorRequests
+	// from the actual state instead, which is why they can be dropped here.
+	c.supervisor.ClearChangesChannel()
+
+	// Kept out of the accounting below as well as off the request loop: applying a state can
+	// take as long as the agents it replaces take to stop, and Done() gates the reconnect that
+	// drains what they are waiting on. See processSetStates.
+	setStates := make(chan *agentv1.SetStateRequest, setStatesCap)
+	go func() {
+		c.processSetStates(ctx, setStates)
+		c.l.Debug("processSetStates is finished")
+	}()
+
+	var wg sync.WaitGroup
+	firstDone := make(chan struct{}, 1)
+	start := func(name string, process func(context.Context)) {
+		wg.Go(func() {
+			process(ctx)
+			c.l.Debugf("%s is finished", name)
+			select {
+			case firstDone <- struct{}{}:
+			default:
+			}
+		})
+	}
+
+	start("processActionResults", c.processActionResults)
+	start("processJobsResults", c.processJobsResults)
+	start("processSupervisorRequests", c.processSupervisorRequests)
+	start("processPings", c.processPings)
+	start("processChannelRequests", func(ctx context.Context) {
+		c.processChannelRequests(ctx, setStates)
+	})
+
+	<-firstDone
+	go func() {
+		wg.Wait()
+		c.l.Info("Done.")
+		close(c.done)
+	}()
+}
+
 // SendActualStatuses sends status of running agents to server.
-func (c *Client) SendActualStatuses() {
+func (c *Client) SendActualStatuses(ctx context.Context) {
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
 		resp, err := c.channel.SendAndWaitResponse(
+			ctx,
 			&agentv1.StateChangedRequest{
 				AgentId:         agent.AgentId,
 				Status:          agent.Status,
@@ -340,7 +351,7 @@ func (c *Client) processActionResults(ctx context.Context) {
 			if result == nil {
 				continue
 			}
-			resp, err := c.channel.SendAndWaitResponse(result)
+			resp, err := c.channel.SendAndWaitResponse(ctx, result)
 			if err != nil {
 				c.l.Error(err)
 				continue
@@ -374,6 +385,14 @@ func (c *Client) processJobsResults(ctx context.Context) {
 }
 
 func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocognit
+	// Here rather than in runProcessors, which would hold up every processor below: asking the
+	// supervisor for its Agents list takes its lock, and a SetState from the connection before
+	// this one can still be holding it for as long as the Agents it is replacing take to stop.
+	// The request loop and pings have to be answering by then, or the server sees a connection
+	// that says nothing at all and drops it as stale. Before the forwarding below so that a
+	// change the supervisor reports next is not overtaken by this snapshot. See PMM-15431.
+	c.SendActualStatuses(ctx)
+
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
@@ -383,7 +402,7 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 				if state == nil {
 					continue
 				}
-				resp, err := c.channel.SendAndWaitResponse(state)
+				resp, err := c.channel.SendAndWaitResponse(ctx, state)
 				if err != nil {
 					c.l.Error(err)
 					continue
@@ -405,7 +424,7 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 				if collect == nil {
 					continue
 				}
-				resp, err := c.channel.SendAndWaitResponse(collect)
+				resp, err := c.channel.SendAndWaitResponse(ctx, collect)
 				if err != nil {
 					c.l.Error(err)
 					continue
@@ -438,7 +457,69 @@ func (c *Client) processSupervisorRequests(ctx context.Context) { //nolint:gocog
 	wg.Wait()
 }
 
-func (c *Client) processChannelRequests(ctx context.Context) {
+// processPings answers Ping from its own goroutine, so that a pong is never queued behind a request
+// the loop below has not got to yet. Some of what that loop runs is bounded only by the user's own
+// timeouts - a connection check carrying --connection-timeout, gathering software versions - and
+// for as long as one of those runs the agent would otherwise look dead to the server.
+// See "the request loop must never block indefinitely" in agent/AGENTS.md (PMM-15431).
+func (c *Client) processPings(ctx context.Context) {
+	for {
+		select {
+		case req, more := <-c.channel.Pings():
+			if !more {
+				return
+			}
+			c.channel.Send(&channel.AgentResponse{
+				ID: req.ID,
+				Payload: &agentv1.Pong{
+					CurrentTime: timestamppb.Now(),
+				},
+			})
+			c.cus.RegisterConnectionStatus(time.Now(), true)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+// processSetStates applies desired states, one at a time, off the request loop: applying one waits
+// for the agents it replaces to stop, and that wait reaches the server.
+// See "the request loop must never block indefinitely" in agent/AGENTS.md (PMM-15431).
+//
+// Answering from the loop instead of from here makes SetStateResponse mean what agent.proto already
+// says it means - acceptance, not application. The server only logs it, learns the outcome from the
+// StateChanged requests that follow, and gives the response 5s, which applying a large state could
+// exceed on its own.
+func (c *Client) processSetStates(ctx context.Context, setStates <-chan *agentv1.SetStateRequest) {
+	for {
+		select {
+		case state := <-setStates:
+			// Both cases can be ready at once, and a state whose connection is already
+			// gone is superseded by the one the next connection starts with.
+			if ctx.Err() != nil {
+				return
+			}
+			c.supervisor.SetState(state)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
+// requestSetState queues state for processSetStates, replacing one that has not been applied yet.
+// It never blocks: blocking the request loop is what PMM-15431 is about.
+func (c *Client) requestSetState(setStates chan *agentv1.SetStateRequest, state *agentv1.SetStateRequest) {
+	select {
+	case <-setStates:
+		c.l.Debug("Dropping a state update that was superseded before it was applied.")
+	default:
+	}
+
+	// Single producer, so the slot freed above is still free and this cannot block.
+	setStates <- state
+}
+
+func (c *Client) processChannelRequests(ctx context.Context, setStates chan *agentv1.SetStateRequest) {
 LOOP:
 	for {
 		select {
@@ -449,12 +530,8 @@ LOOP:
 			var responsePayload agentv1.AgentResponsePayload
 			var status *grpcstatus.Status
 			switch p := req.Payload.(type) {
-			case *agentv1.Ping:
-				responsePayload = &agentv1.Pong{
-					CurrentTime: timestamppb.Now(),
-				}
 			case *agentv1.SetStateRequest:
-				c.supervisor.SetState(p)
+				c.requestSetState(setStates, p)
 				responsePayload = &agentv1.SetStateResponse{}
 
 			case *agentv1.StartActionRequest:
@@ -917,7 +994,7 @@ func createChannelToAgentService(dialCtx context.Context, conn *grpc.ClientConn,
 
 	channel := channel.New(stream)
 
-	_, clockDrift, err := getNetworkInformation(channel) // ping/pong
+	_, clockDrift, err := getNetworkInformation(dialCtx, channel) // ping/pong
 	if err != nil {
 		msg := err.Error()
 
@@ -1007,10 +1084,10 @@ func createChannelToRealTimeAnalyticsService(dialCtx context.Context, conn *grpc
 	return channel.NewRTAChannel(stream), nil
 }
 
-func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
+func getNetworkInformation(ctx context.Context, channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	start := time.Now()
 	var resp agentv1.ServerResponsePayload
-	resp, err = channel.SendAndWaitResponse(&agentv1.Ping{})
+	resp, err = channel.SendAndWaitResponse(ctx, &agentv1.Ping{})
 	if err != nil {
 		return latency, clockDrift, err
 	}
@@ -1032,7 +1109,7 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 }
 
 // GetNetworkInformation sends ping request to the server and returns info about latency and clock drift.
-func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
+func (c *Client) GetNetworkInformation(ctx context.Context) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	c.rw.RLock()
 	channel := c.channel
 	c.rw.RUnlock()
@@ -1041,7 +1118,7 @@ func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err
 		return latency, clockDrift, err
 	}
 
-	latency, clockDrift, err = getNetworkInformation(channel)
+	latency, clockDrift, err = getNetworkInformation(ctx, channel)
 	return latency, clockDrift, err
 }
 

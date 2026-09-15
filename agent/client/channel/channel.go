@@ -16,9 +16,11 @@
 package channel
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -35,9 +37,18 @@ import (
 const (
 	serverRequestsCap = 32
 
+	// One slot is enough for the Ping queue: a ping carries no state and a new one arrives
+	// every few seconds, so a ping that finds the slot taken is stale. See PMM-15431.
+	serverPingsCap = 1
+
 	prometheusNamespace = "pmm_agent"
 	prometheusSubsystem = "channel"
 )
+
+// How long runReceiver waits for room in the request queue before giving up on the connection.
+// Reaching it means the consumer of Requests() has stopped draining, which no amount of further
+// waiting fixes - see runReceiver. Overridden in tests.
+var requestQueueStuckTimeout = 2 * time.Minute
 
 // ServerRequest represents a request from server.
 // It is similar to agentv1.ServerMessage except it can contain only requests,
@@ -78,6 +89,7 @@ type Channel struct {
 	m         sync.Mutex
 	responses map[uint32]chan Response
 	requests  chan *ServerRequest
+	pings     chan *ServerRequest
 
 	closeOnce sync.Once
 	closeWait chan struct{}
@@ -107,6 +119,7 @@ func New(stream agentv1.AgentService_ConnectClient) *Channel {
 
 		responses: make(map[uint32]chan Response),
 		requests:  make(chan *ServerRequest, serverRequestsCap),
+		pings:     make(chan *ServerRequest, serverPingsCap),
 
 		closeWait: make(chan struct{}),
 	}
@@ -122,15 +135,25 @@ func (c *Channel) close(err error) {
 		c.closeErr = err
 
 		c.m.Lock()
-		for _, ch := range c.responses { // unblock all subscribers
-			close(ch)
+		for _, ch := range c.responses {
+			// unblock all subscribers; a nil channel marks an abandoned request with
+			// no subscriber left to unblock
+			if ch != nil {
+				close(ch)
+			}
 		}
 		c.responses = nil // prevent future subscriptions
 		c.m.Unlock()
 
+		// Signal the close before taking sendM: send holds sendM across the blocking
+		// c.s.Send, so a sender parked on an exhausted flow control window would keep close
+		// from ever reaching close(c.closeWait) - wedging Wait, runReceiver and the reconnect
+		// that waits on them. send re-checks closeWait under sendM, so a sender that has not
+		// started yet gives up instead of racing past this.
+		close(c.closeWait)
+
 		c.sendM.Lock()
 		_ = c.s.CloseSend()
-		close(c.closeWait)
 		c.sendM.Unlock()
 	})
 }
@@ -148,6 +171,15 @@ func (c *Channel) Requests() <-chan *ServerRequest {
 	return c.requests
 }
 
+// Pings returns a channel for incoming Ping requests. It is closed on any error (see Wait).
+//
+// Unlike Requests() this queue is dropped on overflow rather than waited on, which is the whole
+// point of keeping pings out of Requests(): a pong cannot end up queued behind a request the
+// consumer has not got to yet. See PMM-15431.
+func (c *Channel) Pings() <-chan *ServerRequest {
+	return c.pings
+}
+
 // Send sends message to pmm-managed. It is no-op once channel is closed (see Wait).
 func (c *Channel) Send(resp *AgentResponse) {
 	msg := &agentv1.AgentMessage{
@@ -162,11 +194,12 @@ func (c *Channel) Send(resp *AgentResponse) {
 	c.send(msg)
 }
 
-// SendAndWaitResponse sends request to pmm-managed, blocks until response is available.
+// SendAndWaitResponse sends request to pmm-managed and blocks until the response is available,
+// the channel is closed, or ctx is done, whichever happens first.
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancelation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn,nolintlint
+func (c *Channel) SendAndWaitResponse(ctx context.Context, payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn,nolintlint
 	id := c.lastSentRequestID.Add(1)
 	ch := c.subscribe(id)
 
@@ -175,8 +208,28 @@ func (c *Channel) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agen
 		Payload: payload.AgentMessageRequestPayload(),
 	})
 
-	resp := <-ch
-	return resp.Payload, resp.Error
+	select {
+	case resp := <-ch:
+		return resp.Payload, resp.Error
+
+	case <-ctx.Done():
+		// This is what bounds the callers that have a deadline of their own: the ping/pong
+		// of the dial handshake, and pmm-admin status asking for network info. Both used to
+		// wait for a response that a wedged connection would never deliver.
+		//
+		// select picks a ready case at random, so the response may already have been
+		// delivered when ctx expired, and it may land while we are giving up. Marking the
+		// request abandoned settles that: it succeeds only while nothing has taken the
+		// subscription, and once taken the publisher is committed to sending, so the
+		// response is imminent. Reporting a timeout for one that did arrive would fail the
+		// dial handshake, or report a live connection as down.
+		if c.abandon(id) {
+			return nil, ctx.Err()
+		}
+
+		resp := <-ch
+		return resp.Payload, resp.Error
+	}
 }
 
 func (c *Channel) send(msg *agentv1.AgentMessage) {
@@ -212,6 +265,7 @@ func (c *Channel) send(msg *agentv1.AgentMessage) {
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
+		close(c.pings)
 		c.l.Debug("Exiting receiver goroutine.")
 	}()
 
@@ -234,68 +288,40 @@ func (c *Channel) runReceiver() {
 			}
 		}
 
+		var req *ServerRequest
 		switch p := msg.Payload.(type) {
 		// requests
 		case *agentv1.ServerMessage_Ping:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.Ping,
+			// Answered from its own goroutine, see Pings. Dropping a ping that finds the
+			// single slot taken costs only a warning on the server side, which is a much
+			// smaller price than blocking here.
+			select {
+			case c.pings <- &ServerRequest{ID: msg.Id, Payload: p.Ping}:
+			default:
+				c.l.Warnf("Dropping ping %d: previous one is not answered yet.", msg.Id)
 			}
 		case *agentv1.ServerMessage_SetState:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.SetState,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.SetState}
 		case *agentv1.ServerMessage_StartAction:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.StartAction,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.StartAction}
 		case *agentv1.ServerMessage_StopAction:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.StopAction,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.StopAction}
 		case *agentv1.ServerMessage_CheckConnection:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.CheckConnection,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.CheckConnection}
 		case *agentv1.ServerMessage_StartJob:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.StartJob,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.StartJob}
 		case *agentv1.ServerMessage_StopJob:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.StopJob,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.StopJob}
 		case *agentv1.ServerMessage_JobStatus:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.JobStatus,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.JobStatus}
 		case *agentv1.ServerMessage_GetVersions:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.GetVersions,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.GetVersions}
 		case *agentv1.ServerMessage_PbmSwitchPitr:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.PbmSwitchPitr,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.PbmSwitchPitr}
 		case *agentv1.ServerMessage_AgentLogs:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.AgentLogs,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.AgentLogs}
 		case *agentv1.ServerMessage_ServiceInfo:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.ServiceInfo,
-			}
+			req = &ServerRequest{ID: msg.Id, Payload: p.ServiceInfo}
 
 		// responses
 		case *agentv1.ServerMessage_Pong:
@@ -320,30 +346,112 @@ func (c *Channel) runReceiver() {
 				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
 		}
+
+		if req == nil {
+			continue
+		}
+
+		// Never park here without a way out: this goroutine also delivers every response the
+		// consumer of Requests() may be waiting for, so a full queue stops both directions at
+		// once. Closing the channel is what breaks that cycle: it closes Pings() as well, and
+		// the pong loop exiting is what makes client.Run return, after which its caller
+		// cancels the client context, so a handler blocked on it gives up too. Only then does
+		// the reconnect happen - it waits on client.Done() - so a handler that ignores that
+		// cancellation holds the agent off the fresh connection for as long as it runs. See
+		// "the request loop must never block indefinitely" in agent/AGENTS.md (PMM-15431).
+		select {
+		case c.requests <- req:
+		case <-c.closeWait:
+			return
+		case <-time.After(requestQueueStuckTimeout):
+			// Loudly: this is a monitoring outage that recovers itself, and the whole
+			// point of PMM-15431 is that it used to be invisible. Closing on its own is
+			// only reported at debug level.
+			c.l.Errorf("Request queue full for %s, giving up on the connection.", requestQueueStuckTimeout)
+			c.close(fmt.Errorf("request queue full for %s", requestQueueStuckTimeout))
+			return
+		}
 	}
 }
 
-func (c *Channel) removeResponseChannel(id uint32) chan Response {
+// abandon leaves a marker behind instead of dropping the entry, which is the whole difference
+// from removeResponseChannel: the sender is gone, but a response may still arrive, and only the
+// marker tells that apart from a response to an ID the agent never sent.
+//
+// It reports whether the request was still tracked. False means the publisher took the entry
+// first and is committed to delivering a response, so there is nothing left to mark: writing
+// the marker anyway would leave an entry behind that nothing ever clears.
+func (c *Channel) abandon(id uint32) bool {
 	c.m.Lock()
 	defer c.m.Unlock()
-	if c.responses == nil { // Channel is closed
-		return nil
+	if c.responses == nil { // Channel is closed, no subscriptions left
+		return false
+	}
+	if _, ok := c.responses[id]; !ok {
+		return false
+	}
+	c.responses[id] = nil
+
+	return true
+}
+
+// subscription tells what the responses map held for a request ID.
+type subscription int
+
+const (
+	// A sender is still waiting on the returned channel.
+	subscriptionWaiting subscription = iota
+	// The sender stopped waiting for the response (see abandon).
+	subscriptionAbandoned
+	// Nothing was ever tracked for the ID.
+	subscriptionUnknown
+	// The channel is closed, so there are no subscriptions left.
+	subscriptionClosed
+)
+
+// removeResponseChannel drops the entry for id and returns the channel its sender is waiting on,
+// together with what was there. The channel is non-nil only for subscriptionWaiting.
+func (c *Channel) removeResponseChannel(id uint32) (chan Response, subscription) {
+	c.m.Lock()
+	defer c.m.Unlock()
+	if c.responses == nil {
+		return nil, subscriptionClosed
 	}
 
-	ch := c.responses[id]
-	if ch == nil {
-		return nil
+	ch, ok := c.responses[id]
+	if !ok {
+		return nil, subscriptionUnknown
 	}
 	delete(c.responses, id)
-	return ch
+
+	if ch == nil {
+		return nil, subscriptionAbandoned
+	}
+
+	return ch, subscriptionWaiting
+}
+
+// deliver passes resp to whoever is waiting for id, and reports the cases where nobody is.
+// It closes the subscription channel for an error, as nothing can follow one.
+func (c *Channel) deliver(id uint32, resp Response) {
+	ch, sub := c.removeResponseChannel(id)
+	switch sub {
+	case subscriptionWaiting:
+		ch <- resp
+		if resp.Error != nil {
+			close(ch)
+		}
+	case subscriptionAbandoned:
+		c.l.Debugf("Response for ID %d arrived after its sender stopped waiting for it.", id)
+	case subscriptionUnknown:
+		c.l.Errorf("No subscriber for ID %d.", id)
+	case subscriptionClosed:
+	}
 }
 
 // cancel sends an error to the subscriber and closes the subscription channel.
 func (c *Channel) cancel(id uint32, err error) {
-	if ch := c.removeResponseChannel(id); ch != nil {
-		ch <- Response{Error: err}
-		close(ch)
-	}
+	c.deliver(id, Response{Error: err})
 }
 
 func (c *Channel) subscribe(id uint32) chan Response {
@@ -373,9 +481,7 @@ func (c *Channel) publish(id uint32, status *protostatus.Status, resp agentv1.Se
 		return
 	}
 
-	if ch := c.removeResponseChannel(id); ch != nil {
-		ch <- Response{Payload: resp}
-	}
+	c.deliver(id, Response{Payload: resp})
 }
 
 // Describe implements prometheus.Collector.
