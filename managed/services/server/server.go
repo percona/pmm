@@ -137,19 +137,53 @@ func (s *Server) UpdateSettingsFromEnv(ctx context.Context, env []string) []erro
 		return errs
 	}
 
+	var newSettings *models.Settings
 	err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		_, err := models.UpdateSettings(tx, envSettings)
+		var err error
+		newSettings, err = models.UpdateSettings(tx, envSettings)
 		return err
 	})
 	if err != nil {
 		return []error{err}
 	}
 	s.envSettings = envSettings
+	s.logDataRetention(newSettings)
 	err = s.UpdateConfigurations(ctx)
 	if err != nil {
 		return []error{err}
 	}
 	return nil
+}
+
+// logDataRetention reports the retention period in force and where it came from.
+//
+// A boot-time setting has no other feedback channel. In an HA cluster the value cannot be read
+// back out of the UI as confirmation that it took effect, because the field is not writable
+// there, so this line is what answers "what is this replica actually enforcing".
+func (s *Server) logDataRetention(settings *models.Settings) {
+	days := settings.DataRetentionDays()
+	fromEnv := s.envSettings.DataRetention != 0
+
+	if !s.haService.Params().Enabled {
+		if fromEnv {
+			s.l.Infof("Data retention: %dd, set by PMM_DATA_RETENTION.", days)
+			return
+		}
+		s.l.Infof("Data retention: %dd, changeable through the settings API.", days)
+
+		return
+	}
+
+	if fromEnv {
+		s.l.Infof("Data retention: %dd, set by PMM_DATA_RETENTION and fixed for the lifetime of this process.", days)
+		return
+	}
+
+	// Warned rather than corrected. Substituting the default would silently shorten retention
+	// for a deployment that had a longer period stored, and deleted metrics do not come back.
+	s.l.Warnf("Data retention: %dd, carried over from the stored settings. High availability is enabled "+
+		"and PMM_DATA_RETENTION is not set, so nothing can change this value while this process runs. "+
+		"The pmm-ha chart is expected to supply it through dataRetentionDays.", days)
 }
 
 // Version returns PMM Server version.
@@ -497,11 +531,51 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 		return status.Error(codes.FailedPrecondition, "Low resolution for metrics is set via PMM_METRICS_RESOLUTION_LR environment variable.")
 	}
 
-	if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
-		return status.Error(codes.FailedPrecondition, "Data retention for queries is set via PMM_DATA_RETENTION environment variable.")
+	err := s.validateDataRetention(ctx, req)
+	if err != nil {
+		return err
 	}
 
 	return nil
+}
+
+// validateDataRetention refuses a request that would change data retention while it cannot be
+// applied.
+//
+// Outside high availability the only lock is PMM_DATA_RETENTION, checked the same way as every
+// other environment-pinned setting. In HA the value is fixed at start-up on every replica, so a
+// change is refused whatever the environment says.
+func (s *Server) validateDataRetention(ctx context.Context, req *serverv1.ChangeSettingsRequest) error {
+	if !s.haService.Params().Enabled {
+		if !canUpdateDurationSetting(req.DataRetention.AsDuration(), s.envSettings.DataRetention) {
+			return status.Error(codes.FailedPrecondition, "Data retention is set via the PMM_DATA_RETENTION environment variable.")
+		}
+
+		return nil
+	}
+
+	// Repeating the value already in force is not a change. The UI submits the whole settings
+	// form, so refusing an unchanged retention would block every other setting on the page.
+	if req.DataRetention == nil || req.DataRetention.AsDuration() == 0 {
+		return nil
+	}
+
+	// Reading the stored value can fail, and this returns that failure rather than falling
+	// through to "no change requested". Treating an unreadable settings row as permission to
+	// proceed would let retention move in an HA cluster exactly when the database is unhealthy,
+	// and shortening retention deletes data that cannot be brought back.
+	settings, err := models.GetSettings(s.db.WithContext(ctx))
+	if err != nil {
+		return fmt.Errorf("failed to get settings: %w", err)
+	}
+
+	if req.DataRetention.AsDuration() == settings.DataRetention {
+		return nil
+	}
+
+	return status.Error(codes.FailedPrecondition,
+		"Data retention cannot be changed at runtime when high availability is enabled. "+
+			"Set it with the pmm-ha chart's dataRetentionDays value and apply it with helm upgrade.")
 }
 
 // ChangeSettings changes PMM Server settings.
