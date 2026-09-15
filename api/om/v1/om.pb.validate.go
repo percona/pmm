@@ -6895,6 +6895,40 @@ func (m *BootstrapHost) validate(all bool) error {
 
 	}
 
+	for idx, item := range m.GetFinalizeSteps() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, BootstrapHostValidationError{
+						field:  fmt.Sprintf("FinalizeSteps[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, BootstrapHostValidationError{
+						field:  fmt.Sprintf("FinalizeSteps[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return BootstrapHostValidationError{
+					field:  fmt.Sprintf("FinalizeSteps[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if len(errors) > 0 {
 		return BootstrapHostMultiError(errors)
 	}
@@ -7182,8 +7216,72 @@ func (m *GetBootstrapRunResponse) validate(all bool) error {
 
 	}
 
+	// no validation rules for ReplicaSetName
+
+	// no validation rules for MongodbVersion
+
+	if all {
+		switch v := interface{}(m.GetStartedAt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetBootstrapRunResponseValidationError{
+					field:  "StartedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetBootstrapRunResponseValidationError{
+					field:  "StartedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetStartedAt()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetBootstrapRunResponseValidationError{
+				field:  "StartedAt",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if m.Error != nil {
 		// no validation rules for Error
+	}
+
+	if m.FinishedAt != nil {
+		if all {
+			switch v := interface{}(m.GetFinishedAt()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetBootstrapRunResponseValidationError{
+						field:  "FinishedAt",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetBootstrapRunResponseValidationError{
+						field:  "FinishedAt",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetFinishedAt()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetBootstrapRunResponseValidationError{
+					field:  "FinishedAt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
 	}
 
 	if len(errors) > 0 {
@@ -7266,6 +7364,257 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetBootstrapRunResponseValidationError{}
+
+// Validate checks the field values on ListBootstrapRunsRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListBootstrapRunsRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListBootstrapRunsRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListBootstrapRunsRequestMultiError, or nil if none found.
+func (m *ListBootstrapRunsRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListBootstrapRunsRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if val := m.GetLimit(); val < 0 || val > 100 {
+		err := ListBootstrapRunsRequestValidationError{
+			field:  "Limit",
+			reason: "value must be inside range [0, 100]",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return ListBootstrapRunsRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListBootstrapRunsRequestMultiError is an error wrapping multiple validation
+// errors returned by ListBootstrapRunsRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ListBootstrapRunsRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListBootstrapRunsRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListBootstrapRunsRequestMultiError) AllErrors() []error { return m }
+
+// ListBootstrapRunsRequestValidationError is the validation error returned by
+// ListBootstrapRunsRequest.Validate if the designated constraints aren't met.
+type ListBootstrapRunsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListBootstrapRunsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListBootstrapRunsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListBootstrapRunsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListBootstrapRunsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListBootstrapRunsRequestValidationError) ErrorName() string {
+	return "ListBootstrapRunsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListBootstrapRunsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListBootstrapRunsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListBootstrapRunsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListBootstrapRunsRequestValidationError{}
+
+// Validate checks the field values on ListBootstrapRunsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListBootstrapRunsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListBootstrapRunsResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListBootstrapRunsResponseMultiError, or nil if none found.
+func (m *ListBootstrapRunsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListBootstrapRunsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetRuns() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListBootstrapRunsResponseValidationError{
+						field:  fmt.Sprintf("Runs[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListBootstrapRunsResponseValidationError{
+						field:  fmt.Sprintf("Runs[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListBootstrapRunsResponseValidationError{
+					field:  fmt.Sprintf("Runs[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ListBootstrapRunsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListBootstrapRunsResponseMultiError is an error wrapping multiple validation
+// errors returned by ListBootstrapRunsResponse.ValidateAll() if the
+// designated constraints aren't met.
+type ListBootstrapRunsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListBootstrapRunsResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListBootstrapRunsResponseMultiError) AllErrors() []error { return m }
+
+// ListBootstrapRunsResponseValidationError is the validation error returned by
+// ListBootstrapRunsResponse.Validate if the designated constraints aren't met.
+type ListBootstrapRunsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListBootstrapRunsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListBootstrapRunsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListBootstrapRunsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListBootstrapRunsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListBootstrapRunsResponseValidationError) ErrorName() string {
+	return "ListBootstrapRunsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListBootstrapRunsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListBootstrapRunsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause,
+	)
+}
+
+var _ error = ListBootstrapRunsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListBootstrapRunsResponseValidationError{}
 
 // Validate checks the field values on GetInventoryConfigRequest with the rules
 // defined in the proto definition for this message. If any rules are
