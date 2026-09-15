@@ -533,6 +533,22 @@ message InventoryHost {
   InventoryFreshness freshness = 10;
   // The services on it. Empty is a meaningful answer, not a gap.
   repeated InventoryService services = 11;
+
+  // Whether PMM's own agent registry currently has a connected pmm-agent for this
+  // node, independent of anything the probe collected. This is the "PMM-Client
+  // installed and healthy" signal om_inventory has no way to answer on its own: a
+  // node existing in the inventory only means PMM registered it once, not that its
+  // agent is alive now.
+  bool pmm_agent_connected = 12;
+  // Whether this host is eligible for OM automation -- provisioning via
+  // TriggerHostBootstrap, not just probing: pmm_agent_connected is true, and
+  // executor reports reachable and driver-healthy. Computed once here so every
+  // consumer agrees on one definition rather than recomputing it from the
+  // fields above separately.
+  bool automation_eligible = 13;
+  // Why automation_eligible is false, one entry per unmet condition. Empty when it
+  // is true.
+  repeated string automation_blocked_reasons = 14;
 }
 
 // InventoryRunCounts is what one refresh saw.
@@ -660,6 +676,10 @@ message ListInventoryHostsRequest {
   // on. Not a client name: the app filters on whether one is matched at all, and
   // "which machines can nothing be dispatched to" is the question worth asking.
   optional bool executor = 3;
+  // When set, return only hosts that are (or are not) automation_eligible. Applied
+  // in pmm-managed, after executor's own filter: om_inventory has no notion of
+  // pmm_agent_connected to filter on itself.
+  optional bool automation_eligible = 4;
 }
 
 // ListInventoryHostsResponse returns the hosts OM knows about.
@@ -798,6 +818,151 @@ message TriggerInventoryRefreshResponse {
   google.protobuf.Timestamp start_time = 3;
   // The hosts it will refresh. Empty means the whole estate.
   repeated string scope = 4;
+}
+
+// TriggerHostBootstrapRequest is the request for TriggerHostBootstrap.
+message TriggerHostBootstrapRequest {
+  // PMM's node IDs for the hosts to bootstrap into one replica set. Adamo's
+  // decided phase-1 scope (PMM-15347/questions.md Q5/Q12): exactly one or
+  // three, checked server-side since protoc-gen-validate has no "one of these
+  // counts" rule to state it declaratively.
+  repeated string node_ids = 1 [(validate.rules).repeated = {
+    min_items: 1
+    max_items: 3
+    unique: true
+  }];
+  // The replica set's name.
+  string replica_set_name = 2 [(validate.rules).string = {
+    min_len: 1
+    max_len: 64
+  }];
+  // The MongoDB version to install, e.g. "7.0.8". Only the major version
+  // selects the install source; PSMDB does not ship parallel repos per minor
+  // version.
+  string mongodb_version = 3 [(validate.rules).string.min_len = 1];
+  // The monitoring environment to label the resulting service with, same free-form
+  // string as ManagementService's own AddMongoDBServiceParams.environment. Unset
+  // means unlabelled, same as adding a service without one today. Not sent to SEP
+  // at all -- see OmBootstrapRunConfig's own doc comment on PMM's side.
+  optional string environment = 4;
+  // The cluster to label the resulting service with, same terms as `environment`.
+  optional string cluster = 5;
+}
+
+// TriggerHostBootstrapResponse acknowledges a queued bootstrap run.
+//
+// PMM-15347 PoC only: one or three hosts, one replica set, keyFile auth, TLS
+// off. Returned as soon as SEP's om_bootstrap app has planned the run, not
+// once it finishes -- PMM's own HA-leader-only stepper drives it forward from
+// here (PMM-15347/plan.md §4 item 9). Carries no credentials: the run's
+// generated MongoDB user is created only once every host is up, minutes after
+// this response, and lives encrypted in PMM's own Postgres
+// (PMM-15347/questions.md Q7) -- there is nothing to hand back yet.
+message TriggerHostBootstrapResponse {
+  // The om_bootstrap run's id. Poll GetBootstrapRun for its progress.
+  string run_id = 1;
+}
+
+// BootstrapStep is one step's progress -- a host's own, one of its rollback
+// steps, or one of the run's run-level steps. One shape for all three, the
+// same way om_bootstrap's own StepRecord is (see its doc comment): none of
+// the three contexts needs a field the others don't.
+message BootstrapStep {
+  // The step's name, e.g. "pre_check", "rs_initiate", "stop_service". Not a
+  // fixed enum -- the step list itself is per-strategy (only "packages" exists
+  // yet) and per-spec, so a reader renders whatever names actually came back.
+  string name = 1;
+  // "pending", "running", "succeeded", "failed", or "skipped" -- SEP's own
+  // StepStatus values, passed through verbatim rather than re-enumerated here,
+  // since this proto has no logic of its own to gate on them.
+  string status = 2;
+  // A human-readable outcome, set once the step reaches a terminal status.
+  optional string detail = 3;
+  // How many times this step has been dispatched, including the current or
+  // most recent attempt.
+  int32 attempt_count = 4;
+}
+
+// BootstrapHost is one host's progress within a run.
+message BootstrapHost {
+  // The node id this progress belongs to.
+  string host = 1;
+  // This host's own install steps, in the order they run.
+  repeated BootstrapStep steps = 2;
+  // This host's teardown steps, planned up front alongside `steps` -- see
+  // om_bootstrap's own HostBootstrapState doc comment. Every entry stays
+  // "pending" unless the run actually rolls this host back.
+  repeated BootstrapStep rollback_steps = 3;
+  // This host's post-install steps, dispatched only once every run-level step has
+  // succeeded -- e.g. enabling MongoDB authorization once the run's own
+  // create_pmm_monitoring_user step has created the first user. See
+  // om_bootstrap's own HostBootstrapState doc comment for why these are a
+  // distinct phase from `steps` rather than appended to them.
+  //
+  // The last entry, named "confirm_monitoring", is PMM's own -- SEP never
+  // dispatches it. It stays "pending" until the run itself has succeeded, then
+  // "running" until PMM's inventory app notices the registered service, then
+  // "succeeded".
+  repeated BootstrapStep finalize_steps = 4;
+}
+
+// GetBootstrapRunRequest is the request for GetBootstrapRun.
+message GetBootstrapRunRequest {
+  // The run to fetch, from TriggerHostBootstrapResponse.run_id.
+  string run_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// GetBootstrapRunResponse is one run, in full, as of this call.
+//
+// A thin proxy onto SEP's om_bootstrap GET /runs/{id}, which reconciles the
+// run's in-flight dispatches before answering -- so polling this is enough to
+// see a step's real outcome, not a stale snapshot.
+message GetBootstrapRunResponse {
+  string run_id = 1;
+  // "running", "succeeded", "failed", or "rolled_back" -- SEP's own
+  // BootstrapRunStatus values, passed through verbatim.
+  string status = 2;
+  // Every host's progress, in the order the run was created with.
+  repeated BootstrapHost hosts = 3;
+  // The run-level steps (rs.initiate, creating PMM's monitoring user) -- see
+  // BootstrapStep's own doc comment for why these share its shape.
+  repeated BootstrapStep run_steps = 4;
+  // Set when the run itself failed outside any single step -- e.g. SEP
+  // rejected the request before planning anything.
+  optional string error = 5;
+  // The replica set this run is building.
+  string replica_set_name = 6;
+  // The MongoDB version this run is installing.
+  string mongodb_version = 7;
+  // When this run was created.
+  google.protobuf.Timestamp started_at = 8;
+  // When this run reached a terminal status. Unset while it is still going.
+  optional google.protobuf.Timestamp finished_at = 9;
+  // The monitoring environment this run's service will be (or was) labelled
+  // with, from TriggerHostBootstrapRequest.environment. Unset means the caller
+  // left it blank, or triggered this run before PMM tracked the field at all.
+  optional string environment = 10;
+  // The cluster this run's service will be (or was) labelled with, same terms
+  // as `environment`.
+  optional string cluster = 11;
+}
+
+// ListBootstrapRunsRequest is the request for ListBootstrapRuns.
+message ListBootstrapRunsRequest {
+  // How many to return, newest first. Defaults to 20, capped at 100.
+  int32 limit = 1 [(validate.rules).int32 = {
+    gte: 0
+    lte: 100
+  }];
+}
+
+// ListBootstrapRunsResponse returns the bootstrap run history, newest first.
+message ListBootstrapRunsResponse {
+  // Each run in the same full shape GetBootstrapRun answers with, not a
+  // trimmed summary -- SEP's own GET /runs already returns every host's steps
+  // per row (see bootstrapRunToProto's doc comment), so there is no cheaper
+  // shape to ask it for.
+  repeated GetBootstrapRunResponse runs = 1;
 }
 
 // GetInventoryConfigRequest is the request for GetInventoryConfig.
@@ -980,6 +1145,54 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Refresh the inventory"
       description: "Dispatches an on-host probe per executor host and returns as soon as the refresh is accepted. Takes tens of seconds, unlike /v1/om/topology/runs. Pass node_ids to refresh only those hosts; 409 when another refresh already holds one of them."
+    };
+  }
+
+  // TriggerHostBootstrap plans installing MongoDB on one or three hosts and
+  // initializing them as one replica set, monitored by PMM once it comes up.
+  //
+  // PMM-15347 PoC, not the shipped feature: one or three hosts, keyFile auth,
+  // TLS off, no project/cluster. Proxies to SEP's om_bootstrap app (not
+  // om_inventory, which stays read-only by design) and returns as soon as
+  // that app has planned the run -- PMM's own HA-leader-only stepper drives
+  // every step of it forward from there, including registering every mongod
+  // with PMM's inventory once it succeeds. See PMM-15347/plan.md §4 item 9
+  // for that split, and PMM-15347/questions.md for what is and is not built.
+  rpc TriggerHostBootstrap(TriggerHostBootstrapRequest) returns (TriggerHostBootstrapResponse) {
+    // A custom method, matching TriggerInventoryRefresh: this returns an
+    // *accepted* run that finishes minutes later, not a completed one. No
+    // path-bound host -- node_ids is repeated, and google.api.http path
+    // params must be singular scalars -- so every field, including the
+    // hosts, travels in the body.
+    option (google.api.http) = {
+      post: "/v1/om/inventory/hosts:bootstrap"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Bootstrap one or three hosts (PoC)"
+      description: "Plans installing MongoDB on one or three hosts through the Nomad client and initializing them as one replica set, monitored by PMM once it comes up. PMM-15347 proof-of-concept scope only. Returns as soon as the run is planned; PMM's own stepper drives it forward in the background."
+    };
+  }
+
+  // GetBootstrapRun returns one bootstrap run's current progress.
+  //
+  // A thin proxy onto SEP's om_bootstrap GET /runs/{id}, like every other read
+  // here -- reconciling the run's in-flight dispatches happens on SEP's side,
+  // not this handler's. Meant to be polled while a run is in progress.
+  rpc GetBootstrapRun(GetBootstrapRunRequest) returns (GetBootstrapRunResponse) {
+    option (google.api.http) = {get: "/v1/om/inventory/bootstrap-runs/{run_id}"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get a bootstrap run's progress (PoC)"
+      description: "Returns one bootstrap run's current status and every host's step-by-step progress, reconciled against its in-flight dispatches as of this call. Poll this to watch a run started by TriggerHostBootstrap."
+    };
+  }
+
+  // ListBootstrapRuns returns the bootstrap run history (PoC).
+  rpc ListBootstrapRuns(ListBootstrapRunsRequest) returns (ListBootstrapRunsResponse) {
+    option (google.api.http) = {get: "/v1/om/inventory/bootstrap-runs"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List bootstrap runs (PoC)"
+      description: "Returns the recorded bootstrap runs, newest first, each in the same full detail GetBootstrapRun answers with."
     };
   }
 

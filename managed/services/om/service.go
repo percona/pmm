@@ -102,6 +102,22 @@ type Service struct {
 	// configured. Held rather than constructed per run so the HTTP client is reused.
 	probe *probeSource
 
+	// bootstrap is PMM's handle onto SEP's om_bootstrap app, or nil when SEP is not
+	// configured. Used only by the HA-leader-only stepper (RunBootstrapStepper) and
+	// TriggerHostBootstrap -- never by the topology-collection pipeline probe feeds.
+	bootstrap *bootstrapClient
+
+	// agents reports pmm-agent connectivity for ListInventoryHosts' eligibility
+	// computation, or nil when not wired up (every host then reads as
+	// pmm_agent_connected: false -- see agentConnectionChecker's doc comment).
+	agents agentConnectionChecker
+
+	// stateUpdater pushes a pmm-agent's new state after registerBootstrapHost
+	// creates its mongodb_exporter Agent row directly, or nil when not wired up
+	// (the exporter's row then exists but pmm-agent is never told to actually
+	// start it -- see agentStateUpdater's doc comment).
+	stateUpdater agentStateUpdater
+
 	// restored guards the one-time read of the stored document on a cold start.
 	restored sync.Once
 
@@ -222,6 +238,55 @@ func (s *Service) SyncInventoryEnabled(ctx context.Context, enabled bool) {
 	if err != nil {
 		s.l.WithError(err).Warn("failed to trigger an immediate SEP inventory sweep after enabling OpenManager")
 	}
+}
+
+// WithBootstrapSource attaches SEP's om_bootstrap app as the HA-leader-only
+// stepper's (RunBootstrapStepper) target, and TriggerHostBootstrap's.
+//
+// A second, independent sepClient rather than reusing probe's -- see
+// probeSource's own construction in WithProbeSource -- because the two are
+// configured (and, in principle, could fail) independently: an operator with
+// only om_inventory reachable still gets a working Hosts page with no
+// bootstrap capability, and vice versa. Both point at the same SEP in every
+// current deployment, so the extra HTTP client is one more connection pool
+// to a host already being talked to, not a second thing to reach.
+func (s *Service) WithBootstrapSource(sepURL, token string) *Service {
+	if sepURL == "" {
+		s.l.Info("SEP is not configured; MongoDB bootstrap will be unavailable")
+		return s
+	}
+	client := &sepClient{
+		baseURL: sepURL,
+		token:   token,
+		http:    &http.Client{Timeout: probeRequestTimeout},
+	}
+	s.bootstrap = &bootstrapClient{app: client.app(bootstrapAppModule)}
+	return s
+}
+
+// WithAgentRegistry attaches the pmm-agent connectivity checker ListInventoryHosts
+// uses to compute automation eligibility.
+//
+// Optional, matching WithProbeSource's shape: unset in most tests, and in any build
+// that has not wired one up, every host then reads as not connected. See
+// agentConnectionChecker's doc comment for why that is the fail-closed default rather
+// than treating an unknown state as eligible.
+func (s *Service) WithAgentRegistry(r agentConnectionChecker) *Service {
+	s.agents = r
+	return s
+}
+
+// WithStateUpdater attaches the pmm-agent state pusher registerBootstrapHost
+// uses to tell a host's pmm-agent to actually start the mongodb_exporter it
+// just created a row for.
+//
+// Optional, matching WithAgentRegistry's shape: unset in most tests, and in
+// any build that has not wired one up, a bootstrapped host's exporter row
+// exists in Postgres but pmm-agent is never told to start the process -- see
+// agentStateUpdater's doc comment.
+func (s *Service) WithStateUpdater(u agentStateUpdater) *Service {
+	s.stateUpdater = u
+	return s
 }
 
 // GetTopology returns the whole MongoDB estate as one document.
