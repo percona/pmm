@@ -288,6 +288,12 @@ export interface OneOfGroup {
   /** Stable group id for React keys; not a separate form value. */
   name: string;
   label: string;
+  /**
+   * Helper text beneath the group label. Rendered, unlike
+   * `FormSection.description`: `discriminator` drives the segmented control
+   * rather than naming a declared field, so no field `description` can carry
+   * what the control means.
+   */
   description?: string;
   /** Dotted path to the mode field (e.g. `source.mode`). */
   discriminator: string;
@@ -302,6 +308,11 @@ export type SectionField = PluginField | OneOfGroup;
 
 export interface FormSection {
   title: string;
+  /**
+   * Accepted for wire compatibility, not rendered. Every field in a section
+   * carries its own `description`, so section prose can only ever restate
+   * field-level help. Contrast `OneOfGroup.description`, which is rendered.
+   */
   description?: string;
   fields: SectionField[];
   /** Whether the section is wrapped in an expandable/collapsible shell. */
