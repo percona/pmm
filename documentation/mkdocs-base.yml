@@ -502,6 +502,7 @@ nav:
           - PMM API:
               - api/index.md
               - api/authentication.md
+              - api/mcp.md
           - PMM commands:
               - About PMM commands: use/commands/index.md
               - pmm-admin:

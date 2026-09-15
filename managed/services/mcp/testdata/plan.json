@@ -1,0 +1,1 @@
+{"planid": "PLAN-1", "query_plan": "Seq Scan on customers  (cost=0.00..458.00 rows=1 width=64)\n  Filter: ((email)::text = 'user42@example.com'::text)"}

@@ -376,6 +376,7 @@ func (s *Server) convertSettings(settings *models.Settings, disableInternalPgQan
 
 		EnableAccessControl: settings.IsAccessControlEnabled(),
 		DefaultRoleId:       convertDefaultRoleID(settings.DefaultRoleID),
+		EnableMcp:           settings.IsMCPEnabled(),
 	}
 
 	return res
@@ -400,6 +401,7 @@ func (s *Server) convertReadOnlySettings(settings *models.Settings) *serverv1.Re
 		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
 		AzurediscoverEnabled:    settings.IsAzureDiscoverEnabled(),
 		EnableAccessControl:     settings.IsAccessControlEnabled(),
+		EnableMcp:               settings.IsMCPEnabled(),
 	}
 
 	return res
@@ -534,6 +536,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 			EnableBackupManagement: req.EnableBackupManagement,
 			EnableAccessControl:    req.EnableAccessControl,
 			EnableInternalPgQAN:    req.EnableInternalPgQan,
+			EnableMCP:              req.EnableMcp,
 			AdvisorsRunInterval: models.AdvisorsRunIntervals{
 				RareInterval:     advisorsRunInterval.GetRareInterval().AsDuration(),
 				StandardInterval: advisorsRunInterval.GetStandardInterval().AsDuration(),

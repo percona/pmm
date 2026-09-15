@@ -1,0 +1,41 @@
+{
+  "mysql": [
+    {
+      "service_id": "svc-1",
+      "service_name": "shop-mysql",
+      "node_id": "node-1",
+      "address": "mysql",
+      "port": 3306,
+      "environment": "",
+      "cluster": "",
+      "replication_set": "",
+      "custom_labels": {},
+      "version": ""
+    }
+  ],
+  "mongodb": [],
+  "postgresql": [
+    {
+      "service_id": "svc-2",
+      "service_name": "shop-postgres",
+      "node_id": "node-1",
+      "address": "postgres",
+      "port": 5432,
+      "database_name": "postgres",
+      "version": ""
+    },
+    {
+      "service_id": "svc-pmm-pg",
+      "service_name": "pmm-server-postgresql",
+      "node_id": "pmm-server",
+      "address": "127.0.0.1",
+      "port": 5432,
+      "database_name": "pmm-managed",
+      "version": ""
+    }
+  ],
+  "proxysql": [],
+  "haproxy": [],
+  "external": [],
+  "valkey": []
+}

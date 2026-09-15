@@ -1,0 +1,4 @@
+[
+  {"id": 1, "uid": "metrics-uid", "orgId": 1, "name": "Metrics", "type": "prometheus", "access": "proxy", "url": "http://127.0.0.1:8430/", "isDefault": true},
+  {"id": 2, "uid": "ptsummary-uid", "orgId": 1, "name": "PTSummary", "type": "pmm-pt-summary-datasource", "access": "proxy"}
+]

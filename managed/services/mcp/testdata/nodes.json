@@ -1,0 +1,22 @@
+{
+  "generic": [
+    {
+      "node_id": "pmm-server",
+      "node_name": "pmm-server",
+      "address": "127.0.0.1",
+      "is_pmm_server_node": true
+    }
+  ],
+  "container": [
+    {
+      "node_id": "node-1",
+      "node_name": "demo-node",
+      "address": "10.0.0.5",
+      "container_id": "abc",
+      "container_name": "pmm-client"
+    }
+  ],
+  "remote": [],
+  "remote_rds": [],
+  "remote_azure_database": []
+}
