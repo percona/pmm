@@ -17,6 +17,7 @@
 package env
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -48,19 +49,40 @@ const (
 	ClickHouseConfig = "PMM_CLICKHOUSE_CONFIG"
 )
 
+// LookupBool returns the boolean value of the environment variable. It tells the three states
+// of an optional boolean apart:
+//   - (nil, nil) when the variable is not set,
+//   - (value, nil) when it holds a boolean,
+//   - (nil, error) when it is set to something that is not a boolean.
+//
+// The error lets a caller decide what an unparsable value means for it, instead of having that
+// choice made here. The envvars.ParseEnvVars parser reports the same values as configuration
+// errors, and pmm-managed-init refuses to start PMM Server when it does.
+func LookupBool(key string) (*bool, error) {
+	v, ok := os.LookupEnv(key)
+	if !ok {
+		return nil, nil //nolint:nilnil
+	}
+	// Lowercased to match envvars.ParseEnvVars, which lowercases every value before parsing
+	// (managed/utils/envvars/parser.go). Without it the two disagree on spellings that
+	// strconv.ParseBool does not accept verbatim, such as "TRue", and a value this rejects can
+	// still start PMM Server.
+	b, err := strconv.ParseBool(strings.ToLower(v))
+	if err != nil {
+		return nil, fmt.Errorf("invalid value '%s' for environment variable %s: %w", v, key, err)
+	}
+	return &b, nil
+}
+
 // GetBool returns the boolean value of the environment variable.
 // Returns false if the variable is not set or cannot be parsed as boolean.
 // It does not return errors since it assumes that validation has already been done during startup.
 func GetBool(key string) bool {
-	v, ok := os.LookupEnv(key)
-	if !ok {
+	b, _ := LookupBool(key)
+	if b == nil {
 		return false
 	}
-	b, err := strconv.ParseBool(v)
-	if err != nil {
-		return false
-	}
-	return b
+	return *b
 }
 
 // GetStringSlice returns the string slice value of the environment variable.
