@@ -42,17 +42,49 @@ func generateTempDirPath(t *testing.T, basePath string) string {
 	return filepath.Join(basePath, agentTmpPath)
 }
 
+func TestNormalizedAddress(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		address string
+		want    string
+	}{
+		{address: "", want: ""},
+		{address: "pmm.example.com", want: "pmm.example.com:443"},
+		{address: "pmm.example.com:443", want: "pmm.example.com:443"},
+		{address: "pmm.example.com:8443", want: "pmm.example.com:8443"},
+		{address: "10.20.30.40", want: "10.20.30.40:443"},
+		// An IPv6 address is written with brackets as often as without, and both name one PMM Server.
+		{address: "2001:db8::1", want: "[2001:db8::1]:443"},
+		{address: "[2001:db8::1]", want: "[2001:db8::1]:443"},
+		{address: "[2001:db8::1]:443", want: "[2001:db8::1]:443"},
+		{address: "[2001:db8::1]:8443", want: "[2001:db8::1]:8443"},
+	} {
+		t.Run(tc.address, func(t *testing.T) {
+			t.Parallel()
+
+			s := &Server{Address: tc.address}
+			got := s.NormalizedAddress()
+			assert.Equal(t, tc.want, got)
+
+			// Whether an Agent is being pointed at another PMM Server is decided by comparing these, so
+			// normalizing an address which is already normalized has to be a no-op.
+			assert.Equal(t, tc.want, (&Server{Address: got}).NormalizedAddress(), "not idempotent")
+		})
+	}
+}
+
 func TestLoadFromFile(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
 
-		cfg, err := loadFromFile(name, nil)
+		cfg, err := LoadFromFile(name, nil)
 		require.NoError(t, err)
 		assert.Equal(t, &Config{ID: "agent-id"}, cfg)
 	})
 
 	t.Run("NotExist", func(t *testing.T) {
-		cfg, err := loadFromFile("not-exist.yaml", nil)
+		cfg, err := LoadFromFile("not-exist.yaml", nil)
 		assert.Equal(t, ConfigFileDoesNotExistError("not-exist.yaml"), err)
 		assert.Nil(t, cfg)
 	})
@@ -61,7 +93,7 @@ func TestLoadFromFile(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
 		require.NoError(t, os.Chmod(name, 0o000))
 
-		cfg, err := loadFromFile(name, nil)
+		cfg, err := LoadFromFile(name, nil)
 		var targetErr *os.PathError
 		require.ErrorAs(t, err, &targetErr)
 		assert.Equal(t, "open", err.(*os.PathError).Op)                     //nolint:errorlint
@@ -73,7 +105,7 @@ func TestLoadFromFile(t *testing.T) {
 		name := writeConfig(t, nil)
 		require.NoError(t, os.WriteFile(name, []byte(`not YAML`), 0o666))
 
-		cfg, err := loadFromFile(name, nil)
+		cfg, err := LoadFromFile(name, nil)
 		var targetErr *yaml.TypeError
 		require.ErrorAs(t, err, &targetErr)
 		require.EqualError(t, err, "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `not YAML` into config.Config")
