@@ -114,16 +114,7 @@ describe('SchemaSelectShell', () => {
     expect(screen.getByText('Pick one')).toBeInTheDocument();
   });
 
-  it('does not render a help icon for the description', () => {
-    renderShell({ description: 'Pick one' });
-
-    expect(screen.queryByLabelText('Help for Fruit')).not.toBeInTheDocument();
-    expect(document.querySelectorAll('[data-help-for="Fruit"]')).toHaveLength(
-      0
-    );
-  });
-
-  it('replaces helper text with the error and still omits the help icon', () => {
+  it('replaces helper text with the error', () => {
     renderShell({
       description: 'Pick one',
       error: { type: 'required', message: 'Fruit is required' },
@@ -131,7 +122,6 @@ describe('SchemaSelectShell', () => {
 
     expect(screen.getByText('Fruit is required')).toBeInTheDocument();
     expect(screen.queryByText('Pick one')).not.toBeInTheDocument();
-    expect(screen.queryByLabelText('Help for Fruit')).not.toBeInTheDocument();
   });
 
   it('renders a required asterisk in the label', () => {

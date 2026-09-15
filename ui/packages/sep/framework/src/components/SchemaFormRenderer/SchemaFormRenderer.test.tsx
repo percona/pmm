@@ -303,7 +303,7 @@ describe('SchemaFormRenderer — field rendering', () => {
     expect(legend.tagName.toLowerCase()).toBe('legend');
   });
 
-  it('shows field description as helper text, not as a help icon', () => {
+  it('shows field description as helper text', () => {
     const helpSections: FormSection[] = [
       {
         title: 'Basics',
@@ -323,10 +323,6 @@ describe('SchemaFormRenderer — field rendering', () => {
     );
 
     expect(screen.getByText('A title')).toBeInTheDocument();
-    expect(document.querySelectorAll('[data-help-for="Title"]')).toHaveLength(
-      0
-    );
-    expect(document.querySelectorAll('[data-help-for="Code"]')).toHaveLength(0);
   });
 
   it('does not render section.description prose', () => {

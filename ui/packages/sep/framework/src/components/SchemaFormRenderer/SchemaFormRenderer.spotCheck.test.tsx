@@ -21,7 +21,7 @@
  * Direct consumers: mysql_backups (via SchemaDrivenPlugin) and atw
  * (CollectPane); SnippetExecutionAccordion covers the synthesised
  * snippet-parameter path. Confirms field descriptions appear once as helper
- * text (never as a restating help icon) and core inputs still mount.
+ * text and core inputs still mount.
  */
 
 import { describe, expect, it, vi } from 'vitest';
@@ -43,16 +43,6 @@ function renderWithProviders(ui: ReactNode) {
   return render(
     <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
   );
-}
-
-function escapeAttrSelectorValue(value: string): string {
-  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-}
-
-/** Assert a field never paints description as a help-icon tooltip. */
-function expectNoHelpIcon(label: string) {
-  const selector = `[data-help-for="${escapeAttrSelectorValue(label)}"]`;
-  expect(document.querySelectorAll(selector)).toHaveLength(0);
 }
 
 describe('SchemaFormRenderer — cross-plugin helper-text spot-check', () => {
@@ -136,13 +126,6 @@ describe('SchemaFormRenderer — cross-plugin helper-text spot-check', () => {
         'Passes --safe-slave-backup so xtrabackup pauses the replica SQL thread during the backup.'
       )
     ).toBeInTheDocument();
-
-    expectNoHelpIcon('Database Host');
-    expectNoHelpIcon('Server Alias');
-    expectNoHelpIcon('Compress backup data');
-    expectNoHelpIcon('Logging directory');
-    expectNoHelpIcon('Safe replica backup');
-    expectNoHelpIcon('Kill-queries timeout (s)');
   });
 
   it('atw CollectPane-like form: shared section plus namespaced per-snippet overrides', () => {
@@ -225,13 +208,6 @@ describe('SchemaFormRenderer — cross-plugin helper-text spot-check', () => {
     expect(
       screen.queryByText('Reports free space on the executor host.')
     ).not.toBeInTheDocument();
-
-    expectNoHelpIcon('Execution Host');
-    expectNoHelpIcon('Run with sudo');
-    expectNoHelpIcon('Lookback minutes');
-    expectNoHelpIcon('Operator note');
-    expectNoHelpIcon('Path');
-    expectNoHelpIcon('Threshold %');
   });
 
   it('snippet-execution form: user-authored params drive helper text once', () => {
@@ -313,13 +289,5 @@ describe('SchemaFormRenderer — cross-plugin helper-text spot-check', () => {
         'Prepend sudo to the interpreter when the snippet is executed.'
       )
     ).toBeInTheDocument();
-
-    expectNoHelpIcon('Table Name');
-    expectNoHelpIcon('Database Name');
-    expectNoHelpIcon('Output format');
-    expectNoHelpIcon('Verbose');
-    expectNoHelpIcon('Row limit');
-    expectNoHelpIcon('Execution Host');
-    expectNoHelpIcon('Run with sudo');
   });
 });

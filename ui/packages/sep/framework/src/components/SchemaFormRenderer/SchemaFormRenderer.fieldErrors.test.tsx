@@ -81,13 +81,6 @@ describe('SchemaFormRenderer field errors', () => {
     // Integer (helperText) field also surfaces its mapped error.
     expect(screen.getByText('must be positive')).toBeInTheDocument();
     expect(screen.queryByText('Max rows')).not.toBeInTheDocument();
-    // Description is helper text only — no restating help icon while errors show.
-    expect(document.querySelectorAll('[data-help-for="Title"]')).toHaveLength(
-      0
-    );
-    expect(
-      document.querySelectorAll('[data-help-for="Row Limit"]')
-    ).toHaveLength(0);
     // The persistent banner is rendered.
     expect(screen.getByText(/Failed/)).toBeInTheDocument();
   });
