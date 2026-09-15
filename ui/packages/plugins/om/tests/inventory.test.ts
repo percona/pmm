@@ -96,6 +96,9 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
   observed: {},
   freshness: freshness(),
   services: [],
+  pmm_agent_connected: true,
+  automation_eligible: true,
+  automation_blocked_reasons: [],
   ...overrides,
 });
 
