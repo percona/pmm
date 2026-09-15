@@ -87,17 +87,6 @@ interface SchemaDrivenPluginProps {
     context: { pluginName: string }
   ) => TaskExecuteAction[] | undefined;
   /**
-   * Resolve schedule confirmation content for a selected plugin task.
-   * Threaded to the schedule page when the plugin opts into scheduling.
-   */
-  getScheduleWarning?: (
-    taskName: string,
-    context: {
-      pluginName: string;
-      tasks: Record<string, unknown>[];
-    }
-  ) => ReactNode | undefined;
-  /**
    * Force-hide scheduling UI and the `/schedule` route even when the live
    * schema still advertises `capabilities.scheduling`. Accepts a predicate so
    * a parent mount (e.g. MySQL Backups) can disable scheduling only for a
@@ -344,7 +333,6 @@ export function SchemaDrivenPlugin({
   browseOnly = false,
   suppressDetailKeys,
   getTaskExecuteActions,
-  getScheduleWarning,
   disableScheduling,
   getTaskHistoryNames,
   renderTaskDetailChildren,
@@ -476,7 +464,6 @@ export function SchemaDrivenPlugin({
     browseOnly,
     suppressDetailKeys,
     getTaskExecuteActions,
-    getScheduleWarning,
     disableScheduling,
     getTaskHistoryNames,
     renderTaskDetailChildren,
@@ -541,12 +528,7 @@ export function SchemaDrivenPlugin({
       {schema.capabilities?.scheduling && (
         <Route
           path="schedule"
-          element={
-            <PluginSchedulePage
-              pluginName={pluginName}
-              getScheduleWarning={getScheduleWarning}
-            />
-          }
+          element={<PluginSchedulePage pluginName={pluginName} />}
         />
       )}
       {showDetailRoutes && (

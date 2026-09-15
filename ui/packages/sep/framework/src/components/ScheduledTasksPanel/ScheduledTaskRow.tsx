@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import Button from '@mui/material/Button';
@@ -72,7 +72,6 @@ export interface ScheduledTaskRowProps {
    * run this row is describing.
    */
   onOpenLastRun?: (taskName: string, lastRunAt: string | null) => void;
-  getScheduleWarning?: (taskName: string) => ReactNode | undefined;
 }
 
 export function ScheduledTaskRow({
@@ -89,7 +88,6 @@ export function ScheduledTaskRow({
   errorMessage,
   readOnly = false,
   onOpenLastRun,
-  getScheduleWarning,
 }: ScheduledTaskRowProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const period = describePeriod(task);
@@ -107,7 +105,6 @@ export function ScheduledTaskRow({
             onSubmit={onSubmitEdit}
             submitting={submitting}
             errorMessage={errorMessage}
-            getScheduleWarning={getScheduleWarning}
           />
         </TableCell>
       </TableRow>

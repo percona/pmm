@@ -124,8 +124,6 @@ const router = createBrowserRouter(
                     pluginName="mysql_backups"
                     routeBase={SEP_MYSQL_BACKUPS_PATH}
                     getTaskExecuteActions={getMysqlBackupsTaskExecuteActions}
-                    // Restores are not schedulable (PMM-15450). Force-off until
-                    // the restore app stops advertising capabilities.scheduling.
                     disableScheduling={isMysqlRestorePluginName}
                   />
                 </SepPage>
