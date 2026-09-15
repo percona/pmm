@@ -1,4 +1,10 @@
-import { ApiError, REDACTED_SECRET, SettingClassGroup } from '@sep/api';
+import {
+  ApiError,
+  type ConnectivityResult,
+  type ConnectivityStatus,
+  REDACTED_SECRET,
+  SettingClassGroup,
+} from '@sep/api';
 import { Messages } from '../../Settings.messages';
 import {
   DELIVERY_INPUTS_KEY,
@@ -6,8 +12,13 @@ import {
 } from './ServiceNowConnection.constants';
 import {
   buildDeliveryInputsPatch,
+  connectionIdentity,
   connectionStatus,
+  connectivityOutcome,
   declaredSecretNames,
+  deliveryResult,
+  normalizeEndpoint,
+  probeErrorMessage,
   secretHelperText,
   secretLabel,
   sepErrorMessage,
@@ -144,7 +155,7 @@ describe('buildDeliveryInputsPatch', () => {
     );
 
     expect(patch).toEqual({
-      endpoint: 'https://acme.service-now.com/',
+      endpoint: 'https://acme.service-now.com',
       secrets: { sn_api_key: 'a', client_token: 'b' },
     });
   });
@@ -163,13 +174,13 @@ describe('buildDeliveryInputsPatch', () => {
     ).toEqual({ secrets: { sn_api_key: 'a' } });
   });
 
-  it('trims the endpoint it does send', () => {
+  it('stores the endpoint as SEP will use it, not as it was typed', () => {
     expect(
       buildDeliveryInputsPatch(
-        { endpoint: '  https://acme.service-now.com/ ', secrets: [] },
+        { endpoint: '  https://acme.service-now.com// ', secrets: [] },
         []
       )
-    ).toEqual({ endpoint: 'https://acme.service-now.com/', secrets: {} });
+    ).toEqual({ endpoint: 'https://acme.service-now.com', secrets: {} });
   });
 
   it('keys the payload by name even for a name that is not a valid form path', () => {
@@ -328,5 +339,231 @@ describe('secretHelperText', () => {
 
   it('names the raw key for a name the UI has no copy for', () => {
     expect(secretHelperText('instance_url')).toContain('instance_url');
+  });
+});
+
+describe('normalizeEndpoint', () => {
+  it.each([
+    ['https://acme.service-now.com/', 'https://acme.service-now.com'],
+    ['https://acme.service-now.com//', 'https://acme.service-now.com'],
+    ['  https://acme.service-now.com  ', 'https://acme.service-now.com'],
+    [
+      'https://acme.service-now.com/api/now/',
+      'https://acme.service-now.com/api/now',
+    ],
+  ])('reduces %s to what SEP keeps: %s', (typed, stored) => {
+    expect(normalizeEndpoint(typed)).toBe(stored);
+  });
+
+  it('keeps the query exactly as typed, rewriting nothing SEP reads itself', () => {
+    expect(
+      normalizeEndpoint('https://acme.service-now.com/?a=1&a=2&b=x%20y')
+    ).toBe('https://acme.service-now.com?a=1&a=2&b=x%20y');
+  });
+
+  it('leaves an endpoint carrying credentials alone rather than dropping them', () => {
+    // `URL.origin` omits userinfo where Python's `netloc` keeps it, so
+    // normalizing this would store an endpoint that authenticates differently
+    // from the one SEP receives.
+    expect(normalizeEndpoint('https://user:pass@acme.service-now.com/')).toBe(
+      'https://user:pass@acme.service-now.com/'
+    );
+  });
+
+  it('drops a fragment, which never reaches the receiver', () => {
+    expect(normalizeEndpoint('https://acme.service-now.com/#section')).toBe(
+      'https://acme.service-now.com'
+    );
+  });
+
+  it('leaves a blank endpoint blank so the baked receiver is kept', () => {
+    expect(normalizeEndpoint('   ')).toBe('');
+  });
+
+  it.each(['not-a-url', 'ftp://acme.service-now.com/'])(
+    'passes %s through rather than inventing a shape for it',
+    (value) => {
+      expect(normalizeEndpoint(value)).toBe(value);
+    }
+  );
+});
+
+describe('deliveryResult', () => {
+  const result = (service: string): ConnectivityResult => ({
+    service,
+    reachable: true,
+    status: 'reachable',
+    detail: 'Reachable.',
+    version: null,
+  });
+
+  it('picks the delivery entry out of the response', () => {
+    expect(deliveryResult([result('pmm'), result('delivery')])?.service).toBe(
+      'delivery'
+    );
+  });
+
+  it('reports the only answer there is when delivery is not named', () => {
+    expect(deliveryResult([result('pmm')])?.service).toBe('pmm');
+  });
+
+  it('has nothing to report for an empty or absent response', () => {
+    expect(deliveryResult([])).toBeUndefined();
+    expect(deliveryResult(undefined)).toBeUndefined();
+  });
+});
+
+describe('connectivityOutcome', () => {
+  const probed = (
+    status: ConnectivityStatus,
+    reachable = false
+  ): ConnectivityResult => ({
+    service: 'delivery',
+    reachable,
+    status,
+    detail: 'whatever SEP said',
+    version: null,
+  });
+
+  it.each([
+    ['reachable', 'success'],
+    ['auth_failed', 'error'],
+    ['error', 'error'],
+    ['unreachable', 'error'],
+    ['ssl_error', 'error'],
+    ['timeout', 'warning'],
+    ['not_configured', 'info'],
+    ['inputs_drifted', 'warning'],
+    ['probe_undeclared', 'info'],
+  ] as [ConnectivityStatus, string][])(
+    'gives %s its own label at severity %s',
+    (status, severity) => {
+      const outcome = connectivityOutcome(
+        probed(status, status === 'reachable')
+      );
+
+      expect(outcome.severity).toBe(severity);
+      expect(outcome.message).toBe(Messages.serviceNow.test.statuses[status]);
+    }
+  );
+
+  it('never echoes what the receiver said', () => {
+    expect(connectivityOutcome(probed('error')).message).not.toContain(
+      'whatever SEP said'
+    );
+  });
+
+  it('falls back on the reachable flag for a status this UI has no copy for', () => {
+    const status = 'quantum_tunnelled' as ConnectivityStatus;
+
+    expect(connectivityOutcome(probed(status, true))).toEqual({
+      message: Messages.serviceNow.test.unknown.reachable,
+      severity: 'success',
+    });
+    expect(connectivityOutcome(probed(status))).toEqual({
+      message: Messages.serviceNow.test.unknown.unreachable,
+      severity: 'error',
+    });
+  });
+});
+
+describe('connectionIdentity', () => {
+  const stored = (
+    endpoint: string,
+    secrets: Record<string, string> = { sn_api_key: REDACTED_SECRET }
+  ) => ({ endpoint, secrets, hasOverride: true, isPresent: true });
+
+  it('is stable across a refetch that changed nothing', () => {
+    expect(connectionIdentity(stored('https://acme.service-now.com'))).toBe(
+      connectionIdentity(stored('https://acme.service-now.com'))
+    );
+  });
+
+  it('ignores the order the secret names came back in', () => {
+    expect(
+      connectionIdentity(
+        stored('', {
+          sn_api_key: REDACTED_SECRET,
+          client_token: REDACTED_SECRET,
+        })
+      )
+    ).toBe(
+      connectionIdentity(
+        stored('', {
+          client_token: REDACTED_SECRET,
+          sn_api_key: REDACTED_SECRET,
+        })
+      )
+    );
+  });
+
+  it.each([
+    ['a changed endpoint', stored('https://other.service-now.com')],
+    [
+      'a renamed secret',
+      stored('https://acme.service-now.com', { renamed: REDACTED_SECRET }),
+    ],
+    [
+      'an added secret',
+      stored('https://acme.service-now.com', {
+        sn_api_key: REDACTED_SECRET,
+        client_token: REDACTED_SECRET,
+      }),
+    ],
+  ])('changes for %s', (_case, changed) => {
+    expect(connectionIdentity(changed)).not.toBe(
+      connectionIdentity(stored('https://acme.service-now.com'))
+    );
+  });
+});
+
+describe('probeErrorMessage', () => {
+  const httpError = (status: number, data?: unknown) =>
+    new ApiError({ kind: 'http', status, message: `HTTP ${status}`, data });
+  const { errors } = Messages.serviceNow.test;
+
+  it('offers the remedy for a test, not the remedy for a save', () => {
+    const message = probeErrorMessage(httpError(403));
+
+    expect(message).toBe(errors.forbidden);
+    expect(message).not.toBe(Messages.serviceNow.errors.forbidden);
+    expect(message).not.toContain('save');
+  });
+
+  it('explains a 401', () => {
+    expect(probeErrorMessage(httpError(401))).toBe(errors.unauthenticated);
+  });
+
+  it.each(['network', 'timeout'] as const)(
+    'reports a %s failure as the test not having run',
+    (kind) => {
+      expect(probeErrorMessage(new ApiError({ kind, message: 'down' }))).toBe(
+        errors.unreachable
+      );
+    }
+  );
+
+  it("ignores a settings 422, which is not the operator's to fix here", () => {
+    expect(
+      probeErrorMessage(
+        httpError(422, {
+          detail: [
+            {
+              loc: ['body', DELIVERY_INPUTS_KEY, 'secrets'],
+              msg: 'undeclared secret names: extra_key',
+              type: 'value_error',
+            },
+          ],
+        })
+      )
+    ).toBe(errors.generic);
+  });
+
+  it('never leaks a raw HTTP message', () => {
+    expect(probeErrorMessage(httpError(500))).toBe(errors.generic);
+  });
+
+  it('is empty without an error', () => {
+    expect(probeErrorMessage(null)).toBe('');
   });
 });
