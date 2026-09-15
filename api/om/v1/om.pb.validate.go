@@ -124,6 +124,7 @@ func (m *TopologyService) validate(all bool) error {
 	}
 
 	if m.ObservedAt != nil {
+
 		if all {
 			switch v := interface{}(m.GetObservedAt()).(type) {
 			case interface{ ValidateAll() error }:
@@ -152,6 +153,7 @@ func (m *TopologyService) validate(all bool) error {
 				}
 			}
 		}
+
 	}
 
 	if len(errors) > 0 {
@@ -219,8 +221,7 @@ func (e TopologyServiceValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TopologyServiceValidationError{}
@@ -362,8 +363,7 @@ func (e ClusterValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ClusterValidationError{}
@@ -500,8 +500,7 @@ func (e EnvironmentValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = EnvironmentValidationError{}
@@ -611,8 +610,7 @@ func (e SummaryValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SummaryValidationError{}
@@ -775,8 +773,7 @@ func (e SnapshotValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SnapshotValidationError{}
@@ -878,8 +875,7 @@ func (e GetTopologyRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetTopologyRequestValidationError{}
@@ -1077,8 +1073,7 @@ func (e GetTopologyResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetTopologyResponseValidationError{}
@@ -1190,8 +1185,7 @@ func (e TopologyRunCountsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TopologyRunCountsValidationError{}
@@ -1298,8 +1292,7 @@ func (e SourceReportValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = SourceReportValidationError{}
@@ -1409,8 +1402,7 @@ func (e TopologyRunErrorValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TopologyRunErrorValidationError{}
@@ -1668,8 +1660,7 @@ func (e TopologyRunValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TopologyRunValidationError{}
@@ -1782,8 +1773,7 @@ func (e GetTopologyRunRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetTopologyRunRequestValidationError{}
@@ -1914,8 +1904,7 @@ func (e GetTopologyRunResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetTopologyRunResponseValidationError{}
@@ -2028,8 +2017,7 @@ func (e ListTopologyRunsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListTopologyRunsRequestValidationError{}
@@ -2165,8 +2153,7 @@ func (e ListTopologyRunsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListTopologyRunsResponseValidationError{}
@@ -2271,8 +2258,7 @@ func (e TriggerTopologyCollectionRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TriggerTopologyCollectionRequestValidationError{}
@@ -2410,8 +2396,7 @@ func (e TriggerTopologyCollectionResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TriggerTopologyCollectionResponseValidationError{}
@@ -2523,8 +2508,7 @@ func (e InventoryExecutorValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = InventoryExecutorValidationError{}
@@ -2646,8 +2630,7 @@ func (e UnregisteredMongodValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UnregisteredMongodValidationError{}
@@ -2871,8 +2854,7 @@ func (e InventoryFreshnessValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = InventoryFreshnessValidationError{}
@@ -3076,8 +3058,7 @@ func (e InventoryServiceValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = InventoryServiceValidationError{}
@@ -3356,8 +3337,7 @@ func (e InventoryHostValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = InventoryHostValidationError{}
@@ -3473,8 +3453,7 @@ func (e InventoryRunCountsValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = InventoryRunCountsValidationError{}
@@ -3590,8 +3569,7 @@ func (e InventoryRunEntityServiceValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = InventoryRunEntityServiceValidationError{}
@@ -3753,8 +3731,7 @@ func (e InventoryRunEntityValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = InventoryRunEntityValidationError{}
@@ -3948,8 +3925,7 @@ func (e InventoryRunValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = InventoryRunValidationError{}
@@ -4121,8 +4097,7 @@ func (e InventorySettingValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = InventorySettingValidationError{}
@@ -4240,8 +4215,7 @@ func (e ListInventoryHostsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListInventoryHostsRequestValidationError{}
@@ -4377,8 +4351,7 @@ func (e ListInventoryHostsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListInventoryHostsResponseValidationError{}
@@ -4491,8 +4464,7 @@ func (e GetInventoryHostRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetInventoryHostRequestValidationError{}
@@ -4623,8 +4595,7 @@ func (e GetInventoryHostResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetInventoryHostResponseValidationError{}
@@ -4737,8 +4708,7 @@ func (e DeleteInventoryHostRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DeleteInventoryHostRequestValidationError{}
@@ -4841,8 +4811,7 @@ func (e DeleteInventoryHostResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DeleteInventoryHostResponseValidationError{}
@@ -4953,8 +4922,7 @@ func (e ListInventoryServicesRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListInventoryServicesRequestValidationError{}
@@ -5091,8 +5059,7 @@ func (e ListInventoryServicesResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListInventoryServicesResponseValidationError{}
@@ -5205,8 +5172,7 @@ func (e GetInventoryServiceRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetInventoryServiceRequestValidationError{}
@@ -5338,8 +5304,7 @@ func (e GetInventoryServiceResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetInventoryServiceResponseValidationError{}
@@ -5453,8 +5418,7 @@ func (e DeleteInventoryServiceRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DeleteInventoryServiceRequestValidationError{}
@@ -5557,8 +5521,7 @@ func (e DeleteInventoryServiceResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DeleteInventoryServiceResponseValidationError{}
@@ -5729,8 +5692,7 @@ func (e ListInventoryRunsRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListInventoryRunsRequestValidationError{}
@@ -5866,8 +5828,7 @@ func (e ListInventoryRunsResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = ListInventoryRunsResponseValidationError{}
@@ -5980,8 +5941,7 @@ func (e GetInventoryRunRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetInventoryRunRequestValidationError{}
@@ -6146,8 +6106,7 @@ func (e GetInventoryRunResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetInventoryRunResponseValidationError{}
@@ -6277,8 +6236,7 @@ func (e TriggerInventoryRefreshRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TriggerInventoryRefreshRequestValidationError{}
@@ -6414,8 +6372,7 @@ func (e TriggerInventoryRefreshResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TriggerInventoryRefreshResponseValidationError{}
@@ -6450,15 +6407,36 @@ func (m *TriggerHostBootstrapRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+	if l := len(m.GetNodeIds()); l < 1 || l > 3 {
 		err := TriggerHostBootstrapRequestValidationError{
-			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
+			field:  "NodeIds",
+			reason: "value must contain between 1 and 3 items, inclusive",
 		}
 		if !all {
 			return err
 		}
 		errors = append(errors, err)
+	}
+
+	_TriggerHostBootstrapRequest_NodeIds_Unique := make(map[string]struct{}, len(m.GetNodeIds()))
+
+	for idx, item := range m.GetNodeIds() {
+		_, _ = idx, item
+
+		if _, exists := _TriggerHostBootstrapRequest_NodeIds_Unique[item]; exists {
+			err := TriggerHostBootstrapRequestValidationError{
+				field:  fmt.Sprintf("NodeIds[%v]", idx),
+				reason: "repeated value must contain unique items",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+			_TriggerHostBootstrapRequest_NodeIds_Unique[item] = struct{}{}
+		}
+
+		// no validation rules for NodeIds[idx]
 	}
 
 	if l := utf8.RuneCountInString(m.GetReplicaSetName()); l < 1 || l > 64 {
@@ -6551,8 +6529,7 @@ func (e TriggerHostBootstrapRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TriggerHostBootstrapRequestValidationError{}
@@ -6657,8 +6634,7 @@ func (e TriggerHostBootstrapResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = TriggerHostBootstrapResponseValidationError{}
@@ -6670,6 +6646,577 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = TriggerHostBootstrapResponseValidationError{}
+
+// Validate checks the field values on BootstrapStep with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *BootstrapStep) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BootstrapStep with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in BootstrapStepMultiError, or
+// nil if none found.
+func (m *BootstrapStep) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BootstrapStep) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Name
+
+	// no validation rules for Status
+
+	// no validation rules for AttemptCount
+
+	if m.Detail != nil {
+		// no validation rules for Detail
+	}
+
+	if len(errors) > 0 {
+		return BootstrapStepMultiError(errors)
+	}
+
+	return nil
+}
+
+// BootstrapStepMultiError is an error wrapping multiple validation errors
+// returned by BootstrapStep.ValidateAll() if the designated constraints
+// aren't met.
+type BootstrapStepMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BootstrapStepMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BootstrapStepMultiError) AllErrors() []error { return m }
+
+// BootstrapStepValidationError is the validation error returned by
+// BootstrapStep.Validate if the designated constraints aren't met.
+type BootstrapStepValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BootstrapStepValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BootstrapStepValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BootstrapStepValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BootstrapStepValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BootstrapStepValidationError) ErrorName() string { return "BootstrapStepValidationError" }
+
+// Error satisfies the builtin error interface
+func (e BootstrapStepValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBootstrapStep.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = BootstrapStepValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BootstrapStepValidationError{}
+
+// Validate checks the field values on BootstrapHost with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *BootstrapHost) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BootstrapHost with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in BootstrapHostMultiError, or
+// nil if none found.
+func (m *BootstrapHost) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BootstrapHost) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Host
+
+	for idx, item := range m.GetSteps() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, BootstrapHostValidationError{
+						field:  fmt.Sprintf("Steps[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, BootstrapHostValidationError{
+						field:  fmt.Sprintf("Steps[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return BootstrapHostValidationError{
+					field:  fmt.Sprintf("Steps[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetRollbackSteps() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, BootstrapHostValidationError{
+						field:  fmt.Sprintf("RollbackSteps[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, BootstrapHostValidationError{
+						field:  fmt.Sprintf("RollbackSteps[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return BootstrapHostValidationError{
+					field:  fmt.Sprintf("RollbackSteps[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return BootstrapHostMultiError(errors)
+	}
+
+	return nil
+}
+
+// BootstrapHostMultiError is an error wrapping multiple validation errors
+// returned by BootstrapHost.ValidateAll() if the designated constraints
+// aren't met.
+type BootstrapHostMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BootstrapHostMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BootstrapHostMultiError) AllErrors() []error { return m }
+
+// BootstrapHostValidationError is the validation error returned by
+// BootstrapHost.Validate if the designated constraints aren't met.
+type BootstrapHostValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e BootstrapHostValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e BootstrapHostValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e BootstrapHostValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e BootstrapHostValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e BootstrapHostValidationError) ErrorName() string { return "BootstrapHostValidationError" }
+
+// Error satisfies the builtin error interface
+func (e BootstrapHostValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sBootstrapHost.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = BootstrapHostValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = BootstrapHostValidationError{}
+
+// Validate checks the field values on GetBootstrapRunRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetBootstrapRunRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetBootstrapRunRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetBootstrapRunRequestMultiError, or nil if none found.
+func (m *GetBootstrapRunRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetBootstrapRunRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetRunId()) < 1 {
+		err := GetBootstrapRunRequestValidationError{
+			field:  "RunId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetBootstrapRunRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetBootstrapRunRequestMultiError is an error wrapping multiple validation
+// errors returned by GetBootstrapRunRequest.ValidateAll() if the designated
+// constraints aren't met.
+type GetBootstrapRunRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetBootstrapRunRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetBootstrapRunRequestMultiError) AllErrors() []error { return m }
+
+// GetBootstrapRunRequestValidationError is the validation error returned by
+// GetBootstrapRunRequest.Validate if the designated constraints aren't met.
+type GetBootstrapRunRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetBootstrapRunRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetBootstrapRunRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetBootstrapRunRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetBootstrapRunRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetBootstrapRunRequestValidationError) ErrorName() string {
+	return "GetBootstrapRunRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetBootstrapRunRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetBootstrapRunRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetBootstrapRunRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetBootstrapRunRequestValidationError{}
+
+// Validate checks the field values on GetBootstrapRunResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetBootstrapRunResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetBootstrapRunResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetBootstrapRunResponseMultiError, or nil if none found.
+func (m *GetBootstrapRunResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetBootstrapRunResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for RunId
+
+	// no validation rules for Status
+
+	for idx, item := range m.GetHosts() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetBootstrapRunResponseValidationError{
+						field:  fmt.Sprintf("Hosts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetBootstrapRunResponseValidationError{
+						field:  fmt.Sprintf("Hosts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetBootstrapRunResponseValidationError{
+					field:  fmt.Sprintf("Hosts[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	for idx, item := range m.GetRunSteps() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetBootstrapRunResponseValidationError{
+						field:  fmt.Sprintf("RunSteps[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetBootstrapRunResponseValidationError{
+						field:  fmt.Sprintf("RunSteps[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetBootstrapRunResponseValidationError{
+					field:  fmt.Sprintf("RunSteps[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if m.Error != nil {
+		// no validation rules for Error
+	}
+
+	if len(errors) > 0 {
+		return GetBootstrapRunResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetBootstrapRunResponseMultiError is an error wrapping multiple validation
+// errors returned by GetBootstrapRunResponse.ValidateAll() if the designated
+// constraints aren't met.
+type GetBootstrapRunResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetBootstrapRunResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetBootstrapRunResponseMultiError) AllErrors() []error { return m }
+
+// GetBootstrapRunResponseValidationError is the validation error returned by
+// GetBootstrapRunResponse.Validate if the designated constraints aren't met.
+type GetBootstrapRunResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetBootstrapRunResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetBootstrapRunResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetBootstrapRunResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetBootstrapRunResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetBootstrapRunResponseValidationError) ErrorName() string {
+	return "GetBootstrapRunResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetBootstrapRunResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetBootstrapRunResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetBootstrapRunResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetBootstrapRunResponseValidationError{}
 
 // Validate checks the field values on GetInventoryConfigRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -6760,8 +7307,7 @@ func (e GetInventoryConfigRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetInventoryConfigRequestValidationError{}
@@ -6897,8 +7443,7 @@ func (e GetInventoryConfigResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = GetInventoryConfigResponseValidationError{}
@@ -7030,8 +7575,7 @@ func (e UpdateInventoryConfigRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateInventoryConfigRequestValidationError{}
@@ -7168,8 +7712,7 @@ func (e UpdateInventoryConfigResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = UpdateInventoryConfigResponseValidationError{}
@@ -7285,8 +7828,7 @@ func (e DeleteInventoryConfigOverrideRequestValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DeleteInventoryConfigOverrideRequestValidationError{}
@@ -7391,8 +7933,7 @@ func (e DeleteInventoryConfigOverrideResponseValidationError) Error() string {
 		key,
 		e.field,
 		e.reason,
-		cause,
-	)
+		cause)
 }
 
 var _ error = DeleteInventoryConfigOverrideResponseValidationError{}
