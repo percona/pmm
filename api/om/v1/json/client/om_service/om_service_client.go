@@ -71,6 +71,8 @@ type ClientService interface {
 
 	GetTopologyRun(params *GetTopologyRunParams, opts ...ClientOption) (*GetTopologyRunOK, error)
 
+	ListBootstrapRuns(params *ListBootstrapRunsParams, opts ...ClientOption) (*ListBootstrapRunsOK, error)
+
 	ListInventoryHosts(params *ListInventoryHostsParams, opts ...ClientOption) (*ListInventoryHostsOK, error)
 
 	ListInventoryRuns(params *ListInventoryRunsParams, opts ...ClientOption) (*ListInventoryRunsOK, error)
@@ -526,6 +528,50 @@ func (a *Client) GetTopologyRun(params *GetTopologyRunParams, opts ...ClientOpti
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetTopologyRunDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListBootstrapRuns lists bootstrap runs po c
+
+Returns the recorded bootstrap runs, newest first, each in the same full detail GetBootstrapRun answers with.
+*/
+func (a *Client) ListBootstrapRuns(params *ListBootstrapRunsParams, opts ...ClientOption) (*ListBootstrapRunsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListBootstrapRunsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListBootstrapRuns",
+		Method:             "GET",
+		PathPattern:        "/v1/om/inventory/bootstrap-runs",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListBootstrapRunsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListBootstrapRunsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListBootstrapRunsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
