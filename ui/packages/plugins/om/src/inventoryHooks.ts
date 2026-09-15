@@ -42,9 +42,16 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { isBootstrapRunActive, isRunActive, request } from './api';
+import {
+  isBootstrapRunActive,
+  isRunActive,
+  request,
+  retryTransientRequestErrors,
+} from './api';
 import { periodSince, type OmRunPeriod } from './inventory';
 import type {
+  OmBootstrapMemberConfig,
+  OmCancelBootstrapRunResponse,
   OmGetBootstrapRunResponse,
   OmHostBootstrapAccepted,
   OmInventoryHost,
@@ -367,30 +374,124 @@ export function useForgetHost() {
 }
 
 /**
- * Bootstrap one host: install MongoDB through the Nomad client and initialize
- * it as a single-member replica set.
+ * Bootstrap one or three hosts: install MongoDB through the Nomad client and
+ * initialize them as one replica set.
  *
  * PMM-15347 PoC only. Does not invalidate the hosts query on success -- unlike
  * a refresh or a forget, nothing about the estate's *current* row changes yet;
- * the new service only appears once a later probe finds it.
+ * the new service only appears once a later probe finds it. No path-bound
+ * host -- `node_ids` is a list, so every field travels in the body, same as
+ * the RPC's own proto comment explains.
  */
 export function useTriggerHostBootstrap() {
   return useMutation<
     OmHostBootstrapAccepted,
     Error,
-    { nodeId: string; replicaSetName: string; mongodbVersion: string }
+    {
+      nodeIds: string[];
+      replicaSetName: string;
+      mongodbVersion: string;
+      environment?: string;
+      cluster?: string;
+      dataPath: string;
+      logPath: string;
+      port: number;
+      bindIp: string;
+      memberConfigs?: Record<string, OmBootstrapMemberConfig>;
+    }
   >({
-    mutationFn: ({ nodeId, replicaSetName, mongodbVersion }) =>
-      request<OmHostBootstrapAccepted>(
-        `/inventory/hosts/${encodeURIComponent(nodeId)}:bootstrap`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            replica_set_name: replicaSetName,
-            mongodb_version: mongodbVersion,
-          }),
-        }
+    mutationFn: ({
+      nodeIds,
+      replicaSetName,
+      mongodbVersion,
+      environment,
+      cluster,
+      dataPath,
+      logPath,
+      port,
+      bindIp,
+      memberConfigs,
+    }) =>
+      request<OmHostBootstrapAccepted>('/inventory/hosts:bootstrap', {
+        method: 'POST',
+        body: JSON.stringify({
+          node_ids: nodeIds,
+          replica_set_name: replicaSetName,
+          mongodb_version: mongodbVersion,
+          // Omitted rather than sent as "" -- an unset optional proto field reads
+          // as "leave unlabelled", the same distinction TriggerHostBootstrapRequest
+          // itself draws (see its own proto comment).
+          ...(environment ? { environment } : {}),
+          ...(cluster ? { cluster } : {}),
+          data_path: dataPath,
+          log_path: logPath,
+          port,
+          bind_ip: bindIp,
+          // Omitted rather than sent as {} -- an empty map and a missing field
+          // read the same way server-side (every host gets MongoDB's own
+          // defaults), so there is nothing to gain from always sending it.
+          ...(memberConfigs && Object.keys(memberConfigs).length > 0
+            ? { member_configs: memberConfigs }
+            : {}),
+        }),
+      }),
+  });
+}
+
+/**
+ * Ask a running bootstrap run to stop and roll back every host, from
+ * `POST /inventory/bootstrap-runs/{id}:cancel`.
+ *
+ * Idempotent on the server while the run is still running - a caller does not
+ * need to guard against clicking Abort twice. Invalidates
+ * {@link useOmBootstrapRuns}/{@link useBootstrapRun} rather than relying on
+ * their own poll to notice: an operator who just clicked Abort should see
+ * `cancel_requested` reflected immediately, not up to REFRESH_POLL_MS later.
+ */
+export function useCancelBootstrapRun() {
+  const queryClient = useQueryClient();
+  return useMutation<OmCancelBootstrapRunResponse, Error, string>({
+    mutationFn: (runId) =>
+      request<OmCancelBootstrapRunResponse>(
+        `/inventory/bootstrap-runs/${encodeURIComponent(runId)}:cancel`,
+        { method: 'POST' }
       ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BOOTSTRAP_RUNS_KEY });
+    },
+  });
+}
+
+/**
+ * One bootstrap run's live progress, from `GET /inventory/bootstrap-runs/{id}`.
+ *
+ * Polls while the run is active, same cadence and stop-on-terminal pattern as
+ * {@link useOmInventoryRun} - a run reaching `succeeded`/`failed`/`rolled_back`
+ * never changes again, so there's nothing left to poll for.
+ */
+export function useBootstrapRun(runId: string | null) {
+  return useQuery<OmGetBootstrapRunResponse>({
+    queryKey: [...BOOTSTRAP_RUNS_KEY, runId],
+    enabled: Boolean(runId),
+    queryFn: () =>
+      request<OmGetBootstrapRunResponse>(
+        `/inventory/bootstrap-runs/${encodeURIComponent(runId ?? '')}`
+      ),
+    refetchInterval: (query) =>
+      isBootstrapRunActive(query.state.data) ? REFRESH_POLL_MS : false,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it -- and
+    // for a bootstrap page left open while the user looks at something else,
+    // that means it can sit showing an early, long-superseded snapshot (a host
+    // mid-verify, a run-level step still pending) well after the real run has
+    // actually succeeded or failed.
+    refetchIntervalInBackground: true,
+    // Overrides the app-wide `retry: false` default (App.tsx) -- see
+    // useOmBootstrapRuns's own comment on this same override, one function
+    // below, for why this specific request needs it. Only network failures
+    // and 5xx responses are retried, not a completed 4xx -- see
+    // retryTransientRequestErrors's own doc comment.
+    retry: retryTransientRequestErrors,
   });
 }
 
@@ -420,6 +521,20 @@ export function useOmBootstrapRuns(limit?: number) {
     // polling entirely otherwise, with no other mechanism to unstick it.
     refetchIntervalInBackground: true,
     placeholderData: keepPreviousData,
+    // Overrides the app-wide `retry: false` default (App.tsx). Observed in
+    // practice: this page's very first load sometimes lands in the few-second
+    // window right after pmm-managed or Grafana restarts, where `fetch` fails
+    // at the network level ("Failed to fetch", not a completed 401/5xx
+    // response -- `request` in api.ts only ever throws OmApiError for those)
+    // before either has finished coming back up. `retry: false` elsewhere in
+    // the app is deliberate -- most queries want a fast, honest error rather
+    // than a spinner masking a real failure -- but this one specific race is
+    // routine, self-resolving within seconds, and unrelated to anything the
+    // run history itself did wrong, so a bounded, automatic retry rides it
+    // out instead of surfacing a hard error the user can do nothing about but
+    // reload the page. Only network failures and 5xx responses are retried,
+    // not a completed 4xx -- see retryTransientRequestErrors's own doc comment.
+    retry: retryTransientRequestErrors,
   });
 }
 

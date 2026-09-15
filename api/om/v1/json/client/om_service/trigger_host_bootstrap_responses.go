@@ -211,15 +211,94 @@ type TriggerHostBootstrapBody struct {
 
 	// The cluster to label the resulting service with, same terms as `environment`.
 	Cluster *string `json:"cluster,omitempty"`
+
+	// Where mongod stores its data on every host, e.g. "/var/lib/mongo".
+	DataPath string `json:"data_path,omitempty"`
+
+	// Where mongod writes its log file on every host.
+	LogPath string `json:"log_path,omitempty"`
+
+	// The port mongod listens on, on every host.
+	Port int64 `json:"port,omitempty"`
+
+	// The interface(s) mongod listens on, on every host, e.g. "0.0.0.0".
+	BindIP string `json:"bind_ip,omitempty"`
+
+	// Per-host replica-set election settings, keyed by entries of node_ids. A
+	// host missing from this map -- including every host, when this is left
+	// empty -- gets MongoDB's own defaults (priority 1, votes on, not hidden,
+	// no delay), the phase-A behavior before per-member settings existed
+	// (PMM-15347/plan.md §6 Phase B). A key outside node_ids is rejected.
+	MemberConfigs map[string]TriggerHostBootstrapParamsBodyMemberConfigsAnon `json:"member_configs,omitempty"`
 }
 
 // Validate validates this trigger host bootstrap body
 func (o *TriggerHostBootstrapBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMemberConfigs(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
 	return nil
 }
 
-// ContextValidate validates this trigger host bootstrap body based on context it is used
+func (o *TriggerHostBootstrapBody) validateMemberConfigs(formats strfmt.Registry) error {
+	if swag.IsZero(o.MemberConfigs) { // not required
+		return nil
+	}
+
+	for k := range o.MemberConfigs {
+
+		if swag.IsZero(o.MemberConfigs[k]) { // not required
+			continue
+		}
+		if val, ok := o.MemberConfigs[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("body" + "." + "member_configs" + "." + k)
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("body" + "." + "member_configs" + "." + k)
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this trigger host bootstrap body based on the context it is used
 func (o *TriggerHostBootstrapBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateMemberConfigs(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *TriggerHostBootstrapBody) contextValidateMemberConfigs(ctx context.Context, formats strfmt.Registry) error {
+	for k := range o.MemberConfigs {
+		if val, ok := o.MemberConfigs[k]; ok {
+			if err := val.ContextValidate(ctx, formats); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -507,6 +586,58 @@ func (o *TriggerHostBootstrapOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *TriggerHostBootstrapOKBody) UnmarshalBinary(b []byte) error {
 	var res TriggerHostBootstrapOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+TriggerHostBootstrapParamsBodyMemberConfigsAnon BootstrapMemberConfig is one host's replica-set election settings, for
+// TriggerHostBootstrapRequest.member_configs.
+swagger:model TriggerHostBootstrapParamsBodyMemberConfigsAnon
+*/
+type TriggerHostBootstrapParamsBodyMemberConfigsAnon struct {
+	// Relative election priority. 0 means this member can never become
+	// primary; MongoDB's own default for an unlisted member is 1.
+	Priority int64 `json:"priority,omitempty"`
+
+	// Whether this member gets a vote in elections.
+	Votes bool `json:"votes,omitempty"`
+
+	// Whether this member is hidden from client read preference and
+	// db.hello()'s own output.
+	Hidden bool `json:"hidden,omitempty"`
+
+	// Seconds this member's data intentionally lags the primary
+	// (secondaryDelaySecs). 0 means no delay. MongoDB requires priority 0 and
+	// votes off whenever this is nonzero -- TriggerHostBootstrap rejects a
+	// request that sets this without also setting those.
+	DelaySecs int64 `json:"delay_secs,omitempty"`
+}
+
+// Validate validates this trigger host bootstrap params body member configs anon
+func (o *TriggerHostBootstrapParamsBodyMemberConfigsAnon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this trigger host bootstrap params body member configs anon based on context it is used
+func (o *TriggerHostBootstrapParamsBodyMemberConfigsAnon) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *TriggerHostBootstrapParamsBodyMemberConfigsAnon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *TriggerHostBootstrapParamsBodyMemberConfigsAnon) UnmarshalBinary(b []byte) error {
+	var res TriggerHostBootstrapParamsBodyMemberConfigsAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

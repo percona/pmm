@@ -16,7 +16,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { isBootstrapRunActive } from '../src/api';
+import { bootstrapRunDisplayStatus, isBootstrapRunActive } from '../src/api';
 import type { OmBootstrapStep, OmGetBootstrapRunResponse } from '../src/types';
 
 function step(
@@ -37,6 +37,7 @@ function run(
     replica_set_name: 'rs-orders-prod',
     mongodb_version: '7.0.8',
     started_at: '2026-01-01T00:00:00Z',
+    cancel_requested: false,
     ...overrides,
   };
 }
@@ -120,5 +121,57 @@ describe('isBootstrapRunActive', () => {
     });
 
     expect(isBootstrapRunActive(done)).toBe(false);
+  });
+});
+
+describe('bootstrapRunDisplayStatus', () => {
+  it('passes through a non-succeeded status unchanged', () => {
+    expect(bootstrapRunDisplayStatus(run({ status: 'running' }))).toBe(
+      'running'
+    );
+    expect(bootstrapRunDisplayStatus(run({ status: 'failed' }))).toBe('failed');
+    expect(bootstrapRunDisplayStatus(run({ status: 'rolled_back' }))).toBe(
+      'rolled_back'
+    );
+  });
+
+  // The regression this exists for: the Automations page showed a green
+  // "Succeeded" badge the moment SEP's own status flipped,
+  // while confirm_monitoring was still visibly "Running" a step below it --
+  // the same premature-done gap isBootstrapRunActive fixes for polling, but
+  // for the badge a reader actually sees.
+  it('reads as running while succeeded but a host confirm_monitoring is still running', () => {
+    const stillConfirming = run({
+      status: 'succeeded',
+      hosts: [
+        {
+          host: 'n1',
+          steps: [],
+          rollback_steps: [],
+          finalize_steps: [
+            step('enable_auth', 'succeeded'),
+            step('confirm_monitoring', 'running'),
+          ],
+        },
+      ],
+    });
+
+    expect(bootstrapRunDisplayStatus(stillConfirming)).toBe('running');
+  });
+
+  it('reads as succeeded once every host confirm_monitoring has succeeded', () => {
+    const done = run({
+      status: 'succeeded',
+      hosts: [
+        {
+          host: 'n1',
+          steps: [],
+          rollback_steps: [],
+          finalize_steps: [step('confirm_monitoring', 'succeeded')],
+        },
+      ],
+    });
+
+    expect(bootstrapRunDisplayStatus(done)).toBe('succeeded');
   });
 });
