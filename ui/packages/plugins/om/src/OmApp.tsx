@@ -19,18 +19,20 @@ import { Route, Routes } from 'react-router-dom';
 import {
   OM_ROUTE_INVENTORY,
   OM_ROUTE_HOSTS,
+  OM_ROUTE_OPERATIONS,
   OM_ROUTE_SERVICES,
 } from './constants';
 import { InventoryPage } from './InventoryPage';
 import { HostsPage } from './HostsPage';
+import { OperationsPage } from './OperationsPage';
 import { OverviewPage } from './OverviewPage';
 import { ServicesPage } from './ServicesPage';
 
 /**
  * OM app router. The shell mounts this at ``om/*``; the cluster overview is the
- * index route, with the service, host and refresh pages beside it.
+ * index route, with the service, host, refresh and operations pages beside it.
  *
- * **All four mount here now.** Discovery used to live on its own route wrapped in
+ * **The estate pages all mount here now.** Discovery used to live on its own route wrapped in
  * ``SepPage``, because it read SEP's app directly and needed a bearer minted from the
  * PMM session that no other OM page did. Reading it through pmm-managed removes the
  * bearer, and with it the gate: ``SepAuthGate`` fails closed, so a SEP that was down,
@@ -48,6 +50,7 @@ export const OmApp = () => {
       <Route path={OM_ROUTE_SERVICES} element={<ServicesPage />} />
       <Route path={OM_ROUTE_HOSTS} element={<HostsPage />} />
       <Route path={OM_ROUTE_INVENTORY} element={<InventoryPage />} />
+      <Route path={OM_ROUTE_OPERATIONS} element={<OperationsPage />} />
     </Routes>
   );
 };

@@ -42,21 +42,25 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { useEffect, useRef } from 'react';
-import { isRunActive, request } from './api';
+import { isBootstrapRunActive, isRunActive, request } from './api';
 import { periodSince, type OmRunPeriod } from './inventory';
 import type {
+  OmGetBootstrapRunResponse,
+  OmHostBootstrapAccepted,
   OmInventoryHost,
   OmInventoryRun,
   OmInventoryRunAccepted,
   OmInventoryRunDetail,
   OmInventoryService,
   OmInventorySetting,
+  OmListBootstrapRunsResponse,
 } from './types';
 
 const HOSTS_KEY = ['om', 'inventory', 'hosts'] as const;
 const SERVICES_KEY = ['om', 'inventory', 'services'] as const;
 const RUNS_KEY = ['om', 'inventory', 'runs'] as const;
 const CONFIG_KEY = ['om', 'inventory', 'config'] as const;
+const BOOTSTRAP_RUNS_KEY = ['om', 'inventory', 'bootstrap-runs'] as const;
 
 /** Poll cadence while a refresh is in flight (ms). */
 const REFRESH_POLL_MS = 3000;
@@ -128,6 +132,15 @@ export function useOmInventoryHosts(filters: OmHostFilters = {}) {
       return hosts ?? [];
     },
     refetchInterval: refreshing ? REFRESH_POLL_MS : ESTATE_POLL_MS,
+    // Otherwise a backgrounded/inactive tab pauses polling entirely (TanStack's
+    // own default) and never catches back up on its own: the app's QueryClient
+    // also sets refetchOnWindowFocus: false, so there is no second mechanism to
+    // rescue a query stuck this way -- only the next scheduled tick would, and
+    // that tick is exactly what a paused interval never fires. Confirmed against
+    // a real session: switching tabs mid-bootstrap froze this table on a stale
+    // "Unregistered mongod" read that a completed, successfully-registered
+    // bootstrap had already made false.
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -151,6 +164,9 @@ export function useOmInventoryServices() {
       return services ?? [];
     },
     refetchInterval: refreshing ? REFRESH_POLL_MS : ESTATE_POLL_MS,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it.
+    refetchIntervalInBackground: true,
   });
 }
 
@@ -209,6 +225,9 @@ export function useOmInventoryRuns(filters: OmRunFilters = {}) {
       (query.state.data ?? []).some((run) => isRunActive(run.status))
         ? REFRESH_POLL_MS
         : ESTATE_POLL_MS,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it.
+    refetchIntervalInBackground: true,
     // Switching period keeps the old page on screen instead of blanking to the
     // spinner: the filters change the query key, and with no placeholder the table
     // would flash empty on every chip click the way HostsPage's and ServicesPage's
@@ -347,6 +366,63 @@ export function useForgetHost() {
   });
 }
 
+/**
+ * Bootstrap one host: install MongoDB through the Nomad client and initialize
+ * it as a single-member replica set.
+ *
+ * PMM-15347 PoC only. Does not invalidate the hosts query on success -- unlike
+ * a refresh or a forget, nothing about the estate's *current* row changes yet;
+ * the new service only appears once a later probe finds it.
+ */
+export function useTriggerHostBootstrap() {
+  return useMutation<
+    OmHostBootstrapAccepted,
+    Error,
+    { nodeId: string; replicaSetName: string; mongodbVersion: string }
+  >({
+    mutationFn: ({ nodeId, replicaSetName, mongodbVersion }) =>
+      request<OmHostBootstrapAccepted>(
+        `/inventory/hosts/${encodeURIComponent(nodeId)}:bootstrap`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            replica_set_name: replicaSetName,
+            mongodb_version: mongodbVersion,
+          }),
+        }
+      ),
+  });
+}
+
+/**
+ * Bootstrap run history, newest first, from `GET /inventory/bootstrap-runs`.
+ *
+ * Every run in full detail -- SEP's own GET /runs already returns each row's hosts
+ * and steps, so there is nothing cheaper to ask for and nothing more to fetch once
+ * a row is expanded. Polls fast while any run in the page is still active, same as
+ * {@link useOmInventoryRuns}, and slowly otherwise.
+ */
+export function useOmBootstrapRuns(limit?: number) {
+  return useQuery<OmGetBootstrapRunResponse[]>({
+    queryKey: [...BOOTSTRAP_RUNS_KEY, limit],
+    queryFn: async () => {
+      const query = limit ? `?limit=${limit}` : '';
+      const { runs } = await request<OmListBootstrapRunsResponse>(
+        `/inventory/bootstrap-runs${query}`
+      );
+      return runs ?? [];
+    },
+    refetchInterval: (query) =>
+      (query.state.data ?? []).some((run) => isBootstrapRunActive(run))
+        ? REFRESH_POLL_MS
+        : ESTATE_POLL_MS,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it.
+    refetchIntervalInBackground: true,
+    placeholderData: keepPreviousData,
+  });
+}
+
 /** Forget one service row, on the same terms as {@link useForgetHost}. */
 export function useForgetService() {
   const queryClient = useQueryClient();
@@ -379,6 +455,9 @@ export function useOmInventoryRun(runId: string | undefined) {
     // follows it; a finished one never changes again.
     refetchInterval: (query) =>
       isRunActive(query.state.data?.run.status) ? REFRESH_POLL_MS : false,
+    // See useOmInventoryHosts's own comment on this: a backgrounded tab pauses
+    // polling entirely otherwise, with no other mechanism to unstick it.
+    refetchIntervalInBackground: true,
   });
 }
 
