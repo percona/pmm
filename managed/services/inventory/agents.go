@@ -227,6 +227,47 @@ func hasNewDisabledCollectors(current, next []string) bool {
 	return false
 }
 
+// disabledCollectorsUnion returns, without duplicates, every collector disabled either before or
+// after the change.
+func disabledCollectorsUnion(current, next []string) []string {
+	union := make([]string, 0, len(current)+len(next))
+	for _, collector := range slices.Concat(current, next) {
+		if !slices.Contains(union, collector) {
+			union = append(union, collector)
+		}
+	}
+
+	return union
+}
+
+// widenDisabledCollectors stores an intermediate disabled-collector set and rebuilds the
+// VictoriaMetrics configuration from it synchronously, the same way port changes are handled in
+// agents.Handler.stateChanged (PMM-14267). The set is a superset of what the running exporter has
+// disabled and of what it will have disabled after the restart, so the resulting collect[] names
+// only collectors that both processes know.
+func (as *AgentsService) widenDisabledCollectors(ctx context.Context, agentID string, disabledCollectors []string) error {
+	params := &models.ChangeAgentParams{
+		ExporterOptions: &models.ChangeExporterOptions{
+			DisabledCollectors: disabledCollectors,
+		},
+	}
+
+	_, err := models.ChangeAgent(as.db.Querier, agentID, params)
+	if err != nil {
+		return err
+	}
+
+	err = as.vmdb.ForceConfigurationUpdate(ctx)
+	if err != nil {
+		// The requested list is applied right below, so the asynchronous update still converges on it;
+		// scrapes may answer with HTTP 400 until it does.
+		logger.Get(ctx).Warnf("Failed to force VictoriaMetrics configuration update: %s.", err)
+		as.vmdb.RequestConfigurationUpdate()
+	}
+
+	return nil
+}
+
 // ChangeNodeExporter updates node_exporter Agent with given parameters.
 func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string, p *inventoryv1.ChangeNodeExporterParams) (*inventoryv1.ChangeAgentResponse, error) {
 	// Convert protobuf parameters to model parameters
@@ -246,41 +287,57 @@ func (as *AgentsService) ChangeNodeExporter(ctx context.Context, agentID string,
 		MetricsResolutions: convertMetricsResolutions(p.MetricsResolutions),
 	}
 
-	// node_exporter rejects the whole scrape with HTTP 400 when collect[] names a collector it does
-	// not know, so a collector that is being disabled has to leave the scrape config before the
-	// exporter restarts without it. Capture the current set to tell that direction from the opposite
-	// one, where the config must be rebuilt only after the restart.
-	var disablesMoreCollectors bool
+	// node_exporter answers the whole resolution endpoint with HTTP 400 when collect[] names a
+	// collector it does not know, so a collector being disabled has to leave the scrape config before
+	// the exporter restarts without it, while a collector being re-enabled may only enter the config
+	// after that restart. A single request can do both at once, so the configuration is first rebuilt
+	// from the union of the two sets - the collectors that stay enabled whichever process answers the
+	// scrape - and the requested list is applied afterwards. What the union holds back is picked up by
+	// the asynchronous update that agents.Handler.stateChanged triggers once the exporter is back up.
+	var widenedFrom []string
 	if p.DisableCollectors != nil {
 		current, err := models.FindAgentByID(as.db.Querier, agentID)
 		if err != nil {
 			return nil, err
 		}
-		disablesMoreCollectors = hasNewDisabledCollectors(current.ExporterOptions.DisabledCollectors, p.DisableCollectors)
+
+		// empty but non-nil, so that restoring it below reads as "nothing disabled" rather than as
+		// "no change" in models.ChangeExporterOptions
+		previous := append([]string{}, current.ExporterOptions.DisabledCollectors...)
+		if hasNewDisabledCollectors(previous, p.DisableCollectors) {
+			err = as.widenDisabledCollectors(ctx, agentID, disabledCollectorsUnion(previous, p.DisableCollectors))
+			if err != nil {
+				return nil, err
+			}
+
+			widenedFrom = previous
+		}
 	}
 
 	agent, err := as.executeAgentChange(ctx, agentID, params)
 	if err != nil {
+		if widenedFrom != nil {
+			// the widened set is already committed, so put the agent back the way the caller found it
+			restore := &models.ChangeAgentParams{
+				ExporterOptions: &models.ChangeExporterOptions{
+					DisabledCollectors: widenedFrom,
+				},
+			}
+
+			_, restoreErr := models.ChangeAgent(as.db.Querier, agentID, restore)
+			if restoreErr != nil {
+				logger.Get(ctx).Errorf("Failed to restore disabled collectors of agent %s: %s.", agentID, restoreErr)
+			}
+
+			as.vmdb.RequestConfigurationUpdate()
+		}
+
 		return nil, err
 	}
 
 	nodeExporter, ok := agent.(*inventoryv1.NodeExporter)
 	if !ok {
 		return nil, unexpectedAgentTypeError(agent)
-	}
-
-	if disablesMoreCollectors {
-		// Rebuild the configuration synchronously so that VictoriaMetrics never scrapes the restarted
-		// exporter with the stale collector list, the same way port changes are handled in
-		// agents.Handler.stateChanged (PMM-14267). Re-enabling a collector needs the opposite order and
-		// is left to the asynchronous update that stateChanged triggers once the exporter is back up.
-		err = as.vmdb.ForceConfigurationUpdate(ctx)
-		if err != nil {
-			// The change is committed at this point, so the exporter still has to be restarted below.
-			// The asynchronous path picks the configuration up; scrapes may see HTTP 400 until it does.
-			logger.Get(ctx).Warnf("Failed to force VictoriaMetrics configuration update: %s.", err)
-			as.vmdb.RequestConfigurationUpdate()
-		}
 	}
 
 	as.state.RequestStateUpdate(ctx, nodeExporter.PmmAgentId)

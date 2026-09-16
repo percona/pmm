@@ -209,6 +209,42 @@ func TestAgents(t *testing.T) {
 			expectedNodeExporter.DisabledCollectors = []string{}
 		})
 
+		// One request can disable a collector and re-enable another at the same time. The re-enabled one
+		// may not come back into collect[] while the running exporter still has it disabled, so what the
+		// forced rebuild reads is the union of the old and the new set, not the new set alone.
+		t.Run("ChangeNodeExporterMixedCollectorChange", func(t *testing.T) {
+			vmdb := as.vmdb.(*mockPrometheusService)
+			agentID := "00000000-0000-4000-8000-000000000006"
+
+			vmdb.On("ForceConfigurationUpdate", ctx).Return(nil).Once()
+
+			_, err := as.ChangeNodeExporter(ctx, agentID, &inventoryv1.ChangeNodeExporterParams{
+				DisableCollectors: []string{"diskstats", "meminfo"},
+			})
+			require.NoError(t, err)
+
+			var disabledAtRebuild []string
+			vmdb.On("ForceConfigurationUpdate", ctx).Return(nil).Once().Run(func(mock.Arguments) {
+				agent, err := models.FindAgentByID(as.db.Querier, agentID)
+				require.NoError(t, err)
+				disabledAtRebuild = agent.ExporterOptions.DisabledCollectors
+			})
+
+			actualNodeExporter, err := as.ChangeNodeExporter(ctx, agentID, &inventoryv1.ChangeNodeExporterParams{
+				DisableCollectors: []string{"meminfo", "loadavg"},
+			})
+			require.NoError(t, err)
+
+			assert.ElementsMatch(t, []string{"diskstats", "meminfo", "loadavg"}, disabledAtRebuild)
+			assert.Equal(t, []string{"meminfo", "loadavg"}, actualNodeExporter.GetNodeExporter().DisabledCollectors)
+
+			// leave the agent the way the surrounding subtests expect to find it
+			_, err = as.ChangeNodeExporter(ctx, agentID, &inventoryv1.ChangeNodeExporterParams{
+				DisableCollectors: []string{},
+			})
+			require.NoError(t, err)
+		})
+
 		t.Run("AddMySQLExporter", func(t *testing.T) {
 			var err error
 			ss.vc.(*mockVersionCache).On("RequestSoftwareVersionsUpdate").Once()
