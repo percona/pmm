@@ -34,17 +34,26 @@ function renderWithProviders(ui: ReactNode) {
 }
 
 // One field per helperText-based component plus a choice field, to prove every
-// rendered field type surfaces its mapped error inline.
+// rendered field type surfaces its mapped error inline. The described fields
+// pin `help_placement` so the help icon is what is under test here — left to
+// the default, a description this short would render inline instead.
 const SECTIONS: FormSection[] = [
   {
     title: 'Task',
     fields: [
-      { type: 'string', name: 'title', label: 'Title', description: 'A title' },
+      {
+        type: 'string',
+        name: 'title',
+        label: 'Title',
+        description: 'A title',
+        help_placement: 'tooltip',
+      },
       {
         type: 'integer',
         name: 'limit',
         label: 'Row Limit',
         description: 'Max rows',
+        help_placement: 'tooltip',
       },
       {
         type: 'choice',
@@ -81,6 +90,19 @@ describe('SchemaFormRenderer field errors', () => {
     // Integer (helperText) field also surfaces its mapped error.
     expect(screen.getByText('must be positive')).toBeInTheDocument();
     expect(screen.queryByText('Max rows')).not.toBeInTheDocument();
+    // Help icons remain while helperText shows the error; pin count + visible <label>.
+    expect(document.querySelectorAll('[data-help-for="Title"]')).toHaveLength(
+      2
+    );
+    expect(
+      document.querySelectorAll('label [data-help-for="Title"]')
+    ).toHaveLength(1);
+    expect(
+      document.querySelectorAll('[data-help-for="Row Limit"]')
+    ).toHaveLength(2);
+    expect(
+      document.querySelectorAll('label [data-help-for="Row Limit"]')
+    ).toHaveLength(1);
     // The persistent banner is rendered.
     expect(screen.getByText(/Failed/)).toBeInTheDocument();
   });
@@ -160,6 +182,7 @@ describe('SchemaFormRenderer field errors', () => {
 
     // Empty the required title field, then resubmit: the client-side gate blocks
     // the submit, so the eager clear must not drop `limit`'s inline highlight.
+    // Prefer role+name: getByLabelText(/Title/) also matches "Help for Title".
     await user.clear(screen.getByRole('textbox', { name: /Title/ }));
     await user.click(screen.getByRole('button', { name: 'Run' }));
 

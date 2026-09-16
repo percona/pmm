@@ -18,6 +18,8 @@
 import { Controller, useFormContext } from 'react-hook-form';
 import { IconButton, InputAdornment, TextField } from '@mui/material';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { FieldLabelWithHelp } from '../FieldLabelWithHelp';
+import { fieldHelp } from '../fieldHelp';
 import type { FileField as FileFieldType } from '../types';
 import { buildValidationRules } from '../utils/validationMapper';
 
@@ -42,13 +44,18 @@ export function FileField({ field }: FileFieldProps) {
       rules={rules}
       render={({ field: rhf, fieldState: { error } }) => (
         <TextField
-          label={field.label}
+          label={
+            <FieldLabelWithHelp
+              label={field.label}
+              description={fieldHelp(field).tooltip}
+            />
+          }
           required={field.required}
           fullWidth
           size="small"
           value={rhf.value instanceof File ? rhf.value.name : ''}
           error={!!error}
-          helperText={error ? error.message : field.description}
+          helperText={error ? error.message : fieldHelp(field).inline}
           slotProps={{
             input: {
               readOnly: true,

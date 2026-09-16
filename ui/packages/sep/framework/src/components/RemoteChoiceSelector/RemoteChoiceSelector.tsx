@@ -32,15 +32,35 @@ import type { ChoiceOption } from '@sep/api';
 import { useRemoteChoices } from '../../hooks/useRemoteChoices';
 import { renderChoiceLabel } from '../SchemaFormRenderer/fields/choiceLabel';
 import {
+  parentLabelForDependsOn,
+  useFormFields,
+} from '../SchemaFormRenderer/formFieldsContext';
+import {
   normalizeChange,
   toDisplayValue,
   type ChoiceFreeSoloDisplayValue,
 } from './choiceFreeSoloValue';
 
 const EMPTY_OPTIONS: ChoiceOption[] = [];
-const PARENT_MISSING_TEXT = 'Select a value first';
-const PARENT_MISSING_CUSTOM_TEXT =
-  'Select a value first to list options, or type one';
+/**
+ * Tell someone which control releases this one.
+ *
+ * The cascade's disabled state is only actionable if it names its parent: on a
+ * form where several fields could plausibly be the one meant, "Select a value
+ * first" leaves the reader hunting for it. `parentLabel` is the upstream
+ * field's own label, so the phrase points at a control they can actually see;
+ * it falls back to the old generic wording when the schema gives the parent no
+ * label to borrow.
+ */
+function parentMissingText(
+  parentLabel: string | undefined,
+  allowCustom: boolean
+): string {
+  const subject = parentLabel ? `"${parentLabel}"` : 'a value';
+  return allowCustom
+    ? `Select ${subject} first to list options, or type one`
+    : `Select ${subject} first`;
+}
 
 export interface RemoteChoiceSelectorProps {
   /** react-hook-form field name. Stores the committed `string | null` (option value, free-typed value, or unset). */
@@ -50,6 +70,8 @@ export interface RemoteChoiceSelectorProps {
   disabled?: boolean;
   /** Fully-resolved fetch path (relative to the `/api` base) the options load from. */
   endpointUrl: string;
+  /** Field help shown under the control when no cascade hint takes the slot. */
+  description?: string;
   /** Optional parent field name; when set, the field cascades and — unless `allowCustom` is set — stays disabled until the parent has a value. */
   dependsOn?: string;
   /** Offer free-text (free-solo) entry alongside the fetched options. */
@@ -256,6 +278,7 @@ export function RemoteChoiceSelector({
   disabled,
   endpointUrl,
   dependsOn,
+  description,
   allowCustom,
 }: RemoteChoiceSelectorProps) {
   const { control, setValue } = useFormContext();
@@ -272,6 +295,10 @@ export function RemoteChoiceSelector({
   const parentScalar = dependsOn ? toScalarParent(parentRaw) : null;
   const cascades = dependsOn !== undefined;
   const parentMissing = cascades && parentScalar === null;
+  // Read off the sibling field metadata the renderer already publishes, so the
+  // "select X first" phrasing names the parent without the call site having to
+  // thread a label down for it.
+  const parentLabel = parentLabelForDependsOn(useFormFields(), dependsOn);
 
   const {
     data: options = EMPTY_OPTIONS,
@@ -301,18 +328,16 @@ export function RemoteChoiceSelector({
 
   const empty =
     !parentMissing && !isLoading && !isError && options.length === 0;
-  const parentMissingText = allowCustomEnabled
-    ? PARENT_MISSING_CUSTOM_TEXT
-    : PARENT_MISSING_TEXT;
+  const missingText = parentMissingText(parentLabel, allowCustomEnabled);
   const helperText = parentMissing
-    ? parentMissingText
+    ? missingText
     : isError
       ? (error?.message ?? 'Failed to load options')
       : empty
         ? 'No options available'
-        : undefined;
+        : description;
   const noOptionsText = parentMissing
-    ? parentMissingText
+    ? missingText
     : isLoading
       ? 'Loading…'
       : 'No options available';
