@@ -380,6 +380,7 @@ describe('PluginDetailPage — detail_view sections', () => {
                 ],
               },
               { name: 'backup_dir', label: 'Backup Directory', type: 'string' },
+              { name: 'start_at', label: 'Start At', type: 'datetime' },
               {
                 name: 'compress',
                 label: 'Compress',
@@ -484,6 +485,39 @@ describe('PluginDetailPage — detail_view sections', () => {
       expect(
         await screen.findByTestId('detail-syntax-highlighter')
       ).toBeInTheDocument();
+      expect(screen.queryByTestId('raw-configuration-toggle')).toBeNull();
+    });
+
+    it('renders a configured datetime under the shared timestamp rule', () => {
+      const startAt = '2025-01-02T03:04';
+      mockUsePluginTask.mockReturnValue({
+        data: taskWithForm({ start_at: startAt }),
+        isLoading: false,
+      });
+
+      renderWithSchema(configSchema());
+
+      const formatted = new Date(startAt).toLocaleString();
+      expect(screen.getByText('Start At')).toBeInTheDocument();
+      expect(screen.getByText(formatted)).toHaveAttribute('title', formatted);
+      expect(screen.queryByText(startAt)).toBeNull();
+    });
+
+    it('offers no disclosure when the task has no generated document to hide', () => {
+      mockUsePluginTask.mockReturnValue({
+        data: {
+          id: 1,
+          name: 'FECHK',
+          status: 'completed',
+          host: 'db01',
+          data: { _form: { backup_dir: '/backups' } },
+        },
+        isLoading: false,
+      });
+
+      renderWithSchema(configSchema());
+
+      expect(screen.getByText('/backups')).toBeInTheDocument();
       expect(screen.queryByTestId('raw-configuration-toggle')).toBeNull();
     });
 

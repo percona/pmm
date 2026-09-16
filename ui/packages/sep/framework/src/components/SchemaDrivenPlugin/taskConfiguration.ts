@@ -15,9 +15,20 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { FormSection, PluginField, SectionField } from '@sep/api';
+import type {
+  FormSection,
+  OneOfGroup,
+  PluginField,
+  SectionField,
+} from '@sep/api';
 import { evaluatePredicate } from '../SchemaFormRenderer/utils/predicateEvaluator';
-import { getAtPath } from '../SchemaFormRenderer/utils/fieldPath';
+import { fieldDefault } from '../SchemaFormRenderer/utils/fieldDefault';
+import { getAtPath, setAtPath } from '../SchemaFormRenderer/utils/fieldPath';
+import {
+  collectOneOfGroups,
+  flattenSectionFields,
+  isOneOfGroup,
+} from '../SchemaFormRenderer/utils/flattenSectionFields';
 
 /**
  * Turn a task's stored create-form body into the settings a reader needs to see.
@@ -49,6 +60,8 @@ export interface ConfiguredSetting {
   name: string;
   /** The form's own label for the field. */
   label: string;
+  /** The form field's type, so a renderer can format the value by kind. */
+  type: SectionField['type'];
   /** The stored value. */
   value: unknown;
   /** The field's display-label map, when it declares one. */
@@ -150,6 +163,60 @@ function selectedOneOfFields(
   return branch ? branch.fields : [];
 }
 
+/** The branch a one-of group starts on, as the form renderer seeds it. */
+function oneOfDefault(group: OneOfGroup): string {
+  return group.default ?? group.branches[0]?.value ?? '';
+}
+
+/**
+ * The branch a one-of group was switched to, as a setting of its own, or
+ * `null` when the group was left on the branch it starts on.
+ */
+function selectedBranchSetting(
+  group: OneOfGroup,
+  values: Record<string, unknown>
+): ConfiguredSetting | null {
+  const chosen = getAtPath(values, group.discriminator);
+  if (isDefaultValue(chosen, oneOfDefault(group))) {
+    return null;
+  }
+  return {
+    name: group.discriminator,
+    label: group.label,
+    type: group.type,
+    value: chosen,
+    valueLabels: Object.fromEntries(
+      group.branches.map((branch) => [branch.value, branch.label])
+    ),
+  };
+}
+
+/**
+ * The stored body with every default the form renderer seeds filled in, so
+ * gates and discriminators read the values the form evaluated them against.
+ */
+function withFormDefaults(
+  sections: FormSection[],
+  storedForm: Record<string, unknown>
+): Record<string, unknown> {
+  const values = { ...storedForm };
+  for (const field of flattenSectionFields(sections)) {
+    setAtPath(
+      values,
+      field.name,
+      getAtPath(values, field.name) ?? fieldDefault(field)
+    );
+  }
+  for (const group of collectOneOfGroups(sections)) {
+    setAtPath(
+      values,
+      group.discriminator,
+      getAtPath(values, group.discriminator) ?? oneOfDefault(group)
+    );
+  }
+  return values;
+}
+
 /**
  * Select the settings a task actually configured, grouped by form section.
  *
@@ -170,20 +237,27 @@ export function selectConfiguredSettings(
   storedForm: Record<string, unknown>,
   excludeNames: ReadonlySet<string> = new Set()
 ): ConfiguredSection[] {
+  const values = withFormDefaults(sections, storedForm);
   const result: ConfiguredSection[] = [];
 
   for (const section of sections) {
-    if (isGatedOut(section.forbidden, storedForm)) {
+    if (isGatedOut(section.forbidden, values)) {
       continue;
     }
 
     const settings: ConfiguredSetting[] = [];
     for (const item of section.fields) {
-      for (const field of selectedOneOfFields(item, storedForm)) {
+      const branchSetting = isOneOfGroup(item)
+        ? selectedBranchSetting(item, values)
+        : null;
+      if (branchSetting && !excludeNames.has(branchSetting.name)) {
+        settings.push(branchSetting);
+      }
+      for (const field of selectedOneOfFields(item, values)) {
         if (excludeNames.has(field.name)) {
           continue;
         }
-        if (isGatedOut(field.forbidden, storedForm)) {
+        if (isGatedOut(field.forbidden, values)) {
           continue;
         }
         // Dotted for the same reason as the discriminator above — a one-of
@@ -192,12 +266,13 @@ export function selectConfiguredSettings(
         // the stored body never carried reads as `undefined`, which
         // `isDefaultValue` already treats as untouched.
         const value = getAtPath(storedForm, field.name);
-        if (isDefaultValue(value, effectiveDefault(field))) {
+        if (isDefaultValue(value, fieldDefault(field))) {
           continue;
         }
         settings.push({
           name: field.name,
           label: field.label,
+          type: field.type,
           value,
           valueLabels: fieldValueLabels(field),
         });
@@ -210,40 +285,6 @@ export function selectConfiguredSettings(
   }
 
   return result;
-}
-
-/**
- * A field's default as the form would actually apply it.
- *
- * `SchemaFormRenderer`'s own `fieldDefault` is the authority on what an
- * omitted default seeds, and this has to agree with it or a field the form
- * never touched reads back as configured. Two of its cases need mirroring
- * here: an undeclared `bool` seeds `false` (what an unchecked box submits) and
- * an undeclared `multi_choice` seeds `[]` (an empty selection). Without the
- * first, a bool field whose schema omits a default would list `No` under its
- * label on every task that ever submitted the form; without the second, an
- * untouched empty selection would list as configured with nothing to show.
- *
- * Its remaining cases need no mirroring: they all seed `''`, `null` or
- * `undefined`, which {@link isDefaultValue} already treats as blank and so as
- * default. Every other type keeps its declared default, absent included — a
- * set value against no default is a real choice.
- *
- * PMM-15451 extracts that helper to a shared util; import it here instead once
- * the two branches meet, and delete this.
- */
-function effectiveDefault(field: PluginField): unknown {
-  if (field.default !== undefined) {
-    return field.default;
-  }
-  switch (field.type) {
-    case 'bool':
-      return false;
-    case 'multi_choice':
-      return [];
-    default:
-      return undefined;
-  }
 }
 
 /**

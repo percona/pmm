@@ -69,6 +69,7 @@ import {
   type PluginSchema,
   type SepComponents,
 } from '@sep/api';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 import { resolvePath } from '../../utils/resolvePath';
 import { applyValueLabel } from '../../utils/valueLabels';
 import { ActionErrorAlert, useActionError } from '../ActionErrorAlert';
@@ -331,10 +332,12 @@ function TaskOverviewDetailField({
   label,
   value: rawValue,
   valueLabels,
+  title,
 }: {
   label: string;
   value: unknown;
   valueLabels?: Record<string, string>;
+  title?: string;
 }) {
   const value = applyValueLabel(rawValue, valueLabels);
   if (value === null || value === undefined || value === '') {
@@ -365,7 +368,7 @@ function TaskOverviewDetailField({
       {typeof value === 'object' ? (
         display
       ) : (
-        <Typography variant="body1" sx={detailFieldValueSx}>
+        <Typography variant="body1" sx={detailFieldValueSx} title={title}>
           {display}
         </Typography>
       )}
@@ -403,27 +406,37 @@ function TaskConfigurationCard({
       {configured.map((section) => (
         <SectionCard key={section.title} title={section.title}>
           <Grid container spacing={2}>
-            {section.settings.map((setting) => (
-              <TaskOverviewDetailField
-                key={setting.name}
-                label={setting.label}
-                // A multi-choice value is a list of stored members; label each
-                // and join, rather than handing an array to the JSON preview
-                // that the object branch would otherwise render it with.
-                value={
-                  Array.isArray(setting.value)
-                    ? setting.value
-                        .map((item) =>
-                          String(applyValueLabel(item, setting.valueLabels))
-                        )
-                        .join(', ')
-                    : setting.value
-                }
-                valueLabels={
-                  Array.isArray(setting.value) ? undefined : setting.valueLabels
-                }
-              />
-            ))}
+            {section.settings.map((setting) => {
+              const timestamp =
+                setting.type === 'datetime' && typeof setting.value === 'string'
+                  ? formatTimestamp(setting.value)
+                  : null;
+              return (
+                <TaskOverviewDetailField
+                  key={setting.name}
+                  label={setting.label}
+                  title={timestamp?.title}
+                  // A multi-choice value is a list of stored members; label each
+                  // and join, rather than handing an array to the JSON preview
+                  // that the object branch would otherwise render it with.
+                  value={
+                    timestamp?.display ??
+                    (Array.isArray(setting.value)
+                      ? setting.value
+                          .map((item) =>
+                            String(applyValueLabel(item, setting.valueLabels))
+                          )
+                          .join(', ')
+                      : setting.value)
+                  }
+                  valueLabels={
+                    Array.isArray(setting.value)
+                      ? undefined
+                      : setting.valueLabels
+                  }
+                />
+              );
+            })}
           </Grid>
         </SectionCard>
       ))}
@@ -472,6 +485,21 @@ function RawDetailDisclosure({
   );
 }
 
+/** A detail section's fields paired with their values, blank ones dropped. */
+function resolveSectionFields(
+  section: DetailSection,
+  task: Record<string, unknown>
+) {
+  // Match EntityDetailField's own empty-value rule (undefined / null / '')
+  // so a section hides entirely when every field would have rendered blank,
+  // and so 0 / false still render as legitimate values.
+  return section.fields
+    .map((field) => ({ field, value: resolvePath(task, field.path) }))
+    .filter(
+      ({ value }) => value !== undefined && value !== null && value !== ''
+    );
+}
+
 function DetailViewSectionCard({
   section,
   task,
@@ -479,14 +507,7 @@ function DetailViewSectionCard({
   section: DetailSection;
   task: Record<string, unknown>;
 }) {
-  // Match EntityDetailField's own empty-value rule (undefined / null / '')
-  // so a section hides entirely when every field would have rendered blank,
-  // and so 0 / false still render as legitimate values.
-  const resolved = section.fields
-    .map((field) => ({ field, value: resolvePath(task, field.path) }))
-    .filter(
-      ({ value }) => value !== undefined && value !== null && value !== ''
-    );
+  const resolved = resolveSectionFields(section, task);
   if (resolved.length === 0) {
     return null;
   }
@@ -666,10 +687,14 @@ function OverviewTab({
       const isRaw =
         section.fields.length > 0 &&
         section.fields.every((field) => Boolean(field.highlight));
-      (isRaw ? raw : plain).push(section);
+      if (!isRaw) {
+        plain.push(section);
+      } else if (resolveSectionFields(section, task).length > 0) {
+        raw.push(section);
+      }
     }
     return [plain, raw];
-  }, [schema.detail_view]);
+  }, [schema.detail_view, task]);
 
   const configurationExcludedNames = useMemo(
     () => {
