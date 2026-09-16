@@ -135,7 +135,7 @@ If the identity that runs a PMM component can already assume an IAM role (includ
 
 Which identity assumes the role depends on the operation:
 
-- **Discovering** RDS instances (through the PMM API, the **Add Instance** page, or `pmm-admin`) runs on **PMM Server**, so PMM Server's ambient identity assumes the role.
+- **Discovering** RDS instances (through the PMM API or the **Add Instance** page; `pmm-admin` has no discovery command) runs on **PMM Server**, so PMM Server's ambient identity assumes the role.
 - **Scraping metrics** runs in `rds_exporter`, which is managed by **pmm-agent** on the host you registered, so that host's ambient identity assumes the role.
 
 When PMM Server and pmm-agent share a host, or run under the same ambient identity, this distinction does not matter. When they run on separate hosts, make sure both identities are trusted to assume the role.
