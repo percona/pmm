@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import type { FormSection } from '../types';
 import { isOneOfGroup } from '../utils/flattenSectionFields';
@@ -30,25 +30,35 @@ export interface ConditionalSectionState {
 }
 
 /**
- * Evaluate a FormSection's ``forbidden`` gates against current form values.
- * When any gate fires the section becomes hidden and every child field is
- * unregistered from react-hook-form so stale values do not ship in the
- * submission payload.
+ * Evaluate the `forbidden` gates of several sections against one watch.
  *
- * Cardinality (repeated) sections are out of scope for this hook — none
- * of the current schema-driven plugins gate a cardinality_rules-driven
- * section. Revisit if a future plugin needs the combination.
+ * The batched form exists so a caller can know a whole run of sections is
+ * hidden *before* rendering the shell that would contain them — a grouped
+ * shell whose every member is gated out must not render as an empty
+ * accordion. Subscribing once to the union of gate fields also keeps a form
+ * with many gated sections to a single `useWatch`.
+ *
+ * Returns one flag per input section, positionally.
+ *
+ * Deliberately not exported from the package: it is only half the contract.
+ * A caller that reads these flags without also calling
+ * {@link useUnregisterHiddenSections} ships a hidden section's values in the
+ * submission payload. {@link useConditionalSection} pairs the two for the
+ * single-section case and is the supported entry point.
  */
-export function useConditionalSection(
-  section: FormSection
-): ConditionalSectionState {
-  const { control, unregister } = useFormContext();
+export function useConditionalSections(sections: FormSection[]): boolean[] {
+  const { control } = useFormContext();
 
   const watchedNames = useMemo<string[]>(() => {
-    const forbidden = section.forbidden ?? [];
-    return getGateFieldNames(forbidden);
-    // section schema is static for the form's lifetime; dep on section is safe.
-  }, [section]);
+    const names = new Set<string>();
+    for (const section of sections) {
+      for (const name of getGateFieldNames(section.forbidden ?? [])) {
+        names.add(name);
+      }
+    }
+    return [...names];
+    // section schemas are static for the form's lifetime; dep on sections is safe.
+  }, [sections]);
 
   const rawValues = useWatch({
     control,
@@ -56,44 +66,95 @@ export function useConditionalSection(
     disabled: watchedNames.length === 0,
   }) as unknown[];
 
-  const isHidden = useMemo(() => {
-    if (!section.forbidden?.length) {
-      return false;
-    }
+  const flags = useMemo(() => {
     const map = watchValuesByName(watchedNames, rawValues);
-    return section.forbidden.some((gate) => evaluatePredicate(gate.when, map));
-  }, [rawValues, section, watchedNames]);
+    return sections.map((section) =>
+      Boolean(
+        section.forbidden?.some((gate) => evaluatePredicate(gate.when, map))
+      )
+    );
+  }, [sections, watchedNames, rawValues]);
 
-  const sectionFieldNames = useMemo<string[]>(() => {
-    const names = new Set<string>();
-    for (const field of section.fields) {
-      if (isOneOfGroup(field)) {
-        names.add(field.name);
-        names.add(field.discriminator);
-        for (const branch of field.branches) {
-          for (const leaf of branch.fields) {
-            names.add(leaf.name);
-          }
-        }
-        continue;
-      }
+  // `useWatch` hands back a fresh array every render, so the memo above
+  // recomputes every render too. Hold the previous result while the flags
+  // themselves are unchanged, so callers can put the array straight into an
+  // effect's dependency list without that effect re-firing continuously.
+  const stable = useRef<boolean[]>(flags);
+  if (
+    stable.current.length !== flags.length ||
+    flags.some((flag, i) => stable.current[i] !== flag)
+  ) {
+    stable.current = flags;
+  }
+  return stable.current;
+}
+
+/** The react-hook-form names every field in a section registers under. */
+function sectionFieldNames(section: FormSection): string[] {
+  const names = new Set<string>();
+  for (const field of section.fields) {
+    if (isOneOfGroup(field)) {
       names.add(field.name);
+      names.add(field.discriminator);
+      for (const branch of field.branches) {
+        for (const leaf of branch.fields) {
+          names.add(leaf.name);
+        }
+      }
+      continue;
     }
-    return [...names];
-  }, [section.fields]);
+    names.add(field.name);
+  }
+  return [...names];
+}
 
-  // When the section becomes hidden every child field must drop out of
-  // RHF state so its (possibly default) value does not ship. On re-show,
-  // SectionRenderer re-mounts the children which re-call register() and
-  // start fresh — intentional: stale user input from the prior session
-  // would otherwise ship in the payload and fail backend cross-mode validation.
+/**
+ * Drop every hidden section's fields from react-hook-form state.
+ *
+ * Owned by the form body rather than by each section's own component, because
+ * a section that never mounts cannot clean up after itself — a member of a
+ * collapsed group is not in the tree at all, and would otherwise ship its
+ * default value while gated out.
+ */
+export function useUnregisterHiddenSections(
+  sections: FormSection[],
+  hidden: boolean[]
+): void {
+  const { unregister } = useFormContext();
+
+  const namesBySection = useMemo(
+    () => sections.map(sectionFieldNames),
+    [sections]
+  );
+
   useEffect(() => {
-    if (isHidden) {
-      for (const name of sectionFieldNames) {
+    hidden.forEach((isHidden, i) => {
+      if (!isHidden) {
+        return;
+      }
+      for (const name of namesBySection[i] ?? []) {
         unregister(name);
       }
-    }
-  }, [isHidden, sectionFieldNames, unregister]);
+    });
+  }, [hidden, namesBySection, unregister]);
+}
 
-  return { isHidden };
+/**
+ * Evaluate one section's gates and drop its fields while it is hidden.
+ *
+ * When the section becomes hidden every child field must drop out of
+ * RHF state so its (possibly default) value does not ship. On re-show,
+ * the renderer re-mounts the children which re-call register() and
+ * start fresh — intentional: stale user input from the prior session
+ * would otherwise ship in the payload and fail backend cross-mode validation.
+ */
+export function useConditionalSection(
+  section: FormSection
+): ConditionalSectionState {
+  const sections = useMemo(() => [section], [section]);
+  const hidden = useConditionalSections(sections);
+
+  useUnregisterHiddenSections(sections, hidden);
+
+  return { isHidden: hidden[0] ?? false };
 }

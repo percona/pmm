@@ -1154,33 +1154,33 @@ function ActionBar({
                 `Are you sure you want to execute the task ${pendingExecute?.taskName ?? taskName} now?`}
             </DialogContentText>
           )}
-          {chainingEnabled && pendingExecute && (
-            <Box sx={{ mt: 2 }}>
-              {pluginTasksLoading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <CircularProgress
-                    size={24}
-                    data-testid="chain-tasks-loading"
-                  />
-                </Box>
-              ) : pluginTasksError ? (
-                <Alert severity="error" data-testid="chain-tasks-error">
-                  Couldn&apos;t load tasks available to chain
-                  {pluginTasksLoadError instanceof Error
-                    ? `: ${pluginTasksLoadError.message}`
-                    : ''}
-                </Alert>
-              ) : (
-                <ChainBuilder
-                  availableTasks={availableTasks}
-                  currentTaskName={pendingExecute.taskName}
-                  value={chain}
-                  onChange={setChain}
-                  disabled={executeTask.isPending}
-                />
-              )}
-            </Box>
-          )}
+          {chainingEnabled &&
+            pendingExecute &&
+            (pluginTasksLoading ? (
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+                <CircularProgress size={24} data-testid="chain-tasks-loading" />
+              </Box>
+            ) : pluginTasksError ? (
+              <Alert
+                severity="error"
+                data-testid="chain-tasks-error"
+                sx={{ mt: 2 }}
+              >
+                Couldn&apos;t load tasks available to chain
+                {pluginTasksLoadError instanceof Error
+                  ? `: ${pluginTasksLoadError.message}`
+                  : ''}
+              </Alert>
+            ) : (
+              <ChainBuilder
+                availableTasks={availableTasks}
+                currentTaskName={pendingExecute.taskName}
+                value={chain}
+                onChange={setChain}
+                disabled={executeTask.isPending}
+                sx={{ mt: 2 }}
+              />
+            ))}
         </DialogContent>
         <DialogActions>
           <Button

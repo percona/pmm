@@ -65,6 +65,10 @@ function expectHelp(label: string, present: boolean) {
   }
 }
 
+// Every described field here pins `help_placement: 'tooltip'`. The file is
+// about the icon reaching each field kind across real app shapes; the
+// length-based default would put most of these descriptions inline instead,
+// which is covered on its own in the placement tests.
 describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
   it('mysql_backups-like create form: icons on described fields only', () => {
     const sections: FormSection[] = [
@@ -76,6 +80,7 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
             name: 'db_host',
             label: 'Database Host',
             description: 'Host the backup connects to on the executor node.',
+            help_placement: 'tooltip',
           },
           { type: 'string', name: 'server_alias', label: 'Server Alias' },
         ],
@@ -97,6 +102,7 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
             name: 'compress',
             label: 'Compress backup data',
             description: 'Compress the backup stream as it is written.',
+            help_placement: 'tooltip',
           },
           { type: 'string', name: 'log_dir', label: 'Logging directory' },
         ],
@@ -110,6 +116,7 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
             label: 'Safe replica backup',
             description:
               'Passes --safe-slave-backup so xtrabackup pauses the replica SQL thread during the backup.',
+            help_placement: 'tooltip',
           },
           {
             type: 'integer',
@@ -161,12 +168,14 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
             label: 'Run with sudo',
             description:
               'Prepend sudo to the interpreter when the snippet is executed.',
+            help_placement: 'tooltip',
           },
           {
             type: 'integer',
             name: 'minutes',
             label: 'Lookback minutes',
             description: 'Shared window applied to every selected snippet.',
+            help_placement: 'tooltip',
           },
           { type: 'string', name: 'note', label: 'Operator note' },
         ],
@@ -181,6 +190,7 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
             name: 'overrides.snip0.path',
             label: 'Path',
             description: 'Filesystem path to inspect for this snippet only.',
+            help_placement: 'tooltip',
           },
           {
             type: 'integer',
@@ -199,6 +209,8 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
     expect(screen.getByTestId('switch-input-sudo')).toBeInTheDocument();
     expect(screen.getByTestId('text-input-minutes')).toBeInTheDocument();
     expect(screen.getByTestId('text-input-note')).toBeInTheDocument();
+    // Collapsible section starts expanded only when collapsed_by_default is unset;
+    // this fixture leaves it open so override fields mount.
     expect(
       screen.getByTestId('text-input-overrides.snip0.path')
     ).toBeInTheDocument();
@@ -212,6 +224,10 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
     expectHelp('Operator note', false);
     expectHelp('Path', true);
     expectHelp('Threshold %', false);
+    // Section prose must not restate field help.
+    expect(
+      screen.queryByText('Reports free space on the executor host.')
+    ).not.toBeInTheDocument();
   });
 
   it('snippet-execution form: user-authored params drive help icons', () => {
@@ -225,6 +241,7 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
             name: 'table_name',
             label: 'Table Name',
             description: 'Table to inspect on the executor host.',
+            help_placement: 'tooltip',
           },
           { type: 'string', name: 'database_name', label: 'Database Name' },
           {
@@ -232,6 +249,7 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
             name: 'format',
             label: 'Output format',
             description: 'How to render the snippet result.',
+            help_placement: 'tooltip',
             // >3 choices use the select shell (help icon); ≤3 use radios + caption.
             choices: [
               { label: 'Plain text', value: 'text' },
@@ -245,6 +263,7 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
             name: 'verbose',
             label: 'Verbose',
             description: 'Increase output verbosity.',
+            help_placement: 'tooltip',
           },
           { type: 'integer', name: 'limit', label: 'Row limit' },
         ],
@@ -264,6 +283,7 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
             label: 'Run with sudo',
             description:
               'Prepend sudo to the interpreter when the snippet is executed.',
+            help_placement: 'tooltip',
           },
         ],
       },

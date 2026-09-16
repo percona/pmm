@@ -26,6 +26,7 @@ import Radio from '@mui/material/Radio';
 import { LabeledContent, RadioGroup } from '@percona/peak-ui';
 import { SchemaSelectShell } from '../SchemaSelectShell';
 import type { ChoiceField as ChoiceFieldType } from '../types';
+import { fieldHelp } from '../fieldHelp';
 import { buildValidationRules } from '../utils/validationMapper';
 import { renderChoiceLabel } from './choiceLabel';
 
@@ -39,6 +40,7 @@ const RADIO_THRESHOLD = 3;
 export function ChoiceField({ field }: ChoiceFieldProps) {
   const { control } = useFormContext();
   const rules = buildValidationRules(field);
+  const help = fieldHelp(field);
   const hasDisabledChoice = field.choices.some((choice) => choice.disabled);
 
   if (field.choices.length > 0 && field.choices.length <= RADIO_THRESHOLD) {
@@ -53,7 +55,7 @@ export function ChoiceField({ field }: ChoiceFieldProps) {
         <LabeledContent
           label={field.label}
           isRequired={field.required}
-          caption={field.description}
+          caption={help.inline ?? help.tooltip}
         >
           <Controller
             name={field.name}
@@ -88,7 +90,7 @@ export function ChoiceField({ field }: ChoiceFieldProps) {
         label={field.label}
         isRequired={field.required}
         control={control}
-        labelProps={{ caption: field.description }}
+        labelProps={{ caption: help.inline ?? help.tooltip }}
         options={field.choices}
         controllerProps={{ rules }}
       />
@@ -109,7 +111,8 @@ export function ChoiceField({ field }: ChoiceFieldProps) {
           label={field.label}
           required={field.required}
           error={error}
-          description={field.description}
+          tooltip={help.tooltip}
+          inline={help.inline}
           renderValue={(value) => {
             if (value === undefined || value === null || value === '') {
               return (
