@@ -190,7 +190,90 @@ To assume a role:
     ```
 
 !!! caution alert alert-warning "Mutually exclusive"
-    A role ARN cannot be combined with an access key and secret key; supplying both is rejected. To move an existing agent from static keys to a role, set the role ARN and clear the keys in the same `pmm-admin inventory change agent rds-exporter` call (pass `--aws-role-arn` with empty `--aws-access-key` and `--aws-secret-key` values). To go back to static keys, clear the role ARN with `--aws-role-arn=""`.
+    A role ARN cannot be combined with an access key and secret key; supplying both is rejected. To move an instance PMM already monitors onto a role, see [Migrating an existing instance to an IAM role](#migrating-an-existing-instance-to-an-iam-role).
+
+## Migrating an existing instance to an IAM role
+
+An Amazon RDS instance that PMM already monitors with an access key can be moved onto an IAM role in place, without removing and re-adding the service. The service keeps its ID, its labels and its metrics history.
+
+Because a role ARN and an access key are mutually exclusive, the switch has to happen in a single change: setting the role while the keys are still stored is rejected with
+
+```
+Both AWS role ARN and AWS access key/secret key are set; they are mutually exclusive.
+```
+
+Before you start, make sure the role is prepared as described in [Assuming an IAM role](#assuming-an-iam-role): the RDS policy attached to it, a trust policy naming PMM's ambient identity, and `sts:AssumeRole` permission for that identity.
+
+=== "PMM web interface"
+
+    To switch an instance to a role from the web interface:
+    {.power-number}
+
+    1. Go to **Inventory > Services** and select **Edit** from the row menu of the service you want to migrate.
+
+    2. Find the **Amazon RDS credentials** section. It appears only for services monitored by an `rds_exporter`, and **Authenticate with** shows how the exporter authenticates today.
+
+    3. Select **IAM role** and enter the role ARN. The access key and secret key fields disappear, and PMM clears the stored keys for you when you save.
+
+    4. Select **Save Changes**, then **Confirm and save changes**.
+
+=== "Command line"
+
+    To switch an instance to a role with `pmm-admin`:
+    {.power-number}
+
+    1. Find the `rds_exporter` agent monitoring the instance:
+
+        ```sh
+        pmm-admin inventory list agents --agent-type=rds-exporter
+        ```
+
+    2. Set the role ARN and clear both keys in the same call. The empty `--aws-access-key` and `--aws-secret-key` values are what removes the stored key pair:
+
+        ```sh
+        pmm-admin inventory change agent rds-exporter <agent-id> \
+            --aws-role-arn=arn:aws:iam::<rds-account-id>:role/<role-to-assume> \
+            --aws-access-key= \
+            --aws-secret-key=
+        ```
+
+        The command confirms what changed:
+
+        ```
+        Configuration changes applied:
+          - updated AWS access key
+          - updated AWS secret key
+          - updated AWS role ARN
+        ```
+
+Saving restarts the RDS exporter so it picks up the new credentials, so expect a short gap in CloudWatch metrics for that service. Metrics resume on their own; no further action is needed.
+
+### Verifying the migration
+
+Go to **Inventory > Nodes**, select the node of the migrated instance, open its **Agents** tab and expand the `rds_exporter` row. **Properties** now lists `aws_role_arn` with the role you supplied, and no longer lists `aws_access_key`.
+
+To check the same thing from the command line:
+
+```sh
+curl -u <user>:<password> https://<pmm-server>/v1/inventory/agents/<agent-id>
+```
+
+The `rds_exporter` object should show your role in `aws_role_arn` and an empty `aws_access_key`.
+
+### Moving back, or off stored credentials entirely
+
+To return to an access key, supply the key and clear the role in one call:
+
+```sh
+pmm-admin inventory change agent rds-exporter <agent-id> \
+    --aws-access-key=<key> \
+    --aws-secret-key=<secret> \
+    --aws-role-arn=
+```
+
+In the web interface, select **Access key** under **Authenticate with** and enter the key pair. Leave the secret key field blank to keep the secret PMM already stores; you must supply it whenever you change the access key itself.
+
+Selecting **Host credentials** (or clearing all three values from the command line) makes PMM store no AWS credentials for the service at all. The exporter then falls back to whatever the pmm-agent host provides, such as an EC2 instance profile, environment variables or a credentials file. If that host provides none, monitoring for the service stops.
 
 ## Setting up the Amazon RDS DB instance
 
