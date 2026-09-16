@@ -15,7 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
@@ -42,8 +42,11 @@ import {
   utcInputToIso,
   utcIsoToUtcInput,
 } from './timezones';
+import { useSchedulePreview } from './hooks';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 import type {
   CrontabSchedule,
+  SchedulePreviewWrite,
   IntervalSchedule,
   PeriodicTaskCreate,
   PeriodicTaskResponse,
@@ -83,6 +86,23 @@ export interface ScheduledTaskFormProps {
 }
 
 const CRON_PATTERN = /^\S+(?:\s+\S+){4}$/;
+
+/**
+ * Hold a value still for `delay` ms.
+ *
+ * Without it the schedule preview is a network call per keystroke, and a
+ * half-typed cron expression is frequently a valid one in its own right — so
+ * the requests would not merely be many, they would each describe a schedule
+ * the user never asked for.
+ */
+function useDebounced<T>(value: T, delay = 400): T {
+  const [held, setHeld] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setHeld(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return held;
+}
 
 /**
  * The `start_time` to send.
@@ -223,6 +243,50 @@ export function ScheduledTaskForm({
       );
     }
   }, [taskName, chain, setValue]);
+
+  const intervalEvery = watch('intervalEvery');
+  const intervalPeriod = watch('intervalPeriod');
+  const startTime = watch('startTime');
+
+  // What the backend would make of the schedule as currently described. Null
+  // while the form does not describe a valid one, which keeps the query idle.
+  const previewSpec = useMemo<SchedulePreviewWrite | null>(() => {
+    if (scheduleMode === 'cron') {
+      if (!cronExpression || !humanize(cronExpression).valid) {
+        return null;
+      }
+      const crontab = expressionToCron(cronExpression, cronTimezone);
+      return crontab ? { crontab, interval: null, start_time: null } : null;
+    }
+    const every = Number(intervalEvery);
+    if (!Number.isFinite(every) || every < 1) {
+      return null;
+    }
+    return {
+      interval: { every, period: intervalPeriod },
+      crontab: null,
+      start_time: utcInputToIso(startTime),
+    };
+  }, [
+    scheduleMode,
+    cronExpression,
+    cronTimezone,
+    intervalEvery,
+    intervalPeriod,
+    startTime,
+  ]);
+
+  const { data: preview, isError: previewFailed } = useSchedulePreview(
+    useDebounced(previewSpec)
+  );
+
+  // The backend's own answer beats the form's assumption about which zone is in
+  // force; fall back to the assumption until the first preview lands.
+  const zoneInForce =
+    preview?.timezone ??
+    (scheduleMode === 'cron' ? cronTimezone : INTERVAL_TIMEZONE);
+
+  const nextRuns = preview?.next_runs?.slice(0, 3) ?? [];
 
   const cronPreview = useMemo(() => {
     if (scheduleMode !== 'cron' || !cronExpression) {
@@ -479,9 +543,28 @@ export function ScheduledTaskForm({
           data-testid="sched-form-timezone-notice"
         >
           {scheduleMode === 'cron'
-            ? `Runs in ${cronTimezone}.`
-            : `Runs in ${INTERVAL_TIMEZONE} — an interval schedule has no timezone of its own.`}
+            ? `Runs in ${zoneInForce}.`
+            : `Runs in ${zoneInForce} — an interval schedule has no timezone of its own.`}
         </Typography>
+
+        {previewSpec !== null && (
+          <Typography
+            variant="caption"
+            color={previewFailed ? 'error' : 'text.secondary'}
+            sx={{ display: 'block', mt: 0.5 }}
+            data-testid="sched-form-next-runs"
+          >
+            {previewFailed
+              ? 'Could not work out the next runs for this schedule.'
+              : nextRuns.length > 0
+                ? `Next runs: ${nextRuns
+                    .map((r) => formatTimestamp(r)?.display ?? r)
+                    .join(', ')}`
+                : preview
+                  ? 'This schedule has no upcoming runs.'
+                  : 'Working out the next runs…'}
+          </Typography>
+        )}
       </Box>
 
       <Box sx={{ mb: 1 }}>

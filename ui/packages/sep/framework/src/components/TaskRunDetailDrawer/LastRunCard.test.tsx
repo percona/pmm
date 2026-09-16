@@ -14,6 +14,7 @@ vi.mock('@sep/api', () => ({
 }));
 
 import { apiClient } from '@sep/api';
+import { browserTimezone } from '../../utils/formatTimestamp';
 
 const mockedGet = apiClient.get as unknown as ReturnType<typeof vi.fn>;
 
@@ -127,8 +128,8 @@ describe('LastRunCard', () => {
 
       const times = await screen.findAllByText('2 hours ago');
       expect(times.map((el) => el.getAttribute('title'))).toEqual([
-        new Date('2026-09-07T10:00:00Z').toLocaleString(),
-        new Date('2026-09-07T10:02:07Z').toLocaleString(),
+        `${new Date('2026-09-07T10:00:00Z').toLocaleString()} (${browserTimezone()})`,
+        `${new Date('2026-09-07T10:02:07Z').toLocaleString()} (${browserTimezone()})`,
       ]);
     } finally {
       vi.useRealTimers();

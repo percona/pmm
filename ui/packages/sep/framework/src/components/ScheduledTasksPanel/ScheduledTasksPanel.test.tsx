@@ -103,6 +103,16 @@ beforeEach(() => {
   authMock.canMutate = true;
 });
 
+/**
+ * The create POST, ignoring the schedule-preview POST that the form issues
+ * while the user types. Both go through the same mocked client.
+ */
+function createCalls() {
+  return apiMock.post.mock.calls.filter(
+    ([url]) => !String(url).includes('schedule/preview')
+  );
+}
+
 function setup(periodic: PeriodicTaskResponse[]) {
   usePluginTasksMock.mockReturnValue({
     data: {
@@ -280,8 +290,8 @@ describe('ScheduledTasksPanel', () => {
 
     await user.click(within(form).getByRole('button', { name: /Create/i }));
 
-    await waitFor(() => expect(apiMock.post).toHaveBeenCalledTimes(1));
-    const [url, body] = apiMock.post.mock.calls[0];
+    await waitFor(() => expect(createCalls()).toHaveLength(1));
+    const [url, body] = createCalls()[0];
     expect(url).toBe('/sep/periodic-tasks/plugin-task/');
     expect(body).toMatchObject({
       task: 'plugin-task',
@@ -312,8 +322,8 @@ describe('ScheduledTasksPanel', () => {
 
     await user.click(within(form).getByRole('button', { name: /Create/i }));
 
-    await waitFor(() => expect(apiMock.post).toHaveBeenCalledTimes(1));
-    const [, body] = apiMock.post.mock.calls[0];
+    await waitFor(() => expect(createCalls()).toHaveLength(1));
+    const [, body] = createCalls()[0];
     expect(body.interval).toBeNull();
     expect(body.crontab).toMatchObject({
       minute: '*/5',
@@ -337,7 +347,7 @@ describe('ScheduledTasksPanel', () => {
     await user.type(within(form).getByTestId('sched-form-cron'), 'not-a-cron');
     await user.click(within(form).getByRole('button', { name: /Create/i }));
 
-    expect(apiMock.post).not.toHaveBeenCalled();
+    expect(createCalls()).toHaveLength(0);
   });
 
   it('rejects an empty interval-every value and does not POST', async () => {
@@ -351,7 +361,7 @@ describe('ScheduledTasksPanel', () => {
     await user.clear(within(form).getByTestId('sched-form-interval-every'));
     await user.click(within(form).getByRole('button', { name: /Create/i }));
 
-    expect(apiMock.post).not.toHaveBeenCalled();
+    expect(createCalls()).toHaveLength(0);
   });
 
   it('disables the toggle while a previous toggle is in flight', async () => {
@@ -434,8 +444,8 @@ describe('ScheduledTasksPanel', () => {
 
     await user.click(within(form).getByRole('button', { name: /Create/i }));
 
-    await waitFor(() => expect(apiMock.post).toHaveBeenCalledTimes(1));
-    const [, body] = apiMock.post.mock.calls[0];
+    await waitFor(() => expect(createCalls()).toHaveLength(1));
+    const [, body] = createCalls()[0];
     expect(body.execute_request).toMatchObject({
       chain_task_names: ['other-plugin-task'],
       chain_on_failure: false,
@@ -711,8 +721,8 @@ describe('ScheduledTasksPanel — write access', () => {
       });
       await user.click(within(form).getByRole('button', { name: /Create/i }));
 
-      await waitFor(() => expect(apiMock.post).toHaveBeenCalledTimes(1));
-      const [, body] = apiMock.post.mock.calls[0];
+      await waitFor(() => expect(createCalls()).toHaveLength(1));
+      const [, body] = createCalls()[0];
       // Not shifted by the runner's zone: what the field said is what is sent.
       expect(body.start_time).toBe('2026-03-01T02:30:00.000Z');
     });
@@ -874,6 +884,118 @@ describe('ScheduledTasksPanel — write access', () => {
         await screen.findByRole('columnheader', { name: 'Chain' })
       ).toBeInTheDocument();
       expect(screen.getByText('other-plugin-task')).toBeInTheDocument();
+    });
+  });
+
+  // PMM-15454 / PMM-15480: the upcoming runs come from the scheduler's own
+  // objects, so the form and the saved schedule cannot disagree about "next".
+  describe('previewing the next runs', () => {
+    function previewCalls() {
+      return apiMock.post.mock.calls.filter(([url]) =>
+        String(url).includes('schedule/preview')
+      );
+    }
+
+    it('shows the next three runs the backend reports', async () => {
+      setup([]);
+      apiMock.post.mockResolvedValue({
+        data: {
+          timezone: 'Europe/Lisbon',
+          next_run_at: '2026-03-01T02:00:00Z',
+          next_runs: [
+            '2026-03-01T02:00:00Z',
+            '2026-03-02T02:00:00Z',
+            '2026-03-03T02:00:00Z',
+            '2026-03-04T02:00:00Z',
+          ],
+        },
+      });
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+      await user.click(await screen.findByTestId('scheduled-tasks-add'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      const runs = await within(form).findByTestId(
+        'sched-form-next-runs',
+        {},
+        { timeout: 3000 }
+      );
+      await waitFor(() => expect(runs).toHaveTextContent(/Next runs:/));
+      // Three, not the four the backend offered.
+      for (const iso of [
+        '2026-03-01T02:00:00Z',
+        '2026-03-02T02:00:00Z',
+        '2026-03-03T02:00:00Z',
+      ]) {
+        expect(runs.textContent).toContain(formatTimestamp(iso)!.display);
+      }
+      expect(runs.textContent).not.toContain(
+        formatTimestamp('2026-03-04T02:00:00Z')!.display
+      );
+    });
+
+    it('states the zone the backend resolved, not the one the form assumed', async () => {
+      setup([]);
+      apiMock.post.mockResolvedValue({
+        data: {
+          timezone: 'Europe/Lisbon',
+          next_run_at: null,
+          next_runs: [],
+        },
+      });
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+      await user.click(await screen.findByTestId('scheduled-tasks-add'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      await waitFor(
+        () =>
+          expect(
+            within(form).getByTestId('sched-form-timezone-notice')
+          ).toHaveTextContent('Runs in Europe/Lisbon'),
+        { timeout: 3000 }
+      );
+    });
+
+    it('asks for no preview while the cron expression is invalid', async () => {
+      setup([]);
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+      await user.click(await screen.findByTestId('scheduled-tasks-add'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      await user.click(within(form).getByTestId('sched-form-toggle-mode'));
+      // Interval mode previews on mount; only what cron mode asks for counts.
+      apiMock.post.mockClear();
+      await user.type(within(form).getByTestId('sched-form-cron'), 'nonsense');
+
+      await waitFor(() => expect(previewCalls()).toHaveLength(0), {
+        timeout: 1500,
+      });
+      expect(
+        within(form).queryByTestId('sched-form-next-runs')
+      ).not.toBeInTheDocument();
+    });
+
+    it('says so when the preview cannot be worked out', async () => {
+      setup([]);
+      apiMock.post.mockRejectedValue(new Error('422'));
+
+      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      const user = userEvent.setup();
+      await user.click(await screen.findByTestId('scheduled-tasks-add'));
+      const form = await screen.findByTestId('scheduled-task-form');
+
+      await waitFor(
+        () =>
+          expect(
+            within(form).getByTestId('sched-form-next-runs')
+          ).toHaveTextContent(/Could not work out the next runs/),
+        { timeout: 3000 }
+      );
     });
   });
 });
