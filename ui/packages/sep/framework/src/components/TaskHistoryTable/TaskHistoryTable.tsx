@@ -443,6 +443,7 @@ function TaskHistoryTableView({
         open={pendingFilesEntry !== null}
         taskHistoryId={pendingFilesEntry?.id ?? null}
         onClose={() => setPendingFilesEntry(null)}
+        itemName={itemName}
       />
     </>
   );

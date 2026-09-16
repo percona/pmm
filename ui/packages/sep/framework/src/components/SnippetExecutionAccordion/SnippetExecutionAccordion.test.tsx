@@ -778,4 +778,44 @@ describe('SnippetExecutionAccordion — write access', () => {
     ).not.toBeInTheDocument();
     expect(mockedApi.get).not.toHaveBeenCalled();
   });
+
+  it('shows a non-admin no form error when the history label schema fails to load', async () => {
+    mockCanMutate = false;
+    mockedApi.get.mockImplementation((url: string) =>
+      url.includes('/snippet/history')
+        ? Promise.resolve({ data: { items: [] } })
+        : Promise.reject(new Error('Forbidden'))
+    );
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SnippetExecutionAccordion
+          snippetFilename="check.sh"
+          executorHost="db1"
+          defaultExpanded
+          showHistory
+        />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryState([
+          'snippets',
+          'check.sh',
+          'schema',
+          { execution_only: true },
+        ])?.status
+      ).toBe('error');
+    });
+    expect(screen.getByTestId('task-history-table')).toHaveAttribute(
+      'data-item-name',
+      'task'
+    );
+    expect(screen.queryByText(/Failed to load form/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
 });

@@ -1154,7 +1154,7 @@ export function PluginDetailPage({
               {headingWhenChromeHidden}
             </Typography>
           ) : null}
-          <Typography variant="h5">Not found</Typography>
+          <Typography variant="h5">{capitalize(itemName)} not found</Typography>
         </Box>
       );
     }
@@ -1321,9 +1321,7 @@ export function PluginDetailPage({
   if (!task || !id) {
     return (
       <Box>
-        <Typography variant="h5">
-          {capitalize(resolveItemDisplayName(schema))} not found
-        </Typography>
+        <Typography variant="h5">{capitalize(itemName)} not found</Typography>
       </Box>
     );
   }

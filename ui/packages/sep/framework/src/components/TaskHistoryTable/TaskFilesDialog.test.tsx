@@ -120,7 +120,29 @@ describe('TaskFilesDialog', () => {
       </Wrapper>
     );
     await waitFor(() =>
-      expect(screen.getByText(/No files available/i)).toBeInTheDocument()
+      expect(
+        screen.getByText('No files available for this task run.')
+      ).toBeInTheDocument()
+    );
+  });
+
+  it('names the item noun in the empty state', async () => {
+    mockedApiClient.get.mockResolvedValue({ data: {} });
+    const client = makeQueryClient();
+    render(
+      <Wrapper client={client}>
+        <TaskFilesDialog
+          open
+          taskHistoryId={1}
+          onClose={vi.fn()}
+          itemName="backup"
+        />
+      </Wrapper>
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByText('No files available for this backup run.')
+      ).toBeInTheDocument()
     );
   });
 

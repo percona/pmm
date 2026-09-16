@@ -77,7 +77,7 @@ function defaultChainLabel(itemNamePlural: string): string {
 }
 
 function failureTitle(itemName: string): string {
-  return `When enabled, the chain continues even if a ${itemName} fails, stops, or is lost`;
+  return `When enabled, the chain continues even if any ${itemName} fails, stops, or is lost`;
 }
 
 // Compose dnd-kit ids that stay unique even if the chain contains duplicate

@@ -275,7 +275,9 @@ describe('PluginTaskEditPage', () => {
       </SnackbarProvider>
     );
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Save checksum' })
+    );
 
     await waitFor(() => expect(mockUpdateTaskMutate).toHaveBeenCalledTimes(1));
     const [{ values }] = mockUpdateTaskMutate.mock.calls[0];
@@ -354,7 +356,7 @@ describe('PluginTaskEditPage', () => {
       </SnackbarProvider>
     );
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save backup' }));
 
     await waitFor(() => expect(mockUpdateTaskMutate).toHaveBeenCalledTimes(1));
     const [{ values }] = mockUpdateTaskMutate.mock.calls[0];
@@ -499,7 +501,9 @@ describe('PluginTaskEditPage — failure reporting', () => {
     );
 
     renderAt();
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Save checksum' })
+    );
 
     await waitFor(() => expect(inTreeAlerts()).toHaveLength(1));
     expect(inTreeAlerts()[0]).toHaveTextContent(
@@ -528,7 +532,9 @@ describe('PluginTaskEditPage — failure reporting', () => {
     );
 
     renderAt();
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Save checksum' })
+    );
 
     await waitFor(() =>
       expect(inTreeAlerts()[0]).toHaveTextContent(
@@ -543,7 +549,9 @@ describe('PluginTaskEditPage — failure reporting', () => {
     );
 
     renderAt();
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Save checksum' })
+    );
 
     await waitFor(() => expect(mockUpdateTaskMutate).toHaveBeenCalledTimes(1));
     expect(inTreeAlerts()).toEqual([]);
@@ -562,7 +570,9 @@ describe('PluginTaskEditPage — write access', () => {
 
     renderAt();
 
-    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Save checksum' })
+    ).toBeInTheDocument();
     expect(
       screen.queryByTestId('plugin-task-edit-read-only')
     ).not.toBeInTheDocument();
@@ -584,7 +594,7 @@ describe('PluginTaskEditPage — write access', () => {
       screen.getByTestId('plugin-task-edit-read-only')
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Save' })
+      screen.queryByRole('button', { name: 'Save checksum' })
     ).not.toBeInTheDocument();
   });
 });

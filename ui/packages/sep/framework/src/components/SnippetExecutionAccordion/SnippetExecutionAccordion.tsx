@@ -245,13 +245,13 @@ export function SnippetExecutionAccordion({
           />
         )}
 
-        {schemaQuery.isLoading && (
+        {canMutate && schemaQuery.isLoading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress size={24} />
           </Box>
         )}
 
-        {schemaQuery.isError && (
+        {canMutate && schemaQuery.isError && (
           <Alert severity="error">
             Failed to load form: {schemaQuery.error?.message ?? 'unknown error'}
           </Alert>
@@ -270,7 +270,7 @@ export function SnippetExecutionAccordion({
         {currentTaskId !== null && (
           <Box sx={{ mt: 2 }}>
             <Divider sx={{ mb: 2 }} />
-            <TaskLogViewer taskHistoryId={currentTaskId} />
+            <TaskLogViewer taskHistoryId={currentTaskId} itemName={itemName} />
           </Box>
         )}
 
@@ -349,6 +349,7 @@ export function SnippetExecutionAccordion({
               taskHistoryId={logsEntry.id}
               taskStatus={logsEntry.status}
               height={520}
+              itemName={itemName}
             />
           ) : null}
         </DialogContent>

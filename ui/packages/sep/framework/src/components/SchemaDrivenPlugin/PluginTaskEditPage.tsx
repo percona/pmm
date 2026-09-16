@@ -276,7 +276,7 @@ export function PluginTaskEditPage({
           sections={editableSections}
           onSubmit={handleSubmit}
           loading={updateTask.isPending}
-          submitLabel="Save"
+          submitLabel={`Save ${itemName}`}
           submitError={submitError}
           fieldErrors={fieldErrors}
           defaultValues={normalizedDefaults}
