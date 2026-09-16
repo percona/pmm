@@ -486,22 +486,21 @@ export function ScheduledTaskForm({
         </Link>
       </Box>
 
-      <Box sx={{ mb: 2 }}>
-        <Controller
-          control={control}
-          name="chain"
-          render={({ field }) => (
-            <ChainBuilder
-              availableTasks={availableTasks}
-              currentTaskName={taskName}
-              value={field.value}
-              onChange={field.onChange}
-              itemName={itemName}
-              itemNamePlural={itemNamePlural}
-            />
-          )}
-        />
-      </Box>
+      <Controller
+        control={control}
+        name="chain"
+        render={({ field }) => (
+          <ChainBuilder
+            availableTasks={availableTasks}
+            currentTaskName={taskName}
+            value={field.value}
+            onChange={field.onChange}
+            itemName={itemName}
+            itemNamePlural={itemNamePlural}
+            sx={{ mb: 2 }}
+          />
+        )}
+      />
 
       <Stack direction="row" spacing={1} justifyContent="flex-end">
         <Button onClick={onCancel} disabled={submitting} type="button">

@@ -954,35 +954,35 @@ function ActionBar({
                 `Are you sure you want to execute the ${itemName} ${pendingExecute?.taskName ?? taskName} now?`}
             </DialogContentText>
           )}
-          {chainingEnabled && pendingExecute && (
-            <Box sx={{ mt: 2 }}>
-              {pluginTasksLoading ? (
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                  <CircularProgress
-                    size={24}
-                    data-testid="chain-tasks-loading"
-                  />
-                </Box>
-              ) : pluginTasksError ? (
-                <Alert severity="error" data-testid="chain-tasks-error">
-                  Couldn&apos;t load {itemPlural} available to chain
-                  {pluginTasksLoadError instanceof Error
-                    ? `: ${pluginTasksLoadError.message}`
-                    : ''}
-                </Alert>
-              ) : (
-                <ChainBuilder
-                  availableTasks={availableTasks}
-                  currentTaskName={pendingExecute.taskName}
-                  value={chain}
-                  onChange={setChain}
-                  disabled={executeTask.isPending}
-                  itemName={itemName}
-                  itemNamePlural={itemPlural}
-                />
-              )}
-            </Box>
-          )}
+          {chainingEnabled &&
+            pendingExecute &&
+            (pluginTasksLoading ? (
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+                <CircularProgress size={24} data-testid="chain-tasks-loading" />
+              </Box>
+            ) : pluginTasksError ? (
+              <Alert
+                severity="error"
+                data-testid="chain-tasks-error"
+                sx={{ mt: 2 }}
+              >
+                Couldn&apos;t load {itemPlural} available to chain
+                {pluginTasksLoadError instanceof Error
+                  ? `: ${pluginTasksLoadError.message}`
+                  : ''}
+              </Alert>
+            ) : (
+              <ChainBuilder
+                availableTasks={availableTasks}
+                currentTaskName={pendingExecute.taskName}
+                value={chain}
+                onChange={setChain}
+                disabled={executeTask.isPending}
+                itemName={itemName}
+                itemNamePlural={itemPlural}
+                sx={{ mt: 2 }}
+              />
+            ))}
         </DialogContent>
         <DialogActions>
           <Button

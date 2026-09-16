@@ -27,6 +27,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import type { SxProps, Theme } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import {
@@ -67,6 +68,8 @@ export interface ChainBuilderProps {
   itemName?: string;
   /** Mid-sentence plural noun (e.g. `backups`). */
   itemNamePlural?: string;
+  /** Applied to the widget's own root, so the spacing disappears with it. */
+  sx?: SxProps<Theme>;
 }
 
 function defaultChainLabel(itemNamePlural: string): string {
@@ -97,6 +100,12 @@ function wouldCreateCycle(
   return name === currentTaskName || chain.includes(name);
 }
 
+/**
+ * Build the chain of tasks to run after this one.
+ *
+ * Renders nothing when no task can be chained and the chain is empty, so it can
+ * sit unconditionally in a layout.
+ */
 export function ChainBuilder({
   availableTasks,
   currentTaskName,
@@ -106,12 +115,12 @@ export function ChainBuilder({
   disabled = false,
   itemName = 'task',
   itemNamePlural = 'tasks',
+  sx,
 }: ChainBuilderProps) {
   const { chain_task_names: chain, chain_on_failure: chainOnFailure } = value;
   const groupLabel = label ?? defaultChainLabel(itemNamePlural);
   const groupLabelId = useId();
   const selectId = useId();
-  const helperId = useId();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -172,16 +181,16 @@ export function ChainBuilder({
   };
 
   const hasChain = chain.length > 0;
-  const selectDisabled = disabled || !hasSelectableTask;
-  const selectHelper = !hasSelectableTask
-    ? `No ${itemNamePlural} available to chain`
-    : undefined;
+  if (!hasSelectableTask && !hasChain) {
+    return null;
+  }
 
   return (
     <Box
       role="group"
       aria-labelledby={groupLabelId}
       data-testid="chain-builder"
+      sx={sx}
     >
       <Typography
         id={groupLabelId}
@@ -225,45 +234,36 @@ export function ChainBuilder({
         </DndContext>
       )}
 
-      <FormControl fullWidth size="small" disabled={selectDisabled}>
-        <InputLabel id={`${selectId}-label`}>
-          Add {itemName} to chain…
-        </InputLabel>
-        <Select
-          labelId={`${selectId}-label`}
-          id={selectId}
-          label={`Add ${itemName} to chain…`}
-          value=""
-          displayEmpty={false}
-          onChange={handleAdd}
-          inputProps={
-            {
-              'data-testid': 'chain-add-select',
-              ...(selectHelper ? { 'aria-describedby': helperId } : {}),
-            } as React.InputHTMLAttributes<HTMLInputElement>
-          }
-        >
-          {availableTasks.map((t) => (
-            <MenuItem
-              key={t.name}
-              value={t.name}
-              disabled={disabledOptions.has(t.name)}
-            >
-              {t.name}
-            </MenuItem>
-          ))}
-        </Select>
-        {selectHelper && (
-          <Typography
-            id={helperId}
-            variant="caption"
-            color="text.secondary"
-            sx={{ mt: 0.5 }}
+      {hasSelectableTask && (
+        <FormControl fullWidth size="small" disabled={disabled}>
+          <InputLabel id={`${selectId}-label`}>
+            Add {itemName} to chain…
+          </InputLabel>
+          <Select
+            labelId={`${selectId}-label`}
+            id={selectId}
+            label={`Add ${itemName} to chain…`}
+            value=""
+            displayEmpty={false}
+            onChange={handleAdd}
+            inputProps={
+              {
+                'data-testid': 'chain-add-select',
+              } as React.InputHTMLAttributes<HTMLInputElement>
+            }
           >
-            {selectHelper}
-          </Typography>
-        )}
-      </FormControl>
+            {availableTasks.map((t) => (
+              <MenuItem
+                key={t.name}
+                value={t.name}
+                disabled={disabledOptions.has(t.name)}
+              >
+                {t.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )}
 
       {hasChain && (
         <Tooltip title={failureTitle(itemName)} placement="top-start">
