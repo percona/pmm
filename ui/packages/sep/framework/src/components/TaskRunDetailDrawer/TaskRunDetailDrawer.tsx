@@ -33,7 +33,7 @@ import { useElapsedSeconds } from '../../hooks/useElapsedSeconds';
 import { formatDuration } from '../../utils/formatDuration';
 import { TaskHistoryStatusBadge } from '../TaskHistoryTable';
 import { TaskLogViewer } from '../TaskLogViewer';
-import { formatAbsoluteTime } from '../ScheduledTasksPanel/periods';
+import { RunTime } from './RunTime';
 import { runFailureReason } from './runFailureReason';
 
 /**
@@ -266,7 +266,7 @@ export function TaskRunDetailDrawer({
                 }}
               >
                 <SummaryField label="Started">
-                  {formatAbsoluteTime(run.started_at)}
+                  <RunTime value={run.started_at} />
                 </SummaryField>
                 <SummaryField label={running ? 'Elapsed' : 'Duration'}>
                   <span data-testid="run-detail-duration">
@@ -274,7 +274,7 @@ export function TaskRunDetailDrawer({
                   </span>
                 </SummaryField>
                 <SummaryField label="Finished">
-                  {formatAbsoluteTime(run.finished_at)}
+                  <RunTime value={run.finished_at} />
                 </SummaryField>
                 {run.executed_by && (
                   <SummaryField label="Executed by">

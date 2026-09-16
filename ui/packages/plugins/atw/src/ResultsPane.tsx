@@ -42,6 +42,7 @@ import {
   TaskFilesDialog,
   TaskHistoryStatusBadge,
   TaskLogViewer,
+  formatTimestamp,
   isTaskHistoryStatus,
 } from '@sep/framework';
 import {
@@ -480,6 +481,7 @@ function SendHistory({
       <Stack divider={<Divider flexItem />} spacing={1}>
         {jobs.map((job) => {
           const detail = sendJobDetail(job);
+          const finished = formatTimestamp(job.finished_at);
           return (
             <Stack
               key={job.id}
@@ -495,9 +497,12 @@ function SendHistory({
               />
               <Typography variant="body2" sx={{ flexGrow: 1 }}>
                 {job.case_ref} · {job.requested_by}
-                {job.finished_at
-                  ? ` · ${new Date(job.finished_at).toLocaleString()}`
-                  : ''}
+                {finished && (
+                  <>
+                    {' · '}
+                    <span title={finished.title}>{finished.display}</span>
+                  </>
+                )}
               </Typography>
               {job.status === 'failed' && canMutate && (
                 <Tooltip title={resendTooltip}>
