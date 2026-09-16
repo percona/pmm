@@ -593,6 +593,10 @@ type ListNodesOKBodyNodesItems0 struct {
 
 	// True if this node is a PMM Server node (HA mode).
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
+
+	// True if this node belongs to the internal infrastructure of a PMM deployment
+	// (e.g. the HA persistence layer) and must not host user monitoring workloads.
+	IsPMMInternalNode bool `json:"is_pmm_internal_node,omitempty"`
 }
 
 // Validate validates this list nodes OK body nodes items0
