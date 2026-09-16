@@ -90,7 +90,7 @@ func TestLBACFiltersEveryDataSourceRoute(t *testing.T) {
 
 	code, body := request(t, http.MethodGet, dsPath("/api/v1/query?query=up"), adminUser())
 	require.Equal(t, http.StatusOK, code, "%s", body)
-	require.NotZero(t, seriesCount(t, body),
+	require.NotZero(t, results(body),
 		"PMM Server reports no 'up' series, so a filtered response is indistinguishable from an empty one")
 
 	for _, path := range []string{
@@ -108,7 +108,7 @@ func TestLBACFiltersEveryDataSourceRoute(t *testing.T) {
 
 			code, body := request(t, http.MethodGet, path, testEnv.viewer)
 			require.Equal(t, http.StatusOK, code, "%s", body)
-			assert.Zerof(t, resultLen(t, body), "filters were not applied, response: %s", trim(body))
+			assert.Zerof(t, results(body), "filters were not applied, response: %s", trim(body))
 		})
 	}
 }
@@ -173,7 +173,7 @@ func TestPathConfusion(t *testing.T) {
 		path := fmt.Sprintf("/graph/api/datasources/proxy/%d/api/v1/query?query=up&x=%s/ping", testEnv.dsID, traversal)
 		code, body := request(t, http.MethodGet, path, testEnv.viewer)
 		require.Equal(t, http.StatusOK, code, "%s", body)
-		assert.Zerof(t, resultLen(t, body), "filters were not applied, response: %s", trim(body))
+		assert.Zerof(t, results(body), "filters were not applied, response: %s", trim(body))
 	})
 
 	for _, separator := range []string{"%3F", "%23"} {
@@ -226,7 +226,7 @@ func TestAdminKeepsFullSurface(t *testing.T) {
 
 		code, body := request(t, http.MethodGet, dsPath("/api/v1/query?query=up"), adminUser())
 		require.Equal(t, http.StatusOK, code, "%s", body)
-		assert.NotZero(t, seriesCount(t, body))
+		assert.NotZero(t, results(body))
 	})
 }
 
@@ -314,7 +314,47 @@ func setup() (func(), error) {
 		return teardown, fmt.Errorf("failed to assign role %d to user %d: %w", roleID, userID, err)
 	}
 
+	err = waitForFilters()
+	if err != nil {
+		return teardown, err
+	}
+
 	return teardown, nil
+}
+
+// waitForFilters blocks until the restricted viewer is actually filtered. pmm-managed caches
+// the access control setting for a few seconds, so on a server where it was off -- every fresh
+// one -- requests keep coming back unfiltered for a moment after it is switched on, and every
+// assertion below would read that as a missing filter.
+//
+// It probes the data source route that has always been filtered, never one of the routes under
+// test, so a genuine regression cannot satisfy it. Running out of time is not fatal for the
+// same reason: the assertions report what the server does, with the response body, which is
+// more useful than aborting the package here.
+func waitForFilters() error {
+	const timeout = 20 * time.Second
+
+	deadline := time.Now().Add(timeout)
+	for {
+		code, body, err := send(http.MethodGet, dsPath("/api/v1/query?query=up"), testEnv.viewer)
+		if err != nil {
+			return err
+		}
+
+		count := results(body)
+		if code == http.StatusOK && count == 0 {
+			return nil
+		}
+
+		if time.Now().After(deadline) {
+			logrus.Warnf("Label-based access control has not taken effect within %s: the restricted viewer still reads %d series (HTTP %d). Running the tests anyway.",
+				timeout, count, code)
+
+			return nil
+		}
+
+		time.Sleep(time.Second)
+	}
 }
 
 func setAccessControl(enabled bool) error {
@@ -452,26 +492,10 @@ func adminUser() *url.Userinfo {
 	return pmmapitests.BaseURL.User
 }
 
-// seriesCount reports how many series a VictoriaMetrics query answer carries.
-func seriesCount(t *testing.T, body []byte) int {
-	t.Helper()
-
-	var answer struct {
-		Data struct {
-			Result []json.RawMessage `json:"result"`
-		} `json:"data"`
-	}
-	require.NoErrorf(t, json.Unmarshal(body, &answer), "response: %s", trim(body))
-
-	return len(answer.Data.Result)
-}
-
-// resultLen reports how much a response carries, whatever shape VictoriaMetrics answered in:
-// query and series return JSON, export returns newline-delimited JSON, and an empty body is a
-// result of its own.
-func resultLen(t *testing.T, body []byte) int {
-	t.Helper()
-
+// results reports how much data a VictoriaMetrics answer carries, whatever shape it came in:
+// query and series answer with JSON, export with newline-delimited JSON, and an empty body is
+// a result of its own.
+func results(body []byte) int {
 	trimmed := strings.TrimSpace(string(body))
 	if trimmed == "" {
 		return 0
@@ -485,13 +509,23 @@ func resultLen(t *testing.T, body []byte) int {
 		return len(strings.Split(trimmed, "\n"))
 	}
 
-	var series []json.RawMessage
-	err = json.Unmarshal(answer.Data, &series)
+	var list []json.RawMessage
+	err = json.Unmarshal(answer.Data, &list)
 	if err == nil {
-		return len(series)
+		return len(list)
 	}
 
-	return seriesCount(t, body)
+	var vector struct {
+		Data struct {
+			Result []json.RawMessage `json:"result"`
+		} `json:"data"`
+	}
+	err = json.Unmarshal(body, &vector)
+	if err != nil {
+		return len(strings.Split(trimmed, "\n"))
+	}
+
+	return len(vector.Data.Result)
 }
 
 func trim(body []byte) string {
