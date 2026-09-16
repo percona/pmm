@@ -13,7 +13,7 @@ Working on Peak UI itself (the `percona/peak-ui` repository), i.e., contributing
 - form inputs pre-wired to **react-hook-form**,
 - a small set of composite components that add behavior on top of MUI.
 
-Storybook is the definitive, coded source of truth: **https://percona.github.io/peak-ui/**. Search it before building anything.
+Storybook is the definitive, coded source of truth: **https://percona.github.io/peak-ui/**. Components carry a maturity tag there; do not build new work on ones marked `deprecated`.
 
 ## Where Peak UI ends and MUI begins
 
@@ -22,7 +22,6 @@ Storybook is the definitive, coded source of truth: **https://percona.github.io/
 - **Never hand-style MUI to "look like Percona", and never override the theme in the app.** No hex colors, no custom fonts, no border radius tweaks. If something looks off, the theme is wrong or missing: do not patch it locally; ask the user what to do or help them file an issue against Peak UI.
 - **Import from the package root only:** `import { TextInput } from '@percona/peak-ui'`. Never deep-import from `@percona/peak-ui/dist/...`.
 - **Customize through the exposed surface.** Peak UI components expose dedicated `*Props` slot props for the MUI component they wrap (for example `textFieldProps`), and some also accept `sx`; many expose only the slots, so check the props type. Do not target internal class names or wrap a Peak UI component just to restyle it.
-- **Respect the Storybook maturity tag** on each component: `stable` — build on it freely; `experimental` — API may change; `needs-review` — use with care; `deprecated` — do not use for new work.
 
 ## Theme wrapper (required, exactly once)
 
@@ -37,7 +36,7 @@ export const Root = () => (
 ```
 
 - `ThemeContextProvider` creates the MUI theme, renders `CssBaseline`, and manages light/dark mode. **Do not add your own `ThemeProvider`, `createTheme`, or `CssBaseline`** on top of it.
-- Pick one theme option: `baseThemeOptions` (Percona default), `pmmThemeOptions` (Percona Monitoring and Management), `sepThemeOptions` (SEP). Each is a function of the palette mode, `(mode: 'light' | 'dark') => ThemeOptions`; pass the function itself, do not call it.
+- Pick one theme option: `baseThemeOptions` (Percona default), `pmmThemeOptions` (Percona Monitoring and Management), `sepThemeOptions` (Services Enablement Platform, SEP). Each is a function of the palette mode, `(mode: 'light' | 'dark') => ThemeOptions`; pass the function itself, do not call it.
 - Toggle or read the color mode via `ColorModeContext`: `const { colorMode, toggleColorMode } = useContext(ColorModeContext)`. `saveColorModeOnLocalStorage` persists the choice.
 - Read design values from the theme (`useTheme()`, or `sx={{ color: 'text.secondary', p: 2 }}`), never from hard-coded literals. Spacing is in theme units (`gap: 2` = 16px).
 
@@ -49,7 +48,7 @@ export const Root = () => (
 
 ## Form inputs and react-hook-form
 
-Every form input exported by Peak UI is a react-hook-form `Controller` under the hood.
+Form inputs exported by Peak UI bind to react-hook-form through their `name`; they read the form from context or from an explicit `control`.
 
 ```tsx
 import { FormProvider, useForm } from 'react-hook-form';
@@ -72,10 +71,9 @@ const methods = useForm<Values>({ defaultValues: { host: '' } });
 
 - `name` is required and is the react-hook-form field path. Wrap inputs in `FormProvider` (preferred) or pass `control` explicitly. Never render an input outside both.
 - **Do not pass `value`, `onChange`, or `defaultValue`.** The Controller owns them; set defaults in `useForm({ defaultValues })`.
-- **Validation belongs to react-hook-form:** `controllerProps={{ rules }}` or a resolver (zod, yup). Errors render automatically as helper text. `isRequired` only adds the asterisk and `required` attribute; it does not validate.
+- **Validation belongs to react-hook-form:** `controllerProps={{ rules }}` or a resolver (zod, yup). Text-style inputs show the field error as helper text; toggle-style inputs (checkbox, switch, radio, toggle group) do not surface it, so render the error yourself. `isRequired` only adds the asterisk and `required` attribute; it does not validate.
 - Props for the wrapped MUI input go through its slot prop (`textFieldProps`, `selectFieldProps`, `slotProps`, ...), never spread onto the Peak UI component.
 - Inputs are generic over your form values; type them (`<TextInput<Values> name="host" />`) so `name` is checked.
-- Inputs render a `data-testid` built from the kebab-cased `name` with a prefix that varies per input (for example `text-input-host`); `RadioGroup` uses the option value instead. Read the exact id in Storybook or the DOM and reuse it rather than adding your own.
 
 ## Naming and layout conventions
 
