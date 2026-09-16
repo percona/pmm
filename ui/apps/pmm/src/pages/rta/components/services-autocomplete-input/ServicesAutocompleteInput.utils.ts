@@ -9,17 +9,31 @@ import {
   technologyLabel,
 } from 'pages/rta/components/technology';
 
+// servicesOfCluster returns the services a cluster row stands for: the ones in
+// its cluster *and* in its own technology group. A cluster spanning
+// technologies is listed once under each of them, and each row has to act on
+// its own half alone -- otherwise one click seeds a mixed selection and both
+// rows report the state of the whole cluster.
+const servicesOfCluster = (
+  clusterOption: ServiceOption,
+  serviceOptions: ServiceOption[]
+): ServiceOption[] =>
+  serviceOptions.filter(
+    (option) =>
+      option.type === 'service' &&
+      option.cluster === clusterOption.cluster &&
+      option.technology === clusterOption.technology
+  );
+
 /**
  * Get the selection state of a cluster
  */
 export const getClusterSelectionState = (
-  clusterName: string,
+  clusterOption: ServiceOption,
   serviceOptions: ServiceOption[],
   selectedServices: ServiceOption[]
 ): ClusterSelectionState => {
-  const servicesInCluster = serviceOptions.filter(
-    (option) => option.type === 'service' && option.cluster === clusterName
-  );
+  const servicesInCluster = servicesOfCluster(clusterOption, serviceOptions);
 
   if (servicesInCluster.length === 0) {
     return 'none';
@@ -173,6 +187,7 @@ const getClusterOptions = (
       label: service.serviceName,
       serviceId: service.serviceId,
       serviceType: service.serviceType,
+      technology: technologyLabel,
     });
   });
 
@@ -189,6 +204,7 @@ const getClusterOptions = (
         label: clusterName,
         cluster: clusterName,
         serviceType: clusterTechnologies.get(clusterName),
+        technology: technologyLabel,
       });
 
       // Add cluster services sorted by name
@@ -202,6 +218,7 @@ const getClusterOptions = (
             serviceId: service.serviceId,
             cluster: clusterName,
             serviceType: service.serviceType,
+            technology: technologyLabel,
           });
         });
     });
@@ -213,16 +230,14 @@ const getClusterOptions = (
  * Toggle all services in a cluster
  */
 export const toggleClusterServices = (
-  clusterName: string,
+  clusterOption: ServiceOption,
   serviceOptions: ServiceOption[],
   selectedServices: ServiceOption[]
 ): ServiceOption[] => {
-  const servicesInCluster = serviceOptions.filter(
-    (option) => option.type === 'service' && option.cluster === clusterName
-  );
+  const servicesInCluster = servicesOfCluster(clusterOption, serviceOptions);
 
   const state = getClusterSelectionState(
-    clusterName,
+    clusterOption,
     serviceOptions,
     selectedServices
   );

@@ -3,8 +3,10 @@ import { ServiceType } from 'types/services.types';
 import { ServiceOption } from './ServicesAutocompleteInput.types';
 import { AvailableService } from 'types/rta.types';
 import {
+  getClusterSelectionState,
   getServiceOptions,
   isServiceOptionDisabled,
+  toggleClusterServices,
 } from './ServicesAutocompleteInput.utils';
 
 const mysqlService: ServiceOption = {
@@ -14,6 +16,7 @@ const mysqlService: ServiceOption = {
   serviceId: 'service-1',
   cluster: 'cluster-1',
   serviceType: ServiceType.mysql,
+  technology: 'MySQL',
 };
 
 const mongoService: ServiceOption = {
@@ -22,6 +25,7 @@ const mongoService: ServiceOption = {
   label: 'MongoDB service',
   serviceId: 'service-2',
   serviceType: ServiceType.mongodb,
+  technology: 'MongoDB',
 };
 
 // sharedTechnology leaves serviceType unset when a cluster's services disagree.
@@ -31,6 +35,7 @@ const mixedCluster: ServiceOption = {
   label: 'mixed',
   cluster: 'mixed',
   serviceType: undefined,
+  technology: 'MySQL',
 };
 
 const mysqlCluster: ServiceOption = {
@@ -113,6 +118,82 @@ describe('mixed-technology clusters', () => {
       .map((option) => option.id);
 
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  // The list is fed to MUI already sorted by group, and MUI opens a new group
+  // every time the group of an option differs from the one before it. A header
+  // carrying no group of its own would break the run it sits in: a nameless
+  // group around the header, then the technology heading a second time.
+  it('lists a mixed cluster header in the group it is rendered under', () => {
+    const groups = getServiceOptions(mixed).map((option) => option.technology);
+
+    expect(groups).toEqual(['MongoDB', 'MongoDB', 'MySQL', 'MySQL']);
+    // Contiguous: one run per technology, so MUI renders each heading once.
+    expect(new Set(groups).size).toBe(
+      groups.filter((group, index) => group !== groups[index - 1]).length
+    );
+  });
+
+  // Both headers are named after the same cluster. Acting by name alone makes
+  // either of them stand for the whole cluster, which selects both
+  // technologies in one click and reports one state on both rows.
+  it('toggles only the services of the header own technology group', () => {
+    const options = getServiceOptions(mixed);
+    const mysqlHeader = options.find(
+      (option) => option.type === 'cluster' && option.technology === 'MySQL'
+    )!;
+
+    const selected = toggleClusterServices(mysqlHeader, options, []);
+
+    expect(selected.map((option) => option.serviceId)).toEqual(['my-1']);
+  });
+
+  it('reports each header state from its own technology group', () => {
+    const options = getServiceOptions(mixed);
+    const [mongoHeader, mysqlHeader] = options.filter(
+      (option) => option.type === 'cluster'
+    );
+    const mysqlSelected = options.filter(
+      (option) => option.type === 'service' && option.technology === 'MySQL'
+    );
+
+    expect(getClusterSelectionState(mysqlHeader, options, mysqlSelected)).toBe(
+      'all'
+    );
+    // Not 'partial': the MongoDB half has nothing selected, and judging it by
+    // cluster name alone would leave both rows indeterminate.
+    expect(getClusterSelectionState(mongoHeader, options, mysqlSelected)).toBe(
+      'none'
+    );
+  });
+
+  it('leaves a single-technology cluster toggling its whole cluster', () => {
+    const uniform = [
+      {
+        serviceId: 'my-1',
+        serviceName: 'a',
+        cluster: 'prod',
+        serviceType: ServiceType.mysql,
+      },
+      {
+        serviceId: 'my-2',
+        serviceName: 'b',
+        cluster: 'prod',
+        serviceType: ServiceType.mysql,
+      },
+    ] as unknown as AvailableService[];
+    const options = getServiceOptions(uniform);
+    const header = options.find((option) => option.type === 'cluster')!;
+
+    const selected = toggleClusterServices(header, options, []);
+
+    expect(selected.map((option) => option.serviceId)).toEqual([
+      'my-1',
+      'my-2',
+    ]);
+    expect(getClusterSelectionState(header, options, selected)).toBe('all');
+    // A second click clears it again.
+    expect(toggleClusterServices(header, options, selected)).toEqual([]);
   });
 
   it('keeps a single-technology cluster header selectable', () => {

@@ -37,6 +37,12 @@ export interface ServiceOption {
   // For a cluster option this is the technology shared by its services, and is
   // left unset if they somehow disagree.
   serviceType?: ServiceType;
+  // The group this option is listed under. It cannot be derived from
+  // serviceType: a cluster spanning technologies is listed once under each of
+  // them while carrying no serviceType of its own, so deriving the group would
+  // put those headers in a nameless group of their own and split the run of
+  // options the list is sorted into.
+  technology: string;
 }
 
 export type ClusterSelectionState = 'all' | 'partial' | 'none';

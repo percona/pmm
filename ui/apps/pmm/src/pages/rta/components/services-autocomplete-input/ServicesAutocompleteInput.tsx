@@ -16,10 +16,7 @@ import {
   ServicesAutocompleteInputProps,
 } from './ServicesAutocompleteInput.types';
 import ServiceTags from './components/ServiceTags';
-import {
-  sharedTechnology,
-  technologyLabel,
-} from 'pages/rta/components/technology';
+import { sharedTechnology } from 'pages/rta/components/technology';
 
 const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
   disabled = false,
@@ -63,9 +60,9 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
     onServiceIdsChange(serviceIds);
   };
 
-  const handleClusterToggle = (clusterName: string) => {
+  const handleClusterToggle = (clusterOption: ServiceOption) => {
     const newSelection = toggleClusterServices(
-      clusterName,
+      clusterOption,
       serviceOptions,
       selectedServices
     );
@@ -83,7 +80,9 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
       value={selectedServices}
       onChange={handleServiceChange}
       getOptionLabel={(option) => option.label}
-      groupBy={(option) => technologyLabel(option.serviceType)}
+      // The option carries its own group: a cluster spanning technologies is
+      // listed under each of them and has no serviceType to derive one from.
+      groupBy={(option) => option.technology}
       getOptionDisabled={isOptionDisabled}
       isOptionEqualToValue={(option, value) => option.id === value.id}
       disableCloseOnSelect
@@ -113,7 +112,7 @@ const ServicesAutocompleteInput: FC<ServicesAutocompleteInputProps> = ({
           clusterSelectionState={
             option.type === 'cluster'
               ? getClusterSelectionState(
-                  option.label,
+                  option,
                   serviceOptions,
                   selectedServices
                 )

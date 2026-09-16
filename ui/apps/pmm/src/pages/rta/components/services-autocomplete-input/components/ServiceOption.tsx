@@ -9,7 +9,7 @@ interface Props extends HTMLAttributes<HTMLLIElement> {
   option: ServiceOptionType;
   selected: boolean;
   clusterSelectionState?: ClusterSelectionState;
-  onClusterToggle?: (clusterName: string) => void;
+  onClusterToggle?: (clusterOption: ServiceOptionType) => void;
   disabled?: boolean;
 }
 
@@ -37,7 +37,7 @@ const ServiceOption: FC<Props> = ({
     ? (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!disabled) {
-          onClusterToggle?.(option.label);
+          onClusterToggle?.(option);
         }
       }
     : otherProps.onClick;
@@ -70,7 +70,7 @@ const ServiceOption: FC<Props> = ({
           isCluster
             ? (e) => {
                 e.stopPropagation();
-                onClusterToggle?.(option.label);
+                onClusterToggle?.(option);
               }
             : undefined
         }
