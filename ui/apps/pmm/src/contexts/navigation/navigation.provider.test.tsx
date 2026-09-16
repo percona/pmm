@@ -102,14 +102,14 @@ describe('NavigationProvider', () => {
       expect(mysqlBackups).toMatchObject({
         text: 'MySQL Backups',
         url: SEP_MYSQL_BACKUPS_PATH,
-        matches: [SEP_MYSQL_BACKUPS_PATH],
+        matches: ['*'],
       });
       expect(mysqlBackups?.icon).toBeDefined();
 
       expect(atw).toMatchObject({
         text: 'Support diagnostics',
         url: SEP_ATW_PATH,
-        matches: [SEP_ATW_PATH],
+        matches: ['*'],
       });
       expect(atw?.icon).toBeDefined();
     });

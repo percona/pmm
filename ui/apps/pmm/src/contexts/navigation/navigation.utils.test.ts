@@ -123,11 +123,11 @@ describe('addSepApps', () => {
     ]);
     expect(children[0]).toMatchObject({
       url: SEP_MYSQL_BACKUPS_PATH,
-      matches: [SEP_MYSQL_BACKUPS_PATH],
+      matches: ['*'],
     });
     expect(children[1]).toMatchObject({
       url: SEP_ATW_PATH,
-      matches: [SEP_ATW_PATH],
+      matches: ['*'],
     });
   });
 });
