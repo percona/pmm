@@ -215,6 +215,36 @@ describe('StatsCard — taskName guards', () => {
   });
 });
 
+describe('StatsCard — Last Finished', () => {
+  it('renders a recent finish relatively, with the full timestamp on hover', () => {
+    const iso = new Date(Date.now() - 60_000).toISOString();
+    mockUseTaskStats.mockReturnValue({
+      data: { ...POPULATED, last_finished_at: iso },
+      isLoading: false,
+      isError: false,
+    });
+    renderWithClient(<StatsCard taskName="foo" />);
+    expect(screen.getByText('1 minute ago')).toHaveAttribute(
+      'title',
+      new Date(iso).toLocaleString()
+    );
+  });
+
+  it('renders a finish older than a week as its date', () => {
+    const iso = '2025-01-02T03:04:00Z';
+    mockUseTaskStats.mockReturnValue({
+      data: { ...POPULATED, last_finished_at: iso },
+      isLoading: false,
+      isError: false,
+    });
+    renderWithClient(<StatsCard taskName="foo" />);
+    expect(screen.queryByText(/ago$/)).toBeNull();
+    expect(
+      screen.getByText(new Date(iso).toLocaleString())
+    ).toBeInTheDocument();
+  });
+});
+
 describe('StatsCard — defensive formatting', () => {
   it('shows placeholder for null last_finished_at', () => {
     mockUseTaskStats.mockReturnValue({

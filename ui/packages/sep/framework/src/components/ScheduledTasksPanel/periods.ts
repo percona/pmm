@@ -19,8 +19,8 @@ import cronstrue from 'cronstrue';
 import type { PeriodicTaskResponse } from './hooks';
 
 // Both moved to `utils/formatTimestamp`, which is now the single implementation
-// of either, and are re-exported from here because the scheduled-task
-// surfaces, the schedule cell and two test files import them from this path.
+// of either, and are re-exported from here because this directory's index and
+// three test files import them from this path.
 export {
   formatAbsoluteTime,
   formatRelativeTime,

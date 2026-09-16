@@ -308,8 +308,16 @@ describe('selectConfiguredSettings', () => {
 
     expect(result[0].settings).toEqual([
       {
+        name: 'source.mode',
+        label: 'Source',
+        type: 'one_of',
+        value: 's3',
+        valueLabels: { local: 'Local', s3: 'S3' },
+      },
+      {
         name: 'source.bucket',
         label: 'Bucket',
+        type: 'string',
         value: 'nightly',
         valueLabels: undefined,
       },
@@ -349,6 +357,112 @@ describe('selectConfiguredSettings', () => {
       path: '/stale',
     });
 
-    expect(result[0].settings.map((s) => s.name)).toEqual(['bucket']);
+    expect(result[0].settings.map((s) => s.name)).toEqual(['mode', 'bucket']);
+  });
+
+  it('leaves a one_of group on its starting branch out of the list', () => {
+    const sections: FormSection[] = [
+      {
+        title: 'Source',
+        fields: [
+          {
+            type: 'one_of',
+            name: 'source',
+            label: 'Source',
+            discriminator: 'mode',
+            default: 's3',
+            branches: [
+              {
+                value: 'local',
+                label: 'Local',
+                fields: [{ name: 'path', label: 'Path', type: 'string' }],
+              },
+              {
+                value: 's3',
+                label: 'S3',
+                fields: [{ name: 'bucket', label: 'Bucket', type: 'string' }],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    expect(
+      selectConfiguredSettings(sections, {
+        mode: 's3',
+        bucket: 'nightly',
+      })[0].settings.map((s) => s.name)
+    ).toEqual(['bucket']);
+    expect(
+      selectConfiguredSettings(sections, { bucket: 'nightly' })[0].settings.map(
+        (s) => s.name
+      )
+    ).toEqual(['bucket']);
+    expect(selectConfiguredSettings(sections, { mode: 'local' })).toEqual([
+      {
+        title: 'Source',
+        settings: [
+          {
+            name: 'mode',
+            label: 'Source',
+            type: 'one_of',
+            value: 'local',
+            valueLabels: { local: 'Local', s3: 'S3' },
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('evaluates gates against the form defaults when the stored body omits a controller', () => {
+    const sections: FormSection[] = [
+      {
+        title: 'Task',
+        fields: [
+          {
+            name: 'backup_type',
+            label: 'Backup Type',
+            type: 'choice',
+            default: 'M',
+            choices: [
+              { value: 'M', label: 'Mydumper' },
+              { value: 'X', label: 'XtraBackup' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Mydumper',
+        forbidden: [{ when: { not_equals: { backup_type: 'M' } } }],
+        fields: [
+          {
+            name: 'myloader_threads',
+            label: 'Threads',
+            type: 'integer',
+            default: 4,
+          },
+        ],
+      },
+    ];
+
+    const result = selectConfiguredSettings(sections, { myloader_threads: 16 });
+
+    expect(result.map((s) => s.title)).toEqual(['Mydumper']);
+  });
+
+  it('carries the field type so a renderer can format by kind', () => {
+    const sections: FormSection[] = [
+      {
+        title: 'Task',
+        fields: [{ name: 'start_at', label: 'Start At', type: 'datetime' }],
+      },
+    ];
+
+    const [task] = selectConfiguredSettings(sections, {
+      start_at: '2026-06-18T12:00',
+    });
+
+    expect(task.settings[0].type).toBe('datetime');
   });
 });
