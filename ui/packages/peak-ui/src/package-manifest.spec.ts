@@ -44,8 +44,12 @@ describe('guides stay in sync with the package', () => {
     names.forEach((name) => expect(publicExports, name).toContain(name));
   });
 
-  it('AGENTS.md examples only import names the package exports', () => {
-    const names = [...read('AGENTS.md').matchAll(/import \{([^}]+)\} from '@percona\/peak-ui'/g)]
+  it('AGENTS.md and README examples only import names the package exports', () => {
+    const names = [
+      ...(read('AGENTS.md') + read('README.md')).matchAll(
+        /import \{([^}]+)\} from '@percona\/peak-ui'/g
+      ),
+    ]
       .flatMap((m) => m[1].split(','))
       .map(
         (n) =>

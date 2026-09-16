@@ -36,7 +36,7 @@ Pre-existing and cosmetic — do not treat as failures:
 ## Architecture (non-obvious bits)
 
 - **Themes** — three variants (`base`, `pmm`, `sep`) under `src/design/themes/`. `getThemeOptions(themeName)` is **curried** — call it as `getThemeOptions(name)(mode)` (the return value is `(mode) => ThemeOptions`). PMM/SEP extend Base via `mergeThemeOptions` (`src/design/merge-theme-options.ts`).
-- **ThemeContextProvider** wraps MUI's `ThemeProvider` with a light/dark toggle (`ColorModeContext`), persisting mode to localStorage.
+- **ThemeContextProvider** wraps MUI's `ThemeProvider` with a light/dark toggle (`ColorModeContext`), optionally persisting mode to localStorage.
 - **Components** — follow the existing folder layout for new ones: component file + `.types.ts` + `.stories.tsx` + `index.ts` barrel, with **both** named and default exports. Form inputs (`src/components/form/inputs/`) integrate with `react-hook-form`.
 
 ## Storybook maturity tags
@@ -56,6 +56,8 @@ React 18 + TypeScript strict (`react-jsx` transform). Rollup bundles to ESM with
 - `@/utils` → `./src/utils` (configured in tsconfig.json)
 
 ## MUI Conventions
+
+The "Naming and layout conventions" in `AGENTS.md` (`component` not `as`, `gap` not `spacing`, theme keys not literals) are binding for library code too.
 
 ### Imports — prefer path imports over barrels
 
