@@ -27,6 +27,7 @@ import {
   resolveTabFromSplat,
   type TaskExecuteAction,
 } from './PluginDetailPage';
+import { browserTimezone } from '../../utils/formatTimestamp';
 
 const mockDeleteMutate = vi.fn();
 const mockDeleteEntityMutate = vi.fn();
@@ -503,7 +504,10 @@ describe('PluginDetailPage — detail_view sections', () => {
 
       const formatted = new Date(startAt).toLocaleString();
       expect(screen.getByText('Start At')).toBeInTheDocument();
-      expect(screen.getByText(formatted)).toHaveAttribute('title', formatted);
+      expect(screen.getByText(formatted)).toHaveAttribute(
+        'title',
+        `${formatted} (${browserTimezone()})`
+      );
       expect(screen.queryByText(startAt)).toBeNull();
     });
 

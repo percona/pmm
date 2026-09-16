@@ -41,6 +41,7 @@ beforeEach(() => {
 // closed throughout — so none of them fires a query.
 
 import { apiClient } from '@sep/api';
+import { browserTimezone } from '@sep/framework';
 const mockedApi = apiClient as unknown as { get: ReturnType<typeof vi.fn> };
 
 function paginated<T>(items: T[]) {
@@ -498,7 +499,9 @@ describe('ResultsPane diagnostics send', () => {
     });
     expect(screen.getByText(/CS0042/)).toBeTruthy();
     expect(
-      screen.getByTitle(new Date('2026-07-24T10:01:00Z').toLocaleString())
+      screen.getByTitle(
+        `${new Date('2026-07-24T10:01:00Z').toLocaleString()} (${browserTimezone()})`
+      )
     ).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Re-send' })).toBeTruthy();
   });

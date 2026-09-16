@@ -47,6 +47,7 @@ import {
 } from './SchemaListView';
 import { SEP_TABLE_CLASS } from '../../constants';
 import type { PeriodicTaskResponse } from '../ScheduledTasksPanel';
+import { browserTimezone } from '../../utils/formatTimestamp';
 
 const listView: ListView = {
   columns: [
@@ -250,7 +251,7 @@ describe('SchemaListView — renderListColumn override', () => {
       for (const cell of cells) {
         expect(cell).toHaveAttribute(
           'title',
-          new Date('2026-06-15T12:00:00Z').toLocaleString()
+          `${new Date('2026-06-15T12:00:00Z').toLocaleString()} (${browserTimezone()})`
         );
       }
     } finally {
