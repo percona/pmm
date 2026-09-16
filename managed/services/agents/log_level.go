@@ -24,20 +24,24 @@ import (
 // Log level available in exporters with pmm 2.28.
 var exporterLogLevelCommandVersion = version.MustParse("2.27.99")
 
-// withLogLevel - append CLI args --log.level
-// mysqld_exporter, node_exporter, postgres_exporter and valkey_exporter don't support --log.level=fatal.
+// withLogLevel appends the --log.level CLI arg used by the kingpin-based exporters, of which
+// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal.
 func withLogLevel(args []string, logLevel *string, pmmAgentVersion *version.Parsed, supportLogLevelFatal bool) []string {
+	return withLogLevelFlag(args, "--log.level", logLevel, pmmAgentVersion, supportLogLevelFatal)
+}
+
+// withLogLevelFlag appends "<flagName>=<level>" if pmm-agent is new enough, downgrading fatal
+// to error for exporters which don't support it.
+func withLogLevelFlag(args []string, flagName string, logLevel *string, pmmAgentVersion *version.Parsed, supportLogLevelFatal bool) []string {
 	level := pointer.GetString(logLevel)
-
-	if level != "" && !pmmAgentVersion.Less(exporterLogLevelCommandVersion) {
-		// exists exporters that not support --log.level=fatal anymore after last update
-		// so replace "fatal" to "error" for previous stored state
-		if !supportLogLevelFatal && level == "fatal" {
-			level = "error"
-		}
-
-		args = append(args, "--log.level="+level)
+	if level == "" || pmmAgentVersion.Less(exporterLogLevelCommandVersion) {
+		return args
 	}
 
-	return args
+	// Keep a previously stored 'fatal' working on exporters which dropped that level.
+	if !supportLogLevelFatal && level == "fatal" {
+		level = "error"
+	}
+
+	return append(args, flagName+"="+level)
 }

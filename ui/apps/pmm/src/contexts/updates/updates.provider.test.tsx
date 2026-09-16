@@ -1,0 +1,211 @@
+import { render, waitFor } from '@testing-library/react';
+import { AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { UpdatesProvider } from './updates.provider';
+import { SettingsContext, type SettingsContextProps } from 'contexts/settings';
+import {
+  api,
+  addApiErrorInterceptor,
+  removeApiErrorInterceptor,
+} from 'api/api';
+import {
+  wrapWithQueryProvider,
+  wrapWithSettings,
+  wrapWithUserProvider,
+} from 'utils/testUtils';
+
+const { enqueueSnackbar } = vi.hoisted(() => ({
+  enqueueSnackbar: vi.fn(),
+}));
+
+vi.mock('notistack', () => ({
+  enqueueSnackbar,
+}));
+
+// captured verbatim from a live PMM 3.8.0 server with updates disabled
+const DISABLED_ERROR_BODY = {
+  error: 'PMM updates are disabled',
+  code: 9,
+  message: 'PMM updates are disabled',
+  details: [],
+};
+
+const INSTALLED_ONLY_BODY = {
+  installed: {
+    version: '3.8.0',
+    full_version: '3.8.0',
+    timestamp: '2026-05-15T10:11:22Z',
+  },
+  latest: null,
+  update_available: false,
+  latest_news_url: '',
+  last_check: null,
+};
+
+let seenParams: Record<string, unknown>[] = [];
+
+/** Stands in for pmm-managed: refuses a full check, answers the installed-only one. */
+const updatesDisabledAdapter = async (config: InternalAxiosRequestConfig) => {
+  const params = (config.params ?? {}) as Record<string, unknown>;
+
+  if (!config.url?.includes('/server/updates')) {
+    return { data: {}, status: 200, statusText: 'OK', headers: {}, config };
+  }
+
+  seenParams.push(params);
+
+  if (params.only_installed_version) {
+    return {
+      data: INSTALLED_ONLY_BODY,
+      status: 200,
+      statusText: 'OK',
+      headers: {},
+      config,
+    };
+  }
+
+  throw new AxiosError('Request failed', '400', config, {}, {
+    data: DISABLED_ERROR_BODY,
+    status: 400,
+    statusText: 'Bad Request',
+    headers: {},
+    config,
+  } as AxiosError['response']);
+};
+
+const renderProvider = (updatesEnabled: boolean) =>
+  render(
+    wrapWithQueryProvider(
+      wrapWithUserProvider(
+        wrapWithSettings(
+          <UpdatesProvider>
+            <div>content</div>
+          </UpdatesProvider>,
+          { settings: { updatesEnabled } }
+        )
+      )
+    )
+  );
+
+const renderWithSettingsContext = (value: SettingsContextProps) =>
+  render(
+    wrapWithQueryProvider(
+      wrapWithUserProvider(
+        <SettingsContext.Provider value={value}>
+          <UpdatesProvider>
+            <div>content</div>
+          </UpdatesProvider>
+        </SettingsContext.Provider>
+      )
+    )
+  );
+
+describe('UpdatesProvider (PMM-15274)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    seenParams = [];
+    api.defaults.adapter = updatesDisabledAdapter;
+    addApiErrorInterceptor();
+  });
+
+  afterEach(() => {
+    removeApiErrorInterceptor();
+  });
+
+  it('raises no error toast when updates are disabled', async () => {
+    renderProvider(false);
+
+    await waitFor(() => expect(seenParams.length).toBeGreaterThan(0));
+
+    expect(enqueueSnackbar).not.toHaveBeenCalled();
+  });
+
+  it('never asks for a full check when updates are disabled', async () => {
+    renderProvider(false);
+
+    await waitFor(() => expect(seenParams.length).toBeGreaterThan(0));
+
+    expect(seenParams).toEqual([
+      { force: false, only_installed_version: true },
+    ]);
+  });
+
+  it('reports a real failure even though the fallback recovers', async () => {
+    // pmm-managed is up but cannot reach the version service. The fallback
+    // succeeds, so this is the only chance the user has to hear about it.
+    api.defaults.adapter = async (config: InternalAxiosRequestConfig) => {
+      if (!config.url?.includes('/server/updates')) {
+        return { data: {}, status: 200, statusText: 'OK', headers: {}, config };
+      }
+      const params = (config.params ?? {}) as Record<string, unknown>;
+      seenParams.push(params);
+
+      if (params.only_installed_version) {
+        return {
+          data: INSTALLED_ONLY_BODY,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config,
+        };
+      }
+
+      throw new AxiosError('Request failed', '503', config, {}, {
+        data: { message: 'failed to check for updates' },
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: {},
+        config,
+      } as AxiosError['response']);
+    };
+
+    renderProvider(true);
+
+    await waitFor(() => expect(enqueueSnackbar).toHaveBeenCalled());
+
+    expect(seenParams).toEqual([
+      { force: true },
+      { force: true, only_installed_version: true },
+    ]);
+    expect(enqueueSnackbar).toHaveBeenCalledTimes(1);
+    expect(enqueueSnackbar).toHaveBeenCalledWith(
+      'failed to check for updates',
+      expect.objectContaining({ variant: 'error' })
+    );
+  });
+
+  it('stays quiet if the server reports updates are disabled', async () => {
+    // settings said enabled but the server disagrees, so the toast this ticket
+    // is about must not come back
+    renderProvider(true);
+
+    await waitFor(() => expect(seenParams.length).toBe(2));
+
+    expect(seenParams).toEqual([
+      { force: true },
+      { force: true, only_installed_version: true },
+    ]);
+    expect(enqueueSnackbar).not.toHaveBeenCalled();
+  });
+
+  it('waits for settings before checking', async () => {
+    renderWithSettingsContext({ isLoading: true, settings: null });
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(seenParams).toEqual([]);
+  });
+
+  it('still checks for updates when settings fail to load', async () => {
+    // settings errored, and there is no retry. Blocking here would cost the
+    // footer its version for the rest of the session.
+    renderWithSettingsContext({ isLoading: false, settings: null });
+
+    await waitFor(() => expect(seenParams.length).toBe(2));
+
+    expect(seenParams).toEqual([
+      { force: true },
+      { force: true, only_installed_version: true },
+    ]);
+    expect(enqueueSnackbar).not.toHaveBeenCalled();
+  });
+});

@@ -10,9 +10,6 @@ on:
 permissions:
   contents: read
 
-env:
-  GOPRIVATE: 'github.com/percona,github.com/Percona-Lab'
-
 jobs:
   validate:
     name: Validate PI files
