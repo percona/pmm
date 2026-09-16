@@ -163,8 +163,10 @@ describe('NavigationProvider', () => {
   describe('deep links into a SEP app', () => {
     it.each([
       ['sep-atw', SEP_ATW_PATH],
+      ['sep-atw', `${SEP_ATW_PATH}/runs/abc`],
       ['sep-mysql-backups', SEP_MYSQL_BACKUPS_PATH],
-    ])('marks %s active and keeps it inside Management', (childId, path) => {
+      ['sep-mysql-backups', `${SEP_MYSQL_BACKUPS_PATH}/backups/123`],
+    ])('marks %s active and keeps it inside Management for %s', (childId, path) => {
       const navTree = renderNavTree(TEST_USER_VIEWER, {
         initialEntries: [path],
       });
