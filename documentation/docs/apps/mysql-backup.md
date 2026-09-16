@@ -46,27 +46,33 @@ Complete the following steps before creating your first backup.
 
 3. Install the tool for your backup type and make sure it is available on `$PATH`:
 
-    - XtraBackup: `xtrabackup`, `mariadb-backup`, or `innobackupex`
-    - Mydumper: `mydumper`
-    - Binlog: `mysqlbinlog`
+    === "XtraBackup"
 
-    XtraBackup requires **root** on the execution host. Mydumper and Binlog do not.
+        Install [Percona XtraBackup](https://docs.percona.com/percona-xtrabackup/latest/installation.html), [`mariadb-backup`](https://mariadb.com/docs/server/server-usage/backup-and-restore/mariadb-backup/mariadb-backup-overview), or `innobackupex` (bundled with PXB 2.4 only), matching your database.
 
-    For XtraBackup, use a version that matches your MySQL version:
+        Choose an execution host you have root access on, and pick the database host itself. XtraBackup can't run from a separate host. The task always connects to `localhost`, so a different host has no way to reach the database.
 
-    - MySQL 5.5, 5.6, 5.7: PXB 2.4.x
-    - MySQL 8.0.0–8.0.33: PXB 8.0.x (same version or newer)
-    - MySQL 8.0.34+: PXB 8.0.34+
-    - MySQL 8.1.x, 8.2.x, 8.3.x: matching PXB version
-    - MySQL 8.4.x: any PXB 8.4.x
+        Check the table below and install a PXB version that matches your MySQL version, or the backup will fail on a version mismatch:
 
-    The backup type also determines which host can run the task:
+        | MySQL version | Required PXB version |
+        |---|---|
+        | 5.5, 5.6, 5.7 | PXB 2.4.x |
+        | 8.0.0–8.0.33 | PXB 8.0.x, same version or newer |
+        | 8.0.34+ | PXB 8.0.34+ |
+        | 8.1.x, 8.2.x, 8.3.x | Matching PXB version |
+        | 8.4.x | PXB 8.4.x. PXB 8.4.x does not support MySQL 8.0 or 9.x |
 
-    - **XtraBackup**: the executor must be the database host itself. The task always connects to `localhost`.
-    - **Mydumper**: the executor can be any host with network access to the database.
-    - **Binlog**: the executor can be any host with network access to the database. Use **Alternative binlog host** to stream logs from a specific source host.
+    === "Mydumper"
 
-    For remote or cloud-hosted databases, select an executor host that has network access to the target.
+        Install [`mydumper`](https://github.com/mydumper/mydumper).
+
+        You don't need root access for this. Pick any host that can reach the database over the network, including a remote or cloud-hosted one.
+
+    === "Binlog"
+
+        Install [`mysqlbinlog`](https://dev.mysql.com/doc/refman/8.0/en/mysqlbinlog.html); it ships with the MySQL server and client packages.
+
+        You don't need root access for this. Pick any host that can reach the database over the network, including a remote or cloud-hosted one. If you want to stream logs from a different source host than the one you're backing up, set that host in **Alternative binlog host**.
 
 4. Create two MySQL credential files on the executor host so that PMM and the backup binary can each authenticate to MySQL. PMM reads from these files and will not prompt for a password:
 
@@ -88,46 +94,37 @@ To run a MySQL backup:
 
 1. Go to **Apps > MySQL Backups** in the sidebar.
 2. Click **+ New MySQL Backup**.
-3. Enter a task name, select the **backup type**, and select the **execution host**. For XtraBackup, the execution host must be the host running the MySQL service.
+3. Enter a task name, and select the **database host**, **execution host**, and **backup type**. For XtraBackup, the execution host must be the host running the MySQL service.
 4. Under **Upload**, select one or more **Upload providers** and fill in the destination fields if uploading off-host.
-5. Optionally configure compression, encryption, or retention in the relevant sections of the form.
-6. Optionally check **Alert on failure** to receive an alert if the backup task fails.
-7. Click **Run** to start the backup immediately. To run on a schedule instead, see [Schedule a backup](#schedule-a-backup).
+5. (Optional) Configure compression, encryption, or retention in the relevant sections of the form.
+6. (Optional) check **Alert on failure** to receive an alert if the backup task fails.
+7. Click **Create MySQL Backups** to save the task. 
+8. Click the task's row to open its detail page.
+9. (Optional) Click **Edit** to change the task's configuration before running it, for example, to switch the execution host, turn on compression or encryption, or add upload destinations.
+10. Click **Execute** to run the task immediately. To run it on a recurring schedule instead, see [Schedule a backup](#schedule-a-backup).
+11. Click **Execution History** to see past runs. XtraBackup and Mydumper runs that completed successfully appear there with their location, upload destination, size, and timestamps. Binlog runs are not catalogued.
 
-Completed XtraBackup and Mydumper runs are recorded in the backup catalog with their location, upload destination, size, and timestamps. Binlog runs are not catalogued.
 
 ### Schedule a backup
 
-Scheduling is a two-step process: first define the backup task, then attach a recurrence to it.
+Scheduling is a two-step process: first create the backup task, then attach a recurrence to it.
 {.power-number}
 
-1. [Run a backup](#run-a-backup) to create the backup task, then click **Run**. This saves the task definition.
+1. [Create a backup task](#run-a-backup) to save the task without running it.
 
-2. On the **MySQL Backups** page, click **Schedules**, then click **Add new**.
+2. Click the task's row to open its detail page, then click **Schedule**. Alternatively, from the **MySQL Backups** list, click **Schedules**, then **Add new**, and select the task from the **Task** drop-down menu.
 
-3. Select the task from the **Task** drop-down menu.
+3. Choose a recurrence type:
+    - **Interval** (default): set **Every** to a number and **Period** to `minutes`, `hours`, or `days`, plus an optional **Start time**.
+    - **Cron**: click **change to cron mode**, then enter a cron expression.
 
-4. Choose a recurrence type:
-    - **Interval**: repeat every N minutes, hours, or days.
-    - **Cron**: enter a cron expression and select a timezone.
+4. (Optional) Use **Chain tasks after execution** to run another task automatically once this one finishes.
 
-5. Click **Save**.
+5. Leave **Enabled** on so the schedule takes effect immediately, or turn it off to save the schedule without activating it.
 
-Scheduled tasks appear in the **Schedules** list.
+6. Click **Create**.
 
-### Incremental XtraBackup backups
-
-XtraBackup supports two incremental methods. Select one in **Incremental method**:
-
-- **less_space**: smaller incremental files. Set **Incremental cycle** to control when the full backup runs: `daily`, `weekly`, or a specific weekday (Monday–Sunday).
-- **fast_restore**: optimized for faster restores. The cycle is not configurable.
-
-## Manage scheduled backups
-
-To manage your scheduled backup tasks, click **Schedules** on the **MySQL Backups** page. From there you can:
-
-- Enable or disable a schedule using the toggle.
-- Edit, delete, or copy a schedule using the actions menu.
+Scheduled tasks appear in the **Scheduled Tasks** list, and on the task's own detail page under **Schedule**.
 
 
 ## Restore from a backup
@@ -163,7 +160,6 @@ To restore from a backup:
 
     The destination service is optional. You can restore to any reachable host, including hosts not in inventory. Key options:
 
-    - **Kill MySQL**: kills the MySQL process before restoring. MySQL does **not** restart automatically. Start it manually after the restore completes.
     - **Skip incrementals**: applies the full backup only, skipping incremental layers.
     - **XtraBackup parallel**: number of threads for the restore (default: 4).
     - **Data directory**: override the target datadir path.
