@@ -40,8 +40,10 @@ export interface SchemaSelectShellProps {
   required?: boolean;
   /** rhf field error; presence flips `aria-invalid` and the outline color. */
   error?: FieldError;
-  /** Helper text and tooltip body for the label help icon; shown as helper text when there is no error. */
-  description?: string;
+  /** Shown behind the help icon beside the label. */
+  tooltip?: string;
+  /** Shown under the control, unless an error takes the slot. */
+  inline?: string;
   /** Render a multi-select (value is an array). */
   multiple?: boolean;
   /** Owns the empty-placeholder vs populated branch — differs per field. */
@@ -64,7 +66,8 @@ export function SchemaSelectShell({
   label,
   required,
   error,
-  description,
+  tooltip,
+  inline,
   multiple,
   renderValue,
   children,
@@ -72,7 +75,7 @@ export function SchemaSelectShell({
   return (
     <FormControl fullWidth size="small" error={!!error}>
       <InputLabel id={labelId} shrink required={required}>
-        <FieldLabelWithHelp label={label} description={description} />
+        <FieldLabelWithHelp label={label} description={tooltip} />
       </InputLabel>
       <Select
         {...field}
@@ -87,8 +90,8 @@ export function SchemaSelectShell({
       >
         {children}
       </Select>
-      {(error?.message || description) && (
-        <FormHelperText>{error?.message ?? description}</FormHelperText>
+      {(error?.message || inline) && (
+        <FormHelperText>{error?.message ?? inline}</FormHelperText>
       )}
     </FormControl>
   );
