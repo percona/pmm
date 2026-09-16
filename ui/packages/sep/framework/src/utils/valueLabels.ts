@@ -21,13 +21,13 @@
  * `ListColumn` and `DetailField` both carry an optional map from a stored value
  * to the text a renderer should show, so a stored enum member reaches the screen
  * as the word it stands for — a backup type arrives on the wire as `"M"` and is
- * shown as `Mydumper`. The map is the backend's to publish; this is the one
- * place the frontend consumes it, shared by the list cells and both detail-field
- * components so a value cannot be labelled in a table and raw on a detail page.
+ * shown as `Mydumper`. The map is the backend's to publish, and every renderer
+ * applies it through this function, so a value cannot be labelled in a table
+ * and raw on a detail page.
  *
  * A value the map does not mention renders unchanged, which is what keeps a
  * schema that labels only some members from blanking the rest, and an app that
- * publishes no map at all behaves exactly as it did before labels existed.
+ * publishes no map at all shows its raw values.
  */
 export function applyValueLabel(
   value: unknown,

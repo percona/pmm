@@ -18,12 +18,8 @@
 /**
  * The one place a timestamp becomes text.
  *
- * Before this, five formats reached the screen across the app — a locale date,
- * a locale date-time, a hand-rolled `3d ago`, and raw ISO strings with and
- * without microseconds — so the same run could be read three ways depending on
- * which surface showed it. Every surface now routes through
- * {@link formatTimestamp}, and the relative / absolute helpers below are the
- * only implementations of either.
+ * Every surface routes through {@link formatTimestamp}, and the relative /
+ * absolute helpers below are the only implementations of either.
  */
 
 const RELATIVE_DIVISIONS: {
@@ -97,12 +93,11 @@ export function formatAbsoluteTime(value: string | null | undefined): string {
 
 /** A timestamp rendered for display, with the full value to hang on `title`. */
 export interface FormattedTimestamp {
-  /** What the cell shows — relative for recent past times, absolute otherwise. */
+  /** What the cell shows — relative within a week of now, absolute otherwise. */
   display: string;
   /**
-   * The unabbreviated local date-time, for a `title` attribute. Always present
-   * and always absolute, including when `display` is already absolute: a reader
-   * hovering to check a date should never find the same string they hovered.
+   * The unabbreviated local date-time, for a `title` attribute. Present even
+   * when `display` is already absolute, so every timestamp answers a hover.
    */
   title: string;
 }

@@ -259,12 +259,10 @@ function formatCellValue(
       ) : (
         <Chip label={str} size="small" sx={cellChipSx} />
       );
-    // Both time formats resolve through the same formatter. The schema's
-    // `date` / `relative` distinction predates it and no longer decides the
-    // rendering: which form a value takes now follows from how far from now it
-    // sits, so two columns on one row can't disagree about how to say
-    // "yesterday". The declared format still matters above, where it picks the
-    // empty-cell rule, and in `columnSizing`.
+    // Both time formats resolve through the same formatter, so which form a
+    // value takes follows from how far from now it sits and two columns on one
+    // row can't disagree about how to say "yesterday". The declared format
+    // still picks the empty-cell rule above, and the width in `columnSizing`.
     case 'date':
     case 'relative': {
       const formatted = formatTimestamp(str);
