@@ -17,6 +17,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import MenuItem from '@mui/material/MenuItem';
 import type {
   ControllerRenderProps,
@@ -48,7 +49,8 @@ function renderShell(
     field?: Partial<ControllerRenderProps>;
     required?: boolean;
     error?: FieldError;
-    description?: string;
+    tooltip?: string;
+    inline?: string;
   } = {}
 ) {
   return render(
@@ -58,7 +60,8 @@ function renderShell(
       label="Fruit"
       required={opts.required}
       error={opts.error}
-      description={opts.description}
+      tooltip={opts.tooltip}
+      inline={opts.inline}
       renderValue={(value) =>
         value === undefined || value === null || value === ''
           ? 'Select…'
@@ -104,8 +107,8 @@ describe('SchemaSelectShell', () => {
     expect(screen.getByText('Fruit is required')).toBeInTheDocument();
   });
 
-  it('shows the description as helper text when there is no error', () => {
-    renderShell({ description: 'Pick one' });
+  it('shows inline help as helper text when there is no error', () => {
+    renderShell({ inline: 'Pick one' });
 
     expect(screen.getByTestId('select-input-fruit')).toHaveAttribute(
       'aria-invalid',
@@ -114,14 +117,43 @@ describe('SchemaSelectShell', () => {
     expect(screen.getByText('Pick one')).toBeInTheDocument();
   });
 
-  it('replaces helper text with the error', () => {
+  it('shows an info-icon tooltip when tooltip help is set', async () => {
+    const user = userEvent.setup();
+    renderShell({ tooltip: 'Pick one' });
+
+    const help = screen.getByLabelText('Help for Fruit');
+    expect(help).toHaveAttribute('data-help-for', 'Fruit');
+    await user.hover(help);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Pick one');
+  });
+
+  it('omits the info icon when description is missing', () => {
+    renderShell();
+
+    expect(screen.queryByLabelText('Help for Fruit')).not.toBeInTheDocument();
+  });
+
+  it('replaces inline help with the error', () => {
     renderShell({
-      description: 'Pick one',
+      inline: 'Pick one',
       error: { type: 'required', message: 'Fruit is required' },
     });
 
     expect(screen.getByText('Fruit is required')).toBeInTheDocument();
     expect(screen.queryByText('Pick one')).not.toBeInTheDocument();
+  });
+
+  it('keeps the info icon when an error takes the helper-text slot', () => {
+    renderShell({
+      tooltip: 'Pick one',
+      error: { type: 'required', message: 'Fruit is required' },
+    });
+
+    expect(screen.getByText('Fruit is required')).toBeInTheDocument();
+    expect(screen.getByLabelText('Help for Fruit')).toHaveAttribute(
+      'data-help-for',
+      'Fruit'
+    );
   });
 
   it('renders a required asterisk in the label', () => {

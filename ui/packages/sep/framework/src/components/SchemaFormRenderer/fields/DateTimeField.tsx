@@ -17,6 +17,8 @@
 
 import { useFormContext } from 'react-hook-form';
 import { TextInput } from '@percona/peak-ui';
+import { FieldLabelWithHelp } from '../FieldLabelWithHelp';
+import { fieldHelp } from '../fieldHelp';
 import type { DateTimeField as DateTimeFieldType } from '../types';
 import { buildValidationRules } from '../utils/validationMapper';
 
@@ -26,6 +28,7 @@ interface DateTimeFieldProps {
 
 export function DateTimeField({ field }: DateTimeFieldProps) {
   const { control } = useFormContext();
+  const help = fieldHelp(field);
   return (
     <TextInput
       name={field.name}
@@ -33,8 +36,11 @@ export function DateTimeField({ field }: DateTimeFieldProps) {
       isRequired={field.required}
       control={control}
       textFieldProps={{
+        label: (
+          <FieldLabelWithHelp label={field.label} description={help.tooltip} />
+        ),
         type: 'datetime-local',
-        helperText: field.description,
+        helperText: help.inline,
         fullWidth: true,
         InputLabelProps: { shrink: true },
       }}

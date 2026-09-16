@@ -78,7 +78,10 @@ export const OneOfGroupSlot = memo(function OneOfGroupSlot({
   };
 
   return (
-    <Box sx={{ mb: 2 }} data-testid={`one-of-${group.name}`}>
+    <Box
+      sx={{ mb: 2, gridColumn: '1 / -1' }}
+      data-testid={`one-of-${group.name}`}
+    >
       <Typography
         component="div"
         variant="subtitle2"
