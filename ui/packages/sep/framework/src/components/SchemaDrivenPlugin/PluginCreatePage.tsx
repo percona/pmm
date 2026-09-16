@@ -180,6 +180,7 @@ export function PluginCreatePage({
           submitError={submitError}
           fieldErrors={fieldErrors}
           capabilities={capabilities}
+          itemName={itemName}
           renderField={renderField}
         />
       )}

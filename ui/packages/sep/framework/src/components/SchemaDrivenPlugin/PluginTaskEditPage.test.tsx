@@ -275,6 +275,9 @@ describe('PluginTaskEditPage', () => {
       </SnackbarProvider>
     );
 
+    expect(
+      screen.getByTitle('Enable to trigger an alert if the checksum fails')
+    ).toBeInTheDocument();
     await userEvent.click(
       screen.getByRole('button', { name: 'Save checksum' })
     );

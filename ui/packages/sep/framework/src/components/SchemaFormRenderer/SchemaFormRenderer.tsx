@@ -393,6 +393,8 @@ export interface SchemaFormRendererProps {
   fieldErrors?: FieldValidationError[];
   /** Plugin capabilities. When `alert_on_fail` is true, renders <AlertOnFailField> below the sections. */
   capabilities?: PluginCapabilities;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
   /**
    * Optional per-field widget override. Applied after the conditional gate
    * decides visibility / required-ness; receives the gate-resolved field and a
@@ -454,6 +456,7 @@ function SchemaFormBody({
   submitError,
   fieldErrors,
   capabilities,
+  itemName,
   renderField,
 }: SchemaFormRendererProps) {
   const { handleSubmit, formState, setError, clearErrors, getFieldState } =
@@ -663,7 +666,7 @@ function SchemaFormBody({
 
         {capabilities?.alert_on_fail && (
           <Box sx={{ mb: 2 }}>
-            <AlertOnFailField />
+            <AlertOnFailField itemName={itemName} />
           </Box>
         )}
 

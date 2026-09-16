@@ -281,6 +281,7 @@ export function PluginTaskEditPage({
           fieldErrors={fieldErrors}
           defaultValues={normalizedDefaults}
           capabilities={schema.capabilities}
+          itemName={itemName}
           renderField={renderField}
         />
       )}

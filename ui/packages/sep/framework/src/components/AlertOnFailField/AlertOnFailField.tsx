@@ -33,7 +33,6 @@ import { useAlertConfig } from '@sep/api';
  */
 export const ALERT_ON_FAIL_FIELD_NAME = 'alert_on_fail';
 
-const TOOLTIP_AVAILABLE = 'Enable to trigger an alert if the task fails';
 const TOOLTIP_UNAVAILABLE = 'Configure an alert provider to use this feature';
 const TOOLTIP_ERROR = 'Could not load alert configuration';
 
@@ -46,6 +45,8 @@ interface AlertOnFailFieldProps {
    * backend when alerts are disabled.
    */
   defaultValue?: boolean;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
 }
 
 /**
@@ -60,6 +61,7 @@ interface AlertOnFailFieldProps {
  */
 export function AlertOnFailField({
   defaultValue = false,
+  itemName = 'task',
 }: AlertOnFailFieldProps) {
   const { control } = useFormContext<FieldValues>();
   const { data, isLoading, isError } = useAlertConfig();
@@ -70,7 +72,7 @@ export function AlertOnFailField({
   const tooltip = isError
     ? TOOLTIP_ERROR
     : available
-      ? TOOLTIP_AVAILABLE
+      ? `Enable to trigger an alert if the ${itemName} fails`
       : TOOLTIP_UNAVAILABLE;
 
   const {
