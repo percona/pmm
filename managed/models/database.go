@@ -1637,7 +1637,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 		"environment": "pmm",
 	}
 
-	node, err := createNodeWithID(q, nodeID, GenericNodeType, &CreateNodeParams{
+	node, err := createNodeWithID(q, nodeID, ContainerNodeType, &CreateNodeParams{
 		NodeName:        params.HANodeID,
 		Address:         LocalhostAddr,
 		CustomLabels:    labels,
@@ -1669,7 +1669,7 @@ func setupPMMServerHAAgents(q *reform.Querier, params SetupDBParams) error {
 
 func setupPMMServerAgents(q *reform.Querier, params SetupDBParams) error {
 	// create PMM Server Node and associated Agents
-	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
+	node, err := createNodeWithID(q, PMMServerNodeID, ContainerNodeType, &CreateNodeParams{
 		NodeName:        "pmm-server",
 		Address:         LocalhostAddr,
 		IsPMMServerNode: true,
