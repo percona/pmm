@@ -862,7 +862,7 @@ export const NAV_SEP_ATW: NavItem = {
   icon: SupportDiagnosticsIcon,
   text: 'Support diagnostics',
   url: SEP_ATW_PATH,
-  matches: [SEP_ATW_PATH],
+  matches: ['*'],
 };
 
 export const NAV_SEP_MYSQL_BACKUPS: NavItem = {
@@ -870,5 +870,5 @@ export const NAV_SEP_MYSQL_BACKUPS: NavItem = {
   icon: Restore,
   text: 'MySQL Backups',
   url: SEP_MYSQL_BACKUPS_PATH,
-  matches: [SEP_MYSQL_BACKUPS_PATH],
+  matches: ['*'],
 };
