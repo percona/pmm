@@ -341,7 +341,7 @@ describe('SchemaDrivenPlugin — related_apps routing', () => {
 
     expect(screen.queryByText('schedule')).toBeNull();
     // Tab bar still mounts for the related-app shell; only the schedule page is gone.
-    expect(screen.getByRole('tab', { name: 'Restore' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Restores' })).toBeInTheDocument();
   });
 });
 
