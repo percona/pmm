@@ -236,6 +236,20 @@ type gRPCServerDeps struct {
 	versionCache              *versioncache.Service
 	vmdb                      *victoriametrics.Service
 	vmalert                   *vmalert.Service
+	internalNodePrefixes      []string
+}
+
+// parseNodeNamePrefixes splits a comma-separated list of Node name prefixes.
+func parseNodeNamePrefixes(value string) []string {
+	var prefixes []string
+	for p := range strings.SplitSeq(value, ",") {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			prefixes = append(prefixes, p)
+		}
+	}
+
+	return prefixes
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -306,6 +320,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.connectionCheck, deps.serviceInfoBroker, deps.vmdb,
 		deps.versionCache, deps.grafanaClient, v1.NewAPI(*deps.vmClient),
+		deps.internalNodePrefixes,
+		deps.ha.Params().Enabled,
 	)
 
 	managementv1.RegisterManagementServiceServer(gRPCServer, managementSvc)
@@ -744,6 +760,11 @@ func main() { //nolint:gocognit,maintidx,cyclop
 		Envar("PMM_HA_GRAFANA_GOSSIP_PORT").
 		Default("9762").
 		Int()
+
+	internalNodePrefixesF := kingpin.Flag("internal-node-name-prefixes",
+		"Comma-separated list of Node name prefixes reserved for the internal infrastructure of this PMM deployment").
+		Envar("PMM_INTERNAL_NODE_NAME_PREFIXES").
+		String()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
@@ -1195,6 +1216,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 				grafanaClient:             grafanaClient,
 				handler:                   agentsHandler,
 				ha:                        haService,
+				internalNodePrefixes:      parseNodeNamePrefixes(*internalNodePrefixesF),
 				jobsService:               jobsService,
 				minioClient:               minioClient,
 				pbmPITRService:            pbmPITRService,
