@@ -33,7 +33,6 @@
     "@sep/api": "workspace:*",
     "@sep/framework": "workspace:*",
     "@sep/plugins-atw": "workspace:*",
-    "@sep/shared": "workspace:*",
     "@tanstack/react-query": "^5.100.7",
     "axios": "^1.13.5",
     "axios-case-converter": "^1.1.1",
