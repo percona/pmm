@@ -732,7 +732,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "count(min by(exported_pod) (kube_pod_container_status_ready{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${haproxy_suffix_regex}\"}) == 1)",
+                    "expr": "count(min by(exported_pod) (kube_pod_container_status_ready{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1)",
                     "instant": true,
                     "legendFormat": "Alive",
                     "range": false,
@@ -741,7 +741,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(sum(kube_deployment_spec_replicas{exported_namespace=\"$namespace\", deployment=~\"${release}-${haproxy_suffix_regex}\"}) or vector(0))",
+                    "expr": "(sum(kube_deployment_spec_replicas{exported_namespace=\"$namespace\", deployment=~\"$haproxy_pod_regex\"}) or vector(0))",
                     "instant": true,
                     "legendFormat": "Expected",
                     "range": false,
@@ -750,7 +750,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "((count(min by(exported_pod) (kube_pod_container_status_ready{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${haproxy_suffix_regex}\"}) == 1) or vector(0)) / clamp_min((sum(kube_deployment_spec_replicas{exported_namespace=\"$namespace\", deployment=~\"${release}-${haproxy_suffix_regex}\"}) or vector(0)), 1)) * 100",
+                    "expr": "((count(min by(exported_pod) (kube_pod_container_status_ready{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\"}) == 1) or vector(0)) / clamp_min((sum(kube_deployment_spec_replicas{exported_namespace=\"$namespace\", deployment=~\"$haproxy_pod_regex\"}) or vector(0)), 1)) * 100",
                     "instant": true,
                     "legendFormat": "Health",
                     "range": false,
@@ -1905,7 +1905,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "(\n  count(min by(exported_pod) (kube_pod_container_status_ready{exported_namespace=\"$namespace\", exported_pod=~\"${release}-${haproxy_suffix_regex}\", exported_pod!~\".*($health_exclude_regex).*\"}) == 1)\n  /\n  clamp_min((sum(kube_deployment_spec_replicas{exported_namespace=\"$namespace\", deployment=~\"${release}-${haproxy_suffix_regex}\"}) or vector(0)), 1)\n) * 100",
+                    "expr": "(\n  count(min by(exported_pod) (kube_pod_container_status_ready{exported_namespace=\"$namespace\", exported_pod=~\"$haproxy_pod_regex\", exported_pod!~\".*($health_exclude_regex).*\"}) == 1)\n  /\n  clamp_min((sum(kube_deployment_spec_replicas{exported_namespace=\"$namespace\", deployment=~\"$haproxy_pod_regex\"}) or vector(0)), 1)\n) * 100",
                     "legendFormat": "\u2696\ufe0f HAProxy",
                     "range": true,
                     "refId": "HAProxy",
@@ -2925,7 +2925,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "min by(exported_pod) (kube_pod_container_status_ready{exported_pod=~\"${release}-${haproxy_suffix_regex}\", exported_namespace=\"$namespace\"})",
+                    "expr": "min by(exported_pod) (kube_pod_container_status_ready{exported_pod=~\"$haproxy_pod_regex\", exported_namespace=\"$namespace\"})",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -3094,7 +3094,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "max by(service, proxy, server) (\n  haproxy_server_status{\n    namespace=\"$namespace\",\n    service=~\"${release}-.*\"\n  }\n)",
+                    "expr": "max by(service, proxy, server) (\n  haproxy_server_status{\n    namespace=\"$namespace\",\n    service=~\"$haproxy_pod_regex\"\n  }\n)",
                     "format": "table",
                     "instant": true,
                     "legendFormat": "__auto",
@@ -3207,20 +3207,20 @@
             },
             {
                 "current": {
-                    "text": "haproxy.*",
-                    "value": "haproxy.*"
+                    "text": "pmm-ha-haproxy.*",
+                    "value": "pmm-ha-haproxy.*"
                 },
                 "hide": 2,
-                "label": "HAProxy suffix regex",
-                "name": "haproxy_suffix_regex",
+                "label": "HAProxy pod regex (chart pins this name)",
+                "name": "haproxy_pod_regex",
                 "options": [
                     {
                         "selected": true,
-                        "text": "haproxy.*",
-                        "value": "haproxy.*"
+                        "text": "pmm-ha-haproxy.*",
+                        "value": "pmm-ha-haproxy.*"
                     }
                 ],
-                "query": "haproxy.*",
+                "query": "pmm-ha-haproxy.*",
                 "type": "textbox"
             },
             {
