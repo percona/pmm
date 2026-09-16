@@ -17,19 +17,23 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Alert from '@mui/material/Alert';
-import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Link from '@mui/material/Link';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
-import Switch from '@mui/material/Switch';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import {
+  AutoCompleteInput,
+  RadioGroup,
+  SelectInput,
+  SwitchInput,
+  TextInput,
+} from '@percona/peak-ui';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import cronstrue from 'cronstrue';
 import { capitalize } from '@sep/shared';
+import { DateTimeInput } from '../DateTimeInput';
+import { FORM_CONTENT_MAX_WIDTH } from '../../constants';
 import {
   ChainBuilder,
   type AvailableTask,
@@ -108,15 +112,23 @@ function useDebounced<T>(value: T, delay = 400): T {
  *
  * The field carries minutes, so round-tripping a stored value through it drops
  * any seconds that value had. Send the stored instant back verbatim while the
- * field still shows it unchanged, so saving an edit to an unrelated field —
+ * reader has not touched the field, so saving an edit to an unrelated field —
  * the interval, the enable toggle — cannot quietly move a schedule's first fire
- * by up to a minute (PMM-15454).
+ * (PMM-15454).
+ *
+ * Keyed on whether the field is dirty rather than on comparing its value to the
+ * stored one. The picker renders through a local `Date`, which cannot represent
+ * a wall clock inside the reader's own spring-forward gap (see
+ * `DateTimeInput/wallClockValue.ts`); a value comparison would read that
+ * one-hour display shift as an edit and persist it. Dirtiness answers the
+ * question actually being asked — did anyone change this? (PMM-15456)
  */
 function startTimeToSubmit(
   fieldValue: string,
-  stored: string | null | undefined
+  stored: string | null | undefined,
+  touched: boolean
 ): string | null {
-  if (stored && fieldValue === utcIsoToUtcInput(stored)) {
+  if (stored && !touched) {
     return stored;
   }
   return utcInputToIso(fieldValue);
@@ -203,11 +215,10 @@ export function ScheduledTaskForm({
 
   const {
     control,
-    register,
     handleSubmit,
     watch,
     setValue,
-    formState: { errors },
+    formState: { dirtyFields },
   } = useForm<ScheduledTaskFormValues>({ defaultValues: defaults });
 
   const scheduleMode = watch('scheduleMode');
@@ -309,16 +320,6 @@ export function ScheduledTaskForm({
     return humanize(cronExpression);
   }, [scheduleMode, cronExpression]);
 
-  const toggleMode = () => {
-    setValue(
-      'scheduleMode',
-      scheduleMode === 'interval' ? 'cron' : 'interval',
-      {
-        shouldDirty: true,
-      }
-    );
-  };
-
   const submit: SubmitHandler<ScheduledTaskFormValues> = async (values) => {
     const isCron = values.scheduleMode === 'cron';
     let crontab: CrontabSchedule | null = null;
@@ -346,7 +347,11 @@ export function ScheduledTaskForm({
     // is parked for a design pass (PMM-15454).
     const start_time = isCron
       ? null
-      : startTimeToSubmit(values.startTime, initialValue?.start_time);
+      : startTimeToSubmit(
+          values.startTime,
+          initialValue?.start_time,
+          Boolean(dirtyFields.startTime)
+        );
 
     const hasChain = values.chain.chain_task_names.length > 0;
     const execute_request = hasChain
@@ -374,27 +379,28 @@ export function ScheduledTaskForm({
 
   const taskField =
     mode === 'create' ? (
-      <TextField
-        select
-        size="small"
+      <SelectInput
+        name="task"
+        control={control}
         label={itemLabel}
-        required
-        slotProps={{ htmlInput: { 'data-testid': 'sched-form-task' } }}
-        {...register('task', { required: true })}
-        defaultValue={defaults.task}
-        error={!!errors.task}
-        sx={{ minWidth: 180 }}
+        controllerProps={{ rules: { required: true } }}
+        formControlProps={{ fullWidth: true, size: 'small', required: true }}
       >
         {availableTasks.map((t) => (
           <MenuItem key={t.name} value={t.name}>
             {t.name}
           </MenuItem>
         ))}
-      </TextField>
+      </SelectInput>
     ) : (
-      <Typography variant="body2" sx={{ alignSelf: 'center' }}>
-        {taskName}
-      </Typography>
+      <Box>
+        <Typography variant="caption" color="text.secondary" display="block">
+          {itemLabel}
+        </Typography>
+        <Typography variant="body1" data-testid="sched-form-task-name">
+          {taskName}
+        </Typography>
+      </Box>
     );
 
   return (
@@ -402,7 +408,8 @@ export function ScheduledTaskForm({
       component="form"
       onSubmit={handleSubmit(submit)}
       data-testid="scheduled-task-form"
-      sx={{ p: 2, bgcolor: 'action.hover' }}
+      noValidate
+      sx={{ maxWidth: FORM_CONTENT_MAX_WIDTH }}
     >
       {errorMessage && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -410,96 +417,115 @@ export function ScheduledTaskForm({
         </Alert>
       )}
 
-      <Stack
-        direction="row"
-        spacing={2}
-        flexWrap="wrap"
-        alignItems="flex-start"
-        sx={{ mb: 2 }}
-      >
+      <Stack spacing={2.5}>
         {taskField}
 
+        {/*
+          A labelled choice rather than the lowercase "change to cron mode"
+          link this replaced: the two branches below are alternative answers to
+          one question, and a text link neither said which one was in force nor
+          looked like anything else on the form (PMM-15456).
+        */}
+        <RadioGroup
+          name="scheduleMode"
+          control={control}
+          label="Schedule"
+          radioGroupFieldProps={{ row: true }}
+          options={[
+            { label: 'Every so often', value: 'interval' },
+            { label: 'On a cron expression', value: 'cron' },
+          ]}
+        />
+
         {scheduleMode === 'interval' ? (
-          <Stack direction="row" spacing={1} alignItems="center">
-            <TextField
-              type="number"
-              size="small"
-              label="Every"
-              required
-              slotProps={{
-                htmlInput: {
-                  min: 1,
-                  'data-testid': 'sched-form-interval-every',
-                },
-              }}
-              {...register('intervalEvery', {
-                required: true,
-                valueAsNumber: true,
-                validate: (v) => Number.isFinite(v) && (v as number) >= 1,
-              })}
-              error={!!errors.intervalEvery}
-              sx={{ width: 100 }}
-            />
-            <TextField
-              select
-              size="small"
-              label="Period"
-              {...register('intervalPeriod')}
-              defaultValue={defaults.intervalPeriod}
-              sx={{ width: 120 }}
-            >
-              <MenuItem value="days">days</MenuItem>
-              <MenuItem value="hours">hours</MenuItem>
-              <MenuItem value="minutes">minutes</MenuItem>
-            </TextField>
-          </Stack>
-        ) : (
-          <Stack spacing={0.5} sx={{ minWidth: 320 }}>
-            <Stack direction="row" spacing={1}>
-              <TextField
-                size="small"
-                label="Cron expression"
-                placeholder="*/5 * * * *"
-                required
-                slotProps={{
-                  htmlInput: {
-                    pattern: '^\\S+(?:\\s+\\S+){4}$',
-                    'data-testid': 'sched-form-cron',
+          <>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <TextInput
+                name="intervalEvery"
+                control={control}
+                label="Every"
+                isRequired
+                controllerProps={{
+                  rules: {
+                    required: 'Enter how often this runs',
+                    validate: (v) =>
+                      (Number.isFinite(Number(v)) && Number(v) >= 1) ||
+                      'Must be at least 1',
                   },
                 }}
-                {...register('cronExpression', {
-                  required: true,
-                  validate: (v) =>
-                    humanize(v).valid || 'Invalid cron expression',
-                })}
-                error={!!errors.cronExpression}
-                sx={{ flex: 1 }}
+                textFieldProps={{
+                  type: 'number',
+                  size: 'small',
+                  slotProps: {
+                    // Setting `slotProps` replaces Peak UI's own, which is
+                    // where its `text-input-<field>` test id lives — so the id
+                    // has to be restated alongside the spinner bound.
+                    htmlInput: {
+                      min: 1,
+                      'data-testid': 'text-input-interval-every',
+                    },
+                  },
+                  sx: { width: { xs: '100%', sm: 140 } },
+                }}
               />
-              <Controller
+              <SelectInput
+                name="intervalPeriod"
                 control={control}
-                name="cronTimezone"
-                render={({ field }) => (
-                  <Autocomplete
-                    size="small"
-                    options={timezoneOptions}
-                    value={field.value}
-                    onChange={(_, v) => field.onChange(v ?? 'UTC')}
-                    sx={{ width: 220 }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Timezone"
-                        slotProps={{
-                          htmlInput: {
-                            ...params.inputProps,
-                            'data-testid': 'sched-form-timezone',
-                          },
-                        }}
-                      />
-                    )}
-                  />
-                )}
+                label="Period"
+                formControlProps={{
+                  size: 'small',
+                  sx: { width: { xs: '100%', sm: 180 } },
+                }}
+              >
+                <MenuItem value="days">days</MenuItem>
+                <MenuItem value="hours">hours</MenuItem>
+                <MenuItem value="minutes">minutes</MenuItem>
+              </SelectInput>
+            </Stack>
+
+            <Box sx={{ maxWidth: 340 }}>
+              <DateTimeInput
+                name="startTime"
+                control={control}
+                label={`Start time (${INTERVAL_TIMEZONE})`}
               />
+            </Box>
+          </>
+        ) : (
+          <>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+              <Box sx={{ flex: 1 }}>
+                <TextInput
+                  name="cronExpression"
+                  control={control}
+                  label="Cron expression"
+                  isRequired
+                  controllerProps={{
+                    rules: {
+                      required: 'Enter a cron expression',
+                      validate: (v) =>
+                        humanize(String(v)).valid || 'Invalid cron expression',
+                    },
+                  }}
+                  textFieldProps={{
+                    size: 'small',
+                    fullWidth: true,
+                    placeholder: '*/5 * * * *',
+                  }}
+                />
+              </Box>
+              <Box sx={{ width: { xs: '100%', sm: 260 } }}>
+                <AutoCompleteInput
+                  name="cronTimezone"
+                  control={control}
+                  label="Timezone"
+                  options={timezoneOptions}
+                  autoCompleteProps={{
+                    size: 'small',
+                    disableClearable: true,
+                  }}
+                />
+              </Box>
             </Stack>
             {cronPreview && (
               <Typography
@@ -510,112 +536,63 @@ export function ScheduledTaskForm({
                 {cronPreview.text}
               </Typography>
             )}
-          </Stack>
+          </>
         )}
 
-        {scheduleMode === 'interval' && (
-          <TextField
-            type="datetime-local"
-            size="small"
-            label={`Start time (${INTERVAL_TIMEZONE})`}
-            slotProps={{
-              inputLabel: { shrink: true },
-              htmlInput: { 'data-testid': 'sched-form-start-time' },
-            }}
-            {...register('startTime')}
-            sx={{ width: 220 }}
-          />
-        )}
+        <Box>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            data-testid="sched-form-timezone-notice"
+          >
+            {scheduleMode === 'cron'
+              ? `Runs in ${zoneInForce}.`
+              : `Runs in ${zoneInForce} — an interval schedule has no timezone of its own.`}
+          </Typography>
+
+          {previewSpec !== null && (
+            <Typography
+              variant="caption"
+              color={previewFailed ? 'error' : 'text.secondary'}
+              sx={{ display: 'block', mt: 0.5 }}
+              data-testid="sched-form-next-runs"
+            >
+              {previewFailed
+                ? 'Could not work out the next runs for this schedule.'
+                : nextRuns.length > 0
+                  ? `Next runs: ${nextRuns.map(formatNextRun).join(', ')}`
+                  : preview
+                    ? 'This schedule has no upcoming runs.'
+                    : 'Working out the next runs…'}
+            </Typography>
+          )}
+        </Box>
+
+        <SwitchInput name="enabled" control={control} label="Enabled" />
 
         <Controller
           control={control}
-          name="enabled"
+          name="chain"
           render={({ field }) => (
-            <FormControlLabel
-              sx={{ alignSelf: 'center' }}
-              control={
-                <Switch
-                  checked={field.value}
-                  onChange={(_, c) => field.onChange(c)}
-                  inputProps={
-                    {
-                      'data-testid': 'sched-form-enabled',
-                    } as React.InputHTMLAttributes<HTMLInputElement>
-                  }
-                />
-              }
-              label="Enabled"
+            <ChainBuilder
+              availableTasks={availableTasks}
+              currentTaskName={taskName}
+              value={field.value}
+              onChange={field.onChange}
+              itemName={itemName}
+              itemNamePlural={itemNamePlural}
             />
           )}
         />
-      </Stack>
 
-      <Box sx={{ mb: 1 }}>
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          data-testid="sched-form-timezone-notice"
-        >
-          {scheduleMode === 'cron'
-            ? `Runs in ${zoneInForce}.`
-            : `Runs in ${zoneInForce} — an interval schedule has no timezone of its own.`}
-        </Typography>
-
-        {previewSpec !== null && (
-          <Typography
-            variant="caption"
-            color={previewFailed ? 'error' : 'text.secondary'}
-            sx={{ display: 'block', mt: 0.5 }}
-            data-testid="sched-form-next-runs"
-          >
-            {previewFailed
-              ? 'Could not work out the next runs for this schedule.'
-              : nextRuns.length > 0
-                ? `Next runs: ${nextRuns.map(formatNextRun).join(', ')}`
-                : preview
-                  ? 'This schedule has no upcoming runs.'
-                  : 'Working out the next runs…'}
-          </Typography>
-        )}
-      </Box>
-
-      <Box sx={{ mb: 1 }}>
-        <Link
-          component="button"
-          type="button"
-          variant="caption"
-          onClick={toggleMode}
-          data-testid="sched-form-toggle-mode"
-        >
-          {scheduleMode === 'interval'
-            ? 'change to cron mode'
-            : 'change to interval mode'}
-        </Link>
-      </Box>
-
-      <Controller
-        control={control}
-        name="chain"
-        render={({ field }) => (
-          <ChainBuilder
-            availableTasks={availableTasks}
-            currentTaskName={taskName}
-            value={field.value}
-            onChange={field.onChange}
-            itemName={itemName}
-            itemNamePlural={itemNamePlural}
-            sx={{ mb: 2 }}
-          />
-        )}
-      />
-
-      <Stack direction="row" spacing={1} justifyContent="flex-end">
-        <Button onClick={onCancel} disabled={submitting} type="button">
-          Cancel
-        </Button>
-        <Button type="submit" variant="contained" disabled={submitting}>
-          {mode === 'create' ? 'Create' : 'Save'}
-        </Button>
+        <Stack direction="row" spacing={1} justifyContent="flex-end">
+          <Button onClick={onCancel} disabled={submitting} type="button">
+            Cancel
+          </Button>
+          <Button type="submit" variant="contained" disabled={submitting}>
+            {mode === 'create' ? 'Create' : 'Save'}
+          </Button>
+        </Stack>
       </Stack>
     </Box>
   );

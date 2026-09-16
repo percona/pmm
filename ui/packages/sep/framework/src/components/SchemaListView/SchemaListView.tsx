@@ -20,7 +20,6 @@ import { createPortal } from 'react-dom';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import type { Theme } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
 import IconButton from '@mui/material/IconButton';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -37,7 +36,7 @@ import {
   type ListColumn,
   type ListView,
 } from '@sep/api';
-import { SEP_TABLE_CLASS } from '../../constants';
+import { sepTableProps } from '../SepTable';
 import { formatTimestamp } from '../../utils/formatTimestamp';
 import { applyValueLabel } from '../../utils/valueLabels';
 import {
@@ -301,19 +300,6 @@ function formatCellValue(
 }
 
 /**
- * Opaque table surface. The Percona theme's `background.paper` doesn't always
- * resolve to an opaque colour, leaving the table looking transparent against
- * tinted page backgrounds, so pick the mode's own opaque surface instead of
- * pinning `common.white` (which renders a white table in dark mode).
- */
-const opaqueTableSurface = (theme: Theme) => ({
-  bgcolor:
-    theme.palette.mode === 'dark'
-      ? theme.palette.background.default
-      : theme.palette.common.white,
-});
-
-/**
  * The table's own toolbar controls, rendered wherever the caller asks for them.
  *
  * Reuses MaterialReactTable's own buttons rather than reimplementing search,
@@ -527,20 +513,13 @@ function SchemaListViewCore({
 
   return (
     <MaterialReactTable
+      {...sepTableProps<Record<string, unknown>>()}
       columns={columns}
       data={data}
       state={{
         isLoading,
         ...(manualPagination && { pagination: { pageIndex, pageSize } }),
       }}
-      enableColumnActions={false}
-      enableDensityToggle={false}
-      enableFullScreenToggle={false}
-      // Cells become flex items sized from the column's own `size`, so a
-      // column neither stretches to its widest value nor forces the table
-      // past its container — the two ways a semantic table ends up scrolling
-      // sideways.
-      layoutMode="grid"
       renderTopToolbar={
         toolbarSlot === undefined
           ? undefined
@@ -589,36 +568,6 @@ function SchemaListViewCore({
         ...(!manualPagination && {
           pagination: { pageIndex: 0, pageSize: 10 },
         }),
-      }}
-      muiTablePaperProps={{
-        className: SEP_TABLE_CLASS,
-        elevation: 0,
-        variant: 'outlined',
-        sx: opaqueTableSurface,
-      }}
-      muiTableContainerProps={{
-        sx: opaqueTableSurface,
-      }}
-      muiTableHeadCellProps={{
-        sx: {
-          // The label, not the sort control: a long header would otherwise set
-          // the column's width for every row under it.
-          '& .Mui-TableHeadCell-Content-Wrapper': {
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          },
-        },
-      }}
-      muiTableBodyCellProps={{
-        sx: {
-          // Grid layout already hides cell overflow, but `textOverflow` is
-          // inert without it — stated here so the rule cannot be read as
-          // doing something it does not.
-          overflow: 'hidden',
-          whiteSpace: 'nowrap',
-          textOverflow: 'ellipsis',
-        },
       }}
       muiTableBodyRowProps={
         onRowClick

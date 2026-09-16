@@ -71,7 +71,9 @@ const PRIMITIVE_MARKERS = [
  */
 const REPORTS_ITS_OWN_WAY: Record<string, string> = {
   'sep/framework/src/components/ScheduledTasksPanel/ScheduledTasksPanel.tsx':
-    'panel-level actionError / formError state rendered as an alert above the table',
+    'panel-level actionError state rendered as an alert above the table',
+  'sep/framework/src/components/SchemaDrivenPlugin/PluginScheduleFormPage.tsx':
+    'formError state passed to ScheduledTaskForm, which renders it as an alert above the fields',
   'sep/framework/src/components/TaskHistoryTable/TaskFilesDialog.tsx':
     'in-dialog alert reading the download mutation error',
   'plugins/atw/src/hooks.ts':

@@ -17,42 +17,99 @@
 
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import type { PluginSchema } from '@sep/api';
 import { ScheduledTasksPanel } from '../ScheduledTasksPanel';
 import {
   resolveItemDisplayName,
   resolveItemDisplayNamePlural,
 } from '../../utils/itemLabels';
+import { PluginScheduleFormPage } from './PluginScheduleFormPage';
 
 interface PluginSchedulePageProps {
   pluginName: string;
   schema: PluginSchema;
 }
 
-export function PluginSchedulePage({
-  pluginName,
-  schema,
-}: PluginSchedulePageProps) {
+function ScheduleListPage({ pluginName, schema }: PluginSchedulePageProps) {
   const navigate = useNavigate();
+  const itemName = resolveItemDisplayName(schema);
+  const itemNamePlural = resolveItemDisplayNamePlural(schema);
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-        <IconButton onClick={() => navigate('..')} aria-label="Back to list">
+      <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 3 }}>
+        {/*
+          Path-relative, not route-relative: this page is the index of a splat
+          route, so the number of route segments above it is not the number of
+          path segments. `..` off `<plugin>/schedule` is the plugin's list.
+        */}
+        <IconButton
+          onClick={() => navigate('..', { relative: 'path' })}
+          aria-label="Back to list"
+        >
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h4">Schedules</Typography>
-      </Box>
+      </Stack>
 
       <ScheduledTasksPanel
         pluginName={pluginName}
         displayName={schema.display_name}
-        itemName={resolveItemDisplayName(schema)}
-        itemNamePlural={resolveItemDisplayNamePlural(schema)}
+        itemName={itemName}
+        itemNamePlural={itemNamePlural}
+        onCreate={() => navigate('new', { relative: 'path' })}
+        onEdit={(task) => navigate(`${task.id}/edit`, { relative: 'path' })}
       />
     </Box>
+  );
+}
+
+/**
+ * The schedules area of a plugin: the list, plus the create and edit pages it
+ * links to.
+ *
+ * Mounted under a splat route (`schedule/*`), because editing a schedule is a
+ * page now rather than an expanded table row (PMM-15456).
+ */
+export function PluginSchedulePage({
+  pluginName,
+  schema,
+}: PluginSchedulePageProps) {
+  const itemName = resolveItemDisplayName(schema);
+  const itemNamePlural = resolveItemDisplayNamePlural(schema);
+
+  return (
+    <Routes>
+      <Route
+        index
+        element={<ScheduleListPage pluginName={pluginName} schema={schema} />}
+      />
+      <Route
+        path="new"
+        element={
+          <PluginScheduleFormPage
+            pluginName={pluginName}
+            mode="create"
+            itemName={itemName}
+            itemNamePlural={itemNamePlural}
+          />
+        }
+      />
+      <Route
+        path=":id/edit"
+        element={
+          <PluginScheduleFormPage
+            pluginName={pluginName}
+            mode="edit"
+            itemName={itemName}
+            itemNamePlural={itemNamePlural}
+          />
+        }
+      />
+    </Routes>
   );
 }

@@ -16,9 +16,9 @@
  */
 
 import { useEffect } from 'react';
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
+import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
+import { SwitchInput } from '@percona/peak-ui';
 import {
   useController,
   useFormContext,
@@ -50,12 +50,16 @@ interface AlertOnFailFieldProps {
 }
 
 /**
- * Renders the *Alert on failure* checkbox shared by every task plugin's
+ * Renders the *Alert on failure* toggle shared by every task plugin's
  * create/edit form. Replaces the
  * `templates/tasks/partials/create-form-alert-on-failure-input.html.j2`
  * partial: when the backend reports no configured alert providers the
- * checkbox is disabled (not hidden) and a tooltip prompts the operator to
+ * control is disabled (not hidden) and a tooltip prompts the operator to
  * configure a provider.
+ *
+ * A Peak UI `SwitchInput`, the same control `BoolField` renders — it was the
+ * form's one checkbox among a dozen toggles, and nothing about this boolean
+ * differs from theirs (PMM-15456).
  *
  * Must be rendered inside a react-hook-form `<FormProvider>`.
  */
@@ -75,8 +79,12 @@ export function AlertOnFailField({
       ? `Enable to trigger an alert if the ${itemName} fails`
       : TOOLTIP_UNAVAILABLE;
 
+  // Registers the field with its default and reads the current value for the
+  // effect below. `SwitchInput` opens its own controller on the same name, so
+  // the two share one piece of form state rather than competing for it — this
+  // one is not wired to the control.
   const {
-    field: { onChange, onBlur, value, ref, name },
+    field: { onChange, value },
   } = useController({
     name: ALERT_ON_FAIL_FIELD_NAME,
     control,
@@ -96,26 +104,19 @@ export function AlertOnFailField({
   }, [knownUnavailable, value, onChange]);
 
   return (
-    // `describeChild` keeps the checkbox's accessible name (the
-    // FormControlLabel text) intact; the tooltip is attached via
-    // aria-describedby instead of overriding aria-label. The Tooltip wraps
-    // FormControlLabel directly — only the inner Checkbox is disabled, so
-    // FormControlLabel itself stays hoverable and propagates the
-    // describedby relationship as close to the form control as possible.
+    // `describeChild` keeps the switch's accessible name (the label text)
+    // intact; the tooltip is attached via aria-describedby instead of
+    // overriding aria-label. The Tooltip wraps the whole control so it stays
+    // hoverable while the switch itself is disabled.
     <Tooltip title={tooltip} placement="top" describeChild>
-      <FormControlLabel
-        label="Alert on failure"
-        control={
-          <Checkbox
-            name={name}
-            inputRef={ref}
-            checked={!!value}
-            onChange={(_, checked) => onChange(checked)}
-            onBlur={onBlur}
-            disabled={disabled}
-          />
-        }
-      />
+      <Box component="span" sx={{ display: 'inline-flex' }}>
+        <SwitchInput
+          name={ALERT_ON_FAIL_FIELD_NAME}
+          control={control}
+          label="Alert on failure"
+          switchFieldProps={{ disabled }}
+        />
+      </Box>
     </Tooltip>
   );
 }

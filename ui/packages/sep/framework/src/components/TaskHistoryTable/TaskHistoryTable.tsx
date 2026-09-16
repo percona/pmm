@@ -40,7 +40,7 @@ import {
   useTaskHistoryByName,
 } from '../../hooks/useTaskHistory';
 import { useTaskHistoryFiles } from '../../hooks/useTaskHistoryFiles';
-import { SEP_TABLE_CLASS } from '../../constants';
+import { sepTableProps } from '../SepTable';
 import { ChainDisplay } from './ChainDisplay';
 import { StatusBadge } from './StatusBadge';
 import Box from '@mui/material/Box';
@@ -380,18 +380,13 @@ function TaskHistoryTableView({
         testId="task-history-action-error"
       />
       <MaterialReactTable
+        {...sepTableProps<TaskHistoryEntry>()}
         columns={columns}
         data={rows}
         state={{ isLoading }}
-        enableColumnActions={false}
-        enableDensityToggle={false}
-        enableFullScreenToggle={false}
         enableHiding={false}
         enablePagination
         enableSorting
-        muiTablePaperProps={{
-          className: SEP_TABLE_CLASS,
-        }}
         initialState={{
           density: 'compact',
           sorting: [{ id: 'started_at', desc: true }],

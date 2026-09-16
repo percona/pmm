@@ -537,7 +537,7 @@ export function SchemaDrivenPlugin({
           the same capability) are hidden. */}
       {schema.capabilities?.scheduling && (
         <Route
-          path="schedule"
+          path="schedule/*"
           element={
             <PluginSchedulePage pluginName={pluginName} schema={schema} />
           }

@@ -16,7 +16,7 @@
  */
 
 // Constants
-export { SEP_TABLE_CLASS } from './constants';
+export { FORM_CONTENT_MAX_WIDTH, SEP_TABLE_CLASS } from './constants';
 
 // Components
 export { SchemaFormRenderer } from './components/SchemaFormRenderer';
@@ -121,6 +121,9 @@ export type { FormattedTimestamp } from './utils/formatTimestamp';
 export { applyValueLabel } from './utils/valueLabels';
 export { SnippetExecutionAccordion } from './components/SnippetExecutionAccordion';
 export type { SnippetExecutionAccordionProps } from './components/SnippetExecutionAccordion';
+export { DateTimeInput } from './components/DateTimeInput';
+export type { DateTimeInputProps } from './components/DateTimeInput';
+export { opaqueTableSurface, sepTableProps } from './components/SepTable';
 export { ChainBuilder } from './components/ChainBuilder';
 
 export type {

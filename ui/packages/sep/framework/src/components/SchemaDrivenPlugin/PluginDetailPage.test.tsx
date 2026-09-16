@@ -1198,7 +1198,7 @@ describe('PluginDetailPage — execute chain composition', () => {
     await user.click(screen.getByTestId('plugin-task-execute'));
     const dialog = await screen.findByRole('dialog');
     await addTaskToChain(dialog, 'other-task');
-    await user.click(within(dialog).getByTestId('chain-on-failure-checkbox'));
+    await user.click(within(dialog).getByTestId('chain-on-failure-toggle'));
     await user.click(within(dialog).getByTestId('plugin-task-execute-confirm'));
     await waitFor(() =>
       expect(mockExecuteMutate).toHaveBeenCalledWith({

@@ -98,7 +98,7 @@ describe('ChainBuilder rendering', () => {
     expect(screen.getByTestId('chain-builder')).toBeInTheDocument();
     expect(screen.queryByTestId('chain-sequence')).not.toBeInTheDocument();
     expect(
-      screen.queryByTestId('chain-on-failure-checkbox')
+      screen.queryByTestId('chain-on-failure-toggle')
     ).not.toBeInTheDocument();
     expect(screen.getByRole('combobox')).toBeInTheDocument();
   });
@@ -139,7 +139,7 @@ describe('ChainBuilder rendering', () => {
     const sequence = screen.getByTestId('chain-sequence');
     expect(within(sequence).getByText('task-a')).toBeInTheDocument();
     expect(within(sequence).getByText('task-b')).toBeInTheDocument();
-    expect(screen.getByTestId('chain-on-failure-checkbox')).toBeInTheDocument();
+    expect(screen.getByTestId('chain-on-failure-toggle')).toBeInTheDocument();
   });
 
   it('keeps an existing chain editable without the add select when nothing is left to add', () => {
@@ -160,7 +160,7 @@ describe('ChainBuilder rendering', () => {
     const sequence = screen.getByTestId('chain-sequence');
     expect(within(sequence).getByText('task-a')).toBeInTheDocument();
     expect(within(sequence).getByText('task-b')).toBeInTheDocument();
-    expect(screen.getByTestId('chain-on-failure-checkbox')).toBeInTheDocument();
+    expect(screen.getByTestId('chain-on-failure-toggle')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Remove task-a' })).toBeEnabled();
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
@@ -378,7 +378,7 @@ describe('ChainBuilder chain_on_failure toggle', () => {
       />
     );
 
-    await user.click(screen.getByTestId('chain-on-failure-checkbox'));
+    await user.click(screen.getByTestId('chain-on-failure-toggle'));
 
     expect(onChange).toHaveBeenLastCalledWith({
       chain_task_names: ['task-a'],
@@ -396,7 +396,7 @@ describe('ChainBuilder chain_on_failure toggle', () => {
       />
     );
 
-    await user.click(screen.getByTestId('chain-on-failure-checkbox'));
+    await user.click(screen.getByTestId('chain-on-failure-toggle'));
 
     expect(onChange).toHaveBeenLastCalledWith({
       chain_task_names: ['task-a'],
@@ -411,12 +411,12 @@ describe('ChainBuilder chain_on_failure toggle', () => {
         initial={{ chain_task_names: ['task-a'], chain_on_failure: true }}
       />
     );
-    expect(screen.getByTestId('chain-on-failure-checkbox')).toBeInTheDocument();
+    expect(screen.getByTestId('chain-on-failure-toggle')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Remove task-a' }));
 
     expect(
-      screen.queryByTestId('chain-on-failure-checkbox')
+      screen.queryByTestId('chain-on-failure-toggle')
     ).not.toBeInTheDocument();
   });
 });
@@ -437,6 +437,6 @@ describe('ChainBuilder disabled', () => {
       'aria-disabled',
       'true'
     );
-    expect(screen.getByTestId('chain-on-failure-checkbox')).toBeDisabled();
+    expect(screen.getByTestId('chain-on-failure-toggle')).toBeDisabled();
   });
 });

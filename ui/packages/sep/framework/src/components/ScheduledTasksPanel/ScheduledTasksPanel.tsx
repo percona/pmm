@@ -15,35 +15,32 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import CircularProgress from '@mui/material/CircularProgress';
-import Paper from '@mui/material/Paper';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+import type { TableRowProps } from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+import { MaterialReactTable } from 'material-react-table';
 import { useAuth } from '@sep/api';
 import { capitalize } from '@sep/shared';
-import { scheduleColumnHeaders } from './columns';
+import { scheduleColumns } from './columns';
+import { describePeriod } from './periods';
 import { browserTimezone } from './timezones';
-import { ScheduledTaskForm } from './ScheduledTaskForm';
+import { sepTableProps } from '../SepTable';
 import { TaskRunDetailDrawer } from '../TaskRunDetailDrawer';
-import { ScheduledTaskRow } from './ScheduledTaskRow';
 import {
-  useCreateScheduledTask,
   useDeleteScheduledTask,
   useScheduledTasksForPlugin,
   useUpdateScheduledTask,
-  type PeriodicTaskCreate,
   type PeriodicTaskResponse,
   type PeriodicTaskUpdate,
 } from './hooks';
@@ -63,6 +60,17 @@ interface ScheduledTasksPanelProps {
   itemName?: string;
   /** Mid-sentence plural noun (e.g. `backups`). */
   itemNamePlural?: string;
+  /**
+   * Open the create form. Omit to hide the header's create action — for a host
+   * that has nowhere to send the reader.
+   *
+   * A callback rather than internal state: creating and editing a schedule is
+   * a page of its own now, the same pattern a plugin task already used
+   * (PMM-15456), and this panel does not own the app's routes.
+   */
+  onCreate?: () => void;
+  /** Open the edit form for one schedule. Omit to hide the row's edit action. */
+  onEdit?: (task: PeriodicTaskResponse) => void;
 }
 
 export function ScheduledTasksPanel({
@@ -71,6 +79,8 @@ export function ScheduledTasksPanel({
   disablePolling = false,
   itemName = 'task',
   itemNamePlural = 'tasks',
+  onCreate,
+  onEdit,
 }: ScheduledTasksPanelProps) {
   const { canMutate } = useAuth();
   const itemLabel = capitalize(itemName);
@@ -78,25 +88,18 @@ export function ScheduledTasksPanel({
   const { periodicTasks, pluginTasks, isLoading, isError, error } =
     useScheduledTasksForPlugin(pluginName, { disablePolling });
 
-  const createMut = useCreateScheduledTask();
   const updateMut = useUpdateScheduledTask();
   const deleteMut = useDeleteScheduledTask();
 
-  const [creating, setCreating] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [formError, setFormError] = useState<string | undefined>(undefined);
   const [actionError, setActionError] = useState<string | undefined>(undefined);
+  const [pendingDelete, setPendingDelete] =
+    useState<PeriodicTaskResponse | null>(null);
   // The periodic-task API reports a last-run status and time but no task
   // history id, so the cell identifies its run by name plus that timestamp.
   const [openedRun, setOpenedRun] = useState<{
     taskName: string;
     lastRunAt: string | null;
   } | null>(null);
-
-  const availableTasks = useMemo(
-    () => pluginTasks.map((t) => ({ name: t.name })),
-    [pluginTasks]
-  );
 
   // Show the Chain column only once something is actually chained. Derived from
   // the rows rather than a capability flag: the column's job is to display a
@@ -115,47 +118,47 @@ export function ScheduledTasksPanel({
   // side by side (PMM-15454).
   const displayZone = browserTimezone();
 
-  const handleToggleEnabled = async (
-    task: PeriodicTaskResponse,
-    nextEnabled: boolean
-  ) => {
-    // PeriodicTaskUpdate requires `kwargs` and `description`, but
-    // PeriodicTaskResponse declares only `description`. Preserve `kwargs` when
-    // the response happens to carry it so a plain enable/disable toggle does
-    // not silently wipe a task's arguments; '{}' stays the last-resort
-    // fallback. Tracked upstream as a backend schema gap.
-    const rawKwargs = (task as { kwargs?: unknown }).kwargs;
-    // The wire shape is unverified either way, so accept both: a JSON string
-    // passes through, a decoded object is re-serialised. Anything else (or a
-    // blank value) falls back to '{}' — the only case that still loses data.
-    let preservedKwargs = '{}';
-    if (typeof rawKwargs === 'string' && rawKwargs.trim() !== '') {
-      preservedKwargs = rawKwargs;
-    } else if (rawKwargs !== null && typeof rawKwargs === 'object') {
-      preservedKwargs = JSON.stringify(rawKwargs);
-    }
-    const body: PeriodicTaskUpdate = {
-      name: task.name,
-      task: task.task,
-      enabled: nextEnabled,
-      description: task.description,
-      kwargs: preservedKwargs,
-      start_time: task.start_time,
-      interval: task.interval ?? null,
-      crontab: task.crontab ?? null,
-      execute_request: task.execute_request ?? null,
-    };
-    setActionError(undefined);
-    try {
-      await updateMut.mutateAsync({ id: task.id, body });
-    } catch (e) {
-      setActionError(
-        e instanceof Error
-          ? e.message
-          : `Failed to toggle scheduled ${itemName}`
-      );
-    }
-  };
+  const handleToggleEnabled = useCallback(
+    async (task: PeriodicTaskResponse, nextEnabled: boolean) => {
+      // PeriodicTaskUpdate requires `kwargs` and `description`, but
+      // PeriodicTaskResponse declares only `description`. Preserve `kwargs` when
+      // the response happens to carry it so a plain enable/disable toggle does
+      // not silently wipe a task's arguments; '{}' stays the last-resort
+      // fallback. Tracked upstream as a backend schema gap.
+      const rawKwargs = (task as { kwargs?: unknown }).kwargs;
+      // The wire shape is unverified either way, so accept both: a JSON string
+      // passes through, a decoded object is re-serialised. Anything else (or a
+      // blank value) falls back to '{}' — the only case that still loses data.
+      let preservedKwargs = '{}';
+      if (typeof rawKwargs === 'string' && rawKwargs.trim() !== '') {
+        preservedKwargs = rawKwargs;
+      } else if (rawKwargs !== null && typeof rawKwargs === 'object') {
+        preservedKwargs = JSON.stringify(rawKwargs);
+      }
+      const body: PeriodicTaskUpdate = {
+        name: task.name,
+        task: task.task,
+        enabled: nextEnabled,
+        description: task.description,
+        kwargs: preservedKwargs,
+        start_time: task.start_time,
+        interval: task.interval ?? null,
+        crontab: task.crontab ?? null,
+        execute_request: task.execute_request ?? null,
+      };
+      setActionError(undefined);
+      try {
+        await updateMut.mutateAsync({ id: task.id, body });
+      } catch (e) {
+        setActionError(
+          e instanceof Error
+            ? e.message
+            : `Failed to toggle scheduled ${itemName}`
+        );
+      }
+    },
+    [itemName, updateMut]
+  );
 
   const handleDelete = async (task: PeriodicTaskResponse) => {
     setActionError(undefined);
@@ -170,74 +173,37 @@ export function ScheduledTasksPanel({
     }
   };
 
-  const handleCreate = async (
-    body: PeriodicTaskCreate | PeriodicTaskUpdate,
-    taskName: string
-  ) => {
-    setFormError(undefined);
-    try {
-      await createMut.mutateAsync({
-        taskName,
-        body: body as PeriodicTaskCreate,
-      });
-      setCreating(false);
-    } catch (e) {
-      setFormError(
-        e instanceof Error
-          ? e.message
-          : `Failed to create scheduled ${itemName}`
-      );
-    }
-  };
-
-  const handleEditSubmit = (task: PeriodicTaskResponse) => {
-    return async (body: PeriodicTaskCreate | PeriodicTaskUpdate) => {
-      setFormError(undefined);
-      try {
-        await updateMut.mutateAsync({
-          id: task.id,
-          body: body as PeriodicTaskUpdate,
-        });
-        setEditingId(null);
-      } catch (e) {
-        setFormError(
-          e instanceof Error
-            ? e.message
-            : `Failed to update scheduled ${itemName}`
-        );
-      }
-    };
-  };
-
-  const startCreate = () => {
-    setEditingId(null);
-    setFormError(undefined);
-    setCreating(true);
-  };
-
-  const startEdit = (id: number) => {
-    setCreating(false);
-    setFormError(undefined);
-    setEditingId(id);
-  };
-
-  const headerRow = (
-    <TableHead>
-      <TableRow>
-        {scheduleColumnHeaders(showChain, canMutate, itemLabel).map((h) => (
-          <TableCell key={h}>{h}</TableCell>
-        ))}
-      </TableRow>
-    </TableHead>
+  const openLastRun = useCallback(
+    (taskName: string, lastRunAt: string | null) =>
+      setOpenedRun({ taskName, lastRunAt }),
+    []
   );
 
-  if (isLoading) {
-    return (
-      <Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
-        <CircularProgress size={24} />
-      </Paper>
-    );
-  }
+  const columns = useMemo(
+    () =>
+      scheduleColumns({
+        showChain,
+        canMutate,
+        toggling: updateMut.isPending,
+        onToggleEnabled: handleToggleEnabled,
+        onEdit,
+        onDelete: setPendingDelete,
+        onOpenLastRun: openLastRun,
+        itemLabel,
+      }),
+    [
+      showChain,
+      canMutate,
+      updateMut.isPending,
+      handleToggleEnabled,
+      onEdit,
+      openLastRun,
+      itemLabel,
+    ]
+  );
+
+  const canCreate = canMutate && onCreate !== undefined;
+  const hasCreatableTask = pluginTasks.length > 0;
 
   if (isError) {
     return (
@@ -248,107 +214,121 @@ export function ScheduledTasksPanel({
     );
   }
 
-  const isEmpty = periodicTasks.length === 0 && !creating;
+  const isEmpty = !isLoading && periodicTasks.length === 0;
 
   return (
-    <Paper variant="outlined" data-testid="scheduled-tasks-panel">
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <ScheduleIcon fontSize="small" />
-        <Typography variant="h6">Scheduled {itemPluralLabel}</Typography>
-        {!isEmpty && (
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            sx={{ ml: 'auto' }}
-            data-testid="scheduled-tasks-display-timezone"
-          >
-            Times shown in {displayZone}
-          </Typography>
-        )}
-      </Box>
+    <Box data-testid="scheduled-tasks-panel">
+      {/*
+        Title on the left, actions on the right — the header row a SEP list
+        has (see PluginListPage). "Add new" used to sit under the table in a
+        footer strip, which is where nothing else in the app puts its primary
+        action (PMM-15456).
+      */}
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        gap={2}
+        sx={{ mb: 2 }}
+      >
+        <Stack direction="row" alignItems="center" gap={1}>
+          <ScheduleIcon fontSize="small" />
+          <Typography variant="h6">Scheduled {itemPluralLabel}</Typography>
+        </Stack>
+        <Stack direction="row" alignItems="center" gap={2}>
+          {!isEmpty && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              data-testid="scheduled-tasks-display-timezone"
+            >
+              Times shown in {displayZone}
+            </Typography>
+          )}
+          {canCreate && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={onCreate}
+              disabled={!hasCreatableTask}
+              data-testid="scheduled-tasks-add"
+            >
+              New schedule
+            </Button>
+          )}
+        </Stack>
+      </Stack>
 
       {actionError && (
         <Alert
           severity="error"
           onClose={() => setActionError(undefined)}
-          sx={{ mx: 2, mb: 1 }}
+          sx={{ mb: 2 }}
           data-testid="scheduled-tasks-action-error"
         >
           {actionError}
         </Alert>
       )}
 
-      {isEmpty ? (
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          <Typography variant="body2" color="text.secondary">
-            No scheduled {itemNamePlural} for {displayName ?? pluginName}.
-          </Typography>
-        </Box>
-      ) : (
-        <TableContainer>
-          <Table size="small">
-            {headerRow}
-            <TableBody>
-              {periodicTasks.map((task) => (
-                <ScheduledTaskRow
-                  key={task.id}
-                  task={task}
-                  availableTasks={availableTasks}
-                  itemName={itemName}
-                  itemNamePlural={itemNamePlural}
-                  isEditing={editingId === task.id}
-                  onStartEdit={() => startEdit(task.id)}
-                  onCancelEdit={() => setEditingId(null)}
-                  onToggleEnabled={handleToggleEnabled}
-                  onSubmitEdit={handleEditSubmit(task)}
-                  onDelete={handleDelete}
-                  submitting={updateMut.isPending}
-                  toggling={updateMut.isPending}
-                  errorMessage={editingId === task.id ? formError : undefined}
-                  readOnly={!canMutate}
-                  showChain={showChain}
-                  onOpenLastRun={(taskName, lastRunAt) =>
-                    setOpenedRun({ taskName, lastRunAt })
-                  }
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+      <MaterialReactTable
+        {...sepTableProps<PeriodicTaskResponse>()}
+        columns={columns}
+        data={periodicTasks}
+        state={{ isLoading }}
+        getRowId={(row) => String(row.id)}
+        enableTopToolbar={false}
+        enableSorting
+        enablePagination
+        initialState={{
+          density: 'compact',
+          pagination: { pageIndex: 0, pageSize: 10 },
+        }}
+        muiTableBodyRowProps={({ row }) =>
+          ({
+            'data-testid': `scheduled-task-row-${row.original.id}`,
+          }) as TableRowProps
+        }
+        renderEmptyRowsFallback={() => (
+          <Box sx={{ p: 3, textAlign: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              No scheduled {itemNamePlural} for {displayName ?? pluginName}.
+            </Typography>
+          </Box>
+        )}
+      />
 
-      {creating && (
-        <Box sx={{ borderTop: 1, borderColor: 'divider' }}>
-          <ScheduledTaskForm
-            mode="create"
-            availableTasks={availableTasks}
-            defaultTaskName={availableTasks[0]?.name}
-            itemName={itemName}
-            itemNamePlural={itemNamePlural}
-            onCancel={() => setCreating(false)}
-            onSubmit={handleCreate}
-            submitting={createMut.isPending}
-            errorMessage={formError}
-          />
-        </Box>
-      )}
-
-      {!creating && canMutate && (
-        <Stack
-          direction="row"
-          justifyContent="flex-end"
-          sx={{ p: 1, borderTop: 1, borderColor: 'divider' }}
-        >
+      <Dialog
+        open={pendingDelete !== null}
+        onClose={() => setPendingDelete(null)}
+        aria-labelledby="scheduled-task-delete-title"
+      >
+        <DialogTitle id="scheduled-task-delete-title">
+          Delete periodic {itemName}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {pendingDelete
+              ? `Delete the periodic ${itemName} for "${pendingDelete.task}" (${describePeriod(pendingDelete).display})?`
+              : ''}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPendingDelete(null)}>Cancel</Button>
           <Button
-            startIcon={<AddIcon />}
-            onClick={startCreate}
-            disabled={availableTasks.length === 0}
-            data-testid="scheduled-tasks-add"
+            onClick={() => {
+              const task = pendingDelete;
+              setPendingDelete(null);
+              if (task) {
+                void handleDelete(task);
+              }
+            }}
+            variant="contained"
+            autoFocus
           >
-            Add new
+            Delete
           </Button>
-        </Stack>
-      )}
+        </DialogActions>
+      </Dialog>
 
       {openedRun !== null && (
         <TaskRunDetailDrawer
@@ -360,6 +340,6 @@ export function ScheduledTasksPanel({
           itemName={itemName}
         />
       )}
-    </Paper>
+    </Box>
   );
 }

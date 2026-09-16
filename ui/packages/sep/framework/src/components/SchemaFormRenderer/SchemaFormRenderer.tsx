@@ -74,6 +74,7 @@ import {
   isOneOfGroup,
 } from './utils/flattenSectionFields';
 import type { FormSection, PluginField, RenderFieldOverride } from './types';
+import { FORM_CONTENT_MAX_WIDTH } from '../../constants';
 
 function flattenFields(sections: FormSection[]): PluginField[] {
   return flattenSectionFields(sections);
@@ -638,7 +639,7 @@ function SchemaFormBody({
         ref={formRef}
         onSubmit={handleSubmitEvent}
         noValidate
-        sx={{ maxWidth: 800 }}
+        sx={{ maxWidth: FORM_CONTENT_MAX_WIDTH }}
       >
         {submitError && (
           <Alert severity="error" sx={{ mb: 2, whiteSpace: 'pre-line' }}>

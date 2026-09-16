@@ -16,13 +16,7 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
@@ -82,6 +76,14 @@ function makePeriodic(
   };
 }
 
+/**
+ * The panel does not own the app's routes: creating and editing a schedule is
+ * a page of its own (PMM-15456), so the panel reports the intent and the host
+ * navigates. Spies stand in for that host here.
+ */
+const onCreate = vi.fn();
+const onEdit = vi.fn();
+
 function makeClient() {
   return new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0, staleTime: 0 } },
@@ -100,18 +102,10 @@ beforeEach(() => {
   apiMock.put.mockReset();
   apiMock.delete.mockReset();
   usePluginTasksMock.mockReset();
+  onCreate.mockReset();
+  onEdit.mockReset();
   authMock.canMutate = true;
 });
-
-/**
- * The create POST, ignoring the schedule-preview POST that the form issues
- * while the user types. Both go through the same mocked client.
- */
-function createCalls() {
-  return apiMock.post.mock.calls.filter(
-    ([url]) => !String(url).includes('schedule/preview')
-  );
-}
 
 function setup(periodic: PeriodicTaskResponse[]) {
   usePluginTasksMock.mockReturnValue({
@@ -128,7 +122,13 @@ function setup(periodic: PeriodicTaskResponse[]) {
 describe('ScheduledTasksPanel', () => {
   it('shows empty state when there are no scheduled tasks for the plugin', async () => {
     setup([]);
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
     await waitFor(() => {
       expect(
@@ -161,7 +161,13 @@ describe('ScheduledTasksPanel', () => {
       makePeriodic({ id: 2, task: 'foreign-task', total_run_count: 99 }),
     ]);
 
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId('scheduled-task-row-1')).toBeInTheDocument();
@@ -175,7 +181,13 @@ describe('ScheduledTasksPanel', () => {
 
   it('short-circuits the periodic fetch after one request for a bare array', async () => {
     setup([makePeriodic({ id: 1 })]);
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId('scheduled-task-row-1')).toBeInTheDocument();
@@ -224,7 +236,13 @@ describe('ScheduledTasksPanel', () => {
         },
       });
 
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId('scheduled-task-row-3')).toBeInTheDocument();
@@ -240,7 +258,13 @@ describe('ScheduledTasksPanel', () => {
     setup([makePeriodic({ id: 7, enabled: true })]);
     apiMock.put.mockResolvedValue({ data: { id: 7 } });
 
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
     const toggle = await screen.findByLabelText(/Enable plugin-task/i);
     await userEvent.click(toggle);
@@ -256,7 +280,13 @@ describe('ScheduledTasksPanel', () => {
     setup([makePeriodic({ id: 9 })]);
     apiMock.delete.mockResolvedValue({ data: null });
 
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
     const user = userEvent.setup();
 
     const deleteBtn = await screen.findByTestId('scheduled-task-delete-9');
@@ -274,96 +304,6 @@ describe('ScheduledTasksPanel', () => {
     );
   });
 
-  it('creates an interval task via POST when filling the create form', async () => {
-    setup([]);
-    apiMock.post.mockResolvedValue({ data: makePeriodic({ id: 42 }) });
-
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-    const user = userEvent.setup();
-
-    await user.click(await screen.findByTestId('scheduled-tasks-add'));
-    const form = await screen.findByTestId('scheduled-task-form');
-
-    const everyInput = within(form).getByTestId('sched-form-interval-every');
-    await user.clear(everyInput);
-    await user.type(everyInput, '5');
-
-    await user.click(within(form).getByRole('button', { name: /Create/i }));
-
-    await waitFor(() => expect(createCalls()).toHaveLength(1));
-    const [url, body] = createCalls()[0];
-    expect(url).toBe('/sep/periodic-tasks/plugin-task/');
-    expect(body).toMatchObject({
-      task: 'plugin-task',
-      enabled: true,
-      interval: { every: 5, period: 'hours' },
-      crontab: null,
-    });
-  });
-
-  it('switches the create form to cron mode and submits a crontab body', async () => {
-    setup([]);
-    apiMock.post.mockResolvedValue({ data: makePeriodic({ id: 43 }) });
-
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-    const user = userEvent.setup();
-
-    await user.click(await screen.findByTestId('scheduled-tasks-add'));
-    const form = await screen.findByTestId('scheduled-task-form');
-
-    await user.click(within(form).getByTestId('sched-form-toggle-mode'));
-
-    const cronInput = within(form).getByTestId('sched-form-cron');
-    await user.type(cronInput, '*/5 * * * *');
-
-    expect(
-      within(form).getByTestId('sched-form-cron-preview')
-    ).toHaveTextContent(/every 5 minutes/i);
-
-    await user.click(within(form).getByRole('button', { name: /Create/i }));
-
-    await waitFor(() => expect(createCalls()).toHaveLength(1));
-    const [, body] = createCalls()[0];
-    expect(body.interval).toBeNull();
-    expect(body.crontab).toMatchObject({
-      minute: '*/5',
-      hour: '*',
-      day_of_month: '*',
-      month_of_year: '*',
-      day_of_week: '*',
-    });
-    expect(body.start_time).toBeNull();
-  });
-
-  it('rejects an invalid cron expression and does not POST', async () => {
-    setup([]);
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-    const user = userEvent.setup();
-
-    await user.click(await screen.findByTestId('scheduled-tasks-add'));
-    const form = await screen.findByTestId('scheduled-task-form');
-
-    await user.click(within(form).getByTestId('sched-form-toggle-mode'));
-    await user.type(within(form).getByTestId('sched-form-cron'), 'not-a-cron');
-    await user.click(within(form).getByRole('button', { name: /Create/i }));
-
-    expect(createCalls()).toHaveLength(0);
-  });
-
-  it('rejects an empty interval-every value and does not POST', async () => {
-    setup([]);
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-    const user = userEvent.setup();
-
-    await user.click(await screen.findByTestId('scheduled-tasks-add'));
-    const form = await screen.findByTestId('scheduled-task-form');
-
-    await user.clear(within(form).getByTestId('sched-form-interval-every'));
-    await user.click(within(form).getByRole('button', { name: /Create/i }));
-
-    expect(createCalls()).toHaveLength(0);
-  });
-
   it('disables the toggle while a previous toggle is in flight', async () => {
     setup([makePeriodic({ id: 7, enabled: true })]);
     let resolvePut: (v: unknown) => void = () => {};
@@ -373,7 +313,13 @@ describe('ScheduledTasksPanel', () => {
       })
     );
 
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
     const toggle = await screen.findByLabelText(/Enable plugin-task/i);
     await userEvent.click(toggle);
 
@@ -381,82 +327,17 @@ describe('ScheduledTasksPanel', () => {
     resolvePut({ data: {} });
   });
 
-  it('round-trips an existing cron task into the edit form and submits an updated crontab', async () => {
-    setup([
-      makePeriodic({
-        id: 21,
-        interval: null,
-        crontab: {
-          minute: '0',
-          hour: '6',
-          day_of_month: '*',
-          month_of_year: '*',
-          day_of_week: '*',
-          timezone: 'UTC',
-        },
-        period: '0 6 * * *',
-      }),
-    ]);
-    apiMock.put.mockResolvedValue({ data: { id: 21 } });
-
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-    const user = userEvent.setup();
-
-    await user.click(await screen.findByTestId('scheduled-task-edit-21'));
-    const form = await screen.findByTestId('scheduled-task-form');
-
-    const cronInput = within(form).getByTestId('sched-form-cron');
-    expect(cronInput).toHaveValue('0 6 * * *');
-
-    await user.clear(cronInput);
-    await user.type(cronInput, '*/15 * * * *');
-    await user.click(within(form).getByRole('button', { name: /Save/i }));
-
-    await waitFor(() => expect(apiMock.put).toHaveBeenCalledTimes(1));
-    const [url, body] = apiMock.put.mock.calls[0];
-    expect(url).toBe('/sep/periodic-tasks/21');
-    expect(body.interval).toBeNull();
-    expect(body.crontab).toMatchObject({
-      minute: '*/15',
-      hour: '*',
-      day_of_month: '*',
-      month_of_year: '*',
-      day_of_week: '*',
-    });
-  });
-
-  it('submits chain_task_names in execute_request when a chain is configured', async () => {
-    setup([]);
-    apiMock.post.mockResolvedValue({ data: makePeriodic({ id: 50 }) });
-
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-    const user = userEvent.setup();
-
-    await user.click(await screen.findByTestId('scheduled-tasks-add'));
-    const form = await screen.findByTestId('scheduled-task-form');
-
-    const chainBuilder = within(form).getByTestId('chain-builder');
-    await user.click(within(chainBuilder).getByRole('combobox'));
-    const option = await screen.findByRole('option', {
-      name: 'other-plugin-task',
-    });
-    await user.click(option);
-
-    await user.click(within(form).getByRole('button', { name: /Create/i }));
-
-    await waitFor(() => expect(createCalls()).toHaveLength(1));
-    const [, body] = createCalls()[0];
-    expect(body.execute_request).toMatchObject({
-      chain_task_names: ['other-plugin-task'],
-      chain_on_failure: false,
-    });
-  });
-
   it('shows a panel-level error when a toggle mutation fails', async () => {
     setup([makePeriodic({ id: 60, enabled: true })]);
     apiMock.put.mockRejectedValue(new Error('toggle blew up'));
 
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
     const toggle = await screen.findByLabelText(/Enable plugin-task/i);
     await userEvent.click(toggle);
@@ -469,7 +350,13 @@ describe('ScheduledTasksPanel', () => {
     setup([makePeriodic({ id: 61 })]);
     apiMock.delete.mockRejectedValue(new Error('delete blew up'));
 
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
     const user = userEvent.setup();
 
     await user.click(await screen.findByTestId('scheduled-task-delete-61'));
@@ -478,49 +365,93 @@ describe('ScheduledTasksPanel', () => {
     const alert = await screen.findByTestId('scheduled-tasks-action-error');
     expect(alert).toHaveTextContent(/delete blew up/i);
   });
+});
 
-  it('shows an inline form error when a create mutation fails', async () => {
+// PMM-15456: the list is a data table with its actions in the header, like the
+// other two lists in the app, and it asks its host to open the create / edit
+// page rather than expanding a row into a form.
+describe('ScheduledTasksPanel — header actions', () => {
+  it('asks the host to open the create page', async () => {
     setup([]);
-    apiMock.post.mockRejectedValue(new Error('create blew up'));
-
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
     const user = userEvent.setup();
+
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
     await user.click(await screen.findByTestId('scheduled-tasks-add'));
-    const form = await screen.findByTestId('scheduled-task-form');
-    await user.click(within(form).getByRole('button', { name: /Create/i }));
 
-    await waitFor(() => {
-      expect(within(form).getByText(/create blew up/i)).toBeInTheDocument();
-    });
+    expect(onCreate).toHaveBeenCalledTimes(1);
+    // No form appears in place: the page the host opens is the only edit
+    // surface now.
+    expect(screen.queryByTestId('scheduled-task-form')).not.toBeInTheDocument();
   });
 
-  it('submits an edit via PUT with the updated schedule', async () => {
-    setup([makePeriodic({ id: 11 })]);
-    apiMock.put.mockResolvedValue({ data: makePeriodic({ id: 11 }) });
-
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+  it('asks the host to open the edit page for the row that was clicked', async () => {
+    setup([makePeriodic({ id: 77 })]);
     const user = userEvent.setup();
 
-    await user.click(await screen.findByTestId('scheduled-task-edit-11'));
-    const form = await screen.findByTestId('scheduled-task-form');
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
-    const everyInput = within(form).getByTestId('sched-form-interval-every');
-    await user.clear(everyInput);
-    await user.type(everyInput, '10');
-    await user.click(within(form).getByRole('button', { name: /Save/i }));
+    await user.click(await screen.findByTestId('scheduled-task-edit-77'));
 
-    await waitFor(() => expect(apiMock.put).toHaveBeenCalledTimes(1));
-    const [url, body] = apiMock.put.mock.calls[0];
-    expect(url).toBe('/sep/periodic-tasks/11');
-    expect(body.interval).toMatchObject({ every: 10, period: 'hours' });
+    expect(onEdit).toHaveBeenCalledTimes(1);
+    expect(onEdit.mock.calls[0][0]).toMatchObject({ id: 77 });
+    expect(screen.queryByTestId('scheduled-task-form')).not.toBeInTheDocument();
+  });
+
+  it('offers no create action to a host that has nowhere to send the reader', async () => {
+    setup([makePeriodic({ id: 78 })]);
+
+    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+
+    await screen.findByTestId('scheduled-task-row-78');
+    expect(screen.queryByTestId('scheduled-tasks-add')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId('scheduled-task-edit-78')
+    ).not.toBeInTheDocument();
+  });
+
+  it('disables the create action while the plugin exposes no task to schedule', async () => {
+    usePluginTasksMock.mockReturnValue({
+      data: { items: [], pagination: null },
+      isLoading: false,
+      isError: false,
+    });
+    apiMock.get.mockResolvedValue({ data: [] });
+
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
+
+    expect(await screen.findByTestId('scheduled-tasks-add')).toBeDisabled();
   });
 });
 
 describe('ScheduledTasksPanel — write access', () => {
   it('renders add, edit, delete and the enable toggle for a session that may mutate', async () => {
     setup([makePeriodic({ id: 1 })]);
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId('scheduled-task-row-1')).toBeInTheDocument();
@@ -534,7 +465,13 @@ describe('ScheduledTasksPanel — write access', () => {
   it('renders no add, edit, delete or enable toggle for a non-admin', async () => {
     authMock.canMutate = false;
     setup([makePeriodic({ id: 1 })]);
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId('scheduled-task-row-1')).toBeInTheDocument();
@@ -568,7 +505,13 @@ describe('ScheduledTasksPanel — write access', () => {
       }),
     ]);
 
-    renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+    renderPanel(
+      <ScheduledTasksPanel
+        pluginName="myplugin"
+        onCreate={onCreate}
+        onEdit={onEdit}
+      />
+    );
 
     const chip = await waitFor(() =>
       screen.getByRole('button', { name: /Failed/ })
@@ -603,7 +546,13 @@ describe('ScheduledTasksPanel — write access', () => {
         }),
       ]);
 
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      renderPanel(
+        <ScheduledTasksPanel
+          pluginName="myplugin"
+          onCreate={onCreate}
+          onEdit={onEdit}
+        />
+      );
 
       expect(
         await screen.findByTestId('scheduled-task-timezone-31')
@@ -613,7 +562,13 @@ describe('ScheduledTasksPanel — write access', () => {
     it('states UTC for an interval schedule, which has no zone of its own', async () => {
       setup([makePeriodic({ id: 32, timezone: 'UTC' })]);
 
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      renderPanel(
+        <ScheduledTasksPanel
+          pluginName="myplugin"
+          onCreate={onCreate}
+          onEdit={onEdit}
+        />
+      );
 
       expect(
         await screen.findByTestId('scheduled-task-timezone-32')
@@ -629,7 +584,13 @@ describe('ScheduledTasksPanel — write access', () => {
         }),
       ]);
 
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      renderPanel(
+        <ScheduledTasksPanel
+          pluginName="myplugin"
+          onCreate={onCreate}
+          onEdit={onEdit}
+        />
+      );
 
       const row = await screen.findByTestId('scheduled-task-row-34');
       // The row names Lisbon beside the recurrence; the timestamps next to it
@@ -648,7 +609,13 @@ describe('ScheduledTasksPanel — write access', () => {
     it('names the zone the table renders its timestamps in', async () => {
       setup([makePeriodic({ id: 33 })]);
 
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      renderPanel(
+        <ScheduledTasksPanel
+          pluginName="myplugin"
+          onCreate={onCreate}
+          onEdit={onEdit}
+        />
+      );
 
       const notice = await screen.findByTestId(
         'scheduled-tasks-display-timezone'
@@ -661,167 +628,18 @@ describe('ScheduledTasksPanel — write access', () => {
     it('omits the display-zone notice when there is nothing to read', async () => {
       setup([]);
 
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      renderPanel(
+        <ScheduledTasksPanel
+          pluginName="myplugin"
+          onCreate={onCreate}
+          onEdit={onEdit}
+        />
+      );
 
       await screen.findByText(/No scheduled tasks for myplugin/i);
       expect(
         screen.queryByTestId('scheduled-tasks-display-timezone')
       ).not.toBeInTheDocument();
-    });
-
-    it('states UTC on the create form and labels the start-time field with it', async () => {
-      setup([]);
-
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-      const user = userEvent.setup();
-      await user.click(await screen.findByTestId('scheduled-tasks-add'));
-      const form = await screen.findByTestId('scheduled-task-form');
-
-      expect(
-        within(form).getByTestId('sched-form-timezone-notice')
-      ).toHaveTextContent('Runs in UTC');
-      expect(within(form).getByLabelText(/Start time \(UTC\)/i)).toBeVisible();
-    });
-
-    it('tracks the picked zone in cron mode', async () => {
-      setup([]);
-
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-      const user = userEvent.setup();
-      await user.click(await screen.findByTestId('scheduled-tasks-add'));
-      const form = await screen.findByTestId('scheduled-task-form');
-
-      await user.click(within(form).getByTestId('sched-form-toggle-mode'));
-
-      const picker = within(form).getByTestId('sched-form-timezone');
-      await user.clear(picker);
-      await user.type(picker, 'Europe/Lisbon');
-      await user.click(
-        await screen.findByRole('option', { name: 'Europe/Lisbon' })
-      );
-
-      await waitFor(() =>
-        expect(
-          within(form).getByTestId('sched-form-timezone-notice')
-        ).toHaveTextContent('Runs in Europe/Lisbon')
-      );
-    });
-
-    it('sends the start time as the UTC wall clock that was typed', async () => {
-      setup([]);
-      apiMock.post.mockResolvedValue({ data: makePeriodic({ id: 60 }) });
-
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-      const user = userEvent.setup();
-      await user.click(await screen.findByTestId('scheduled-tasks-add'));
-      const form = await screen.findByTestId('scheduled-task-form');
-
-      fireEvent.change(within(form).getByTestId('sched-form-start-time'), {
-        target: { value: '2026-03-01T02:30' },
-      });
-      await user.click(within(form).getByRole('button', { name: /Create/i }));
-
-      await waitFor(() => expect(createCalls()).toHaveLength(1));
-      const [, body] = createCalls()[0];
-      // Not shifted by the runner's zone: what the field said is what is sent.
-      expect(body.start_time).toBe('2026-03-01T02:30:00.000Z');
-    });
-
-    it('leaves a stored start time byte-identical when an unrelated field is edited', async () => {
-      // The field carries minutes; the stored value carries seconds. Saving an
-      // edit to the interval must not round the schedule's first fire down.
-      setup([makePeriodic({ id: 62, start_time: '2026-03-01T02:30:45.123Z' })]);
-      apiMock.put.mockResolvedValue({ data: { id: 62 } });
-
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-      const user = userEvent.setup();
-
-      await user.click(await screen.findByTestId('scheduled-task-edit-62'));
-      const form = await screen.findByTestId('scheduled-task-form');
-
-      const every = within(form).getByTestId('sched-form-interval-every');
-      await user.clear(every);
-      await user.type(every, '6');
-      await user.click(within(form).getByRole('button', { name: /Save/i }));
-
-      await waitFor(() => expect(apiMock.put).toHaveBeenCalledTimes(1));
-      const [, body] = apiMock.put.mock.calls[0];
-      expect(body.interval).toMatchObject({ every: 6 });
-      expect(body.start_time).toBe('2026-03-01T02:30:45.123Z');
-    });
-
-    it('sends the edited start time when the field itself is changed', async () => {
-      setup([makePeriodic({ id: 63, start_time: '2026-03-01T02:30:45.123Z' })]);
-      apiMock.put.mockResolvedValue({ data: { id: 63 } });
-
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-      const user = userEvent.setup();
-
-      await user.click(await screen.findByTestId('scheduled-task-edit-63'));
-      const form = await screen.findByTestId('scheduled-task-form');
-
-      fireEvent.change(within(form).getByTestId('sched-form-start-time'), {
-        target: { value: '2026-04-02T07:15' },
-      });
-      await user.click(within(form).getByRole('button', { name: /Save/i }));
-
-      await waitFor(() => expect(apiMock.put).toHaveBeenCalledTimes(1));
-      const [, body] = apiMock.put.mock.calls[0];
-      expect(body.start_time).toBe('2026-04-02T07:15:00.000Z');
-    });
-
-    it('offers a stored zone the runtime does not list, so it can be restored', async () => {
-      // The backend accepts aliases such as `US/Eastern` that
-      // `Intl.supportedValuesOf` omits; the picker must still hold them.
-      setup([
-        makePeriodic({
-          id: 64,
-          interval: null,
-          timezone: 'US/Eastern',
-          crontab: {
-            minute: '0',
-            hour: '2',
-            day_of_month: '*',
-            month_of_year: '*',
-            day_of_week: '*',
-            timezone: 'US/Eastern',
-          },
-          period: '0 2 * * *',
-        }),
-      ]);
-
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-      const user = userEvent.setup();
-
-      await user.click(await screen.findByTestId('scheduled-task-edit-64'));
-      const form = await screen.findByTestId('scheduled-task-form');
-
-      const picker = within(form).getByTestId('sched-form-timezone');
-      expect(picker).toHaveValue('US/Eastern');
-      expect(
-        within(form).getByTestId('sched-form-timezone-notice')
-      ).toHaveTextContent('Runs in US/Eastern');
-
-      // Displaying the value is not enough: MUI shows an off-list value while
-      // refusing to offer it, so changing zone would be a one-way door.
-      await user.click(picker);
-      expect(
-        await screen.findByRole('option', { name: 'US/Eastern' })
-      ).toBeInTheDocument();
-    });
-
-    it('round-trips a stored start time back into the field unshifted', async () => {
-      setup([makePeriodic({ id: 61, start_time: '2026-03-01T02:30:00Z' })]);
-
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
-      const user = userEvent.setup();
-
-      await user.click(await screen.findByTestId('scheduled-task-edit-61'));
-      const form = await screen.findByTestId('scheduled-task-form');
-
-      expect(within(form).getByTestId('sched-form-start-time')).toHaveValue(
-        '2026-03-01T02:30'
-      );
     });
   });
 
@@ -834,18 +652,30 @@ describe('ScheduledTasksPanel — write access', () => {
         makePeriodic({ id: 42, task: 'plugin-task' }),
       ]);
 
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      renderPanel(
+        <ScheduledTasksPanel
+          pluginName="myplugin"
+          onCreate={onCreate}
+          onEdit={onEdit}
+        />
+      );
 
       await screen.findByTestId('scheduled-task-row-41');
       expect(
-        screen.queryByRole('columnheader', { name: 'Chain' })
+        screen.queryByRole('columnheader', { name: /^Chain/ })
       ).not.toBeInTheDocument();
     });
 
     it('keeps the row width matching the header when it is hidden', async () => {
       setup([makePeriodic({ id: 43 })]);
 
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      renderPanel(
+        <ScheduledTasksPanel
+          pluginName="myplugin"
+          onCreate={onCreate}
+          onEdit={onEdit}
+        />
+      );
 
       const row = await screen.findByTestId('scheduled-task-row-43');
       expect(within(row).getAllByRole('cell')).toHaveLength(
@@ -857,7 +687,13 @@ describe('ScheduledTasksPanel — write access', () => {
       authMock.canMutate = false;
       setup([makePeriodic({ id: 46 })]);
 
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      renderPanel(
+        <ScheduledTasksPanel
+          pluginName="myplugin"
+          onCreate={onCreate}
+          onEdit={onEdit}
+        />
+      );
 
       const row = await screen.findByTestId('scheduled-task-row-46');
       expect(within(row).getAllByRole('cell')).toHaveLength(
@@ -878,10 +714,17 @@ describe('ScheduledTasksPanel — write access', () => {
         }),
       ]);
 
-      renderPanel(<ScheduledTasksPanel pluginName="myplugin" />);
+      renderPanel(
+        <ScheduledTasksPanel
+          pluginName="myplugin"
+          onCreate={onCreate}
+          onEdit={onEdit}
+        />
+      );
 
+      // The header carries the sort control's label too, so match loosely.
       expect(
-        await screen.findByRole('columnheader', { name: 'Chain' })
+        await screen.findByRole('columnheader', { name: /^Chain/ })
       ).toBeInTheDocument();
       expect(screen.getByText('other-plugin-task')).toBeInTheDocument();
     });
@@ -980,7 +823,7 @@ describe('ScheduledTasksPanel — write access', () => {
       await user.click(await screen.findByTestId('scheduled-tasks-add'));
       const form = await screen.findByTestId('scheduled-task-form');
 
-      await user.click(within(form).getByTestId('sched-form-toggle-mode'));
+      await user.click(within(form).getByTestId('radio-option-cron'));
       // Interval mode previews on mount; only what cron mode asks for counts.
       apiMock.post.mockClear();
       await user.type(within(form).getByTestId('sched-form-cron'), 'nonsense');

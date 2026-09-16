@@ -17,7 +17,6 @@
 
 import { useId, useMemo } from 'react';
 import Box from '@mui/material/Box';
-import Checkbox from '@mui/material/Checkbox';
 import Chip from '@mui/material/Chip';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -25,6 +24,7 @@ import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { type SelectChangeEvent } from '@mui/material/Select';
+import Switch from '@mui/material/Switch';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import type { SxProps, Theme } from '@mui/material/styles';
@@ -270,15 +270,19 @@ export function ChainBuilder({
           <FormControlLabel
             sx={{ mt: 1 }}
             control={
-              <Checkbox
+              // A toggle, like every other boolean in these forms. Peak UI's
+              // SwitchInput binds itself to react-hook-form by name, and this
+              // value is one key inside a `chain` object the caller controls,
+              // so the MUI primitive is what the shared control is built on.
+              <Switch
                 checked={chainOnFailure}
                 disabled={disabled}
                 onChange={handleFailureToggle}
-                inputProps={
-                  {
-                    'data-testid': 'chain-on-failure-checkbox',
-                  } as React.InputHTMLAttributes<HTMLInputElement>
-                }
+                slotProps={{
+                  input: {
+                    'data-testid': 'chain-on-failure-toggle',
+                  } as React.InputHTMLAttributes<HTMLInputElement>,
+                }}
               />
             }
             label="Continue chain on failure"

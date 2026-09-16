@@ -612,86 +612,103 @@ describe('SchemaFormRenderer — multi_choice required', () => {
   });
 });
 
-describe('SchemaFormRenderer — multi_choice empty-state placeholder', () => {
-  it('renders "Select…" placeholder when nothing is selected', () => {
-    const sections: FormSection[] = [
-      {
-        title: 'Upload',
-        fields: [
-          {
-            type: 'multi_choice',
-            name: 'upload',
-            label: 'Upload providers',
-            choices: [
-              { label: 'S3', value: 'S3' },
-              { label: 'Rsync', value: 'RSYNC' },
-            ],
-          },
-        ],
-      },
-    ];
+// A select used to show a "Select…" placeholder behind a label pinned into the
+// outline notch — two things no other control on the same form did. Both are
+// gone: the label sits in the empty field and floats on selection, exactly as
+// TextInput and AutoCompleteInput already behaved (PMM-15456).
+describe('SchemaFormRenderer — multi_choice empty state', () => {
+  const uploadSections: FormSection[] = [
+    {
+      title: 'Upload',
+      fields: [
+        {
+          type: 'multi_choice',
+          name: 'upload',
+          label: 'Upload providers',
+          choices: [
+            { label: 'S3', value: 'S3' },
+            { label: 'Rsync', value: 'RSYNC' },
+          ],
+        },
+      ],
+    },
+  ];
+
+  // MUI renders the label text in both <label> and the notched <legend>.
+  const labelOf = (text: string) =>
+    screen.getAllByText(text)[0].closest('label');
+
+  it('shows no placeholder and leaves the label in the field when empty', () => {
     renderWithProviders(
-      <SchemaFormRenderer sections={sections} onSubmit={vi.fn()} />
+      <SchemaFormRenderer sections={uploadSections} onSubmit={vi.fn()} />
     );
-    expect(screen.getByText('Select…')).toBeVisible();
+
+    expect(screen.queryByText('Select…')).toBeNull();
+    const labelRoot = labelOf('Upload providers');
+    expect(labelRoot).toHaveAttribute('data-shrink', 'false');
+    expect(labelRoot).not.toHaveClass('MuiInputLabel-shrink');
   });
 
-  it('does NOT render placeholder when at least one value is selected', () => {
-    const sections: FormSection[] = [
-      {
-        title: 'Upload',
-        fields: [
-          {
-            type: 'multi_choice',
-            name: 'upload',
-            label: 'Upload providers',
-            choices: [
-              { label: 'S3', value: 'S3' },
-              { label: 'Rsync', value: 'RSYNC' },
-            ],
-          },
-        ],
-      },
-    ];
+  it('floats the label and shows the selection once a value is chosen', () => {
     renderWithProviders(
       <SchemaFormRenderer
-        sections={sections}
+        sections={uploadSections}
         onSubmit={vi.fn()}
         defaultValues={{ upload: ['S3'] }}
       />
     );
-    expect(screen.queryByText('Select…')).toBeNull();
+
     expect(screen.getByText('S3')).toBeVisible();
+    const labelRoot = labelOf('Upload providers');
+    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
+    expect(labelRoot).toHaveClass('MuiInputLabel-shrink');
   });
 });
 
-describe('SchemaFormRenderer — choice (select mode) empty-state placeholder', () => {
-  it('renders "Select…" when >3 choices and no value is chosen', () => {
-    const sections: FormSection[] = [
-      {
-        title: 'Main',
-        fields: [
-          {
-            type: 'choice',
-            name: 'region',
-            label: 'Region',
-            choices: [
-              { label: 'us-east-1', value: 'us-east-1' },
-              { label: 'us-west-2', value: 'us-west-2' },
-              { label: 'eu-west-1', value: 'eu-west-1' },
-              { label: 'ap-south-1', value: 'ap-south-1' },
-            ],
-          },
-        ],
-      },
-    ];
+describe('SchemaFormRenderer — choice (select mode) empty state', () => {
+  const regionSections: FormSection[] = [
+    {
+      title: 'Main',
+      fields: [
+        {
+          type: 'choice',
+          name: 'region',
+          label: 'Region',
+          choices: [
+            { label: 'us-east-1', value: 'us-east-1' },
+            { label: 'us-west-2', value: 'us-west-2' },
+            { label: 'eu-west-1', value: 'eu-west-1' },
+            { label: 'ap-south-1', value: 'ap-south-1' },
+          ],
+        },
+      ],
+    },
+  ];
+
+  it('shows no placeholder and leaves the label in the field when empty', () => {
     renderWithProviders(
-      <SchemaFormRenderer sections={sections} onSubmit={vi.fn()} />
+      <SchemaFormRenderer sections={regionSections} onSubmit={vi.fn()} />
     );
-    expect(screen.getByText('Select…')).toBeVisible();
+
+    expect(screen.queryByText('Select…')).toBeNull();
+    const labelRoot = screen.getAllByText('Region')[0].closest('label');
+    expect(labelRoot).toHaveAttribute('data-shrink', 'false');
   });
 
-  it('radio-mode branch (≤3 choices) does NOT add a placeholder', () => {
+  it('floats the label once a value is chosen', () => {
+    renderWithProviders(
+      <SchemaFormRenderer
+        sections={regionSections}
+        onSubmit={vi.fn()}
+        defaultValues={{ region: 'eu-west-1' }}
+      />
+    );
+
+    const labelRoot = screen.getAllByText('Region')[0].closest('label');
+    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
+  });
+
+  it('radio-mode branch (≤3 choices) has no select at all', () => {
     const sections: FormSection[] = [
       {
         title: 'Main',
@@ -711,66 +728,8 @@ describe('SchemaFormRenderer — choice (select mode) empty-state placeholder', 
     renderWithProviders(
       <SchemaFormRenderer sections={sections} onSubmit={vi.fn()} />
     );
-    expect(screen.queryByText('Select…')).toBeNull();
-  });
-});
 
-describe('SchemaFormRenderer — multi_choice empty-state label shrink', () => {
-  it('floats the label above when nothing is selected (no overlap with placeholder)', () => {
-    const sections: FormSection[] = [
-      {
-        title: 'Upload',
-        fields: [
-          {
-            type: 'multi_choice',
-            name: 'upload',
-            label: 'Upload providers',
-            choices: [
-              { label: 'S3', value: 'S3' },
-              { label: 'Rsync', value: 'RSYNC' },
-            ],
-          },
-        ],
-      },
-    ];
-    renderWithProviders(
-      <SchemaFormRenderer sections={sections} onSubmit={vi.fn()} />
-    );
-    // MUI renders the label text in both <label> and the notched <legend>; pick the <label>.
-    const labelRoot = screen
-      .getAllByText('Upload providers')[0]
-      .closest('label');
-    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
-    expect(labelRoot).toHaveClass('MuiInputLabel-shrink');
-  });
-});
-
-describe('SchemaFormRenderer — choice (select mode) empty-state label shrink', () => {
-  it('floats the label above on empty >3-choice select', () => {
-    const sections: FormSection[] = [
-      {
-        title: 'Main',
-        fields: [
-          {
-            type: 'choice',
-            name: 'region',
-            label: 'Region',
-            choices: [
-              { label: 'us-east-1', value: 'us-east-1' },
-              { label: 'us-west-2', value: 'us-west-2' },
-              { label: 'eu-west-1', value: 'eu-west-1' },
-              { label: 'ap-south-1', value: 'ap-south-1' },
-            ],
-          },
-        ],
-      },
-    ];
-    renderWithProviders(
-      <SchemaFormRenderer sections={sections} onSubmit={vi.fn()} />
-    );
-    const labelRoot = screen.getAllByText('Region')[0].closest('label');
-    expect(labelRoot).toHaveAttribute('data-shrink', 'true');
-    expect(labelRoot).toHaveClass('MuiInputLabel-shrink');
+    expect(screen.queryByRole('combobox')).toBeNull();
   });
 });
 
@@ -1882,7 +1841,7 @@ describe('SchemaFormRenderer — capabilities.alert_on_fail', () => {
       />
     );
     expect(
-      screen.getByRole('checkbox', { name: /Alert on failure/i })
+      screen.getByRole('switch', { name: /Alert on failure/i })
     ).toBeInTheDocument();
   });
 
@@ -1895,7 +1854,7 @@ describe('SchemaFormRenderer — capabilities.alert_on_fail', () => {
       />
     );
     expect(
-      screen.queryByRole('checkbox', { name: /Alert on failure/i })
+      screen.queryByRole('switch', { name: /Alert on failure/i })
     ).toBeNull();
   });
 
@@ -1904,7 +1863,7 @@ describe('SchemaFormRenderer — capabilities.alert_on_fail', () => {
       <SchemaFormRenderer sections={sections} onSubmit={() => {}} />
     );
     expect(
-      screen.queryByRole('checkbox', { name: /Alert on failure/i })
+      screen.queryByRole('switch', { name: /Alert on failure/i })
     ).toBeNull();
   });
 
@@ -1922,7 +1881,7 @@ describe('SchemaFormRenderer — capabilities.alert_on_fail', () => {
       />
     );
     expect(
-      screen.getByRole('checkbox', { name: /Alert on failure/i })
+      screen.getByRole('switch', { name: /Alert on failure/i })
     ).toBeDisabled();
   });
 
@@ -1965,9 +1924,7 @@ describe('SchemaFormRenderer — capabilities.alert_on_fail', () => {
       />
     );
 
-    await user.click(
-      screen.getByRole('checkbox', { name: /Alert on failure/i })
-    );
+    await user.click(screen.getByRole('switch', { name: /Alert on failure/i }));
     await user.click(screen.getByRole('button', { name: /Run/ }));
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
     expect(onSubmit).toHaveBeenCalledWith(

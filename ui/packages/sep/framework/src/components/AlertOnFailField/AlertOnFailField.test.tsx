@@ -89,15 +89,15 @@ describe('AlertOnFailField', () => {
     expect(ALERT_ON_FAIL_FIELD_NAME).toBe('alert_on_fail');
   });
 
-  it('renders an enabled checkbox when providers are configured', () => {
+  it('renders an enabled toggle when providers are configured', () => {
     setAlertConfig({ data: { available: true }, isLoading: false });
     renderHarness(<Harness />);
 
-    const checkbox = screen.getByRole('checkbox', {
+    const toggle = screen.getByRole('switch', {
       name: /Alert on failure/i,
     });
-    expect(checkbox).not.toBeDisabled();
-    expect(checkbox).not.toBeChecked();
+    expect(toggle).not.toBeDisabled();
+    expect(toggle).not.toBeChecked();
   });
 
   it('names a generic task in the available tooltip by default', () => {
@@ -118,45 +118,45 @@ describe('AlertOnFailField', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders a disabled checkbox when no providers are configured', () => {
+  it('renders a disabled toggle when no providers are configured', () => {
     setAlertConfig({ data: { available: false }, isLoading: false });
     renderHarness(<Harness />);
 
-    const checkbox = screen.getByRole('checkbox', {
+    const toggle = screen.getByRole('switch', {
       name: /Alert on failure/i,
     });
-    expect(checkbox).toBeDisabled();
-    expect(checkbox).not.toBeChecked();
+    expect(toggle).toBeDisabled();
+    expect(toggle).not.toBeChecked();
   });
 
-  it('keeps the checkbox disabled while the availability query is loading', () => {
+  it('keeps the toggle disabled while the availability query is loading', () => {
     setAlertConfig({ data: undefined, isLoading: true });
     renderHarness(<Harness />);
 
-    const checkbox = screen.getByRole('checkbox', {
+    const toggle = screen.getByRole('switch', {
       name: /Alert on failure/i,
     });
-    expect(checkbox).toBeDisabled();
+    expect(toggle).toBeDisabled();
   });
 
-  it('disables the checkbox when the availability query errors', () => {
+  it('disables the toggle when the availability query errors', () => {
     setAlertConfig({ data: undefined, isLoading: false, isError: true });
     renderHarness(<Harness />);
 
-    const checkbox = screen.getByRole('checkbox', {
+    const toggle = screen.getByRole('switch', {
       name: /Alert on failure/i,
     });
-    expect(checkbox).toBeDisabled();
+    expect(toggle).toBeDisabled();
   });
 
   it('honors defaultValue=true when providers are available', () => {
     setAlertConfig({ data: { available: true }, isLoading: false });
     renderHarness(<Harness defaultValue />);
 
-    const checkbox = screen.getByRole('checkbox', {
+    const toggle = screen.getByRole('switch', {
       name: /Alert on failure/i,
     });
-    expect(checkbox).toBeChecked();
+    expect(toggle).toBeChecked();
   });
 
   it('clears defaultValue=true when providers are unavailable at mount', async () => {
@@ -171,12 +171,12 @@ describe('AlertOnFailField', () => {
       />
     );
 
-    const checkbox = screen.getByRole('checkbox', {
+    const toggle = screen.getByRole('switch', {
       name: /Alert on failure/i,
     });
-    expect(checkbox).toBeDisabled();
-    await waitFor(() => expect(checkbox).not.toBeChecked());
-    // Form state, not just rendered checkbox, must be cleared.
+    expect(toggle).toBeDisabled();
+    await waitFor(() => expect(toggle).not.toBeChecked());
+    // Form state, not just rendered toggle, must be cleared.
     expect(getValues?.('alert_on_fail')).toBe(false);
   });
 
@@ -196,11 +196,11 @@ describe('AlertOnFailField', () => {
       <Harness onSubmit={onSubmit} formSpy={captureSpy} />
     );
 
-    const checkbox = screen.getByRole('checkbox', {
+    const toggle = screen.getByRole('switch', {
       name: /Alert on failure/i,
     });
-    await user.click(checkbox);
-    expect(checkbox).toBeChecked();
+    await user.click(toggle);
+    expect(toggle).toBeChecked();
 
     setAlertConfig({ data: { available: false }, isLoading: false });
     rerender(
@@ -209,8 +209,8 @@ describe('AlertOnFailField', () => {
       </QueryClientProvider>
     );
 
-    await waitFor(() => expect(checkbox).not.toBeChecked());
-    expect(checkbox).toBeDisabled();
+    await waitFor(() => expect(toggle).not.toBeChecked());
+    expect(toggle).toBeDisabled();
     expect(getValues?.('alert_on_fail')).toBe(false);
 
     // Submitting also produces the cleared value — proves the reset is in
@@ -226,11 +226,11 @@ describe('AlertOnFailField', () => {
     setAlertConfig({ data: undefined, isLoading: true });
     const { rerender } = renderHarness(<Harness defaultValue />);
 
-    const checkbox = screen.getByRole('checkbox', {
+    const toggle = screen.getByRole('switch', {
       name: /Alert on failure/i,
     });
     // While loading, the field is disabled but the initial form value is preserved.
-    expect(checkbox).toBeDisabled();
+    expect(toggle).toBeDisabled();
 
     setAlertConfig({ data: { available: true }, isLoading: false });
     rerender(
@@ -239,8 +239,8 @@ describe('AlertOnFailField', () => {
       </QueryClientProvider>
     );
 
-    await waitFor(() => expect(checkbox).not.toBeDisabled());
-    expect(checkbox).toBeChecked();
+    await waitFor(() => expect(toggle).not.toBeDisabled());
+    expect(toggle).toBeChecked();
   });
 
   it('submits the toggled value under the alert_on_fail key', async () => {
@@ -249,10 +249,10 @@ describe('AlertOnFailField', () => {
     const user = userEvent.setup();
     renderHarness(<Harness onSubmit={onSubmit} />);
 
-    const checkbox = screen.getByRole('checkbox', {
+    const toggle = screen.getByRole('switch', {
       name: /Alert on failure/i,
     });
-    await user.click(checkbox);
+    await user.click(toggle);
     await user.click(screen.getByRole('button', { name: 'submit' }));
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1));
