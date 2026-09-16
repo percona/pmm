@@ -8,9 +8,11 @@ Some tools also use a thin pointer file that simply routes them here — these a
 
 | Tool | Pointer file (→ reads `AGENTS.md`) |
 |------|------|
-| Claude Code | [CLAUDE.md](CLAUDE.md) |
+| Claude Code | [CLAUDE.md](CLAUDE.md), plus one per component guide |
 | Gemini CLI | [GEMINI.md](GEMINI.md) |
 | GitHub Copilot | [.github/copilot-instructions.md](.github/copilot-instructions.md) |
+
+Claude Code reads `CLAUDE.md` and not `AGENTS.md`, so every directory holding a component guide also carries a `CLAUDE.md` whose only instruction is `@AGENTS.md`. Claude Code loads a nested `CLAUDE.md` on demand — when it first reads a file in that directory — so the component guide enters context automatically for whichever component is being worked on, without the root file pulling in all of them. Keep these pointers to the import alone; guidance belongs in `AGENTS.md`.
 
 Any other agent can read `AGENTS.md` directly — Cursor, for example, loads root and nested `AGENTS.md` files natively, so no Cursor-specific rule is needed. Personal AI-tool files (`.claude/`, `.cursor/`) are gitignored for local experimentation, except `.claude/settings.json` (committed team config).
 
@@ -21,7 +23,7 @@ If an `AGENTS.local.md` (repo root) or `~/AGENTS.local.md` (home) is present, re
 **You are responsible for keeping this file accurate.** After completing work, check whether any of these apply:
 
 - Added, removed, or renamed a top-level directory or component
-- Added or removed a per-component `AGENTS.md`
+- Added or removed a per-component `AGENTS.md` (add or remove its `CLAUDE.md` pointer to match)
 - Changed the tech stack (new dependency in `go.mod`, new tool, removed technology)
 - Changed build targets in `Makefile` / `Makefile.include`
 - Changed global conventions (code style, error handling, testing patterns)
@@ -60,6 +62,8 @@ Each PMM component has a dedicated guide with architecture, directory structure,
 | **QAN App** (Grafana plugin & QAN panel) | [dashboards/pmm-app/AGENTS.md](dashboards/pmm-app/AGENTS.md) | `dashboards/pmm-app/**` |
 | **API Tests** (integration tests) | [api-tests/AGENTS.md](api-tests/AGENTS.md) | `api-tests/**` |
 | **Build & Packaging** | [build/AGENTS.md](build/AGENTS.md) | `build/**` |
+
+A component guide covers only what is specific to its area. Global conventions — Go style, error handling, logging, testing, code generation — live in [Global Development Conventions](#global-development-conventions) and are deliberately **not** repeated in component guides: both files load together, so a restated rule costs context twice and creates a second place to forget to update it. When adding a rule, put it in the most specific guide — or guides, where a rule genuinely applies to more than one component but not to all — that covers it, and nowhere else. The one intentional exception is [PMM-specific choices](#pmm-specific-choices-agents-often-get-wrong), a short curated list of pitfalls that repeats a handful of rules on purpose.
 
 ---
 
@@ -335,7 +339,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 | **VictoriaMetrics** | Time-series metrics storage |
 | **VMAlert** | Alerting rules evaluation |
 | **Grafana** | Dashboards and visualization |
-| **reform** | Go ORM for PostgreSQL (used in pmm-managed only — NOT gorm) |
+| **reform** | Go ORM — NOT gorm. pmm-managed's PostgreSQL store, and pmm-agent's row mappers for monitored MySQL/PostgreSQL system views |
 | **logrus** | Structured logging |
 | **testify** | Test assertions (`assert`, `require` packages only — NOT suites) |
 | **mockery** | Mock generation for Go interfaces |
@@ -354,7 +358,8 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Use modern slice helpers (`slices.Contains`), range loops
 - Use `sync.WaitGroup.Go` instead of `Add`/`go func`/`Done`, and don't copy a loop variable to use it in a closure (per-iteration scoping since Go 1.22)
 - Don't use named return values
-- Don't inline comments (`code // comment`); put comments on separate lines
+- Don't inline comments (`code // comment`); put comments on separate lines — `//nolint` is the only exception
+- Don't inline `err != nil` checks (`if err := f(); err != nil`); assign on one line, check on the next
 - Don't add obvious/redundant comments; only comment non-obvious intent
 
 ### Error Handling
@@ -362,13 +367,14 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 - Wrap errors with context: `fmt.Errorf("descriptive context: %w", err)`
 - Return early on errors to avoid deep nesting
 - Use `errors.Is()`, `errors.As()` or `errors.AsType()` for error inspection
-- Use standard `errors` package, not `github.com/pkg/errors`
-- Check `reform.ErrNoRows` for "not found" scenarios in pmm-managed
+- Use standard `errors` package, not `github.com/pkg/errors` (existing uses may remain until refactored)
+- Don't interpolate strings with `%q` in error messages; use `%s`, or `'%s'` when the value can contain spaces
 
 ### Logging
 - Use `logrus` with structured fields
 - Pass `*logrus.Entry` (not `*logrus.Logger`) to maintain context
 - Format: `s.l.WithField("key", value).Error("message")`
+- Don't interpolate strings with `%q` in log messages; use `%s`, or `'%s'` when the value can contain spaces
 - Log to unbuffered stderr; let the process supervisor handle the rest
 
 ### Environment Variables
@@ -387,7 +393,6 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 
 ### Code Generation
 - Protobuf/gRPC: `make gen` from repo root
-- reform ORM: `//go:generate go tool reform` (pmm-managed only)
 - Mocks: `mockery` per `.mockery.yaml`
 - **Never edit generated files** (`.pb.go`, `.pb.gw.go`, `*_reform.go`, `*.pb.validate.go`, swagger specs, `json/client/`)
 
@@ -441,7 +446,7 @@ All long-running daemons expose on `127.0.0.1`:
 | `make doc-build` | Build user docs (used in CI); `make doc-build-pdf` for the PDF |
 | `make gen` | Generate all code (protobuf, reform, mocks, format) |
 | `make check` | Run Go/API linters (buf, golangci-lint, go-sumtype) |
-| `make format` | Format code (gofumpt, goimports, gci) |
+| `make format` | Format code (gofumpt, gci) |
 | `make release` | Build all binaries (agent, admin, managed, qan-api2) |
 | `make test-common` | Run common unit tests |
 | `make api-test` | Run API integration tests |
