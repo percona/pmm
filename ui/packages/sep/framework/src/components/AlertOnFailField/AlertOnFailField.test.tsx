@@ -53,10 +53,12 @@ function makeQueryClient() {
 
 function Harness({
   defaultValue,
+  itemName,
   onSubmit,
   formSpy,
 }: {
   defaultValue?: boolean;
+  itemName?: string;
   onSubmit?: (values: Record<string, unknown>) => void;
   formSpy?: (api: { getValues: UseFormGetValues<FieldValues> }) => void;
 }) {
@@ -65,7 +67,7 @@ function Harness({
   return (
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit((v) => onSubmit?.(v))}>
-        <AlertOnFailField defaultValue={defaultValue} />
+        <AlertOnFailField defaultValue={defaultValue} itemName={itemName} />
         <button type="submit">submit</button>
       </form>
     </FormProvider>
@@ -96,6 +98,24 @@ describe('AlertOnFailField', () => {
     });
     expect(checkbox).not.toBeDisabled();
     expect(checkbox).not.toBeChecked();
+  });
+
+  it('names a generic task in the available tooltip by default', () => {
+    setAlertConfig({ data: { available: true }, isLoading: false });
+    renderHarness(<Harness />);
+
+    expect(
+      screen.getByTitle('Enable to trigger an alert if the task fails')
+    ).toBeInTheDocument();
+  });
+
+  it('names the item noun in the available tooltip', () => {
+    setAlertConfig({ data: { available: true }, isLoading: false });
+    renderHarness(<Harness itemName="backup" />);
+
+    expect(
+      screen.getByTitle('Enable to trigger an alert if the backup fails')
+    ).toBeInTheDocument();
   });
 
   it('renders a disabled checkbox when no providers are configured', () => {

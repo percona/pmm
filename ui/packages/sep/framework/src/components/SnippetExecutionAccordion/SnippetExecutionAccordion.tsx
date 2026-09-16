@@ -48,6 +48,8 @@ import {
 } from '../TaskHistoryTable';
 import { TaskLogViewer } from '../TaskLogViewer';
 import { useStopTaskHistory } from '../../hooks';
+import { capitalize } from '@sep/shared';
+import { resolveItemDisplayName } from '../../utils/itemLabels';
 
 /** Fields excluded from the snippet `args` payload (handled at top level instead). */
 const ARGS_EXCLUDED_FIELDS = new Set([
@@ -151,22 +153,28 @@ export function SnippetExecutionAccordion({
   const [currentTaskId, setCurrentTaskId] = useState<number | null>(null);
   const [logsEntry, setLogsEntry] = useState<TaskHistoryEntry | null>(null);
 
-  // The form is the execute control, so a read-only session never renders it —
-  // and never needs its schema. Disabling the query is only the request
-  // optimization: react-query still serves a cached entry, and this schema is
-  // held with `staleTime: Infinity` under a key that carries no identity, so an
-  // admin's fetch would otherwise render the form for a non-admin reaching the
-  // same snippet later in the same tab. The render gates on `canMutate` too.
+  // The form is the execute control, so a read-only session never renders it.
+  // Schema is still fetched when history is shown so item nouns can label the
+  // history table and logs dialog; the form and its load states stay gated on
+  // `canMutate`. Disabling the query is only a request optimization: react-query
+  // still serves a cached entry, and this schema is held with
+  // `staleTime: Infinity` under a key that carries no identity, so an admin's
+  // fetch would otherwise render the form for a non-admin reaching the same
+  // snippet later in the same tab. The render gates on `canMutate` too.
   // History and logs stay readable.
   const schemaQuery = useSnippetAccordionSchema(
     snippetFilename,
-    expanded && canMutate
+    expanded && (canMutate || showHistory)
   );
   const executionMutation = useSnippetAccordionExecution(snippetFilename);
   const historyQuery = useSnippetAccordionHistory(snippetFilename, showHistory);
   const stop = useStopTaskHistory();
 
   const displayTitle = title ?? snippetFilename;
+  const itemName = schemaQuery.data
+    ? resolveItemDisplayName(schemaQuery.data)
+    : 'task';
+  const itemLabel = capitalize(itemName);
 
   const hoistingHost = Boolean(executorHost);
   const filteredSections = (schemaQuery.data?.forms ?? []).map((section) => ({
@@ -237,13 +245,13 @@ export function SnippetExecutionAccordion({
           />
         )}
 
-        {schemaQuery.isLoading && (
+        {canMutate && schemaQuery.isLoading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress size={24} />
           </Box>
         )}
 
-        {schemaQuery.isError && (
+        {canMutate && schemaQuery.isError && (
           <Alert severity="error">
             Failed to load form: {schemaQuery.error?.message ?? 'unknown error'}
           </Alert>
@@ -262,7 +270,7 @@ export function SnippetExecutionAccordion({
         {currentTaskId !== null && (
           <Box sx={{ mt: 2 }}>
             <Divider sx={{ mb: 2 }} />
-            <TaskLogViewer taskHistoryId={currentTaskId} />
+            <TaskLogViewer taskHistoryId={currentTaskId} itemName={itemName} />
           </Box>
         )}
 
@@ -281,6 +289,7 @@ export function SnippetExecutionAccordion({
                 data={historyQuery.data?.items ?? []}
                 isLoading={historyQuery.isLoading}
                 hideTaskNameColumn
+                itemName={itemName}
                 onViewLogs={setLogsEntry}
                 onStopTask={(entry) => {
                   if (entry.id !== null && entry.id !== undefined) {
@@ -320,7 +329,7 @@ export function SnippetExecutionAccordion({
           }}
         >
           <span>
-            Task logs
+            {itemLabel} logs
             {logsEntry?.task?.name ? ` - ${logsEntry.task.name}` : ''}
             {logsEntry?.id !== null && logsEntry?.id !== undefined
               ? ` #${logsEntry.id}`
@@ -340,6 +349,7 @@ export function SnippetExecutionAccordion({
               taskHistoryId={logsEntry.id}
               taskStatus={logsEntry.status}
               height={520}
+              itemName={itemName}
             />
           ) : null}
         </DialogContent>

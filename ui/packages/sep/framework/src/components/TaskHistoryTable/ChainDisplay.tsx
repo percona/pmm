@@ -26,12 +26,15 @@ export interface ChainDisplayProps {
   /** When chainNames is empty but the task is part of a chain, depth > 0 renders a fallback link icon. */
   chainDepth?: number | null;
   onChainItemClick?: (name: string, index: number) => void;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
 }
 
 export function ChainDisplay({
   chainNames,
   chainDepth,
   onChainItemClick,
+  itemName = 'task',
 }: ChainDisplayProps) {
   if (chainNames && chainNames.length > 0) {
     return (
@@ -75,7 +78,7 @@ export function ChainDisplay({
 
   if (typeof chainDepth === 'number' && chainDepth > 0) {
     return (
-      <Tooltip title={`Chained task (depth: ${chainDepth})`}>
+      <Tooltip title={`Chained ${itemName} (depth: ${chainDepth})`}>
         <LinkIcon fontSize="small" data-testid="chain-depth-icon" />
       </Tooltip>
     );

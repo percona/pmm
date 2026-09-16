@@ -41,6 +41,8 @@ export interface LastRunCardProps {
    * happened to be holding when the button was pressed.
    */
   onOpenRun: () => void;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
 }
 
 function Field({ label, value }: { label: string; value: ReactNode }) {
@@ -69,7 +71,11 @@ function Field({ label, value }: { label: string; value: ReactNode }) {
  * multi-line reasons and everything else live one click away in the execution
  * detail. While a run is in flight the duration reads as a live elapsed time.
  */
-export function LastRunCard({ taskNames, onOpenRun }: LastRunCardProps) {
+export function LastRunCard({
+  taskNames,
+  onOpenRun,
+  itemName = 'task',
+}: LastRunCardProps) {
   const { entry, isLoading, error } = useLatestTaskRun(taskNames);
 
   const running = entry ? isRunningStatus(entry.status) : false;
@@ -104,7 +110,7 @@ export function LastRunCard({ taskNames, onOpenRun }: LastRunCardProps) {
           color="text.secondary"
           data-testid="last-run-card-empty"
         >
-          This task has not run yet.
+          This {itemName} has not run yet.
         </Typography>
       )}
 

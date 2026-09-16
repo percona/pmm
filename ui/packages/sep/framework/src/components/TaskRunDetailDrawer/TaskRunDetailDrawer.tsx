@@ -33,6 +33,7 @@ import { useElapsedSeconds } from '../../hooks/useElapsedSeconds';
 import { formatDuration } from '../../utils/formatDuration';
 import { TaskHistoryStatusBadge } from '../TaskHistoryTable';
 import { TaskLogViewer } from '../TaskLogViewer';
+import { capitalize } from '@sep/shared';
 import { RunTime } from './RunTime';
 import { runFailureReason } from './runFailureReason';
 
@@ -141,6 +142,8 @@ export interface TaskRunDetailDrawerProps {
   taskHistoryId?: number | string;
   /** Heading fallback for a run whose own payload does not name its task. */
   taskLabel?: string;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
 }
 
 /**
@@ -165,6 +168,7 @@ export function TaskRunDetailDrawer({
   at,
   taskHistoryId,
   taskLabel,
+  itemName = 'task',
 }: TaskRunDetailDrawerProps) {
   // Resolve by name only when no row was handed in, and only while open.
   const shouldResolve = open && !entry && taskNames !== undefined;
@@ -177,7 +181,10 @@ export function TaskRunDetailDrawer({
   const elapsed = useElapsedSeconds(run?.started_at, running);
 
   const heading =
-    run?.display_name || run?.task?.name || taskLabel || 'Task run';
+    run?.display_name ||
+    run?.task?.name ||
+    taskLabel ||
+    `${capitalize(itemName)} run`;
   const failureReason = runFailureReason(run);
   const nonFailureNote = run
     ? NON_FAILURE_TERMINAL_NOTES[run.status]
@@ -245,12 +252,16 @@ export function TaskRunDetailDrawer({
             <Alert severity="info" data-testid="run-detail-empty">
               {at
                 ? 'No execution history was found for this run.'
-                : 'This task has not run yet.'}
+                : `This ${itemName} has not run yet.`}
             </Alert>
           )}
 
           {!run && showLog && (
-            <TaskLogViewer taskHistoryId={logId} height={LOG_HEIGHT} />
+            <TaskLogViewer
+              taskHistoryId={logId}
+              height={LOG_HEIGHT}
+              itemName={itemName}
+            />
           )}
 
           {run && (
@@ -306,6 +317,7 @@ export function TaskRunDetailDrawer({
                   taskHistoryId={logId}
                   taskStatus={run.status}
                   height={LOG_HEIGHT}
+                  itemName={itemName}
                 />
               ) : (
                 <Typography

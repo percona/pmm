@@ -70,6 +70,8 @@ vi.mock('@sep/api', () => ({
 const schema: PluginSchema = {
   pluginName: 'checksums',
   display_name: 'Checksum',
+  item_display_name: 'checksum',
+  item_display_name_plural: 'checksums',
   description: 'Test',
   capabilities: {},
   list_view: { columns: [{ key: 'name', label: 'Name' }] },
@@ -132,7 +134,7 @@ describe('PluginTaskEditPage', () => {
 
     renderAt();
 
-    expect(screen.getByText('Edit Checksum: check1')).toBeInTheDocument();
+    expect(screen.getByText('Edit checksum: check1')).toBeInTheDocument();
     expect(screen.getByLabelText('Title')).toHaveValue('hello');
   });
 
@@ -143,7 +145,7 @@ describe('PluginTaskEditPage', () => {
 
     // The immutable identity is shown in the header, never as an editable field.
     expect(screen.queryByLabelText('Task Name')).toBeNull();
-    expect(screen.getByText('Edit Checksum: check1')).toBeInTheDocument();
+    expect(screen.getByText('Edit checksum: check1')).toBeInTheDocument();
   });
 
   it('submits coerced values and pins task_name to the route id', async () => {
@@ -223,7 +225,7 @@ describe('PluginTaskEditPage', () => {
     renderAt();
 
     expect(screen.getByText('detail page')).toBeInTheDocument();
-    expect(screen.queryByText('Edit Checksum: check1')).toBeNull();
+    expect(screen.queryByText('Edit checksum: check1')).toBeNull();
   });
 
   it('threads capabilities so a stored alert_on_fail survives an edit', async () => {
@@ -273,7 +275,12 @@ describe('PluginTaskEditPage', () => {
       </SnackbarProvider>
     );
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(
+      screen.getByTitle('Enable to trigger an alert if the checksum fails')
+    ).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Save checksum' })
+    );
 
     await waitFor(() => expect(mockUpdateTaskMutate).toHaveBeenCalledTimes(1));
     const [{ values }] = mockUpdateTaskMutate.mock.calls[0];
@@ -288,6 +295,8 @@ describe('PluginTaskEditPage', () => {
     const uploadSchema: PluginSchema = {
       pluginName: 'mysql_backups',
       display_name: 'MySQL Backup',
+      item_display_name: 'backup',
+      item_display_name_plural: 'backups',
       description: 'Test',
       capabilities: {},
       list_view: { columns: [{ key: 'name', label: 'Name' }] },
@@ -350,7 +359,7 @@ describe('PluginTaskEditPage', () => {
       </SnackbarProvider>
     );
 
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save backup' }));
 
     await waitFor(() => expect(mockUpdateTaskMutate).toHaveBeenCalledTimes(1));
     const [{ values }] = mockUpdateTaskMutate.mock.calls[0];
@@ -495,7 +504,9 @@ describe('PluginTaskEditPage — failure reporting', () => {
     );
 
     renderAt();
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Save checksum' })
+    );
 
     await waitFor(() => expect(inTreeAlerts()).toHaveLength(1));
     expect(inTreeAlerts()[0]).toHaveTextContent(
@@ -524,7 +535,9 @@ describe('PluginTaskEditPage — failure reporting', () => {
     );
 
     renderAt();
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Save checksum' })
+    );
 
     await waitFor(() =>
       expect(inTreeAlerts()[0]).toHaveTextContent(
@@ -539,7 +552,9 @@ describe('PluginTaskEditPage — failure reporting', () => {
     );
 
     renderAt();
-    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Save checksum' })
+    );
 
     await waitFor(() => expect(mockUpdateTaskMutate).toHaveBeenCalledTimes(1));
     expect(inTreeAlerts()).toEqual([]);
@@ -558,7 +573,9 @@ describe('PluginTaskEditPage — write access', () => {
 
     renderAt();
 
-    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Save checksum' })
+    ).toBeInTheDocument();
     expect(
       screen.queryByTestId('plugin-task-edit-read-only')
     ).not.toBeInTheDocument();
@@ -580,7 +597,7 @@ describe('PluginTaskEditPage — write access', () => {
       screen.getByTestId('plugin-task-edit-read-only')
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Save' })
+      screen.queryByRole('button', { name: 'Save checksum' })
     ).not.toBeInTheDocument();
   });
 });

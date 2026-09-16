@@ -41,14 +41,27 @@ vi.mock('../TaskLogViewer', () => ({
 vi.mock('../TaskHistoryTable', () => ({
   TaskHistoryTable: ({
     data,
+    itemName,
     onStopTask,
+    onViewLogs,
     actionError,
   }: {
     data?: TaskHistoryEntry[];
+    itemName?: string;
     onStopTask?: (entry: TaskHistoryEntry) => void;
+    onViewLogs?: (entry: TaskHistoryEntry) => void;
     actionError?: unknown;
   }) => (
-    <div data-testid="task-history-table" data-row-count={data?.length ?? 0}>
+    <div
+      data-testid="task-history-table"
+      data-row-count={data?.length ?? 0}
+      data-item-name={itemName}
+    >
+      {data?.[0] && onViewLogs ? (
+        <button type="button" onClick={() => onViewLogs(data[0])}>
+          View logs
+        </button>
+      ) : null}
       {data?.[0] && onStopTask ? (
         <button type="button" onClick={() => onStopTask(data[0])}>
           Stop {String(data[0].id)}
@@ -322,11 +335,57 @@ describe('SnippetExecutionAccordion', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('task-history-table')).toBeInTheDocument();
+      expect(screen.getByTestId('task-history-table')).toHaveAttribute(
+        'data-item-name',
+        'test snippet'
+      );
     });
     expect(mockedApi.get).toHaveBeenCalledWith(
       '/apps/snippets/snippet/history?snippet_filename=check.sh'
     );
+  });
+
+  it('labels the logs dialog from schema item_display_name', async () => {
+    mockedApi.get.mockImplementation((url: string) =>
+      Promise.resolve({
+        data: url.includes('/snippet/history')
+          ? {
+              items: [
+                {
+                  id: 7,
+                  status: 'success',
+                  has_logs: true,
+                  execution_request: {
+                    task: 's',
+                    target: 'h',
+                    meta: {},
+                    tracking: {},
+                  },
+                  task: { id: 1, name: 's' },
+                },
+              ],
+            }
+          : makeSchema(),
+      })
+    );
+
+    renderWithProviders(
+      <SnippetExecutionAccordion
+        snippetFilename="check.sh"
+        executorHost="db1"
+        title="Check Script"
+        defaultExpanded
+        showHistory
+      />
+    );
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'View logs' })
+    );
+
+    expect(
+      await screen.findByText('Test snippet logs - s #7')
+    ).toBeInTheDocument();
   });
 
   it('wires the Stop button to the stop-task endpoint with the row id', async () => {
@@ -718,5 +777,45 @@ describe('SnippetExecutionAccordion — write access', () => {
       screen.queryByRole('button', { name: 'Execute' })
     ).not.toBeInTheDocument();
     expect(mockedApi.get).not.toHaveBeenCalled();
+  });
+
+  it('shows a non-admin no form error when the history label schema fails to load', async () => {
+    mockCanMutate = false;
+    mockedApi.get.mockImplementation((url: string) =>
+      url.includes('/snippet/history')
+        ? Promise.resolve({ data: { items: [] } })
+        : Promise.reject(new Error('Forbidden'))
+    );
+
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SnippetExecutionAccordion
+          snippetFilename="check.sh"
+          executorHost="db1"
+          defaultExpanded
+          showHistory
+        />
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(
+        queryClient.getQueryState([
+          'snippets',
+          'check.sh',
+          'schema',
+          { execution_only: true },
+        ])?.status
+      ).toBe('error');
+    });
+    expect(screen.getByTestId('task-history-table')).toHaveAttribute(
+      'data-item-name',
+      'task'
+    );
+    expect(screen.queryByText(/Failed to load form/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
 });

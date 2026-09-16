@@ -64,13 +64,21 @@ export interface ChainBuilderProps {
   onChange: (next: ChainValue) => void;
   label?: string;
   disabled?: boolean;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
+  /** Mid-sentence plural noun (e.g. `backups`). */
+  itemNamePlural?: string;
   /** Applied to the widget's own root, so the spacing disappears with it. */
   sx?: SxProps<Theme>;
 }
 
-const DEFAULT_LABEL = 'Chain tasks after execution (optional)';
-const FAILURE_TITLE =
-  'When enabled, the chain continues even if a task fails, stops, or is lost';
+function defaultChainLabel(itemNamePlural: string): string {
+  return `Chain ${itemNamePlural} after execution (optional)`;
+}
+
+function failureTitle(itemName: string): string {
+  return `When enabled, the chain continues even if any ${itemName} fails, stops, or is lost`;
+}
 
 // Compose dnd-kit ids that stay unique even if the chain contains duplicate
 // names (e.g. stale data). The leading index is the source of truth for
@@ -103,11 +111,14 @@ export function ChainBuilder({
   currentTaskName,
   value,
   onChange,
-  label = DEFAULT_LABEL,
+  label,
   disabled = false,
+  itemName = 'task',
+  itemNamePlural = 'tasks',
   sx,
 }: ChainBuilderProps) {
   const { chain_task_names: chain, chain_on_failure: chainOnFailure } = value;
+  const groupLabel = label ?? defaultChainLabel(itemNamePlural);
   const groupLabelId = useId();
   const selectId = useId();
 
@@ -187,7 +198,7 @@ export function ChainBuilder({
         variant="body2"
         sx={{ display: 'block', mb: 1 }}
       >
-        {label}
+        {groupLabel}
       </Typography>
 
       {hasChain && (
@@ -225,11 +236,13 @@ export function ChainBuilder({
 
       {hasSelectableTask && (
         <FormControl fullWidth size="small" disabled={disabled}>
-          <InputLabel id={`${selectId}-label`}>Add task to chain…</InputLabel>
+          <InputLabel id={`${selectId}-label`}>
+            Add {itemName} to chain…
+          </InputLabel>
           <Select
             labelId={`${selectId}-label`}
             id={selectId}
-            label="Add task to chain…"
+            label={`Add ${itemName} to chain…`}
             value=""
             displayEmpty={false}
             onChange={handleAdd}
@@ -253,7 +266,7 @@ export function ChainBuilder({
       )}
 
       {hasChain && (
-        <Tooltip title={FAILURE_TITLE} placement="top-start">
+        <Tooltip title={failureTitle(itemName)} placement="top-start">
           <FormControlLabel
             sx={{ mt: 1 }}
             control={

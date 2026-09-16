@@ -29,10 +29,14 @@ const mockUpdateMutate = vi.fn();
 const schema: PluginSchema = {
   pluginName: 'inventory',
   display_name: 'Inventory',
+  item_display_name: 'inventory',
+  item_display_name_plural: 'inventories',
   entities: [
     {
       name: 'nodes',
       display_name: 'Nodes',
+      item_display_name: 'node',
+      item_display_name_plural: 'nodes',
       forms: [
         {
           title: 'Main',
@@ -48,6 +52,8 @@ const schema: PluginSchema = {
 const taskSchema: PluginSchema = {
   pluginName: 'checksums',
   display_name: 'Checksum',
+  item_display_name: 'checksum',
+  item_display_name_plural: 'checksums',
   forms: [
     {
       title: 'Main',
@@ -63,6 +69,8 @@ const taskSchema: PluginSchema = {
 const backupsSchema: PluginSchema = {
   name: 'mysql_backups',
   display_name: 'MySQL Backups',
+  item_display_name: 'backup',
+  item_display_name_plural: 'backups',
   forms: [
     {
       title: 'Main',
@@ -73,7 +81,7 @@ const backupsSchema: PluginSchema = {
   related_apps: [
     {
       app_key: 'mysql_backups/restore',
-      label: 'Restore',
+      label: 'Restores',
       route_segment: 'restores',
     },
   ],
@@ -81,7 +89,9 @@ const backupsSchema: PluginSchema = {
 
 const restoreSchema: PluginSchema = {
   name: 'mysql_backups_restore',
-  display_name: 'Restore',
+  display_name: 'Restores',
+  item_display_name: 'restore',
+  item_display_name_plural: 'restores',
   forms: [
     {
       title: 'Main',
@@ -183,7 +193,7 @@ function renderEdit(renderEditForm?: RenderFormSlot) {
 describe('SchemaDrivenPlugin — renderEditForm slot', () => {
   it('renders the default form body when no slot is supplied', () => {
     renderEdit();
-    expect(screen.getByText('Edit Nodes #5')).toBeInTheDocument();
+    expect(screen.getByText('Edit node #5')).toBeInTheDocument();
     expect(screen.getByLabelText('Label')).toBeInTheDocument();
     expect(screen.queryByTestId('custom-edit-form')).toBeNull();
   });
@@ -201,7 +211,7 @@ describe('SchemaDrivenPlugin — renderEditForm slot', () => {
     renderEdit(renderEditForm);
 
     // Chrome preserved; default form body replaced by the slot.
-    expect(screen.getByText('Edit Nodes #5')).toBeInTheDocument();
+    expect(screen.getByText('Edit node #5')).toBeInTheDocument();
     expect(screen.queryByLabelText('Label')).toBeNull();
 
     await user.click(screen.getByRole('button', { name: 'Save slot' }));
@@ -227,7 +237,7 @@ describe('SchemaDrivenPlugin — single-entity task edit route', () => {
       </SnackbarProvider>
     );
 
-    expect(screen.getByText('Edit Checksum: check1')).toBeInTheDocument();
+    expect(screen.getByText('Edit checksum: check1')).toBeInTheDocument();
     expect(screen.getByLabelText('Title')).toHaveValue('hello');
     // task_name stays immutable: no editable name input is rendered.
     expect(screen.queryByLabelText('Task Name')).toBeNull();
@@ -280,7 +290,7 @@ describe('SchemaDrivenPlugin — related_apps routing', () => {
       'aria-selected',
       'true'
     );
-    expect(screen.getByRole('tab', { name: 'Restore' })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: 'Restores' })).toHaveAttribute(
       'aria-selected',
       'false'
     );
@@ -291,7 +301,7 @@ describe('SchemaDrivenPlugin — related_apps routing', () => {
     activeSchema = backupsSchema;
     renderBackupsPlugin('/apps/mysql_backups/restores');
 
-    expect(screen.getByRole('tab', { name: 'Restore' })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: 'Restores' })).toHaveAttribute(
       'aria-selected',
       'true'
     );
@@ -331,7 +341,7 @@ describe('SchemaDrivenPlugin — related_apps routing', () => {
 
     expect(screen.queryByText('schedule')).toBeNull();
     // Tab bar still mounts for the related-app shell; only the schedule page is gone.
-    expect(screen.getByRole('tab', { name: 'Restore' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Restores' })).toBeInTheDocument();
   });
 });
 
@@ -356,7 +366,7 @@ describe('SchemaDrivenPlugin — entity edit failure reporting', () => {
     );
     renderEdit();
 
-    await user.click(screen.getByRole('button', { name: /^Save Nodes$/ }));
+    await user.click(screen.getByRole('button', { name: /^Save node$/ }));
 
     await waitFor(() => expect(inTreeAlerts()).toHaveLength(1));
     expect(inTreeAlerts()[0]).toHaveTextContent(
@@ -370,7 +380,7 @@ describe('SchemaDrivenPlugin — entity edit failure reporting', () => {
     mockUpdateMutate.mockImplementation((_vars, opts) => opts.onSuccess?.());
     renderEdit();
 
-    await user.click(screen.getByRole('button', { name: /^Save Nodes$/ }));
+    await user.click(screen.getByRole('button', { name: /^Save node$/ }));
 
     await waitFor(() => expect(mockUpdateMutate).toHaveBeenCalledTimes(1));
     expect(inTreeAlerts()).toEqual([]);
@@ -384,7 +394,7 @@ describe('SchemaDrivenPlugin — write access', () => {
     expect(
       screen.queryByTestId('plugin-entity-edit-read-only')
     ).not.toBeInTheDocument();
-    expect(screen.getByText(/Edit Nodes #5/)).toBeInTheDocument();
+    expect(screen.getByText(/Edit node #5/)).toBeInTheDocument();
   });
 
   it('renders the read-only guard instead of the entity edit form for a non-admin', () => {
@@ -394,6 +404,6 @@ describe('SchemaDrivenPlugin — write access', () => {
     expect(
       screen.getByTestId('plugin-entity-edit-read-only')
     ).toBeInTheDocument();
-    expect(screen.queryByText(/Edit Nodes #5/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Edit node #5/)).not.toBeInTheDocument();
   });
 });

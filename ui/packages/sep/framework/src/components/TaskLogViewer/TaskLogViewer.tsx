@@ -102,6 +102,8 @@ export interface TaskLogViewerProps {
   taskHistoryId: number | string;
   taskStatus?: string;
   height?: number | string;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
 }
 
 /**
@@ -184,6 +186,7 @@ export function TaskLogViewer({
   taskHistoryId,
   taskStatus,
   height = 480,
+  itemName = 'task',
 }: TaskLogViewerProps) {
   const running = isRunningStatus(taskStatus);
   const [logTailChoice, setLogTailChoice] = useState<LogTailLineChoice>(
@@ -410,7 +413,7 @@ export function TaskLogViewer({
             <Tooltip
               title={
                 running
-                  ? 'Line cap applies to finished task logs only'
+                  ? `Line cap applies to finished ${itemName} logs only`
                   : 'Limit how many lines are loaded from the server'
               }
             >
