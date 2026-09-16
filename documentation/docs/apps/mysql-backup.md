@@ -65,14 +65,14 @@ Complete the following steps before creating your first backup.
     === "Mydumper"
 
         Install [`mydumper`](https://github.com/mydumper/mydumper).
-
-        You don't need root access for this. Pick any host that can reach the database over the network, including a remote or cloud-hosted one.
+        
+        No root access needed. Pick any host that can reach the database over the network, including a remote or cloud-hosted one.
 
     === "Binlog"
 
         Install [`mysqlbinlog`](https://dev.mysql.com/doc/refman/8.0/en/mysqlbinlog.html); it ships with the MySQL server and client packages.
 
-        You don't need root access for this. Pick any host that can reach the database over the network, including a remote or cloud-hosted one. If you want to stream logs from a different source host than the one you're backing up, set that host in **Alternative binlog host**.
+        No root access needed. Pick any host that can reach the database over the network, including a remote or cloud-hosted one.
 
 4. Create two MySQL credential files on the executor host so that PMM and the backup binary can each authenticate to MySQL. PMM reads from these files and will not prompt for a password:
 
@@ -81,7 +81,6 @@ Complete the following steps before creating your first backup.
 
     For XtraBackup on MySQL 8.0+, the MySQL user must have the `BACKUP_ADMIN` privilege.
 
-    <!-- VERIFY: privilege requirements for Mydumper and Binlog -->
 
 5. Create a backup directory on the execution host and confirm it is writable. Set the path per task in the **Backup directory** field.
 
