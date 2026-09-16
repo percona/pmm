@@ -166,17 +166,20 @@ describe('NavigationProvider', () => {
       ['sep-atw', `${SEP_ATW_PATH}/runs/abc`],
       ['sep-mysql-backups', SEP_MYSQL_BACKUPS_PATH],
       ['sep-mysql-backups', `${SEP_MYSQL_BACKUPS_PATH}/backups/123`],
-    ])('marks %s active and keeps it inside Management for %s', (childId, path) => {
-      const navTree = renderNavTree(TEST_USER_VIEWER, {
-        initialEntries: [path],
-      });
-      const management = findById(navTree, 'management');
-      const active = findActiveNavItem(navTree, path);
+    ])(
+      'marks %s active and keeps it inside Management for %s',
+      (childId, path) => {
+        const navTree = renderNavTree(TEST_USER_VIEWER, {
+          initialEntries: [path],
+        });
+        const management = findById(navTree, 'management');
+        const active = findActiveNavItem(navTree, path);
 
-      expect(active?.id).toBe(childId);
-      // The sidebar expands a section when its active child is the very object
-      // held in `children`, so identity — not just the id — has to match.
-      expect(management?.children).toContain(active);
-    });
+        expect(active?.id).toBe(childId);
+        // The sidebar expands a section when its active child is the very object
+        // held in `children`, so identity — not just the id — has to match.
+        expect(management?.children).toContain(active);
+      }
+    );
   });
 });
