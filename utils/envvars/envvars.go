@@ -79,6 +79,13 @@ func validateName(name string) error {
 		return fmt.Errorf("invalid environment variable name: %s (must match [A-Za-z_][A-Za-z0-9_]*)", name)
 	}
 
+	return validateNotReserved(name)
+}
+
+// validateNotReserved rejects pmm-agent's own configuration namespace. It is separated from the
+// shape rules above because grandfathering may forgive those but must never forgive this one:
+// see NormalizeNamesAllowing.
+func validateNotReserved(name string) error {
 	if strings.HasPrefix(strings.ToUpper(name), ReservedPrefix) {
 		return fmt.Errorf("environment variable name '%s' is reserved for pmm-agent's own configuration and cannot be selected", name)
 	}
@@ -110,14 +117,25 @@ func NormalizeNamesAllowing(names []string, grandfathered map[string]struct{}) (
 	for _, name := range names {
 		name = strings.TrimSpace(name)
 
-		// The empty string is never carried forward, whatever the caller's set holds: pmm-agent
-		// cannot resolve it, so grandfathering it would store a name that can only ever be skipped
-		// with a warning on every state update.
+		// Grandfathering forgives shape, never authority. pmm-agent's own namespace is rejected
+		// even for an already-stored name: pmm-admin's pre-policy pattern accepted
+		// PMM_AGENT_SERVER_PASSWORD and nothing checked it server-side, so such rows are reachable
+		// through the sanctioned CLI. An agent older than this policy resolves the name straight
+		// out of pmm-agent's own environment into the exporter's, so carrying it forward would
+		// hand pmm-agent's server password to mongodb_exporter.
+		err := validateNotReserved(name)
+		if err != nil {
+			return nil, &InvalidNameError{Err: err}
+		}
+
+		// The empty string is never carried forward either, whatever the caller's set holds:
+		// pmm-agent cannot resolve it, so grandfathering it would store a name that can only ever
+		// be skipped with a warning on every state update.
 		_, isGrandfathered := grandfathered[name]
 		isGrandfathered = isGrandfathered && name != ""
 
 		if !isGrandfathered {
-			err := ValidateName(name)
+			err = ValidateName(name)
 			if err != nil {
 				return nil, err
 			}

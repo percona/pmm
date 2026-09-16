@@ -34,7 +34,9 @@ import (
 // from "MONGODB_URI" and must not grandfather a switch to the latter.
 // It lives in this cross-service package (rather than services/inventory, where the check
 // originated) so both the inventory API and ManagementService.addMongoDB can apply the same check
-// without either service importing the other.
+// without either service importing the other. That isolation is between the two services only:
+// this package does import services/agents for the reserved set below, so inventory reaches agents
+// transitively.
 //
 // The reserved set comes from agents.MongoDBExporterReservedEnvVars, the config builder that
 // actually sets those variables, rather than being restated here: a hand-kept copy would drift the

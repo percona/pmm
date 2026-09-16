@@ -246,6 +246,47 @@ func TestNormalizeNamesAllowing(t *testing.T) {
 		assert.Nil(t, names)
 	})
 
+	t.Run("pmm-agent's reserved namespace is never grandfathered", func(t *testing.T) {
+		t.Parallel()
+
+		// pmm-admin's pre-policy pattern accepted this name and nothing checked it server-side, so
+		// such a row is reachable through the sanctioned CLI. An agent older than this policy
+		// resolves it out of pmm-agent's own environment into the exporter's, so it must not be
+		// carried forward however it came to be stored.
+		names, err := NormalizeNamesAllowing(
+			[]string{"PMM_AGENT_SERVER_PASSWORD", "KRB5_CONFIG"},
+			map[string]struct{}{"PMM_AGENT_SERVER_PASSWORD": {}},
+		)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "reserved for pmm-agent's own configuration")
+		assert.Nil(t, names)
+	})
+
+	t.Run("the reserved namespace is rejected case-insensitively even when grandfathered", func(t *testing.T) {
+		t.Parallel()
+
+		names, err := NormalizeNamesAllowing(
+			[]string{"pmm_agent_server_password"},
+			map[string]struct{}{"pmm_agent_server_password": {}},
+		)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "reserved for pmm-agent's own configuration")
+		assert.Nil(t, names)
+	})
+
+	t.Run("a grandfathered name that only fails the shape rules is still carried forward", func(t *testing.T) {
+		t.Parallel()
+
+		// The prefix ban must not have made grandfathering useless: a stored name that merely
+		// breaks the pattern is exactly what grandfathering exists for.
+		names, err := NormalizeNamesAllowing(
+			[]string{"KRB5-KTNAME", "KRB5_CONFIG"},
+			map[string]struct{}{"KRB5-KTNAME": {}},
+		)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"KRB5-KTNAME", "KRB5_CONFIG"}, names)
+	})
+
 	t.Run("the empty string is never grandfathered", func(t *testing.T) {
 		t.Parallel()
 
