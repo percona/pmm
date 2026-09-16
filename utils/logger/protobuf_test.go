@@ -457,6 +457,26 @@ func Test_maskDSN(t *testing.T) {
 			want:  "VMAGENT_remoteWrite_bearerToken=***REDACTED***",
 		},
 		{
+			name:  "inherited environment entry with a dash in its key",
+			input: "my-token=abc",
+			want:  "my-token=***REDACTED***",
+		},
+		{
+			name:  "inherited environment entry with an npm-style key",
+			input: "npm_config_//registry.npmjs.org/:_authToken=abc",
+			want:  "npm_config_//registry.npmjs.org/:_authToken=***REDACTED***",
+		},
+		{
+			name:  "MySQL DSN whose database is called tokens is not read as a key",
+			input: "pmm:pass@tcp(127.0.0.1:3306)/tokens?timeout=1s",
+			want:  "***REDACTED***:***REDACTED***@tcp(127.0.0.1:3306)/tokens?timeout=1s",
+		},
+		{
+			name:  "PostgreSQL DSN whose database is called secrets is not read as a key",
+			input: "postgres://pmm:pass@db:5432/secrets?sslmode=disable",
+			want:  "postgres://***REDACTED***:***REDACTED***@db:5432/secrets?sslmode=disable",
+		},
+		{
 			name:  "environment entry without a secret in its key",
 			input: "VMAGENT_loggerLevel=INFO",
 			want:  "VMAGENT_loggerLevel=INFO",
