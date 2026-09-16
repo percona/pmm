@@ -133,6 +133,16 @@ describe('SchemaSelectShell', () => {
     expect(screen.queryByLabelText('Help for Fruit')).not.toBeInTheDocument();
   });
 
+  it('replaces inline help with the error', () => {
+    renderShell({
+      inline: 'Pick one',
+      error: { type: 'required', message: 'Fruit is required' },
+    });
+
+    expect(screen.getByText('Fruit is required')).toBeInTheDocument();
+    expect(screen.queryByText('Pick one')).not.toBeInTheDocument();
+  });
+
   it('keeps the info icon when an error takes the helper-text slot', () => {
     renderShell({
       tooltip: 'Pick one',

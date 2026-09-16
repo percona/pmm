@@ -209,6 +209,8 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
     expect(screen.getByTestId('switch-input-sudo')).toBeInTheDocument();
     expect(screen.getByTestId('text-input-minutes')).toBeInTheDocument();
     expect(screen.getByTestId('text-input-note')).toBeInTheDocument();
+    // Collapsible section starts expanded only when collapsed_by_default is unset;
+    // this fixture leaves it open so override fields mount.
     expect(
       screen.getByTestId('text-input-overrides.snip0.path')
     ).toBeInTheDocument();
@@ -222,6 +224,10 @@ describe('SchemaFormRenderer — cross-plugin help-icon spot-check', () => {
     expectHelp('Operator note', false);
     expectHelp('Path', true);
     expectHelp('Threshold %', false);
+    // Section prose must not restate field help.
+    expect(
+      screen.queryByText('Reports free space on the executor host.')
+    ).not.toBeInTheDocument();
   });
 
   it('snippet-execution form: user-authored params drive help icons', () => {

@@ -40,7 +40,6 @@ export interface SchemaSelectShellProps {
   required?: boolean;
   /** rhf field error; presence flips `aria-invalid` and the outline color. */
   error?: FieldError;
-  /** Helper text and tooltip body for the label help icon; shown as helper text when there is no error. */
   /** Shown behind the help icon beside the label. */
   tooltip?: string;
   /** Shown under the control, unless an error takes the slot. */

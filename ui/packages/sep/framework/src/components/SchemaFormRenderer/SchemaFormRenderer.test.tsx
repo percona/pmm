@@ -375,6 +375,35 @@ describe('SchemaFormRenderer — field rendering', () => {
     // A field with no description gets neither.
     expect(document.querySelectorAll('[data-help-for="Code"]')).toHaveLength(0);
   });
+
+  it('does not render section.description prose', () => {
+    const sectionsWithProse: FormSection[] = [
+      {
+        title: 'Encryption',
+        description:
+          "Pick an Encryption format first; the fields below are that format's parameters.",
+        fields: [
+          {
+            type: 'bool',
+            name: 'encrypt',
+            label: 'Encrypt backup',
+            description: 'Encrypt the backup stream before upload.',
+          },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={sectionsWithProse} onSubmit={() => {}} />
+    );
+
+    expect(screen.getByText('Encryption')).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Pick an Encryption format first/)
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Encrypt the backup stream before upload.')
+    ).toBeInTheDocument();
+  });
 });
 
 describe('SchemaFormRenderer — section layout controls', () => {
