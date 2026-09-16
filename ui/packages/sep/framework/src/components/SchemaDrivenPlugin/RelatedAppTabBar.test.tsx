@@ -29,7 +29,7 @@ const ROUTE_BASE = '/apps/mysql_backups';
 const RELATED_APPS: RelatedApp[] = [
   {
     app_key: 'mysql_backups/restore',
-    label: 'Restore',
+    label: 'Restores',
     route_segment: 'restores',
   },
 ];
@@ -98,7 +98,7 @@ describe('RelatedAppTabBar', () => {
     renderTabBar('/apps/mysql_backups');
 
     const backupsTab = screen.getByRole('tab', { name: 'MySQL Backups' });
-    const restoreTab = screen.getByRole('tab', { name: 'Restore' });
+    const restoreTab = screen.getByRole('tab', { name: 'Restores' });
 
     expect(backupsTab).toHaveAttribute('href', '/apps/mysql_backups');
     expect(restoreTab).toHaveAttribute('href', '/apps/mysql_backups/restores');
@@ -111,7 +111,7 @@ describe('RelatedAppTabBar', () => {
       'aria-selected',
       'true'
     );
-    expect(screen.getByRole('tab', { name: 'Restore' })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: 'Restores' })).toHaveAttribute(
       'aria-selected',
       'false'
     );
@@ -124,7 +124,7 @@ describe('RelatedAppTabBar', () => {
       'aria-selected',
       'false'
     );
-    expect(screen.getByRole('tab', { name: 'Restore' })).toHaveAttribute(
+    expect(screen.getByRole('tab', { name: 'Restores' })).toHaveAttribute(
       'aria-selected',
       'true'
     );

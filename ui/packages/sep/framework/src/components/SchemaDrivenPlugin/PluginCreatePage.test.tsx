@@ -70,6 +70,8 @@ beforeEach(() => {
 const schema: PluginSchema = {
   pluginName: 'checksums',
   display_name: 'Checksum',
+  item_display_name: 'checksum',
+  item_display_name_plural: 'checksums',
   description: 'Test',
   capabilities: {},
   list_view: { columns: [{ key: 'name', label: 'Name' }] },
@@ -98,7 +100,7 @@ describe('PluginCreatePage — renderCreateForm slot', () => {
   it('renders the default SchemaFormRenderer when no slot is supplied', () => {
     renderPage();
     // Default form body: the schema field renders, with the framework chrome.
-    expect(screen.getByText('New Checksum')).toBeInTheDocument();
+    expect(screen.getByText('New checksum')).toBeInTheDocument();
     expect(screen.getByLabelText('Title')).toBeInTheDocument();
     expect(screen.queryByTestId('custom-form')).toBeNull();
   });
@@ -109,7 +111,7 @@ describe('PluginCreatePage — renderCreateForm slot', () => {
     );
     renderPage({ renderCreateForm });
     // Chrome preserved (title); default form body replaced.
-    expect(screen.getByText('New Checksum')).toBeInTheDocument();
+    expect(screen.getByText('New checksum')).toBeInTheDocument();
     expect(screen.getByTestId('custom-form')).toBeInTheDocument();
     expect(screen.queryByLabelText('Title')).toBeNull();
   });
@@ -209,7 +211,7 @@ describe('PluginCreatePage — failure reporting', () => {
   async function submitAndGetOnError() {
     const user = userEvent.setup();
     renderPage();
-    await user.click(screen.getByRole('button', { name: 'Create Checksum' }));
+    await user.click(screen.getByRole('button', { name: 'Create checksum' }));
     await waitFor(() => expect(mockCreateTaskMutate).toHaveBeenCalledTimes(1));
     return mockCreateTaskMutate.mock.calls[0][1].onError as (
       error: unknown
@@ -323,7 +325,7 @@ describe('PluginCreatePage — write access', () => {
     renderPage();
 
     expect(
-      screen.getByRole('button', { name: 'Create Checksum' })
+      screen.getByRole('button', { name: 'Create checksum' })
     ).toBeInTheDocument();
     expect(
       screen.queryByTestId('plugin-create-read-only')
@@ -336,7 +338,7 @@ describe('PluginCreatePage — write access', () => {
 
     expect(screen.getByTestId('plugin-create-read-only')).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Create Checksum' })
+      screen.queryByRole('button', { name: 'Create checksum' })
     ).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
   });

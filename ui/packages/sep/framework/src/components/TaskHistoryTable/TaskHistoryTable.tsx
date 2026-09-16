@@ -31,6 +31,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { MaterialReactTable, type MRT_ColumnDef } from 'material-react-table';
 import { useAuth } from '@sep/api';
+import { capitalize } from '@sep/shared';
 import { ActionErrorAlert } from '../ActionErrorAlert';
 import {
   isRunningStatus,
@@ -158,6 +159,7 @@ interface ViewProps {
   onDownloadFiles: TaskHistoryTableProps['onDownloadFiles'];
   onChainItemClick: TaskHistoryTableProps['onChainItemClick'];
   hideTaskNameColumn?: boolean;
+  itemName: string;
   /** Called once the user confirms the stop dialog. */
   onConfirmStop: (entry: TaskHistoryEntry) => void;
   isStopping: boolean;
@@ -177,6 +179,7 @@ function TaskHistoryTableView({
   onDownloadFiles,
   onChainItemClick,
   hideTaskNameColumn,
+  itemName,
   onConfirmStop,
   isStopping,
   canStop,
@@ -184,6 +187,7 @@ function TaskHistoryTableView({
   onDismissActionError,
 }: ViewProps) {
   const { canMutate } = useAuth();
+  const itemLabel = capitalize(itemName);
   const [pendingStopEntry, setPendingStopEntry] =
     useState<TaskHistoryEntry | null>(null);
   const [pendingFilesEntry, setPendingFilesEntry] =
@@ -214,7 +218,7 @@ function TaskHistoryTableView({
         : [
             {
               id: 'task',
-              header: 'Task',
+              header: itemLabel,
               accessorFn: (row: TaskHistoryEntry) => row.task?.name ?? '',
               size: 140,
             } satisfies MRT_ColumnDef<TaskHistoryEntry>,
@@ -239,6 +243,7 @@ function TaskHistoryTableView({
               <ChainDisplay
                 chainNames={meta._chain_task_names}
                 chainDepth={meta._chain_depth}
+                itemName={itemName}
                 onChainItemClick={
                   onChainItemClick
                     ? (name, index) =>
@@ -325,12 +330,12 @@ function TaskHistoryTableView({
                 </span>
               </Tooltip>
               {running && canMutate && (
-                <Tooltip title="Stop task">
+                <Tooltip title={`Stop ${itemName}`}>
                   <span>
                     <IconButton
                       size="small"
                       color="warning"
-                      aria-label="Stop task"
+                      aria-label={`Stop ${itemName}`}
                       onClick={() => requestStop(entry)}
                       disabled={isStopping || !canStop(entry)}
                     >
@@ -353,6 +358,8 @@ function TaskHistoryTableView({
   }, [
     canMutate,
     hideTaskNameColumn,
+    itemLabel,
+    itemName,
     onChainItemClick,
     onDownloadFiles,
     onViewLogs,
@@ -420,7 +427,7 @@ function TaskHistoryTableView({
             sx={{ p: 2, textAlign: 'center' }}
             color="text.secondary"
           >
-            No task history
+            No {itemName} history
           </Typography>
         )}
       />
@@ -429,11 +436,11 @@ function TaskHistoryTableView({
         onClose={cancelStop}
         aria-labelledby="task-history-stop-title"
       >
-        <DialogTitle id="task-history-stop-title">Stop task</DialogTitle>
+        <DialogTitle id="task-history-stop-title">Stop {itemName}</DialogTitle>
         <DialogContent>
           <DialogContentText>
             {pendingStopEntry
-              ? `Are you sure you want to stop the task ${stopConfirmLabel(pendingStopEntry)}?`
+              ? `Are you sure you want to stop the ${itemName} ${stopConfirmLabel(pendingStopEntry)}?`
               : ''}
           </DialogContentText>
         </DialogContent>
@@ -448,6 +455,7 @@ function TaskHistoryTableView({
         open={pendingFilesEntry !== null}
         taskHistoryId={pendingFilesEntry?.id ?? null}
         onClose={() => setPendingFilesEntry(null)}
+        itemName={itemName}
       />
     </>
   );
@@ -469,6 +477,7 @@ function ConnectedTaskHistoryTable({
   onDownloadFiles,
   onChainItemClick,
   hideTaskNameColumn,
+  itemName = 'task',
   actionError,
   onDismissActionError,
 }: ConnectedProps) {
@@ -517,6 +526,7 @@ function ConnectedTaskHistoryTable({
       onDownloadFiles={onDownloadFiles}
       onChainItemClick={onChainItemClick}
       hideTaskNameColumn={hideTaskNameColumn}
+      itemName={itemName}
       onConfirmStop={onConfirmStop}
       isStopping={stopMutation.isPending}
       canStop={canStop}
@@ -549,6 +559,7 @@ function PresentationalTaskHistoryTable({
   onDownloadFiles,
   onChainItemClick,
   hideTaskNameColumn,
+  itemName = 'task',
   actionError,
   onDismissActionError,
 }: PresentationalProps) {
@@ -568,6 +579,7 @@ function PresentationalTaskHistoryTable({
       onDownloadFiles={onDownloadFiles}
       onChainItemClick={onChainItemClick}
       hideTaskNameColumn={hideTaskNameColumn}
+      itemName={itemName}
       onConfirmStop={onConfirmStop}
       isStopping={!!isStopping}
       canStop={canStop}

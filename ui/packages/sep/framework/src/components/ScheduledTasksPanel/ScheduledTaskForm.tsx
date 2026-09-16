@@ -29,6 +29,7 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import cronstrue from 'cronstrue';
+import { capitalize } from '@sep/shared';
 import {
   ChainBuilder,
   type AvailableTask,
@@ -68,6 +69,10 @@ export interface ScheduledTaskFormProps {
   ) => Promise<void>;
   submitting?: boolean;
   errorMessage?: string;
+  /** Mid-sentence singular noun for one record (e.g. `backup`). */
+  itemName?: string;
+  /** Mid-sentence plural noun (e.g. `backups`). */
+  itemNamePlural?: string;
 }
 
 const CRON_PATTERN = /^\S+(?:\s+\S+){4}$/;
@@ -181,7 +186,10 @@ export function ScheduledTaskForm({
   onSubmit,
   submitting = false,
   errorMessage,
+  itemName = 'task',
+  itemNamePlural = 'tasks',
 }: ScheduledTaskFormProps) {
+  const itemLabel = capitalize(itemName);
   const defaults = useMemo(
     () => buildDefaults(initialValue, defaultTaskName),
     [initialValue, defaultTaskName]
@@ -294,7 +302,7 @@ export function ScheduledTaskForm({
       <TextField
         select
         size="small"
-        label="Task"
+        label={itemLabel}
         required
         slotProps={{ htmlInput: { 'data-testid': 'sched-form-task' } }}
         {...register('task', { required: true })}
@@ -487,6 +495,8 @@ export function ScheduledTaskForm({
             currentTaskName={taskName}
             value={field.value}
             onChange={field.onChange}
+            itemName={itemName}
+            itemNamePlural={itemNamePlural}
             sx={{ mb: 2 }}
           />
         )}

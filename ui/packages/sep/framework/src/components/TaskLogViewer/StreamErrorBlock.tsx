@@ -50,7 +50,7 @@ function formatGenericDetail(detail: unknown): string {
 
 function ExecutorGoneBlock({ detail }: { detail: ExecutorGoneDetail }) {
   const summary =
-    detail.message || 'This run is no longer available in the task executor.';
+    detail.message || 'This run is no longer available on the executor.';
   const rows: [string, string][] = [];
   if (detail.resource_type) {
     rows.push(['Resource type', detail.resource_type]);
