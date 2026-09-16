@@ -18,6 +18,7 @@
 import { Alert, Box, Paper, Skeleton, Typography } from '@mui/material';
 import { ApiError } from '@sep/api';
 import { useTaskStats } from '../../hooks/useTaskStats';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 
 const PLACEHOLDER = '—';
 
@@ -28,34 +29,15 @@ function formatSeconds(value: number | null | undefined): string {
   return `${value.toFixed(3)}s`;
 }
 
-const RELATIVE_THRESHOLDS: Array<[number, Intl.RelativeTimeFormatUnit]> = [
-  [60, 'second'],
-  [60, 'minute'],
-  [24, 'hour'],
-  [7, 'day'],
-  [4.345, 'week'],
-  [12, 'month'],
-  [Number.POSITIVE_INFINITY, 'year'],
-];
-
-function formatRelative(iso: string | null | undefined): string {
-  if (!iso || typeof iso !== 'string') {
-    return PLACEHOLDER;
-  }
-  const date = new Date(iso);
-  const ms = date.getTime();
-  if (!Number.isFinite(ms)) {
-    return PLACEHOLDER;
-  }
-  let diff = (ms - Date.now()) / 1000;
-  const formatter = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
-  for (const [bound, unit] of RELATIVE_THRESHOLDS) {
-    if (Math.abs(diff) < bound) {
-      return formatter.format(Math.round(diff), unit);
-    }
-    diff /= bound;
-  }
-  return formatter.format(Math.round(diff), 'year');
+function LastFinished({ iso }: { iso: string | null | undefined }) {
+  const valid =
+    typeof iso === 'string' && Number.isFinite(new Date(iso).getTime());
+  const formatted = valid ? formatTimestamp(iso) : null;
+  return formatted ? (
+    <span title={formatted.title}>{formatted.display}</span>
+  ) : (
+    <>{PLACEHOLDER}</>
+  );
 }
 
 function SectionShell({ children }: { children: React.ReactNode }) {
@@ -148,7 +130,7 @@ export function StatsCard({ taskName }: StatsCardProps) {
         <StatField label="Failed" value={failed} />
         <StatField
           label="Last Finished"
-          value={formatRelative(data.last_finished_at)}
+          value={<LastFinished iso={data.last_finished_at} />}
         />
         <StatField
           label="Avg Duration"

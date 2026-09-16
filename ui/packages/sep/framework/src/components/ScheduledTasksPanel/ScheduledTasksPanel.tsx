@@ -48,6 +48,13 @@ import {
 
 interface ScheduledTasksPanelProps {
   pluginName: string;
+  /**
+   * What to call the app in the empty state. `pluginName` is a registry key —
+   * a nested app's is scoped (`mysql_backups/restore`) — so it is the wrong
+   * thing to show a reader. Falls back to `pluginName` for a caller that has no
+   * schema to take a display name from.
+   */
+  displayName?: string;
   /** Disable list polling. Used by stories/tests. */
   disablePolling?: boolean;
   /** Mid-sentence singular noun for one record (e.g. `backup`). */
@@ -61,6 +68,7 @@ const ACTIONS_HEADER = 'Actions';
 
 export function ScheduledTasksPanel({
   pluginName,
+  displayName,
   disablePolling = false,
   itemName = 'task',
   itemNamePlural = 'tasks',
@@ -264,7 +272,7 @@ export function ScheduledTasksPanel({
       {isEmpty ? (
         <Box sx={{ p: 3, textAlign: 'center' }}>
           <Typography variant="body2" color="text.secondary">
-            No scheduled {itemNamePlural} for {pluginName}.
+            No scheduled {itemNamePlural} for {displayName ?? pluginName}.
           </Typography>
         </Box>
       ) : (

@@ -15,6 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import type { ReactNode } from 'react';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -26,7 +27,7 @@ import { isRunningStatus, useLatestTaskRun } from '../../hooks/useTaskHistory';
 import { useElapsedSeconds } from '../../hooks/useElapsedSeconds';
 import { formatDuration } from '../../utils/formatDuration';
 import { TaskHistoryStatusBadge } from '../TaskHistoryTable';
-import { formatAbsoluteTime } from '../ScheduledTasksPanel/periods';
+import { RunTime } from './RunTime';
 import { firstLine, runFailureReason } from './runFailureReason';
 
 export interface LastRunCardProps {
@@ -44,7 +45,7 @@ export interface LastRunCardProps {
   itemName?: string;
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function Field({ label, value }: { label: string; value: ReactNode }) {
   return (
     <Box>
       <Typography variant="caption" color="text.secondary" component="div">
@@ -124,7 +125,7 @@ export function LastRunCard({
           >
             <Field
               label="Started"
-              value={formatAbsoluteTime(entry.started_at)}
+              value={<RunTime value={entry.started_at} />}
             />
             <Field
               label={running ? 'Elapsed' : 'Duration'}
@@ -132,7 +133,7 @@ export function LastRunCard({
             />
             <Field
               label="Finished"
-              value={formatAbsoluteTime(entry.finished_at)}
+              value={<RunTime value={entry.finished_at} />}
             />
           </Box>
 

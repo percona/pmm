@@ -115,6 +115,26 @@ describe('LastRunCard', () => {
     expect(screen.getByText('Duration')).toBeInTheDocument();
   });
 
+  it('renders run times under the shared timestamp rule, full value on hover', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-09-07T12:00:00Z'));
+    try {
+      mockedGet.mockResolvedValue({
+        data: { items: [makeEntry(8, 'success')] },
+      });
+
+      renderCard();
+
+      const times = await screen.findAllByText('2 hours ago');
+      expect(times.map((el) => el.getAttribute('title'))).toEqual([
+        new Date('2026-09-07T10:00:00Z').toLocaleString(),
+        new Date('2026-09-07T10:02:07Z').toLocaleString(),
+      ]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('labels an in-flight run as elapsed rather than showing no duration', async () => {
     // The wire leaves `duration` null until a run finishes, so the card
     // derives the number from `started_at` instead of rendering an em-dash.

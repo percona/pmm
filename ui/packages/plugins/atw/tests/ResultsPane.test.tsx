@@ -497,6 +497,9 @@ describe('ResultsPane diagnostics send', () => {
       expect(screen.getByText('Send history')).toBeTruthy();
     });
     expect(screen.getByText(/CS0042/)).toBeTruthy();
+    expect(
+      screen.getByTitle(new Date('2026-07-24T10:01:00Z').toLocaleString())
+    ).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Re-send' })).toBeTruthy();
   });
 

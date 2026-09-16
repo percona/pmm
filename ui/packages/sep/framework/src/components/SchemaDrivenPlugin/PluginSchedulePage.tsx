@@ -49,6 +49,7 @@ export function PluginSchedulePage({
 
       <ScheduledTasksPanel
         pluginName={pluginName}
+        displayName={schema.display_name}
         itemName={resolveItemDisplayName(schema)}
         itemNamePlural={resolveItemDisplayNamePlural(schema)}
       />

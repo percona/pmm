@@ -25,12 +25,11 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import {
   describePeriod,
-  formatAbsoluteTime,
-  formatRelativeTime,
   LastRunStatus,
   selectSchedule,
   useScheduledTasksForPlugin,
 } from '../ScheduledTasksPanel';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 
 export interface ScheduleSummaryProps {
   /** Plugin owning the task; used to scope the periodic-task lookup. */
@@ -63,6 +62,9 @@ export function ScheduleSummary({
     disablePolling,
   });
   const task = selectSchedule(periodicTasks.filter((p) => p.task === taskName));
+  // Shared formatter, same rule as every other timestamp: relative while the
+  // run is within a week, the date itself beyond that, full value on hover.
+  const nextRunDisplay = formatTimestamp(task?.next_run_at);
 
   return (
     <Paper
@@ -89,10 +91,10 @@ export function ScheduleSummary({
             >
               Next run
             </Typography>
-            {task.next_run_at ? (
-              <Tooltip title={formatAbsoluteTime(task.next_run_at)}>
+            {nextRunDisplay ? (
+              <Tooltip title={nextRunDisplay.title}>
                 <Typography variant="body1" component="span">
-                  {formatRelativeTime(task.next_run_at)}
+                  {nextRunDisplay.display}
                 </Typography>
               </Tooltip>
             ) : (

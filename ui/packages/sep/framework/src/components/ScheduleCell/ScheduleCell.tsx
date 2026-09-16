@@ -23,11 +23,10 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import {
   describePeriod,
-  formatAbsoluteTime,
-  formatRelativeTime,
   LastRunStatus,
   type PeriodicTaskResponse,
 } from '../ScheduledTasksPanel';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 
 export interface ScheduleCellProps {
   /**
@@ -76,6 +75,9 @@ export function ScheduleCell({ task, isLoading = false }: ScheduleCellProps) {
 
   const period = describePeriod(task);
   const nextRun = task.next_run_at;
+  // Through the shared formatter so a far-future next run reads as a date
+  // instead of "in 14 months"; the tooltip keeps the full timestamp either way.
+  const nextRunDisplay = formatTimestamp(nextRun);
 
   return (
     <Stack
@@ -84,14 +86,14 @@ export function ScheduleCell({ task, isLoading = false }: ScheduleCellProps) {
       alignItems="center"
       data-testid="schedule-cell"
     >
-      {nextRun ? (
-        <Tooltip title={formatAbsoluteTime(nextRun)}>
+      {nextRunDisplay ? (
+        <Tooltip title={nextRunDisplay.title}>
           <Typography
             variant="body2"
             component="span"
             data-testid="schedule-cell-next-run"
           >
-            {formatRelativeTime(nextRun)}
+            {nextRunDisplay.display}
           </Typography>
         </Tooltip>
       ) : (

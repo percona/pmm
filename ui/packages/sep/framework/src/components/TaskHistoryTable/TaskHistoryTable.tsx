@@ -45,6 +45,7 @@ import { ChainDisplay } from './ChainDisplay';
 import { StatusBadge } from './StatusBadge';
 import Box from '@mui/material/Box';
 import { formatDuration } from '../../utils/formatDuration';
+import { formatTimestamp } from '../../utils/formatTimestamp';
 import { TaskFilesDialog } from './TaskFilesDialog';
 import type {
   TaskHistoryEntry,
@@ -56,12 +57,18 @@ import type {
 /** Cache file-list probes across history-table poll ticks. */
 const DOWNLOADABLE_FILES_STALE_TIME_MS = 30_000;
 
-function formatDateTime(value?: string | null): string {
-  if (!value) {
-    return '—';
-  }
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? value : d.toLocaleString();
+/**
+ * The em-dash belongs to this column rather than to {@link formatTimestamp}: a
+ * history row with no `started_at` is a run still waiting to start, worth
+ * marking rather than leaving as the empty cell a never-executed task's list
+ * row has.
+ */
+function startedAtCell(value?: string | null): {
+  display: string;
+  title?: string;
+} {
+  const formatted = formatTimestamp(value);
+  return formatted ? formatted : { display: '—' };
 }
 
 interface MetaShape {
@@ -254,11 +261,16 @@ function TaskHistoryTableView({
         size: 160,
         accessorFn: (row) => row.started_at ?? '',
         sortingFn: 'datetime',
-        Cell: ({ row }) => (
-          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-            {formatDateTime(row.original.started_at)}
-          </Typography>
-        ),
+        Cell: ({ row }) => {
+          // Plain body text rather than monospace: the value is a rendered
+          // phrase ("3 hours ago"), not a fixed-width machine string.
+          const { display, title } = startedAtCell(row.original.started_at);
+          return (
+            <Typography variant="body2" title={title}>
+              {display}
+            </Typography>
+          );
+        },
       },
       {
         id: 'duration',
