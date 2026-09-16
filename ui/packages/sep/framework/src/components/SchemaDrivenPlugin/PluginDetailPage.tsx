@@ -490,6 +490,7 @@ function OverviewTab({
     typeof task.name === 'string' && task.name.trim()
       ? task.name.trim()
       : undefined;
+  const itemName = resolveItemDisplayName(schema);
   // `list_view` is optional: an entity schema reached through an unresolved
   // detail route has no top-level list view, so fall back to the task's own
   // fields (rendered below as `extraEntries`) rather than crashing.
@@ -504,7 +505,7 @@ function OverviewTab({
     // id), and the chip renders only for a string status. Matching those guards
     // keeps a non-string value from being dropped from both the header and the
     // card. They are the single source of truth for those values, so we
-    // de-duplicate them out of the Task information card rather than repeating
+    // de-duplicate them out of the information card rather than repeating
     // them below the header.
     const headerShownFields: string[] = [];
     if (typeof task.name === 'string') {
@@ -543,7 +544,7 @@ function OverviewTab({
         connectivityWarning !== undefined &&
         typeof connectivityWarning === 'object' && (
           <ConnectivityWarningAlert
-            itemName={resolveItemDisplayName(schema)}
+            itemName={itemName}
             warning={
               connectivityWarning as SepComponents['schemas']['framework__ConnectivityWarning']
             }
@@ -558,7 +559,7 @@ function OverviewTab({
       {taskName && (
         <LastRunCard
           taskNames={taskName}
-          itemName={resolveItemDisplayName(schema)}
+          itemName={itemName}
           onOpenRun={() => setLastRunOpen(true)}
         />
       )}
@@ -572,12 +573,12 @@ function OverviewTab({
           onClose={() => setLastRunOpen(false)}
           taskNames={taskName}
           taskLabel={taskName}
-          itemName={resolveItemDisplayName(schema)}
+          itemName={itemName}
         />
       )}
 
       {/* Schedule / next-run sits first so it is visible without scrolling
-          past the Task information card. Gate unchanged: plugins without the
+          past the information card. Gate unchanged: plugins without the
           scheduling capability render nothing here, so their Overview is
           untouched. */}
       {schema.capabilities?.scheduling &&
@@ -591,9 +592,7 @@ function OverviewTab({
           />
         )}
 
-      <SectionCard
-        title={`${capitalize(resolveItemDisplayName(schema))} information`}
-      >
+      <SectionCard title={`${capitalize(itemName)} information`}>
         <Grid container spacing={2}>
           {visibleColumns.map((col) => (
             <TaskOverviewDetailField
@@ -1418,12 +1417,7 @@ export function PluginDetailPage({
         />
         <Route
           path="logs"
-          element={
-            <LogsTab
-              taskNames={taskHistoryNames}
-              itemName={resolveItemDisplayName(schema)}
-            />
-          }
+          element={<LogsTab taskNames={taskHistoryNames} itemName={itemName} />}
         />
       </Routes>
     </Box>

@@ -155,8 +155,8 @@ export function SnippetExecutionAccordion({
 
   // The form is the execute control, so a read-only session never renders it.
   // Schema is still fetched when history is shown so item nouns can label the
-  // history table and logs dialog; the form itself stays gated on `canMutate`.
-  // Disabling for collapsed cards is only a request optimization: react-query
+  // history table and logs dialog; the form and its load states stay gated on
+  // `canMutate`. Disabling the query is only a request optimization: react-query
   // still serves a cached entry, and this schema is held with
   // `staleTime: Infinity` under a key that carries no identity, so an admin's
   // fetch would otherwise render the form for a non-admin reaching the same

@@ -317,7 +317,7 @@ describe('PluginListPage — item display name', () => {
     expect(screen.queryByRole('button', { name: /^New\s*$/ })).toBeNull();
   });
 
-  it('keeps Restores list title aligned with New restore (PMM-15455)', () => {
+  it('keeps Restores list title aligned with New restore', () => {
     // List chrome uses display_name for the page title and item_display_name
     // for the create CTA — those are independent schema fields.
     render(
