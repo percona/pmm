@@ -33,7 +33,8 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { LastRunStatus } from './LastRunStatus';
 import { ScheduledTaskForm } from './ScheduledTaskForm';
-import { describePeriod, formatAbsoluteTime } from './periods';
+import { describePeriod } from './periods';
+import { RunTime } from '../TaskRunDetailDrawer/RunTime';
 import type { AvailableTask } from '../ChainBuilder';
 import type {
   PeriodicTaskCreate,
@@ -124,7 +125,9 @@ export function ScheduledTaskRow({
             period.display
           )}
         </TableCell>
-        <TableCell>{formatAbsoluteTime(task.start_time)}</TableCell>
+        <TableCell>
+          <RunTime value={task.start_time} />
+        </TableCell>
         <TableCell>
           <Stack spacing={0.5} alignItems="flex-start">
             <LastRunStatus
@@ -138,12 +141,14 @@ export function ScheduledTaskRow({
             />
             {task.last_run_at && (
               <Typography variant="body2" color="text.secondary">
-                {formatAbsoluteTime(task.last_run_at)}
+                <RunTime value={task.last_run_at} />
               </Typography>
             )}
           </Stack>
         </TableCell>
-        <TableCell>{formatAbsoluteTime(task.next_run_at)}</TableCell>
+        <TableCell>
+          <RunTime value={task.next_run_at} />
+        </TableCell>
         <TableCell>{task.total_run_count}</TableCell>
         <TableCell>
           {chainNames.length > 0 ? (
