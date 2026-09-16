@@ -122,8 +122,7 @@ describe('ScheduledTasksPanel', () => {
 
   it('names the app rather than its registry key when given a display name', async () => {
     setup([]);
-    // A nested app is mounted under a scoped key (`mysql_backups/restore`),
-    // which is what used to reach the screen here.
+    // A nested app is mounted under a scoped key (`mysql_backups/restore`).
     renderPanel(
       <ScheduledTasksPanel
         pluginName="mysql_backups/restore"

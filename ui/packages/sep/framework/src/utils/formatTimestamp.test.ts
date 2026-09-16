@@ -90,13 +90,17 @@ describe('formatTimestamp', () => {
     expect(old?.title).toBe(formatAbsoluteTime('2025-01-02T03:04:00Z'));
   });
 
-  it('keeps the boundary inclusive on the relative side', () => {
+  it('keeps the boundary exclusive: exactly a week out is absolute', () => {
     // A hair under seven days stays relative; a hair over crosses to absolute.
-    const justInside = NOW - (7 * 24 * 60 * 60 * 1000 - 1000);
-    const justOutside = NOW - (7 * 24 * 60 * 60 * 1000 + 1000);
+    const week = 7 * 24 * 60 * 60 * 1000;
+    const justInside = NOW - (week - 1000);
+    const justOutside = NOW - (week + 1000);
     expect(
       formatTimestamp(new Date(justInside).toISOString(), NOW)?.display
     ).toMatch(/ago/);
+    expect(
+      formatTimestamp(new Date(NOW - week).toISOString(), NOW)?.display
+    ).not.toMatch(/ago/);
     expect(
       formatTimestamp(new Date(justOutside).toISOString(), NOW)?.display
     ).not.toMatch(/ago/);

@@ -301,6 +301,9 @@ const BASELINE_OVERVIEW_HIDDEN_FIELDS = [
 /** Stable empty column set so a schema without a `list_view` never re-memoizes. */
 const EMPTY_LIST_COLUMNS: ListView['columns'] = [];
 
+/** Stable empty hidden-field list so an Overview without one never re-memoizes. */
+const EMPTY_HIDDEN_FIELDS: string[] = [];
+
 function formatLabel(key: string): string {
   return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
@@ -449,9 +452,8 @@ function TaskConfigurationCard({
  * above them.
  *
  * `collapsed` is the decision, not the state: when it is false the children
- * render bare, exactly as they did before this wrapper existed, so a plugin
- * with no stored form sees no disclosure at all rather than one it must open to
- * read the only configuration the page has.
+ * render bare, so a plugin with no stored form sees no disclosure at all rather
+ * than one it must open to read the only configuration the page has.
  */
 function RawDetailDisclosure({
   collapsed,
@@ -583,7 +585,7 @@ function ConnectivityWarningAlert({
 function OverviewTab({
   schema,
   task,
-  hiddenFields = [],
+  hiddenFields = EMPTY_HIDDEN_FIELDS,
   pluginName,
   scheduleHref,
   children,
@@ -659,9 +661,6 @@ function OverviewTab({
   // the right source and their absence means there is nothing to join against.
   const configurationSections = schema.forms;
 
-  // Whatever the header and the Task information card already put on screen.
-  // A setting is worth listing once; repeating the execution host three inches
-  // below the row that states it is noise, not confirmation.
   // Split the schema's declared detail sections by what they hold. A section
   // whose every field carries a syntax `highlight` is a rendered document — the
   // emitted config — and is the only kind this page may demote. Sections of
@@ -675,10 +674,7 @@ function OverviewTab({
   // view is deliberately one highlighted block would be demoted against its
   // author's intent. Demotion needs a non-empty configuration summary as well
   // (below), which narrows that to an app that has one AND wants its single
-  // document kept first. The clean fix is for the section to declare intent —
-  // a `DetailSection.generated` flag set by the same backend code that decides
-  // `highlight`, defaulting to false so no existing schema changes behaviour —
-  // which is a side-car change rather than one this side can make alone.
+  // document kept first.
   const [plainDetailSections, rawDetailSections] = useMemo(() => {
     const sections = schema.detail_view?.sections ?? [];
     const plain: DetailSection[] = [];
@@ -696,6 +692,9 @@ function OverviewTab({
     return [plain, raw];
   }, [schema.detail_view, task]);
 
+  // Whatever the header and the Task information card already put on screen.
+  // A setting is worth listing once; repeating the execution host three inches
+  // below the row that states it is noise, not confirmation.
   const configurationExcludedNames = useMemo(
     () => {
       // Exactly what the Task information card puts on screen: its visible
@@ -714,11 +713,6 @@ function OverviewTab({
         // the key overlap above does not catch it. Every task-style app
         // inherits the field from the framework's own task form model, which is
         // what keeps naming it here app-agnostic.
-        //
-        // It is the only such mismatch today. A second one would want a
-        // declared record-key/form-field alias map rather than another literal
-        // here — the failure mode is a quietly duplicated field, which nothing
-        // types or tests would catch.
         'task_name',
       ]);
     },

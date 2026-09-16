@@ -58,9 +58,9 @@ const DOWNLOADABLE_FILES_STALE_TIME_MS = 30_000;
 
 /**
  * The em-dash belongs to this column rather than to {@link formatTimestamp}: a
- * history row always represents a run that started, so an absent `started_at`
- * is missing data worth marking, not the legitimately-empty cell a
- * never-executed task's list row has.
+ * history row with no `started_at` is a run still waiting to start, worth
+ * marking rather than leaving as the empty cell a never-executed task's list
+ * row has.
  */
 function startedAtCell(value?: string | null): {
   display: string;
@@ -257,10 +257,8 @@ function TaskHistoryTableView({
         accessorFn: (row) => row.started_at ?? '',
         sortingFn: 'datetime',
         Cell: ({ row }) => {
-          // Plain body text, not the monospace this column used to set: the
-          // value is a rendered phrase ("3 hours ago") rather than a fixed-width
-          // machine string, and the monospace made it a fifth date format on a
-          // page that already had four.
+          // Plain body text rather than monospace: the value is a rendered
+          // phrase ("3 hours ago"), not a fixed-width machine string.
           const { display, title } = startedAtCell(row.original.started_at);
           return (
             <Typography variant="body2" title={title}>

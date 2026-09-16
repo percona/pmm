@@ -33,12 +33,6 @@ import {
 /**
  * Turn a task's stored create-form body into the settings a reader needs to see.
  *
- * A task's configuration reached the detail page as the generated config
- * document: every setting the tool accepts, under the internal key it is
- * written with, most of them at their default, and including whole blocks that
- * belong to a backup type this task does not use. Verifying a backup meant
- * reading a hundred lines to find the four that were chosen.
- *
  * What a reader wants is the answer to "what did someone actually set here",
  * and the create form already knows: it declares the labels, it declares the
  * defaults, and it declares which fields apply to the chosen type. This module
@@ -50,8 +44,7 @@ import {
  * Deliberately not re-exported from the package index, unlike `getStoredForm`
  * next door: that one is part of the plugin-shell contract (a host decides
  * whether to offer Edit by asking whether a stored form exists), whereas this
- * is detail-page rendering with no caller outside this directory. Export it
- * when something outside needs it, not before.
+ * is detail-page rendering.
  */
 
 /** One configured setting, ready to render. */
@@ -140,7 +133,7 @@ function isGatedOut(
 }
 
 /**
- * Fields inside a `one_of` group whose branch was not the one taken.
+ * The taken branch's fields for a `one_of` group, else the item itself.
  *
  * A one-of group stores its chosen branch under the discriminator; the other
  * branches' fields are not part of this task's configuration even when the
