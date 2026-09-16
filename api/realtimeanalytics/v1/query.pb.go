@@ -392,9 +392,10 @@ type QueryMySQLData struct {
 	RowsSent int64 `protobuf:"varint,8,opt,name=rows_sent,json=rowsSent,proto3" json:"rows_sent,omitempty"`
 	// Indicates whether the statement performed a full table scan.
 	FullScan bool `protobuf:"varint,9,opt,name=full_scan,json=fullScan,proto3" json:"full_scan,omitempty"`
-	// Whether the statement is waiting for a row lock. UNSPECIFIED means the agent could not
-	// read the lock graph at all (missing privilege, unsupported server), which is not the same
-	// as having checked and found nothing -- a client must not report "not blocked" for it.
+	// Whether the statement is waiting for a lock; lock_type says which kind. UNSPECIFIED means
+	// the agent could not read the lock graph at all (missing privilege, unsupported server, or a
+	// graph too large to return in full), which is not the same as having checked and found
+	// nothing -- a client must not report "not blocked" for it.
 	BlockedStatus BlockedStatus `protobuf:"varint,10,opt,name=blocked_status,json=blockedStatus,proto3,enum=realtimeanalytics.v1.BlockedStatus" json:"blocked_status,omitempty"`
 	// Transactions blocking this statement, ordered by connection id. Empty whenever
 	// blocked_status is not BLOCKED.
