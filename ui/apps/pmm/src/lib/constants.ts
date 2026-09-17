@@ -28,6 +28,12 @@ export const SEP_MYSQL_BACKUPS_PATH = `${PMM_NEW_NAV_PATH}/sep/mysql-backups`;
 // bearer -- which is why it sits beside the SEP mounts above rather than under them.
 export const OM_PATH = `${PMM_NEW_NAV_PATH}/om`;
 
+// MongoDB backups sits *under* OM's path because it is one of OM's pages to a
+// reader, and the navigation nests it inside the OpenManager group. Its backend
+// is SEP's `backup_mongo` app, though, so unlike every other OM page it needs a
+// SEP bearer and is wrapped in `SepPage` rather than `OmPage` -- see router.tsx.
+export const OM_BACKUP_MONGO_PATH = `${OM_PATH}/mongodb-backups`;
+
 export const INTERVALS_MS = {
   // 5 mins
   SERVICE_TYPES: 300000,

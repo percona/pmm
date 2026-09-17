@@ -13,6 +13,7 @@ import {
   SEP_ATW_PATH,
   SEP_MYSQL_BACKUPS_PATH,
   OM_PATH,
+  OM_BACKUP_MONGO_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import { Redirect, SettingsRedirect } from 'components/redirect';
@@ -21,6 +22,7 @@ import RealtimeTab from 'pages/rta/tab/RealtimeTab';
 import { AlertsPage } from 'pages/alerting/status';
 import { AtwApp } from '@sep/plugins-atw';
 import { OmApp } from '@sep/plugins-om';
+import { BackupMongoApp } from '@sep/plugins-backup-mongo';
 import { OmPage } from 'om/OmPage';
 import { SchemaDrivenPlugin } from '@sep/framework';
 import { SepPage } from './sep/SepPage';
@@ -101,6 +103,25 @@ const router = createBrowserRouter(
               element: (
                 <SepPage>
                   <AtwApp />
+                </SepPage>
+              ),
+            },
+            {
+              // MongoDB backups: nested under OM's path in the nav and the URL,
+              // but SEP-backed, so it is the one page below /om wrapped in
+              // SepPage rather than OmPage -- it needs the session-exchanged SEP
+              // bearer that OM's own pmm-managed-served pages do not.
+              //
+              // Declared before OM's splat for readability only: React Router
+              // ranks by specificity, not array order, so this static segment
+              // wins over `om/*` wherever it sits. BackupMongoApp takes the mount
+              // path rather than hardcoding one, so each SchemaDrivenPlugin's
+              // routeBase cannot drift from the route that renders it (see the
+              // mysql_backups note below for what a mismatch breaks).
+              path: `${relativeToNav(OM_BACKUP_MONGO_PATH)}/*`,
+              element: (
+                <SepPage>
+                  <BackupMongoApp basePath={OM_BACKUP_MONGO_PATH} />
                 </SepPage>
               ),
             },

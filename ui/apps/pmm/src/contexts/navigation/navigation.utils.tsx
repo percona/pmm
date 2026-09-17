@@ -12,6 +12,7 @@ import {
   SEP_ATW_PATH,
   SEP_MYSQL_BACKUPS_PATH,
   OM_PATH,
+  OM_BACKUP_MONGO_PATH,
 } from 'lib/constants';
 import { ColorMode } from '@pmm/shared';
 import {
@@ -376,6 +377,18 @@ export const addOm = (): NavItem[] => [
         text: 'Automations',
         url: `${OM_PATH}/automations`,
         matches: [`${OM_PATH}/automations`],
+      },
+      {
+        // The one entry in this group whose page is served by SEP rather than
+        // pmm-managed, so it is the one that goes dead when SEP is off or
+        // unreachable while the rest of the group keeps working. It still lives
+        // here because it reads as an OM page; SepAuthGate fails closed, so an
+        // unreachable SEP shows an error inside a page that still renders rather
+        // than a blank one.
+        id: 'om-mongodb-backups',
+        text: 'MongoDB Backups',
+        url: OM_BACKUP_MONGO_PATH,
+        matches: [OM_BACKUP_MONGO_PATH],
       },
     ],
   },
