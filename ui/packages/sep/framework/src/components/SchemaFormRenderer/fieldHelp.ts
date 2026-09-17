@@ -20,7 +20,7 @@ import type { PluginField } from './types';
 /**
  * Longest description still shown under the input by default.
  *
- * Roughly one rendered line at the form's 800px width. The point of the
+ * Roughly one rendered line at the form's 750px width. The point of the
  * boundary is that a hint short enough to sit on one line costs almost nothing
  * to leave visible, while prose that wraps two or three times is what turns a
  * form with sixty fields into several screens.

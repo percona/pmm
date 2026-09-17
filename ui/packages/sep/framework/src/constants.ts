@@ -28,5 +28,9 @@ export const SEP_TABLE_CLASS = 'SepTable';
  * not easier, and the single-column stretch was the most visible way these
  * screens read as not-PMM (PMM-15456). Narrower than the page cap on purpose —
  * this is measured against line length, not against the container.
+ *
+ * 750px, not a new number: it matches the reading-width cap PMM's Settings
+ * page already applies to text, per @pmcf-percona on PMM-15456 — one reading
+ * width for the app, decided once here, that Settings can adopt too.
  */
-export const FORM_CONTENT_MAX_WIDTH = 800;
+export const FORM_CONTENT_MAX_WIDTH = 750;
