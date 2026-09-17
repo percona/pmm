@@ -104,6 +104,60 @@ export function fieldDeclaresGate(field: SectionField): boolean {
   return Boolean(field.requires?.length) || Boolean(field.forbidden?.length);
 }
 
+/**
+ * CLI help/usage field names that only print usage text in the terminal.
+ * Until schemas drop them (PMM-15518), Collect omits these so they never mount.
+ */
+const CLI_USAGE_TRAP_NAMES = new Set(['help', 'show_help', 'h', 'usage']);
+
+/** Labels that are the same trap under a different schema authoring style. */
+const SHOW_HELP_LABEL_RE = /show help message/i;
+
+/** Bare leaf name, ignoring any dotted namespace prefix. */
+function bareFieldName(name: string): string {
+  const dot = name.lastIndexOf('.');
+  return dot === -1 ? name : name.slice(dot + 1);
+}
+
+/**
+ * True when a field is a CLI-only help/usage control that should not appear in
+ * the PMM Collect form (PMM-15510).
+ */
+export function isCliUsageTrapField(field: {
+  name: string;
+  label?: string;
+}): boolean {
+  if (CLI_USAGE_TRAP_NAMES.has(bareFieldName(field.name).toLowerCase())) {
+    return true;
+  }
+  return Boolean(field.label && SHOW_HELP_LABEL_RE.test(field.label));
+}
+
+/**
+ * Drop CLI help/usage traps from a section field list (including one-of leaves).
+ * Filtered fields never mount and therefore never submit.
+ */
+export function omitCliUsageTrapFields(fields: SectionField[]): SectionField[] {
+  const out: SectionField[] = [];
+  for (const field of fields) {
+    if (field.type === 'one_of') {
+      out.push({
+        ...field,
+        branches: field.branches.map((branch) => ({
+          ...branch,
+          fields: branch.fields.filter((leaf) => !isCliUsageTrapField(leaf)),
+        })),
+      });
+      continue;
+    }
+    if (isCliUsageTrapField(field)) {
+      continue;
+    }
+    out.push(field);
+  }
+  return out;
+}
+
 /** Drop reserved UI fields and empty optional values from an args bag. */
 function toArgs(values: Record<string, unknown>): Record<string, unknown> {
   const args: Record<string, unknown> = {};
@@ -325,14 +379,15 @@ export function CollectPane({
       return [];
     }
     const result: FormSection[] = [];
-    if (merged.shared.length > 0) {
-      result.push({ title: 'Shared parameters', fields: merged.shared });
+    const shared = omitCliUsageTrapFields(merged.shared);
+    if (shared.length > 0) {
+      result.push({ title: 'Shared parameters', fields: shared });
     }
     selected.forEach((snippet, index) => {
       const entry = merged.per_snippet.find(
         (item) => item.snippet_filename === snippet.name
       );
-      const fields = entry?.fields ?? [];
+      const fields = omitCliUsageTrapFields(entry?.fields ?? []);
       if (fields.length === 0) {
         return;
       }
