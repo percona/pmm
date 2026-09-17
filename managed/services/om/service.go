@@ -319,7 +319,20 @@ func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.Trigger
 // Collection is driven rather than left to whoever happens to read: the run history is
 // only worth having if it exists when nobody is looking, and a document assembled purely
 // on demand can say nothing about the interval since the last one.
+//
+// Also reconciles SEP's om_inventory ENABLED flag with PMM's own switch once, up front.
+// syncOMInventoryEnabledIfChanged (server.go) only calls SyncInventoryEnabled on a live
+// ChangeSettings transition, so a server that starts up already enabled -- via
+// PMM_ENABLE_OM, or a persisted setting surviving a restart -- never fires it: there is
+// no "old" value to differ from a "new" one. Confirmed the hard way: PMM_ENABLE_OM=1 at
+// container start left SEP's ENABLED permanently false, with no supported way to correct
+// it afterward, since ChangeSettings refuses any value differing from the env-var-locked
+// one, and resubmitting the same value is a no-op transition. This call is what this
+// same ticker's own Enabled() check already gets for free every tick -- the current
+// truth, not just transitions away from it.
 func (s *Service) Run(ctx context.Context) {
+	s.SyncInventoryEnabled(ctx, s.Enabled())
+
 	ticker := time.NewTicker(refreshInterval)
 	defer ticker.Stop()
 
