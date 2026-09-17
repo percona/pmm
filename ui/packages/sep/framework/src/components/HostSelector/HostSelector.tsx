@@ -18,7 +18,7 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { get, useFormContext, useWatch } from 'react-hook-form';
 import { Alert } from '@mui/material';
-import { AutoCompleteInput } from '@percona/peak-ui';
+import { AutoCompleteInput, LabeledContent } from '@percona/peak-ui';
 import { useSnackbar } from 'notistack';
 import { useHosts, type HostOption } from '../../hooks/useHosts';
 import { useResolvedServiceField } from '../../hooks/useResolvedServiceField';
@@ -311,25 +311,38 @@ export function HostSelector({
   return (
     <>
       {cascade}
-      <AutoCompleteInput<HostOption>
-        name={name}
-        label={label}
-        control={control}
-        isRequired={required}
-        loading={isLoading}
-        disabled={disabled}
-        options={hosts}
-        controllerProps={{
-          rules: required ? { required: `${label} is required` } : undefined,
-        }}
-        autoCompleteProps={{
-          getOptionLabel,
-          isOptionEqualToValue,
-          noOptionsText,
-          onOpen: () => refetch(),
-        }}
-        textFieldProps={{ helperText: text, error: isError || !!fieldError }}
-      />
+      {/*
+        Peak AutoCompleteInput paints label+required on the floating TextField
+        label inside the outline. Wrap with LabeledContent for the visible
+        label + required marker above the box, keep Peak's `label` so the
+        input stays labelled for a11y/tests, and hide the floating InputLabel.
+      */}
+      <LabeledContent label={label} isRequired={required}>
+        <AutoCompleteInput<HostOption>
+          name={name}
+          label={label}
+          control={control}
+          loading={isLoading}
+          disabled={disabled}
+          options={hosts}
+          controllerProps={{
+            rules: required ? { required: `${label} is required` } : undefined,
+          }}
+          autoCompleteProps={{
+            getOptionLabel,
+            isOptionEqualToValue,
+            noOptionsText,
+            onOpen: () => refetch(),
+            // LabeledContent owns vertical rhythm for Autocomplete children.
+            sx: { mt: 0 },
+          }}
+          textFieldProps={{
+            helperText: text,
+            error: isError || !!fieldError,
+            InputLabelProps: { sx: { display: 'none' } },
+          }}
+        />
+      </LabeledContent>
       {mismatchWarning}
     </>
   );

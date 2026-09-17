@@ -160,6 +160,47 @@ describe('HostSelector', () => {
     expect(matches.length).toBeGreaterThanOrEqual(1);
   });
 
+  it('puts the label and required marker outside the outlined input', async () => {
+    mocked.get.mockResolvedValue(
+      makeResponse([
+        { id: 'nomad-1', name: 'db-mysql-prod-01', address: '10.0.0.1' },
+      ])
+    );
+
+    const client = makeClient();
+    render(
+      <Wrapper client={client}>
+        <SchemaFormRenderer
+          sections={[
+            {
+              title: 'Target',
+              fields: [
+                {
+                  type: 'host',
+                  name: 'hostId',
+                  label: 'Execution Host',
+                  required: true,
+                },
+              ],
+            },
+          ]}
+          onSubmit={() => {}}
+        />
+      </Wrapper>
+    );
+
+    await waitFor(() => expect(mocked.get).toHaveBeenCalledWith('/sep/hosts/'));
+
+    const heading = document.querySelector('.MuiTypography-sectionHeading');
+    expect(heading?.textContent).toBe('Execution Host*');
+    // Peak still mounts an InputLabel for a11y; it is visually hidden so the
+    // required marker the user sees is the one on LabeledContent above.
+    expect(document.querySelector('.MuiInputLabel-root')).toHaveStyle({
+      display: 'none',
+    });
+    expect(screen.getByLabelText(/^Execution Host\b/)).toBeInTheDocument();
+  });
+
   it('unwraps the selected option to the scalar id when submitting through SchemaFormRenderer', async () => {
     mocked.get.mockResolvedValue(
       makeResponse([
@@ -187,7 +228,8 @@ describe('HostSelector', () => {
     await waitFor(() => expect(mocked.get).toHaveBeenCalledWith('/sep/hosts/'));
 
     const user = userEvent.setup();
-    // `required: true` adds a trailing "*" to the rendered MUI label, so match by prefix.
+    // Required marker sits on LabeledContent above the field; aria-label is the
+    // bare label string.
     await user.click(screen.getByLabelText(/^Host\b/));
     const option = await screen.findByRole('option', {
       name: 'db-mysql-prod-01',
