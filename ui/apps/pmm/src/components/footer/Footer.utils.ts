@@ -1,3 +1,6 @@
+import { GetUpdatesResponse } from 'types/updates.types';
+import { Messages } from './Footer.messages';
+
 /**
  * Formats date to "Month Day, Year, HH:MM UTC"
  * @param date
@@ -11,4 +14,19 @@ export const formatCheckDate = (date: string) => {
   const hours = String(dateObj.getUTCHours()).padStart(2, '0');
   const minutes = String(dateObj.getUTCMinutes()).padStart(2, '0');
   return `${month} ${day}, ${year}, ${hours}:${minutes} UTC`;
+};
+
+export const getCheckStatus = (
+  versionInfo: GetUpdatesResponse | undefined,
+  inProgress: boolean
+): string | null => {
+  if (inProgress) {
+    return Messages.inProgress;
+  }
+
+  if (versionInfo?.lastCheck) {
+    return Messages.checkedOn(formatCheckDate(versionInfo.lastCheck));
+  }
+
+  return null;
 };

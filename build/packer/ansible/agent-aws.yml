@@ -216,7 +216,6 @@
         name: "{{ item }}"
         source: pull
       loop:
-        - debian:bullseye
         - debian:bookworm
         - debian:trixie
         - ubuntu:jammy
