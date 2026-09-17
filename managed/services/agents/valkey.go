@@ -18,6 +18,8 @@ package agents
 import (
 	"sort"
 
+	"github.com/sirupsen/logrus"
+
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
@@ -26,7 +28,7 @@ import (
 
 // valkeyExporterConfig returns the desired configuration of the valkey_exporter process.
 func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
-	pmmAgentVersion *version.Parsed,
+	pmmAgentVersion *version.Parsed, l *logrus.Entry,
 ) *agentv1.SetStateRequest_AgentProcess {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
@@ -48,12 +50,8 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 
 		// The flag names come from oliver006/redis_exporter, shipped as valkey_exporter;
 		// all four have been stable since v1.72.1, the build the first Valkey release used.
-		fileFlag := func(file, flag string) string {
-			return flag + "=" + tdp.Left + " .TextFiles." + file + " " + tdp.Right
-		}
-
 		if _, ok := textFiles[models.TLSCaFileName]; ok {
-			args = append(args, fileFlag(models.TLSCaFileName, "--tls-ca-cert-file"))
+			args = append(args, "--tls-ca-cert-file="+textFileRef(tdp, models.TLSCaFileName))
 		}
 
 		// The exporter's validateTLSClientConfig calls log.Fatal when one half of the client key
@@ -61,10 +59,14 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 		// authentication only instead.
 		_, hasCert := textFiles[models.TLSCertFileName]
 		_, hasKey := textFiles[models.TLSKeyFileName]
-		if hasCert && hasKey {
+		switch {
+		case hasCert && hasKey:
 			args = append(args,
-				fileFlag(models.TLSCertFileName, "--tls-client-cert-file"),
-				fileFlag(models.TLSKeyFileName, "--tls-client-key-file"))
+				"--tls-client-cert-file="+textFileRef(tdp, models.TLSCertFileName),
+				"--tls-client-key-file="+textFileRef(tdp, models.TLSKeyFileName))
+		case hasCert || hasKey:
+			l.WithField("agent_id", exporter.AgentID).
+				Warn("Valkey exporter has only one half of the TLS client key pair; connecting without a client certificate.")
 		}
 	}
 

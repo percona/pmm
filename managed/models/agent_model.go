@@ -911,13 +911,13 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 	case MySQLdExporterType, QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		files := make(map[string]string)
 		if a.MySQLOptions.TLSCa != "" {
-			files["tlsCa"] = a.MySQLOptions.TLSCa
+			files[TLSCaFileName] = a.MySQLOptions.TLSCa
 		}
 		if a.MySQLOptions.TLSCert != "" {
-			files["tlsCert"] = a.MySQLOptions.TLSCert
+			files[TLSCertFileName] = a.MySQLOptions.TLSCert
 		}
 		if a.MySQLOptions.TLSKey != "" {
-			files["tlsKey"] = a.MySQLOptions.TLSKey
+			files[TLSKeyFileName] = a.MySQLOptions.TLSKey
 		}
 
 		if len(files) != 0 {

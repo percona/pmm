@@ -125,6 +125,11 @@ func redactWords(agent *models.Agent) []string {
 	return words
 }
 
+// textFileRef returns the template expression pmm-agent expands to the on-disk path of a shipped text file.
+func textFileRef(tdp *models.DelimiterPair, name string) string {
+	return tdp.Left + " .TextFiles." + name + " " + tdp.Right
+}
+
 // pathsBase returns paths base and in case of unsupported PMM client a hardcoded value.
 func pathsBase(agentVersion *version.Parsed, tdpLeft, tdpRight string) string {
 	if agentVersion == nil || agentVersion.Less(pmmAgentPathsBaseSupport) {
