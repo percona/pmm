@@ -181,13 +181,29 @@ To assume a role:
     }
     ```
 
-4. Supply the role ARN when you add the instance. In the PMM web interface, enter it in the **AWS IAM role ARN** field of the Amazon RDS discovery form on the **Add Instance** page. From the command line, pass `--aws-role-arn`:
+4. Supply the role ARN when you add the instance.
+
+    In the PMM web interface, enter it in the **AWS IAM role ARN** field of the Amazon RDS discovery form on the **Add Instance** page. Discovery fills in the rest, so there is nothing else to do.
+
+    From the command line there are two steps, because the exporter attaches to a node rather than to a service. First register the RDS instance as a node, passing the DB instance identifier exactly as it appears in the AWS console:
+
+    ```sh
+    pmm-admin inventory add node remote-rds <node-name> \
+        --instance-id=<db-instance-identifier> \
+        --address=<endpoint-hostname> \
+        --region=<aws-region> \
+        --az=<availability-zone>
+    ```
+
+    Then attach the exporter to the node it returned, passing the role ARN:
 
     ```sh
     pmm-admin inventory add agent rds-exporter \
         --aws-role-arn=arn:aws:iam::<rds-account-id>:role/<role-to-assume> \
         <pmm-agent-id> <node-id>
     ```
+
+    `--instance-id` is the DB instance identifier, not the endpoint hostname: `my-database`, not `my-database.abc123.eu-north-1.rds.amazonaws.com`. PMM passes it to CloudWatch as the `DBInstanceIdentifier` dimension, and an exporter without one starts, reports RUNNING and collects nothing. See [pmm-admin inventory add node remote-rds](../../../use/commands/pmm-admin/inventory.md#pmm-admin-inventory-add-node-remote-rds).
 
 !!! caution alert alert-warning "Mutually exclusive"
     A role ARN cannot be combined with an access key and secret key; supplying both is rejected. To move an instance PMM already monitors onto a role, see [Migrating an existing instance to an IAM role](#migrating-an-existing-instance-to-an-iam-role).
