@@ -53,7 +53,6 @@ vi.mock('@sep/api', async (importOriginal) => ({
 // above, so it needs its own mock pointing at the same spy.
 vi.mock('@sep/api/src/client', () => ({ apiClient: apiMock }));
 
-import { formatTimestamp } from '../../utils/formatTimestamp';
 import { PluginScheduleFormPage } from './PluginScheduleFormPage';
 import type { PeriodicTaskResponse } from '../ScheduledTasksPanel/hooks';
 
@@ -593,18 +592,19 @@ describe('PluginScheduleFormPage — previewing the next runs', () => {
     );
   }
 
-  it('shows the next three runs the backend reports', async () => {
+  it('shows the next three runs the backend reports, as clock time in the schedule zone', async () => {
     setup([]);
+    const runIsos = [
+      '2026-03-01T02:00:00Z',
+      '2026-03-02T02:00:00Z',
+      '2026-03-03T02:00:00Z',
+      '2026-03-04T02:00:00Z',
+    ];
     apiMock.post.mockResolvedValue({
       data: {
         timezone: 'Europe/Lisbon',
-        next_run_at: '2026-03-01T02:00:00Z',
-        next_runs: [
-          '2026-03-01T02:00:00Z',
-          '2026-03-02T02:00:00Z',
-          '2026-03-03T02:00:00Z',
-          '2026-03-04T02:00:00Z',
-        ],
+        next_run_at: runIsos[0],
+        next_runs: runIsos,
       },
     });
 
@@ -617,17 +617,25 @@ describe('PluginScheduleFormPage — previewing the next runs', () => {
       { timeout: 3000 }
     );
     await waitFor(() => expect(runs).toHaveTextContent(/Next runs:/));
-    // Three, not the four the backend offered.
-    for (const iso of [
-      '2026-03-01T02:00:00Z',
-      '2026-03-02T02:00:00Z',
-      '2026-03-03T02:00:00Z',
-    ]) {
-      expect(runs.textContent).toContain(formatTimestamp(iso)!.display);
+    // Three, not the four the backend offered, rendered as a clock time in
+    // the schedule's own zone rather than the reader's or a relative phrase.
+    for (const iso of runIsos.slice(0, 3)) {
+      expect(runs.textContent).toContain(
+        new Date(iso).toLocaleString(undefined, {
+          timeZone: 'Europe/Lisbon',
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        })
+      );
     }
     expect(runs.textContent).not.toContain(
-      formatTimestamp('2026-03-04T02:00:00Z')!.display
+      new Date(runIsos[3]).toLocaleString(undefined, {
+        timeZone: 'Europe/Lisbon',
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })
     );
+    expect(runs.textContent).not.toMatch(/in \d+ (hours?|days?)|tomorrow/);
   });
 
   it('states the zone the backend resolved, not the one the form assumed', async () => {
