@@ -17,6 +17,7 @@ package om
 
 import (
 	"context"
+	"net/http"
 	"sync"
 	"testing"
 	"time"
@@ -235,4 +236,40 @@ func TestCollectPersistFailureStillReturnsDocument(t *testing.T) {
 	require.NotNil(t, run)
 	assert.Equal(t, int32(1), response.Summary.TotalServices)
 	assert.Same(t, response, svc.snapshot(), "the response collect returned is the one it published")
+}
+
+// TestRunSyncsInventoryEnabledOnStartup is the regression guard for a server that starts
+// up already OM-enabled -- via PMM_ENABLE_OM, or a setting persisted across a restart --
+// never telling SEP's om_inventory app. The existing syncOMInventoryEnabledIfChanged
+// (server.go) only fires on a live ChangeSettings transition, so with no prior "off"
+// value to differ from, SEP's own ENABLED stayed permanently false with no supported
+// way to correct it afterward: ChangeSettings refuses any value differing from the
+// env-var-locked one, and resubmitting the same value is a no-op transition. Confirmed
+// against a live deployment before this fix. Run's own
+// SyncInventoryEnabled(ctx, s.Enabled()) call happens before the ticker loop, so it
+// fires on every startup regardless of transition history -- run in a goroutine and
+// cancelled shortly after, so the test observes that call without waiting out
+// refreshInterval.
+func TestRunSyncsInventoryEnabledOnStartup(t *testing.T) {
+	db := serviceTestDB(t)
+	_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{EnableOM: new(true)})
+	require.NoError(t, err)
+
+	stub := newSEPStub(t, http.StatusOK, `{}`)
+	svc := stub.service(t)
+	svc.db = db
+
+	ctx, cancel := context.WithCancel(t.Context())
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		svc.Run(ctx)
+	}()
+	time.Sleep(100 * time.Millisecond) // let the startup sync reach the stub before Run sees cancellation.
+	cancel()
+	<-done
+
+	require.NotEmpty(t, stub.calls, "Run must sync SEP's ENABLED flag before ever reaching the ticker loop")
+	assert.Equal(t, http.MethodPatch, stub.calls[0].method)
+	assert.JSONEq(t, `{"ENABLED": true}`, stub.calls[0].body)
 }
