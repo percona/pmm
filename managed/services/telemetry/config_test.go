@@ -19,6 +19,7 @@ import (
 	"testing"
 	"time"
 
+	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -118,4 +119,91 @@ reporting:
 	logger, _ := test.NewNullLogger()
 	err = actual.Init(logger.WithField("test", t.Name()))
 	require.NoError(t, err)
+}
+
+// Only the Helm charts set PMM_INSTALL_METHOD, and kubelet sets KUBERNETES_SERVICE_HOST in every
+// Pod, so this pair of presence flags is what separates a Kubernetes deployment from a Docker one.
+func TestDefaultConfigReportsKubernetesDeployment(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logEntry := logger.WithField("test", t.Name())
+	cfg := ServiceConfig{l: logEntry}
+
+	telemetry, err := cfg.loadMetricsConfig("")
+	require.NoError(t, err)
+
+	byID := make(map[string]Config, len(telemetry))
+	for _, each := range telemetry {
+		byID[each.ID] = each
+	}
+
+	helm, ok := byID["PMMServerInstalledWithHelm"]
+	require.True(t, ok, "PMMServerInstalledWithHelm datapoint is missing")
+	assert.Equal(t, string(dsEnvVars), helm.Source)
+	assert.Equal(t, []ConfigData{{MetricName: "pmm_server_installed_with_helm", Column: "PMM_INSTALL_METHOD"}}, helm.Data)
+	require.NotNil(t, helm.Transform)
+	assert.Equal(t, StripValuesTransform, helm.Transform.Type, "the annotation value must not be reported")
+
+	inKubernetes, ok := byID["PMMServerInKubernetes"]
+	require.True(t, ok, "PMMServerInKubernetes datapoint is missing")
+	assert.Equal(t, string(dsEnvVars), inKubernetes.Source)
+	assert.Equal(t, []ConfigData{{MetricName: "pmm_server_in_kubernetes", Column: "KUBERNETES_SERVICE_HOST"}}, inKubernetes.Data)
+	require.NotNil(t, inKubernetes.Transform)
+	assert.Equal(t, StripValuesTransform, inKubernetes.Transform.Type, "the cluster address must not be reported")
+
+	dataSource := NewDataSourceEnvVars(DSConfigEnvVars{Enabled: true}, logEntry)
+
+	// report yields what a datapoint contributes to the telemetry report from the current
+	// environment, transformed the way prepareReport transforms it.
+	report := func(t *testing.T, config Config) []*telemetryv1.GenericReport_Metric {
+		t.Helper()
+
+		metrics, err := dataSource.FetchMetrics(t.Context(), config)
+		require.NoError(t, err)
+		metrics, err = transformExportValues(&config, metrics)
+		require.NoError(t, err)
+
+		return metrics
+	}
+
+	// t.Setenv cannot unset a variable, but the datasource skips unset and empty values alike.
+	t.Run("Helm on Kubernetes without HA", func(t *testing.T) {
+		t.Setenv("PMM_INSTALL_METHOD", "Helm")
+		t.Setenv("KUBERNETES_SERVICE_HOST", "10.96.0.1")
+		t.Setenv("PMM_HA_ENABLE", "")
+
+		assert.Equal(t, []*telemetryv1.GenericReport_Metric{{Key: "pmm_server_installed_with_helm", Value: "1"}}, report(t, helm))
+		assert.Equal(t, []*telemetryv1.GenericReport_Metric{{Key: "pmm_server_in_kubernetes", Value: "1"}}, report(t, inKubernetes))
+
+		// The Kubernetes signal must stand on its own, without implying the HA feature.
+		haEnabled, ok := byID["PMMServerHAEnabled"]
+		require.True(t, ok, "PMMServerHAEnabled datapoint is missing")
+		metrics, err := dataSource.FetchMetrics(t.Context(), haEnabled)
+		require.NoError(t, err)
+		assert.Empty(t, metrics)
+	})
+
+	t.Run("Kubernetes without Helm", func(t *testing.T) {
+		t.Setenv("PMM_INSTALL_METHOD", "")
+		t.Setenv("KUBERNETES_SERVICE_HOST", "10.96.0.1")
+
+		assert.Empty(t, report(t, helm))
+		assert.Equal(t, []*telemetryv1.GenericReport_Metric{{Key: "pmm_server_in_kubernetes", Value: "1"}}, report(t, inKubernetes))
+	})
+
+	t.Run("Docker", func(t *testing.T) {
+		t.Setenv("PMM_INSTALL_METHOD", "")
+		t.Setenv("KUBERNETES_SERVICE_HOST", "")
+
+		assert.Empty(t, report(t, helm))
+		assert.Empty(t, report(t, inKubernetes))
+	})
+
+	t.Run("environment values are never reported", func(t *testing.T) {
+		t.Setenv("PMM_INSTALL_METHOD", "Helm cluster-name.example.com")
+		t.Setenv("KUBERNETES_SERVICE_HOST", "10.96.0.1")
+
+		for _, metric := range append(report(t, helm), report(t, inKubernetes)...) {
+			assert.Equal(t, "1", metric.Value, "%s must report presence only", metric.Key)
+		}
+	})
 }
