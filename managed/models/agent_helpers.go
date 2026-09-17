@@ -229,8 +229,6 @@ type AgentFilters struct {
 	ServiceID string
 	// Return Agents with provided type.
 	AgentType *AgentType
-	// Return only Agents that provide insights for that AWSAccessKey.
-	AWSAccessKey string
 	// IgnoreNomad is used to ignore Nomad agents.
 	IgnoreNomad bool
 	// Disabled indicates whether to filter by disabled status.
@@ -289,11 +287,6 @@ func FindAgents(q *reform.Querier, filters AgentFilters) ([]*Agent, error) {
 	if filters.AgentType != nil {
 		conditions = append(conditions, "agent_type = "+q.Placeholder(idx))
 		args = append(args, *filters.AgentType)
-		idx++
-	}
-	if filters.AWSAccessKey != "" {
-		conditions = append(conditions, fmt.Sprintf("(aws_options ? 'aws_access_key' AND aws_options->>'aws_access_key' = %s)", q.Placeholder(idx)))
-		args = append(args, filters.AWSAccessKey)
 		idx++
 	}
 	if filters.IgnoreNomad {
@@ -949,7 +942,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		return nil, err
 	}
 
-	_, err = FindAgentByID(q, params.PMMAgentID)
+	pmmAgent, err := FindAgentByID(q, params.PMMAgentID)
 	if err != nil {
 		return nil, err
 	}
@@ -1034,6 +1027,21 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		// do nothing
 	}
 
+	err = row.AWSOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	if row.AWSOptions.AWSRoleARN != "" {
+		// Refuse when the pmm-agent is too old or its version cannot be determined. The one
+		// exception is a pmm-agent that has not reported a version yet (never connected): it
+		// does not block storing the config, and the gate re-checks on change once it connects.
+		err = IsAgentSupported(pmmAgent, "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN)
+		if err != nil && !errors.Is(err, ErrAgentVersionNotReported) {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+	}
+
 	encryptedAgent := EncryptAgent(trimUnicodeNilsInCertFiles(*row))
 	err = q.Insert(&encryptedAgent)
 	if err != nil {
@@ -1090,6 +1098,7 @@ type ChangeQANOptions struct {
 type ChangeAWSOptions struct {
 	AWSAccessKey               *string
 	AWSSecretKey               *string
+	AWSRoleARN                 *string
 	RDSBasicMetricsDisabled    *bool
 	RDSEnhancedMetricsDisabled *bool
 }
@@ -1343,6 +1352,9 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 		if params.AWSOptions.AWSSecretKey != nil {
 			row.AWSOptions.AWSSecretKey = *params.AWSOptions.AWSSecretKey
 		}
+		if params.AWSOptions.AWSRoleARN != nil {
+			row.AWSOptions.AWSRoleARN = *params.AWSOptions.AWSRoleARN
+		}
 		if params.AWSOptions.RDSBasicMetricsDisabled != nil {
 			row.AWSOptions.RDSBasicMetricsDisabled = *params.AWSOptions.RDSBasicMetricsDisabled
 		}
@@ -1465,6 +1477,21 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeAgentParams) (
 
 	// RTA options
 	row.RTAOptions.Merge(params.RTAOptions)
+
+	err = row.AWSOptions.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	if row.AWSOptions.AWSRoleARN != "" {
+		// Refuse when the pmm-agent is too old, missing, or its version cannot be determined.
+		// The one exception is a pmm-agent that has not reported a version yet; it does not
+		// block storing the config.
+		err = PMMAgentSupported(q, pointer.GetString(row.PMMAgentID), "AWS IAM role assumption", PMMAgentMinVersionForAWSRoleARN)
+		if err != nil && !errors.Is(err, ErrAgentVersionNotReported) {
+			return nil, status.Error(codes.FailedPrecondition, err.Error())
+		}
+	}
 
 	// need to encrypt Agent's sensitive data before update
 	row = new(EncryptAgent(*row))

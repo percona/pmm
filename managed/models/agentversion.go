@@ -26,6 +26,16 @@ import (
 // PMMAgentMinVersionForPostgreSQLSSLSni is the minimum required version of PMM Agent.
 var PMMAgentMinVersionForPostgreSQLSSLSni = version.Must(version.NewVersion("2.41.0-0"))
 
+// PMMAgentMinVersionForAWSRoleARN is the minimum pmm-agent version whose bundled rds_exporter
+// assumes an IAM role using ambient credentials. Older exporters build empty static credentials
+// instead and never sign sts:AssumeRole. The -0 suffix admits prereleases of 3.4.0.
+var PMMAgentMinVersionForAWSRoleARN = version.Must(version.NewVersion("3.4.0-0"))
+
+// ErrAgentVersionNotReported is returned when a pmm-agent has not reported its version yet
+// (for example it has never connected). Callers can allow this case explicitly while still
+// rejecting a version that is present but malformed.
+var ErrAgentVersionNotReported = errors.New("pmm agent has no version info")
+
 // AgentNotSupportedError is used when the target PMM agent doesn't support the requested functionality.
 type AgentNotSupportedError struct {
 	Functionality   string
@@ -54,7 +64,7 @@ func IsAgentSupported(agentModel *Agent, functionalityPrefix string, pmmMinVersi
 		return errors.New("nil agent")
 	}
 	if agentModel.Version == nil {
-		return fmt.Errorf("pmm agent %q has no version info", agentModel.AgentID)
+		return fmt.Errorf("%w (agent %q)", ErrAgentVersionNotReported, agentModel.AgentID)
 	}
 	pmmAgentVersion, err := version.NewVersion(*agentModel.Version)
 	if err != nil {

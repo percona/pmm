@@ -388,6 +388,8 @@ func (m *UniversalAgent) validate(all bool) error {
 		}
 	}
 
+	// no validation rules for AwsRoleArn
+
 	if len(errors) > 0 {
 		return UniversalAgentMultiError(errors)
 	}

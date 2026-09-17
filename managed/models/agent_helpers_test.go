@@ -251,6 +251,73 @@ func TestAgentHelpers(t *testing.T) {
 		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, `node N4 has no DB instance identifier`, err)
 	})
 
+	t.Run("CreateAgentRDSExporterRoleARNRequiresPMMAgent340", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+
+		require.NoError(t, q.Insert(&models.Node{
+			NodeID: "RN", NodeType: models.RemoteRDSNodeType, NodeName: "rds node for version gate",
+			Address: "rds.example.com", InstanceID: "rds-inst",
+		}))
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-old", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"), Version: new("3.3.1"),
+		}))
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-new", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"), Version: new("3.4.0"),
+		}))
+
+		roleARN := "arn:aws:iam::123456789012:role/pmm-monitoring"
+
+		// A pre-3.4.0 pmm-agent bundles an rds_exporter that cannot assume a role from ambient
+		// credentials, so creating a role-based exporter on it must be refused.
+		_, err := models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-old", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "AWS IAM role assumption", err)
+
+		// A 3.4.0 pmm-agent supports it.
+		agent, err := models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-new", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, roleARN, agent.AWSOptions.AWSRoleARN)
+
+		// A pmm-agent that has not reported a version yet (never connected) is not blocked:
+		// the config is stored and the gate re-checks once the agent connects.
+		require.NoError(t, q.Insert(&models.Node{
+			NodeID: "RN2", NodeType: models.RemoteRDSNodeType, NodeName: "rds node for unknown-version gate",
+			Address: "rds2.example.com", InstanceID: "rds-inst-2",
+		}))
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-noversion", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"),
+		}))
+		agent, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-noversion", NodeID: "RN2",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, roleARN, agent.AWSOptions.AWSRoleARN)
+
+		// A pmm-agent whose version is present but unparseable is refused (unlike a nil version).
+		require.NoError(t, q.Insert(&models.Agent{
+			AgentID: "PA-bad", AgentType: models.PMMAgentType, RunsOnNodeID: new("RN"), Version: new("not-a-version"),
+		}))
+		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-bad", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSRoleARN: roleARN},
+		})
+		tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, "failed to parse", err)
+
+		// Static keys are unaffected by the gate; they work on the old agent.
+		_, err = models.CreateAgent(q, models.RDSExporterType, &models.CreateAgentParams{
+			PMMAgentID: "PA-old", NodeID: "RN",
+			AWSOptions: models.AWSOptions{AWSAccessKey: "AKIA", AWSSecretKey: "secret"},
+		})
+		require.NoError(t, err)
+	})
+
 	t.Run("AgentsForNode", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
