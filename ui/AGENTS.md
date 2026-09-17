@@ -3,13 +3,13 @@
 > **Parent guide**: [AGENTS.md](../AGENTS.md) — product overview, architecture, domain model, global conventions
 > **Related**: [api/AGENTS.md](../api/AGENTS.md) (API definitions consumed by UI) · [managed/AGENTS.md](../managed/AGENTS.md) (server backend)
 
-The `/ui` directory contains the PMM web frontend — a React/TypeScript application that provides the primary user interface for Percona Monitoring and Management. It runs inside a Grafana iframe on PMM Server and also hosts standalone pages for updates, RTA, and help.
+The `/ui` directory contains the PMM web frontend — a React/TypeScript application that provides the primary user interface for Percona Monitoring and Management. It is the outer shell served at `/pmm-ui` on PMM Server: it embeds Grafana in an iframe and hosts its own pages for updates, RTA, and help.
 
 ## Architecture
 
 ### Monorepo Structure
 
-The UI uses a **Yarn workspaces + Turborepo** monorepo with three packages:
+The UI uses a **pnpm workspaces + Turborepo** monorepo with three packages:
 
 | Package         | Path                  | Purpose                                                       |
 | --------------- | --------------------- | ------------------------------------------------------------- |
@@ -32,10 +32,14 @@ The UI uses a **Yarn workspaces + Turborepo** monorepo with three packages:
 | **Jest**                         | Unit testing (shared package)                        |
 | **Webpack**                      | Build for Grafana plugin (pmm-compat)                |
 | **Rollup**                       | Build for shared package                             |
+| **pnpm (via Corepack)**          | Package manager and workspaces                       |
+| **Turborepo**                    | Task runner across the workspace                     |
+| **oxlint**                       | Linting (`ui/oxlintrc.json`)                         |
+| **oxfmt**                        | Formatting (`ui/.oxfmtrc.json`)                      |
 
 ### Communication with Grafana
 
-PMM UI runs inside a Grafana iframe. Cross-frame communication uses `CrossFrameMessenger` from `@pmm/shared`:
+PMM UI is the top frame and Grafana runs inside its `#grafana-iframe`; the `pmm-compat` plugin runs on the Grafana side and targets `window.top`. Cross-frame communication uses `CrossFrameMessenger` from `@pmm/shared`:
 
 - Navigation events
 - Theme synchronization
@@ -81,6 +85,7 @@ Providers are composed in `Providers.tsx`, all wrapped by `ThemeContextProvider`
 - `UserProvider` — current user info
 - `SettingsProvider` — PMM Server settings
 - `UpdatesProvider` — update availability
+- `VersionProvider` — reloads the page after the server is upgraded externally
 - `GrafanaProvider` — Grafana integration state
 - `NavigationProvider` — sidebar navigation
 - `TourProvider` — onboarding tour
@@ -126,13 +131,29 @@ The app is wrapped in `ThemeContextProvider` (see `App.tsx`); style with the the
 - **Pattern**: co-located `*.test.tsx` / `*.test.ts` files next to components
 - **Run**: `make test` or via Turborepo (`turbo test`)
 
+## Linting and Formatting
+
+- **Linter**: oxlint, configured in `ui/oxlintrc.json`. `plugins` lists every
+  built-in plugin the rules rely on — setting it replaces oxlint's default set,
+  and a rule whose plugin is missing is silently inert.
+- **Formatter**: oxfmt, configured in `ui/.oxfmtrc.json`. It owns formatting;
+  there is no Prettier and no formatting rule in the linter.
+- **Scope**: build/test config files (`vite.config.ts`, `vitest.config.ts`,
+  `webpack.config.ts`, `jest.config.js`) are linted like any other source. The
+  only exclusion is `apps/pmm-compat/.config/`, Grafana's auto-generated plugin
+  scaffold, which upstream regenerates and tells you not to edit.
+- **Run**: `make lint`, `make format` (or `make format-check`, which is what CI
+  runs in `.github/workflows/ui.yml`).
+
 ## Development Workflow
 
 ```bash
-# Prerequisites: Node 22, Yarn
+# Prerequisites: Node 22. pnpm comes from Corepack, which `make setup`
+# enables — the version is pinned by `packageManager` in ui/package.json,
+# so never install pnpm separately.
 cd ui
 
-# Install dependencies
+# Enable Corepack + install dependencies
 make setup
 
 # Start dev server
@@ -143,6 +164,10 @@ make build
 
 # Run tests
 make test
+
+# Lint (oxlint) and format (oxfmt)
+make lint
+make format        # make format-check in CI
 ```
 
 Inside the PMM devcontainer (`make env-up` then `make env` from the repo root), `make run-ui` (main UI HMR via Vite on port 5173) and `make run-qan-ui` (QAN livereload on port 35730) replace `make dev` and wire the dev servers into the bundled Grafana automatically. See `ui/README.md` for details.

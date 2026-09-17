@@ -69,7 +69,7 @@ gobuild_component() {
     elif [ ${component} = 'percona-toolkit' ]; then
         build_command="cd /tmp/go/src/${extract_path}/${component_path} && go build -o \${binary_dir}/${result_file} ."
     elif [ ${component} = 'nomad' ]; then
-        build_command="cd /tmp/go/src/${extract_path} && TARGETS=${target} make deps release"
+        build_command="cd /tmp/go/src/${extract_path} && TARGETS=${target} make deps release GO_TAGS='ui codegen_generated release hashicorpmetrics'"
     elif [ ${component} = 'redis_exporter' ]; then
         build_command="cd /tmp/go/src/${extract_path} && go build ."
     else

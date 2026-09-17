@@ -2,10 +2,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { TEST_MONGO_DB_QUERY_DATA } from 'utils/testStubs';
 import {
   buildRtaExportFilename,
+  collectCsvColumns,
   exportRtaQueriesToCsv,
-  formatElapsedExecTimeSec,
   mapQueryToCsvRow,
   sanitizeCsvCell,
+  toCsvHeader,
+  toCsvValue,
 } from './exportRtaQueriesToCsv';
 
 const { download, generateCsv, mkConfig } = vi.hoisted(() => ({
@@ -34,10 +36,19 @@ describe('exportRtaQueriesToCsv', () => {
     vi.clearAllMocks();
   });
 
-  it('formats elapsed exec time as seconds', () => {
-    expect(formatElapsedExecTimeSec(10)).toBe(10);
-    expect(formatElapsedExecTimeSec(null)).toBe('');
-    expect(formatElapsedExecTimeSec(undefined)).toBe('');
+  it('serializes values the csv generator cannot handle on its own', () => {
+    expect(toCsvValue(10)).toBe(10);
+    expect(toCsvValue(null)).toBe('');
+    expect(toCsvValue(undefined)).toBe('');
+    expect(toCsvValue(true)).toBe(true);
+    expect(toCsvValue(['a', 'b'])).toBe('["a","b"]');
+  });
+
+  it('derives headers from the api field name unless it is overridden', () => {
+    expect(toCsvHeader('queryId')).toBe('operation_id');
+    expect(toCsvHeader('serviceName')).toBe('service');
+    expect(toCsvHeader('dbInstanceAddress')).toBe('db_instance_address');
+    expect(toCsvHeader('someNewApiField')).toBe('some_new_api_field');
   });
 
   it('sanitizes values that could be interpreted as spreadsheet formulas', () => {
@@ -48,27 +59,8 @@ describe('exportRtaQueriesToCsv', () => {
     expect(sanitizeCsvCell('{ find: "x" }')).toBe('{ find: "x" }');
   });
 
-  it('maps query data to csv row columns in the required order', () => {
-    const row = mapQueryToCsvRow(TEST_QUERY);
-
-    expect(Object.keys(row)).toEqual([
-      'operation_id',
-      'elapsed_exec_time_sec',
-      'db_instance_address',
-      'client_address',
-      'database_name',
-      'service',
-      'user_name',
-      'collection',
-      'operation',
-      'plan_summary',
-      'client_app_name',
-      'operation_start_time',
-      'data_capture_time',
-      'raw_query',
-    ]);
-
-    expect(row).toEqual({
+  it('maps every query field to a csv column, flattening the payload', () => {
+    expect(mapQueryToCsvRow(TEST_QUERY)).toEqual({
       operation_id: 'query-1',
       elapsed_exec_time_sec: 10,
       db_instance_address: '127.0.0.1',
@@ -83,7 +75,66 @@ describe('exportRtaQueriesToCsv', () => {
       operation_start_time: '2021-01-01T00:00:00Z',
       data_capture_time: '2021-01-01T00:00:00Z',
       raw_query: '{ find: "mycollection", filter: { status: "active" } }',
+      service_id: 'service-1',
+      query_text: '{ find: "mycollection", filter: { status: "active" } }',
     });
+  });
+
+  it('keeps the documented column order and appends unlisted fields', () => {
+    const columns = collectCsvColumns([mapQueryToCsvRow(TEST_QUERY)]);
+
+    expect(columns).toEqual([
+      'operation_id',
+      'elapsed_exec_time_sec',
+      'db_instance_address',
+      'client_address',
+      'database_name',
+      'service',
+      'user_name',
+      'collection',
+      'operation',
+      'plan_summary',
+      'client_app_name',
+      'operation_start_time',
+      'data_capture_time',
+      'raw_query',
+      'service_id',
+      'query_text',
+    ]);
+  });
+
+  it('exports fields the api adds without any mapping', () => {
+    const row = mapQueryToCsvRow({
+      ...TEST_QUERY,
+      readPreference: 'secondary',
+      mongoDbPayload: {
+        ...TEST_QUERY.mongoDbPayload,
+        waitingForLock: false,
+        lockStats: { mode: 'IS' },
+      },
+    } as unknown as typeof TEST_QUERY);
+
+    expect(row.read_preference).toBe('secondary');
+    expect(row.waiting_for_lock).toBe(false);
+    expect(row.mode).toBe('IS');
+    expect(collectCsvColumns([row])).toContain('read_preference');
+  });
+
+  it('collects columns across all rows, not just the first', () => {
+    const [withoutCollection, withCollection] = [
+      mapQueryToCsvRow({
+        ...TEST_QUERY,
+        mongoDbPayload: {
+          ...TEST_QUERY.mongoDbPayload,
+          collection: undefined,
+        },
+      }),
+      mapQueryToCsvRow(TEST_QUERY),
+    ];
+
+    expect(collectCsvColumns([withoutCollection, withCollection])).toContain(
+      'collection'
+    );
   });
 
   it('builds the required filename template', () => {
@@ -96,7 +147,7 @@ describe('exportRtaQueriesToCsv', () => {
     exportRtaQueriesToCsv([TEST_QUERY]);
 
     expect(mkConfig).toHaveBeenCalledWith({
-      useKeysAsHeaders: true,
+      columnHeaders: expect.arrayContaining(['operation_id', 'raw_query']),
       filename: expect.stringMatching(/^mongodb_rta_export_\d{8}_\d{6}$/),
     });
     expect(generateCsv).toHaveBeenCalled();

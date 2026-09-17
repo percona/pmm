@@ -19,7 +19,31 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
   const frontendSettings = useFrontendSettings({
     refetchOnMount: false,
   });
+
   const combinedSettings = useMemo<CombinedSettings | null>(() => {
+    if (user?.isAnonymous && frontendSettings.data) {
+      return {
+        sshKey: '',
+        metricsResolutions: {
+          hr: '1m',
+          mr: '1m',
+          lr: '1m',
+        },
+        dataRetention: '30d',
+        pmmPublicAddress: '',
+        updatesEnabled: false,
+        telemetryEnabled: false,
+        advisorEnabled: false,
+        alertingEnabled: false,
+        backupManagementEnabled: false,
+        azurediscoverEnabled: false,
+        enableAccessControl: false,
+        frontend: frontendSettings.data,
+        // check if pmm-compat-app plugin is enabled
+        newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,
+      };
+    }
+
     if (!(settings.data || readonlySettings.data) || !frontendSettings.data) {
       return null;
     }
@@ -40,7 +64,13 @@ export const SettingsProvider: FC<PropsWithChildren> = ({ children }) => {
       // check if pmm-compat-app plugin is enabled
       newUIEnabled: frontendSettings.data.apps['pmm-compat-app']?.preload,
     };
-  }, [user?.isPMMAdmin, settings, readonlySettings, frontendSettings]);
+  }, [
+    user?.isAnonymous,
+    user?.isPMMAdmin,
+    frontendSettings.data,
+    settings.data,
+    readonlySettings.data,
+  ]);
 
   return (
     <SettingsContext.Provider

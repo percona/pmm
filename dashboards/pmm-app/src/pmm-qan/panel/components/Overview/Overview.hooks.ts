@@ -1,4 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
+import {
+  useContext, useEffect, useMemo, useState,
+} from 'react';
 import { QueryAnalyticsProvider } from 'pmm-qan/panel/provider/provider';
 import OverviewService from './Overview.service';
 import { DataInterface } from './Overview.types';
@@ -13,6 +15,7 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
   } = useContext(QueryAnalyticsProvider);
   const [data, setData] = useState<DataInterface>({ rows: [], columns: [] });
   const [loading, setLoading] = useState(false);
+  const defaultColumns = useMemo(() => getDefaultColumns(), []);
 
   useEffect(() => {
     const updateInstances = async () => {
@@ -31,7 +34,6 @@ export const useOverviewTable = (setTotal): [DataInterface, boolean] => {
         });
 
         setTotal(result.total_rows);
-        const defaultColumns = getDefaultColumns();
 
         const mainMetric = columns[0];
         // eslint-disable-next-line max-len
