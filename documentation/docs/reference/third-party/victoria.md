@@ -58,7 +58,9 @@ Point PMM Server at it with the `PMM_VM_URL` environment variable:
 PMM_VM_URL=https://victoriametrics.example.com:8428/
 ```
 
-If the external VictoriaMetrics database requires basic authentication, either include the credentials in the URL or set them as `vmagent` environment variables on PMM Server. The `VMAGENT_` variables take precedence over credentials in the URL.
+The value must start with `http://` or `https://`; PMM Server refuses to start otherwise.
+
+If the external VictoriaMetrics database requires basic authentication, either include the credentials in the URL or set them as `vmagent` environment variables on PMM Server. The `VMAGENT_` variables take precedence over credentials in the URL and replace them entirely: set both `VMAGENT_remoteWrite_basicAuth_username` and `VMAGENT_remoteWrite_basicAuth_password`, because PMM does not complete an injected half with the URL's other half.
 
 ```sh
 PMM_VM_URL=https://username:password@victoriametrics.example.com:8428/
