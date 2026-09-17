@@ -155,7 +155,7 @@ You can add your Valkey or Redis service to PMM either through the user interfac
 
         `--tls-ca` already supplies the trust anchor, so a self-signed certificate does not need `--tls-skip-verify`. Add that flag only when a validation failure cannot be corrected — a SAN mismatch, for example — and only in development or testing: it disables server authentication entirely.
 
-    !!! note "Connection check with TLS"
+    !!! note alert alert-primary "Connection check with TLS"
         The connection check that runs when you add the service uses PMM Client code that requires the CA, client certificate and client key together, and applies `--tls-skip-verify` only when certificates are supplied. For a CA-only setup, or for `--tls-skip-verify` without certificates, add `--skip-connection-check`: the service is registered, the exporter connects with the TLS material you supplied, and metrics flow. **Check connection** in Inventory reports an error for these services for the same reason.
 
 === ":material-cog: Via inventory commands (Advanced)"
