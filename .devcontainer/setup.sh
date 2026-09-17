@@ -7,7 +7,7 @@ set -o nounset
 set -o pipefail
 
 declare MARKER="/tmp/devcontainer-setup-done"
-declare POSTGRES_DATA_DIR="/srv/postgres14"
+declare POSTGRES_DATA_DIR="/srv/postgres18"
 declare HBA_RULE="host    all         all     all     trust"
 
 # Installs required and useful RPM packages.
