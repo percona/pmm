@@ -412,6 +412,40 @@ describe('SchemaFormRenderer — field rendering', () => {
     ).toBeNull();
   });
 
+  it('seeds defaults as real values, not grey placeholders', () => {
+    const sections: FormSection[] = [
+      {
+        title: 'Basics',
+        fields: [
+          {
+            type: 'string',
+            name: 'path',
+            label: 'Log file path',
+            placeholder: '/var/log/mysql/error.log',
+          },
+          {
+            type: 'integer',
+            name: 'minutes',
+            label: 'Minutes',
+            required: true,
+          },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={sections} onSubmit={() => {}} />
+    );
+
+    const path = screen.getByTestId('text-input-path') as HTMLInputElement;
+    expect(path).toHaveValue('/var/log/mysql/error.log');
+    expect(path).not.toHaveAttribute('placeholder', '/var/log/mysql/error.log');
+
+    const minutes = screen.getByTestId(
+      'text-input-minutes'
+    ) as HTMLInputElement;
+    expect(minutes).toHaveValue(1);
+  });
+
   it('does not render section.description prose', () => {
     const sectionsWithProse: FormSection[] = [
       {

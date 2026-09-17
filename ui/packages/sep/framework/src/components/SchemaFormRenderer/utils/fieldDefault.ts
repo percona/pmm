@@ -43,10 +43,64 @@ export function emptyFieldValue(field: PluginField): unknown {
   }
 }
 
-/** The value a field starts at: its schema `default`, else {@link emptyFieldValue}. */
+function hasSchemaDefault(field: PluginField): boolean {
+  return field.default !== undefined && field.default !== null;
+}
+
+function isTextLike(
+  field: PluginField
+): field is Extract<
+  PluginField,
+  { type: 'string' } | { type: 'textarea' } | { type: 'yaml' }
+> {
+  return (
+    field.type === 'string' ||
+    field.type === 'textarea' ||
+    field.type === 'yaml'
+  );
+}
+
+/**
+ * The value a field starts at.
+ *
+ * Order:
+ * 1. schema `default` when set
+ * 2. for string/textarea/yaml with no default — the `placeholder`, when authors
+ *    put the real default there as grey ghost text (PMM-15510)
+ * 3. for required integer/float with no default — `ge`, else `1`, so a required
+ *    Minutes field is not empty on first paint
+ * 4. otherwise {@link emptyFieldValue}
+ */
 export function fieldDefault(field: PluginField): unknown {
   if (field.type === 'file') {
     return undefined;
   }
-  return field.default ?? emptyFieldValue(field);
+  if (hasSchemaDefault(field)) {
+    return field.default;
+  }
+  if (isTextLike(field) && field.placeholder) {
+    return field.placeholder;
+  }
+  if (field.required && (field.type === 'integer' || field.type === 'float')) {
+    return typeof field.ge === 'number' ? field.ge : 1;
+  }
+  return emptyFieldValue(field);
+}
+
+/**
+ * Grey placeholder text for the widget.
+ *
+ * When the schema left `default` unset and put the real value in `placeholder`,
+ * {@link fieldDefault} already seeds that value — returning it here again would
+ * only ghost what the input already shows. A distinct `default` leaves the
+ * placeholder free to be a format hint.
+ */
+export function fieldPlaceholder(field: PluginField): string | undefined {
+  if (!isTextLike(field) || !field.placeholder) {
+    return undefined;
+  }
+  if (!hasSchemaDefault(field)) {
+    return undefined;
+  }
+  return field.placeholder;
 }

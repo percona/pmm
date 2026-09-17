@@ -20,6 +20,7 @@ import { TextInput } from '@percona/peak-ui';
 import { FieldLabelWithHelp } from '../FieldLabelWithHelp';
 import { fieldHelp } from '../fieldHelp';
 import type { TextAreaField as TextAreaFieldType } from '../types';
+import { fieldPlaceholder } from '../utils/fieldDefault';
 import { buildValidationRules } from '../utils/validationMapper';
 
 interface TextAreaFieldProps {
@@ -42,7 +43,7 @@ export function TextAreaField({ field }: TextAreaFieldProps) {
         multiline: true,
         rows: field.rows ?? 4,
         helperText: help.inline,
-        placeholder: field.placeholder,
+        placeholder: fieldPlaceholder(field),
         fullWidth: true,
       }}
       controllerProps={{ rules: buildValidationRules(field) }}
