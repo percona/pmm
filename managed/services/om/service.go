@@ -321,8 +321,8 @@ func (s *Service) TriggerTopologyCollection(ctx context.Context, _ *omv1.Trigger
 // on demand can say nothing about the interval since the last one.
 //
 // Also reconciles SEP's om_inventory ENABLED flag with PMM's own switch once, up front.
-// syncOMInventoryEnabledIfChanged (server.go) only calls SyncInventoryEnabled on a live
-// ChangeSettings transition, so a server that starts up already enabled -- via
+// The existing syncOMInventoryEnabledIfChanged (server.go) only calls SyncInventoryEnabled
+// on a live ChangeSettings transition, so a server that starts up already enabled -- via
 // PMM_ENABLE_OM, or a persisted setting surviving a restart -- never fires it: there is
 // no "old" value to differ from a "new" one. Confirmed the hard way: PMM_ENABLE_OM=1 at
 // container start left SEP's ENABLED permanently false, with no supported way to correct
