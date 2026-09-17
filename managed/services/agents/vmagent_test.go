@@ -357,12 +357,18 @@ func TestBuildVMAgentProcess(t *testing.T) {
 		assertCredentials(t, actual.Env, serverUsernameTmpl, serverPasswordTmpl)
 	})
 
-	t.Run("an empty injected URL still counts as injected", func(t *testing.T) {
-		// ParseEnvVars rejects this shape at startup; the builder does not second-guess a set variable.
+	t.Run("empty injected variables are ignored", func(t *testing.T) {
+		// vmagent exits on an empty URL and treats an empty credential as no authentication, so an
+		// empty variable is not forwarded and does not displace PMM's default; ParseEnvVars warns.
 		t.Setenv(envRemoteWriteURL, "")
+		t.Setenv(envRemoteWriteUsername, "")
+		t.Setenv(envRemoteWritePassword, "")
+		t.Setenv("VMAGENT_loggerLevel", "")
 		actual := buildVMAgentProcess(testLogger(), "", pair)
-		assertEnv(t, actual.Env, envRemoteWriteURL, "")
-		assertCredentials(t, actual.Env, "", "")
+		assertEnv(t, actual.Env, envRemoteWriteURL, pair.url)
+		assertCredentials(t, actual.Env, "default-user", "default-pass")
+		assertEnv(t, actual.Env, "VMAGENT_loggerLevel", "INFO")
+		assert.Len(t, actual.Env, 7)
 	})
 
 	t.Run("a pair without credentials emits none", func(t *testing.T) {

@@ -84,6 +84,12 @@ func TestHARemoteWriteWarning(t *testing.T) {
 		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
 	})
 
+	t.Run("an empty injected pair does not satisfy a credential-less URL", func(t *testing.T) {
+		t.Setenv(envRemoteWriteUsername, "")
+		t.Setenv(envRemoteWritePassword, "")
+		assert.Contains(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)), "carries no credentials")
+	})
+
 	t.Run("another vmagent authentication method satisfies a credential-less URL", func(t *testing.T) {
 		t.Setenv("VMAGENT_remoteWrite_bearerToken", "token")
 		assert.Empty(t, HARemoteWriteWarning(newVMParams(t, testVMAuthNoCreds)))

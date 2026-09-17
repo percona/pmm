@@ -141,16 +141,17 @@ func splitUserinfo(u *url.URL) (*url.URL, string, string) {
 	return &stripped, u.User.Username(), password
 }
 
-// injectedVMAgentEnv returns every VMAGENT_* variable set in PMM Server's environment.
+// injectedVMAgentEnv returns every VMAGENT_* variable set to a value in PMM Server's environment.
 // This is the documented way to configure all vmagents centrally; whatever is set here is
-// forwarded to every vmagent and wins over PMM's default of the same name.
+// forwarded to every vmagent and wins over PMM's default of the same name. An empty variable is
+// ignored, because vmagent cannot use an empty value; environment validation warns about it.
 func injectedVMAgentEnv() map[string]string {
 	injected := make(map[string]string)
 	for _, env := range os.Environ() {
 		if !strings.HasPrefix(env, envvars.EnvVMAgentPrefix) {
 			continue
 		}
-		if key, value, ok := strings.Cut(env, "="); ok {
+		if key, value, ok := strings.Cut(env, "="); ok && value != "" {
 			injected[key] = value
 		}
 	}

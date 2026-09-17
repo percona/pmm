@@ -349,9 +349,15 @@ func redactSecretEnvVar(key, value string) string {
 	}
 
 	// A URL with userinfo (PMM_VM_URL, VMAGENT_remoteWrite_url): keep scheme and host, drop the
-	// credentials. A value that does not parse cannot be split, so it is redacted whole when it
-	// might carry credentials.
-	u, err := url.Parse(value)
+	// credentials. A scheme-less user:pass@host parses as an opaque URL with no userinfo, so it is
+	// parsed as an authority instead. A value that does not parse cannot be split, so it is
+	// redacted whole when it might carry credentials.
+	schemeless := !strings.Contains(value, "://")
+	raw := value
+	if schemeless {
+		raw = "//" + value
+	}
+	u, err := url.Parse(raw)
 	if err != nil {
 		if strings.Contains(value, "@") {
 			return "<redacted>"
@@ -363,6 +369,9 @@ func redactSecretEnvVar(key, value string) string {
 	}
 	u.User = nil
 	stripped := u.String()
+	if schemeless {
+		return "<redacted>@" + strings.TrimPrefix(stripped, "//")
+	}
 	scheme := strings.Index(stripped, "://")
 	if scheme >= 0 {
 		return stripped[:scheme+3] + "<redacted>@" + stripped[scheme+3:]
@@ -446,23 +455,31 @@ func VMAgentRemoteWriteReplacesBasicAuth(env map[string]string) bool {
 	return envHasAny(env, remoteWriteUsernameEnvs) || envHasAny(env, remoteWritePasswordEnvs) || envHasAny(env, remoteWriteExclusiveAuthEnvs)
 }
 
-// checkVMAgentRemoteWriteOverride validates the operator's VMAGENT_remoteWrite_* variables. Half a
-// basic-auth pair is always reported. An injected VMAGENT_remoteWrite_url must not be empty and
-// must parse, because vmagent refuses to start on a URL it cannot parse; it is reported when no
-// credential accompanies it, because PMM's own remote-write credential is not sent to an endpoint
-// PMM did not choose. Beyond that the URL is not interpreted: vmagent accepts a comma-separated
+// checkVMAgentRemoteWriteOverride validates the operator's VMAGENT_* variables. An empty variable
+// is ignored with a warning, because vmagent cannot use an empty value: an empty URL or log level
+// stops it and an empty credential disables authentication; buildVMAgentProcess skips it the same
+// way. Half a basic-auth pair is always reported. An injected VMAGENT_remoteWrite_url must parse,
+// because vmagent refuses to start on a URL it cannot parse; it is reported when no credential
+// accompanies it, because PMM's own remote-write credential is not sent to an endpoint PMM did
+// not choose. Beyond that the URL is not interpreted: vmagent accepts a comma-separated
 // list, and the client renders placeholders such as {{.server_url}} before vmagent starts. The
 // vmagent flag names are camelCase and matched case-sensitively both by vmagent and when the
 // client config is built, so an upper-cased variant is inert and must not trigger these checks.
 func checkVMAgentRemoteWriteOverride(envs []string) ([]error, []string) {
+	var warns []string
 	vmagentEnv := make(map[string]string)
 	for _, env := range envs {
-		if name, value, ok := strings.Cut(env, "="); ok && strings.HasPrefix(name, EnvVMAgentPrefix) {
-			vmagentEnv[name] = value
+		name, value, ok := strings.Cut(env, "=")
+		if !ok || !strings.HasPrefix(name, EnvVMAgentPrefix) {
+			continue
 		}
+		if value == "" {
+			warns = append(warns, name+" is set but empty and is ignored: vmagent cannot use an empty value; unset it or give it a value")
+			continue
+		}
+		vmagentEnv[name] = value
 	}
 
-	var warns []string
 	auth := VMAgentRemoteWriteAuthFromEnv(vmagentEnv)
 	if auth == VMAgentRemoteWriteAuthPartial {
 		warns = append(warns, "only one half of the VMAGENT_remoteWrite_basicAuth_* pair is set "+
@@ -473,9 +490,6 @@ func checkVMAgentRemoteWriteOverride(envs []string) ([]error, []string) {
 	writeURL, hasURL := vmagentEnv[EnvVMAgentRemoteWriteURL]
 	if !hasURL {
 		return nil, warns
-	}
-	if writeURL == "" {
-		return []error{errors.New("VMAGENT_remoteWrite_url is set but empty, which would disable metric writes on every vmagent PMM Server manages")}, warns
 	}
 	parsedURL, err := url.Parse(writeURL)
 	if err != nil {

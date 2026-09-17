@@ -243,6 +243,23 @@ func TestVMAgentConfigGolden(t *testing.T) {
 			},
 		},
 		{
+			name:  "standalone, internal VM, empty basic-auth pair injected (ignored, PMM's pair stays)",
+			vmURL: internalVM,
+			injected: map[string]string{
+				"VMAGENT_remoteWrite_basicAuth_username": "",
+				"VMAGENT_remoteWrite_basicAuth_password": "",
+			},
+			wantEnv: []string{
+				"VMAGENT_loggerLevel=INFO",
+				"VMAGENT_promscrape_maxScrapeSize=64MiB",
+				"VMAGENT_remoteWrite_basicAuth_password={{.server_password}}",
+				"VMAGENT_remoteWrite_basicAuth_username={{.server_username}}",
+				"VMAGENT_remoteWrite_maxDiskUsagePerURL=1073741824",
+				"VMAGENT_remoteWrite_tlsInsecureSkipVerify={{.server_insecure}}",
+				"VMAGENT_remoteWrite_url={{.server_url}}/victoriametrics/api/v1/write",
+			},
+		},
+		{
 			name:       "HA, client, tenant header injected (the VM credential stays)",
 			vmURL:      haVMAuth,
 			deployment: vmAgentDeployment{haEnabled: true},

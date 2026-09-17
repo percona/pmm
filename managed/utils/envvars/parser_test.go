@@ -261,13 +261,42 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Nil(t, gotWarns)
 	})
 
-	t.Run("VMAGENT_remoteWrite_url set but empty is an error", func(t *testing.T) {
+	t.Run("VMAGENT_remoteWrite_url set but empty is ignored with a warning", func(t *testing.T) {
 		t.Parallel()
 
+		// vmagent exits on an empty URL; ignoring the variable keeps PMM's default write path.
 		_, gotErrs, gotWarns := ParseEnvVars([]string{"VMAGENT_remoteWrite_url="})
-		require.Len(t, gotErrs, 1)
-		assert.Contains(t, gotErrs[0].Error(), "set but empty")
-		assert.Nil(t, gotWarns)
+		assert.Nil(t, gotErrs)
+		require.Len(t, gotWarns, 1)
+		assert.Contains(t, gotWarns[0], "VMAGENT_remoteWrite_url is set but empty and is ignored")
+	})
+
+	t.Run("an empty basic-auth pair is ignored, not counted as a credential", func(t *testing.T) {
+		t.Parallel()
+
+		// A Helm value left blank: the URL override is then unauthenticated and must be reported as such.
+		envs := []string{
+			"VMAGENT_remoteWrite_url=https://collector.example.com/api/v1/write",
+			"VMAGENT_remoteWrite_basicAuth_username=",
+			"VMAGENT_remoteWrite_basicAuth_password=",
+		}
+
+		_, gotErrs, gotWarns := ParseEnvVars(envs)
+		assert.Nil(t, gotErrs)
+		require.Len(t, gotWarns, 3)
+		assert.Contains(t, gotWarns[0], "VMAGENT_remoteWrite_basicAuth_username is set but empty")
+		assert.Contains(t, gotWarns[1], "VMAGENT_remoteWrite_basicAuth_password is set but empty")
+		assert.Contains(t, gotWarns[2], "redirects the metric writes")
+	})
+
+	t.Run("an empty tuning variable is ignored with a warning", func(t *testing.T) {
+		t.Parallel()
+
+		// vmagent panics on an empty -loggerLevel.
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VMAGENT_loggerLevel="})
+		assert.Nil(t, gotErrs)
+		require.Len(t, gotWarns, 1)
+		assert.Contains(t, gotWarns[0], "VMAGENT_loggerLevel is set but empty and is ignored")
 	})
 
 	t.Run("VMAGENT_remoteWrite_url with half a basic-auth pair warns about the pair", func(t *testing.T) {
@@ -471,6 +500,9 @@ func TestRedactSecretEnvVar(t *testing.T) {
 		{key: "VMAGENT_remoteWrite_url", value: "https://collector.example.com/api/v1/write?tenant=a@b", expected: "https://collector.example.com/api/v1/write?tenant=a@b"},
 		{key: "PMM_VM_URL", value: "https://cdn.example.com/logo@2x.png", expected: "https://cdn.example.com/logo@2x.png"},
 		{key: "PMM_VM_URL", value: "http://user:secret@[::1", expected: "<redacted>"},
+		{key: "PMM_VM_URL", value: "user:secret@victoriametrics:8428", expected: "<redacted>@victoriametrics:8428"},
+		{key: "PMM_VM_URL", value: "user:secret@victoriametrics:8428/path", expected: "<redacted>@victoriametrics:8428/path"},
+		{key: "PMM_VM_URL", value: "victoriametrics:8428", expected: "victoriametrics:8428"},
 		{key: "PMM_PUBLIC_ADDRESS", value: "pmm.example.com", expected: "pmm.example.com"},
 	}
 	for _, tt := range tests {
