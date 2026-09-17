@@ -38,6 +38,7 @@ import {
 import { INLINE_HELP_MAX_LENGTH } from './fieldHelp';
 import { evaluatePredicate, isPresent } from './utils/predicateEvaluator';
 import { resetSchemaWarnings } from './utils/schemaWarnings';
+import { toDatetimeLocalValue } from '../../utils/datetimeLocal';
 import type { FormSection, RenderFieldOverride } from './types';
 
 const useAlertConfigMock = vi.fn();
@@ -213,6 +214,19 @@ describe('coerceFormValues', () => {
     expect(out.tbl).toBe(101);
     expect(out.hostId).toBe('nomad-1');
     expect(out.empty).toBeUndefined();
+  });
+
+  it('converts datetime-local wall-clock to UTC ISO and clears empties', () => {
+    const iso = '2024-06-15T12:00:00.000Z';
+    const local = toDatetimeLocalValue(iso);
+    const out = coerceFormValues({ when: local, empty: '', blank: '   ' }, [
+      { type: 'datetime', name: 'when', label: 'When' },
+      { type: 'datetime', name: 'empty', label: 'Empty' },
+      { type: 'datetime', name: 'blank', label: 'Blank' },
+    ]);
+    expect(out.when).toBe(iso);
+    expect(out.empty).toBeUndefined();
+    expect(out.blank).toBeUndefined();
   });
 });
 
@@ -444,6 +458,35 @@ describe('SchemaFormRenderer — field rendering', () => {
       'text-input-minutes'
     ) as HTMLInputElement;
     expect(minutes).toHaveValue(1);
+  });
+
+  it('seeds an ISO datetime default into a datetime-local picker and submits UTC ISO', async () => {
+    const iso = '2024-06-15T12:00:00.000Z';
+    const onSubmit = vi.fn();
+    const sections: FormSection[] = [
+      {
+        title: 'Basics',
+        fields: [
+          {
+            type: 'datetime',
+            name: 'when',
+            label: 'When',
+            default: iso,
+          },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={sections} onSubmit={onSubmit} />
+    );
+
+    const input = screen.getByTestId('text-input-when') as HTMLInputElement;
+    expect(input).toHaveAttribute('type', 'datetime-local');
+    expect(input).toHaveValue(toDatetimeLocalValue(iso));
+
+    await userEvent.click(screen.getByRole('button', { name: /Run/ }));
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    expect(onSubmit.mock.calls[0][0]).toEqual({ when: iso });
   });
 
   it('does not render section.description prose', () => {

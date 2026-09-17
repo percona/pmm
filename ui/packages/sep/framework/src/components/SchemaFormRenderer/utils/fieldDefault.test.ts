@@ -22,6 +22,7 @@ import {
   fieldPlaceholder,
 } from './fieldDefault';
 import type { PluginField } from '../types';
+import { toDatetimeLocalValue } from '../../../utils/datetimeLocal';
 
 describe('fieldDefault', () => {
   it('uses the schema default when set', () => {
@@ -107,6 +108,18 @@ describe('fieldDefault', () => {
         default: 0,
       })
     ).toBe(0);
+  });
+
+  it('converts an ISO datetime default to datetime-local wall-clock', () => {
+    const iso = '2024-06-15T12:00:00.000Z';
+    expect(
+      fieldDefault({
+        type: 'datetime',
+        name: 'since',
+        label: 'Since',
+        default: iso,
+      })
+    ).toBe(toDatetimeLocalValue(iso));
   });
 });
 

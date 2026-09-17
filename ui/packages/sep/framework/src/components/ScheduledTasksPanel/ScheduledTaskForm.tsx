@@ -31,6 +31,10 @@ import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 import cronstrue from 'cronstrue';
 import { capitalize } from '@sep/shared';
 import {
+  localInputToUtcIso,
+  utcIsoToLocalInput,
+} from '../../utils/datetimeLocal';
+import {
   ChainBuilder,
   type AvailableTask,
   type ChainValue,
@@ -99,19 +103,6 @@ function detectBrowserTimezone(): string {
   } catch {
     return 'UTC';
   }
-}
-
-// `datetime-local` reads/writes as local wall-clock with no timezone.
-// Backend `start_time` is UTC ISO. Format the UTC instant in the browser's
-// local zone for display; parse the local input back through `Date` (which
-// interprets it as local) before serializing to UTC.
-function utcIsoToLocalInput(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) {
-    return '';
-  }
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
 function cronToExpression(c: CrontabSchedule): string {
@@ -270,7 +261,7 @@ export function ScheduledTaskForm({
 
     const start_time =
       !isCron && values.startTime
-        ? new Date(values.startTime).toISOString()
+        ? (localInputToUtcIso(values.startTime) ?? null)
         : null;
 
     const hasChain = values.chain.chain_task_names.length > 0;

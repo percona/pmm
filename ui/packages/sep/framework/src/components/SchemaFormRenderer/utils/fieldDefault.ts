@@ -15,6 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { toDatetimeLocalValue } from '../../../utils/datetimeLocal';
 import type { PluginField } from '../types';
 
 /**
@@ -76,6 +77,11 @@ export function fieldDefault(field: PluginField): unknown {
     return undefined;
   }
   if (hasSchemaDefault(field)) {
+    // `datetime-local` cannot display a UTC ISO string; convert here so the
+    // picker mounts with a real wall-clock value (PMM-15510).
+    if (field.type === 'datetime') {
+      return toDatetimeLocalValue(field.default);
+    }
     return field.default;
   }
   if (isTextLike(field) && field.placeholder) {
