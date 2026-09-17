@@ -960,15 +960,21 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 
 		return nil
 	case ValkeyExporterType:
+		// Nothing consumes the material over a plaintext link, so keep the private key off
+		// the agent host in that case.
+		if !a.TLS {
+			return nil
+		}
+
 		files := make(map[string]string)
 
 		if a.ValkeyOptions.SSLCa != "" {
 			files[TLSCaFileName] = a.ValkeyOptions.SSLCa
 		}
-		if a.ValkeyOptions.SSLCert != "" {
+		// valkey_exporter calls log.Fatal on half a client key pair and the connection
+		// check cannot use one either, so the pair only ships as a unit.
+		if a.ValkeyOptions.SSLCert != "" && a.ValkeyOptions.SSLKey != "" {
 			files[TLSCertFileName] = a.ValkeyOptions.SSLCert
-		}
-		if a.ValkeyOptions.SSLKey != "" {
 			files[TLSKeyFileName] = a.ValkeyOptions.SSLKey
 		}
 
@@ -980,6 +986,11 @@ func (a Agent) Files() map[string]string { //nolint:gocognit
 	default:
 		panic(fmt.Errorf("unhandled AgentType %q", a.AgentType))
 	}
+}
+
+// ValkeyClientKeyPairIncomplete reports whether only one half of the Valkey TLS client key pair is stored.
+func (a Agent) ValkeyClientKeyPairIncomplete() bool {
+	return (a.ValkeyOptions.SSLCert != "") != (a.ValkeyOptions.SSLKey != "")
 }
 
 // TemplateDelimiters returns a pair of safe template delimiters that are not present in agent parameters.
@@ -1007,10 +1018,14 @@ func (a Agent) TemplateDelimiters(svc *Service) *DelimiterPair {
 	case ValkeyServiceType:
 		// pmm-agent renders every text file's content as a template, so all three
 		// certificates have to be considered, not just the private key.
-		for _, s := range []string{a.ValkeyOptions.SSLCa, a.ValkeyOptions.SSLCert, a.ValkeyOptions.SSLKey} {
-			if s != "" {
-				templateParams = append(templateParams, s)
-			}
+		if a.ValkeyOptions.SSLCa != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLCa)
+		}
+		if a.ValkeyOptions.SSLCert != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLCert)
+		}
+		if a.ValkeyOptions.SSLKey != "" {
+			templateParams = append(templateParams, a.ValkeyOptions.SSLKey)
 		}
 	case ProxySQLServiceType:
 	case HAProxyServiceType:

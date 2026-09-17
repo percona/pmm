@@ -54,17 +54,17 @@ func valkeyExporterConfig(node *models.Node, service *models.Service, exporter *
 			args = append(args, "--tls-ca-cert-file="+textFileRef(tdp, models.TLSCaFileName))
 		}
 
-		// The exporter's validateTLSClientConfig calls log.Fatal when one half of the client key
-		// pair is missing, so half a pair would crash-loop the process. Degrade to server
-		// authentication only instead.
-		_, hasCert := textFiles[models.TLSCertFileName]
-		_, hasKey := textFiles[models.TLSKeyFileName]
-		switch {
-		case hasCert && hasKey:
+		// Files() ships the client key pair only as a unit, so one lookup covers both flags.
+		if _, ok := textFiles[models.TLSCertFileName]; ok {
 			args = append(args,
 				"--tls-client-cert-file="+textFileRef(tdp, models.TLSCertFileName),
 				"--tls-client-key-file="+textFileRef(tdp, models.TLSKeyFileName))
-		case hasCert || hasKey:
+		}
+
+		// Half a pair would make the exporter's validateTLSClientConfig call log.Fatal and
+		// crash-loop the process, so the connection silently degrades to server authentication.
+		// Make that visible to the operator.
+		if exporter.ValkeyClientKeyPairIncomplete() {
 			l.WithField("agent_id", exporter.AgentID).
 				Warn("Valkey exporter has only one half of the TLS client key pair; connecting without a client certificate.")
 		}

@@ -243,7 +243,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: models.ValkeyOptions{SSLCert: "cert-pem"}}), redactSecrets, pmmAgentVersion, l)
 			require.NotContains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
 			require.NotContains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
-			require.Equal(t, map[string]string{"tlsCert": "cert-pem"}, actual.TextFiles)
+			require.Nil(t, actual.TextFiles)
 			requireIncompleteKeyPairWarning(t, hook)
 		})
 
@@ -254,7 +254,7 @@ func TestValkeyExporterConfig(t *testing.T) {
 			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{tls: true, valkey: models.ValkeyOptions{SSLKey: "key-pem"}}), redactSecrets, pmmAgentVersion, l)
 			require.NotContains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
 			require.NotContains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
-			require.Equal(t, map[string]string{"tlsKey": "key-pem"}, actual.TextFiles)
+			require.Nil(t, actual.TextFiles)
 			requireIncompleteKeyPairWarning(t, hook)
 		})
 
@@ -268,17 +268,18 @@ func TestValkeyExporterConfig(t *testing.T) {
 			require.Contains(t, actual.Args, "--tls-ca-cert-file={{ .TextFiles.tlsCa }}")
 			require.NotContains(t, actual.Args, "--tls-client-cert-file={{ .TextFiles.tlsCert }}")
 			require.NotContains(t, actual.Args, "--tls-client-key-file={{ .TextFiles.tlsKey }}")
+			require.Equal(t, map[string]string{"tlsCa": "ca-pem"}, actual.TextFiles)
 			requireIncompleteKeyPairWarning(t, hook)
 		})
 
-		// The files still reach the host, but nothing must point the exporter at them over a plaintext link.
+		// Over a plaintext link the material is neither referenced nor shipped to the host.
 		t.Run("CertificatesIgnoredWhenTLSDisabled", func(t *testing.T) {
 			t.Parallel()
 
 			actual := valkeyExporterConfig(node, service, newExporter(exporterFixture{valkey: allCertificates}), redactSecrets, pmmAgentVersion, l)
 			requireNoTLSArgs(t, actual.Args)
 			require.Contains(t, actual.Args, "--redis.addr=redis://username:secret@1.2.3.4:6379")
-			require.Equal(t, map[string]string{"tlsCa": "ca-pem", "tlsCert": "cert-pem", "tlsKey": "key-pem"}, actual.TextFiles)
+			require.Nil(t, actual.TextFiles)
 		})
 
 		t.Run("SkipVerifyIgnoredWhenTLSDisabled", func(t *testing.T) {

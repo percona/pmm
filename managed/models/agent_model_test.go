@@ -336,21 +336,49 @@ func TestValkey(t *testing.T) {
 	t.Run("Files", func(t *testing.T) {
 		t.Parallel()
 
+		all := models.ValkeyOptions{SSLCa: "aa", SSLCert: "bb", SSLKey: "cc"}
+
 		for name, tc := range map[string]struct {
+			tls      bool
 			options  models.ValkeyOptions
 			expected map[string]string
 		}{
-			"all":  {models.ValkeyOptions{SSLCa: "aa", SSLCert: "bb", SSLKey: "cc"}, map[string]string{"tlsCa": "aa", "tlsCert": "bb", "tlsKey": "cc"}},
-			"ca":   {models.ValkeyOptions{SSLCa: "aa"}, map[string]string{"tlsCa": "aa"}},
-			"pair": {models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, map[string]string{"tlsCert": "bb", "tlsKey": "cc"}},
-			"none": {models.ValkeyOptions{}, nil},
+			"all":              {true, all, map[string]string{"tlsCa": "aa", "tlsCert": "bb", "tlsKey": "cc"}},
+			"ca":               {true, models.ValkeyOptions{SSLCa: "aa"}, map[string]string{"tlsCa": "aa"}},
+			"pair":             {true, models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, map[string]string{"tlsCert": "bb", "tlsKey": "cc"}},
+			"cert without key": {true, models.ValkeyOptions{SSLCa: "aa", SSLCert: "bb"}, map[string]string{"tlsCa": "aa"}},
+			"key without cert": {true, models.ValkeyOptions{SSLKey: "cc"}, nil},
+			"none":             {true, models.ValkeyOptions{}, nil},
+			"tls disabled":     {false, all, nil},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				agent := models.Agent{AgentType: models.ValkeyExporterType, TLS: tc.tls, ValkeyOptions: tc.options}
+
+				require.Equal(t, tc.expected, agent.Files())
+			})
+		}
+	})
+
+	t.Run("ValkeyClientKeyPairIncomplete", func(t *testing.T) {
+		t.Parallel()
+
+		for name, tc := range map[string]struct {
+			options  models.ValkeyOptions
+			expected bool
+		}{
+			"pair":      {models.ValkeyOptions{SSLCert: "bb", SSLKey: "cc"}, false},
+			"none":      {models.ValkeyOptions{SSLCa: "aa"}, false},
+			"cert only": {models.ValkeyOptions{SSLCert: "bb"}, true},
+			"key only":  {models.ValkeyOptions{SSLKey: "cc"}, true},
 		} {
 			t.Run(name, func(t *testing.T) {
 				t.Parallel()
 
 				agent := models.Agent{AgentType: models.ValkeyExporterType, ValkeyOptions: tc.options}
 
-				require.Equal(t, tc.expected, agent.Files())
+				require.Equal(t, tc.expected, agent.ValkeyClientKeyPairIncomplete())
 			})
 		}
 	})
