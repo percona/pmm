@@ -32,7 +32,7 @@ import {
 import { useElapsedSeconds } from '../../hooks/useElapsedSeconds';
 import { formatDuration } from '../../utils/formatDuration';
 import { TaskHistoryStatusBadge } from '../TaskHistoryTable';
-import { TaskLogViewer } from '../TaskLogViewer';
+import { NON_FAILURE_TERMINAL_NOTES, TaskLogViewer } from '../TaskLogViewer';
 import { capitalize } from '@sep/shared';
 import { RunTime } from './RunTime';
 import { runFailureReason } from './runFailureReason';
@@ -56,22 +56,6 @@ const DRAWER_WIDTH = { xs: '100%', sm: 560, md: 760 } as const;
  * time — each call site mounts the drawer only while it is showing something.
  */
 const HEADING_ID = 'run-detail-heading';
-
-/**
- * Why a terminal run that did not succeed ended, for the statuses whose
- * meaning is not self-evident from the badge alone.
- *
- * `failed` is deliberately absent: it renders at error severity with the
- * backend's own reason (or a pointer to the log), rather than a fixed sentence.
- */
-const NON_FAILURE_TERMINAL_NOTES: Partial<Record<string, string>> = {
-  stopped: 'This run was stopped before it finished.',
-  lost: 'The executor stopped reporting on this run, so its outcome is unknown.',
-  stale:
-    'This run was skipped because the executor could not place it before the staleness threshold.',
-  unlaunchable:
-    'The executor node could not launch this run, so the payload never executed. This is not a script failure.',
-};
 
 /**
  * Explanation for a run that finished with no readable log.
@@ -186,6 +170,8 @@ export function TaskRunDetailDrawer({
     taskLabel ||
     `${capitalize(itemName)} run`;
   const failureReason = runFailureReason(run);
+  // Rendered here only when the embedded log viewer is not (see `showLog`
+  // below) — the viewer renders this same note itself once shown.
   const nonFailureNote = run
     ? NON_FAILURE_TERMINAL_NOTES[run.status]
     : undefined;
@@ -306,7 +292,14 @@ export function TaskRunDetailDrawer({
                 </Alert>
               )}
 
-              {nonFailureNote && (
+              {/*
+                Only when the log viewer below is not shown: `TaskLogViewer`
+                now renders this same sentence itself once its own stream
+                reaches the matching terminal status (see `terminalRunNotes`),
+                so showing it here too would duplicate it whenever the log is
+                also on screen.
+              */}
+              {nonFailureNote && !showLog && (
                 <Alert severity="warning" data-testid="run-detail-note">
                   {nonFailureNote}
                 </Alert>

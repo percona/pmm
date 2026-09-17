@@ -244,3 +244,78 @@ describe('IncidentWorkspacePage — write access', () => {
     expect(mockedApi.get).not.toHaveBeenCalledWith('/apps/atw/');
   });
 });
+
+describe('IncidentWorkspacePage — edit parameters and run again', () => {
+  const EXECUTION = {
+    id: 'exec-1',
+    snippet_filename: 'diag/vmstat.sh',
+    task_history_id: 55,
+    created_at: '2026-07-22T10:00:00Z',
+    task_status: 'success',
+    started_at: null,
+    finished_at: null,
+    has_logs: false,
+  };
+  const SNIPPET = {
+    name: 'diag/vmstat.sh',
+    title: 'VM Stat Snapshot',
+    description: 'Captures vmstat output.',
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockedApi.get.mockImplementation(async (url: string) => {
+      if (url.startsWith('/apps/atw/snippets/')) {
+        return { data: { items: [SNIPPET], total: 1, offset: 0, limit: 50 } };
+      }
+      if (url.includes('/execution-schema/')) {
+        return { data: { shared: [], per_snippet: [] } };
+      }
+      if (url.includes('/executions/')) {
+        return {
+          data: { items: [EXECUTION], total: 1, offset: 0, limit: 20 },
+        };
+      }
+      if (url.includes('/send-jobs/')) {
+        return { data: { items: [], total: 0, offset: 0, limit: 20 } };
+      }
+      if (url.includes('/config/')) {
+        return { data: { send_disabled_reasons: [] } };
+      }
+      if (url === '/apps/atw/') {
+        return { data: [] };
+      }
+      return { data: openIncident };
+    });
+  });
+
+  it('reopens the Collect pane pre-filled with the execution’s snippet', async () => {
+    const user = userEvent.setup();
+    renderWorkspace();
+
+    await waitFor(() => {
+      expect(screen.getByText('diag/vmstat.sh')).toBeTruthy();
+    });
+    // The row's actions live in AccordionDetails, unmounted until expanded.
+    await user.click(screen.getByText('diag/vmstat.sh'));
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Edit parameters and run again' })
+      ).toBeTruthy();
+    });
+
+    await user.click(
+      screen.getByRole('button', { name: 'Edit parameters and run again' })
+    );
+
+    // Resolved by name through the exact-name search, since the execution row
+    // carries no reusable parameter payload — the snippet's title then shows
+    // as the Collect form's selected chip.
+    await waitFor(
+      () => {
+        expect(screen.getByText(SNIPPET.title)).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+  });
+});

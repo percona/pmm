@@ -39,15 +39,20 @@ import SendIcon from '@mui/icons-material/Send';
 import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '@sep/api';
 import {
+  ActionErrorAlert,
   TaskFilesDialog,
   TaskHistoryStatusBadge,
   TaskLogViewer,
   formatTimestamp,
   isTaskHistoryStatus,
+  useActionError,
+  useHasDownloadableFiles,
 } from '@sep/framework';
+import { buildBatchPayload } from './CollectPane';
 import {
   ATW_PAGE_SIZE,
   sendJobDetail,
+  useAtwBatchExecute,
   useAtwConfig,
   useAtwIncident,
   useAtwIncidentExecutions,
@@ -56,13 +61,26 @@ import {
 import { useDeliverySettingsPath } from './deliverySettings';
 import { SendDialog } from './SendDialog';
 import type {
+  AtwBatchExecuteResponse,
   AtwIncidentExecution,
+  AtwRememberedDispatch,
   AtwSendLog,
   AtwSendLogExecution,
+  AtwSnippetSummary,
 } from './types';
 
 export interface ResultsPaneProps {
   incidentId: string;
+  /** This tab's own dispatches, keyed by the execution's `task_history_id`. */
+  remembered?: ReadonlyMap<number, AtwRememberedDispatch>;
+  /** Called once "Run again" dispatches successfully, to remember it too. */
+  onDispatched?: (
+    snippets: AtwSnippetSummary[],
+    values: Record<string, unknown>,
+    response: AtwBatchExecuteResponse
+  ) => void;
+  /** Reopen the Collect form pre-filled for this execution. */
+  onEditParameters?: (execution: AtwIncidentExecution) => void;
 }
 
 /** What a Re-send replays: the attempt's own executions and case reference. */
@@ -151,7 +169,12 @@ function SendUnavailableNotice() {
  * a page flip — deriving it from the rendered rows would silently drop anything
  * chosen on an earlier page.
  */
-export function ResultsPane({ incidentId }: ResultsPaneProps) {
+export function ResultsPane({
+  incidentId,
+  remembered,
+  onDispatched,
+  onEditParameters,
+}: ResultsPaneProps) {
   const { canMutate } = useAuth();
   const [page, setPage] = useState({ offset: 0, limit: ATW_PAGE_SIZE });
   const { data, isLoading, error } = useAtwIncidentExecutions(incidentId, page);
@@ -164,6 +187,27 @@ export function ResultsPane({ incidentId }: ResultsPaneProps) {
   const [sendOpen, setSendOpen] = useState(false);
   const [sendSessionKey, setSendSessionKey] = useState(0);
   const [resend, setResend] = useState<ResendContext | null>(null);
+
+  // Shared by every row's "Run again": the action replays a remembered batch
+  // unchanged, so one mutation and one reported failure covers all of them —
+  // at the cost of every row's button disabling together while any one is
+  // in flight, rather than just the row that was clicked.
+  const rerunMutation = useAtwBatchExecute(incidentId);
+  const rerunError = useActionError('Run again failed');
+
+  const handleRunAgain = (execution: AtwIncidentExecution) => {
+    const record = remembered?.get(execution.task_history_id);
+    if (!record) {
+      return;
+    }
+    rerunError.clearError();
+    rerunMutation.mutate(buildBatchPayload(record.values, record.snippets), {
+      onSuccess: (response) => {
+        onDispatched?.(record.snippets, record.values, response);
+      },
+      onError: (mutationError) => rerunError.reportError(mutationError),
+    });
+  };
 
   useEffect(() => {
     if (data && data.total > 0 && data.offset >= data.total) {
@@ -334,6 +378,12 @@ export function ResultsPane({ incidentId }: ResultsPaneProps) {
       */}
       {canMutate && disabledReasons.length > 0 && <SendUnavailableNotice />}
 
+      <ActionErrorAlert
+        error={rerunError.error}
+        onClose={rerunError.clearError}
+        sx={{ mb: 2 }}
+      />
+
       {/* Selection exists only to feed the send action, so both go together. */}
       {rows && rows.length > 0 && canMutate && (
         <Stack
@@ -391,6 +441,10 @@ export function ResultsPane({ incidentId }: ResultsPaneProps) {
           selected={selectedIds.has(execution.id)}
           onToggleSelected={() => toggleSelected(execution)}
           onOpenFiles={() => setFilesForTask(execution.task_history_id)}
+          remembered={remembered?.get(execution.task_history_id)}
+          rerunPending={rerunMutation.isPending}
+          onRunAgain={() => handleRunAgain(execution)}
+          onEditParameters={() => onEditParameters?.(execution)}
         />
       ))}
 
@@ -553,11 +607,21 @@ function ExecutionRow({
   selected,
   onToggleSelected,
   onOpenFiles,
+  remembered,
+  rerunPending,
+  onRunAgain,
+  onEditParameters,
 }: {
   execution: AtwIncidentExecution;
   selected: boolean;
   onToggleSelected: () => void;
   onOpenFiles: () => void;
+  /** This tab's own record of the batch this execution belonged to, if any. */
+  remembered: AtwRememberedDispatch | undefined;
+  /** Whether the pane's shared rerun mutation is in flight for any row. */
+  rerunPending: boolean;
+  onRunAgain: () => void;
+  onEditParameters: () => void;
 }) {
   const { canMutate } = useAuth();
   const {
@@ -569,6 +633,9 @@ function ExecutionRow({
     args_withheld,
   } = execution;
   const selectable = isSelectable(execution);
+  // Probed only once the run is finished: a running task's file listing is
+  // not yet meaningful, and the endpoint's answer for it is not stable.
+  const hasFiles = useHasDownloadableFiles(task_history_id, selectable);
 
   return (
     <Accordion
@@ -632,15 +699,36 @@ function ExecutionRow({
       <AccordionDetails
         sx={(theme) => ({ paddingRight: theme.spacing(2) + ' !important' })}
       >
-        <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={<FolderOpenIcon />}
-            onClick={onOpenFiles}
-          >
-            Files
-          </Button>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{ mb: 2, flexWrap: 'wrap', rowGap: 1 }}
+        >
+          {hasFiles && (
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<FolderOpenIcon />}
+              onClick={onOpenFiles}
+            >
+              Files
+            </Button>
+          )}
+          {canMutate && (
+            <Button size="small" variant="outlined" onClick={onEditParameters}>
+              Edit parameters and run again
+            </Button>
+          )}
+          {canMutate && remembered && (
+            <Button
+              size="small"
+              variant="outlined"
+              disabled={rerunPending}
+              onClick={onRunAgain}
+            >
+              Run again
+            </Button>
+          )}
         </Stack>
 
         <Box sx={{ mb: 2 }}>

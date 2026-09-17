@@ -15,6 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { useCallback, useRef, useState } from 'react';
 import {
   Alert,
   Box,
@@ -34,6 +35,13 @@ import { ReadOnlyNotice } from '@sep/framework';
 import { CollectPane } from './CollectPane';
 import { ResultsPane } from './ResultsPane';
 import { useAtwIncident, useAtwIncidentLifecycle } from './hooks';
+import type {
+  AtwBatchExecuteResponse,
+  AtwIncidentExecution,
+  AtwRememberedDispatch,
+  AtwRerunRequest,
+  AtwSnippetSummary,
+} from './types';
 
 /**
  * Incident workspace rendered at ``/atw/:incidentId``. Two side-by-side panes —
@@ -53,6 +61,59 @@ export function IncidentWorkspacePage() {
   const { data: incident, isLoading, error } = useAtwIncident(incidentId);
   const lifecycle = useAtwIncidentLifecycle();
   const isClosed = Boolean(incident?.closed_at);
+
+  // What this browser tab has dispatched, so a past execution's "Run again"
+  // and "Edit parameters and run again" have something to act on — nothing
+  // re-runnable rides on the wire, so a reload or another tab's execution has
+  // no entry here and falls back to a snippet-only prefill (see CollectPane).
+  const [remembered, setRemembered] = useState<
+    Map<number, AtwRememberedDispatch>
+  >(new Map());
+  const [rerunRequest, setRerunRequest] = useState<AtwRerunRequest | null>(
+    null
+  );
+  const rerunNonceRef = useRef(0);
+  const collectSectionRef = useRef<HTMLDivElement>(null);
+
+  const handleDispatched = useCallback(
+    (
+      snippets: AtwSnippetSummary[],
+      values: Record<string, unknown>,
+      response: AtwBatchExecuteResponse
+    ) => {
+      setRemembered((previous) => {
+        const next = new Map(previous);
+        for (const item of response.items) {
+          if (
+            item.task_history_id !== null &&
+            item.task_history_id !== undefined
+          ) {
+            next.set(item.task_history_id, { snippets, values });
+          }
+        }
+        return next;
+      });
+    },
+    []
+  );
+
+  const handleEditParameters = useCallback(
+    (execution: AtwIncidentExecution) => {
+      rerunNonceRef.current += 1;
+      setRerunRequest({
+        nonce: rerunNonceRef.current,
+        snippetFilename: execution.snippet_filename,
+        remembered: remembered.get(execution.task_history_id),
+      });
+      const target = collectSectionRef.current;
+      // jsdom (and some embeds) do not implement this API at all — matches
+      // the same guard `SchemaFormRenderer` uses for its own scroll-into-view.
+      if (target && typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    },
+    [remembered]
+  );
 
   if (!incidentId) {
     return null;
@@ -166,12 +227,22 @@ export function IncidentWorkspacePage() {
       >
         {/* PMM divergence from upstream SEP — keep on the next sync. */}
         {canMutate && (
-          <Paper variant="outlined" sx={{ p: 2 }}>
-            <CollectPane incidentId={incidentId} isClosed={isClosed} />
+          <Paper variant="outlined" sx={{ p: 2 }} ref={collectSectionRef}>
+            <CollectPane
+              incidentId={incidentId}
+              isClosed={isClosed}
+              rerunRequest={rerunRequest}
+              onDispatched={handleDispatched}
+            />
           </Paper>
         )}
         <Paper variant="outlined" sx={{ p: 2 }}>
-          <ResultsPane incidentId={incidentId} />
+          <ResultsPane
+            incidentId={incidentId}
+            remembered={remembered}
+            onDispatched={handleDispatched}
+            onEditParameters={handleEditParameters}
+          />
         </Paper>
       </Box>
     </Box>

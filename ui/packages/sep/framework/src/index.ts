@@ -200,6 +200,7 @@ export {
   isRunningStatus,
   RUNNING_STATUSES,
   useTaskHistoryFiles,
+  useHasDownloadableFiles,
   useTaskFileDownload,
 } from './hooks';
 export type {
