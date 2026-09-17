@@ -6,6 +6,25 @@
 
 **Data retention** specifies how long data is stored by PMM Server. By default, time-series data is stored for 30 days. You can adjust the data retention time to balance your system's available disk space with your metrics history requirements.
 
+The setting applies to both stores PMM writes to: metrics in VictoriaMetrics, and Query Analytics data in ClickHouse.
+
+### When data is actually removed
+
+Neither store deletes data the moment it passes the retention period, and the two differ in granularity:
+
+- **Metrics** are removed one whole month partition at a time. A retention period shorter than roughly one month therefore does not remove anything from the current month, and disk usage is bounded by the retention period plus one month rather than by the retention period alone. Setting one day of retention does not make yesterday's metrics disappear.
+- **Query Analytics** data is removed one whole day partition at a time, so it follows the configured period closely.
+
+!!! note alert alert-primary ""
+    Increasing the retention period does not restore data that has already been removed.
+
+### When data retention cannot be changed
+
+The API refuses a change to data retention in two cases:
+
+- **You set the `PMM_DATA_RETENTION` environment variable.** A value supplied through the environment is authoritative, on any deployment, and saving a different value in the UI returns an error saying so. Remove the variable and restart PMM to manage retention from the UI again.
+- **PMM runs in high availability mode.** There, retention is fixed when the replicas start and is set through the `pmm-ha` Helm chart's `dataRetentionDays` value. The **Data retention** field is disabled and says where to change it. See [Set up PMM in HA mode](../install-pmm/install-HA-clustered.md#adjust-data-retention-and-other-settings).
+
 ### Set data retention via the API
 
 If you configure data retention using the [Change Settings API](https://percona-pmm.readme.io/reference/changesettings) (`PUT /v1/server/settings`), express the value in seconds. Hours and minutes formats are not supported and will return an error.
