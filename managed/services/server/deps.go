@@ -20,6 +20,7 @@ import (
 	"net/url"
 	"time"
 
+	omv1 "github.com/percona/pmm/api/om/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 )
@@ -117,4 +118,15 @@ type victoriaMetricsParams interface {
 // nomadService represents an interface for managing and updating Nomad-related configurations in a given context.
 type nomadService interface {
 	UpdateConfiguration(settings *models.Settings) error
+}
+
+// omService is a subset of methods of om.Service used by this package.
+// We use it instead of the real type to avoid a dependency cycle.
+type omService interface {
+	// IsAvailable reports whether SEP's OpenManager Inventory app is configured and
+	// reachable, gating whether OpenManager may be enabled.
+	IsAvailable(ctx context.Context) bool
+	TriggerTopologyCollection(ctx context.Context, req *omv1.TriggerTopologyCollectionRequest) (*omv1.TriggerTopologyCollectionResponse, error)
+	// SyncInventoryEnabled tells SEP's om_inventory app whether OpenManager is on.
+	SyncInventoryEnabled(ctx context.Context, enabled bool)
 }
