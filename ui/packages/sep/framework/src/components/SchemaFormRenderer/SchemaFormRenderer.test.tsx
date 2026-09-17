@@ -376,6 +376,42 @@ describe('SchemaFormRenderer — field rendering', () => {
     expect(document.querySelectorAll('[data-help-for="Code"]')).toHaveLength(0);
   });
 
+  it('omits help when the description only restates the label', () => {
+    const echoSections: FormSection[] = [
+      {
+        title: 'Basics',
+        fields: [
+          {
+            type: 'string',
+            name: 'samples',
+            label: 'Save samples',
+            description: 'Save samples',
+          },
+        ],
+      },
+    ];
+    renderWithProviders(
+      <SchemaFormRenderer sections={echoSections} onSubmit={() => {}} />
+    );
+
+    expect(screen.getByTestId('text-input-samples')).toBeInTheDocument();
+    // MUI paints the label in both <label> and the notched <legend>, so
+    // getByText cannot guard uniqueness here — assert the helper and icon
+    // slots stay empty instead.
+    expect(
+      document.querySelectorAll('[data-help-for="Save samples"]')
+    ).toHaveLength(0);
+    expect(
+      screen.queryByText((_content, element) => {
+        return (
+          element?.tagName.toLowerCase() === 'p' &&
+          element.className.includes('MuiFormHelperText') &&
+          element.textContent === 'Save samples'
+        );
+      })
+    ).toBeNull();
+  });
+
   it('does not render section.description prose', () => {
     const sectionsWithProse: FormSection[] = [
       {

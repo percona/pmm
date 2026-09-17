@@ -43,6 +43,18 @@ export function isInlineHelp(field: PluginField): boolean {
 }
 
 /**
+ * Whether the description only restates the label (e.g. "Save samples" /
+ * "Save samples"). Those schemas still ship a `description`, but painting it
+ * again as helper text or a help icon adds nothing — drop it.
+ */
+export function descriptionEchoesLabel(
+  label: string,
+  description: string
+): boolean {
+  return description.trim().toLowerCase() === label.trim().toLowerCase();
+}
+
+/**
  * Split a field's description into the two slots a renderer can put it in.
  *
  * Every field kind that can show help both ways goes through this, so the
@@ -51,7 +63,8 @@ export function isInlineHelp(field: PluginField): boolean {
  * kinds and not at all on others.
  *
  * @returns `tooltip` for the help icon beside the label, `inline` for text
- * under the input. At most one is ever set.
+ * under the input. At most one is ever set. Neither is set when the description
+ * is missing or only echoes the label.
  */
 export function fieldHelp(field: PluginField): {
   tooltip?: string;
@@ -59,6 +72,9 @@ export function fieldHelp(field: PluginField): {
 } {
   const description = field.description;
   if (!description) {
+    return {};
+  }
+  if (descriptionEchoesLabel(field.label, description)) {
     return {};
   }
   return isInlineHelp(field)
