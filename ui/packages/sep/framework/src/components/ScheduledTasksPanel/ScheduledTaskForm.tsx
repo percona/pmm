@@ -42,15 +42,14 @@ import {
   utcInputToIso,
   utcIsoToUtcInput,
 } from './timezones';
-import { useSchedulePreview } from './hooks';
-import { formatTimestamp } from '../../utils/formatTimestamp';
-import type {
-  CrontabSchedule,
-  SchedulePreviewWrite,
-  IntervalSchedule,
-  PeriodicTaskCreate,
-  PeriodicTaskResponse,
-  PeriodicTaskUpdate,
+import {
+  useSchedulePreview,
+  type CrontabSchedule,
+  type SchedulePreviewWrite,
+  type IntervalSchedule,
+  type PeriodicTaskCreate,
+  type PeriodicTaskResponse,
+  type PeriodicTaskUpdate,
 } from './hooks';
 
 export type IntervalUnit = 'days' | 'hours' | 'minutes';
@@ -287,6 +286,21 @@ export function ScheduledTaskForm({
     (scheduleMode === 'cron' ? cronTimezone : INTERVAL_TIMEZONE);
 
   const nextRuns = preview?.next_runs?.slice(0, 3) ?? [];
+
+  // A clock time in the zone the caption above already names — never relative
+  // and never the reader's own zone, since a run in "2 hours" or in the
+  // reader's zone would silently contradict "Runs in {zoneInForce}" above it.
+  const formatNextRun = (value: string): string => {
+    const target = new Date(value);
+    if (Number.isNaN(target.getTime())) {
+      return value;
+    }
+    return target.toLocaleString(undefined, {
+      timeZone: zoneInForce,
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+  };
 
   const cronPreview = useMemo(() => {
     if (scheduleMode !== 'cron' || !cronExpression) {
@@ -557,9 +571,7 @@ export function ScheduledTaskForm({
             {previewFailed
               ? 'Could not work out the next runs for this schedule.'
               : nextRuns.length > 0
-                ? `Next runs: ${nextRuns
-                    .map((r) => formatTimestamp(r)?.display ?? r)
-                    .join(', ')}`
+                ? `Next runs: ${nextRuns.map(formatNextRun).join(', ')}`
                 : preview
                   ? 'This schedule has no upcoming runs.'
                   : 'Working out the next runs…'}
