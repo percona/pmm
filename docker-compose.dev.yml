@@ -46,6 +46,10 @@ services:
       - go-modules:/root/go/pkg/mod
       - go-cache:/root/.cache
       - pmm-data:/srv
+      # Credentials PMM-15316 provisions for SEP (SECRET_KEY, the three
+      # per-service *__DATABASE__PASSWORD files). A dedicated volume, not a
+      # subpath of pmm-data - see docker-compose.yml's identical comment.
+      - pmm-sep:/srv/sep
       # custom advisor files
       - ./managed/data/advisors/:/usr/local/percona/advisors/
       - ./managed/data/checks/:/usr/local/percona/checks/
@@ -86,5 +90,7 @@ volumes:
     name: go-cache
   pmm-data:
     name: pmm-data
+  pmm-sep:
+    name: pmm-sep
   node-modules:
     name: node-modules
