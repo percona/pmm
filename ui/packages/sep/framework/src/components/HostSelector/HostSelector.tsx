@@ -312,10 +312,11 @@ export function HostSelector({
     <>
       {cascade}
       {/*
-        Peak AutoCompleteInput paints label+required on the floating TextField
-        label inside the outline. Wrap with LabeledContent for the visible
-        label + required marker above the box, keep Peak's `label` so the
-        input stays labelled for a11y/tests, and hide the floating InputLabel.
+        Peak AutoCompleteInput paints label+required on a floating TextField
+        label that notches the outlined border. LabeledContent owns the visible
+        label + required marker above the box; keep Peak's `label` for a11y /
+        tests, hide the floating InputLabel, and collapse the leftover notch
+        (hiding the label alone leaves a gap in the top border).
       */}
       <LabeledContent label={label} isRequired={required}>
         <AutoCompleteInput<HostOption>
@@ -333,8 +334,11 @@ export function HostSelector({
             isOptionEqualToValue,
             noOptionsText,
             onOpen: () => refetch(),
-            // LabeledContent owns vertical rhythm for Autocomplete children.
-            sx: { mt: 0 },
+            sx: {
+              // LabeledContent owns vertical rhythm for Autocomplete children.
+              mt: 0,
+              '& .MuiOutlinedInput-notchedOutline legend': { maxWidth: 0 },
+            },
           }}
           textFieldProps={{
             helperText: text,

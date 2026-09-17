@@ -198,6 +198,10 @@ describe('HostSelector', () => {
     expect(document.querySelector('.MuiInputLabel-root')).toHaveStyle({
       display: 'none',
     });
+    // Hidden label must not leave a notched gap in the top border.
+    expect(
+      document.querySelector('.MuiOutlinedInput-notchedOutline legend')
+    ).toHaveStyle({ maxWidth: 0 });
     expect(screen.getByLabelText(/^Execution Host\b/)).toBeInTheDocument();
   });
 

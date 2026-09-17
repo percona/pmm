@@ -55,9 +55,7 @@ describe('fieldHelp', () => {
   });
 
   it('returns nothing when description only echoes the label', () => {
-    expect(
-      fieldHelp(stringField({ description: 'Save samples' }))
-    ).toEqual({});
+    expect(fieldHelp(stringField({ description: 'Save samples' }))).toEqual({});
     expect(
       fieldHelp(
         stringField({
