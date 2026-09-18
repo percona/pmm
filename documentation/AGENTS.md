@@ -5,7 +5,9 @@
 
 This file is the single source of documentation rules. Two human-facing files keep the parts they own and this guide links to them instead of restating: [`WRITERS-NOTES.md`](WRITERS-NOTES.md) for the admonition colour table, the icon list and symbols, and [`docs-contributing.md`](docs-contributing.md) for the external-contributor workflow. When this guide and an older note disagree, this guide wins — the older note is corrected, never forked.
 
-Every rule below was checked against the published corpus (387 pages under `docs/`). Where a plausible-sounding rule is absent from the corpus, it is listed in [Rules that are not rules](#rules-that-are-not-rules) rather than silently dropped.
+Every rule below was checked against the published pages under `docs/` rather than carried over on faith. Where a plausible-sounding rule turned out to be absent from the corpus, it is listed in [Rules that are not rules](#rules-that-are-not-rules) rather than silently dropped.
+
+The counts quoted throughout come from one sweep of `docs/` in September 2026. They are here to show how one-sided a call was, not to track the corpus — re-measure before overturning a rule, and don't bother refreshing them in passing.
 
 ## Scope
 
@@ -35,7 +37,7 @@ CI on a documentation PR:
 
 ```
 documentation/
-├── docs/                    # 387 pages, one directory per chapter
+├── docs/                    # one directory per chapter
 │   ├── install-pmm/         # reworked chapter — use as the style benchmark
 │   ├── quickstart/ use/ admin/ configure-pmm/ backup/ alert/ advisors/
 │   ├── reference/           # dashboards, glossary, FAQ, third-party components
@@ -49,7 +51,7 @@ documentation/
 └── docs-contributing.md     # contributor workflow
 ```
 
-Pages carry **no YAML front matter** — 0 of 387 files have any. Start the file with its `# H1` and nothing else.
+Pages carry **no YAML front matter** — not one does. Start the file with its `# H1` and nothing else.
 
 ## Writing rules
 
@@ -91,12 +93,12 @@ To secure your system:
     A labelled warning.
 
 ??? info "Collapsed by default"
-    A collapsible block (43 uses).
+    A collapsible block.
 ```
 
 Types in use: `note`, `caution`, `warning`, `hint`, `tip`, `seealso`, `danger`, `info`. Prefer `hint` to `tip` — they look the same in the Material theme and `tip` renders badly elsewhere. See [`WRITERS-NOTES.md`](WRITERS-NOTES.md#admonitions) for which colour each renders and when to reach for it.
 
-**Tabs** (`pymdownx.tabbed`, 359 blocks) carry per-platform or per-deployment variants:
+**Tabs** (`pymdownx.tabbed`) carry per-platform or per-deployment variants:
 
 ```markdown
 === "Docker"
