@@ -1569,13 +1569,13 @@
                     "type": "stat"
                 },
                 {
-                    "description": "Number of InnoDB Log Files Multiplied by Their Size",
+                    "description": "Total InnoDB redo log capacity. Read from Innodb_redo_log_capacity_resized on MySQL 8.0.30 and newer, which reports the capacity actually in use whichever variable configured it, and from innodb_log_files_in_group * innodb_log_file_size on older servers, or from innodb_log_file_size alone on MariaDB 10.5 and newer, which dropped the file count.",
                     "fieldConfig": {
                         "defaults": {
                             "color": {
                                 "mode": "thresholds"
                             },
-                            "decimals": 2,
+                            "decimals": 0,
                             "mappings": [
                                 {
                                     "options": {
@@ -1636,7 +1636,7 @@
                             "calculatedInterval": "10m",
                             "datasourceErrors": {},
                             "errors": {},
-                            "expr": "avg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"})",
+                            "expr": "avg by (service_name) (mysql_global_status_innodb_redo_log_capacity_resized{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_innodb_redo_log_capacity_bytes{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_redo_log_capacity{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_files_in_group{service_name=~\"$service_name\"} * mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"}) or\navg by (service_name) (mysql_global_variables_innodb_log_file_size{service_name=~\"$service_name\"})",
                             "format": "time_series",
                             "interval": "$interval",
                             "intervalFactor": 1,

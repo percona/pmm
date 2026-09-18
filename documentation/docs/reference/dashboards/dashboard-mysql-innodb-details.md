@@ -478,7 +478,7 @@ InnoDB IO Capacity to use when falling behind and need to catch up with Flushing
 
 ### Total Log Space
 
-Number of InnoDB Log Files Multiplied by Their Size.
+Total InnoDB redo log capacity. On MySQL 8.0.30 and newer this comes from `Innodb_redo_log_capacity_resized`, which reports the capacity actually in use whether you set `innodb_redo_log_capacity` or the older `innodb_log_file_size` and `innodb_log_files_in_group`. On older servers it is the product of those two variables, or `innodb_log_file_size` alone on MariaDB 10.5 and newer, which dropped the file count.
 
 ### Log Buffer Size
 
