@@ -18,6 +18,7 @@ import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { enqueueSnackbar } from 'notistack';
 import { useUpdateSettings } from 'hooks/api/useSettings';
+import { useHAStatus } from 'hooks/api/useHA';
 import { Messages } from '../../Settings.messages';
 import {
   FEATURE_MANAGEMENT_SETTINGS,
@@ -44,6 +45,7 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   settings,
 }) => {
   const { mutateAsync: updateSettings } = useUpdateSettings();
+  const { data: haStatus } = useHAStatus();
 
   const methods = useForm<AdvancedSettingsFormValues>({
     resolver: zodResolver(advancedSettingsSchema),
@@ -76,6 +78,10 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
   };
 
   const m = Messages.advanced;
+
+  // In HA retention is fixed at start-up and the server refuses a change, so the field is
+  // disabled before a user types into it rather than after they press Save.
+  const retentionLockedByHa = haStatus?.status === 'Enabled';
 
   return (
     <FormProvider {...methods}>
@@ -135,6 +141,10 @@ export const AdvancedSettingsForm: FC<AdvancedSettingsFormProps> = ({
               name="retention"
               textFieldProps={{
                 type: 'number',
+                disabled: retentionLockedByHa,
+                helperText: retentionLockedByHa
+                  ? m.retentionLockedByHa
+                  : undefined,
                 slotProps: {
                   htmlInput: {
                     min: MIN_DAYS,
