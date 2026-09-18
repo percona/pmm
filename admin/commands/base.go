@@ -123,6 +123,12 @@ type ErrorResponse interface {
 type Error struct {
 	Code  int    `json:"code"`
 	Error string `json:"error"`
+
+	// GRPCCode is the gRPC status code carried in the response payload. It is kept out of
+	// the JSON output to preserve the documented shape of `pmm-admin --json` errors.
+	// PMM Server maps several gRPC codes onto HTTP 401, so Code alone cannot tell an
+	// authentication failure apart from an internal error - see ServerErrorMessage.
+	GRPCCode int32 `json:"-"`
 }
 
 // GetError converts an ErrorResponse to an Error.
@@ -130,9 +136,17 @@ func GetError(err ErrorResponse) Error {
 	v := reflect.ValueOf(err)
 	p := v.Elem().FieldByName("Payload")
 	e := p.Elem().FieldByName("Message")
+
+	// Not every generated payload carries a code, and older PMM Servers may leave it unset.
+	var grpcCode int32
+	if c := p.Elem().FieldByName("Code"); c.IsValid() && c.CanInt() {
+		grpcCode = int32(c.Int()) //nolint:gosec
+	}
+
 	return Error{
-		Code:  err.Code(),
-		Error: e.String(),
+		Code:     err.Code(),
+		Error:    e.String(),
+		GRPCCode: grpcCode,
 	}
 }
 
