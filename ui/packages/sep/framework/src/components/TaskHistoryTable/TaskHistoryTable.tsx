@@ -39,7 +39,7 @@ import {
   useTaskHistory,
   useTaskHistoryByName,
 } from '../../hooks/useTaskHistory';
-import { useTaskHistoryFiles } from '../../hooks/useTaskHistoryFiles';
+import { useHasDownloadableFiles } from '../../hooks/useHasDownloadableFiles';
 import { SEP_TABLE_CLASS } from '../../constants';
 import { ChainDisplay } from './ChainDisplay';
 import { StatusBadge } from './StatusBadge';
@@ -112,21 +112,13 @@ function DownloadFilesButton({
   onDownloadFiles,
   onOpenBuiltIn,
 }: DownloadFilesButtonProps) {
-  const shouldProbe = canProbeDownloadableFiles(entry);
-  const { data, isLoading, isError } = useTaskHistoryFiles(
-    shouldProbe ? entry.id : null,
-    {
-      staleTime: DOWNLOADABLE_FILES_STALE_TIME_MS,
-    }
+  const hasFiles = useHasDownloadableFiles(
+    entry.id,
+    canProbeDownloadableFiles(entry),
+    { staleTime: DOWNLOADABLE_FILES_STALE_TIME_MS }
   );
 
-  if (
-    !shouldProbe ||
-    isLoading ||
-    isError ||
-    !data ||
-    Object.keys(data).length === 0
-  ) {
+  if (!hasFiles) {
     return null;
   }
 

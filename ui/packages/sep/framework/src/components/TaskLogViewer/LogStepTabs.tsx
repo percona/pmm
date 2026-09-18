@@ -37,7 +37,9 @@ export function LogStepTabs({
   unreadSteps,
   onSelect,
 }: LogStepTabsProps) {
-  if (steps.length === 0) {
+  // A single step has nothing to switch between, so the strip would be one
+  // inert tab sitting above the log for no reason.
+  if (steps.length <= 1) {
     return null;
   }
 
@@ -54,7 +56,10 @@ export function LogStepTabs({
       onChange={(_, value: string) => onSelect(value)}
       variant="scrollable"
       scrollButtons="auto"
-      sx={{ minHeight: 36, '& .MuiTab-root': { minHeight: 36, py: 0.5 } }}
+      sx={{
+        minHeight: 36,
+        '& .MuiTab-root': { minHeight: 36, py: 0.5, whiteSpace: 'nowrap' },
+      }}
     >
       {steps.map((step) => (
         <Tab

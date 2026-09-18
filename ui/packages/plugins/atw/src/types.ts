@@ -71,6 +71,38 @@ export type AtwBatchExecuteResponse = Schemas['atw__ATWBatchExecuteResponse'];
 export type AtwBatchExecuteItemResponse =
   Schemas['atw__ATWBatchExecuteItemResponse'];
 
+/**
+ * A batch dispatch remembered for this browser tab, so "Run again" and "Edit
+ * parameters and run again" have something to act on.
+ *
+ * Nothing re-runnable rides on the wire today: an execution's `masked_args` is
+ * a display string with credential values masked out (or withheld entirely),
+ * and carries no host, sudo choice, or structured args. So this is
+ * session-local only — a page reload, or an execution this tab never
+ * dispatched, has nothing remembered for it, and the caller falls back to
+ * reselecting the snippet with no parameter values.
+ */
+export interface AtwRememberedDispatch {
+  /** The batch's snippets, in the order the form rendered them. */
+  snippets: AtwSnippetSummary[];
+  /** The submitted form values, keyed exactly as `SchemaFormRenderer` registers them. */
+  values: Record<string, unknown>;
+}
+
+/** A request to reopen the Collect form for one past execution. */
+export interface AtwRerunRequest {
+  /**
+   * Bumped on every request, so the form remounts (and re-seeds its defaults)
+   * even when the snippet selection this request asks for is unchanged from
+   * what is already selected.
+   */
+  nonce: number;
+  /** The snippet to reselect when nothing was remembered for this execution. */
+  snippetFilename: string;
+  /** The exact batch this execution belonged to, when this tab dispatched it. */
+  remembered?: AtwRememberedDispatch;
+}
+
 // ── Incident execution history ───────────────────────────────────────────
 
 export type AtwIncidentExecution = Schemas['atw__ATWIncidentExecutionResponse'];
