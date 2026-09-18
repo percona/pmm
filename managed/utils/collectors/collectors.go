@@ -52,17 +52,14 @@ func DisableDefaultEnabledCollectors(prefix string, defaultCollectors []string, 
 		defaultCollectorsMap[defaultCollector] = struct{}{}
 	}
 	args := []string{}
-	emitted := make(map[string]struct{})
 	for _, collector := range disabledCollectors {
 		if _, ok := defaultCollectorsMap[collector]; !ok {
 			continue
 		}
 		// A repeated flag is rejected by the exporters' flag parser, which would stop the
 		// exporter from starting, so a collector listed twice must still yield one argument.
-		if _, ok := emitted[collector]; ok {
-			continue
-		}
-		emitted[collector] = struct{}{}
+		// Dropping the name here makes the membership check above reject every repeat.
+		delete(defaultCollectorsMap, collector)
 		args = append(args, fmt.Sprintf("%s%s", prefix, collector))
 	}
 	return args

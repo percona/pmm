@@ -144,17 +144,17 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 				"|unevictable|mlock|mapped|bounce|page_table_pages|kernel_stack)|drop_slab|slabs_scanned|pgd?e?activate"+
 				"|pgpg(in|out)|pswp(in|out)|pgm?a?j?fault)$",
 		)
-	}
 
-	args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
-
-	if node.Distro != "darwin" {
+		// FilterOutCollectors matches "--collector.<name>" only, so these negations pass
+		// through it untouched and belong inside the same darwin guard as the flags they negate.
 		args = append(args, collectors.DisableDefaultEnabledCollectors(
 			"--no-collector.",
 			defaultNodeExporterCollectors,
 			exporter.ExporterOptions.DisabledCollectors,
 		)...)
 	}
+
+	args = collectors.FilterOutCollectors("--collector.", args, exporter.ExporterOptions.DisabledCollectors)
 
 	if exporter.ExporterOptions.MetricsPath != "" {
 		args = append(args, "--web.telemetry-path="+exporter.ExporterOptions.MetricsPath)
