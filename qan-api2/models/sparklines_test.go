@@ -29,27 +29,8 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// errNoConnection is returned by unreachableDB instead of ever opening a connection.
+// errNoConnection is returned instead of ever opening a real connection.
 var errNoConnection = errors.New("no database in this test")
-
-// unreachableConnector hands back a *sqlx.DB whose queries always fail. The sparkline
-// point arithmetic runs before any query is issued, so this lets us drive
-// SelectSparklines all the way through that arithmetic without a live ClickHouse:
-// a panic in it surfaces as a panic, while correct arithmetic surfaces as a query error.
-type unreachableConnector struct{}
-
-func (unreachableConnector) Connect(context.Context) (driver.Conn, error) {
-	return nil, errNoConnection
-}
-
-func (unreachableConnector) Driver() driver.Driver { return nil }
-
-func unreachableDB(t *testing.T) *sqlx.DB {
-	t.Helper()
-	db := sqlx.NewDb(sql.OpenDB(unreachableConnector{}), "clickhouse")
-	t.Cleanup(func() { _ = db.Close() })
-	return db
-}
 
 // sparklineCtx carries incoming gRPC metadata, which headersToLbacFilter requires.
 func sparklineCtx(t *testing.T) context.Context {
@@ -57,69 +38,8 @@ func sparklineCtx(t *testing.T) context.Context {
 	return metadata.NewIncomingContext(t.Context(), metadata.Pairs("test", t.Name()))
 }
 
-// sparklineRanges covers every shape of period the point arithmetic has to survive,
-// including the zero-width range from PMM-15160 that made amountOfPoints 0.
-func sparklineRanges() []struct {
-	name     string
-	from, to int64
-} {
-	const (
-		base   = int64(1750322640) // 2026-06-19T08:44:00Z
-		minute = int64(60)
-		hour   = 60 * minute
-	)
-	return []struct {
-		name     string
-		from, to int64
-	}{
-		// PMM-15160: both endpoints align down to the same minute, so timePeriod == 0.
-		{"same minute", base + 10, base + 50},
-		{"identical timestamps", base, base},
-		{"one minute", base, base + minute},
-		{"two minutes", base, base + 2*minute},
-		// Just inside and just outside the < 2h branch that reduces the point count.
-		{"just under two hours", base, base + 2*hour - minute},
-		{"exactly two hours", base, base + 2*hour},
-		{"twelve hours", base, base + 12*hour},
-		{"thirty days", base, base + 30*24*hour},
-		// Reversed range: must not panic either, however the period is treated.
-		{"reversed", base + hour, base},
-		{"reversed within a minute", base + 50, base + 10},
-	}
-}
-
-func TestReporterSelectSparklinesNeverPanics(t *testing.T) {
-	t.Parallel()
-
-	r := NewReporter(unreachableDB(t))
-	for _, tc := range sparklineRanges() {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			require.NotPanics(t, func() {
-				_, _ = r.SelectSparklines(sparklineCtx(t), "queryid", tc.from, tc.to,
-					nil, nil, "queryid", "load", false)
-			})
-		})
-	}
-}
-
-func TestMetricsSelectSparklinesNeverPanics(t *testing.T) {
-	t.Parallel()
-
-	m := NewMetrics(unreachableDB(t))
-	for _, tc := range sparklineRanges() {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-			require.NotPanics(t, func() {
-				_, _ = m.SelectSparklines(sparklineCtx(t), tc.from, tc.to,
-					"", "queryid", nil, nil)
-			})
-		})
-	}
-}
-
-// TestSparklinePoints pins the point arithmetic itself. The panic tests above exercise
-// the real methods but cannot see their return values, because the query fails first.
+// TestSparklinePoints pins the point arithmetic itself. TestSparklineWiring below pins
+// the two real methods to it.
 func TestSparklinePoints(t *testing.T) {
 	t.Parallel()
 
@@ -154,25 +74,78 @@ func TestSparklinePoints(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			points, timeFrame := sparklinePoints(tc.from, tc.to)
-			require.Equal(t, tc.wantPoints, points, "amountOfPoints")
-			require.Equal(t, tc.wantTimeFrame, timeFrame, "timeFrame")
+			layout := newSparklineLayout(tc.from, tc.to)
+			require.Equal(t, tc.wantPoints, layout.amountOfPoints, "amountOfPoints")
+			require.Equal(t, tc.wantTimeFrame, layout.timeFrame, "timeFrame")
 		})
 	}
 }
 
+// TestSparklineLayoutAlignsItsBounds pins the alignment that both callers used to do for
+// themselves. The layout always describes a whole-minute window, and an unaligned request
+// is treated exactly like the aligned one it falls inside -- so a caller that forgets to
+// align cannot reach a different answer, and the two that used to align get the same
+// window they got before.
+func TestSparklineLayoutAlignsItsBounds(t *testing.T) {
+	t.Parallel()
+
+	const base = int64(1750322640) // 2026-06-19T08:44:00Z, already minute-aligned
+
+	t.Run("bounds land on a whole minute", func(t *testing.T) {
+		t.Parallel()
+		for _, tc := range []struct {
+			name             string
+			from, to         int64
+			wantFrom, wantTo int64
+		}{
+			{"already aligned", base, base + 3600, base, base + 3600},
+			{"both inside one minute", base + 10, base + 50, base, base},
+			{"to spans into the next minute", base, base + 119, base, base + 60},
+			{"reversed", base + 50, base + 10, base, base},
+			// Integer division truncates towards zero, so a pre-1970 bound lands on the
+			// minute above rather than below. Preserved from the arithmetic the callers
+			// used to do inline; no real QAN request has a negative period.
+			{"negative bounds", -119, -61, -60, -60},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+				layout := newSparklineLayout(tc.from, tc.to)
+				require.Equal(t, tc.wantFrom, layout.periodStartFromSec, "periodStartFromSec")
+				require.Equal(t, tc.wantTo, layout.periodStartToSec, "periodStartToSec")
+				require.Zero(t, layout.periodStartFromSec%60, "from not on a minute")
+				require.Zero(t, layout.periodStartToSec%60, "to not on a minute")
+			})
+		}
+	})
+
+	// Aligning before the call must make no difference, which is what lets the callers
+	// drop their own alignment without changing the window they query.
+	t.Run("aligning first changes nothing", func(t *testing.T) {
+		t.Parallel()
+		for _, from := range []int64{-3601, -60, -1, 0, 1, 59, base, base + 10, base + 59} {
+			for _, offset := range []int64{-3600, -61, -1, 0, 1, 59, 60, 61, 7199, 7200, 43200} {
+				to := from + offset
+				require.Equal(t,
+					newSparklineLayout(from/60*60, to/60*60),
+					newSparklineLayout(from, to),
+					"from=%d to=%d", from, to)
+			}
+		}
+	})
+}
+
 // TestSparklinePointsAlwaysUsable is the invariant behind PMM-15160: whatever bounds a
-// client sends, the arithmetic must not divide by zero and must describe at least one
-// point of at least one minute.
+// client sends -- aligned to a minute or not -- the arithmetic must not divide by zero and
+// must describe at least one point of at least one minute.
 func TestSparklinePointsAlwaysUsable(t *testing.T) {
 	t.Parallel()
 
 	for _, from := range []int64{math.MinInt64, math.MinInt64 + 1, -1e9, -3600, -60, -1, 0, 1, 59, 60, 1750322640, math.MaxInt64 - 1, math.MaxInt64} {
 		for _, offset := range []int64{math.MinInt64, -1e9, -7200, -60, -1, 0, 1, 59, 60, 61, 7199, 7200, 1e9, math.MaxInt64} {
 			to := from + offset // deliberately allowed to overflow
-			points, timeFrame := sparklinePoints(from, to)
-			require.GreaterOrEqual(t, points, int64(1), "from=%d to=%d", from, to)
-			require.GreaterOrEqual(t, timeFrame, int64(60), "from=%d to=%d", from, to)
+			layout := newSparklineLayout(from, to)
+			require.GreaterOrEqual(t, layout.amountOfPoints, int64(1), "from=%d to=%d", from, to)
+			require.GreaterOrEqual(t, layout.timeFrame, int64(60), "from=%d to=%d", from, to)
 		}
 	}
 }
@@ -232,6 +205,8 @@ func TestSparklineWiring(t *testing.T) {
 		from, to int64
 	}{
 		{"same minute", base + 10, base + 50},
+		{"reversed within a minute", base + 50, base + 10},
+		{"reversed by an hour", base + hour, base},
 		{"one hour", base, base + hour},
 		{"five hours", base, base + 5*hour},
 		{"twelve hours", base, base + 12*hour},
@@ -243,12 +218,12 @@ func TestSparklineWiring(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
-				wantPoints, wantTimeFrame := sparklinePoints(tc.from/60*60, tc.to/60*60)
+				want := newSparklineLayout(tc.from, tc.to)
 				points, err := r.SelectSparklines(sparklineCtx(t), "queryid", tc.from, tc.to,
 					nil, nil, "queryid", "load", false)
 				require.NoError(t, err)
-				require.Len(t, points, int(wantPoints))
-				require.Equal(t, uint32(wantTimeFrame), points[0].TimeFrame)
+				require.Len(t, points, int(want.amountOfPoints))
+				require.Equal(t, uint32(want.timeFrame), points[0].TimeFrame)
 			})
 		}
 	})
@@ -259,12 +234,12 @@ func TestSparklineWiring(t *testing.T) {
 		for _, tc := range cases {
 			t.Run(tc.name, func(t *testing.T) {
 				t.Parallel()
-				wantPoints, wantTimeFrame := sparklinePoints(tc.from/60*60, tc.to/60*60)
+				want := newSparklineLayout(tc.from, tc.to)
 				points, err := m.SelectSparklines(sparklineCtx(t), tc.from, tc.to,
 					"", "queryid", nil, nil)
 				require.NoError(t, err)
-				require.Len(t, points, int(wantPoints))
-				require.Equal(t, uint32(wantTimeFrame), points[0].TimeFrame)
+				require.Len(t, points, int(want.amountOfPoints))
+				require.Equal(t, uint32(want.timeFrame), points[0].TimeFrame)
 			})
 		}
 	})

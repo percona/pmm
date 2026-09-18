@@ -215,7 +215,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	}{
 		PeriodStartFrom:     periodStartFromSec,
 		PeriodStartTo:       periodStartToSec,
-		PeriodDuration:      max(periodStartToSec-periodStartFromSec, 1), // the query divides by it
+		PeriodDuration:      PeriodDuration(periodStartFromSec, periodStartToSec),
 		Dimensions:          escapeColonsInMap(dimensions),
 		Labels:              escapeColonsInMap(labels),
 		Group:               group,
@@ -275,7 +275,13 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		}
 		results = append([]M{total}, results...)
 	}
-	return results, err
+	// A failure part-way through the stream leaves the rows above incomplete; without
+	// this the caller cannot tell a truncated report from a short one.
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("DimensionReport rows error: %w", err)
+	}
+	return results, nil
 }
 
 const queryReportSparklinesTmpl = `
@@ -323,11 +329,9 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	dimensions map[string][]string, labels map[string][]string,
 	group string, column string, isTotal bool,
 ) ([]*qanpbv1.Point, error) {
-	// Align to minutes
-	periodStartToSec = periodStartToSec / secondsPerMinute * secondsPerMinute
-	periodStartFromSec = periodStartFromSec / secondsPerMinute * secondsPerMinute
-
-	amountOfPoints, timeFrame := sparklinePoints(periodStartFromSec, periodStartToSec)
+	layout := newSparklineLayout(periodStartFromSec, periodStartToSec)
+	periodStartFromSec, periodStartToSec = layout.periodStartFromSec, layout.periodStartToSec
+	amountOfPoints, timeFrame := layout.amountOfPoints, layout.timeFrame
 
 	arg := map[string]any{
 		"dimension_val":     dimensionVal,
@@ -360,7 +364,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		DimensionVal:    escapeColons(dimensionVal),
 		PeriodStartFrom: periodStartFromSec,
 		PeriodStartTo:   periodStartToSec,
-		PeriodDuration:  periodStartToSec - periodStartFromSec,
+		PeriodDuration:  PeriodDuration(periodStartFromSec, periodStartToSec),
 		Dimensions:      escapeColonsInMap(dimensions),
 		Labels:          escapeColonsInMap(labels),
 		Group:           group,
@@ -430,6 +434,12 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		}
 		resultsWithGaps[p.Point] = &p
 	}
+	// Check before filling gaps: otherwise a stream that failed part-way is turned into
+	// a flat-zero sparkline that looks like real data.
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("SelectSparklines rows error: %w", err)
+	}
 
 	// fill in gaps in time series.
 	for pointN := uint32(0); int64(pointN) < amountOfPoints; pointN++ {
@@ -445,7 +455,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		results = append(results, p)
 	}
 
-	return results, err
+	return results, nil
 }
 
 // queryDimension lists every value of a dimension in the period (so the filter panel
@@ -554,10 +564,18 @@ func (r *Reporter) SelectFilters(
 			if mainMetricPerSec == 0 {
 				total = totals[label.key]
 			}
+			// A main metric that is zero for every row in the period -- no errors in a
+			// num_queries_with_errors report, say -- leaves no total to take a percentage
+			// of. Dividing anyway gives NaN, which the generated API clients cannot decode
+			// into their float fields, failing the whole response.
+			percent := float32(0)
+			if total != 0 {
+				percent = label.mainMetricPerSec / total
+			}
 			val := qanpbv1.Values{
 				Value:             label.value,
 				MainMetricPerSec:  label.mainMetricPerSec,
-				MainMetricPercent: label.mainMetricPerSec / total,
+				MainMetricPercent: percent,
 			}
 			result.Labels[label.key].Name = append(result.Labels[label.key].Name, &val)
 		}
@@ -569,10 +587,7 @@ func (r *Reporter) SelectFilters(
 func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 	periodStartToSec int64, dimensionName, mainMetricName string, tmplQueryFilter *template.Template, queryDimensions, queryLabels map[string][]string,
 ) ([]*customLabel, float32, error) {
-	// A single-instant request would divide the per-second rates below by zero, giving
-	// +Inf -- and then Inf/Inf = NaN where the percentage is worked out. See the note
-	// in services/analytics/profile.go.
-	durationSec := max(periodStartToSec-periodStartFromSec, 1)
+	durationSec := PeriodDuration(periodStartFromSec, periodStartToSec)
 	var labels []*customLabel
 
 	lbacFilter, err := headersToLbacFilter(ctx)

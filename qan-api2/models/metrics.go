@@ -35,12 +35,9 @@ import (
 )
 
 const (
-	optimalAmountOfPoint = 120
-	minFullTimeFrame     = 2 * time.Hour
-	cannotPrepare        = "cannot prepare query"
-	cannotPopulate       = "cannot populate query arguments"
-	cannotExecute        = "cannot execute metrics query"
-	secondsPerMinute     = 60
+	cannotPrepare  = "cannot prepare query"
+	cannotPopulate = "cannot populate query arguments"
+	cannotExecute  = "cannot execute metrics query"
 )
 
 // Metrics represents methods to work with metrics.
@@ -76,7 +73,7 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 	}{
 		PeriodStartFrom: periodStartFromSec,
 		PeriodStartTo:   periodStartToSec,
-		PeriodDuration:  periodStartToSec - periodStartFromSec,
+		PeriodDuration:  PeriodDuration(periodStartFromSec, periodStartToSec),
 		Dimensions:      escapeColonsInMap(dimensions),
 		Labels:          escapeColonsInMap(labels),
 		DimensionVal:    escapeColons(filter),
@@ -129,8 +126,12 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		}
 		results = append(results, total)
 	}
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("DimensionMetrics rows error: %w", err)
+	}
 
-	return results, err
+	return results, nil
 }
 
 const queryMetricsTmpl = `
@@ -501,11 +502,9 @@ var tmplMetricsSparklines = template.Must(template.New("queryMetricsSparklines")
 func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	filter, group string, dimensions, labels map[string][]string,
 ) ([]*qanv1.Point, error) {
-	// Align to minutes
-	periodStartToSec = periodStartToSec / secondsPerMinute * secondsPerMinute
-	periodStartFromSec = periodStartFromSec / secondsPerMinute * secondsPerMinute
-
-	amountOfPoints, timeFrame := sparklinePoints(periodStartFromSec, periodStartToSec)
+	layout := newSparklineLayout(periodStartFromSec, periodStartToSec)
+	periodStartFromSec, periodStartToSec = layout.periodStartFromSec, layout.periodStartToSec
+	amountOfPoints, timeFrame := layout.amountOfPoints, layout.timeFrame
 
 	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
@@ -524,7 +523,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	}{
 		PeriodStartFrom: periodStartFromSec,
 		PeriodStartTo:   periodStartToSec,
-		PeriodDuration:  periodStartToSec - periodStartFromSec,
+		PeriodDuration:  PeriodDuration(periodStartFromSec, periodStartToSec),
 		Dimensions:      escapeColonsInMap(dimensions),
 		Labels:          escapeColonsInMap(labels),
 		DimensionVal:    escapeColons(filter),
@@ -572,6 +571,11 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 
 		resultsWithGaps[p.Point] = &p
 	}
+	// See Reporter.SelectSparklines: check before filling gaps.
+	err = rows.Err()
+	if err != nil {
+		return nil, fmt.Errorf("SelectSparklines rows error: %w", err)
+	}
 
 	// fill in gaps in time series.
 	for pointN := uint32(0); int64(pointN) < amountOfPoints; pointN++ {
@@ -587,7 +591,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 		results = append(results, p)
 	}
 
-	return results, err
+	return results, nil
 }
 
 const queryExampleTmpl = `
@@ -1000,9 +1004,14 @@ func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, perio
 		}
 	}
 
+	err = rows.Err()
+	if err != nil {
+		return results, fmt.Errorf("histogram rows error: %w", err)
+	}
+
 	results.HistogramItems = histogram
 
-	return results, err
+	return results, nil
 }
 
 func histogramHasKey(h []*qanv1.HistogramItem, key string) (bool, int) {
@@ -1205,7 +1214,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 	}{
 		PeriodStartFrom: periodStartFromSec,
 		PeriodStartTo:   periodStartToSec,
-		PeriodDuration:  periodStartToSec - periodStartFromSec,
+		PeriodDuration:  PeriodDuration(periodStartFromSec, periodStartToSec),
 		Dimensions:      escapeColonsInMap(dimensions),
 		Labels:          escapeColonsInMap(labels),
 		DimensionVal:    escapeColons(filter),
