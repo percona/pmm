@@ -347,6 +347,7 @@ Core components and per-area guides: see [Component Guides](#component-guides) a
 | **mockery** | Mock generation for Go interfaces |
 | **golangci-lint** | Static analysis and linting |
 | **Kong** | CLI framework for pmm-admin |
+| **MCP Go SDK** (`modelcontextprotocol/go-sdk`) | Model Context Protocol endpoint at `/mcp` in pmm-managed (`managed/services/mcp`) |
 | **Docker Compose** | Development environment |
 | **Ansible** | Server provisioning and configuration |
 | **Packer** | Machine image builds (AMI) |

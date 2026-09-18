@@ -1,0 +1,88 @@
+{
+  "metrics": {
+    "num_queries": {
+      "rate": 3.1,
+      "cnt": 1200,
+      "sum": 1200,
+      "min": 0,
+      "max": 0,
+      "avg": 0,
+      "p99": 0,
+      "percent_of_total": 86
+    },
+    "query_time": {
+      "rate": 0.02,
+      "cnt": 1200,
+      "sum": 88.5,
+      "min": 0.05,
+      "max": 0.31,
+      "avg": 0.073,
+      "p99": 0.2,
+      "percent_of_total": 69
+    },
+    "rows_examined": {
+      "rate": 5000,
+      "cnt": 1200,
+      "sum": 24000000,
+      "min": 20000,
+      "max": 20000,
+      "avg": 20000,
+      "p99": 20000,
+      "percent_of_total": 90
+    },
+    "rows_sent": {
+      "rate": 0.3,
+      "cnt": 1200,
+      "sum": 1200,
+      "min": 1,
+      "max": 1,
+      "avg": 1,
+      "p99": 1,
+      "percent_of_total": 10
+    },
+    "no_index_used": {
+      "rate": 0.3,
+      "cnt": 1200,
+      "sum": 1200,
+      "avg": 1
+    },
+    "full_scan": {
+      "rate": 0.3,
+      "cnt": 1200,
+      "sum": 1200,
+      "avg": 1
+    },
+    "filesort": {
+      "rate": 0,
+      "cnt": 1200,
+      "sum": 0,
+      "avg": 0
+    }
+  },
+  "text_metrics": {},
+  "sparkline": [
+    {
+      "point": 0,
+      "timestamp": "2026-09-14T11:59:00Z",
+      "load": 0.42,
+      "m_rows_affected_sum_per_sec": "NaN",
+      "m_query_time_sum_per_sec": "Infinity"
+    }
+  ],
+  "totals": {},
+  "fingerprint": "SELECT * FROM `customers` WHERE `email` = ?",
+  "metadata": {
+    "service_name": "shop-mysql",
+    "database": "shop_db",
+    "schema": "shop",
+    "username": "root",
+    "replication_set": "",
+    "cluster": "",
+    "service_type": "mysql",
+    "service_id": "svc-1",
+    "environment": "",
+    "node_id": "node-1",
+    "node_name": "demo-node",
+    "node_type": "container"
+  }
+}

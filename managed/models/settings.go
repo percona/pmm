@@ -32,6 +32,9 @@ const (
 	VictoriaMetricsCacheEnabledDefault = false
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
+	MCPEnabledDefault                  = true
+	MCPRawSQLDefault                   = true
+	MCPActionTimeoutDefault            = 15 * time.Second
 	InternalPgQANEnabledDefault        = false
 	awsPartitionID                     = "aws"
 )
@@ -116,6 +119,16 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"access_control"`
 
+	// MCP holds the Model Context Protocol endpoint (/mcp) settings.
+	MCP struct {
+		// Enabled is true if the MCP endpoint is enabled.
+		Enabled *bool `json:"enabled"`
+		// RawSQL is true if tool output may include statements with literal values.
+		RawSQL *bool `json:"raw_sql"`
+		// ActionTimeout bounds EXPLAIN / SHOW CREATE TABLE polling.
+		ActionTimeout time.Duration `json:"action_timeout"`
+	} `json:"mcp"`
+
 	// Contains all encrypted tables in format 'db.table.column'.
 	EncryptedItems []string `json:"encrypted_items"`
 }
@@ -180,6 +193,30 @@ func (s *Settings) IsAccessControlEnabled() bool {
 		return *s.AccessControl.Enabled
 	}
 	return AccessControlEnabledDefault
+}
+
+// IsMCPEnabled returns true if the MCP endpoint is enabled.
+func (s *Settings) IsMCPEnabled() bool {
+	if s.MCP.Enabled != nil {
+		return *s.MCP.Enabled
+	}
+	return MCPEnabledDefault
+}
+
+// IsMCPRawSQLEnabled returns true if MCP tool output may include statements with literal values.
+func (s *Settings) IsMCPRawSQLEnabled() bool {
+	if s.MCP.RawSQL != nil {
+		return *s.MCP.RawSQL
+	}
+	return MCPRawSQLDefault
+}
+
+// MCPActionTimeout returns the polling deadline for agent actions run by the MCP tools.
+func (s *Settings) MCPActionTimeout() time.Duration {
+	if s.MCP.ActionTimeout > 0 {
+		return s.MCP.ActionTimeout
+	}
+	return MCPActionTimeoutDefault
 }
 
 // IsVictoriaMetricsCacheEnabled returns true if VictoriaMetrics cache is enabled.
